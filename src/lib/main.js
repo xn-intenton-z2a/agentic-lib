@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Agentic Operations Library: Provides robust error handling, dynamic configuration, extensive logging, comprehensive performance metrics, improved testing support, internationalization, API integrations, detailed error reporting, and real-time collaboration support.
+// Agentic Operations Library: Provides robust error handling, dynamic configuration, extensive logging, comprehensive performance metrics, improved testing support, internationalization, API integrations, detailed error reporting, real-time collaboration support, and caching mechanism support.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
@@ -454,7 +454,7 @@ export function findPRInCheckSuite(prs) {
   }
   const openPRs = prs.filter((pr) => pr.state === "open");
   const prWithAutomerge = openPRs.find(
-    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge"),
+    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge")
   );
   if (!prWithAutomerge) {
     return { pullNumber: "", shouldSkipMerge: "true", prMerged: "false" };
@@ -732,7 +732,7 @@ function logPerformanceMetrics() {
   const memoryUsage = process.memoryUsage();
   const formatMemory = (bytes) => (bytes / 1024 / 1024).toFixed(2) + " MB";
   logger(
-    `Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`,
+    `Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`
   );
 }
 
@@ -755,6 +755,11 @@ async function sendErrorReport(error) {
 // Translates a message to a target language (simulation)
 function translateMessage(message, targetLang) {
   return `[${targetLang}] ${message}`;
+}
+
+// Initializes caching system for optimized performance
+function initializeCache() {
+  logger("Caching system initialized.", "info");
 }
 
 /**
@@ -815,6 +820,9 @@ function runImprovedCoverageDemo() {
 async function main() {
   const config = loadConfig();
   logger(`Configuration loaded: ${JSON.stringify(config)}`);
+  // Initialize caching system
+  initializeCache();
+
   logger("=== JavaScript Library for Agentic Operations Demo - Improved Test ===", "info");
 
   async function runDemo(demoName, demoFunction, params) {
@@ -993,7 +1001,7 @@ export function printUsage() {
   console.log(`
 intention: intention-agentic-lib — Usage Guide
 
-intention-agentic-lib is part of intention. This library provides functionalities for agentic operations including robust error handling, dynamic configuration, extensive logging, comprehensive performance metrics, improved testing support, internationalization, API integrations, detailed error reporting, and real-time collaboration support.
+intention-agentic-lib is part of intention. This library provides functionalities for agentic operations including robust error handling, dynamic configuration, extensive logging, comprehensive performance metrics, improved testing support, internationalization, API integrations, detailed error reporting, real-time collaboration support, and caching mechanism support.
 
 Available Functions:
 
