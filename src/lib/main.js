@@ -102,7 +102,7 @@ MAIN_OUTPUT_START
 ${mainOutput}
 MAIN_OUTPUT_END
 
-Answer strictly with a JSON object following the provided schema:
+Answer strictly with a JSON object following the provided function schema:
 {
   "fixed": "true", // if the fix is present, or "false" otherwise.
   "message": "The issue has been resolved.", // if fixed, or explanation otherwise.
@@ -871,8 +871,10 @@ function runImprovedCoverageDemo() {
 
 // Improved Test Demo: New function to demonstrate test output improvement
 function runImprovedTestDemo() {
-  // Direct console output to showcase test demonstration
-  console.log("Improved Test Demo: Greeting now includes username 'Alice'.");
+  const username = "Alice";
+  const greeting = `Improved Test Demo: Greeting now includes username '${username}'.`;
+  console.log(greeting);
+  console.assert(greeting.includes(username), "Greeting does not include the expected username.");
 }
 
 // Main demo function
