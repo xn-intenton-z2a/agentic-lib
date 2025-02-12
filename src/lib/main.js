@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+// Agentic Operations Library: Provides error handling, dynamic configuration, l
 // Agentic Operations Library: Provides error handling, dynamic configuration, logging, performance metrics, testing, internationalization, API integrations, error reporting, and real-time collaboration support.
 
 import { fileURLToPath } from "url";
@@ -53,7 +54,7 @@ export async function verifyIssueFix(params) {
     issueDescription,
     issueComments,
     model,
-    apiKey
+    apiKey,
   } = params;
   if (!apiKey) throw new Error("Missing API key.");
   const issueCommentsText = issueComments
@@ -454,7 +455,7 @@ export function findPRInCheckSuite(prs) {
   }
   const openPRs = prs.filter((pr) => pr.state === "open");
   const prWithAutomerge = openPRs.find(
-    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge")
+    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge"),
   );
   if (!prWithAutomerge) {
     return { pullNumber: "", shouldSkipMerge: "true", prMerged: "false" };
@@ -507,7 +508,7 @@ export async function createPullRequest(params) {
   return {
     prCreated: true,
     prNumber: "123",
-    htmlUrl: `https://github.com/dummy/repo/pull/123`
+    htmlUrl: `https://github.com/dummy/repo/pull/123`,
   };
 }
 
@@ -717,12 +718,12 @@ function logger(message, level = "info") {
 }
 
 // Global error handlers
-process.on('uncaughtException', (err) => {
+process.on("uncaughtException", (err) => {
   logger(`Uncaught Exception: ${err.message}\n${err.stack}`, "error");
   sendErrorReport(err);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on("unhandledRejection", (reason, promise) => {
   logger(`Unhandled Rejection at: ${promise}, reason: ${reason}`, "error");
   sendErrorReport(reason instanceof Error ? reason : new Error(String(reason)));
 });
@@ -732,15 +733,24 @@ function logPerformanceMetrics() {
   const memoryUsage = process.memoryUsage();
   const formatMemory = (bytes) => (bytes / 1024 / 1024).toFixed(2) + " MB";
   logger(
-    `Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`
+    `Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`,
   );
 }
 
-// Sends error report to an external service (simulation)
-function sendErrorReport(error) {
+// Sends error report to an external service (improved implementation)
+async function sendErrorReport(error) {
   const config = loadConfig();
   logger(`Sending error report: ${error.message} to ${config.errorReportService}`, "info");
-  // Actual error report sending logic would be implemented here
+  try {
+    const res = await axios.post(config.errorReportService, {
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString(),
+    });
+    logger(`Error report sent successfully: ${res.status}`, "info");
+  } catch (err) {
+    logger(`Failed to send error report: ${err.message}`, "error");
+  }
 }
 
 // Translates a message to a target language (simulation)
@@ -942,12 +952,13 @@ async function main() {
     mainScript: "node src/lib/main.js",
     mainOutput: "Error output",
     issueTitle: "Support multiple files being changed",
-    issueDescription: "Update source, test, and packages.json concurrently. This change adds flexibility to support multiple file modifications at once.",
+    issueDescription:
+      "Update source, test, and packages.json concurrently. This change adds flexibility to support multiple file modifications at once.",
     issueComments: [
       {
         user: { login: "charlie" },
         created_at: "2025-02-11T02:10:00Z",
-        body: "Needs support for multiple file updates"
+        body: "Needs support for multiple file updates",
       },
     ],
     model: "o3-mini",
@@ -1118,8 +1129,7 @@ Available Functions:
     • Returns: { updatedSourceFileContent, updatedTestFileContent, updatedPackagesJsonContent, message, fixApplied, responseUsage }
 
 Usage examples are provided in the main() demo below.
-`
-  );
+`);
 }
 
 export default {
@@ -1142,5 +1152,5 @@ export default {
   sendErrorReport,
   translateMessage,
   integrateWithApi, // added API integration function
-  startCollaborationSession
+  startCollaborationSession,
 };
