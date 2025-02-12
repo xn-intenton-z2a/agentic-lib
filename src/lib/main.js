@@ -759,7 +759,30 @@ function translateMessage(message, targetLang) {
 
 // Initializes caching system for optimized performance
 function initializeCache() {
-  logger("Caching system initialized.", "info");
+  if (!global.cache) {
+    global.cache = new Map();
+    logger("Caching system initialized and global cache created.", "info");
+  } else {
+    logger("Caching system already initialized.", "info");
+  }
+}
+
+// Caching helper functions
+export function setCache(key, value) {
+  if (!global.cache) {
+    initializeCache();
+  }
+  global.cache.set(key, value);
+  logger(`Cache set: ${key}`, "debug");
+}
+
+export function getCache(key) {
+  if (!global.cache) {
+    return undefined;
+  }
+  const value = global.cache.get(key);
+  logger(`Cache get: ${key} found value: ${value}`, "debug");
+  return value;
 }
 
 /**
@@ -1166,4 +1189,6 @@ export default {
   translateMessage,
   integrateWithApi,
   startCollaborationSession,
+  setCache,
+  getCache,
 };
