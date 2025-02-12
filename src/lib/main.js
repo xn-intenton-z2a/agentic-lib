@@ -736,11 +736,17 @@ function logPerformanceMetrics() {
   );
 }
 
-// Sends error report to an external service (simulation)
+// Sends error report to an external service (improved implementation)
 function sendErrorReport(error) {
   const config = loadConfig();
   logger(`Sending error report: ${error.message} to ${config.errorReportService}`, "info");
-  // Actual error report sending logic would be implemented here
+  axios.post(config.errorReportService, {
+    error: error.message,
+    stack: error.stack,
+    timestamp: new Date().toISOString()
+  })
+  .then(res => logger(`Error report sent successfully: ${res.status}`, "info"))
+  .catch(err => logger(`Failed to send error report: ${err.message}`, "error"));
 }
 
 // Translates a message to a target language (simulation)
