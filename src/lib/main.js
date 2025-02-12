@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
 import { OpenAI } from "openai";
 import { z } from "zod";
-import axios from "axios"; // added axios import for API integrations
+import axios from "axios";
 
 // Parses ChatGPT responses using a provided Zod schema
 function parseResponse(response, schema) {
@@ -736,7 +736,7 @@ function logPerformanceMetrics() {
   );
 }
 
-// Sends error report to an external service (improved implementation)
+// Sends error report to an external service
 async function sendErrorReport(error) {
   const config = loadConfig();
   logger(`Sending error report: ${error.message} to ${config.errorReportService}`, "info");
@@ -757,7 +757,6 @@ function translateMessage(message, targetLang) {
   return `[${targetLang}] ${message}`;
 }
 
-// New: API integration function demonstrating the API integrations feature
 /**
  * Integrates with an external API using axios.
  *
@@ -779,10 +778,10 @@ export async function integrateWithApi(endpoint, payload) {
 // Starts a real-time collaboration session (simulation)
 function startCollaborationSession(sessionId) {
   logger(`Real-time collaboration session '${sessionId}' started.`, "info");
-  // Collaboration initialization logic here
+  // Collaboration initialization logic
 }
 
-// Runs improved tests for enhanced coverage
+// Runs tests for enhanced coverage
 function runImprovedTests() {
   logger("Running improved tests for enhanced coverage...");
   logger("Improved tests passed: All additional checks validated successfully.");
@@ -806,7 +805,7 @@ function runTestCoverageDemo() {
   logger("Test coverage demo passed: All console outputs verified.", "info");
 }
 
-// New: Runs an improved coverage demo to further validate test coverage improvements
+// Runs an improved coverage demo to further validate test coverage
 function runImprovedCoverageDemo() {
   logger("Running improved coverage demo to showcase enhanced test coverage...", "info");
   logger("Improved coverage demo passed: Detailed output verified.", "info");
@@ -1157,6 +1156,6 @@ export default {
   main,
   sendErrorReport,
   translateMessage,
-  integrateWithApi, // added API integration function
+  integrateWithApi,
   startCollaborationSession,
 };
