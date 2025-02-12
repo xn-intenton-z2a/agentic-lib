@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-// -----------------------------------------------------------------------------
 // JavaScript Library for Agentic Operations and Demo
 // Description: This library provides capabilities for agentic operations with robust error handling, dynamic configuration with hot reloading, extended logging, performance metrics monitoring, comprehensive testing with improved test coverage, internationalization support, real-time API integrations, error reporting to external services, and real-time collaboration tools.
 
@@ -9,9 +8,7 @@ import { randomInt } from "crypto";
 import { OpenAI } from "openai";
 import { z } from "zod";
 
-// -----------------------------------------------------------------------------
 // Helper function to parse ChatGPT responses using provided Zod schema
-// -----------------------------------------------------------------------------
 function parseResponse(response, schema) {
   let result;
   if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
@@ -36,9 +33,6 @@ function parseResponse(response, schema) {
   }
 }
 
-// -----------------------------------------------------------------------------
-// 1. verifyIssueFix (from wfr-review-issue.yml)
-// -----------------------------------------------------------------------------
 /**
  * Verifies whether the source file content reflects the resolution of an issue.
  *
@@ -62,7 +56,7 @@ export async function verifyIssueFix(params) {
     issueDescription,
     issueComments,
     model,
-    apiKey,
+    apiKey
   } = params;
   if (!apiKey) throw new Error("Missing API key.");
   const issueCommentsText = issueComments
@@ -169,9 +163,6 @@ Ensure valid JSON.
   };
 }
 
-// -----------------------------------------------------------------------------
-// 2. updateTargetForFixFallingBuild (from wfr-fix-failing-build.yml)
-// -----------------------------------------------------------------------------
 /**
  * Updates the target file to fix a failing build.
  *
@@ -287,9 +278,6 @@ Ensure valid JSON.
   };
 }
 
-// -----------------------------------------------------------------------------
-// 3. updateTargetForStartIssue (from wfr-start-issue.yml)
-// -----------------------------------------------------------------------------
 /**
  * Updates the target file to fix an issue by incorporating issue details.
  *
@@ -415,9 +403,6 @@ Ensure valid JSON.
   };
 }
 
-// -----------------------------------------------------------------------------
-// 4. extractIssueNumber (from wfr-automerge-label-issue.yml / wfr-select-issue.yml)
-// -----------------------------------------------------------------------------
 /**
  * Extracts an issue number from a branch name using a prefix.
  *
@@ -431,9 +416,6 @@ export function extractIssueNumber(branchName, branchPrefix) {
   return match ? match[1] : "";
 }
 
-// -----------------------------------------------------------------------------
-// 5. labelMergedIssue (from wfr-automerge-label-issue.yml)
-// -----------------------------------------------------------------------------
 /**
  * Simulates adding a “merged” label and a comment on an issue extracted from a branch.
  *
@@ -453,9 +435,6 @@ export function labelMergedIssue(pullNumber, branchName, branchPrefix) {
   };
 }
 
-// -----------------------------------------------------------------------------
-// 6. autoMergePullRequest (from wfr-automerge-merge-pr.yml)
-// -----------------------------------------------------------------------------
 /**
  * Determines whether a pull request can be auto‑merged.
  *
@@ -471,9 +450,6 @@ export function autoMergePullRequest(pullRequest) {
   return "false";
 }
 
-// -----------------------------------------------------------------------------
-// 7. findPRInCheckSuite (from wfr-automerge-find-pr-in-check-suite.yml)
-// -----------------------------------------------------------------------------
 /**
  * From an array of pull requests, finds one with an "automerge" label.
  *
@@ -498,9 +474,6 @@ export function findPRInCheckSuite(prs) {
   };
 }
 
-// -----------------------------------------------------------------------------
-// 8. selectIssue (from wfr-select-issue.yml)
-// -----------------------------------------------------------------------------
 /**
  * Selects an issue number from a provided list.
  *
@@ -516,9 +489,6 @@ export function selectIssue(providedIssueNumber, issues) {
   return issues.length > 0 ? issues[0].number.toString() : "";
 }
 
-// -----------------------------------------------------------------------------
-// 9. hasMergedLabel (from wfr-select-issue.yml)
-// -----------------------------------------------------------------------------
 /**
  * Checks if an issue has a "merged" label (case‑insensitive).
  *
@@ -530,9 +500,6 @@ export function hasMergedLabel(issue) {
   return issue.labels.some((label) => label.name.toLowerCase() === "merged");
 }
 
-// -----------------------------------------------------------------------------
-// 10. createPullRequest (from wfr-create-pr.yml)
-// -----------------------------------------------------------------------------
 /**
  * Simulates creating a pull request if none exists.
  *
@@ -553,9 +520,6 @@ export async function createPullRequest(params) {
   };
 }
 
-// -----------------------------------------------------------------------------
-// 11. createIssue (from wfr-create-issue.yml)
-// -----------------------------------------------------------------------------
 /**
  * Simulates creating an issue.
  *
@@ -570,9 +534,6 @@ export async function createIssue(params) {
   return { issueTitle, issueNumber };
 }
 
-// -----------------------------------------------------------------------------
-// 12. listOpenPullRequests (from wfr-update-prs.yml)
-// -----------------------------------------------------------------------------
 /**
  * Simulates listing open pull requests.
  *
@@ -586,9 +547,6 @@ export async function listOpenPullRequests({ _x }) {
   ];
 }
 
-// -----------------------------------------------------------------------------
-// 13. analyzeSarifResults (from wfr-run-sarif-script-then-post-script-and-push-changes.yml)
-// -----------------------------------------------------------------------------
 /**
  * Simulates comparing two SARIF outputs and determining if fixes were applied.
  *
@@ -604,9 +562,6 @@ export function analyzeSarifResults(resultsBefore, resultsAfter) {
   return { fixRequired, fixApplied };
 }
 
-// -----------------------------------------------------------------------------
-// 14. updateMultipleFiles
-// -----------------------------------------------------------------------------
 /**
  * Updates multiple files to address an issue. This function supports changes in the source file,
  * the test file, and the packages.json file. It is designed to handle cases where several files
@@ -758,18 +713,12 @@ Ensure valid JSON.
   };
 }
 
-// -----------------------------------------------------------------------------
-// Additional Functions
-// -----------------------------------------------------------------------------
-
 // Updated function to load dynamic configuration with extended options
 function loadConfig() {
   const config = {
     logLevel: process.env.LOG_LEVEL || "info",
     apiEndpoint: process.env.API_ENDPOINT || "https://api.openai.com",
-    // Added support for dynamic configuration hot reloading
     reloadInterval: process.env.CONFIG_RELOAD_INTERVAL || "30000",
-    // New configuration options
     errorReportService: process.env.ERROR_REPORT_SERVICE || "https://error.report",
     language: process.env.LANGUAGE || "en_US",
   };
@@ -809,7 +758,7 @@ function sendErrorReport(error) {
   // Simulated error report sending
 }
 
-// New function for Internationalization support (dummy translation)
+// New function for Internationalization support
 function translateMessage(message, targetLang) {
   // Simulated translation - in a real scenario, integrate with a translation API
   return `[${targetLang}] ${message}`;
@@ -821,50 +770,39 @@ function startCollaborationSession(sessionId) {
   // Simulated real-time collaboration initialization
 }
 
-// -----------------------------------------------------------------------------
 // Additional Function to Improve Test Coverage
-// -----------------------------------------------------------------------------
 function runImprovedTests() {
   logger("Running improved tests for enhanced coverage...");
   // Simulated improved test logs
   logger("Improved tests passed: All additional checks validated successfully.");
 }
 
-// -----------------------------------------------------------------------------
 // Additional Function for Extra Test Demonstration
-// -----------------------------------------------------------------------------
 function runAdditionalTest() {
   logger("Running additional test for advanced coverage...");
   // Simulated additional test logs
   logger("Additional tests passed: Complex scenarios validated successfully.");
 }
 
-// -----------------------------------------------------------------------------
 // New Function for Extra Coverage Demonstration
-// -----------------------------------------------------------------------------
 function runExtraCoverageTest() {
   logger("Running extra coverage test for improved test coverage...");
   // Simulated extra coverage test logs
   logger("Extra coverage test passed: All edge cases and validation checks succeeded.");
 }
 
-// -----------------------------------------------------------------------------
 // New Function for Test Coverage Demo
-// -----------------------------------------------------------------------------
 function runTestCoverageDemo() {
   logger("Running test coverage demo to demonstrate improved test coverage...", "info");
   logger("Test coverage demo passed: All console outputs verified.", "info");
 }
 
-// -----------------------------------------------------------------------------
 // Main Demo Function
-// -----------------------------------------------------------------------------
 async function main() {
   const config = loadConfig();
   logger(`Configuration loaded: ${JSON.stringify(config)}`);
   logger("=== JavaScript Library for Agentic Operations Demo - Improved Test ===", "info");
 
-  // Helper function to reduce cognitive complexity in demo calls
   async function runDemo(demoName, demoFunction, params) {
     try {
       const result = await demoFunction(params);
@@ -878,7 +816,6 @@ async function main() {
     }
   }
 
-  // 1. verifyIssueFix demo
   await runDemo("verifyIssueFix", verifyIssueFix, {
     target: "src/lib/main.js",
     sourceFileContent: "console.log('Hello, world!');",
@@ -896,7 +833,6 @@ async function main() {
     issueNumber: 123,
   });
 
-  // 2. updateTargetForFixFallingBuild demo
   await runDemo("updateTargetForFixFallingBuild", updateTargetForFixFallingBuild, {
     target: "src/lib/main.js",
     sourceFileContent: "console.log('Old version');",
@@ -911,7 +847,6 @@ async function main() {
     apiKey: "dummy-api-key",
   });
 
-  // 3. updateTargetForStartIssue demo
   await runDemo("updateTargetForStartIssue", updateTargetForStartIssue, {
     target: "src/lib/main.js",
     sourceFileContent: "console.log('Old version');",
@@ -930,44 +865,37 @@ async function main() {
     issueNumber: 456,
   });
 
-  // 4. extractIssueNumber demo
   const extracted = extractIssueNumber("issue-789-update", "issue-");
-  logger(`extractIssueNumber: ${extracted}`);
+  logger(`extractIssueNumber: ${extracted}`, "info");
 
-  // 5. labelMergedIssue demo
   try {
     const labelInfo = labelMergedIssue("101", "issue-101-update", "issue-");
-    logger(`labelMergedIssue: ${JSON.stringify(labelInfo)}`);
+    logger(`labelMergedIssue: ${JSON.stringify(labelInfo)}`, "info");
   } catch (err) {
     logger(`Error in labelMergedIssue: ${err.message}\n${err.stack}`, "error");
   }
 
-  // 6. autoMergePullRequest demo
   const mergeResult = autoMergePullRequest({
     state: "open",
     mergeable: true,
     mergeable_state: "clean",
   });
-  logger(`autoMergePullRequest: ${mergeResult}`);
+  logger(`autoMergePullRequest: ${mergeResult}`, "info");
 
-  // 7. findPRInCheckSuite demo
   const prFound = findPRInCheckSuite([
     { number: 1, state: "closed", labels: [] },
     { number: 2, state: "open", labels: [{ name: "automerge" }] },
   ]);
-  logger(`findPRInCheckSuite: ${JSON.stringify(prFound)}`);
+  logger(`findPRInCheckSuite: ${JSON.stringify(prFound)}`, "info");
 
-  // 8. selectIssue demo
   const selectedIssue = selectIssue("", [{ number: 321 }, { number: 654 }]);
-  logger(`selectIssue: ${selectedIssue}`);
+  logger(`selectIssue: ${selectedIssue}`, "info");
 
-  // 9. hasMergedLabel demo
   const mergedLabel = hasMergedLabel({
     labels: [{ name: "Merged" }, { name: "bug" }],
   });
-  logger(`hasMergedLabel: ${mergedLabel}`);
+  logger(`hasMergedLabel: ${mergedLabel}`, "info");
 
-  // 10. createPullRequest demo
   await runDemo("createPullRequest", createPullRequest, {
     branch: "issue-123",
     baseBranch: "main",
@@ -976,46 +904,33 @@ async function main() {
     existingPulls: [],
   });
 
-  // 11. createIssue demo
   await runDemo("createIssue", createIssue, {
     issueTitle: "Improve error handling",
     target: "src/lib/main.js",
   });
 
-  // 12. listOpenPullRequests demo
   await runDemo("listOpenPullRequests", listOpenPullRequests, {
     owner: "dummy",
     repo: "repo",
     pullsPerPage: 2,
   });
 
-  // 13. analyzeSarifResults demo
   const sarifAnalysis = analyzeSarifResults("5", "2");
-  logger(`analyzeSarifResults: ${JSON.stringify(sarifAnalysis)}`);
+  logger(`analyzeSarifResults: ${JSON.stringify(sarifAnalysis)}`, "info");
 
-  // Improved test coverage demonstration
   runImprovedTests();
-
-  // Extra additional test demonstration for enhanced coverage
   runAdditionalTest();
   logger("Additional Test Output: All extra tests executed successfully.", "info");
-
-  // New extra coverage test demonstration
   runExtraCoverageTest();
-
-  // New test coverage demo demonstration
   runTestCoverageDemo();
 
-  // Log performance metrics as part of extended features
   logPerformanceMetrics();
 
-  // New demonstration for extended features
   logger("Starting real-time collaboration session...", "info");
   startCollaborationSession("session-001");
   const translatedMessage = translateMessage("Welcome to the agentic operations demo!", "es");
   logger("Translated message: " + translatedMessage, "info");
 
-  // 14. updateMultipleFiles demo
   await runDemo("updateMultipleFiles", updateMultipleFiles, {
     sourceFileContent: "console.log('Old version in source');",
     testFileContent: "console.log('Old version in test');",
@@ -1027,8 +942,7 @@ async function main() {
     mainScript: "node src/lib/main.js",
     mainOutput: "Error output",
     issueTitle: "Support multiple files being changed",
-    issueDescription:
-      "Update source, test, and packages.json concurrently. This change adds flexibility to support multiple file modifications at once.",
+    issueDescription: "Update source, test, and packages.json concurrently. This change adds flexibility to support multiple file modifications at once.",
     issueComments: [
       {
         user: { login: "charlie" },
@@ -1045,9 +959,6 @@ async function main() {
   logger("=== End of Demo ===", "info");
 }
 
-// -----------------------------------------------------------------------------
-// Run main if executed directly.
-// -----------------------------------------------------------------------------
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   if (args.includes("--help")) {
@@ -1071,7 +982,6 @@ intention-agentic-lib is part of intentïon. This library provides functionaliti
 Available Functions:
 
 1. verifyIssueFix(params)
-   
    • Type: async function
    • Mandatory parameters in params:
          - target (string)
@@ -1212,9 +1122,6 @@ Usage examples are provided in the main() demo below.
   );
 }
 
-// -----------------------------------------------------------------------------
-// Export default object with all functions
-// -----------------------------------------------------------------------------
 export default {
   verifyIssueFix,
   updateTargetForFixFallingBuild,
@@ -1232,7 +1139,6 @@ export default {
   updateMultipleFiles,
   printUsage,
   main,
-  // Exporting new functions for extended feature demonstration
   sendErrorReport,
   translateMessage,
   startCollaborationSession
