@@ -1,0 +1,112 @@
+# .github/workflows/wfr-run-script-and-push-changes.yml
+name: ∞ Run script, test and push
+
+on:
+  workflow_call:
+    inputs:
+      script:
+        description: 'The script must be runnable as: `npm ci ; <script>`.'
+        type: string
+        required: false
+        default: 'prettier --write'
+      testScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
+        type: string
+        required: false
+        default: 'npm test'
+      npmAuth:
+        description: 'Whether to authenticate with npm. e.g. "true"'
+        type: string
+        required: false
+        default: 'true'
+      gitUserEmail:
+        description: 'The email to use for git commits. e.g. "action@github.com"'
+        type: string
+        required: false
+        default: 'action@github.com'
+      gitUserName:
+        description: 'The name to use for git commits. e.g. "GitHub Actions[bot]"'
+        type: string
+        required: false
+        default: 'GitHub Actions[bot]'
+      gitCommitMessage:
+        description: 'The message to use for git commits. e.g. "Updated by script"'
+        type: string
+        required: false
+        default: 'Updated by script'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: true
+
+jobs:
+  update-and-push:
+    runs-on: ubuntu-latest
+
+    env:
+      script: ${{ inputs.script || 'prettier --write' }}
+      testScript: ${{ inputs.testScript || 'npm test' }}
+      npmAuth: ${{ inputs.npmAuth || 'true' }}
+      gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
+      gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
+      gitCommitMessage: ${{ inputs.gitCommitMessage || 'Updated by inputs.script' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check GitHub authentication
+        if: ${{ env.npmAuth == 'true' }}
+        shell: bash
+        run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+
+      - name: Set up .npmrc
+        if: ${{ env.npmAuth == 'true' }}
+        shell: bash
+        run: |
+          echo "@polycode-projects:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - run: npm ci
+
+      - name: script
+        id: script
+        shell: bash
+        run: |
+          savedOptions=$(set +o) \
+          && set +e \
+          && ${{ env.script }} \
+          ; if git diff --quiet; then
+            echo "updated=false" | tee -a "${GITHUB_OUTPUT?}"
+          else
+            echo "updated=true" | tee -a "${GITHUB_OUTPUT?}"
+          fi \
+          ; eval "${savedOptions?}" \
+          ;
+        continue-on-error: true
+
+      - name: Test
+        if: ${{ steps.script.outputs.updated == 'true' || env.git-force == 'true' }}
+        shell: bash
+        run: |
+          ${{ env.testScript }}
+
+      - name: Tear down npm auth
+        if: ${{ env.npmAuth == 'true' }}
+        run: rm -vf .npmrc
+
+      - name: Commit
+        if: ${{ steps.script.outputs.updated == 'true' || env.git-force == 'true' }}
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git add -v --all
+          git commit -v -m '${{ env.gitCommitMessage }}'
+          git push -v
+          git status -v

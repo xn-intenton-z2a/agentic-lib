@@ -1,0 +1,122 @@
+# .github/workflows/test.yml
+name: 3. Tests
+run-name: 'Tests [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
+
+on:
+  push:
+    paths:
+      - '**/*.sh'
+      - '**/*.js'
+      - '**/*.json'
+      - '**/*.yml'
+      - '**/*.properties'
+      - '!exports/**'
+  workflow_dispatch:
+  schedule:
+    # Test every 6 hours
+    - cron: '0 4,10,16,22 * * *'
+
+jobs:
+
+  npm-test:
+    name: 'npm test with coverage'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+      - name: Set up .npmrc
+        run: |
+          echo "@polycode-projects:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+      - run: npm ci
+      - run: rm -f .npmrc
+      - run: pwd
+      - run: ls -l
+      - run: find . -name '*.js' -exec echo '{}' \; | grep -v 'node_modules'
+      - run: npm test
+
+  run-action:
+    name: 'run-action tests'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+      - name: Set up .npmrc
+        run: |
+          echo "@polycode-projects:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+      - run: npm ci
+      - run: npm run build
+      - name: Checkout apply-fixes-sarif repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'polycode-projects/apply-fixes-sarif'
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          path: ./apply-fixes-sarif
+          # ref: 'commit-sha'  # Replace 'commit-sha' with the actual commit SHA you want to checkout
+          clean: true
+      - run: find ./apply-fixes-sarif -type f -exec echo 'ls -l {}' \;
+      - run: |
+          mkdir -p ./action-tmp/dist
+          cp ./apply-fixes-sarif/action.yml ./action-tmp/.
+          cp ./apply-fixes-sarif/dist/index.js ./action-tmp/dist/.
+          cp ./apply-fixes-sarif/package.json ./action-tmp/.
+          rm -rf ./apply-fixes-sarif
+          mv ./action-tmp ./apply-fixes-sarif
+      - run: find ./apply-fixes-sarif -type f -exec echo 'ls -l {}' \;
+      - name: resolve
+        id: resolve
+        # uses: polycode-projects/apply-fixes-sarif@v0.0.11
+        # uses: polycode-projects/apply-fixes-sarif@main
+        uses: './apply-fixes-sarif'
+        with:
+          resultsToResolve: '1'
+          iterations: '1'
+          programFitnessCommand: 'npx prettier --write  ./src/ ./tests/ > /dev/null 2>&1 || true ; npx --silent eslint --fix --format=@microsoft/eslint-formatter-sarif ./src/ ./tests/'
+          # programFitnessCommand: 'npx --silent eslint --fix --format=@microsoft/eslint-formatter-sarif ./tests/unit/module-index.test.js'
+          # programFitnessCommand: 'npx --silent eslint --fix --format=@microsoft/eslint-formatter-sarif ./src/lib/string-transformers.js'
+          # programFitnessCommand: 'npx --silent eslint --config eslint-txt.config.js --fix --format=@microsoft/eslint-formatter-sarif src/examples/example-sonarjs-pseudo-random.original.txt'
+          baseDir: './'
+        env:
+          CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+          I7N_SAFETY_PROTOCOLS: 'off'
+          CACHE_ENABLED: 'true'
+          CACHE_FILEPATH: './prompt-cache.jsonl'
+          ACTIONS_STEP_DEBUG: 'true'
+          LOG_LEVEL: 'info'
+          LOG_TO_CONSOLE: 'true'
+          LOG_TO_FILEPATH: './intention-log.jsonl'
+      - run: rm -rf './apply-fixes-sarif'
+      - run: rm -f .npmrc
+      - name: console-logger after resolve
+        shell: bash
+        run: |
+          cat <<EOF
+          ${{ steps.resolve.outputs.resolution }}
+          EOF
+          cat <<EOF
+          ${{ steps.resolve.outputs.fixedProgramFilepathsChanged }}
+          EOF
+      - run: ls -l './intention-log.jsonl' && wc -l './intention-log.jsonl' || echo 'missing ./intention-log.jsonl'
+      - run: |
+          git config --local user.email 'action@github.com' \
+          && git config --local user.name 'GitHub Actions[bot]' \
+          && git status -v \
+          ;
+      - name: Upload Logging Output
+        uses: actions/upload-artifact@v4
+        with:
+          name: intention-log
+          path: './intention-log.jsonl'

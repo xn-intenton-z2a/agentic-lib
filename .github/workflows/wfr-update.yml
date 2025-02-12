@@ -1,0 +1,244 @@
+# .github/workflows/wfr-update.yml
+name: ∞ Update packages
+
+on:
+  workflow_call:
+    inputs:
+      deleteAllCaches:
+        description: 'Whether to delete all caches. e.g. "true"'
+        type: string
+        required: false
+        default: 'false'
+      buildScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
+        type: string
+        required: false
+        default: 'echo "No build script specified."'
+      testScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
+        type: string
+        required: false
+        default: 'npm test'
+      mainScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `node src/lib/main.js`'
+        type: string
+        required: false
+        default: 'node src/lib/main.js'
+      upgradeTarget:
+        description: 'The type of upgrade to perform. e.g. "minor"'
+        type: string
+        required: false
+        default: 'minor'
+      npmAuth:
+        description: 'Whether to authenticate with npm. e.g. "true"'
+        type: string
+        required: false
+        default: 'true'
+      gitUserEmail:
+        description: 'The email to use for git commits. e.g. "action@github.com"'
+        type: string
+        required: false
+        default: 'action@github.com'
+      gitUserName:
+        description: 'The name to use for git commits. e.g. "GitHub Actions[bot]"'
+        type: string
+        required: false
+        default: 'GitHub Actions[bot]'
+      gitCommitMessage:
+        description: 'The message to use for git commits. e.g. "chore: dependency updates"'
+        type: string
+        required: false
+        default: 'chore: dependency updates'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    env:
+      deleteAllCaches: ${{ inputs.deleteAllCaches || 'false' }}
+      buildScript: ${{ inputs.buildScript || 'npm run build' }}
+      testScript: ${{ inputs.testScript || 'npm test' }}
+      mainScript: ${{ inputs.mainScript || 'node src/lib/main.js' }}
+      upgradeTarget: ${{ inputs.upgradeTarget || 'minor' }}
+      npmAuth: ${{ inputs.npmAuth || 'true' }}
+      gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
+      gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
+      gitCommitMessage: |
+        ${{ inputs.gitCommitMessage || 'chore: dependency updates' }}
+
+    steps:
+      - name: Delete all GitHub Actions caches by iterating through each one to delete it
+        if: ${{ env.deleteAllCaches }}
+        run: |
+          echo "Listing all caches in the repository for ${{ github.repository }}"
+          # 1) List all caches in JSON
+          result=$(curl -s \
+            -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/caches")
+          
+          # Print the JSON for debugging
+          echo "$result" | jq .
+          
+          # 2) Determine how many total_count
+          total=$(echo "$result" | jq -r '.total_count')
+          echo "Found $total caches in total."
+          
+          # 3) For each item in actions_caches array, extract .key and .ref,
+          #    then call DELETE with "?key=...&ref=..."
+          echo "$result" | jq -c '.actions_caches[]' | while read -r row; do
+            key=$(echo "$row" | jq -r '.key')
+            ref=$(echo "$row" | jq -r '.ref')
+          
+            echo "Deleting cache with key='$key' ref='$ref' ..."
+            curl -s -X DELETE \
+              -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/caches?key=$key&ref=$ref"
+          done
+          
+          echo "Cache deletion iteration complete."
+
+      - name: Log which version
+        if: ${{ github.event.client_payload }}
+        shell: bash
+        run: |
+          echo "Package: ${{ github.event.client_payload.packageName }}"
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check GitHub authentication
+        if: ${{ env.npmAuth == 'true' }}
+        shell: bash
+        run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+
+      - name: Set up .npmrc
+        if: ${{ env.npmAuth == 'true' }}
+        shell: bash
+        run: |
+          echo "@polycode-projects:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - run: rm -f package-lock.json
+
+      - run: npm install
+
+      - name: Build project
+        id: build
+        shell: bash
+        run: |
+          output=$(${{ env.buildScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Run tests before update
+        id: test
+        shell: bash
+        run: |
+          output=$(${{ env.testScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Run main before update
+        id: main
+        shell: bash
+        run: |
+          output=$(${{ env.mainScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Update packages with npm
+        if: ${{ env.upgradeTarget != 'polycode' }}
+        continue-on-error: true
+        shell: bash
+        env:
+          ncuUpgradeTarget: ${{ env.upgradeTarget || 'minor' }}
+        run: npm install @polycode-projects/apply-fixes-sarif@latest --save ; npm update ; npm upgrade ; npm install
+
+      - name: Update packages with ncu
+        if: ${{ env.upgradeTarget != 'polycode' }}
+        continue-on-error: true
+        shell: bash
+        env:
+          ncuUpgradeTarget: ${{ env.upgradeTarget || 'minor' }}
+        run: npx ncu --upgrade --enginesNode --retry 3 --target ${{ env.ncuUpgradeTarget }} --verbose ; npm install ; npm update ; npm upgrade ; npm install
+
+      - name: Update polycode packages with npm
+        if: ${{ env.upgradeTarget == 'polycode' }}
+        continue-on-error: true
+        shell: bash
+        env:
+          ncuUpgradeTarget: ${{ 'greatest' }}
+        run: |
+          npm install @polycode-projects/apply-fixes-sarif@latest --save ; npm update "@polycode-projects/apply-fixes-sarif" ; npm upgrade ; npm install
+
+      - name: Update polycode packages with ncu
+        if: ${{ env.upgradeTarget == 'polycode' }}
+        continue-on-error: true
+        shell: bash
+        env:
+          ncuUpgradeTarget: ${{ 'greatest' }}
+        run: |
+          run: npx ncu --upgrade --enginesNode --retry 3 --target ${{ env.ncuUpgradeTarget }} --verbose --filter '@polycode-projects/*' ; npm install ; npm update ; npm upgrade ; npm install
+
+      - run: rm -rf './node_modules/'
+
+      - run: npm ci
+        
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuth == 'true' }}
+        shell: bash
+        run: rm -f .npmrc
+
+      - name: Run tests after update
+        shell: bash
+        run: |
+          output=$(${{ env.testScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Run main after update
+        shell: bash
+        run: |
+          output=$(${{ env.mainScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"  
+
+      - name: Create Pull Request
+        if: ${{ success() }}
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "${{ env.gitCommitMessage  }}"
+          title: "Dependency Updates"
+          body: "${{ env.gitCommitMessage  }} (${{ env.upgradeTarget }})"
+          branch: update-${{ github.run_id }}
+          delete-branch: true
+          labels: |
+            dependencies
+            automated
+            automerge
+          author: ${{ env.gitUserName }} <${{ env.gitUserEmail }}>
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          # token: ${{ secrets.GITHUB_TOKEN }}
+  

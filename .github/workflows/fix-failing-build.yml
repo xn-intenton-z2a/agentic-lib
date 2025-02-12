@@ -1,0 +1,91 @@
+# .github/workflows/fix-failing-build.yml
+name: 8. Fix Failing Build
+run-name: "Fix Failing Build [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'The target file to fix. e.g. "src/lib/main.js"'
+        type: string
+        required: false
+        default: 'src/lib/main.js'
+      createPr:
+        description: 'true, if a PR should be created?'
+        required: false
+        type: boolean
+        default: true
+      runLintingWorker:
+        description: 'true, if the linting worker should be run?'
+        required: false
+        type: boolean
+        default: false
+    #schedule:
+    # Run every 10 minutes (as an example)
+    #- cron: '0,10,20,30,40,50 * * * *'
+    #- cron: '0 * * * *'
+
+jobs:
+
+  fix-failing-build:
+    permissions:
+      contents: write
+      issues: write
+      id-token: write
+    uses: './.github/workflows/wfr-fix-failing-build.yml'
+    with:
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      branch: 'issue-failing-build'
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: 'node src/lib/main.js'
+      model: 'o3-mini'
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  create-pr:
+    needs:
+      - fix-failing-build
+    if: ${{ inputs.createPr == true && needs.fix-failing-build.outputs.fixApplied == 'true' }}
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    uses: './.github/workflows/wfr-create-pr.yml'
+    with:
+      branch: 'issue-failing-build'
+      baseBranch: 'main'
+      commit-message: 'Fix ready for failing build'
+      label: 'automerge'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  run-linting-linting-worker:
+    needs:
+      - fix-failing-build
+    if: ${{ inputs.runLintingWorker == true && needs.fix-failing-build.outputs.fixApplied == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Trigger linting-worker workflow
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'linting-worker.yml',
+              ref: context.ref,
+              inputs: {} 
+            });

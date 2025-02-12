@@ -1,0 +1,84 @@
+# .github/workflows/wfr-create-issue.yml
+name: ∞ Create issue
+
+on:
+  workflow_call:
+    inputs:
+      issueTitle:
+        description: 'Text to drive the issue title (if "dealers choice", a random prompt will be selected).'
+        required: false
+        type: string
+        default: 'dealers choice'
+      target:
+        description: 'The target file to review. e.g. "src/lib/main.js"'
+        type: string
+        required: false
+        default: 'src/lib/main.js'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: true
+    outputs:
+      issueTitle:
+        description: 'The issue title to resolve. e.g. "Make a small improvement."'
+        value: ${{ jobs.create-issue.outputs.issueTitle }}
+      issueNumber:
+        description: 'The issue number to review. e.g. "123"'
+        value: ${{ jobs.create-issue.outputs.issueNumber }}
+
+jobs:
+  create-issue:
+    runs-on: ubuntu-latest
+
+    env:
+      issueTitle: ${{ inputs.issueTitle || 'dealers choice' }}
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: create-issue
+        id: create-issue
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const target = process.env.target;
+            const issueTitle = process.env.issueTitle;
+            
+            let selectedIssueTitle;
+            if (issueTitle === 'dealers choice') {
+              const issueTitles = [
+                "Add a future feature to the docs (README style) or extend a current list if there already is one.",
+                "Make code changes that improve the compliance with the features described in the top comment block.",
+                "Make code changes that improve the compliance with the features described in the top comment block.",
+                "Make code changes that extends upon the features described in the top comment block.",
+                "Make code changes that extends upon the features described in the top comment block.",
+                "Improve test coverage (a test is run from a main and outputs to console to demonstrate the feature).",
+                "Improve an existing test (a test is run from a main and outputs to console to demonstrate the feature).",
+                "Generally tidy up the single line comments in the code, removing outdated irrelevant commented out text and code.",
+                "Synchronise the top comment block with current behaviour and expected output."
+              ];
+              selectedIssueTitle = issueTitles[Math.floor(Math.random() * issueTitles.length)];
+            } else {
+              selectedIssueTitle = issueTitle;
+            }
+
+            const issueBody = `Please resolve ${selectedIssueTitle} in \`${target}\`.`;
+            const { data: issue } = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: selectedIssueTitle,
+              body: issueBody,
+              labels: ['automated']
+            });
+            
+            core.setOutput("issueTitle", selectedIssueTitle);
+            core.setOutput("issueNumber", issue.number);
+            core.info(`issueTitle: ${selectedIssueTitle}`);
+            core.info(`issueNumber: ${issue.number}`);
+
+    outputs:
+      issueTitle: ${{ steps.create-issue.outputs.issueTitle }}
+      issueNumber: ${{ steps.create-issue.outputs.issueNumber }}

@@ -1,0 +1,146 @@
+# .github/workflows/issue-worker.yml
+name: 2. Issue Worker
+run-name: "Issue Worker [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+    inputs:
+      issueNumber:
+        description: 'The issue number to resolve. If not provided, the workflow will select one based on label. e.g. "123"'
+        required: false
+        type: string
+        default: ''
+      target:
+        description: 'The source file whose content is used in the resolution prompt. e.g. "src/lib/main.js"'
+        required: false
+        type: string
+        default: 'src/lib/main.js'
+      selectionLabel:
+        description: 'Label used to filter issues for resolution. e.g. "automated"'
+        required: false
+        type: string
+        default: 'automated'
+      createPr:
+        description: 'true, if a PR should be created.'
+        required: false
+        type: boolean
+        default: true
+      runLintingWorker:
+        description: 'true, if the worker should be run.'
+        required: false
+        type: boolean
+        default: false
+
+  schedule:
+    #- cron: '5,35 * * * *'
+    - cron: '5,20,35,50 * * * *'
+
+jobs:
+
+  select-issue:
+    permissions:
+      issues: read
+      id-token: write
+    uses: './.github/workflows/wfr-select-issue.yml'
+    with:
+      issueNumber: ${{ inputs.issueNumber || '' }}
+      selectionLabel: ${{ inputs.selectionLabel || 'automated' }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  check-branch:
+    needs:
+      - select-issue
+    if: ${{ needs.select-issue.outputs.issueNumber != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      branchPrefix: 'issue-'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: Ensure there isn't already a branch for this intention type
+        shell: bash
+        run: |
+          git fetch origin
+          if git branch -r | grep -q 'origin/${{ env.branchPrefix }}'; then
+            echo "A branch with the intention type prefix '${{ env.branchPrefix }}' already exists."
+            exit 1
+          else
+            echo "No existing branch with the intention type prefix found."
+          fi
+
+  start-issue:
+    needs:
+      - select-issue
+      - check-branch
+    if: ${{ needs.select-issue.outputs.issueNumber != '' }}
+    permissions:
+      contents: write
+      issues: write
+      id-token: write
+    uses: './.github/workflows/wfr-start-issue.yml'
+    with:
+      issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      branchPrefix: 'issue-'
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: 'node src/lib/main.js'
+      model: 'o3-mini'
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  create-pr:
+    needs:
+      - select-issue
+      - start-issue
+    if: ${{ inputs.createPr == true && needs.select-issue.outputs.issueNumber != '' && needs.start-issue.outputs.fixApplied == 'true' }}
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    uses: './.github/workflows/wfr-create-pr.yml'
+    with:
+      branch: 'issue-${{ needs.select-issue.outputs.issueNumber }}'
+      baseBranch: 'main'
+      commit-message: 'Fix ready for issue ${{ needs.select-issue.outputs.issueNumber }}'
+      label: 'automerge'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  run-linting-linting-worker:
+    needs:
+      - select-issue
+      - start-issue
+    if: ${{ inputs.runLintingWorker == true && needs.select-issue.outputs.issueNumber != '' && needs.start-issue.outputs.fixApplied != 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Trigger linting-worker workflow
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'linting-worker.yml',
+              ref: context.ref,
+              inputs: {} 
+            });
