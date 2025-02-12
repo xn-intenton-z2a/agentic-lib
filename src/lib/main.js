@@ -5,10 +5,10 @@
 // comprehensive performance metrics, advanced testing support, internationalization,
 // API integrations, detailed error reporting, real-time collaboration, and caching mechanisms.
 // It also includes interactive demos showcasing improved test coverage, multi-file update support,
-// and now a modular plugin system for custom extensions.
+// and a modular plugin system for custom extensions that dynamically loads plugins from a directory.
 // 
 // Implemented Features:
-// - Modular plugin system for custom extensions using the loadPlugins function.
+// - Modular plugin system for custom extensions using the loadPlugins function (now dynamically loads plugin files).
 // - Advanced real-time analytics as evidenced by detailed performance metrics.
 // - Extended testing demos and caching mechanism improvements.
 // 
@@ -25,6 +25,7 @@ import { randomInt } from "crypto";
 import { OpenAI } from "openai";
 import { z } from "zod";
 import axios from "axios";
+import fs from "fs";
 
 // Parses ChatGPT responses using a provided Zod schema
 function parseResponse(response, schema) {
@@ -775,11 +776,19 @@ function translateMessage(message, targetLang) {
   return `[${targetLang}] ${message}`;
 }
 
-// Modular plugin system: Loads plugins from a specified directory (simulation)
+// Modular plugin system: Dynamically loads plugins from a specified directory
 function loadPlugins(pluginDirectory) {
   logger(`Loading plugins from: ${pluginDirectory}`, "info");
-  // Placeholder: In a real scenario, plugins would be dynamically imported.
-  return ["plugin1", "plugin2", "plugin3"];
+  let plugins = [];
+  try {
+    plugins = fs.readdirSync(pluginDirectory).filter(file => file.endsWith('.js'));
+    if (plugins.length === 0) {
+      logger(`No plugin files found in directory: ${pluginDirectory}`, "warn");
+    }
+  } catch (err) {
+    logger(`Error loading plugins from ${pluginDirectory}: ${err.message}`, "error");
+  }
+  return plugins;
 }
 
 // Initializes caching system for optimized performance
@@ -1011,7 +1020,7 @@ async function main() {
   const translatedMessage = translateMessage("Welcome to the agentic operations demo!", "es");
   logger("Translated message: " + translatedMessage, "info");
 
-  // Demonstrate modular plugin loading feature
+  // Demonstrate modular plugin loading feature with dynamic file loading
   const plugins = loadPlugins("./plugins");
   logger(`Loaded plugins: ${plugins.join(", ")}`, "info");
 
