@@ -1,24 +1,8 @@
 #!/usr/bin/env node
 
-// Agentic Operations Library: A comprehensive toolset for modern agentic operations.
-// This library provides dynamic configuration, robust error handling, extensive logging,
-// comprehensive performance metrics, advanced testing support, internationalization,
-// API integrations, detailed error reporting, real-time collaboration, and caching mechanisms.
-// It also includes interactive demos showcasing improved test coverage, multi-file update support,
-// and a modular plugin system for custom extensions that dynamically loads plugins from a directory.
-// 
-// Implemented Features:
-// - Modular plugin system for custom extensions using the loadPlugins function (now dynamically loads plugin files).
-// - Advanced real-time analytics as evidenced by detailed performance metrics.
-// - Extended testing demos and caching mechanism improvements.
-// 
-// Future Features:
-// - Advanced real-time analytics and alerting mechanisms.
-// - Enhanced documentation with interactive examples and extended README features.
-// - Expanded support for localization and user-contributed guides.
-// - Comprehensive README with detailed usage instructions, troubleshooting guides, and interactive demos.
-// - Integrated usage statistics and community feedback section in the README.
-// - Automated documentation generation featuring code samples, interactive tutorials, and dynamic changelog integration.
+// Agentic Operations Library
+// Provides core functionalities including dynamic configuration, error handling, logging,
+// performance metrics, testing, API integrations, error reporting, real-time collaboration, and caching.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
