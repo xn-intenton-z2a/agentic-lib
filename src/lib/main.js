@@ -9,6 +9,8 @@
 // Future Features:
 // - Modular plugin system for custom extensions.
 // - Advanced real-time analytics and alerting mechanisms.
+// - Enhanced documentation with interactive examples and extended README features.
+// - Expanded support for localization and user-contributed guides.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
