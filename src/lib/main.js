@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
-// Agentic Operations Library
-// Provides error handling, dynamic configuration, logging, performance metrics, testing, internationalization, API integrations, error reporting, and real-time collaboration support.
+// Agentic Operations Library: Provides error handling, dynamic configuration, logging, performance metrics, testing, internationalization, API integrations, error reporting, and real-time collaboration support.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
@@ -507,7 +506,7 @@ export async function createPullRequest(params) {
   return {
     prCreated: true,
     prNumber: "123",
-    htmlUrl: `https://github.com/dummy/repo/pull/123`,
+    htmlUrl: `https://github.com/dummy/repo/pull/123`
   };
 }
 
@@ -740,7 +739,7 @@ function logPerformanceMetrics() {
 function sendErrorReport(error) {
   const config = loadConfig();
   logger(`Sending error report: ${error.message} to ${config.errorReportService}`, "info");
-  // Error report sending logic here
+  // Actual error report sending logic would be implemented here
 }
 
 // Translates a message to a target language (simulation)
@@ -956,9 +955,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 
 export function printUsage() {
   console.log(`
-intentïon: intention-agentic-lib — Usage Guide
+intention: intention-agentic-lib — Usage Guide
 
-intention-agentic-lib is part of intentïon. This library provides functionalities for agentic operations including error handling, dynamic configuration, logging, performance metrics, testing and more.
+intention-agentic-lib is part of intention. This library provides functionalities for agentic operations including error handling, dynamic configuration, logging, performance metrics, testing and more.
 
 Available Functions:
 
