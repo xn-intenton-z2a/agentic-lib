@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
 import { OpenAI } from "openai";
 import { z } from "zod";
+import axios from "axios"; // added axios import for API integrations
 
 // Parses ChatGPT responses using a provided Zod schema
 function parseResponse(response, schema) {
@@ -747,6 +748,25 @@ function translateMessage(message, targetLang) {
   return `[${targetLang}] ${message}`;
 }
 
+// New: API integration function demonstrating the API integrations feature
+/**
+ * Integrates with an external API using axios.
+ *
+ * @param {string} endpoint - The API endpoint URL.
+ * @param {Object} payload - The request payload.
+ * @returns {Promise<Object>} - The API response data.
+ */
+export async function integrateWithApi(endpoint, payload) {
+  try {
+    const response = await axios.post(endpoint, payload);
+    logger(`API integration success: ${response.status}`, "info");
+    return response.data;
+  } catch (error) {
+    logger(`API integration error: ${error.message}`, "error");
+    throw error;
+  }
+}
+
 // Starts a real-time collaboration session (simulation)
 function startCollaborationSession(sessionId) {
   logger(`Real-time collaboration session '${sessionId}' started.`, "info");
@@ -1121,5 +1141,6 @@ export default {
   main,
   sendErrorReport,
   translateMessage,
+  integrateWithApi, // added API integration function
   startCollaborationSession
 };
