@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-// Agentic Operations Library: Provides error handling, dynamic configuration, l
 // Agentic Operations Library: Provides error handling, dynamic configuration, logging, performance metrics, testing, internationalization, API integrations, error reporting, and real-time collaboration support.
 
 import { fileURLToPath } from "url";
