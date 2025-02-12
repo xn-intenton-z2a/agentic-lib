@@ -1064,7 +1064,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 
 export function printUsage() {
   console.log(`
-JavaScript Library for Agentic Operations — Usage Guide
+intentïon: intention-agentic-lib — Usage Guide
+
+intention-agentic-lib is part of intentïon. This library provides functionalities for agentic operations including error handling, dynamic configuration, logging, performance metrics, testing and more.
 
 Available Functions:
 
