@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
-// Agentic Operations Library
-// This library provides a comprehensive suite of functionalities including:
-// - Dynamic configuration loading and reloading
-// - Robust error handling and reporting with external services
-// - Comprehensive logging with performance metrics
-// - Advanced testing support with improved coverage demonstrations
-// - API integrations via axios
+// Intention Agentic Library
+// This library provides a suite of advanced functionalities for agentic operations including:
+// - Dynamic configuration management with automatic reload intervals
+// - Robust error reporting integrated with external monitoring services
+// - Detailed logging with performance metrics and support for internationalized messages
+// - Enhanced testing support with improved demos and additional coverage scenarios
+// - Seamless API integrations powered by axios
 // - Real-time collaboration session support
-// - Caching mechanism for optimized performance
-// - A modular plugin system for dynamic extensibility
+// - Efficient caching mechanisms for optimized performance
+// - A modular plugin system enabling dynamic extensibility and integration
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
@@ -670,7 +670,12 @@ Ensure valid JSON.
               description: "A short sentence explaining the change applied, suitable for a commit message.",
             },
           },
-          required: ["updatedSourceFileContent", "updatedTestFileContent", "updatedPackagesJsonContent", "message"],
+          required: [
+            "updatedSourceFileContent",
+            "updatedTestFileContent",
+            "updatedPackagesJsonContent",
+            "message"
+          ],
           additionalProperties: false,
         },
         strict: true,
@@ -1231,4 +1236,3 @@ export default {
   getCache,
   loadPlugins
 };
-
