@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-// JavaScript Library for Agentic Operations and Demo
-// Description: This library provides capabilities for agentic operations with robust error handling, dynamic configuration with hot reloading, extended logging, performance metrics monitoring, comprehensive testing with improved test coverage, internationalization support, real-time API integrations, error reporting to external services, and real-time collaboration tools.
+// Agentic Operations Library
+// Provides error handling, dynamic configuration, logging, performance metrics, testing, internationalization, API integrations, error reporting, and real-time collaboration support.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
 import { OpenAI } from "openai";
 import { z } from "zod";
 
-// Helper function to parse ChatGPT responses using provided Zod schema
+// Parses ChatGPT responses using a provided Zod schema
 function parseResponse(response, schema) {
   let result;
   if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
@@ -36,10 +36,7 @@ function parseResponse(response, schema) {
 /**
  * Verifies whether the source file content reflects the resolution of an issue.
  *
- * @param {Object} params - Parameters:
- *   { target, sourceFileContent, buildScript, buildOutput, testScript, testOutput,
- *     mainScript, mainOutput, issueTitle, issueDescription, issueComments (Array), model,
- *     apiKey, issueNumber }
+ * @param {Object} params - Parameters for the verification process.
  * @returns {Promise<Object>} { fixed, message, refinement, responseUsage }
  */
 export async function verifyIssueFix(params) {
@@ -95,7 +92,7 @@ MAIN_OUTPUT_START
 ${mainOutput}
 MAIN_OUTPUT_END
 
-Answer strictly with a JSON object following this schema:
+Answer strictly with a JSON object following the provided schema:
 {
   "fixed": "true", // if the fix is present, or "false" otherwise.
   "message": "The issue has been resolved.", // if fixed, or explanation otherwise.
@@ -166,9 +163,7 @@ Ensure valid JSON.
 /**
  * Updates the target file to fix a failing build.
  *
- * @param {Object} params - Parameters:
- *   { target, sourceFileContent, listOutput, buildScript, buildOutput,
- *     testScript, testOutput, mainScript, mainOutput, model, apiKey }
+ * @param {Object} params - Parameters for the fix.
  * @returns {Promise<Object>} { updatedSourceFileContent, message, fixApplied, responseUsage }
  */
 export async function updateTargetForFixFallingBuild(params) {
@@ -281,10 +276,7 @@ Ensure valid JSON.
 /**
  * Updates the target file to fix an issue by incorporating issue details.
  *
- * @param {Object} params - Parameters:
- *   { target, sourceFileContent, listOutput, buildScript, buildOutput,
- *     testScript, testOutput, mainScript, mainOutput, issueTitle,
- *     issueDescription, issueComments (Array), model, apiKey, issueNumber }
+ * @param {Object} params - Parameters including issue details.
  * @returns {Promise<Object>} { updatedSourceFileContent, message, fixApplied, responseUsage }
  */
 export async function updateTargetForStartIssue(params) {
@@ -417,11 +409,11 @@ export function extractIssueNumber(branchName, branchPrefix) {
 }
 
 /**
- * Simulates adding a “merged” label and a comment on an issue extracted from a branch.
+ * Adds a merged label and a comment to an issue extracted from a branch.
  *
- * @param {string} pullNumber - The pull request number (as a string).
+ * @param {string} pullNumber - The pull request number.
  * @param {string} branchName - The branch name.
- * @param {string} branchPrefix - The prefix used to indicate issue branches.
+ * @param {string} branchPrefix - The prefix used for issue branches.
  * @returns {Object} { issueNumber, comment }
  */
 export function labelMergedIssue(pullNumber, branchName, branchPrefix) {
@@ -436,7 +428,7 @@ export function labelMergedIssue(pullNumber, branchName, branchPrefix) {
 }
 
 /**
- * Determines whether a pull request can be auto‑merged.
+ * Determines whether a pull request can be auto-merged.
  *
  * @param {Object} pullRequest - An object with properties: state, mergeable, mergeable_state.
  * @returns {string} "true" if auto-merge is allowed, otherwise "false".
@@ -451,7 +443,7 @@ export function autoMergePullRequest(pullRequest) {
 }
 
 /**
- * From an array of pull requests, finds one with an "automerge" label.
+ * Finds a pull request with an "automerge" label from an array of pull requests.
  *
  * @param {Array<Object>} prs - Array of PR objects.
  * @returns {Object} { pullNumber, shouldSkipMerge, prMerged }
@@ -478,7 +470,7 @@ export function findPRInCheckSuite(prs) {
  * Selects an issue number from a provided list.
  *
  * @param {string} providedIssueNumber - An optional provided issue number.
- * @param {Array<Object>} issues - Array of issue objects (each with a "number" property).
+ * @param {Array<Object>} issues - Array of issue objects.
  * @returns {string} The selected issue number, or an empty string.
  */
 export function selectIssue(providedIssueNumber, issues) {
@@ -490,7 +482,7 @@ export function selectIssue(providedIssueNumber, issues) {
 }
 
 /**
- * Checks if an issue has a "merged" label (case‑insensitive).
+ * Checks if an issue has a "merged" label (case-insensitive).
  *
  * @param {Object} issue - An issue object with a "labels" array.
  * @returns {boolean} True if the issue has a merged label, false otherwise.
@@ -501,10 +493,9 @@ export function hasMergedLabel(issue) {
 }
 
 /**
- * Simulates creating a pull request if none exists.
+ * Creates a pull request if one does not already exist.
  *
- * @param {Object} params - Parameters:
- *   { branch, baseBranch, commitMessage, label, existingPulls (Array) }
+ * @param {Object} params - Parameters including branch, baseBranch, commitMessage, label, existingPulls (Array).
  * @returns {Promise<Object>} An object indicating whether a PR was created.
  */
 export async function createPullRequest(params) {
@@ -512,7 +503,7 @@ export async function createPullRequest(params) {
   if (existingPulls && existingPulls.length > 0) {
     return { prCreated: false, info: "Pull request already exists." };
   }
-  // Simulate PR creation.
+  // Create pull request (simulation)
   return {
     prCreated: true,
     prNumber: "123",
@@ -521,15 +512,14 @@ export async function createPullRequest(params) {
 }
 
 /**
- * Simulates creating an issue.
+ * Creates an issue.
  *
- * @param {Object} params - Parameters:
- *   { issueTitle, target }
+ * @param {Object} params - Parameters including issueTitle and target.
  * @returns {Promise<Object>} { issueTitle, issueNumber }
  */
 export async function createIssue(params) {
   const { issueTitle } = params;
-  // Simulate issue creation with a random issue number.
+  // Create issue (simulation)
   const issueNumber = randomInt(0, 1000).toString();
   return { issueTitle, issueNumber };
 }
@@ -540,7 +530,7 @@ export async function createIssue(params) {
  * @returns {Promise<Array<Object>>} Array of PR objects.
  */
 export async function listOpenPullRequests({ _x }) {
-  // Simulate by returning dummy data.
+  // Return dummy pull request data.
   return [
     { number: 101, headRef: "issue-101", baseRef: "main" },
     { number: 102, headRef: "feature-102", baseRef: "main" },
@@ -548,11 +538,11 @@ export async function listOpenPullRequests({ _x }) {
 }
 
 /**
- * Simulates comparing two SARIF outputs and determining if fixes were applied.
+ * Compares two SARIF outputs to determine if fixes were applied.
  *
  * @param {number|string} resultsBefore - Number of results before.
  * @param {number|string} resultsAfter - Number of results after.
- * @returns {Object} { fixRequired, fixApplied }
+ * @returns {Object} { fixRequired, fixApplied } (as strings).
  */
 export function analyzeSarifResults(resultsBefore, resultsAfter) {
   const before = Number(resultsBefore);
@@ -563,14 +553,9 @@ export function analyzeSarifResults(resultsBefore, resultsAfter) {
 }
 
 /**
- * Updates multiple files to address an issue. This function supports changes in the source file,
- * the test file, and the packages.json file. It is designed to handle cases where several files
- * need to be updated simultaneously.
+ * Updates multiple files to address an issue. Supports changes in the source, test, and packages.json files.
  *
- * @param {Object} params - Parameters:
- *   { sourceFileContent, testFileContent, packagesJsonContent, issueTitle, issueDescription,
- *     issueComments (Array), buildScript, buildOutput, testScript, testOutput,
- *     mainScript, mainOutput, model, apiKey }
+ * @param {Object} params - Parameters including file contents, issue details, and outputs.
  * @returns {Promise<Object>} { updatedSourceFileContent, updatedTestFileContent, updatedPackagesJsonContent, message, fixApplied, responseUsage }
  */
 export async function updateMultipleFiles(params) {
@@ -637,7 +622,7 @@ MAIN_OUTPUT_START
 ${mainOutput}
 MAIN_OUTPUT_END
 
-Please produce updated content for all three files that resolves the issue. 
+Please produce updated content for all three files that resolves the issue.
 Answer strictly with a JSON object following this schema:
 {
   "updatedSourceFileContent": "The entire new content of the source file, with all necessary changes applied.",
@@ -713,7 +698,7 @@ Ensure valid JSON.
   };
 }
 
-// Updated function to load dynamic configuration with extended options
+// Loads dynamic configuration settings
 function loadConfig() {
   const config = {
     logLevel: process.env.LOG_LEVEL || "info",
@@ -725,13 +710,13 @@ function loadConfig() {
   return config;
 }
 
-// New logger function for extended logging support
+// Logger function for extended logging support
 function logger(message, level = "info") {
   const timestamp = new Date().toISOString();
   console.log(`[${level.toUpperCase()}] ${timestamp} - ${message}`);
 }
 
-// Global error handlers for improved error compliance
+// Global error handlers
 process.on('uncaughtException', (err) => {
   logger(`Uncaught Exception: ${err.message}\n${err.stack}`, "error");
   sendErrorReport(err);
@@ -742,7 +727,7 @@ process.on('unhandledRejection', (reason, promise) => {
   sendErrorReport(reason instanceof Error ? reason : new Error(String(reason)));
 });
 
-// New Function for Performance Metrics Logging
+// Logs performance metrics
 function logPerformanceMetrics() {
   const memoryUsage = process.memoryUsage();
   const formatMemory = (bytes) => (bytes / 1024 / 1024).toFixed(2) + " MB";
@@ -751,53 +736,49 @@ function logPerformanceMetrics() {
   );
 }
 
-// New function to send error reports to an external service
+// Sends error report to an external service (simulation)
 function sendErrorReport(error) {
   const config = loadConfig();
   logger(`Sending error report: ${error.message} to ${config.errorReportService}`, "info");
-  // Simulated error report sending
+  // Error report sending logic here
 }
 
-// New function for Internationalization support
+// Translates a message to a target language (simulation)
 function translateMessage(message, targetLang) {
-  // Simulated translation - in a real scenario, integrate with a translation API
   return `[${targetLang}] ${message}`;
 }
 
-// New Function for Real-Time Collaboration support
+// Starts a real-time collaboration session (simulation)
 function startCollaborationSession(sessionId) {
   logger(`Real-time collaboration session '${sessionId}' started.`, "info");
-  // Simulated real-time collaboration initialization
+  // Collaboration initialization logic here
 }
 
-// Additional Function to Improve Test Coverage
+// Runs improved tests for enhanced coverage
 function runImprovedTests() {
   logger("Running improved tests for enhanced coverage...");
-  // Simulated improved test logs
   logger("Improved tests passed: All additional checks validated successfully.");
 }
 
-// Additional Function for Extra Test Demonstration
+// Runs additional tests for advanced coverage
 function runAdditionalTest() {
   logger("Running additional test for advanced coverage...");
-  // Simulated additional test logs
   logger("Additional tests passed: Complex scenarios validated successfully.");
 }
 
-// New Function for Extra Coverage Demonstration
+// Runs extra coverage tests
 function runExtraCoverageTest() {
   logger("Running extra coverage test for improved test coverage...");
-  // Simulated extra coverage test logs
   logger("Extra coverage test passed: All edge cases and validation checks succeeded.");
 }
 
-// New Function for Test Coverage Demo
+// Runs a test coverage demonstration
 function runTestCoverageDemo() {
   logger("Running test coverage demo to demonstrate improved test coverage...", "info");
   logger("Test coverage demo passed: All console outputs verified.", "info");
 }
 
-// Main Demo Function
+// Main demo function
 async function main() {
   const config = loadConfig();
   logger(`Configuration loaded: ${JSON.stringify(config)}`);
@@ -947,7 +928,7 @@ async function main() {
       {
         user: { login: "charlie" },
         created_at: "2025-02-11T02:10:00Z",
-        body: "Needs support for multiple file updates",
+        body: "Needs support for multiple file updates"
       },
     ],
     model: "o3-mini",
