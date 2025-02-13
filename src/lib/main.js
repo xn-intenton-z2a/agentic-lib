@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 // Agentic Operations Library
-// Provides features for dynamic configuration, error reporting, internationalized logging, API integrations, plugin management, caching, collaboration, and enhanced testing support.
-// This library is fully compliant with the specified features and includes improvements for dynamic configuration, error reporting, and logging compliance.
+// Provides dynamic configuration, error reporting, internationalized logging, API integrations, plugin management, caching, collaboration, and enhanced testing support.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
@@ -14,19 +13,16 @@ import { setTimeout as delayPromise } from "timers/promises";
 
 // Utility Functions
 
-// Translate a message to the target language
+// Translate message to the target language
 function translateMessage(message, targetLang) {
   return `[${targetLang}] ${message}`;
 }
 
-// Logger with timestamp, log level filtering, and optional internationalization
+// Logger with timestamp, level filtering, and optional internationalization
 function logger(message, level = "info") {
   const config = global.config || { logLevel: "info", language: "en_US" };
   const levels = { debug: 1, info: 2, warn: 3, error: 4 };
-  // Only log if the message level is greater than or equal to the current config log level
-  if (levels[level] < levels[config.logLevel]) {
-    return;
-  }
+  if (levels[level] < levels[config.logLevel]) return;
   const timestamp = new Date().toISOString();
   const language = config.language || "en_US";
   const logMessage = language !== "en_US" ? translateMessage(message, language) : message;
@@ -113,7 +109,7 @@ function loadPlugins(pluginDirectory) {
   logger(`Loading plugins from: ${pluginDirectory}`, "info");
   let plugins = [];
   try {
-    plugins = fs.readdirSync(pluginDirectory).filter((file) => file.endsWith(".js"));
+    plugins = fs.readdirSync(pluginDirectory).filter(file => file.endsWith(".js"));
     if (plugins.length === 0) {
       logger(`No plugins found in directory: ${pluginDirectory}`, "warn");
     }
@@ -123,7 +119,7 @@ function loadPlugins(pluginDirectory) {
   return plugins;
 }
 
-// Watch the plugins directory for JavaScript file changes
+// Watch the plugins directory for changes
 function watchPluginsDirectory(pluginDirectory) {
   if (!fs.existsSync(pluginDirectory)) {
     logger(`Plugins directory ${pluginDirectory} not found. Skipping watch.`, "warn");
@@ -170,9 +166,7 @@ export function setCache(key, value) {
 
 // Get a value from the cache
 export function getCache(key) {
-  if (!global.cache) {
-    return undefined;
-  }
+  if (!global.cache) return undefined;
   const value = global.cache.get(key);
   logger(`Cache get: ${key} value: ${value}`, "debug");
   return value;
@@ -190,7 +184,7 @@ export function clearCache() {
 
 // Error Reporting and API Integration
 
-// Send an error report to an external service with fallback to local logging
+// Send an error report to an external service with local fallback
 async function sendErrorReport(error) {
   const config = loadConfig();
   logger(`Sending error report: ${error.message} to ${config.errorReportService}`, "info");
@@ -297,7 +291,7 @@ export async function verifyIssueFix(params) {
   } = params;
   if (!apiKey) throw new Error("Missing API key.");
   const issueCommentsText = issueComments
-    .map((comment) => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
+    .map(comment => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
     .join("\n");
   const prompt = `
 Does the following source file content reflect the resolution of the issue?
@@ -501,7 +495,7 @@ export async function updateTargetForStartIssue(params) {
   } = params;
   if (!apiKey) throw new Error("Missing API key.");
   const issueCommentsText = issueComments
-    .map((comment) => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
+    .map(comment => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
     .join("\n");
   const prompt = `
 Update the file to resolve the following issue.
@@ -621,8 +615,8 @@ export function findPRInCheckSuite(prs) {
   if (!prs || prs.length === 0) {
     return { pullNumber: "", shouldSkipMerge: "true", prMerged: "false" };
   }
-  const openPRs = prs.filter((pr) => pr.state === "open");
-  const prWithAutomerge = openPRs.find((pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge"));
+  const openPRs = prs.filter(pr => pr.state === "open");
+  const prWithAutomerge = openPRs.find(pr => pr.labels && pr.labels.some(label => label.name.toLowerCase() === "automerge"));
   if (!prWithAutomerge) {
     return { pullNumber: "", shouldSkipMerge: "true", prMerged: "false" };
   }
@@ -636,7 +630,7 @@ export function findPRInCheckSuite(prs) {
 // Select an issue from a list
 export function selectIssue(providedIssueNumber, issues) {
   if (providedIssueNumber) {
-    const found = issues.find((issue) => issue.number.toString() === providedIssueNumber.toString());
+    const found = issues.find(issue => issue.number.toString() === providedIssueNumber.toString());
     return found ? found.number.toString() : "";
   }
   return issues.length > 0 ? issues[0].number.toString() : "";
@@ -645,7 +639,7 @@ export function selectIssue(providedIssueNumber, issues) {
 // Check if an issue has a merged label
 export function hasMergedLabel(issue) {
   if (!issue.labels || !Array.isArray(issue.labels)) return false;
-  return issue.labels.some((label) => label.name.toLowerCase() === "merged");
+  return issue.labels.some(label => label.name.toLowerCase() === "merged");
 }
 
 // Pull Request and Issue Creation
@@ -711,7 +705,7 @@ export async function updateMultipleFiles(params) {
   } = params;
   if (!apiKey) throw new Error("Missing API key.");
   const issueCommentsText = issueComments
-    .map((comment) => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
+    .map(comment => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
     .join("\n");
   const prompt = `
 Update contents for multiple files:
@@ -876,13 +870,13 @@ function runImprovedTestDemo() {
 // Log performance metrics
 function logPerformanceMetrics() {
   const memoryUsage = process.memoryUsage();
-  const formatMemory = (bytes) => (bytes / 1024 / 1024).toFixed(2) + " MB";
+  const formatMemory = bytes => (bytes / 1024 / 1024).toFixed(2) + " MB";
   logger(`Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`, "info");
 }
 
 // Global Error Handlers
 
-process.on("uncaughtException", (err) => {
+process.on("uncaughtException", err => {
   logger(`Uncaught Exception: ${err.message}\n${err.stack}`, "error");
   sendErrorReport(err);
 });
