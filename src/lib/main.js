@@ -2,16 +2,17 @@
 
 // Intention Agentic Library
 // This library offers a robust set of functionalities for advanced agentic operations:
-// - Dynamic configuration with auto-reload, performance logging, and comprehensive error handling.
-// - Integrated error reporting via axios with fallback mechanisms (logs to local file if external reporting fails).
-// - Internationalized enhanced logging and detailed error tracing.
-// - Comprehensive testing support including improved demos, multi-file update capabilities, and real-time test demos.
-// - Seamless API integrations with real-time error reporting and dynamic plugin loading.
-// - Efficient caching mechanisms for optimized performance and global cache management.
-// - Real-time collaboration, modular plugin support, robust plugin error handling, extended caching management, and dynamic plugin directory monitoring.
-// - Utilities for pull request and issue management including automated labeling and merging.
+// - Dynamic configuration with auto-reload support via a configuration file, enabling seamless live updates.
+// - Integrated error reporting via axios with a fallback to local logging if external reporting fails.
+// - Internationalized enhanced logging and comprehensive error tracing.
+// - Improved testing support including multi-file update capabilities, real-time test demos, and enhanced test validations.
+// - Seamless API integrations with dynamic plugin loading and real-time error notifications.
+// - Efficient caching mechanisms for optimized performance with global cache management and dynamic cache clearing.
+// - Real-time collaboration support with session management.
+// - Robust modular plugin system with live monitoring of the plugins directory and automatic reloading of plugins.
+// - Comprehensive pull request and issue management utilities with automated labeling and merging.
 // - Supports multi-file updates across source, test, and configuration files.
-// - Comprehensive reload capabilities for all dynamic agentic features including config, plugins, and caching.
+// - Advanced reload capabilities that dynamically reload all agentic features including configuration, plugins, and cache.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
