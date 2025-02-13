@@ -1,15 +1,14 @@
 #!/usr/bin/env node
 
 // Intention Agentic Library
-// This library provides a suite of advanced functionalities for agentic operations including:
-// - Dynamic configuration management with automatic reload intervals
-// - Robust error reporting integrated with external monitoring services
-// - Detailed logging with performance metrics and support for internationalized messages
-// - Enhanced testing support with improved demos and additional coverage scenarios
-// - Seamless API integrations powered by axios
-// - Real-time collaboration session support
-// - Efficient caching mechanisms for optimized performance
-// - A modular plugin system enabling dynamic extensibility and integration
+// This library provides advanced functionalities for agentic operations including:
+// - Dynamic configuration management with auto reload intervals and detailed performance logging
+// - Robust error reporting integrated with external services via axios
+// - Enhanced logging with support for internationalized messages and performance metrics
+// - Improved testing support featuring a demo that validates personalized greetings and advanced coverage scenarios
+// - Seamless API integration and external service communication
+// - Efficient caching mechanisms for optimized runtime performance
+// - Real-time collaboration session support with dynamic plugin loading and comprehensive error handling
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
