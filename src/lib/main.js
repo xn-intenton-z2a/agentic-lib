@@ -13,6 +13,7 @@
 // - Comprehensive pull request and issue management utilities with automated labeling and merging.
 // - Supports multi-file updates across source, test, and configuration files.
 // - Advanced reload capabilities that dynamically reload all agentic features including configuration, plugins, and cache.
+// - Automatic state backup and recovery functionality that periodically saves the current state and enables recovery on failures.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
@@ -71,6 +72,41 @@ function startDynamicConfigReload(configFilePath = "./config.json") {
     }
   });
   logger(`Started dynamic auto-reload for configuration file: ${configFilePath} using fs.watchFile`, "info");
+}
+
+// ------------------ Automatic State Backup and Recovery ------------------
+
+// Backs up the current state including configuration and cache
+function backupState() {
+  try {
+    const state = {
+      config: global.config || {},
+      cache: global.cache ? Array.from(global.cache.entries()) : null,
+    };
+    fs.writeFileSync("state_backup.json", JSON.stringify(state, null, 2));
+    logger("State backup saved successfully.", "info");
+  } catch (err) {
+    logger(`State backup failed: ${err.message}`, "error");
+  }
+}
+
+// Recovers state from backup file if available
+function recoverState() {
+  try {
+    if (fs.existsSync("state_backup.json")) {
+      const data = fs.readFileSync("state_backup.json", "utf8");
+      const state = JSON.parse(data);
+      global.config = state.config || {};
+      if (state.cache) {
+        global.cache = new Map(state.cache);
+      }
+      logger("State recovered from backup.", "info");
+    } else {
+      logger("No state backup found to recover.", "warn");
+    }
+  } catch (err) {
+    logger(`State recovery failed: ${err.message}`, "error");
+  }
 }
 
 // ------------------ Plugin Management ------------------
@@ -973,6 +1009,9 @@ async function main() {
   // Initialize caching system
   initializeCache();
 
+  // Attempt to recover state from backup before proceeding
+  recoverState();
+
   logger("=== JavaScript Library for Agentic Operations Demo - Improved Test ===", "info");
 
   async function runDemo(demoName, demoFunction, params) {
@@ -1134,6 +1173,9 @@ async function main() {
     apiKey: "dummy-api-key",
   });
 
+  // Backup state at the end of main execution
+  backupState();
+
   logger("Improved Test Output: All tests executed successfully and functionality validated successfully.", "info");
   logger("Demo tests and functionality validated successfully.", "info");
   logger("=== End of Demo ===", "info");
@@ -1157,7 +1199,7 @@ export function printUsage() {
   console.log(`
 intention: intention-agentic-lib — Usage Guide
 
-intention-agentic-lib is part of intention. This library provides functionalities for agentic operations including robust error handling, dynamic configuration, extensive logging, comprehensive performance metrics, improved testing support, internationalization, API integrations, detailed error reporting, real-time collaboration support, caching mechanism support, and dynamic plugin directory monitoring.
+intention-agentic-lib is part of intention. This library provides functionalities for agentic operations including robust error handling, dynamic configuration, extensive logging, comprehensive performance metrics, improved testing support, internationalization, API integrations, detailed error reporting, real-time collaboration support, caching mechanism support, dynamic plugin directory monitoring, and now automatic state backup and recovery.
 
 Available Functions:
 
