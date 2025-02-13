@@ -4,7 +4,7 @@
  Agentic Operations Library
  Provides dynamic configuration for error reporting, internationalized logging, API integrations,
  plugin management, caching, collaboration, enhanced testing, real-time analytics reporting,
- automated state backup and recovery, security validations, performance monitoring, and extended performance metrics logging including CPU load, system uptime, network interface details, and disk usage metrics.
+ automated state backup and recovery, security validations, performance monitoring, and extended performance metrics logging including CPU load, system uptime, network interface details, and disk usage metrics logging using the 'df -h' system command.
 */
 
 import { fileURLToPath } from "url";
@@ -622,7 +622,7 @@ export function findPRInCheckSuite(prs) {
   }
   const openPRs = prs.filter((pr) => pr.state === "open");
   const prWithAutomerge = openPRs.find(
-    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge"),
+    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge")
   );
   if (!prWithAutomerge) {
     return { pullNumber: "", shouldSkipMerge: "true", prMerged: "false" };
@@ -882,6 +882,7 @@ function logExtendedPerformanceMetrics() {
   );
 }
 
+// Disk usage metrics logging function that retrieves disk usage details using the 'df -h' command.
 async function logDiskUsage() {
   try {
     const { stdout } = await execAsync("df -h");
