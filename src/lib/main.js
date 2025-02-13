@@ -5,14 +5,18 @@
 // - Dynamic configuration with auto-reload support via a configuration file, enabling seamless live updates.
 // - Integrated error reporting via axios with a fallback to local logging if external reporting fails.
 // - Internationalized enhanced logging and comprehensive error tracing.
+// - Improved testing support including multi-file update capabilities, real-tim
 // - Improved testing support including multi-file update capabilities, real-time test demos, and enhanced test validations.
-// - Seamless API integrations with dynamic plugin loading and real-time error notifications.
+// - Seamless API integrations with dynamic plugin loading, real-time error noti
+// - Seamless API integrations with dynamic plugin loading, real-time error notifications, and an enhanced automatic retry mechanism on failures.
 // - Efficient caching mechanisms for optimized performance with global cache management and dynamic cache clearing.
 // - Real-time collaboration support with session management.
 // - Robust modular plugin system with live monitoring of the plugins directory and automatic reloading of plugins.
 // - Comprehensive pull request and issue management utilities with automated labeling and merging.
 // - Supports multi-file updates across source, test, and configuration files.
+// - Advanced reload capabilities that dynamically reload all agentic features i
 // - Advanced reload capabilities that dynamically reload all agentic features including configuration, plugins, and cache.
+// - Automatic state backup and recovery functionality that periodically saves t
 // - Automatic state backup and recovery functionality that periodically saves the current state and enables recovery on failures.
 
 import { fileURLToPath } from "url";
@@ -21,6 +25,7 @@ import { OpenAI } from "openai";
 import { z } from "zod";
 import axios from "axios";
 import fs from "fs";
+import { setTimeout as delayPromise } from "timers/promises";
 
 // ------------------ Utility Functions ------------------
 
@@ -212,8 +217,8 @@ async function sendErrorReport(error) {
         JSON.stringify({
           error: error.message,
           stack: error.stack,
-          timestamp: new Date().toISOString()
-        }) + "\n"
+          timestamp: new Date().toISOString(),
+        }) + "\n",
       );
       logger("Error report saved locally to error_report.log", "info");
     } catch (fileErr) {
@@ -222,15 +227,26 @@ async function sendErrorReport(error) {
   }
 }
 
-// Integrates with an external API using axios
+// Integrates with an external API using axios with an automatic retry mechanism
 export async function integrateWithApi(endpoint, payload) {
-  try {
-    const response = await axios.post(endpoint, payload);
-    logger(`API integration success: ${response.status}`, "info");
-    return response.data;
-  } catch (error) {
-    logger(`API integration error: ${error.message}`, "error");
-    throw error;
+  const maxRetries = 3;
+  let attempt = 0;
+  while (attempt < maxRetries) {
+    try {
+      const response = await axios.post(endpoint, payload);
+      logger(`API integration success on attempt ${attempt + 1}: ${response.status}`, "info");
+      return response.data;
+    } catch (error) {
+      attempt++;
+      logger(`API integration attempt ${attempt} failed: ${error.message}`, "warn");
+      if (attempt < maxRetries) {
+        const delayTime = attempt * 1000; // Exponential like delay
+        await delayPromise(delayTime);
+      } else {
+        logger(`API integration error after ${maxRetries} attempts: ${error.message}`, "error");
+        throw error;
+      }
+    }
   }
 }
 
@@ -682,7 +698,7 @@ export function findPRInCheckSuite(prs) {
   }
   const openPRs = prs.filter((pr) => pr.state === "open");
   const prWithAutomerge = openPRs.find(
-    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge")
+    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge"),
   );
   if (!prWithAutomerge) {
     return { pullNumber: "", shouldSkipMerge: "true", prMerged: "false" };
@@ -982,7 +998,7 @@ function logPerformanceMetrics() {
   const formatMemory = (bytes) => (bytes / 1024 / 1024).toFixed(2) + " MB";
   logger(
     `Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`,
-    "info"
+    "info",
   );
 }
 
@@ -1382,5 +1398,5 @@ export default {
   loadPlugins,
   startDynamicConfigReload,
   watchPluginsDirectory,
-  reloadAllAgenticFeatures
+  reloadAllAgenticFeatures,
 };
