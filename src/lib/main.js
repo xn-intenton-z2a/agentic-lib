@@ -4,7 +4,7 @@
 // This library offers a robust set of functionalities for advanced agentic operations including:
 // - Dynamic configuration with auto-reload support via a configuration file for live updates.
 // - Integrated error reporting via axios with fallback to local logging when necessary.
-// - Internationalized logging and comprehensive error tracing for enhanced debugging.
+// - Internationalized logging with comprehensive error tracing and support for multiple languages.
 // - Extensive testing support including multi-file update capabilities, real-time demos, and advanced test validations.
 // - Seamless API integration with dynamic plugin loading, real-time error notifications, and an enhanced automatic retry mechanism on failures.
 // - Efficient caching mechanisms with global cache management and dynamic cache clearing.
@@ -14,9 +14,8 @@
 // - Support for multi-file updates across source, test, and configuration files.
 // - Advanced reload capabilities that dynamically refresh configuration, plugins, and caches.
 // - Automatic state backup and recovery functionality that periodically saves state and enables recovery on failures.
-// - Extended security features with enhanced API integration and improved header documentation.
-// - Feature toggling mechanism for enabling/disabling features at runtime for increased flexibility.
-// - Enhanced security checks integrating advanced security policies and runtime validations.
+// - Extensive feature toggling that supports dynamic enabling/disabling of functionalities at runtime.
+// - Enhanced security checks including advanced security policies, runtime validations and improved header documentation.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
