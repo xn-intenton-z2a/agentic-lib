@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Agentic Operations Library
-// Provides dynamic configuration, error reporting, internationalized logging, API integrations, plugin management, caching, real-time collaboration, and enhanced testing support.
+// Provides features for dynamic configuration, error reporting, internationalized logging, API integrations, plugin management, caching, collaboration, and enhanced testing support.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
@@ -13,7 +13,7 @@ import { setTimeout as delayPromise } from "timers/promises";
 
 // Utility Functions
 
-// Simulated translation of a message to a target language
+// Translate a message to the target language
 function translateMessage(message, targetLang) {
   return `[${targetLang}] ${message}`;
 }
@@ -43,7 +43,7 @@ function loadConfig() {
   return config;
 }
 
-// Auto-reload configuration dynamically using fs.watchFile
+// Auto-reload configuration using fs.watchFile
 function startDynamicConfigReload(configFilePath = "./config.json") {
   if (!fs.existsSync(configFilePath)) {
     logger(`Config file ${configFilePath} not found. Skipping auto-reload.`, "warn");
@@ -116,7 +116,7 @@ function loadPlugins(pluginDirectory) {
   return plugins;
 }
 
-// Watch the plugins directory for changes
+// Watch the plugins directory for JavaScript file changes
 function watchPluginsDirectory(pluginDirectory) {
   if (!fs.existsSync(pluginDirectory)) {
     logger(`Plugins directory ${pluginDirectory} not found. Skipping watch.`, "warn");
@@ -131,7 +131,7 @@ function watchPluginsDirectory(pluginDirectory) {
   logger(`Watching plugins directory: ${pluginDirectory}`, "info");
 }
 
-// Reload all dynamic features: cache, config, and plugins
+// Reload all dynamic features: clear cache, update config, and load plugins
 export function reloadAllAgenticFeatures(pluginDirectory = "./plugins", configFilePath = "./config.json") {
   clearCache();
   startDynamicConfigReload(configFilePath);
@@ -212,7 +212,7 @@ async function sendErrorReport(error) {
   }
 }
 
-// Integrate with external API using axios with retry
+// Integrate with an external API using axios with retry logic
 export async function integrateWithApi(endpoint, payload) {
   const maxRetries = 3;
   let attempt = 0;
