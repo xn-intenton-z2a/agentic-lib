@@ -735,25 +735,25 @@ function loadConfig() {
   return config;
 }
 
-// Starts auto-reload for configuration if a config file is present
-function startConfigAutoReload(configFilePath = "./config.json") {
+// Starts dynamic configuration auto-reload if a config file is present
+function startDynamicConfigReload(configFilePath = "./config.json") {
   if (!fs.existsSync(configFilePath)) {
-    logger(`Config file ${configFilePath} not found. Skipping auto-reload.`, "warn");
+    logger(`Config file ${configFilePath} not found. Skipping dynamic auto-reload.`, "warn");
     return;
   }
   fs.watch(configFilePath, (eventType, _filename) => {
     if (eventType === "change") {
-      logger(`Configuration file ${configFilePath} changed. Reloading configuration.`, "info");
+      logger(`Configuration file ${configFilePath} changed. Reloading configuration dynamically.`, "info");
       try {
         const fileConfig = JSON.parse(fs.readFileSync(configFilePath, "utf8"));
         Object.assign(global.config, fileConfig);
-        logger(`Configuration reloaded: ${JSON.stringify(global.config)}`, "info");
+        logger(`Configuration reloaded dynamically: ${JSON.stringify(global.config)}`, "info");
       } catch (err) {
-        logger(`Failed to reload configuration: ${err.message}`, "error");
+        logger(`Failed to dynamically reload configuration: ${err.message}`, "error");
       }
     }
   });
-  logger(`Started auto-reload for configuration file: ${configFilePath}`, "info");
+  logger(`Started dynamic auto-reload for configuration file: ${configFilePath}`, "info");
 }
 
 // Global error handlers
@@ -902,8 +902,8 @@ function runImprovedTestDemo() {
 // Main demo function
 async function main() {
   const config = loadConfig();
-  // Start auto-reload for configuration if config file exists
-  startConfigAutoReload();
+  // Start dynamic auto-reload for configuration if config file exists
+  startDynamicConfigReload();
 
   logger(`Configuration loaded: ${JSON.stringify(config)}`);
   // Initialize caching system
@@ -1262,4 +1262,5 @@ export default {
   setCache,
   getCache,
   loadPlugins,
+  startDynamicConfigReload
 };
