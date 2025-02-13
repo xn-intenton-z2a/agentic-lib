@@ -1,0 +1,10 @@
+{
+  "config": {
+    "logLevel": "info",
+    "apiEndpoint": "https://api.openai.com",
+    "reloadInterval": 30000,
+    "errorReportService": "https://error.report",
+    "language": "en_US"
+  },
+  "cache": []
+}
