@@ -5,10 +5,10 @@
 // - Dynamic configuration with auto-reload, performance logging, and comprehensive error handling.
 // - Integrated error reporting via axios with fallback mechanisms.
 // - Internationalized enhanced logging and detailed error tracing.
-// - Comprehensive testing support including improved demos and multi-file update capabilities.
+// - Comprehensive testing support including improved demos, multi-file update capabilities, and real-time test demos.
 // - Seamless API integrations with real-time error reporting and dynamic plugin loading.
 // - Efficient caching mechanisms for optimized performance and global cache management.
-// - Real-time collaboration, modular plugin support, robust plugin error handling, and extended caching management.
+// - Real-time collaboration, modular plugin support, robust plugin error handling, extended caching management, and dynamic plugin directory monitoring.
 // - Utilities for pull request and issue management including automated labeling and merging.
 // - Supports multi-file updates across source, test, and configuration files.
 
@@ -465,7 +465,7 @@ export function findPRInCheckSuite(prs) {
   }
   const openPRs = prs.filter((pr) => pr.state === "open");
   const prWithAutomerge = openPRs.find(
-    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge"),
+    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge")
   );
   if (!prWithAutomerge) {
     return { pullNumber: "", shouldSkipMerge: "true", prMerged: "false" };
@@ -756,6 +756,21 @@ function startDynamicConfigReload(configFilePath = "./config.json") {
   logger(`Started dynamic auto-reload for configuration file: ${configFilePath}`, "info");
 }
 
+// New function: Watches the plugins directory for changes and reloads plugins dynamically
+function watchPluginsDirectory(pluginDirectory) {
+  if (!fs.existsSync(pluginDirectory)) {
+    logger(`Plugins directory ${pluginDirectory} not found. Skipping watch.`, "warn");
+    return;
+  }
+  fs.watch(pluginDirectory, (eventType, filename) => {
+    if (filename && filename.endsWith(".js")) {
+      logger(`Plugin file ${filename} has been ${eventType}. Reloading plugins...`, "info");
+      loadPlugins(pluginDirectory);
+    }
+  });
+  logger(`Started watching plugins directory: ${pluginDirectory}`, "info");
+}
+
 // Global error handlers
 process.on("uncaughtException", (err) => {
   logger(`Uncaught Exception: ${err.message}\n${err.stack}`, "error");
@@ -772,7 +787,7 @@ function logPerformanceMetrics() {
   const memoryUsage = process.memoryUsage();
   const formatMemory = (bytes) => (bytes / 1024 / 1024).toFixed(2) + " MB";
   logger(
-    `Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`,
+    `Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`
   );
 }
 
@@ -1053,9 +1068,10 @@ async function main() {
   const translatedMessage = translateMessage("Welcome to the agentic operations demo!", "es");
   logger("Translated message: " + translatedMessage, "info");
 
-  // Demonstrate modular plugin loading feature with dynamic file loading
+  // Demonstrate modular plugin loading feature with dynamic file loading and watching
   const plugins = loadPlugins("./plugins");
   logger(`Loaded plugins: ${plugins.join(", ")}`, "info");
+  watchPluginsDirectory("./plugins");
 
   await runDemo("updateMultipleFiles", updateMultipleFiles, {
     sourceFileContent: "console.log('Old version in source');",
@@ -1104,7 +1120,7 @@ export function printUsage() {
   console.log(`
 intention: intention-agentic-lib — Usage Guide
 
-intention-agentic-lib is part of intention. This library provides functionalities for agentic operations including robust error handling, dynamic configuration, extensive logging, comprehensive performance metrics, improved testing support, internationalization, API integrations, detailed error reporting, real-time collaboration support, and caching mechanism support.
+intention-agentic-lib is part of intention. This library provides functionalities for agentic operations including robust error handling, dynamic configuration, extensive logging, comprehensive performance metrics, improved testing support, internationalization, API integrations, detailed error reporting, real-time collaboration support, caching mechanism support, and dynamic plugin directory monitoring.
 
 Available Functions:
 
@@ -1244,6 +1260,15 @@ Available Functions:
          - apiKey (string)
     • Returns: { updatedSourceFileContent, updatedTestFileContent, updatedPackagesJsonContent, message, fixApplied, responseUsage }
 
+15. clearCache()
+    • Clears the global cache, extending caching management features.
+
+16. loadPlugins(pluginDirectory)
+    • Dynamically loads plugins from the specified directory.
+
+17. watchPluginsDirectory(pluginDirectory)
+    • Watches the plugins directory for changes and reloads plugins dynamically.
+
 Usage examples are provided in the main() demo below.
 `);
 }
@@ -1273,5 +1298,9 @@ export default {
   getCache,
   clearCache,
   loadPlugins,
-  startDynamicConfigReload
+  startDynamicConfigReload,
+  watchPluginsDirectory
 };
+
+
+// SOURCE_FILE_END
