@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 // Agentic Operations Library
-// Dynamically configures operations such as error reporting, internationalized
-// Dynamically configures operations such as error reporting, internationalized logging, API integrations, plugin management, caching, collaboration, enhanced testing, and real-time analytics reporting.
+// Provides dynamic configuration for error reporting, internationalized logging, API integrations, plugin management, caching, collaboration, enhanced testing, real-time analytics reporting, automated state backup and recovery, security validations, and performance monitoring.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
@@ -233,7 +232,7 @@ async function sendErrorReport(error) {
           error: error.message,
           stack: error.stack,
           timestamp: new Date().toISOString(),
-        }) + "\n",
+        }) + "\n"
       );
       logger("Error report saved locally.", "info");
     } catch (fileErr) {
@@ -646,7 +645,7 @@ export function findPRInCheckSuite(prs) {
   }
   const openPRs = prs.filter((pr) => pr.state === "open");
   const prWithAutomerge = openPRs.find(
-    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge"),
+    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge")
   );
   if (!prWithAutomerge) {
     return { pullNumber: "", shouldSkipMerge: "true", prMerged: "false" };
@@ -904,7 +903,7 @@ function logPerformanceMetrics() {
   const formatMemory = (bytes) => (bytes / 1024 / 1024).toFixed(2) + " MB";
   logger(
     `Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`,
-    "info",
+    "info"
   );
 }
 
