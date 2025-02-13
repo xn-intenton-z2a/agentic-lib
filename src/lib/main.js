@@ -4,8 +4,7 @@
  Agentic Operations Library
  Provides dynamic configuration for error reporting, internationalized logging, API integrations,
  plugin management, caching, collaboration, enhanced testing, real-time analytics reporting,
- automated state backup and recovery, security validations, performance monitoring,
- and extended performance metrics logging including CPU load, system uptime, and network interface details.
+ automated state backup and recovery, security validations, performance monitoring, and extended performance metrics logging including CPU load, system uptime, network interface details, and disk usage metrics.
 */
 
 import { fileURLToPath } from "url";
@@ -16,6 +15,7 @@ import axios from "axios";
 import fs from "fs";
 import os from "os";
 import { setTimeout as delayPromise } from "timers/promises";
+import { exec } from "child_process";
 
 // Utility Functions
 
@@ -876,6 +876,20 @@ function logExtendedPerformanceMetrics() {
   logger(`Extended Performance Metrics: CPU Count: ${cpuCount}, Load Average: [${loadAverage.join(", ")}], System Uptime: ${systemUptime} seconds, Network Interfaces: ${JSON.stringify(netInterfaces)}`, "info");
 }
 
+async function logDiskUsage() {
+  return new Promise((resolve) => {
+    exec("df -h", (error, stdout, stderr) => {
+      if (error) {
+        logger(`Disk usage error: ${error.message}`, "warn");
+        resolve();
+      } else {
+        logger(`Disk Usage: ${stdout}`, "info");
+        resolve();
+      }
+    });
+  });
+}
+
 process.on("uncaughtException", (err) => {
   logger(`Uncaught Exception: ${err.message}\n${err.stack}`, "error");
   sendErrorReport(err);
@@ -1020,6 +1034,7 @@ async function main() {
 
   logPerformanceMetrics();
   logExtendedPerformanceMetrics();
+  await logDiskUsage();
 
   logger("Starting real-time collaboration session...", "info");
   startCollaborationSession("session-001");
@@ -1083,7 +1098,7 @@ export function printUsage() {
   console.log(`
 Agentic Operations Library — Usage Guide
 
-This library provides functionalities for dynamic configuration, error reporting, internationalized logging, API integration, plugin management, caching, collaboration, enhanced testing, real-time analytics reporting, automated state backup and recovery, security validations, performance monitoring, and extended performance metrics logging including CPU load, system uptime, and network interface details.
+This library provides functionalities for dynamic configuration, error reporting, internationalized logging, API integration, plugin management, caching, collaboration, enhanced testing, real-time analytics reporting, automated state backup and recovery, security validations, performance monitoring, and extended performance metrics logging including CPU load, system uptime, network interface details, and disk usage metrics.
 
 Available Functions:
 1. verifyIssueFix(params)
