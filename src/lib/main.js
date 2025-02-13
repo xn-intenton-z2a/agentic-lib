@@ -709,6 +709,19 @@ Ensure valid JSON.
   };
 }
 
+// Translates a message to a target language (simulation)
+function translateMessage(message, targetLang) {
+  return `[${targetLang}] ${message}`;
+}
+
+// Logger function for extended logging support with internationalization
+function logger(message, level = "info") {
+  const timestamp = new Date().toISOString();
+  const language = (global.config && global.config.language) || "en_US";
+  const logMessage = language !== "en_US" ? translateMessage(message, language) : message;
+  console.log(`[${level.toUpperCase()}] ${timestamp} - ${logMessage}`);
+}
+
 // Loads dynamic configuration settings
 function loadConfig() {
   const config = {
@@ -741,12 +754,6 @@ function startConfigAutoReload(configFilePath = "./config.json") {
     }
   });
   logger(`Started auto-reload for configuration file: ${configFilePath}`, "info");
-}
-
-// Logger function for extended logging support
-function logger(message, level = "info") {
-  const timestamp = new Date().toISOString();
-  console.log(`[${level.toUpperCase()}] ${timestamp} - ${message}`);
 }
 
 // Global error handlers
@@ -783,11 +790,6 @@ async function sendErrorReport(error) {
   } catch (err) {
     logger(`Failed to send error report: ${err.message}`, "error");
   }
-}
-
-// Translates a message to a target language (simulation)
-function translateMessage(message, targetLang) {
-  return `[${targetLang}] ${message}`;
 }
 
 // Modular plugin system: Dynamically loads plugins from a specified directory
