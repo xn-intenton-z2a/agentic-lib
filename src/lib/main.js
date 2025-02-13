@@ -8,7 +8,7 @@
 // - Comprehensive testing support including improved demos and multi-file update capabilities.
 // - Seamless API integrations with real-time error reporting and dynamic plugin loading.
 // - Efficient caching mechanisms for optimized performance and global cache management.
-// - Real-time collaboration, modular plugin support, and robust plugin error handling.
+// - Real-time collaboration, modular plugin support, robust plugin error handling, and extended caching management.
 // - Utilities for pull request and issue management including automated labeling and merging.
 // - Supports multi-file updates across source, test, and configuration files.
 
@@ -835,6 +835,16 @@ export function getCache(key) {
   return value;
 }
 
+// New function to clear the global cache, extending caching management features
+export function clearCache() {
+  if (global.cache) {
+    global.cache.clear();
+    logger("Global cache cleared.", "info");
+  } else {
+    logger("No cache exists to clear.", "warn");
+  }
+}
+
 /**
  * Integrates with an external API using axios.
  *
@@ -1261,6 +1271,7 @@ export default {
   startCollaborationSession,
   setCache,
   getCache,
+  clearCache,
   loadPlugins,
   startDynamicConfigReload
 };
