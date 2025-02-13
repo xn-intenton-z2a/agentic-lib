@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 // Agentic Operations Library
+// Dynamically configures operations such as error reporting, internationalized
 // Dynamically configures operations such as error reporting, internationalized logging, API integrations, plugin management, caching, collaboration, enhanced testing, and real-time analytics reporting.
 
 import { fileURLToPath } from "url";
@@ -41,7 +42,7 @@ function loadConfig() {
     analyticsEndpoint: process.env.ANALYTICS_ENDPOINT || "",
     language: process.env.LANGUAGE || "en_US",
     username: process.env.USERNAME || "Alice",
-    featureToggles: process.env.FEATURE_TOGGLES ? JSON.parse(process.env.FEATURE_TOGGLES) : {}
+    featureToggles: process.env.FEATURE_TOGGLES ? JSON.parse(process.env.FEATURE_TOGGLES) : {},
   };
   global.config = config;
   return config;
@@ -71,17 +72,20 @@ function startDynamicConfigReload(configFilePath = "./config.json") {
 // Real-time Analytics Reporting
 
 // Capture performance and uptime metrics and optionally send to an analytics endpoint
-function captureAnalyticsData() {
+async function captureAnalyticsData() {
   const metrics = {
     memoryUsage: process.memoryUsage(),
     uptime: process.uptime(),
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
   const config = global.config || {};
   if (config.analyticsEndpoint) {
-    axios.post(config.analyticsEndpoint, metrics)
-      .then(response => logger(`Analytics reported: ${response.status}`, "info"))
-      .catch(error => logger(`Analytics reporting error: ${error.message}`, "warn"));
+    try {
+      const response = await axios.post(config.analyticsEndpoint, metrics);
+      logger(`Analytics reported: ${response.status}`, "info");
+    } catch (error) {
+      logger(`Analytics reporting error: ${error.message}`, "warn");
+    }
   }
   logger(`Analytics metrics: ${JSON.stringify(metrics)}`, "debug");
 }
@@ -99,7 +103,7 @@ function backupState() {
   try {
     const state = {
       config: global.config || {},
-      cache: global.cache ? Array.from(global.cache.entries()) : null
+      cache: global.cache ? Array.from(global.cache.entries()) : null,
     };
     fs.writeFileSync("state_backup.json", JSON.stringify(state, null, 2));
     logger("State backup saved successfully.", "info");
@@ -134,7 +138,7 @@ function loadPlugins(pluginDirectory) {
   logger(`Loading plugins from: ${pluginDirectory}`, "info");
   let plugins = [];
   try {
-    plugins = fs.readdirSync(pluginDirectory).filter(file => file.endsWith(".js"));
+    plugins = fs.readdirSync(pluginDirectory).filter((file) => file.endsWith(".js"));
     if (plugins.length === 0) {
       logger(`No plugins found in directory: ${pluginDirectory}`, "warn");
     }
@@ -217,7 +221,7 @@ async function sendErrorReport(error) {
     const res = await axios.post(config.errorReportService, {
       error: error.message,
       stack: error.stack,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
     logger(`Error report sent: ${res.status}`, "info");
   } catch (err) {
@@ -228,8 +232,8 @@ async function sendErrorReport(error) {
         JSON.stringify({
           error: error.message,
           stack: error.stack,
-          timestamp: new Date().toISOString()
-        }) + "\n"
+          timestamp: new Date().toISOString(),
+        }) + "\n",
       );
       logger("Error report saved locally.", "info");
     } catch (fileErr) {
@@ -312,11 +316,11 @@ export async function verifyIssueFix(params) {
     issueDescription,
     issueComments,
     model,
-    apiKey
+    apiKey,
   } = params;
   if (!apiKey) throw new Error("Missing API key.");
   const issueCommentsText = issueComments
-    .map(comment => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
+    .map((comment) => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
     .join("\n");
   const prompt = `
 Does the following source file content reflect the resolution of the issue?
@@ -370,36 +374,36 @@ Answer with a JSON object:
           properties: {
             fixed: { type: "string", description: "true if fixed, false otherwise" },
             message: { type: "string", description: "Explanation of the result" },
-            refinement: { type: "string", description: "Suggested refinement if not fixed" }
+            refinement: { type: "string", description: "Suggested refinement if not fixed" },
           },
           required: ["fixed", "message", "refinement"],
-          additionalProperties: false
+          additionalProperties: false,
         },
-        strict: true
-      }
-    }
+        strict: true,
+      },
+    },
   ];
 
   const response = await openai.chat.completions.create({
     model,
     messages: [
       { role: "system", content: "Evaluate issue resolution based on provided inputs." },
-      { role: "user", content: prompt }
+      { role: "user", content: prompt },
     ],
-    tools: functionSchema
+    tools: functionSchema,
   });
 
   const ResponseSchema = z.object({
     fixed: z.string(),
     message: z.string(),
-    refinement: z.string()
+    refinement: z.string(),
   });
   const parsed = parseResponse(response, ResponseSchema);
   return {
     fixed: parsed.fixed,
     message: parsed.message,
     refinement: parsed.refinement,
-    responseUsage: response.usage
+    responseUsage: response.usage,
   };
 }
 
@@ -418,7 +422,7 @@ export async function updateTargetForFixFallingBuild(params) {
     mainScript,
     mainOutput,
     model,
-    apiKey
+    apiKey,
   } = params;
   if (!apiKey) throw new Error("Missing API key.");
   const prompt = `
@@ -467,35 +471,35 @@ Answer with a JSON object:
           type: "object",
           properties: {
             updatedSourceFileContent: { type: "string", description: "Updated file content." },
-            message: { type: "string", description: "Commit message." }
+            message: { type: "string", description: "Commit message." },
           },
           required: ["updatedSourceFileContent", "message"],
-          additionalProperties: false
+          additionalProperties: false,
         },
-        strict: true
-      }
-    }
+        strict: true,
+      },
+    },
   ];
 
   const response = await openai.chat.completions.create({
     model,
     messages: [
       { role: "system", content: "Provide updated source file content to fix build issues." },
-      { role: "user", content: prompt }
+      { role: "user", content: prompt },
     ],
-    tools: functionSchema
+    tools: functionSchema,
   });
 
   const ResponseSchema = z.object({
     updatedSourceFileContent: z.string(),
-    message: z.string()
+    message: z.string(),
   });
   const parsed = parseResponse(response, ResponseSchema);
   return {
     updatedSourceFileContent: parsed.updatedSourceFileContent,
     message: parsed.message,
     fixApplied: true,
-    responseUsage: response.usage
+    responseUsage: response.usage,
   };
 }
 
@@ -516,11 +520,11 @@ export async function updateTargetForStartIssue(params) {
     issueDescription,
     issueComments,
     model,
-    apiKey
+    apiKey,
   } = params;
   if (!apiKey) throw new Error("Missing API key.");
   const issueCommentsText = issueComments
-    .map(comment => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
+    .map((comment) => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
     .join("\n");
   const prompt = `
 Update the file to resolve the following issue.
@@ -572,35 +576,35 @@ Answer with a JSON object:
           type: "object",
           properties: {
             updatedSourceFileContent: { type: "string", description: "Updated file content." },
-            message: { type: "string", description: "Commit message." }
+            message: { type: "string", description: "Commit message." },
           },
           required: ["updatedSourceFileContent", "message"],
-          additionalProperties: false
+          additionalProperties: false,
         },
-        strict: true
-      }
-    }
+        strict: true,
+      },
+    },
   ];
 
   const response = await openai.chat.completions.create({
     model,
     messages: [
       { role: "system", content: "Provide updated source file content to resolve the issue." },
-      { role: "user", content: prompt }
+      { role: "user", content: prompt },
     ],
-    tools: functionSchema
+    tools: functionSchema,
   });
 
   const ResponseSchema = z.object({
     updatedSourceFileContent: z.string(),
-    message: z.string()
+    message: z.string(),
   });
   const parsed = parseResponse(response, ResponseSchema);
   return {
     updatedSourceFileContent: parsed.updatedSourceFileContent,
     message: parsed.message,
     fixApplied: true,
-    responseUsage: response.usage
+    responseUsage: response.usage,
   };
 }
 
@@ -621,7 +625,7 @@ export function labelMergedIssue(pullNumber, branchName, branchPrefix) {
   }
   return {
     issueNumber,
-    comment: `The feature branch "${branchName}" has been merged.`
+    comment: `The feature branch "${branchName}" has been merged.`,
   };
 }
 
@@ -640,22 +644,24 @@ export function findPRInCheckSuite(prs) {
   if (!prs || prs.length === 0) {
     return { pullNumber: "", shouldSkipMerge: "true", prMerged: "false" };
   }
-  const openPRs = prs.filter(pr => pr.state === "open");
-  const prWithAutomerge = openPRs.find(pr => pr.labels && pr.labels.some(label => label.name.toLowerCase() === "automerge"));
+  const openPRs = prs.filter((pr) => pr.state === "open");
+  const prWithAutomerge = openPRs.find(
+    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge"),
+  );
   if (!prWithAutomerge) {
     return { pullNumber: "", shouldSkipMerge: "true", prMerged: "false" };
   }
   return {
     pullNumber: prWithAutomerge.number.toString(),
     shouldSkipMerge: "false",
-    prMerged: "false"
+    prMerged: "false",
   };
 }
 
 // Select an issue from a list
 export function selectIssue(providedIssueNumber, issues) {
   if (providedIssueNumber) {
-    const found = issues.find(issue => issue.number.toString() === providedIssueNumber.toString());
+    const found = issues.find((issue) => issue.number.toString() === providedIssueNumber.toString());
     return found ? found.number.toString() : "";
   }
   return issues.length > 0 ? issues[0].number.toString() : "";
@@ -664,7 +670,7 @@ export function selectIssue(providedIssueNumber, issues) {
 // Check if an issue has a merged label
 export function hasMergedLabel(issue) {
   if (!issue.labels || !Array.isArray(issue.labels)) return false;
-  return issue.labels.some(label => label.name.toLowerCase() === "merged");
+  return issue.labels.some((label) => label.name.toLowerCase() === "merged");
 }
 
 // Pull Request and Issue Creation
@@ -678,7 +684,7 @@ export async function createPullRequest(params) {
   return {
     prCreated: true,
     prNumber: "123",
-    htmlUrl: `https://github.com/dummy/repo/pull/123`
+    htmlUrl: `https://github.com/dummy/repo/pull/123`,
   };
 }
 
@@ -693,7 +699,7 @@ export async function createIssue(params) {
 export async function listOpenPullRequests({ _x }) {
   return [
     { number: 101, headRef: "issue-101", baseRef: "main" },
-    { number: 102, headRef: "feature-102", baseRef: "main" }
+    { number: 102, headRef: "feature-102", baseRef: "main" },
   ];
 }
 
@@ -726,11 +732,11 @@ export async function updateMultipleFiles(params) {
     mainScript,
     mainOutput,
     model,
-    apiKey
+    apiKey,
   } = params;
   if (!apiKey) throw new Error("Missing API key.");
   const issueCommentsText = issueComments
-    .map(comment => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
+    .map((comment) => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
     .join("\n");
   const prompt = `
 Update contents for multiple files:
@@ -795,30 +801,30 @@ Answer with a JSON object:
             updatedSourceFileContent: { type: "string", description: "Updated source file content." },
             updatedTestFileContent: { type: "string", description: "Updated test file content." },
             updatedPackagesJsonContent: { type: "string", description: "Updated packages.json content." },
-            message: { type: "string", description: "Commit message." }
+            message: { type: "string", description: "Commit message." },
           },
           required: ["updatedSourceFileContent", "updatedTestFileContent", "updatedPackagesJsonContent", "message"],
-          additionalProperties: false
+          additionalProperties: false,
         },
-        strict: true
-      }
-    }
+        strict: true,
+      },
+    },
   ];
 
   const response = await openai.chat.completions.create({
     model,
     messages: [
       { role: "system", content: "Return updated content for multiple files to resolve the issue." },
-      { role: "user", content: prompt }
+      { role: "user", content: prompt },
     ],
-    tools: functionSchema
+    tools: functionSchema,
   });
 
   const ResponseSchema = z.object({
     updatedSourceFileContent: z.string(),
     updatedTestFileContent: z.string(),
     updatedPackagesJsonContent: z.string(),
-    message: z.string()
+    message: z.string(),
   });
   const parsed = parseResponse(response, ResponseSchema);
   return {
@@ -827,7 +833,7 @@ Answer with a JSON object:
     updatedPackagesJsonContent: parsed.updatedPackagesJsonContent,
     message: parsed.message,
     fixApplied: true,
-    responseUsage: response.usage
+    responseUsage: response.usage,
   };
 }
 
@@ -895,13 +901,16 @@ function runImprovedTestDemo() {
 // Log performance metrics
 function logPerformanceMetrics() {
   const memoryUsage = process.memoryUsage();
-  const formatMemory = bytes => (bytes / 1024 / 1024).toFixed(2) + " MB";
-  logger(`Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`, "info");
+  const formatMemory = (bytes) => (bytes / 1024 / 1024).toFixed(2) + " MB";
+  logger(
+    `Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`,
+    "info",
+  );
 }
 
 // Global Error Handlers
 
-process.on("uncaughtException", err => {
+process.on("uncaughtException", (err) => {
   logger(`Uncaught Exception: ${err.message}\n${err.stack}`, "error");
   sendErrorReport(err);
 });
@@ -949,7 +958,7 @@ async function main() {
     issueComments: [{ user: { login: "alice" }, created_at: "2023-01-01", body: "Please fix this." }],
     model: "o3-mini",
     apiKey: "dummy-api-key",
-    issueNumber: 123
+    issueNumber: 123,
   });
 
   await runDemo("updateTargetForFixFallingBuild", updateTargetForFixFallingBuild, {
@@ -963,7 +972,7 @@ async function main() {
     mainScript: "node src/lib/main.js",
     mainOutput: "Error output",
     model: "o3-mini",
-    apiKey: "dummy-api-key"
+    apiKey: "dummy-api-key",
   });
 
   await runDemo("updateTargetForStartIssue", updateTargetForStartIssue, {
@@ -981,7 +990,7 @@ async function main() {
     issueComments: [{ user: { login: "bob" }, created_at: "2023-02-01", body: "Please update greeting." }],
     model: "o3-mini",
     apiKey: "dummy-api-key",
-    issueNumber: 456
+    issueNumber: 456,
   });
 
   const extracted = extractIssueNumber("issue-789-update", "issue-");
@@ -997,13 +1006,13 @@ async function main() {
   const mergeResult = autoMergePullRequest({
     state: "open",
     mergeable: true,
-    mergeable_state: "clean"
+    mergeable_state: "clean",
   });
   logger(`autoMergePullRequest: ${mergeResult}`, "info");
 
   const prFound = findPRInCheckSuite([
     { number: 1, state: "closed", labels: [] },
-    { number: 2, state: "open", labels: [{ name: "automerge" }] }
+    { number: 2, state: "open", labels: [{ name: "automerge" }] },
   ]);
   logger(`findPRInCheckSuite: ${JSON.stringify(prFound)}`, "info");
 
@@ -1011,7 +1020,7 @@ async function main() {
   logger(`selectIssue: ${selectedIssue}`, "info");
 
   const mergedLabel = hasMergedLabel({
-    labels: [{ name: "Merged" }, { name: "bug" }]
+    labels: [{ name: "Merged" }, { name: "bug" }],
   });
   logger(`hasMergedLabel: ${mergedLabel}`, "info");
 
@@ -1020,18 +1029,18 @@ async function main() {
     baseBranch: "main",
     commitMessage: "Ready for pull",
     label: "automerge",
-    existingPulls: []
+    existingPulls: [],
   });
 
   await runDemo("createIssue", createIssue, {
     issueTitle: "Improve error handling",
-    target: "src/lib/main.js"
+    target: "src/lib/main.js",
   });
 
   await runDemo("listOpenPullRequests", listOpenPullRequests, {
     owner: "dummy",
     repo: "repo",
-    pullsPerPage: 2
+    pullsPerPage: 2,
   });
 
   const sarifAnalysis = analyzeSarifResults("5", "2");
@@ -1076,10 +1085,14 @@ async function main() {
     issueTitle: "Support multiple files being changed",
     issueDescription: "Update source, test, and packages.json concurrently.",
     issueComments: [
-      { user: { login: "charlie" }, created_at: "2025-02-11T02:10:00Z", body: "Needs support for multiple file updates" }
+      {
+        user: { login: "charlie" },
+        created_at: "2025-02-11T02:10:00Z",
+        body: "Needs support for multiple file updates",
+      },
     ],
     model: "o3-mini",
-    apiKey: "dummy-api-key"
+    apiKey: "dummy-api-key",
   });
 
   backupState();
@@ -1161,5 +1174,5 @@ export default {
   watchPluginsDirectory,
   reloadAllAgenticFeatures,
   startAnalyticsReporting,
-  captureAnalyticsData
+  captureAnalyticsData,
 };
