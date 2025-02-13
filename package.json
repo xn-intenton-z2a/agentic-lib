@@ -1,6 +1,6 @@
 {
   "name": "@polycode-projects/intention-agentic-lib",
-  "version": "0.1.1-45",
+  "version": "0.1.1-46",
   "description": "A next-generation encoder library focused on **high-density** encoding and decoding—initially optimized for **UUIDs** (particularly v4 and v7) while also laying the groundwork for handling arbitrary binary data. The library uses advanced packing strategies to produce shorter representations when stored in multi-byte text formats (e.g., UTF-16, UTF-32). Built for **Node 20** using **ESM 2023** features.",
   "type": "module",
   "main": "index.js",
