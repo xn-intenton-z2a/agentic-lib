@@ -6,7 +6,7 @@
 // - Integrated error reporting via axios with a fallback to local logging if external reporting fails.
 // - Internationalized enhanced logging and comprehensive error tracing.
 // - Improved testing support including multi-file update capabilities, real-time test demos, and enhanced test validations.
-// - Seamless API integrations with dynamic plugin loading and real-time error notifications.
+// - Seamless API integrations with dynamic plugin loading, real-time error notifications, and an enhanced automatic retry mechanism on failures.
 // - Efficient caching mechanisms for optimized performance with global cache management and dynamic cache clearing.
 // - Real-time collaboration support with session management.
 // - Robust modular plugin system with live monitoring of the plugins directory and automatic reloading of plugins.
@@ -222,15 +222,26 @@ async function sendErrorReport(error) {
   }
 }
 
-// Integrates with an external API using axios
+// Integrates with an external API using axios with an automatic retry mechanism
 export async function integrateWithApi(endpoint, payload) {
-  try {
-    const response = await axios.post(endpoint, payload);
-    logger(`API integration success: ${response.status}`, "info");
-    return response.data;
-  } catch (error) {
-    logger(`API integration error: ${error.message}`, "error");
-    throw error;
+  const maxRetries = 3;
+  let attempt = 0;
+  while (attempt < maxRetries) {
+    try {
+      const response = await axios.post(endpoint, payload);
+      logger(`API integration success on attempt ${attempt + 1}: ${response.status}`, "info");
+      return response.data;
+    } catch (error) {
+      attempt++;
+      logger(`API integration attempt ${attempt} failed: ${error.message}`, "warn");
+      if (attempt < maxRetries) {
+        const delay = attempt * 1000; // Exponential like delay
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } else {
+        logger(`API integration error after ${maxRetries} attempts: ${error.message}`, "error");
+        throw error;
+      }
+    }
   }
 }
 
