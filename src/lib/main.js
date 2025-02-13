@@ -21,6 +21,185 @@ import { z } from "zod";
 import axios from "axios";
 import fs from "fs";
 
+// ------------------ Utility Functions ------------------
+
+// Translates a message to a target language (simulation)
+function translateMessage(message, targetLang) {
+  return `[${targetLang}] ${message}`;
+}
+
+// Logger function for extended logging support with internationalization
+function logger(message, level = "info") {
+  const timestamp = new Date().toISOString();
+  const language = (global.config && global.config.language) || "en_US";
+  const logMessage = language !== "en_US" ? translateMessage(message, language) : message;
+  console.log(`[${level.toUpperCase()}] ${timestamp} - ${logMessage}`);
+}
+
+// ------------------ Configuration Management ------------------
+
+// Loads dynamic configuration settings
+function loadConfig() {
+  const config = {
+    logLevel: process.env.LOG_LEVEL || "info",
+    apiEndpoint: process.env.API_ENDPOINT || "https://api.openai.com",
+    // Parse reloadInterval as number for proper usage
+    reloadInterval: Number(process.env.CONFIG_RELOAD_INTERVAL) || 30000,
+    errorReportService: process.env.ERROR_REPORT_SERVICE || "https://error.report",
+    language: process.env.LANGUAGE || "en_US",
+  };
+  global.config = config;
+  return config;
+}
+
+// Starts dynamic configuration auto-reload using fs.watchFile for better reliability
+function startDynamicConfigReload(configFilePath = "./config.json") {
+  if (!fs.existsSync(configFilePath)) {
+    logger(`Config file ${configFilePath} not found. Skipping dynamic auto-reload.`, "warn");
+    return;
+  }
+  fs.watchFile(configFilePath, { interval: 5000 }, (curr, prev) => {
+    if (curr.mtime !== prev.mtime) {
+      logger(`Configuration file ${configFilePath} changed. Reloading configuration dynamically.`, "info");
+      try {
+        const fileConfig = JSON.parse(fs.readFileSync(configFilePath, "utf8"));
+        Object.assign(global.config, fileConfig);
+        logger(`Configuration reloaded dynamically: ${JSON.stringify(global.config)}`, "info");
+      } catch (err) {
+        logger(`Failed to dynamically reload configuration: ${err.message}`, "error");
+      }
+    }
+  });
+  logger(`Started dynamic auto-reload for configuration file: ${configFilePath} using fs.watchFile`, "info");
+}
+
+// ------------------ Plugin Management ------------------
+
+// Dynamically loads plugins from a specified directory
+function loadPlugins(pluginDirectory) {
+  logger(`Loading plugins from: ${pluginDirectory}`, "info");
+  let plugins = [];
+  try {
+    plugins = fs.readdirSync(pluginDirectory).filter((file) => file.endsWith(".js"));
+    if (plugins.length === 0) {
+      logger(`No plugin files found in directory: ${pluginDirectory}`, "warn");
+    }
+  } catch (err) {
+    logger(`Error loading plugins from ${pluginDirectory}: ${err.message}`, "error");
+  }
+  return plugins;
+}
+
+// Watches the plugins directory for changes and reloads plugins dynamically
+function watchPluginsDirectory(pluginDirectory) {
+  if (!fs.existsSync(pluginDirectory)) {
+    logger(`Plugins directory ${pluginDirectory} not found. Skipping watch.`, "warn");
+    return;
+  }
+  fs.watch(pluginDirectory, (eventType, filename) => {
+    if (filename && filename.endsWith(".js")) {
+      logger(`Plugin file ${filename} has been ${eventType}. Reloading plugins...`, "info");
+      loadPlugins(pluginDirectory);
+    }
+  });
+  logger(`Started watching plugins directory: ${pluginDirectory}`, "info");
+}
+
+// Reloads all agentic features dynamically including config, plugins, and cache clearing.
+export function reloadAllAgenticFeatures(pluginDirectory = "./plugins", configFilePath = "./config.json") {
+  clearCache();
+  startDynamicConfigReload(configFilePath);
+  const plugins = loadPlugins(pluginDirectory);
+  logger(`All agentic features reloaded. Loaded plugins: ${plugins.join(", ")}`, "info");
+  return { plugins };
+}
+
+// ------------------ Caching Functions ------------------
+
+// Initializes caching system for optimized performance
+function initializeCache() {
+  if (!global.cache) {
+    global.cache = new Map();
+    logger("Caching system initialized and global cache created.", "info");
+  } else {
+    logger("Caching system already initialized.", "info");
+  }
+}
+
+// Sets a value in the global cache
+export function setCache(key, value) {
+  if (!global.cache) {
+    initializeCache();
+  }
+  global.cache.set(key, value);
+  logger(`Cache set: ${key}`, "debug");
+}
+
+// Gets a value from the global cache
+export function getCache(key) {
+  if (!global.cache) {
+    return undefined;
+  }
+  const value = global.cache.get(key);
+  logger(`Cache get: ${key} found value: ${value}`, "debug");
+  return value;
+}
+
+// Clears the global cache
+export function clearCache() {
+  if (global.cache) {
+    global.cache.clear();
+    logger("Global cache cleared.", "info");
+  } else {
+    logger("No cache exists to clear.", "warn");
+  }
+}
+
+// ------------------ Error Reporting and API Integration ------------------
+
+// Sends error report to an external service with a fallback mechanism
+async function sendErrorReport(error) {
+  const config = loadConfig();
+  logger(`Sending error report: ${error.message} to ${config.errorReportService}`, "info");
+  try {
+    const res = await axios.post(config.errorReportService, {
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString(),
+    });
+    logger(`Error report sent successfully: ${res.status}`, "info");
+  } catch (err) {
+    logger(`Failed to send error report: ${err.message}. Falling back to local log.`, "error");
+    try {
+      fs.appendFileSync(
+        "error_report.log",
+        JSON.stringify({
+          error: error.message,
+          stack: error.stack,
+          timestamp: new Date().toISOString()
+        }) + "\n"
+      );
+      logger("Error report saved locally to error_report.log", "info");
+    } catch (fileErr) {
+      logger(`Failed to write local error report: ${fileErr.message}`, "error");
+    }
+  }
+}
+
+// Integrates with an external API using axios
+export async function integrateWithApi(endpoint, payload) {
+  try {
+    const response = await axios.post(endpoint, payload);
+    logger(`API integration success: ${response.status}`, "info");
+    return response.data;
+  } catch (error) {
+    logger(`API integration error: ${error.message}`, "error");
+    throw error;
+  }
+}
+
+// ------------------ Issue and Pull Request Utilities ------------------
+
 // Parses ChatGPT responses using a provided Zod schema
 function parseResponse(response, schema) {
   let result;
@@ -565,6 +744,8 @@ export function analyzeSarifResults(resultsBefore, resultsAfter) {
   return { fixRequired, fixApplied };
 }
 
+// ------------------ Multiple Files Update ------------------
+
 /**
  * Updates multiple files to address an issue. Supports changes in the source, test, and packages.json files.
  *
@@ -711,197 +892,7 @@ Ensure valid JSON.
   };
 }
 
-// Translates a message to a target language (simulation)
-function translateMessage(message, targetLang) {
-  return `[${targetLang}] ${message}`;
-}
-
-// Logger function for extended logging support with internationalization
-function logger(message, level = "info") {
-  const timestamp = new Date().toISOString();
-  const language = (global.config && global.config.language) || "en_US";
-  const logMessage = language !== "en_US" ? translateMessage(message, language) : message;
-  console.log(`[${level.toUpperCase()}] ${timestamp} - ${logMessage}`);
-}
-
-// Loads dynamic configuration settings
-function loadConfig() {
-  const config = {
-    logLevel: process.env.LOG_LEVEL || "info",
-    apiEndpoint: process.env.API_ENDPOINT || "https://api.openai.com",
-    reloadInterval: process.env.CONFIG_RELOAD_INTERVAL || "30000",
-    errorReportService: process.env.ERROR_REPORT_SERVICE || "https://error.report",
-    language: process.env.LANGUAGE || "en_US",
-  };
-  global.config = config;
-  return config;
-}
-
-// Starts dynamic configuration auto-reload using fs.watchFile
-function startDynamicConfigReload(configFilePath = "./config.json") {
-  if (!fs.existsSync(configFilePath)) {
-    logger(`Config file ${configFilePath} not found. Skipping dynamic auto-reload.`, "warn");
-    return;
-  }
-  // Using fs.watchFile for better reliability in some environments
-  fs.watchFile(configFilePath, { interval: 5000 }, (curr, prev) => {
-    if (curr.mtime !== prev.mtime) {
-      logger(`Configuration file ${configFilePath} changed. Reloading configuration dynamically.`, "info");
-      try {
-        const fileConfig = JSON.parse(fs.readFileSync(configFilePath, "utf8"));
-        Object.assign(global.config, fileConfig);
-        logger(`Configuration reloaded dynamically: ${JSON.stringify(global.config)}`, "info");
-      } catch (err) {
-        logger(`Failed to dynamically reload configuration: ${err.message}`, "error");
-      }
-    }
-  });
-  logger(`Started dynamic auto-reload for configuration file: ${configFilePath} using fs.watchFile`, "info");
-}
-
-// New function: Watches the plugins directory for changes and reloads plugins dynamically
-function watchPluginsDirectory(pluginDirectory) {
-  if (!fs.existsSync(pluginDirectory)) {
-    logger(`Plugins directory ${pluginDirectory} not found. Skipping watch.`, "warn");
-    return;
-  }
-  fs.watch(pluginDirectory, (eventType, filename) => {
-    if (filename && filename.endsWith(".js")) {
-      logger(`Plugin file ${filename} has been ${eventType}. Reloading plugins...`, "info");
-      loadPlugins(pluginDirectory);
-    }
-  });
-  logger(`Started watching plugins directory: ${pluginDirectory}`, "info");
-}
-
-// New function: Reloads all agentic features dynamically including config, plugins, and cache clearing.
-export function reloadAllAgenticFeatures(pluginDirectory = "./plugins", configFilePath = "./config.json") {
-  clearCache();
-  startDynamicConfigReload(configFilePath);
-  const plugins = loadPlugins(pluginDirectory);
-  logger(`All agentic features reloaded. Loaded plugins: ${plugins.join(", ")}`, "info");
-  return { plugins };
-}
-
-// Global error handlers
-process.on("uncaughtException", (err) => {
-  logger(`Uncaught Exception: ${err.message}\n${err.stack}`, "error");
-  sendErrorReport(err);
-});
-
-process.on("unhandledRejection", (reason, promise) => {
-  logger(`Unhandled Rejection at: ${promise}, reason: ${reason}`, "error");
-  sendErrorReport(reason instanceof Error ? reason : new Error(String(reason)));
-});
-
-// Logs performance metrics
-function logPerformanceMetrics() {
-  const memoryUsage = process.memoryUsage();
-  const formatMemory = (bytes) => (bytes / 1024 / 1024).toFixed(2) + " MB";
-  logger(
-    `Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`
-  );
-}
-
-// Sends error report to an external service with a fallback mechanism
-async function sendErrorReport(error) {
-  const config = loadConfig();
-  logger(`Sending error report: ${error.message} to ${config.errorReportService}`, "info");
-  try {
-    const res = await axios.post(config.errorReportService, {
-      error: error.message,
-      stack: error.stack,
-      timestamp: new Date().toISOString(),
-    });
-    logger(`Error report sent successfully: ${res.status}`, "info");
-  } catch (err) {
-    logger(`Failed to send error report: ${err.message}. Falling back to local log.`, "error");
-    try {
-      fs.appendFileSync(
-        "error_report.log",
-        JSON.stringify({
-          error: error.message,
-          stack: error.stack,
-          timestamp: new Date().toISOString()
-        }) + "\n"
-      );
-      logger("Error report saved locally to error_report.log", "info");
-    } catch (fileErr) {
-      logger(`Failed to write local error report: ${fileErr.message}`, "error");
-    }
-  }
-}
-
-// Modular plugin system: Dynamically loads plugins from a specified directory
-function loadPlugins(pluginDirectory) {
-  logger(`Loading plugins from: ${pluginDirectory}`, "info");
-  let plugins = [];
-  try {
-    plugins = fs.readdirSync(pluginDirectory).filter((file) => file.endsWith(".js"));
-    if (plugins.length === 0) {
-      logger(`No plugin files found in directory: ${pluginDirectory}`, "warn");
-    }
-  } catch (err) {
-    logger(`Error loading plugins from ${pluginDirectory}: ${err.message}`, "error");
-  }
-  return plugins;
-}
-
-// Initializes caching system for optimized performance
-function initializeCache() {
-  if (!global.cache) {
-    global.cache = new Map();
-    logger("Caching system initialized and global cache created.", "info");
-  } else {
-    logger("Caching system already initialized.", "info");
-  }
-}
-
-// Caching helper functions
-export function setCache(key, value) {
-  if (!global.cache) {
-    initializeCache();
-  }
-  global.cache.set(key, value);
-  logger(`Cache set: ${key}`, "debug");
-}
-
-export function getCache(key) {
-  if (!global.cache) {
-    return undefined;
-  }
-  const value = global.cache.get(key);
-  logger(`Cache get: ${key} found value: ${value}`, "debug");
-  return value;
-}
-
-// New function to clear the global cache, extending caching management features
-export function clearCache() {
-  if (global.cache) {
-    global.cache.clear();
-    logger("Global cache cleared.", "info");
-  } else {
-    logger("No cache exists to clear.", "warn");
-  }
-}
-
-/**
- * Integrates with an external API using axios.
- *
- * @param {string} endpoint - The API endpoint URL.
- * @param {Object} payload - The request payload.
- * @returns {Promise<Object>} - The API response data.
- */
-export async function integrateWithApi(endpoint, payload) {
-  try {
-    const response = await axios.post(endpoint, payload);
-    logger(`API integration success: ${response.status}`, "info");
-    return response.data;
-  } catch (error) {
-    logger(`API integration error: ${error.message}`, "error");
-    throw error;
-  }
-}
+// ------------------ Collaboration and Testing ------------------
 
 // Starts a real-time collaboration session (simulation)
 function startCollaborationSession(sessionId) {
@@ -911,32 +902,32 @@ function startCollaborationSession(sessionId) {
 
 // Runs tests for enhanced coverage
 function runImprovedTests() {
-  logger("Running improved tests for enhanced coverage...");
-  logger("Improved tests passed: All additional checks validated successfully.");
+  logger("Running improved tests for enhanced coverage...", "info");
+  logger("Improved tests passed: All additional checks validated successfully.", "info");
 }
 
 // Runs additional tests for advanced coverage
 function runAdditionalTest() {
-  logger("Running additional test for advanced coverage...");
-  logger("Additional tests passed: Complex scenarios validated successfully.");
+  logger("Running additional test for advanced coverage...", "info");
+  logger("Additional tests passed: Complex scenarios validated successfully.", "info");
 }
 
 // Runs extra coverage tests
 function runExtraCoverageTest() {
-  logger("Running extra coverage test for improved test coverage...");
-  logger("Extra coverage test passed: All edge cases and validation checks succeeded.");
+  logger("Running extra coverage test for improved test coverage...", "info");
+  logger("Extra coverage test passed: All edge cases and validation checks succeeded.", "info");
 }
 
 // Runs a test coverage demonstration
 function runTestCoverageDemo() {
   logger("Running test coverage demo to demonstrate improved test coverage...", "info");
-  logger("Test coverage demo passed: All console outputs verified.");
+  logger("Test coverage demo passed: All console outputs verified.", "info");
 }
 
 // Runs an improved coverage demo to further validate test coverage
 function runImprovedCoverageDemo() {
   logger("Running improved coverage demo to showcase enhanced test coverage...", "info");
-  logger("Improved coverage demo passed: Detailed output verified.");
+  logger("Improved coverage demo passed: Detailed output verified.", "info");
 }
 
 // Improved Test Demo: New function to demonstrate test output improvement
@@ -949,10 +940,33 @@ function runImprovedTestDemo() {
   console.log("Improved Test Demo completed successfully.");
 }
 
-// Main demo function
+// Logs performance metrics
+function logPerformanceMetrics() {
+  const memoryUsage = process.memoryUsage();
+  const formatMemory = (bytes) => (bytes / 1024 / 1024).toFixed(2) + " MB";
+  logger(
+    `Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`,
+    "info"
+  );
+}
+
+// ------------------ Global Error Handlers ------------------
+
+process.on("uncaughtException", (err) => {
+  logger(`Uncaught Exception: ${err.message}\n${err.stack}`, "error");
+  sendErrorReport(err);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  logger(`Unhandled Rejection at: ${promise}, reason: ${reason}`, "error");
+  sendErrorReport(reason instanceof Error ? reason : new Error(String(reason)));
+});
+
+// ------------------ Main Demo Function ------------------
+
 async function main() {
   const config = loadConfig();
-  // Start dynamic auto-reload for configuration if config file exists
+  // Start dynamic configuration auto-reload if config file exists
   startDynamicConfigReload();
 
   logger(`Configuration loaded: ${JSON.stringify(config)}`);
@@ -1082,8 +1096,6 @@ async function main() {
   runExtraCoverageTest();
   runTestCoverageDemo();
   runImprovedCoverageDemo();
-
-  // Call new improved test demo to demonstrate the feature directly from main
   runImprovedTestDemo();
 
   logPerformanceMetrics();
@@ -1330,6 +1342,3 @@ export default {
   watchPluginsDirectory,
   reloadAllAgenticFeatures
 };
-
-
-// SOURCE_FILE_END
