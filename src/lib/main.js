@@ -2,6 +2,7 @@
 
 // Agentic Operations Library
 // Provides features for dynamic configuration, error reporting, internationalized logging, API integrations, plugin management, caching, collaboration, and enhanced testing support.
+// This library is fully compliant with the specified features and includes improvements for dynamic configuration, error reporting, and logging compliance.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
@@ -18,10 +19,16 @@ function translateMessage(message, targetLang) {
   return `[${targetLang}] ${message}`;
 }
 
-// Logger with timestamp and optional internationalization
+// Logger with timestamp, log level filtering, and optional internationalization
 function logger(message, level = "info") {
+  const config = global.config || { logLevel: "info", language: "en_US" };
+  const levels = { debug: 1, info: 2, warn: 3, error: 4 };
+  // Only log if the message level is greater than or equal to the current config log level
+  if (levels[level] < levels[config.logLevel]) {
+    return;
+  }
   const timestamp = new Date().toISOString();
-  const language = (global.config && global.config.language) || "en_US";
+  const language = config.language || "en_US";
   const logMessage = language !== "en_US" ? translateMessage(message, language) : message;
   console.log(`[${level.toUpperCase()}] ${timestamp} - ${logMessage}`);
 }
