@@ -1,23 +1,20 @@
 #!/usr/bin/env node
 
 // Intention Agentic Library
-// This library offers a robust set of functionalities for advanced agentic operations:
-// - Dynamic configuration with auto-reload support via a configuration file, enabling seamless live updates.
-// - Integrated error reporting via axios with a fallback to local logging if external reporting fails.
-// - Internationalized enhanced logging and comprehensive error tracing.
-// - Improved testing support including multi-file update capabilities, real-tim
-// - Improved testing support including multi-file update capabilities, real-time test demos, and enhanced test validations.
-// - Seamless API integrations with dynamic plugin loading, real-time error noti
-// - Seamless API integrations with dynamic plugin loading, real-time error notifications, and an enhanced automatic retry mechanism on failures.
-// - Efficient caching mechanisms for optimized performance with global cache management and dynamic cache clearing.
-// - Real-time collaboration support with session management.
-// - Robust modular plugin system with live monitoring of the plugins directory and automatic reloading of plugins.
+// This library offers a robust set of functionalities for advanced agentic operations including:
+// - Dynamic configuration with auto-reload support via a configuration file for live updates.
+// - Integrated error reporting via axios with fallback to local logging when necessary.
+// - Internationalized logging and comprehensive error tracing for enhanced debugging.
+// - Extensive testing support including multi-file update capabilities, real-time demos, and advanced test validations.
+// - Seamless API integration with dynamic plugin loading, real-time error notifications, and an enhanced automatic retry mechanism on failures.
+// - Efficient caching mechanisms with global cache management and dynamic cache clearing.
+// - Real-time collaboration support with session management and remote debugging.
+// - A robust and modular plugin system with live monitoring of the plugins directory and automatic reloading.
 // - Comprehensive pull request and issue management utilities with automated labeling and merging.
-// - Supports multi-file updates across source, test, and configuration files.
-// - Advanced reload capabilities that dynamically reload all agentic features i
-// - Advanced reload capabilities that dynamically reload all agentic features including configuration, plugins, and cache.
-// - Automatic state backup and recovery functionality that periodically saves t
-// - Automatic state backup and recovery functionality that periodically saves the current state and enables recovery on failures.
+// - Support for multi-file updates across source, test, and configuration files.
+// - Advanced reload capabilities that dynamically refresh configuration, plugins, and caches.
+// - Automatic state backup and recovery functionality that periodically saves state and enables recovery on failures.
+// - Extended security features with enhanced API integration and improved header documentation.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
@@ -218,7 +215,7 @@ async function sendErrorReport(error) {
           error: error.message,
           stack: error.stack,
           timestamp: new Date().toISOString(),
-        }) + "\n",
+        }) + "\n"
       );
       logger("Error report saved locally to error_report.log", "info");
     } catch (fileErr) {
@@ -698,7 +695,7 @@ export function findPRInCheckSuite(prs) {
   }
   const openPRs = prs.filter((pr) => pr.state === "open");
   const prWithAutomerge = openPRs.find(
-    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge"),
+    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge")
   );
   if (!prWithAutomerge) {
     return { pullNumber: "", shouldSkipMerge: "true", prMerged: "false" };
@@ -998,7 +995,7 @@ function logPerformanceMetrics() {
   const formatMemory = (bytes) => (bytes / 1024 / 1024).toFixed(2) + " MB";
   logger(
     `Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`,
-    "info",
+    "info"
   );
 }
 
