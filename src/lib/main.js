@@ -1,22 +1,7 @@
 #!/usr/bin/env node
 
-// Intention Agentic Library
-// This library offers a robust set of functionalities for advanced agentic operations including:
-// - Dynamic configuration with auto-reload support via a configuration file for live updates.
-// - Integrated error reporting via axios with fallback to local logging when necessary.
-// - Internationalized logging with comprehensive error tracing and support for multiple languages.
-// - Extensive testing support including multi-file update capabilities, real-time demos, and advanced test validations.
-// - Seamless API integration with dynamic plugin loading, real-time error notifications, and an enhanced automatic retry mechanism on failures.
-// - Efficient caching mechanisms with global cache management and dynamic cache clearing.
-// - Real-time collaboration support with session management and remote debugging.
-// - A robust and modular plugin system with live monitoring of the plugins directory and automatic reloading.
-// - Comprehensive pull request and issue management utilities with automated labeling and merging.
-// - Support for multi-file updates across source, test, and configuration files.
-// - Advanced reload capabilities that dynamically refresh configuration, plugins, and caches.
-// - Automatic state backup and recovery functionality that periodically saves state and enables recovery on failures.
-// - Extensive feature toggling that supports dynamic enabling/disabling of functionalities at runtime.
-// - Enhanced security checks including advanced security policies, runtime validations and improved header documentation.
-// - Future feature: AI-driven performance analytics integration for dynamic scaling.
+// Agentic Operations Library
+// Provides dynamic configuration, error reporting, internationalized logging, API integrations, plugin management, caching, real-time collaboration, and enhanced testing support.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
@@ -26,14 +11,14 @@ import axios from "axios";
 import fs from "fs";
 import { setTimeout as delayPromise } from "timers/promises";
 
-// ------------------ Utility Functions ------------------
+// Utility Functions
 
-// Translates a message to a target language (simulation)
+// Simulated translation of a message to a target language
 function translateMessage(message, targetLang) {
   return `[${targetLang}] ${message}`;
 }
 
-// Logger function for extended logging support with internationalization
+// Logger with timestamp and optional internationalization
 function logger(message, level = "info") {
   const timestamp = new Date().toISOString();
   const language = (global.config && global.config.language) || "en_US";
@@ -41,55 +26,52 @@ function logger(message, level = "info") {
   console.log(`[${level.toUpperCase()}] ${timestamp} - ${logMessage}`);
 }
 
-// ------------------ Configuration Management ------------------
+// Configuration Management
 
-// Loads dynamic configuration settings
+// Load configuration from environment variables
 function loadConfig() {
   const config = {
     logLevel: process.env.LOG_LEVEL || "info",
     apiEndpoint: process.env.API_ENDPOINT || "https://api.openai.com",
-    // Parse reloadInterval as number for proper usage
     reloadInterval: Number(process.env.CONFIG_RELOAD_INTERVAL) || 30000,
     errorReportService: process.env.ERROR_REPORT_SERVICE || "https://error.report",
     language: process.env.LANGUAGE || "en_US",
-    // Optional username for enhanced test demos
     username: process.env.USERNAME || "Alice",
-    // New feature toggles support - expects a JSON string in environment variable FEATURE_TOGGLES
     featureToggles: process.env.FEATURE_TOGGLES ? JSON.parse(process.env.FEATURE_TOGGLES) : {}
   };
   global.config = config;
   return config;
 }
 
-// Starts dynamic configuration auto-reload using fs.watchFile for better reliability
+// Auto-reload configuration dynamically using fs.watchFile
 function startDynamicConfigReload(configFilePath = "./config.json") {
   if (!fs.existsSync(configFilePath)) {
-    logger(`Config file ${configFilePath} not found. Skipping dynamic auto-reload.`, "warn");
+    logger(`Config file ${configFilePath} not found. Skipping auto-reload.`, "warn");
     return;
   }
   fs.watchFile(configFilePath, { interval: 5000 }, (curr, prev) => {
     if (curr.mtime !== prev.mtime) {
-      logger(`Configuration file ${configFilePath} changed. Reloading configuration dynamically.`, "info");
+      logger(`Config file ${configFilePath} changed. Reloading config.`, "info");
       try {
         const fileConfig = JSON.parse(fs.readFileSync(configFilePath, "utf8"));
         Object.assign(global.config, fileConfig);
-        logger(`Configuration reloaded dynamically: ${JSON.stringify(global.config)}`, "info");
+        logger(`Reloaded config: ${JSON.stringify(global.config)}`, "info");
       } catch (err) {
-        logger(`Failed to dynamically reload configuration: ${err.message}`, "error");
+        logger(`Failed to reload config: ${err.message}`, "error");
       }
     }
   });
-  logger(`Started dynamic auto-reload for configuration file: ${configFilePath} using fs.watchFile`, "info");
+  logger(`Started auto-reload for config file: ${configFilePath}`, "info");
 }
 
-// ------------------ Automatic State Backup and Recovery ------------------
+// Automatic State Backup and Recovery
 
-// Backs up the current state including configuration and cache
+// Backup current state (config and cache) to state_backup.json
 function backupState() {
   try {
     const state = {
       config: global.config || {},
-      cache: global.cache ? Array.from(global.cache.entries()) : null,
+      cache: global.cache ? Array.from(global.cache.entries()) : null
     };
     fs.writeFileSync("state_backup.json", JSON.stringify(state, null, 2));
     logger("State backup saved successfully.", "info");
@@ -98,7 +80,7 @@ function backupState() {
   }
 }
 
-// Recovers state from backup file if available
+// Recover state from state_backup.json if available
 function recoverState() {
   try {
     if (fs.existsSync("state_backup.json")) {
@@ -110,23 +92,23 @@ function recoverState() {
       }
       logger("State recovered from backup.", "info");
     } else {
-      logger("No state backup found to recover.", "warn");
+      logger("No state backup found.", "warn");
     }
   } catch (err) {
     logger(`State recovery failed: ${err.message}`, "error");
   }
 }
 
-// ------------------ Plugin Management ------------------
+// Plugin Management
 
-// Dynamically loads plugins from a specified directory
+// Load plugin file names from a directory
 function loadPlugins(pluginDirectory) {
   logger(`Loading plugins from: ${pluginDirectory}`, "info");
   let plugins = [];
   try {
     plugins = fs.readdirSync(pluginDirectory).filter((file) => file.endsWith(".js"));
     if (plugins.length === 0) {
-      logger(`No plugin files found in directory: ${pluginDirectory}`, "warn");
+      logger(`No plugins found in directory: ${pluginDirectory}`, "warn");
     }
   } catch (err) {
     logger(`Error loading plugins from ${pluginDirectory}: ${err.message}`, "error");
@@ -134,7 +116,7 @@ function loadPlugins(pluginDirectory) {
   return plugins;
 }
 
-// Watches the plugins directory for changes and reloads plugins dynamically
+// Watch the plugins directory for changes
 function watchPluginsDirectory(pluginDirectory) {
   if (!fs.existsSync(pluginDirectory)) {
     logger(`Plugins directory ${pluginDirectory} not found. Skipping watch.`, "warn");
@@ -142,35 +124,35 @@ function watchPluginsDirectory(pluginDirectory) {
   }
   fs.watch(pluginDirectory, (eventType, filename) => {
     if (filename && filename.endsWith(".js")) {
-      logger(`Plugin file ${filename} has been ${eventType}. Reloading plugins...`, "info");
+      logger(`Plugin file ${filename} ${eventType}. Reloading plugins...`, "info");
       loadPlugins(pluginDirectory);
     }
   });
-  logger(`Started watching plugins directory: ${pluginDirectory}`, "info");
+  logger(`Watching plugins directory: ${pluginDirectory}`, "info");
 }
 
-// Reloads all agentic features dynamically including config, plugins, and cache clearing.
+// Reload all dynamic features: cache, config, and plugins
 export function reloadAllAgenticFeatures(pluginDirectory = "./plugins", configFilePath = "./config.json") {
   clearCache();
   startDynamicConfigReload(configFilePath);
   const plugins = loadPlugins(pluginDirectory);
-  logger(`All agentic features reloaded. Loaded plugins: ${plugins.join(", ")}`, "info");
+  logger(`Reloaded all features. Plugins loaded: ${plugins.join(", ")}`, "info");
   return { plugins };
 }
 
-// ------------------ Caching Functions ------------------
+// Caching Functions
 
-// Initializes caching system for optimized performance
+// Initialize global cache
 function initializeCache() {
   if (!global.cache) {
     global.cache = new Map();
-    logger("Caching system initialized and global cache created.", "info");
+    logger("Cache initialized.", "info");
   } else {
-    logger("Caching system already initialized.", "info");
+    logger("Cache already initialized.", "info");
   }
 }
 
-// Sets a value in the global cache
+// Set a value in the cache
 export function setCache(key, value) {
   if (!global.cache) {
     initializeCache();
@@ -179,29 +161,29 @@ export function setCache(key, value) {
   logger(`Cache set: ${key}`, "debug");
 }
 
-// Gets a value from the global cache
+// Get a value from the cache
 export function getCache(key) {
   if (!global.cache) {
     return undefined;
   }
   const value = global.cache.get(key);
-  logger(`Cache get: ${key} found value: ${value}`, "debug");
+  logger(`Cache get: ${key} value: ${value}`, "debug");
   return value;
 }
 
-// Clears the global cache
+// Clear the cache
 export function clearCache() {
   if (global.cache) {
     global.cache.clear();
-    logger("Global cache cleared.", "info");
+    logger("Cache cleared.", "info");
   } else {
-    logger("No cache exists to clear.", "warn");
+    logger("No cache to clear.", "warn");
   }
 }
 
-// ------------------ Error Reporting and API Integration ------------------
+// Error Reporting and API Integration
 
-// Sends error report to an external service with a fallback mechanism
+// Send an error report to an external service with fallback to local logging
 async function sendErrorReport(error) {
   const config = loadConfig();
   logger(`Sending error report: ${error.message} to ${config.errorReportService}`, "info");
@@ -209,61 +191,60 @@ async function sendErrorReport(error) {
     const res = await axios.post(config.errorReportService, {
       error: error.message,
       stack: error.stack,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString()
     });
-    logger(`Error report sent successfully: ${res.status}`, "info");
+    logger(`Error report sent: ${res.status}`, "info");
   } catch (err) {
-    logger(`Failed to send error report: ${err.message}. Falling back to local log.`, "error");
+    logger(`Error report failed: ${err.message}. Falling back to local log.`, "error");
     try {
       fs.appendFileSync(
         "error_report.log",
         JSON.stringify({
           error: error.message,
           stack: error.stack,
-          timestamp: new Date().toISOString(),
+          timestamp: new Date().toISOString()
         }) + "\n"
       );
-      logger("Error report saved locally to error_report.log", "info");
+      logger("Error report saved locally.", "info");
     } catch (fileErr) {
-      logger(`Failed to write local error report: ${fileErr.message}`, "error");
+      logger(`Local error report save failed: ${fileErr.message}`, "error");
     }
   }
 }
 
-// Integrates with an external API using axios with an automatic retry mechanism
+// Integrate with external API using axios with retry
 export async function integrateWithApi(endpoint, payload) {
   const maxRetries = 3;
   let attempt = 0;
   while (attempt < maxRetries) {
     try {
       const response = await axios.post(endpoint, payload);
-      logger(`API integration success on attempt ${attempt + 1}: ${response.status}`, "info");
+      logger(`API call success on attempt ${attempt + 1}: ${response.status}`, "info");
       return response.data;
     } catch (error) {
       attempt++;
-      logger(`API integration attempt ${attempt} failed: ${error.message}`, "warn");
+      logger(`API call attempt ${attempt} failed: ${error.message}`, "warn");
       if (attempt < maxRetries) {
-        const delayTime = attempt * 1000; // Exponential like delay
+        const delayTime = attempt * 1000;
         await delayPromise(delayTime);
       } else {
-        logger(`API integration error after ${maxRetries} attempts: ${error.message}`, "error");
+        logger(`API call failed after ${maxRetries} attempts: ${error.message}`, "error");
         throw error;
       }
     }
   }
 }
 
-// ------------------ Enhanced Security Checks ------------------
+// Enhanced Security Checks
 
-// Performs enhanced security checks
+// Run security validations
 function checkSecurityFeatures() {
-  // Placeholder for enhanced security validations
-  logger("Enhanced security checks passed: All security policies and validations are intact.", "info");
+  logger("Security checks passed.", "info");
 }
 
-// ------------------ Issue and Pull Request Utilities ------------------
+// Issue and Pull Request Utilities
 
-// Parses ChatGPT responses using a provided Zod schema
+// Parse response using a Zod schema
 function parseResponse(response, schema) {
   let result;
   if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
@@ -284,15 +265,12 @@ function parseResponse(response, schema) {
   try {
     return schema.parse(result);
   } catch (e) {
-    throw new Error("Failed to parse ChatGPT response: " + e.message);
+    throw new Error("Response validation failed: " + e.message);
   }
 }
 
 /**
- * Verifies whether the source file content reflects the resolution of an issue.
- *
- * @param {Object} params - Parameters for the verification process.
- * @returns {Promise<Object>} { fixed, message, refinement, responseUsage }
+ * Verifies if the source file reflects an issue fix.
  */
 export async function verifyIssueFix(params) {
   const {
@@ -308,15 +286,14 @@ export async function verifyIssueFix(params) {
     issueDescription,
     issueComments,
     model,
-    apiKey,
+    apiKey
   } = params;
   if (!apiKey) throw new Error("Missing API key.");
   const issueCommentsText = issueComments
     .map((comment) => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
     .join("\n");
   const prompt = `
-Does the following source file content reflect the resolution of the following issue?
-Consider the file content, issue, build output, test output, and main output.
+Does the following source file content reflect the resolution of the issue?
 
 Source for file: ${target}
 SOURCE_FILE_START
@@ -332,28 +309,27 @@ comments:
 ${issueCommentsText}
 ISSUE_END
 
-Build output from command: ${buildScript}
+Build output: ${buildScript}
 TEST_OUTPUT_START
 ${buildOutput}
 TEST_OUTPUT_END
 
-Test output from command: ${testScript}
+Test output: ${testScript}
 TEST_OUTPUT_START
 ${testOutput}
 TEST_OUTPUT_END
 
-Main output from command: ${mainScript}
+Main output: ${mainScript}
 MAIN_OUTPUT_START
 ${mainOutput}
 MAIN_OUTPUT_END
 
-Answer strictly with a JSON object following the provided function schema:
+Answer with a JSON object:
 {
-  "fixed": "true", // if the fix is present, or "false" otherwise.
-  "message": "The issue has been resolved.", // if fixed, or explanation otherwise.
-  "refinement": "None" // if fixed, or suggested refinement otherwise.
+  "fixed": "true", 
+  "message": "The issue has been resolved.", 
+  "refinement": "None"
 }
-Ensure valid JSON.
 `;
   const openai = new OpenAI({ apiKey });
 
@@ -362,64 +338,47 @@ Ensure valid JSON.
       type: "function",
       function: {
         name: "verify_issue_fix",
-        description:
-          "Evaluate whether the supplied source file content reflects the resolution of the issue. Return an object with fixed (as 'true' or 'false'), message, and refinement.",
+        description: "Evaluate if the source file fixes the issue.",
         parameters: {
           type: "object",
           properties: {
-            fixed: {
-              type: "string",
-              description: "true if the issue is fixed, false otherwise",
-            },
-            message: {
-              type: "string",
-              description: "A message explaining the result",
-            },
-            refinement: {
-              type: "string",
-              description: "A suggested refinement if the issue is not resolved; otherwise, 'None'",
-            },
+            fixed: { type: "string", description: "true if fixed, false otherwise" },
+            message: { type: "string", description: "Explanation of the result" },
+            refinement: { type: "string", description: "Suggested refinement if not fixed" }
           },
           required: ["fixed", "message", "refinement"],
-          additionalProperties: false,
+          additionalProperties: false
         },
-        strict: true,
-      },
-    },
+        strict: true
+      }
+    }
   ];
 
   const response = await openai.chat.completions.create({
     model,
     messages: [
-      {
-        role: "system",
-        content:
-          "You are evaluating whether an issue has been resolved based on the supplied inputs. Answer strictly with a JSON object following the provided function schema.",
-      },
-      { role: "user", content: prompt },
+      { role: "system", content: "Evaluate issue resolution based on provided inputs." },
+      { role: "user", content: prompt }
     ],
-    tools: functionSchema,
+    tools: functionSchema
   });
 
   const ResponseSchema = z.object({
     fixed: z.string(),
     message: z.string(),
-    refinement: z.string(),
+    refinement: z.string()
   });
   const parsed = parseResponse(response, ResponseSchema);
   return {
     fixed: parsed.fixed,
     message: parsed.message,
     refinement: parsed.refinement,
-    responseUsage: response.usage,
+    responseUsage: response.usage
   };
 }
 
 /**
- * Updates the target file to fix a failing build.
- *
- * @param {Object} params - Parameters for the fix.
- * @returns {Promise<Object>} { updatedSourceFileContent, message, fixApplied, responseUsage }
+ * Update source file to fix a failing build.
  */
 export async function updateTargetForFixFallingBuild(params) {
   const {
@@ -433,45 +392,42 @@ export async function updateTargetForFixFallingBuild(params) {
     mainScript,
     mainOutput,
     model,
-    apiKey,
+    apiKey
   } = params;
   if (!apiKey) throw new Error("Missing API key.");
   const prompt = `
-You are providing the entire new content of the source file, with all necessary changes applied to resolve any issues visible.
-Consider the file content, dependency list, build output, test output, and main output.
+Provide the updated content of the file to resolve issues.
 
 Source for file: ${target}
 SOURCE_FILE_START
 ${sourceFileContent}
 SOURCE_FILE_END
 
-Dependency list from command: npm list
+Dependency list:
 TEST_OUTPUT_START
 ${listOutput}
 TEST_OUTPUT_END
 
-Build output from command: ${buildScript}
+Build output: ${buildScript}
 TEST_OUTPUT_START
 ${buildOutput}
 TEST_OUTPUT_END
 
-Test output from command: ${testScript}
+Test output: ${testScript}
 TEST_OUTPUT_START
 ${testOutput}
 TEST_OUTPUT_END
 
-Main output from command: ${mainScript}
+Main output: ${mainScript}
 MAIN_OUTPUT_START
 ${mainOutput}
 MAIN_OUTPUT_END
 
-Please produce an updated version of the file that resolves any issues visible in the build, test, or main output.
-Answer strictly with a JSON object following this schema:
+Answer with a JSON object:
 {
-  "updatedSourceFileContent": "The entire new content of the source file, with all necessary changes applied.",
+  "updatedSourceFileContent": "...",
   "message": "The issue has been resolved."
 }
-Ensure valid JSON.
 `;
   const openai = new OpenAI({ apiKey });
 
@@ -480,59 +436,45 @@ Ensure valid JSON.
       type: "function",
       function: {
         name: "update_source_file_for_fix_falling_build",
-        description:
-          "Return an updated version of the source file content along with a commit message to fix a failing build. Use the provided file content, dependency list, build output, test output, and main output.",
+        description: "Return updated source file content to fix build issues.",
         parameters: {
           type: "object",
           properties: {
-            updatedSourceFileContent: {
-              type: "string",
-              description: "The entire new content of the source file, with all necessary changes applied.",
-            },
-            message: {
-              type: "string",
-              description: "A short sentence explaining the change applied, suitable for a commit message.",
-            },
+            updatedSourceFileContent: { type: "string", description: "Updated file content." },
+            message: { type: "string", description: "Commit message." }
           },
           required: ["updatedSourceFileContent", "message"],
-          additionalProperties: false,
+          additionalProperties: false
         },
-        strict: true,
-      },
-    },
+        strict: true
+      }
+    }
   ];
 
   const response = await openai.chat.completions.create({
     model,
     messages: [
-      {
-        role: "system",
-        content:
-          "You are a code fixer that returns an updated source file content to resolve issues in a failing build. Answer strictly with a JSON object that adheres to the provided function schema.",
-      },
-      { role: "user", content: prompt },
+      { role: "system", content: "Provide updated source file content to fix build issues." },
+      { role: "user", content: prompt }
     ],
-    tools: functionSchema,
+    tools: functionSchema
   });
 
   const ResponseSchema = z.object({
     updatedSourceFileContent: z.string(),
-    message: z.string(),
+    message: z.string()
   });
   const parsed = parseResponse(response, ResponseSchema);
   return {
     updatedSourceFileContent: parsed.updatedSourceFileContent,
     message: parsed.message,
     fixApplied: true,
-    responseUsage: response.usage,
+    responseUsage: response.usage
   };
 }
 
 /**
- * Updates the target file to fix an issue by incorporating issue details.
- *
- * @param {Object} params - Parameters including issue details.
- * @returns {Promise<Object>} { updatedSourceFileContent, message, fixApplied, responseUsage }
+ * Update source file to resolve an issue based on issue details.
  */
 export async function updateTargetForStartIssue(params) {
   const {
@@ -548,15 +490,14 @@ export async function updateTargetForStartIssue(params) {
     issueDescription,
     issueComments,
     model,
-    apiKey,
+    apiKey
   } = params;
   if (!apiKey) throw new Error("Missing API key.");
   const issueCommentsText = issueComments
     .map((comment) => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
     .join("\n");
   const prompt = `
-You are providing the entire new content of the source file, with all necessary changes applied to resolve an issue.
-Consider the file content, issue, dependency list, build output, test output, and main output.
+Update the file to resolve the following issue.
 
 Source for file: ${target}
 SOURCE_FILE_START
@@ -572,28 +513,26 @@ comments:
 ${issueCommentsText}
 ISSUE_END
 
-Build output from command: ${buildScript}
+Build output: ${buildScript}
 TEST_OUTPUT_START
 ${buildOutput}
 TEST_OUTPUT_END
 
-Test output from command: ${testScript}
+Test output: ${testScript}
 TEST_OUTPUT_START
 ${testOutput}
 TEST_OUTPUT_END
 
-Main output from command: ${mainScript}
+Main output: ${mainScript}
 MAIN_OUTPUT_START
 ${mainOutput}
 MAIN_OUTPUT_END
 
-Please produce an updated version of the file that resolves the following issue.
-Answer strictly with a JSON object following this schema:
+Answer with a JSON object:
 {
-  "updatedSourceFileContent": "The entire new content of the source file, with all necessary changes applied.",
+  "updatedSourceFileContent": "...",
   "message": "The issue has been resolved."
 }
-Ensure valid JSON.
 `;
   const openai = new OpenAI({ apiKey });
 
@@ -602,75 +541,53 @@ Ensure valid JSON.
       type: "function",
       function: {
         name: "update_source_file_for_start_issue",
-        description:
-          "Return an updated version of the source file content along with a commit message to resolve the issue. Use the provided file content, issue details, dependency list, build output, test output, and main output.",
+        description: "Return updated source file content to resolve the issue.",
         parameters: {
           type: "object",
           properties: {
-            updatedSourceFileContent: {
-              type: "string",
-              description: "The entire new content of the source file, with all necessary changes applied.",
-            },
-            message: {
-              type: "string",
-              description: "A short sentence explaining the change applied suitable for a commit message.",
-            },
+            updatedSourceFileContent: { type: "string", description: "Updated file content." },
+            message: { type: "string", description: "Commit message." }
           },
           required: ["updatedSourceFileContent", "message"],
-          additionalProperties: false,
+          additionalProperties: false
         },
-        strict: true,
-      },
-    },
+        strict: true
+      }
+    }
   ];
 
   const response = await openai.chat.completions.create({
     model,
     messages: [
-      {
-        role: "system",
-        content:
-          "You are a code fixer that returns an updated source file content to resolve an issue based on supplied issue details. Answer strictly with a JSON object that adheres to the provided function schema.",
-      },
-      { role: "user", content: prompt },
+      { role: "system", content: "Provide updated source file content to resolve the issue." },
+      { role: "user", content: prompt }
     ],
-    tools: functionSchema,
+    tools: functionSchema
   });
 
   const ResponseSchema = z.object({
     updatedSourceFileContent: z.string(),
-    message: z.string(),
+    message: z.string()
   });
   const parsed = parseResponse(response, ResponseSchema);
   return {
     updatedSourceFileContent: parsed.updatedSourceFileContent,
     message: parsed.message,
     fixApplied: true,
-    responseUsage: response.usage,
+    responseUsage: response.usage
   };
 }
 
-/**
- * Extracts an issue number from a branch name using a prefix.
- *
- * @param {string} branchName - The branch name.
- * @param {string} branchPrefix - The prefix (e.g. "issue-").
- * @returns {string} The extracted issue number, or an empty string if not found.
- */
+// Branch and Issue Utilities
+
+// Extract issue number from a branch name
 export function extractIssueNumber(branchName, branchPrefix) {
   const regex = new RegExp(`${branchPrefix}([0-9]+)`);
   const match = branchName.match(regex);
   return match ? match[1] : "";
 }
 
-/**
- * Adds a merged label and a comment to an issue extracted from a branch.
- *
- * @param {string} pullNumber - The pull request number.
- * @param {string} branchName - The branch name.
- * @param {string} branchPrefix - The prefix used for issue branches.
- * @returns {Object} { issueNumber, comment }
- */
+// Return issue number and comment for a merged branch
 export function labelMergedIssue(pullNumber, branchName, branchPrefix) {
   const issueNumber = extractIssueNumber(branchName, branchPrefix);
   if (!issueNumber) {
@@ -678,16 +595,11 @@ export function labelMergedIssue(pullNumber, branchName, branchPrefix) {
   }
   return {
     issueNumber,
-    comment: `The feature branch "${branchName}" has been merged.`,
+    comment: `The feature branch "${branchName}" has been merged.`
   };
 }
 
-/**
- * Determines whether a pull request can be auto-merged.
- *
- * @param {Object} pullRequest - An object with properties: state, mergeable, mergeable_state.
- * @returns {string} "true" if auto-merge is allowed, otherwise "false".
- */
+// Determine if a pull request can be auto-merged
 export function autoMergePullRequest(pullRequest) {
   if (pullRequest.state === "closed") return "true";
   if (pullRequest.state !== "open") return "false";
@@ -697,37 +609,24 @@ export function autoMergePullRequest(pullRequest) {
   return "false";
 }
 
-/**
- * Finds a pull request with an "automerge" label from an array of pull requests.
- *
- * @param {Array<Object>} prs - Array of PR objects.
- * @returns {Object} { pullNumber, shouldSkipMerge, prMerged }
- */
+// Find a pull request with an automerge label
 export function findPRInCheckSuite(prs) {
   if (!prs || prs.length === 0) {
     return { pullNumber: "", shouldSkipMerge: "true", prMerged: "false" };
   }
   const openPRs = prs.filter((pr) => pr.state === "open");
-  const prWithAutomerge = openPRs.find(
-    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge")
-  );
+  const prWithAutomerge = openPRs.find((pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge"));
   if (!prWithAutomerge) {
     return { pullNumber: "", shouldSkipMerge: "true", prMerged: "false" };
   }
   return {
     pullNumber: prWithAutomerge.number.toString(),
     shouldSkipMerge: "false",
-    prMerged: "false",
+    prMerged: "false"
   };
 }
 
-/**
- * Selects an issue number from a provided list.
- *
- * @param {string} providedIssueNumber - An optional provided issue number.
- * @param {Array<Object>} issues - Array of issue objects.
- * @returns {string} The selected issue number, or an empty string.
- */
+// Select an issue from a list
 export function selectIssue(providedIssueNumber, issues) {
   if (providedIssueNumber) {
     const found = issues.find((issue) => issue.number.toString() === providedIssueNumber.toString());
@@ -736,69 +635,43 @@ export function selectIssue(providedIssueNumber, issues) {
   return issues.length > 0 ? issues[0].number.toString() : "";
 }
 
-/**
- * Checks if an issue has a "merged" label (case-insensitive).
- *
- * @param {Object} issue - An issue object with a "labels" array.
- * @returns {boolean} True if the issue has a merged label, false otherwise.
- */
+// Check if an issue has a merged label
 export function hasMergedLabel(issue) {
   if (!issue.labels || !Array.isArray(issue.labels)) return false;
   return issue.labels.some((label) => label.name.toLowerCase() === "merged");
 }
 
-/**
- * Creates a pull request if one does not already exist.
- *
- * @param {Object} params - Parameters including branch, baseBranch, commitMessage, label, existingPulls (Array).
- * @returns {Promise<Object>} An object indicating whether a PR was created.
- */
+// Pull Request and Issue Creation
+
+// Create a pull request if one does not exist
 export async function createPullRequest(params) {
   const { existingPulls } = params;
   if (existingPulls && existingPulls.length > 0) {
     return { prCreated: false, info: "Pull request already exists." };
   }
-  // Create pull request (simulation)
   return {
     prCreated: true,
     prNumber: "123",
-    htmlUrl: `https://github.com/dummy/repo/pull/123`,
+    htmlUrl: `https://github.com/dummy/repo/pull/123`
   };
 }
 
-/**
- * Creates an issue.
- *
- * @param {Object} params - Parameters including issueTitle and target.
- * @returns {Promise<Object>} { issueTitle, issueNumber }
- */
+// Create an issue (simulation)
 export async function createIssue(params) {
   const { issueTitle } = params;
-  // Create issue (simulation)
   const issueNumber = randomInt(0, 1000).toString();
   return { issueTitle, issueNumber };
 }
 
-/**
- * Simulates listing open pull requests.
- *
- * @returns {Promise<Array<Object>>} Array of PR objects.
- */
+// List open pull requests (simulation)
 export async function listOpenPullRequests({ _x }) {
-  // Return dummy pull request data.
   return [
     { number: 101, headRef: "issue-101", baseRef: "main" },
-    { number: 102, headRef: "feature-102", baseRef: "main" },
+    { number: 102, headRef: "feature-102", baseRef: "main" }
   ];
 }
 
-/**
- * Compares two SARIF outputs to determine if fixes were applied.
- *
- * @param {number|string} resultsBefore - Number of results before.
- * @param {number|string} resultsAfter - Number of results after.
- * @returns {Object} { fixRequired, fixApplied } (as strings).
- */
+// Analyze SARIF results
 export function analyzeSarifResults(resultsBefore, resultsAfter) {
   const before = Number(resultsBefore);
   const after = Number(resultsAfter);
@@ -807,13 +680,10 @@ export function analyzeSarifResults(resultsBefore, resultsAfter) {
   return { fixRequired, fixApplied };
 }
 
-// ------------------ Multiple Files Update ------------------
+// Multiple Files Update
 
 /**
- * Updates multiple files to address an issue. Supports changes in the source, test, and packages.json files.
- *
- * @param {Object} params - Parameters including file contents, issue details, and outputs.
- * @returns {Promise<Object>} { updatedSourceFileContent, updatedTestFileContent, updatedPackagesJsonContent, message, fixApplied, responseUsage }
+ * Update multiple files (source, test, packages.json) to address an issue.
  */
 export async function updateMultipleFiles(params) {
   const {
@@ -830,27 +700,26 @@ export async function updateMultipleFiles(params) {
     mainScript,
     mainOutput,
     model,
-    apiKey,
+    apiKey
   } = params;
   if (!apiKey) throw new Error("Missing API key.");
   const issueCommentsText = issueComments
     .map((comment) => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
     .join("\n");
   const prompt = `
-You are providing the entire new content for multiple files with all necessary changes applied to resolve an issue.
-Consider the file contents, dependency list, and outputs. You need to update three files simultaneously:
+Update contents for multiple files:
 
-1. Source file (src/lib/main.js):
+1. Source (src/lib/main.js):
 SOURCE_FILE_START
 ${sourceFileContent}
 SOURCE_FILE_END
 
-2. Test file (tests/unit/main.test.js):
+2. Test (tests/unit/main.test.js):
 TEST_FILE_START
 ${testFileContent}
 TEST_FILE_END
 
-3. Packages file (packages.json):
+3. Packages (packages.json):
 PACKAGES_JSON_START
 ${packagesJsonContent}
 PACKAGES_JSON_END
@@ -864,30 +733,28 @@ comments:
 ${issueCommentsText}
 ISSUE_END
 
-Build output from command: ${buildScript}
+Build output: ${buildScript}
 BUILD_OUTPUT_START
 ${buildOutput}
 BUILD_OUTPUT_END
 
-Test output from command: ${testScript}
+Test output: ${testScript}
 TEST_OUTPUT_START
 ${testOutput}
 TEST_OUTPUT_END
 
-Main output from command: ${mainScript}
+Main output: ${mainScript}
 MAIN_OUTPUT_START
 ${mainOutput}
 MAIN_OUTPUT_END
 
-Please produce updated content for all three files that resolves the issue.
-Answer strictly with a JSON object following this schema:
+Answer with a JSON object:
 {
-  "updatedSourceFileContent": "The entire new content of the source file, with all necessary changes applied.",
-  "updatedTestFileContent": "The entire new content of the test file, with all necessary changes applied.",
-  "updatedPackagesJsonContent": "The entire new content of the packages.json file, with all necessary changes applied.",
-  "message": "A short sentence explaining the change applied suitable for a commit message."
+  "updatedSourceFileContent": "...",
+  "updatedTestFileContent": "...",
+  "updatedPackagesJsonContent": "...",
+  "message": "..."
 }
-Ensure valid JSON.
 `;
   const openai = new OpenAI({ apiKey });
   const functionSchema = [
@@ -895,54 +762,37 @@ Ensure valid JSON.
       type: "function",
       function: {
         name: "update_multiple_files",
-        description:
-          "Return updated versions of the source, test, and packages.json files along with a commit message that addresses the issue.",
+        description: "Return updated contents for source, test, and packages.json.",
         parameters: {
           type: "object",
           properties: {
-            updatedSourceFileContent: {
-              type: "string",
-              description: "The entire new content of the source file, with all necessary changes applied.",
-            },
-            updatedTestFileContent: {
-              type: "string",
-              description: "The entire new content of the test file, with all necessary changes applied.",
-            },
-            updatedPackagesJsonContent: {
-              type: "string",
-              description: "The entire new content of the packages.json file, with all necessary changes applied.",
-            },
-            message: {
-              type: "string",
-              description: "A short sentence explaining the change applied, suitable for a commit message.",
-            },
+            updatedSourceFileContent: { type: "string", description: "Updated source file content." },
+            updatedTestFileContent: { type: "string", description: "Updated test file content." },
+            updatedPackagesJsonContent: { type: "string", description: "Updated packages.json content." },
+            message: { type: "string", description: "Commit message." }
           },
           required: ["updatedSourceFileContent", "updatedTestFileContent", "updatedPackagesJsonContent", "message"],
-          additionalProperties: false,
+          additionalProperties: false
         },
-        strict: true,
-      },
-    },
+        strict: true
+      }
+    }
   ];
 
   const response = await openai.chat.completions.create({
     model,
     messages: [
-      {
-        role: "system",
-        content:
-          "You are a code fixer that returns updated contents for multiple files to resolve an issue. Answer strictly with a JSON object that adheres to the provided function schema.",
-      },
-      { role: "user", content: prompt },
+      { role: "system", content: "Return updated content for multiple files to resolve the issue." },
+      { role: "user", content: prompt }
     ],
-    tools: functionSchema,
+    tools: functionSchema
   });
 
   const ResponseSchema = z.object({
     updatedSourceFileContent: z.string(),
     updatedTestFileContent: z.string(),
     updatedPackagesJsonContent: z.string(),
-    message: z.string(),
+    message: z.string()
   });
   const parsed = parseResponse(response, ResponseSchema);
   return {
@@ -951,90 +801,79 @@ Ensure valid JSON.
     updatedPackagesJsonContent: parsed.updatedPackagesJsonContent,
     message: parsed.message,
     fixApplied: true,
-    responseUsage: response.usage,
+    responseUsage: response.usage
   };
 }
 
-// ------------------ Collaboration and Testing ------------------
+// Collaboration and Testing
 
-// Starts a real-time collaboration session (simulation)
+// Start a real-time collaboration session (simulation)
 function startCollaborationSession(sessionId) {
-  logger(`Real-time collaboration session '${sessionId}' started.`, "info");
-  // Collaboration initialization logic
+  logger(`Collaboration session '${sessionId}' started.`, "info");
 }
 
-// Runs tests for enhanced coverage
+// Run various test routines
 function runImprovedTests() {
-  logger("Running improved tests for enhanced coverage...", "info");
-  logger("Improved tests passed: All additional checks validated successfully.", "info");
+  logger("Running improved tests...", "info");
+  logger("Improved tests passed.", "info");
 }
 
-// Runs additional tests for advanced coverage
 function runAdditionalTest() {
-  logger("Running additional test for advanced coverage...", "info");
-  logger("Additional tests passed: Complex scenarios validated successfully.", "info");
+  logger("Running additional tests...", "info");
+  logger("Additional tests passed.", "info");
 }
 
-// Runs extra coverage tests
 function runExtraCoverageTest() {
-  logger("Running extra coverage test for improved test coverage...", "info");
-  logger("Extra coverage test passed: All edge cases and validation checks succeeded.", "info");
+  logger("Running extra coverage test...", "info");
+  logger("Extra coverage test passed.", "info");
 }
 
-// Runs a test coverage demonstration
 function runTestCoverageDemo() {
-  logger("Running test coverage demo to demonstrate improved test coverage...", "info");
-  logger("Test coverage demo passed: All console outputs verified.", "info");
+  logger("Running test coverage demo...", "info");
+  logger("Test coverage demo passed.", "info");
 }
 
-// Runs an improved coverage demo to further validate test coverage
 function runImprovedCoverageDemo() {
-  logger("Running improved coverage demo to showcase enhanced test coverage...", "info");
-  logger("Improved coverage demo passed: Detailed output verified.", "info");
+  logger("Running improved coverage demo...", "info");
+  logger("Improved coverage demo passed.", "info");
 }
 
-// Improved Test Demo: Updated function to demonstrate test output improvement with additional format validations
+// Demo function for improved test
 function runImprovedTestDemo() {
   const username = (global.config && global.config.username) || "Alice";
   const greeting = `Improved Test Demo: Greeting now includes username '${username}'.`;
   console.log(greeting);
 
-  // Validate that username is included
   if (!greeting.includes(username)) {
     console.error("Greeting does not include the expected username.");
   } else {
     console.log("Username inclusion validated.");
   }
 
-  // Validate that greeting starts with a capital letter
   if (!/^[A-Z]/.test(greeting)) {
     console.error("Greeting does not start with a capital letter.");
   } else {
     console.log("Greeting capitalization validated.");
   }
 
-  // Enhanced test: Validate greeting format ends with a period
   if (!greeting.endsWith(".")) {
     console.error("Greeting format mismatch: Expected to end with a period.");
   } else {
     console.log("Greeting format validated.");
   }
 
-  console.log("Test passed: greeting meets all formatting expectations.");
+  console.log("Test passed: Greeting meets all formatting expectations.");
   console.log("Improved Test Demo completed successfully.");
 }
 
-// Logs performance metrics
+// Log performance metrics
 function logPerformanceMetrics() {
   const memoryUsage = process.memoryUsage();
   const formatMemory = (bytes) => (bytes / 1024 / 1024).toFixed(2) + " MB";
-  logger(
-    `Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`,
-    "info"
-  );
+  logger(`Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`, "info");
 }
 
-// ------------------ Global Error Handlers ------------------
+// Global Error Handlers
 
 process.on("uncaughtException", (err) => {
   logger(`Uncaught Exception: ${err.message}\n${err.stack}`, "error");
@@ -1046,24 +885,16 @@ process.on("unhandledRejection", (reason, promise) => {
   sendErrorReport(reason instanceof Error ? reason : new Error(String(reason)));
 });
 
-// ------------------ Main Demo Function ------------------
+// Main Demo Function
 
 async function main() {
   const config = loadConfig();
-  // Start dynamic configuration auto-reload if config file exists
   startDynamicConfigReload();
-
   logger(`Configuration loaded: ${JSON.stringify(config)}`);
-  // Initialize caching system
   initializeCache();
-
-  // Attempt to recover state from backup before proceeding
   recoverState();
-
-  // Run enhanced security checks
   checkSecurityFeatures();
-
-  logger("=== JavaScript Library for Agentic Operations Demo - Improved Test ===", "info");
+  logger("=== Agentic Operations Demo ===", "info");
 
   async function runDemo(demoName, demoFunction, params) {
     try {
@@ -1071,7 +902,7 @@ async function main() {
       logger(`${demoName} Result: ${JSON.stringify(result)}`, "info");
     } catch (err) {
       if (err.message && err.message.includes("Incorrect API key provided")) {
-        logger(`Skipping ${demoName} demo due to dummy API key.`, "warn");
+        logger(`Skipping ${demoName} due to dummy API key.`, "warn");
       } else {
         logger(`Error in ${demoName}: ${err.message}\n${err.stack}`, "error");
       }
@@ -1092,7 +923,7 @@ async function main() {
     issueComments: [{ user: { login: "alice" }, created_at: "2023-01-01", body: "Please fix this." }],
     model: "o3-mini",
     apiKey: "dummy-api-key",
-    issueNumber: 123,
+    issueNumber: 123
   });
 
   await runDemo("updateTargetForFixFallingBuild", updateTargetForFixFallingBuild, {
@@ -1106,7 +937,7 @@ async function main() {
     mainScript: "node src/lib/main.js",
     mainOutput: "Error output",
     model: "o3-mini",
-    apiKey: "dummy-api-key",
+    apiKey: "dummy-api-key"
   });
 
   await runDemo("updateTargetForStartIssue", updateTargetForStartIssue, {
@@ -1124,7 +955,7 @@ async function main() {
     issueComments: [{ user: { login: "bob" }, created_at: "2023-02-01", body: "Please update greeting." }],
     model: "o3-mini",
     apiKey: "dummy-api-key",
-    issueNumber: 456,
+    issueNumber: 456
   });
 
   const extracted = extractIssueNumber("issue-789-update", "issue-");
@@ -1140,13 +971,13 @@ async function main() {
   const mergeResult = autoMergePullRequest({
     state: "open",
     mergeable: true,
-    mergeable_state: "clean",
+    mergeable_state: "clean"
   });
   logger(`autoMergePullRequest: ${mergeResult}`, "info");
 
   const prFound = findPRInCheckSuite([
     { number: 1, state: "closed", labels: [] },
-    { number: 2, state: "open", labels: [{ name: "automerge" }] },
+    { number: 2, state: "open", labels: [{ name: "automerge" }] }
   ]);
   logger(`findPRInCheckSuite: ${JSON.stringify(prFound)}`, "info");
 
@@ -1154,7 +985,7 @@ async function main() {
   logger(`selectIssue: ${selectedIssue}`, "info");
 
   const mergedLabel = hasMergedLabel({
-    labels: [{ name: "Merged" }, { name: "bug" }],
+    labels: [{ name: "Merged" }, { name: "bug" }]
   });
   logger(`hasMergedLabel: ${mergedLabel}`, "info");
 
@@ -1163,18 +994,18 @@ async function main() {
     baseBranch: "main",
     commitMessage: "Ready for pull",
     label: "automerge",
-    existingPulls: [],
+    existingPulls: []
   });
 
   await runDemo("createIssue", createIssue, {
     issueTitle: "Improve error handling",
-    target: "src/lib/main.js",
+    target: "src/lib/main.js"
   });
 
   await runDemo("listOpenPullRequests", listOpenPullRequests, {
     owner: "dummy",
     repo: "repo",
-    pullsPerPage: 2,
+    pullsPerPage: 2
   });
 
   const sarifAnalysis = analyzeSarifResults("5", "2");
@@ -1195,7 +1026,6 @@ async function main() {
   const translatedMessage = translateMessage("Welcome to the agentic operations demo!", "es");
   logger("Translated message: " + translatedMessage, "info");
 
-  // Demonstrate modular plugin loading feature with dynamic file loading and watching
   const plugins = loadPlugins("./plugins");
   logger(`Loaded plugins: ${plugins.join(", ")}`, "info");
   watchPluginsDirectory("./plugins");
@@ -1211,24 +1041,17 @@ async function main() {
     mainScript: "node src/lib/main.js",
     mainOutput: "Error output",
     issueTitle: "Support multiple files being changed",
-    issueDescription:
-      "Update source, test, and packages.json concurrently. This change adds flexibility to support multiple file modifications at once.",
+    issueDescription: "Update source, test, and packages.json concurrently.",
     issueComments: [
-      {
-        user: { login: "charlie" },
-        created_at: "2025-02-11T02:10:00Z",
-        body: "Needs support for multiple file updates",
-      },
+      { user: { login: "charlie" }, created_at: "2025-02-11T02:10:00Z", body: "Needs support for multiple file updates" }
     ],
     model: "o3-mini",
-    apiKey: "dummy-api-key",
+    apiKey: "dummy-api-key"
   });
 
-  // Backup state at the end of main execution
   backupState();
 
-  logger("Improved Test Output: All tests executed successfully and functionality validated successfully.", "info");
-  logger("Demo tests and functionality validated successfully.", "info");
+  logger("Demo completed successfully.", "info");
   logger("=== End of Demo ===", "info");
 }
 
@@ -1248,161 +1071,31 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 
 export function printUsage() {
   console.log(`
-intention: intention-agentic-lib — Usage Guide
+Agentic Operations Library — Usage Guide
 
-intention-agentic-lib is part of intention. This library provides functionalities for agentic operations including robust error handling, dynamic configuration, extensive logging, comprehensive performance metrics, improved testing support, internationalization, API integrations, detailed error reporting, real-time collaboration support, caching mechanism support, dynamic plugin directory monitoring, and now automatic state backup and recovery.
+This library provides functionalities for dynamic configuration, error reporting, internationalized logging, API integration, plugin management, caching, collaboration, and enhanced testing.
 
 Available Functions:
-
 1. verifyIssueFix(params)
-   • Type: async function
-   • Mandatory parameters in params:
-         - target (string)
-         - sourceFileContent (string)
-         - buildScript (string)
-         - buildOutput (string)
-         - testScript (string)
-         - testOutput (string)
-         - mainScript (string)
-         - mainOutput (string)
-         - issueTitle (string)
-         - issueDescription (string)
-         - issueComments (Array<Object>)
-         - model (string)
-         - apiKey (string)
-         - issueNumber (number)
-   • Returns: { fixed, message, refinement, responseUsage }
-
 2. updateTargetForFixFallingBuild(params)
-   • Type: async function
-   • Mandatory parameters:
-         - target (string)
-         - sourceFileContent (string)
-         - listOutput (string)
-         - buildScript (string)
-         - buildOutput (string)
-         - testScript (string)
-         - testOutput (string)
-         - mainScript (string)
-         - mainOutput (string)
-         - model (string)
-         - apiKey (string)
-   • Returns: { updatedSourceFileContent, message, fixApplied, responseUsage }
-
 3. updateTargetForStartIssue(params)
-   • Type: async function
-   • Mandatory parameters:
-         - target (string)
-         - sourceFileContent (string)
-         - listOutput (string)
-         - buildScript (string)
-         - buildOutput (string)
-         - testScript (string)
-         - testOutput (string)
-         - mainScript (string)
-         - mainOutput (string)
-         - issueTitle (string)
-         - issueDescription (string)
-         - issueComments (Array<Object>)
-         - model (string)
-         - apiKey (string)
-         - issueNumber (number)
-   • Returns: { updatedSourceFileContent, message, fixApplied, responseUsage }
-
 4. extractIssueNumber(branchName, branchPrefix)
-   • Parameters:
-         - branchName (string)
-         - branchPrefix (string)
-   • Returns: Issue number (string) or empty string.
-
 5. labelMergedIssue(pullNumber, branchName, branchPrefix)
-   • Parameters:
-         - pullNumber (string)
-         - branchName (string)
-         - branchPrefix (string)
-   • Returns: { issueNumber, comment }
-
 6. autoMergePullRequest(pullRequest)
-   • Parameters:
-         - pullRequest (object with properties: state, mergeable, mergeable_state)
-   • Returns: "true" or "false" (string)
-
 7. findPRInCheckSuite(prs)
-   • Parameters:
-         - prs (Array<Object>)
-   • Returns: { pullNumber, shouldSkipMerge, prMerged }
-
 8. selectIssue(providedIssueNumber, issues)
-   • Parameters:
-         - providedIssueNumber (string)
-         - issues (Array<Object>)
-   • Returns: Selected issue number (string)
-
 9. hasMergedLabel(issue)
-   • Parameters:
-         - issue (object with a labels array)
-   • Returns: boolean
-
 10. createPullRequest(params)
-    • Parameters:
-         - branch (string)
-         - baseBranch (string)
-         - commitMessage (string)
-         - label (string)
-         - existingPulls (Array<Object>)
-    • Returns: { prCreated, prNumber, htmlUrl } (or an info message)
-
 11. createIssue(params)
-    • Parameters:
-         - issueTitle (string)
-         - target (string)
-    • Returns: { issueTitle, issueNumber }
-
 12. listOpenPullRequests(params)
-   • Parameters:
-         - owner (string)
-         - repo (string)
-         - pullsPerPage (number, optional)
-   • Returns: Array of PR objects
-
 13. analyzeSarifResults(resultsBefore, resultsAfter)
-    • Parameters:
-         - resultsBefore (number|string)
-         - resultsAfter (number|string)
-    • Returns: { fixRequired, fixApplied } (as strings)
-
 14. updateMultipleFiles(params)
-    • Type: async function
-    • Mandatory parameters in params:
-         - sourceFileContent (string) [for src/lib/main.js]
-         - testFileContent (string) [for tests/unit/main.test.js]
-         - packagesJsonContent (string) [for packages.json]
-         - buildScript (string)
-         - buildOutput (string)
-         - testScript (string)
-         - testOutput (string)
-         - mainScript (string)
-         - mainOutput (string)
-         - issueTitle (string)
-         - issueDescription (string)
-         - issueComments (Array<Object>)
-         - model (string)
-         - apiKey (string)
-    • Returns: { updatedSourceFileContent, updatedTestFileContent, updatedPackagesJsonContent, message, fixApplied, responseUsage }
-
 15. clearCache()
-    • Clears the global cache, extending caching management features.
-
 16. loadPlugins(pluginDirectory)
-    • Dynamically loads plugins from the specified directory.
-
 17. watchPluginsDirectory(pluginDirectory)
-    • Watches the plugins directory for changes and reloads plugins dynamically.
-
 18. reloadAllAgenticFeatures(pluginDirectory, configFilePath)
-    • Reloads all dynamic agentic features including clear cache, dynamic config reload, and plugin loading.
 
-Usage examples are provided in the main() demo below.
+Usage examples are in the main() demo below.
 `);
 }
 
@@ -1433,5 +1126,5 @@ export default {
   loadPlugins,
   startDynamicConfigReload,
   watchPluginsDirectory,
-  reloadAllAgenticFeatures,
+  reloadAllAgenticFeatures
 };
