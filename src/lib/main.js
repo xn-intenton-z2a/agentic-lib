@@ -876,6 +876,7 @@ function runImprovedTestDemo() {
   console.log(greeting);
   console.assert(greeting.includes(username), "Greeting does not include the expected username.");
   console.log("Test passed: greeting contains the username.");
+  console.log("Improved Test Demo completed successfully.");
 }
 
 // Main demo function
