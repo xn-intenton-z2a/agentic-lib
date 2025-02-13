@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Agentic Operations Library
-// Provides dynamic configuration for error reporting, internationalized logging, API integrations, plugin management, caching, collaboration, enhanced testing, real-time analytics reporting, automated state backup and recovery, security validations, and performance monitoring.
+// Provides dynamic configuration for error reporting, internationalized logging, API integrations, plugin management, caching, collaboration, enhanced testing, real-time analytics reporting, automated state backup and recovery, security validations, performance monitoring, and extended performance metrics logging including CPU load and system uptime.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
@@ -9,6 +9,7 @@ import { OpenAI } from "openai";
 import { z } from "zod";
 import axios from "axios";
 import fs from "fs";
+import os from "os";
 import { setTimeout as delayPromise } from "timers/promises";
 
 // Utility Functions
@@ -907,6 +908,14 @@ function logPerformanceMetrics() {
   );
 }
 
+// Extended Performance Metrics Logging
+function logExtendedPerformanceMetrics() {
+  const cpuCount = os.cpus().length;
+  const loadAverage = os.loadavg();
+  const systemUptime = os.uptime();
+  logger(`Extended Performance Metrics: CPU Count: ${cpuCount}, Load Average: [${loadAverage.join(", ")}], System Uptime: ${systemUptime} seconds`, "info");
+}
+
 // Global Error Handlers
 
 process.on("uncaughtException", (err) => {
@@ -1054,6 +1063,7 @@ async function main() {
   runImprovedTestDemo();
 
   logPerformanceMetrics();
+  logExtendedPerformanceMetrics();
 
   logger("Starting real-time collaboration session...", "info");
   startCollaborationSession("session-001");
@@ -1118,7 +1128,7 @@ export function printUsage() {
   console.log(`
 Agentic Operations Library — Usage Guide
 
-This library provides functionalities for dynamic configuration, error reporting, internationalized logging, API integration, plugin management, caching, collaboration, enhanced testing, and real-time analytics reporting.
+This library provides functionalities for dynamic configuration, error reporting, internationalized logging, API integration, plugin management, caching, collaboration, enhanced testing, real-time analytics reporting, automated state backup and recovery, security validations, performance monitoring, and extended performance metrics logging.
 
 Available Functions:
 1. verifyIssueFix(params)
