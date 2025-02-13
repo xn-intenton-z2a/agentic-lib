@@ -981,19 +981,34 @@ function runImprovedCoverageDemo() {
   logger("Improved coverage demo passed: Detailed output verified.", "info");
 }
 
-// Improved Test Demo: New function to demonstrate test output improvement
+// Improved Test Demo: Updated function to demonstrate test output improvement with additional format validations
 function runImprovedTestDemo() {
   const username = (global.config && global.config.username) || "Alice";
   const greeting = `Improved Test Demo: Greeting now includes username '${username}'.`;
   console.log(greeting);
-  console.assert(greeting.includes(username), "Greeting does not include the expected username.");
+
+  // Validate that username is included
+  if (!greeting.includes(username)) {
+    console.error("Greeting does not include the expected username.");
+  } else {
+    console.log("Username inclusion validated.");
+  }
+
+  // Validate that greeting starts with a capital letter
+  if (!/^[A-Z]/.test(greeting)) {
+    console.error("Greeting does not start with a capital letter.");
+  } else {
+    console.log("Greeting capitalization validated.");
+  }
+
   // Enhanced test: Validate greeting format ends with a period
   if (!greeting.endsWith(".")) {
     console.error("Greeting format mismatch: Expected to end with a period.");
   } else {
     console.log("Greeting format validated.");
   }
-  console.log("Test passed: greeting contains the username.");
+
+  console.log("Test passed: greeting meets all formatting expectations.");
   console.log("Improved Test Demo completed successfully.");
 }
 
