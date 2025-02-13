@@ -723,7 +723,29 @@ function loadConfig() {
     errorReportService: process.env.ERROR_REPORT_SERVICE || "https://error.report",
     language: process.env.LANGUAGE || "en_US",
   };
+  global.config = config;
   return config;
+}
+
+// Starts auto-reload for configuration if a config file is present
+function startConfigAutoReload(configFilePath = './config.json') {
+  if (!fs.existsSync(configFilePath)) {
+    logger(`Config file ${configFilePath} not found. Skipping auto-reload.`, 'warn');
+    return;
+  }
+  fs.watch(configFilePath, (eventType, filename) => {
+    if (eventType === 'change') {
+      logger(`Configuration file ${configFilePath} changed. Reloading configuration.`, 'info');
+      try {
+        const fileConfig = JSON.parse(fs.readFileSync(configFilePath, 'utf8'));
+        Object.assign(global.config, fileConfig);
+        logger(`Configuration reloaded: ${JSON.stringify(global.config)}`, 'info');
+      } catch (err) {
+        logger(`Failed to reload configuration: ${err.message}`, 'error');
+      }
+    }
+  });
+  logger(`Started auto-reload for configuration file: ${configFilePath}`, 'info');
 }
 
 // Logger function for extended logging support
@@ -883,6 +905,9 @@ function runImprovedTestDemo() {
 // Main demo function
 async function main() {
   const config = loadConfig();
+  // Start auto-reload for configuration if config file exists
+  startConfigAutoReload();
+
   logger(`Configuration loaded: ${JSON.stringify(config)}`);
   // Initialize caching system
   initializeCache();
