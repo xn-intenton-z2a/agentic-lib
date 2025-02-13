@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Agentic Operations Library
-// Dynamically configures operations such as error reporting, internationalized logging, API integrations, plugin management, caching, collaboration, and enhanced testing.
+// Dynamically configures operations such as error reporting, internationalized logging, API integrations, plugin management, caching, collaboration, enhanced testing, and real-time analytics reporting.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
@@ -38,6 +38,7 @@ function loadConfig() {
     apiEndpoint: process.env.API_ENDPOINT || "https://api.openai.com",
     reloadInterval: Number(process.env.CONFIG_RELOAD_INTERVAL) || 30000,
     errorReportService: process.env.ERROR_REPORT_SERVICE || "https://error.report",
+    analyticsEndpoint: process.env.ANALYTICS_ENDPOINT || "",
     language: process.env.LANGUAGE || "en_US",
     username: process.env.USERNAME || "Alice",
     featureToggles: process.env.FEATURE_TOGGLES ? JSON.parse(process.env.FEATURE_TOGGLES) : {}
@@ -65,6 +66,30 @@ function startDynamicConfigReload(configFilePath = "./config.json") {
     }
   });
   logger(`Started auto-reload for config file: ${configFilePath}`, "info");
+}
+
+// Real-time Analytics Reporting
+
+// Capture performance and uptime metrics and optionally send to an analytics endpoint
+function captureAnalyticsData() {
+  const metrics = {
+    memoryUsage: process.memoryUsage(),
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  };
+  const config = global.config || {};
+  if (config.analyticsEndpoint) {
+    axios.post(config.analyticsEndpoint, metrics)
+      .then(response => logger(`Analytics reported: ${response.status}`, "info"))
+      .catch(error => logger(`Analytics reporting error: ${error.message}`, "warn"));
+  }
+  logger(`Analytics metrics: ${JSON.stringify(metrics)}`, "debug");
+}
+
+// Start periodic analytics reporting
+function startAnalyticsReporting(interval = 60000) {
+  logger(`Starting analytics reporting every ${interval} ms.`, "info");
+  setInterval(captureAnalyticsData, interval);
 }
 
 // Automatic State Backup and Recovery
@@ -902,7 +927,7 @@ async function main() {
       const result = await demoFunction(params);
       logger(`${demoName} Result: ${JSON.stringify(result)}`, "info");
     } catch (err) {
-      if (err.message && err.message.includes("Incorrect API key provided")) {
+      if (err.message && err.message.includes("Missing API key")) {
         logger(`Skipping ${demoName} due to dummy API key.`, "warn");
       } else {
         logger(`Error in ${demoName}: ${err.message}\n${err.stack}`, "error");
@@ -1031,6 +1056,13 @@ async function main() {
   logger(`Loaded plugins: ${plugins.join(", ")}`, "info");
   watchPluginsDirectory("./plugins");
 
+  // Start analytics reporting if an endpoint is configured
+  if (global.config.analyticsEndpoint) {
+    startAnalyticsReporting();
+  } else {
+    logger("Analytics endpoint not configured. Skipping analytics reporting.", "warn");
+  }
+
   await runDemo("updateMultipleFiles", updateMultipleFiles, {
     sourceFileContent: "console.log('Old version in source');",
     testFileContent: "console.log('Old version in test');",
@@ -1074,7 +1106,7 @@ export function printUsage() {
   console.log(`
 Agentic Operations Library — Usage Guide
 
-This library provides functionalities for dynamic configuration, error reporting, internationalized logging, API integration, plugin management, caching, collaboration, and enhanced testing.
+This library provides functionalities for dynamic configuration, error reporting, internationalized logging, API integration, plugin management, caching, collaboration, enhanced testing, and real-time analytics reporting.
 
 Available Functions:
 1. verifyIssueFix(params)
@@ -1127,5 +1159,7 @@ export default {
   loadPlugins,
   startDynamicConfigReload,
   watchPluginsDirectory,
-  reloadAllAgenticFeatures
+  reloadAllAgenticFeatures,
+  startAnalyticsReporting,
+  captureAnalyticsData
 };
