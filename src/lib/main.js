@@ -3,7 +3,7 @@
 // Intention Agentic Library
 // This library offers a robust set of functionalities for advanced agentic operations:
 // - Dynamic configuration with auto-reload, performance logging, and comprehensive error handling.
-// - Integrated error reporting via axios with fallback mechanisms.
+// - Integrated error reporting via axios with fallback mechanisms (logs to local file if external reporting fails).
 // - Internationalized enhanced logging and detailed error tracing.
 // - Comprehensive testing support including improved demos, multi-file update capabilities, and real-time test demos.
 // - Seamless API integrations with real-time error reporting and dynamic plugin loading.
@@ -791,7 +791,7 @@ function logPerformanceMetrics() {
   );
 }
 
-// Sends error report to an external service
+// Sends error report to an external service with a fallback mechanism
 async function sendErrorReport(error) {
   const config = loadConfig();
   logger(`Sending error report: ${error.message} to ${config.errorReportService}`, "info");
@@ -803,7 +803,20 @@ async function sendErrorReport(error) {
     });
     logger(`Error report sent successfully: ${res.status}`, "info");
   } catch (err) {
-    logger(`Failed to send error report: ${err.message}`, "error");
+    logger(`Failed to send error report: ${err.message}. Falling back to local log.`, "error");
+    try {
+      fs.appendFileSync(
+        "error_report.log",
+        JSON.stringify({
+          error: error.message,
+          stack: error.stack,
+          timestamp: new Date().toISOString()
+        }) + "\n"
+      );
+      logger("Error report saved locally to error_report.log", "info");
+    } catch (fileErr) {
+      logger(`Failed to write local error report: ${fileErr.message}`, "error");
+    }
   }
 }
 
