@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Agentic Operations Library
-// Provides dynamic configuration, error reporting, internationalized logging, API integrations, plugin management, caching, collaboration, and enhanced testing support.
+// Dynamically configures operations such as error reporting, internationalized logging, API integrations, plugin management, caching, collaboration, and enhanced testing.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
@@ -13,7 +13,7 @@ import { setTimeout as delayPromise } from "timers/promises";
 
 // Utility Functions
 
-// Translate message to the target language
+// Translate a message into the target language
 function translateMessage(message, targetLang) {
   return `[${targetLang}] ${message}`;
 }
@@ -46,7 +46,7 @@ function loadConfig() {
   return config;
 }
 
-// Auto-reload configuration using fs.watchFile
+// Auto-reload configuration from a file using fs.watchFile
 function startDynamicConfigReload(configFilePath = "./config.json") {
   if (!fs.existsSync(configFilePath)) {
     logger(`Config file ${configFilePath} not found. Skipping auto-reload.`, "warn");
