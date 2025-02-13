@@ -465,7 +465,7 @@ export function findPRInCheckSuite(prs) {
   }
   const openPRs = prs.filter((pr) => pr.state === "open");
   const prWithAutomerge = openPRs.find(
-    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge")
+    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge"),
   );
   if (!prWithAutomerge) {
     return { pullNumber: "", shouldSkipMerge: "true", prMerged: "false" };
@@ -671,12 +671,7 @@ Ensure valid JSON.
               description: "A short sentence explaining the change applied, suitable for a commit message.",
             },
           },
-          required: [
-            "updatedSourceFileContent",
-            "updatedTestFileContent",
-            "updatedPackagesJsonContent",
-            "message"
-          ],
+          required: ["updatedSourceFileContent", "updatedTestFileContent", "updatedPackagesJsonContent", "message"],
           additionalProperties: false,
         },
         strict: true,
@@ -723,7 +718,29 @@ function loadConfig() {
     errorReportService: process.env.ERROR_REPORT_SERVICE || "https://error.report",
     language: process.env.LANGUAGE || "en_US",
   };
+  global.config = config;
   return config;
+}
+
+// Starts auto-reload for configuration if a config file is present
+function startConfigAutoReload(configFilePath = "./config.json") {
+  if (!fs.existsSync(configFilePath)) {
+    logger(`Config file ${configFilePath} not found. Skipping auto-reload.`, "warn");
+    return;
+  }
+  fs.watch(configFilePath, (eventType, _filename) => {
+    if (eventType === "change") {
+      logger(`Configuration file ${configFilePath} changed. Reloading configuration.`, "info");
+      try {
+        const fileConfig = JSON.parse(fs.readFileSync(configFilePath, "utf8"));
+        Object.assign(global.config, fileConfig);
+        logger(`Configuration reloaded: ${JSON.stringify(global.config)}`, "info");
+      } catch (err) {
+        logger(`Failed to reload configuration: ${err.message}`, "error");
+      }
+    }
+  });
+  logger(`Started auto-reload for configuration file: ${configFilePath}`, "info");
 }
 
 // Logger function for extended logging support
@@ -748,7 +765,7 @@ function logPerformanceMetrics() {
   const memoryUsage = process.memoryUsage();
   const formatMemory = (bytes) => (bytes / 1024 / 1024).toFixed(2) + " MB";
   logger(
-    `Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`
+    `Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`,
   );
 }
 
@@ -778,7 +795,7 @@ function loadPlugins(pluginDirectory) {
   logger(`Loading plugins from: ${pluginDirectory}`, "info");
   let plugins = [];
   try {
-    plugins = fs.readdirSync(pluginDirectory).filter(file => file.endsWith('.js'));
+    plugins = fs.readdirSync(pluginDirectory).filter((file) => file.endsWith(".js"));
     if (plugins.length === 0) {
       logger(`No plugin files found in directory: ${pluginDirectory}`, "warn");
     }
@@ -883,6 +900,9 @@ function runImprovedTestDemo() {
 // Main demo function
 async function main() {
   const config = loadConfig();
+  // Start auto-reload for configuration if config file exists
+  startConfigAutoReload();
+
   logger(`Configuration loaded: ${JSON.stringify(config)}`);
   // Initialize caching system
   initializeCache();
@@ -1010,7 +1030,7 @@ async function main() {
   runExtraCoverageTest();
   runTestCoverageDemo();
   runImprovedCoverageDemo();
-  
+
   // Call new improved test demo to demonstrate the feature directly from main
   runImprovedTestDemo();
 
@@ -1239,5 +1259,5 @@ export default {
   startCollaborationSession,
   setCache,
   getCache,
-  loadPlugins
+  loadPlugins,
 };
