@@ -5,7 +5,7 @@
  Provides dynamic configuration for error reporting, internationalized logging, API integrations,
  plugin management, caching, collaboration, enhanced testing, real-time analytics reporting,
  automated state backup and recovery, security validations, performance monitoring,
- and extended performance metrics logging including CPU load and system uptime.
+ and extended performance metrics logging including CPU load, system uptime, and network interface details.
 */
 
 import { fileURLToPath } from "url";
@@ -872,7 +872,8 @@ function logExtendedPerformanceMetrics() {
   const cpuCount = os.cpus().length;
   const loadAverage = os.loadavg();
   const systemUptime = os.uptime();
-  logger(`Extended Performance Metrics: CPU Count: ${cpuCount}, Load Average: [${loadAverage.join(", ")}], System Uptime: ${systemUptime} seconds`, "info");
+  const netInterfaces = os.networkInterfaces();
+  logger(`Extended Performance Metrics: CPU Count: ${cpuCount}, Load Average: [${loadAverage.join(", ")}], System Uptime: ${systemUptime} seconds, Network Interfaces: ${JSON.stringify(netInterfaces)}`, "info");
 }
 
 process.on("uncaughtException", (err) => {
@@ -1082,7 +1083,7 @@ export function printUsage() {
   console.log(`
 Agentic Operations Library — Usage Guide
 
-This library provides functionalities for dynamic configuration, error reporting, internationalized logging, API integration, plugin management, caching, collaboration, enhanced testing, real-time analytics reporting, automated state backup and recovery, security validations, performance monitoring, and extended performance metrics logging.
+This library provides functionalities for dynamic configuration, error reporting, internationalized logging, API integration, plugin management, caching, collaboration, enhanced testing, real-time analytics reporting, automated state backup and recovery, security validations, performance monitoring, and extended performance metrics logging including CPU load, system uptime, and network interface details.
 
 Available Functions:
 1. verifyIssueFix(params)
