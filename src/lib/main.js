@@ -737,14 +737,15 @@ function loadConfig() {
   return config;
 }
 
-// Starts dynamic configuration auto-reload if a config file is present
+// Starts dynamic configuration auto-reload using fs.watchFile
 function startDynamicConfigReload(configFilePath = "./config.json") {
   if (!fs.existsSync(configFilePath)) {
     logger(`Config file ${configFilePath} not found. Skipping dynamic auto-reload.`, "warn");
     return;
   }
-  fs.watch(configFilePath, (eventType, _filename) => {
-    if (eventType === "change") {
+  // Using fs.watchFile for better reliability in some environments
+  fs.watchFile(configFilePath, { interval: 5000 }, (curr, prev) => {
+    if (curr.mtime !== prev.mtime) {
       logger(`Configuration file ${configFilePath} changed. Reloading configuration dynamically.`, "info");
       try {
         const fileConfig = JSON.parse(fs.readFileSync(configFilePath, "utf8"));
@@ -755,7 +756,7 @@ function startDynamicConfigReload(configFilePath = "./config.json") {
       }
     }
   });
-  logger(`Started dynamic auto-reload for configuration file: ${configFilePath}`, "info");
+  logger(`Started dynamic auto-reload for configuration file: ${configFilePath} using fs.watchFile`, "info");
 }
 
 // New function: Watches the plugins directory for changes and reloads plugins dynamically
