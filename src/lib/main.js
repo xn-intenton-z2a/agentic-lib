@@ -3,12 +3,12 @@
 // Intention Agentic Library
 // This library provides advanced functionalities for agentic operations including:
 // - Dynamic configuration management with auto reload intervals and detailed performance logging
-// - Robust error reporting integrated with external services via axios
-// - Enhanced logging with support for internationalized messages and performance metrics
-// - Improved testing support featuring a demo that validates personalized greetings and advanced coverage scenarios
+// - Robust error reporting integrated with external services via axios, with fallback mechanisms
+// - Enhanced logging featuring internationalized messages, detailed error tracing, and performance metrics
+// - Improved testing support with demos that validate personalized greetings, advanced coverage scenarios, and enhanced test outputs
 // - Seamless API integration and external service communication
-// - Efficient caching mechanisms for optimized runtime performance
-// - Real-time collaboration session support with dynamic plugin loading and comprehensive error handling
+// - Efficient caching mechanisms for optimized runtime performance and global cache management
+// - Real-time collaboration session support with dynamic plugin loading and comprehensive error handling for missing directories
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
