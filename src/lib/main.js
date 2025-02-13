@@ -16,6 +16,7 @@
 // - Automatic state backup and recovery functionality that periodically saves state and enables recovery on failures.
 // - Extensive feature toggling that supports dynamic enabling/disabling of functionalities at runtime.
 // - Enhanced security checks including advanced security policies, runtime validations and improved header documentation.
+// - Future feature: AI-driven performance analytics integration for dynamic scaling.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
