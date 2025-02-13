@@ -11,6 +11,7 @@
 // - Real-time collaboration, modular plugin support, robust plugin error handling, extended caching management, and dynamic plugin directory monitoring.
 // - Utilities for pull request and issue management including automated labeling and merging.
 // - Supports multi-file updates across source, test, and configuration files.
+// - Comprehensive reload capabilities for all dynamic agentic features including config, plugins, and caching.
 
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
@@ -771,6 +772,15 @@ function watchPluginsDirectory(pluginDirectory) {
   logger(`Started watching plugins directory: ${pluginDirectory}`, "info");
 }
 
+// New function: Reloads all agentic features dynamically including config, plugins, and cache clearing.
+export function reloadAllAgenticFeatures(pluginDirectory = "./plugins", configFilePath = "./config.json") {
+  clearCache();
+  startDynamicConfigReload(configFilePath);
+  const plugins = loadPlugins(pluginDirectory);
+  logger(`All agentic features reloaded. Loaded plugins: ${plugins.join(", ")}`, "info");
+  return { plugins };
+}
+
 // Global error handlers
 process.on("uncaughtException", (err) => {
   logger(`Uncaught Exception: ${err.message}\n${err.stack}`, "error");
@@ -1282,6 +1292,9 @@ Available Functions:
 17. watchPluginsDirectory(pluginDirectory)
     • Watches the plugins directory for changes and reloads plugins dynamically.
 
+18. reloadAllAgenticFeatures(pluginDirectory, configFilePath)
+    • Reloads all dynamic agentic features including clear cache, dynamic config reload, and plugin loading.
+
 Usage examples are provided in the main() demo below.
 `);
 }
@@ -1312,7 +1325,8 @@ export default {
   clearCache,
   loadPlugins,
   startDynamicConfigReload,
-  watchPluginsDirectory
+  watchPluginsDirectory,
+  reloadAllAgenticFeatures
 };
 
 
