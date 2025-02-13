@@ -50,6 +50,8 @@ function loadConfig() {
     reloadInterval: Number(process.env.CONFIG_RELOAD_INTERVAL) || 30000,
     errorReportService: process.env.ERROR_REPORT_SERVICE || "https://error.report",
     language: process.env.LANGUAGE || "en_US",
+    // Optional username for enhanced test demos
+    username: process.env.USERNAME || "Alice"
   };
   global.config = config;
   return config;
@@ -981,10 +983,16 @@ function runImprovedCoverageDemo() {
 
 // Improved Test Demo: New function to demonstrate test output improvement
 function runImprovedTestDemo() {
-  const username = "Alice";
+  const username = (global.config && global.config.username) || "Alice";
   const greeting = `Improved Test Demo: Greeting now includes username '${username}'.`;
   console.log(greeting);
   console.assert(greeting.includes(username), "Greeting does not include the expected username.");
+  // Enhanced test: Validate greeting format ends with a period
+  if (!greeting.endsWith(".")) {
+    console.error("Greeting format mismatch: Expected to end with a period.");
+  } else {
+    console.log("Greeting format validated.");
+  }
   console.log("Test passed: greeting contains the username.");
   console.log("Improved Test Demo completed successfully.");
 }
