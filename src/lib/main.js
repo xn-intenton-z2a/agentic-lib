@@ -4,7 +4,7 @@
  Agentic Operations Library
  Provides dynamic configuration for error reporting, internationalized logging, API integrations,
  plugin management, caching, collaboration, enhanced testing, real-time analytics reporting,
- automated state backup and recovery, security validations, performance monitoring, extended performance metrics logging including CPU load, system uptime, network interface details, disk usage metrics logging using the 'df -h' system command, advanced security auditing, real-time CPU load monitoring with alert notifications, and enhanced system monitoring with aggregated metrics and alert notifications.
+ automated state backup and recovery, security validations, performance monitoring, extended performance metrics logging including CPU load, system uptime, network interface details, disk usage metrics logging using the 'df -h' system command, advanced security auditing, real-time CPU load monitoring with alert notifications, enhanced system monitoring with aggregated metrics and alert notifications.
 */
 
 import { fileURLToPath } from "url";
@@ -48,7 +48,8 @@ function loadConfig() {
     language: process.env.LANGUAGE || "en_US",
     username: process.env.USERNAME || "Alice",
     featureToggles: process.env.FEATURE_TOGGLES ? JSON.parse(process.env.FEATURE_TOGGLES) : {},
-    enableEnhancedMonitoring: process.env.ENABLE_ENHANCED_MONITORING === "true" ? true : false
+    enableEnhancedMonitoring: process.env.ENABLE_ENHANCED_MONITORING === "true" ? true : false,
+    enableAggregatedAlerts: process.env.ENABLE_AGGREGATED_ALERTS === "true" ? true : false
   };
   global.config = config;
   return config;
@@ -99,18 +100,31 @@ function startAnalyticsReporting(interval = 60000) {
   setInterval(captureAnalyticsData, interval);
 }
 
-// Enhanced System Monitoring (New Feature)
+// Enhanced System Monitoring (New Feature with Aggregated Alerts)
 
 async function aggregateSystemMetrics() {
   logPerformanceMetrics();
   logExtendedPerformanceMetrics();
   await logDiskUsage();
   monitorCpuLoad();
+  // Aggregated metrics and alert notifications
+  const aggregatedMetrics = {
+    memoryUsage: process.memoryUsage(),
+    loadAverage: os.loadavg(),
+    uptime: process.uptime()
+  };
+  if (global.config.enableAggregatedAlerts) {
+    sendAggregatedAlert(aggregatedMetrics);
+  }
 }
 
 function startEnhancedMonitoring(interval = 60000) {
   logger(`Starting enhanced system monitoring every ${interval} ms.`, "info");
   setInterval(aggregateSystemMetrics, interval);
+}
+
+function sendAggregatedAlert(metrics) {
+  logger(`Aggregated Alert: Metrics aggregate - ${JSON.stringify(metrics)}`, "warn");
 }
 
 // Automatic State Backup and Recovery
@@ -1145,7 +1159,7 @@ export function printUsage() {
   console.log(`
 Agentic Operations Library — Usage Guide
 
-This library provides functionalities for dynamic configuration, error reporting, internationalized logging, API integration, plugin management, caching, collaboration, enhanced testing, real-time analytics reporting, automated state backup and recovery, security validations, performance monitoring, extended performance metrics logging including CPU load, system uptime, network interface details, disk usage metrics, advanced security auditing, real-time CPU load monitoring with alert notifications, and enhanced system monitoring with aggregated metrics.
+This library provides functionalities for dynamic configuration, error reporting, internationalized logging, API integration, plugin management, caching, collaboration, enhanced testing, real-time analytics reporting, automated state backup and recovery, security validations, performance monitoring, extended performance metrics logging including CPU load, system uptime, network interface details, disk usage metrics, advanced security auditing, real-time CPU load monitoring with alert notifications, and enhanced system monitoring with aggregated metrics and alert notifications.
 
 Available Functions:
 1. verifyIssueFix(params)
