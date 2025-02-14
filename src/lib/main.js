@@ -4,7 +4,7 @@
  Agentic Operations Library
  Provides dynamic configuration for error reporting, internationalized logging, API integrations,
  plugin management, caching, collaboration, enhanced testing, real-time analytics reporting,
- automated state backup and recovery, security validations, performance monitoring, extended performance metrics logging including CPU load, system uptime, network interface details, and disk usage metrics logging using the 'df -h' system command, as well as advanced security auditing.
+ automated state backup and recovery, security validations, performance monitoring, extended performance metrics logging including CPU load, system uptime, network interface details, disk usage metrics logging using the 'df -h' system command, advanced security auditing, and real-time CPU load monitoring with alert notifications.
 */
 
 import { fileURLToPath } from "url";
@@ -268,6 +268,17 @@ function advancedSecurityAudit() {
   logger("Performing advanced security audit...", "info");
   // Simulated advanced security diagnostics
   logger("No vulnerabilities detected. Advanced security audit completed.", "info");
+}
+
+// New Feature: Real-time CPU Load Monitoring with Alert Notifications
+function monitorCpuLoad(threshold = 1.0) {
+  const cpuCount = os.cpus().length;
+  const loadAvg = os.loadavg()[0];
+  if (loadAvg > threshold * cpuCount) {
+    logger(`High CPU load detected: ${loadAvg} (Threshold: ${threshold * cpuCount})`, "warn");
+  } else {
+    logger(`CPU load is within normal range: ${loadAvg}`, "debug");
+  }
 }
 
 // Issue and Pull Request Utilities
@@ -630,7 +641,7 @@ export function findPRInCheckSuite(prs) {
   }
   const openPRs = prs.filter((pr) => pr.state === "open");
   const prWithAutomerge = openPRs.find(
-    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge"),
+    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge")
   );
   if (!prWithAutomerge) {
     return { pullNumber: "", shouldSkipMerge: "true", prMerged: "false" };
@@ -875,7 +886,7 @@ function logPerformanceMetrics() {
   const formatMemory = (bytes) => (bytes / 1024 / 1024).toFixed(2) + " MB";
   logger(
     `Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`,
-    "info",
+    "info"
   );
 }
 
@@ -886,7 +897,7 @@ function logExtendedPerformanceMetrics() {
   const netInterfaces = os.networkInterfaces();
   logger(
     `Extended Performance Metrics: CPU Count: ${cpuCount}, Load Average: [${loadAverage.join(", ")}], System Uptime: ${systemUptime} seconds, Network Interfaces: ${JSON.stringify(netInterfaces)}`,
-    "info",
+    "info"
   );
 }
 
@@ -1047,6 +1058,9 @@ async function main() {
   logExtendedPerformanceMetrics();
   await logDiskUsage();
 
+  // New CPU load monitoring call
+  monitorCpuLoad();
+
   logger("Starting real-time collaboration session...", "info");
   startCollaborationSession("session-001");
   const translatedMessage = translateMessage("Welcome to the agentic operations demo!", "es");
@@ -1109,7 +1123,7 @@ export function printUsage() {
   console.log(`
 Agentic Operations Library — Usage Guide
 
-This library provides functionalities for dynamic configuration, error reporting, internationalized logging, API integration, plugin management, caching, collaboration, enhanced testing, real-time analytics reporting, automated state backup and recovery, security validations, performance monitoring, extended performance metrics logging including CPU load, system uptime, network interface details, and disk usage metrics, as well as advanced security auditing.
+This library provides functionalities for dynamic configuration, error reporting, internationalized logging, API integration, plugin management, caching, collaboration, enhanced testing, real-time analytics reporting, automated state backup and recovery, security validations, performance monitoring, extended performance metrics logging including CPU load, system uptime, network interface details, disk usage metrics, advanced security auditing, and real-time CPU load monitoring with alert notifications.
 
 Available Functions:
 1. verifyIssueFix(params)
