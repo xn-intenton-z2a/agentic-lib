@@ -23,7 +23,7 @@ on:
   schedule:
     # Run every 10 minutes (as an example)
     #- cron: '0,10,20,30,40,50 * * * *'
-    - cron: '0 * * * *'
+    - cron: '0 2 * * *'
 
 jobs:
 

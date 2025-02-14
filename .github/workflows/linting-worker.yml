@@ -8,8 +8,8 @@ on:
   schedule:
     # Continuous worker poll
     #- cron: '0,10,20,30,40,50 * * * *'
-    - cron: '0,15,30,45 * * * *'
-    #- cron: '30 * * * *'
+    #- cron: '0,15,30,45 * * * *'
+    - cron: '0 */2 * * *'
 
 jobs:
 

@@ -6,7 +6,8 @@ on:
   workflow_dispatch:
   schedule:
     # Update PRs every 6 hours
-    - cron: '30 4,10,16,22 * * *'
+    #- cron: '30 4,10,16,22 * * *'
+    - cron: '0 1 * * *'
 
 jobs:
   update-prs:
