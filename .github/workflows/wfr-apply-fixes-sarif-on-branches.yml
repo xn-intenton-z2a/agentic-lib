@@ -159,7 +159,7 @@ jobs:
       - name: apply-fixes-sarif
         id: apply-fixes-sarif
         if: ${{ steps.check-linting.outputs.fixRequired == 'true' && env.useApplyFixesSarifAction == 'true' }}
-        uses: 'polycode-projects/apply-fixes-sarif@main'
+        uses: 'polycode-projects/apply-fixes-sarif@latest'
         with:
           resultsToResolve: "${{ env.resultsToResolve }}"
           iterations: "${{ env.iterations }}"
