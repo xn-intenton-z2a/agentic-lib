@@ -50,15 +50,11 @@ jobs:
             let selectedIssueTitle;
             if (issueTitle === 'dealers choice') {
               const issueTitles = [
-                "Add a future feature to the docs (README style) or extend a current list if there already is one.",
-                "Make code changes that improve the compliance with the features described in the top comment block.",
-                "Make code changes that improve the compliance with the features described in the top comment block.",
-                "Make code changes that extends upon the features described in the top comment block.",
-                "Make code changes that extends upon the features described in the top comment block.",
-                "Improve test coverage (a test is run from a main and outputs to console to demonstrate the feature).",
-                "Improve an existing test (a test is run from a main and outputs to console to demonstrate the feature).",
-                "Generally tidy up the single line comments in the code, removing outdated irrelevant commented out text and code.",
-                "Synchronise the top comment block with current behaviour and expected output."
+                "Create or refresh a README style comment block at the top of the file.",
+                "Make code changes that improve the behaviour.",
+                "Make code changes that extend the features.",
+                "Improve or add a test (a test is run from a main and outputs to console to demonstrate the feature).",
+                "Generally tidy up the code."
               ];
               selectedIssueTitle = issueTitles[Math.floor(Math.random() * issueTitles.length)];
             } else {
