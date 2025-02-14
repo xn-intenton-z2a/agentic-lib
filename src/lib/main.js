@@ -4,7 +4,7 @@
  Agentic Operations Library
  Provides dynamic configuration for error reporting, internationalized logging, API integrations,
  plugin management, caching, collaboration, enhanced testing, real-time analytics reporting,
- automated state backup and recovery, security validations, performance monitoring, extended performance metrics logging including CPU load, system uptime, network interface details, disk usage metrics logging using the 'df -h' system command, advanced security auditing, and real-time CPU load monitoring with alert notifications.
+ automated state backup and recovery, security validations, performance monitoring, extended performance metrics logging including CPU load, system uptime, network interface details, disk usage metrics logging using the 'df -h' system command, advanced security auditing, real-time CPU load monitoring with alert notifications, enhanced system monitoring with aggregated metrics and alert notifications (enabled by default).
 */
 
 import { fileURLToPath } from "url";
@@ -48,6 +48,8 @@ function loadConfig() {
     language: process.env.LANGUAGE || "en_US",
     username: process.env.USERNAME || "Alice",
     featureToggles: process.env.FEATURE_TOGGLES ? JSON.parse(process.env.FEATURE_TOGGLES) : {},
+    enableEnhancedMonitoring: process.env.ENABLE_ENHANCED_MONITORING ? process.env.ENABLE_ENHANCED_MONITORING.toLowerCase() === "true" : true,
+    enableAggregatedAlerts: process.env.ENABLE_AGGREGATED_ALERTS ? process.env.ENABLE_AGGREGATED_ALERTS.toLowerCase() === "true" : true
   };
   global.config = config;
   return config;
@@ -79,7 +81,7 @@ async function captureAnalyticsData() {
   const metrics = {
     memoryUsage: process.memoryUsage(),
     uptime: process.uptime(),
-    timestamp: new Date().toISOString(),
+    timestamp: new Date().toISOString()
   };
   const config = global.config || {};
   if (config.analyticsEndpoint) {
@@ -98,13 +100,40 @@ function startAnalyticsReporting(interval = 60000) {
   setInterval(captureAnalyticsData, interval);
 }
 
+// Enhanced System Monitoring (New Feature with Aggregated Alerts)
+
+async function aggregateSystemMetrics() {
+  logPerformanceMetrics();
+  logExtendedPerformanceMetrics();
+  await logDiskUsage();
+  monitorCpuLoad();
+  // Aggregated metrics and alert notifications
+  const aggregatedMetrics = {
+    memoryUsage: process.memoryUsage(),
+    loadAverage: os.loadavg(),
+    uptime: process.uptime()
+  };
+  if (global.config.enableAggregatedAlerts) {
+    sendAggregatedAlert(aggregatedMetrics);
+  }
+}
+
+function startEnhancedMonitoring(interval = 60000) {
+  logger(`Starting enhanced system monitoring every ${interval} ms.`, "info");
+  setInterval(aggregateSystemMetrics, interval);
+}
+
+function sendAggregatedAlert(metrics) {
+  logger(`Aggregated Alert: Metrics aggregate - ${JSON.stringify(metrics)}`, "warn");
+}
+
 // Automatic State Backup and Recovery
 
 function backupState() {
   try {
     const state = {
       config: global.config || {},
-      cache: global.cache ? Array.from(global.cache.entries()) : null,
+      cache: global.cache ? Array.from(global.cache.entries()) : null
     };
     fs.writeFileSync("state_backup.json", JSON.stringify(state, null, 2));
     logger("State backup saved successfully.", "info");
@@ -213,7 +242,7 @@ async function sendErrorReport(error) {
     const res = await axios.post(config.errorReportService, {
       error: error.message,
       stack: error.stack,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString()
     });
     logger(`Error report sent: ${res.status}`, "info");
   } catch (err) {
@@ -224,7 +253,7 @@ async function sendErrorReport(error) {
         JSON.stringify({
           error: error.message,
           stack: error.stack,
-          timestamp: new Date().toISOString(),
+          timestamp: new Date().toISOString()
         }) + "\n"
       );
       logger("Error report saved locally.", "info");
@@ -321,7 +350,7 @@ export async function verifyIssueFix(params) {
     issueDescription,
     issueComments,
     model,
-    apiKey,
+    apiKey
   } = params;
   if (!apiKey) throw new Error("Missing API key.");
   const issueCommentsText = issueComments
@@ -379,36 +408,36 @@ Answer with a JSON object:
           properties: {
             fixed: { type: "string", description: "true if fixed, false otherwise" },
             message: { type: "string", description: "Explanation of the result" },
-            refinement: { type: "string", description: "Suggested refinement if not fixed" },
+            refinement: { type: "string", description: "Suggested refinement if not fixed" }
           },
           required: ["fixed", "message", "refinement"],
-          additionalProperties: false,
+          additionalProperties: false
         },
-        strict: true,
-      },
-    },
+        strict: true
+      }
+    }
   ];
 
   const response = await openai.chat.completions.create({
     model,
     messages: [
       { role: "system", content: "Evaluate issue resolution based on provided inputs." },
-      { role: "user", content: prompt },
+      { role: "user", content: prompt }
     ],
-    tools: functionSchema,
+    tools: functionSchema
   });
 
   const ResponseSchema = z.object({
     fixed: z.string(),
     message: z.string(),
-    refinement: z.string(),
+    refinement: z.string()
   });
   const parsed = parseResponse(response, ResponseSchema);
   return {
     fixed: parsed.fixed,
     message: parsed.message,
     refinement: parsed.refinement,
-    responseUsage: response.usage,
+    responseUsage: response.usage
   };
 }
 
@@ -424,7 +453,7 @@ export async function updateTargetForFixFallingBuild(params) {
     mainScript,
     mainOutput,
     model,
-    apiKey,
+    apiKey
   } = params;
   if (!apiKey) throw new Error("Missing API key.");
   const prompt = `
@@ -473,35 +502,35 @@ Answer with a JSON object:
           type: "object",
           properties: {
             updatedSourceFileContent: { type: "string", description: "Updated file content." },
-            message: { type: "string", description: "Commit message." },
+            message: { type: "string", description: "Commit message." }
           },
           required: ["updatedSourceFileContent", "message"],
-          additionalProperties: false,
+          additionalProperties: false
         },
-        strict: true,
-      },
-    },
+        strict: true
+      }
+    }
   ];
 
   const response = await openai.chat.completions.create({
     model,
     messages: [
       { role: "system", content: "Provide updated source file content to fix build issues." },
-      { role: "user", content: prompt },
+      { role: "user", content: prompt }
     ],
-    tools: functionSchema,
+    tools: functionSchema
   });
 
   const ResponseSchema = z.object({
     updatedSourceFileContent: z.string(),
-    message: z.string(),
+    message: z.string()
   });
   const parsed = parseResponse(response, ResponseSchema);
   return {
     updatedSourceFileContent: parsed.updatedSourceFileContent,
     message: parsed.message,
     fixApplied: true,
-    responseUsage: response.usage,
+    responseUsage: response.usage
   };
 }
 
@@ -519,7 +548,7 @@ export async function updateTargetForStartIssue(params) {
     issueDescription,
     issueComments,
     model,
-    apiKey,
+    apiKey
   } = params;
   if (!apiKey) throw new Error("Missing API key.");
   const issueCommentsText = issueComments
@@ -575,35 +604,35 @@ Answer with a JSON object:
           type: "object",
           properties: {
             updatedSourceFileContent: { type: "string", description: "Updated file content." },
-            message: { type: "string", description: "Commit message." },
+            message: { type: "string", description: "Commit message." }
           },
           required: ["updatedSourceFileContent", "message"],
-          additionalProperties: false,
+          additionalProperties: false
         },
-        strict: true,
-      },
-    },
+        strict: true
+      }
+    }
   ];
 
   const response = await openai.chat.completions.create({
     model,
     messages: [
       { role: "system", content: "Provide updated source file content to resolve the issue." },
-      { role: "user", content: prompt },
+      { role: "user", content: prompt }
     ],
-    tools: functionSchema,
+    tools: functionSchema
   });
 
   const ResponseSchema = z.object({
     updatedSourceFileContent: z.string(),
-    message: z.string(),
+    message: z.string()
   });
   const parsed = parseResponse(response, ResponseSchema);
   return {
     updatedSourceFileContent: parsed.updatedSourceFileContent,
     message: parsed.message,
     fixApplied: true,
-    responseUsage: response.usage,
+    responseUsage: response.usage
   };
 }
 
@@ -622,7 +651,7 @@ export function labelMergedIssue(pullNumber, branchName, branchPrefix) {
   }
   return {
     issueNumber,
-    comment: `The feature branch "${branchName}" has been merged.`,
+    comment: `The feature branch "${branchName}" has been merged.`
   };
 }
 
@@ -649,7 +678,7 @@ export function findPRInCheckSuite(prs) {
   return {
     pullNumber: prWithAutomerge.number.toString(),
     shouldSkipMerge: "false",
-    prMerged: "false",
+    prMerged: "false"
   };
 }
 
@@ -676,7 +705,7 @@ export async function createPullRequest(params) {
   return {
     prCreated: true,
     prNumber: "123",
-    htmlUrl: `https://github.com/dummy/repo/pull/123`,
+    htmlUrl: `https://github.com/dummy/repo/pull/123`
   };
 }
 
@@ -689,7 +718,7 @@ export async function createIssue(params) {
 export async function listOpenPullRequests({ _x }) {
   return [
     { number: 101, headRef: "issue-101", baseRef: "main" },
-    { number: 102, headRef: "feature-102", baseRef: "main" },
+    { number: 102, headRef: "feature-102", baseRef: "main" }
   ];
 }
 
@@ -718,7 +747,7 @@ export async function updateMultipleFiles(params) {
     mainScript,
     mainOutput,
     model,
-    apiKey,
+    apiKey
   } = params;
   if (!apiKey) throw new Error("Missing API key.");
   const issueCommentsText = issueComments
@@ -787,30 +816,30 @@ Answer with a JSON object:
             updatedSourceFileContent: { type: "string", description: "Updated source file content." },
             updatedTestFileContent: { type: "string", description: "Updated test file content." },
             updatedPackagesJsonContent: { type: "string", description: "Updated packages.json content." },
-            message: { type: "string", description: "Commit message." },
+            message: { type: "string", description: "Commit message." }
           },
           required: ["updatedSourceFileContent", "updatedTestFileContent", "updatedPackagesJsonContent", "message"],
-          additionalProperties: false,
+          additionalProperties: false
         },
-        strict: true,
-      },
-    },
+        strict: true
+      }
+    }
   ];
 
   const response = await openai.chat.completions.create({
     model,
     messages: [
       { role: "system", content: "Return updated content for multiple files to resolve the issue." },
-      { role: "user", content: prompt },
+      { role: "user", content: prompt }
     ],
-    tools: functionSchema,
+    tools: functionSchema
   });
 
   const ResponseSchema = z.object({
     updatedSourceFileContent: z.string(),
     updatedTestFileContent: z.string(),
     updatedPackagesJsonContent: z.string(),
-    message: z.string(),
+    message: z.string()
   });
   const parsed = parseResponse(response, ResponseSchema);
   return {
@@ -819,7 +848,7 @@ Answer with a JSON object:
     updatedPackagesJsonContent: parsed.updatedPackagesJsonContent,
     message: parsed.message,
     fixApplied: true,
-    responseUsage: response.usage,
+    responseUsage: response.usage
   };
 }
 
@@ -958,7 +987,7 @@ async function main() {
     issueComments: [{ user: { login: "alice" }, created_at: "2023-01-01", body: "Please fix this." }],
     model: "o3-mini",
     apiKey: "dummy-api-key",
-    issueNumber: 123,
+    issueNumber: 123
   });
 
   await runDemo("updateTargetForFixFallingBuild", updateTargetForFixFallingBuild, {
@@ -972,7 +1001,7 @@ async function main() {
     mainScript: "node src/lib/main.js",
     mainOutput: "Error output",
     model: "o3-mini",
-    apiKey: "dummy-api-key",
+    apiKey: "dummy-api-key"
   });
 
   await runDemo("updateTargetForStartIssue", updateTargetForStartIssue, {
@@ -990,7 +1019,7 @@ async function main() {
     issueComments: [{ user: { login: "bob" }, created_at: "2023-02-01", body: "Please update greeting." }],
     model: "o3-mini",
     apiKey: "dummy-api-key",
-    issueNumber: 456,
+    issueNumber: 456
   });
 
   const extracted = extractIssueNumber("issue-789-update", "issue-");
@@ -1006,13 +1035,13 @@ async function main() {
   const mergeResult = autoMergePullRequest({
     state: "open",
     mergeable: true,
-    mergeable_state: "clean",
+    mergeable_state: "clean"
   });
   logger(`autoMergePullRequest: ${mergeResult}`, "info");
 
   const prFound = findPRInCheckSuite([
     { number: 1, state: "closed", labels: [] },
-    { number: 2, state: "open", labels: [{ name: "automerge" }] },
+    { number: 2, state: "open", labels: [{ name: "automerge" }] }
   ]);
   logger(`findPRInCheckSuite: ${JSON.stringify(prFound)}`, "info");
 
@@ -1020,7 +1049,7 @@ async function main() {
   logger(`selectIssue: ${selectedIssue}`, "info");
 
   const mergedLabel = hasMergedLabel({
-    labels: [{ name: "Merged" }, { name: "bug" }],
+    labels: [{ name: "Merged" }, { name: "bug" }]
   });
   logger(`hasMergedLabel: ${mergedLabel}`, "info");
 
@@ -1029,18 +1058,18 @@ async function main() {
     baseBranch: "main",
     commitMessage: "Ready for pull",
     label: "automerge",
-    existingPulls: [],
+    existingPulls: []
   });
 
   await runDemo("createIssue", createIssue, {
     issueTitle: "Improve error handling",
-    target: "src/lib/main.js",
+    target: "src/lib/main.js"
   });
 
   await runDemo("listOpenPullRequests", listOpenPullRequests, {
     owner: "dummy",
     repo: "repo",
-    pullsPerPage: 2,
+    pullsPerPage: 2
   });
 
   const sarifAnalysis = analyzeSarifResults("5", "2");
@@ -1060,6 +1089,13 @@ async function main() {
 
   // New CPU load monitoring call
   monitorCpuLoad();
+
+  // Start enhanced monitoring if enabled in config
+  if (global.config.enableEnhancedMonitoring) {
+    startEnhancedMonitoring(60000);
+  } else {
+    logger("Enhanced monitoring not enabled in configuration.", "info");
+  }
 
   logger("Starting real-time collaboration session...", "info");
   startCollaborationSession("session-001");
@@ -1092,11 +1128,11 @@ async function main() {
       {
         user: { login: "charlie" },
         created_at: "2025-02-11T02:10:00Z",
-        body: "Needs support for multiple file updates",
-      },
+        body: "Needs support for multiple file updates"
+      }
     ],
     model: "o3-mini",
-    apiKey: "dummy-api-key",
+    apiKey: "dummy-api-key"
   });
 
   backupState();
@@ -1123,7 +1159,7 @@ export function printUsage() {
   console.log(`
 Agentic Operations Library — Usage Guide
 
-This library provides functionalities for dynamic configuration, error reporting, internationalized logging, API integration, plugin management, caching, collaboration, enhanced testing, real-time analytics reporting, automated state backup and recovery, security validations, performance monitoring, extended performance metrics logging including CPU load, system uptime, network interface details, disk usage metrics, advanced security auditing, and real-time CPU load monitoring with alert notifications.
+This library provides functionalities for dynamic configuration, error reporting, internationalized logging, API integration, plugin management, caching, collaboration, enhanced testing, real-time analytics reporting, automated state backup and recovery, security validations, performance monitoring, extended performance metrics logging including CPU load, system uptime, network interface details, disk usage metrics, advanced security auditing, real-time CPU load monitoring with alert notifications, and enhanced system monitoring with aggregated metrics and alert notifications.
 
 Available Functions:
 1. verifyIssueFix(params)
@@ -1144,6 +1180,7 @@ Available Functions:
 16. loadPlugins(pluginDirectory)
 17. watchPluginsDirectory(pluginDirectory)
 18. reloadAllAgenticFeatures(pluginDirectory, configFilePath)
+19. startEnhancedMonitoring(interval)
 
 Usage examples are in the main() demo below.
 `);
@@ -1179,5 +1216,6 @@ export default {
   reloadAllAgenticFeatures,
   startAnalyticsReporting,
   captureAnalyticsData,
-  advancedSecurityAudit
+  advancedSecurityAudit,
+  startEnhancedMonitoring
 };
