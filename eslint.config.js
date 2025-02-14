@@ -53,11 +53,11 @@ export default [
       "sonarjs/os-command": "off", // Fixable by ChatGPT but messy and unnecessary
       "sonarjs/todo-tag": "off",
       "sonarjs/no-commented-code": "off",
-      // TODO: Disabled recommended rules (SonarJS) to enable when ready
-      "sonarjs/no-empty-function": "off", // ChatGPT was able to suggest a solution
-      "sonarjs/updated-loop-counter": "off", // ChatGPT was able to suggest a solution, but it should fail the tests
-      "sonarjs/no-ignored-exceptions": "off", // ChatGPT was not able to suggest a useful solution
-      "sonarjs/unused-import": "off", // Duplicates no-unused-vars
+      // Disabled recommended rules (SonarJS)
+      // "sonarjs/no-empty-function": "off", // ChatGPT was able to suggest a solution
+      // "sonarjs/updated-loop-counter": "off", // ChatGPT was able to suggest a solution, but it should fail the tests
+      // "sonarjs/no-ignored-exceptions": "off", // ChatGPT was not able to suggest a useful solution
+      // "sonarjs/unused-import": "off", // Duplicates no-unused-vars
 
       // Enabled non-recommended rules (SonarJS)
       "sonarjs/no-inverted-boolean-check": "warn",
