@@ -10,16 +10,6 @@ on:
         type: string
         required: false
         default: 'src/lib/main.js'
-      createPr:
-        description: 'true, if a PR should be created?'
-        required: false
-        type: boolean
-        default: true
-      runLintingWorker:
-        description: 'true, if the linting worker should be run?'
-        required: false
-        type: boolean
-        default: false
     #schedule:
     # Run every 10 minutes (as an example)
     #- cron: '0,10,20,30,40,50 * * * *'
@@ -49,7 +39,7 @@ jobs:
   create-pr:
     needs:
       - fix-failing-build
-    if: ${{ inputs.createPr == true && needs.fix-failing-build.outputs.fixApplied == 'true' }}
+    if: ${{ needs.fix-failing-build.outputs.fixApplied == 'true' }}
     permissions:
       contents: write
       packages: write
@@ -62,30 +52,3 @@ jobs:
       label: 'automerge'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-  run-linting-linting-worker:
-    needs:
-      - fix-failing-build
-    if: ${{ inputs.runLintingWorker == true && needs.fix-failing-build.outputs.fixApplied == 'true' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
-      id-token: write
-    steps:
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Trigger linting-worker workflow
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'linting-worker.yml',
-              ref: context.ref,
-              inputs: {} 
-            });
