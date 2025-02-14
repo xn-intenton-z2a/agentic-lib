@@ -53,16 +53,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-      - run: |
-          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
-      - name: Set up .npmrc
-        shell: bash
-        run: |
-          echo "@polycode-projects:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
-          echo "always-auth=true" >> .npmrc
       - run: npm ci
-      - run: rm -f .npmrc
       - run: pwd
       - run: ls -l
       - run: find . -name '*.js' -exec echo '{}' \; | grep -v 'node_modules'
