@@ -1,7 +1,7 @@
-# .github/workflows/automerge-on-pull-request.yml
-name: Automerge on Pull Request
+# .github/workflows/automerge.yml
+name: Automerge on Pull Request or Check Suite event
 concurrency: automerge-${{ github.ref_name }}
-run-name: "Automerge on Pull Request [${{ github.ref_name }}]"
+run-name: "Automerge [${{ github.ref_name }}]"
 
 on:
   pull_request:
@@ -14,61 +14,72 @@ on:
       - completed
 
 jobs:
+  check-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run pull_request check
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')
+        id: pr
+        uses: './.github/workflows/wfr-automerge-check-pr-and-merge.yml'
+        secrets:
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  check-pr-on-pull-request:
-    if: contains(github.event.pull_request.labels.*.name, 'automerge')
-    permissions:
-      contents: write
-      pull-requests: write
-    uses: './.github/workflows/wfr-automerge-check-pr-and-merge.yml'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run check_suite check
+        if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
+        id: cs
+        uses: './.github/workflows/wfr-automerge-find-pr-in-check-suite.yml'
+        secrets:
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  check-pr-on-check-suite:
-    if: github.event.check_suite.conclusion == 'success'
-    permissions:
-      contents: write
-      pull-requests: write
-    uses: './.github/workflows/wfr-automerge-find-pr-in-check-suite.yml'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  label-issue-after-check-pr-on-pull-request:
+      - name: set-outputs
+        id: set-outputs
+        uses: actions/github-script@v6
+        with:
+          script: |
+            let prMerged = '';
+            let pullNumber = '';
+            let shouldSkipMerge = '';
+            if (steps.pr && steps.pr.outputs && steps.pr.outputs.pullNumber) {
+              console.log("Using pull_request outputs");
+              prMerged = steps.pr.outputs.prMerged;
+              pullNumber = steps.pr.outputs.pullNumber;
+              shouldSkipMerge = steps.pr.outputs.shouldSkipMerge;
+            } else if (steps.cs && steps.cs.outputs && steps.cs.outputs.pullNumber) {
+              console.log("Using check_suite outputs");
+              prMerged = steps.cs.outputs.prMerged;
+              pullNumber = steps.cs.outputs.pullNumber;
+              shouldSkipMerge = steps.cs.outputs.shouldSkipMerge;
+            } else {
+              console.log("No valid outputs found");
+              prMerged = 'false';
+              pullNumber = '';
+              shouldSkipMerge = 'true';
+            }
+            return { prMerged, pullNumber, shouldSkipMerge };
+          result-encoding: string
+    outputs:
+      prMerged: ${{ steps.set-outputs.outputs.prMerged }}
+      pullNumber: ${{ steps.set-outputs.outputs.pullNumber }}
+      shouldSkipMerge: ${{ steps.set-outputs.outputs.shouldSkipMerge }}
+      
+  label-issue-after-check-pr:
     needs:
-      - check-pr-on-pull-request
-    if: needs.check-pr-on-pull-request.outputs.prMerged == 'true' && needs.check-pr-on-pull-request.outputs.pullNumber != ''
+      - check-pr
+    if: needs.check-pr.outputs.prMerged == 'true' && needs.check-pr.outputs.pullNumber != ''
     permissions:
       contents: write
       pull-requests: write
     uses: './.github/workflows/wfr-automerge-label-issue.yml'
     with:
-      pullNumber: '${{ needs.check-pr-on-pull-request.outputs.pullNumber }}'
+      pullNumber: '${{ needs.check-pr.outputs.pullNumber }}'
       branchPrefix: 'issue-'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  label-issue-after-check-pr-on-check-suite:
+  wait-for-merge:
     needs:
-      - check-pr-on-check-suite
-    if: needs.check-pr-on-check-suite.outputs.prMerged == 'true' && needs.check-pr-on-check-suite.outputs.pullNumber != ''
-    permissions:
-      contents: write
-      pull-requests: write
-    uses: './.github/workflows/wfr-automerge-label-issue.yml'
-    with:
-      pullNumber: '${{ needs.check-pr-on-check-suite.outputs.pullNumber }}'
-      branchPrefix: 'issue-'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  wait-for-merge-on-pull-request:
-    needs:
-      - check-pr-on-pull-request
-    if: needs.check-pr-on-pull-request.outputs.shouldSkipMerge != 'true'
+      - check-pr
+    if: needs.check-pr.outputs.shouldSkipMerge != 'true'
     runs-on: ubuntu-latest
     steps:
       - run: echo "Sleeping for 60 seconds."
@@ -76,63 +87,30 @@ jobs:
       - run: sleep 60
         shell: bash
 
-  automerge-on-pull-request:
+  automerge:
     needs:
-      - check-pr-on-pull-request
-      - wait-for-merge-on-pull-request
-    if: needs.check-pr-on-pull-request.outputs.shouldSkipMerge != 'true'
+      - check-pr
+      - wait-for-merge
+    if: needs.check-pr.outputs.shouldSkipMerge != 'true'
     permissions:
       contents: write
       pull-requests: write
     uses: './.github/workflows/wfr-automerge-merge-pr.yml'
     with:
-      pullNumber: '${{ needs.check-pr-on-pull-request.outputs.pullNumber }}'
+      pullNumber: '${{ needs.check-pr.outputs.pullNumber }}'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  automerge-on-check-suite:
+  label-issue-after-automerge:
     needs:
-      - check-pr-on-check-suite
-    if: needs.check-pr-on-check-suite.outputs.shouldSkipMerge != 'true'
+      - check-pr
+      - automerge
+    if: needs.automerge.outputs.prMerged == 'true' && needs.check-pr.outputs.pullNumber != ''
     permissions:
       contents: write
-      pull-requests: write
-    uses: './.github/workflows/wfr-automerge-merge-pr.yml'
-    with:
-      pullNumber: '${{ needs.check-pr-on-check-suite.outputs.pullNumber }}'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  label-issue-after-automerge-on-pull-request:
-    needs:
-      - check-pr-on-pull-request
-      - automerge-on-pull-request
-    if: needs.automerge-on-pull-request.outputs.prMerged == 'true' && needs.check-pr-on-pull-request.outputs.pullNumber != ''
-    permissions:
-      contents: write
-      #pull-requests: write
     uses: './.github/workflows/wfr-automerge-label-issue.yml'
     with:
-      pullNumber: '${{ needs.check-pr-on-pull-request.outputs.pullNumber }}'
+      pullNumber: '${{ needs.check-pr.outputs.pullNumber }}'
       branchPrefix: 'issue-'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  label-issue-after-automerge-on-check-suite:
-    needs:
-      - check-pr-on-check-suite
-      - automerge-on-check-suite
-    if: needs.automerge-on-check-suite.outputs.prMerged == 'true' && needs.check-pr-on-check-suite.outputs.pullNumber != ''
-    permissions:
-      contents: write
-      #pull-requests: write
-    uses: './.github/workflows/wfr-automerge-label-issue.yml'
-    with:
-      pullNumber: '${{ needs.check-pr-on-check-suite.outputs.pullNumber }}'
-      branchPrefix: 'issue-'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
