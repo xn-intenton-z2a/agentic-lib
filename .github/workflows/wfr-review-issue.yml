@@ -54,7 +54,6 @@ jobs:
       mainScript: ${{ inputs.mainScript || 'node src/lib/main.js' }}
       model: ${{ inputs.model || 'o3-mini' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-      npmAuth: 'true'
 
     steps:
       - uses: actions/checkout@v4
@@ -65,16 +64,16 @@ jobs:
           node-version: 20
 
       - name: Check GitHub authentication
-        if: ${{ env.npmAuth == 'true' }}
+        if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
         run: |
           curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
 
       - name: Set up .npmrc
-        if: ${{ env.npmAuth == 'true' }}
+        if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
         run: |
-          echo "@polycode-projects:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
           echo "always-auth=true" >> .npmrc
 
@@ -91,7 +90,7 @@ jobs:
           echo "output=${output}"
 
       - name: Tear down .npmrc
-        if: ${{ env.npmAuth == 'true' }}
+        if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
         run: rm -f .npmrc
 

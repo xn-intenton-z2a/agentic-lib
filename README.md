@@ -97,7 +97,7 @@ Processes a given branch (e.g. an issue branch) by running build and SARIF analy
   _Required:_ No (Default: `"npm test"`)  
   _Description:_ Command to run tests.
 
-- **npmAuth**  
+- **npmAuthOrganisation**  
   _Type:_ string  
   _Required:_ No (Default: `"true"`)  
   _Description:_ Whether to perform npm authentication.
@@ -306,7 +306,7 @@ Updates dependencies and packages in the repository. It can optionally delete al
   _Required:_ No (Default: `"minor"`)  
   _Description:_ The type of upgrade (e.g. `"patch"`, `"minor"`, or `"major"`).
 
-- **npmAuth**  
+- **npmAuthOrganisation**  
   _Type:_ string  
   _Required:_ No (Default: `"true"`)  
   _Description:_ Whether to authenticate with npm.
@@ -396,7 +396,7 @@ Creates a “fix intention” by checking out the repository, ensuring that no b
   _Required:_ No (Default: `"npm test"`)  
   _Description:_ Command to run tests (for validation).
 
-- **npmAuth**  
+- **npmAuthOrganisation**  
   _Type:_ string  
   _Required:_ No (Default: `"true"`)  
   _Description:_ Whether to authenticate with npm.

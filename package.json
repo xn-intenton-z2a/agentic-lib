@@ -1,7 +1,7 @@
 {
-  "name": "@polycode-projects/intention-agentic-lib",
-  "version": "0.1.1-76",
-  "description": "A next-generation encoder library focused on **high-density** encoding and decoding—initially optimized for **UUIDs** (particularly v4 and v7) while also laying the groundwork for handling arbitrary binary data. The library uses advanced packing strategies to produce shorter representations when stored in multi-byte text formats (e.g., UTF-16, UTF-32). Built for **Node 20** using **ESM 2023** features.",
+  "name": "@xn-intenton-z2a/intention-agentic-lib",
+  "version": "0.1.1-75",
+  "description": "A library of GitHub Workflows for agentic development.",
   "type": "module",
   "main": "index.js",
   "scripts": {
@@ -22,8 +22,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@actions/core": "^1.11.1",
-    "@octokit/rest": "^21.1.0",
-    "@polycode-projects/apply-fixes-sarif": "^1.0.119",
+    "@octokit/rest": "^21.1.1",
     "acorn": "^8.14.0",
     "axios": "^1.7.9",
     "base-x": "^5.0.0",
@@ -43,7 +42,7 @@
     "keyv": "^5.2.3",
     "keyv-file": "^5.1.1",
     "lodash": "^4.17.21",
-    "openai": "^4.83.0",
+    "openai": "^4.85.1",
     "pino": "^9.6.0",
     "recast": "^0.23.9",
     "rxjs": "^7.8.1",
@@ -68,9 +67,9 @@
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-security": "^3.0.1",
     "eslint-plugin-sonarjs": "^3.0.2",
-    "globals": "^15.14.0",
+    "globals": "^15.15.0",
     "npm-check-updates": "^17.1.14",
-    "openai": "^4.83.0",
+    "openai": "^4.85.1",
     "pino-pretty": "^13.0.0",
     "prettier": "^3.5.1",
     "zod": "^3.24.2"

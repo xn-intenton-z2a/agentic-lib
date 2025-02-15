@@ -23,7 +23,6 @@ on:
           - patch
           - minor
           - semver
-          - polycode
 
 jobs:
   update-dependencies:
@@ -38,7 +37,6 @@ jobs:
       testScript: 'npm test'
       mainScript: 'node src/lib/main.js'
       upgradeTarget: ${{ inputs.upgradeTarget || 'patch' }}
-      npmAuth: 'true'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
       gitCommitMessage: 'chore: dependency updates'

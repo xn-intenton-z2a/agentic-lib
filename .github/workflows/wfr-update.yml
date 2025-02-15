@@ -29,11 +29,11 @@ on:
         type: string
         required: false
         default: 'minor'
-      npmAuth:
-        description: 'Whether to authenticate with npm. e.g. "true"'
+      npmAuthOrganisation:
+        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
         type: string
         required: false
-        default: 'true'
+        default: ''
       gitUserEmail:
         description: 'The email to use for git commits. e.g. "action@github.com"'
         type: string
@@ -63,7 +63,7 @@ jobs:
       testScript: ${{ inputs.testScript || 'npm test' }}
       mainScript: ${{ inputs.mainScript || 'node src/lib/main.js' }}
       upgradeTarget: ${{ inputs.upgradeTarget || 'minor' }}
-      npmAuth: ${{ inputs.npmAuth || 'true' }}
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
       gitCommitMessage: |
@@ -117,16 +117,16 @@ jobs:
           node-version: '20'
 
       - name: Check GitHub authentication
-        if: ${{ env.npmAuth == 'true' }}
+        if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
         run: |
           curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
 
       - name: Set up .npmrc
-        if: ${{ env.npmAuth == 'true' }}
+        if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
         run: |
-          echo "@polycode-projects:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
           echo "always-auth=true" >> .npmrc
 
@@ -165,45 +165,25 @@ jobs:
           echo "output=${output}"
 
       - name: Update packages with npm
-        if: ${{ env.upgradeTarget != 'polycode' }}
         continue-on-error: true
         shell: bash
         env:
           ncuUpgradeTarget: ${{ env.upgradeTarget || 'minor' }}
-        run: npm install @polycode-projects/apply-fixes-sarif@latest --save ; npm update ; npm upgrade ; npm install
+        run: npm install --save ; npm update ; npm upgrade ; npm install
 
       - name: Update packages with ncu
-        if: ${{ env.upgradeTarget != 'polycode' }}
         continue-on-error: true
         shell: bash
         env:
           ncuUpgradeTarget: ${{ env.upgradeTarget || 'minor' }}
         run: npx ncu --upgrade --enginesNode --retry 3 --target ${{ env.ncuUpgradeTarget }} --verbose ; npm install ; npm update ; npm upgrade ; npm install
 
-      - name: Update polycode packages with npm
-        if: ${{ env.upgradeTarget == 'polycode' }}
-        continue-on-error: true
-        shell: bash
-        env:
-          ncuUpgradeTarget: ${{ 'greatest' }}
-        run: |
-          npm install @polycode-projects/apply-fixes-sarif@latest --save ; npm update "@polycode-projects/apply-fixes-sarif" ; npm upgrade ; npm install
-
-      - name: Update polycode packages with ncu
-        if: ${{ env.upgradeTarget == 'polycode' }}
-        continue-on-error: true
-        shell: bash
-        env:
-          ncuUpgradeTarget: ${{ 'greatest' }}
-        run: |
-          run: npx ncu --upgrade --enginesNode --retry 3 --target ${{ env.ncuUpgradeTarget }} --verbose --filter '@polycode-projects/*' ; npm install ; npm update ; npm upgrade ; npm install
-
       - run: rm -rf './node_modules/'
 
       - run: npm ci
         
       - name: Tear down .npmrc
-        if: ${{ env.npmAuth == 'true' }}
+        if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
         run: rm -f .npmrc
 

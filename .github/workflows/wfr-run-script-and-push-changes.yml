@@ -14,11 +14,11 @@ on:
         type: string
         required: false
         default: 'npm test'
-      npmAuth:
-        description: 'Whether to authenticate with npm. e.g. "true"'
+      npmAuthOrganisation:
+        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
         type: string
         required: false
-        default: 'true'
+        default: ''
       gitUserEmail:
         description: 'The email to use for git commits. e.g. "action@github.com"'
         type: string
@@ -45,7 +45,7 @@ jobs:
     env:
       script: ${{ inputs.script || 'prettier --write' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
-      npmAuth: ${{ inputs.npmAuth || 'true' }}
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
       gitCommitMessage: ${{ inputs.gitCommitMessage || 'Updated by inputs.script' }}
@@ -58,16 +58,16 @@ jobs:
           node-version: 20
 
       - name: Check GitHub authentication
-        if: ${{ env.npmAuth == 'true' }}
+        if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
         run: |
           curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
 
       - name: Set up .npmrc
-        if: ${{ env.npmAuth == 'true' }}
+        if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
         run: |
-          echo "@polycode-projects:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
           echo "always-auth=true" >> .npmrc
 
@@ -96,7 +96,7 @@ jobs:
           ${{ env.testScript }}
 
       - name: Tear down npm auth
-        if: ${{ env.npmAuth == 'true' }}
+        if: ${{ env.npmAuthOrganisation != '' }}
         run: rm -vf .npmrc
 
       - name: Commit

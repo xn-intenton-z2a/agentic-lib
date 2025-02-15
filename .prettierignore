@@ -1,7 +1,6 @@
 build/
 coverage/
 exports/
-fix-code-ai/
 intentions/
 node_modules/
 .*
