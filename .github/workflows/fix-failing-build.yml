@@ -1,5 +1,6 @@
 # .github/workflows/fix-failing-build.yml
 name: Fix Failing Build
+concurrency: fix-failing-build
 run-name: "Fix Failing Build [${{ github.ref_name }}]"
 
 on:

@@ -1,5 +1,6 @@
 # .github/workflows/formating.yml
 name: Formatting
+concurrency: formatting-${{ github.ref_name }}
 run-name: "Formatting [${{ github.ref_name }}]"
 
 on:

@@ -52,6 +52,8 @@ on:
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
+      #MY_GITHUB_TOKEN:
+      #  required: false
 
 jobs:
   publish:
@@ -71,11 +73,11 @@ jobs:
         ${{ inputs.gitCommitMessage || 'chore: dependency updates' }}
 
     steps:
-      - name: Fail if both secrets are missing
-        if: ${{ secrets.GITHUB_TOKEN == '' && secrets.PERSONAL_ACCESS_TOKEN == '' }}
-        run: |
-          echo "Error\:\ Neither GITHUB_TOKEN nor PERSONAL_ACCESS_TOKEN is set."
-          exit 1
+      #- name: Fail if both secrets are missing
+      #  if: ${{ secrets.MY_GITHUB_TOKEN == '' && secrets.PERSONAL_ACCESS_TOKEN == '' }}
+      #  run: |
+      #    echo "Error\:\ Neither MY_GITHUB_TOKEN nor PERSONAL_ACCESS_TOKEN is set."
+      #    exit 1
 
       - name: Delete all GitHub Actions caches by iterating through each one to delete it
         if: ${{ env.deleteAllCaches }}

@@ -1,6 +1,7 @@
 # .github/workflows/issue-creator.yml
 name: Create Issue
-run-name: "Create Issue [${{ github.ref_name }}]"
+concurrency: create-issue
+run-name: "Create Issue"
 
 on:
   workflow_dispatch:

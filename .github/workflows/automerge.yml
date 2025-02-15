@@ -1,5 +1,5 @@
 # .github/workflows/automerge.yml
-name: Automerge on Pull Request or Check Suite event
+name: Automerge
 concurrency: automerge-${{ github.ref_name }}
 run-name: "Automerge [${{ github.ref_name }}]"
 

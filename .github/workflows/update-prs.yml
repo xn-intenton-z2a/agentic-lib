@@ -1,5 +1,6 @@
 # .github/workflows/update-prs.yml
 name: Update Pull Requests
+concurrency: update-prs
 run-name: "Update Pull Requests"
 
 on:
