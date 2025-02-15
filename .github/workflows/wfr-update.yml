@@ -56,7 +56,7 @@ on:
       #  required: false
 
 jobs:
-  publish:
+  update:
     runs-on: ubuntu-latest
 
     env:

@@ -14,10 +14,10 @@ on:
     outputs:
       prMerged:
         description: 'Set to "true", if the PR has been merged either already or by this process.'
-        value: ${{ jobs.check-pr.outputs.prMerged }}
+        value: ${{ jobs.merge-pr.outputs.prMerged }}
 
 jobs:
-  check-pr:
+  merge-pr:
     runs-on: ubuntu-latest
 
     steps:

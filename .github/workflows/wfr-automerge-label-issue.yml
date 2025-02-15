@@ -20,7 +20,7 @@ on:
         description: 'The issue number just merged. e.g. "123"'
         value: ${{ jobs.check-pr.outputs.issueNumber }}
 jobs:
-  check-pr:
+  label-issue:
     runs-on: ubuntu-latest
 
     steps:

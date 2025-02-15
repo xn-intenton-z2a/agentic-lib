@@ -33,7 +33,7 @@ on:
         required: true
 
 jobs:
-  check-pr:
+  create-pr:
     runs-on: ubuntu-latest
 
     env:

@@ -57,7 +57,7 @@ on:
         value: ${{ jobs.check-linting.outputs.fixRequired }}
 
 jobs:
-  check-linting:
+  run-sarif-script:
     runs-on: ubuntu-latest
 
     env:
@@ -109,8 +109,8 @@ jobs:
         shell: bash
         run: touch '${{ env.logToFilepath }}'
 
-      - name: check-linting
-        id: check-linting
+      - name: run-sarif-script
+        id: run-sarif-script
         continue-on-error: true
         shell: bash
         run: |
@@ -135,7 +135,7 @@ jobs:
 
       - name: post-process-and-commit
         id: post-process-and-commit
-        if: ${{ steps.check-linting.outputs.fixApplied == 'true' }}
+        if: ${{ steps.run-sarif-script.outputs.fixApplied == 'true' }}
         continue-on-error: true
         shell: bash
         run: |
@@ -169,4 +169,4 @@ jobs:
           git status -v
 
     outputs:
-      fixRequired: ${{ steps.check-linting.outputs.fixRequired }}
+      fixRequired: ${{ steps.run-sarif-script.outputs.fixRequired }}

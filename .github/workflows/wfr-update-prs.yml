@@ -19,7 +19,7 @@ on:
         required: true
 
 jobs:
-  check-pr:
+  update-prs:
     runs-on: ubuntu-latest
 
     env:
