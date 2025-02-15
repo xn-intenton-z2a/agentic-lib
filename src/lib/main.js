@@ -1,12 +1,5 @@
 #!/usr/bin/env node
 
-/*
- Agentic Operations Library
- Provides dynamic configuration for error reporting, internationalized logging, API integrations,
- plugin management, caching, collaboration, enhanced testing, real-time analytics reporting,
- automated state backup and recovery, security validations, performance monitoring, extended performance metrics logging including CPU load, system uptime, network interface details, disk usage metrics logging using the 'df -h' system command, advanced security auditing, real-time CPU load monitoring with alert notifications, enhanced system monitoring with aggregated metrics and alert notifications (enabled by default).
-*/
-
 import { fileURLToPath } from "url";
 import { randomInt } from "crypto";
 import { OpenAI } from "openai";
@@ -20,237 +13,20 @@ import { promisify } from "util";
 
 const execAsync = promisify(exec);
 
-// Utility Functions
-
-function translateMessage(message, targetLang) {
-  return `[${targetLang}] ${message}`;
-}
-
-function logger(message, level = "info") {
-  const config = global.config || { logLevel: "info", language: "en_US" };
-  const levels = { debug: 1, info: 2, warn: 3, error: 4 };
-  if (levels[level] < levels[config.logLevel]) return;
-  const timestamp = new Date().toISOString();
-  const language = config.language || "en_US";
-  const logMessage = language !== "en_US" ? translateMessage(message, language) : message;
-  console.log(`[${level.toUpperCase()}] ${timestamp} - ${logMessage}`);
-}
-
-// Configuration Management
-
-function loadConfig() {
-  const config = {
-    logLevel: process.env.LOG_LEVEL || "info",
-    apiEndpoint: process.env.API_ENDPOINT || "https://api.openai.com",
-    reloadInterval: Number(process.env.CONFIG_RELOAD_INTERVAL) || 30000,
-    errorReportService: process.env.ERROR_REPORT_SERVICE || "https://error.report",
-    analyticsEndpoint: process.env.ANALYTICS_ENDPOINT || "",
-    language: process.env.LANGUAGE || "en_US",
-    username: process.env.USERNAME || "Alice",
-    featureToggles: process.env.FEATURE_TOGGLES ? JSON.parse(process.env.FEATURE_TOGGLES) : {},
-    enableEnhancedMonitoring: process.env.ENABLE_ENHANCED_MONITORING
-      ? process.env.ENABLE_ENHANCED_MONITORING.toLowerCase() === "true"
-      : true,
-    enableAggregatedAlerts: process.env.ENABLE_AGGREGATED_ALERTS
-      ? process.env.ENABLE_AGGREGATED_ALERTS.toLowerCase() === "true"
-      : true,
-  };
-  global.config = config;
-  return config;
-}
-
-function startDynamicConfigReload(configFilePath = "./config.json") {
-  if (!fs.existsSync(configFilePath)) {
-    logger(`Config file ${configFilePath} not found. Skipping auto-reload.`, "warn");
-    return;
-  }
-  fs.watchFile(configFilePath, { interval: 5000 }, (curr, prev) => {
-    if (curr.mtime !== prev.mtime) {
-      logger(`Config file ${configFilePath} changed. Reloading config.`, "info");
-      try {
-        const fileConfig = JSON.parse(fs.readFileSync(configFilePath, "utf8"));
-        Object.assign(global.config, fileConfig);
-        logger(`Reloaded config: ${JSON.stringify(global.config)}`, "info");
-      } catch (err) {
-        logger(`Failed to reload config: ${err.message}`, "error");
-      }
-    }
-  });
-  logger(`Started auto-reload for config file: ${configFilePath}`, "info");
-}
-
-// Real-time Analytics Reporting
-
-async function captureAnalyticsData() {
-  const metrics = {
-    memoryUsage: process.memoryUsage(),
-    uptime: process.uptime(),
-    timestamp: new Date().toISOString(),
-  };
-  const config = global.config || {};
-  if (config.analyticsEndpoint) {
-    try {
-      const response = await axios.post(config.analyticsEndpoint, metrics);
-      logger(`Analytics reported: ${response.status}`, "info");
-    } catch (error) {
-      logger(`Analytics reporting error: ${error.message}`, "warn");
-    }
-  }
-  logger(`Analytics metrics: ${JSON.stringify(metrics)}`, "debug");
-}
-
-function startAnalyticsReporting(interval = 60000) {
-  logger(`Starting analytics reporting every ${interval} ms.`, "info");
-  setInterval(captureAnalyticsData, interval);
-}
-
-// Enhanced System Monitoring (New Feature with Aggregated Alerts)
-
-async function aggregateSystemMetrics() {
-  logPerformanceMetrics();
-  logExtendedPerformanceMetrics();
-  await logDiskUsage();
-  monitorCpuLoad();
-  // Aggregated metrics and alert notifications
-  const aggregatedMetrics = {
-    memoryUsage: process.memoryUsage(),
-    loadAverage: os.loadavg(),
-    uptime: process.uptime(),
-  };
-  if (global.config.enableAggregatedAlerts) {
-    sendAggregatedAlert(aggregatedMetrics);
-  }
-}
-
-function startEnhancedMonitoring(interval = 60000) {
-  logger(`Starting enhanced system monitoring every ${interval} ms.`, "info");
-  setInterval(aggregateSystemMetrics, interval);
-}
-
-function sendAggregatedAlert(metrics) {
-  logger(`Aggregated Alert: Metrics aggregate - ${JSON.stringify(metrics)}`, "warn");
-}
-
-// Automatic State Backup and Recovery
-
-function backupState() {
-  try {
-    const state = {
-      config: global.config || {},
-      cache: global.cache ? Array.from(global.cache.entries()) : null,
-    };
-    fs.writeFileSync("state_backup.json", JSON.stringify(state, null, 2));
-    logger("State backup saved successfully.", "info");
-  } catch (err) {
-    logger(`State backup failed: ${err.message}`, "error");
-  }
-}
-
-function recoverState() {
-  try {
-    if (fs.existsSync("state_backup.json")) {
-      const data = fs.readFileSync("state_backup.json", "utf8");
-      const state = JSON.parse(data);
-      global.config = state.config || {};
-      if (state.cache) {
-        global.cache = new Map(state.cache);
-      }
-      logger("State recovered from backup.", "info");
-    } else {
-      logger("No state backup found.", "warn");
-    }
-  } catch (err) {
-    logger(`State recovery failed: ${err.message}`, "error");
-  }
-}
-
-// Plugin Management
-
-function loadPlugins(pluginDirectory) {
-  logger(`Loading plugins from: ${pluginDirectory}`, "info");
-  let plugins = [];
-  try {
-    plugins = fs.readdirSync(pluginDirectory).filter((file) => file.endsWith(".js"));
-    if (plugins.length === 0) {
-      logger(`No plugins found in directory: ${pluginDirectory}`, "warn");
-    }
-  } catch (err) {
-    logger(`Error loading plugins from ${pluginDirectory}: ${err.message}`, "error");
-  }
-  return plugins;
-}
-
-function watchPluginsDirectory(pluginDirectory) {
-  if (!fs.existsSync(pluginDirectory)) {
-    logger(`Plugins directory ${pluginDirectory} not found. Skipping watch.`, "warn");
-    return;
-  }
-  fs.watch(pluginDirectory, (eventType, filename) => {
-    if (filename && filename.endsWith(".js")) {
-      logger(`Plugin file ${filename} ${eventType}. Reloading plugins...`, "info");
-      loadPlugins(pluginDirectory);
-    }
-  });
-  logger(`Watching plugins directory: ${pluginDirectory}`, "info");
-}
-
-export function reloadAllAgenticFeatures(pluginDirectory = "./plugins", configFilePath = "./config.json") {
-  clearCache();
-  startDynamicConfigReload(configFilePath);
-  const plugins = loadPlugins(pluginDirectory);
-  logger(`Reloaded all features. Plugins loaded: ${plugins.join(", ")}`, "info");
-  return { plugins };
-}
-
-// Caching Functions
-
-function initializeCache() {
-  if (!global.cache) {
-    global.cache = new Map();
-    logger("Cache initialized.", "info");
-  } else {
-    logger("Cache already initialized.", "info");
-  }
-}
-
-export function setCache(key, value) {
-  if (!global.cache) {
-    initializeCache();
-  }
-  global.cache.set(key, value);
-  logger(`Cache set: ${key}`, "debug");
-}
-
-export function getCache(key) {
-  if (!global.cache) return undefined;
-  const value = global.cache.get(key);
-  logger(`Cache get: ${key} value: ${value}`, "debug");
-  return value;
-}
-
-export function clearCache() {
-  if (global.cache) {
-    global.cache.clear();
-    logger("Cache cleared.", "info");
-  } else {
-    logger("No cache to clear.", "warn");
-  }
-}
-
 // Error Reporting and API Integration
 
 async function sendErrorReport(error) {
-  const config = loadConfig();
-  logger(`Sending error report: ${error.message} to ${config.errorReportService}`, "info");
+  const errorReportService = process.env.ERROR_REPORT_SERVICE || "https://error.report";
+  console.error(`Sending error report: ${error.message} to ${errorReportService}`);
   try {
-    const res = await axios.post(config.errorReportService, {
+    const res = await axios.post(errorReportService, {
       error: error.message,
       stack: error.stack,
       timestamp: new Date().toISOString(),
     });
-    logger(`Error report sent: ${res.status}`, "info");
+    console.info(`Error report sent: ${res.status}`);
   } catch (err) {
-    logger(`Error report failed: ${err.message}. Falling back to local log.`, "error");
+    console.error(`Error report failed: ${err.message}. Falling back to local log.`);
     try {
       fs.appendFileSync(
         "error_report.log",
@@ -258,11 +34,11 @@ async function sendErrorReport(error) {
           error: error.message,
           stack: error.stack,
           timestamp: new Date().toISOString(),
-        }) + "\n",
+        }) + "\n"
       );
-      logger("Error report saved locally.", "info");
+      console.info("Error report saved locally.");
     } catch (fileErr) {
-      logger(`Local error report save failed: ${fileErr.message}`, "error");
+      console.error(`Local error report save failed: ${fileErr.message}`);
     }
   }
 }
@@ -273,48 +49,34 @@ export async function integrateWithApi(endpoint, payload) {
   while (attempt < maxRetries) {
     try {
       const response = await axios.post(endpoint, payload);
-      logger(`API call success on attempt ${attempt + 1}: ${response.status}`, "info");
+      console.info(`API call success on attempt ${attempt + 1}: ${response.status}`);
       return response.data;
     } catch (error) {
       attempt++;
-      logger(`API call attempt ${attempt} failed: ${error.message}`, "warn");
+      console.warn(`API call attempt ${attempt} failed: ${error.message}`);
       if (attempt < maxRetries) {
         const delayTime = attempt * 1000;
         await delayPromise(delayTime);
       } else {
-        logger(`API call failed after ${maxRetries} attempts: ${error.message}`, "error");
+        console.error(`API call failed after ${maxRetries} attempts: ${error.message}`);
         throw error;
       }
     }
   }
 }
 
-// Enhanced Security Checks
+// Security Checks
 
 function checkSecurityFeatures() {
-  logger("Security checks passed.", "info");
+  console.info("Security checks passed.");
 }
-
-// Advanced Security Auditing
 
 function advancedSecurityAudit() {
-  logger("Performing advanced security audit...", "info");
-  // Simulated advanced security diagnostics
-  logger("No vulnerabilities detected. Advanced security audit completed.", "info");
+  console.info("Performing advanced security audit...");
+  console.info("No vulnerabilities detected. Advanced security audit completed.");
 }
 
-// New Feature: Real-time CPU Load Monitoring with Alert Notifications
-function monitorCpuLoad(threshold = 1.0) {
-  const cpuCount = os.cpus().length;
-  const loadAvg = os.loadavg()[0];
-  if (loadAvg > threshold * cpuCount) {
-    logger(`High CPU load detected: ${loadAvg} (Threshold: ${threshold * cpuCount})`, "warn");
-  } else {
-    logger(`CPU load is within normal range: ${loadAvg}`, "debug");
-  }
-}
-
-// Issue and Pull Request Utilities
+// OpenAI Integration Utilities
 
 function parseResponse(response, schema) {
   let result;
@@ -674,7 +436,7 @@ export function findPRInCheckSuite(prs) {
   }
   const openPRs = prs.filter((pr) => pr.state === "open");
   const prWithAutomerge = openPRs.find(
-    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge"),
+    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge")
   );
   if (!prWithAutomerge) {
     return { pullNumber: "", shouldSkipMerge: "true", prMerged: "false" };
@@ -733,8 +495,6 @@ export function analyzeSarifResults(resultsBefore, resultsAfter) {
   const fixApplied = after < before ? "true" : "false";
   return { fixRequired, fixApplied };
 }
-
-// Multiple Files Update
 
 export async function updateMultipleFiles(params) {
   const {
@@ -856,293 +616,68 @@ Answer with a JSON object:
   };
 }
 
-// Collaboration and Testing
-
-function startCollaborationSession(sessionId) {
-  logger(`Collaboration session '${sessionId}' started.`, "info");
-}
-
-function runImprovedTests() {
-  logger("Running improved tests...", "info");
-  logger("Improved tests passed.", "info");
-}
-
-function runAdditionalTest() {
-  logger("Running additional tests...", "info");
-  logger("Additional tests passed.", "info");
-}
-
-function runExtraCoverageTest() {
-  logger("Running extra coverage test...", "info");
-  logger("Extra coverage test passed.", "info");
-}
-
-function runTestCoverageDemo() {
-  logger("Running test coverage demo...", "info");
-  logger("Test coverage demo passed.", "info");
-}
-
-function runImprovedCoverageDemo() {
-  logger("Running improved coverage demo...", "info");
-  logger("Improved coverage demo passed.", "info");
-}
-
-function runImprovedTestDemo() {
-  const username = (global.config && global.config.username) || "Alice";
-  const greeting = `Improved Test Demo: Greeting now includes username '${username}'.`;
-  console.log(greeting);
-
-  if (!greeting.includes(username)) {
-    console.error("Greeting does not include the expected username.");
-  } else {
-    console.log("Username inclusion validated.");
-  }
-
-  if (!/^[A-Z]/.test(greeting)) {
-    console.error("Greeting does not start with a capital letter.");
-  } else {
-    console.log("Greeting capitalization validated.");
-  }
-
-  if (!greeting.endsWith(".")) {
-    console.error("Greeting format mismatch: Expected to end with a period.");
-  } else {
-    console.log("Greeting format validated.");
-  }
-
-  console.log("Test passed: Greeting meets all formatting expectations.");
-  console.log("Improved Test Demo completed successfully.");
-}
-
-function logPerformanceMetrics() {
-  const memoryUsage = process.memoryUsage();
-  const formatMemory = (bytes) => (bytes / 1024 / 1024).toFixed(2) + " MB";
-  logger(
-    `Memory Usage: RSS: ${formatMemory(memoryUsage.rss)}, Heap Total: ${formatMemory(memoryUsage.heapTotal)}, Heap Used: ${formatMemory(memoryUsage.heapUsed)}`,
-    "info",
-  );
-}
-
-function logExtendedPerformanceMetrics() {
-  const cpuCount = os.cpus().length;
-  const loadAverage = os.loadavg();
-  const systemUptime = os.uptime();
-  const netInterfaces = os.networkInterfaces();
-  logger(
-    `Extended Performance Metrics: CPU Count: ${cpuCount}, Load Average: [${loadAverage.join(", ")}], System Uptime: ${systemUptime} seconds, Network Interfaces: ${JSON.stringify(netInterfaces)}`,
-    "info",
-  );
-}
-
-// Disk usage metrics logging function that retrieves disk usage details using the 'df -h' command.
-async function logDiskUsage() {
-  try {
-    const { stdout } = await execAsync("df -h");
-    logger(`Disk Usage: ${stdout}`, "info");
-  } catch (error) {
-    logger(`Disk usage error: ${error.message}`, "warn");
-  }
-}
-
 process.on("uncaughtException", (err) => {
-  logger(`Uncaught Exception: ${err.message}\n${err.stack}`, "error");
+  console.error(`Uncaught Exception: ${err.message}\n${err.stack}`);
   sendErrorReport(err);
 });
 
 process.on("unhandledRejection", (reason, promise) => {
-  logger(`Unhandled Rejection at: ${promise}, reason: ${reason}`, "error");
+  console.error(`Unhandled Rejection at: ${promise}, reason: ${reason}`);
   sendErrorReport(reason instanceof Error ? reason : new Error(String(reason)));
 });
 
+// Main demo (shortened)
+
 async function main() {
-  const config = loadConfig();
-  startDynamicConfigReload();
-  logger(`Configuration loaded: ${JSON.stringify(config)}`);
-  initializeCache();
-  recoverState();
-  checkSecurityFeatures();
-  advancedSecurityAudit();
-  logger("=== Agentic Operations Demo ===", "info");
-
-  async function runDemo(demoName, demoFunction, params) {
-    try {
-      const result = await demoFunction(params);
-      logger(`${demoName} Result: ${JSON.stringify(result)}`, "info");
-    } catch (err) {
-      if (err.message && err.message.includes("Missing API key")) {
-        logger(`Skipping ${demoName} due to dummy API key.`, "warn");
-      } else {
-        logger(`Error in ${demoName}: ${err.message}\n${err.stack}`, "error");
-      }
-    }
-  }
-
-  await runDemo("verifyIssueFix", verifyIssueFix, {
-    target: "src/lib/main.js",
-    sourceFileContent: "console.log('Hello, world!');",
-    buildScript: "npm run build",
-    buildOutput: "Build succeeded",
-    testScript: "npm test",
-    testOutput: "Tests passed",
-    mainScript: "node src/lib/main.js",
-    mainOutput: "Hello, world!",
-    issueTitle: "Fix greeting",
-    issueDescription: "Update greeting to include user name.",
-    issueComments: [{ user: { login: "alice" }, created_at: "2023-01-01", body: "Please fix this." }],
-    model: "o3-mini",
-    apiKey: "dummy-api-key",
-    issueNumber: 123,
-  });
-
-  await runDemo("updateTargetForFixFallingBuild", updateTargetForFixFallingBuild, {
-    target: "src/lib/main.js",
-    sourceFileContent: "console.log('Old version');",
-    listOutput: "npm list output here",
-    buildScript: "npm run build",
-    buildOutput: "Build failed",
-    testScript: "npm test",
-    testOutput: "Tests failed",
-    mainScript: "node src/lib/main.js",
-    mainOutput: "Error output",
-    model: "o3-mini",
-    apiKey: "dummy-api-key",
-  });
-
-  await runDemo("updateTargetForStartIssue", updateTargetForStartIssue, {
-    target: "src/lib/main.js",
-    sourceFileContent: "console.log('Old version');",
-    listOutput: "npm list output here",
-    buildScript: "npm run build",
-    buildOutput: "Build succeeded",
-    testScript: "npm test",
-    testOutput: "Tests passed",
-    mainScript: "node src/lib/main.js",
-    mainOutput: "Output OK",
-    issueTitle: "Fix main output",
-    issueDescription: "Main output must greet the user properly.",
-    issueComments: [{ user: { login: "bob" }, created_at: "2023-02-01", body: "Please update greeting." }],
-    model: "o3-mini",
-    apiKey: "dummy-api-key",
-    issueNumber: 456,
-  });
-
-  const extracted = extractIssueNumber("issue-789-update", "issue-");
-  logger(`extractIssueNumber: ${extracted}`, "info");
-
   try {
-    const labelInfo = labelMergedIssue("101", "issue-101-update", "issue-");
-    logger(`labelMergedIssue: ${JSON.stringify(labelInfo)}`, "info");
+    console.info("=== Agentic Operations Demo ===");
+
+    // Demo: verifyIssueFix
+    const fixResult = await verifyIssueFix({
+      target: "src/lib/main.js",
+      sourceFileContent: "console.log('Hello, world!');",
+      buildScript: "npm run build",
+      buildOutput: "Build succeeded",
+      testScript: "npm test",
+      testOutput: "Tests passed",
+      mainScript: "node src/lib/main.js",
+      mainOutput: "Hello, world!",
+      issueTitle: "Fix greeting",
+      issueDescription: "Update greeting to include user name.",
+      issueComments: [{ user: { login: "alice" }, created_at: "2023-01-01", body: "Please fix this." }],
+      model: "o3-mini",
+      apiKey: "dummy-api-key",
+    });
+    console.info("verifyIssueFix Result:", fixResult);
+
+    // Demo: updateTargetForFixFallingBuild
+    const updateResult = await updateTargetForFixFallingBuild({
+      target: "src/lib/main.js",
+      sourceFileContent: "console.log('Old version');",
+      listOutput: "npm list output here",
+      buildScript: "npm run build",
+      buildOutput: "Build failed",
+      testScript: "npm test",
+      testOutput: "Tests failed",
+      mainScript: "node src/lib/main.js",
+      mainOutput: "Error output",
+      model: "o3-mini",
+      apiKey: "dummy-api-key",
+    });
+    console.info("updateTargetForFixFallingBuild Result:", updateResult);
+
+    // Demo: branch and issue utilities
+    const extracted = extractIssueNumber("issue-789-update", "issue-");
+    console.info("extractIssueNumber:", extracted);
+    const autoMerge = autoMergePullRequest({ state: "open", mergeable: true, mergeable_state: "clean" });
+    console.info("autoMergePullRequest:", autoMerge);
+    const sarifAnalysis = analyzeSarifResults("5", "2");
+    console.info("analyzeSarifResults:", sarifAnalysis);
+
+    console.info("=== Demo Completed ===");
   } catch (err) {
-    logger(`Error in labelMergedIssue: ${err.message}\n${err.stack}`, "error");
+    console.error(`Error in demo: ${err.message}\n${err.stack}`);
   }
-
-  const mergeResult = autoMergePullRequest({
-    state: "open",
-    mergeable: true,
-    mergeable_state: "clean",
-  });
-  logger(`autoMergePullRequest: ${mergeResult}`, "info");
-
-  const prFound = findPRInCheckSuite([
-    { number: 1, state: "closed", labels: [] },
-    { number: 2, state: "open", labels: [{ name: "automerge" }] },
-  ]);
-  logger(`findPRInCheckSuite: ${JSON.stringify(prFound)}`, "info");
-
-  const selectedIssue = selectIssue("", [{ number: 321 }, { number: 654 }]);
-  logger(`selectIssue: ${selectedIssue}`, "info");
-
-  const mergedLabel = hasMergedLabel({
-    labels: [{ name: "Merged" }, { name: "bug" }],
-  });
-  logger(`hasMergedLabel: ${mergedLabel}`, "info");
-
-  await runDemo("createPullRequest", createPullRequest, {
-    branch: "issue-123",
-    baseBranch: "main",
-    commitMessage: "Ready for pull",
-    label: "automerge",
-    existingPulls: [],
-  });
-
-  await runDemo("createIssue", createIssue, {
-    issueTitle: "Improve error handling",
-    target: "src/lib/main.js",
-  });
-
-  await runDemo("listOpenPullRequests", listOpenPullRequests, {
-    owner: "dummy",
-    repo: "repo",
-    pullsPerPage: 2,
-  });
-
-  const sarifAnalysis = analyzeSarifResults("5", "2");
-  logger(`analyzeSarifResults: ${JSON.stringify(sarifAnalysis)}`, "info");
-
-  runImprovedTests();
-  runAdditionalTest();
-  logger("Additional Test Output: All extra tests executed successfully.", "info");
-  runExtraCoverageTest();
-  runTestCoverageDemo();
-  runImprovedCoverageDemo();
-  runImprovedTestDemo();
-
-  logPerformanceMetrics();
-  logExtendedPerformanceMetrics();
-  await logDiskUsage();
-
-  // New CPU load monitoring call
-  monitorCpuLoad();
-
-  // Start enhanced monitoring if enabled in config
-  if (global.config.enableEnhancedMonitoring) {
-    startEnhancedMonitoring(60000);
-  } else {
-    logger("Enhanced monitoring not enabled in configuration.", "info");
-  }
-
-  logger("Starting real-time collaboration session...", "info");
-  startCollaborationSession("session-001");
-  const translatedMessage = translateMessage("Welcome to the agentic operations demo!", "es");
-  logger("Translated message: " + translatedMessage, "info");
-
-  const plugins = loadPlugins("./plugins");
-  logger(`Loaded plugins: ${plugins.join(", ")}`, "info");
-  watchPluginsDirectory("./plugins");
-
-  if (global.config.analyticsEndpoint) {
-    startAnalyticsReporting();
-  } else {
-    logger("Analytics endpoint not configured. Skipping analytics reporting.", "warn");
-  }
-
-  await runDemo("updateMultipleFiles", updateMultipleFiles, {
-    sourceFileContent: "console.log('Old version in source');",
-    testFileContent: "console.log('Old version in test');",
-    packagesJsonContent: '{ "name": "intention-agentic-lib", "version": "3.0.72" }',
-    buildScript: "npm run build",
-    buildOutput: "Build failed",
-    testScript: "npm test",
-    testOutput: "Tests failed",
-    mainScript: "node src/lib/main.js",
-    mainOutput: "Error output",
-    issueTitle: "Support multiple files being changed",
-    issueDescription: "Update source, test, and packages.json concurrently.",
-    issueComments: [
-      {
-        user: { login: "charlie" },
-        created_at: "2025-02-11T02:10:00Z",
-        body: "Needs support for multiple file updates",
-      },
-    ],
-    model: "o3-mini",
-    apiKey: "dummy-api-key",
-  });
-
-  backupState();
-
-  logger("Demo completed successfully.", "info");
-  logger("=== End of Demo ===", "info");
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -1154,7 +689,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   try {
     await main();
   } catch (err) {
-    logger(`Error in main demo: ${err.message}\n${err.stack}`, "error");
+    console.error(`Error in main demo: ${err.message}\n${err.stack}`);
     process.exit(1);
   }
 }
@@ -1162,8 +697,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 export function printUsage() {
   console.log(`
 Agentic Operations Library — Usage Guide
-
-This library provides functionalities for dynamic configuration, error reporting, internationalized logging, API integration, plugin management, caching, collaboration, enhanced testing, real-time analytics reporting, automated state backup and recovery, security validations, performance monitoring, extended performance metrics logging including CPU load, system uptime, network interface details, disk usage metrics, advanced security auditing, real-time CPU load monitoring with alert notifications, and enhanced system monitoring with aggregated metrics and alert notifications.
 
 Available Functions:
 1. verifyIssueFix(params)
@@ -1180,13 +713,10 @@ Available Functions:
 12. listOpenPullRequests(params)
 13. analyzeSarifResults(resultsBefore, resultsAfter)
 14. updateMultipleFiles(params)
-15. clearCache()
-16. loadPlugins(pluginDirectory)
-17. watchPluginsDirectory(pluginDirectory)
-18. reloadAllAgenticFeatures(pluginDirectory, configFilePath)
-19. startEnhancedMonitoring(interval)
-
-Usage examples are in the main() demo below.
+15. sendErrorReport(error)
+16. integrateWithApi(endpoint, payload)
+17. checkSecurityFeatures()
+18. advancedSecurityAudit()
 `);
 }
 
@@ -1208,18 +738,7 @@ export default {
   printUsage,
   main,
   sendErrorReport,
-  translateMessage,
   integrateWithApi,
-  startCollaborationSession,
-  setCache,
-  getCache,
-  clearCache,
-  loadPlugins,
-  startDynamicConfigReload,
-  watchPluginsDirectory,
-  reloadAllAgenticFeatures,
-  startAnalyticsReporting,
-  captureAnalyticsData,
+  checkSecurityFeatures,
   advancedSecurityAudit,
-  startEnhancedMonitoring,
 };
