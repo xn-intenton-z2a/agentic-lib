@@ -52,8 +52,6 @@ on:
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
-      GITHUB_TOKEN:
-        required: true
 
 jobs:
   publish:
