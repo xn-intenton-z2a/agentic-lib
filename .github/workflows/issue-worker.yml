@@ -1,5 +1,6 @@
 # .github/workflows/issue-worker.yml
 name: Issue Worker
+concurrency: branch-main
 run-name: "Issue Worker [${{ github.ref_name }}]"
 
 on:

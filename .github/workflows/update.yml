@@ -1,14 +1,12 @@
 # .github/workflows/update.yml
 name: Update
-concurrency: update-${{ github.ref_name }}
+concurrency: branch-${{ github.ref_name }}
 run-name: "Update [${{ github.ref_name }}]"
 
 on:
   repository_dispatch:
-    # This triggers whenever we receive a repository_dispatch event named 'package-published'
     types: [package-published]
   schedule:
-    # Nightly updates: 7am update
     - cron: '30 7 * * *'
   workflow_dispatch:
     inputs:
@@ -42,7 +40,3 @@ jobs:
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
       gitCommitMessage: 'chore: dependency updates'
-    #secrets:
-      # PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-

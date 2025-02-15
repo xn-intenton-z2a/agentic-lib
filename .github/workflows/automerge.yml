@@ -1,6 +1,6 @@
 # .github/workflows/automerge.yml
 name: Automerge
-concurrency: automerge-${{ github.ref_name }}
+concurrency: branch-main
 run-name: "Automerge [${{ github.ref_name }}]"
 
 on:
