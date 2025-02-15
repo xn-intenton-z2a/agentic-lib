@@ -10,12 +10,12 @@ The **intention-agentic-lib** is a collection of reusable GitHub Actions workflo
 - [x] For NPM Follow [Semantic Versioning](https://semver.org/) for releases.
 - [x] Expose a main as a cli
 - [x] Use a separate action repository instead of relying upon the polycoder JS.
-- [~] Create a new organisation for @intentïon including repositories (phase 1):
+- [x] Create a new organisation for @intentïon including repositories (phase 1):
 - - [x] `intentïon-agentic-lib` Open Source (Apache 2) GitHub Actions Reusable Workflows (route to market)
 - - [x] `repository0` - An example project but without the apply-fixes-sarif action or permissions
 - [x] Replace shell script of any complexity with github-script.
 - [x] Abstract re-usable workflows into a separate repository.
-- [ ] Switch from PAT to GITHUB_TOKEN.
+- [~] Switch from PAT to GITHUB_TOKEN.
 - [ ] Feed in issue title options.
 - [ ] Add prime directive to context.
 - [ ] Add the ability to write to the README, test and package.json.
