@@ -16,7 +16,9 @@ on:
       PERSONAL_ACCESS_TOKEN:
         required: true
     outputs:
-      issueNumber: ${{ jobs.check-pr.outputs.issueNumber }}
+      issueNumber:
+        description: 'The issue number just merged. e.g. "123"'
+        value: ${{ jobs.check-pr.outputs.issueNumber }}
 jobs:
   check-pr:
     runs-on: ubuntu-latest
