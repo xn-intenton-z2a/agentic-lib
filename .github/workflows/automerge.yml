@@ -61,7 +61,7 @@ jobs:
       prMerged: ${{ steps.set-outputs.outputs.prMerged }}
       pullNumber: ${{ steps.set-outputs.outputs.pullNumber }}
       shouldSkipMerge: ${{ steps.set-outputs.outputs.shouldSkipMerge }}
-      
+
   label-issue-after-check-pr:
     needs:
       - check-pr
