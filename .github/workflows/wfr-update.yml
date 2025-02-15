@@ -62,6 +62,7 @@ jobs:
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
       mainScript: ${{ inputs.mainScript || 'node src/lib/main.js' }}
+      mainScriptTimeout: '5m'
       upgradeTarget: ${{ inputs.upgradeTarget || 'minor' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
@@ -158,7 +159,7 @@ jobs:
         id: main
         shell: bash
         run: |
-          output=$(${{ env.mainScript }} 2>&1)
+          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -199,7 +200,7 @@ jobs:
       - name: Run main after update
         shell: bash
         run: |
-          output=$(${{ env.mainScript }} 2>&1)
+          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
