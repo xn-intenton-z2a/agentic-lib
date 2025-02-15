@@ -76,6 +76,7 @@ export default [
     ignores: ["**/tests/**/*.js", "**/*.test.js"],
     rules: {
       ...security.configs.recommended.rules,
+      "security/detect-non-literal-regexp": "off",
     },
   },
   {

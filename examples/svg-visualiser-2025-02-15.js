@@ -6,12 +6,7 @@ import { OpenAI } from "openai";
 import { z } from "zod";
 import axios from "axios";
 import fs from "fs";
-import os from "os";
 import { setTimeout as delayPromise } from "timers/promises";
-import { exec } from "child_process";
-import { promisify } from "util";
-
-const execAsync = promisify(exec);
 
 // Error Reporting and API Integration
 
@@ -34,7 +29,7 @@ async function sendErrorReport(error) {
           error: error.message,
           stack: error.stack,
           timestamp: new Date().toISOString(),
-        }) + "\n"
+        }) + "\n",
       );
       console.info("Error report saved locally.");
     } catch (fileErr) {
@@ -466,7 +461,7 @@ export function findPRInCheckSuite(prs) {
   }
   const openPRs = prs.filter((pr) => pr.state === "open");
   const prWithAutomerge = openPRs.find(
-    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge")
+    (pr) => pr.labels && pr.labels.some((label) => label.name.toLowerCase() === "automerge"),
   );
   if (!prWithAutomerge) {
     return { pullNumber: "", shouldSkipMerge: "true", prMerged: "false" };
