@@ -32,7 +32,6 @@ jobs:
       packages: write
     uses: './.github/workflows/wfr-update.yml'
     with:
-      deleteAllCaches: 'true'
       buildScript: 'npm run build'
       testScript: 'npm test'
       mainScript: 'node src/lib/main.js'
