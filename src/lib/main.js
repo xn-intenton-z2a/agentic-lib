@@ -76,6 +76,36 @@ function advancedSecurityAudit() {
   console.info("No vulnerabilities detected. Advanced security audit completed.");
 }
 
+// Plugin Management Functions
+
+function loadPlugins() {
+  const pluginsDir = "./plugins";
+  if (!fs.existsSync(pluginsDir)) {
+    fs.mkdirSync(pluginsDir, { recursive: true });
+    console.info(`Plugins directory created: ${pluginsDir}`);
+  } else {
+    console.info(`Plugins directory exists: ${pluginsDir}`);
+  }
+  try {
+    const files = fs.readdirSync(pluginsDir);
+    console.info(`Loaded plugins: ${files.join(", ") || "none"}`);
+  } catch (err) {
+    console.error("Failed to load plugins:", err.message);
+  }
+}
+
+function watchPluginsDirectory() {
+  const pluginsDir = "./plugins";
+  if (!fs.existsSync(pluginsDir)) {
+    fs.mkdirSync(pluginsDir, { recursive: true });
+    console.info(`Plugins directory created for watching: ${pluginsDir}`);
+  }
+  fs.watch(pluginsDir, (eventType, filename) => {
+    console.info(`Plugins directory change detected: event ${eventType} on file ${filename}`);
+  });
+  console.info("Watching plugins directory for changes...");
+}
+
 // OpenAI Integration Utilities
 
 function parseResponse(response, schema) {
@@ -674,6 +704,10 @@ async function main() {
     const sarifAnalysis = analyzeSarifResults("5", "2");
     console.info("analyzeSarifResults:", sarifAnalysis);
 
+    console.info("Testing plugin functions:");
+    loadPlugins();
+    watchPluginsDirectory();
+
     console.info("=== Demo Completed ===");
   } catch (err) {
     console.error(`Error in demo: ${err.message}\n${err.stack}`);
@@ -717,6 +751,8 @@ Available Functions:
 16. integrateWithApi(endpoint, payload)
 17. checkSecurityFeatures()
 18. advancedSecurityAudit()
+19. loadPlugins()
+20. watchPluginsDirectory()
 `);
 }
 
@@ -741,4 +777,6 @@ export default {
   integrateWithApi,
   checkSecurityFeatures,
   advancedSecurityAudit,
+  loadPlugins,
+  watchPluginsDirectory,
 };
