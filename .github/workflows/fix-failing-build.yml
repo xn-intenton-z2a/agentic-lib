@@ -1,5 +1,5 @@
 # .github/workflows/fix-failing-build.yml
-name: 8. Fix Failing Build
+name: Fix Failing Build
 run-name: "Fix Failing Build [${{ github.ref_name }}]"
 
 on:

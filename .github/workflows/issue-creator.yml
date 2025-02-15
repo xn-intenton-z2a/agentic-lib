@@ -1,5 +1,5 @@
 # .github/workflows/issue-creator.yml
-name: 1. Create Issue
+name: Create Issue
 run-name: "Create Issue [${{ github.ref_name }}]"
 
 on:

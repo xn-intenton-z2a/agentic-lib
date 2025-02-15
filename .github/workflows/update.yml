@@ -1,5 +1,5 @@
 # .github/workflows/update.yml
-name: 7. Update
+name: Update
 run-name: "Update [${{ github.ref_name }}]"
 
 on:

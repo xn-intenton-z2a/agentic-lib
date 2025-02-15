@@ -1,5 +1,5 @@
 # .github/workflows/publish.yml
-name: 9. Publish packages
+name: Publish packages
 run-name: 'Publish packages [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
 concurrency: publish-${{ github.ref_name }}
 

@@ -1,5 +1,5 @@
 # .github/workflows/issue-reviewer.yml
-name: 6. Review Issue
+name: Review Issue
 run-name: "Review Issue [${{ github.ref_name }}]"
 
 on:

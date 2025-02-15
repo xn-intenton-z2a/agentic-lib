@@ -1,5 +1,5 @@
 # .github/workflows/issue-worker.yml
-name: 2. Issue Worker
+name: Issue Worker
 run-name: "Issue Worker [${{ github.ref_name }}]"
 
 on:
