@@ -17,9 +17,27 @@ The **intention-agentic-lib** is a collection of reusable GitHub Actions workflo
 - [x] Abstract re-usable workflows into a separate repository.
 - [~] Switch from PAT to GITHUB_TOKEN.
 - [ ] Feed in issue title options.
-- [ ] Add prime directive to context.
+- [ ] Add Linting results to the context.
+- [ ] Add execution net capture to the context.
+- [ ] Add git log to the context. 
+- [ ] Add prime directive to CONTRIBUTING.md and add CONTRIBUTING.md to the context.
 - [ ] Add the ability to write to the README, test and package.json.
-- [ ] Make intentïon-agentic-lib and repository1 public.
+- [ ] *Make intentïon-agentic-lib and repository1 public.*
+
+- [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
+- [ ] Generate API.md based on the source file.
+- [ ] Update CHANGELOG.md when a publishing a release version of the changes since the last release.
+- [ ] Duplicate the test when publishing a release version with a version numbered test file.
+- [ ] Add Code Climate for reports on code quality (which can be fed into automated resolution).
+- [ ] ncu --doctor auto-fix workflow:
+- [ ] Dashboard metrics (e.g. GitHub Insights - what's that? commits by agents)
+- [ ] Clean-up TODOs (maybe this is automated)
+- [ ] Scan code for possible library replacements for the custom code
+- [ ] Compress and de-dupe package.json
+- [ ] Node 22 (after October 29th when it becomes LTS) build with the latest LTS but target the lowest compatible?
+- [ ] Test locally with https://github.com/nektos/act
+- [ ] Publish repository maintenance statistics and update the readme.
+
 
 ---
 
