@@ -72,8 +72,8 @@ jobs:
         with:
           script: |
             let prMerged = '${{ steps.pr.outputs.prMerged || steps.cs.outputs.prMerged || 'false' }}';
-            let pullNumber = '${{ steps.pr.outputs.prMerged || steps.cs.outputs.prMerged || steps.ls.outputs.prMerged || inputs.prMerged }}';
-            let shouldSkipMerge = '${{ steps.pr.outputs.prMerged || steps.cs.outputs.prMerged || 'false' }}';
+            let pullNumber = '${{ steps.pr.outputs.pullNumber || steps.cs.outputs.pullNumber || steps.ls.outputs.pullNumber || inputs.pullNumber }}';
+            let shouldSkipMerge = '${{ steps.pr.outputs.shouldSkipMerge || steps.cs.outputs.shouldSkipMerge || 'false' }}';
             core.info(`prMerged: ${prMerged}`);
             core.info(`pullNumber: ${pullNumber}`);
             core.info(`shouldSkipMerge: ${shouldSkipMerge}`);
