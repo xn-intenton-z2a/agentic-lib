@@ -31,30 +31,6 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - name: Determine pull request number
-        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        id: determine-pr
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            let pullNumber = core.getInput('pullNumber');
-            if (!pullNumber) {
-              const { data: pullRequests } = await github.rest.pulls.list({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                state: 'open',
-                per_page: 1,
-                sort: 'created',
-                direction: 'asc'
-              });
-              if (pullRequests.length > 0) {
-                pullNumber = pullRequests[0].number;
-              } else {
-                core.setFailed('No open pull requests found.');
-              }
-            }
-            core.setOutput('pullNumber', pullNumber);
 
       - name: Run pull_request check
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')
@@ -66,30 +42,41 @@ jobs:
         id: cs
         uses: './.github/workflows/wfr-automerge-find-pr-in-check-suite.yml'
 
+      - name: Determine pull request number
+        if: github.event_name == 'schedule' || ( github.event_name == 'workflow_dispatch' && !inputs.pullNumber )
+        id: ls
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            let pullNumber;
+            const { data: pullRequests } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 1,
+              sort: 'created',
+              direction: 'asc'
+              if (pullRequests.length > 0) {
+                pullNumber = pullRequests[0].number;
+              } else {
+                core.setFailed('No open pull requests found.');
+              }
+            }
+            core.info(`pullNumber: ${pullNumber}`);
+            core.setOutput('pullNumber', pullNumber);
+
       - name: set-outputs
         id: set-outputs
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
-            let prMerged = '';
-            let pullNumber = '';
-            let shouldSkipMerge = '';
-            if (steps.pr && steps.pr.outputs && steps.pr.outputs.pullNumber) {
-              console.log("Using pull_request outputs");
-              prMerged = steps.pr.outputs.prMerged;
-              pullNumber = steps.pr.outputs.pullNumber;
-              shouldSkipMerge = steps.pr.outputs.shouldSkipMerge;
-            } else if (steps.cs && steps.cs.outputs && steps.cs.outputs.pullNumber) {
-              console.log("Using check_suite outputs");
-              prMerged = steps.cs.outputs.prMerged;
-              pullNumber = steps.cs.outputs.pullNumber;
-              shouldSkipMerge = steps.cs.outputs.shouldSkipMerge;
-            } else {
-              console.log("Using determine-pr outputs");
-              prMerged = 'false';
-              pullNumber = steps.determine-pr.outputs.pullNumber;
-              shouldSkipMerge = 'false';
-            }
+            let prMerged = '${{ steps.pr.outputs.prMerged || steps.cs.outputs.prMerged || 'false' }}';
+            let pullNumber = '${{ steps.pr.outputs.prMerged || steps.cs.outputs.prMerged || steps.ls.outputs.prMerged || inputs.prMerged }}';
+            let shouldSkipMerge = '${{ steps.pr.outputs.prMerged || steps.cs.outputs.prMerged || 'false' }}';
+            core.info(`prMerged: ${prMerged}`);
+            core.info(`pullNumber: ${pullNumber}`);
+            core.info(`shouldSkipMerge: ${shouldSkipMerge}`);
             return { prMerged, pullNumber, shouldSkipMerge };
           result-encoding: string
     outputs:
