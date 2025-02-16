@@ -10,7 +10,7 @@ on:
         required: true
     secrets:
       PERSONAL_ACCESS_TOKEN:
-        required: true
+        required: false
     outputs:
       prMerged:
         description: 'Set to "true", if the PR has been merged either already or by this process.'

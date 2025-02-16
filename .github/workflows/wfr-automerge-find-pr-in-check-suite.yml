@@ -5,7 +5,7 @@ on:
   workflow_call:
     secrets:
       PERSONAL_ACCESS_TOKEN:
-        required: true
+        required: false
     outputs:
       pullNumber:
         description: 'The pull request number.'

@@ -14,7 +14,7 @@ on:
         required: true
     secrets:
       PERSONAL_ACCESS_TOKEN:
-        required: true
+        required: false
     outputs:
       issueNumber:
         description: 'The issue number just merged. e.g. "123"'
