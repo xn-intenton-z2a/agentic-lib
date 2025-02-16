@@ -15,8 +15,8 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 - - [x] `repository0` - An example project but without the apply-fixes-sarif action or permissions
 - [x] Replace shell script of any complexity with github-script.
 - [x] Abstract re-usable workflows into a separate repository.
-- [~] Switch from PAT to GITHUB_TOKEN.
-- [~] Feed in issue title options from workflow (not inside the reusable workflow).
+- [x] Switch from PAT to GITHUB_TOKEN.
+- [x] Feed in issue title options from workflow (not inside the reusable workflow).
 - [ ] Add README to the context.
 - [ ] Add test file to the context.
 - [ ] Add prime directive to CONTRIBUTING.md.
@@ -25,6 +25,7 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 - [ ] Add the ability to write to the README, test and package.json.
 - [ ] Find a way for consumers to link to a stable version.
 - [ ] Test the link to the stable version after publishing.
+- [ ] Add functing mechanisms and crypto wallet.
 - [ ] *Make intentïon `agentic-lib` and repository1 public.*
 
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.

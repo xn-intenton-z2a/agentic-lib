@@ -12,6 +12,17 @@ on:
   check_suite:
     types:
       - completed
+  workflow_dispatch:
+    inputs:
+      pullNumber:
+        description: 'The pull request number to review. e.g. "123"'
+        required: false
+        type: string
+        default: ''
+  schedule:
+    # Run every 10 minutes (as an example)
+    #- cron: '*/10 * * * *'
+    - cron: '15 */2 * * *'
 
 jobs:
   check-pr:
