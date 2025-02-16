@@ -1,6 +1,6 @@
-# intention-agentic-lib
+# intentïon agentic-lib
 
-The **intention-agentic-lib** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This README describes each reusable workflow in detail—including its parameters (with types and whether they are required), responsibilities, and how top‐level jobs use them—and explains how the system can be seeded with a simple prompt to let your program evolve automatically.
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This README describes each reusable workflow in detail—including its parameters (with types and whether they are required), responsibilities, and how top‐level jobs use them—and explains how the system can be seeded with a simple prompt to let your program evolve automatically.
 
 ---
 
@@ -11,23 +11,28 @@ The **intention-agentic-lib** is a collection of reusable GitHub Actions workflo
 - [x] Expose a main as a cli
 - [x] Use a separate action repository instead of relying upon the polycoder JS.
 - [x] Create a new organisation for @intentïon including repositories (phase 1):
-- - [x] `intentïon-agentic-lib` Open Source (Apache 2) GitHub Actions Reusable Workflows (route to market)
+- - [x] intentïon `agentic-lib` Open Source (Apache 2) GitHub Actions Reusable Workflows (route to market)
 - - [x] `repository0` - An example project but without the apply-fixes-sarif action or permissions
 - [x] Replace shell script of any complexity with github-script.
 - [x] Abstract re-usable workflows into a separate repository.
 - [~] Switch from PAT to GITHUB_TOKEN.
-- [ ] Feed in issue title options.
+- [ ] Feed in issue title options from workflow (not inside the reusable workflow).
+- [ ] Add README to the context.
+- [ ] Add test file to the context.
+- [ ] Add prime directive to CONTRIBUTING.md.
+- [ ] Add CONTRIBUTING.md to the context.
 - [ ] Add Linting results to the context.
-- [ ] Add execution net capture to the context.
-- [ ] Add git log to the context. 
-- [ ] Add prime directive to CONTRIBUTING.md and add CONTRIBUTING.md to the context.
 - [ ] Add the ability to write to the README, test and package.json.
-- [ ] *Make intentïon-agentic-lib and repository1 public.*
+- [ ] Find a way for consumers to link to a stable version.
+- [ ] Test the link to the stable version after publishing.
+- [ ] *Make intentïon `agentic-lib` and repository1 public.*
 
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
 - [ ] Generate API.md based on the source file.
 - [ ] Update CHANGELOG.md when a publishing a release version of the changes since the last release.
 - [ ] Duplicate the test when publishing a release version with a version numbered test file.
+- [ ] Add execution net capture to the context.
+- [ ] Add git log to the context.
 - [ ] Add Code Climate for reports on code quality (which can be fed into automated resolution).
 - [ ] ncu --doctor auto-fix workflow:
 - [ ] Dashboard metrics (e.g. GitHub Insights - what's that? commits by agents)
@@ -43,7 +48,7 @@ The **intention-agentic-lib** is a collection of reusable GitHub Actions workflo
 
 ## Seeding a Program with a Simple Prompt and Letting It Evolve
 
-The intention-agentic-lib can be used as an evolutionary engine for your project. Here’s an example scenario:
+intentïon `agentic-lib` can be used as an evolutionary engine for your project. Here’s an example scenario:
 
 1. **Seed the Program:**  
    You provide a simple prompt such as “Improve error handling in the data parser module.”  
