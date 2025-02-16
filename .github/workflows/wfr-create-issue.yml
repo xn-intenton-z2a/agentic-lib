@@ -43,10 +43,10 @@ jobs:
       issueTitle: ${{ inputs.issueTitle || 'dealers choice' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       houseChoiceOptions: ${{ inputs.houseChoiceOptions ||
-        'Create or refresh a README style comment block at the top of the file.' +
-        '|| Make code changes that improve the behaviour.' +
-        '|| Make code changes that extend the features.' +
-        '|| Improve or add a test (a test is run from a main and outputs to console to demonstrate the feature).' +
+        'Create or refresh a README style comment block at the top of the file.'
+        '|| Make code changes that improve the behaviour.'
+        '|| Make code changes that extend the features.'
+        '|| Improve or add a test (a test is run from a main and outputs to console to demonstrate the feature).'
         '|| Generally tidy up the code.' }}
 
     steps:
