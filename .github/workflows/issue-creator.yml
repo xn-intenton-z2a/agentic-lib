@@ -12,7 +12,7 @@ on:
         type: string
         default: 'src/lib/main.js'
       issueTitle:
-        description: 'Text to drive the issue title (if "dealers choice", a random prompt will be selected).'
+        description: 'Text to drive the issue title (if "house choice", a currently random prompt will be selected).'
         required: false
         type: string
         default: 'dealers choice'
