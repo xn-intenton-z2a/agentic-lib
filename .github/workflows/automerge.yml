@@ -77,6 +77,9 @@ jobs:
             core.setOutput('prMerged', prMerged);
             core.setOutput('pullNumber', pullNumber);
             core.setOutput('shouldSkipMerge', shouldSkipMerge);
+            core.info(`prMerged: ${prMerged}`);
+            core.info(`pullNumber: ${pullNumber}`);
+            core.info(`shouldSkipMerge: ${shouldSkipMerge}`);
           result-encoding: string
     outputs:
       prMerged: ${{ steps.set-outputs.outputs.prMerged }}
