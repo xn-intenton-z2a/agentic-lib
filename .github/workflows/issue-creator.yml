@@ -30,7 +30,7 @@ jobs:
 
   create-issue:
     permissions:
-      issues: read
+      issues: write
       id-token: write
     uses: './.github/workflows/wfr-create-issue.yml'
     with:
