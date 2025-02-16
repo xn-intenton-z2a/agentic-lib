@@ -55,3 +55,4 @@ web_modules/
 secrets.env
 /.idea/
 /state_backup.json
+/output.svg
