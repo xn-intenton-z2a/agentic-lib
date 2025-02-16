@@ -5,7 +5,7 @@ on:
   workflow_call:
     inputs:
       issueTitle:
-        description: 'Text to drive the issue title (if "dealers choice", a random prompt will be selected).'
+        description: 'Text to drive the issue title (if "house choice", a random prompt will be selected).'
         required: false
         type: string
         default: 'house choice'
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      issueTitle: ${{ inputs.issueTitle || 'dealers choice' }}
+      issueTitle: ${{ inputs.issueTitle || 'house choice' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       houseChoiceOptions: ${{ inputs.houseChoiceOptions || 'Make code changes that extend or improve the features or resolve issues shown in the included context.'}}
 
@@ -55,7 +55,7 @@ jobs:
             const houseChoiceOptions = process.env.houseChoiceOptions.split('||');
 
             let selectedIssueTitle;
-            if (issueTitle === 'dealers choice') {
+            if (issueTitle === 'house choice') {
               selectedIssueTitle = houseChoiceOptions[Math.floor(Math.random() * houseChoiceOptions.length)];
             } else {
               selectedIssueTitle = issueTitle;
