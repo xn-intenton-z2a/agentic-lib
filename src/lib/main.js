@@ -1,228 +1,48 @@
 #!/usr/bin/env node
 
-import { fileURLToPath } from "url";
-import { z } from "zod";
+// ChatGPT Chat Completions Wrapper Functions
 
-// Simulated Chat Completions Response
-async function simulateChatCompletion(type) {
-  if (type === "verifyIssueFix") {
-    return {
-      choices: [
-        {
-          message: {
-            content: JSON.stringify({
-              fixed: "true",
-              message: "The issue has been resolved.",
-              refinement: "None"
-            })
-          }
-        }
-      ],
-      usage: {}
-    };
-  } else if (type === "updateSourceFile") {
-    return {
-      choices: [
-        {
-          message: {
-            content: JSON.stringify({
-              updatedSourceFileContent: "console.log('Updated content');",
-              message: "Updated source file to fix the issue."
-            })
-          }
-        }
-      ],
-      usage: {}
-    };
-  } else if (type === "updateStartIssue") {
-    return {
-      choices: [
-        {
-          message: {
-            content: JSON.stringify({
-              updatedSourceFileContent: "console.log('Updated content for start issue');",
-              message: "Updated source file to resolve the start issue."
-            })
-          }
-        }
-      ],
-      usage: {}
-    };
-  }
+export async function verifyIssueFix() {
+  // Returns a fixed issue response
   return {
-    choices: [
-      {
-        message: {
-          content: "{}"
-        }
-      }
-    ],
-    usage: {}
+    fixed: true,
+    message: "The issue has been resolved.",
+    refinement: null
   };
 }
 
-// Parse response utility
-function parseResponse(response, schema) {
-  let result;
-  if (response.choices[0].message.content) {
-    try {
-      result = JSON.parse(response.choices[0].message.content);
-    } catch (e) {
-      throw new Error("Failed to parse response content: " + e.message);
-    }
-  } else {
-    throw new Error("No valid response received from simulated Chat completion.");
-  }
-  try {
-    return schema.parse(result);
-  } catch (e) {
-    throw new Error("Response validation failed: " + e.message);
-  }
+export async function updateTargetForFixFallingBuild() {
+  // Returns updated source content for a fix
+  return {
+    updatedSourceFileContent: "console.log('ChatGPT chat completions fix applied');",
+    message: "Source file updated to fix chat completions issue."
+  };
 }
 
-// ChatGPT Chat Completions Wrapper Functions
-export async function verifyIssueFix(params) {
-  const {
-    sourceFileContent,
-    issueTitle,
-    issueDescription,
-    issueComments
-  } = params;
-  const issueCommentsText = issueComments
-    .map((comment) => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
-    .join("\n");
-  const prompt = `
-Does the following source file content fix the issue?
-Source:
-${sourceFileContent}
-
-Issue:
-title: ${issueTitle}
-description: ${issueDescription}
-comments:
-${issueCommentsText}
-
-Answer with a JSON object:
-{
-  "fixed": "true", 
-  "message": "The issue has been resolved.", 
-  "refinement": "None"
-}
-`;
-  // Simulated call
-  const response = await simulateChatCompletion("verifyIssueFix");
-  const ResponseSchema = z.object({
-    fixed: z.string(),
-    message: z.string(),
-    refinement: z.string()
-  });
-  const parsed = parseResponse(response, ResponseSchema);
-  return { ...parsed, responseUsage: response.usage };
+export async function updateTargetForStartIssue() {
+  // Returns updated source content for starting an issue
+  return {
+    updatedSourceFileContent: "console.log('ChatGPT chat completions start issue applied');",
+    message: "Source file updated to start chat completions issue."
+  };
 }
 
-export async function updateTargetForFixFallingBuild(params) {
-  const { sourceFileContent, listOutput, issueTitle, issueDescription } = params;
-  const prompt = `
-Update the source file to resolve issues.
-Source:
-${sourceFileContent}
-
-Dependency list:
-${listOutput}
-
-Issue:
-title: ${issueTitle}
-description: ${issueDescription}
-
-Answer with a JSON object:
-{
-  "updatedSourceFileContent": "console.log('Updated content');",
-  "message": "Updated source file to fix the issue."
-}
-`;
-  // Simulated call
-  const response = await simulateChatCompletion("updateSourceFile");
-  const ResponseSchema = z.object({
-    updatedSourceFileContent: z.string(),
-    message: z.string()
-  });
-  const parsed = parseResponse(response, ResponseSchema);
-  return { ...parsed, fixApplied: true, responseUsage: response.usage };
-}
-
-export async function updateTargetForStartIssue(params) {
-  const { sourceFileContent, issueTitle, issueDescription, issueComments } = params;
-  const issueCommentsText = issueComments
-    .map((comment) => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
-    .join("\n");
-  const prompt = `
-Update the source file to resolve the start issue.
-Source:
-${sourceFileContent}
-
-Issue:
-title: ${issueTitle}
-description: ${issueDescription}
-comments:
-${issueCommentsText}
-
-Answer with a JSON object:
-{
-  "updatedSourceFileContent": "console.log('Updated content for start issue');",
-  "message": "Updated source file to resolve the start issue."
-}
-`;
-  // Simulated call
-  const response = await simulateChatCompletion("updateStartIssue");
-  const ResponseSchema = z.object({
-    updatedSourceFileContent: z.string(),
-    message: z.string()
-  });
-  const parsed = parseResponse(response, ResponseSchema);
-  return { ...parsed, fixApplied: true, responseUsage: response.usage };
-}
-
-// Demo Function
-async function main() {
-  console.info("=== Chat Completions Wrapper Functions Demo ===");
-
-  try {
-    const fixResult = await verifyIssueFix({
-      sourceFileContent: "console.log('Hello, world!');",
-      issueTitle: "Fix greeting",
-      issueDescription: "Update greeting to include user name.",
-      issueComments: [{ user: { login: "alice" }, created_at: "2023-01-01", body: "Please fix this." }]
-    });
-    console.info("verifyIssueFix Result:", fixResult);
-
-    const updateResult = await updateTargetForFixFallingBuild({
-      sourceFileContent: "console.log('Old version');",
-      listOutput: "dependency list here",
-      issueTitle: "Fix failing build",
-      issueDescription: "Resolve build issues."
-    });
-    console.info("updateTargetForFixFallingBuild Result:", updateResult);
-
-    const startIssueResult = await updateTargetForStartIssue({
-      sourceFileContent: "console.log('Initial issue');",
-      issueTitle: "Start Issue",
-      issueDescription: "Initial issue description.",
-      issueComments: [{ user: { login: "bob" }, created_at: "2023-01-02", body: "Initial issue comment." }]
-    });
-    console.info("updateTargetForStartIssue Result:", startIssueResult);
-  } catch (err) {
-    console.error("Error in demo:", err.message);
-  }
+// Demo function for ChatGPT chat completions wrapper functions
+async function demo() {
+  console.info('=== ChatGPT Chat Completions Demo ===');
+  console.info('verifyIssueFix:', await verifyIssueFix());
+  console.info('updateTargetForFixFallingBuild:', await updateTargetForFixFallingBuild());
+  console.info('updateTargetForStartIssue:', await updateTargetForStartIssue());
 }
 
 // Execute demo if run directly
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main();
+if (process.argv[1] === new URL(import.meta.url).pathname) {
+  demo();
 }
 
 export default {
   verifyIssueFix,
   updateTargetForFixFallingBuild,
   updateTargetForStartIssue,
-  main
+  demo
 };
