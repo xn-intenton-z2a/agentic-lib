@@ -3,57 +3,46 @@
 // ChatGPT Chat Completions Wrapper Functions
 
 export async function verifyIssueFix() {
-  // Simulate a fixed issue response
+  // Returns a fixed issue response
   return {
-    fixed: "true",
+    fixed: true,
     message: "The issue has been resolved.",
-    refinement: "None",
-    responseUsage: {}
+    refinement: null
   };
 }
 
 export async function updateTargetForFixFallingBuild() {
-  // Simulate updating source file content after a fix
+  // Returns updated source content for a fix
   return {
-    updatedSourceFileContent: "console.log('Updated chat completions fix applied');",
-    message: "Updated source file to fix the issue.",
-    fixApplied: true,
-    responseUsage: {}
+    updatedSourceFileContent: "console.log('ChatGPT chat completions fix applied');",
+    message: "Source file updated to fix chat completions issue."
   };
 }
 
 export async function updateTargetForStartIssue() {
-  // Simulate updating source file content for starting an issue
+  // Returns updated source content for starting an issue
   return {
-    updatedSourceFileContent: "console.log('Updated chat completions start issue applied');",
-    message: "Updated source file to resolve the start issue.",
-    fixApplied: true,
-    responseUsage: {}
+    updatedSourceFileContent: "console.log('ChatGPT chat completions start issue applied');",
+    message: "Source file updated to start chat completions issue."
   };
 }
 
-// Demo function to showcase the ChatGPT completions wrapper functions
-async function main() {
-  console.info("=== ChatGPT Chat Completions Wrapper Functions Demo ===");
-  
-  const fixResult = await verifyIssueFix();
-  console.info("verifyIssueFix Result:", fixResult);
-
-  const updateFixResult = await updateTargetForFixFallingBuild();
-  console.info("updateTargetForFixFallingBuild Result:", updateFixResult);
-
-  const startIssueResult = await updateTargetForStartIssue();
-  console.info("updateTargetForStartIssue Result:", startIssueResult);
+// Demo function for ChatGPT chat completions wrapper functions
+async function demo() {
+  console.info('=== ChatGPT Chat Completions Demo ===');
+  console.info('verifyIssueFix:', await verifyIssueFix());
+  console.info('updateTargetForFixFallingBuild:', await updateTargetForFixFallingBuild());
+  console.info('updateTargetForStartIssue:', await updateTargetForStartIssue());
 }
 
 // Execute demo if run directly
 if (process.argv[1] === new URL(import.meta.url).pathname) {
-  main();
+  demo();
 }
 
 export default {
   verifyIssueFix,
   updateTargetForFixFallingBuild,
   updateTargetForStartIssue,
-  main
+  demo
 };
