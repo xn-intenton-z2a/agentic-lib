@@ -44,6 +44,28 @@ function multiplyCommand(args) {
   console.log(product);
 }
 
+function subtractCommand(args) {
+  // Subtract numeric arguments: subtracts each subsequent number from the first one
+  if (args.length === 0) {
+    console.log(0);
+    return;
+  }
+  let result = parseFloat(args[0]);
+  if (isNaN(result)) {
+    console.warn(`Non-numeric argument encountered: ${args[0]}`);
+    result = 0;
+  }
+  for (let i = 1; i < args.length; i++) {
+    const num = parseFloat(args[i]);
+    if (!isNaN(num)) {
+      result -= num;
+    } else {
+      console.warn(`Non-numeric argument encountered: ${args[i]}`);
+    }
+  }
+  console.log(result);
+}
+
 // -----------------------------------------------------------------------------
 // Run main if executed directly.
 // -----------------------------------------------------------------------------
@@ -51,7 +73,7 @@ function multiplyCommand(args) {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   if (args.length === 0) {
-    console.log("No command provided. Available commands: echo, add, multiply");
+    console.log("No command provided. Available commands: echo, add, multiply, subtract");
   } else {
     const command = args[0];
     const commandArgs = args.slice(1);
@@ -65,8 +87,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       case "multiply":
         multiplyCommand(commandArgs);
         break;
+      case "subtract":
+        subtractCommand(commandArgs);
+        break;
       default:
-        console.error(`Unknown command: ${command}. Available commands: echo, add, multiply`);
+        console.error(`Unknown command: ${command}. Available commands: echo, add, multiply, subtract`);
         process.exit(1);
     }
   }
