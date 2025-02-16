@@ -16,20 +16,23 @@ on:
 jobs:
   check-pr:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Run pull_request check
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')
         id: pr
         uses: './.github/workflows/wfr-automerge-check-pr-and-merge.yml'
-        secrets:
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        #secrets:
+          #PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Run check_suite check
         if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
         id: cs
         uses: './.github/workflows/wfr-automerge-find-pr-in-check-suite.yml'
-        secrets:
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        #secrets:
+          #PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: set-outputs
         id: set-outputs
@@ -73,8 +76,8 @@ jobs:
     with:
       pullNumber: '${{ needs.check-pr.outputs.pullNumber }}'
       branchPrefix: 'issue-'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    #secrets:
+      #PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   wait-for-merge:
     needs:
@@ -98,8 +101,8 @@ jobs:
     uses: './.github/workflows/wfr-automerge-merge-pr.yml'
     with:
       pullNumber: '${{ needs.check-pr.outputs.pullNumber }}'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    #secrets:
+      #PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   label-issue-after-automerge:
     needs:
@@ -108,9 +111,10 @@ jobs:
     if: needs.automerge.outputs.prMerged == 'true' && needs.check-pr.outputs.pullNumber != ''
     permissions:
       contents: write
+      issues: write
     uses: './.github/workflows/wfr-automerge-label-issue.yml'
     with:
       pullNumber: '${{ needs.check-pr.outputs.pullNumber }}'
       branchPrefix: 'issue-'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    #secrets:
+      #PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

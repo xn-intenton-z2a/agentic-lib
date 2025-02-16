@@ -8,15 +8,25 @@ on:
         description: 'Text to drive the issue title (if "dealers choice", a random prompt will be selected).'
         required: false
         type: string
-        default: 'dealers choice'
+        default: 'house choice'
       target:
         description: 'The target file to review. e.g. "src/lib/main.js"'
         type: string
         required: false
         default: 'src/lib/main.js'
+      houseChoiceOptions:
+        description: 'Options for house choice, separated by commas.'
+        type: string
+        required: false
+        default: |
+          Create or refresh a README style comment block at the top of the file.
+          || Make code changes that improve the behaviour.
+          || Make code changes that extend the features.
+          || Improve or add a test (a test is run from a main and outputs to console to demonstrate the feature).
+          || Generally tidy up the code.
     secrets:
       PERSONAL_ACCESS_TOKEN:
-        required: true
+        required: false
     outputs:
       issueTitle:
         description: 'The issue title to resolve. e.g. "Make a small improvement."'
@@ -32,6 +42,12 @@ jobs:
     env:
       issueTitle: ${{ inputs.issueTitle || 'dealers choice' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
+      houseChoiceOptions: ${{ inputs.houseChoiceOptions ||
+        'Create or refresh a README style comment block at the top of the file.' +
+        '|| Make code changes that improve the behaviour.' +
+        '|| Make code changes that extend the features.' +
+        '|| Improve or add a test (a test is run from a main and outputs to console to demonstrate the feature).' +
+        '|| Generally tidy up the code.' }}
 
     steps:
       - uses: actions/setup-node@v4
@@ -46,17 +62,11 @@ jobs:
           script: |
             const target = process.env.target;
             const issueTitle = process.env.issueTitle;
-            
+            const houseChoiceOptions = process.env.houseChoiceOptions.split('||');
+
             let selectedIssueTitle;
             if (issueTitle === 'dealers choice') {
-              const issueTitles = [
-                "Create or refresh a README style comment block at the top of the file.",
-                "Make code changes that improve the behaviour.",
-                "Make code changes that extend the features.",
-                "Improve or add a test (a test is run from a main and outputs to console to demonstrate the feature).",
-                "Generally tidy up the code."
-              ];
-              selectedIssueTitle = issueTitles[Math.floor(Math.random() * issueTitles.length)];
+              selectedIssueTitle = houseChoiceOptions[Math.floor(Math.random() * houseChoiceOptions.length)];
             } else {
               selectedIssueTitle = issueTitle;
             }
@@ -69,7 +79,7 @@ jobs:
               body: issueBody,
               labels: ['automated']
             });
-            
+
             core.setOutput("issueTitle", selectedIssueTitle);
             core.setOutput("issueNumber", issue.number);
             core.info(`issueTitle: ${selectedIssueTitle}`);

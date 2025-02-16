@@ -16,7 +16,7 @@ on:
         default: '100'
     secrets:
       PERSONAL_ACCESS_TOKEN:
-        required: true
+        required: false
 
 jobs:
   update-prs:

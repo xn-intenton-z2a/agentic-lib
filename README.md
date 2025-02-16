@@ -16,7 +16,7 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 - [x] Replace shell script of any complexity with github-script.
 - [x] Abstract re-usable workflows into a separate repository.
 - [~] Switch from PAT to GITHUB_TOKEN.
-- [ ] Feed in issue title options from workflow (not inside the reusable workflow).
+- [~] Feed in issue title options from workflow (not inside the reusable workflow).
 - [ ] Add README to the context.
 - [ ] Add test file to the context.
 - [ ] Add prime directive to CONTRIBUTING.md.

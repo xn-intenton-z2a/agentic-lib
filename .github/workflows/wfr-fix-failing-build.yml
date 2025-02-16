@@ -45,7 +45,7 @@ on:
         default: 'GitHub Actions[bot]'
     secrets:
       PERSONAL_ACCESS_TOKEN:
-        required: true
+        required: false
       CHATGPT_API_SECRET_KEY:
         required: true
     outputs:

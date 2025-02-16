@@ -30,7 +30,7 @@ on:
         default: 'automerge'
     secrets:
       PERSONAL_ACCESS_TOKEN:
-        required: true
+        required: false
 
 jobs:
   create-pr:
