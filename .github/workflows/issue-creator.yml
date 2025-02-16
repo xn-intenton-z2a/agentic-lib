@@ -15,7 +15,7 @@ on:
         description: 'Text to drive the issue title (if "house choice", a currently random prompt will be selected).'
         required: false
         type: string
-        default: 'dealers choice'
+        default: 'House choice'
       runIssueWorker:
         description: 'Should the downstream issue worker workflow be run?'
         required: false
