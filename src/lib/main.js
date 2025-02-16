@@ -1,188 +1,38 @@
 #!/usr/bin/env node
 
-import { fileURLToPath } from "url";
-import { z } from "zod";
+// ChatGPT Chat Completions Wrapper Functions
 
-// Simulated Chat Completions Response
-async function simulateChatCompletion(type) {
-  if (type === "verifyIssueFix") {
-    return {
-      choices: [
-        {
-          message: {
-            content: JSON.stringify({
-              fixed: "true",
-              message: "The issue has been resolved.",
-              refinement: "None"
-            })
-          }
-        }
-      ],
-      usage: {}
-    };
-  } else if (type === "updateSourceFile") {
-    return {
-      choices: [
-        {
-          message: {
-            content: JSON.stringify({
-              updatedSourceFileContent: "console.log('Updated content');",
-              message: "Updated source file to fix the issue."
-            })
-          }
-        }
-      ],
-      usage: {}
-    };
-  } else if (type === "updateStartIssue") {
-    return {
-      choices: [
-        {
-          message: {
-            content: JSON.stringify({
-              updatedSourceFileContent: "console.log('Updated content for start issue');",
-              message: "Updated source file to resolve the start issue."
-            })
-          }
-        }
-      ],
-      usage: {}
-    };
-  }
+export async function verifyIssueFix({ sourceFileContent, issueTitle, issueDescription, issueComments }) {
+  // Directly return a fixed response without any external calls
   return {
-    choices: [
-      {
-        message: {
-          content: "{}"
-        }
-      }
-    ],
-    usage: {}
+    fixed: "true",
+    message: "The issue has been resolved.",
+    refinement: "None",
+    responseUsage: {}
   };
 }
 
-// Parse response utility
-function parseResponse(response, schema) {
-  let result;
-  if (response.choices[0].message.content) {
-    try {
-      result = JSON.parse(response.choices[0].message.content);
-    } catch (e) {
-      throw new Error("Failed to parse response content: " + e.message);
-    }
-  } else {
-    throw new Error("No valid response received from simulated Chat completion.");
-  }
-  try {
-    return schema.parse(result);
-  } catch (e) {
-    throw new Error("Response validation failed: " + e.message);
-  }
+export async function updateTargetForFixFallingBuild({ sourceFileContent, listOutput, issueTitle, issueDescription }) {
+  // Directly return an updated source response
+  return {
+    updatedSourceFileContent: "console.log('Updated content');",
+    message: "Updated source file to fix the issue.",
+    fixApplied: true,
+    responseUsage: {}
+  };
 }
 
-// ChatGPT Chat Completions Wrapper Functions
-export async function verifyIssueFix(params) {
-  const {
-    sourceFileContent,
-    issueTitle,
-    issueDescription,
-    issueComments
-  } = params;
-  const issueCommentsText = issueComments
-    .map((comment) => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
-    .join("\n");
-  const prompt = `
-Does the following source file content fix the issue?
-Source:
-${sourceFileContent}
-
-Issue:
-title: ${issueTitle}
-description: ${issueDescription}
-comments:
-${issueCommentsText}
-
-Answer with a JSON object:
-{
-  "fixed": "true", 
-  "message": "The issue has been resolved.", 
-  "refinement": "None"
-}
-`;
-  // Simulated call
-  const response = await simulateChatCompletion("verifyIssueFix");
-  const ResponseSchema = z.object({
-    fixed: z.string(),
-    message: z.string(),
-    refinement: z.string()
-  });
-  const parsed = parseResponse(response, ResponseSchema);
-  return { ...parsed, responseUsage: response.usage };
+export async function updateTargetForStartIssue({ sourceFileContent, issueTitle, issueDescription, issueComments }) {
+  // Directly return an updated source response
+  return {
+    updatedSourceFileContent: "console.log('Updated content for start issue');",
+    message: "Updated source file to resolve the start issue.",
+    fixApplied: true,
+    responseUsage: {}
+  };
 }
 
-export async function updateTargetForFixFallingBuild(params) {
-  const { sourceFileContent, listOutput, issueTitle, issueDescription } = params;
-  const prompt = `
-Update the source file to resolve issues.
-Source:
-${sourceFileContent}
-
-Dependency list:
-${listOutput}
-
-Issue:
-title: ${issueTitle}
-description: ${issueDescription}
-
-Answer with a JSON object:
-{
-  "updatedSourceFileContent": "console.log('Updated content');",
-  "message": "Updated source file to fix the issue."
-}
-`;
-  // Simulated call
-  const response = await simulateChatCompletion("updateSourceFile");
-  const ResponseSchema = z.object({
-    updatedSourceFileContent: z.string(),
-    message: z.string()
-  });
-  const parsed = parseResponse(response, ResponseSchema);
-  return { ...parsed, fixApplied: true, responseUsage: response.usage };
-}
-
-export async function updateTargetForStartIssue(params) {
-  const { sourceFileContent, issueTitle, issueDescription, issueComments } = params;
-  const issueCommentsText = issueComments
-    .map((comment) => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
-    .join("\n");
-  const prompt = `
-Update the source file to resolve the start issue.
-Source:
-${sourceFileContent}
-
-Issue:
-title: ${issueTitle}
-description: ${issueDescription}
-comments:
-${issueCommentsText}
-
-Answer with a JSON object:
-{
-  "updatedSourceFileContent": "console.log('Updated content for start issue');",
-  "message": "Updated source file to resolve the start issue."
-}
-`;
-  // Simulated call
-  const response = await simulateChatCompletion("updateStartIssue");
-  const ResponseSchema = z.object({
-    updatedSourceFileContent: z.string(),
-    message: z.string()
-  });
-  const parsed = parseResponse(response, ResponseSchema);
-  return { ...parsed, fixApplied: true, responseUsage: response.usage };
-}
-
-// Demo Function
+// Demo function to showcase the wrapper functions
 async function main() {
   console.info("=== Chat Completions Wrapper Functions Demo ===");
 
@@ -216,7 +66,7 @@ async function main() {
 }
 
 // Execute demo if run directly
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] === new URL(import.meta.url).pathname) {
   main();
 }
 
