@@ -52,6 +52,10 @@ jobs:
     if: ${{ inputs.runIssueWorker == true }}
     permissions:
       contents: write
+      actions: write
+      packages: write
+      issues: write
+      pull-requests: write
       id-token: write
     steps:
       - uses: actions/setup-node@v4
