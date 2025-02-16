@@ -129,6 +129,7 @@ jobs:
     permissions:
       contents: write
       issues: write
+      pull-requests: write
     uses: './.github/workflows/wfr-automerge-label-issue.yml'
     with:
       pullNumber: '${{ needs.check-pr.outputs.pullNumber }}'
