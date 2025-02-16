@@ -18,12 +18,7 @@ on:
         description: 'Options for house choice, separated by commas.'
         type: string
         required: false
-        default: |
-          Create or refresh a README style comment block at the top of the file.
-          || Make code changes that improve the behaviour.
-          || Make code changes that extend the features.
-          || Improve or add a test (a test is run from a main and outputs to console to demonstrate the feature).
-          || Generally tidy up the code.
+        default: 'Make code changes that extend or improve the features or resolve issues shown in the included context.'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -42,7 +37,7 @@ jobs:
     env:
       issueTitle: ${{ inputs.issueTitle || 'dealers choice' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
-      houseChoiceOptions: ${{ inputs.houseChoiceOptions }}
+      houseChoiceOptions: ${{ inputs.houseChoiceOptions || 'Make code changes that extend or improve the features or resolve issues shown in the included context.'}}
 
     steps:
       - uses: actions/setup-node@v4
