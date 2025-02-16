@@ -31,6 +31,31 @@ jobs:
       contents: read
       pull-requests: write
     steps:
+      - name: Determine pull request number
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        id: determine-pr
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            let pullNumber = core.getInput('pullNumber');
+            if (!pullNumber) {
+              const { data: pullRequests } = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                per_page: 1,
+                sort: 'created',
+                direction: 'asc'
+              });
+              if (pullRequests.length > 0) {
+                pullNumber = pullRequests[0].number;
+              } else {
+                core.setFailed('No open pull requests found.');
+              }
+            }
+            core.setOutput('pullNumber', pullNumber);
+
       - name: Run pull_request check
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')
         id: pr
@@ -60,10 +85,10 @@ jobs:
               pullNumber = steps.cs.outputs.pullNumber;
               shouldSkipMerge = steps.cs.outputs.shouldSkipMerge;
             } else {
-              console.log("No valid outputs found");
+              console.log("Using determine-pr outputs");
               prMerged = 'false';
-              pullNumber = '';
-              shouldSkipMerge = 'true';
+              pullNumber = steps.determine-pr.outputs.pullNumber;
+              shouldSkipMerge = 'false';
             }
             return { prMerged, pullNumber, shouldSkipMerge };
           result-encoding: string
