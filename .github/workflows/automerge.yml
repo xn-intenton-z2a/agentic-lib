@@ -74,10 +74,9 @@ jobs:
             let prMerged = '${{ steps.pr.outputs.prMerged || steps.cs.outputs.prMerged || 'false' }}';
             let pullNumber = '${{ steps.pr.outputs.pullNumber || steps.cs.outputs.pullNumber || steps.ls.outputs.pullNumber || inputs.pullNumber }}';
             let shouldSkipMerge = '${{ steps.pr.outputs.shouldSkipMerge || steps.cs.outputs.shouldSkipMerge || 'false' }}';
-            core.info(`prMerged: ${prMerged}`);
-            core.info(`pullNumber: ${pullNumber}`);
-            core.info(`shouldSkipMerge: ${shouldSkipMerge}`);
-            return { prMerged, pullNumber, shouldSkipMerge };
+            core.setOutput('prMerged', prMerged);
+            core.setOutput('pullNumber', pullNumber);
+            core.setOutput('shouldSkipMerge', shouldSkipMerge);
           result-encoding: string
     outputs:
       prMerged: ${{ steps.set-outputs.outputs.prMerged }}
