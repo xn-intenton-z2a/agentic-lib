@@ -42,8 +42,6 @@ jobs:
         || Improve or add a test (a test is run from a main and outputs to console to demonstrate the feature).
         || Generally tidy up the code.
       target: ${{ inputs.target || 'src/lib/main.js' }}
-    # secrets:
-      #@ PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   run-issue-worker:
     needs:
@@ -73,7 +71,6 @@ jobs:
       - name: Trigger downstream issue-worker workflow
         uses: actions/github-script@v7
         with:
-          # github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             await github.rest.actions.createWorkflowDispatch({

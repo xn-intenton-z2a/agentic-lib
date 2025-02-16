@@ -84,7 +84,6 @@ intentïon `agentic-lib` can be used as an evolutionary engine for your project.
          mainScript: "node src/lib/main.js"
          model: "o3-mini"
        secrets:
-         PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
          CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
    ```
 
