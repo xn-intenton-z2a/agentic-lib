@@ -13,34 +13,32 @@ const echoCommand = (args) => {
 };
 
 const addCommand = (args) => {
-  // Sum numeric arguments
-  let sum = 0;
-  args.forEach((arg) => {
+  // Sum numeric arguments using reduce for clarity
+  const sum = args.reduce((acc, arg) => {
     const num = parseFloat(arg);
-    if (!isNaN(num)) {
-      sum += num;
-    } else {
+    if (isNaN(num)) {
       console.warn(`Non-numeric argument encountered: ${arg}`);
+      return acc;
     }
-  });
+    return acc + num;
+  }, 0);
   console.log(sum);
 };
 
 const multiplyCommand = (args) => {
-  // Multiply numeric arguments
+  // Multiply numeric arguments using reduce for clarity
   if (args.length === 0) {
     console.log(0);
     return;
   }
-  let product = 1;
-  args.forEach((arg) => {
+  const product = args.reduce((acc, arg) => {
     const num = parseFloat(arg);
-    if (!isNaN(num)) {
-      product *= num;
-    } else {
+    if (isNaN(num)) {
       console.warn(`Non-numeric argument encountered: ${arg}`);
+      return acc;
     }
-  });
+    return acc * num;
+  }, 1);
   console.log(product);
 };
 
@@ -55,14 +53,14 @@ const subtractCommand = (args) => {
     console.warn(`Non-numeric argument encountered: ${args[0]}`);
     result = 0;
   }
-  for (let i = 1; i < args.length; i++) {
-    const num = parseFloat(args[i]);
-    if (!isNaN(num)) {
-      result -= num;
+  args.slice(1).forEach(arg => {
+    const num = parseFloat(arg);
+    if (isNaN(num)) {
+      console.warn(`Non-numeric argument encountered: ${arg}`);
     } else {
-      console.warn(`Non-numeric argument encountered: ${args[i]}`);
+      result -= num;
     }
-  }
+  });
   console.log(result);
 };
 
