@@ -45,7 +45,7 @@ function multiplyCommand(args) {
 }
 
 function subtractCommand(args) {
-  // Subtract numeric arguments: subtracts each subsequent number from the first one
+  // Subtract numeric arguments: subtract each subsequent number from the first one
   if (args.length === 0) {
     console.log(0);
     return;
