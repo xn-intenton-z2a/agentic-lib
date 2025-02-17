@@ -1,21 +1,21 @@
 #!/usr/bin/env node
 // src/lib/main.js
 
-import { fileURLToPath } from "url";
+import { fileURLToPath } from 'url';
 
 // -----------------------------------------------------------------------------
 // Command implementations
 // -----------------------------------------------------------------------------
 
-function echoCommand(args) {
+const echoCommand = (args) => {
   // Print the arguments joined by a space
-  console.log(args.join(" "));
-}
+  console.log(args.join(' '));
+};
 
-function addCommand(args) {
+const addCommand = (args) => {
   // Sum numeric arguments
   let sum = 0;
-  args.forEach(arg => {
+  args.forEach((arg) => {
     const num = parseFloat(arg);
     if (!isNaN(num)) {
       sum += num;
@@ -24,16 +24,16 @@ function addCommand(args) {
     }
   });
   console.log(sum);
-}
+};
 
-function multiplyCommand(args) {
+const multiplyCommand = (args) => {
   // Multiply numeric arguments
-  let product = 1;
   if (args.length === 0) {
     console.log(0);
     return;
   }
-  args.forEach(arg => {
+  let product = 1;
+  args.forEach((arg) => {
     const num = parseFloat(arg);
     if (!isNaN(num)) {
       product *= num;
@@ -42,9 +42,9 @@ function multiplyCommand(args) {
     }
   });
   console.log(product);
-}
+};
 
-function subtractCommand(args) {
+const subtractCommand = (args) => {
   // Subtract numeric arguments: subtract each subsequent number from the first one
   if (args.length === 0) {
     console.log(0);
@@ -64,30 +64,33 @@ function subtractCommand(args) {
     }
   }
   console.log(result);
-}
+};
+
+const displayUsage = () => {
+  console.log('No command provided. Available commands: echo, add, multiply, subtract');
+};
 
 // -----------------------------------------------------------------------------
-// Run main if executed directly.
+// Main execution
 // -----------------------------------------------------------------------------
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const args = process.argv.slice(2);
+  const [, , ...args] = process.argv;
   if (args.length === 0) {
-    console.log("No command provided. Available commands: echo, add, multiply, subtract");
+    displayUsage();
   } else {
-    const command = args[0];
-    const commandArgs = args.slice(1);
-    switch(command) {
-      case "echo":
+    const [command, ...commandArgs] = args;
+    switch (command) {
+      case 'echo':
         echoCommand(commandArgs);
         break;
-      case "add":
+      case 'add':
         addCommand(commandArgs);
         break;
-      case "multiply":
+      case 'multiply':
         multiplyCommand(commandArgs);
         break;
-      case "subtract":
+      case 'subtract':
         subtractCommand(commandArgs);
         break;
       default:
