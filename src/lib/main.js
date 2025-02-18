@@ -41,6 +41,39 @@ const parseNumber = (arg) => {
   return num;
 };
 
+// Generic reducer for operations that use all arguments (e.g., add, multiply)
+const reduceAll = (args, initial, operator) => {
+  let result = initial;
+  for (const arg of args) {
+    const num = parseNumber(arg);
+    if (!isNaN(num)) {
+      result = operator(result, num);
+    }
+  }
+  return result;
+};
+
+// Generic reducer for operations that start with the first argument (e.g., subtract, divide, mod)
+// errorCheck is an optional function that, given a number, returns true if an error condition is met.
+// errorMsg is a function that returns an error message given the argument string.
+const reduceFromFirst = (args, fallback, operator, errorCheck, errorMsg) => {
+  let result = parseNumber(args[0]);
+  if (isNaN(result)) {
+    result = fallback;
+  }
+  for (const arg of args.slice(1)) {
+    const num = parseNumber(arg);
+    if (!isNaN(num)) {
+      if (errorCheck && errorCheck(num)) {
+        console.error(errorMsg(arg));
+        return null;
+      }
+      result = operator(result, num);
+    }
+  }
+  return result;
+};
+
 // -----------------------------------------------------------------------------
 // Command implementations
 // -----------------------------------------------------------------------------
@@ -50,10 +83,7 @@ const echoCommand = (args) => {
 };
 
 const addCommand = (args) => {
-  const sum = args.reduce((acc, arg) => {
-    const num = parseNumber(arg);
-    return isNaN(num) ? acc : acc + num;
-  }, 0);
+  const sum = reduceAll(args, 0, (acc, num) => acc + num);
   console.log(sum);
 };
 
@@ -62,10 +92,7 @@ const multiplyCommand = (args) => {
     console.log(0);
     return;
   }
-  const product = args.reduce((acc, arg) => {
-    const num = parseNumber(arg);
-    return isNaN(num) ? acc : acc * num;
-  }, 1);
+  const product = reduceAll(args, 1, (acc, num) => acc * num);
   console.log(product);
 };
 
@@ -74,16 +101,7 @@ const subtractCommand = (args) => {
     console.log(0);
     return;
   }
-  let result = parseNumber(args[0]);
-  if (isNaN(result)) {
-    result = 0;
-  }
-  args.slice(1).forEach(arg => {
-    const num = parseNumber(arg);
-    if (!isNaN(num)) {
-      result -= num;
-    }
-  });
+  const result = reduceFromFirst(args, 0, (acc, num) => acc - num);
   console.log(result);
 };
 
@@ -92,21 +110,14 @@ const divideCommand = (args) => {
     console.log(0);
     return;
   }
-  let result = parseNumber(args[0]);
-  if (isNaN(result)) {
-    result = 0;
-  }
-  for (let i = 1; i < args.length; i++) {
-    const num = parseNumber(args[i]);
-    if (isNaN(num)) {
-      continue;
-    } else if (num === 0) {
-      console.error(`Error: Division by zero encountered with argument ${args[i]}`);
-      return;
-    } else {
-      result /= num;
-    }
-  }
+  const result = reduceFromFirst(
+    args,
+    0,
+    (acc, num) => acc / num,
+    (num) => num === 0,
+    (arg) => `Error: Division by zero encountered with argument ${arg}`
+  );
+  if (result === null) return;
   console.log(result);
 };
 
@@ -130,21 +141,14 @@ const modCommand = (args) => {
     console.log('Usage: mod <dividend> <divisor> [divisor ...]');
     return;
   }
-  let result = parseNumber(args[0]);
-  if (isNaN(result)) {
-    result = 0;
-  }
-  for (let i = 1; i < args.length; i++) {
-    const num = parseNumber(args[i]);
-    if (isNaN(num)) {
-      continue;
-    } else if (num === 0) {
-      console.error(`Error: Modulo by zero encountered with argument ${args[i]}`);
-      return;
-    } else {
-      result %= num;
-    }
-  }
+  const result = reduceFromFirst(
+    args,
+    0,
+    (acc, num) => acc % num,
+    (num) => num === 0,
+    (arg) => `Error: Modulo by zero encountered with argument ${arg}`
+  );
+  if (result === null) return;
   console.log(result);
 };
 
