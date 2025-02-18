@@ -88,8 +88,24 @@ const divideCommand = (args) => {
   console.log(result);
 };
 
+const powerCommand = (args) => {
+  // Raises the first number to the power of the second number
+  if (args.length < 2) {
+    console.log('Usage: power <base> <exponent>');
+    return;
+  }
+  const base = parseNumber(args[0]);
+  const exponent = parseNumber(args[1]);
+  if (isNaN(base) || isNaN(exponent)) {
+    console.warn('Invalid numeric arguments for power command');
+    return;
+  }
+  const result = Math.pow(base, exponent);
+  console.log(result);
+};
+
 const displayUsage = () => {
-  console.log('No command provided. Available commands: echo, add, multiply, subtract, divide');
+  console.log('No command provided. Available commands: echo, add, multiply, subtract, divide, power');
 };
 
 // -----------------------------------------------------------------------------
@@ -118,8 +134,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       case 'divide':
         divideCommand(commandArgs);
         break;
+      case 'power':
+        powerCommand(commandArgs);
+        break;
       default:
-        console.error(`Unknown command: ${command}. Available commands: echo, add, multiply, subtract, divide`);
+        console.error(`Unknown command: ${command}. Available commands: echo, add, multiply, subtract, divide, power`);
         process.exit(1);
     }
   }
