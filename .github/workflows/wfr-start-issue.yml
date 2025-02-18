@@ -320,7 +320,7 @@ jobs:
               type: "function",
               function: {
                 name: "updateSourceFile",
-                description: "Return an updated version of the source file content along with a commit message. Use the provided file content, issue details, dependency list, build output, test output, and main output to generate the update.",
+                description: "Return an updated version of the source file content along with a commit message. Use the provided source file content and supporting context to generate the update.",
                 parameters: {
                   type: "object",
                   properties: {
