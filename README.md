@@ -31,22 +31,25 @@ automatically.
 - [ ] Find a way for consumers to link to a stable version of the reusable workflows.
 - [ ] Test the link to the current version from the test file (not main but the github-ref being tested).
 - [ ] Test the link to the stable version after publishing from this repository.
-- [ ] *Make intentïon `agentic-lib` and repository1 public.*
+- [ ] *Make intentïon `agentic-lib` and repository1 public beta.*
 
+MVP:
 - [ ] Add Linting file to the context.
 - [ ] Add Linting results to the context.
 - [ ] Use fix-failing-build to run start issue fails, use fix-failing build to fix the branch (and max context with start issue).
 - [ ] Add funding mechanisms.
-- [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
+
+Enhancements:
 - [ ] Add git log to the context.
+- [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
+- [ ] Pick ideal version. Oldest? or Node 22 (after October 29th when it becomes LTS) build with the latest LTS but target the lowest compatible?
 - [ ] Generate API.md based on the source file.
 - [ ] Update CHANGELOG.md when a publishing a release version of the changes since the last release.
 - [ ] Duplicate the test when publishing a release version with a version numbered test file.
 - [ ] Add execution net capture to the context.
 - [ ] Clean-up TODOs (maybe this is automated)
-- [ ] Scan code for possible library replacements for the custom code
-- [ ] Compress and de-dupe package.json
-- [ ] Pick ideal version. Oldest? or Node 22 (after October 29th when it becomes LTS) build with the latest LTS but target the lowest compatible?
+- [ ] Scan code for possible library replacements for the custom code (maybe this is automated)
+- [ ] Compress and de-dupe package.json (maybe this is automated)
 - [ ] Dashboard metrics (e.g. GitHub Insights? commits by agents)
 
 ---
@@ -57,9 +60,9 @@ Clone a seed repository which is pre-configured with the reusable workflows and 
 
 ### Initiating the workflow
 
-Run the action "Create Issue" and enter some text to create an issue. This will create an issue and trigger the "Issue Worker" to write the code.
-If the Issue Worker is able to resolve the issue a Pull Request is raised, the change automatically merged.
-The issue reviewed and closed if the change is deemed to have delivered whatever was requested in the issue.
+Run the action "Create Issue" and enter some text to create an issue. This will create an issue and trigger the 
+"Issue Worker" to write the code. If the Issue Worker is able to resolve the issue a Pull Request is raised, the change 
+automatically merged. The issue reviewed and closed if the change is deemed to have delivered whatever was requested in the issue.
 
 Development Workflows:
 ```
