@@ -29,7 +29,7 @@ automatically.
 - [x] Add README to the context.
 - [x] Add test file to the context.
 - [x] Add CONTRIBUTING.md to the context.
-- [ ] Add the ability to write to the README, test and package.json.
+- [~] Add the ability to write to the README, test and package.json.
 - [ ] Find a way for consumers to link to a stable version of the reusable workflows.
 - [ ] Test the link to the current version from the test file (not main but the github-ref being tested).
 - [ ] Test the link to the stable version after publishing from this repository.

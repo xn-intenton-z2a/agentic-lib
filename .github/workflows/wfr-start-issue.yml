@@ -215,6 +215,10 @@ jobs:
             readmeFileContent = fs.readFileSync(readmeFile, 'utf8');
             contributingFileContent = fs.readFileSync(contributingFile, 'utf8');
             dependenciesFileContent = fs.readFileSync(dependenciesFile, 'utf8');
+            console.log(`Target file '${target}' has been loaded (length ${sourceFileContent.length}).`);
+            console.log(`Test file '${testFile}' has been loaded (length ${testFileContent.length}).`);
+            console.log(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
+            console.log(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
             
             const issue = await github.rest.issues.get({
               owner: context.repo.owner,
@@ -233,18 +237,18 @@ jobs:
               .join('\n');
             
             const prompt = `
-            You are providing the entire new content of the source file, with all necessary changes applied to resolve an issue.
+            You are providing the entire new content of the source file, test file and README file with all necessary changes applied to resolve an issue.
             Consider the following in your response:
-            * the source file content
-            * test file content
-            * readme file content issue
-            * contributing file content
-            * dependencies file content
-            * issue details
-            * dependency list
-            * build output
-            * test output
-            * main execution output
+            * Source file content
+            * Test file content
+            * README file content issue
+            * Contributing file content
+            * Dependencies file content
+            * Issue details
+            * Dependency list
+            * Build output
+            * Test output
+            * Main execution output
             
             Apply the contributing guidelines to your response and when suggesting enhancements consider the tone and direction of the contributing guidelines.
             
@@ -302,11 +306,14 @@ jobs:
             ${mainOutput}
             MAIN_OUTPUT_END    
             
-            Please produce an updated version of the file that resolves the issue.
+            Please produce an updated version of the source file, and test file, and README and dependencies file that resolves the issue.
             Answer strictly with a JSON object following this schema:
             
             {
               "updatedSourceFileContent": "The entire new content of the source file, with all necessary changes applied.",
+              "updatedTestFileContent": "The entire new content of the test file, with all necessary changes applied.",
+              "updatedReadmeFileContent": "The entire new content of the README file, with all necessary changes applied.",
+              "updatedDependenciesFileContent": "The entire new content of the dependencies file, with all necessary changes applied.",
               "message": "A short sentence explaining the change applied suitable for a commit message."
             }
             
@@ -316,10 +323,10 @@ jobs:
             const ResponseSchema = z.object({ updatedSourceFileContent: z.string(), message: z.string() });
             
             // Define the function schema for functional calling
-            const updateSourceFile = [{
+            const applyIssueResolutionToSource = [{
               type: "function",
               function: {
-                name: "updateSourceFile",
+                name: "applyIssueResolutionToSource",
                 description: "Return an updated version of the source file content along with a commit message. Use the provided source file content and supporting context to generate the update.",
                 parameters: {
                   type: "object",
@@ -328,12 +335,24 @@ jobs:
                       type: "string",
                       description: "The entire new content of the source file, with all necessary changes applied."
                     },
+                    updatedTestFileContent: {
+                      type: "string",
+                      description: "The entire new content of the test file, with all necessary changes applied."
+                    },
+                    updatedReadmeFileContent: {
+                      type: "string",
+                      description: "The entire new content of the README file, with all necessary changes applied."
+                    },
+                    updatedDependenciesFileContent: {
+                      type: "string",
+                      description: "The entire new content of the dependencies file, with all necessary changes applied."
+                    },
                     message: {
                       type: "string",
                       description: "A short sentence explaining the change applied suitable for a commit message."
                     }
                   },
-                  required: ["updatedSourceFileContent", "message"],
+                  required: ["updatedSourceFileContent", "updatedTestFileContent", "updatedReadmeFileContent", "updatedDependenciesFileContent", "message"],
                   additionalProperties: false
                 },
                 strict: true
@@ -344,10 +363,10 @@ jobs:
             const response = await openai.chat.completions.create({
               model,
               messages: [
-                { role: "system", content: "You are a code fixer that returns an updated source file content to resolve an issue. Answer strictly with a JSON object that adheres to the provided function schema." },
+                { role: "system", content: "You are a code fixer that returns an updated source file content, test file content, README file content and dependencies file content to resolve an issue. Answer strictly with a JSON object that adheres to the provided function schema." },
                 { role: "user", content: prompt }
               ],
-              tools: updateSourceFile
+              tools: applyIssueResolutionToSource
             });
             
             let fixApplied;
@@ -379,11 +398,27 @@ jobs:
               core.setOutput("message", sanitizedMessage);
               core.info(`message: "${sanitizedMessage}"`);
             
-              fs.writeFileSync(target, parsed.updatedSourceFileContent, 'utf8');
-              console.log(`Target file '${target}' has been updated.`);
-            
-              fixApplied = true;
-            
+              if(parsed.updatedSourceFileContent && parsed.updatedSourceFileContent.length > 1) {
+                fs.writeFileSync(target, parsed.updatedSourceFileContent, 'utf8');
+                fixApplied = true;
+                console.log(`Target file '${target}' has been updated (length ${parsed.updatedSourceFileContent.length}).`);
+              }
+              if(parsed.updatedTestFileContent && parsed.updatedTestFileContent.length > 1) {
+                fs.writeFileSync(testFile, parsed.updatedTestFileContent, 'utf8');
+                fixApplied = true;
+                console.log(`Test file '${testFile}' has been updated (length ${parsed.updatedTestFileContent.length}).`);
+              }
+              if(parsed.updatedReadmeFileContent && parsed.updatedReadmeFileContent.length > 1) {
+                fs.writeFileSync(readmeFile, parsed.updatedReadmeFileContent, 'utf8');
+                fixApplied = true;
+                console.log(`Readme file '${readmeFile}' has been updated (length ${parsed.updatedReadmeFileContent.length}).`);
+              }
+              if(parsed.updatedDependenciesFileContent && parsed.updatedDependenciesFileContent.length > 1) {
+                fs.writeFileSync(dependenciesFile, parsed.updatedDependenciesFileContent, 'utf8');
+                fixApplied = true;
+                console.log(`Dependencies file '${dependenciesFile}' has been updated (length ${parsed.updatedDependenciesFileContent.length}).`);
+              }
+
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
