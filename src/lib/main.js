@@ -16,7 +16,7 @@
       - mod: computes the modulo (first number mod each subsequent number, aborts on modulo by zero).
       - demo: demonstrates all available commands with sample outputs.
       - help: displays usage information.
-      - githubscript: reads environment variables and file contents as per GitHub Script fragment.
+      - githubscript: reads extended environment variables and file contents as per GitHub Script fragment.
 
   Usage:
     node src/lib/main.js <command> [arguments...]
@@ -213,18 +213,38 @@ const selfTestCommand = (args) => {
 // -----------------------------------------------------------------------------
 
 const githubScriptCommand = (args) => {
-  // Read environment variables that mimic the GitHub Script fragment
+  // Read extended environment variables that mimic the GitHub Script fragment
   const target = process.env.TARGET || '';
   const testFile = process.env.TESTFILE || '';
   const readmeFile = process.env.READMEFILE || '';
   const contributingFile = process.env.CONTRIBUTINGFILE || '';
   const dependenciesFile = process.env.DEPENDENCIESFILE || '';
+  const model = process.env.MODEL || '';
+  const apiKey = process.env.CHATGPT_API_SECRET_KEY || '';
+  const issueNumber = process.env.ISSUENUMBER ? parseInt(process.env.ISSUENUMBER) : NaN;
+  const dependenciesListOutput = process.env.DEPENDENCIESLISTOUTPUT || '';
+  const buildScript = process.env.BUILDSCRIPT || '';
+  const buildOutput = process.env.BUILDOUTPUT || '';
+  const testScript = process.env.TESTSCRIPT || '';
+  const testOutput = process.env.TESTOUTPUT || '';
+  const mainScript = process.env.MAINSCRIPT || '';
+  const mainOutput = process.env.MAINOUTPUT || '';
 
   console.log(`TARGET: "${target}"`);
   console.log(`TESTFILE: "${testFile}"`);
   console.log(`READMEFILE: "${readmeFile}"`);
   console.log(`CONTRIBUTINGFILE: "${contributingFile}"`);
   console.log(`DEPENDENCIESFILE: "${dependenciesFile}"`);
+  console.log(`MODEL: "${model}"`);
+  console.log(`CHATGPT_API_SECRET_KEY: "${apiKey ? '***' : ''}"`);
+  console.log(`ISSUENUMBER: "${issueNumber}"`);
+  console.log(`DEPENDENCIESLISTOUTPUT: "${dependenciesListOutput}"`);
+  console.log(`BUILDSCRIPT: "${buildScript}"`);
+  console.log(`BUILDOUTPUT: "${buildOutput}"`);
+  console.log(`TESTSCRIPT: "${testScript}"`);
+  console.log(`TESTOUTPUT: "${testOutput}"`);
+  console.log(`MAINSCRIPT: "${mainScript}"`);
+  console.log(`MAINOUTPUT: "${mainOutput}"`);
 
   if (target) {
     if (fs.existsSync(target)) {
