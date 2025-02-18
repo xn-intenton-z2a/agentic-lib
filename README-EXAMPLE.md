@@ -1,6 +1,6 @@
 # agentic-lib CLI
 
-agentic-lib is a command line utility that provides a suite of arithmetic and echo commands to demonstrate capabilities of the agentic development framework. The CLI is designed to be simple and resilient, offering basic arithmetic operations along with text echoing, demonstration modes, and GitHub Script functionality.
+agentic-lib is a command line utility that provides a suite of arithmetic and echo commands to demonstrate capabilities of the agentic development framework. The CLI is designed to be simple and resilient, offering basic arithmetic operations along with text echoing, demonstration modes, and extended GitHub Script functionality.
 
 ## Available Commands
 
@@ -12,7 +12,7 @@ agentic-lib is a command line utility that provides a suite of arithmetic and ec
 - **power**: Raises the first number (base) to the power of the second number (exponent).
 - **mod**: Computes the modulo of the first number with each of the subsequent numbers. Aborts if modulo by zero is encountered.
 - **demo**: Runs a series of demos showcasing all the commands with sample inputs and outputs.
-- **githubscript**: Reads environment variables and file contents mimicking GitHub Script functionality (file loads and logs) without performing API calls.
+- **githubscript**: Reads extended environment variables and file contents, mimicking the GitHub Script fragment. It logs details about the files and environment parameters such as model, API keys, issue numbers, and outputs from various commands. Note that GitHub API calls, OpenAI integration, and issue comment creation are not implemented.
 - **help**: Displays usage instructions and lists available commands.
 
 ## Usage
