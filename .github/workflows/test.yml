@@ -13,8 +13,7 @@ on:
       - '!exports/**'
   workflow_dispatch:
   schedule:
-    # Test every 6 hours
-    - cron: '0 4,10,16,22 * * *'
+    - cron: '45 */6 * * *'
 
 jobs:
 
@@ -28,7 +27,4 @@ jobs:
           node-version: 20
           cache: 'npm'
       - run: npm ci
-      - run: pwd
-      - run: ls -l
-      - run: find . -name '*.js' -exec echo '{}' \; | grep -v 'node_modules'
       - run: npm test

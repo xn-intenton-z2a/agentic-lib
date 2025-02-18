@@ -21,10 +21,14 @@ on:
         required: false
         type: string
         default: 'automated'
-
+  workflow_run:
+    workflows:
+      - "Create Issue"
+    types:
+      - completed
   schedule:
-    #- cron: '5,35 * * * *'
-    - cron: '0 */2 * * *'
+    #- cron: '5,35 * * * *' # Run every 30 minutes at 5 and 35 minutes past
+    - cron: '0 */2 * * *' # Run every 2 hours at 0 minutes past
 
 jobs:
 
@@ -32,7 +36,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: './.github/workflows/wfr-select-issue.yml'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@main'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: ${{ inputs.selectionLabel || 'automated' }}
@@ -74,7 +78,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: './.github/workflows/wfr-start-issue.yml'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-start-issue.yml@main'
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
@@ -99,9 +103,9 @@ jobs:
       issues: write
       pull-requests: write
       id-token: write
-    uses: './.github/workflows/wfr-create-pr.yml'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@main'
     with:
       branch: 'issue-${{ needs.select-issue.outputs.issueNumber }}'
       baseBranch: 'main'
-      commit-message: 'Fix ready for issue ${{ needs.select-issue.outputs.issueNumber }}'
+      getCommitMessage: 'Fix ready for issue ${{ needs.select-issue.outputs.issueNumber }}'
       label: 'automerge'

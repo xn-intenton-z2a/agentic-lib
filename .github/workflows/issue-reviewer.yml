@@ -20,9 +20,14 @@ on:
         required: false
         type: string
         default: 'src/lib/main.js'
+  workflow_run:
+    workflows:
+      - "Automerge"
+    types:
+      - completed
   schedule:
-    #- cron: '0,10,20,30,40,50 * * * *'
-    - cron: '0 */6 * * *'
+    #- cron: '0,10,20,30,40,50 * * * *' # Run every 10 minutes
+    - cron: '0 */6 * * *' # Run every 6 hours at 0 minutes past
 
 jobs:
 
@@ -30,7 +35,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: './.github/workflows/wfr-select-issue.yml'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@main'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: ${{ inputs.selectionLabel || 'merged' }}
@@ -45,7 +50,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: './.github/workflows/wfr-review-issue.yml'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-review-issue.yml@main'
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
