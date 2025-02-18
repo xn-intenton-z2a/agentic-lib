@@ -14,7 +14,7 @@
       - divide: divides the first number by subsequent numbers (aborts on division by zero).
       - power: computes power (first number raised to the second).
       - mod: computes the modulo (first number mod each subsequent number, aborts on modulo by zero).
-      - demo: demonstrates all available commands.
+      - demo: demonstrates all available commands with sample outputs.
       - selftest: runs a series of tests and demonstrates the feature output.
       - help: displays usage information.
 
