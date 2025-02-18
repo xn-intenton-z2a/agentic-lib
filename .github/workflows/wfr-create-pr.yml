@@ -82,6 +82,9 @@ jobs:
                 labels: ['${{ env.label }}'],
               });
               core.info(`Pull request created: ${pr.html_url}`);
+
+              // Wait for check suites to be created
+              await new Promise(resolve => setTimeout(resolve, 30000));
             
               // --- Re-run Check Suites on the new PR commit ---
               const { data: checkSuites } = await github.rest.checks.listForRef({
