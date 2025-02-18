@@ -32,7 +32,7 @@
 ./.github/workflows/wfr-create-pr.yml
 ./.github/workflows/wfr-create-issue.yml
 ./.github/workflows/wfr-delete-caches.yml
-./.github/workflows/wfr-automerge-check-pr-and-merge.yml
+./.github/workflows/wfr-automerge-find-pr-from-pull-request.yml
 ./.github/workflows/issue-worker.yml
 ./.github/workflows/automerge.yml
 ./.github/workflows/fix-failing-build.yml

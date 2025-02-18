@@ -2138,9 +2138,9 @@ jobs:
           done
           
           echo "Cache deletion iteration complete."
-./.github/workflows/wfr-automerge-check-pr-and-merge.yml
-==== Content of ./.github/workflows/wfr-automerge-check-pr-and-merge.yml ====
-# .github/workflows/wfr-automerge-check-pr-and-merge.yml
+./.github/workflows/wfr-automerge-find-pr-from-pull-request.yml
+==== Content of ./.github/workflows/wfr-automerge-find-pr-from-pull-request.yml ====
+# .github/workflows/wfr-automerge-find-pr-from-pull-request.yml
 name: ∞ Get Pull Request
 
 on:
@@ -2393,7 +2393,7 @@ jobs:
       - name: Run pull_request check
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')
         id: pr
-        uses: './.github/workflows/wfr-automerge-check-pr-and-merge.yml'
+        uses: './.github/workflows/wfr-automerge-find-pr-from-pull-request.yml'
 
       - name: Run check_suite check
         if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'

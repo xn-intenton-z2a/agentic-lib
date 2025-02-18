@@ -1,4 +1,4 @@
-# .github/workflows/wfr-automerge-check-pr-and-merge.yml
+# .github/workflows/wfr-automerge-find-pr-from-pull-request.yml
 name: ∞ Get Pull Request
 
 on:
