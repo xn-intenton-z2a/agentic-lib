@@ -150,7 +150,7 @@ jobs:
     needs:
       - merge-check
       #- wait-for-merge
-    if: always() && needs.merge-check.outputs.shouldSkipMerge != 'true'
+    if: always() && needs.merge-check.outputs.shouldSkipMerge != 'true' && needs.merge-check.outputs.pullNumber != ''
     permissions:
       contents: write
       pull-requests: write
