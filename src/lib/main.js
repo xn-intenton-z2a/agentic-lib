@@ -114,7 +114,7 @@ const divideCommand = (args) => {
 };
 
 const powerCommand = (args) => {
-  // Raises the first number to the power of the second number
+  // Raises the first number to the power of the second number using modern exponentiation operator
   if (args.length < 2) {
     console.log('Usage: power <base> <exponent>');
     return;
@@ -125,7 +125,7 @@ const powerCommand = (args) => {
     console.warn('Invalid numeric arguments for power command');
     return;
   }
-  const result = Math.pow(base, exponent);
+  const result = base ** exponent;
   console.log(result);
 };
 
