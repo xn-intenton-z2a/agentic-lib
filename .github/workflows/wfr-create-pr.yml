@@ -18,7 +18,7 @@ on:
         type: string
         required: false
         default: '100'
-      commit-message:
+      gitCommitMessage:
         description: 'The commit message to use for the PR. e.g. "Ready for pull"'
         type: string
         required: false
@@ -40,7 +40,7 @@ jobs:
       branch: ${{ inputs.branch }}
       baseBranch: ${{ inputs.baseBranch || 'main' }}
       pulls: ${{ inputs.pulls || '100' }}
-      commit-message: 'Ready for pull'
+      gitCommitMessage: ${{ inputs.gitCommitMessage || 'Change complete ready for review' }}
       label: 'automerge'
 
     steps:
@@ -69,10 +69,10 @@ jobs:
               const { data: pr } = await github.rest.pulls.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                title: '${{ env.commit-message }}',
+                title: '${{ env.gitCommitMessage }}',
                 head: '${{ env.branch }}',
                 base: '${{ env.baseBranch }}',
-                body: '${{ env.commit-message }}',
+                body: '${{ env.gitCommitMessage }}',
                 maintainer_can_modify: true,
               });
               await github.rest.issues.addLabels({
