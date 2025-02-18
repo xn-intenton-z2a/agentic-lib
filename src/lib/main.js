@@ -1,4 +1,28 @@
 #!/usr/bin/env node
+/*
+  intentïon agentic-lib
+  =====================
+  This file is part of the intentïon agentic-lib project.
+  
+  Description:
+    Implements a command-line interface with various arithmetic and echo commands.
+    Commands available:
+      - echo: prints input arguments.
+      - add: sums numeric values.
+      - multiply: multiplies numeric values.
+      - subtract: subtracts subsequent numbers from the first.
+      - divide: divides the first number by subsequent numbers.
+      - power: computes power (first number raised to the second).
+      - demo: demonstrates all available commands.
+  
+  Usage:
+    node src/lib/main.js <command> [arguments...]
+    If no command is provided, available commands will be listed.
+  
+  License:
+    Apache-2.0
+*/
+
 // src/lib/main.js
 
 import { fileURLToPath } from 'url';
