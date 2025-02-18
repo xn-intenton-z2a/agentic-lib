@@ -17,3 +17,12 @@ describe("selfTestCommand", () => {
     logSpy.mockRestore();
   });
 });
+
+describe("githubScriptCommand", () => {
+  test("should log GitHub API not implemented message", () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    mainModule.githubScriptCommand();
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("GitHub API calls, OpenAI integration, and issue comment creation are not implemented"));
+    logSpy.mockRestore();
+  });
+});

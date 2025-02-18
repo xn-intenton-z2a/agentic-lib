@@ -1,6 +1,6 @@
 # agentic-lib CLI
 
-agentic-lib is a command line utility that provides a suite of arithmetic and echo commands to demonstrate capabilities of the agentic development framework. The CLI is designed to be simple and resilient, offering basic arithmetic operations along with text echoing and demonstration modes.
+agentic-lib is a command line utility that provides a suite of arithmetic and echo commands to demonstrate capabilities of the agentic development framework. The CLI is designed to be simple and resilient, offering basic arithmetic operations along with text echoing, demonstration modes, and GitHub Script functionality.
 
 ## Available Commands
 
@@ -12,6 +12,7 @@ agentic-lib is a command line utility that provides a suite of arithmetic and ec
 - **power**: Raises the first number (base) to the power of the second number (exponent).
 - **mod**: Computes the modulo of the first number with each of the subsequent numbers. Aborts if modulo by zero is encountered.
 - **demo**: Runs a series of demos showcasing all the commands with sample inputs and outputs.
+- **githubscript**: Reads environment variables and file contents mimicking GitHub Script functionality (file loads and logs) without performing API calls.
 - **help**: Displays usage instructions and lists available commands.
 
 ## Usage
@@ -22,10 +23,14 @@ Execute the main script using Node.js:
 node src/lib/main.js <command> [arguments...]
 ```
 
-If no command is provided, the CLI will list all available commands. For detailed behavior of each command, try running the demo command:
+If no command is provided, the CLI will list all available commands. For detailed behavior of each command, try running the demo or githubscript command:
 
 ```
 node src/lib/main.js demo
+```
+
+```
+node src/lib/main.js githubscript
 ```
 
 ## Examples
@@ -48,6 +53,12 @@ node src/lib/main.js add 2 3 4
 node src/lib/main.js divide 20 4
 ```
 
+- **GitHub Script Example** (requires appropriate environment variables):
+
+```
+node src/lib/main.js githubscript
+```
+
 ## Testing
 
 Unit tests have been set up using Vitest. To run the tests, execute:
@@ -56,7 +67,7 @@ Unit tests have been set up using Vitest. To run the tests, execute:
 npm test
 ```
 
-The tests ensure that the self-test command and core functionalities are working as expected.
+The tests ensure that the self-test command, GitHub Script command, and core functionalities are working as expected.
 
 ## Contributing
 

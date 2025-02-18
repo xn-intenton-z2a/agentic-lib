@@ -16,6 +16,7 @@
       - mod: computes the modulo (first number mod each subsequent number, aborts on modulo by zero).
       - demo: demonstrates all available commands with sample outputs.
       - help: displays usage information.
+      - githubscript: reads environment variables and file contents as per GitHub Script fragment.
 
   Usage:
     node src/lib/main.js <command> [arguments...]
@@ -26,6 +27,7 @@
 */
 
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 // -----------------------------------------------------------------------------
 // Helper Functions
@@ -206,8 +208,78 @@ const selfTestCommand = (args) => {
   console.log('\n=== Self Test Completed ===');
 };
 
+// -----------------------------------------------------------------------------
+// GitHub Script Command Implementation
+// -----------------------------------------------------------------------------
+
+const githubScriptCommand = (args) => {
+  // Read environment variables that mimic the GitHub Script fragment
+  const target = process.env.TARGET || '';
+  const testFile = process.env.TESTFILE || '';
+  const readmeFile = process.env.READMEFILE || '';
+  const contributingFile = process.env.CONTRIBUTINGFILE || '';
+  const dependenciesFile = process.env.DEPENDENCIESFILE || '';
+
+  console.log(`TARGET: "${target}"`);
+  console.log(`TESTFILE: "${testFile}"`);
+  console.log(`READMEFILE: "${readmeFile}"`);
+  console.log(`CONTRIBUTINGFILE: "${contributingFile}"`);
+  console.log(`DEPENDENCIESFILE: "${dependenciesFile}"`);
+
+  if (target) {
+    if (fs.existsSync(target)) {
+      const sourceContent = fs.readFileSync(target, 'utf8');
+      console.log(`Target file '${target}' loaded with length ${sourceContent.length}.`);
+    } else {
+      console.log(`Target file '${target}' does not exist.`);
+    }
+  }
+
+  if (testFile) {
+    if (fs.existsSync(testFile)) {
+      const testContent = fs.readFileSync(testFile, 'utf8');
+      console.log(`Test file '${testFile}' loaded with length ${testContent.length}.`);
+    } else {
+      console.log(`Test file '${testFile}' does not exist.`);
+    }
+  }
+
+  if (readmeFile) {
+    if (fs.existsSync(readmeFile)) {
+      const readmeContent = fs.readFileSync(readmeFile, 'utf8');
+      console.log(`README file '${readmeFile}' loaded with length ${readmeContent.length}.`);
+    } else {
+      console.log(`README file '${readmeFile}' does not exist.`);
+    }
+  }
+
+  if (contributingFile) {
+    if (fs.existsSync(contributingFile)) {
+      const contributingContent = fs.readFileSync(contributingFile, 'utf8');
+      console.log(`Contributing file '${contributingFile}' loaded with length ${contributingContent.length}.`);
+    } else {
+      console.log(`Contributing file '${contributingFile}' does not exist.`);
+    }
+  }
+
+  if (dependenciesFile) {
+    if (fs.existsSync(dependenciesFile)) {
+      const dependenciesContent = fs.readFileSync(dependenciesFile, 'utf8');
+      console.log(`Dependencies file '${dependenciesFile}' loaded with length ${dependenciesContent.length}.`);
+    } else {
+      console.log(`Dependencies file '${dependenciesFile}' does not exist.`);
+    }
+  }
+
+  console.log('GitHub API calls, OpenAI integration, and issue comment creation are not implemented in this command.');
+};
+
+// -----------------------------------------------------------------------------
+// Usage display
+// -----------------------------------------------------------------------------
+
 const displayUsage = () => {
-  console.log('No command provided. Available commands: echo, add, multiply, subtract, divide, power, mod, demo, help');
+  console.log('No command provided. Available commands: echo, add, multiply, subtract, divide, power, mod, demo, githubscript, help');
 };
 
 const helpCommand = () => {
@@ -230,8 +302,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     power: powerCommand,
     mod: modCommand,
     demo: demoCommand,
-    // selftest command removed from CLI to move testing to unit tests
-    help: helpCommand
+    // selfTest command removed from CLI to move testing to unit tests
+    help: helpCommand,
+    githubscript: githubScriptCommand
   };
 
   if (args.length === 0) {
@@ -263,6 +336,7 @@ export {
   modCommand,
   demoCommand,
   selfTestCommand,
+  githubScriptCommand,
   displayUsage,
   helpCommand
 };
