@@ -50,7 +50,7 @@ jobs:
               core.info(`PR #${pullNumber} is already closed.`);
               prMerged = 'true';
             } else if (pullRequest.state !== 'open') {
-              core.setFailed(`PR #${pullNumber} is not open it is ${pullRequest.state}.`);
+              core.info(`PR #${pullNumber} is not open it is ${pullRequest.state}.`);
               prMerged = 'false';
             } else if (pullRequest.mergeable && pullRequest.mergeable_state === 'clean') {
             
@@ -72,13 +72,13 @@ jobs:
               prMerged = 'true';
             
             } else if (pullRequest.mergeable === false) {
-              core.setFailed(`PR #${pullNumber} is not mergeable.`);
+              core.info(`PR #${pullNumber} is not mergeable.`);
               prMerged = 'false';
             } else if (pullRequest.mergeable === null) {
-              core.setFailed(`PR #${pullNumber} does not yet have a value for mergeability.`);
+              core.info(`PR #${pullNumber} does not yet have a value for mergeability.`);
               prMerged = 'false';
             } else {
-              core.setFailed(`PR #${pullNumber} is not known.`);
+              core.info(`PR #${pullNumber} is not known.`);
               prMerged = 'false';
             }
             
