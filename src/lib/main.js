@@ -64,8 +64,32 @@ const subtractCommand = (args) => {
   console.log(result);
 };
 
+const divideCommand = (args) => {
+  // Divide numeric arguments: divide the first number by each of the subsequent numbers sequentially
+  if (args.length === 0) {
+    console.log(0);
+    return;
+  }
+  let result = parseFloat(args[0]);
+  if (isNaN(result)) {
+    console.warn(`Non-numeric argument encountered: ${args[0]}`);
+    result = 0;
+  }
+  args.slice(1).forEach(arg => {
+    const num = parseFloat(arg);
+    if (isNaN(num)) {
+      console.warn(`Non-numeric argument encountered: ${arg}`);
+    } else if (num === 0) {
+      console.warn(`Division by zero encountered: ${arg}`);
+    } else {
+      result /= num;
+    }
+  });
+  console.log(result);
+};
+
 const displayUsage = () => {
-  console.log('No command provided. Available commands: echo, add, multiply, subtract');
+  console.log('No command provided. Available commands: echo, add, multiply, subtract, divide');
 };
 
 // -----------------------------------------------------------------------------
@@ -91,8 +115,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       case 'subtract':
         subtractCommand(commandArgs);
         break;
+      case 'divide':
+        divideCommand(commandArgs);
+        break;
       default:
-        console.error(`Unknown command: ${command}. Available commands: echo, add, multiply, subtract`);
+        console.error(`Unknown command: ${command}. Available commands: echo, add, multiply, subtract, divide`);
         process.exit(1);
     }
   }
