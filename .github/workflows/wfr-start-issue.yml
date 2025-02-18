@@ -320,7 +320,7 @@ jobs:
             Ensure valid JSON.
             `;
             
-            const ResponseSchema = z.object({ updatedSourceFileContent: z.string(), message: z.string() });
+            const ResponseSchema = z.object({ updatedSourceFileContent: z.string(), updatedTestFileContent: z.string(), updatedReadmeFileContent: z.string(), updatedDependenciesFileContent: z.string(), message: z.string() });
             
             // Define the function schema for functional calling
             const applyIssueResolutionToSource = [{
@@ -465,7 +465,7 @@ jobs:
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
           git switch -c '${{ env.branchPrefix }}${{ env.issueNumber }}'
-          git add -v --all '${{ env.target }}'
+          git add -v --all
           git diff '${{ env.target }}'
           git commit -m '${{ steps.update-target.outputs.message }} https://github.com/${{ github.repository }}/issues/${{ env.issueNumber }}'
           git push --set-upstream origin '${{ env.branchPrefix }}${{ env.issueNumber }}' -v
