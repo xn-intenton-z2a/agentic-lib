@@ -17,17 +17,20 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 - [x] Abstract re-usable workflows into a separate repository.
 - [x] Switch from PAT to GITHUB_TOKEN.
 - [x] Feed in issue title options from workflow (not inside the reusable workflow).
-- [ ] Add README to the context.
-- [ ] Add test file to the context.
-- [ ] Add prime directive to CONTRIBUTING.md.
-- [ ] Add CONTRIBUTING.md to the context.
-- [ ] Add Linting results to the context.
+- [x] Add prime directive to CONTRIBUTING.md.
+- [x] Add README to the context.
+- [x] Add test file to the context.
+- [x] Add CONTRIBUTING.md to the context.
 - [ ] Add the ability to write to the README, test and package.json.
-- [ ] Find a way for consumers to link to a stable version.
-- [ ] Test the link to the stable version after publishing.
-- [ ] Add functing mechanisms and crypto wallet.
+- [ ] Find a way for consumers to link to a stable version of the reusable workflows.
+- [ ] Test the link to the current version from the test file (not main but the github-ref being tested).
+- [ ] Test the link to the stable version after publishing from this repository.
 - [ ] *Make intentïon `agentic-lib` and repository1 public.*
 
+- [ ] Add Linting file to the context.
+- [ ] Add Linting results to the context.
+- [ ] Use fix-failing-build to run start issue fails, use fix-failing build to fix the branch (and max context with start issue).
+- [ ] Add funding mechanisms.
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
 - [ ] Generate API.md based on the source file.
 - [ ] Update CHANGELOG.md when a publishing a release version of the changes since the last release.

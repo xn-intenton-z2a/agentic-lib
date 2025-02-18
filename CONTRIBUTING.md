@@ -1,29 +1,27 @@
-# Contributing to [Project Name]
+# Contributing to Project EverGrow
 
-Thank you for your interest in contributing to [Project Name]! We welcome contributions of all kinds—bug fixes, new features, documentation, and more. In addition to standard guidelines below, please keep our project goals in mind as you work.
+This project goals are consumed by the workflow and can be modified to guide the evolution of the project.
 
-## Project Goals
+## Project goals
 
-This project is designed for both human and automated coders. Our goals include both actionable targets and enduring principles:
+- **Specific outcomes:**
+    - **CLI demo:** Keep a short reliable demo that will run from `node src/lib/main.js`.
+    - **Demo/Testing:** Use stubbed tests and demo over the wire calls assuming there is internet access.
+    - **Export functions:** The library should export functions that can be used in other projects.
 
-### Achievable Goals
-- **Improve Code Quality:** Increase test coverage, resolve known bugs, and refactor legacy code.
-- **Enhance Documentation:** Continuously update user guides, API references, and inline comments.
-- **Feature Expansion:** Develop new features based on community feedback and our roadmap.
-- **Automate Workflows:** Optimize CI/CD pipelines and automate routine tasks to boost productivity.
+- **Directions to take: **
+    - **Use libraries:** Keep evolving by replacing code with libraries. 
+    - **Learning:** Add information to the code to help further evolution.
+    - **Seed AI:** One day a program will evolve to be the Seed AI, if it is this program, strive for peaceful collaboration between all reasoning entities. 
 
-### Standing Orders (Long-Term Vision)
-- **Maintainability:** Every contribution should prioritize clean, modular, and well-documented code.
-- **Inclusivity:** Ensure the project remains accessible to newcomers and automated systems.
-- **Reliability:** Uphold robust testing and code review processes so that automation and manual contributions work seamlessly.
-- **Sustainability:** Emphasize long-term stability over short-term fixes—robust design and security are key.
-- **Innovation:** Remain open to new ideas, but ensure that any major change is thoroughly discussed and tested.
+## The Automated Contribution Process
 
-By aligning your work with these goals, you help ensure that [Project Name] continues to evolve in a durable and forward-looking direction.
+Our contribution workflow is fully automated—your role is simple:
 
-## How to Contribute
+1. **Open an Issue:**  
+   Describe your idea, report a bug, or suggest an improvement by opening an issue in our repository.
 
-1. **Fork the Repository:** Click the "Fork" button at the top right.
-2. **Clone Your Fork:**
-   ```bash
-   git clone https://github.com/your-username/[Project-Name].git
+2. **Label It as `automated`:**  
+   Add the `automated` label to your issue. This is the trigger that starts our workflow.
+
+3. **Automation Takes Over:**  

@@ -13,6 +13,26 @@ on:
         type: string
         required: false
         default: 'src/lib/main.js'
+      testFile:
+        description: 'The test file to review. e.g. "test/test-main.js"'
+        type: string
+        required: false
+        default: 'test/test-main.js'
+      readmeFile:
+        description: 'The README file to review. e.g. "README.md"'
+        type: string
+        required: false
+        default: 'README.md'
+      contributingFile:
+        description: 'The CONTRIBUTING file to review. e.g. "CONTRIBUTING.md"'
+        type: string
+        required: false
+        default: 'CONTRIBUTING.md'
+      dependenciesFile:
+        description: 'The dependencies file to review. e.g. "package.json"'
+        type: string
+        required: false
+        default: 'package.json'
       branchPrefix:
         description: 'The prefix for the issue branch. e.g. "issue-".'
         type: string
@@ -65,6 +85,10 @@ jobs:
     env:
       issueNumber: ${{ inputs.issueNumber }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
+      testFile: ${{ inputs.testFile || 'test/test-main.js' }}
+      readmeFile: ${{ inputs.readmeFile || 'README.md' }}
+      contributingFile: ${{ inputs.contributingFile || 'CONTRIBUTING.md' }}
+      dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
       branchPrefix: ${{ inputs.branchPrefix || 'issue-' }}
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
@@ -156,6 +180,10 @@ jobs:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
             const target = process.env.target;
+            const testFile = process.env.testFile;
+            const readmeFile = process.env.readmeFile;
+            const contributingFile = process.env.contributingFile;
+            const dependencyFile = process.env.dependencyFile;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
             const issueNumber = parseInt(process.env.issueNumber);
@@ -178,6 +206,10 @@ jobs:
             const openai = new OpenAI({ apiKey });
             
             const sourceFileContent = fs.readFileSync(target, 'utf8');
+            testFileContent = fs.readFileSync(testFile, 'utf8');
+            readmeFileContent = fs.readFileSync(readmeFile, 'utf8');
+            contributingFileContent = fs.readFileSync(contributingFile, 'utf8');
+            dependencyFileContent = fs.readFileSync(dependencyFile, 'utf8');
             
             const issue = await github.rest.issues.get({
               owner: context.repo.owner,
@@ -197,14 +229,46 @@ jobs:
             
             const prompt = `
             You are providing the entire new content of the source file, with all necessary changes applied to resolve an issue.
-            Consider the file content, issue, dependency list, build output, test output, and main output.
+            Consider the following in your response:
+            * the source file content
+            * test file content
+            * readme file content issue
+            * contributing file content
+            * dependency file content
+            * issue details
+            * dependency list
+            * build output
+            * test output
+            * main execution output
+            
+            Apply the contributing guidelines to your response and when suggesting enhancements consider the tone and direction of the contributing guidelines.
             
             Source for file: ${target}
             SOURCE_FILE_START
             ${sourceFileContent}
             SOURCE_FILE_END
             
-            Issue:
+            Test for file: ${target}
+            TEST_FILE_START
+            ${testFileContent}
+            TEST_FILE_END
+
+            README file for project containing: ${target}
+            README_FILE_START
+            ${readmeFileContent}
+            README_FILE_END
+
+            Contributing file: ${target}
+            CONTRIBUTING_FILE_START
+            ${contributingFileContent}
+            CONTRIBUTING_FILE_END
+            
+            Dependency file: ${target}
+            DEPENDENCY_FILE_START
+            ${dependencyFileContent}
+            DEPENDENCY_FILE_END
+                        
+            Issue details:
             ISSUE_START
             title: ${issueTitle}
             description:
@@ -214,21 +278,21 @@ jobs:
             ISSUE_END            
 
             Dependency list from command: npm list
-            TEST_OUTPUT_START
+            DEPENDENCY_LIST_START
             ${listOutput}
-            TEST_OUTPUT_END    
+            DEPENDENCY_LIST_END    
 
             Build output from command: ${buildScript}
-            TEST_OUTPUT_START
+            BUILD_OUTPUT_START
             ${buildOutput}
-            TEST_OUTPUT_END      
+            BUILD_OUTPUT_END      
             
             Test output from command: ${testScript}
             TEST_OUTPUT_START
             ${testOutput}
             TEST_OUTPUT_END            
 
-            Main output from command: ${mainScript}
+            Main execution output from command: ${mainScript}
             MAIN_OUTPUT_START
             ${mainOutput}
             MAIN_OUTPUT_END    
