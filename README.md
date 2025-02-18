@@ -34,8 +34,9 @@ automatically.
 - [x] Add test file to the context.
 - [x] Add CONTRIBUTING.md to the context.
 - [x] Add funding mechanisms.
-- [~] Add the ability to write to the README, test and package.json.
-- [~] Add the full file context to the review.
+- [x] Add the ability to write to the README, test and package.json.
+- [x] Add the full file context to the review.
+- [ ] Add paypal donation link (the old account has been closed).
 - [ ] Find a way for consumers to link to a stable version of the reusable workflows.
 - [ ] Test the link to the current version from the test file (not main but the github-ref being tested).
 - [ ] Test the link to the stable version after publishing from this repository.
