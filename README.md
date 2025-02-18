@@ -10,6 +10,10 @@ automatically.
 
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/donate/?hosted_button_id=Y8PK8XP3EJLWG)
 
+[Contribution Guidelines](CONTRIBUTING.md)
+
+[Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
+
 ---
 
 ## TODO
