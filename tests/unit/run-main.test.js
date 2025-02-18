@@ -1,3 +1,5 @@
+// tests/unit/run-main.test.js
+
 import { exec } from "child_process";
 import { describe, test, expect } from "vitest";
 

@@ -1,3 +1,5 @@
+// tests/unit/module-index.test.js
+
 import { describe, test, expect } from "vitest";
 import anything from "@src/index.js";
 

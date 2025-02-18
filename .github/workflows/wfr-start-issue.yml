@@ -14,10 +14,10 @@ on:
         required: false
         default: 'src/lib/main.js'
       testFile:
-        description: 'The test file to review. e.g. "tests/test-main.js"'
+        description: 'The test file to review. e.g. "tests/unit/main.test.js"'
         type: string
         required: false
-        default: 'tests/test-main.js'
+        default: 'tests/unit/main.test.js'
       readmeFile:
         description: 'The README file to review. e.g. "README.md"'
         type: string
@@ -85,7 +85,7 @@ jobs:
     env:
       issueNumber: ${{ inputs.issueNumber }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
-      testFile: ${{ inputs.testFile || 'tests/test-main.js' }}
+      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
       contributingFile: ${{ inputs.contributingFile || 'CONTRIBUTING.md' }}
       dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
@@ -248,22 +248,22 @@ jobs:
             ${sourceFileContent}
             SOURCE_FILE_END
             
-            Test for file: ${target}
+            Test for file: ${testFile}
             TEST_FILE_START
             ${testFileContent}
             TEST_FILE_END
 
-            README file for project containing: ${target}
+            README file for project containing: ${readmeFile}
             README_FILE_START
             ${readmeFileContent}
             README_FILE_END
 
-            Contributing file: ${target}
+            Contributing file: ${contributingFile}
             CONTRIBUTING_FILE_START
             ${contributingFileContent}
             CONTRIBUTING_FILE_END
             
-            Dependency file: ${target}
+            Dependency file: ${dependencyFile}
             DEPENDENCY_FILE_START
             ${dependencyFileContent}
             DEPENDENCY_FILE_END
@@ -297,7 +297,7 @@ jobs:
             ${mainOutput}
             MAIN_OUTPUT_END    
             
-            Please produce an updated version of the file that resolves the following issue.
+            Please produce an updated version of the file that resolves the issue.
             Answer strictly with a JSON object following this schema:
             
             {
