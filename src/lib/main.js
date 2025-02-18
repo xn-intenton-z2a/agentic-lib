@@ -15,6 +15,7 @@
       - power: computes power (first number raised to the second).
       - mod: computes the modulo (first number mod each subsequent number).
       - demo: demonstrates all available commands.
+      - selftest: runs a series of tests and demonstrates the feature output.
   
   Usage:
     node src/lib/main.js <command> [arguments...]
@@ -181,8 +182,39 @@ const demoCommand = (args) => {
   console.log('--- End of Demo ---');
 };
 
+// -----------------------------------------------------------------------------
+// Self Test command to demonstrate features with expected outputs
+// -----------------------------------------------------------------------------
+
+const selfTestCommand = (args) => {
+  console.log('=== Self Test: Demonstrating features with expected outputs ===');
+
+  console.log('\n> Test Echo Command (expected output: "Hello Test")');
+  echoCommand(['Hello', 'Test']);
+
+  console.log('\n> Test Add Command (2 + 3, expected output: 5)');
+  addCommand(['2', '3']);
+
+  console.log('\n> Test Multiply Command (4 * 5, expected output: 20)');
+  multiplyCommand(['4', '5']);
+
+  console.log('\n> Test Subtract Command (10 - 3, expected output: 7)');
+  subtractCommand(['10', '3']);
+
+  console.log('\n> Test Divide Command (20 / 4, expected output: 5)');
+  divideCommand(['20', '4']);
+
+  console.log('\n> Test Power Command (2 ^ 4, expected output: 16)');
+  powerCommand(['2', '4']);
+
+  console.log('\n> Test Mod Command (10 mod 3, expected output: 1)');
+  modCommand(['10', '3']);
+
+  console.log('\n=== Self Test Completed ===');
+};
+
 const displayUsage = () => {
-  console.log('No command provided. Available commands: echo, add, multiply, subtract, divide, power, mod, demo');
+  console.log('No command provided. Available commands: echo, add, multiply, subtract, divide, power, mod, demo, selftest');
 };
 
 // -----------------------------------------------------------------------------
@@ -220,8 +252,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       case 'demo':
         demoCommand(commandArgs);
         break;
+      case 'selftest':
+        selfTestCommand(commandArgs);
+        break;
       default:
-        console.error(`Unknown command: ${command}. Available commands: echo, add, multiply, subtract, divide, power, mod, demo`);
+        console.error(`Unknown command: ${command}. Available commands: echo, add, multiply, subtract, divide, power, mod, demo, selftest`);
         process.exit(1);
     }
   }
@@ -241,5 +276,6 @@ export {
   powerCommand,
   modCommand,
   demoCommand,
+  selfTestCommand,
   displayUsage
 };
