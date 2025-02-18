@@ -4,6 +4,18 @@
 import { fileURLToPath } from 'url';
 
 // -----------------------------------------------------------------------------
+// Helper Functions
+// -----------------------------------------------------------------------------
+
+const parseNumber = (arg) => {
+  const num = parseFloat(arg);
+  if (isNaN(num)) {
+    console.warn(`Non-numeric argument encountered: ${arg}`);
+  }
+  return num;
+};
+
+// -----------------------------------------------------------------------------
 // Command implementations
 // -----------------------------------------------------------------------------
 
@@ -13,31 +25,23 @@ const echoCommand = (args) => {
 };
 
 const addCommand = (args) => {
-  // Sum numeric arguments using reduce for clarity
+  // Sum numeric arguments
   const sum = args.reduce((acc, arg) => {
-    const num = parseFloat(arg);
-    if (isNaN(num)) {
-      console.warn(`Non-numeric argument encountered: ${arg}`);
-      return acc;
-    }
-    return acc + num;
+    const num = parseNumber(arg);
+    return isNaN(num) ? acc : acc + num;
   }, 0);
   console.log(sum);
 };
 
 const multiplyCommand = (args) => {
-  // Multiply numeric arguments using reduce for clarity
+  // Multiply numeric arguments
   if (args.length === 0) {
     console.log(0);
     return;
   }
   const product = args.reduce((acc, arg) => {
-    const num = parseFloat(arg);
-    if (isNaN(num)) {
-      console.warn(`Non-numeric argument encountered: ${arg}`);
-      return acc;
-    }
-    return acc * num;
+    const num = parseNumber(arg);
+    return isNaN(num) ? acc : acc * num;
   }, 1);
   console.log(product);
 };
@@ -48,16 +52,13 @@ const subtractCommand = (args) => {
     console.log(0);
     return;
   }
-  let result = parseFloat(args[0]);
+  let result = parseNumber(args[0]);
   if (isNaN(result)) {
-    console.warn(`Non-numeric argument encountered: ${args[0]}`);
     result = 0;
   }
   args.slice(1).forEach(arg => {
-    const num = parseFloat(arg);
-    if (isNaN(num)) {
-      console.warn(`Non-numeric argument encountered: ${arg}`);
-    } else {
+    const num = parseNumber(arg);
+    if (!isNaN(num)) {
       result -= num;
     }
   });
@@ -70,15 +71,14 @@ const divideCommand = (args) => {
     console.log(0);
     return;
   }
-  let result = parseFloat(args[0]);
+  let result = parseNumber(args[0]);
   if (isNaN(result)) {
-    console.warn(`Non-numeric argument encountered: ${args[0]}`);
     result = 0;
   }
   args.slice(1).forEach(arg => {
-    const num = parseFloat(arg);
+    const num = parseNumber(arg);
     if (isNaN(num)) {
-      console.warn(`Non-numeric argument encountered: ${arg}`);
+      return;
     } else if (num === 0) {
       console.warn(`Division by zero encountered: ${arg}`);
     } else {
