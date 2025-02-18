@@ -34,10 +34,10 @@ automatically.
 - [ ] *Make intentïon `agentic-lib` and repository1 public beta.*
 
 MVP:
-- [ ] Add Linting file to the context.
-- [ ] Add Linting results to the context.
+- [ ] Add Linting file to the context to fix-failing-build
+- [ ] Add Linting results to the context to fix-failing-build
 - [ ] Use fix-failing-build to run start issue fails, use fix-failing build to fix the branch (and max context with start issue).
-- [ ] Add funding mechanisms.
+- [~] Add funding mechanisms.
 
 Enhancements:
 - [ ] Add git log to the context.
