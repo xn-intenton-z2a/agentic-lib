@@ -48,7 +48,7 @@ on:
       PERSONAL_ACCESS_TOKEN:
         required: false
     outputs:
-      branch: ${{ jobs.set-outputs.outputs.branch }}
+      branch: ${{ jobs.set-outputs.outputs.branch || '' }}
 
 jobs:
   update:
