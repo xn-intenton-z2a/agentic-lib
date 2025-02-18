@@ -205,6 +205,11 @@ jobs:
             }
             const openai = new OpenAI({ apiKey });
             
+            core.info(`target: "${target}"`);
+            core.info(`testFile: "${testFile}"`);
+            core.info(`readmeFile: "${readmeFile}"`);
+            core.info(`contributingFile: "${contributingFile}"`);
+            core.info(`dependencyFile: "${dependencyFile}"`);
             const sourceFileContent = fs.readFileSync(target, 'utf8');
             testFileContent = fs.readFileSync(testFile, 'utf8');
             readmeFileContent = fs.readFileSync(readmeFile, 'utf8');
