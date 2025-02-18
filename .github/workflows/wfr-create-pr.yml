@@ -82,6 +82,25 @@ jobs:
                 labels: ['${{ env.label }}'],
               });
               core.info(`Pull request created: ${pr.html_url}`);
+            
+              // --- Re-run Check Suites on the new PR commit ---
+              const { data: checkSuites } = await github.rest.checks.listForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: pr.head.sha,
+              });
+              if (checkSuites.check_suites && checkSuites.check_suites.length > 0) {
+                for (const suite of checkSuites.check_suites) {
+                  await github.rest.checks.rerequestSuite({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    check_suite_id: suite.id,
+                  });
+                  core.info(`Re-ran check suite ${suite.id} for commit ${pr.head.sha}`);
+                }
+              } else {
+                core.info('No check suites found for the new commit.');
+              }
             } else {
               core.info('Pull request already exists for this branch.');
             }
