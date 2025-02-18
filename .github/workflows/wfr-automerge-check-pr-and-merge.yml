@@ -58,25 +58,28 @@ jobs:
               shouldSkipMerge = 'true';
               prMerged = 'false';
             } else if (pullRequest.mergeable === true) {
+              core.setFailed(`PR #${pr.number} is mergeable at state ${pullRequest.state}.`);
+              shouldSkipMerge = 'false';
+              prMerged = 'false';
+              
+              #await github.rest.pulls.merge({
+              #  owner,
+              #  repo,
+              #  pull_number: pullNumber,
+              #  merge_method: 'squash' // or 'merge' or 'rebase'
+              #});
+              #core.info(`PR #${pr.number} merged.`);
             
-              await github.rest.pulls.merge({
-                owner,
-                repo,
-                pull_number: pullNumber,
-                merge_method: 'squash' // or 'merge' or 'rebase'
-              });
-              core.info(`PR #${pr.number} merged.`);
+              #const branchRef = `heads/${pullRequest.head.ref}`;
+              #await github.rest.git.deleteRef({
+              #  owner,
+              #  repo,
+              #  ref: branchRef,
+              #});
             
-              const branchRef = `heads/${pullRequest.head.ref}`;
-              await github.rest.git.deleteRef({
-                owner,
-                repo,
-                ref: branchRef,
-              });
-            
-              core.info(`PR branch '${pullRequest.head.ref}' deleted.`); 
-              shouldSkipMerge = 'true';
-              prMerged = 'true';
+              #core.info(`PR branch '${pullRequest.head.ref}' deleted.`); 
+              #shouldSkipMerge = 'true';
+              #prMerged = 'true';
             
             } else if (pullRequest.mergeable === false) {
               core.info(`PR #${pullNumber} is not mergeable.`);
