@@ -183,7 +183,7 @@ jobs:
             const testFile = process.env.testFile;
             const readmeFile = process.env.readmeFile;
             const contributingFile = process.env.contributingFile;
-            const dependencyFile = process.env.dependencyFile;
+            const dependenciesFile = process.env.dependenciesFile;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
             const issueNumber = parseInt(process.env.issueNumber);
