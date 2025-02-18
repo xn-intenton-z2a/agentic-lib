@@ -143,3 +143,18 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     }
   }
 }
+
+// -----------------------------------------------------------------------------
+// Exports for external usage
+// -----------------------------------------------------------------------------
+
+export {
+  parseNumber,
+  echoCommand,
+  addCommand,
+  multiplyCommand,
+  subtractCommand,
+  divideCommand,
+  powerCommand,
+  displayUsage
+};
