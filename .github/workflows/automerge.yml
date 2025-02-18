@@ -5,7 +5,7 @@ run-name: "Automerge [${{ github.ref_name }}]"
 
 on:
   pull_request:
-    types:
+    #types:
     #  - labeled
     #  - reopened
     #  - synchronize
@@ -53,7 +53,6 @@ jobs:
       - run: |
           echo "Triggered by: workflow_dispatch"
 
-  # TODO: Change this to just exract the pull number (not attempt the merge)
   pr:
     if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-check-pr-and-merge.yml@main'
@@ -135,21 +134,9 @@ jobs:
       pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
       branchPrefix: 'issue-'
 
-  #wait-for-merge:
-  #  needs:
-  #    - merge-check
-  #  if: always() && needs.merge-check.outputs.shouldSkipMerge != 'true'
-  #  runs-on: ubuntu-latest
-  #  steps:
-  #    - run: echo "Sleeping for 60 seconds."
-  #      shell: bash
-  #    - run: sleep 60
-  #      shell: bash
-
   automerge:
     needs:
       - merge-check
-      #- wait-for-merge
     if: always() && needs.merge-check.outputs.shouldSkipMerge != 'true' && needs.merge-check.outputs.pullNumber != ''
     permissions:
       contents: write
