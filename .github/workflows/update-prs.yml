@@ -1,0 +1,21 @@
+# .github/workflows/update-prs.yml
+name: Update Pull Requests
+concurrency: update-prs
+run-name: "Update Pull Requests"
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Update PRs every 6 hours
+    #- cron: '30 4,10,16,22 * * *'
+    - cron: '0 1 * * *'
+
+jobs:
+  update-prs:
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: './.github/workflows/wfr-update-prs.yml'
+    with:
+      baseBranch: 'main'
+      pulls: '100'

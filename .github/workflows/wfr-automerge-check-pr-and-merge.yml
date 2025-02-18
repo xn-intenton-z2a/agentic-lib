@@ -1,0 +1,108 @@
+# .github/workflows/wfr-automerge-check-pr-and-merge.yml
+name: ∞ Get Pull Request
+
+on:
+  workflow_call:
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+    outputs:
+      pullNumber:
+        description: 'The pull request number. e.g. "123"'
+        value: ${{ jobs.check-pr.outputs.pullNumber }}
+      shouldSkipMerge:
+        description: 'Set to "true", if the merge request should be skipped because there is not a PR in the right state.'
+        value: ${{ jobs.check-pr.outputs.shouldSkipMerge }}
+      prMerged:
+        description: 'Set to "true", if the PR has been merged either already or by this process.'
+        value: ${{ jobs.check-pr.outputs.prMerged }}
+
+jobs:
+  check-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: check-pr
+        id: check-pr
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const pullNumber = pr.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            let shouldSkipMerge;
+            let prMerged;
+  
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: pullNumber,
+            });
+
+            if (pullRequest.state === "closed") {
+              core.info(`PR #${pr.number} is already closed.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'true';
+            } else if (pullRequest.state !== "open") {
+              core.setFailed(`PR #${pr.number} is not open it is ${pullRequest.state}.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'false';
+            } else if (pullRequest.mergeable === true) {
+              core.setFailed(`PR #${pr.number} is mergeable at state ${pullRequest.state}.`);
+              shouldSkipMerge = 'false';
+              prMerged = 'false';
+              
+              #await github.rest.pulls.merge({
+              #  owner,
+              #  repo,
+              #  pull_number: pullNumber,
+              #  merge_method: 'squash' // or 'merge' or 'rebase'
+              #});
+              #core.info(`PR #${pr.number} merged.`);
+            
+              #const branchRef = `heads/${pullRequest.head.ref}`;
+              #await github.rest.git.deleteRef({
+              #  owner,
+              #  repo,
+              #  ref: branchRef,
+              #});
+            
+              #core.info(`PR branch '${pullRequest.head.ref}' deleted.`); 
+              #shouldSkipMerge = 'true';
+              #prMerged = 'true';
+            
+            } else if (pullRequest.mergeable === false) {
+              core.info(`PR #${pullNumber} is not mergeable.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'false';
+            } else if (pullRequest.mergeable === null) {
+              core.info(`PR #${pullNumber} does not yet have a value for mergeability.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'false';
+            } else {
+              core.info(`PR #${pullNumber} is not known.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'false';
+            }
+            
+            core.setOutput('pullNumber', !pullNumber ? '' : pullNumber.toString());
+            core.setOutput('shouldSkipMerge', shouldSkipMerge);
+            core.setOutput('prMerged', prMerged);
+            core.info(`pullNumber: '${!pullNumber ? '' : pullNumber.toString()}'`);
+            core.info(`shouldSkipMerge: '${shouldSkipMerge}'`);
+            core.info(`prMerged: '${prMerged}'`);
+
+    outputs:
+      pullNumber: ${{ steps.check-pr.outputs.pullNumber }}
+      shouldSkipMerge: ${{ steps.check-pr.outputs.shouldSkipMerge }}
+      prMerged: ${{ steps.check-pr.outputs.prMerged }}
