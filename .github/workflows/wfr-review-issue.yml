@@ -13,6 +13,26 @@ on:
         type: string
         required: false
         default: 'src/lib/main.js'
+      testFile:
+        description: 'The test file to review. e.g. "tests/unit/main.test.js"'
+        type: string
+        required: false
+        default: 'tests/unit/main.test.js'
+      readmeFile:
+        description: 'The README file to review. e.g. "README.md"'
+        type: string
+        required: false
+        default: 'README.md'
+      contributingFile:
+        description: 'The CONTRIBUTING file to review. e.g. "CONTRIBUTING.md"'
+        type: string
+        required: false
+        default: 'CONTRIBUTING.md'
+      dependenciesFile:
+        description: 'The dependencies file to review. e.g. "package.json"'
+        type: string
+        required: false
+        default: 'package.json'
       buildScript:
         description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
         type: string
@@ -49,6 +69,10 @@ jobs:
     env:
       issueNumber: ${{ inputs.issueNumber }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
+      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
+      readmeFile: ${{ inputs.readmeFile || 'README.md' }}
+      contributingFile: ${{ inputs.contributingFile || 'CONTRIBUTING.md' }}
+      dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
       mainScript: ${{ inputs.mainScript || 'node src/lib/main.js' }}
@@ -79,6 +103,16 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - run: npm ci
+
+      - name: List dependencies
+        id: list
+        shell: bash
+        run: |
+          output=$(npm list 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
 
       - name: Build project
         id: build
@@ -119,16 +153,22 @@ jobs:
         id: verify
         uses: actions/github-script@v7
         env:
+          dependenciesListOutput: ${{ steps.list.outputs.output }}
           buildOutput: ${{ steps.build.outputs.output }}
           testOutput: ${{ steps.test.outputs.output }}
           mainOutput: ${{ steps.main.outputs.output }}
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
-            const target = process.env.target;            
+            const target = process.env.target;
+            const testFile = process.env.testFile;
+            const readmeFile = process.env.readmeFile;
+            const contributingFile = process.env.contributingFile;
+            const dependenciesFile = process.env.dependenciesFile;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
             const issueNumber = parseInt(process.env.issueNumber);
+            const dependenciesListOutput = process.env.dependenciesListOutput;
             const buildScript = process.env.buildScript;
             const buildOutput = process.env.buildOutput;
             const testScript = process.env.testScript;
@@ -146,7 +186,20 @@ jobs:
             }
             const openai = new OpenAI({ apiKey });
 
+            core.info(`target: "${target}"`);
+            core.info(`testFile: "${testFile}"`);
+            core.info(`readmeFile: "${readmeFile}"`);
+            core.info(`contributingFile: "${contributingFile}"`);
+            core.info(`dependenciesFile: "${dependenciesFile}"`);
             const sourceFileContent = fs.readFileSync(target, 'utf8');
+            const testFileContent = fs.readFileSync(testFile, 'utf8');
+            const readmeFileContent = fs.readFileSync(readmeFile, 'utf8');
+            const contributingFileContent = fs.readFileSync(contributingFile, 'utf8');
+            const dependenciesFileContent = fs.readFileSync(dependenciesFile, 'utf8');
+            console.log(`Target file '${target}' has been loaded (length ${sourceFileContent.length}).`);
+            console.log(`Test file '${testFile}' has been loaded (length ${testFileContent.length}).`);
+            console.log(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
+            console.log(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
             
             const issue = await github.rest.issues.get({
               owner: context.repo.owner,
@@ -165,13 +218,43 @@ jobs:
               .join('\n');
             
             const prompt = `
-            Does the following source file content reflect the resolution of the following issue?
-            Consider the file content, issue, build output, test output, and main output.
+            Does the combination source file, test file, README file and dependencies file show a solution with a reasonable likelihood of including a resolution to the following issue?
+            Consider the following when refining your response:
+            * Source file content
+            * Test file content
+            * README file content issue
+            * Contributing file content
+            * Dependencies file content
+            * Issue details
+            * Dependency list
+            * Build output
+            * Test output
+            * Main execution output
             
-            Source for file: ${target}
+            Source file: ${target}
             SOURCE_FILE_START
             ${sourceFileContent}
             SOURCE_FILE_END
+            
+            Test file: ${testFile}
+            TEST_FILE_START
+            ${testFileContent}
+            TEST_FILE_END
+
+            README file: ${readmeFile}
+            README_FILE_START
+            ${readmeFileContent}
+            README_FILE_END
+
+            Contributing file: ${contributingFile}
+            CONTRIBUTING_FILE_START
+            ${contributingFileContent}
+            CONTRIBUTING_FILE_END
+            
+            Dependencies file: ${dependenciesFile}
+            DEPENDENCIES_FILE_START
+            ${dependenciesFileContent}
+            DEPENDENCIES_FILE_END
             
             Issue:
             ISSUE_START
@@ -182,6 +265,11 @@ jobs:
             ${issueCommentsText}
             ISSUE_END            
 
+            Dependencies list from command: npm list
+            DEPENDENCIES_LIST_START
+            ${dependenciesListOutput}
+            DEPENDENCIES_LIST_END    
+            
             Build output from command: ${buildScript}
             TEST_OUTPUT_START
             ${buildOutput}

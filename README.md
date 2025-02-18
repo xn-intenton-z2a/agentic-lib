@@ -33,18 +33,22 @@ automatically.
 - [x] Add README to the context.
 - [x] Add test file to the context.
 - [x] Add CONTRIBUTING.md to the context.
+- [x] Add funding mechanisms.
 - [~] Add the ability to write to the README, test and package.json.
-- [ ] Also add the full fle list to the review.
+- [~] Add the full file context to the review.
 - [ ] Find a way for consumers to link to a stable version of the reusable workflows.
 - [ ] Test the link to the current version from the test file (not main but the github-ref being tested).
 - [ ] Test the link to the stable version after publishing from this repository.
-- [ ] *Make intentïon `agentic-lib` and repository1 public beta.*
+- [ ] Update the links in repository0 to point to the stable version.
+- [ ] *Release intentïon `agentic-lib` workflows public beta.*
+- [ ] *Release intentïon `repository0` repository template public beta.*
 
 MVP:
-- [ ] Add Linting file to the context to fix-failing-build
+- [ ] Add Getting started for using the repository template and promote as the intended use case.
+- [ ] Add Linting file to the context to fix-failing-build (which will be renamed fix branch and run on a branch created whenever there is a failure after an update)
 - [ ] Add Linting results to the context to fix-failing-build
 - [ ] Use fix-failing-build to run start issue fails, use fix-failing build to fix the branch (and max context with start issue).
-- [x] Add funding mechanisms.
+- [ ] Shout out on Reddit.
 
 Enhancements:
 - [ ] Add git log to the context.
