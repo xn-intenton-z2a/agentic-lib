@@ -1,6 +1,6 @@
 {
   "name": "@xn-intenton-z2a/agentic-lib",
-  "version": "0.2.1-3",
+  "version": "0.2.1-4",
   "description": "A library of GitHub Workflows for agentic development.",
   "type": "module",
   "main": "index.js",
