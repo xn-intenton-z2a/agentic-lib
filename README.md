@@ -47,9 +47,9 @@ Enhancements:
 - [ ] Update CHANGELOG.md when a publishing a release version of the changes since the last release.
 - [ ] Duplicate the test when publishing a release version with a version numbered test file.
 - [ ] Add execution net capture to the context.
-- [ ] Clean-up TODOs (maybe this is automated)
-- [ ] Scan code for possible library replacements for the custom code (maybe this is automated)
-- [ ] Compress and de-dupe package.json (maybe this is automated)
+- [ ] Clean-up TODOs (automated)
+- [ ] Scan code for possible library replacements for the custom code (automated)
+- [ ] Compress and de-dupe package.json (automated)
 - [ ] Dashboard metrics (e.g. GitHub Insights? commits by agents)
 
 ---
