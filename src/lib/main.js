@@ -15,7 +15,6 @@
       - power: computes power (first number raised to the second).
       - mod: computes the modulo (first number mod each subsequent number, aborts on modulo by zero).
       - demo: demonstrates all available commands with sample outputs.
-      - selftest: runs a series of tests and demonstrates the feature output.
       - help: displays usage information.
 
   Usage:
@@ -177,7 +176,7 @@ const demoCommand = (args) => {
 };
 
 // -----------------------------------------------------------------------------
-// Self Test command to demonstrate features with expected outputs
+// Self Test command kept for export but removed from CLI commands
 // -----------------------------------------------------------------------------
 
 const selfTestCommand = (args) => {
@@ -208,7 +207,7 @@ const selfTestCommand = (args) => {
 };
 
 const displayUsage = () => {
-  console.log('No command provided. Available commands: echo, add, multiply, subtract, divide, power, mod, demo, selftest, help');
+  console.log('No command provided. Available commands: echo, add, multiply, subtract, divide, power, mod, demo, help');
 };
 
 const helpCommand = () => {
@@ -231,7 +230,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     power: powerCommand,
     mod: modCommand,
     demo: demoCommand,
-    selftest: selfTestCommand,
+    // selftest command removed from CLI to move testing to unit tests
     help: helpCommand
   };
 
