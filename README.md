@@ -8,6 +8,8 @@ workflow in detail—including its parameters (with types and whether they are r
 top‐level jobs use them—and explains how the system can be seeded with a simple prompt to let your program evolve 
 automatically.
 
+[![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/donate/?hosted_button_id=Y8PK8XP3EJLWG)
+
 ---
 
 ## TODO
