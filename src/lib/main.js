@@ -11,11 +11,12 @@
       - add: sums numeric values.
       - multiply: multiplies numeric values.
       - subtract: subtracts subsequent numbers from the first.
-      - divide: divides the first number by subsequent numbers.
+      - divide: divides the first number by subsequent numbers (aborts on division by zero).
       - power: computes power (first number raised to the second).
-      - mod: computes the modulo (first number mod each subsequent number).
+      - mod: computes the modulo (first number mod each subsequent number, aborts on modulo by zero).
       - demo: demonstrates all available commands.
       - selftest: runs a series of tests and demonstrates the feature output.
+      - help: displays usage information.
   
   Usage:
     node src/lib/main.js <command> [arguments...]
@@ -92,7 +93,8 @@ const subtractCommand = (args) => {
 };
 
 const divideCommand = (args) => {
-  // Divide numeric arguments: divide the first number by each of the subsequent numbers sequentially
+  // Divide numeric arguments: divide the first number by each of the subsequent numbers sequentially.
+  // Aborts execution if division by zero is encountered.
   if (args.length === 0) {
     console.log(0);
     return;
@@ -101,16 +103,17 @@ const divideCommand = (args) => {
   if (isNaN(result)) {
     result = 0;
   }
-  args.slice(1).forEach(arg => {
-    const num = parseNumber(arg);
+  for (let i = 1; i < args.length; i++) {
+    const num = parseNumber(args[i]);
     if (isNaN(num)) {
-      return;
+      continue;
     } else if (num === 0) {
-      console.warn(`Division by zero encountered: ${arg}`);
+      console.error(`Error: Division by zero encountered with argument ${args[i]}`);
+      return;
     } else {
       result /= num;
     }
-  });
+  }
   console.log(result);
 };
 
@@ -131,7 +134,8 @@ const powerCommand = (args) => {
 };
 
 const modCommand = (args) => {
-  // Computes the modulo: first number mod each subsequent number sequentially
+  // Computes the modulo: first number mod each subsequent number sequentially.
+  // Aborts execution if modulo by zero is encountered.
   if (args.length < 2) {
     console.log('Usage: mod <dividend> <divisor> [divisor ...]');
     return;
@@ -140,16 +144,17 @@ const modCommand = (args) => {
   if (isNaN(result)) {
     result = 0;
   }
-  args.slice(1).forEach(arg => {
-    const num = parseNumber(arg);
+  for (let i = 1; i < args.length; i++) {
+    const num = parseNumber(args[i]);
     if (isNaN(num)) {
-      return;
+      continue;
     } else if (num === 0) {
-      console.warn(`Modulo by zero encountered: ${arg}`);
+      console.error(`Error: Modulo by zero encountered with argument ${args[i]}`);
+      return;
     } else {
       result %= num;
     }
-  });
+  }
   console.log(result);
 };
 
@@ -214,7 +219,15 @@ const selfTestCommand = (args) => {
 };
 
 const displayUsage = () => {
-  console.log('No command provided. Available commands: echo, add, multiply, subtract, divide, power, mod, demo, selftest');
+  console.log('No command provided. Available commands: echo, add, multiply, subtract, divide, power, mod, demo, selftest, help');
+};
+
+// -----------------------------------------------------------------------------
+// Help command to display usage
+// -----------------------------------------------------------------------------
+
+const helpCommand = () => {
+  displayUsage();
 };
 
 // -----------------------------------------------------------------------------
@@ -255,8 +268,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       case 'selftest':
         selfTestCommand(commandArgs);
         break;
+      case 'help':
+        helpCommand();
+        break;
       default:
-        console.error(`Unknown command: ${command}. Available commands: echo, add, multiply, subtract, divide, power, mod, demo, selftest`);
+        console.error(`Unknown command: ${command}. Available commands: echo, add, multiply, subtract, divide, power, mod, demo, selftest, help`);
         process.exit(1);
     }
   }
@@ -277,5 +293,6 @@ export {
   modCommand,
   demoCommand,
   selfTestCommand,
-  displayUsage
+  displayUsage,
+  helpCommand
 };
