@@ -104,8 +104,34 @@ const powerCommand = (args) => {
   console.log(result);
 };
 
+// -----------------------------------------------------------------------------
+// Demo command to showcase features via main execution
+// -----------------------------------------------------------------------------
+
+const demoCommand = (args) => {
+  console.log('--- Demo: Showcasing available commands ---');
+  console.log('\n> Echo Command Demo:');
+  echoCommand(['Hello', 'world']);
+
+  console.log('\n> Add Command Demo (2 + 3):');
+  addCommand(['2', '3']);
+
+  console.log('\n> Multiply Command Demo (2 * 3):');
+  multiplyCommand(['2', '3']);
+
+  console.log('\n> Subtract Command Demo (10 - 4):');
+  subtractCommand(['10', '4']);
+
+  console.log('\n> Divide Command Demo (20 / 4):');
+  divideCommand(['20', '4']);
+
+  console.log('\n> Power Command Demo (2 ^ 3):');
+  powerCommand(['2', '3']);
+  console.log('--- End of Demo ---');
+};
+
 const displayUsage = () => {
-  console.log('No command provided. Available commands: echo, add, multiply, subtract, divide, power');
+  console.log('No command provided. Available commands: echo, add, multiply, subtract, divide, power, demo');
 };
 
 // -----------------------------------------------------------------------------
@@ -137,8 +163,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       case 'power':
         powerCommand(commandArgs);
         break;
+      case 'demo':
+        demoCommand(commandArgs);
+        break;
       default:
-        console.error(`Unknown command: ${command}. Available commands: echo, add, multiply, subtract, divide, power`);
+        console.error(`Unknown command: ${command}. Available commands: echo, add, multiply, subtract, divide, power, demo`);
         process.exit(1);
     }
   }
@@ -156,5 +185,6 @@ export {
   subtractCommand,
   divideCommand,
   powerCommand,
+  demoCommand,
   displayUsage
 };
