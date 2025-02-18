@@ -29,25 +29,29 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Triggered by: pull_request"
+      - run: |
+          echo "Triggered by: pull_request"
 
   check-suite-event:
     if: github.event_name == 'check_suite'
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Triggered by: check_suite"
+      - run: |
+          echo "Triggered by: check_suite"
 
   schedule-event:
     if: github.event_name == 'schedule'
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Triggered by: schedule"
+      - run: |
+          echo "Triggered by: schedule"
 
   workflow-dispatch-event:
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Triggered by: workflow_dispatch"
+      - run: |
+          echo "Triggered by: workflow_dispatch"
 
   # TODO: Change this to just exract the pull number (not attempt the merge)
   pr:
