@@ -14,10 +14,10 @@ on:
         required: false
         default: 'src/lib/main.js'
       testFile:
-        description: 'The test file to review. e.g. "test/test-main.js"'
+        description: 'The test file to review. e.g. "tests/test-main.js"'
         type: string
         required: false
-        default: 'test/test-main.js'
+        default: 'tests/test-main.js'
       readmeFile:
         description: 'The README file to review. e.g. "README.md"'
         type: string
@@ -85,7 +85,7 @@ jobs:
     env:
       issueNumber: ${{ inputs.issueNumber }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
-      testFile: ${{ inputs.testFile || 'test/test-main.js' }}
+      testFile: ${{ inputs.testFile || 'tests/test-main.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
       contributingFile: ${{ inputs.contributingFile || 'CONTRIBUTING.md' }}
       dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
