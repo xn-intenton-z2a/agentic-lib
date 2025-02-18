@@ -13,6 +13,7 @@
       - subtract: subtracts subsequent numbers from the first.
       - divide: divides the first number by subsequent numbers.
       - power: computes power (first number raised to the second).
+      - mod: computes the modulo (first number mod each subsequent number).
       - demo: demonstrates all available commands.
   
   Usage:
@@ -128,6 +129,29 @@ const powerCommand = (args) => {
   console.log(result);
 };
 
+const modCommand = (args) => {
+  // Computes the modulo: first number mod each subsequent number sequentially
+  if (args.length < 2) {
+    console.log('Usage: mod <dividend> <divisor> [divisor ...]');
+    return;
+  }
+  let result = parseNumber(args[0]);
+  if (isNaN(result)) {
+    result = 0;
+  }
+  args.slice(1).forEach(arg => {
+    const num = parseNumber(arg);
+    if (isNaN(num)) {
+      return;
+    } else if (num === 0) {
+      console.warn(`Modulo by zero encountered: ${arg}`);
+    } else {
+      result %= num;
+    }
+  });
+  console.log(result);
+};
+
 // -----------------------------------------------------------------------------
 // Demo command to showcase features via main execution
 // -----------------------------------------------------------------------------
@@ -151,11 +175,14 @@ const demoCommand = (args) => {
 
   console.log('\n> Power Command Demo (2 ^ 3):');
   powerCommand(['2', '3']);
+
+  console.log('\n> Mod Command Demo (10 mod 3):');
+  modCommand(['10', '3']);
   console.log('--- End of Demo ---');
 };
 
 const displayUsage = () => {
-  console.log('No command provided. Available commands: echo, add, multiply, subtract, divide, power, demo');
+  console.log('No command provided. Available commands: echo, add, multiply, subtract, divide, power, mod, demo');
 };
 
 // -----------------------------------------------------------------------------
@@ -187,11 +214,14 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       case 'power':
         powerCommand(commandArgs);
         break;
+      case 'mod':
+        modCommand(commandArgs);
+        break;
       case 'demo':
         demoCommand(commandArgs);
         break;
       default:
-        console.error(`Unknown command: ${command}. Available commands: echo, add, multiply, subtract, divide, power, demo`);
+        console.error(`Unknown command: ${command}. Available commands: echo, add, multiply, subtract, divide, power, mod, demo`);
         process.exit(1);
     }
   }
@@ -209,6 +239,7 @@ export {
   subtractCommand,
   divideCommand,
   powerCommand,
+  modCommand,
   demoCommand,
   displayUsage
 };
