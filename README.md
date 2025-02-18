@@ -1,6 +1,12 @@
 # intentïon agentic-lib
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This README describes each reusable workflow in detail—including its parameters (with types and whether they are required), responsibilities, and how top‐level jobs use them—and explains how the system can be seeded with a simple prompt to let your program evolve automatically.
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your 
+repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and 
+issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using 
+GitHub’s `workflow_call` event, so they can be composed together like an SDK. This README describes each reusable 
+workflow in detail—including its parameters (with types and whether they are required), responsibilities, and how 
+top‐level jobs use them—and explains how the system can be seeded with a simple prompt to let your program evolve 
+automatically.
 
 ---
 
@@ -32,72 +38,66 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 - [ ] Use fix-failing-build to run start issue fails, use fix-failing build to fix the branch (and max context with start issue).
 - [ ] Add funding mechanisms.
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
+- [ ] Add git log to the context.
 - [ ] Generate API.md based on the source file.
 - [ ] Update CHANGELOG.md when a publishing a release version of the changes since the last release.
 - [ ] Duplicate the test when publishing a release version with a version numbered test file.
 - [ ] Add execution net capture to the context.
-- [ ] Add git log to the context.
-- [ ] Add Code Climate for reports on code quality (which can be fed into automated resolution).
-- [ ] ncu --doctor auto-fix workflow:
-- [ ] Dashboard metrics (e.g. GitHub Insights - what's that? commits by agents)
 - [ ] Clean-up TODOs (maybe this is automated)
 - [ ] Scan code for possible library replacements for the custom code
 - [ ] Compress and de-dupe package.json
-- [ ] Node 22 (after October 29th when it becomes LTS) build with the latest LTS but target the lowest compatible?
-- [ ] Test locally with https://github.com/nektos/act
-- [ ] Publish repository maintenance statistics and update the readme.
-
+- [ ] Pick ideal version. Oldest? or Node 22 (after October 29th when it becomes LTS) build with the latest LTS but target the lowest compatible?
+- [ ] Dashboard metrics (e.g. GitHub Insights? commits by agents)
 
 ---
 
-## Seeding a Program with a Simple Prompt and Letting It Evolve
+## Getting Started
 
-intentïon `agentic-lib` can be used as an evolutionary engine for your project. Here’s an example scenario:
+Clone a seed repository which is pre-configured with the reusable workflows and scripts: https://github.com/xn-intenton-z2a/repository0
 
-1. **Seed the Program:**  
-   You provide a simple prompt such as “Improve error handling in the data parser module.”  
-   – An issue is automatically created using the **wfr-create-issue.yml** workflow, with a title selected either from your prompt or from a pre-defined list.
+### Initiating the workflow
 
-2. **Review and Analyze:**  
-   The **wfr-review-issue.yml** workflow is triggered to check whether the target file (e.g. `src/lib/main.js`) reflects the desired improvement. It runs build, test, and main commands and uses ChatGPT to assess the current state.
+Run the action "Create Issue" and enter some text to create an issue. This will create an issue and trigger the "Issue Worker" to write the code.
+If the Issue Worker is able to resolve the issue a Pull Request is raised, the change automatically merged.
+The issue reviewed and closed if the change is deemed to have delivered whatever was requested in the issue.
 
-3. **Trigger a Fix:**  
-   If the review detects that the issue is unresolved, the **wfr-start-issue.yml** or **wfr-fix-failing-build.yml** workflow is invoked to generate a fix. Using AI, it creates an updated version of the source file that addresses the problem, commits the changes on a dedicated branch (e.g. with the prefix `issue-`), and posts a comment with the rationale.
+Development Workflows:
+```
+On timer / Manual: Create Issue (new issue opened) 
+-> Issue Worker (code changed, issue updated) 
+-> Automerge (code merged)
+-> Review Issue (issue reviewed and closed)
 
-4. **Automatic Merging:**  
-   Once a fix is applied and passes tests, the **wfr-automerge-merge-pr.yml** workflow (in conjunction with the check and label workflows) automatically merges the pull request and updates the corresponding issue.
+On timer: Issue Worker (code changed, issue updated) 
+-> Automerge (code merged)
+-> Review Issue (issue reviewed and closed)
 
-5. **Continuous Evolution:**  
-   Additional workflows (such as dependency updates with **wfr-update.yml** and formatting with **wfr-run-script-and-push-changes.yml**) ensure that your codebase remains current and well formatted. The entire system creates a feedback loop where a single prompt can trigger a cascade of automated reviews, fixes, and updates—allowing your program to evolve over time with minimal human intervention.
+On timer: Automerge (code merged)
+-> Review Issue (issue reviewed and closed)
 
----
+On timer: Review Issue (issue reviewed and closed)
+```
+(Each workflow is triggered by the previous one and also on a schedule so that failures can be recovered from.)
 
-## How to Use the SDK
+### Tuning the agentic coding system
 
-1. **Import Reusable Workflows:**  
-   In your project’s main workflow files, call the reusable workflows using the `uses:` syntax. For example, to review an issue:
-   ```yaml
-   jobs:
-     review:
-       uses: ./.github/workflows/wfr-review-issue.yml
-       with:
-         issueNumber: "123"
-         target: "src/lib/main.js"
-         buildScript: "npm run build"
-         testScript: "npm test"
-         mainScript: "node src/lib/main.js"
-         model: "o3-mini"
-       secrets:
-         CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-   ```
+The default set-up is quite open which can be chaotic. To temper this chaos you can change these files which the workflow takes into consideration:
+- `CONTRIBUTING.md` - The workflow is itself a contributor and will be asked to follow these guidelines. Tip: Add a "prime directive" here.
+- `eslint.config.js` - Code style rules and additional plugins can be added here.
 
-2. **Chain Workflows Together:**  
+The following files are also taken into consideration but may also be changed (even blanked out completely) by the workflow:
+- `README.md`
+- `package.json`
+- `src/lib/main.js`
+- `tests/unit/main.test.js`
+
+**Chain Workflows Together:**  
    Use outputs from one workflow as inputs for another. For example, if an issue review workflow outputs `fixed`, then trigger an automerge workflow based on that flag.
 
-3. **Customize Parameters:**  
+**Customize Parameters:**  
    Each workflow accepts parameters with sensible defaults. Override them as needed to fit your project’s structure and requirements.
 
-4. **Seed and Evolve:**  
+**Seed and Evolve:**  
    With a simple prompt (e.g. a new issue), the system will automatically review, generate fixes using ChatGPT, commit changes, and merge them—allowing the program to evolve autonomously.
 
 ---
