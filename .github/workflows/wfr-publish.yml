@@ -130,6 +130,7 @@ jobs:
 
       # TODO: Consider: semantic-release
       - name: Publish package and move to next release version
+        id: release
         if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
         shell: bash
         run: |
@@ -140,7 +141,8 @@ jobs:
           echo "releasedVersion=${releasedVersion?}" > $GITHUB_OUTPUT
           echo "releasedVersion=${releasedVersion?}"
 
-      - name: Move to next pre[premajor|preminor|prepatch|prerelease] version
+      - name: Rotate to next pre[premajor|preminor|prepatch|prerelease] version
+        id: rotate
         shell: bash
         run: |
           npm version --no-git-tag-version ${{ env.versionIncrement }}
@@ -175,8 +177,6 @@ jobs:
           newVersion=$(node -p "require('./package.json').version")
           git commit -m "${newVersion?}"
           git push origin HEAD
-          echo "newVersion=${newVersion?}" > $GITHUB_OUTPUT
-          echo "newVersion=${newVersion?}"
 
       - name: Tear down .npmrc
         if: ${{ env.npmAuthOrganisation != '' }}
@@ -195,5 +195,5 @@ jobs:
           echo "Final version: ${{ steps.version.outputs.newVersion }}"
 
     outputs:
-      releasedVersion: ${{ steps.build.outputs.releasedVersion }}
-      newVersion: ${{ steps.push.outputs.newVersion }}
+      releasedVersion: ${{ steps.release.outputs.releasedVersion }}
+      newVersion: ${{ steps.rotate.outputs.newVersion }}
