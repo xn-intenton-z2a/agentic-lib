@@ -121,11 +121,12 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "Main output: $output"
 
+      # TODO: Consider: semantic-release
       - name: Publish package and move to next prerelease version
         if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
         shell: bash
         run: |
-          npm version --no-git-tag-version ${{ env.versionIncrement }}
+          npm version ${{ env.versionIncrement }}
           ${{ env.buildScript }}
           npm publish --tag latest --access restricted
           npm version --no-git-tag-version prerelease
