@@ -44,7 +44,6 @@ on:
 jobs:
 
   npm-test:
-    name: 'npm test with coverage'
     runs-on: ubuntu-latest
 
     steps:
@@ -59,8 +58,10 @@ jobs:
       - run: find . -name '*.js' -exec echo '{}' \; | grep -v 'node_modules'
       - run: npm test
 
+  echo-before-publish:
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-echo.yml@main'
+
   publish:
-    name: 'publish packages'
     needs:
       - npm-test
     permissions:
@@ -76,3 +77,9 @@ jobs:
       npmAuthOrganisation: 'xn-intenton-z2a'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
+
+  echo-after-publish:
+    if: ${{ inputs.versionIncrement == 'major' || inputs.versionIncrement == 'minor' || inputs.versionIncrement == 'patch' }}
+    needs:
+      - publish
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-echo.yml@${{ job.publish.outputs.releasedVersion }}'

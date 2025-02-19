@@ -136,13 +136,17 @@ jobs:
           npm version ${{ env.versionIncrement }}
           ${{ env.buildScript }}
           npm publish --tag latest --access restricted
-          npm version --no-git-tag-version prerelease
+          releasedVersion=$(node -p "require('./package.json').version")
+          echo "releasedVersion=${releasedVersion?}" > $GITHUB_OUTPUT
+          echo "releasedVersion=${releasedVersion?}"
 
       - name: Move to next pre[premajor|preminor|prepatch|prerelease] version
-        if: ${{ env.versionIncrement == 'premajor' || env.versionIncrement == 'preminor' || env.versionIncrement == 'prepatch' || env.versionIncrement == 'prerelease' }}
         shell: bash
         run: |
           npm version --no-git-tag-version ${{ env.versionIncrement }}
+          newVersion=$(node -p "require('./package.json').version")
+          echo "newVersion=${newVersion?}" > $GITHUB_OUTPUT
+          echo "newVersion=${newVersion?}"
 
       - name: Examine the git working copy
         shell: bash
@@ -162,14 +166,17 @@ jobs:
           git status -v
 
       - name: Push version commit
+        id: push
         shell: bash
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git add -v --all
-          currentVersion=$(node -p "require('./package.json').version")
-          git commit -m "${currentVersion?}"
+          newVersion=$(node -p "require('./package.json').version")
+          git commit -m "${newVersion?}"
           git push origin HEAD
+          echo "newVersion=${newVersion?}" > $GITHUB_OUTPUT
+          echo "newVersion=${newVersion?}"
 
       - name: Tear down .npmrc
         if: ${{ env.npmAuthOrganisation != '' }}
@@ -186,3 +193,7 @@ jobs:
         shell: bash
         run: |
           echo "Final version: ${{ steps.version.outputs.newVersion }}"
+
+    outputs:
+      releasedVersion: ${{ steps.build.outputs.releasedVersion }}
+      newVersion: ${{ steps.push.outputs.newVersion }}
