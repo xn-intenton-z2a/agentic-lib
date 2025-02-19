@@ -92,7 +92,7 @@ jobs:
       readmeFile: README-EXAMPLE.md'
       contributingFile: 'CONTRIBUTING.md'
       dependenciesFile: 'package.json'
-      formatFile: '.prettierrc'
+      formattingFile: '.prettierrc'
       lintingFile: '.eslint.config.json'
       branchPrefix: 'issue-'
       buildScript: 'npm run build'
