@@ -94,32 +94,17 @@ jobs:
       - name: Build project
         id: build
         shell: bash
-        run: |
-          output=$(${{ env.buildScript }} 2>&1)
-          echo "output<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$output" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "Build output: $output"
+        run: ${{ env.buildScript }}
 
       - name: Run tests before update
         id: test
         shell: bash
-        run: |
-          output=$(${{ env.testScript }} 2>&1)
-          echo "output<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$output" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "Test output: $output"
+        run: ${{ env.testScript }}
 
       - name: Run main before update
         id: main
         shell: bash
-        run: |
-          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
-          echo "output<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$output" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "Main output: $output"
+        run: timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }}
 
       - name: Examine the git working copy
         shell: bash
@@ -130,25 +115,46 @@ jobs:
 
       # TODO: Consider: semantic-release
       - name: Publish package and move to next release version
-        id: release
+        id: released
         if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
         shell: bash
         run: |
           npm version ${{ env.versionIncrement }}
           ${{ env.buildScript }}
           npm publish --tag latest --access restricted
+          git push --follow-tags
           releasedVersion=$(node -p "require('./package.json').version")
-          echo "releasedVersion=${releasedVersion?}" > $GITHUB_OUTPUT
-          echo "releasedVersion=${releasedVersion?}"
+          echo "releasedVersion=${releasedVersion}" > $GITHUB_OUTPUT
+          echo "releasedVersion=${releasedVersion}"
 
-      - name: Rotate to next pre[premajor|preminor|prepatch|prerelease] version
-        id: rotate
+      - name: Create GitHub Release
+        if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.release.outputs.releasedVersion }}
+          name: Release ${{ steps.release.outputs.releasedVersion }}
+          body: |
+            Release notes for version ${{ steps.release.outputs.releasedVersion }}.
+            * Add details about changes, bug fixes, and improvements here.
+
+      - name: Rotate to next pre[major|minor|patch] version
+        if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
+        shell: bash
+        run: |
+          npm version --no-git-tag-version pre${{ env.versionIncrement }}
+
+      - name: Rotate to next [premajor|preminor|prepatch|prerelease] version
         shell: bash
         run: |
           npm version --no-git-tag-version ${{ env.versionIncrement }}
+
+      - name: Rotate to next [premajor|preminor|prepatch|prerelease] version
+        id: rotated
+        shell: bash
+        run: |
           newVersion=$(node -p "require('./package.json').version")
-          echo "newVersion=${newVersion?}" > $GITHUB_OUTPUT
-          echo "newVersion=${newVersion?}"
+          echo "newVersion=${newVersion}" > $GITHUB_OUTPUT
+          echo "newVersion=${newVersion}"
 
       - name: Examine the git working copy
         shell: bash
@@ -192,8 +198,8 @@ jobs:
       - name: Log final version
         shell: bash
         run: |
-          echo "Final version: ${{ steps.version.outputs.newVersion }}"
+          echo "Final version: ${{ steps.rotated.outputs.newVersion }}"
 
     outputs:
-      releasedVersion: ${{ steps.release.outputs.releasedVersion }}
-      newVersion: ${{ steps.rotate.outputs.newVersion }}
+      releasedVersion: ${{ steps.released.outputs.releasedVersion }}
+      newVersion: ${{ steps.rotated.outputs.newVersion }}
