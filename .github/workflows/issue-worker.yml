@@ -93,7 +93,7 @@ jobs:
       contributingFile: 'CONTRIBUTING.md'
       dependenciesFile: 'package.json'
       formattingFile: '.prettierrc'
-      lintingFile: '.eslint.config.json'
+      lintingFile: '.eslint.config.js'
       branchPrefix: 'issue-'
       buildScript: 'npm run build'
       testScript: 'npm test'
