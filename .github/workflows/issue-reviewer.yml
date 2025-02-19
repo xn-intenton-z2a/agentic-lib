@@ -54,6 +54,10 @@ jobs:
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
+      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
+      readmeFile: ${{ 'README-EXAMPLE.md' }}
+      contributingFile: ${{ 'CONTRIBUTING.md' }}
+      dependenciesFile: ${{ 'package.json' }}
       buildScript: 'npm run build'
       testScript: 'npm test'
       mainScript: "node ${{ inputs.target || 'src/lib/main.js' }}"
