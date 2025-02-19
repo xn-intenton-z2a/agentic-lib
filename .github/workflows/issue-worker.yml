@@ -29,6 +29,7 @@ on:
   workflow_run:
     workflows:
       - "Create Issue"
+      - "Create Issue from Script"
     types:
       - completed
   schedule:
