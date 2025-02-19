@@ -71,13 +71,14 @@ The tests ensure that the self-test command, GitHub Script command, and core fun
 
 ## Next Up
 
-This section highlights planned improvements and enhancements for upcoming releases:
-- Enhance error handling across commands for robust input validation.
-- Extend arithmetic operations by adding new commands and options.
-- Integrate real GitHub API interactions in the githubscript command for dynamic operations.
-- Expand test coverage with integration tests and additional edge cases.
-- Improve CLI help documentation with more detailed examples, usage instructions, and interactive guidance.
-- Implement an interactive mode for dynamic user input and command execution.
+The following improvements are planned for upcoming releases:
+
+- Improve error handling across commands for robust input validation.
+- Add new arithmetic commands and additional options.
+- Integrate real GitHub API interactions to enable dynamic operations in the githubscript command.
+- Expand test coverage with additional unit and integration tests.
+- Enhance CLI help documentation with more comprehensive examples and interactive guidance.
+- Implement an interactive mode to allow dynamic user input and command execution.
 
 ## Contributing
 
