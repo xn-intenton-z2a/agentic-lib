@@ -12,6 +12,11 @@ on:
         description: 'The prefix for the issue branch. e.g. "issue-".'
         type: string
         required: true
+      commentPrefix:
+        description: 'The prefix for the comment. e.g. "The feature branch ".'
+        type: string
+        required: false
+        default: 'The feature branch has been merged: '
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -72,7 +77,7 @@ jobs:
             });
             const issueNumber = '${{ steps.extract-issue-number.outputs.issueNumber }}';
             const branchName = pullRequest.head.ref;
-            const commentBody = `The feature branch \`${branchName}\` has been merged.`;
+            const commentBody = `${{ inputs.branchPrefix || 'The feature branch has been merged: ' }}${branchName}`;
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,

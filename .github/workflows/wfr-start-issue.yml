@@ -500,7 +500,7 @@ jobs:
           git switch -c '${{ env.branchPrefix }}${{ env.issueNumber }}'
           git add -v --all
           git diff '${{ env.target }}'
-          git commit -m '${{ steps.update-target.outputs.message }} https://github.com/${{ github.repository }}/issues/${{ env.issueNumber }}'
+          git commit -m '${{ steps.update-target.outputs.message }} (fixes #${{ env.issueNumber }})'
           git push --set-upstream origin '${{ env.branchPrefix }}${{ env.issueNumber }}' -v
           git status -v
           npm run linting '${{ env.target }}'
