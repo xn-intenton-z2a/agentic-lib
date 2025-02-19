@@ -1,7 +1,7 @@
 # .github/workflows/issue-creator-from-script.yml
-name: Create Lining Issue
+name: Create Issue from Script
 concurrency: create-issue
-run-name: "Create Linting Issue"
+run-name: "Create Issue from Script"
 
 on:
   workflow_dispatch:
