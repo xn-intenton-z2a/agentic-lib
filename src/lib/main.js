@@ -77,6 +77,29 @@ const reduceFromFirst = (args, fallback, operator, errorCheck, errorMsg) => {
 };
 
 // -----------------------------------------------------------------------------
+// New helper functions to reduce duplication in arithmetic commands
+// -----------------------------------------------------------------------------
+
+const runReduceAllCommand = (args, initial, operator, emptyResult) => {
+  if (args.length === 0) {
+    console.log(emptyResult);
+    return;
+  }
+  const result = reduceAll(args, initial, operator);
+  console.log(result);
+};
+
+const runReduceFromFirstCommand = (args, fallback, operator, errorCheck, errorMsg, emptyResult) => {
+  if (args.length === 0) {
+    console.log(emptyResult);
+    return;
+  }
+  const result = reduceFromFirst(args, fallback, operator, errorCheck, errorMsg);
+  if (result === null) return;
+  console.log(result);
+};
+
+// -----------------------------------------------------------------------------
 // Command implementations
 // -----------------------------------------------------------------------------
 
@@ -85,42 +108,26 @@ const echoCommand = (args) => {
 };
 
 const addCommand = (args) => {
-  const sum = reduceAll(args, 0, (acc, num) => acc + num);
-  console.log(sum);
+  runReduceAllCommand(args, 0, (acc, num) => acc + num, 0);
 };
 
 const multiplyCommand = (args) => {
-  if (args.length === 0) {
-    console.log(0);
-    return;
-  }
-  const product = reduceAll(args, 1, (acc, num) => acc * num);
-  console.log(product);
+  runReduceAllCommand(args, 1, (acc, num) => acc * num, 0);
 };
 
 const subtractCommand = (args) => {
-  if (args.length === 0) {
-    console.log(0);
-    return;
-  }
-  const result = reduceFromFirst(args, 0, (acc, num) => acc - num);
-  console.log(result);
+  runReduceFromFirstCommand(args, 0, (acc, num) => acc - num, undefined, undefined, 0);
 };
 
 const divideCommand = (args) => {
-  if (args.length === 0) {
-    console.log(0);
-    return;
-  }
-  const result = reduceFromFirst(
+  runReduceFromFirstCommand(
     args,
     0,
     (acc, num) => acc / num,
     (num) => num === 0,
-    (arg) => "Error: Division by zero encountered with argument " + arg
+    (arg) => "Error: Division by zero encountered with argument " + arg,
+    0
   );
-  if (result === null) return;
-  console.log(result);
 };
 
 const powerCommand = (args) => {
@@ -143,15 +150,14 @@ const modCommand = (args) => {
     console.log("Usage: mod <dividend> <divisor> [divisor ...]");
     return;
   }
-  const result = reduceFromFirst(
+  runReduceFromFirstCommand(
     args,
     0,
     (acc, num) => acc % num,
     (num) => num === 0,
-    (arg) => "Error: Modulo by zero encountered with argument " + arg
+    (arg) => "Error: Modulo by zero encountered with argument " + arg,
+    undefined
   );
-  if (result === null) return;
-  console.log(result);
 };
 
 // -----------------------------------------------------------------------------
