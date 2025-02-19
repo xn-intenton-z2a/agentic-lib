@@ -78,7 +78,7 @@ jobs:
   verify-tag:
     needs:
       - publish
-    if: steps.publish.outputs.releasedVersion != ''
+    if: ${{ inputs.versionIncrement == 'major' || inputs.versionIncrement == 'minor' || inputs.versionIncrement == 'patch' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
