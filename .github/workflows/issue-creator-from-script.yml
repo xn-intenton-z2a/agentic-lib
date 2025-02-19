@@ -61,11 +61,13 @@ jobs:
         id: script-runner
         shell: bash
         run: |
+          set +e
           output=$(${{ env.script }} 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
+          set -e
     outputs:
       scriptOutput: ${{ steps.script-runner.outputs.output }}
 
