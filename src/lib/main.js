@@ -26,8 +26,8 @@
     Apache-2.0
 */
 
-import { fileURLToPath } from "url";
-import fs from "fs";
+import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 // -----------------------------------------------------------------------------
 // Helper Functions
@@ -36,7 +36,7 @@ import fs from "fs";
 const parseNumber = (arg) => {
   const num = parseFloat(arg);
   if (isNaN(num)) {
-    console.warn("Non-numeric argument encountered: " + arg);
+    console.warn('Non-numeric argument encountered: ' + arg);
   }
   return num;
 };
@@ -79,7 +79,7 @@ const reduceFromFirst = (args, fallback, operator, errorCheck, errorMsg) => {
 // -----------------------------------------------------------------------------
 
 const echoCommand = (args) => {
-  console.log(args.join(" "));
+  console.log(args.join(' '));
 };
 
 const addCommand = (args) => {
@@ -115,7 +115,7 @@ const divideCommand = (args) => {
     0,
     (acc, num) => acc / num,
     (num) => num === 0,
-    (arg) => "Error: Division by zero encountered with argument " + arg
+    (arg) => 'Error: Division by zero encountered with argument ' + arg
   );
   if (result === null) return;
   console.log(result);
@@ -123,13 +123,13 @@ const divideCommand = (args) => {
 
 const powerCommand = (args) => {
   if (args.length < 2) {
-    console.log("Usage: power <base> <exponent>");
+    console.log('Usage: power <base> <exponent>');
     return;
   }
   const base = parseNumber(args[0]);
   const exponent = parseNumber(args[1]);
   if (isNaN(base) || isNaN(exponent)) {
-    console.warn("Invalid numeric arguments for power command");
+    console.warn('Invalid numeric arguments for power command');
     return;
   }
   const result = base ** exponent;
@@ -138,7 +138,7 @@ const powerCommand = (args) => {
 
 const modCommand = (args) => {
   if (args.length < 2) {
-    console.log("Usage: mod <dividend> <divisor> [divisor ...]");
+    console.log('Usage: mod <dividend> <divisor> [divisor ...]');
     return;
   }
   const result = reduceFromFirst(
@@ -146,7 +146,7 @@ const modCommand = (args) => {
     0,
     (acc, num) => acc % num,
     (num) => num === 0,
-    (arg) => "Error: Modulo by zero encountered with argument " + arg
+    (arg) => 'Error: Modulo by zero encountered with argument ' + arg
   );
   if (result === null) return;
   console.log(result);
@@ -157,28 +157,28 @@ const modCommand = (args) => {
 // -----------------------------------------------------------------------------
 
 const demoCommand = (_args) => {
-  console.log("--- Demo: Showcasing available commands ---");
-  console.log("\n> Echo Command Demo:");
-  echoCommand(["Hello", "world"]);
+  console.log('--- Demo: Showcasing available commands ---');
+  console.log('\n> Echo Command Demo:');
+  echoCommand(['Hello', 'world']);
 
-  console.log("\n> Add Command Demo (2 + 3):");
-  addCommand(["2", "3"]);
+  console.log('\n> Add Command Demo (2 + 3):');
+  addCommand(['2', '3']);
 
-  console.log("\n> Multiply Command Demo (2 * 3):");
-  multiplyCommand(["2", "3"]);
+  console.log('\n> Multiply Command Demo (2 * 3):');
+  multiplyCommand(['2', '3']);
 
-  console.log("\n> Subtract Command Demo (10 - 4):");
-  subtractCommand(["10", "4"]);
+  console.log('\n> Subtract Command Demo (10 - 4):');
+  subtractCommand(['10', '4']);
 
-  console.log("\n> Divide Command Demo (20 / 4):");
-  divideCommand(["20", "4"]);
+  console.log('\n> Divide Command Demo (20 / 4):');
+  divideCommand(['20', '4']);
 
-  console.log("\n> Power Command Demo (2 ^ 3):");
-  powerCommand(["2", "3"]);
+  console.log('\n> Power Command Demo (2 ^ 3):');
+  powerCommand(['2', '3']);
 
-  console.log("\n> Mod Command Demo (10 mod 3):");
-  modCommand(["10", "3"]);
-  console.log("--- End of Demo ---");
+  console.log('\n> Mod Command Demo (10 mod 3):');
+  modCommand(['10', '3']);
+  console.log('--- End of Demo ---');
 };
 
 // -----------------------------------------------------------------------------
@@ -186,30 +186,30 @@ const demoCommand = (_args) => {
 // -----------------------------------------------------------------------------
 
 const selfTestCommand = (_args) => {
-  console.log("=== Self Test: Demonstrating features with expected outputs ===");
+  console.log('=== Self Test: Demonstrating features with expected outputs ===');
 
-  console.log("\n> Test Echo Command (expected output: \"Hello Test\")");
-  echoCommand(["Hello", "Test"]);
+  console.log('\n> Test Echo Command (expected output: "Hello Test")');
+  echoCommand(['Hello', 'Test']);
 
-  console.log("\n> Test Add Command (2 + 3, expected output: 5)");
-  addCommand(["2", "3"]);
+  console.log('\n> Test Add Command (2 + 3, expected output: 5)');
+  addCommand(['2', '3']);
 
-  console.log("\n> Test Multiply Command (4 * 5, expected output: 20)");
-  multiplyCommand(["4", "5"]);
+  console.log('\n> Test Multiply Command (4 * 5, expected output: 20)');
+  multiplyCommand(['4', '5']);
 
-  console.log("\n> Test Subtract Command (10 - 3, expected output: 7)");
-  subtractCommand(["10", "3"]);
+  console.log('\n> Test Subtract Command (10 - 3, expected output: 7)');
+  subtractCommand(['10', '3']);
 
-  console.log("\n> Test Divide Command (20 / 4, expected output: 5)");
-  divideCommand(["20", "4"]);
+  console.log('\n> Test Divide Command (20 / 4, expected output: 5)');
+  divideCommand(['20', '4']);
 
-  console.log("\n> Test Power Command (2 ^ 4, expected output: 16)");
-  powerCommand(["2", "4"]);
+  console.log('\n> Test Power Command (2 ^ 4, expected output: 16)');
+  powerCommand(['2', '4']);
 
-  console.log("\n> Test Mod Command (10 mod 3, expected output: 1)");
-  modCommand(["10", "3"]);
+  console.log('\n> Test Mod Command (10 mod 3, expected output: 1)');
+  modCommand(['10', '3']);
 
-  console.log("\n=== Self Test Completed ===");
+  console.log('\n=== Self Test Completed ===');
 };
 
 // -----------------------------------------------------------------------------
@@ -218,57 +218,59 @@ const selfTestCommand = (_args) => {
 
 const githubScriptCommand = (_args) => {
   // Read extended environment variables that mimic the GitHub Script fragment
-  const target = process.env.TARGET || "";
-  const testFile = process.env.TESTFILE || "";
-  const readmeFile = process.env.READMEFILE || "";
-  const contributingFile = process.env.CONTRIBUTINGFILE || "";
-  const dependenciesFile = process.env.DEPENDENCIESFILE || "";
-  const model = process.env.MODEL || "";
-  const apiKey = process.env.CHATGPT_API_SECRET_KEY || "";
+  const target = process.env.TARGET || '';
+  const testFile = process.env.TESTFILE || '';
+  const readmeFile = process.env.READMEFILE || '';
+  const contributingFile = process.env.CONTRIBUTINGFILE || '';
+  const dependenciesFile = process.env.DEPENDENCIESFILE || '';
+  const model = process.env.MODEL || '';
+  const apiKey = process.env.CHATGPT_API_SECRET_KEY || '';
   const issueNumber = process.env.ISSUENUMBER ? parseInt(process.env.ISSUENUMBER) : NaN;
-  const dependenciesListOutput = process.env.DEPENDENCIESLISTOUTPUT || "";
-  const buildScript = process.env.BUILDSCRIPT || "";
-  const buildOutput = process.env.BUILDOUTPUT || "";
-  const testScript = process.env.TESTSCRIPT || "";
-  const testOutput = process.env.TESTOUTPUT || "";
-  const mainScript = process.env.MAINSCRIPT || "";
-  const mainOutput = process.env.MAINOUTPUT || "";
+  const dependenciesListOutput = process.env.DEPENDENCIESLISTOUTPUT || '';
+  const buildScript = process.env.BUILDSCRIPT || '';
+  const buildOutput = process.env.BUILDOUTPUT || '';
+  const testScript = process.env.TESTSCRIPT || '';
+  const testOutput = process.env.TESTOUTPUT || '';
+  const mainScript = process.env.MAINSCRIPT || '';
+  const mainOutput = process.env.MAINOUTPUT || '';
 
-  console.log("TARGET: \"" + target + "\"");
-  console.log("TESTFILE: \"" + testFile + "\"");
-  console.log("READMEFILE: \"" + readmeFile + "\"");
-  console.log("CONTRIBUTINGFILE: \"" + contributingFile + "\"");
-  console.log("DEPENDENCIESFILE: \"" + dependenciesFile + "\"");
-  console.log("MODEL: \"" + model + "\"");
-  console.log("CHATGPT_API_SECRET_KEY: \"" + (apiKey ? "***" : "") + "\"");
-  console.log("ISSUENUMBER: \"" + issueNumber + "\"");
-  console.log("DEPENDENCIESLISTOUTPUT: \"" + dependenciesListOutput + "\"");
-  console.log("BUILDSCRIPT: \"" + buildScript + "\"");
-  console.log("BUILDOUTPUT: \"" + buildOutput + "\"");
-  console.log("TESTSCRIPT: \"" + testScript + "\"");
-  console.log("TESTOUTPUT: \"" + testOutput + "\"");
-  console.log("MAINSCRIPT: \"" + mainScript + "\"");
-  console.log("MAINOUTPUT: \"" + mainOutput + "\"");
+  console.log('TARGET: "' + target + '"');
+  console.log('TESTFILE: "' + testFile + '"');
+  console.log('READMEFILE: "' + readmeFile + '"');
+  console.log('CONTRIBUTINGFILE: "' + contributingFile + '"');
+  console.log('DEPENDENCIESFILE: "' + dependenciesFile + '"');
+  console.log('MODEL: "' + model + '"');
+  console.log('CHATGPT_API_SECRET_KEY: "' + (apiKey ? '***' : '') + '"');
+  console.log('ISSUENUMBER: "' + issueNumber + '"');
+  console.log('DEPENDENCIESLISTOUTPUT: "' + dependenciesListOutput + '"');
+  console.log('BUILDSCRIPT: "' + buildScript + '"');
+  console.log('BUILDOUTPUT: "' + buildOutput + '"');
+  console.log('TESTSCRIPT: "' + testScript + '"');
+  console.log('TESTOUTPUT: "' + testOutput + '"');
+  console.log('MAINSCRIPT: "' + mainScript + '"');
+  console.log('MAINOUTPUT: "' + mainOutput + '"');
 
   // Helper function to log file status
+  /* eslint-disable security/detect-non-literal-fs-filename */
   const logFileStatus = (label, filePath) => {
     if (filePath) {
       if (fs.existsSync(filePath)) {
-        const content = fs.readFileSync(filePath, "utf8");
-        console.log(label + " \"" + filePath + "\" loaded with length " + content.length + ".");
+        const content = fs.readFileSync(filePath, 'utf8');
+        console.log(label + ' "' + filePath + '" loaded with length ' + content.length + '.');
       } else {
-        console.log(label + " \"" + filePath + "\" does not exist.");
+        console.log(label + ' "' + filePath + '" does not exist.');
       }
     }
   };
+  /* eslint-enable security/detect-non-literal-fs-filename */
 
-  logFileStatus("Target file", target);
-  logFileStatus("Test file", testFile);
-  logFileStatus("README file", readmeFile);
-  logFileStatus("Contributing file", contributingFile);
-  logFileStatus("Dependencies file", dependenciesFile);
+  logFileStatus('Target file', target);
+  logFileStatus('Test file', testFile);
+  logFileStatus('README file', readmeFile);
+  logFileStatus('Contributing file', contributingFile);
+  logFileStatus('Dependencies file', dependenciesFile);
 
-  console.log("GitHub API calls, OpenAI integration, and issue comment creation are not implemented in this command.");
+  console.log('GitHub API calls, OpenAI integration, and issue comment creation are not implemented in this command.');
 };
 
 // -----------------------------------------------------------------------------
@@ -276,7 +278,7 @@ const githubScriptCommand = (_args) => {
 // -----------------------------------------------------------------------------
 
 const displayUsage = () => {
-  console.log("No command provided. Available commands: echo, add, multiply, subtract, divide, power, mod, demo, githubscript, help");
+  console.log('No command provided. Available commands: echo, add, multiply, subtract, divide, power, mod, demo, githubscript, help');
 };
 
 const helpCommand = () => {
@@ -312,7 +314,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (action) {
       action(commandArgs);
     } else {
-      console.error("Unknown command: " + command + ". Available commands: " + Object.keys(commands).join(", "));
+      console.error('Unknown command: ' + command + '. Available commands: ' + Object.keys(commands).join(', '));
       process.exit(1);
     }
   }
