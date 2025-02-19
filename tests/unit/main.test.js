@@ -68,7 +68,7 @@ describe("Arithmetic Commands", () => {
     });
     expect(output).toContain("24");
     
-    // Test with no arguments
+    // Test with no arguments; should print 0 as per README specification
     output = captureOutput(() => {
       mainModule.multiplyCommand([]);
     });
@@ -129,6 +129,25 @@ describe("Arithmetic Commands", () => {
     });
     expect(output).toContain("--- Demo: Showcasing available commands ---");
     expect(output).toContain("> Echo Command Demo:");
+  });
+
+  test("helpCommand displays detailed usage", () => {
+    const output = captureOutput(() => {
+      mainModule.helpCommand();
+    });
+    expect(output).toContain("Usage: node src/lib/main.js <command> [arguments...]");
+    expect(output).toContain("Available commands:");
+    expect(output).toContain("- echo:");
+    expect(output).toContain("- add:");
+    expect(output).toContain("- multiply:");
+    expect(output).toContain("- subtract:");
+    expect(output).toContain("- divide:");
+    expect(output).toContain("- power:");
+    expect(output).toContain("- mod:");
+    expect(output).toContain("- demo:");
+    expect(output).toContain("- githubscript:");
+    expect(output).toContain("- interactive:");
+    expect(output).toContain("- help:");
   });
 });
 
