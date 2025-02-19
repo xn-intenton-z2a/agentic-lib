@@ -17,6 +17,7 @@
       - demo: demonstrates all available commands with sample outputs.
       - help: displays usage information.
       - githubscript: reads extended environment variables and file contents as per GitHub Script fragment.
+      - interactive: launches interactive mode for dynamic command input.
 
   Usage:
     node src/lib/main.js <command> [arguments...]
@@ -28,6 +29,7 @@
 
 import { fileURLToPath } from "url";
 import fs from "fs";
+import readline from "readline";
 
 // -----------------------------------------------------------------------------
 // Helper Functions
@@ -272,11 +274,56 @@ const githubScriptCommand = (_args) => {
 };
 
 // -----------------------------------------------------------------------------
+// Interactive Command Implementation
+// -----------------------------------------------------------------------------
+
+const interactiveCommand = (_args) => {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    prompt: 'agentic-lib> '
+  });
+  console.log("Entering interactive mode. Type 'exit' to quit.");
+  rl.prompt();
+  rl.on('line', (line) => {
+    const input = line.trim();
+    if (input.toLowerCase() === 'exit') {
+      rl.close();
+      return;
+    }
+    const tokens = input.split(/\s+/);
+    const command = tokens[0];
+    const commandArgs = tokens.slice(1);
+    const commands = {
+      echo: echoCommand,
+      add: addCommand,
+      multiply: multiplyCommand,
+      subtract: subtractCommand,
+      divide: divideCommand,
+      power: powerCommand,
+      mod: modCommand,
+      demo: demoCommand,
+      help: helpCommand,
+      githubscript: githubScriptCommand
+    };
+    if (commands[command]) {
+      commands[command](commandArgs);
+    } else {
+      console.error("Unknown command: " + command);
+    }
+    rl.prompt();
+  });
+  rl.on('close', () => {
+    console.log("Exiting interactive mode.");
+  });
+};
+
+// -----------------------------------------------------------------------------
 // Usage display
 // -----------------------------------------------------------------------------
 
 const displayUsage = () => {
-  console.log("No command provided. Available commands: echo, add, multiply, subtract, divide, power, mod, demo, githubscript, help");
+  console.log("No command provided. Available commands: echo, add, multiply, subtract, divide, power, mod, demo, githubscript, interactive, help");
 };
 
 const helpCommand = () => {
@@ -301,7 +348,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     demo: demoCommand,
     // selfTest command removed from CLI to move testing to unit tests
     help: helpCommand,
-    githubscript: githubScriptCommand
+    githubscript: githubScriptCommand,
+    interactive: interactiveCommand
   };
 
   if (args.length === 0) {
@@ -334,6 +382,7 @@ export {
   demoCommand,
   selfTestCommand,
   githubScriptCommand,
+  interactiveCommand,
   displayUsage,
   helpCommand
 };

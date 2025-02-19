@@ -2,6 +2,7 @@
 
 import { describe, test, expect, vi } from "vitest";
 import * as mainModule from "@src/lib/main.js";
+import readline from "readline";
 
 // Helper function to capture console output
 const captureOutput = (fn) => {
@@ -128,5 +129,39 @@ describe("Arithmetic Commands", () => {
     });
     expect(output).toContain("--- Demo: Showcasing available commands ---");
     expect(output).toContain("> Echo Command Demo:");
+  });
+});
+
+// Tests for the interactive command
+
+describe("Interactive Command", () => {
+  test("interactiveCommand handles exit command gracefully", () => {
+    // Create a fake readline Interface
+    const fakeInterface = {
+      prompt: vi.fn(),
+      on: (event, handler) => {
+        if (event === 'line') {
+          // simulate input 'exit'
+          handler('exit');
+        }
+        if (event === 'close') {
+          handler();
+        }
+      },
+      close: vi.fn()
+    };
+    
+    // Spy on readline.createInterface to return the fake interface
+    const rlSpy = vi.spyOn(readline, 'createInterface').mockReturnValue(fakeInterface);
+
+    const output = captureOutput(() => {
+      mainModule.interactiveCommand();
+    });
+
+    expect(output).toContain("Entering interactive mode. Type 'exit' to quit.");
+    // The fake interface should have been used and close should be called when 'exit' is input
+    expect(fakeInterface.close).toHaveBeenCalled();
+
+    rlSpy.mockRestore();
   });
 });
