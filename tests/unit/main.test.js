@@ -7,7 +7,9 @@ import * as mainModule from "@src/lib/main.js";
 const captureOutput = (fn) => {
   let output = "";
   const originalLog = console.log;
-  console.log = (msg) => { output += msg + '\n'; };
+  console.log = (msg) => {
+    output += msg + "\n";
+  };
   try {
     fn();
   } finally {
@@ -90,7 +92,7 @@ describe("Arithmetic Commands", () => {
 
   test("divideCommand handles division by zero", () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const output = captureOutput(() => {
+    captureOutput(() => {
       mainModule.divideCommand(["10", "0"]);
     });
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Error: Division by zero encountered with argument 0"));
@@ -113,7 +115,7 @@ describe("Arithmetic Commands", () => {
 
   test("modCommand handles modulo by zero", () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const output = captureOutput(() => {
+    captureOutput(() => {
       mainModule.modCommand(["10", "0"]);
     });
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Error: Modulo by zero encountered with argument 0"));
