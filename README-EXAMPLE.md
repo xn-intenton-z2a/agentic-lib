@@ -69,6 +69,16 @@ npm test
 
 The tests ensure that the self-test command, GitHub Script command, and core functionalities are working as expected.
 
+## Next Up
+
+The following features and improvements are planned for future releases:
+
+- Enhance error handling across commands for more robust input validation.
+- Extend arithmetic operations by adding new commands and options.
+- Integrate real GitHub API interactions in the githubscript command.
+- Expand test coverage with integration tests and additional edge cases.
+- Improve CLI help documentation with more detailed examples and usage instructions.
+
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for details on how to open issues and submit pull requests.
