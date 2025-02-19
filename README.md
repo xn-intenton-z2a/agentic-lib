@@ -5,8 +5,8 @@ agentic-lib is a command line utility that provides a suite of arithmetic and ec
 ## Available Commands
 
 - **echo**: Prints the provided arguments as a string.
-- **add**: Sums up a list of numeric values.
-- **multiply**: Multiplies a list of numeric values. If no arguments are provided, returns 0.
+- **add**: Sums up a list of numeric values. Returns 0 if no arguments are provided.
+- **multiply**: Multiplies a list of numeric values. Returns 0 if no arguments are provided.
 - **subtract**: Subtracts subsequent numbers from the first number provided.
 - **divide**: Divides the first number by each subsequent number sequentially. Aborts if division by zero is encountered.
 - **power**: Raises the first number (base) to the power of the second number (exponent).
@@ -14,7 +14,7 @@ agentic-lib is a command line utility that provides a suite of arithmetic and ec
 - **demo**: Runs a series of demos showcasing all the commands with sample inputs and outputs.
 - **githubscript**: Reads extended environment variables and file contents, mimicking the GitHub Script fragment. It logs details about the files and environment parameters such as model, API keys, issue numbers, and outputs from various commands. Note that GitHub API calls, OpenAI integration, and issue comment creation are not implemented.
 - **interactive**: Launches an interactive mode allowing dynamic user input and command execution. Type 'exit' to quit the interactive session.
-- **help**: Displays usage instructions and lists available commands.
+- **help**: Displays detailed usage instructions and lists all available commands.
 
 ## Usage
 
@@ -24,7 +24,7 @@ Execute the main script using Node.js:
 node src/lib/main.js <command> [arguments...]
 ```
 
-If no command is provided, the CLI will list all available commands. For detailed behavior of each command, try running the demo, githubscript, or interactive command:
+If no command is provided, the CLI will list all available commands with detailed instructions. For detailed behavior of each command, try running the demo, githubscript, or interactive command:
 
 ```
 node src/lib/main.js demo
@@ -72,7 +72,7 @@ node src/lib/main.js githubscript
 
 ## Testing
 
-Unit tests have been set up using Vitest. The updated test suite now covers all core arithmetic commands along with additional command tests, including the new interactive mode. To run the tests, execute:
+Unit tests have been set up using Vitest. The updated test suite now covers all core arithmetic commands along with additional command tests, including the new detailed help command. To run the tests, execute:
 
 ```
 npm test

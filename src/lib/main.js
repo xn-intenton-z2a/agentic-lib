@@ -9,15 +9,15 @@
     Commands available:
       - echo: prints input arguments.
       - add: sums numeric values.
-      - multiply: multiplies numeric values.
-      - subtract: subtracts subsequent numbers from the first.
+      - multiply: multiplies numeric values (if no arguments are provided, returns 0).
+      - subtract: subtracts subsequent numbers from the first number provided.
       - divide: divides the first number by subsequent numbers (aborts on division by zero).
       - power: computes power (first number raised to the second).
       - mod: computes the modulo (first number mod each subsequent number, aborts on modulo by zero).
       - demo: demonstrates all available commands with sample outputs.
-      - help: displays usage information.
       - githubscript: reads extended environment variables and file contents as per GitHub Script fragment.
       - interactive: launches interactive mode for dynamic command input.
+      - help: displays detailed usage information.
 
   Usage:
     node src/lib/main.js <command> [arguments...]
@@ -112,6 +112,7 @@ const addCommand = (args) => {
 };
 
 const multiplyCommand = (args) => {
+  // As per README, if no arguments, returns 0
   runReduceAllCommand(args, 1, (acc, num) => acc * num, 0);
 };
 
@@ -325,11 +326,23 @@ const interactiveCommand = (_args) => {
 };
 
 // -----------------------------------------------------------------------------
-// Usage display
+// Detailed help display
 // -----------------------------------------------------------------------------
 
 const displayUsage = () => {
-  console.log("No command provided. Available commands: echo, add, multiply, subtract, divide, power, mod, demo, githubscript, interactive, help");
+  console.log("Usage: node src/lib/main.js <command> [arguments...]");
+  console.log("Available commands:");
+  console.log("  - echo: Prints the provided arguments as a string.");
+  console.log("  - add: Sums numeric values. Returns 0 if no arguments provided.");
+  console.log("  - multiply: Multiplies numeric values. Returns 0 if no arguments provided.");
+  console.log("  - subtract: Subtracts subsequent numbers from the first provided number.");
+  console.log("  - divide: Divides the first number by each subsequent number sequentially. Aborts on division by zero.");
+  console.log("  - power: Raises the first number (base) to the power of the second (exponent).");
+  console.log("  - mod: Computes the modulo of the first number with each subsequent number. Aborts on modulo by zero.");
+  console.log("  - demo: Demonstrates all available commands with sample outputs.");
+  console.log("  - githubscript: Reads extended environment variables and file contents.");
+  console.log("  - interactive: Launches interactive mode for dynamic command input.");
+  console.log("  - help: Displays this help message.");
 };
 
 const helpCommand = () => {
