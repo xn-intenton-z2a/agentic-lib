@@ -1,5 +1,5 @@
 # .github/workflows/wfr-fix-failing-build.yml
-name: ∞ Fix failing build
+name: ∞ Fix failing build - WORK IN PROGRESS
 
 on:
   workflow_call:
