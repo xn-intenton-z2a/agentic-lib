@@ -7,12 +7,12 @@ on:
   workflow_dispatch:
     inputs:
       target:
-        description: 'An asset (e.g. source file) to reference in the issue.'
+        description: 'An asset (e.g. source file) to reference in the issue. e.g. "src/lib/main.js"'
         required: false
         type: string
         default: 'src/lib/main.js'
       issueTitle:
-        description: 'Text to drive the issue title (if "house choice", a currently random prompt will be selected).'
+        description: 'Text to drive the issue title (if "house choice", a currently random prompt will be selected). e.g. "Make a small improvement."'
         required: false
         type: string
         default: 'house choice'
@@ -39,4 +39,3 @@ jobs:
         || Ensure that the main defaults to the usage and a demo which outputs to console and that the main terminates without user input.
         || Update the dependencies file by consolidating or migrating no more than 1 or 2 dependencies to contemporary versions.
         || Refresh the README file to match the current source file and test file and document the CLI behaviour.
-      target: ${{ inputs.target || 'src/lib/main.js' }}

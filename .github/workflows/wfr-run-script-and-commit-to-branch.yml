@@ -14,6 +14,11 @@ on:
         type: string
         required: false
         default: 'npm test'
+      branch:
+        description: 'The branch to push changes to. e.g. "apply-script"'
+        type: string
+        required: false
+        default: 'apply-script'
       npmAuthOrganisation:
         description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
         type: string
@@ -37,6 +42,8 @@ on:
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
+    outputs:
+      branch: ${{ jobs.set-outputs.outputs.branch || '' }}
 
 jobs:
   update-and-push:
@@ -45,6 +52,7 @@ jobs:
     env:
       script: ${{ inputs.script || 'prettier --write' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
+      branch: ${{ inputs.branch || 'apply-script' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
@@ -106,7 +114,23 @@ jobs:
           git config --local user.email '${{ env.gitUserEmail }}'
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
+          git switch -c '${{ env.branch }}'
           git add -v --all
           git commit -v -m '${{ env.gitCommitMessage }}'
           git push -v
           git status -v
+
+      - name: Run script
+        id: script-second-pass
+        shell: bash
+        run: |
+          set +e
+          output=$(${{ env.script }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+          set -e
+
+    outputs:
+      scriptOutput: ${{ steps.script-second-pass.outputs.output }}

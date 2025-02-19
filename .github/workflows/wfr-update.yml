@@ -24,6 +24,11 @@ on:
         type: string
         required: false
         default: 'minor'
+      branch:
+        description: 'The branch to push changes to. e.g. "apply-update"'
+        type: string
+        required: false
+        default: 'apply-update'
       npmAuthOrganisation:
         description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
         type: string
@@ -60,6 +65,7 @@ jobs:
       mainScript: ${{ inputs.mainScript || 'node src/lib/main.js' }}
       mainScriptTimeout: '5m'
       upgradeTarget: ${{ inputs.upgradeTarget || 'minor' }}
+      branch: ${{ inputs.branch || 'apply-update' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
@@ -144,6 +150,21 @@ jobs:
           ncuUpgradeTarget: ${{ env.upgradeTarget || 'minor' }}
         run: npx ncu --upgrade --enginesNode --retry 3 --target ${{ env.ncuUpgradeTarget }} --verbose ; npm install ; npm update ; npm upgrade ; npm install
 
+      - name: git-diff
+        id: git-diff
+        shell: bash
+        run: |
+          savedOptions=$(set +o) \
+          && set +e \
+          ; if git diff --quiet; then
+            echo "updated=false" | tee -a "${GITHUB_OUTPUT?}"
+          else
+            echo "updated=true" | tee -a "${GITHUB_OUTPUT?}"
+          fi \
+          ; eval "${savedOptions?}" \
+          ;
+        continue-on-error: true
+
       - run: rm -rf './node_modules/'
 
       - run: npm ci
@@ -171,11 +192,15 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"  
 
-      - name: set-outputs
-        id: set-outputs
-        uses: actions/github-script@v7
-        with:
-          script: |
-            let branch = 'update-${{ github.run_id }}';
-            core.setOutput('branch', `${branch}`);
-            core.info(`branch: '${branch}'`);
+      - name: Commit
+        if: ${{ steps.git-diff.outputs.updated == 'true' || env.git-force == 'true' }}
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git switch -c '${{ env.branch }}'
+          git add -v --all
+          git commit -v -m '${{ env.gitCommitMessage }}'
+          git push -v
+          git status -v

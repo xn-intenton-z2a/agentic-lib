@@ -36,6 +36,7 @@ jobs:
       testScript: 'npm test'
       mainScript: 'node src/lib/main.js'
       upgradeTarget: ${{ inputs.upgradeTarget || 'patch' }}
+      branch: 'apply-update'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
       gitCommitMessage: 'chore: dependency updates'
@@ -53,7 +54,7 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@main'
     with:
-      branch: '${{ needs.update-dependencies.outputs.branch }}'
+      branch: 'apply-update'
       baseBranch: 'main'
       gitCommitMessage: 'chore: dependency updates'
       label: 'automerge'

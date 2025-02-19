@@ -14,11 +14,6 @@ on:
         required: false
         type: string
         default: 'Please resolve the issue.'
-      target:
-        description: 'The target file to review. e.g. "src/lib/main.js"'
-        type: string
-        required: false
-        default: 'src/lib/main.js'
       houseChoiceOptions:
         description: 'Options for house choice, separated by commas.'
         type: string
@@ -42,7 +37,6 @@ jobs:
     env:
       issueTitle: ${{ inputs.issueTitle || 'house choice' }}
       issueBody: ${{ inputs.issueBody || 'Please resolve the issue.' }}
-      target: ${{ inputs.target || 'src/lib/main.js' }}
       houseChoiceOptions: ${{ inputs.houseChoiceOptions || 'Make code changes that extend or improve the features or resolve issues shown in the included context.'}}
 
     steps:
@@ -56,7 +50,6 @@ jobs:
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
-            const target = process.env.target;
             const issueTitle = process.env.issueTitle;
             const issueBody = process.env.issueBody;
             const houseChoiceOptions = process.env.houseChoiceOptions.split('||');
