@@ -250,50 +250,23 @@ const githubScriptCommand = (_args) => {
   console.log('MAINSCRIPT: "' + mainScript + '"');
   console.log('MAINOUTPUT: "' + mainOutput + '"');
 
-  if (target) {
-    if (fs.existsSync(target)) {
-      const sourceContent = fs.readFileSync(target, 'utf8');
-      console.log('Target file "' + target + '" loaded with length ' + sourceContent.length + '.');
-    } else {
-      console.log('Target file "' + target + '" does not exist.');
+  // Helper function to log file status
+  const logFileStatus = (label, filePath) => {
+    if (filePath) {
+      if (fs.existsSync(filePath)) {
+        const content = fs.readFileSync(filePath, 'utf8');
+        console.log(label + ' "' + filePath + '" loaded with length ' + content.length + '.');
+      } else {
+        console.log(label + ' "' + filePath + '" does not exist.');
+      }
     }
-  }
+  };
 
-  if (testFile) {
-    if (fs.existsSync(testFile)) {
-      const testContent = fs.readFileSync(testFile, 'utf8');
-      console.log('Test file "' + testFile + '" loaded with length ' + testContent.length + '.');
-    } else {
-      console.log('Test file "' + testFile + '" does not exist.');
-    }
-  }
-
-  if (readmeFile) {
-    if (fs.existsSync(readmeFile)) {
-      const readmeContent = fs.readFileSync(readmeFile, 'utf8');
-      console.log('README file "' + readmeFile + '" loaded with length ' + readmeContent.length + '.');
-    } else {
-      console.log('README file "' + readmeFile + '" does not exist.');
-    }
-  }
-
-  if (contributingFile) {
-    if (fs.existsSync(contributingFile)) {
-      const contributingContent = fs.readFileSync(contributingFile, 'utf8');
-      console.log('Contributing file "' + contributingFile + '" loaded with length ' + contributingContent.length + '.');
-    } else {
-      console.log('Contributing file "' + contributingFile + '" does not exist.');
-    }
-  }
-
-  if (dependenciesFile) {
-    if (fs.existsSync(dependenciesFile)) {
-      const dependenciesContent = fs.readFileSync(dependenciesFile, 'utf8');
-      console.log('Dependencies file "' + dependenciesFile + '" loaded with length ' + dependenciesContent.length + '.');
-    } else {
-      console.log('Dependencies file "' + dependenciesFile + '" does not exist.');
-    }
-  }
+  logFileStatus('Target file', target);
+  logFileStatus('Test file', testFile);
+  logFileStatus('README file', readmeFile);
+  logFileStatus('Contributing file', contributingFile);
+  logFileStatus('Dependencies file', dependenciesFile);
 
   console.log('GitHub API calls, OpenAI integration, and issue comment creation are not implemented in this command.');
 };
