@@ -285,7 +285,7 @@ jobs:
               core.info(`message: "${sanitizedMessage}"`);
             
               fs.writeFileSync(target, parsed.updatedSourceFileContent, 'utf8');
-              console.log(`Target file '${target}' has been updated.`);
+              core.info(`Target file '${target}' has been updated.`);
             
               fixApplied = true;
             } catch (e) {

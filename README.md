@@ -36,7 +36,8 @@ automatically.
 - [x] Add funding mechanisms.
 - [x] Add the ability to write to the README, test and package.json.
 - [x] Add the full file context to the review.
-- [ ] Add paypal donation link (the old account has been closed).
+- [~] Add Linting file to the context when working on an issue.
+- [~] Add Linting results to the context to an issue after formatting the results.
 - [ ] Find a way for consumers to link to a stable version of the reusable workflows.
 - [ ] Test the link to the current version from the test file (not main but the github-ref being tested).
 - [ ] Test the link to the stable version after publishing from this repository.
@@ -46,12 +47,11 @@ automatically.
 
 MVP:
 - [ ] Add Getting started for using the repository template and promote as the intended use case.
-- [ ] Add Linting file to the context to fix-failing-build (which will be renamed fix branch and run on a branch created whenever there is a failure after an update)
-- [ ] Add Linting results to the context to fix-failing-build
 - [ ] Use fix-failing-build to run start issue fails, use fix-failing build to fix the branch (and max context with start issue).
 - [ ] Shout out on Reddit.
 
 Enhancements:
+- [ ] Add PayPal donation link (the old account has been closed).
 - [ ] Add git log to the context.
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
 - [ ] Pick ideal version. Oldest? or Node 22 (after October 29th when it becomes LTS) build with the latest LTS but target the lowest compatible?
