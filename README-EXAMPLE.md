@@ -61,13 +61,11 @@ node src/lib/main.js githubscript
 
 ## Testing
 
-Unit tests have been set up using Vitest. To run the tests, execute:
+Unit tests have been set up using Vitest. The updated test suite now covers all core arithmetic commands along with additional command tests. To run the tests, execute:
 
 ```
 npm test
 ```
-
-The tests ensure that the self-test command, GitHub Script command, and core functionalities are working as expected.
 
 ## Next Up
 
