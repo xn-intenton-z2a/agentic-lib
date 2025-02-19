@@ -76,7 +76,9 @@ jobs:
       gitUserName: 'GitHub Actions[bot]'
 
   verify-tag:
-    needs: publish
+    needs:
+      - publish
+    if: steps.publish.outputs.releasedVersion != ''
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository

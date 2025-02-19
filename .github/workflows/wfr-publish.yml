@@ -129,7 +129,7 @@ jobs:
           git status -v
 
       # TODO: Consider: semantic-release
-      - name: Publish package and move to next prerelease version
+      - name: Publish package and move to next release version
         if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
         shell: bash
         run: |
