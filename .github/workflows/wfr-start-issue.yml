@@ -472,7 +472,7 @@ jobs:
 
       - run: cat ${{ env.target }}
 
-      - name: Use git diff to show changes
+      - name: Examine the git working copy
         shell: bash
         run: |
           git config --local user.email '${{ env.gitUserEmail }}'
