@@ -20,6 +20,11 @@ on:
         required: false
         type: string
         default: 'src/lib/main.js'
+      testFile:
+        description: 'The test file to run to validate the resolution. e.g. "tests/unit/main.test.js"'
+        required: false
+        type: string
+        default: 'tests/unit/main.test.js'
   workflow_run:
     workflows:
       - "Automerge"
