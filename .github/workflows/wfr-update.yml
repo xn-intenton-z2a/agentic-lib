@@ -52,8 +52,6 @@ on:
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
-    outputs:
-      branch: ${{ jobs.set-outputs.outputs.branch || '' }}
 
 jobs:
   update:
@@ -204,3 +202,6 @@ jobs:
           git commit -v -m '${{ env.gitCommitMessage }}'
           git push -v
           git status -v
+
+    outputs:
+      branch: ${{ jobs.set-outputs.outputs.branch || '' }}

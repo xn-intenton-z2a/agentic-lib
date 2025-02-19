@@ -36,7 +36,7 @@ automatically.
 - [x] Add funding mechanisms.
 - [x] Add the ability to write to the README, test and package.json.
 - [x] Add the full file context to the review.
-- [~] Add Linting file to the context when working on an issue.
+- [x] Add Linting file to the context when working on an issue.
 - [~] Add Linting results to the context to an issue after formatting the results.
 - [ ] Find a way for consumers to link to a stable version of the reusable workflows.
 - [ ] Test the link to the current version from the test file (not main but the github-ref being tested).
@@ -47,10 +47,10 @@ automatically.
 
 MVP:
 - [ ] Add Getting started for using the repository template and promote as the intended use case.
-- [ ] Use fix-failing-build to run start issue fails, use fix-failing build to fix the branch (and max context with start issue).
 - [ ] Shout out on Reddit.
 
 Enhancements:
+- [ ] Implement "fix-failing-build" by raising a bug, then running start-issue (with a new name) in a tolerant mode allowing builds to fail but gathering output.
 - [ ] Add PayPal donation link (the old account has been closed).
 - [ ] Add git log to the context.
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
