@@ -29,6 +29,11 @@ on:
         type: string
         required: false
         default: 'npm run start'
+      releaseNotes:
+        description: 'The release notes to use for the GitHub release. e.g. "Feature release."'
+        type: string
+        required: false
+        default: 'Feature release.'
       npmAuthOrganisation:
         description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
         type: string
@@ -65,6 +70,7 @@ jobs:
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
       mainScript: ${{ inputs.mainScript || 'npm run start' }}
+      releaseNotes: ${{ inputs.releaseNotes || 'Feature release.' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
@@ -129,9 +135,7 @@ jobs:
         with:
           tag: ${{ steps.released.outputs.releasedVersion }}
           name: Release ${{ steps.released.outputs.releasedVersion }}
-          body: |
-            Release notes for version ${{ steps.released.outputs.releasedVersion }}.
-            * Add details about changes, bug fixes, and improvements here.
+          body: ${{ env.releaseNotes }}
 
       - name: Rotate to next pre[major|minor|patch] version from a released version
         if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
