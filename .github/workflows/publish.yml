@@ -53,10 +53,16 @@ jobs:
           node-version: 20
           cache: 'npm'
       - run: npm ci
-      - run: pwd
-      - run: ls -l
-      - run: find . -name '*.js' -exec echo '{}' \; | grep -v 'node_modules'
-      - run: npm test
+
+      - name: test
+        id: test
+        shell: bash
+        run: ${{ env.testScript }}
+
+      - name: main
+        id: main
+        shell: bash
+        run: timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }}
 
   publish:
     needs:
