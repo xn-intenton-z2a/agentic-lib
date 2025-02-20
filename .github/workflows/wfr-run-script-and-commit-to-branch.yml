@@ -102,16 +102,16 @@ jobs:
         id: script
         shell: bash
         run: |
-          savedOptions=$(set +o) \
-          && set +e \
-          && ${{ env.script }} \
-          ; if git diff --quiet; then
-            echo "updated=false" | tee -a "${GITHUB_OUTPUT?}"
+          set +e
+          ${{ env.script }}
+          if git diff --quiet; then
+            updated='false'
           else
-            echo "updated=true" | tee -a "${GITHUB_OUTPUT?}"
-          fi \
-          ; eval "${savedOptions?}" \
-          ;
+            updated='true'
+          fi
+          set -e
+          echo "updated=${updated}" > $GITHUB_OUTPUT
+          echo "updated=${updated}"
         continue-on-error: true
 
       - name: sarif-script
