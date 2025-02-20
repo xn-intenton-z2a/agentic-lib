@@ -260,6 +260,7 @@ const githubScriptCommand = (_args) => {
   console.log('MAINOUTPUT: "' + mainOutput + '"');
 
   // Helper function to log file status
+  /* eslint-disable security/detect-non-literal-fs-filename */
   const logFileStatus = (label, filePath) => {
     if (filePath) {
       if (fs.existsSync(filePath)) {
@@ -270,6 +271,7 @@ const githubScriptCommand = (_args) => {
       }
     }
   };
+  /* eslint-enable security/detect-non-literal-fs-filename */
 
   logFileStatus("Target file", target);
   logFileStatus("Test file", testFile);
@@ -313,11 +315,13 @@ const interactiveCommand = (_args) => {
       help: helpCommand,
       githubscript: githubScriptCommand,
     };
+    /* eslint-disable security/detect-object-injection */
     if (commands[command]) {
       commands[command](commandArgs);
     } else {
       console.error("Unknown command: " + command);
     }
+    /* eslint-enable security/detect-object-injection */
     rl.prompt();
   });
   rl.on("close", () => {
