@@ -53,6 +53,8 @@ Enhancements:
 - [x] Scan code for possible library replacements for the custom code (automated)
 - [x] Compress and de-dupe package.json (automated)
 - [~] Implement "fix-failing-build" by raising a bug, then running start-issue (with a new name) in a tolerant mode allowing builds to fail but gathering output.
+- [ ] Run apply fix when a test run fails.
+- [ ] Run apply fix on a schedule checking if a fix is necessary.
 - [ ] Add PayPal donation link (the old account has been closed).
 - [ ] Add git log to the context for review issue, issue worker and apply fixe
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.

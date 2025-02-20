@@ -156,11 +156,6 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
 
-      - name: Tear down .npmrc
-        if: ${{ env.npmAuthOrganisation != '' }}
-        shell: bash
-        run: rm -f .npmrc
-
       - name: Run tests
         id: test
         shell: bash
@@ -479,6 +474,17 @@ jobs:
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
           git diff ${{ env.target }}
+
+      - run: rm -rf node_modules
+
+      - run: npm install
+
+      - run: npm ci
+
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: rm -f .npmrc
 
       - name: Test after update
         shell: bash

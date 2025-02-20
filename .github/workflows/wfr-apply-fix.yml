@@ -459,7 +459,6 @@ jobs:
           exit 0
 
       - name: List dependencies
-        id: list
         shell: bash
         run: |
           set +e
