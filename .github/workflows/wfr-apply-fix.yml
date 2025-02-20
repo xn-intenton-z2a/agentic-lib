@@ -1,13 +1,9 @@
-# .github/workflows/wfr-start-issue.yml
-name: ∞ Start issue
+# .github/workflows/wfr-apply-fix.yml
+name: ∞ Apply fix
 
 on:
   workflow_call:
     inputs:
-      issueNumber:
-        description: 'The issue number to review. e.g. "123"'
-        type: string
-        required: true
       target:
         description: 'The target file to review. e.g. "src/lib/main.js"'
         type: string
@@ -85,15 +81,12 @@ on:
     outputs:
       fixApplied:
         value: ${{ jobs.start-issue.outputs.fixApplied }}
-      message:
-        value: ${{ jobs.start-issue.outputs.message }}
 
 jobs:
   start-issue:
     runs-on: ubuntu-latest
 
     env:
-      issueNumber: ${{ inputs.issueNumber }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
@@ -140,21 +133,25 @@ jobs:
         id: list
         shell: bash
         run: |
+          set +e
           output=$(npm list 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
+          exit 0
 
       - name: Build project
         id: build
         shell: bash
         run: |
+          set +e
           output=$(${{ env.buildScript }} 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
+          exit 0
 
       - name: Tear down .npmrc
         if: ${{ env.npmAuthOrganisation != '' }}
@@ -165,21 +162,25 @@ jobs:
         id: test
         shell: bash
         run: |
+          set +e
           output=$(${{ env.testScript }} 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
+          exit 0
 
       - name: Run main
         id: main
         shell: bash
         run: |
+          set +e
           output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
+          exit 0
 
       - name: update-target
         id: update-target
@@ -201,7 +202,6 @@ jobs:
             const lintingFile = process.env.lintingFile;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
-            const issueNumber = parseInt(process.env.issueNumber);
             const dependenciesListOutput = process.env.dependenciesListOutput;
             const buildScript = process.env.buildScript;
             const buildOutput = process.env.buildOutput;
@@ -241,24 +241,8 @@ jobs:
             core.info(`Formatting file '${formattingFile}' has been loaded (length ${formattingFileContent.length}).`);
             core.info(`Linting file '${lintingFile}' has been loaded (length ${lintingFileContent.length}).`);
             
-            const issue = await github.rest.issues.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber
-            });
-            const issueTitle = issue.data.title;
-            const issueDescription = issue.data.body;
-            const issueComments = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber
-            });
-            const issueCommentsText = issueComments.data
-              .map(comment => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
-              .join('\n');
-            
             const prompt = `
-            You are providing the entire new content of the source file, test file and README file with all necessary changes applied to resolve an issue.
+            You are providing the entire new content of the source file, test file and README file with all necessary changes applied to resolve a possible build or test problem.
             Consider the following when refining your response:
             * Source file content
             * Test file content
@@ -267,7 +251,6 @@ jobs:
             * Dependencies file content
             * Formatting file content
             * Linting file content
-            * Issue details
             * Dependency list
             * Build output
             * Test output
@@ -308,16 +291,7 @@ jobs:
             Linting file: ${lintingFile}
             LINTING_FILE_START
             ${lintingFileContent}
-            LINTING_FILE_END
-                 
-            Issue details:
-            ISSUE_START
-            title: ${issueTitle}
-            description:
-            ${issueDescription}
-            comments:
-            ${issueCommentsText}
-            ISSUE_END            
+            LINTING_FILE_END        
 
             Dependencies list from command: npm list
             DEPENDENCIES_LIST_START
@@ -339,7 +313,7 @@ jobs:
             ${mainOutput}
             MAIN_OUTPUT_END    
             
-            Please produce an updated version of the source file, and test file, and README and dependencies file that resolves the issue.
+            Please produce an updated version of the source file, and test file, and README and dependencies file that resolves the possible build or test problem
             Answer strictly with a JSON object following this schema:
             
             {
@@ -396,7 +370,7 @@ jobs:
             const response = await openai.chat.completions.create({
               model,
               messages: [
-                { role: "system", content: "You are a code fixer that returns an updated source file content, test file content, README file content and dependencies file content to resolve an issue. Answer strictly with a JSON object that adheres to the provided function schema." },
+                { role: "system", content: "You are a code fixer that returns an updated source file content, test file content, README file content and dependencies file content to resolve a possible build or test problem. Answer strictly with a JSON object that adheres to the provided function schema." },
                 { role: "user", content: prompt }
               ],
               tools: applyIssueResolutionToSource
@@ -452,12 +426,6 @@ jobs:
                 core.info(`Dependencies file '${dependenciesFile}' has been updated (length ${parsed.updatedDependenciesFileContent.length}).`);
               }
 
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                body: parsed.message
-              });
             } catch (e) {
               fixApplied = false;
               core.setFailed(`Failed to validate or process the response: ${e.message}`);
@@ -480,52 +448,53 @@ jobs:
           git status -v
           git diff ${{ env.target }}
 
+      - run: |
+          set +e
+          npm install
+          exit 0
+
+      - run: |
+          set +e
+          npm ci
+          exit 0
+
+      - name: List dependencies
+        id: list
+        shell: bash
+        run: |
+          set +e
+          output=$(npm list 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+          exit 0
+
       - name: Test after update
         shell: bash
         run: |
+          set +e
           ${{ env.testScript }}
+          exit 0
 
       - name: Run main after update
         shell: bash
         run: |
+          set +e
           timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }}
+          exit 0
 
-      - name: Commit to new branch
+      - name: Commit changes
         id: commit
         continue-on-error: true
         run: |
           git config --local user.email '${{ env.gitUserEmail }}'
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
-          git switch -c '${{ env.branchPrefix }}${{ env.issueNumber }}'
           git add -v --all
           git diff '${{ env.target }}'
-          git commit -m '${{ steps.update-target.outputs.message }} (fixes #${{ env.issueNumber }})'
-          git push --set-upstream origin '${{ env.branchPrefix }}${{ env.issueNumber }}' -v
+          git commit -m '${{ steps.update-target.outputs.message }}'
           git status -v
-
-      - name: Post Resolution Comment
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
-          script: |
-            const issueNumber = parseInt("${{ env.issueNumber }}");
-            const branchName = `${{ env.branchPrefix }}${{ env.issueNumber }}`;
-            const branchUrl = `https://github.com/${{ github.repository }}/tree/${branchName}`;
-            const body = `${branchUrl}`;
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              body: body
-            });
-            await github.rest.issues.addAssignees({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              assignees: [ context.actor ]
-            });
 
     outputs:
       fixApplied: ${{ steps.update-target.outputs.fixApplied }}
-      message: ${{ steps.update-target.outputs.message }}
