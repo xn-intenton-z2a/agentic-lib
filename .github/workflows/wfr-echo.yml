@@ -1,0 +1,21 @@
+# .github/workflows/wfr-echo.yml
+name: ∞ Echo
+
+on:
+  workflow_call:
+    inputs:
+      message:
+        description: 'The message to echo. e.g. "Hello, World!"'
+        required: false
+        type: string
+        default: 'Hello, World!'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    env:
+      message: ${{ inputs.message || 'Hello, World!' }}
+
+    steps:
+      - run: echo '${{ env.message }}'

@@ -1,0 +1,3177 @@
+./.github/workflows/wfr-review-issue.yml
+==== Content of ./.github/workflows/wfr-review-issue.yml ====
+# .github/workflows/wfr-review-issue.yml
+name: ∞ Review issue
+
+on:
+  workflow_call:
+    inputs:
+      issueNumber:
+        description: 'The issue number to review. e.g. "123"'
+        type: string
+        required: true
+      target:
+        description: 'The target file to review. e.g. "src/lib/main.js"'
+        type: string
+        required: false
+        default: 'src/lib/main.js'
+      buildScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
+        type: string
+        required: false
+        default: 'echo "No build script specified."'
+      testScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
+        type: string
+        required: false
+        default: 'npm test'
+      mainScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `node src/lib/main.js`'
+        type: string
+        required: false
+        default: 'node src/lib/main.js'
+      model:
+        description: 'The OpenAI model to use. e.g. "o3-mini"'
+        type: string
+        required: false
+        default: 'o3-mini'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
+    outputs:
+      fixed:
+        value: ${{ jobs.review-issue.outputs.fixed }}
+
+jobs:
+  review-issue:
+    runs-on: ubuntu-latest
+
+    env:
+      issueNumber: ${{ inputs.issueNumber }}
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      buildScript: ${{ inputs.buildScript || 'npm run build' }}
+      testScript: ${{ inputs.testScript || 'npm test' }}
+      mainScript: ${{ inputs.mainScript || 'node src/lib/main.js' }}
+      mainScriptTimeout: '5m'
+      model: ${{ inputs.model || 'o3-mini' }}
+      chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check GitHub authentication
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - run: npm ci
+
+      - name: Build project
+        id: build
+        shell: bash
+        run: |
+          output=$(${{ env.buildScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: rm -f .npmrc
+
+      - name: Run tests
+        id: test
+        shell: bash
+        run: |
+          output=$(${{ env.testScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Run main
+        id: main
+        shell: bash
+        run: |
+          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: verify
+        id: verify
+        uses: actions/github-script@v7
+        env:
+          buildOutput: ${{ steps.build.outputs.output }}
+          testOutput: ${{ steps.test.outputs.output }}
+          mainOutput: ${{ steps.main.outputs.output }}
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const target = process.env.target;            
+            const model = process.env.model;
+            const apiKey = process.env.chatgptApiSecretKey;
+            const issueNumber = parseInt(process.env.issueNumber);
+            const buildScript = process.env.buildScript;
+            const buildOutput = process.env.buildOutput;
+            const testScript = process.env.testScript;
+            const testOutput = process.env.testOutput;
+            const mainScript = process.env.mainScript;
+            const mainOutput = process.env.mainOutput;
+
+            const fs = require('fs');
+            const OpenAI = require('openai').default;
+            const { z } = require('zod');
+            require('dotenv').config();
+
+            if (!apiKey) { 
+              core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
+            }
+            const openai = new OpenAI({ apiKey });
+
+            const sourceFileContent = fs.readFileSync(target, 'utf8');
+            
+            const issue = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            const issueTitle = issue.data.title;
+            const issueDescription = issue.data.body;
+            const issueComments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            const issueCommentsText = issueComments.data
+              .map(comment => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
+              .join('\n');
+            
+            const prompt = `
+            Does the following source file content reflect the resolution of the following issue?
+            Consider the file content, issue, build output, test output, and main output.
+            
+            Source for file: ${target}
+            SOURCE_FILE_START
+            ${sourceFileContent}
+            SOURCE_FILE_END
+            
+            Issue:
+            ISSUE_START
+            title: ${issueTitle}
+            description:
+            ${issueDescription}
+            comments:
+            ${issueCommentsText}
+            ISSUE_END            
+
+            Build output from command: ${buildScript}
+            TEST_OUTPUT_START
+            ${buildOutput}
+            TEST_OUTPUT_END      
+            
+            Test output from command: ${testScript}
+            TEST_OUTPUT_START
+            ${testOutput}
+            TEST_OUTPUT_END            
+
+            Main output from command: ${mainScript}
+            MAIN_OUTPUT_START
+            ${mainOutput}
+            MAIN_OUTPUT_END    
+            
+            Answer strictly with a JSON object following this schema:
+            {
+              "fixed": "true", // if the fix is present, or "false" otherwise.
+              "message": "The issue has been resolved.", // if the fix is present, or an explanation otherwise.
+              "refinement": "None" // if the fix is present, or a suggested refinement to resolve the issue otherwise.
+            }
+            Ensure valid JSON.
+            `;
+            
+            const ResponseSchema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
+            
+            // Define the function schema for function calling
+            const tools = [{
+              type: "function",
+              function: {
+                name: "review_issue",
+                description: "Evaluate whether the supplied source file content resolves the issue. Return an object with fixed (string: 'true' or 'false'), message (explanation), and refinement (suggested refinement).",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
+                    message: { type: "string", description: "A message explaining the result" },
+                    refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
+                  },
+                  required: ["fixed", "message", "refinement"],
+                  additionalProperties: false
+                },
+                strict: true
+              }
+            }];
+
+            // Call OpenAI using function calling format
+            const response = await openai.chat.completions.create({
+              model,
+              messages: [
+                { role: "system", content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema." },
+                { role: "user", content: prompt }
+              ],
+              tools: tools
+            });
+            
+            let result;
+            if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
+              try {
+                result = JSON.parse(response.choices[0].message.tool_calls[0].function.arguments);
+              } catch (e) {
+                core.setFailed(`Failed to parse function call arguments: ${e.message}`);
+              }
+            } else if (response.choices[0].message.content) {
+              try {
+                result = JSON.parse(response.choices[0].message.content);
+              } catch (e) {
+                core.setFailed(`Failed to parse response content: ${e.message}`);
+              }
+            } else {
+              core.setFailed("No valid response received from OpenAI.");
+            }
+            
+            try {
+              const parsed = ResponseSchema.parse(result);
+              core.setOutput("fixed", parsed.fixed);
+              core.setOutput("message", parsed.message);
+              core.setOutput("refinement", parsed.refinement);
+              core.info(`fixed: "${parsed.fixed}"`);
+              core.info(`message: "${parsed.message}"`);
+              core.info(`refinement: "${parsed.refinement}"`);
+            
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: parsed.message
+              });
+            
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: parsed.refinement
+              });
+            } catch (e) {
+              core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
+            }
+            
+            core.setOutput("response", JSON.stringify(response));
+            core.setOutput("usage", JSON.stringify(response.usage));
+            core.info(`response: "${JSON.stringify(response)}"`);
+            core.info(`usage: "${JSON.stringify(response.usage)}"`);
+      - name: Close fixed issues
+        if: steps.verify.outputs.fixed == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const issueNumber = parseInt("${{ env.issueNumber }}");
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: "The issue has been automatically resolved and the fix has been merged."
+            });
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              state: "closed"
+            });
+
+    outputs:
+      fixed: ${{ steps.verify.outputs.fixed }}
+      message: ${{ steps.verify.outputs.message }}
+      refinement: ${{ steps.verify.outputs.refinement }}
+./.github/workflows/publish.yml
+==== Content of ./.github/workflows/publish.yml ====
+# .github/workflows/publish.yml
+name: Publish packages
+run-name: 'Publish packages [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
+concurrency: branch-${{ github.ref_name }}
+
+on:
+  push:
+    branches:
+      # When publishing from a branch, add branch name here, e,g, 'beta'
+      - main
+    paths:
+      - '**/*.sh'
+      - '**/*.js'
+      - '**/*.json'
+      - '**/*.yml'
+      - '**/*.properties'
+      - '!intentions/**'
+      - '!conversations/**'
+      - '!exports/**'
+      - '!programs/**'
+      - '!results/**'
+  workflow_dispatch:
+    inputs:
+      versionIncrement:
+        description: 'Select the Semantic Versioning segment to increment'
+        required: true
+        default: 'prerelease'
+        type: choice
+        options:
+          - prerelease
+          - patch
+          - minor
+          - major
+          - premajor
+          - preminor
+          - prepatch
+      featureTag:
+        description: 'Enter the version post-fix e.g. beta'
+        required: false
+        # When publishing from a branch, change the default here to a derivative of the branch name, e,g, 'beta'
+        default: ''
+        type: string
+
+jobs:
+
+  npm-test:
+    name: 'npm test with coverage'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: pwd
+      - run: ls -l
+      - run: find . -name '*.js' -exec echo '{}' \; | grep -v 'node_modules'
+      - run: npm test
+
+  publish:
+    name: 'publish packages'
+    needs:
+      - npm-test
+    permissions:
+      contents: write
+      packages: write
+    uses: './.github/workflows/wfr-publish.yml'
+    with:
+      versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
+      featureTag: ${{ inputs.featureTag || '' }}
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: 'node src/lib/main.js'
+      npmAuthOrganisation: 'xn-intenton-z2a'
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+./.github/workflows/wfr-publish.yml
+==== Content of ./.github/workflows/wfr-publish.yml ====
+# .github/workflows/wfr-publish.yml
+name: ∞ Publish packages
+
+on:
+  workflow_call:
+    inputs:
+      versionIncrement:
+        description: 'The Semantic Versioning segment to increment. One of: major | minor | patch | premajor | preminor | prepatch | prerelease.'
+        required: true
+        type: string
+        default: 'prerelease'
+      featureTag:
+        description: 'Enter the version post-fix e.g. beta'
+        required: false
+        default: ''
+        type: string
+      buildScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
+        type: string
+        required: false
+        default: 'echo "No build script specified."'
+      testScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
+        type: string
+        required: false
+        default: 'npm test'
+      mainScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `node src/lib/main.js`'
+        type: string
+        required: false
+        default: 'node src/lib/main.js'
+      npmAuthOrganisation:
+        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
+        type: string
+        required: false
+        default: ''
+      gitUserEmail:
+        description: 'The email to use for git commits. e.g. "action@github.com"'
+        type: string
+        required: false
+        default: 'action@github.com'
+      gitUserName:
+        description: 'The name to use for git commits. e.g. "GitHub Actions[bot]"'
+        type: string
+        required: false
+        default: 'GitHub Actions[bot]'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    env:
+      versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
+      featureTag: ${{ inputs.featureTag || '' }}
+      buildScript: ${{ inputs.buildScript || 'npm run build' }}
+      testScript: ${{ inputs.testScript || 'npm test' }}
+      mainScript: ${{ inputs.mainScript || 'node src/lib/main.js' }}
+      mainScriptTimeout: '5m'
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
+      gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
+      gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
+      gitCommitMessage: |
+        ${{ inputs.gitCommitMessage || 'chore: dependency updates' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check GitHub authentication
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        id: build
+        shell: bash
+        run: |
+          output=$(${{ env.buildScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "Build output: $output"
+
+      - name: Run tests before update
+        id: test
+        shell: bash
+        run: |
+          output=$(${{ env.testScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "Test output: $output"
+
+      - name: Run main before update
+        id: main
+        shell: bash
+        run: |
+          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "Main output: $output"
+
+      - name: Publish package and move to next prerelease version
+        if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
+        shell: bash
+        run: |
+          npm version --no-git-tag-version ${{ env.versionIncrement }}
+          ${{ env.buildScript }}
+          npm publish --tag latest --access restricted
+          npm version --no-git-tag-version prerelease
+
+      - name: Move to next pre[premajor|preminor|prepatch|prerelease] version
+        if: ${{ env.versionIncrement == 'premajor' || env.versionIncrement == 'preminor' || env.versionIncrement == 'prepatch' || env.versionIncrement == 'prerelease' }}
+        shell: bash
+        run: |
+          npm version --no-git-tag-version ${{ env.versionIncrement }}
+
+      - name: Examine the git working copy
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+
+      - name: Run build after version bump
+        run: ${{ env.buildScript }}
+
+      - name: Examine the git working copy
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+
+      - name: Push version commit
+        shell: bash
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git add -v --all
+          currentVersion=$(node -p "require('./package.json').version")
+          git commit -m "${currentVersion?}"
+          git push origin HEAD
+
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: rm -f .npmrc
+
+      - name: Upload package.json artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-json
+          path: "./package.json"
+
+      - name: Log final version
+        shell: bash
+        run: |
+          echo "Final version: ${{ steps.version.outputs.newVersion }}"
+./.github/workflows/wfr-fix-failing-build.yml
+==== Content of ./.github/workflows/wfr-fix-failing-build.yml ====
+# .github/workflows/wfr-fix-failing-build.yml
+name: ∞ Fix failing build
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        description: 'The target file to review. e.g. "src/lib/main.js"'
+        type: string
+        required: false
+        default: 'src/lib/main.js'
+      branch:
+        description: 'The prefix for the issue branch. e.g. "issue-".'
+        type: string
+        required: true
+      buildScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
+        type: string
+        required: false
+        default: 'echo "No build script specified."'
+      testScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
+        type: string
+        required: false
+        default: 'npm test'
+      mainScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `node src/lib/main.js`'
+        type: string
+        required: false
+        default: 'node src/lib/main.js'
+      model:
+        description: 'The OpenAI model to use. e.g. "o3-mini"'
+        type: string
+        required: false
+        default: 'o3-mini'
+      gitUserEmail:
+        description: 'The email to use for git commits. e.g. "action@github.com"'
+        type: string
+        required: false
+        default: 'action@github.com'
+      gitUserName:
+        description: 'The name to use for git commits. e.g. "GitHub Actions[bot]"'
+        type: string
+        required: false
+        default: 'GitHub Actions[bot]'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
+    outputs:
+      fixApplied:
+        value: ${{ jobs.fix-failing-build.outputs.fixApplied }}
+      message:
+        value: ${{ jobs.fix-failing-build.outputs.message }}
+
+jobs:
+  fix-failing-build:
+    runs-on: ubuntu-latest
+
+    env:
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      branch: ${{ inputs.branch || 'issue-' }}
+      buildScript: ${{ inputs.buildScript || 'npm run build' }}
+      testScript: ${{ inputs.testScript || 'npm test' }}
+      mainScript: ${{ inputs.mainScript || 'node src/lib/main.js' }}
+      mainScriptTimeout: '5m'
+      model: ${{ inputs.model || 'o3-mini' }}
+      chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
+      gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check GitHub authentication
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - run: npm ci
+
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: rm -f .npmrc
+
+      - name: List dependencies
+        id: list
+        shell: bash
+        run: |
+          output=$(npm list 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Build project (tolerantly)
+        id: build
+        shell: bash
+        run: |
+          set +e
+          output=$(${{ env.buildScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+          exit 0
+
+      - name: Run tests (tolerantly)
+        id: test
+        shell: bash
+        run: |
+          set +e
+          output=$(${{ env.testScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+          exit 0
+
+      - name: Run main (tolerantly)
+        id: main
+        shell: bash
+        run: |
+          set +e
+          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+          exit 0
+
+      - name: update-target
+        id: update-target
+        uses: actions/github-script@v7
+        env:
+          listOutput: ${{ steps.list.outputs.output }}
+          buildOutput: ${{ steps.build.outputs.output }}
+          testOutput: ${{ steps.test.outputs.output }}
+          mainOutput: ${{ steps.main.outputs.output }}
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const target = process.env.target;
+            const model = process.env.model;
+            const apiKey = process.env.chatgptApiSecretKey;
+            const listOutput = process.env.listOutput;
+            const buildScript = process.env.buildScript;
+            const buildOutput = process.env.buildOutput;
+            const testScript = process.env.testScript;
+            const testOutput = process.env.testOutput;
+            const mainScript = process.env.mainScript;
+            const mainOutput = process.env.mainOutput;
+
+            const fs = require('fs');
+            const OpenAI = require('openai').default;
+            const { z } = require('zod');
+            require('dotenv').config();
+
+            if (!apiKey) { 
+              core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
+            }
+            const openai = new OpenAI({ apiKey });
+
+            const sourceFileContent = fs.readFileSync(target, 'utf8');
+            
+            const prompt = `
+            You are providing the entire new content of the source file, with all necessary changes applied to resolve any issues visible.
+            Consider the file content, dependency list, build output, test output, and main output.
+            
+            Source for file: ${target}
+            SOURCE_FILE_START
+            ${sourceFileContent}
+            SOURCE_FILE_END
+            
+            Dependency list from command: npm list
+            TEST_OUTPUT_START
+            ${listOutput}
+            TEST_OUTPUT_END    
+
+            Build output from command: ${buildScript}
+            TEST_OUTPUT_START
+            ${buildOutput}
+            TEST_OUTPUT_END      
+            
+            Test output from command: ${testScript}
+            TEST_OUTPUT_START
+            ${testOutput}
+            TEST_OUTPUT_END            
+
+            Main output from command: ${mainScript}
+            MAIN_OUTPUT_START
+            ${mainOutput}
+            MAIN_OUTPUT_END    
+            
+            Please produce an updated version of the file that resolves any issues visible.
+            Answer strictly with a JSON object following this schema:
+            
+            {
+              "updatedSourceFileContent": "REPLACE: The entire new content of the source file, with all necessary changes applied.",
+              "message": "REPLACE: A short sentence explaining the change applied suitable for a commit message."
+            }
+            
+            Ensure valid JSON.
+            `;
+            
+            const ResponseSchema = z.object({ updatedSourceFileContent: z.string(), message: z.string() });
+            
+            // Define the function schema for functional calling
+            const updateSourceFile = [{
+              type: "function",
+              function: {
+                name: "updateSourceFile",
+                description: "Return an updated version of the source file content along with a commit message. Use the provided file content, dependency list, build output, test output, and main output to generate the update.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    updatedSourceFileContent: {
+                      type: "string",
+                      description: "The entire new content of the source file, with all necessary changes applied."
+                    },
+                    message: {
+                      type: "string",
+                      description: "A short sentence explaining the change applied suitable for a commit message."
+                    }
+                  },
+                  required: ["updatedSourceFileContent", "message"],
+                  additionalProperties: false
+                },
+                strict: true
+              }
+            }];
+            
+            // Call OpenAI using function calling format
+            const response = await openai.chat.completions.create({
+              model,
+              messages: [
+                { role: "system", content: "You are a code fixer that returns an updated source file content to resolve issues. Answer strictly with a JSON object that adheres to the provided function schema." },
+                { role: "user", content: prompt }
+              ],
+              tools: updateSourceFile
+            });
+            
+            let fixApplied;
+            let result;
+            if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
+              try {
+                result = JSON.parse(response.choices[0].message.tool_calls[0].function.arguments);
+              } catch (e) {
+                fixApplied = false;
+                core.setFailed(`Failed to parse function call arguments: ${e.message}`);
+              }
+            } else if (response.choices[0].message.content) {
+              try {
+                result = JSON.parse(response.choices[0].message.content);
+              } catch (e) {
+                fixApplied = false;
+                core.setFailed(`Failed to parse response content: ${e.message}`);
+              }
+            } else {
+              fixApplied = false;
+              core.setFailed("No valid response received from OpenAI.");
+            }
+            
+            try {
+              const parsed = ResponseSchema.parse(result);
+              // Sanitize commit message: retain only alphanumerics, spaces, and basic URL-safe punctuation (-, _, ., ~)
+              const sanitizedMessage = parsed.message.replace(/[^A-Za-z0-9 \-\_\.\~]/g, '').replace(/\s+/g, ' ').trim();
+              core.setOutput("message", sanitizedMessage);
+              core.info(`message: "${sanitizedMessage}"`);
+            
+              fs.writeFileSync(target, parsed.updatedSourceFileContent, 'utf8');
+              console.log(`Target file '${target}' has been updated.`);
+            
+              fixApplied = true;
+            } catch (e) {
+              fixApplied = false;
+              core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
+            }
+            
+            core.setOutput("fixApplied", fixApplied);
+            core.setOutput("response", JSON.stringify(response));
+            core.setOutput("usage", JSON.stringify(response.usage));
+            core.info(`fixApplied: "${fixApplied}"`);
+            core.info(`response: "${JSON.stringify(response)}"`);
+            core.info(`usage: "${JSON.stringify(response.usage)}"`);
+
+      - run: cat ${{ env.target }}
+
+      - name: Use git diff to show changes
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git diff ${{ env.target }}
+
+      - name: Commit to new branch
+        id: commit
+        continue-on-error: true
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git switch -c '${{ env.branch }}'
+          git add -v --all '${{ env.target }}'
+          git diff '${{ env.target }}'
+          git commit -m "${{ steps.update-target.outputs.message }}"
+          git push --set-upstream origin '${{ env.branch }}' -v
+          git status -v
+
+    outputs:
+      fixApplied: ${{ steps.update-target.outputs.fixApplied }}
+      message: ${{ steps.update-target.outputs.message }}
+./.github/workflows/wfr-automerge-label-issue.yml
+==== Content of ./.github/workflows/wfr-automerge-label-issue.yml ====
+# .github/workflows/wfr-automerge-label-issue.yml
+name: ∞ Label Issue
+
+on:
+  workflow_call:
+    inputs:
+      pullNumber:
+        description: 'The pull request number. e.g. "123"'
+        type: string
+        required: true
+      branchPrefix:
+        description: 'The prefix for the issue branch. e.g. "issue-".'
+        type: string
+        required: true
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+    outputs:
+      issueNumber:
+        description: 'The issue number just merged. e.g. "123"'
+        value: ${{ jobs.check-pr.outputs.issueNumber }}
+jobs:
+  label-issue:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: extract-issueNumber
+        id: extract-issue-number
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const pullNumber = parseInt('${{ inputs.pullNumber }}', 10);
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: pullNumber,
+            });
+            const branchName = pullRequest.head.ref;
+            const issueNumberMatch = branchName.match(/${{ inputs.branchPrefix }}(\d+)/);
+            let issueNumber;
+            if (issueNumberMatch) {
+              issueNumber = issueNumberMatch[1];
+            } else {
+              issueNumber = '';
+            }
+
+            core.setOutput('issueNumber', issueNumber);
+            core.info(`issueNumber '${issueNumber}'`);
+
+      - name: Add "merged" label and comment on issue
+        if: steps.extract-issue-number.outputs.issueNumber != ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const pullNumber = parseInt('${{ inputs.pullNumber }}', 10);
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: pullNumber,
+            });
+            const issueNumber = '${{ steps.extract-issue-number.outputs.issueNumber }}';
+            const branchName = pullRequest.head.ref;
+            const commentBody = `The feature branch \`${branchName}\` has been merged.`;
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              labels: ['merged']
+            });
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: commentBody
+            });
+    outputs:
+      issueNumber: ${{ steps.extract-issue-number.outputs.issueNumber }}./.github/workflows/wfr-automerge-merge-pr.yml
+==== Content of ./.github/workflows/wfr-automerge-merge-pr.yml ====
+# .github/workflows/wfr-automerge-merge-pr.yml
+name: ∞ Automerge Pull Request
+
+on:
+  workflow_call:
+    inputs:
+      pullNumber:
+        description: 'The pull request number. e.g. "123"'
+        type: string
+        required: true
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+    outputs:
+      prMerged:
+        description: 'Set to "true", if the PR has been merged either already or by this process.'
+        value: ${{ jobs.merge-pr.outputs.prMerged }}
+
+jobs:
+  merge-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: auto-merge-pr
+        id: auto-merge-pr
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const pullNumber = parseInt('${{ inputs.pullNumber }}', 10);
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            let prMerged;
+  
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: pullNumber,
+            });
+
+            if (pullRequest.state === "closed") {
+              core.info(`PR #${pullNumber} is already closed.`);
+              prMerged = 'true';
+            } else if (pullRequest.state !== 'open') {
+              core.setFailed(`PR #${pullNumber} is not open it is ${pullRequest.state}.`);
+              prMerged = 'false';
+            } else if (pullRequest.mergeable && pullRequest.mergeable_state === 'clean') {
+            
+              await github.rest.pulls.merge({
+                owner,
+                repo,
+                pull_number: pullNumber,
+                merge_method: 'squash',
+              });
+              core.info(`PR #${pullNumber} merged.`);
+            
+              const branchRef = `heads/${pullRequest.head.ref}`;
+              await github.rest.git.deleteRef({
+                owner,
+                repo,
+                ref: branchRef,
+              });
+              core.info(`Branch '${pullRequest.head.ref}' deleted.`);
+              prMerged = 'true';
+            
+            } else if (pullRequest.mergeable === false) {
+              core.setFailed(`PR #${pullNumber} is not mergeable.`);
+              prMerged = 'false';
+            } else if (pullRequest.mergeable === null) {
+              core.setFailed(`PR #${pullNumber} does not yet have a value for mergeability.`);
+              prMerged = 'false';
+            } else {
+              core.setFailed(`PR #${pullNumber} is not known.`);
+              prMerged = 'false';
+            }
+            
+            core.setOutput('prMerged', prMerged);
+            core.info(`prMerged: '${prMerged}'`);
+
+    outputs:
+      prMerged: ${{ steps.auto-merge-pr.outputs.prMerged }}
+./.github/workflows/wfr-start-issue.yml
+==== Content of ./.github/workflows/wfr-start-issue.yml ====
+# .github/workflows/wfr-start-issue.yml
+name: ∞ Start issue
+
+on:
+  workflow_call:
+    inputs:
+      issueNumber:
+        description: 'The issue number to review. e.g. "123"'
+        type: string
+        required: true
+      target:
+        description: 'The target file to review. e.g. "src/lib/main.js"'
+        type: string
+        required: false
+        default: 'src/lib/main.js'
+      branchPrefix:
+        description: 'The prefix for the issue branch. e.g. "issue-".'
+        type: string
+        required: true
+      buildScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
+        type: string
+        required: false
+        default: 'echo "No build script specified."'
+      testScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
+        type: string
+        required: false
+        default: 'npm test'
+      mainScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `node src/lib/main.js`'
+        type: string
+        required: false
+        default: 'node src/lib/main.js'
+      model:
+        description: 'The OpenAI model to use. e.g. "o3-mini"'
+        type: string
+        required: false
+        default: 'o3-mini'
+      gitUserEmail:
+        description: 'The email to use for git commits. e.g. "action@github.com"'
+        type: string
+        required: false
+        default: 'action@github.com'
+      gitUserName:
+        description: 'The name to use for git commits. e.g. "GitHub Actions[bot]"'
+        type: string
+        required: false
+        default: 'GitHub Actions[bot]'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
+    outputs:
+      fixApplied:
+        value: ${{ jobs.start-issue.outputs.fixApplied }}
+      message:
+        value: ${{ jobs.start-issue.outputs.message }}
+
+jobs:
+  start-issue:
+    runs-on: ubuntu-latest
+
+    env:
+      issueNumber: ${{ inputs.issueNumber }}
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      branchPrefix: ${{ inputs.branchPrefix || 'issue-' }}
+      buildScript: ${{ inputs.buildScript || 'npm run build' }}
+      testScript: ${{ inputs.testScript || 'npm test' }}
+      mainScript: ${{ inputs.mainScript || 'node src/lib/main.js' }}
+      mainScriptTimeout: '5m'
+      model: ${{ inputs.model || 'o3-mini' }}
+      chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
+      gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check GitHub authentication
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - run: npm ci
+
+      - name: Build project
+        id: build
+        shell: bash
+        run: |
+          output=$(${{ env.buildScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: rm -f .npmrc
+
+      - name: List dependencies
+        id: list
+        shell: bash
+        run: |
+          output=$(npm list 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Run tests
+        id: test
+        shell: bash
+        run: |
+          output=$(${{ env.testScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Run main
+        id: main
+        shell: bash
+        run: |
+          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: update-target
+        id: update-target
+        uses: actions/github-script@v7
+        env:
+          listOutput: ${{ steps.list.outputs.output }}
+          buildOutput: ${{ steps.build.outputs.output }}
+          testOutput: ${{ steps.test.outputs.output }}
+          mainOutput: ${{ steps.main.outputs.output }}
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const target = process.env.target;
+            const model = process.env.model;
+            const apiKey = process.env.chatgptApiSecretKey;
+            const issueNumber = parseInt(process.env.issueNumber);
+            const listOutput = process.env.listOutput;
+            const buildScript = process.env.buildScript;
+            const buildOutput = process.env.buildOutput;
+            const testScript = process.env.testScript;
+            const testOutput = process.env.testOutput;
+            const mainScript = process.env.mainScript;
+            const mainOutput = process.env.mainOutput;
+            
+            const fs = require('fs');
+            const OpenAI = require('openai').default;
+            const { z } = require('zod');
+            require('dotenv').config();
+            
+            if (!apiKey) { 
+              core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
+            }
+            const openai = new OpenAI({ apiKey });
+            
+            const sourceFileContent = fs.readFileSync(target, 'utf8');
+            
+            const issue = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            const issueTitle = issue.data.title;
+            const issueDescription = issue.data.body;
+            const issueComments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            const issueCommentsText = issueComments.data
+              .map(comment => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
+              .join('\n');
+            
+            const prompt = `
+            You are providing the entire new content of the source file, with all necessary changes applied to resolve an issue.
+            Consider the file content, issue, dependency list, build output, test output, and main output.
+            
+            Source for file: ${target}
+            SOURCE_FILE_START
+            ${sourceFileContent}
+            SOURCE_FILE_END
+            
+            Issue:
+            ISSUE_START
+            title: ${issueTitle}
+            description:
+            ${issueDescription}
+            comments:
+            ${issueCommentsText}
+            ISSUE_END            
+
+            Dependency list from command: npm list
+            TEST_OUTPUT_START
+            ${listOutput}
+            TEST_OUTPUT_END    
+
+            Build output from command: ${buildScript}
+            TEST_OUTPUT_START
+            ${buildOutput}
+            TEST_OUTPUT_END      
+            
+            Test output from command: ${testScript}
+            TEST_OUTPUT_START
+            ${testOutput}
+            TEST_OUTPUT_END            
+
+            Main output from command: ${mainScript}
+            MAIN_OUTPUT_START
+            ${mainOutput}
+            MAIN_OUTPUT_END    
+            
+            Please produce an updated version of the file that resolves the following issue.
+            Answer strictly with a JSON object following this schema:
+            
+            {
+              "updatedSourceFileContent": "The entire new content of the source file, with all necessary changes applied.",
+              "message": "A short sentence explaining the change applied suitable for a commit message."
+            }
+            
+            Ensure valid JSON.
+            `;
+            
+            const ResponseSchema = z.object({ updatedSourceFileContent: z.string(), message: z.string() });
+            
+            // Define the function schema for functional calling
+            const updateSourceFile = [{
+              type: "function",
+              function: {
+                name: "updateSourceFile",
+                description: "Return an updated version of the source file content along with a commit message. Use the provided file content, issue details, dependency list, build output, test output, and main output to generate the update.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    updatedSourceFileContent: {
+                      type: "string",
+                      description: "The entire new content of the source file, with all necessary changes applied."
+                    },
+                    message: {
+                      type: "string",
+                      description: "A short sentence explaining the change applied suitable for a commit message."
+                    }
+                  },
+                  required: ["updatedSourceFileContent", "message"],
+                  additionalProperties: false
+                },
+                strict: true
+              }
+            }];
+            
+            // Call OpenAI using the function calling format via the tools parameter
+            const response = await openai.chat.completions.create({
+              model,
+              messages: [
+                { role: "system", content: "You are a code fixer that returns an updated source file content to resolve an issue. Answer strictly with a JSON object that adheres to the provided function schema." },
+                { role: "user", content: prompt }
+              ],
+              tools: updateSourceFile
+            });
+            
+            let fixApplied;
+            let result;
+            // Check if the model made a function call; if so, parse its arguments.
+            if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
+              try {
+                result = JSON.parse(response.choices[0].message.tool_calls[0].function.arguments);
+              } catch (e) {
+                fixApplied = false;
+                core.setFailed(`Failed to parse function call arguments: ${e.message}`);
+              }
+            } else if (response.choices[0].message.content) {
+              try {
+                result = JSON.parse(response.choices[0].message.content);
+              } catch (e) {
+                fixApplied = false;
+                core.setFailed(`Failed to parse response content: ${e.message}`);
+              }
+            } else {
+              fixApplied = false;
+              core.setFailed("No valid response received from OpenAI.");
+            }
+            
+            try {
+              const parsed = ResponseSchema.parse(result);
+              // Sanitize commit message: retain only alphanumerics, spaces, and basic URL-safe punctuation (-, _, ., ~)
+              const sanitizedMessage = parsed.message.replace(/[^A-Za-z0-9 \-\_\.\~]/g, '').replace(/\s+/g, ' ').trim();
+              core.setOutput("message", sanitizedMessage);
+              core.info(`message: "${sanitizedMessage}"`);
+            
+              fs.writeFileSync(target, parsed.updatedSourceFileContent, 'utf8');
+              console.log(`Target file '${target}' has been updated.`);
+            
+              fixApplied = true;
+            
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: parsed.message
+              });
+            } catch (e) {
+              fixApplied = false;
+              core.setFailed(`Failed to validate or process the response: ${e.message}`);
+            }
+            
+            core.setOutput("fixApplied", fixApplied);
+            core.setOutput("response", JSON.stringify(response));
+            core.setOutput("usage", JSON.stringify(response.usage));
+            core.info(`fixApplied: "${fixApplied}"`);
+            core.info(`response: "${JSON.stringify(response)}"`);
+            core.info(`usage: "${JSON.stringify(response.usage)}"`);
+
+      - run: cat ${{ env.target }}
+
+      - name: Use git diff to show changes
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git diff ${{ env.target }}
+
+      - name: Test after update
+        shell: bash
+        run: |
+          ${{ env.testScript }}
+
+      - name: Run main after update
+        shell: bash
+        run: |
+          timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }}
+
+      - name: Commit to new branch
+        id: commit
+        continue-on-error: true
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git switch -c '${{ env.branchPrefix }}${{ env.issueNumber }}'
+          git add -v --all '${{ env.target }}'
+          git diff '${{ env.target }}'
+          git commit -m '${{ steps.update-target.outputs.message }} https://github.com/${{ github.repository }}/issues/${{ env.issueNumber }}'
+          git push --set-upstream origin '${{ env.branchPrefix }}${{ env.issueNumber }}' -v
+          git status -v
+          npm run linting '${{ env.target }}'
+
+      - name: Post Resolution Comment
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const issueNumber = parseInt("${{ env.issueNumber }}");
+            const branchName = `${{ env.branchPrefix }}${{ env.issueNumber }}`;
+            const branchUrl = `https://github.com/${{ github.repository }}/tree/${branchName}`;
+            const body = `${branchUrl}`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: body
+            });
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              assignees: [ context.actor ]
+            });
+
+    outputs:
+      fixApplied: ${{ steps.update-target.outputs.fixApplied }}
+      message: ${{ steps.update-target.outputs.message }}
+./.github/workflows/test.yml
+==== Content of ./.github/workflows/test.yml ====
+# .github/workflows/test.yml
+name: Tests
+run-name: 'Tests [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
+
+on:
+  push:
+    paths:
+      - '**/*.sh'
+      - '**/*.js'
+      - '**/*.json'
+      - '**/*.yml'
+      - '**/*.properties'
+      - '!exports/**'
+  workflow_dispatch:
+  schedule:
+    # Test every 6 hours
+    - cron: '0 4,10,16,22 * * *'
+
+jobs:
+
+  npm-test:
+    name: 'npm test with coverage'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: pwd
+      - run: ls -l
+      - run: find . -name '*.js' -exec echo '{}' \; | grep -v 'node_modules'
+      - run: npm test
+./.github/workflows/wfr-update.yml
+==== Content of ./.github/workflows/wfr-update.yml ====
+# .github/workflows/wfr-update.yml
+name: ∞ Update packages
+
+on:
+  workflow_call:
+    inputs:
+      buildScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
+        type: string
+        required: false
+        default: 'echo "No build script specified."'
+      testScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
+        type: string
+        required: false
+        default: 'npm test'
+      mainScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `node src/lib/main.js`'
+        type: string
+        required: false
+        default: 'node src/lib/main.js'
+      upgradeTarget:
+        description: 'The type of upgrade to perform. e.g. "minor"'
+        type: string
+        required: false
+        default: 'minor'
+      npmAuthOrganisation:
+        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
+        type: string
+        required: false
+        default: ''
+      gitUserEmail:
+        description: 'The email to use for git commits. e.g. "action@github.com"'
+        type: string
+        required: false
+        default: 'action@github.com'
+      gitUserName:
+        description: 'The name to use for git commits. e.g. "GitHub Actions[bot]"'
+        type: string
+        required: false
+        default: 'GitHub Actions[bot]'
+      gitCommitMessage:
+        description: 'The message to use for git commits. e.g. "chore: dependency updates"'
+        type: string
+        required: false
+        default: 'chore: dependency updates'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    env:
+      buildScript: ${{ inputs.buildScript || 'npm run build' }}
+      testScript: ${{ inputs.testScript || 'npm test' }}
+      mainScript: ${{ inputs.mainScript || 'node src/lib/main.js' }}
+      mainScriptTimeout: '5m'
+      upgradeTarget: ${{ inputs.upgradeTarget || 'minor' }}
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
+      gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
+      gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
+      gitCommitMessage: |
+        ${{ inputs.gitCommitMessage || 'chore: dependency updates' }}
+
+    steps:
+
+      - name: Log which version
+        if: ${{ github.event.client_payload }}
+        shell: bash
+        run: |
+          echo "Package: ${{ github.event.client_payload.packageName }}"
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check GitHub authentication
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - run: rm -f package-lock.json
+
+      - run: npm install
+
+      - name: Build project
+        id: build
+        shell: bash
+        run: |
+          output=$(${{ env.buildScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Run tests before update
+        id: test
+        shell: bash
+        run: |
+          output=$(${{ env.testScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Run main before update
+        id: main
+        shell: bash
+        run: |
+          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Update packages with npm
+        continue-on-error: true
+        shell: bash
+        env:
+          ncuUpgradeTarget: ${{ env.upgradeTarget || 'minor' }}
+        run: npm install --save ; npm update ; npm upgrade ; npm install
+
+      - name: Update packages with ncu
+        continue-on-error: true
+        shell: bash
+        env:
+          ncuUpgradeTarget: ${{ env.upgradeTarget || 'minor' }}
+        run: npx ncu --upgrade --enginesNode --retry 3 --target ${{ env.ncuUpgradeTarget }} --verbose ; npm install ; npm update ; npm upgrade ; npm install
+
+      - run: rm -rf './node_modules/'
+
+      - run: npm ci
+        
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: rm -f .npmrc
+
+      - name: Run tests after update
+        shell: bash
+        run: |
+          output=$(${{ env.testScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Run main after update
+        shell: bash
+        run: |
+          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"  
+
+      - name: Create Pull Request
+        if: ${{ success() }}
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "${{ env.gitCommitMessage  }}"
+          title: "Dependency Updates"
+          body: "${{ env.gitCommitMessage  }} (${{ env.upgradeTarget }})"
+          branch: update-${{ github.run_id }}
+          delete-branch: true
+          labels: |
+            dependencies
+            automated
+            automerge
+          author: ${{ env.gitUserName }} <${{ env.gitUserEmail }}>
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          # token: ${{ secrets.GITHUB_TOKEN }}
+  
+./.github/workflows/wfr-update-prs.yml
+==== Content of ./.github/workflows/wfr-update-prs.yml ====
+# .github/workflows/wfr-update-prs.yml
+name: ∞ Update all PRs from the base branch
+
+on:
+  workflow_call:
+    inputs:
+      baseBranch:
+        description: 'The base branch to compare the PRs against. e.g. "main"'
+        type: string
+        required: false
+        default: 'main'
+      pulls:
+        description: 'The maximum number of PRs to process. e.g. "100"'
+        type: string
+        required: false
+        default: '100'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+
+jobs:
+  update-prs:
+    runs-on: ubuntu-latest
+
+    env:
+      baseBranch: ${{ inputs.baseBranch || 'main' }}
+      pulls: ${{ inputs.pulls || '100' }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: List Open Pull Requests
+        id: list-prs
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pullsPerPage = parseInt('${{ env.pulls }}', 10);
+            
+            const { data: pulls } = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open',
+              per_page: pullsPerPage,
+            });
+
+            const prs = pulls.map(pr => ({
+              number: pr.number,
+              headRef: pr.head.ref,
+              baseRef: pr.base.ref,
+            }));
+
+            const baseBranch = '${{ env.baseBranch }}';
+
+            for (const pr of prs) {
+              const prNumber = pr.number;
+              const headRef = pr.headRef;
+
+              core.info(`Processing PR #${prNumber} (branch ${headRef})`);
+
+              // Compare the PR branch with main
+              const compare = await github.rest.repos.compareCommits({
+                owner,
+                repo,
+                base: headRef,
+                head: baseBranch,
+              });
+
+              if (compare.data.behind_by > 0) {
+                core.info(`PR #${prNumber} is behind ${baseBranch} by ${compare.data.behind_by} commits. Attempting to merge ${baseBranch} into ${headRef}.`);
+                try {
+                  // Merge main into the PR branch
+                  await github.rest.repos.merge({
+                    owner,
+                    repo,
+                    base: headRef,
+                    head: baseBranch,
+                  });
+                  core.info(`Successfully updated PR #${prNumber} (${headRef}) with the latest changes from ${baseBranch}.`);
+                } catch (error) {
+                  core.warning(`Could not update PR #${prNumber} (${headRef}): ${error.message}`);
+                }
+              } else {
+                core.info(`PR #${prNumber} (${headRef}) is up to date with ${baseBranch}.`);
+              }
+            }
+./.github/workflows/update-prs.yml
+==== Content of ./.github/workflows/update-prs.yml ====
+# .github/workflows/update-prs.yml
+name: Update Pull Requests
+concurrency: update-prs
+run-name: "Update Pull Requests"
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Update PRs every 6 hours
+    #- cron: '30 4,10,16,22 * * *'
+    - cron: '0 1 * * *'
+
+jobs:
+  update-prs:
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: './.github/workflows/wfr-update-prs.yml'
+    with:
+      baseBranch: 'main'
+      pulls: '100'
+./.github/workflows/issue-creator.yml
+==== Content of ./.github/workflows/issue-creator.yml ====
+# .github/workflows/issue-creator.yml
+name: Create Issue
+concurrency: create-issue
+run-name: "Create Issue"
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'An asset (e.g. source file) to reference in the issue.'
+        required: false
+        type: string
+        default: 'src/lib/main.js'
+      issueTitle:
+        description: 'Text to drive the issue title (if "house choice", a currently random prompt will be selected).'
+        required: false
+        type: string
+        default: 'house choice'
+      runIssueWorker:
+        description: 'Should the downstream issue worker workflow be run?'
+        required: false
+        type: boolean
+        default: true
+  schedule:
+    # Run every 10 minutes (as an example)
+    #- cron: '0,10,20,30,40,50 * * * *'
+    - cron: '0 2 * * *'
+
+jobs:
+
+  create-issue:
+    permissions:
+      issues: write
+      id-token: write
+    uses: './.github/workflows/wfr-create-issue.yml'
+    with:
+      issueTitle: ${{ inputs.issueTitle || 'house choice' }}
+      houseChoiceOptions: |
+        Create or refresh a README style comment block at the top of the file.
+        || Make code changes that improve the behaviour.
+        || Make code changes that extend the features.
+        || Improve or add a test (a test is run from a main and outputs to console to demonstrate the feature).
+        || Generally tidy up the code.
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+
+  run-issue-worker:
+    needs:
+      - create-issue
+    runs-on: ubuntu-latest
+    if: ${{ inputs.runIssueWorker == true }}
+    permissions:
+      contents: write
+      actions: write
+      packages: write
+      issues: write
+      pull-requests: write
+      id-token: write
+      repository-projects: write
+      #security-events: write
+      #statuses: write
+      #deployments: write
+      #checks: write
+      #pages: write
+      #attestations: write
+      #discussions: write
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Trigger downstream issue-worker workflow
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'issue-worker.yml',
+              ref: context.ref,
+              inputs: {}
+            });
+./.github/workflows/wfr-create-pr.yml
+==== Content of ./.github/workflows/wfr-create-pr.yml ====
+# .github/workflows/wfr-create-pr.yml
+name: ∞ Create a PR
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: 'The branch to create a PR from. e.g. "issue-123"'
+        type: string
+        required: true
+      baseBranch:
+        description: 'The base branch to compare the PRs against. e.g. "main"'
+        type: string
+        required: false
+        default: 'main'
+      pulls:
+        description: 'The maximum number of PRs to process. e.g. "100"'
+        type: string
+        required: false
+        default: '100'
+      commit-message:
+        description: 'The commit message to use for the PR. e.g. "Ready for pull"'
+        type: string
+        required: false
+        default: 'Ready for pull'
+      label:
+        description: 'The labels to apply to the PR. e.g. "automerge"'
+        type: string
+        required: false
+        default: 'automerge'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+
+    env:
+      branch: ${{ inputs.branch }}
+      baseBranch: ${{ inputs.baseBranch || 'main' }}
+      pulls: ${{ inputs.pulls || '100' }}
+      commit-message: 'Ready for pull'
+      label: 'automerge'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Create pull request, if fixed after re-checking linting
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: existingPulls } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${{ env.branch }}`,
+              base: '${{ env.baseBranch }}',
+              state: 'open',
+            });
+            if (existingPulls.length === 0) {
+              const { data: pr } = await github.rest.pulls.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '${{ env.commit-message }}',
+                head: '${{ env.branch }}',
+                base: '${{ env.baseBranch }}',
+                body: '${{ env.commit-message }}',
+                maintainer_can_modify: true,
+              });
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: ['${{ env.label }}'],
+              });
+              core.info(`Pull request created: ${pr.html_url}`);
+            } else {
+              core.info('Pull request already exists for this branch.');
+            }
+./.github/workflows/wfr-create-issue.yml
+==== Content of ./.github/workflows/wfr-create-issue.yml ====
+# .github/workflows/wfr-create-issue.yml
+name: ∞ Create issue
+
+on:
+  workflow_call:
+    inputs:
+      issueTitle:
+        description: 'Text to drive the issue title (if "house choice", a random prompt will be selected).'
+        required: false
+        type: string
+        default: 'house choice'
+      target:
+        description: 'The target file to review. e.g. "src/lib/main.js"'
+        type: string
+        required: false
+        default: 'src/lib/main.js'
+      houseChoiceOptions:
+        description: 'Options for house choice, separated by commas.'
+        type: string
+        required: false
+        default: 'Make code changes that extend or improve the features or resolve issues shown in the included context.'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+    outputs:
+      issueTitle:
+        description: 'The issue title to resolve. e.g. "Make a small improvement."'
+        value: ${{ jobs.create-issue.outputs.issueTitle }}
+      issueNumber:
+        description: 'The issue number to review. e.g. "123"'
+        value: ${{ jobs.create-issue.outputs.issueNumber }}
+
+jobs:
+  create-issue:
+    runs-on: ubuntu-latest
+
+    env:
+      issueTitle: ${{ inputs.issueTitle || 'house choice' }}
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      houseChoiceOptions: ${{ inputs.houseChoiceOptions || 'Make code changes that extend or improve the features or resolve issues shown in the included context.'}}
+
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: create-issue
+        id: create-issue
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const target = process.env.target;
+            const issueTitle = process.env.issueTitle;
+            const houseChoiceOptions = process.env.houseChoiceOptions.split('||');
+
+            let selectedIssueTitle;
+            if (issueTitle === 'house choice') {
+              selectedIssueTitle = houseChoiceOptions[Math.floor(Math.random() * houseChoiceOptions.length)];
+            } else {
+              selectedIssueTitle = issueTitle;
+            }
+
+            const issueBody = `Please resolve ${selectedIssueTitle} in \`${target}\`.`;
+            const { data: issue } = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: selectedIssueTitle,
+              body: issueBody,
+              labels: ['automated']
+            });
+
+            core.setOutput("issueTitle", selectedIssueTitle);
+            core.setOutput("issueNumber", issue.number);
+            core.info(`issueTitle: ${selectedIssueTitle}`);
+            core.info(`issueNumber: ${issue.number}`);
+
+    outputs:
+      issueTitle: ${{ steps.create-issue.outputs.issueTitle }}
+      issueNumber: ${{ steps.create-issue.outputs.issueNumber }}./.github/workflows/wfr-delete-caches.yml
+==== Content of ./.github/workflows/wfr-delete-caches.yml ====
+# .github/workflows/wfr-delete-caches.yml
+name: ∞ Delete caches
+
+on:
+  workflow_call:
+    inputs:
+      deleteAllCaches:
+        description: 'Whether to delete all caches. e.g. "true"'
+        type: string
+        required: false
+        default: 'false'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    env:
+      deleteAllCaches: ${{ inputs.deleteAllCaches || 'false' }}
+
+    steps:
+      - name: Delete all GitHub Actions caches by iterating through each one to delete it
+        if: ${{ env.deleteAllCaches }}
+        run: |
+          echo "Listing all caches in the repository for ${{ github.repository }}"
+          # 1) List all caches in JSON
+          result=$(curl -s \
+            -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/caches")
+          
+          # Print the JSON for debugging
+          echo "$result" | jq .
+          
+          # 2) Determine how many total_count
+          total=$(echo "$result" | jq -r '.total_count')
+          echo "Found $total caches in total."
+          
+          # 3) For each item in actions_caches array, extract .key and .ref,
+          #    then call DELETE with "?key=...&ref=..."
+          echo "$result" | jq -c '.actions_caches[]' | while read -r row; do
+            key=$(echo "$row" | jq -r '.key')
+            ref=$(echo "$row" | jq -r '.ref')
+          
+            echo "Deleting cache with key='$key' ref='$ref' ..."
+            curl -s -X DELETE \
+              -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/caches?key=$key&ref=$ref"
+          done
+          
+          echo "Cache deletion iteration complete."
+./.github/workflows/wfr-automerge-find-pr-from-pull-request.yml
+==== Content of ./.github/workflows/wfr-automerge-find-pr-from-pull-request.yml ====
+# .github/workflows/wfr-automerge-find-pr-from-pull-request.yml
+name: ∞ Get Pull Request
+
+on:
+  workflow_call:
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+    outputs:
+      pullNumber:
+        description: 'The pull request number. e.g. "123"'
+        value: ${{ jobs.check-pr.outputs.pullNumber }}
+      shouldSkipMerge:
+        description: 'Set to "true", if the merge request should be skipped because there is not a PR in the right state.'
+        value: ${{ jobs.check-pr.outputs.shouldSkipMerge }}
+      prMerged:
+        description: 'Set to "true", if the PR has been merged either already or by this process.'
+        value: ${{ jobs.check-pr.outputs.prMerged }}
+
+jobs:
+  check-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: check-pr
+        id: check-pr
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const pullNumber = pr.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            let shouldSkipMerge;
+            let prMerged;
+  
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: pullNumber,
+            });
+
+            if (pullRequest.state === "closed") {
+              core.info(`PR #${pr.number} is already closed.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'true';
+            } else if (pullRequest.state !== "open") {
+              core.setFailed(`PR #${pr.number} is not open it is ${pullRequest.state}.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'false';
+            } else if (pullRequest.mergeable === true) {
+            
+              await github.rest.pulls.merge({
+                owner,
+                repo,
+                pull_number: pullNumber,
+                merge_method: 'squash' // or 'merge' or 'rebase'
+              });
+              core.info(`PR #${pr.number} merged.`);
+            
+              const branchRef = `heads/${pullRequest.head.ref}`;
+              await github.rest.git.deleteRef({
+                owner,
+                repo,
+                ref: branchRef,
+              });
+            
+              core.info(`PR branch '${pullRequest.head.ref}' deleted.`); 
+              shouldSkipMerge = 'true';
+              prMerged = 'true';
+            
+            } else if (pullRequest.mergeable === false) {
+              core.info(`PR #${pullNumber} is not mergeable.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'false';
+            } else if (pullRequest.mergeable === null) {
+              core.info(`PR #${pullNumber} does not yet have a value for mergeability.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'false';
+            } else {
+              core.info(`PR #${pullNumber} is not known.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'false';
+            }
+            
+            core.setOutput('pullNumber', !pullNumber ? '' : pullNumber.toString());
+            core.setOutput('shouldSkipMerge', shouldSkipMerge);
+            core.setOutput('prMerged', prMerged);
+            core.info(`pullNumber: '${!pullNumber ? '' : pullNumber.toString()}'`);
+            core.info(`shouldSkipMerge: '${shouldSkipMerge}'`);
+            core.info(`prMerged: '${prMerged}'`);
+
+    outputs:
+      pullNumber: ${{ steps.check-pr.outputs.pullNumber }}
+      shouldSkipMerge: ${{ steps.check-pr.outputs.shouldSkipMerge }}
+      prMerged: ${{ steps.check-pr.outputs.prMerged }}
+./.github/workflows/issue-worker.yml
+==== Content of ./.github/workflows/issue-worker.yml ====
+# .github/workflows/issue-worker.yml
+name: Issue Worker
+concurrency: issue-worker
+run-name: "Issue Worker [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+    inputs:
+      issueNumber:
+        description: 'The issue number to resolve. If not provided, the workflow will select one based on label. e.g. "123"'
+        required: false
+        type: string
+        default: ''
+      target:
+        description: 'The source file whose content is used in the resolution prompt. e.g. "src/lib/main.js"'
+        required: false
+        type: string
+        default: 'src/lib/main.js'
+      selectionLabel:
+        description: 'Label used to filter issues for resolution. e.g. "automated"'
+        required: false
+        type: string
+        default: 'automated'
+
+  schedule:
+    #- cron: '5,35 * * * *'
+    - cron: '0 */2 * * *'
+
+jobs:
+
+  select-issue:
+    permissions:
+      issues: read
+      id-token: write
+    uses: './.github/workflows/wfr-select-issue.yml'
+    with:
+      issueNumber: ${{ inputs.issueNumber || '' }}
+      selectionLabel: ${{ inputs.selectionLabel || 'automated' }}
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  check-branch:
+    needs:
+      - select-issue
+    if: ${{ needs.select-issue.outputs.issueNumber != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      branchPrefix: 'issue-'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: Ensure there isn't already a branch for this intention type
+        shell: bash
+        run: |
+          git fetch origin
+          if git branch -r | grep -q 'origin/${{ env.branchPrefix }}'; then
+            echo "A branch with the intention type prefix '${{ env.branchPrefix }}' already exists."
+            exit 1
+          else
+            echo "No existing branch with the intention type prefix found."
+          fi
+
+  start-issue:
+    needs:
+      - select-issue
+      - check-branch
+    if: ${{ needs.select-issue.outputs.issueNumber != '' }}
+    permissions:
+      contents: write
+      issues: write
+      id-token: write
+    uses: './.github/workflows/wfr-start-issue.yml'
+    with:
+      issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      branchPrefix: 'issue-'
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: 'node src/lib/main.js'
+      model: 'o3-mini'
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  create-pr:
+    needs:
+      - select-issue
+      - start-issue
+    if: ${{ needs.select-issue.outputs.issueNumber != '' && needs.start-issue.outputs.fixApplied == 'true' }}
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    uses: './.github/workflows/wfr-create-pr.yml'
+    with:
+      branch: 'issue-${{ needs.select-issue.outputs.issueNumber }}'
+      baseBranch: 'main'
+      commit-message: 'Fix ready for issue ${{ needs.select-issue.outputs.issueNumber }}'
+      label: 'automerge'
+./.github/workflows/automerge.yml
+==== Content of ./.github/workflows/automerge.yml ====
+# .github/workflows/automerge.yml
+name: Automerge
+concurrency: branch-main
+run-name: "Automerge [${{ github.ref_name }}]"
+
+on:
+  pull_request:
+    types:
+      - labeled
+      - reopened
+      - synchronize
+  check_suite:
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      pullNumber:
+        description: 'The pull request number to review. e.g. "123"'
+        required: false
+        type: string
+        default: ''
+  schedule:
+    # Run every 10 minutes (as an example)
+    #- cron: '*/10 * * * *'
+    - cron: '15 */2 * * *'
+
+jobs:
+  check-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+
+      - name: Run pull_request check
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')
+        id: pr
+        uses: './.github/workflows/wfr-automerge-find-pr-from-pull-request.yml'
+
+      - name: Run check_suite check
+        if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
+        id: cs
+        uses: './.github/workflows/wfr-automerge-find-pr-in-check-suite.yml'
+
+      - name: Determine pull request number
+        if: github.event_name == 'schedule' || ( github.event_name == 'workflow_dispatch' && !inputs.pullNumber )
+        id: ls
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            let pullNumber;
+            const { data: pullRequests } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 1,
+              sort: 'created',
+              direction: 'asc'
+            });
+            if (pullRequests.length > 0) {
+              pullNumber = pullRequests[0].number;
+            } else {
+              core.setFailed('No open pull requests found.');
+            }
+            core.info(`pullNumber: ${pullNumber}`);
+            core.setOutput('pullNumber', pullNumber);
+
+      - name: set-outputs
+        id: set-outputs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let prMerged = '${{ steps.pr.outputs.prMerged || steps.cs.outputs.prMerged || 'false' }}';
+            let pullNumber = '${{ steps.pr.outputs.pullNumber || steps.cs.outputs.pullNumber || steps.ls.outputs.pullNumber || inputs.pullNumber }}';
+            let shouldSkipMerge = '${{ steps.pr.outputs.shouldSkipMerge || steps.cs.outputs.shouldSkipMerge || 'false' }}';
+            core.setOutput('prMerged', prMerged);
+            core.setOutput('pullNumber', pullNumber);
+            core.setOutput('shouldSkipMerge', shouldSkipMerge);
+            core.info(`prMerged: ${prMerged}`);
+            core.info(`pullNumber: ${pullNumber}`);
+            core.info(`shouldSkipMerge: ${shouldSkipMerge}`);
+          result-encoding: string
+    outputs:
+      prMerged: ${{ steps.set-outputs.outputs.prMerged }}
+      pullNumber: ${{ steps.set-outputs.outputs.pullNumber }}
+      shouldSkipMerge: ${{ steps.set-outputs.outputs.shouldSkipMerge }}
+
+  label-issue-after-check-pr:
+    needs:
+      - check-pr
+    if: needs.check-pr.outputs.prMerged == 'true' && needs.check-pr.outputs.pullNumber != ''
+    permissions:
+      contents: write
+      pull-requests: read
+      issues: write
+    uses: './.github/workflows/wfr-automerge-label-issue.yml'
+    with:
+      pullNumber: '${{ needs.check-pr.outputs.pullNumber }}'
+      branchPrefix: 'issue-'
+
+  wait-for-merge:
+    needs:
+      - check-pr
+    if: needs.check-pr.outputs.shouldSkipMerge != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Sleeping for 60 seconds."
+        shell: bash
+      - run: sleep 60
+        shell: bash
+
+  automerge:
+    needs:
+      - check-pr
+      - wait-for-merge
+    if: needs.check-pr.outputs.shouldSkipMerge != 'true'
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: './.github/workflows/wfr-automerge-merge-pr.yml'
+    with:
+      pullNumber: '${{ needs.check-pr.outputs.pullNumber }}'
+
+  label-issue-after-automerge:
+    needs:
+      - check-pr
+      - automerge
+    if: needs.automerge.outputs.prMerged == 'true' && needs.check-pr.outputs.pullNumber != ''
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: read
+    uses: './.github/workflows/wfr-automerge-label-issue.yml'
+    with:
+      pullNumber: '${{ needs.check-pr.outputs.pullNumber }}'
+      branchPrefix: 'issue-'./.github/workflows/fix-failing-build.yml
+==== Content of ./.github/workflows/fix-failing-build.yml ====
+# .github/workflows/fix-failing-build.yml
+name: Fix Failing Build
+concurrency: fix-failing-build
+run-name: "Fix Failing Build [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'The target file to fix. e.g. "src/lib/main.js"'
+        type: string
+        required: false
+        default: 'src/lib/main.js'
+    #schedule:
+    # Run every 10 minutes (as an example)
+    #- cron: '0,10,20,30,40,50 * * * *'
+    #- cron: '0 * * * *'
+
+jobs:
+
+  fix-failing-build:
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: write
+      issues: write
+      id-token: write
+    uses: './.github/workflows/wfr-fix-failing-build.yml'
+    with:
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      branch: 'issue-failing-build'
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: 'node src/lib/main.js'
+      model: 'o3-mini'
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  create-pr:
+    needs:
+      - fix-failing-build
+    if: ${{ needs.fix-failing-build.outputs.fixApplied == 'true' }}
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    uses: './.github/workflows/wfr-create-pr.yml'
+    with:
+      branch: 'issue-failing-build'
+      baseBranch: 'main'
+      commit-message: 'Fix ready for failing build'
+      label: 'automerge'
+./.github/workflows/wfr-run-sarif-script-then-post-script-and-push-changes.yml
+==== Content of ./.github/workflows/wfr-run-sarif-script-then-post-script-and-push-changes.yml ====
+# .github/workflows/wfr-run-sarif-script-then-post-script-and-push-changes.yml
+name: ∞ Run sarif script, post-process, test and push
+
+on:
+  workflow_call:
+    inputs:
+      sarifScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and output in SARIF format. e.g. `npx --silent eslint --fix --format=@microsoft/eslint-formatter-sarif .`'
+        type: string
+        required: false
+        default: 'npx --silent eslint --fix --format=@microsoft/eslint-formatter-sarif .'
+      postScript:
+        description: 'The script must be runnable as: `npm ci ; <script>`. e.g. `prettier --write .`'
+        type: string
+        required: false
+        default: 'prettier --write .'
+      testScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
+        type: string
+        required: false
+        default: 'npm test'
+      baseDir:
+        description: 'Relative paths are assumed to be relative to these directories. e.g. "."'
+        type: string
+        required: false
+        default: '.'
+      logToFilepath:
+        description: 'The path of the log file to upload as an artifact. e.g. `./sarifScript-log.json`'
+        type: string
+        required: false
+        default: ''
+      npmAuthOrganisation:
+        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
+        type: string
+        required: false
+        default: ''
+      gitUserEmail:
+        description: 'The email to use for git commits. e.g. "action@github.com"'
+        type: string
+        required: false
+        default: 'action@github.com'
+      gitUserName:
+        description: 'The name to use for git commits. e.g. "GitHub Actions[bot]"'
+        type: string
+        required: false
+        default: 'GitHub Actions[bot]'
+      gitCommitMessage:
+        description: 'The message to use for git commits. e.g. "Updated by sarif script"'
+        type: string
+        required: false
+        default: 'Updated by sarif script'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: true
+    outputs:
+      fixRequired:
+        value: ${{ jobs.check-linting.outputs.fixRequired }}
+
+jobs:
+  run-sarif-script:
+    runs-on: ubuntu-latest
+
+    env:
+      sarifScript: ${{ inputs.sarifScript || 'npx --silent eslint --fix --format=@microsoft/eslint-formatter-sarif ./src/ ./tests/' }}
+      testScript: ${{ inputs.testScript || 'npm test' }}
+      baseDir: ${{ inputs.baseDir || './src/ ./tests/' }}
+      logToFilepath: ${{ inputs.logToFilepath || '' }}
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
+      gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
+      gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
+      gitCommitMessage: |
+        ${{ inputs.gitCommitMessage || 'Updated by sarif script' }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - run: git pull
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Check GitHub authentication
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - run: npm ci
+
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        run: rm -f .npmrc
+
+      - name: Create logfile
+        if: ${{ env.logToFilepath != '' }}
+        shell: bash
+        run: touch '${{ env.logToFilepath }}'
+
+      - name: run-sarif-script
+        id: run-sarif-script
+        continue-on-error: true
+        shell: bash
+        run: |
+          savedOptions=$(set +o) \
+          && set +e \
+          && output1=$(${{ env.sarifScript }}) \
+          ; output2=$(${{ env.sarifScript }}) \
+          ; exitCode="$?" \
+          && eval "${savedOptions?}" \
+          && echo "exitCode=${exitCode}" \
+          && echo "${output2}" | jq -e '.runs[0].results | length > 0' > /dev/null \
+          && fixRequired=$([ $? -eq 0 ] && echo 'true' || echo 'false') \
+          && echo "fixRequired=${fixRequired?}" \
+          | tee -a "${GITHUB_OUTPUT?}" \
+          && resultsBefore=$(echo "${output1}" | jq '.runs[0].results | length' 2>/dev/null || echo "unknown") \
+          && resultsAfter=$(echo "${output2}" | jq '.runs[0].results | length' 2>/dev/null || echo "unknown") \
+          && fixApplied=$([ "${resultsAfter}" -lt "${resultsBefore}" ] && echo 'true' || echo 'false') \
+          && echo "fixApplied=${fixApplied?}" \
+          | tee -a "${GITHUB_OUTPUT?}" \
+          ; echo "output2=${output2}" \
+          ;
+
+      - name: post-process-and-commit
+        id: post-process-and-commit
+        if: ${{ steps.run-sarif-script.outputs.fixApplied == 'true' }}
+        continue-on-error: true
+        shell: bash
+        run: |
+          savedOptions=$(set +o) \
+          && set +e \
+          && ${{ env.postScript }} || echo 'May be a partial formatting fix attempting to commit changes' \
+          ; eval "${savedOptions?}" \
+          && git config --local user.email '${{ env.gitUserEmail }}' \
+          && git config --local user.name '${{ env.gitUserName }}' \
+          && git status -v \
+          && git add -v --all '${{ env.baseDir }}' \
+          && git commit -v -m "${{ env.gitCommitMessage }}" \
+          && ${{ env.testScript }} \
+          && git push -v \
+          && git status -v \
+          ;
+
+      - name: Upload Logging Output
+        if: ${{ env.logToFilepath != '' }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: intention-log
+          path: ${{ env.logToFilepath }}
+
+      - name: Examine the git working copy
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+
+    outputs:
+      fixRequired: ${{ steps.run-sarif-script.outputs.fixRequired }}
+./.github/workflows/update.yml
+==== Content of ./.github/workflows/update.yml ====
+# .github/workflows/update.yml
+name: Update
+concurrency: branch-${{ github.ref_name }}
+run-name: "Update [${{ github.ref_name }}]"
+
+on:
+  repository_dispatch:
+    types: [package-published]
+  schedule:
+    - cron: '30 7 * * *'
+  workflow_dispatch:
+    inputs:
+      upgradeTarget:
+        description: 'Select the type of update to run'
+        type: choice
+        default: 'minor'
+        required: false
+        options:
+          - greatest
+          - latest
+          - newest
+          - patch
+          - minor
+          - semver
+
+jobs:
+  update-dependencies:
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+      packages: write
+    uses: './.github/workflows/wfr-update.yml'
+    with:
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: 'node src/lib/main.js'
+      upgradeTarget: ${{ inputs.upgradeTarget || 'patch' }}
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+      gitCommitMessage: 'chore: dependency updates'
+./.github/workflows/issue-reviewer.yml
+==== Content of ./.github/workflows/issue-reviewer.yml ====
+# .github/workflows/issue-reviewer.yml
+name: Review Issue
+run-name: "Review Issue [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+    inputs:
+      issueNumber:
+        description: 'The issue number to review. If not provided, the workflow will select one based on label. e.g. "123"'
+        required: false
+        type: string
+        default: ''
+      selectionLabel:
+        description: 'Label used to filter issues for review. e.g. "merged"'
+        required: false
+        type: string
+        default: 'merged'
+      target:
+        description: 'The source file whose content was used in the resolution prompt. e.g. "src/lib/main.js"'
+        required: false
+        type: string
+        default: 'src/lib/main.js'
+  schedule:
+    #- cron: '0,10,20,30,40,50 * * * *'
+    - cron: '0 */6 * * *'
+
+jobs:
+
+  select-issue:
+    permissions:
+      issues: read
+      id-token: write
+    uses: './.github/workflows/wfr-select-issue.yml'
+    with:
+      issueNumber: ${{ inputs.issueNumber || '' }}
+      selectionLabel: ${{ inputs.selectionLabel || 'merged' }}
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  review-issue:
+    needs:
+      - select-issue
+    if: ${{ needs.select-issue.outputs.issueNumber != '' && needs.select-issue.outputs.merged == 'true' }}
+    permissions:
+      contents: write
+      issues: write
+      id-token: write
+    uses: './.github/workflows/wfr-review-issue.yml'
+    with:
+      issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: "node ${{ inputs.target || 'src/lib/main.js' }}"
+      model: 'o3-mini'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+./.github/workflows/formating.yml
+==== Content of ./.github/workflows/formating.yml ====
+# .github/workflows/formating.yml
+name: Formatting
+concurrency: branch-${{ github.ref_name }}
+run-name: "Formatting [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Nightly check and uplift: 0:00 test, 3:15 formatting, 3:30 linting
+    - cron: '15 3 * * *'
+
+jobs:
+
+  format-and-push:
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    uses: './.github/workflows/wfr-run-script-and-push-changes.yml'
+    with:
+      script: 'prettier --write'
+      testScript: 'npm test'
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+      gitCommitMessage: 'Updated by `prettier --write`'
+./.github/workflows/wfr-run-script-and-push-changes.yml
+==== Content of ./.github/workflows/wfr-run-script-and-push-changes.yml ====
+# .github/workflows/wfr-run-script-and-push-changes.yml
+name: ∞ Run script, test and push
+
+on:
+  workflow_call:
+    inputs:
+      script:
+        description: 'The script must be runnable as: `npm ci ; <script>`.'
+        type: string
+        required: false
+        default: 'prettier --write'
+      testScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
+        type: string
+        required: false
+        default: 'npm test'
+      npmAuthOrganisation:
+        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
+        type: string
+        required: false
+        default: ''
+      gitUserEmail:
+        description: 'The email to use for git commits. e.g. "action@github.com"'
+        type: string
+        required: false
+        default: 'action@github.com'
+      gitUserName:
+        description: 'The name to use for git commits. e.g. "GitHub Actions[bot]"'
+        type: string
+        required: false
+        default: 'GitHub Actions[bot]'
+      gitCommitMessage:
+        description: 'The message to use for git commits. e.g. "Updated by script"'
+        type: string
+        required: false
+        default: 'Updated by script'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+
+jobs:
+  update-and-push:
+    runs-on: ubuntu-latest
+
+    env:
+      script: ${{ inputs.script || 'prettier --write' }}
+      testScript: ${{ inputs.testScript || 'npm test' }}
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
+      gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
+      gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
+      gitCommitMessage: ${{ inputs.gitCommitMessage || 'Updated by inputs.script' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check GitHub authentication
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - run: npm ci
+
+      - name: script
+        id: script
+        shell: bash
+        run: |
+          savedOptions=$(set +o) \
+          && set +e \
+          && ${{ env.script }} \
+          ; if git diff --quiet; then
+            echo "updated=false" | tee -a "${GITHUB_OUTPUT?}"
+          else
+            echo "updated=true" | tee -a "${GITHUB_OUTPUT?}"
+          fi \
+          ; eval "${savedOptions?}" \
+          ;
+        continue-on-error: true
+
+      - name: Test
+        if: ${{ steps.script.outputs.updated == 'true' || env.git-force == 'true' }}
+        shell: bash
+        run: |
+          ${{ env.testScript }}
+
+      - name: Tear down npm auth
+        if: ${{ env.npmAuthOrganisation != '' }}
+        run: rm -vf .npmrc
+
+      - name: Commit
+        if: ${{ steps.script.outputs.updated == 'true' || env.git-force == 'true' }}
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git add -v --all
+          git commit -v -m '${{ env.gitCommitMessage }}'
+          git push -v
+          git status -v
+./.github/workflows/wfr-automerge-find-pr-in-check-suite.yml
+==== Content of ./.github/workflows/wfr-automerge-find-pr-in-check-suite.yml ====
+# .github/workflows/wfr-automerge-find-pr-in-check-suite.yml
+name: ∞ Get Pull Request from Check Suite
+
+on:
+  workflow_call:
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+    outputs:
+      pullNumber:
+        description: 'The pull request number.'
+        value: ${{ jobs.check-pr.outputs.pullNumber }}
+      shouldSkipMerge:
+        description: 'Set to "true", if the merge request should be skipped because there is not a PR in the right state.'
+        value: ${{ jobs.check-pr.outputs.shouldSkipMerge }}
+      prMerged:
+        description: 'Set to "true", if the PR has been merged either already or by this process.'
+        value: ${{ jobs.check-pr.outputs.prMerged }}
+
+jobs:
+  find-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: find-pr
+        id: find-pr
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |            
+            const checkSuite = context.payload.check_suite;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const headSha = checkSuite.head_sha;
+            let pullNumber;
+            let shouldSkipMerge;
+            let prMerged;
+            
+            const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner,
+              repo,
+              commit_sha: headSha,
+            });
+
+            if (prs.length === 0) {
+              core.info('No pull requests associated with this check suite.');            
+              pullNumber = '';
+              shouldSkipMerge = 'true';
+              prMerged = 'false';
+            } else {
+
+              const openPRs = prs.filter(pr => pr.state === 'open');
+              const prWithAutomerge = openPRs.find(pr => pr.labels.some(label => label.name === 'automerge'));
+  
+              if (!prWithAutomerge) {
+                core.info('No open pull requests with the "automerge" label.');
+                pullNumber = undefined;
+                shouldSkipMerge = 'true';
+                prMerged = 'false';
+              } else {
+                pullNumber = prWithAutomerge.number;
+                shouldSkipMerge = 'false';
+                prMerged = 'false';
+              }
+              
+              core.setOutput('pullNumber', !pullNumber ? '' : pullNumber.toString());
+              core.setOutput('shouldSkipMerge', shouldSkipMerge);
+              core.setOutput('prMerged', prMerged);
+              core.info(`pullNumber: '${!pullNumber ? '' : pullNumber.toString()}`);
+              core.info(`shouldSkipMerge: '${shouldSkipMerge}'`);
+              core.info(`prMerged: '${prMerged}'`);
+            }
+
+    outputs:
+      pullNumber: ${{ steps.find-pr.outputs.pullNumber }}
+      shouldSkipMerge: ${{ steps.find-pr.outputs.shouldSkipMerge }}
+      prMerged: ${{ steps.find-pr.outputs.prMerged }}
+./.github/workflows/wfr-select-issue.yml
+==== Content of ./.github/workflows/wfr-select-issue.yml ====
+# .github/workflows/wfr-select-issue.yml
+name: ∞ Select issue
+
+on:
+  workflow_call:
+    inputs:
+      issueNumber:
+        description: 'The issue number to review. e.g. "123"'
+        type: string
+        required: true
+      selectionLabel:
+        description: 'Label used to filter issues for review. e.g. "merged"'
+        required: false
+        type: string
+        default: 'merged'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
+    outputs:
+      issueNumber:
+        description: 'The issue number to review. e.g. "123"'
+        value: ${{ jobs.select-issue.outputs.issueNumber }}
+      merged:
+        description: 'Set to "true", if the issue has been merged either already or by this process.'
+        value: ${{ jobs.select-issue.outputs.merged }}
+
+jobs:
+  select-issue:
+    runs-on: ubuntu-latest
+
+    env:
+      issueNumber: ${{ inputs.issueNumber }}
+      selectionLabel: ${{ inputs.selectionLabel || 'merged' }}
+
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: select-issue
+        id: select-issue
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const issueNumberInput = process.env.issueNumber;
+            const selectionLabel = process.env.selectionLabel;
+            let issueNumberOutput;
+            
+            let issue;
+            if (issueNumberInput) {
+              const { data: issue } = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: parseInt(issueNumberInput)
+              });
+            
+              if (!issue) {
+                issueNumberOutput = '';
+                core.info(`No issue found with number: ${issueNumberInput}`);
+              } else {
+                issueNumberOutput = issue.number;
+                core.info(`Found issue with number: ${issueNumberInput}`);
+              }
+            } else {
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: selectionLabel,
+                per_page: 5
+              });
+            
+              if (issues.length === 0) {
+                issueNumberOutput = '';
+                core.info(`No open issues found with label: "${selectionLabel}"`);
+              } else {
+                issueNumberOutput = issues[0].number;
+                core.info(`Open issue '${issueNumberOutput}' found with label: '${selectionLabel}'`);
+              }
+            }
+            
+            core.setOutput("issueNumber", issueNumberOutput);
+            core.info(`issueNumber '${issueNumberOutput}'`);
+
+      - name: has-merged-label
+        id: has-merged-label
+        if: steps.select-issue.outputs.issueNumber != ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const issueNumber = parseInt("${{ steps.select-issue.outputs.issueNumber }}");
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            
+            const merged = issue.labels.some(label => label.name.toLowerCase() === "merged") ? "true" : "false";
+            
+            core.setOutput("merged", merged);
+            core.info(`merged '${merged}'`);
+
+    outputs:
+      issueNumber: ${{ steps.select-issue.outputs.issueNumber }}
+      merged: ${{ steps.has-merged-label.outputs.merged }}
+./.github/dependabot.yml
+==== Content of ./.github/dependabot.yml ====
+# See: https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    labels:
+      - dependencies
+      - automated
+      - automerge
+    #ignore:
+    #  - dependency-name: "some-dependency" # Example of ignoring a specific dependency
+    #    versions: ["1.x", "2.x"]

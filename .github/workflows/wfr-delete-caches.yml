@@ -1,0 +1,54 @@
+# .github/workflows/wfr-delete-caches.yml
+name: ∞ Delete caches
+
+on:
+  workflow_call:
+    inputs:
+      deleteAllCaches:
+        description: 'Whether to delete all caches. e.g. "true"'
+        type: string
+        required: false
+        default: 'false'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    env:
+      deleteAllCaches: ${{ inputs.deleteAllCaches || 'false' }}
+
+    steps:
+      - name: Delete all GitHub Actions caches by iterating through each one to delete it
+        if: ${{ env.deleteAllCaches }}
+        run: |
+          echo "Listing all caches in the repository for ${{ github.repository }}"
+          # 1) List all caches in JSON
+          result=$(curl -s \
+            -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/caches")
+          
+          # Print the JSON for debugging
+          echo "$result" | jq .
+          
+          # 2) Determine how many total_count
+          total=$(echo "$result" | jq -r '.total_count')
+          echo "Found $total caches in total."
+          
+          # 3) For each item in actions_caches array, extract .key and .ref,
+          #    then call DELETE with "?key=...&ref=..."
+          echo "$result" | jq -c '.actions_caches[]' | while read -r row; do
+            key=$(echo "$row" | jq -r '.key')
+            ref=$(echo "$row" | jq -r '.ref')
+          
+            echo "Deleting cache with key='$key' ref='$ref' ..."
+            curl -s -X DELETE \
+              -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/caches?key=$key&ref=$ref"
+          done
+          
+          echo "Cache deletion iteration complete."

@@ -1,0 +1,109 @@
+# .github/workflows/wfr-select-issue.yml
+name: ∞ Select issue
+
+on:
+  workflow_call:
+    inputs:
+      issueNumber:
+        description: 'The issue number to review. e.g. "123"'
+        type: string
+        required: true
+      selectionLabel:
+        description: 'Label used to filter issues for review. e.g. "merged"'
+        required: false
+        type: string
+        default: 'merged'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
+    outputs:
+      issueNumber:
+        description: 'The issue number to review. e.g. "123"'
+        value: ${{ jobs.select-issue.outputs.issueNumber }}
+      merged:
+        description: 'Set to "true", if the issue has been merged either already or by this process.'
+        value: ${{ jobs.select-issue.outputs.merged }}
+
+jobs:
+  select-issue:
+    runs-on: ubuntu-latest
+
+    env:
+      issueNumber: ${{ inputs.issueNumber }}
+      selectionLabel: ${{ inputs.selectionLabel || 'merged' }}
+
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: select-issue
+        id: select-issue
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const issueNumberInput = process.env.issueNumber;
+            const selectionLabel = process.env.selectionLabel;
+            let issueNumberOutput;
+            
+            let issue;
+            if (issueNumberInput) {
+              const { data: issue } = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: parseInt(issueNumberInput)
+              });
+            
+              if (!issue) {
+                issueNumberOutput = '';
+                core.info(`No issue found with number: ${issueNumberInput}`);
+              } else {
+                issueNumberOutput = issue.number;
+                core.info(`Found issue with number: ${issueNumberInput}`);
+              }
+            } else {
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: selectionLabel,
+                per_page: 5
+              });
+            
+              if (issues.length === 0) {
+                issueNumberOutput = '';
+                core.info(`No open issues found with label: "${selectionLabel}"`);
+              } else {
+                issueNumberOutput = issues[0].number;
+                core.info(`Open issue '${issueNumberOutput}' found with label: '${selectionLabel}'`);
+              }
+            }
+            
+            core.setOutput("issueNumber", issueNumberOutput);
+            core.info(`issueNumber '${issueNumberOutput}'`);
+
+      - name: has-merged-label
+        id: has-merged-label
+        if: steps.select-issue.outputs.issueNumber != ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const issueNumber = parseInt("${{ steps.select-issue.outputs.issueNumber }}");
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            
+            const merged = issue.labels.some(label => label.name.toLowerCase() === "merged") ? "true" : "false";
+            
+            core.setOutput("merged", merged);
+            core.info(`merged '${merged}'`);
+
+    outputs:
+      issueNumber: ${{ steps.select-issue.outputs.issueNumber }}
+      merged: ${{ steps.has-merged-label.outputs.merged }}

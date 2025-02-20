@@ -1,0 +1,89 @@
+# .github/workflows/wfr-automerge-merge-pr.yml
+name: ∞ Automerge Pull Request
+
+on:
+  workflow_call:
+    inputs:
+      pullNumber:
+        description: 'The pull request number. e.g. "123"'
+        type: string
+        required: true
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+    outputs:
+      prMerged:
+        description: 'Set to "true", if the PR has been merged either already or by this process.'
+        value: ${{ jobs.merge-pr.outputs.prMerged }}
+
+jobs:
+  merge-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: auto-merge-pr
+        id: auto-merge-pr
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const pullNumber = parseInt('${{ inputs.pullNumber }}', 10);
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            let prMerged;
+  
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: pullNumber,
+            });
+
+            if (pullRequest.state === "closed") {
+              core.info(`PR #${pullNumber} is already closed.`);
+              prMerged = 'true';
+            } else if (pullRequest.state !== 'open') {
+              core.info(`PR #${pullNumber} is not open it is ${pullRequest.state}.`);
+              prMerged = 'false';
+            } else if (pullRequest.mergeable && pullRequest.mergeable_state === 'clean') {
+            
+              await github.rest.pulls.merge({
+                owner,
+                repo,
+                pull_number: pullNumber,
+                merge_method: 'squash',
+              });
+              core.info(`PR #${pullNumber} merged.`);
+            
+              const branchRef = `heads/${pullRequest.head.ref}`;
+              await github.rest.git.deleteRef({
+                owner,
+                repo,
+                ref: branchRef,
+              });
+              core.info(`Branch '${pullRequest.head.ref}' deleted.`);
+              prMerged = 'true';
+            
+            } else if (pullRequest.mergeable === false) {
+              core.info(`PR #${pullNumber} is not mergeable.`);
+              prMerged = 'false';
+            } else if (pullRequest.mergeable === null) {
+              core.info(`PR #${pullNumber} does not yet have a value for mergeability.`);
+              prMerged = 'false';
+            } else {
+              core.info(`PR #${pullNumber} is not known.`);
+              prMerged = 'false';
+            }
+            
+            core.setOutput('prMerged', prMerged);
+            core.info(`prMerged: '${prMerged}'`);
+
+    outputs:
+      prMerged: ${{ steps.auto-merge-pr.outputs.prMerged }}

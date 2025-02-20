@@ -1,0 +1,207 @@
+# .github/workflows/wfr-update.yml
+name: ∞ Update packages
+
+on:
+  workflow_call:
+    inputs:
+      buildScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
+        type: string
+        required: false
+        default: 'echo "No build script specified."'
+      testScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
+        type: string
+        required: false
+        default: 'npm test'
+      mainScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run start`'
+        type: string
+        required: false
+        default: 'npm run start'
+      upgradeTarget:
+        description: 'The type of upgrade to perform. e.g. "minor"'
+        type: string
+        required: false
+        default: 'minor'
+      branch:
+        description: 'The branch to push changes to. e.g. "apply-update"'
+        type: string
+        required: false
+        default: 'apply-update'
+      npmAuthOrganisation:
+        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
+        type: string
+        required: false
+        default: ''
+      gitUserEmail:
+        description: 'The email to use for git commits. e.g. "action@github.com"'
+        type: string
+        required: false
+        default: 'action@github.com'
+      gitUserName:
+        description: 'The name to use for git commits. e.g. "GitHub Actions[bot]"'
+        type: string
+        required: false
+        default: 'GitHub Actions[bot]'
+      gitCommitMessage:
+        description: 'The message to use for git commits. e.g. "chore: dependency updates"'
+        type: string
+        required: false
+        default: 'chore: dependency updates'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    env:
+      buildScript: ${{ inputs.buildScript || 'npm run build' }}
+      testScript: ${{ inputs.testScript || 'npm test' }}
+      mainScript: ${{ inputs.mainScript || 'npm run start' }}
+      mainScriptTimeout: '5m'
+      upgradeTarget: ${{ inputs.upgradeTarget || 'minor' }}
+      branch: ${{ inputs.branch || 'apply-update' }}
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
+      gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
+      gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
+      gitCommitMessage: |
+        ${{ inputs.gitCommitMessage || 'chore: dependency updates' }}
+
+    steps:
+
+      - name: Log which version
+        if: ${{ github.event.client_payload }}
+        shell: bash
+        run: |
+          echo "Package: ${{ github.event.client_payload.packageName }}"
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check GitHub authentication
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - run: rm -f package-lock.json
+
+      - run: npm install
+
+      - name: Build project
+        id: build
+        shell: bash
+        run: |
+          output=$(${{ env.buildScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Run tests before update
+        id: test
+        shell: bash
+        run: |
+          output=$(${{ env.testScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Run main before update
+        id: main
+        shell: bash
+        run: |
+          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Update packages with npm
+        continue-on-error: true
+        shell: bash
+        env:
+          ncuUpgradeTarget: ${{ env.upgradeTarget || 'minor' }}
+        run: npm install --save ; npm update ; npm upgrade ; npm install
+
+      - name: Update packages with ncu
+        continue-on-error: true
+        shell: bash
+        env:
+          ncuUpgradeTarget: ${{ env.upgradeTarget || 'minor' }}
+        run: npx ncu --upgrade --enginesNode --retry 3 --target ${{ env.ncuUpgradeTarget }} --verbose ; npm install ; npm update ; npm upgrade ; npm install
+
+      - name: git-diff
+        id: git-diff
+        shell: bash
+        run: |
+          savedOptions=$(set +o) \
+          && set +e \
+          ; if git diff --quiet; then
+            echo "updated=false" | tee -a "${GITHUB_OUTPUT?}"
+          else
+            echo "updated=true" | tee -a "${GITHUB_OUTPUT?}"
+          fi \
+          ; eval "${savedOptions?}" \
+          ;
+        continue-on-error: true
+
+      - run: rm -rf './node_modules/'
+
+      - run: npm ci
+        
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: rm -f .npmrc
+
+      - name: Run tests after update
+        shell: bash
+        run: |
+          output=$(${{ env.testScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Run main after update
+        shell: bash
+        run: |
+          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"  
+
+      - name: Commit
+        if: ${{ steps.git-diff.outputs.updated == 'true' || env.git-force == 'true' }}
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git switch -c '${{ env.branch }}'
+          git add -v --all
+          git commit -v -m '${{ env.gitCommitMessage }}'
+          git push -v
+          git status -v
+
+    outputs:
+      branch: ${{ jobs.set-outputs.outputs.branch || '' }}
