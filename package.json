@@ -62,7 +62,7 @@
     "keyv-file": "^5.1.1",
     "lodash": "^4.17.21",
     "npm-check-updates": "^17.1.14",
-    "openai": "^4.88.0",
+    "openai": "^4.85.2",
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0",
     "prettier": "^3.5.1",
