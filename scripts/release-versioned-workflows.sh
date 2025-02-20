@@ -9,36 +9,29 @@ fi
 TAG_VERSION="$1"
 DEST_DIR="../repository0/.github/workflows"
 
-# Set the appropriate sed in-place flag based on the OS
-if [[ "$(uname)" == "Darwin" ]]; then
-  SED_INPLACE="sed -i ''"
-else
-  SED_INPLACE="sed -i"
-fi
-
 cp -v .github/workflows/automerge.yml "${DEST_DIR}/."
-$SED_INPLACE "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/automerge.yml"
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/automerge.yml"
 
 #cp -v .github/workflows/fix-failing-build.yml "${DEST_DIR}/."
-#$SED_INPLACE "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/fix-failing-build.yml"
+#sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/fix-failing-build.yml"
 
 cp -v .github/workflows/formating.yml "${DEST_DIR}/."
-$SED_INPLACE "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/formating.yml"
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/formating.yml"
 
 cp -v .github/workflows/issue-creator.yml "${DEST_DIR}/."
-$SED_INPLACE "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-creator.yml"
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-creator.yml"
 
 cp -v .github/workflows/issue-reviewer.yml "${DEST_DIR}/."
-$SED_INPLACE "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-reviewer.yml"
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-reviewer.yml"
 
 cp -v .github/workflows/issue-worker.yml "${DEST_DIR}/."
-$SED_INPLACE "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-worker.yml"
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-worker.yml"
 
 cp -v .github/workflows/publish.yml "${DEST_DIR}/."
-$SED_INPLACE "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish.yml"
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish.yml"
 
 cp -v .github/workflows/test.yml "${DEST_DIR}/."
-$SED_INPLACE "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/test.yml"
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/test.yml"
 
 cp -v .github/workflows/update.yml "${DEST_DIR}/."
-$SED_INPLACE "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/update.yml"
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/update.yml"
