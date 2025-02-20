@@ -31,7 +31,9 @@ describe("selfTestCommand", () => {
   test("should output self test header", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     mainModule.selfTestCommand();
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("=== Self Test: Demonstrating features with expected outputs ==="));
+    expect(logSpy).toHaveBeenCalledWith(
+      expect.stringContaining("=== Self Test: Demonstrating features with expected outputs ==="),
+    );
     logSpy.mockRestore();
   });
 });
@@ -40,7 +42,11 @@ describe("githubScriptCommand", () => {
   test("should log GitHub API not implemented message", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     mainModule.githubScriptCommand();
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("GitHub API calls, OpenAI integration, and issue comment creation are not implemented in this command."));
+    expect(logSpy).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "GitHub API calls, OpenAI integration, and issue comment creation are not implemented in this command.",
+      ),
+    );
     logSpy.mockRestore();
   });
 });
@@ -67,7 +73,7 @@ describe("Arithmetic Commands", () => {
       mainModule.multiplyCommand(["2", "3", "4"]);
     });
     expect(output).toContain("24");
-    
+
     // Test with no arguments; should print 0 as per README specification
     output = captureOutput(() => {
       mainModule.multiplyCommand([]);
@@ -96,7 +102,9 @@ describe("Arithmetic Commands", () => {
     captureOutput(() => {
       mainModule.divideCommand(["10", "0"]);
     });
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Error: Division by zero encountered with argument 0"));
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Error: Division by zero encountered with argument 0"),
+    );
     errorSpy.mockRestore();
   });
 
@@ -159,19 +167,19 @@ describe("Interactive Command", () => {
     const fakeInterface = {
       prompt: vi.fn(),
       on: (event, handler) => {
-        if (event === 'line') {
+        if (event === "line") {
           // simulate input 'exit'
-          handler('exit');
+          handler("exit");
         }
-        if (event === 'close') {
+        if (event === "close") {
           handler();
         }
       },
-      close: vi.fn()
+      close: vi.fn(),
     };
-    
+
     // Spy on readline.createInterface to return the fake interface
-    const rlSpy = vi.spyOn(readline, 'createInterface').mockReturnValue(fakeInterface);
+    const rlSpy = vi.spyOn(readline, "createInterface").mockReturnValue(fakeInterface);
 
     const output = captureOutput(() => {
       mainModule.interactiveCommand();
