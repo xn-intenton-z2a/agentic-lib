@@ -50,18 +50,16 @@ MVP:
 - [ ] Shout out on Reddit.
 
 Enhancements:
-- [ ] Implement "fix-failing-build" by raising a bug, then running start-issue (with a new name) in a tolerant mode allowing builds to fail but gathering output.
+- [x] Scan code for possible library replacements for the custom code (automated)
+- [x] Compress and de-dupe package.json (automated)
+- [~] Implement "fix-failing-build" by raising a bug, then running start-issue (with a new name) in a tolerant mode allowing builds to fail but gathering output.
 - [ ] Add PayPal donation link (the old account has been closed).
-- [ ] Add git log to the context.
+- [ ] Add git log to the context for review issue, issue worker and apply fixe
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
 - [ ] Pick ideal version. Oldest? or Node 22 (after October 29th when it becomes LTS) build with the latest LTS but target the lowest compatible?
 - [ ] Generate API.md based on the source file.
 - [ ] Update CHANGELOG.md when a publishing a release version of the changes since the last release.
 - [ ] Duplicate the test when publishing a release version with a version numbered test file.
-- [ ] Add execution net capture to the context.
-- [ ] Clean-up TODOs (automated)
-- [ ] Scan code for possible library replacements for the custom code (automated)
-- [ ] Compress and de-dupe package.json (automated)
 - [ ] Dashboard metrics (e.g. GitHub Insights? commits by agents)
 
 ---
