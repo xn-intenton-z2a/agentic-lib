@@ -118,7 +118,7 @@ jobs:
           echo "releasedVersion=${releasedVersion}"
 
       - name: Create GitHub Release
-        if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
+        if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' }}
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ steps.release.outputs.releasedVersion }}
