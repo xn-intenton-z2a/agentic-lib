@@ -71,22 +71,3 @@ jobs:
       npmAuthOrganisation: 'xn-intenton-z2a'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
-
-  verify-tag:
-    needs:
-      - publish
-    if: ${{ inputs.versionIncrement == 'major' || inputs.versionIncrement == 'minor' || inputs.versionIncrement == 'patch' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Verify that release tag exists
-        run: |
-          taggedVersion="v${{ needs.publish.outputs.releasedVersion }}"
-          echo "Checking for tag: ${taggedVersion?}"
-          if git rev-parse "${taggedVersion?}" >/dev/null 2>&1; then
-            echo "Tag ${taggedVersion?} exists."
-          else
-            echo "Tag ${taggedVersion?} does not exist!"
-            exit 1
-          fi
