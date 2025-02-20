@@ -1,5 +1,5 @@
 # .github/workflows/issue-for-linting.yml
-name: Formatting
+name: Linting
 concurrency: branch-${{ github.ref_name }}
 run-name: "Linting [${{ github.ref_name }}]"
 
