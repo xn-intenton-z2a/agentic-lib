@@ -9,26 +9,11 @@ on:
         required: true
         type: string
         default: 'prerelease'
-      featureTag:
-        description: 'Enter the version post-fix e.g. beta'
-        required: false
-        default: ''
-        type: string
       buildScript:
         description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
         type: string
         required: false
         default: 'echo "No build script specified."'
-      testScript:
-        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
-        type: string
-        required: false
-        default: 'npm test'
-      mainScript:
-        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run start`'
-        type: string
-        required: false
-        default: 'npm run start'
       releaseNotes:
         description: 'The release notes to use for the GitHub release. e.g. "Feature release."'
         type: string
@@ -66,10 +51,7 @@ jobs:
 
     env:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
-      featureTag: ${{ inputs.featureTag || '' }}
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
-      testScript: ${{ inputs.testScript || 'npm test' }}
-      mainScript: ${{ inputs.mainScript || 'npm run start' }}
       releaseNotes: ${{ inputs.releaseNotes || 'Feature release.' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}

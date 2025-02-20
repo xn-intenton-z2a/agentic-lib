@@ -41,7 +41,7 @@ automatically.
 - [~] Find a way for consumers to link to a stable version of the reusable workflows.
 - [~] Test the link to the current version from the test file (not main but the github-ref being tested).
 - [~] Test the link to the stable version after publishing from this repository.
-- [ ] Update the links in repository0 to point to the stable version.
+- [~] Update the links in repository0 to point to the stable version.
 - [ ] *Release intentïon `agentic-lib` workflows public beta.*
 - [ ] *Release intentïon `repository0` repository template public beta.*
 
