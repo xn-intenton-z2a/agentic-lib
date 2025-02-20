@@ -83,7 +83,7 @@ on:
         value: ${{ jobs.start-issue.outputs.fixApplied }}
 
 jobs:
-  start-issue:
+  spply-fix:
     runs-on: ubuntu-latest
 
     env:
