@@ -120,10 +120,10 @@ jobs:
         if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' }}
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ steps.release.outputs.releasedVersion }}
-          name: Release ${{ steps.release.outputs.releasedVersion }}
+          tag: ${{ steps.released.outputs.releasedVersion }}
+          name: Release ${{ steps.released.outputs.releasedVersion }}
           body: |
-            Release notes for version ${{ steps.release.outputs.releasedVersion }}.
+            Release notes for version ${{ steps.released.outputs.releasedVersion }}.
             * Add details about changes, bug fixes, and improvements here.
 
       - name: Rotate to next pre[major|minor|patch] version
