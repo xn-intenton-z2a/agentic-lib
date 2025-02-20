@@ -9,6 +9,11 @@ on:
         type: string
         required: false
         default: 'prettier --write'
+      sarifScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and output a SARIF file. e.g. `npm run linting-json`'
+        type: string
+        required: false
+        default: 'npm run linting-json'
       testScript:
         description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
         type: string
@@ -47,8 +52,14 @@ on:
           description: 'Whether files were updated by the script. e.g. "true"'
           value: ${{ jobs.update-and-push.outputs.updatedFiles }}
       scriptOutput:
-        description: 'The output from running the script.'
+        description: 'The output from running the script. '
         value: ${{ jobs.update-and-push.outputs.scriptOutput }}
+      resultsCount:
+        description: 'The number of results from the SARIF script. e.g. "1"'
+        value: ${{ jobs.update-and-push.outputs.resultsCount }}
+      fixRequired:
+        description: 'Whether the SARIF script requires fixes. e.g. "true"'
+        value: ${{ jobs.update-and-push.outputs.fixRequired }}
 
 jobs:
   update-and-push:
@@ -56,6 +67,7 @@ jobs:
 
     env:
       script: ${{ inputs.script || 'prettier --write' }}
+      sarifScript: ${{ inputs.sarifScript || 'npm run linting-json' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
       branch: ${{ inputs.branch || 'apply-script' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
@@ -102,6 +114,23 @@ jobs:
           ;
         continue-on-error: true
 
+      - name: sarif-script
+        id: sarif-script
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          results=$(${{ env.sarifScript }})
+          exitCode="$?"
+          set -e
+          echo "exitCode=${exitCode}"
+          fixRequired=$([ $? -eq 0 ] && echo 'true' || echo 'false')
+          echo "fixRequired={fixRequired}" > $GITHUB_OUTPUT
+          echo "fixRequired=${fixRequired}"
+          resultsCount=$(echo "${results}" | jq '.runs[0].results | length' 2>/dev/null || echo "unknown")
+          echo "resultsCount${resultsCount}" > $GITHUB_OUTPUT
+          echo "resultsCount=${resultsCount}"
+
       - name: Test
         if: ${{ steps.script.outputs.updated == 'true' || env.git-force == 'true' }}
         shell: bash
@@ -141,3 +170,5 @@ jobs:
     outputs:
       updatedFiles: ${{ steps.script.outputs.updated }}
       scriptOutput: ${{ steps.script-second-pass.outputs.output }}
+      resultsCount: ${{ steps.sarif-script.outputs.resultsCount }}
+      fixRequired: ${{ steps.sarif-script.outputs.fixRequired }}
