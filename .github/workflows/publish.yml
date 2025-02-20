@@ -90,7 +90,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Verify that release tag exists
         run: |
-          releasedVersion="${{ job.publish.outputs.releasedVersion }}"
+          releasedVersion="${{ needs.publish.outputs.releasedVersion }}"
           echo "Checking for tag: $releasedVersion"
           if git rev-parse "$releasedVersion" >/dev/null 2>&1; then
             echo "Tag $releasedVersion exists."

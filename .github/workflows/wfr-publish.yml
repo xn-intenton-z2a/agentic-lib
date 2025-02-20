@@ -126,13 +126,14 @@ jobs:
             Release notes for version ${{ steps.released.outputs.releasedVersion }}.
             * Add details about changes, bug fixes, and improvements here.
 
-      - name: Rotate to next pre[major|minor|patch] version
+      - name: Rotate to next pre[major|minor|patch] version from a released version
         if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
         shell: bash
         run: |
           npm version --no-git-tag-version pre${{ env.versionIncrement }}
 
       - name: Rotate to next [premajor|preminor|prepatch|prerelease] version
+        if: ${{ env.versionIncrement == 'premajor' || env.versionIncrement == 'preminor' || env.versionIncrement == 'prepatch' || env.versionIncrement == 'prerelease' }}
         shell: bash
         run: |
           npm version --no-git-tag-version ${{ env.versionIncrement }}
