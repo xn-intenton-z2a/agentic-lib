@@ -303,35 +303,42 @@ const interactiveCommand = (_args) => {
     const tokens = input.split(/\s+/);
     const command = tokens[0];
     const commandArgs = tokens.slice(1);
-    const commands = {
-      echo: echoCommand,
-      add: addCommand,
-      multiply: multiplyCommand,
-      subtract: subtractCommand,
-      divide: divideCommand,
-      power: powerCommand,
-      mod: modCommand,
-      demo: demoCommand,
-      help: helpCommand,
-      githubscript: githubScriptCommand,
-    };
-    const allowedCommands = [
-      "echo",
-      "add",
-      "multiply",
-      "subtract",
-      "divide",
-      "power",
-      "mod",
-      "demo",
-      "help",
-      "githubscript",
-      "interactive",
-    ];
-    if (allowedCommands.includes(command)) {
-      commands[command](commandArgs);
-    } else {
-      console.error("Unknown command: " + command);
+    switch (command) {
+      case "echo":
+        echoCommand(commandArgs);
+        break;
+      case "add":
+        addCommand(commandArgs);
+        break;
+      case "multiply":
+        multiplyCommand(commandArgs);
+        break;
+      case "subtract":
+        subtractCommand(commandArgs);
+        break;
+      case "divide":
+        divideCommand(commandArgs);
+        break;
+      case "power":
+        powerCommand(commandArgs);
+        break;
+      case "mod":
+        modCommand(commandArgs);
+        break;
+      case "demo":
+        demoCommand(commandArgs);
+        break;
+      case "help":
+        helpCommand(commandArgs);
+        break;
+      case "githubscript":
+        githubScriptCommand(commandArgs);
+        break;
+      case "interactive":
+        console.log("Already in interactive mode.");
+        break;
+      default:
+        console.error("Unknown command: " + command);
     }
     rl.prompt();
   });
@@ -351,13 +358,9 @@ const displayUsage = () => {
   console.log("  - add: Sums numeric values. Returns 0 if no arguments provided.");
   console.log("  - multiply: Multiplies numeric values. Returns 0 if no arguments provided.");
   console.log("  - subtract: Subtracts subsequent numbers from the first provided number.");
-  console.log(
-    "  - divide: Divides the first number by each subsequent number sequentially. Aborts on division by zero.",
-  );
+  console.log("  - divide: Divides the first number by each subsequent number sequentially. Aborts on division by zero.");
   console.log("  - power: Raises the first number (base) to the power of the second (exponent).");
-  console.log(
-    "  - mod: Computes the modulo of the first number with each subsequent number. Aborts on modulo by zero.",
-  );
+  console.log("  - mod: Computes the modulo of the first number with each subsequent number. Aborts on modulo by zero.");
   console.log("  - demo: Demonstrates all available commands with sample outputs.");
   console.log("  - githubscript: Reads extended environment variables and file contents.");
   console.log("  - interactive: Launches interactive mode for dynamic command input.");
@@ -374,32 +377,47 @@ const helpCommand = () => {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [, , ...args] = process.argv;
-
-  const commands = {
-    echo: echoCommand,
-    add: addCommand,
-    multiply: multiplyCommand,
-    subtract: subtractCommand,
-    divide: divideCommand,
-    power: powerCommand,
-    mod: modCommand,
-    demo: demoCommand,
-    // selfTest command removed from CLI to move testing to unit tests
-    help: helpCommand,
-    githubscript: githubScriptCommand,
-    interactive: interactiveCommand,
-  };
-
   if (args.length === 0) {
     displayUsage();
   } else {
     const [command, ...commandArgs] = args;
-    const action = commands[command];
-    if (action) {
-      action(commandArgs);
-    } else {
-      console.error("Unknown command: " + command + ". Available commands: " + Object.keys(commands).join(", "));
-      process.exit(1);
+    switch (command) {
+      case "echo":
+        echoCommand(commandArgs);
+        break;
+      case "add":
+        addCommand(commandArgs);
+        break;
+      case "multiply":
+        multiplyCommand(commandArgs);
+        break;
+      case "subtract":
+        subtractCommand(commandArgs);
+        break;
+      case "divide":
+        divideCommand(commandArgs);
+        break;
+      case "power":
+        powerCommand(commandArgs);
+        break;
+      case "mod":
+        modCommand(commandArgs);
+        break;
+      case "demo":
+        demoCommand(commandArgs);
+        break;
+      case "help":
+        helpCommand(commandArgs);
+        break;
+      case "githubscript":
+        githubScriptCommand(commandArgs);
+        break;
+      case "interactive":
+        interactiveCommand(commandArgs);
+        break;
+      default:
+        console.error("Unknown command: " + command + ". Available commands: echo, add, multiply, subtract, divide, power, mod, demo, help, githubscript, interactive");
+        process.exit(1);
     }
   }
 }
