@@ -37,11 +37,11 @@ automatically.
 - [x] Add the ability to write to the README, test and package.json.
 - [x] Add the full file context to the review.
 - [x] Add Linting file to the context when working on an issue.
-- [~] Add Linting results to the context to an issue after formatting the results.
-- [~] Find a way for consumers to link to a stable version of the reusable workflows.
-- [~] Test the link to the current version from the test file (not main but the github-ref being tested).
-- [~] Test the link to the stable version after publishing from this repository.
-- [~] Update the links in repository0 to point to the stable version.
+- [x] Add Linting results to the context to an issue after formatting the results.
+- [x] Find a way for consumers to link to a stable version of the reusable workflows.
+- [x] Test the link to the current version from the test file (not main but the github-ref being tested).
+- [x] Test the link to the stable version after publishing from this repository.
+- [x] Update the links in repository0 to point to the stable version.
 - [ ] *Release intentïon `agentic-lib` workflows public beta.*
 - [ ] *Release intentïon `repository0` repository template public beta.*
 
