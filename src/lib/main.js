@@ -329,7 +329,7 @@ const interactiveCommand = (_args) => {
         demoCommand(commandArgs);
         break;
       case "help":
-        helpCommand(commandArgs);
+        helpCommand();
         break;
       case "githubscript":
         githubScriptCommand(commandArgs);
@@ -411,7 +411,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         demoCommand(commandArgs);
         break;
       case "help":
-        helpCommand(commandArgs);
+        helpCommand();
         break;
       case "githubscript":
         githubScriptCommand(commandArgs);
