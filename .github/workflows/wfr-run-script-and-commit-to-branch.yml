@@ -119,6 +119,7 @@ jobs:
           git switch -c '${{ env.branch }}'
           git add -v --all
           git commit -v -m '${{ env.gitCommitMessage }}'
+          git push --set-upstream origin '${{ env.branch }}'
           git push -v
           git status -v
 
