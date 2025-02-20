@@ -47,6 +47,13 @@ on:
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
+    outputs:
+      releasedVersion:
+        description: 'The version that was released. e.g. "1.0.1"'
+        value: ${{ jobs.publish.outputs.releasedVersion }}
+      newVersion:
+        description: 'The version that was bumped to. e.g. "1.0.2-0"'
+        value: ${{ jobs.publish.outputs.newVersion }}
 
 jobs:
   publish:
@@ -103,7 +110,7 @@ jobs:
           git status -v
 
       # TODO: Consider: semantic-release
-      - name: Publish package and move to next release version
+      - name: released
         id: released
         if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
         shell: bash
@@ -117,7 +124,7 @@ jobs:
           echo "releasedVersion=${releasedVersion}"
 
       - name: Create GitHub Release
-        if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' }}
+        if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ steps.released.outputs.releasedVersion }}
@@ -138,7 +145,7 @@ jobs:
         run: |
           npm version --no-git-tag-version ${{ env.versionIncrement }}
 
-      - name: Rotate to next [premajor|preminor|prepatch|prerelease] version
+      - name: rotated
         id: rotated
         shell: bash
         run: |
