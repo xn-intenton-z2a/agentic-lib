@@ -128,7 +128,7 @@ jobs:
           echo "fixRequired={fixRequired}" > $GITHUB_OUTPUT
           echo "fixRequired=${fixRequired}"
           resultsCount=$(echo "${results}" | jq '.runs[0].results | length' 2>/dev/null || echo "unknown")
-          echo "resultsCount${resultsCount}" > $GITHUB_OUTPUT
+          echo "resultsCount=${resultsCount}" > $GITHUB_OUTPUT
           echo "resultsCount=${resultsCount}"
           echo "results: ${results}"
 
