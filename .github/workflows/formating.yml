@@ -18,7 +18,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-commit-to-branch.yml@main'
     with:
       script: 'npm run formatting-fix -- "." ; npm run linting-fix "." -- --max-warnings=10'
-      sarifScript: 'npm run linting-json'
+      sarifScript: 'npm run linting-json --silent'
       testScript: 'npm test'
       branch: 'apply-formatting'
       gitUserEmail: 'action@github.com'
@@ -28,8 +28,8 @@ jobs:
   create-issue:
     needs:
       - formatting-and-linting
-    if: ${{ needs.formatting-and-linting.outputs.fixRequired == 'true' }}
-    #if: ${{ needs.formatting-and-linting.outputs.resultsCount != '0' }}
+    #if: ${{ needs.formatting-and-linting.outputs.fixRequired == 'true' }}
+    if: ${{ needs.formatting-and-linting.outputs.resultsCount != '0' }}
     permissions:
       issues: write
       id-token: write
