@@ -127,7 +127,7 @@ const divideCommand = (args) => {
     (acc, num) => acc / num,
     (num) => num === 0,
     (arg) => "Error: Division by zero encountered with argument " + arg,
-    0
+    0,
   );
 };
 
@@ -157,7 +157,7 @@ const modCommand = (args) => {
     (acc, num) => acc % num,
     (num) => num === 0,
     (arg) => "Error: Modulo by zero encountered with argument " + arg,
-    undefined
+    undefined,
   );
 };
 
@@ -197,7 +197,7 @@ const demoCommand = (_args) => {
 const selfTestCommand = (_args) => {
   console.log("=== Self Test: Demonstrating features with expected outputs ===");
 
-  console.log("\n> Test Echo Command (expected output: \"Hello Test\")");
+  console.log('\n> Test Echo Command (expected output: "Hello Test")');
   echoCommand(["Hello", "Test"]);
 
   console.log("\n> Test Add Command (2 + 3, expected output: 5)");
@@ -243,30 +243,30 @@ const githubScriptCommand = (_args) => {
   const mainScript = process.env.MAINSCRIPT || "";
   const mainOutput = process.env.MAINOUTPUT || "";
 
-  console.log("TARGET: \"" + target + "\"");
-  console.log("TESTFILE: \"" + testFile + "\"");
-  console.log("READMEFILE: \"" + readmeFile + "\"");
-  console.log("CONTRIBUTINGFILE: \"" + contributingFile + "\"");
-  console.log("DEPENDENCIESFILE: \"" + dependenciesFile + "\"");
-  console.log("MODEL: \"" + model + "\"");
-  console.log("CHATGPT_API_SECRET_KEY: \"" + (apiKey ? "***" : "") + "\"");
-  console.log("ISSUENUMBER: \"" + issueNumber + "\"");
-  console.log("DEPENDENCIESLISTOUTPUT: \"" + dependenciesListOutput + "\"");
-  console.log("BUILDSCRIPT: \"" + buildScript + "\"");
-  console.log("BUILDOUTPUT: \"" + buildOutput + "\"");
-  console.log("TESTSCRIPT: \"" + testScript + "\"");
-  console.log("TESTOUTPUT: \"" + testOutput + "\"");
-  console.log("MAINSCRIPT: \"" + mainScript + "\"");
-  console.log("MAINOUTPUT: \"" + mainOutput + "\"");
+  console.log('TARGET: "' + target + '"');
+  console.log('TESTFILE: "' + testFile + '"');
+  console.log('READMEFILE: "' + readmeFile + '"');
+  console.log('CONTRIBUTINGFILE: "' + contributingFile + '"');
+  console.log('DEPENDENCIESFILE: "' + dependenciesFile + '"');
+  console.log('MODEL: "' + model + '"');
+  console.log('CHATGPT_API_SECRET_KEY: "' + (apiKey ? "***" : "") + '"');
+  console.log('ISSUENUMBER: "' + issueNumber + '"');
+  console.log('DEPENDENCIESLISTOUTPUT: "' + dependenciesListOutput + '"');
+  console.log('BUILDSCRIPT: "' + buildScript + '"');
+  console.log('BUILDOUTPUT: "' + buildOutput + '"');
+  console.log('TESTSCRIPT: "' + testScript + '"');
+  console.log('TESTOUTPUT: "' + testOutput + '"');
+  console.log('MAINSCRIPT: "' + mainScript + '"');
+  console.log('MAINOUTPUT: "' + mainOutput + '"');
 
   // Helper function to log file status
   const logFileStatus = (label, filePath) => {
     if (filePath) {
       if (fs.existsSync(filePath)) {
         const content = fs.readFileSync(filePath, "utf8");
-        console.log(label + " \"" + filePath + "\" loaded with length " + content.length + ".");
+        console.log(label + ' "' + filePath + '" loaded with length ' + content.length + ".");
       } else {
-        console.log(label + " \"" + filePath + "\" does not exist.");
+        console.log(label + ' "' + filePath + '" does not exist.');
       }
     }
   };
@@ -288,13 +288,13 @@ const interactiveCommand = (_args) => {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
-    prompt: 'agentic-lib> '
+    prompt: "agentic-lib> ",
   });
   console.log("Entering interactive mode. Type 'exit' to quit.");
   rl.prompt();
-  rl.on('line', (line) => {
+  rl.on("line", (line) => {
     const input = line.trim();
-    if (input.toLowerCase() === 'exit') {
+    if (input.toLowerCase() === "exit") {
       rl.close();
       return;
     }
@@ -311,7 +311,7 @@ const interactiveCommand = (_args) => {
       mod: modCommand,
       demo: demoCommand,
       help: helpCommand,
-      githubscript: githubScriptCommand
+      githubscript: githubScriptCommand,
     };
     if (commands[command]) {
       commands[command](commandArgs);
@@ -320,7 +320,7 @@ const interactiveCommand = (_args) => {
     }
     rl.prompt();
   });
-  rl.on('close', () => {
+  rl.on("close", () => {
     console.log("Exiting interactive mode.");
   });
 };
@@ -336,9 +336,13 @@ const displayUsage = () => {
   console.log("  - add: Sums numeric values. Returns 0 if no arguments provided.");
   console.log("  - multiply: Multiplies numeric values. Returns 0 if no arguments provided.");
   console.log("  - subtract: Subtracts subsequent numbers from the first provided number.");
-  console.log("  - divide: Divides the first number by each subsequent number sequentially. Aborts on division by zero.");
+  console.log(
+    "  - divide: Divides the first number by each subsequent number sequentially. Aborts on division by zero.",
+  );
   console.log("  - power: Raises the first number (base) to the power of the second (exponent).");
-  console.log("  - mod: Computes the modulo of the first number with each subsequent number. Aborts on modulo by zero.");
+  console.log(
+    "  - mod: Computes the modulo of the first number with each subsequent number. Aborts on modulo by zero.",
+  );
   console.log("  - demo: Demonstrates all available commands with sample outputs.");
   console.log("  - githubscript: Reads extended environment variables and file contents.");
   console.log("  - interactive: Launches interactive mode for dynamic command input.");
@@ -368,7 +372,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     // selfTest command removed from CLI to move testing to unit tests
     help: helpCommand,
     githubscript: githubScriptCommand,
-    interactive: interactiveCommand
+    interactive: interactiveCommand,
   };
 
   if (args.length === 0) {
@@ -403,5 +407,5 @@ export {
   githubScriptCommand,
   interactiveCommand,
   displayUsage,
-  helpCommand
+  helpCommand,
 };
