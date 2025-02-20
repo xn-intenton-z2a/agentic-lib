@@ -97,7 +97,7 @@ jobs:
       branchPrefix: 'issue-'
       buildScript: 'npm run build'
       testScript: 'npm test'
-      mainScript: 'node src/lib/main.js'
+      mainScript: 'npm run start'
       model: 'o3-mini'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'

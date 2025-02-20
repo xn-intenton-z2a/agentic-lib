@@ -15,10 +15,10 @@ on:
         required: false
         default: 'npm test'
       mainScript:
-        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `node src/lib/main.js`'
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run start`'
         type: string
         required: false
-        default: 'node src/lib/main.js'
+        default: 'npm run start'
       upgradeTarget:
         description: 'The type of upgrade to perform. e.g. "minor"'
         type: string
@@ -60,7 +60,7 @@ jobs:
     env:
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
-      mainScript: ${{ inputs.mainScript || 'node src/lib/main.js' }}
+      mainScript: ${{ inputs.mainScript || 'npm run start' }}
       mainScriptTimeout: '5m'
       upgradeTarget: ${{ inputs.upgradeTarget || 'minor' }}
       branch: ${{ inputs.branch || 'apply-update' }}

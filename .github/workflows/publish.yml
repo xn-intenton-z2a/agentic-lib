@@ -61,7 +61,7 @@ jobs:
       - name: main
         id: main
         shell: bash
-        run: timeout 5m 'node src/lib/main.js'
+        run: timeout 5m npm run start
 
   publish:
     needs:
@@ -75,7 +75,7 @@ jobs:
       featureTag: ${{ inputs.featureTag || '' }}
       buildScript: 'npm run build'
       testScript: 'npm test'
-      mainScript: 'node src/lib/main.js'
+      mainScript: 'npm run start'
       npmAuthOrganisation: 'xn-intenton-z2a'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'

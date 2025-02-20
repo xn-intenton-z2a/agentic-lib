@@ -25,10 +25,10 @@ on:
         required: false
         default: 'npm test'
       mainScript:
-        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `node src/lib/main.js`'
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run start`'
         type: string
         required: false
-        default: 'node src/lib/main.js'
+        default: 'npm run start'
       npmAuthOrganisation:
         description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
         type: string
@@ -57,7 +57,7 @@ jobs:
       featureTag: ${{ inputs.featureTag || '' }}
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
-      mainScript: ${{ inputs.mainScript || 'node src/lib/main.js' }}
+      mainScript: ${{ inputs.mainScript || 'npm run start' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
