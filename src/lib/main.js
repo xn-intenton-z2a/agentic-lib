@@ -315,13 +315,12 @@ const interactiveCommand = (_args) => {
       help: helpCommand,
       githubscript: githubScriptCommand,
     };
-    /* eslint-disable security/detect-object-injection */
-    if (commands[command]) {
+    const allowedCommands = ["echo", "add", "multiply", "subtract", "divide", "power", "mod", "demo", "help", "githubscript", "interactive"];
+    if (allowedCommands.includes(command)) {
       commands[command](commandArgs);
     } else {
       console.error("Unknown command: " + command);
     }
-    /* eslint-enable security/detect-object-injection */
     rl.prompt();
   });
   rl.on("close", () => {
@@ -340,13 +339,9 @@ const displayUsage = () => {
   console.log("  - add: Sums numeric values. Returns 0 if no arguments provided.");
   console.log("  - multiply: Multiplies numeric values. Returns 0 if no arguments provided.");
   console.log("  - subtract: Subtracts subsequent numbers from the first provided number.");
-  console.log(
-    "  - divide: Divides the first number by each subsequent number sequentially. Aborts on division by zero.",
-  );
+  console.log("  - divide: Divides the first number by each subsequent number sequentially. Aborts on division by zero.");
   console.log("  - power: Raises the first number (base) to the power of the second (exponent).");
-  console.log(
-    "  - mod: Computes the modulo of the first number with each subsequent number. Aborts on modulo by zero.",
-  );
+  console.log("  - mod: Computes the modulo of the first number with each subsequent number. Aborts on modulo by zero.");
   console.log("  - demo: Demonstrates all available commands with sample outputs.");
   console.log("  - githubscript: Reads extended environment variables and file contents.");
   console.log("  - interactive: Launches interactive mode for dynamic command input.");
