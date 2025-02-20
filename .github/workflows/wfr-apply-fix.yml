@@ -127,14 +127,12 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
           echo "always-auth=true" >> .npmrc
 
-      - run: npm ci
-
-      - name: List dependencies
-        id: list
+      - name: Install dependencies
+        id: install
         shell: bash
         run: |
           set +e
-          output=$(npm list 2>&1)
+          output=$(npm install 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -186,7 +184,7 @@ jobs:
         id: update-target
         uses: actions/github-script@v7
         env:
-          dependenciesListOutput: ${{ steps.list.outputs.output }}
+          installOutput: ${{ steps.install.outputs.output }}
           buildOutput: ${{ steps.build.outputs.output }}
           testOutput: ${{ steps.test.outputs.output }}
           mainOutput: ${{ steps.main.outputs.output }}
@@ -202,6 +200,7 @@ jobs:
             const lintingFile = process.env.lintingFile;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
+            const installOutput = process.env.installOutput;
             const dependenciesListOutput = process.env.dependenciesListOutput;
             const buildScript = process.env.buildScript;
             const buildOutput = process.env.buildOutput;
@@ -251,7 +250,7 @@ jobs:
             * Dependencies file content
             * Formatting file content
             * Linting file content
-            * Dependency list
+            * Dependency install output
             * Build output
             * Test output
             * Main execution output
@@ -293,10 +292,10 @@ jobs:
             ${lintingFileContent}
             LINTING_FILE_END        
 
-            Dependencies list from command: npm list
-            DEPENDENCIES_LIST_START
-            ${dependenciesListOutput}
-            DEPENDENCIES_LIST_END    
+            Dependencies install from command: npm install
+            DEPENDENCIES_INSTALL_START
+            ${installOutput}
+            DEPENDENCIES_INSTALL_END    
 
             Build output from command: ${buildScript}
             BUILD_OUTPUT_START
@@ -451,22 +450,6 @@ jobs:
       - run: |
           set +e
           npm install
-          exit 0
-
-      - run: |
-          set +e
-          npm ci
-          exit 0
-
-      - name: List dependencies
-        shell: bash
-        run: |
-          set +e
-          output=$(npm list 2>&1)
-          echo "output<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$output" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "output=${output}"
           exit 0
 
       - name: Test after update
