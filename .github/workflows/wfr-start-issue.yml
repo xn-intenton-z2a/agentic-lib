@@ -426,22 +426,22 @@ jobs:
               core.setOutput("message", sanitizedMessage);
               core.info(`message: "${sanitizedMessage}"`);
             
-              if(parsed.updatedSourceFileContent && parsed.updatedSourceFileContent.length > 1) {
+              if(parsed.updatedSourceFileContent && parsed.updatedSourceFileContent.length > 1 && parsed.updatedSourceFileContent !== sourceFileContent) {
                 fs.writeFileSync(target, parsed.updatedSourceFileContent, 'utf8');
                 fixApplied = true;
                 core.info(`Target file '${target}' has been updated (length ${parsed.updatedSourceFileContent.length}).`);
               }
-              if(parsed.updatedTestFileContent && parsed.updatedTestFileContent.length > 1) {
+              if(parsed.updatedTestFileContent && parsed.updatedTestFileContent.length > 1 && parsed.updatedTestFileContent !== testFileContent) {
                 fs.writeFileSync(testFile, parsed.updatedTestFileContent, 'utf8');
                 fixApplied = true;
                 core.info(`Test file '${testFile}' has been updated (length ${parsed.updatedTestFileContent.length}).`);
               }
-              if(parsed.updatedReadmeFileContent && parsed.updatedReadmeFileContent.length > 1) {
+              if(parsed.updatedReadmeFileContent && parsed.updatedReadmeFileContent.length > 1 && parsed.updatedReadmeFileContent !== readmeFileContent) {
                 fs.writeFileSync(readmeFile, parsed.updatedReadmeFileContent, 'utf8');
                 fixApplied = true;
                 core.info(`Readme file '${readmeFile}' has been updated (length ${parsed.updatedReadmeFileContent.length}).`);
               }
-              if(parsed.updatedDependenciesFileContent && parsed.updatedDependenciesFileContent.length > 1) {
+              if(parsed.updatedDependenciesFileContent && parsed.updatedDependenciesFileContent.length > 1 && parsed.updatedDependenciesFileContent !== dependenciesFileContent) {
                 fs.writeFileSync(dependenciesFile, parsed.updatedDependenciesFileContent, 'utf8');
                 fixApplied = true;
                 core.info(`Dependencies file '${dependenciesFile}' has been updated (length ${parsed.updatedDependenciesFileContent.length}).`);
@@ -459,11 +459,10 @@ jobs:
             }
             
             core.setOutput("fixApplied", fixApplied);
-            core.setOutput("response", JSON.stringify(response));
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`fixApplied: "${fixApplied}"`);
-            core.info(`response: "${JSON.stringify(response)}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
+            core.info(`response: "${JSON.stringify(response)}"`);
 
       - run: cat ${{ env.target }}
 

@@ -432,11 +432,10 @@ jobs:
             }
             
             core.setOutput("fixApplied", fixApplied);
-            core.setOutput("response", JSON.stringify(response));
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`fixApplied: "${fixApplied}"`);
-            core.info(`response: "${JSON.stringify(response)}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
+            core.info(`response: "${JSON.stringify(response)}"`);
 
       - run: cat ${{ env.target }}
 
