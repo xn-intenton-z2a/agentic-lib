@@ -32,9 +32,10 @@ describe("CLI Minimal Commands", () => {
     expect(result.stdout).toContain("Available commands:");
   });
 
-  test("Unknown command prints error and usage", () => {
+  test("Unknown command prints error and usage and exits with code 1", () => {
     const result = runCLI(["unknown"]);
-    expect(result.stderr).toContain("Unknown command:");
+    expect(result.stderr).toContain("Unknown command: unknown");
     expect(result.stdout).toContain("Usage: node src/lib/main.js <command> [arguments...]");
+    expect(result.status).toBe(1);
   });
 });
