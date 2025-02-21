@@ -18,7 +18,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-commit-to-branch.yml@main'
     with:
       script: 'npm run formatting-fix -- "." ; npm run linting-fix "."'
-      sarifScript: 'npm run linting-json --silent'
+      sarifScript: ''
       testScript: 'npm test'
       branch: 'apply-formatting'
       gitUserEmail: 'action@github.com'
@@ -40,5 +40,5 @@ jobs:
     with:
       branch: 'apply-formatting'
       baseBranch: 'main'
-      gitCommitMessage: 'chore: formatting and linting fixes'
+      gitCommitMessage: 'chore: formatting fixes'
       label: 'automerge'

@@ -28,7 +28,7 @@ jobs:
   create-issue:
     needs:
       - linting
-    if: ${{ needs.linting.outputs.fixRequired == 'true' && needs.linting.outputs.resultsCount != '0' }}
+    if: ${{ needs.linting.outputs.fixStillRequired == 'true' && needs.linting.outputs.remainingResultsCount != '0' }}
     permissions:
       issues: write
       id-token: write

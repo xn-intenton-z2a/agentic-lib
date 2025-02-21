@@ -8,12 +8,12 @@ on:
         description: 'The script must be runnable as: `npm ci ; <script>`.'
         type: string
         required: false
-        default: 'prettier --write'
+        default: ''
       sarifScript:
         description: 'The script must be runnable as: `npm ci ; <script>` and output a SARIF file. e.g. `npm run linting-json`'
         type: string
         required: false
-        default: 'npm run linting-json'
+        default: ''
       testScript:
         description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
         type: string
@@ -54,20 +54,20 @@ on:
       scriptOutput:
         description: 'The output from running the script. '
         value: ${{ jobs.update-and-push.outputs.scriptOutput }}
-      resultsCount:
+      remainingResultsCount:
         description: 'The number of results from the SARIF script. e.g. "1"'
-        value: ${{ jobs.update-and-push.outputs.resultsCount }}
-      fixRequired:
+        value: ${{ jobs.update-and-push.outputs.remainingResultsCount }}
+      fixStillRequired:
         description: 'Whether the SARIF script requires fixes. e.g. "true"'
-        value: ${{ jobs.update-and-push.outputs.fixRequired }}
+        value: ${{ jobs.update-and-push.outputs.fixStillRequired }}
 
 jobs:
   update-and-push:
     runs-on: ubuntu-latest
 
     env:
-      script: ${{ inputs.script || 'prettier --write' }}
-      sarifScript: ${{ inputs.sarifScript || 'npm run linting-json' }}
+      script: ${{ inputs.script || '' }}
+      sarifScript: ${{ inputs.sarifScript || '' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
       branch: ${{ inputs.branch || 'apply-script' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
@@ -100,10 +100,15 @@ jobs:
 
       - name: script
         id: script
+        if: ${{ env.script != '' }}
         shell: bash
         run: |
           set +e
-          ${{ env.script }}
+          output=$(${{ env.script }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
           if git diff --quiet; then
             updated='false'
           else
@@ -116,6 +121,7 @@ jobs:
 
       - name: sarif-script
         id: sarif-script
+        if: ${{ env.sarifScript != '' }}
         continue-on-error: true
         shell: bash
         run: |
@@ -124,12 +130,12 @@ jobs:
           exitCode="$?"
           set -e
           echo "exitCode=${exitCode}"
-          fixRequired=$([ $? -eq 0 ] && echo 'true' || echo 'false')
-          echo "fixRequired={fixRequired}" > $GITHUB_OUTPUT
-          echo "fixRequired=${fixRequired}"
-          resultsCount=$(echo "${results}" | jq '.runs[0].results | length' 2>/dev/null || echo "unknown")
-          echo "resultsCount=${resultsCount}" > $GITHUB_OUTPUT
-          echo "resultsCount=${resultsCount}"
+          fixStillRequired=$([ $? -eq 0 ] && echo 'true' || echo 'false')
+          echo "fixStillRequired={fixStillRequired}" > $GITHUB_OUTPUT
+          echo "fixStillRequired=${fixStillRequired}"
+          remainingResultsCount=$(echo "${results}" | jq '.runs[0].results | length' 2>/dev/null || echo "unknown")
+          echo "remainingResultsCount=${remainingResultsCount}" > $GITHUB_OUTPUT
+          echo "remainingResultsCount=${remainingResultsCount}"
           echo "results: ${results}"
 
       - name: Test
@@ -156,20 +162,8 @@ jobs:
           git push -v
           git status -v
 
-      - name: Run script
-        id: script-second-pass
-        shell: bash
-        run: |
-          set +e
-          output=$(${{ env.script }} 2>&1)
-          echo "output<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$output" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "output=${output}"
-          set -e
-
     outputs:
       updatedFiles: ${{ steps.script.outputs.updated }}
-      scriptOutput: ${{ steps.script-second-pass.outputs.output }}
-      resultsCount: ${{ steps.sarif-script.outputs.resultsCount }}
-      fixRequired: ${{ steps.sarif-script.outputs.fixRequired }}
+      scriptOutput: ${{ steps.script.outputs.output }}
+      remainingResultsCount: ${{ steps.sarif-script.outputs.remainingResultsCount }}
+      fixStillRequired: ${{ steps.sarif-script.outputs.fixStillRequired }}
