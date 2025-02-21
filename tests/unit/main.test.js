@@ -9,6 +9,7 @@ const runCLI = (args = []) => {
   return result;
 };
 
+
 describe("CLI Minimal Commands", () => {
   test("Displays usage when no command is provided", () => {
     const result = runCLI();
