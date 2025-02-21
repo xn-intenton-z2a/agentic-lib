@@ -329,7 +329,7 @@ In addition to the programmatic API, the SDK provides a command-line interface (
 The CLI tool is installed along with the SDK. Use it via npx:
 
 ```bash
-npx agentic-cli [command] [options]
+npx agentic-lib [command] [options]
 ```
 
 ### Available Commands
@@ -338,49 +338,49 @@ npx agentic-cli [command] [options]
   Runs the self-test suite to verify the system.  
   _Example:_
   ```bash
-  npx agentic-cli self-test
+  npx agentic-lib self-test
   ```
 
 - **demo**  
   Executes a demonstration of the core functionalities.  
   _Example:_
   ```bash
-  npx agentic-cli demo
+  npx agentic-lib demo
   ```
 
 - **publish**  
   Publishes packages with the given version increment and build script.  
   _Example:_
   ```bash
-  npx agentic-cli publish --versionIncrement minor --buildScript "npm run build"
+  npx agentic-lib publish --versionIncrement minor --buildScript "npm run build"
   ```
 
 - **test**  
   Runs the test suites.  
   _Example:_
   ```bash
-  npx agentic-cli test
+  npx agentic-lib test
   ```
 
 - **create-task**  
   Creates a new task.  
   _Example:_
   ```bash
-  npx agentic-cli create-task --title "New Task" --description "Task description" --target "src/lib/main.js"
+  npx agentic-lib create-task --title "New Task" --description "Task description" --target "src/lib/main.js"
   ```
 
 - **update**  
   Updates dependencies according to the specified upgrade target.  
   _Example:_
   ```bash
-  npx agentic-cli update --upgradeTarget patch
+  npx agentic-lib update --upgradeTarget patch
   ```
 
 - **format**  
   Runs code formatting and linting tasks.  
   _Example:_
   ```bash
-  npx agentic-cli format --script "npm run formatting-fix && npm run linting-fix"
+  npx agentic-lib format --script "npm run formatting-fix && npm run linting-fix"
   ```
 
 ### Default Mode
@@ -388,7 +388,7 @@ npx agentic-cli [command] [options]
 If no command is provided, the CLI defaults to running a self-test followed by a demo, and then it displays the usage instructions:
 
 ```bash
-npx agentic-cli
+npx agentic-lib
 ```
 
 ---
