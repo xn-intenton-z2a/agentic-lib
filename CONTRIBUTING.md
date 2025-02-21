@@ -1,18 +1,40 @@
 # Contributing
 
-This project's goals are consumed by the workflow and can be modified to guide the evolution of the project.
+Contributing guidelines here related to the JavaScript library project which is coded by an agentic coding system
+build from GitHub Workflows. To use the workflows see  [WORKFLOWS-README.md](WORKFLOWS-README.md).
 
-## Project goals
+# Mission Statement
 
-- **Specific outcomes:**
-    - **CLI demo:** Keep a short reliable demo that will run from `node src/lib/main.js`.
-    - **Demo/Testing:** Use stubbed tests and demo over the wire calls assuming there is internet access.
-    - **Export functions:** The library should export functions that can be used in other projects.
+_"Empower developers with a unified, modular JavaScript SDK that automates and streamlines every stage of software development—from testing and publishing to task management, dependency updates, and AI-driven code enhancements."_
 
-- **Directions to take: **
-    - **Use libraries:** Keep evolving by replacing code with libraries. 
-    - **Learning:** Add information to the code to help further evolution.
-    - **Seed AI:** One day a program will evolve to be the Seed AI, if it is this program, strive for peaceful collaboration between all reasoning entities. 
+# Project Goals
+
+- **Unified Workflow Abstraction:**  
+  Provide a single JavaScript API that abstracts complex, automated coding workflows (publishing, testing, dependency updates, formatting, etc.) into generic "tasks" rather than platform-specific issues.
+
+- **Robust Automated Operations:**  
+  Enable key development operations such as running self-tests, demos, and publishing packages with semantic versioning updates, all through asynchronous, promise-based functions.
+
+- **Task Management and Integration:**  
+  Offer comprehensive task management capabilities including creating, selecting, and initiating tasks, as well as automating pull request creation and merging.
+
+- **Automated Testing and Quality Assurance:**  
+  Integrate testing workflows that execute unit tests and code coverage reports, ensuring high code quality.
+
+- **Dependency and Code Maintenance:**  
+  Facilitate automated dependency updates and code formatting/linting to maintain a healthy, up-to-date codebase.
+
+- **OpenAI API Integration:**  
+  Incorporate utilities to interface with OpenAI for generating code suggestions, content improvements, and automated code reviews.
+
+- **Flexible CLI Interface:**  
+  Deliver a command-line interface that defaults to running a self-test and demo, while also supporting commands for all major operations (e.g., publish, test, update, format).
+
+- **Modular and Reusable Workflows:**  
+  Design workflows as modular SDK components that can be integrated, customized, and reused across different projects.
+
+- **CLI demo:** 
+  Keep a short reliable demo that will run from `node src/lib/main.js`.
 
 ## The Automated Contribution Process
 

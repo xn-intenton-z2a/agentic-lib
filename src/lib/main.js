@@ -1,24 +1,5 @@
 #!/usr/bin/env node
 
-/*
-  Minimal CLI for agentic-lib
-  ==========================
-  This file is part of the agentic-lib project and provides a minimal command-line interface.
-
-  Available Commands:
-    - self-test: Runs the self test suite.
-    - demo: Runs a demonstration of functionalities.
-    - publish: Runs the publish command (stubbed functionality).
-    - help: Displays this help message.
-
-  Usage:
-    node src/lib/main.js <command> [arguments...]
-    If no command is provided, the CLI will run the self-test, then demo, and finally display the help message.
-
-  License:
-    GPL-3.0
-*/
-
 // Function to generate the usage message
 const getUsageMessage = () => {
   return [
