@@ -34,7 +34,7 @@ import { runSelfTest, demo, publishPackages, openaiGenerate } from 'agentic-lib'
   });
   console.log('OpenAI suggestion:', suggestion);
 
-  // Example: Publish packages with a minor version increment
+  // Example: Publish packages with a minor version increment (functionality under development)
   const publishResult = await publishPackages({
     versionIncrement: 'minor',
     buildScript: 'npm run build'
@@ -49,8 +49,9 @@ The CLI provided via `node src/lib/main.js` exports several helper functions whi
 
 - `getUsageMessage`: Returns the full usage message string.
 - `displayUsage`: Prints the usage message to the console.
-- `selfTestCommand`: Runs the self-test command.
-- `demoCommand`: Runs the demo command.
+- `selfTestCommand`: Runs the self-test command (now with extended validations).
+- `demoCommand`: Runs the demo command (now with extended demonstration scenarios).
+- `publishCommand`: Runs the publish command (stubbed for future implementation).
 - `processCommand`: Processes a given command and arguments.
 
 These exports enable improved test coverage and integration into larger automated workflows.
@@ -86,7 +87,7 @@ await demo();
 ### Publishing
 
 #### `publishPackages(options)`
-Publishes packages using a configured build script and semantic versioning update.
+Publishes packages using a configured build script and semantic versioning update. (This feature is under development.)
 
 **Parameters:**
 - `options` (Object):
@@ -146,52 +147,31 @@ npx agentic-cli [command] [options]
 ### Available Commands
 
 - **self-test**  
-  Runs the self-test suite to verify the system.  
+  Runs the self-test suite to verify the system with extended validations.  
   _Example:_
   ```bash
   npx agentic-cli self-test
   ```
 
 - **demo**  
-  Executes a demonstration of the core functionalities.  
+  Executes a demonstration of the core functionalities with extended scenarios.  
   _Example:_
   ```bash
   npx agentic-cli demo
   ```
 
 - **publish**  
-  Publishes packages with the given version increment and build script.  
+  Initiates the publish command. (Functionality under development)  
   _Example:_
   ```bash
-  npx agentic-cli publish --versionIncrement minor --buildScript "npm run build"
+  npx agentic-cli publish
   ```
 
-- **test**  
-  Runs the test suites.  
+- **help**  
+  Displays this help message.  
   _Example:_
   ```bash
-  npx agentic-cli test
-  ```
-
-- **create-task**  
-  Creates a new task.  
-  _Example:_
-  ```bash
-  npx agentic-cli create-task --title "New Task" --description "Task description" --target "src/lib/main.js"
-  ```
-
-- **update**  
-  Updates dependencies according to the specified upgrade target.  
-  _Example:_
-  ```bash
-  npx agentic-cli update --upgradeTarget patch
-  ```
-
-- **format**  
-  Runs code formatting and linting tasks.  
-  _Example:_
-  ```bash
-  npx agentic-cli format --script "npm run formatting-fix && npm run linting-fix"
+  npx agentic-cli help
   ```
 
 ### Default Mode
