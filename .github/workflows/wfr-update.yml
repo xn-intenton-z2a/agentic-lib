@@ -52,6 +52,10 @@ on:
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
+    outputs:
+      updatedFiles:
+          description: 'Whether files were updated by the script. e.g. "true"'
+          value: ${{ jobs.update.outputs.updatedFiles }}
 
 jobs:
   update:
