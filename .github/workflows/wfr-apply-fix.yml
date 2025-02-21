@@ -312,15 +312,16 @@ jobs:
             ${mainOutput}
             MAIN_OUTPUT_END    
             
-            Please produce an updated version of the source file, and test file, and README and dependencies file that resolves the possible build or test problem
+            Please produce an updated version of the source file, and test file, and README and dependencies file that resolves the possible build or test problem.
+            If there are no changes required, please provide the original content and state that no changes are necessary in the message.
             Answer strictly with a JSON object following this schema:
             
             {
-              "updatedSourceFileContent": "The entire new content of the source file, with all necessary changes applied.",
-              "updatedTestFileContent": "The entire new content of the test file, with all necessary changes applied.",
-              "updatedReadmeFileContent": "The entire new content of the README file, with all necessary changes applied.",
-              "updatedDependenciesFileContent": "The entire new content of the dependencies file, with all necessary changes applied.",
-              "message": "A short sentence explaining the change applied suitable for a commit message."
+              "updatedSourceFileContent": "The entire new content of the source file, with all necessary changes applied, if any.",
+              "updatedTestFileContent": "The entire new content of the test file, with all necessary changes applied, if any.",
+              "updatedReadmeFileContent": "The entire new content of the README file, with all necessary changes applied, if any.",
+              "updatedDependenciesFileContent": "The entire new content of the dependencies file, with all necessary changes applied, if any.",
+              "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text."
             }
             
             Ensure valid JSON.
@@ -339,23 +340,23 @@ jobs:
                   properties: {
                     updatedSourceFileContent: {
                       type: "string",
-                      description: "The entire new content of the source file, with all necessary changes applied."
+                      description: "The entire new content of the source file, with all necessary changes applied, if any."
                     },
                     updatedTestFileContent: {
                       type: "string",
-                      description: "The entire new content of the test file, with all necessary changes applied."
+                      description: "The entire new content of the test file, with all necessary changes applied, if any."
                     },
                     updatedReadmeFileContent: {
                       type: "string",
-                      description: "The entire new content of the README file, with all necessary changes applied."
+                      description: "The entire new content of the README file, with all necessary changes applied, if any."
                     },
                     updatedDependenciesFileContent: {
                       type: "string",
-                      description: "The entire new content of the dependencies file, with all necessary changes applied."
+                      description: "The entire new content of the dependencies file, with all necessary changes applied, if any."
                     },
                     message: {
                       type: "string",
-                      description: "A short sentence explaining the change applied suitable for a commit message."
+                      description: "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text."
                     }
                   },
                   required: ["updatedSourceFileContent", "updatedTestFileContent", "updatedReadmeFileContent", "updatedDependenciesFileContent", "message"],
@@ -404,22 +405,22 @@ jobs:
               core.setOutput("message", sanitizedMessage);
               core.info(`message: "${sanitizedMessage}"`);
             
-              if(parsed.updatedSourceFileContent && parsed.updatedSourceFileContent.length > 1) {
+              if(parsed.updatedSourceFileContent && parsed.updatedSourceFileContent.length > 1 && parsed.updatedSourceFileContent !== sourceFileContent) {
                 fs.writeFileSync(target, parsed.updatedSourceFileContent, 'utf8');
                 fixApplied = true;
                 core.info(`Target file '${target}' has been updated (length ${parsed.updatedSourceFileContent.length}).`);
               }
-              if(parsed.updatedTestFileContent && parsed.updatedTestFileContent.length > 1) {
+              if(parsed.updatedTestFileContent && parsed.updatedTestFileContent.length > 1 && parsed.updatedTestFileContent !== testFileContent) {
                 fs.writeFileSync(testFile, parsed.updatedTestFileContent, 'utf8');
                 fixApplied = true;
                 core.info(`Test file '${testFile}' has been updated (length ${parsed.updatedTestFileContent.length}).`);
               }
-              if(parsed.updatedReadmeFileContent && parsed.updatedReadmeFileContent.length > 1) {
+              if(parsed.updatedReadmeFileContent && parsed.updatedReadmeFileContent.length > 1 && parsed.updatedReadmeFileContent !== readmeFileContent) {
                 fs.writeFileSync(readmeFile, parsed.updatedReadmeFileContent, 'utf8');
                 fixApplied = true;
                 core.info(`Readme file '${readmeFile}' has been updated (length ${parsed.updatedReadmeFileContent.length}).`);
               }
-              if(parsed.updatedDependenciesFileContent && parsed.updatedDependenciesFileContent.length > 1) {
+              if(parsed.updatedDependenciesFileContent && parsed.updatedDependenciesFileContent.length > 1 && parsed.updatedDependenciesFileContent !== dependenciesFileContent) {
                 fs.writeFileSync(dependenciesFile, parsed.updatedDependenciesFileContent, 'utf8');
                 fixApplied = true;
                 core.info(`Dependencies file '${dependenciesFile}' has been updated (length ${parsed.updatedDependenciesFileContent.length}).`);
