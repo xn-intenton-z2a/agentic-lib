@@ -62,6 +62,7 @@ jobs:
                 shouldSkipMerge = 'true';
                 prMerged = 'false';
               } else {
+                core.info(`Open pull request with the "automerge" label: ${prWithAutomerge.number}`);
                 pullNumber = prWithAutomerge.number;
                 shouldSkipMerge = 'false';
                 prMerged = 'false';

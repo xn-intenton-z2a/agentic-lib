@@ -54,12 +54,12 @@ jobs:
               shouldSkipMerge = 'true';
               prMerged = 'true';
             } else if (pullRequest.state !== "open") {
-              core.setFailed(`PR #${pr.number} is not open it is ${pullRequest.state}.`);
+              core.info(`PR #${pr.number} is not open it is ${pullRequest.state}.`);
               shouldSkipMerge = 'true';
               prMerged = 'false';
             } else if (pullRequest.mergeable === true) {
-              core.setFailed(`PR #${pr.number} is mergeable at state ${pullRequest.state}.`);
-              shouldSkipMerge = 'false';
+              core.info(`PR #${pr.number} is mergeable at state ${pullRequest.state}.`);
+              shouldSkipMerge = 'false';    //   <--- This PR is mergeable.
               prMerged = 'false';
             } else if (pullRequest.mergeable === false) {
               core.info(`PR #${pullNumber} is not mergeable.`);
