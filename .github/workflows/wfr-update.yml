@@ -204,4 +204,4 @@ jobs:
           git status -v
 
     outputs:
-      branch: ${{ jobs.set-outputs.outputs.branch || '' }}
+      updatedFiles: ${{ steps.git-diff.outputs.updated || '' }}

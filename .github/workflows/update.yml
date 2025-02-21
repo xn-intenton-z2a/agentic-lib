@@ -24,7 +24,7 @@ on:
           - semver
 
 jobs:
-  update-dependencies:
+  update:
     permissions:
       contents: write
       pull-requests: write
@@ -43,8 +43,8 @@ jobs:
 
   create-pr:
     needs:
-      - update-dependencies
-    if: ${{ needs.update-dependencies.outputs.branch != '' }}
+      - update
+    if: ${{ needs.update.outputs.updatedFiles == 'true' }}
     permissions:
       contents: write
       packages: write
