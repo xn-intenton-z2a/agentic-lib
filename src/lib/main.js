@@ -38,7 +38,7 @@ import readline from "readline";
 const parseNumber = (arg) => {
   const num = parseFloat(arg);
   if (isNaN(num)) {
-    console.warn("Non-numeric argument encountered: " + arg);
+    console.warn(`Non-numeric argument encountered: ${arg}`);
   }
   return num;
 };
@@ -128,8 +128,8 @@ const divideCommand = (args) => {
     0,
     (acc, num) => acc / num,
     (num) => num === 0,
-    (arg) => "Error: Division by zero encountered with argument " + arg,
-    0,
+    (arg) => `Error: Division by zero encountered with argument ${arg}`,
+    0
   );
 };
 
@@ -158,8 +158,8 @@ const modCommand = (args) => {
     0,
     (acc, num) => acc % num,
     (num) => num === 0,
-    (arg) => "Error: Modulo by zero encountered with argument " + arg,
-    undefined,
+    (arg) => `Error: Modulo by zero encountered with argument ${arg}`,
+    undefined
   );
 };
 
@@ -199,7 +199,7 @@ const demoCommand = (_args) => {
 const selfTestCommand = (_args) => {
   console.log("=== Self Test: Demonstrating features with expected outputs ===");
 
-  console.log('\n> Test Echo Command (expected output: "Hello Test")');
+  console.log("\n> Test Echo Command (expected output: \"Hello Test\")");
   echoCommand(["Hello", "Test"]);
 
   console.log("\n> Test Add Command (2 + 3, expected output: 5)");
@@ -228,7 +228,6 @@ const selfTestCommand = (_args) => {
 // -----------------------------------------------------------------------------
 
 const githubScriptCommand = (_args) => {
-  // Read extended environment variables that mimic the GitHub Script fragment
   const target = process.env.TARGET || "";
   const testFile = process.env.TESTFILE || "";
   const readmeFile = process.env.READMEFILE || "";
@@ -245,21 +244,21 @@ const githubScriptCommand = (_args) => {
   const mainScript = process.env.MAINSCRIPT || "";
   const mainOutput = process.env.MAINOUTPUT || "";
 
-  console.log('TARGET: "' + target + '"');
-  console.log('TESTFILE: "' + testFile + '"');
-  console.log('READMEFILE: "' + readmeFile + '"');
-  console.log('CONTRIBUTINGFILE: "' + contributingFile + '"');
-  console.log('DEPENDENCIESFILE: "' + dependenciesFile + '"');
-  console.log('MODEL: "' + model + '"');
-  console.log('CHATGPT_API_SECRET_KEY: "' + (apiKey ? "***" : "") + '"');
-  console.log('ISSUENUMBER: "' + issueNumber + '"');
-  console.log('DEPENDENCIESLISTOUTPUT: "' + dependenciesListOutput + '"');
-  console.log('BUILDSCRIPT: "' + buildScript + '"');
-  console.log('BUILDOUTPUT: "' + buildOutput + '"');
-  console.log('TESTSCRIPT: "' + testScript + '"');
-  console.log('TESTOUTPUT: "' + testOutput + '"');
-  console.log('MAINSCRIPT: "' + mainScript + '"');
-  console.log('MAINOUTPUT: "' + mainOutput + '"');
+  console.log(`TARGET: "${target}"`);
+  console.log(`TESTFILE: "${testFile}"`);
+  console.log(`READMEFILE: "${readmeFile}"`);
+  console.log(`CONTRIBUTINGFILE: "${contributingFile}"`);
+  console.log(`DEPENDENCIESFILE: "${dependenciesFile}"`);
+  console.log(`MODEL: "${model}"`);
+  console.log(`CHATGPT_API_SECRET_KEY: "${apiKey ? "***" : ""}"`);
+  console.log(`ISSUENUMBER: "${issueNumber}"`);
+  console.log(`DEPENDENCIESLISTOUTPUT: "${dependenciesListOutput}"`);
+  console.log(`BUILDSCRIPT: "${buildScript}"`);
+  console.log(`BUILDOUTPUT: "${buildOutput}"`);
+  console.log(`TESTSCRIPT: "${testScript}"`);
+  console.log(`TESTOUTPUT: "${testOutput}"`);
+  console.log(`MAINSCRIPT: "${mainScript}"`);
+  console.log(`MAINOUTPUT: "${mainOutput}"`);
 
   // Helper function to log file status
   /* eslint-disable security/detect-non-literal-fs-filename */
@@ -267,9 +266,9 @@ const githubScriptCommand = (_args) => {
     if (filePath) {
       if (fs.existsSync(filePath)) {
         const content = fs.readFileSync(filePath, "utf8");
-        console.log(label + ' "' + filePath + '" loaded with length ' + content.length + ".");
+        console.log(`${label} "${filePath}" loaded with length ${content.length}.`);
       } else {
-        console.log(label + ' "' + filePath + '" does not exist.');
+        console.log(`${label} "${filePath}" does not exist.`);
       }
     }
   };
@@ -340,7 +339,7 @@ const interactiveCommand = (_args) => {
         console.log("Already in interactive mode.");
         break;
       default:
-        console.error("Unknown command: " + command);
+        console.error(`Unknown command: ${command}`);
     }
     rl.prompt();
   });
@@ -360,13 +359,9 @@ const displayUsage = () => {
   console.log("  - add: Sums numeric values. Returns 0 if no arguments provided.");
   console.log("  - multiply: Multiplies numeric values. Returns 0 if no arguments provided.");
   console.log("  - subtract: Subtracts subsequent numbers from the first provided number.");
-  console.log(
-    "  - divide: Divides the first number by each subsequent number sequentially. Aborts on division by zero.",
-  );
+  console.log("  - divide: Divides the first number by each subsequent number sequentially. Aborts on division by zero.");
   console.log("  - power: Raises the first number (base) to the power of the second (exponent).");
-  console.log(
-    "  - mod: Computes the modulo of the first number with each subsequent number. Aborts on modulo by zero.",
-  );
+  console.log("  - mod: Computes the modulo of the first number with each subsequent number. Aborts on modulo by zero.");
   console.log("  - demo: Demonstrates all available commands with sample outputs.");
   console.log("  - githubscript: Reads extended environment variables and file contents.");
   console.log("  - interactive: Launches interactive mode for dynamic command input.");
@@ -422,11 +417,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         interactiveCommand(commandArgs);
         break;
       default:
-        console.error(
-          "Unknown command: " +
-            command +
-            ". Available commands: echo, add, multiply, subtract, divide, power, mod, demo, help, githubscript, interactive",
-        );
+        console.error(`Unknown command: ${command}. Available commands: echo, add, multiply, subtract, divide, power, mod, demo, help, githubscript, interactive`);
         process.exit(1);
     }
   }
