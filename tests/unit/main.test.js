@@ -9,9 +9,13 @@ const runCLI = (args = []) => {
   return result;
 };
 
+
 describe("CLI Minimal Commands", () => {
-  test("Displays usage when no command is provided", () => {
+  test("Default mode runs self-test, demo and displays usage when no command is provided", () => {
     const result = runCLI();
+    // Check that self-test and demo outputs are present along with usage message
+    expect(result.stdout).toContain("Running self-test...");
+    expect(result.stdout).toContain("Running demo...");
     expect(result.stdout).toContain("Usage: node src/lib/main.js <command> [arguments...]");
     expect(result.stdout).toContain("Available commands:");
   });
@@ -32,9 +36,10 @@ describe("CLI Minimal Commands", () => {
     expect(result.stdout).toContain("Available commands:");
   });
 
-  test("Unknown command prints error and usage", () => {
+  test("Unknown command prints error and usage and exits with code 1", () => {
     const result = runCLI(["unknown"]);
-    expect(result.stderr).toContain("Unknown command:");
+    expect(result.stderr).toContain("Unknown command: unknown");
     expect(result.stdout).toContain("Usage: node src/lib/main.js <command> [arguments...]");
+    expect(result.status).toBe(1);
   });
 });

@@ -6,13 +6,13 @@
   This file is part of the agentic-lib project and provides a minimal command-line interface.
 
   Available Commands:
-    - self-test: Runs the self-test suite (placeholder implementation).
-    - demo: Runs a demonstration of functionalities (placeholder implementation).
+    - self-test: Runs the self test suite.
+    - demo: Runs a demonstration of functionalities.
     - help: Displays this help message.
 
   Usage:
     node src/lib/main.js <command> [arguments...]
-    If no command is provided, a help message is displayed.
+    If no command is provided, the CLI will run the self-test, then demo, and finally display the help message.
 
   License:
     GPL-3.0
@@ -64,11 +64,19 @@ const processCommand = (command, args) => {
   }
 };
 
-// Main execution
-if (process.argv.length <= 2) {
-  displayUsage();
-} else {
-  const command = process.argv[2];
-  const args = process.argv.slice(3);
-  processCommand(command, args);
+// Main execution only if this module is run directly
+if (process.argv[1].includes('src/lib/main.js')) {
+  if (process.argv.length <= 2) {
+    // Default mode: run self-test, then demo, then show usage
+    selfTestCommand();
+    demoCommand();
+    displayUsage();
+  } else {
+    const command = process.argv[2];
+    const args = process.argv.slice(3);
+    processCommand(command, args);
+  }
 }
+
+// Export functions for testing and external usage
+export { getUsageMessage, displayUsage, selfTestCommand, demoCommand, processCommand };
