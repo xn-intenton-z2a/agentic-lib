@@ -27,6 +27,8 @@
     Apache-2.0
 */
 
+// Using mathjs to simplify arithmetic operations and reduce boilerplate code
+import { sum, prod, mod as mathMod, pow as mathPow } from 'mathjs';
 import { fileURLToPath } from "url";
 import fs from "fs";
 import readline from "readline";
@@ -43,63 +45,8 @@ const parseNumber = (arg) => {
   return num;
 };
 
-// Generic reducer for operations that use all arguments (e.g., add, multiply)
-const reduceAll = (args, initial, operator) => {
-  let result = initial;
-  for (const arg of args) {
-    const num = parseNumber(arg);
-    if (!isNaN(num)) {
-      result = operator(result, num);
-    }
-  }
-  return result;
-};
-
-// Generic reducer for operations that start with the first argument (e.g., subtract, divide, mod)
-// errorCheck is an optional function that, given a number, returns true if an error condition is met.
-// errorMsg is a function that returns an error message given the argument string.
-const reduceFromFirst = (args, fallback, operator, errorCheck, errorMsg) => {
-  let result = parseNumber(args[0]);
-  if (isNaN(result)) {
-    result = fallback;
-  }
-  for (const arg of args.slice(1)) {
-    const num = parseNumber(arg);
-    if (!isNaN(num)) {
-      if (errorCheck && errorCheck(num)) {
-        console.error(errorMsg(arg));
-        return null;
-      }
-      result = operator(result, num);
-    }
-  }
-  return result;
-};
-
-// -----------------------------------------------------------------------------
-// New helper functions to reduce duplication in arithmetic commands
-// -----------------------------------------------------------------------------
-
-const runReduceAllCommand = (args, initial, operator, emptyResult) => {
-  if (args.length === 0) {
-    console.log(emptyResult);
-    return;
-  }
-  const result = reduceAll(args, initial, operator);
-  console.log(result);
-};
-
-const runReduceFromFirstCommand = (args, fallback, operator, errorCheck, errorMsg, emptyResult) => {
-  if (args.length === 0) {
-    console.log(emptyResult);
-    return;
-  }
-  const result = reduceFromFirst(args, fallback, operator, errorCheck, errorMsg);
-  if (result === null) {
-    return;
-  }
-  console.log(result);
-};
+// Filter and parse numbers, skipping non-numeric values
+const getNumbers = (args) => args.map(parseNumber).filter(n => !isNaN(n));
 
 // -----------------------------------------------------------------------------
 // Command implementations
@@ -110,27 +57,56 @@ const echoCommand = (args) => {
 };
 
 const addCommand = (args) => {
-  runReduceAllCommand(args, 0, (acc, num) => acc + num, 0);
+  if (args.length === 0) {
+    console.log(0);
+    return;
+  }
+  const numbers = getNumbers(args);
+  console.log(sum(numbers));
 };
 
 const multiplyCommand = (args) => {
-  // As per README, if no arguments, returns 0
-  runReduceAllCommand(args, 1, (acc, num) => acc * num, 0);
+  if (args.length === 0) {
+    console.log(0);
+    return;
+  }
+  const numbers = getNumbers(args);
+  console.log(prod(numbers));
 };
 
 const subtractCommand = (args) => {
-  runReduceFromFirstCommand(args, 0, (acc, num) => acc - num, undefined, undefined, 0);
+  if (args.length === 0) {
+    console.log(0);
+    return;
+  }
+  const numbers = getNumbers(args);
+  if (numbers.length === 0) {
+    console.log(0);
+    return;
+  }
+  const result = numbers[0] - sum(numbers.slice(1));
+  console.log(result);
 };
 
 const divideCommand = (args) => {
-  runReduceFromFirstCommand(
-    args,
-    0,
-    (acc, num) => acc / num,
-    (num) => num === 0,
-    (arg) => "Error: Division by zero encountered with argument " + arg,
-    0,
-  );
+  if (args.length === 0) {
+    console.log(0);
+    return;
+  }
+  const numbers = getNumbers(args);
+  if (numbers.length === 0) {
+    console.log(0);
+    return;
+  }
+  // Check division by zero in subsequent numbers
+  for (let i = 1; i < numbers.length; i++) {
+    if (numbers[i] === 0) {
+      console.error("Error: Division by zero encountered with argument " + args[i]);
+      return;
+    }
+  }
+  const divisor = prod(numbers.slice(1));
+  console.log(numbers[0] / divisor);
 };
 
 const powerCommand = (args) => {
@@ -144,8 +120,7 @@ const powerCommand = (args) => {
     console.warn("Invalid numeric arguments for power command");
     return;
   }
-  const result = base ** exponent;
-  console.log(result);
+  console.log(mathPow(base, exponent));
 };
 
 const modCommand = (args) => {
@@ -153,18 +128,24 @@ const modCommand = (args) => {
     console.log("Usage: mod <dividend> <divisor> [divisor ...]");
     return;
   }
-  runReduceFromFirstCommand(
-    args,
-    0,
-    (acc, num) => acc % num,
-    (num) => num === 0,
-    (arg) => "Error: Modulo by zero encountered with argument " + arg,
-    undefined,
-  );
+  const numbers = getNumbers(args);
+  if (numbers.length === 0) {
+    console.log(0);
+    return;
+  }
+  let result = numbers[0];
+  for (let i = 1; i < numbers.length; i++) {
+    if (numbers[i] === 0) {
+      console.error("Error: Modulo by zero encountered with argument " + args[i]);
+      return;
+    }
+    result = mathMod(result, numbers[i]);
+  }
+  console.log(result);
 };
 
 // -----------------------------------------------------------------------------
-// Demo command to showcase features via main execution
+// Demo command to showcase features
 // -----------------------------------------------------------------------------
 
 const demoCommand = (_args) => {
@@ -193,13 +174,13 @@ const demoCommand = (_args) => {
 };
 
 // -----------------------------------------------------------------------------
-// Self Test command kept for export but removed from CLI commands
+// Self Test command for export
 // -----------------------------------------------------------------------------
 
 const selfTestCommand = (_args) => {
   console.log("=== Self Test: Demonstrating features with expected outputs ===");
 
-  console.log('\n> Test Echo Command (expected output: "Hello Test")');
+  console.log("\n> Test Echo Command (expected output: \"Hello Test\")");
   echoCommand(["Hello", "Test"]);
 
   console.log("\n> Test Add Command (2 + 3, expected output: 5)");
@@ -228,7 +209,6 @@ const selfTestCommand = (_args) => {
 // -----------------------------------------------------------------------------
 
 const githubScriptCommand = (_args) => {
-  // Read extended environment variables that mimic the GitHub Script fragment
   const target = process.env.TARGET || "";
   const testFile = process.env.TESTFILE || "";
   const readmeFile = process.env.READMEFILE || "";
@@ -360,13 +340,9 @@ const displayUsage = () => {
   console.log("  - add: Sums numeric values. Returns 0 if no arguments provided.");
   console.log("  - multiply: Multiplies numeric values. Returns 0 if no arguments provided.");
   console.log("  - subtract: Subtracts subsequent numbers from the first provided number.");
-  console.log(
-    "  - divide: Divides the first number by each subsequent number sequentially. Aborts on division by zero.",
-  );
+  console.log("  - divide: Divides the first number by each subsequent number sequentially. Aborts on division by zero.");
   console.log("  - power: Raises the first number (base) to the power of the second (exponent).");
-  console.log(
-    "  - mod: Computes the modulo of the first number with each subsequent number. Aborts on modulo by zero.",
-  );
+  console.log("  - mod: Computes the modulo of the first number with each subsequent number. Aborts on modulo by zero.");
   console.log("  - demo: Demonstrates all available commands with sample outputs.");
   console.log("  - githubscript: Reads extended environment variables and file contents.");
   console.log("  - interactive: Launches interactive mode for dynamic command input.");
@@ -423,9 +399,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         break;
       default:
         console.error(
-          "Unknown command: " +
-            command +
-            ". Available commands: echo, add, multiply, subtract, divide, power, mod, demo, help, githubscript, interactive",
+          "Unknown command: " + command + ". Available commands: echo, add, multiply, subtract, divide, power, mod, demo, help, githubscript, interactive"
         );
         process.exit(1);
     }

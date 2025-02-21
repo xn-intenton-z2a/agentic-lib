@@ -72,7 +72,7 @@ node src/lib/main.js githubscript
 
 ## Testing
 
-Unit tests have been set up using Vitest. The updated test suite now covers all core arithmetic commands along with additional command tests, including the new detailed help command. To run the tests, execute:
+Unit tests have been set up using Vitest. The updated test suite now covers all core arithmetic commands along with additional command tests, including the detailed help command. To run the tests, execute:
 
 ```
 npm test
@@ -87,7 +87,7 @@ The following improvements are planned for upcoming releases:
 - Integrate real GitHub API interactions to enable dynamic operations in the githubscript command.
 - Expand test coverage with additional unit and integration tests.
 - Enhance CLI help documentation with more comprehensive examples and interactive guidance.
-- **Refactor arithmetic commands**: The arithmetic command implementations have been refactored to reduce code duplication using new helper functions.
+- **Refactor arithmetic commands**: The arithmetic command implementations have been refactored to reduce code duplication using mathjs, thereby reducing overall source file size.
 
 ## Contributing
 

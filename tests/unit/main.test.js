@@ -32,7 +32,7 @@ describe("selfTestCommand", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     mainModule.selfTestCommand();
     expect(logSpy).toHaveBeenCalledWith(
-      expect.stringContaining("=== Self Test: Demonstrating features with expected outputs ==="),
+      expect.stringContaining("=== Self Test: Demonstrating features with expected outputs ===")
     );
     logSpy.mockRestore();
   });
@@ -44,8 +44,8 @@ describe("githubScriptCommand", () => {
     mainModule.githubScriptCommand();
     expect(logSpy).toHaveBeenCalledWith(
       expect.stringContaining(
-        "GitHub API calls, OpenAI integration, and issue comment creation are not implemented in this command.",
-      ),
+        "GitHub API calls, OpenAI integration, and issue comment creation are not implemented in this command."
+      )
     );
     logSpy.mockRestore();
   });
@@ -85,7 +85,7 @@ describe("Arithmetic Commands", () => {
     const output = captureOutput(() => {
       mainModule.subtractCommand(["10", "3", "2"]);
     });
-    // 10 - 3 - 2 = 5
+    // 10 - (3+2) = 5
     expect(output).toContain("5");
   });
 
@@ -93,7 +93,7 @@ describe("Arithmetic Commands", () => {
     const output = captureOutput(() => {
       mainModule.divideCommand(["20", "2", "2"]);
     });
-    // 20 / 2 / 2 = 5
+    // 20 / (2*2) = 5
     expect(output).toContain("5");
   });
 
@@ -103,7 +103,7 @@ describe("Arithmetic Commands", () => {
       mainModule.divideCommand(["10", "0"]);
     });
     expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Error: Division by zero encountered with argument 0"),
+      expect.stringContaining("Error: Division by zero encountered with argument 0")
     );
     errorSpy.mockRestore();
   });
@@ -127,7 +127,9 @@ describe("Arithmetic Commands", () => {
     captureOutput(() => {
       mainModule.modCommand(["10", "0"]);
     });
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Error: Modulo by zero encountered with argument 0"));
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Error: Modulo by zero encountered with argument 0")
+    );
     errorSpy.mockRestore();
   });
 
@@ -186,7 +188,6 @@ describe("Interactive Command", () => {
     });
 
     expect(output).toContain("Entering interactive mode. Type 'exit' to quit.");
-    // The fake interface should have been used and close should be called when 'exit' is input
     expect(fakeInterface.close).toHaveBeenCalled();
 
     rlSpy.mockRestore();
