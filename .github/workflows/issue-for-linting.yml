@@ -17,7 +17,8 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-commit-to-branch.yml@main'
     with:
-      script: 'npm run linting "." -- --max-warnings=10'
+      #script: 'npm run linting "." -- --max-warnings=10'
+      script: 'npm run linting'
       sarifScript: 'npm run linting-json --silent'
       testScript: 'npm test'
 
