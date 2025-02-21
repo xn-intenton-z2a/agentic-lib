@@ -1,6 +1,6 @@
 // tests/unit/main.test.js
 
-import { describe, test, expect, vi } from "vitest";
+import { describe, test, expect } from "vitest";
 import { spawnSync } from "child_process";
 
 // Helper function to run the CLI command
