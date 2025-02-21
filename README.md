@@ -14,6 +14,7 @@ Available commands:
   - self-test: Runs the self test suite.
   - demo: Runs a demonstration of functionalities.
   - publish: Runs the publish command (stubbed functionality).
+  - config: Displays configuration options.
   - help: Displays this help message.
   - version: Displays the current version of the tool.
 
@@ -29,6 +30,7 @@ Available commands:
   - self-test: Runs the self test suite.
   - demo: Runs a demonstration of functionalities.
   - publish: Runs the publish command (stubbed functionality).
+  - config: Displays configuration options.
   - help: Displays this help message.
   - version: Displays the current version of the tool.
 

@@ -47,6 +47,13 @@ describe("CLI Minimal Commands", () => {
     expect(result.stdout).toContain("Publish functionality is under development.");
   });
 
+  test("config command outputs configuration options", () => {
+    const result = runCLI(["config"]);
+    expect(result.stdout).toContain("Configuration options:");
+    expect(result.stdout).toContain("theme");
+    expect(result.stdout).toContain("default");
+  });
+
   test("help command displays usage", () => {
     const result = runCLI(["help"]);
     expect(result.stdout).toContain("Usage: node src/lib/main.js <command> [arguments...]");
@@ -65,7 +72,6 @@ describe("CLI Minimal Commands", () => {
     expect(result.status).toBe(1);
   });
 });
-
 
 describe("Exported Functions", () => {
   test("getUsageMessage returns a valid help message", () => {
