@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
+echo ".github/workflows/apply-fix.yml"
+diff .github/workflows/apply-fix.yml ../repository0/.github/workflows/apply-fix.yml
 echo ".github/workflows/automerge.yml"
 diff .github/workflows/automerge.yml ../repository0/.github/workflows/automerge.yml
-#echo ".github/workflows/failing-build.yml"
-#diff .github/workflows/fix-failing-build.yml ../repository0/.github/workflows/fix-failing-build.yml
 echo ".github/workflows/formating.yml"
 diff .github/workflows/formating.yml ../repository0/.github/workflows/formating.yml
 echo ".github/workflows/issue-creator.yml"
 diff .github/workflows/issue-creator.yml ../repository0/.github/workflows/issue-creator.yml
+echo ".github/workflows/issue-for-linting.yml"
+diff .github/workflows/issue-for-linting.yml ../repository0/.github/workflows/issue-for-linting.yml
 echo ".github/workflows/issue-reviewer.yml"
 diff .github/workflows/issue-reviewer.yml ../repository0/.github/workflows/issue-reviewer.yml
 echo ".github/workflows/issue-worker.yml"
