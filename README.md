@@ -225,5 +225,6 @@ We have several exciting enhancements planned for future releases:
 - Introduce new CLI commands for advanced operations like publishing, task management, and dependency updates.
 - Improve error handling and logging for a better developer experience.
 - Refactor parts of the code to incorporate popular libraries and practices for enhanced performance and maintainability.
-
-Stay tuned for these improvements and more as we continue to evolve the project!
+- Integrate a plug-in architecture to allow third-party extensions.
+- Enhance performance monitoring with built-in metrics.
+- Expand automated testing with integration and end-to-end tests.
