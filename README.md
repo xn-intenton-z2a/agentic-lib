@@ -196,7 +196,7 @@ npx agentic-cli [command] [options]
 
 ### Default Mode
 
-If no command is provided, the CLI defaults to running a self-test followed by a demo, and then it displays the usage instructions:
+If no command is provided, the CLI defaults to running a self-test, then a demo, and finally displays the usage instructions:
 
 ```bash
 npx agentic-cli
