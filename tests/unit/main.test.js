@@ -1,9 +1,10 @@
 // tests/unit/main.test.js
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 import { spawnSync } from "child_process";
 import { readFileSync } from "fs";
 import { join } from "path";
+import { getUsageMessage, displayUsage } from "../../src/lib/main.js";
 
 // Helper function to run the CLI command
 const runCLI = (args = []) => {
@@ -62,5 +63,21 @@ describe("CLI Minimal Commands", () => {
     expect(result.stderr).toContain("Unknown command: unknown");
     expect(result.stdout).toContain("Usage: node src/lib/main.js <command> [arguments...]");
     expect(result.status).toBe(1);
+  });
+});
+
+
+describe("Exported Functions", () => {
+  test("getUsageMessage returns a valid help message", () => {
+    const msg = getUsageMessage();
+    expect(msg).toContain("Usage: node src/lib/main.js");
+    expect(msg).toContain("Available commands:");
+  });
+
+  test("displayUsage prints the usage message to console", () => {
+    const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    displayUsage();
+    expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
+    consoleLogSpy.mockRestore();
   });
 });
