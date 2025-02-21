@@ -56,7 +56,6 @@ Enhancements:
 - [~] Implement "fix-failing-build" by raising a bug, then running start-issue (with a new name) in a tolerant mode allowing builds to fail but gathering output.
 - [ ] Trigger test.yml on pull request creation or update
 - [ ] Trigger apply fix when a test run completes and attempt a fix if the tests failed, ideally just for automated branches (issues, formatting, linting). <- This will then fix a broken PR branch or a broken main branch.
-- [ ] Run apply fix when a test run fails.
 - [ ] Run apply fix on a schedule checking if a fix is necessary.
 - [ ] Add PayPal donation link (the old account has been closed).
 - [ ] Add git log to the context for review issue, issue worker and apply fixe
