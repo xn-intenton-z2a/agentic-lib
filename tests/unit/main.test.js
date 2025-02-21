@@ -2,12 +2,18 @@
 
 import { describe, test, expect } from "vitest";
 import { spawnSync } from "child_process";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 // Helper function to run the CLI command
 const runCLI = (args = []) => {
   const result = spawnSync("node", ["src/lib/main.js", ...args], { encoding: "utf8" });
   return result;
 };
+
+// Read expected version from package.json
+const pkg = JSON.parse(readFileSync(join(__dirname, "../../package.json"), "utf8"));
+const expectedVersion = pkg.version;
 
 
 describe("CLI Minimal Commands", () => {
@@ -44,6 +50,11 @@ describe("CLI Minimal Commands", () => {
     const result = runCLI(["help"]);
     expect(result.stdout).toContain("Usage: node src/lib/main.js <command> [arguments...]");
     expect(result.stdout).toContain("Available commands:");
+  });
+
+  test("version command outputs version message", () => {
+    const result = runCLI(["version"]);
+    expect(result.stdout).toContain("Version: " + expectedVersion);
   });
 
   test("Unknown command prints error and usage and exits with code 1", () => {

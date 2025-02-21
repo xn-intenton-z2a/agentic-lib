@@ -1,5 +1,13 @@
 #!/usr/bin/env node
 
+import { fileURLToPath } from "url";
+import { readFileSync } from "fs";
+import path from "path";
+
+// Establish __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Function to generate the usage message
 const getUsageMessage = () => {
   return [
@@ -8,7 +16,8 @@ const getUsageMessage = () => {
     "  - self-test: Runs the self test suite.",
     "  - demo: Runs a demonstration of functionalities.",
     "  - publish: Runs the publish command (stubbed functionality).",
-    "  - help: Displays this help message."
+    "  - help: Displays this help message.",
+    "  - version: Displays the current version."
   ].join("\n");
 };
 
@@ -36,6 +45,17 @@ const publishCommand = () => {
   console.log("Publish functionality is under development.");
 };
 
+const versionCommand = () => {
+  try {
+    const pkgPath = path.join(__dirname, "../../package.json");
+    const pkgData = readFileSync(pkgPath, "utf8");
+    const pkg = JSON.parse(pkgData);
+    console.log("Version:", pkg.version);
+  } catch (error) {
+    console.error("Error reading version:", error.message);
+  }
+};
+
 // Process the given command
 const processCommand = (command, args) => {
   switch (command) {
@@ -47,6 +67,9 @@ const processCommand = (command, args) => {
       break;
     case "publish":
       publishCommand();
+      break;
+    case "version":
+      versionCommand();
       break;
     case "help":
       displayUsage();
@@ -73,4 +96,4 @@ if (process.argv[1].includes('src/lib/main.js')) {
 }
 
 // Export functions for testing and external usage
-export { getUsageMessage, displayUsage, selfTestCommand, demoCommand, publishCommand, processCommand };
+export { getUsageMessage, displayUsage, selfTestCommand, demoCommand, publishCommand, versionCommand, processCommand };
