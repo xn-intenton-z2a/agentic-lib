@@ -42,6 +42,7 @@ automatically.
 - [x] Test the link to the current version from the test file (not main but the github-ref being tested).
 - [x] Test the link to the stable version after publishing from this repository.
 - [x] Update the links in repository0 to point to the stable version.
+- [~] Get issue body for linting.
 - [ ] *Release intentïon `agentic-lib` workflows public beta.*
 - [ ] *Release intentïon `repository0` repository template public beta.*
 
