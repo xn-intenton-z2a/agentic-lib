@@ -1,6 +1,6 @@
 # agentic-lib Agentic Coding Systems SDK
 
-Agentic Coding Systems SDK is a modern JavaScript library that provides a minimal command-line interface (CLI) for managing automated coding workflows and tasks. This version refines the CLI to its essentials, focusing on command-line argument handling and providing placeholder commands for future enhancements.
+Agentic Coding Systems SDK is a modern JavaScript library that provides a minimal command-line interface (CLI) for managing automated coding workflows and tasks. This version refines the CLI to its essentials by reducing code duplication and centralizing help message generation.
 
 ## Installation
 

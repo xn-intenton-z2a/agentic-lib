@@ -2,7 +2,7 @@
 
 /*
   Minimal CLI for agentic-lib
-  ============================
+  ==========================
   This file is part of the agentic-lib project and provides a minimal command-line interface.
 
   Available Commands:
@@ -18,14 +18,23 @@
     GPL-3.0
 */
 
-const displayUsage = () => {
-  console.log("Usage: node src/lib/main.js <command> [arguments...]");
-  console.log("Available commands:");
-  console.log("  - self-test: Runs the self test suite.");
-  console.log("  - demo: Runs a demonstration of functionalities.");
-  console.log("  - help: Displays this help message.");
+// Function to generate the usage message
+const getUsageMessage = () => {
+  return [
+    "Usage: node src/lib/main.js <command> [arguments...]",
+    "Available commands:",
+    "  - self-test: Runs the self test suite.",
+    "  - demo: Runs a demonstration of functionalities.",
+    "  - help: Displays this help message."
+  ].join("\n");
 };
 
+// Function to display the usage message
+const displayUsage = () => {
+  console.log(getUsageMessage());
+};
+
+// Command implementations
 const selfTestCommand = () => {
   console.log("Running self-test...");
   // Placeholder: Add self-test functionality here if needed
@@ -36,11 +45,8 @@ const demoCommand = () => {
   // Placeholder: Add demo functionality here if needed
 };
 
-if (process.argv.length <= 2) {
-  displayUsage();
-} else {
-  const command = process.argv[2];
-  const args = process.argv.slice(3);
+// Process the given command
+const processCommand = (command, args) => {
   switch (command) {
     case "self-test":
       selfTestCommand();
@@ -56,4 +62,13 @@ if (process.argv.length <= 2) {
       displayUsage();
       process.exit(1);
   }
+};
+
+// Main execution
+if (process.argv.length <= 2) {
+  displayUsage();
+} else {
+  const command = process.argv[2];
+  const args = process.argv.slice(3);
+  processCommand(command, args);
 }
