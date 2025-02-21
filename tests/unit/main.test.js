@@ -11,8 +11,11 @@ const runCLI = (args = []) => {
 
 
 describe("CLI Minimal Commands", () => {
-  test("Displays usage when no command is provided", () => {
+  test("Default mode runs self-test, demo and displays usage when no command is provided", () => {
     const result = runCLI();
+    // Check that self-test and demo outputs are present along with usage message
+    expect(result.stdout).toContain("Running self-test...");
+    expect(result.stdout).toContain("Running demo...");
     expect(result.stdout).toContain("Usage: node src/lib/main.js <command> [arguments...]");
     expect(result.stdout).toContain("Available commands:");
   });
