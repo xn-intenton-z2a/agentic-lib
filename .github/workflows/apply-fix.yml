@@ -24,10 +24,9 @@ on:
   #    - "Tests"
   #  types:
   #    - completed
-  # TODO: Detect failing build and re-instate
-  #schedule:
-    #- cron: '5,35 * * * *' # Run every 30 minutes at 5 and 35 minutes past
-    #- cron: '0 */2 * * *' # Run every 2 hours at 0 minutes past
+  # TODO: Detect failing build rather than relying on a passive no change
+  schedule:
+    - cron: '15 2 * * *' # Run at 2:15am
 
 jobs:
 
