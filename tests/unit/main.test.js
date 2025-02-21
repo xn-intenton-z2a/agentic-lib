@@ -4,7 +4,7 @@ import { describe, test, expect, vi } from "vitest";
 import { spawnSync } from "child_process";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { getUsageMessage, displayUsage } from "../../src/lib/main.js";
+import { getUsageMessage, displayUsage, timestampCommand } from "../../src/lib/main.js";
 
 // Helper function to run the CLI command
 const runCLI = (args = []) => {
@@ -63,6 +63,14 @@ describe("CLI Minimal Commands", () => {
   test("version command outputs version message", () => {
     const result = runCLI(["version"]);
     expect(result.stdout).toContain("Version: " + expectedVersion);
+  });
+
+  test("timestamp command outputs current timestamp", () => {
+    const result = runCLI(["timestamp"]);
+    expect(result.stdout).toContain("Current Timestamp:");
+    // Basic check to ensure a timestamp-like output is present
+    const timestampOutput = result.stdout.split("Current Timestamp:")[1].trim();
+    expect(new Date(timestampOutput).toString()).not.toEqual("Invalid Date");
   });
 
   test("Unknown command prints error and usage and exits with code 1", () => {
