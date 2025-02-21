@@ -23,7 +23,7 @@ on:
         description: 'The branch to push changes to. e.g. "apply-script"'
         type: string
         required: false
-        default: 'apply-script'
+        default: ''
       npmAuthOrganisation:
         description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
         type: string
@@ -69,7 +69,7 @@ jobs:
       script: ${{ inputs.script || '' }}
       sarifScript: ${{ inputs.sarifScript || '' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
-      branch: ${{ inputs.branch || 'apply-script' }}
+      branch: ${{ inputs.branch || '' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
@@ -149,7 +149,7 @@ jobs:
         run: rm -vf .npmrc
 
       - name: Commit
-        if: ${{ steps.script.outputs.updated == 'true' || env.git-force == 'true' }}
+        if: ${{ env.branch != '' && steps.script.outputs.updated == 'true' || env.git-force == 'true' }}
         shell: bash
         run: |
           git config --local user.email '${{ env.gitUserEmail }}'
