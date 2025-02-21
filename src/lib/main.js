@@ -8,6 +8,7 @@
   Available Commands:
     - self-test: Runs the self test suite.
     - demo: Runs a demonstration of functionalities.
+    - publish: Runs the publish command (stubbed functionality).
     - help: Displays this help message.
 
   Usage:
@@ -25,6 +26,7 @@ const getUsageMessage = () => {
     "Available commands:",
     "  - self-test: Runs the self test suite.",
     "  - demo: Runs a demonstration of functionalities.",
+    "  - publish: Runs the publish command (stubbed functionality).",
     "  - help: Displays this help message."
   ].join("\n");
 };
@@ -37,12 +39,20 @@ const displayUsage = () => {
 // Command implementations
 const selfTestCommand = () => {
   console.log("Running self-test...");
-  // Placeholder: Add self-test functionality here if needed
+  // Extended self-test placeholder: more comprehensive validations can be added here
+  console.log("Performing extended self-test validations...");
 };
 
 const demoCommand = () => {
   console.log("Running demo...");
-  // Placeholder: Add demo functionality here if needed
+  // Extended demo placeholder: demonstration of real-world use cases can be added here
+  console.log("Executing extended demo scenarios...");
+};
+
+const publishCommand = () => {
+  console.log("Running publish...");
+  // Placeholder: Add publishing functionality here if needed
+  console.log("Publish functionality is under development.");
 };
 
 // Process the given command
@@ -53,6 +63,9 @@ const processCommand = (command, args) => {
       break;
     case "demo":
       demoCommand();
+      break;
+    case "publish":
+      publishCommand();
       break;
     case "help":
       displayUsage();
@@ -79,4 +92,4 @@ if (process.argv[1].includes('src/lib/main.js')) {
 }
 
 // Export functions for testing and external usage
-export { getUsageMessage, displayUsage, selfTestCommand, demoCommand, processCommand };
+export { getUsageMessage, displayUsage, selfTestCommand, demoCommand, publishCommand, processCommand };

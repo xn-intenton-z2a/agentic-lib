@@ -15,7 +15,9 @@ describe("CLI Minimal Commands", () => {
     const result = runCLI();
     // Check that self-test and demo outputs are present along with usage message
     expect(result.stdout).toContain("Running self-test...");
+    expect(result.stdout).toContain("Performing extended self-test validations...");
     expect(result.stdout).toContain("Running demo...");
+    expect(result.stdout).toContain("Executing extended demo scenarios...");
     expect(result.stdout).toContain("Usage: node src/lib/main.js <command> [arguments...]");
     expect(result.stdout).toContain("Available commands:");
   });
@@ -23,11 +25,19 @@ describe("CLI Minimal Commands", () => {
   test("self-test command outputs self-test message", () => {
     const result = runCLI(["self-test"]);
     expect(result.stdout).toContain("Running self-test...");
+    expect(result.stdout).toContain("Performing extended self-test validations...");
   });
 
   test("demo command outputs demo message", () => {
     const result = runCLI(["demo"]);
     expect(result.stdout).toContain("Running demo...");
+    expect(result.stdout).toContain("Executing extended demo scenarios...");
+  });
+
+  test("publish command outputs publish message", () => {
+    const result = runCLI(["publish"]);
+    expect(result.stdout).toContain("Running publish...");
+    expect(result.stdout).toContain("Publish functionality is under development.");
   });
 
   test("help command displays usage", () => {
