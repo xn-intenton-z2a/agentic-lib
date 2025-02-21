@@ -16,6 +16,7 @@ const getUsageMessage = () => {
     "  - self-test: Runs the self test suite.",
     "  - demo: Runs a demonstration of functionalities.",
     "  - publish: Runs the publish command (stubbed functionality).",
+    "  - config: Displays configuration options.",
     "  - help: Displays this help message.",
     "  - version: Displays the current version."
   ].join("\n");
@@ -45,6 +46,12 @@ const publishCommand = () => {
   console.log("Publish functionality is under development.");
 };
 
+const configCommand = () => {
+  console.log("Configuration options:");
+  // Extended configuration placeholder: Display sample configuration details
+  console.log(JSON.stringify({ theme: "default", language: "en", featureX: true }, null, 2));
+};
+
 const versionCommand = () => {
   try {
     const pkgPath = path.join(__dirname, "../../package.json");
@@ -67,6 +74,9 @@ const processCommand = (command, args) => {
       break;
     case "publish":
       publishCommand();
+      break;
+    case "config":
+      configCommand();
       break;
     case "version":
       versionCommand();
@@ -96,4 +106,4 @@ if (process.argv[1].includes('src/lib/main.js')) {
 }
 
 // Export functions for testing and external usage
-export { getUsageMessage, displayUsage, selfTestCommand, demoCommand, publishCommand, versionCommand, processCommand };
+export { getUsageMessage, displayUsage, selfTestCommand, demoCommand, publishCommand, configCommand, versionCommand, processCommand };
