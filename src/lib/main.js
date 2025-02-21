@@ -3,6 +3,7 @@
 import { fileURLToPath } from "url";
 import { readFileSync } from "fs";
 import path from "path";
+import dayjs from "dayjs";  // New dependency for formatting timestamp
 
 // Establish __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -18,7 +19,8 @@ const getUsageMessage = () => {
     "  - publish: Runs the publish command (stubbed functionality).",
     "  - config: Displays configuration options.",
     "  - help: Displays this help message.",
-    "  - version: Displays the current version."
+    "  - version: Displays the current version.",
+    "  - timestamp: Displays the current timestamp."
   ].join("\n");
 };
 
@@ -63,6 +65,11 @@ const versionCommand = () => {
   }
 };
 
+// New command: timestamp
+const timestampCommand = () => {
+  console.log("Current Timestamp:", dayjs().format());
+};
+
 // Process the given command
 const processCommand = (command, args) => {
   switch (command) {
@@ -80,6 +87,9 @@ const processCommand = (command, args) => {
       break;
     case "version":
       versionCommand();
+      break;
+    case "timestamp":
+      timestampCommand();
       break;
     case "help":
       displayUsage();
@@ -106,4 +116,4 @@ if (process.argv[1].includes('src/lib/main.js')) {
 }
 
 // Export functions for testing and external usage
-export { getUsageMessage, displayUsage, selfTestCommand, demoCommand, publishCommand, configCommand, versionCommand, processCommand };
+export { getUsageMessage, displayUsage, selfTestCommand, demoCommand, publishCommand, configCommand, versionCommand, processCommand, timestampCommand };

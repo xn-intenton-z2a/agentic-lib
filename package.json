@@ -20,7 +20,9 @@
   "keywords": [],
   "author": "",
   "license": "GPL-3.0",
-  "dependencies": {},
+  "dependencies": {
+    "dayjs": "^1.11.7"
+  },
   "devDependencies": {
     "@actions/core": "^1.11.1",
     "@babel/eslint-parser": "^7.26.8",

@@ -17,6 +17,7 @@ Available commands:
   - config: Displays configuration options.
   - help: Displays this help message.
   - version: Displays the current version of the tool.
+  - timestamp: Displays the current timestamp.
 
 To run tests, execute:
 
@@ -33,6 +34,7 @@ Available commands:
   - config: Displays configuration options.
   - help: Displays this help message.
   - version: Displays the current version of the tool.
+  - timestamp: Displays the current timestamp.
 
 ## Contributing
 
