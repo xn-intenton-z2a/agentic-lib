@@ -32,7 +32,7 @@ describe("selfTestCommand", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     mainModule.selfTestCommand();
     expect(logSpy).toHaveBeenCalledWith(
-      expect.stringContaining("=== Self Test: Demonstrating features with expected outputs ===")
+      expect.stringContaining("=== Self Test: Demonstrating features with expected outputs ==="),
     );
     logSpy.mockRestore();
   });
@@ -44,8 +44,8 @@ describe("githubScriptCommand", () => {
     mainModule.githubScriptCommand();
     expect(logSpy).toHaveBeenCalledWith(
       expect.stringContaining(
-        "GitHub API calls, OpenAI integration, and issue comment creation are not implemented in this command."
-      )
+        "GitHub API calls, OpenAI integration, and issue comment creation are not implemented in this command.",
+      ),
     );
     logSpy.mockRestore();
   });
@@ -103,7 +103,7 @@ describe("Arithmetic Commands", () => {
       mainModule.divideCommand(["10", "0"]);
     });
     expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Error: Division by zero encountered with argument 0")
+      expect.stringContaining("Error: Division by zero encountered with argument 0"),
     );
     errorSpy.mockRestore();
   });
@@ -127,9 +127,7 @@ describe("Arithmetic Commands", () => {
     captureOutput(() => {
       mainModule.modCommand(["10", "0"]);
     });
-    expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Error: Modulo by zero encountered with argument 0")
-    );
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Error: Modulo by zero encountered with argument 0"));
     errorSpy.mockRestore();
   });
 
@@ -177,7 +175,7 @@ describe("Interactive Command", () => {
           handler();
         }
       },
-      close: vi.fn()
+      close: vi.fn(),
     };
 
     // Spy on readline.createInterface to return the fake interface
