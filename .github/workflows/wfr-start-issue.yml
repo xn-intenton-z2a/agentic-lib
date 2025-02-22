@@ -66,7 +66,7 @@ on:
         description: 'The OpenAI model to use. e.g. "o3-mini"'
         type: string
         required: false
-        default: 'o3-mini'
+        default: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       gitUserEmail:
         description: 'The email to use for git commits. e.g. "action@github.com"'
         type: string
@@ -106,7 +106,7 @@ jobs:
       testScript: ${{ inputs.testScript || 'npm test' }}
       mainScript: ${{ inputs.mainScript || 'npm run start' }}
       mainScriptTimeout: '5m'
-      model: ${{ inputs.model || 'o3-mini' }}
+      model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       npmAuthOrganisation: ''
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}

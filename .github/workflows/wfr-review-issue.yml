@@ -78,7 +78,7 @@ jobs:
       testScript: ${{ inputs.testScript || 'npm test' }}
       mainScript: ${{ inputs.mainScript || 'npm run start' }}
       mainScriptTimeout: '5m'
-      model: ${{ inputs.model || 'o3-mini' }}
+      model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
     steps:
