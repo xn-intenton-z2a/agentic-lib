@@ -1,13 +1,20 @@
 // tests/unit/main.test.js
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 import { spawnSync } from "child_process";
+import { readFileSync } from "fs";
+import { join } from "path";
+import { getUsageMessage, displayUsage, timestampCommand } from "../../src/lib/main.js";
 
 // Helper function to run the CLI command
 const runCLI = (args = []) => {
   const result = spawnSync("node", ["src/lib/main.js", ...args], { encoding: "utf8" });
   return result;
 };
+
+// Read expected version from package.json
+const pkg = JSON.parse(readFileSync(join(__dirname, "../../package.json"), "utf8"));
+const expectedVersion = pkg.version;
 
 
 describe("CLI Minimal Commands", () => {
@@ -40,10 +47,30 @@ describe("CLI Minimal Commands", () => {
     expect(result.stdout).toContain("Publish functionality is under development.");
   });
 
+  test("config command outputs configuration options", () => {
+    const result = runCLI(["config"]);
+    expect(result.stdout).toContain("Configuration options:");
+    expect(result.stdout).toContain("theme");
+    expect(result.stdout).toContain("default");
+  });
+
   test("help command displays usage", () => {
     const result = runCLI(["help"]);
     expect(result.stdout).toContain("Usage: node src/lib/main.js <command> [arguments...]");
     expect(result.stdout).toContain("Available commands:");
+  });
+
+  test("version command outputs version message", () => {
+    const result = runCLI(["version"]);
+    expect(result.stdout).toContain("Version: " + expectedVersion);
+  });
+
+  test("timestamp command outputs current timestamp", () => {
+    const result = runCLI(["timestamp"]);
+    expect(result.stdout).toContain("Current Timestamp:");
+    // Basic check to ensure a timestamp-like output is present
+    const timestampOutput = result.stdout.split("Current Timestamp:")[1].trim();
+    expect(new Date(timestampOutput).toString()).not.toEqual("Invalid Date");
   });
 
   test("Unknown command prints error and usage and exits with code 1", () => {
@@ -51,5 +78,20 @@ describe("CLI Minimal Commands", () => {
     expect(result.stderr).toContain("Unknown command: unknown");
     expect(result.stdout).toContain("Usage: node src/lib/main.js <command> [arguments...]");
     expect(result.status).toBe(1);
+  });
+});
+
+describe("Exported Functions", () => {
+  test("getUsageMessage returns a valid help message", () => {
+    const msg = getUsageMessage();
+    expect(msg).toContain("Usage: node src/lib/main.js");
+    expect(msg).toContain("Available commands:");
+  });
+
+  test("displayUsage prints the usage message to console", () => {
+    const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    displayUsage();
+    expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
+    consoleLogSpy.mockRestore();
   });
 });

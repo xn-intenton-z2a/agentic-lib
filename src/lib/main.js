@@ -1,5 +1,14 @@
 #!/usr/bin/env node
 
+import { fileURLToPath } from "url";
+import { readFileSync } from "fs";
+import path from "path";
+import dayjs from "dayjs";  // New dependency for formatting timestamp
+
+// Establish __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Function to generate the usage message
 const getUsageMessage = () => {
   return [
@@ -8,7 +17,10 @@ const getUsageMessage = () => {
     "  - self-test: Runs the self test suite.",
     "  - demo: Runs a demonstration of functionalities.",
     "  - publish: Runs the publish command (stubbed functionality).",
-    "  - help: Displays this help message."
+    "  - config: Displays configuration options.",
+    "  - help: Displays this help message.",
+    "  - version: Displays the current version.",
+    "  - timestamp: Displays the current timestamp."
   ].join("\n");
 };
 
@@ -36,6 +48,28 @@ const publishCommand = () => {
   console.log("Publish functionality is under development.");
 };
 
+const configCommand = () => {
+  console.log("Configuration options:");
+  // Extended configuration placeholder: Display sample configuration details
+  console.log(JSON.stringify({ theme: "default", language: "en", featureX: true }, null, 2));
+};
+
+const versionCommand = () => {
+  try {
+    const pkgPath = path.join(__dirname, "../../package.json");
+    const pkgData = readFileSync(pkgPath, "utf8");
+    const pkg = JSON.parse(pkgData);
+    console.log("Version:", pkg.version);
+  } catch (error) {
+    console.error("Error reading version:", error.message);
+  }
+};
+
+// New command: timestamp
+const timestampCommand = () => {
+  console.log("Current Timestamp:", dayjs().format());
+};
+
 // Process the given command
 const processCommand = (command, args) => {
   switch (command) {
@@ -48,6 +82,15 @@ const processCommand = (command, args) => {
     case "publish":
       publishCommand();
       break;
+    case "config":
+      configCommand();
+      break;
+    case "version":
+      versionCommand();
+      break;
+    case "timestamp":
+      timestampCommand();
+      break;
     case "help":
       displayUsage();
       break;
@@ -59,7 +102,7 @@ const processCommand = (command, args) => {
 };
 
 // Main execution only if this module is run directly
-if (process.argv[1].includes('src/lib/main.js')) {
+if (process.argv[1] && process.argv[1].endsWith(path.join("src", "lib", "main.js"))) {
   if (process.argv.length <= 2) {
     // Default mode: run self-test, then demo, then show usage
     selfTestCommand();
@@ -73,4 +116,4 @@ if (process.argv[1].includes('src/lib/main.js')) {
 }
 
 // Export functions for testing and external usage
-export { getUsageMessage, displayUsage, selfTestCommand, demoCommand, publishCommand, processCommand };
+export { getUsageMessage, displayUsage, selfTestCommand, demoCommand, publishCommand, configCommand, versionCommand, processCommand, timestampCommand };
