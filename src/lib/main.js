@@ -102,7 +102,7 @@ const processCommand = (command, args) => {
 };
 
 // Main execution only if this module is run directly
-if (process.argv[1] && process.argv[1].endsWith(path.join("src", "lib", "main.js"))) {
+if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename)) {
   if (process.argv.length <= 2) {
     // Default mode: run self-test, then demo, then show usage
     selfTestCommand();
