@@ -1,6 +1,6 @@
 {
   "name": "@xn-intenton-z2a/agentic-lib",
-  "version": "1.7.0-1",
+  "version": "1.7.0-2",
   "description": "A minimal CLI for agentic-lib.",
   "type": "module",
   "main": "src/lib/main.js",
