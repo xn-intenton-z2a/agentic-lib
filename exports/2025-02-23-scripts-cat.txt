@@ -1,0 +1,144 @@
+./scripts/truncate-git-history.sh
+==== Content of ./scripts/truncate-git-history.sh ====
+#!/usr/bin/env bash
+# Purpose: Truncate the history so that future revisions don't follow a past trend.
+# Usage: ./scripts/truncate-git-history.sh
+git checkout --orphan temp-branch
+git add --verbose --all
+git commit --verbose --message "Prepare release"
+git push --verbose --force origin temp-branch:main
+git checkout main
+git pull --verbose
+git branch --verbose --delete temp-branch
+git pull --verbose
+git push --verbose origin main
+git log
+git status
+./scripts/export-source.sh
+==== Content of ./scripts/export-source.sh ====
+#!/usr/bin/env bash
+# Purpose: Export the source code to date stamped files.
+# Usage: ./scripts/export-source.sh
+mkdir -p './exports/'
+find "." -type f -not -path '*/build/*' -not -path '*/dist/*' -not -path '*/exports/*' -not -path '*/coverage/*' -not -path '*/node_modules/*' -not -path '*/\.git/*' -not -path '*/\.idea/*' -print | grep -v '.DS_Store' > "./exports/$(date +%Y-%m-%d)-files-list.txt"
+find "." -maxdepth 1 -type f -name 'README.md' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "./exports/$(date +%Y-%m-%d)-root-cat.txt"
+find "." -maxdepth 1 -type f -name 'package.json' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "./exports/$(date +%Y-%m-%d)-root-cat.txt"
+find "." -maxdepth 1 -type f -name 'vitest.config.js' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "./exports/$(date +%Y-%m-%d)-root-cat.txt"
+find "." -maxdepth 1 -type f -name 'jsconfig.json' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "./exports/$(date +%Y-%m-%d)-root-cat.txt"
+find "." -maxdepth 1 -type f -name 'eslint.config.js' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "./exports/$(date +%Y-%m-%d)-root-cat.txt"
+find "." -maxdepth 1 -type f -name '.prettierrc' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "./exports/$(date +%Y-%m-%d)-root-cat.txt"
+find "." -maxdepth 1 -type f -name 'LICENSE' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "./exports/$(date +%Y-%m-%d)-root-cat.txt"
+find "./src" -type f -name '*.js' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "./exports/$(date +%Y-%m-%d)-src-cat.txt"
+find "./tests" -type f -name '*.js' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "./exports/$(date +%Y-%m-%d)-test-cat.txt"
+find "./.github" -type f -name '*.yml' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "./exports/$(date +%Y-%m-%d)-github-workflow-cat.txt"
+find "./scripts" -type f -name '*.sh' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "./exports/$(date +%Y-%m-%d)-scripts-cat.txt"
+git log --follow -p src/lib/main.js > "./exports/$(date +%Y-%m-%d)-main.js-history.log"
+git log --since="12 hours ago" --follow -p src/lib/main.js > ./exports/2025-02-02-main.js-history-last-12-hours.log
+./scripts/clear-history-locally.sh
+==== Content of ./scripts/clear-history-locally.sh ====
+#!/usr/bin/env bash
+# Usage: ./scripts/clear-history-locally.sh
+rm -rfv ./build \
+&& rm -rfv ./dist \
+&& rm -rfv ./coverage \
+;
+./scripts/diff-workflows.sh
+==== Content of ./scripts/diff-workflows.sh ====
+#!/usr/bin/env bash
+echo ".github/workflows/apply-fix.yml"
+diff .github/workflows/apply-fix.yml ../repository0/.github/workflows/apply-fix.yml
+echo ".github/workflows/automerge.yml"
+diff .github/workflows/automerge.yml ../repository0/.github/workflows/automerge.yml
+echo ".github/workflows/formating.yml"
+diff .github/workflows/formating.yml ../repository0/.github/workflows/formating.yml
+echo ".github/workflows/issue-creator.yml"
+diff .github/workflows/issue-creator.yml ../repository0/.github/workflows/issue-creator.yml
+echo ".github/workflows/issue-for-linting.yml"
+diff .github/workflows/issue-for-linting.yml ../repository0/.github/workflows/issue-for-linting.yml
+echo ".github/workflows/issue-reviewer.yml"
+diff .github/workflows/issue-reviewer.yml ../repository0/.github/workflows/issue-reviewer.yml
+echo ".github/workflows/issue-worker.yml"
+diff .github/workflows/issue-worker.yml ../repository0/.github/workflows/issue-worker.yml
+echo ".github/workflows/publish.yml"
+diff .github/workflows/publish.yml ../repository0/.github/workflows/publish.yml
+echo ".github/workflows/test.yml"
+diff .github/workflows/test.yml ../repository0/.github/workflows/test.yml
+echo ".github/workflows/update.yml"
+diff .github/workflows/update.yml ../repository0/.github/workflows/update.yml
+./scripts/update.sh
+==== Content of ./scripts/update.sh ====
+#!/usr/bin/env bash
+rm -f package-lock.json
+rm -f node-modules
+npm install
+npm run update-to-minor
+npm update
+npm upgrade
+npm install
+npm run build
+npm link
+./scripts/sync-workflows.sh
+==== Content of ./scripts/sync-workflows.sh ====
+#!/usr/bin/env bash
+cp -v .github/workflows/apply-fix.yml ../repository0/.github/workflows/.
+cp -v .github/workflows/automerge.yml ../repository0/.github/workflows/.
+cp -v .github/workflows/formating.yml ../repository0/.github/workflows/.
+cp -v .github/workflows/issue-creator.yml ../repository0/.github/workflows/.
+cp -v .github/workflows/issue-for-linting.yml ../repository0/.github/workflows/.
+cp -v .github/workflows/issue-reviewer.yml ../repository0/.github/workflows/.
+cp -v .github/workflows/issue-worker.yml ../repository0/.github/workflows/.
+cp -v .github/workflows/publish.yml ../repository0/.github/workflows/.
+cp -v .github/workflows/test.yml ../repository0/.github/workflows/.
+cp -v .github/workflows/update.yml ../repository0/.github/workflows/.
+./scripts/clean.sh
+==== Content of ./scripts/clean.sh ====
+#!/usr/bin/env bash
+./scripts/clear-history-locally.sh
+rm -rfv ./dist
+rm -rfv ./node_modules
+rm -rfv ./package-lock.json
+npm install
+npm run build
+npm link
+./scripts/release-versioned-workflows.sh
+==== Content of ./scripts/release-versioned-workflows.sh ====
+#!/usr/bin/env bash
+
+# Check for the required tag version argument
+if [ -z "$1" ]; then
+  echo "Usage: $0 <tag-version>"
+  exit 1
+fi
+
+TAG_VERSION="$1"
+DEST_DIR="../repository0/.github/workflows"
+
+cp -v .github/workflows/apply-fix.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/apply-fix.yml"
+
+cp -v .github/workflows/automerge.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/automerge.yml"
+
+cp -v .github/workflows/formating.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/formating.yml"
+
+cp -v .github/workflows/issue-creator.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-creator.yml"
+
+cp -v .github/workflows/issue-for-linting.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-for-linting.yml"
+
+cp -v .github/workflows/issue-reviewer.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-reviewer.yml"
+
+cp -v .github/workflows/issue-worker.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-worker.yml"
+
+cp -v .github/workflows/publish.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish.yml"
+
+cp -v .github/workflows/test.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/test.yml"
+
+cp -v .github/workflows/update.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/update.yml"
