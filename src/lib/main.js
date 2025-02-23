@@ -20,7 +20,8 @@ const getUsageMessage = () => {
     "  - config: Displays configuration options.",
     "  - help: Displays this help message.",
     "  - version: Displays the current version.",
-    "  - timestamp: Displays the current timestamp."
+    "  - timestamp: Displays the current timestamp.",
+    "  - about: Displays project information."
   ].join("\n");
 };
 
@@ -70,6 +71,19 @@ const timestampCommand = () => {
   console.log("Current Timestamp:", dayjs().format());
 };
 
+// New command: about - displays project information
+const aboutCommand = () => {
+  try {
+    const pkgPath = path.join(__dirname, "../../package.json");
+    const pkgData = readFileSync(pkgPath, "utf8");
+    const pkg = JSON.parse(pkgData);
+    console.log("Project:", pkg.name);
+    console.log("Description:", pkg.description);
+  } catch (error) {
+    console.error("Error reading project information:", error.message);
+  }
+};
+
 // Process the given command
 const processCommand = (command, args) => {
   switch (command) {
@@ -90,6 +104,9 @@ const processCommand = (command, args) => {
       break;
     case "timestamp":
       timestampCommand();
+      break;
+    case "about":
+      aboutCommand();
       break;
     case "help":
       displayUsage();
@@ -116,4 +133,4 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename
 }
 
 // Export functions for testing and external usage
-export { getUsageMessage, displayUsage, selfTestCommand, demoCommand, publishCommand, configCommand, versionCommand, processCommand, timestampCommand };
+export { getUsageMessage, displayUsage, selfTestCommand, demoCommand, publishCommand, configCommand, versionCommand, processCommand, timestampCommand, aboutCommand };

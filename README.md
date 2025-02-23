@@ -18,6 +18,7 @@ Available commands:
   - help: Displays this help message.
   - version: Displays the current version of the tool.
   - timestamp: Displays the current timestamp.
+  - about: Displays project information.
 
 To run tests, execute:
 
@@ -35,6 +36,7 @@ Available commands:
   - help: Displays this help message.
   - version: Displays the current version of the tool.
   - timestamp: Displays the current timestamp.
+  - about: Displays project information.
 
 ## Contributing
 
