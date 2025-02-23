@@ -92,7 +92,7 @@ This guide explains how the various workflows of the Agentic Coding Systems work
 
 ---
 
-## 1. Workflow Overview
+## Workflow Overview
 
 ### Publishing Workflow (`publish.yml`)
 - **Function:** Automates package publishing.
@@ -151,7 +151,7 @@ These workflows generalize the concept of work items as “tasks” rather than 
 
 ---
 
-## 2. Reusable Workflows SDK Guide
+## Reusable Workflows SDK Guide
 
 Think of each reusable workflow as a function in an SDK:
 - **Inputs:** Parameters (e.g., `versionIncrement`, `buildScript`, `issueTitle`) customize workflow behavior.
@@ -172,7 +172,7 @@ Internally, this triggers [`wfr-create-issue.yml@1.2.0`](https://github.com/xn-i
 
 ---
 
-## 3. Repository Setup Guide
+## Repository Setup Guide
 
 Follow these steps to set up your repository using the agentic development system:
 
@@ -187,82 +187,6 @@ Follow these steps to set up your repository using the agentic development syste
 3. **Customize Workflow Inputs:**
    - Edit workflow files under `.github/workflows/` to match your project specifics (e.g., branch names, file paths).
    - Update configuration files such as `dependabot.yml` and `FUNDING.yml` as needed.
-
-4. **Install Dependencies:**
-   - Run:
-     ```bash
-     npm install
-     ```
-
-5. **Run Initial Tests:**
-   - Validate your setup by triggering the self-test workflow:
-     ```bash
-     npx agentic-lib self-test
-     ```
-
-6. **Execute a Demo:**
-   - Run the demo workflow to see the system in action:
-     ```bash
-     npx agentic-lib demo
-     ```
-
-7. **First Prompt Exercise:**
-   - As an initial exercise, create a new task:
-     ```bash
-     npx agentic-lib create-task --title "Initial Setup Task" --description "Set up the new repository with agentic workflows" --target "README.md"
-     ```
-   - Review the GitHub Actions logs to see how the workflows process this task.
-
----
-
-## 4. Tutorial Exercises
-
-### Exercise 1: Self-Test and Demo
-- **Step 1:** Run the self-test to verify the system:
-  ```bash
-  npx agentic-lib self-test
-  ```
-- **Step 2:** Execute the demo:
-  ```bash
-  npx agentic-lib demo
-  ```
-- **Step 3:** Review outputs to confirm each workflow executes as expected.
-
-### Exercise 2: Create and Process a Task
-- **Step 1:** Create a new task using the CLI:
-  ```bash
-  npx agentic-lib create-task --title "Fix Logging" --description "Improve logging in the application" --target "src/lib/logger.js"
-  ```
-- **Step 2:** Monitor GitHub Actions to observe the issue creator and worker workflows handling the task.
-
-### Exercise 3: Dependency Update and Code Formatting
-- **Step 1:** Trigger a dependency update:
-  ```bash
-  npx agentic-lib update --upgradeTarget minor
-  ```
-- **Step 2:** Run code formatting:
-  ```bash
-  npx agentic-lib format --script "npm run formatting-fix && npm run linting-fix"
-  ```
-- **Step 3:** Observe how workflows manage pull requests and automerge changes.
-
----
-
-## 5. Ideas for Seeding Your Agentic Coding System
-
-Here are three ideas for libraries to seed your agentic coding system. Each idea begins with a brief README; then, the workflow can be prompted to fill out the code.
-
-### Idea 1: Utility Library for Data Transformation
-- **README Brief:** Outline functions for data transformation tasks (e.g., parsing CSV, JSON manipulation, data filtering).
-- **Exercise:** Use the issue creator workflow to generate the boilerplate code based on the README.
-
-### Idea 2: Microservice Helper Library
-- **README Brief:** Describe a set of helper functions for building microservices (e.g., routing, error handling, logging).
-- **Exercise:** Prompt the workflow to scaffold a microservice framework based on the guidelines.
-
-### Idea 3: Test Automation Library
-- **README Brief:** Define a library aimed at simplifying test automation (e.g., utilities for mocking, assertions, and test setup).
-- **Exercise:** Leverage the workflows to generate starter code and unit tests as specified in the README.
 
 ---
 
