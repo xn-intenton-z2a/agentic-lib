@@ -39,8 +39,6 @@ on:
           - preminor
           - prepatch
 
-retention-days: 1
-
 jobs:
 
   npm-test-and-run-main:

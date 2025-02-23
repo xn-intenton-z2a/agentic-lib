@@ -41,8 +41,6 @@ on:
     #- cron: '*/30 * * * *' # Run every 30 minutes
     #- cron: '*/15 * * * *' # Run every 15 minutes
 
-retention-days: 1
-
 jobs:
 
   select-issue:

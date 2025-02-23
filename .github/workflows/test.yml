@@ -24,8 +24,6 @@ on:
   schedule:
     - cron: '45 */6 * * *'
 
-retention-days: 1
-
 jobs:
 
   npm-test:
