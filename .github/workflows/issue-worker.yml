@@ -113,7 +113,7 @@ jobs:
     needs:
       - select-issue
       - start-issue
-    if: ${{ needs.select-issue.outputs.issueNumber != '' && needs.start-issue.outputs.fixApplied == 'true' && needs.start-issue.outputs.allValidationStepsCompleted == 'true' }}
+    if: ${{ needs.select-issue.outputs.issueNumber != '' && needs.start-issue.outputs.fixApplied == 'true' && needs.start-issue.outputs.allValidationStepsSuccessful == 'true' }}
     permissions:
       contents: write
       packages: write

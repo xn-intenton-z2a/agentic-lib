@@ -574,39 +574,39 @@ jobs:
           script: |
             const fixApplied = '${{ steps.update-target.outputs.fixApplied }}';
             const message = '${{ steps.update-target.outputs.message }}';
-            const installAfterUpdateCompleted = '${{ steps.install-after-update.completed }}';
-            const ciAfterUpdateCompleted = '${{ steps.ci-after-update.completed }}';
-            const testAfterUpdateCompleted = '${{ steps.test-after-update.completed }}';
-            const mainAfterUpdateCompleted = '${{ steps.main-after-update.completed }}';
-            const commitCompleted = '${{ steps.commit.completed }}';
-            const postResolutionCommentCompleted = '${{ steps.post-resolution-comment.completed }}';
-            const allValidationStepsCompleted = installAfterUpdateCompleted && ciAfterUpdateCompleted && testAfterUpdateCompleted && mainAfterUpdateCompleted && commitCompleted && postResolutionCommentCompleted;
+            const installAfterUpdateOutcome = '${{ steps.install-after-update.outcome }}';
+            const ciAfterUpdateOutcomeOutcome = '${{ steps.ci-after-update.outcome }}';
+            const testAfterUpdateOutcome = '${{ steps.test-after-update.outcome }}';
+            const mainAfterUpdateOutcome = '${{ steps.main-after-update.outcome }}';
+            const commitOutcome = '${{ steps.commit.outcome }}';
+            const postResolutionCommentOutcome = '${{ steps.post-resolution-comment.outcome }}';
+            const allValidationStepsSuccessful = installAfterUpdateOutcome === "success" && ciAfterUpdateOutcomeOutcome === "success" && testAfterUpdateOutcome === "success" && mainAfterUpdateOutcome === "success" && commitOutcome === "success" && postResolutionCommentOutcome === "success";
             core.setOutput('fixApplied', fixApplied);
             core.setOutput('message', message);
-            core.setOutput('installAfterUpdateCompleted', installAfterUpdateCompleted);
-            core.setOutput('ciAfterUpdateCompleted', ciAfterUpdateCompleted);
-            core.setOutput('testAfterUpdateCompleted', testAfterUpdateCompleted);
-            core.setOutput('mainAfterUpdateCompleted', mainAfterUpdateCompleted);
-            core.setOutput('commitCompleted', commitCompleted);
-            core.setOutput('postResolutionCommentCompleted', postResolutionCommentCompleted);
-            core.setOutput('allValidationStepsCompleted', allValidationStepsCompleted);
+            core.setOutput('installAfterUpdateOutcome', installAfterUpdateOutcome);
+            core.setOutput('ciAfterUpdateOutcomeOutcome', ciAfterUpdateOutcomeOutcome);
+            core.setOutput('testAfterUpdateOutcome', testAfterUpdateOutcome);
+            core.setOutput('mainAfterUpdateOutcome', mainAfterUpdateOutcome);
+            core.setOutput('commitOutcome', commitOutcome);
+            core.setOutput('postResolutionCommentOutcome', postResolutionCommentOutcome);
+            core.setOutput('allValidationStepsSuccessful', allValidationStepsSuccessful);
             core.info(`fixApplied: "${fixApplied}"`);
             core.info(`message: "${message}"`);
-            core.info(`installAfterUpdateCompleted: "${installAfterUpdateCompleted}"`);
-            core.info(`ciAfterUpdateCompleted: "${ciAfterUpdateCompleted}"`);
-            core.info(`testAfterUpdateCompleted: "${testAfterUpdateCompleted}"`);
-            core.info(`mainAfterUpdateCompleted: "${mainAfterUpdateCompleted}"`);
-            core.info(`commitCompleted: "${commitCompleted}"`);
-            core.info(`postResolutionCommentCompleted: "${postResolutionCommentCompleted}"`);
-            core.info(`allValidationStepsCompleted: "${allValidationStepsCompleted}"`);
+            core.info(`installAfterUpdateOutcome: "${installAfterUpdateOutcome}"`);
+            core.info(`ciAfterUpdateOutcome: "${ciAfterUpdateOutcome}"`);
+            core.info(`testAfterUpdateOutcome: "${testAfterUpdateOutcome}"`);
+            core.info(`mainAfterUpdateOutcome: "${mainAfterUpdateOutcome}"`);
+            core.info(`commitOutcome: "${commitOutcome}"`);
+            core.info(`postResolutionCommentOutcome: "${postResolutionCommentOutcome}"`);
+            core.info(`allValidationStepsSuccessful: "${allValidationStepsSuccessful}"`);
 
     outputs:
       fixApplied: ${{ steps.results.outputs.fixApplied }}
       message: ${{ steps.results.outputs.message }}
-      installAfterUpdateCompleted: ${{ steps.results.outputs.installAfterUpdateCompleted }}
-      ciAfterUpdateCompleted: ${{ steps.results.outputs.ciAfterUpdateCompleted }}
-      testAfterUpdateCompleted: ${{ steps.results.outputs.testAfterUpdateCompleted }}
-      mainAfterUpdateCompleted: ${{ steps.results.outputs.mainAfterUpdateCompleted }}
-      commitCompleted: ${{ steps.results.outputs.commitCompleted }}
-      postResolutionCommentCompleted: ${{ steps.results.outputs.postResolutionCommentCompleted }}
-      allValidationStepsCompleted: ${{ steps.results.outputs.allValidationStepsCompleted }}
+      installAfterUpdateOutcome: ${{ steps.results.outputs.installAfterUpdateOutcome }}
+      ciAfterUpdateOutcome: ${{ steps.results.outputs.ciAfterUpdateOutcome }}
+      testAfterUpdateOutcome: ${{ steps.results.outputs.testAfterUpdateOutcome }}
+      mainAfterUpdateOutcome: ${{ steps.results.outputs.mainAfterUpdateOutcome }}
+      commitOutcome: ${{ steps.results.outputs.commitOutcome }}
+      postResolutionCommentOutcome: ${{ steps.results.outputs.postResolutionCommentOutcome }}
+      allValidationStepsSuccessful: ${{ steps.results.outputs.allValidationStepsSuccessful }}
