@@ -180,8 +180,8 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 - [x] Run apply fix on a schedule checking if a fix is necessary.
 - [x] Add check for failed Test run then re-instate. e.g. #workflow_run:  workflows: - "Tests" / types: - completed
 - [x] Detect failing build rather than relying on a passive no change
-- [ ] >Trigger apply fix when a test run completes and attempt a fix if the tests failed, ideally just for automated branches (issues, apply-formatting, apply-linting). <- This will then fix a broken PR branch or a broken main branch.
-- [ ] >Write issue body when creating an issue from a linting error.
+- [x] Trigger apply fix when a test run completes and attempt a fix if the tests failed, ideally just for automated branches (issues, apply-formatting, apply-linting). <- This will then fix a broken PR branch or a broken main branch.
+- [x] Write issue body when creating an issue from a linting error.
 - [ ] Add PayPal donation link (the old account has been closed).
 - [ ] Add git log to the context for review issue, issue worker and apply fixe
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
