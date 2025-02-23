@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# scripts/release-versioned-workflows.sh
-# Usage: ./scripts/release-versioned-workflows.sh <tag-version>
-# Example: ./scripts/release-versioned-workflows.sh 1.0.0
+# scripts/release-to-repository0.sh
+# Usage: ./scripts/release-to-repository0.sh <tag-version>
+# Example: ./scripts/release-to-repository0.sh 1.0.0
 #
 # This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT

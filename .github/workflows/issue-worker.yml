@@ -33,7 +33,7 @@ on:
   workflow_run:
     workflows:
       - "Create Issue"
-      - "Create Issue from Script"
+      - "Linting"
     types:
       - completed
   schedule:
