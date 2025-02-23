@@ -42,7 +42,7 @@ const getUsageMessage = () => {
     "  - status: Displays a summary of the project status (name, version, and current timestamp).",
     "",
     "Note: When no command is provided, the CLI runs a self-test, followed by a demo and then displays this usage message.",
-    "Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements."
+    "Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements.",
   ].join("\n");
 };
 
@@ -110,7 +110,7 @@ const statusCommand = () => {
 };
 
 // Process the given command
-const processCommand = (command, args) => {
+const processCommand = (command, _args) => {
   switch (command) {
     case "self-test":
       selfTestCommand();
@@ -156,8 +156,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename
     process.exit(0);
   } else {
     const command = process.argv[2];
-    const args = process.argv.slice(3);
-    processCommand(command, args);
+    const _args = process.argv.slice(3);
+    processCommand(command, _args);
   }
 }
 
