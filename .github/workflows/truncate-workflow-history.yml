@@ -7,6 +7,8 @@ name: Truncate Workflow Runs
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
   cleanup:
@@ -17,7 +19,7 @@ jobs:
         with:
           script: |
             // Set retention period (in days)
-            const retentionDays = 7;
+            const retentionDays = 0;
             const cutoffDate = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000);
             const owner = context.repo.owner;
             const repo = context.repo.repo;
