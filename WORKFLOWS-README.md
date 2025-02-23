@@ -176,15 +176,18 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 
 ### TODO
 
-- [~] Implement "fix-failing-build" by raising a bug, then running start-issue (with a new name) in a tolerant mode allowing builds to fail but gathering output.
-- [~] Run apply fix on a schedule checking if a fix is necessary.
-- [ ] Trigger apply fix when a test run completes and attempt a fix if the tests failed, ideally just for automated branches (issues, formatting, linting). <- This will then fix a broken PR branch or a broken main branch.
-- [ ] Add check for failed Test run then re-instate. e.g. #workflow_run:  workflows: - "Tests" / types: - completed
-- [ ] Detect failing build rather than relying on a passive no change
+- [x] Implement "apply-fix" by raising a bug, then running start-issue (with a new name) in a tolerant mode allowing builds to fail but gathering output.
+- [x] Run apply fix on a schedule checking if a fix is necessary.
+- [x] Add check for failed Test run then re-instate. e.g. #workflow_run:  workflows: - "Tests" / types: - completed
+- [x] Detect failing build rather than relying on a passive no change
+- [ ] >Trigger apply fix when a test run completes and attempt a fix if the tests failed, ideally just for automated branches (issues, apply-formatting, apply-linting). <- This will then fix a broken PR branch or a broken main branch.
+- [ ] >Write issue body when creating an issue from a linting error.
 - [ ] Add PayPal donation link (the old account has been closed).
 - [ ] Add git log to the context for review issue, issue worker and apply fixe
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
 - [ ] Pick ideal Node version.
+- [ ] Release bitpack encoder based on the template.
+- [ ] Release owl-encoder based on the template.
 - [ ] Consider: semantic-release for releasing versions.
 - [ ] Generate API.md based on the source file.
 - [ ] Update CHANGELOG.md when a publishing a release version of the changes since the last release.

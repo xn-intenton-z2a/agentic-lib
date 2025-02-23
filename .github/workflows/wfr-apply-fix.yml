@@ -63,10 +63,6 @@ on:
         type: string
         required: false
         default: 'eslint.config.js'
-      branchPrefix:
-        description: 'The prefix for the issue branch. e.g. "issue-".'
-        type: string
-        required: true
       buildScript:
         description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
         type: string
@@ -118,7 +114,6 @@ jobs:
       dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
       formattingFile: ${{ inputs.formattingFile || '.prettierrc' }}
       lintingFile: ${{ inputs.lintingFile || 'eslint.config.js' }}
-      branchPrefix: ${{ inputs.branchPrefix || 'issue-' }}
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
       mainScript: ${{ inputs.mainScript || 'npm run start' }}

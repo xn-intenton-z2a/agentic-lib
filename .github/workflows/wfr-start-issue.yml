@@ -500,21 +500,31 @@ jobs:
 
       - run: rm -rf node_modules
 
-      - run: npm install
+      - name: install-after-update
+        id: install-after-update
+        run: npm install
 
-      - run: npm ci
+      - name: ci-after-update
+        id: ci-after-update
+        continue-on-error: true
+        run: npm ci
 
       - name: Tear down .npmrc
+        continue-on-error: true
         if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
         run: rm -f .npmrc
 
-      - name: Test after update
+      - name: test-after-update
+        id: test-after-update
+        continue-on-error: true
         shell: bash
         run: |
           ${{ env.testScript }}
 
       - name: Run main after update
+        id: main-after-update
+        continue-on-error: true
         shell: bash
         run: |
           timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }}
@@ -534,6 +544,7 @@ jobs:
           git status -v
 
       - name: Post Resolution Comment
+        id: post-resolution-comment
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
@@ -555,6 +566,47 @@ jobs:
               assignees: [ context.actor ]
             });
 
+      - name: Extract Results
+        if: always()
+        id: results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fixApplied = '${{ steps.update-target.outputs.fixApplied }}';
+            const message = '${{ steps.update-target.outputs.message }}';
+            const installAfterUpdateCompleted = '${{ steps.install-after-update.completed }}';
+            const ciAfterUpdateCompleted = '${{ steps.ci-after-update.completed }}';
+            const testAfterUpdateCompleted = '${{ steps.test-after-update.completed }}';
+            const mainAfterUpdateCompleted = '${{ steps.main-after-update.completed }}';
+            const commitCompleted = '${{ steps.commit.completed }}';
+            const postResolutionCommentCompleted = '${{ steps.post-resolution-comment.completed }}';
+            const allValidationStepsCompleted = installAfterUpdateCompleted && ciAfterUpdateCompleted && testAfterUpdateCompleted && mainAfterUpdateCompleted && commitCompleted && postResolutionCommentCompleted;
+            core.setOutput('fixApplied', fixApplied);
+            core.setOutput('message', message);
+            core.setOutput('installAfterUpdateCompleted', installAfterUpdateCompleted);
+            core.setOutput('ciAfterUpdateCompleted', ciAfterUpdateCompleted);
+            core.setOutput('testAfterUpdateCompleted', testAfterUpdateCompleted);
+            core.setOutput('mainAfterUpdateCompleted', mainAfterUpdateCompleted);
+            core.setOutput('commitCompleted', commitCompleted);
+            core.setOutput('postResolutionCommentCompleted', postResolutionCommentCompleted);
+            core.setOutput('allValidationStepsCompleted', allValidationStepsCompleted);
+            core.info(`fixApplied: "${fixApplied}"`);
+            core.info(`message: "${message}"`);
+            core.info(`installAfterUpdateCompleted: "${installAfterUpdateCompleted}"`);
+            core.info(`ciAfterUpdateCompleted: "${ciAfterUpdateCompleted}"`);
+            core.info(`testAfterUpdateCompleted: "${testAfterUpdateCompleted}"`);
+            core.info(`mainAfterUpdateCompleted: "${mainAfterUpdateCompleted}"`);
+            core.info(`commitCompleted: "${commitCompleted}"`);
+            core.info(`postResolutionCommentCompleted: "${postResolutionCommentCompleted}"`);
+            core.info(`allValidationStepsCompleted: "${allValidationStepsCompleted}"`);
+
     outputs:
-      fixApplied: ${{ steps.update-target.outputs.fixApplied }}
-      message: ${{ steps.update-target.outputs.message }}
+      fixApplied: ${{ steps.results.outputs.fixApplied }}
+      message: ${{ steps.results.outputs.message }}
+      installAfterUpdateCompleted: ${{ steps.results.outputs.installAfterUpdateCompleted }}
+      ciAfterUpdateCompleted: ${{ steps.results.outputs.ciAfterUpdateCompleted }}
+      testAfterUpdateCompleted: ${{ steps.results.outputs.testAfterUpdateCompleted }}
+      mainAfterUpdateCompleted: ${{ steps.results.outputs.mainAfterUpdateCompleted }}
+      commitCompleted: ${{ steps.results.outputs.commitCompleted }}
+      postResolutionCommentCompleted: ${{ steps.results.outputs.postResolutionCommentCompleted }}
+      allValidationStepsCompleted: ${{ steps.results.outputs.allValidationStepsCompleted }}

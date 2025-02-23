@@ -94,10 +94,13 @@ jobs:
             });
 
             core.setOutput("issueTitle", selectedIssueTitle);
+            core.setOutput("issueBody", issueBody);
             core.setOutput("issueNumber", issue.number);
             core.info(`issueTitle: ${selectedIssueTitle}`);
+            core.info(`issueBody: ${issueBody}`);    
             core.info(`issueNumber: ${issue.number}`);
 
     outputs:
       issueTitle: ${{ steps.create-issue.outputs.issueTitle }}
+      issueBody: ${{ steps.create-issue.outputs.issueBody }}
       issueNumber: ${{ steps.create-issue.outputs.issueNumber }}

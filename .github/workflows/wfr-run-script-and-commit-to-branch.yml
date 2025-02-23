@@ -187,6 +187,15 @@ jobs:
           git push -v
           git status -v
 
+      - name: Log outputs
+        continue-on-error: true
+        shell: bash
+        run: |
+          echo "updatedFiles: steps.script.outputs.updated=${{ steps.script.outputs.updated }}"
+          echo "scriptOutput: steps.script.outputs.output=${{ steps.script.outputs.output }}"
+          echo "remainingResultsCount: steps.sarif-script.outputs.remainingResultsCount=${{ steps.sarif-script.outputs.remainingResultsCount }}"
+          echo "fixStillRequired: steps.sarif-script.outputs.fixStillRequired=${{ steps.sarif-script.outputs.fixStillRequired }}"
+
     outputs:
       updatedFiles: ${{ steps.script.outputs.updated }}
       scriptOutput: ${{ steps.script.outputs.output }}

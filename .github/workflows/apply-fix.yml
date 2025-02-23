@@ -22,12 +22,75 @@ on:
         required: false
         type: string
         default: 'tests/unit/main.test.js'
+      applyFixEvenIfTestsPass:
+        description: 'Apply the fix even if the tests pass. e.g. true'
+        required: false
+        type: boolean
+        default: true
+  workflow_run:
+    workflows:
+      - "Tests"
+    types:
+      - completed
+    branches:
+      - issue-*
+      - apply-formatting
+      - apply-update
   schedule:
     - cron: '15 2 * * *' # Run at 2:15am
 
 jobs:
 
+  npm-test:
+    name: 'npm test with coverage'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test
+
+  npm-build:
+    name: 'npm run build'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+
+  npm-run:
+    name: 'npm run start'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run start
+
   apply-fix:
+    needs:
+      - npm-test
+      - npm-build
+      - npm-run
+    if: >
+      ${{ always() && 
+        (
+          (needs.npm-test.result != 'success' ||
+           needs.npm-build.result != 'success' ||
+           needs.npm-run.result != 'success') ||
+          (inputs.applyFixEvenIfTestsPass == true)
+        )
+      }}
     permissions:
       contents: write
       issues: write
