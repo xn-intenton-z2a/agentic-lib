@@ -24,6 +24,8 @@ Available commands:
   - about: Displays project information.
   - status: Displays a summary of the project status (name, version, and current timestamp).
 
+Note: When executed without any arguments, the CLI runs a self-test followed by a demo and then displays the usage instructions before terminating automatically.
+
 Note: Future enhancements include full publish functionality and additional automated features.
 
 ## Extended Functionality
@@ -109,6 +111,3 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
-
-*IMPORTANT*: The project README and any derived work should always include the following attribution:
-_"This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"_
