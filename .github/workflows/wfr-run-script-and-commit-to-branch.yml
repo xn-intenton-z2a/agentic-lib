@@ -139,7 +139,7 @@ jobs:
             updated='true'
           fi
           set -e
-          echo "updated=${updated}" > $GITHUB_OUTPUT
+          echo "updated=${updated}" >> $GITHUB_OUTPUT
           echo "updated=${updated}"
         continue-on-error: true
 
@@ -155,10 +155,10 @@ jobs:
           set -e
           echo "exitCode=${exitCode}"
           fixStillRequired=$([ $? -eq 0 ] && echo 'true' || echo 'false')
-          echo "fixStillRequired={fixStillRequired}" > $GITHUB_OUTPUT
+          echo "fixStillRequired={fixStillRequired}" >> $GITHUB_OUTPUT
           echo "fixStillRequired=${fixStillRequired}"
           remainingResultsCount=$(echo "${results}" | jq '.runs[0].results | length' 2>/dev/null || echo "unknown")
-          echo "remainingResultsCount=${remainingResultsCount}" > $GITHUB_OUTPUT
+          echo "remainingResultsCount=${remainingResultsCount}" >> $GITHUB_OUTPUT
           echo "remainingResultsCount=${remainingResultsCount}"
           echo "results: ${results}"
 

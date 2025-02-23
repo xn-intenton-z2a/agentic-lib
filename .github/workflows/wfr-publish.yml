@@ -131,7 +131,7 @@ jobs:
           npm publish --tag latest --access restricted
           git push --follow-tags
           releasedVersion=$(node -p "require('./package.json').version")
-          echo "releasedVersion=${releasedVersion}" > $GITHUB_OUTPUT
+          echo "releasedVersion=${releasedVersion}" >> $GITHUB_OUTPUT
           echo "releasedVersion=${releasedVersion}"
 
       - name: Create GitHub Release
@@ -159,7 +159,7 @@ jobs:
         shell: bash
         run: |
           newVersion=$(node -p "require('./package.json').version")
-          echo "newVersion=${newVersion}" > $GITHUB_OUTPUT
+          echo "newVersion=${newVersion}" >> $GITHUB_OUTPUT
           echo "newVersion=${newVersion}"
 
       - name: Examine the git working copy
