@@ -142,11 +142,11 @@ jobs:
           name: Release ${{ steps.released.outputs.releasedVersion }}
           body: ${{ env.releaseNotes }}
 
-      - name: Rotate to next pre[major|minor|patch] version from a released version
+      - name: Rotate to next prepatch version from a released version
         if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
         shell: bash
         run: |
-          npm version --no-git-tag-version pre${{ env.versionIncrement }}
+          npm version --no-git-tag-version prepatch
 
       - name: Rotate to next [premajor|preminor|prepatch|prerelease] version
         if: ${{ env.versionIncrement == 'premajor' || env.versionIncrement == 'preminor' || env.versionIncrement == 'prepatch' || env.versionIncrement == 'prerelease' }}
