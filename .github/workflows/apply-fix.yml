@@ -104,7 +104,6 @@ jobs:
       dependenciesFile: 'package.json'
       formattingFile: '.prettierrc'
       lintingFile: 'eslint.config.js'
-      branchPrefix: 'issue-'
       buildScript: 'npm run build'
       testScript: 'npm test'
       mainScript: 'npm run start'
