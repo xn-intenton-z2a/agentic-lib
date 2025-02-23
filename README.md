@@ -11,32 +11,18 @@ To get started, run the following command to see available options:
 Usage: node src/lib/main.js <command> [arguments...]
 
 Available commands:
-  - self-test: Runs the self test suite.
+  - self-test: Runs the self-test suite.
   - demo: Runs a demonstration of functionalities.
   - publish: Runs the publish command (stubbed functionality).
   - config: Displays configuration options.
   - help: Displays this help message.
-  - version: Displays the current version of the tool.
+  - version: Displays the current version.
   - timestamp: Displays the current timestamp.
   - about: Displays project information.
 
 To run tests, execute:
 
   npm test
-
-## Commands
-
-Usage: node src/lib/main.js <command> [arguments...]
-
-Available commands:
-  - self-test: Runs the self test suite.
-  - demo: Runs a demonstration of functionalities.
-  - publish: Runs the publish command (stubbed functionality).
-  - config: Displays configuration options.
-  - help: Displays this help message.
-  - version: Displays the current version of the tool.
-  - timestamp: Displays the current timestamp.
-  - about: Displays project information.
 
 ## Contributing
 

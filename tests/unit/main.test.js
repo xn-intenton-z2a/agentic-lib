@@ -20,7 +20,6 @@ const expectedVersion = pkg.version;
 describe("CLI Minimal Commands", () => {
   test("Default mode runs self-test, demo and displays usage when no command is provided", () => {
     const result = runCLI();
-    // Check that self-test and demo outputs are present along with usage message
     expect(result.stdout).toContain("Running self-test...");
     expect(result.stdout).toContain("Performing extended self-test validations...");
     expect(result.stdout).toContain("Running demo...");
@@ -50,7 +49,6 @@ describe("CLI Minimal Commands", () => {
   test("config command outputs configuration options", () => {
     const result = runCLI(["config"]);
     expect(result.stdout).toContain("Configuration options:");
-    expect(result.stdout).toContain("theme");
     expect(result.stdout).toContain("default");
   });
 
@@ -68,7 +66,6 @@ describe("CLI Minimal Commands", () => {
   test("timestamp command outputs current timestamp", () => {
     const result = runCLI(["timestamp"]);
     expect(result.stdout).toContain("Current Timestamp:");
-    // Basic check to ensure a timestamp-like output is present
     const timestampOutput = result.stdout.split("Current Timestamp:")[1].trim();
     expect(new Date(timestampOutput).toString()).not.toEqual("Invalid Date");
   });

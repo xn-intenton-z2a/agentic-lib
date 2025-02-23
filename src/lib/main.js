@@ -15,7 +15,7 @@ const getUsageMessage = () => {
   return [
     "Usage: node src/lib/main.js <command> [arguments...]",
     "Available commands:",
-    "  - self-test: Runs the self test suite.",
+    "  - self-test: Runs the self-test suite.",
     "  - demo: Runs a demonstration of functionalities.",
     "  - publish: Runs the publish command (stubbed functionality).",
     "  - config: Displays configuration options.",
@@ -34,25 +34,21 @@ const displayUsage = () => {
 // Command implementations
 const selfTestCommand = () => {
   console.log("Running self-test...");
-  // Extended self-test placeholder: more comprehensive validations can be added here
   console.log("Performing extended self-test validations...");
 };
 
 const demoCommand = () => {
   console.log("Running demo...");
-  // Extended demo placeholder: demonstration of real-world use cases can be added here
   console.log("Executing extended demo scenarios...");
 };
 
 const publishCommand = () => {
   console.log("Running publish...");
-  // Placeholder: Add publishing functionality here if needed
   console.log("Publish functionality is under development.");
 };
 
 const configCommand = () => {
   console.log("Configuration options:");
-  // Extended configuration placeholder: Display sample configuration details
   console.log(JSON.stringify({ theme: "default", language: "en", featureX: true }, null, 2));
 };
 
