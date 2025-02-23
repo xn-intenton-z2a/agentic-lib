@@ -4,6 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: Truncate Workflow Runs
+concurrency: truncate-workflow-runs
 
 on:
   workflow_dispatch:
