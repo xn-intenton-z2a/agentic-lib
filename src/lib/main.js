@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console, no-process-exit */
 
 import { fileURLToPath } from "url";
 import { readFileSync } from "fs";

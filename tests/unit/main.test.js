@@ -87,6 +87,7 @@ describe("CLI Minimal Commands", () => {
   });
 });
 
+
 describe("Exported Functions", () => {
   test("getUsageMessage returns a valid help message", () => {
     const msg = getUsageMessage();
