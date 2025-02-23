@@ -19,6 +19,7 @@ Available commands:
   - version: Displays the current version.
   - timestamp: Displays the current timestamp.
   - about: Displays project information.
+  - status: Displays a summary of the project status (name, version, and current timestamp).
 
 To run tests, execute:
 
