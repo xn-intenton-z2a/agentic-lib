@@ -111,6 +111,20 @@ on:
         value: ${{ jobs.start-issue.outputs.fixApplied }}
       message:
         value: ${{ jobs.start-issue.outputs.message }}
+      installAfterUpdateOutcome:
+        value: ${{ jobs.start-issue.outputs.installAfterUpdateOutcome }}
+      ciAfterUpdateOutcome:
+        value: ${{ jobs.start-issue.outputs.ciAfterUpdateOutcome }}
+      testAfterUpdateOutcome:
+        value: ${{ jobs.start-issue.outputs.testAfterUpdateOutcome }}
+      mainAfterUpdateOutcome:
+        value: ${{ jobs.start-issue.outputs.mainAfterUpdateOutcome }}
+      commitOutcome:
+        value: ${{ jobs.start-issue.outputs.commitOutcome }}
+      postResolutionCommentOutcome:
+        value: ${{ jobs.start-issue.outputs.postResolutionCommentOutcome }}
+      allValidationStepsSuccessful:
+        value: ${{ jobs.start-issue.outputs.allValidationStepsSuccessful }}
 
 jobs:
   start-issue:
