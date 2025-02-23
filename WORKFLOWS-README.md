@@ -137,18 +137,6 @@ These workflows generalize the concept of work items as “tasks” rather than 
   - [`wfr-automerge-label-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@1.2.0)
   - [`wfr-automerge-merge-pr.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-merge-pr.yml@1.2.0)
 
-### Dependency Update Workflow (`update.yml`)
-- **Function:** Automates dependency updates using semantic versioning.
-- **Reusable Workflow:** [`wfr-update.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-update.yml@1.2.0)
-
-### Formatting Workflow (`formating.yml`)
-- **Function:** Runs code formatting and linting checks.
-- **Reusable Workflow:** [`wfr-run-script-and-commit-to-branch.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-commit-to-branch.yml@1.2.0)
-
-### Funding and Dependabot Configurations
-- **Funding (`FUNDING.yml`):** Contains funding information.
-- **Dependabot (`dependabot.yml`):** Automates dependency update checks.
-
 ---
 
 ## Reusable Workflows SDK Guide
