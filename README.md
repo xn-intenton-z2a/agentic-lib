@@ -21,6 +21,12 @@ Available commands:
   - about: Displays project information.
   - status: Displays a summary of the project status (name, version, and current timestamp).
 
+## Extended Functionality
+
+This release refactors the CLI to simplify package management by introducing a helper function to load package details and centralize error handling. New commands such as "about" and "status" provide extended insights about the project configuration and current state.
+
+## Running Tests
+
 To run tests, execute:
 
   npm test

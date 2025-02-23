@@ -10,6 +10,18 @@ import dayjs from "dayjs";  // New dependency for formatting timestamp
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Helper function to load package.json details
+const loadPackageDetails = () => {
+  try {
+    const pkgPath = path.join(__dirname, "../../package.json");
+    const pkgData = readFileSync(pkgPath, "utf8");
+    return JSON.parse(pkgData);
+  } catch (error) {
+    console.error("Error reading package.json:", error.message);
+    return null;
+  }
+};
+
 // Function to generate the usage message
 const getUsageMessage = () => {
   return [
@@ -54,13 +66,11 @@ const configCommand = () => {
 };
 
 const versionCommand = () => {
-  try {
-    const pkgPath = path.join(__dirname, "../../package.json");
-    const pkgData = readFileSync(pkgPath, "utf8");
-    const pkg = JSON.parse(pkgData);
+  const pkg = loadPackageDetails();
+  if (pkg) {
     console.log("Version:", pkg.version);
-  } catch (error) {
-    console.error("Error reading version:", error.message);
+  } else {
+    console.error("Could not retrieve version information.");
   }
 };
 
@@ -71,28 +81,24 @@ const timestampCommand = () => {
 
 // New command: about - displays project information
 const aboutCommand = () => {
-  try {
-    const pkgPath = path.join(__dirname, "../../package.json");
-    const pkgData = readFileSync(pkgPath, "utf8");
-    const pkg = JSON.parse(pkgData);
+  const pkg = loadPackageDetails();
+  if (pkg) {
     console.log("Project:", pkg.name);
     console.log("Description:", pkg.description);
-  } catch (error) {
-    console.error("Error reading project information:", error.message);
+  } else {
+    console.error("Could not retrieve project information.");
   }
 };
 
 // New command: status - displays project status summary including name, version, and current timestamp
 const statusCommand = () => {
-  try {
-    const pkgPath = path.join(__dirname, "../../package.json");
-    const pkgData = readFileSync(pkgPath, "utf8");
-    const pkg = JSON.parse(pkgData);
+  const pkg = loadPackageDetails();
+  if (pkg) {
     console.log("Project:", pkg.name);
     console.log("Version:", pkg.version);
     console.log("Current Timestamp:", dayjs().format());
-  } catch (error) {
-    console.error("Error reading project status:", error.message);
+  } else {
+    console.error("Could not retrieve project status.");
   }
 };
 
