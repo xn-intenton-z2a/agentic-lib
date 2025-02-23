@@ -25,8 +25,6 @@ on:
     # - cron: '0 */1 * * *' # Every hour
     # - cron: '0,30 * * * *' # Every 30 minutes
 
-retention-days: 1
-
 jobs:
 
   create-issue:

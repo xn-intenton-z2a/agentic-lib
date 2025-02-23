@@ -27,8 +27,6 @@ on:
           - minor
           - semver
 
-retention-days: 1
-
 jobs:
   update:
     permissions:
