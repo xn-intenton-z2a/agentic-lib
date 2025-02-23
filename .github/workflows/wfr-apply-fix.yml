@@ -496,6 +496,8 @@ jobs:
           git diff '${{ env.target }}'
           git commit -m '${{ steps.update-target.outputs.message }}'
           git status -v
+          git push -v
+          git status -v
 
     outputs:
       fixApplied: ${{ steps.update-target.outputs.fixApplied }}
