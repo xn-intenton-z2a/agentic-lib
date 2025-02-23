@@ -4,7 +4,7 @@ import { describe, test, expect, vi } from "vitest";
 import { spawnSync } from "child_process";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { getUsageMessage, displayUsage, timestampCommand, aboutCommand } from "../../src/lib/main.js";
+import { getUsageMessage, displayUsage, timestampCommand, aboutCommand, statusCommand } from "../../src/lib/main.js";
 
 // Helper function to run the CLI command
 const runCLI = (args = []) => {
@@ -15,6 +15,7 @@ const runCLI = (args = []) => {
 // Read expected version from package.json
 const pkg = JSON.parse(readFileSync(join(__dirname, "../../package.json"), "utf8"));
 const expectedVersion = pkg.version;
+
 
 describe("CLI Minimal Commands", () => {
   test("Default mode runs self-test, demo and displays usage when no command is provided", () => {
@@ -73,6 +74,13 @@ describe("CLI Minimal Commands", () => {
     const result = runCLI(["about"]);
     expect(result.stdout).toContain("Project:");
     expect(result.stdout).toContain("Description:");
+  });
+
+  test("status command outputs project status summary", () => {
+    const result = runCLI(["status"]);
+    expect(result.stdout).toContain("Project:");
+    expect(result.stdout).toContain("Version:");
+    expect(result.stdout).toContain("Current Timestamp:");
   });
 
   test("Unknown command prints error and usage and exits with code 1", () => {
