@@ -41,7 +41,7 @@ const getUsageMessage = () => {
     "  - about: Displays project information.",
     "  - status: Displays a summary of the project status (name, version, and current timestamp).",
     "",
-    "Note: Future enhancements include full publish functionality and additional automated features.",
+    "Note: Future enhancements include full publish functionality and additional automated features."
   ].join("\n");
 };
 
@@ -152,6 +152,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename
     selfTestCommand();
     demoCommand();
     displayUsage();
+    process.exit(0);
   } else {
     const command = process.argv[2];
     const args = process.argv.slice(3);
