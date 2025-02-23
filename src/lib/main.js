@@ -41,7 +41,8 @@ const getUsageMessage = () => {
     "  - about: Displays project information.",
     "  - status: Displays a summary of the project status (name, version, and current timestamp).",
     "",
-    "Note: Future enhancements include full publish functionality and additional automated features."
+    "Note: When no command is provided, the CLI runs a self-test, followed by a demo and then displays this usage message.",
+    "Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements."
   ].join("\n");
 };
 

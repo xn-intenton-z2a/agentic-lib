@@ -24,21 +24,18 @@ Available commands:
   - about: Displays project information.
   - status: Displays a summary of the project status (name, version, and current timestamp).
 
-Note: When executed without any arguments, the CLI runs a self-test followed by a demo and then displays the usage instructions before terminating automatically.
-
-Note: Future enhancements include full publish functionality and additional automated features.
+Note: When executed without any arguments, the CLI runs a self-test followed by a demo, and then displays these usage instructions before terminating automatically.
 
 ## Extended Functionality
 
-This release refactors the CLI to simplify package management by introducing a helper function to load package details and centralize error handling. New commands such as "timestamp", "about", and "status" provide enhanced insights about the project, complementing the self-test and demo functionalities.
+This release refactors the CLI to simplify package management by introducing a helper function to load package details and centralize error handling.
+New commands such as "timestamp", "about", and "status" provide dynamic insights about the project, complementing the self-test and demo functionalities.
 
-**Note:** The publish functionality is currently a stub. Full publishing capabilities along with automated deployment, dependency updates, formatting, and linting improvements are planned for future releases.
-
-## Future Work
+**Future Enhancements:**
 
 - Full publish command implementation with automated deployment.
-- Enhanced task management features including dependency updates, formatting, and linting automation.
-- Integration with continuous deployment pipelines and extended OpenAI API based code reviews.
+- Enhanced task management features including automated dependency updates, code formatting, and linting improvements.
+- Integration with continuous deployment pipelines and expanded OpenAI API based code reviews.
 
 ## Running Tests
 
@@ -83,8 +80,6 @@ This repository is organized into three distinct areas to help you understand th
   As part of the core project, it is under GPL‑3 with the attribution clause.
 - **Location:**  
   The experimental code is located in `src/lib/main.js`.
-
-Each of these components is documented separately to ensure you can quickly determine which parts are ready for use and which are intended as examples or experimental features.
 
 ## License
 
