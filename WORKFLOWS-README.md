@@ -86,7 +86,6 @@ The following files are also taken into consideration but may also be changed (e
 
 ---
 
-```markdown
 # Agentic Development System Guide
 
 This guide explains how the various workflows of the Agentic Coding Systems work together to automate and streamline your development process. Think of these workflows as modular SDK components that encapsulate common operations—publishing, testing, issue management, dependency updates, code formatting, and more—allowing you to build an agentic development system for your projects.
