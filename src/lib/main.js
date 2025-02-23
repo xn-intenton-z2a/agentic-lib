@@ -29,13 +29,15 @@ const getUsageMessage = () => {
     "Available commands:",
     "  - self-test: Runs the self-test suite.",
     "  - demo: Runs a demonstration of functionalities.",
-    "  - publish: Runs the publish command (stubbed functionality).",
+    "  - publish: Runs the publish command (stubbed functionality, full implementation planned).",
     "  - config: Displays configuration options.",
     "  - help: Displays this help message.",
     "  - version: Displays the current version.",
     "  - timestamp: Displays the current timestamp.",
     "  - about: Displays project information.",
-    "  - status: Displays a summary of the project status (name, version, and current timestamp)."
+    "  - status: Displays a summary of the project status (name, version, and current timestamp).",
+    "",
+    "Note: Future enhancements include full publish functionality and additional automated features."
   ].join("\n");
 };
 
