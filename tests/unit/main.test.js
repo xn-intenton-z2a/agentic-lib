@@ -27,9 +27,10 @@ import { describe, test, expect, vi } from "vitest";
 import { spawnSync } from "child_process";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { getUsageMessage, displayUsage, timestampCommand, aboutCommand, statusCommand } from "../../src/lib/main.js";
+import { getUsageMessage, displayUsage } from "../../src/lib/main.js";
 
 // Helper function to run the CLI command
+// eslint-disable-next-line sonarjs/no-os-command-from-path
 const runCLI = (args = []) => {
   const result = spawnSync("node", ["src/lib/main.js", ...args], { encoding: "utf8" });
   return result;
