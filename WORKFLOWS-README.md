@@ -3,35 +3,9 @@
 The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your 
 repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and 
 issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using 
-GitHub’s `workflow_call` event, so they can be composed together like an SDK. This README describes each reusable 
-workflow in detail—including its parameters (with types and whether they are required), responsibilities, and how 
-top‐level jobs use them—and explains how the system can be seeded with a simple prompt to let your program evolve 
-automatically.
-
-[Contribution Guidelines](CONTRIBUTING.md)
+GitHub’s `workflow_call` event, so they can be composed together like an SDK. 
 
 [Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
-
----
-
-## TODO
-
-Enhancements:
-- [~] Implement "fix-failing-build" by raising a bug, then running start-issue (with a new name) in a tolerant mode allowing builds to fail but gathering output.
-- [~] Run apply fix on a schedule checking if a fix is necessary.
-- [ ] Trigger apply fix when a test run completes and attempt a fix if the tests failed, ideally just for automated branches (issues, formatting, linting). <- This will then fix a broken PR branch or a broken main branch.
-- [ ] Add check for failed Test run then re-instate. e.g. #workflow_run:  workflows: - "Tests" / types: - completed
-- [ ] Detect failing build rather than relying on a passive no change
-- [ ] Add PayPal donation link (the old account has been closed).
-- [ ] Add git log to the context for review issue, issue worker and apply fixe
-- [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
-- [ ] Pick ideal Node version.
-- [ ] Consider: semantic-release for releasing versions.
-- [ ] Generate API.md based on the source file.
-- [ ] Update CHANGELOG.md when a publishing a release version of the changes since the last release.
-- [ ] Duplicate the test when publishing a release version with a version numbered test file.
-- [ ] Dashboard metrics (e.g. GitHub Insights? commits by agents)
-- [ ] Publish a demo to GitHub sites
 
 ---
 
@@ -92,40 +66,22 @@ This guide explains how the various workflows of the Agentic Coding Systems work
 
 ---
 
-## Workflow Overview
-
-### Publishing Workflow (`publish.yml`)
-- **Function:** Automates package publishing.
-- **Reusable Workflow:** [`wfr-publish.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish.yml@1.2.0)
-- **Trigger:** On pushes (to branches like `main`) or via manual dispatch.
-- **Steps:**
-  - Check out code, install dependencies.
-  - Run tests.
-  - Publish packages with a semantic version increment.
-
-### Testing Workflow (`test.yml`)
-- **Function:** Runs tests and coverage reports.
-- **Trigger:** On file changes, schedules, or manual invocation.
-- **Steps:**
-  - Check out code and set up Node (v20+).
-  - Execute `npm test`.
-
-### Issue Management Workflows
+## Issue Management Workflows
 These workflows generalize the concept of work items as “tasks” rather than platform-specific issues.
 
-#### a. Issue Creator (`issue-creator.yml`)
+### Issue Creator (`issue-creator.yml`)
 - **Function:** Creates a new task based on predefined prompts.
 - **Reusable Workflow:** [`wfr-create-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@1.2.0)
 - **Trigger:** Manual dispatch or scheduled events with input parameters.
 
-#### b. Issue Worker (`issue-worker.yml`)
+### Issue Worker (`issue-worker.yml`)
 - **Function:** Selects, validates, and initiates work on existing tasks.
 - **Reusable Workflows:**
   - [`wfr-select-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@1.2.0)
   - [`wfr-start-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-start-issue.yml@1.2.0)
   - [`wfr-create-pr.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.2.0)
 
-#### c. Issue Reviewer (`issue-reviewer.yml`)
+### Issue Reviewer (`issue-reviewer.yml`)
 - **Function:** Reviews and finalizes tasks once work is complete.
 - **Reusable Workflow:** [`wfr-review-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-review-issue.yml@1.2.0)
 
@@ -217,6 +173,26 @@ Each of these components is documented separately to ensure you can quickly dete
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### TODO
+
+- [~] Implement "fix-failing-build" by raising a bug, then running start-issue (with a new name) in a tolerant mode allowing builds to fail but gathering output.
+- [~] Run apply fix on a schedule checking if a fix is necessary.
+- [ ] Trigger apply fix when a test run completes and attempt a fix if the tests failed, ideally just for automated branches (issues, formatting, linting). <- This will then fix a broken PR branch or a broken main branch.
+- [ ] Add check for failed Test run then re-instate. e.g. #workflow_run:  workflows: - "Tests" / types: - completed
+- [ ] Detect failing build rather than relying on a passive no change
+- [ ] Add PayPal donation link (the old account has been closed).
+- [ ] Add git log to the context for review issue, issue worker and apply fixe
+- [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
+- [ ] Pick ideal Node version.
+- [ ] Consider: semantic-release for releasing versions.
+- [ ] Generate API.md based on the source file.
+- [ ] Update CHANGELOG.md when a publishing a release version of the changes since the last release.
+- [ ] Duplicate the test when publishing a release version with a version numbered test file.
+- [ ] Dashboard metrics (e.g. GitHub Insights? commits by agents)
+- [ ] Publish a demo to GitHub sites
+
+---
 
 ## License
 
