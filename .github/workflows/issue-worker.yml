@@ -7,8 +7,6 @@ name: Issue Worker
 concurrency: issue-worker
 run-name: "Issue Worker [${{ github.ref_name }}]"
 
-retention-days: 1
-
 on:
   workflow_dispatch:
     inputs:
@@ -42,6 +40,8 @@ on:
     - cron: '15 */2 * * *' # Run every 2 hours at 0 minutes past
     #- cron: '*/30 * * * *' # Run every 30 minutes
     #- cron: '*/15 * * * *' # Run every 15 minutes
+
+retention-days: 1
 
 jobs:
 

@@ -6,8 +6,6 @@
 name: Review Issue
 run-name: "Review Issue [${{ github.ref_name }}]"
 
-retention-days: 1
-
 on:
   workflow_dispatch:
     inputs:
@@ -40,6 +38,8 @@ on:
     - cron: '30 */2 * * *' # Run every 2 hours at 30 minutes past
     #- cron: '*/30 * * * *' # Run every 30 minutes
     #- cron: '*/15 * * * *' # Run every 15 minutes
+
+retention-days: 1
 
 jobs:
 

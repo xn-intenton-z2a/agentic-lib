@@ -6,8 +6,6 @@
 name: Tests
 run-name: 'Tests [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
 
-retention-days: 1
-
 on:
   push:
     paths:
@@ -25,6 +23,8 @@ on:
       - completed
   schedule:
     - cron: '45 */6 * * *'
+
+retention-days: 1
 
 jobs:
 
