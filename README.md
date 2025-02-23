@@ -21,11 +21,13 @@ Available commands:
   - about: Displays project information.
   - status: Displays a summary of the project status (name, version, and current timestamp).
 
+Note: Future enhancements include full publish functionality and additional automated features.
+
 ## Extended Functionality
 
-This release refactors the CLI to simplify package management by introducing a helper function to load package details and centralize error handling. New commands such as "about" and "status" provide extended insights about the project configuration and current state.
+This release refactors the CLI to simplify package management by introducing a helper function to load package details and centralize error handling. New commands such as "timestamp", "about", and "status" provide enhanced insights about the project, complementing the self-test and demo functionalities.
 
-**Note:** The publish functionality is currently a stub. Full publishing capabilities and further automated enhancements are planned for future releases.
+**Note:** The publish functionality is currently a stub. Full publishing capabilities along with automated deployment, dependency updates, formatting, and linting improvements are planned for future releases.
 
 ## Future Work
 
