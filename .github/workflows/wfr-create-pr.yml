@@ -1,0 +1,130 @@
+# .github/workflows/wfr-create-pr.yml
+
+#
+# agentic-lib
+# Copyright (C) 2025 Polycode Limited
+#
+# This file is part of agentic-lib.
+#
+# agentic-lib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# IMPORTANT: Any derived work must include the following attribution:
+# "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+#
+
+name: ∞ Create a PR
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: 'The branch to create a PR from. e.g. "issue-123"'
+        type: string
+        required: true
+      baseBranch:
+        description: 'The base branch to compare the PRs against. e.g. "main"'
+        type: string
+        required: false
+        default: 'main'
+      pulls:
+        description: 'The maximum number of PRs to process. e.g. "100"'
+        type: string
+        required: false
+        default: '100'
+      gitCommitMessage:
+        description: 'The commit message to use for the PR. e.g. "Ready for pull"'
+        type: string
+        required: false
+        default: 'Ready for pull'
+      label:
+        description: 'The labels to apply to the PR. e.g. "automerge"'
+        type: string
+        required: false
+        default: 'automerge'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+
+    env:
+      branch: ${{ inputs.branch }}
+      baseBranch: ${{ inputs.baseBranch || 'main' }}
+      pulls: ${{ inputs.pulls || '100' }}
+      gitCommitMessage: ${{ inputs.gitCommitMessage || 'Change complete ready for review' }}
+      label: 'automerge'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Create pull request, if fixed after re-checking linting
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: existingPulls } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${{ env.branch }}`,
+              base: '${{ env.baseBranch }}',
+              state: 'open',
+            });
+            if (existingPulls.length === 0) {
+              const { data: pr } = await github.rest.pulls.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '${{ env.gitCommitMessage }}',
+                head: '${{ env.branch }}',
+                base: '${{ env.baseBranch }}',
+                body: '${{ env.gitCommitMessage }}',
+                maintainer_can_modify: true,
+              });
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: ['${{ env.label }}'],
+              });
+              core.info(`Pull request created: ${pr.html_url}`);
+            
+              // Initiate Check Suites
+              const { data: checkSuites } = await github.rest.checks.listForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: pr.head.sha,
+              });
+              if (checkSuites.check_suites && checkSuites.check_suites.length > 0) {
+                for (const suite of checkSuites.check_suites) {
+                  await github.rest.checks.rerequestSuite({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    check_suite_id: suite.id,
+                  });
+                  core.info(`Re-ran check suite ${suite.id} for commit ${pr.head.sha}`);
+                }
+              } else {
+                core.info('No check suites found for the new commit.');
+              }
+            } else {
+              core.info('Pull request already exists for this branch.');
+            }
