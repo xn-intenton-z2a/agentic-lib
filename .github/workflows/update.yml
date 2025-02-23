@@ -7,6 +7,8 @@ name: Update
 concurrency: branch-${{ github.ref_name }}
 run-name: "Update [${{ github.ref_name }}]"
 
+retention-days: 1
+
 on:
   repository_dispatch:
     types: [package-published]

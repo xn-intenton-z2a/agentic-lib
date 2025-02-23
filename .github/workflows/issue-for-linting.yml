@@ -12,6 +12,8 @@ on:
   schedule:
     - cron: '15 4 * * *' # Run every day at 4:15
 
+retention-days: 1
+
 jobs:
 
   linting:
