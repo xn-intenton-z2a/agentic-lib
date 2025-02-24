@@ -7,6 +7,44 @@ Mixed licensing:
 * This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 * This file is licensed under the MIT License. For details, see LICENSE-MIT
 
+## Quick Start
+
+To get started, run the following command to see available options:
+
+Usage: node src/lib/main.js <command> [arguments...]
+
+Available commands:
+  - self-test: Runs the self-test suite.
+  - demo: Runs a demonstration of functionalities.
+  - publish: Runs the publish command (stubbed functionality, full implementation planned).
+  - config: Displays configuration options.
+  - help: Displays this help message.
+  - version: Displays the current version.
+  - timestamp: Displays the current timestamp.
+  - about: Displays project information.
+  - status: Displays a summary of the project status (name, version, and current timestamp).
+  - fun: Displays a fun ASCII art banner.
+
+Note: When executed without any arguments, the CLI runs a self-test followed by a demo, and then displays these usage instructions before terminating automatically.
+
+## Extended Functionality
+
+This release refactors the CLI to simplify package management by introducing a helper function to load package details and centralize error handling.
+New commands such as "timestamp", "about", "status", and "fun" provide dynamic insights about the project, complementing the self-test and demo functionalities.
+
+**Future Enhancements:**
+
+- Full publish command implementation with automated deployment.
+- Enhanced task management features including automated dependency updates, code formatting, and linting improvements.
+- Integration with continuous deployment pipelines and expanded OpenAI API based code reviews.
+
+## Running Tests
+
+To run tests, execute:
+```
+  npm test
+```
+
 ---
 ---
 ---
@@ -78,3 +116,4 @@ IMPORTANT: Any derived work must include the following attribution:
 ---
 ---
 ---
+
