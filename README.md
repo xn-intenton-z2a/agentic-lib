@@ -7,6 +7,9 @@ Mixed licensing:
 * This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 * This file is licensed under the MIT License. For details, see LICENSE-MIT
 
+---
+---
+
 ## Quick Start
 
 To get started, run the following command to see available options:
@@ -37,6 +40,28 @@ New commands such as "timestamp", "about", "status", and "fun" provide dynamic i
 - Full publish command implementation with automated deployment.
 - Enhanced task management features including automated dependency updates, code formatting, and linting improvements.
 - Integration with continuous deployment pipelines and expanded OpenAI API based code reviews.
+
+## Incremental Change Roadmap
+
+This section outlines the planned incremental improvements that will lead to the realization of the project goals across the source code, testing suite, documentation, and package configuration:
+
+1. Source File Enhancements:
+   - Modularize CLI command implementations further and refine error handling.
+   - Add detailed inline documentation to improve code readability and maintainability.
+
+2. Test Suite Improvements:
+   - Expand test coverage to include edge cases and negative scenarios.
+   - Integrate tests that validate logging and error responses to ensure robust CLI behavior.
+
+3. Documentation Updates:
+   - Continuously update this README to reflect new features and roadmap milestones.
+   - Provide more detailed contribution guidelines and usage examples as new commands and functionalities are added.
+
+4. Package Configuration Evolution:
+   - Introduce additional npm scripts (e.g., a future automated release script) to streamline development and deployment processes.
+   - Update versioning to reflect iterative improvements and pre-release changes.
+
+These incremental changes are aligned with our mission to create a robust, modular, and continuously evolving CLI tool that supports automated workflows and community contributions.
 
 ## Running Tests
 
@@ -112,6 +137,5 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
----
 ---
 ---

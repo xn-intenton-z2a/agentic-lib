@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // src/lib/main.js
 
-//
 // This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 // This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+// NOTE: Incremental Change Plan is in progress. See README.md for the roadmap of planned enhancements to CLI commands, testing, documentation, and package management.
 
 import { fileURLToPath } from "url";
 import { readFileSync } from "fs";

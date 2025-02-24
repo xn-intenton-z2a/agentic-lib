@@ -1,6 +1,6 @@
 {
   "name": "@xn-intenton-z2a/repository0",
-  "version": "1.2.0-4",
+  "version": "1.2.0-5",
   "description": "Agentic-lib Agentic Coding Systems SDK powering automated GitHub workflows.",
   "type": "module",
   "main": "src/lib/main.js",
@@ -15,7 +15,8 @@
     "update-to-greatest": "npx ncu --upgrade --enginesNode --target greatest --verbose --install always --reject 'alpha'",
     "test": "vitest tests/unit/*.test.js",
     "test:unit": "vitest --coverage tests/unit/*.test.js",
-    "start": "node src/lib/main.js"
+    "start": "node src/lib/main.js",
+    "release": "echo 'Automated release script to be implemented'"
   },
   "keywords": [],
   "author": "",
