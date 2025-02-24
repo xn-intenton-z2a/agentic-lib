@@ -107,6 +107,11 @@ describe("CLI Minimal Commands", () => {
     expect(result.stdout).toContain("Current Timestamp:");
   });
 
+  test("fun command outputs ASCII art banner containing 'agentic-lib'", () => {
+    const result = runCLI(["fun"]);
+    expect(result.stdout).toContain("agentic-lib");
+  });
+
   test("Unknown command prints error and usage and exits with code 1", () => {
     const result = runCLI(["unknown"]);
     expect(result.stderr).toContain("Unknown command: unknown");

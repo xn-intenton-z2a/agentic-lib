@@ -21,7 +21,8 @@
   "author": "",
   "license": "GPL-3.0",
   "dependencies": {
-    "dayjs": "^1.11.13"
+    "dayjs": "^1.11.13",
+    "figlet": "^1.5.2"
   },
   "devDependencies": {
     "@actions/core": "^1.11.1",

@@ -23,13 +23,14 @@ Available commands:
   - timestamp: Displays the current timestamp.
   - about: Displays project information.
   - status: Displays a summary of the project status (name, version, and current timestamp).
+  - fun: Displays a fun ASCII art banner.
 
 Note: When executed without any arguments, the CLI runs a self-test followed by a demo, and then displays these usage instructions before terminating automatically.
 
 ## Extended Functionality
 
 This release refactors the CLI to simplify package management by introducing a helper function to load package details and centralize error handling.
-New commands such as "timestamp", "about", and "status" provide dynamic insights about the project, complementing the self-test and demo functionalities.
+New commands such as "timestamp", "about", "status", and "fun" provide dynamic insights about the project, complementing the self-test and demo functionalities.
 
 **Future Enhancements:**
 

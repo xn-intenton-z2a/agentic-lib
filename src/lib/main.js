@@ -9,6 +9,7 @@ import { fileURLToPath } from "url";
 import { readFileSync } from "fs";
 import path from "path";
 import dayjs from "dayjs";
+import figlet from "figlet";
 
 // Establish __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -40,6 +41,7 @@ const getUsageMessage = () => {
     "  - timestamp: Displays the current timestamp.",
     "  - about: Displays project information.",
     "  - status: Displays a summary of the project status (name, version, and current timestamp).",
+    "  - fun: Displays a fun ASCII art banner.",
     "",
     "Note: When no command is provided, the CLI runs a self-test, followed by a demo and then displays this usage message.",
     "Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements.",
@@ -109,6 +111,12 @@ const statusCommand = () => {
   }
 };
 
+// New command: fun - displays a fun ASCII art banner using figlet
+const funCommand = () => {
+  const banner = figlet.textSync("agentic-lib", { horizontalLayout: 'default', verticalLayout: 'default' });
+  console.log(banner);
+};
+
 // Process the given command
 const processCommand = (command, _args) => {
   switch (command) {
@@ -135,6 +143,9 @@ const processCommand = (command, _args) => {
       break;
     case "status":
       statusCommand();
+      break;
+    case "fun":
+      funCommand();
       break;
     case "help":
       displayUsage();
@@ -174,4 +185,5 @@ export {
   timestampCommand,
   aboutCommand,
   statusCommand,
+  funCommand,
 };
