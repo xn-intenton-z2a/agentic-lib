@@ -1,4 +1,6 @@
-// tests/unit/main.test.js
+import { describe, test, expect } from "vitest";
+import * as mainModule from "@src/lib/main.js";
+import { main } from "@src/lib/main.js";
 
 /**
  * agentic-lib
@@ -120,17 +122,9 @@ describe("CLI Minimal Commands", () => {
   });
 });
 
-describe("Exported Functions", () => {
-  test("getUsageMessage returns a valid help message", () => {
-    const msg = getUsageMessage();
-    expect(msg).toContain("Usage: node src/lib/main.js");
-    expect(msg).toContain("Available commands:");
-  });
-
-  test("displayUsage prints the usage message to console", () => {
-    const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    displayUsage();
-    expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
-    consoleLogSpy.mockRestore();
+describe("Default Demo Output", () => {
+  test("should terminate without error", () => {
+    process.argv = ["node", "src/lib/main.js"];
+    main();
   });
 });

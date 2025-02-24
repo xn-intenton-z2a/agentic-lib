@@ -1,9 +1,9 @@
 {
   "name": "@xn-intenton-z2a/repository0",
-  "version": "1.2.0-3",
-  "description": "Agentic-lib Agentic Coding Systems SDK powering automated GitHub workflows.",
+  "version": "1.2.0-0",
+  "description": "TODO: Populate in line with CONTRIBUTING.md.",
   "type": "module",
-  "main": "src/lib/main.js",
+  "main": "src/index.js",
   "scripts": {
     "build": "echo 'Nothing to build'",
     "formatting": "prettier --check",
@@ -21,8 +21,6 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "dayjs": "^1.11.13",
-    "figlet": "^1.5.2"
     "@actions/core": "^1.11.1",
     "@octokit/rest": "^21.1.1",
     "acorn": "^8.14.0",
@@ -83,9 +81,7 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "files": [
-    "package.json"
-  ],
+  "files": ["package.json"],
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   }

@@ -182,8 +182,15 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 - [x] Detect failing build rather than relying on a passive no change
 - [x] Trigger apply fix when a test run completes and attempt a fix if the tests failed, ideally just for automated branches (issues, apply-formatting, apply-linting). <- This will then fix a broken PR branch or a broken main branch.
 - [x] Write issue body when creating an issue from a linting error.
-- [ ] repository0 init workflow which archives the 4 files (1 of 4): a generic README, package.json, src/lib/main.js, tests/unit/main.test.js, and initialises a CONTRIBUTING.md.
+- [x] repository0 init workflow which archives the 4 files (1 of 4): a generic README, package.json, src/lib/main.js, tests/unit/main.test.js, and initialises a CONTRIBUTING.md.
+- [ ] apply fix should create a PR if it passes
 - [ ] repository0 seed from archived state. 
+- [ ] Run the archive and initialise from a github action which clears out any open issues, branches and PRs and creates an issue with:
+```
+Populate a readme based on the CONTRIBUTING.md and make a detailed plan of incremental changes in the readme leading
+to the realisation of the project goals in the source file, test source file, README.md and package.json
+```
+- [ ] Script the switch to faster schedules.
 - [ ] Add PayPal donation link (the old account has been closed).
 - [ ] Add git log to the context for review issue, issue worker and apply fixe
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
