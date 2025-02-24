@@ -79,7 +79,7 @@ IMPORTANT: Any derived work must include the following attribution:
 ---
 ---
 
-## Contributing
+# Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
