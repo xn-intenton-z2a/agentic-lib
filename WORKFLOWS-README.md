@@ -183,6 +183,7 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 - [x] Trigger apply fix when a test run completes and attempt a fix if the tests failed, ideally just for automated branches (issues, apply-formatting, apply-linting). <- This will then fix a broken PR branch or a broken main branch.
 - [x] Write issue body when creating an issue from a linting error.
 - [x] repository0 init workflow which archives the 4 files (1 of 4): a generic README, package.json, src/lib/main.js, tests/unit/main.test.js, and initialises a CONTRIBUTING.md.
+- [ ] apply fix should create a PR if it passes
 - [ ] repository0 seed from archived state. 
 - [ ] Run the archive and initialise from a github action which clears out any open issues, branches and PRs and creates an issue with:
 ```
