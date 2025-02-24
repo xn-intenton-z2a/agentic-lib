@@ -109,6 +109,18 @@ describe("CLI Minimal Commands", () => {
     expect(result.stdout).toContain("agentic-lib");
   });
 
+  test("greet command outputs a greeting message", () => {
+    const result = runCLI(["greet"]);
+    // Check that one of the expected greeting phrases is present
+    const greetings = [
+      "Hello, welcome to agentic-lib!",
+      "Hi there! agentic-lib greets you warmly!",
+      "Greetings from agentic-lib! Enjoy your coding journey!"
+    ];
+    const found = greetings.some(greeting => result.stdout.includes(greeting));
+    expect(found).toBe(true);
+  });
+
   test("Unknown command prints error and usage and exits with code 1", () => {
     const result = runCLI(["unknown"]);
     expect(result.stderr).toContain("Unknown command: unknown");

@@ -27,13 +27,14 @@ Available commands:
   - about: Displays project information.
   - status: Displays a summary of the project status (name, version, and current timestamp).
   - fun: Displays a fun ASCII art banner.
+  - greet: Displays a greeting message with a random welcome note.
 
 Note: When no command is provided, the CLI automatically runs the self-test, followed by a demo, then displays the usage message, and terminates without waiting for further input.
 
 ## Extended Functionality
 
 This release refactors the CLI to simplify package management by introducing a helper function to load package details and centralize error handling. Enhanced inline documentation and refined error messages improve maintainability and clarity.
-New commands such as "timestamp", "about", "status", and "fun" provide dynamic insights about the project, complementing the self-test and demo functionalities.
+New commands such as "timestamp", "about", "status", "fun", and "greet" provide dynamic insights and additional interactive features, complementing the self-test and demo functionalities.
 
 **Future Enhancements:**
 
@@ -48,6 +49,7 @@ This section outlines the planned incremental improvements that will lead to the
 1. Source File Enhancements:
    - Modularize CLI command implementations further and refine error handling.
    - Add detailed inline documentation to improve code readability and maintainability.
+   - Introduce new interactive commands like the greet command for enhanced user engagement.
 
 2. Test Suite Improvements:
    - Expand test coverage to include edge cases and negative scenarios.

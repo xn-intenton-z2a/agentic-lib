@@ -49,6 +49,7 @@ const getUsageMessage = () => {
     "  - about: Displays project information.",
     "  - status: Displays a summary of the project status (name, version, and current timestamp).",
     "  - fun: Displays a fun ASCII art banner.",
+    "  - greet: Displays a greeting message with a random welcome note.",
     "",
     "Note: When no command is provided, the CLI runs a self-test, followed by a demo, then displays this usage message before terminating automatically.",
     "Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements."
@@ -151,6 +152,19 @@ const funCommand = () => {
 };
 
 /**
+ * Executes the greet command to display a greeting message with a random welcome note.
+ */
+const greetCommand = () => {
+  const greetings = [
+    "Hello, welcome to agentic-lib!",
+    "Hi there! agentic-lib greets you warmly!",
+    "Greetings from agentic-lib! Enjoy your coding journey!"
+  ];
+  const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
+  console.log(randomGreeting);
+};
+
+/**
  * Processes the given CLI command and its arguments.
  * @param {string} command - The CLI command to execute.
  * @param {Array} _args - Additional arguments for the command.
@@ -183,6 +197,9 @@ const processCommand = (command, _args) => {
       break;
     case "fun":
       funCommand();
+      break;
+    case "greet":
+      greetCommand();
       break;
     case "help":
       displayUsage();
@@ -230,4 +247,5 @@ export {
   aboutCommand,
   statusCommand,
   funCommand,
+  greetCommand
 };
