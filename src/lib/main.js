@@ -213,12 +213,14 @@ const processCommand = (command, _args) => {
 
 /**
  * Main function to parse CLI arguments and execute corresponding commands.
+ * Defaults to running self-test, demo, and displaying usage when no command is provided.
  */
 const main = () => {
   if (process.argv.length <= 2) {
     selfTestCommand();
     demoCommand();
     displayUsage();
+    // Terminate execution after default behavior
     process.exit(0);
   } else {
     const command = process.argv[2];
