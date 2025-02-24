@@ -25,7 +25,7 @@ Available commands:
   - status: Displays a summary of the project status (name, version, and current timestamp).
   - fun: Displays a fun ASCII art banner.
 
-Note: When executed without any arguments, the CLI runs a self-test followed by a demo, and then displays these usage instructions before terminating automatically.
+Note: When no command is provided, the CLI automatically runs the self-test, followed by a demo, then displays the usage message, and terminates without waiting for further input.
 
 ## Extended Functionality
 
@@ -112,5 +112,6 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
+---
 ---
 ---
