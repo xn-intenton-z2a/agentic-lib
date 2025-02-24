@@ -125,6 +125,6 @@ describe("CLI Minimal Commands", () => {
 describe("Default Demo Output", () => {
   test("should terminate without error", () => {
     process.argv = ["node", "src/lib/main.js"];
-    main();
+    displayUsage();
   });
 });

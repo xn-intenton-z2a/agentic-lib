@@ -22,7 +22,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "dayjs": "^1.11.13",
-    "figlet": "^1.5.2"
+    "figlet": "^1.5.2",
     "@actions/core": "^1.11.1",
     "@octokit/rest": "^21.1.1",
     "acorn": "^8.14.0",
