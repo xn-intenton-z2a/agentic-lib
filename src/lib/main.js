@@ -230,7 +230,7 @@ const main = () => {
 };
 
 // Execute main if this module is run directly
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename)) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main();
 }
 
