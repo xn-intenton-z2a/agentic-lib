@@ -111,7 +111,6 @@ describe("CLI Minimal Commands", () => {
 
   test("greet command outputs a greeting message", () => {
     const result = runCLI(["greet"]);
-    // Check that one of the expected greeting phrases is present
     const greetings = [
       "Hello, welcome to agentic-lib!",
       "Hi there! agentic-lib greets you warmly!",
