@@ -44,7 +44,7 @@ const getUsageMessage = () => {
     "  - fun: Displays a fun ASCII art banner.",
     "",
     "Note: When no command is provided, the CLI runs a self-test, followed by a demo and then displays this usage message.",
-    "Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements.",
+    "Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements."
   ].join("\n");
 };
 
@@ -159,10 +159,9 @@ const processCommand = (command, _args) => {
   }
 };
 
-// Main execution only if this module is run directly
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename)) {
+// Main function to process CLI commands
+const main = () => {
   if (process.argv.length <= 2) {
-    // Default mode: run self-test, then demo, then show usage
     selfTestCommand();
     demoCommand();
     displayUsage();
@@ -172,10 +171,16 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename
     const _args = process.argv.slice(3);
     processCommand(command, _args);
   }
+};
+
+// Execute main if this module is run directly
+if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename)) {
+  main();
 }
 
 // Export functions for testing and external usage
 export {
+  main,
   getUsageMessage,
   displayUsage,
   selfTestCommand,
@@ -189,4 +194,3 @@ export {
   statusCommand,
   funCommand,
 };
-

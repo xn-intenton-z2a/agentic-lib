@@ -1,6 +1,8 @@
-import { describe, test, expect } from "vitest";
-import * as mainModule from "@src/lib/main.js";
-import { main } from "@src/lib/main.js";
+import { describe, test, expect, vi } from "vitest";
+import { spawnSync } from "child_process";
+import { readFileSync } from "fs";
+import { join } from "path";
+import { getUsageMessage, displayUsage } from "../../src/lib/main.js";
 
 /**
  * agentic-lib
@@ -24,12 +26,6 @@ import { main } from "@src/lib/main.js";
  * IMPORTANT: Any derived work must include the following attribution:
  * "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
  */
-
-import { describe, test, expect, vi } from "vitest";
-import { spawnSync } from "child_process";
-import { readFileSync } from "fs";
-import { join } from "path";
-import { getUsageMessage, displayUsage } from "../../src/lib/main.js";
 
 // Helper function to run the CLI command
 // eslint-disable-next-line sonarjs/no-os-command-from-path
