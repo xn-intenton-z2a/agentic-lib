@@ -47,7 +47,6 @@ To run tests, execute:
 
 ---
 ---
----
 
 ## Contributing
 
@@ -115,5 +114,3 @@ IMPORTANT: Any derived work must include the following attribution:
 
 ---
 ---
----
-
