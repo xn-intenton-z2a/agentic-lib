@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 // src/lib/main.js
 
-// This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
-// This file is licensed under the MIT License. For details, see LICENSE-MIT
+// This file is part of agentic-lib. See: https://github.com/xn-intenton-z2a/agentic-lib
+// Licensed under the MIT License. For details, see LICENSE-MIT
+//
+// NOTE: Incremental Change Plan is in progress. See README.md for the roadmap of planned enhancements.
 
-// NOTE: Incremental Change Plan is in progress. See README.md for the roadmap of planned enhancements to CLI commands, testing, documentation, and package management.
-
-import { fileURLToPath } from "url";
-import { readFileSync } from "fs";
-import path from "path";
-import dayjs from "dayjs";
-import figlet from "figlet";
+import { fileURLToPath } from 'url';
+import { readFileSync } from 'fs';
+import path from 'path';
+import dayjs from 'dayjs';
+import figlet from 'figlet';
 
 // Establish __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -50,7 +50,7 @@ const getUsageMessage = () => {
     "  - status: Displays a summary of the project status (name, version, and current timestamp).",
     "  - fun: Displays a fun ASCII art banner.",
     "",
-    "Note: When no command is provided, the CLI runs a self-test, followed by a demo, and then displays this usage message before terminating automatically.",
+    "Note: When no command is provided, the CLI runs a self-test, followed by a demo, then displays this usage message before terminating automatically.",
     "Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements."
   ].join("\n");
 };

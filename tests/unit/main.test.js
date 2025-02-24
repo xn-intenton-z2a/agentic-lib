@@ -38,7 +38,6 @@ const runCLI = (args = []) => {
 const pkg = JSON.parse(readFileSync(join(__dirname, "../../package.json"), "utf8"));
 const expectedVersion = pkg.version;
 
-
 describe("CLI Minimal Commands", () => {
   test("Default mode runs self-test, demo and displays usage when no command is provided", () => {
     const result = runCLI();
