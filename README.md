@@ -32,7 +32,7 @@ Note: When no command is provided, the CLI automatically runs the self-test, fol
 
 ## Extended Functionality
 
-This release refactors the CLI to simplify package management by introducing a helper function to load package details and centralize error handling.
+This release refactors the CLI to simplify package management by introducing a helper function to load package details and centralize error handling. Enhanced inline documentation and refined error messages improve maintainability and clarity.
 New commands such as "timestamp", "about", "status", and "fun" provide dynamic insights about the project, complementing the self-test and demo functionalities.
 
 **Future Enhancements:**

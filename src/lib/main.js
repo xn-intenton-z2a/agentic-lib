@@ -16,7 +16,10 @@ import figlet from "figlet";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Helper function to load package.json details
+/**
+ * Loads package details from package.json.
+ * @returns {object|null} Parsed package details or null if an error occurs.
+ */
 const loadPackageDetails = () => {
   try {
     const pkgPath = path.join(__dirname, "../../package.json");
@@ -28,7 +31,10 @@ const loadPackageDetails = () => {
   }
 };
 
-// Function to generate the usage message
+/**
+ * Generates the usage message for the CLI.
+ * @returns {string} Usage message string.
+ */
 const getUsageMessage = () => {
   return [
     "Usage: node src/lib/main.js <command> [arguments...]",
@@ -49,32 +55,48 @@ const getUsageMessage = () => {
   ].join("\n");
 };
 
-// Function to display the usage message
+/**
+ * Displays the usage message to the console.
+ */
 const displayUsage = () => {
   console.log(getUsageMessage());
 };
 
-// Command implementations
+/**
+ * Executes the self-test command.
+ */
 const selfTestCommand = () => {
   console.log("Running self-test...");
   console.log("Performing extended self-test validations...");
 };
 
+/**
+ * Executes the demo command.
+ */
 const demoCommand = () => {
   console.log("Running demo...");
   console.log("Executing extended demo scenarios...");
 };
 
+/**
+ * Executes the publish command.
+ */
 const publishCommand = () => {
   console.log("Running publish...");
   console.log("Publish functionality is under development.");
 };
 
+/**
+ * Executes the config command.
+ */
 const configCommand = () => {
   console.log("Configuration options:");
   console.log(JSON.stringify({ theme: "default", language: "en", featureX: true }, null, 2));
 };
 
+/**
+ * Executes the version command by retrieving package details.
+ */
 const versionCommand = () => {
   const pkg = loadPackageDetails();
   if (pkg) {
@@ -84,12 +106,16 @@ const versionCommand = () => {
   }
 };
 
-// New command: timestamp
+/**
+ * Executes the timestamp command.
+ */
 const timestampCommand = () => {
   console.log("Current Timestamp:", dayjs().format());
 };
 
-// New command: about - displays project information
+/**
+ * Executes the about command to display project information.
+ */
 const aboutCommand = () => {
   const pkg = loadPackageDetails();
   if (pkg) {
@@ -100,7 +126,9 @@ const aboutCommand = () => {
   }
 };
 
-// New command: status - displays project status summary including name, version, and current timestamp
+/**
+ * Executes the status command to display project status summary.
+ */
 const statusCommand = () => {
   const pkg = loadPackageDetails();
   if (pkg) {
@@ -112,7 +140,9 @@ const statusCommand = () => {
   }
 };
 
-// New command: fun - displays a fun ASCII art banner using figlet
+/**
+ * Executes the fun command to display an ASCII art banner using figlet.
+ */
 const funCommand = () => {
   const banner = figlet.textSync("agentic-lib", { horizontalLayout: 'default', verticalLayout: 'default' });
   console.log(banner);
@@ -120,7 +150,11 @@ const funCommand = () => {
   console.log("agentic-lib");
 };
 
-// Process the given command
+/**
+ * Processes the given CLI command and its arguments.
+ * @param {string} command - The CLI command to execute.
+ * @param {Array} _args - Additional arguments for the command.
+ */
 const processCommand = (command, _args) => {
   switch (command) {
     case "self-test":
@@ -160,7 +194,9 @@ const processCommand = (command, _args) => {
   }
 };
 
-// Main function to process CLI commands
+/**
+ * Main function to parse CLI arguments and execute corresponding commands.
+ */
 const main = () => {
   if (process.argv.length <= 2) {
     selfTestCommand();
