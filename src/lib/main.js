@@ -43,7 +43,7 @@ const getUsageMessage = () => {
     "  - status: Displays a summary of the project status (name, version, and current timestamp).",
     "  - fun: Displays a fun ASCII art banner.",
     "",
-    "Note: When no command is provided, the CLI runs a self-test, followed by a demo and then displays this usage message.",
+    "Note: When no command is provided, the CLI runs a self-test, followed by a demo, and then displays this usage message before terminating automatically.",
     "Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements."
   ].join("\n");
 };
