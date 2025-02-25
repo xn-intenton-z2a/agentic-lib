@@ -64,7 +64,7 @@ If the --help flag is provided, a help menu will be displayed with available opt
     - echo: Prints the provided text in uppercase.
     - stats: Displays system statistics including memory usage and uptime.
 
-  Note: When no command is provided, the CLI runs self-test, demo, displays this usage message, and then terminates automatically.
+  Note: When no command is provided, the CLI runs self-test, followed by a demo, then displays this usage message before terminating automatically.
   Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements.
   ```
 
