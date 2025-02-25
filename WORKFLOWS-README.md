@@ -191,7 +191,6 @@ Populate a readme based on the CONTRIBUTING.md and make a detailed plan of incre
 to the realisation of the project goals in the source file, test source file, README.md and package.json
 ```
 - [ ] Script the switch to faster schedules.
-- [ ] Add PayPal donation link (the old account has been closed).
 - [ ] Add git log to the context for review issue, issue worker and apply fixe
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
 - [ ] Pick ideal Node version.
