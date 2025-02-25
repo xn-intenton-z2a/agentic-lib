@@ -64,7 +64,7 @@ If the --help flag is provided, a help menu will be displayed with available opt
     - echo: Prints the provided text in uppercase.
     - stats: Displays system statistics including memory usage and uptime.
 
-  Note: When no command is provided, the CLI runs self-test, followed by a demo, then displays this usage message before terminating automatically.
+  Note: When no command is provided, the CLI runs a self-test, followed by a demo, then displays this usage message before terminating automatically.
   Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements.
   ```
 
@@ -83,6 +83,14 @@ THIS IS A TEST MESSAGE
 node src/lib/main.js stats
 ```
 This will output system statistics e.g., memory usage and uptime.
+
+## Future Roadmap
+
+The following features are planned for future updates:
+- Full implementation of the publish command beyond the current stub.
+- Automated dependency updates to keep the project current.
+- Enhanced formatting and linting automation to streamline code quality.
+- Additional CLI commands to expand interactive functionalities.
 
 ## Running Tests
 
