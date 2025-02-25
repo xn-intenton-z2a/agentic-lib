@@ -42,10 +42,23 @@ If the --help flag is provided, a help menu will be displayed with available opt
   ```
   Running without arguments will print:
   ```
-  Usage: node src/lib/main.js [options]
-  Options:
-    --help     Show help
-  Demo Output: Run with: []
+  Running self-test...
+  Performing extended self-test validations...
+  Running demo...
+  Executing extended demo scenarios...
+  Usage: node src/lib/main.js <command> [arguments...]
+  Available commands:
+    - self-test: Runs the self-test suite.
+    - demo: Runs a demonstration of functionalities.
+    - publish: Runs the publish command (stubbed functionality, full implementation planned).
+    - config: Displays configuration options.
+    - help: Displays this help message.
+    - version: Displays the current version.
+    - timestamp: Displays the current timestamp.
+    - about: Displays project information.
+    - status: Displays a summary of the project status (name, version, and current timestamp).
+    - fun: Displays a fun ASCII art banner.
+    - greet: Displays a greeting message with a random welcome note.
   ```
 
 ## Running Tests
@@ -104,79 +117,9 @@ With a simple prompt (e.g. a new issue), the system will automatically review, g
 
 ---
 
-# Agentic Development System Guide
+## Contributing
 
-This guide explains how the various workflows of the Agentic Coding Systems work together to automate and streamline your development process. Think of these workflows as modular SDK components that encapsulate common operations—publishing, testing, issue management, dependency updates, code formatting, and more—allowing you to build an agentic development system for your projects.
-
----
-
-## Issue Management Workflows
-These workflows generalize the concept of work items as “tasks” rather than platform-specific issues.
-
-### Issue Creator (`issue-creator.yml`)
-- **Function:** Creates a new task based on predefined prompts.
-- **Reusable Workflow:** [`wfr-create-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@1.2.0)
-- **Trigger:** Manual dispatch or scheduled events with input parameters.
-
-### Issue Worker (`issue-worker.yml`)
-- **Function:** Selects, validates, and initiates work on existing tasks.
-- **Reusable Workflows:**
-    - [`wfr-select-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@1.2.0)
-    - [`wfr-start-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-start-issue.yml@1.2.0)
-    - [`wfr-create-pr.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.2.0)
-
-### Issue Reviewer (`issue-reviewer.yml`)
-- **Function:** Reviews and finalizes tasks once work is complete.
-- **Reusable Workflow:** [`wfr-review-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-review-issue.yml@1.2.0)
-
-### Automerge Workflow (`automerge.yml`)
-- **Function:** Automatically merges pull requests when criteria are met.
-- **Reusable Workflows:**
-    - [`wfr-automerge-find-pr-from-pull-request.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-from-pull-request.yml@1.2.0)
-    - [`wfr-automerge-find-pr-in-check-suite.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-in-check-suite.yml@1.2.0)
-    - [`wfr-automerge-label-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@1.2.0)
-    - [`wfr-automerge-merge-pr.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-merge-pr.yml@1.2.0)
-
----
-
-## Reusable Workflows SDK Guide
-
-Think of each reusable workflow as a function in an SDK:
-- **Inputs:** Parameters (e.g., `versionIncrement`, `buildScript`, `issueTitle`) customize workflow behavior.
-- **Outputs:** Results such as task status, pull request numbers, or merge status.
-- **Integration:** Invoke these workflows via GitHub Actions workflow calls, schedule triggers, or manual dispatch. They encapsulate complex operations into modular, reusable components.
-
-### Example: Invoking the Issue Creator Workflow
-```yaml
-on:
-  workflow_dispatch:
-    inputs:
-      issueTitle:
-        description: 'Title for the new task'
-        required: false
-        default: 'house choice'
-```
-Internally, this triggers [`wfr-create-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@1.2.0) to generate an issue template based on provided parameters.
-
----
-
-## Repository Setup Guide
-
-Follow these steps to set up your repository using the agentic development system:
-
-1. **Create a Repository from Template:**
-    - Begin with a repository template that includes the top-level workflows (e.g., `publish.yml`, `test.yml`, `issue-creator.yml`, etc.).
-    - Clone the repository locally.
-
-2. **Configure Repository Settings:**
-    - Ensure your repository supports Node.js (v20+).
-    - Add necessary secrets (e.g., `CHATGPT_API_SECRET_KEY`, `GITHUB_TOKEN`) via your repository settings.
-
-3. **Customize Workflow Inputs:**
-    - Edit workflow files under `.github/workflows/` to match your project specifics (e.g., branch names, file paths).
-    - Update configuration files such as `dependabot.yml` and `FUNDING.yml` as needed.
-
----
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## Component Breakdown
 
@@ -212,43 +155,6 @@ This repository is organized into three distinct areas to help you understand th
 - **Location:**  
   The experimental code is located in `src/lib/main.js`.
 
-Each of these components is documented separately to ensure you can quickly determine which parts are ready for use and which are intended as examples or experimental features.
-
-## Contributing
-
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### TODO
-
-- [x] Implement "apply-fix" by raising a bug, then running start-issue (with a new name) in a tolerant mode allowing builds to fail but gathering output.
-- [x] Run apply fix on a schedule checking if a fix is necessary.
-- [x] Add check for failed Test run then re-instate. e.g. #workflow_run:  workflows: - "Tests" / types: - completed
-- [x] Detect failing build rather than relying on a passive no change
-- [x] Trigger apply fix when a test run completes and attempt a fix if the tests failed, ideally just for automated branches (issues, apply-formatting, apply-linting). <- This will then fix a broken PR branch or a broken main branch.
-- [x] Write issue body when creating an issue from a linting error.
-- [x] repository0 init workflow which archives the 4 files (1 of 4): a generic README, package.json, src/lib/main.js, tests/unit/main.test.js, and initialises a CONTRIBUTING.md.
-- [ ] apply fix should create a PR if it passes
-- [ ] repository0 seed from archived state.
-- [ ] Run the archive and initialise from a github action which clears out any open issues, branches and PRs and creates an issue with:
-```
-Populate a readme based on the CONTRIBUTING.md and make a detailed plan of incremental changes in the readme leading
-to the realisation of the project goals in the source file, test source file, README.md and package.json
-```
-- [ ] Script the switch to faster schedules.
-- [ ] Add git log to the context for review issue, issue worker and apply fixe
-- [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
-- [ ] Pick ideal Node version.
-- [ ] Release bitpack encoder based on the template.
-- [ ] Release owl-encoder based on the template.
-- [ ] Consider: semantic-release for releasing versions.
-- [ ] Generate API.md based on the source file.
-- [ ] Update CHANGELOG.md when a publishing a release version of the changes since the last release.
-- [ ] Duplicate the test when publishing a release version with a version numbered test file.
-- [ ] Dashboard metrics (e.g. GitHub Insights? commits by agents)
-- [ ] Publish a demo to GitHub sites
-
----
-
 ## License
 
 This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
@@ -274,6 +180,3 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
-
-*IMPORTANT*: The project README and any derived work should always include the following attribution:
-_"This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"_
