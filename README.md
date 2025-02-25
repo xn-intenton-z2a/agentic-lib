@@ -60,6 +60,17 @@ If the --help flag is provided, a help menu will be displayed with available opt
     - echo: Prints the provided text in uppercase.
   ```
 
+## New Feature: echo Command
+The CLI now supports an "echo" command which prints the provided text in uppercase. Use it as follows:
+
+```bash
+node src/lib/main.js echo This is a test message
+```
+This will output:
+```
+THIS IS A TEST MESSAGE
+```
+
 ## Running Tests
 
 To run tests, execute:
@@ -113,19 +124,6 @@ Each workflow accepts parameters with sensible defaults. Override them as needed
 
 **Seed and Evolve:**  
 With a simple prompt (e.g. a new issue), the system will automatically review, generate fixes using ChatGPT, commit changes, and merge them—allowing the program to evolve autonomously.
-
----
-
-## New Feature: echo Command
-The CLI now supports an "echo" command which prints the provided text in uppercase. Use it as follows:
-
-```bash
-node src/lib/main.js echo This is a test message
-```
-This will output:
-```
-THIS IS A TEST MESSAGE
-```
 
 ---
 
