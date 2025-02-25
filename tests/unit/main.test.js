@@ -15,6 +15,7 @@ const runCLI = (args = []) => {
 const pkg = JSON.parse(readFileSync(join(__dirname, "../../package.json"), "utf8"));
 const expectedVersion = pkg.version;
 
+
 describe("CLI Minimal Commands", () => {
   test("Default mode runs self-test, demo and displays usage when no command is provided", () => {
     const result = runCLI();
@@ -101,6 +102,12 @@ describe("CLI Minimal Commands", () => {
   test("echo command outputs uppercase message", () => {
     const result = runCLI(["echo", "hello", "world"]);
     expect(result.stdout).toContain("HELLO WORLD");
+  });
+
+  test("stats command outputs memory usage and uptime", () => {
+    const result = runCLI(["stats"]);
+    expect(result.stdout).toContain("Memory Usage:");
+    expect(result.stdout).toContain("Uptime (seconds):");
   });
 
   test("Unknown command prints error and usage and exits with code 1", () => {
