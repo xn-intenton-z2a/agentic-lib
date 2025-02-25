@@ -50,6 +50,7 @@ const getUsageMessage = () => {
     "  - status: Displays a summary of the project status (name, version, and current timestamp).",
     "  - fun: Displays a fun ASCII art banner.",
     "  - greet: Displays a greeting message with a random welcome note.",
+    "  - echo: Prints the provided text in uppercase.",
     "",
     "Note: When no command is provided, the CLI runs a self-test, followed by a demo, then displays this usage message before terminating automatically.",
     "Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements."
@@ -165,6 +166,17 @@ const greetCommand = () => {
 };
 
 /**
+ * Executes the echo command to print provided text in uppercase.
+ */
+const echoCommand = (_args) => {
+  if (_args.length === 0) {
+    console.log("No message provided for echo.");
+  } else {
+    console.log(_args.join(" ").toUpperCase());
+  }
+};
+
+/**
  * Processes the given CLI command and its arguments.
  * @param {string} command - The CLI command to execute.
  * @param {Array} _args - Additional arguments for the command.
@@ -200,6 +212,9 @@ const processCommand = (command, _args) => {
       break;
     case "greet":
       greetCommand();
+      break;
+    case "echo":
+      echoCommand(_args);
       break;
     case "help":
       displayUsage();
@@ -249,5 +264,6 @@ export {
   aboutCommand,
   statusCommand,
   funCommand,
-  greetCommand
+  greetCommand,
+  echoCommand
 };
