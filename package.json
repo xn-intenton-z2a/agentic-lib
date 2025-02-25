@@ -33,7 +33,8 @@
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "prettier": "^3.5.2",
     "vitest": "^3.0.7",
-    "npm-check-updates": "^17.1.15"
+    "npm-check-updates": "^17.1.15",
+    "eslint-config-google": "^0.14.0"
   },
   "engines": {
     "node": ">=20.0.0"
