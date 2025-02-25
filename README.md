@@ -1,38 +1,16 @@
-# intentïon `agentic-lib`
+# intentïon agentic-lib
 
 The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
-repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and
+repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
 issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
-GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, using this
-tool and the reusable workflows shall become bundled actions in due course.
+GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 
-*Warning:* Executing these workflows shall incur charges on your OpenAI account and consume chargeable GitHub Actions resources minutes.
-
-*Warning:* Experimental. This coding system has generated a few interesting examples (I have been educated) but nothing of personal utility.
-
-*Warning:* This project is not yet ready for production use. You should not point the `agentic-lib` workflows a repository containing existing intellectual property.
+[Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
 
 Mixed licensing:
 * This project is licensed under the GNU General Public License (GPL).
 * This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 * This file is licensed under the MIT License. For details, see LICENSE-MIT
-
-[Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
-
-Examples:
-* [`plot-code-lib`](https://github.com/xn-intenton-z2a/plot-code-lib) - A CLI generating SVG and novel formats plots for formulae.
-* Send a PR to add your example, either descending from `repository0` or using the `agentic-lib` SDK directly.
-
-## Should you use the `agentic-lib` Coding System?
-
-* Can you access an OpenAI account with API keys that can access at least `o3-mini` ?
-* Are you willing to incur charges the resources consumed by the OpenAI API and GitHub Actions ?
-* Are you curious as to where self-evolving code might lead ?
-* Would you like to see how such a system can be built and has been built ?
-* Do you like that it's OpenAI and GitHub API calls wired together in JS (GitHub Script) and packaged as GitHub Workflows* ?
-* Do you appreciate that you need `dotenv, openai, zod` in your `package.json` because the JS has dependencies on them ?
-
-*Actions with bundled JS coming soon.
 
 This README file will evolve as the test experiment within this repository evolves.
 
@@ -79,13 +57,14 @@ If the --help flag is provided, a help menu will be displayed with available opt
     - status: Displays a summary of the project status (name, version, and current timestamp).
     - fun: Displays a fun ASCII art banner.
     - greet: Displays a greeting message with a random welcome note.
+    - echo: Prints the provided text in uppercase.
   ```
 
 ## Running Tests
 
 To run tests, execute:
 ```
-  npm test
+npm test
 ```
 
 ---
@@ -134,6 +113,19 @@ Each workflow accepts parameters with sensible defaults. Override them as needed
 
 **Seed and Evolve:**  
 With a simple prompt (e.g. a new issue), the system will automatically review, generate fixes using ChatGPT, commit changes, and merge them—allowing the program to evolve autonomously.
+
+---
+
+## New Feature: echo Command
+The CLI now supports an "echo" command which prints the provided text in uppercase. Use it as follows:
+
+```bash
+node src/lib/main.js echo This is a test message
+```
+This will output:
+```
+THIS IS A TEST MESSAGE
+```
 
 ---
 
@@ -200,3 +192,5 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
+
+---

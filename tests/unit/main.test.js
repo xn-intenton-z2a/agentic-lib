@@ -1,31 +1,8 @@
-import { describe, test, expect, vi } from "vitest";
+import { describe, test, expect } from "vitest";
 import { spawnSync } from "child_process";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { getUsageMessage, displayUsage } from "../../src/lib/main.js";
-
-/**
- * agentic-lib
- * Copyright (C) 2025 Polycode Limited
- *
- * This file is part of agentic-lib.
- *
- * agentic-lib is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- *
- * IMPORTANT: Any derived work must include the following attribution:
- * "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
- */
 
 // Helper function to run the CLI command
 // eslint-disable-next-line sonarjs/no-os-command-from-path
@@ -118,6 +95,11 @@ describe("CLI Minimal Commands", () => {
     ];
     const found = greetings.some(greeting => result.stdout.includes(greeting));
     expect(found).toBe(true);
+  });
+
+  test("echo command outputs uppercase message", () => {
+    const result = runCLI(["echo", "hello", "world"]);
+    expect(result.stdout).toContain("HELLO WORLD");
   });
 
   test("Unknown command prints error and usage and exits with code 1", () => {
