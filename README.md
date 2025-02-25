@@ -30,7 +30,7 @@ To run the CLI tool and see help instructions:
 node src/lib/main.js --help
 ```
 
-If the --help flag is provided, a help menu will be displayed with available options. Additionally, if no arguments are provided, the CLI defaults to displaying the usage instructions along with a demo output.
+If the --help flag is provided, a help menu will be displayed with available options. Additionally, if no arguments are provided, the CLI defaults to running a self-test, then a demo, displays the usage instructions, and terminates automatically.
 
 ### Example Commands
 
@@ -58,6 +58,8 @@ If the --help flag is provided, a help menu will be displayed with available opt
     - fun: Displays a fun ASCII art banner.
     - greet: Displays a greeting message with a random welcome note.
     - echo: Prints the provided text in uppercase.
+
+  Note: When no command is provided, the CLI runs self-test, demo, displays this usage message, and then terminates automatically.
   ```
 
 ## New Feature: echo Command
@@ -84,7 +86,7 @@ npm test
 
 Run the action "Create Issue" and enter some text to create an issue. This will create an issue and trigger the
 "Issue Worker" to write the code. If the Issue Worker is able to resolve the issue a Pull Request is raised, the change
-automatically merged. The issue reviewed and closed if the change is deemed to have delivered whatever was requested in the issue.
+is automatically merged. The issue is reviewed and closed if the change is deemed to have delivered whatever was requested in the issue.
 
 Development Workflows:
 ```
