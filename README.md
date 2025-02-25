@@ -17,6 +17,7 @@ Mixed licensing:
 This README file will evolve as the test experiment within this repository evolves.
 
 ---
+---
 
 ## Getting Started
 
@@ -60,13 +61,14 @@ If the --help flag is provided, a help menu will be displayed with available opt
     - fun: Displays a fun ASCII art banner.
     - greet: Displays a greeting message with a random welcome note.
     - echo: Prints the provided text in uppercase.
+    - stats: Displays system statistics including memory usage and uptime.
 
   Note: When no command is provided, the CLI runs self-test, demo, displays this usage message, and then terminates automatically.
   Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements.
   ```
 
-## New Feature: echo Command
-The CLI now supports an "echo" command which prints the provided text in uppercase. Use it as follows:
+## New Feature: echo and stats Commands
+The CLI now supports an "echo" command which prints the provided text in uppercase, and a new "stats" command which displays system statistics such as memory usage and uptime. Use them as follows:
 
 ```bash
 node src/lib/main.js echo This is a test message
@@ -75,6 +77,11 @@ This will output:
 ```
 THIS IS A TEST MESSAGE
 ```
+
+```bash
+node src/lib/main.js stats
+```
+This will output system statistics e.g., memory usage and uptime.
 
 ## Running Tests
 

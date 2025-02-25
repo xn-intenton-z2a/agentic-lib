@@ -51,6 +51,7 @@ const getUsageMessage = () => {
     "  - fun: Displays a fun ASCII art banner.",
     "  - greet: Displays a greeting message with a random welcome note.",
     "  - echo: Prints the provided text in uppercase.",
+    "  - stats: Displays system statistics including memory usage and uptime.",
     "",
     "Note: When no command is provided, the CLI runs a self-test, followed by a demo, then displays this usage message before terminating automatically.",
     "Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements."
@@ -177,6 +178,14 @@ const echoCommand = (_args) => {
 };
 
 /**
+ * Executes the stats command to display system statistics including memory usage and uptime.
+ */
+const statsCommand = () => {
+  console.log("Memory Usage:", process.memoryUsage());
+  console.log("Uptime (seconds):", process.uptime());
+};
+
+/**
  * Processes the given CLI command and its arguments.
  * @param {string} command - The CLI command to execute.
  * @param {Array} _args - Additional arguments for the command.
@@ -215,6 +224,9 @@ const processCommand = (command, _args) => {
       break;
     case "echo":
       echoCommand(_args);
+      break;
+    case "stats":
+      statsCommand();
       break;
     case "help":
       displayUsage();
@@ -265,5 +277,6 @@ export {
   statusCommand,
   funCommand,
   greetCommand,
-  echoCommand
+  echoCommand,
+  statsCommand
 };
