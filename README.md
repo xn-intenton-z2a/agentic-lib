@@ -1,5 +1,7 @@
 # intentïon agentic-lib
 
+You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](WORKFLOWS-README.md)
+
 The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
 repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
 issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
@@ -60,6 +62,7 @@ If the --help flag is provided, a help menu will be displayed with available opt
     - echo: Prints the provided text in uppercase.
 
   Note: When no command is provided, the CLI runs self-test, demo, displays this usage message, and then terminates automatically.
+  Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements.
   ```
 
 ## New Feature: echo Command
@@ -128,6 +131,8 @@ Each workflow accepts parameters with sensible defaults. Override them as needed
 With a simple prompt (e.g. a new issue), the system will automatically review, generate fixes using ChatGPT, commit changes, and merge them—allowing the program to evolve autonomously.
 
 ---
+---
+---
 
 ## Contributing
 
@@ -193,4 +198,6 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
+---
+---
 ---
