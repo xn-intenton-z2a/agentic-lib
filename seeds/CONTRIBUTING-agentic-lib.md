@@ -4,17 +4,14 @@ Thank you for your interest in contributing to **agentic‑lib**! This document 
 
 ## Mission Statement
 
-**agentic‑lib** is the heart of our automated workflow system. It encapsulates the core logic extracted from GitHub script sections to:
+**agentic‑lib** is a core library for an agentic workflow system featuring:
 
-- Verify issue fixes via an AI prompt.
-- Update source files based on build, test, and main execution outputs (supporting fixes for failing builds and starting issue fixes).
-- Extract issue numbers from branch names.
+- Fix issue fixes via an AI prompt.
+- Update source files based on build, test, and main execution outputs.
+- Supporting fixes for failing builds.
 - Automatically merge pull requests.
-- Identify pull requests with the “automerge” label.
 - Select and process issues from a provided list.
-- Determine whether an issue is marked as merged.
 - Create pull requests and issues.
-- List open pull requests.
 
 Our goal is to continuously improve and extend these capabilities, making **agentic‑lib** the trusted engine behind automated contributions and continuous integration.
 
@@ -66,14 +63,23 @@ Contributions come in many forms—whether you’re a developer, tester, or an a
 
 # Ensure README.md begins like this:
 
-# agentic-lib Agentic Coding Systems SDK
+# intentïon agentic-lib
 
 You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](WORKFLOWS-README.md)
+
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
+repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
+issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
+GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+
+[Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
 
 Mixed licensing:
 * This project is licensed under the GNU General Public License (GPL).
 * This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 * This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+This README file will evolve as the test experiment within this repository evolves.
 
 ---
 ---
