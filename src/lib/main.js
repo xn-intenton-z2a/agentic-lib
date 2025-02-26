@@ -52,6 +52,7 @@ const getUsageMessage = () => {
     "  - greet: Displays a greeting message with a random welcome note.",
     "  - echo: Prints the provided text in uppercase.",
     "  - stats: Displays system statistics including memory usage and uptime.",
+    "  - extended: Executes extended additional functionalities.",
     "",
     "Note: When no command is provided, the CLI runs a self-test, followed by a demo, then displays this usage message before terminating automatically.",
     "Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements."
@@ -186,6 +187,14 @@ const statsCommand = () => {
 };
 
 /**
+ * Executes the extended command to demonstrate additional functionalities.
+ */
+const extendedCommand = () => {
+  console.log("Running extended command...");
+  console.log("Extended functionality has been successfully executed.");
+};
+
+/**
  * Processes the given CLI command and its arguments.
  * @param {string} command - The CLI command to execute.
  * @param {Array} _args - Additional arguments for the command.
@@ -227,6 +236,9 @@ const processCommand = (command, _args) => {
       break;
     case "stats":
       statsCommand();
+      break;
+    case "extended":
+      extendedCommand();
       break;
     case "help":
       displayUsage();
@@ -278,5 +290,6 @@ export {
   funCommand,
   greetCommand,
   echoCommand,
-  statsCommand
+  statsCommand,
+  extendedCommand
 };
