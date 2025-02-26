@@ -18,7 +18,6 @@ This README file will evolve as the test experiment within this repository evolv
 
 ---
 ---
----
 
 ## Getting Started
 
@@ -68,29 +67,33 @@ If the --help flag is provided, a help menu will be displayed with available opt
   Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements.
   ```
 
-## New Feature: echo and stats Commands
-The CLI now supports an "echo" command which prints the provided text in uppercase, and a new "stats" command which displays system statistics such as memory usage and uptime. Use them as follows:
+- **Echo Command:**
+  ```bash
+  node src/lib/main.js echo This is a test message
+  ```
+  Output:
+  ```
+  THIS IS A TEST MESSAGE
+  ```
 
-```bash
-node src/lib/main.js echo This is a test message
-```
-This will output:
-```
-THIS IS A TEST MESSAGE
-```
+- **Stats Command:**
+  ```bash
+  node src/lib/main.js stats
+  ```
+  Output will include system statistics like memory usage and uptime.
 
-```bash
-node src/lib/main.js stats
-```
-This will output system statistics e.g., memory usage and uptime.
+## New Features
+The CLI now fully supports the "echo" and "stats" commands. In addition to the commands described above, you can now use:
+- **echo:** to print any provided text in uppercase.
+- **stats:** to display current system statistics.
 
 ## Future Roadmap
 
 The following features are planned for future updates:
 - Full implementation of the publish command beyond the current stub.
-- Automated dependency updates to keep the project current.
+- Automated dependency updates to keep the project up-to-date.
 - Enhanced formatting and linting automation to streamline code quality.
-- Additional CLI commands to expand interactive functionalities.
+- Expansion of CLI commands with additional interactive functionalities.
 
 ## Running Tests
 
@@ -99,7 +102,6 @@ To run tests, execute:
 npm test
 ```
 
----
 ---
 ---
 
@@ -167,6 +169,5 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
----
 ---
 ---
