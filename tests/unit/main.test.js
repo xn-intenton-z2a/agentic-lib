@@ -110,6 +110,12 @@ describe("CLI Minimal Commands", () => {
     expect(result.stdout).toContain("Uptime (seconds):");
   });
 
+  test("extended command outputs extended functionality message", () => {
+    const result = runCLI(["extended"]);
+    expect(result.stdout).toContain("Running extended command...");
+    expect(result.stdout).toContain("Extended functionality has been successfully executed.");
+  });
+
   test("Unknown command prints error and usage and exits with code 1", () => {
     const result = runCLI(["unknown"]);
     expect(result.stderr).toContain("Unknown command: unknown");

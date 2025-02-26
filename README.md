@@ -62,6 +62,7 @@ If the --help flag is provided, a help menu will be displayed with available opt
     - greet: Displays a greeting message with a random welcome note.
     - echo: Prints the provided text in uppercase.
     - stats: Displays system statistics including memory usage and uptime.
+    - extended: Executes extended additional functionalities.
 
   Note: When no command is provided, the CLI runs a self-test, followed by a demo, then displays this usage message before terminating automatically.
   Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements.
@@ -82,10 +83,21 @@ If the --help flag is provided, a help menu will be displayed with available opt
   ```
   Output will include system statistics like memory usage and uptime.
 
+- **Extended Command:**
+  ```bash
+  node src/lib/main.js extended
+  ```
+  Output:
+  ```
+  Running extended command...
+  Extended functionality has been successfully executed.
+  ```
+
 ## New Features
 The CLI now fully supports the "echo" and "stats" commands. In addition to the commands described above, you can now use:
 - **echo:** to print any provided text in uppercase.
 - **stats:** to display current system statistics.
+- **extended:** to execute additional extended demonstration functionalities.
 
 ## Future Roadmap
 
