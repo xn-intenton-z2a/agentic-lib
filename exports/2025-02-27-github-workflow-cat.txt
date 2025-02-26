@@ -1,20 +1,3 @@
-# agentic‑lib
-
-Thank you for your interest in contributing to **agentic‑lib**! This document outlines our guidelines for human and 
-automated contributions, ensuring that our core library remains robust, testable, and efficient in powering our 
-reusable GitHub Workflows.
-
-## Mission Statement
-
-**agentic‑lib** Is a JavaScript library which can be used as a drop in JS implementation or wholesale replacement for 
-the steps, jobs, and re-usable workflows below in this repository. It is designed to be used in a GitHub Actions 
-workflow to enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate
-through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be
-invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.
-
-Concatenated source from the GitHub worklflow files to implement as JavaScript (Node 20 / ESM) functions in a library:
-START_OF_CONCATENATED_WORKFLOW_FILES
-```
 ./.github/FUNDING.yml
 ==== Content of ./.github/FUNDING.yml ====
 github: Antony-at-Polycode
@@ -511,10 +494,6 @@ on:
         type: string
         required: false
         default: 'eslint.config.js'
-      branchPrefix:
-        description: 'The prefix for the issue branch. e.g. "issue-".'
-        type: string
-        required: true
       buildScript:
         description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
         type: string
@@ -535,6 +514,11 @@ on:
         type: string
         required: false
         default: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      branch:
+        description: 'The branch to use for the fix. e.g. "issue-123"'
+        type: string
+        required: false
+        default: ${{ github.ref }}
       gitUserEmail:
         description: 'The email to use for git commits. e.g. "action@github.com"'
         type: string
@@ -566,7 +550,6 @@ jobs:
       dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
       formattingFile: ${{ inputs.formattingFile || '.prettierrc' }}
       lintingFile: ${{ inputs.lintingFile || 'eslint.config.js' }}
-      branchPrefix: ${{ inputs.branchPrefix || 'issue-' }}
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
       mainScript: ${{ inputs.mainScript || 'npm run start' }}
@@ -574,11 +557,15 @@ jobs:
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       npmAuthOrganisation: ''
+      branch: ${{ inputs.branch || github.ref }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ env.branch }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -949,6 +936,8 @@ jobs:
           git diff '${{ env.target }}'
           git commit -m '${{ steps.update-target.outputs.message }}'
           git status -v
+          git push -v origin ${{ env.branch }}
+          git status -v
 
     outputs:
       fixApplied: ${{ steps.update-target.outputs.fixApplied }}
@@ -1129,7 +1118,7 @@ jobs:
       - name: main
         id: main
         shell: bash
-        run: timeout 5m npm run start
+        run: timeout 5m ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
   publish:
     needs:
@@ -1152,11 +1141,11 @@ jobs:
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: Apply Fix
+name: Apply Fix on Fail
 concurrency:
   issue-worker
   branch-main
-run-name: "Apply Fix [${{ github.ref_name }}]"
+run-name: "Apply Fix on Fail [${{ github.ref_name }}]"
 
 on:
   workflow_dispatch:
@@ -1171,12 +1160,155 @@ on:
         required: false
         type: string
         default: 'tests/unit/main.test.js'
+      applyFixEvenIfTestsPass:
+        description: 'Apply the fix even if the tests pass. e.g. true'
+        required: false
+        type: boolean
+        default: true
+      scanForBranches:
+        description: 'Scan for branches matching the pattern. e.g. true'
+        required: false
+        type: boolean
+        default: false
+  workflow_run:
+    workflows:
+      - 'Tests'
+    types:
+      - completed
+    branches:
+      - issue-*
+      - apply-formatting
+      - apply-update
   schedule:
-    - cron: '15 2 * * *' # Run at 2:15am
+    - cron: '0 */1 * * *' # Run every 1 hour at 0 minutes past
 
 jobs:
 
+  select-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch all branches
+        run: |
+          git fetch --all
+          git branch -r
+
+      - name: determine-branch
+        id: determine
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let branch;
+            if (context.eventName === "schedule" || context.eventName === "workflow_run" || "${{ inputs.scanForBranches }}" === "true") {
+              core.info("Schedule event detected. Scanning for matching branches.");
+              const branchesResp = await github.rest.repos.listBranches({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              });
+              const matchingBranches = branchesResp.data
+                .filter(branch => branch.name.match(/^(issue-.*|apply-formatting|apply-update)$/))
+                .map(branch => branch.name);
+              core.info(`Matching branches: ${matchingBranches}`);
+              branch = matchingBranches.length > 0 ? matchingBranches[0] : context.payload.repository?.default_branch || "main";
+            } else {
+              branch = context.ref.startsWith("refs/heads/") ? context.ref.substring("refs/heads/".length) : context.ref;
+            }
+            core.info(`Selected branch: ${branch}`);
+            core.setOutput("branch", branch);
+    outputs:
+      branch: ${{ steps.determine.outputs.branch }}
+
+  npm-test:
+    needs: select-branch
+    name: 'npm test with coverage'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.select-branch.outputs.branch }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test
+
+  npm-build:
+    needs: select-branch
+    name: 'npm run build'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.select-branch.outputs.branch }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+
+  npm-run:
+    needs: select-branch
+    name: 'npm run start'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.select-branch.outputs.branch }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+
+  needs-fix:
+    needs:
+      - select-branch
+      - npm-test
+      - npm-build
+      - npm-run
+    if: >
+      ${{ always() &&
+         (
+           needs.npm-test.result != 'success' ||
+           needs.npm-build.result != 'success' ||
+           needs.npm-run.result != 'success' ||
+           inputs.applyFixEvenIfTestsPass == true
+         )
+      }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: set-needs-fix
+        id: set-needs-fix
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const npmTestResult = "${{ needs.npm-test.result }}";
+            const npmBuildResult = "${{ needs.npm-build.result }}";
+            const npmRunResult = "${{ needs.npm-run.result }}";
+            const applyFixEvenIfTestsPass = "${{ inputs.applyFixEvenIfTestsPass }}" === "true";
+            const needsFix = npmTestResult !== "success" || npmBuildResult !== "success" || npmRunResult !== "success" || applyFixEvenIfTestsPass;
+            core.info(`Needs Fix: ${needsFix}`);
+            core.setOutput("needsFix", needsFix);
+    outputs:
+      needsFix: ${{ steps.set-needs-fix.outputs.needsFix }}
+
   apply-fix:
+    needs:
+      - select-branch
+      - npm-test
+      - npm-build
+      - npm-run
+      - needs-fix
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
     permissions:
       contents: write
       issues: write
@@ -1190,15 +1322,162 @@ jobs:
       dependenciesFile: 'package.json'
       formattingFile: '.prettierrc'
       lintingFile: 'eslint.config.js'
-      branchPrefix: 'issue-'
       buildScript: 'npm run build'
       testScript: 'npm test'
-      mainScript: 'npm run start'
+      mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      branch: ${{ needs.select-branch.outputs.branch }}
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  npm-test-after-fix:
+    needs:
+      - select-branch
+      - npm-test
+      - npm-build
+      - npm-run
+      - needs-fix
+      - apply-fix
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
+    name: 'npm test with coverage'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.select-branch.outputs.branch }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ needs.select-branch.outputs.branch }}
+      - run: npm ci
+      - run: npm test
+
+  npm-build-after-fix:
+    needs:
+      - select-branch
+      - npm-test
+      - npm-build
+      - npm-run
+      - needs-fix
+      - apply-fix
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
+    name: 'npm run build'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.select-branch.outputs.branch }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ needs.select-branch.outputs.branch }}
+      - run: npm ci
+      - run: npm run build
+
+  npm-run-after-fix:
+    needs:
+      - select-branch
+      - npm-test
+      - npm-build
+      - npm-run
+      - needs-fix
+      - apply-fix
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
+    name: 'npm run start'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.select-branch.outputs.branch }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ needs.select-branch.outputs.branch }}
+      - run: npm ci
+      - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+
+  needs-fix-after-fix:
+    needs:
+      - select-branch
+      - npm-test
+      - npm-build
+      - npm-run
+      - needs-fix
+      - apply-fix
+      - npm-test-after-fix
+      - npm-build-after-fix
+      - npm-run-after-fix
+    if: >
+      ${{ always() &&
+         (
+           needs.npm-test-after-fix.result != 'success' ||
+           needs.npm-build-after-fix.result != 'success' ||
+           needs.npm-run-after-fix.result != 'success' ||
+           inputs.applyFixEvenIfTestsPass == true
+         )
+      }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: set-needs-fix
+        id: set-needs-fix
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const npmTestResult = "${{ needs.npm-test-after-fix.result }}";
+            const npmBuildResult = "${{ needs.npm-build-after-fix.result }}";
+            const npmRunResult = "${{ needs.npm-run-after-fix.result }}";
+            const needsFix = npmTestResult !== "success" || npmBuildResult !== "success" || npmRunResult !== "success";
+            core.info(`Needs Fix: ${needsFix}`);
+            core.setOutput("needsFix", needsFix);
+    outputs:
+      needsFix: ${{ steps.set-needs-fix.outputs.needsFix }}
+
+  create-pr:
+    needs:
+      - select-branch
+      - npm-test
+      - npm-build
+      - npm-run
+      - apply-fix
+      - needs-fix
+      - npm-test-after-fix
+      - npm-build-after-fix
+      - npm-run-after-fix
+      - needs-fix-after-fix
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' && needs.needs-fix-after-fix.outputs.needsFix == 'false' }}
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+      checks: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@main'
+    with:
+      branch: "${{ needs.select-branch.outputs.branch }}"
+      baseBranch: 'main'
+      gitCommitMessage: 'Fix applied for failing tests'
+      label: 'automerge'
 ./.github/workflows/wfr-publish.yml
 ==== Content of ./.github/workflows/wfr-publish.yml ====
 # .github/workflows/wfr-publish.yml
@@ -1345,11 +1624,11 @@ jobs:
           name: Release ${{ steps.released.outputs.releasedVersion }}
           body: ${{ env.releaseNotes }}
 
-      - name: Rotate to next pre[major|minor|patch] version from a released version
+      - name: Rotate to next prepatch version from a released version
         if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
         shell: bash
         run: |
-          npm version --no-git-tag-version pre${{ env.versionIncrement }}
+          npm version --no-git-tag-version prepatch
 
       - name: Rotate to next [premajor|preminor|prepatch|prerelease] version
         if: ${{ env.versionIncrement == 'premajor' || env.versionIncrement == 'preminor' || env.versionIncrement == 'prepatch' || env.versionIncrement == 'prerelease' }}
@@ -1859,6 +2138,20 @@ on:
         value: ${{ jobs.start-issue.outputs.fixApplied }}
       message:
         value: ${{ jobs.start-issue.outputs.message }}
+      installAfterUpdateOutcome:
+        value: ${{ jobs.start-issue.outputs.installAfterUpdateOutcome }}
+      ciAfterUpdateOutcome:
+        value: ${{ jobs.start-issue.outputs.ciAfterUpdateOutcome }}
+      testAfterUpdateOutcome:
+        value: ${{ jobs.start-issue.outputs.testAfterUpdateOutcome }}
+      mainAfterUpdateOutcome:
+        value: ${{ jobs.start-issue.outputs.mainAfterUpdateOutcome }}
+      commitOutcome:
+        value: ${{ jobs.start-issue.outputs.commitOutcome }}
+      postResolutionCommentOutcome:
+        value: ${{ jobs.start-issue.outputs.postResolutionCommentOutcome }}
+      allValidationStepsSuccessful:
+        value: ${{ jobs.start-issue.outputs.allValidationStepsSuccessful }}
 
 jobs:
   start-issue:
@@ -2248,21 +2541,31 @@ jobs:
 
       - run: rm -rf node_modules
 
-      - run: npm install
+      - name: install-after-update
+        id: install-after-update
+        run: npm install
 
-      - run: npm ci
+      - name: ci-after-update
+        id: ci-after-update
+        continue-on-error: true
+        run: npm ci
 
       - name: Tear down .npmrc
+        continue-on-error: true
         if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
         run: rm -f .npmrc
 
-      - name: Test after update
+      - name: test-after-update
+        id: test-after-update
+        continue-on-error: true
         shell: bash
         run: |
           ${{ env.testScript }}
 
       - name: Run main after update
+        id: main-after-update
+        continue-on-error: true
         shell: bash
         run: |
           timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }}
@@ -2282,6 +2585,7 @@ jobs:
           git status -v
 
       - name: Post Resolution Comment
+        id: post-resolution-comment
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
@@ -2303,9 +2607,50 @@ jobs:
               assignees: [ context.actor ]
             });
 
+      - name: Extract Results
+        if: always()
+        id: results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fixApplied = '${{ steps.update-target.outputs.fixApplied }}';
+            const message = '${{ steps.update-target.outputs.message }}';
+            const installAfterUpdateOutcome = '${{ steps.install-after-update.outcome }}';
+            const ciAfterUpdateOutcome = '${{ steps.ci-after-update.outcome }}';
+            const testAfterUpdateOutcome = '${{ steps.test-after-update.outcome }}';
+            const mainAfterUpdateOutcome = '${{ steps.main-after-update.outcome }}';
+            const commitOutcome = '${{ steps.commit.outcome }}';
+            const postResolutionCommentOutcome = '${{ steps.post-resolution-comment.outcome }}';
+            const allValidationStepsSuccessful = installAfterUpdateOutcome === "success" && ciAfterUpdateOutcome === "success" && testAfterUpdateOutcome === "success" && mainAfterUpdateOutcome === "success" && commitOutcome === "success" && postResolutionCommentOutcome === "success";
+            core.setOutput('fixApplied', fixApplied);
+            core.setOutput('message', message);
+            core.setOutput('installAfterUpdateOutcome', installAfterUpdateOutcome);
+            core.setOutput('ciAfterUpdateOutcome', ciAfterUpdateOutcome);
+            core.setOutput('testAfterUpdateOutcome', testAfterUpdateOutcome);
+            core.setOutput('mainAfterUpdateOutcome', mainAfterUpdateOutcome);
+            core.setOutput('commitOutcome', commitOutcome);
+            core.setOutput('postResolutionCommentOutcome', postResolutionCommentOutcome);
+            core.setOutput('allValidationStepsSuccessful', allValidationStepsSuccessful);
+            core.info(`fixApplied: "${fixApplied}"`);
+            core.info(`message: "${message}"`);
+            core.info(`installAfterUpdateOutcome: "${installAfterUpdateOutcome}"`);
+            core.info(`ciAfterUpdateOutcome: "${ciAfterUpdateOutcome}"`);
+            core.info(`testAfterUpdateOutcome: "${testAfterUpdateOutcome}"`);
+            core.info(`mainAfterUpdateOutcome: "${mainAfterUpdateOutcome}"`);
+            core.info(`commitOutcome: "${commitOutcome}"`);
+            core.info(`postResolutionCommentOutcome: "${postResolutionCommentOutcome}"`);
+            core.info(`allValidationStepsSuccessful: "${allValidationStepsSuccessful}"`);
+
     outputs:
-      fixApplied: ${{ steps.update-target.outputs.fixApplied }}
-      message: ${{ steps.update-target.outputs.message }}
+      fixApplied: ${{ steps.results.outputs.fixApplied }}
+      message: ${{ steps.results.outputs.message }}
+      installAfterUpdateOutcome: ${{ steps.results.outputs.installAfterUpdateOutcome }}
+      ciAfterUpdateOutcome: ${{ steps.results.outputs.ciAfterUpdateOutcome }}
+      testAfterUpdateOutcome: ${{ steps.results.outputs.testAfterUpdateOutcome }}
+      mainAfterUpdateOutcome: ${{ steps.results.outputs.mainAfterUpdateOutcome }}
+      commitOutcome: ${{ steps.results.outputs.commitOutcome }}
+      postResolutionCommentOutcome: ${{ steps.results.outputs.postResolutionCommentOutcome }}
+      allValidationStepsSuccessful: ${{ steps.results.outputs.allValidationStepsSuccessful }}
 ./.github/workflows/test.yml
 ==== Content of ./.github/workflows/test.yml ====
 # .github/workflows/test.yml
@@ -2775,7 +3120,7 @@ jobs:
             updated='true'
           fi
           set -e
-          echo "updated=${updated}" > $GITHUB_OUTPUT
+          echo "updated=${updated}" >> $GITHUB_OUTPUT
           echo "updated=${updated}"
         continue-on-error: true
 
@@ -2791,10 +3136,10 @@ jobs:
           set -e
           echo "exitCode=${exitCode}"
           fixStillRequired=$([ $? -eq 0 ] && echo 'true' || echo 'false')
-          echo "fixStillRequired={fixStillRequired}" > $GITHUB_OUTPUT
+          echo "fixStillRequired={fixStillRequired}" >> $GITHUB_OUTPUT
           echo "fixStillRequired=${fixStillRequired}"
           remainingResultsCount=$(echo "${results}" | jq '.runs[0].results | length' 2>/dev/null || echo "unknown")
-          echo "remainingResultsCount=${remainingResultsCount}" > $GITHUB_OUTPUT
+          echo "remainingResultsCount=${remainingResultsCount}" >> $GITHUB_OUTPUT
           echo "remainingResultsCount=${remainingResultsCount}"
           echo "results: ${results}"
 
@@ -2822,6 +3167,15 @@ jobs:
           git push --set-upstream origin '${{ env.branch }}'
           git push -v
           git status -v
+
+      - name: Log outputs
+        continue-on-error: true
+        shell: bash
+        run: |
+          echo "updatedFiles: steps.script.outputs.updated=${{ steps.script.outputs.updated }}"
+          echo "scriptOutput: steps.script.outputs.output=${{ steps.script.outputs.output }}"
+          echo "remainingResultsCount: steps.sarif-script.outputs.remainingResultsCount=${{ steps.sarif-script.outputs.remainingResultsCount }}"
+          echo "fixStillRequired: steps.sarif-script.outputs.fixStillRequired=${{ steps.sarif-script.outputs.fixStillRequired }}"
 
     outputs:
       updatedFiles: ${{ steps.script.outputs.updated }}
@@ -2872,6 +3226,7 @@ jobs:
         || Improve test coverage of the source file by the test file and fix bugs the tests would highlight.
         || Ensure that the main defaults to the usage and some demo output and ensure execution terminates without user input.
         || Synchronise the README with current behaviour and call out future features that have not yet been implemented.
+        || Ensure that README.md is consistent with the guidance in the CONTRIBUTING.md.
 ./.github/workflows/wfr-create-pr.yml
 ==== Content of ./.github/workflows/wfr-create-pr.yml ====
 # .github/workflows/wfr-create-pr.yml
@@ -3102,13 +3457,17 @@ jobs:
             });
 
             core.setOutput("issueTitle", selectedIssueTitle);
+            core.setOutput("issueBody", issueBody);
             core.setOutput("issueNumber", issue.number);
             core.info(`issueTitle: ${selectedIssueTitle}`);
+            core.info(`issueBody: ${issueBody}`);    
             core.info(`issueNumber: ${issue.number}`);
 
     outputs:
       issueTitle: ${{ steps.create-issue.outputs.issueTitle }}
-      issueNumber: ${{ steps.create-issue.outputs.issueNumber }}./.github/workflows/wfr-delete-caches.yml
+      issueBody: ${{ steps.create-issue.outputs.issueBody }}
+      issueNumber: ${{ steps.create-issue.outputs.issueNumber }}
+./.github/workflows/wfr-delete-caches.yml
 ==== Content of ./.github/workflows/wfr-delete-caches.yml ====
 # .github/workflows/wfr-delete-caches.yml
 
@@ -3225,7 +3584,7 @@ on:
   workflow_run:
     workflows:
       - "Create Issue"
-      - "Create Issue from Script"
+      - "Linting"
     types:
       - completed
   schedule:
@@ -3294,7 +3653,7 @@ jobs:
       branchPrefix: 'issue-'
       buildScript: 'npm run build'
       testScript: 'npm test'
-      mainScript: 'npm run start'
+      mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
@@ -3305,7 +3664,7 @@ jobs:
     needs:
       - select-issue
       - start-issue
-    if: ${{ needs.select-issue.outputs.issueNumber != '' && needs.start-issue.outputs.fixApplied == 'true' }}
+    if: ${{ needs.select-issue.outputs.issueNumber != '' && needs.start-issue.outputs.fixApplied == 'true' && needs.start-issue.outputs.allValidationStepsSuccessful == 'true' }}
     permissions:
       contents: write
       packages: write
@@ -3563,7 +3922,7 @@ jobs:
     with:
       buildScript: 'npm run build'
       testScript: 'npm test'
-      mainScript: 'npm run start'
+      mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
       upgradeTarget: ${{ inputs.upgradeTarget || 'patch' }}
       branch: 'apply-update'
       gitUserEmail: 'action@github.com'
@@ -3661,7 +4020,7 @@ jobs:
       dependenciesFile: 'package.json'
       buildScript: 'npm run build'
       testScript: 'npm test'
-      mainScript: "node ${{ inputs.target || 'src/lib/main.js' }}"
+      mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
@@ -3974,151 +4333,3 @@ updates:
     #ignore:
     #  - dependency-name: "some-dependency" # Example of ignoring a specific dependency
     #    versions: ["1.x", "2.x"]
-```
-END_OF_CONCATENATED_WORKFLOW_FILES
-
-Our goal is to continuously improve and extend these capabilities, making **agentic‑lib** the trusted engine behind automated contributions and continuous integration.
-
----
----
----
-
-## How to Contribute
-
-Contributions come in many forms—whether you’re a developer, tester, or an advocate for process improvements. Here’s how you can help:
-
-1. **Report Issues or Ideas:**  
-   Open an issue on GitHub to share bug reports, feature requests, or any improvements you envision. Clear descriptions and reproducible steps are highly appreciated.
-
-2. **Submit Pull Requests:**
-    - Fork the repository and create a feature branch.
-    - Implement your changes, ensuring you follow our coding style and standards.
-    - Add tests to cover any new functionality.
-    - Update documentation if your changes affect usage or workflow behavior.
-    - Submit your pull request for review.
-
-3. **Enhance Automated Workflows:**  
-   Contributions might include adjustments to:
-    - The AI-based fix verification logic.
-    - File update routines responding to build, test, or main output.
-    - Logic for extracting issue numbers from branch names.
-    - Automated pull request merging or listing mechanisms.
-
-4. **Run and Test the Library:**  
-   To explore the capabilities of **agentic‑lib**, run the demo function with:
-   ```bash
-   npm run start [--help]
-   ```
-   This command prints a detailed help message, including available functions and parameters.
-
-## Guidelines
-
-- **Code Quality:**  
-  Write modular, clean, and fully testable code. Our design intentionally decouples functionality from GitHub Actions globals to enhance testability and reuse.
-
-- **Documentation:**  
-  Keep inline comments and this Contributing.md up-to-date as you introduce changes. Clear documentation ensures the project stays accessible to both human and AI collaborators.
-
-- **Compatibility:**  
-  Ensure your code runs on Node 20 and adheres to ECMAScript Module (ESM) standards.
-
-- **Feedback & Collaboration:**  
-  We welcome constructive feedback. Engage with maintainers and peers through GitHub issues and pull request discussions to improve our collective workflow.
-
----
----
----
-
-# Ensure README.md begins like this:
-
-# intentïon agentic-lib
-
-You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](WORKFLOWS-README.md)
-
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
-repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
-issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
-GitHub’s `workflow_call` event, so they can be composed together like an SDK.
-
-[Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
-
-Mixed licensing:
-* This project is licensed under the GNU General Public License (GPL).
-* This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
-* This file is licensed under the MIT License. For details, see LICENSE-MIT
-
-This README file will evolve as the test experiment within this repository evolves.
-
----
----
----
-
-# Ensure README.md ends like this:
-
-## Contributing
-
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-## Component Breakdown
-
-This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:
-
-### 1. Re‑usable Workflows (Core Functionality)
-- **Purpose:**  
-  These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.
-- **Stability:**  
-  They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.
-- **Licensing:**  
-  The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.
-- **Location:**  
-  Find these in the `.github/workflows/` directory.
-
-### 2. Example Workflows (Demonstrative Content)
-- **Purpose:**  
-  These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
-- **Stability:**  
-  While functional, they are intended primarily for demonstration and experimentation.
-- **Licensing:**  
-  The example workflows are covered by the MIT license to allow for broader use and modification.
-- **Location:**  
-  Look in the `examples/` directory for sample implementations.
-
-### 3. The Evolving main.js (Experimental Work in Progress)
-- **Purpose:**  
-  This file showcases experimental features and serves as a testbed for integrating new ideas into the system.
-- **Stability:**  
-  It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
-- **Licensing:**  
-  As part of the core project, it is under GPL‑3 with the attribution clause.
-- **Location:**  
-  The experimental code is located in `src/lib/main.js`.
-
-## License
-
-This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
-
-License notice:
-```
-agentic-lib
-Copyright (C) 2025 Polycode Limited
-
-agentic-lib is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
-along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-IMPORTANT: Any derived work must include the following attribution:
-"This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
-```
-
----
----
----

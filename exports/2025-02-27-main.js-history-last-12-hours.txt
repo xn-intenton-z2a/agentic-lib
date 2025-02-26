@@ -1,0 +1,42 @@
+commit d6e54346142b44e58c2689cdaf6c66cd657fd189
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Wed Feb 26 16:50:33 2025 +0000
+
+    Enhanced extended command with additional debug output and bumped version to 1.9.3-3. (fixes #340) (#341)
+    
+    Co-authored-by: GitHub Actions[bot] <action@github.com>
+
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 04def08..e894dfa 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -192,6 +192,7 @@ const statsCommand = () => {
+ const extendedCommand = () => {
+   console.log("Running extended command...");
+   console.log("Extended functionality has been successfully executed.");
++  console.log("Additional debug: Extended command now includes extra information for further use.");
+ };
+ 
+ /**
+
+commit ce22b2452018281cd715572c7b90a7a22d9e5ceb
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Wed Feb 26 12:57:27 2025 +0000
+
+    Added a termination message in main default execution to clearly indicate exit when no command is provided. (fixes #338) (#339)
+    
+    Co-authored-by: GitHub Actions[bot] <action@github.com>
+
+diff --git a/src/lib/main.js b/src/lib/main.js
+index f2663bf..04def08 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -259,7 +259,7 @@ const main = () => {
+     selfTestCommand();
+     demoCommand();
+     displayUsage();
+-    // Terminate execution gracefully after default behavior
++    console.log("Terminating after default execution.");
+     process.exit(0);
+   } else {
+     const command = process.argv[2];
