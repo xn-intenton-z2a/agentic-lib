@@ -7,7 +7,7 @@ import { getUsageMessage, displayUsage } from "../../src/lib/main.js";
 // Helper function to run the CLI command
 // eslint-disable-next-line sonarjs/no-os-command-from-path
 const runCLI = (args = []) => {
-  const result = spawnSync("node", ["src/lib/main.js", ...args], { encoding: "utf8" });
+  const result = spawnSync("node", ["src/lib/main.js", ...args], { encoding: "utf8", env: { ...process.env, FORCE_COLOR: '1' } });
   return result;
 };
 

@@ -13,6 +13,9 @@ import dayjs from 'dayjs';
 import figlet from 'figlet';
 import chalk from 'chalk';
 
+// Create a forced chalk instance to ensure ANSI escape sequences are output even when not in a TTY
+const forcedChalk = new chalk.Instance({ level: 3 });
+
 // Establish __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -206,8 +209,8 @@ const colorCommand = (_args) => {
   } else {
     const color = _args.shift();
     const message = _args.join(" ");
-    if (chalk[color] && typeof chalk[color] === 'function') {
-      console.log(chalk[color](message));
+    if (forcedChalk[color] && typeof forcedChalk[color] === 'function') {
+      console.log(forcedChalk[color](message));
     } else {
       console.log("Invalid color provided. Defaulting to white:");
       console.log(message);
