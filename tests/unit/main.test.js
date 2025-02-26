@@ -25,6 +25,7 @@ describe("CLI Minimal Commands", () => {
     expect(result.stdout).toContain("Executing extended demo scenarios...");
     expect(result.stdout).toContain("Usage: node src/lib/main.js <command> [arguments...]");
     expect(result.stdout).toContain("Available commands:");
+    expect(result.stdout).toContain("Terminating after default execution.");
     expect(result.status).toBe(0);
   });
 
