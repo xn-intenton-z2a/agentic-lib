@@ -259,7 +259,7 @@ const main = () => {
     selfTestCommand();
     demoCommand();
     displayUsage();
-    // Terminate execution gracefully after default behavior
+    console.log("Terminating after default execution.");
     process.exit(0);
   } else {
     const command = process.argv[2];
