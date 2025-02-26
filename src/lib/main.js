@@ -192,6 +192,7 @@ const statsCommand = () => {
 const extendedCommand = () => {
   console.log("Running extended command...");
   console.log("Extended functionality has been successfully executed.");
+  console.log("Additional debug: Extended command now includes extra information for further use.");
 };
 
 /**
