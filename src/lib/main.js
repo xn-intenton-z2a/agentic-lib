@@ -11,6 +11,7 @@ import { readFileSync } from 'fs';
 import path from 'path';
 import dayjs from 'dayjs';
 import figlet from 'figlet';
+import chalk from 'chalk';
 
 // Establish __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -53,6 +54,7 @@ const getUsageMessage = () => {
     "  - echo: Prints the provided text in uppercase.",
     "  - stats: Displays system statistics including memory usage and uptime.",
     "  - extended: Executes extended additional functionalities.",
+    "  - color: Prints the provided message in the specified color. Usage: color <color> <message>",
     "",
     "Note: When no command is provided, the CLI runs a self-test, followed by a demo, then displays this usage message before terminating automatically.",
     "Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements."
@@ -196,6 +198,24 @@ const extendedCommand = () => {
 };
 
 /**
+ * Executes the color command to print text in a specified color using chalk.
+ */
+const colorCommand = (_args) => {
+  if (_args.length < 2) {
+    console.log("Usage: color <color> <message>");
+  } else {
+    const color = _args.shift();
+    const message = _args.join(" ");
+    if (chalk[color] && typeof chalk[color] === 'function') {
+      console.log(chalk[color](message));
+    } else {
+      console.log("Invalid color provided. Defaulting to white:");
+      console.log(message);
+    }
+  }
+};
+
+/**
  * Processes the given CLI command and its arguments.
  * @param {string} command - The CLI command to execute.
  * @param {Array} _args - Additional arguments for the command.
@@ -240,6 +260,9 @@ const processCommand = (command, _args) => {
       break;
     case "extended":
       extendedCommand();
+      break;
+    case "color":
+      colorCommand(_args);
       break;
     case "help":
       displayUsage();
@@ -292,5 +315,6 @@ export {
   greetCommand,
   echoCommand,
   statsCommand,
-  extendedCommand
+  extendedCommand,
+  colorCommand
 };

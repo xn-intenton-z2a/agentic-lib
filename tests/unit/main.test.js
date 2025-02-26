@@ -117,6 +117,13 @@ describe("CLI Minimal Commands", () => {
     expect(result.stdout).toContain("Extended functionality has been successfully executed.");
   });
 
+  test("color command outputs colored message", () => {
+    const result = runCLI(["color", "red", "hello", "world"]);
+    // Check if the output contains ANSI escape sequences for colored text
+    expect(result.stdout).toContain("hello world");
+    expect(result.stdout).toMatch(/\x1b\[[0-9;]*m/);
+  });
+
   test("Unknown command prints error and usage and exits with code 1", () => {
     const result = runCLI(["unknown"]);
     expect(result.stderr).toContain("Unknown command: unknown");

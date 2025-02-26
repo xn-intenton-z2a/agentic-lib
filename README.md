@@ -62,7 +62,8 @@ If the --help flag is provided, a help menu will be displayed with available opt
     - greet: Displays a greeting message with a random welcome note.
     - echo: Prints the provided text in uppercase.
     - stats: Displays system statistics including memory usage and uptime.
-    - extended: Executes extended additional functionalities. (Now provides extra debug information for further enhancement.)
+    - extended: Executes extended additional functionalities.
+    - color: Prints the provided message in the specified color. Usage: color <color> <message>
 
   Note: When no command is provided, the CLI runs a self-test, followed by a demo, then displays this usage message before terminating automatically.
   Note: Future enhancements include full publish functionality and additional automated features such as dependency updates, formatting, and linting improvements.
@@ -94,11 +95,18 @@ If the --help flag is provided, a help menu will be displayed with available opt
   Additional debug: Extended command now includes extra information for further use.
   ```
 
+- **Color Command:**
+  ```bash
+  node src/lib/main.js color red "Hello, colored world!"
+  ```
+  Output will display the message "Hello, colored world!" in red color (if supported by your terminal).
+
 ## New Features
-The CLI now fully supports the "echo", "stats", and "extended" commands. In addition to the commands described above, you can now use:
+The CLI now fully supports the "echo", "stats", "extended", and "color" commands. In addition to the commands described above, you can now use:
 - **echo:** to print any provided text in uppercase.
 - **stats:** to display current system statistics.
 - **extended:** to execute additional extended demonstration functionalities, now enhanced with extra debug output.
+- **color:** to print a provided message in a specified color using the chalk library.
 
 ## Future Roadmap
 
