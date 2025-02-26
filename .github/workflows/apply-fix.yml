@@ -3,11 +3,11 @@
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: Apply Fix
+name: Apply Fix on Fail
 concurrency:
   issue-worker
   branch-main
-run-name: "Apply Fix [${{ github.ref_name }}]"
+run-name: "Apply Fix on Fail [${{ github.ref_name }}]"
 
 on:
   workflow_dispatch:
@@ -37,7 +37,8 @@ on:
       - apply-formatting
       - apply-update
   schedule:
-    - cron: '15 2 * * *' # Run at 2:15am
+    - cron: '0 */1 * * *' # Run every 1 hour at 0 minutes past
+    #- cron: '15 2 * * *' # Run at 2:15am
 
 jobs:
 
@@ -75,9 +76,9 @@ jobs:
           node-version: 20
           cache: 'npm'
       - run: npm ci
-      - run: npm run start
+      - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
-  apply-fix:
+  needs-fix:
     needs:
       - npm-test
       - npm-build
@@ -85,17 +86,53 @@ jobs:
     if: >
       ${{ always() && 
         (
-          (needs.npm-test.result != 'success' ||
-           needs.npm-build.result != 'success' ||
-           needs.npm-run.result != 'success') ||
-          (inputs.applyFixEvenIfTestsPass == true)
+          needs.npm-test.result != 'success' ||
+          needs.npm-build.result != 'success' ||
+          needs.npm-run.result != 'success' ||
+          inputs.applyFixEvenIfTestsPass == true
         )
       }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: set-needs-fix
+        id: set-needs-fix
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.info('needs.npm-test.result:${{ needs.npm-test.result }}');
+            core.info('needs.npm-build.result:${{ needs.npm-build.result }}');
+            core.info('needs.npm-run.result:${{ needs.npm-run.result }}');
+            core.info('inputs.applyFixEvenIfTestsPass:${{ inputs.applyFixEvenIfTestsPass }}');
+            
+            const npmTestResult = '${{ needs.npm-test.result }}';
+            const npmBuildResult = '${{ needs.npm-build.result }}';
+            const npmRunResult = '${{ needs.npm-run.result }}';
+            const applyFixEvenIfTestsPass = '${{ inputs.applyFixEvenIfTestsPass }}' === 'true';
+            
+            core.info(`npmTestResult: ${npmTestResult}`);
+            core.info(`npmBuildResult: ${npmBuildResult}`);
+            core.info(`npmRunResult: ${npmRunResult}`);
+            core.info(`applyFixEvenIfTestsPass: ${applyFixEvenIfTestsPass}`);
+            
+            const needsFix = npmTestResult !== 'success' || npmBuildResult !== 'success' || npmRunResult !== 'success' || applyFixEvenIfTestsPass;
+            core.info(`Needs Fix: ${needsFix}`);
+            
+            core.setOutput('needsFix', `${needsFix}`);
+    outputs:
+      needsFix: ${{ steps.set-needs-fix.outputs.needsFix }}
+
+  apply-fix:
+    needs:
+      - npm-test
+      - npm-build
+      - npm-run
+      - needs-fix
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-fix.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-fix.yml@1.9.2'
     with:
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
@@ -112,3 +149,158 @@ jobs:
       gitUserName: 'GitHub Actions[bot]'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  npm-test-after-fix:
+    needs:
+      - npm-test
+      - npm-build
+      - npm-run
+      - needs-fix
+      - apply-fix
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
+    name: 'npm test with coverage'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Get latest from remote
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git pull origin ${{ github.ref_name }}
+          git status -v
+      - run: npm ci
+      - run: npm test
+
+  npm-build-after-fix:
+    needs:
+      - npm-test
+      - npm-build
+      - npm-run
+      - needs-fix
+      - apply-fix
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
+    name: 'npm run build'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Get latest from remote
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git pull origin ${{ github.ref_name }}
+          git status -v
+      - run: npm ci
+      - run: npm run build
+
+  npm-run-after-fix:
+    needs:
+      - npm-test
+      - npm-build
+      - npm-run
+      - needs-fix
+      - apply-fix
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
+    name: 'npm run start'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Get latest from remote
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git pull origin ${{ github.ref_name }}
+          git status -v
+      - run: npm ci
+      - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+
+  needs-fix-after-fix:
+    needs:
+      - npm-test
+      - npm-build
+      - npm-run
+      - needs-fix
+      - apply-fix
+      - npm-test-after-fix
+      - npm-build-after-fix
+      - npm-run-after-fix
+    if: >
+      ${{ always() && 
+        (
+          needs.npm-test-after-fix.result != 'success' ||
+          needs.npm-build-after-fix.result != 'success' ||
+          needs.npm-run-after-fix.result != 'success' ||
+          inputs.applyFixEvenIfTestsPass == true
+        )
+      }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: set-needs-fix
+        id: set-needs-fix
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.info('needs.npm-test-after-fix.result: ${{ needs.npm-test-after-fix.result }}');
+            core.info('needs.npm-build-after-fix.result: ${{ needs.npm-build-after-fix.result }}');
+            core.info('needs.npm-run-after-fix.result: ${{ needs.npm-run-after-fix.result }}');
+            
+            const npmTestResult = '${{ needs.npm-test-after-fix.result }}';
+            const npmBuildResult = '${{ needs.npm-build-after-fix.result }}';
+            const npmRunResult = '${{ needs.npm-run-after-fix.result }}';
+            
+            core.info(`npmTestResult: ${npmTestResult}`);
+            core.info(`npmBuildResult: ${npmBuildResult}`);
+            core.info(`npmRunResult: ${npmRunResult}`);
+            
+            const needsFix = npmTestResult !== 'success' || npmBuildResult !== 'success' || npmRunResult !== 'success'
+            core.info(`Needs Fix: ${needsFix}`);
+            
+            core.setOutput('needsFix', `${needsFix}`);
+    outputs:
+      needsFix: ${{ steps.set-needs-fix.outputs.needsFix }}
+
+  create-pr:
+    needs:
+      - npm-test
+      - npm-build
+      - npm-run
+      - apply-fix
+      - needs-fix
+      - npm-test-after-fix
+      - npm-build-after-fix
+      - npm-run-after-fix
+      - needs-fix-after-fix
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' && needs.needs-fix-after-fix.outputs.needsFix == 'false' }}
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+      checks: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@main'
+    with:
+      branch: '${{ github.ref_name }}'
+      baseBranch: 'main'
+      gitCommitMessage: 'Fix applied for failing tests'
+      label: 'automerge'
