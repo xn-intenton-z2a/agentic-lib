@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// src/lib/main.js - Updated to include usage info, fancy ASCII art, and current time display when requested.
+// src/lib/main.js - Updated to include usage info, demo output, and automatic termination when no arguments are provided.
 
 import { fileURLToPath } from "url";
 import figlet from "figlet";
@@ -7,17 +7,23 @@ import dayjs from "dayjs";
 
 export function main(args = []) {
   console.log("Usage: npm run start [--fancy] [--time] [args...]");
-  
-  // Process --fancy flag to display ASCII art
+
+  // If no arguments are provided, display demo output and terminate
+  if (args.length === 0) {
+    console.log("Demo: This is a demonstration of agentic-lib's functionality.");
+    console.log("No additional arguments provided.");
+    return;
+  }
+
+  // Process --fancy flag
   if (args.includes("--fancy")) {
     const art = figlet.textSync("Agentic Lib");
     console.log(art);
-    // Added explicit log to ensure test contains the literal 'Agentic Lib'
     console.log("Agentic Lib");
     args = args.filter(arg => arg !== "--fancy");
   }
 
-  // Process --time flag to display the current time
+  // Process --time flag
   if (args.includes("--time")) {
     const currentTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
     console.log(`Current Time: ${currentTime}`);
@@ -25,11 +31,7 @@ export function main(args = []) {
   }
 
   // Process remaining arguments
-  if (args.length > 0) {
-    console.log(`Run with: ${JSON.stringify(args)}`);
-  } else {
-    console.log("No additional arguments provided.");
-  }
+  console.log(`Run with: ${JSON.stringify(args)}`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

@@ -11,13 +11,14 @@ describe("Main Module Import", () => {
 });
 
 describe("Default Demo Output", () => {
-  test("should print usage instructions and a message when no arguments are provided", () => {
+  test("should print usage instructions, demo output, and a message when no arguments are provided", () => {
     let output = "";
     const originalLog = console.log;
     console.log = (msg) => { output += msg + "\n"; };
     main([]);
     console.log = originalLog;
     expect(output).toContain("Usage: npm run start");
+    expect(output).toContain("Demo: This is a demonstration of agentic-lib's functionality.");
     expect(output).toContain("No additional arguments provided.");
   });
 });
@@ -51,7 +52,6 @@ describe("Time Mode", () => {
     console.log = (msg) => { output += msg + "\n"; };
     main(["--time"]);
     console.log = originalLog;
-    // Basic regex to check if output contains a date in YYYY-MM-DD HH:mm:ss format
     const timeRegex = /Current Time: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/;
     expect(output).toMatch(timeRegex);
   });
