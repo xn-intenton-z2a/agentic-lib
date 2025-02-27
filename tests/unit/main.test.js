@@ -27,3 +27,14 @@ describe("CLI Arguments Handling", () => {
     expect(output).toContain('["testArg1","testArg2"]');
   });
 });
+
+describe("Fancy Mode", () => {
+  test("should print ASCII art when --fancy is provided", () => {
+    let output = "";
+    const originalLog = console.log;
+    console.log = (msg) => { output += msg + "\n"; };
+    main(["--fancy", "testArg"]);
+    console.log = originalLog;
+    expect(output).toContain("Agentic Lib");
+  });
+});
