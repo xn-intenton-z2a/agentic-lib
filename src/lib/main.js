@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 
 export function main(args = []) {
   console.log("Usage: npm run start [--fancy] [--time] [--reverse] [args...]");
+  console.log(""); // Blank line for readability
 
   // If no arguments are provided, display demo output and terminate
   if (args.length === 0) {
