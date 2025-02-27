@@ -30,7 +30,7 @@ This section applies to the test experiment within this repository.
 To run the CLI tool and see help instructions:
 
 ```bash
-node src/lib/main.js --help
+npm run start--help
 ```
 
 If the --help flag is provided, a help menu will be displayed with available options. Additionally, if no arguments are provided, the CLI defaults to running a self-test, then a demo, displays the usage instructions, and terminates automatically.
