@@ -43,3 +43,16 @@ describe("Fancy Mode", () => {
     expect(output).toContain("Agentic Lib");
   });
 });
+
+describe("Time Mode", () => {
+  test("should print the current time when --time is provided", () => {
+    let output = "";
+    const originalLog = console.log;
+    console.log = (msg) => { output += msg + "\n"; };
+    main(["--time"]);
+    console.log = originalLog;
+    // Basic regex to check if output contains a date in YYYY-MM-DD HH:mm:ss format
+    const timeRegex = /Current Time: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/;
+    expect(output).toMatch(timeRegex);
+  });
+});

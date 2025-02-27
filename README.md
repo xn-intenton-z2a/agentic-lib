@@ -24,8 +24,8 @@ This README file will evolve as the test experiment within this repository evolv
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now supports a new `--fancy` flag for ASCII art output and prints a usage guide by default. For example, running `npm run start` prints "Usage: npm run start [--fancy] [args...]" along with demo output if no additional arguments are provided.
-5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, argument printing, and the new fancy mode.
+4. Explore the source code in `src/lib/main.js`, which now supports new CLI flags `--fancy` for ASCII art output and `--time` for displaying the current time, along with a usage guide. For example, running `npm run start` prints "Usage: npm run start [--fancy] [--time] [args...]" and executes the corresponding features.
+5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, argument printing, fancy mode, and the new time mode.
 6. Examine the workflows in `.github/workflows/` to understand automated LLM-driven improvements.
 7. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
 8. Execute `npm run start` to observe the current CLI output.
@@ -52,7 +52,7 @@ This README file will evolve as the test experiment within this repository evolv
 - Additional automated tests to cover edge cases and further improve reliability.
 - Integration of new GitHub Actions workflows to manage more aspects of repository automation.
 - Extended documentation and examples to help contributors better understand experimental features.
-- Improved default argument handling in main.js and new CLI flag `--fancy` for ASCII art output.
+- **New Feature:** Added a `--time` flag to display the current time using a human-readable format.
 - Enhanced test coverage in main.js to handle empty arguments and ensure robust output.
 
 ---
