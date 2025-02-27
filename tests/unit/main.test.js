@@ -60,3 +60,14 @@ describe("Time Mode", () => {
     expect(output).toMatch(timeRegex);
   });
 });
+
+describe("Reverse Mode", () => {
+  test("should reverse provided arguments when --reverse flag is provided", () => {
+    let output = "";
+    const originalLog = console.log;
+    console.log = (msg) => { output += msg + "\n"; };
+    main(["--reverse", "first", "second", "third"]);
+    console.log = originalLog;
+    expect(output).toContain("Reversed Args: [\"third\",\"second\",\"first\"]");
+  });
+});

@@ -24,8 +24,8 @@ This README file will evolve as the test experiment within this repository evolv
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now supports new CLI flags `--fancy` for ASCII art output and `--time` for displaying the current time. Additionally, when no arguments are provided, it prints a usage message followed by demo output. *Note: The main function now avoids abrupt termination when `NODE_ENV` is set to `test`, making it easier to run tests without interruption.*
-5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, argument printing, fancy mode, time mode, and the new demo output behavior.
+4. Explore the source code in `src/lib/main.js`, which now supports new CLI flags: `--fancy` for ASCII art output, `--time` for displaying the current time, and the new `--reverse` flag to reverse the order of provided arguments. Additionally, when no arguments are provided, it prints a usage message followed by demo output. *Note: The main function now avoids abrupt termination when `NODE_ENV` is set to `test`, making it easier to run tests without interruption.*
+5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, argument printing, fancy mode, time mode, reverse mode, and the new demo output behavior.
 6. Examine the workflows in `.github/workflows/` to understand automated LLM-driven improvements.
 7. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
 8. Execute `npm run start` to observe the current CLI output.
@@ -52,7 +52,7 @@ This README file will evolve as the test experiment within this repository evolv
 - Additional automated tests to cover edge cases and further improve reliability.
 - Integration of new GitHub Actions workflows to manage more aspects of repository automation.
 - Extended documentation and examples to help contributors better understand experimental features.
-- **New Feature:** When no arguments are provided, the main script now displays usage and demo output, then terminates automatically (except in test environments where it simply returns to facilitate smoother testing).
+- **New Feature:** In addition to existing flags, the main script now supports a `--reverse` flag which, when provided, reverses the order of the supplied arguments.
 - Enhanced test coverage in main.js to handle default behavior and ensure robust output.
 
 ---
