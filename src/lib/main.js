@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 import figlet from "figlet";
 import dayjs from "dayjs";
 
-export function main(args = []) {
+e x p o r t function main(args = []) {
   console.log("Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [args...]");
   console.log(""); // Blank line for readability
 
