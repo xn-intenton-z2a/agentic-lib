@@ -18,6 +18,7 @@ This README file will evolve as the test experiment within this repository evolv
 
 ---
 ---
+---
 
 ## Getting Started
 
@@ -182,5 +183,6 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
+---
 ---
 ---
