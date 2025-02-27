@@ -24,8 +24,8 @@ This README file will evolve as the test experiment within this repository evolv
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now supports a new `--fancy` flag for ASCII art output. For example, running `npm run start -- --fancy` outputs an ASCII art header followed by the arguments in JSON format.
-5. Review the test suite in `tests/unit/` for current functionality, including the new fancy mode test.
+4. Explore the source code in `src/lib/main.js`, which now supports a new `--fancy` flag for ASCII art output and improved handling of empty arguments. For example, running `npm run start -- --fancy` outputs an ASCII art header followed by the arguments in JSON format.
+5. Review the test suite in `tests/unit/` for current functionality, including the new tests covering edge cases like empty arguments.
 6. Examine the workflows in `.github/workflows/` to understand automated LLM-driven improvements.
 7. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
 8. Execute `npm run start` to observe the current CLI output.
@@ -52,7 +52,8 @@ This README file will evolve as the test experiment within this repository evolv
 - Additional automated tests to cover edge cases and further improve reliability.
 - Integration of new GitHub Actions workflows to manage more aspects of repository automation.
 - Extended documentation and examples to help contributors better understand experimental features.
-- **Improved default argument handling in main.js and new CLI flag `--fancy` for ASCII art output.**
+- Improved default argument handling in main.js and new CLI flag `--fancy` for ASCII art output.
+- Enhanced test coverage in main.js to handle empty arguments and ensure robust output.
 
 ---
 ---
