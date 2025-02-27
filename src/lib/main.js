@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-// src/lib/main.js - Updated to include usage info, demo output, and automatic termination when no arguments are provided.
-// Additionally, extended functionality: support the --reverse flag that reverses the provided arguments in a consistent manner.
+// src/lib/main.js - Updated to include usage info, demo output, automatic termination when no arguments are provided, and extended functionality.
+// Additional features: support the --reverse flag that reverses provided arguments, and a new --upper flag that converts provided arguments to uppercase.
 
 import { fileURLToPath } from "url";
 import figlet from "figlet";
 import dayjs from "dayjs";
 
 export function main(args = []) {
-  console.log("Usage: npm run start [--fancy] [--time] [--reverse] [args...]");
+  console.log("Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [args...]");
   console.log(""); // Blank line for readability
 
   // If no arguments are provided, display demo output and terminate
@@ -42,6 +42,13 @@ export function main(args = []) {
     console.log(`Reversed Args: ${JSON.stringify(args)}`);
   } else {
     console.log(`Run with: ${JSON.stringify(args)}`);
+  }
+
+  // Process --upper flag (new feature: converts the remaining arguments to uppercase)
+  if (args.includes("--upper")) {
+    args = args.filter(arg => arg !== "--upper");
+    const upperArgs = args.map(arg => arg.toUpperCase());
+    console.log(`Uppercase Args: ${JSON.stringify(upperArgs)}`);
   }
 }
 
