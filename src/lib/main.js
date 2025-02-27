@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 // src/lib/main.js - Updated to include usage info, demo output, and automatic termination when no arguments are provided.
+// Additionally, extended functionality: support the --reverse flag that reverses the provided arguments.
 
 import { fileURLToPath } from "url";
 import figlet from "figlet";
 import dayjs from "dayjs";
 
 export function main(args = []) {
-  console.log("Usage: npm run start [--fancy] [--time] [args...]");
+  console.log("Usage: npm run start [--fancy] [--time] [--reverse] [args...]");
 
   // If no arguments are provided, display demo output and terminate
   if (args.length === 0) {
@@ -31,6 +32,13 @@ export function main(args = []) {
     const currentTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
     console.log(`Current Time: ${currentTime}`);
     args = args.filter(arg => arg !== "--time");
+  }
+
+  // Process --reverse flag (new feature: reverses the order of the remaining arguments)
+  if (args.includes("--reverse")) {
+    args = args.filter(arg => arg !== "--reverse");
+    const reversedArgs = [...args].reverse();
+    console.log(`Reversed Args: ${JSON.stringify(reversedArgs)}`);
   }
 
   // Process remaining arguments
