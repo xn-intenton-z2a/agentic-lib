@@ -11,10 +11,10 @@ import { readFileSync } from 'fs';
 import path from 'path';
 import dayjs from 'dayjs';
 import figlet from 'figlet';
-import chalk from 'chalk';
+import { Chalk } from 'chalk';
 
 // Create a forced chalk instance to ensure ANSI escape sequences are output even when not in a TTY
-const forcedChalk = new chalk.Instance({ level: 3 });
+const forcedChalk = new Chalk({ level: 3 });
 
 // Establish __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
