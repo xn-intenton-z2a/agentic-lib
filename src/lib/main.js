@@ -12,7 +12,6 @@ export function main(args = []) {
   if (args.includes("--fancy")) {
     const art = figlet.textSync("Agentic Lib");
     console.log(art);
-    console.log("Agentic Lib");
     args = args.filter(arg => arg !== "--fancy");
   }
 
