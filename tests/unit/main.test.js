@@ -16,3 +16,14 @@ describe("Default Demo Output", () => {
     main();
   });
 });
+
+describe("CLI Arguments Handling", () => {
+  test("should print provided arguments correctly", () => {
+    let output = "";
+    const originalLog = console.log;
+    console.log = (msg) => { output += msg; };
+    main(["testArg1", "testArg2"]);
+    console.log = originalLog;
+    expect(output).toContain('["testArg1","testArg2"]');
+  });
+});
