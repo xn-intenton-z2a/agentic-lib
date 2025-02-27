@@ -47,13 +47,12 @@ This README file will evolve as the test experiment within this repository evolv
 
 ## Future Features
 
-In upcoming releases of **agentic-lib**, you can expect:
-
 - Enhanced CLI argument parsing to provide more dynamic demo outputs.
 - Improved error messaging and logging within the main execution flow.
 - Additional automated tests to cover edge cases and further improve reliability.
 - Integration of new GitHub Actions workflows to manage more aspects of repository automation.
 - Extended documentation and examples to help contributors better understand experimental features.
+- **Improved default argument handling in main.js and extended test coverage for processing CLI arguments.**
 
 ---
 ---
