@@ -24,23 +24,36 @@ This README file will evolve as the test experiment within this repository evolv
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js` which is now part of an evolving experiment.
+4. Explore the source code in `src/lib/main.js`, which now prints its arguments in JSON format. For example, running `npm run start` outputs: "Run with: []" by default.
 5. Review the test suite in `tests/unit/` for current functionality.
 6. Examine the workflows in `.github/workflows/` to understand automated LLM-driven improvements.
 7. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
 8. Execute `npm run start` to observe the current CLI output.
 9. Run `npm test` to ensure that all tests pass.
-10. Read this updated 20 step plan that focuses on evolving the repository iteratively.
+10. Follow this updated guide that focuses on evolving the repository iteratively while keeping documentation in sync with the current behavior.
 11. Identify areas for improvement within the code or workflows.
-12. Use a large LLM (200K chat completion) to generate suggestions for enhancing the repository.
-13. Implement one improvement at a time based on LLM feedback.
-14. Validate your changes by running the full test suite and build scripts.
-15. Update documentation to reflect new features and evolving practices.
-16. Create a feature branch and submit a pull request with your improvements.
-17. Engage with automated workflows that test and merge your contributions.
-18. Monitor CI/CD pipelines for further iterative suggestions.
-19. Repeat the process to continuously evolve the repository using LLM completions.
-20. Enjoy the evolution: one LLM-driven update at a time, making this repository a living experiment in innovation.
+12. Use automated tools or LLM feedback to suggest enhancements one at a time.
+13. Validate changes by running the full test suite and build scripts.
+14. Update documentation to reflect new features and evolving practices.
+15. Create a feature branch and submit a pull request with your improvements.
+16. Engage with automated workflows that test and merge your contributions.
+17. Monitor CI/CD pipelines for further iterative suggestions.
+18. Repeat the process to continuously evolve the repository using LLM completions.
+19. Enjoy the evolution: one LLM-driven update at a time, making this repository a living experiment in innovation.
+20. Explore planned future features outlined below.
+
+---
+---
+
+## Future Features
+
+In upcoming releases of **agentic-lib**, you can expect:
+
+- Enhanced CLI argument parsing to provide more dynamic demo outputs.
+- Improved error messaging and logging within the main execution flow.
+- Additional automated tests to cover edge cases and further improve reliability.
+- Integration of new GitHub Actions workflows to manage more aspects of repository automation.
+- Extended documentation and examples to help contributors better understand experimental features.
 
 ---
 ---
