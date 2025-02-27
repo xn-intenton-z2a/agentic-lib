@@ -84,3 +84,15 @@ describe("Reverse Mode", () => {
     expect(captured).toContain('Reversed Args: ["third","second","first"]');
   });
 });
+
+describe("Uppercase Mode", () => {
+  test("should convert provided arguments to uppercase when --upper flag is provided", async () => {
+    const module = await import("../../src/lib/main.js");
+    let captured = "";
+    const originalLog = console.log;
+    console.log = (msg) => { captured += msg + "\n"; };
+    module.main(["--upper", "hello", "world"]);
+    console.log = originalLog;
+    expect(captured).toContain('Uppercase Args: ["HELLO","WORLD"]');
+  });
+});
