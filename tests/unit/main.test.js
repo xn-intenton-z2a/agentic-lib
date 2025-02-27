@@ -17,7 +17,7 @@ function captureOutput(fn) {
 
 describe("Main Module Import", () => {
   test("should be non-null", () => {
-    const mainModule = require("@src/lib/main.js");
+    const mainModule = require("../../src/lib/main.js");
     expect(mainModule).not.toBeNull();
   });
 });
@@ -25,7 +25,7 @@ describe("Main Module Import", () => {
 describe("Default Demo Output", () => {
   test("should print usage instructions, demo output, and a message when no arguments are provided", () => {
     const output = captureOutput(() => {
-      const { main } = require("@src/lib/main.js");
+      const { main } = require("../../src/lib/main.js");
       main([]);
     });
     expect(output).toContain("Usage: npm run start");
@@ -37,7 +37,7 @@ describe("Default Demo Output", () => {
 describe("CLI Arguments Handling", () => {
   test("should print provided arguments correctly", () => {
     const output = captureOutput(() => {
-      const { main } = require("@src/lib/main.js");
+      const { main } = require("../../src/lib/main.js");
       main(["testArg1", "testArg2"]);
     });
     expect(output).toContain('["testArg1","testArg2"]');
@@ -47,7 +47,7 @@ describe("CLI Arguments Handling", () => {
 describe("Fancy Mode", () => {
   test("should print ASCII art when --fancy is provided", () => {
     const output = captureOutput(() => {
-      const { main } = require("@src/lib/main.js");
+      const { main } = require("../../src/lib/main.js");
       main(["--fancy", "testArg"]);
     });
     expect(output).toContain("Agentic Lib");
@@ -57,7 +57,7 @@ describe("Fancy Mode", () => {
 describe("Time Mode", () => {
   test("should print the current time when --time is provided", () => {
     const output = captureOutput(() => {
-      const { main } = require("@src/lib/main.js");
+      const { main } = require("../../src/lib/main.js");
       main(["--time"]);
     });
     const timeRegex = /Current Time: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/;
@@ -68,7 +68,7 @@ describe("Time Mode", () => {
 describe("Reverse Mode", () => {
   test("should reverse provided arguments when --reverse flag is provided", () => {
     const output = captureOutput(() => {
-      const { main } = require("@src/lib/main.js");
+      const { main } = require("../../src/lib/main.js");
       main(["--reverse", "first", "second", "third"]);
     });
     expect(output).toContain('Reversed Args: ["third","second","first"]');
