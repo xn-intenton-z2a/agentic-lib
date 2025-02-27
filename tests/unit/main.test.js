@@ -1,4 +1,8 @@
 import { describe, test, expect } from "vitest";
+
+// Set NODE_ENV to test to prevent process.exit from terminating tests
+process.env.NODE_ENV = "test";
+
 import * as mainModule from "@src/lib/main.js";
 import { main } from "@src/lib/main.js";
 
@@ -15,12 +19,7 @@ describe("Default Demo Output", () => {
     let output = "";
     const originalLog = console.log;
     console.log = (msg) => { output += msg + "\n"; };
-    // Instead of calling process.exit in tests, we catch the exit call by wrapping in a try-catch
-    try {
-      main([]);
-    } catch (e) {
-      // expected process.exit
-    }
+    main([]);
     console.log = originalLog;
     expect(output).toContain("Usage: npm run start");
     expect(output).toContain("Demo: This is a demonstration of agentic-lib's functionality.");
