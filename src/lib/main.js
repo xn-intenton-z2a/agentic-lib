@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // src/lib/main.js - Updated to include usage info, demo output, and automatic termination when no arguments are provided.
-// Additionally, extended functionality: support the --reverse flag that reverses the provided arguments.
+// Additionally, extended functionality: support the --reverse flag that reverses the provided arguments in a consistent manner.
 
 import { fileURLToPath } from "url";
 import figlet from "figlet";
@@ -38,12 +38,11 @@ export function main(args = []) {
   // Process --reverse flag (new feature: reverses the order of the remaining arguments)
   if (args.includes("--reverse")) {
     args = args.filter(arg => arg !== "--reverse");
-    const reversedArgs = [...args].reverse();
-    console.log(`Reversed Args: ${JSON.stringify(reversedArgs)}`);
+    args = args.reverse();
+    console.log(`Reversed Args: ${JSON.stringify(args)}`);
+  } else {
+    console.log(`Run with: ${JSON.stringify(args)}`);
   }
-
-  // Process remaining arguments
-  console.log(`Run with: ${JSON.stringify(args)}`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
