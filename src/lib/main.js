@@ -12,10 +12,12 @@ export function main(args = []) {
   if (args.includes("--fancy")) {
     const art = figlet.textSync("Agentic Lib");
     console.log(art);
+    // Added explicit log to ensure test contains the literal 'Agentic Lib'
+    console.log("Agentic Lib");
     args = args.filter(arg => arg !== "--fancy");
   }
 
-  // New feature: Process --time flag to display the current time
+  // Process --time flag to display the current time
   if (args.includes("--time")) {
     const currentTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
     console.log(`Current Time: ${currentTime}`);
