@@ -12,7 +12,7 @@ export function main(args = []) {
   if (args.length === 0) {
     console.log("Demo: This is a demonstration of agentic-lib's functionality.");
     console.log("No additional arguments provided.");
-    return;
+    process.exit(0);
   }
 
   // Process --fancy flag
