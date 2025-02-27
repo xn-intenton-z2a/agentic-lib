@@ -13,6 +13,9 @@ export function main(args = []) {
     args = args.filter(arg => arg !== "--fancy");
   }
   console.log(`Run with: ${JSON.stringify(args)}`);
+  if (args.length === 0) {
+    console.log("No additional arguments provided.");
+  }
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

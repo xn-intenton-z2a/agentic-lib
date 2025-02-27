@@ -38,3 +38,14 @@ describe("Fancy Mode", () => {
     expect(output).toContain("Agentic Lib");
   });
 });
+
+describe("Empty Arguments Handling", () => {
+  test("should print message when no arguments are provided", () => {
+    let output = "";
+    const originalLog = console.log;
+    console.log = (msg) => { output += msg + "\n"; };
+    main([]);
+    console.log = originalLog;
+    expect(output).toContain("No additional arguments provided.");
+  });
+});
