@@ -24,7 +24,7 @@ This README file will evolve as the test experiment within this repository evolv
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now supports new CLI flags `--fancy` for ASCII art output and `--time` for displaying the current time. Additionally, when no arguments are provided, it displays a demo message and terminates automatically using process.exit(0). For example, running `npm run start` prints "Usage: npm run start [--fancy] [--time] [args...]", displays a demo output, and ends execution.
+4. Explore the source code in `src/lib/main.js`, which now supports new CLI flags `--fancy` for ASCII art output and `--time` for displaying the current time. Additionally, when no arguments are provided, it prints a usage message followed by demo output and terminates automatically. (Note: The application exits immediately if no arguments are provided.)
 5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, argument printing, fancy mode, time mode, and the new demo output behavior.
 6. Examine the workflows in `.github/workflows/` to understand automated LLM-driven improvements.
 7. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
@@ -52,7 +52,7 @@ This README file will evolve as the test experiment within this repository evolv
 - Additional automated tests to cover edge cases and further improve reliability.
 - Integration of new GitHub Actions workflows to manage more aspects of repository automation.
 - Extended documentation and examples to help contributors better understand experimental features.
-- **New Feature:** When no arguments are provided, the main script now displays demo output and terminates automatically using process.exit(0).
+- **New Feature:** When no arguments are provided, the main script now displays usage and demo output, then terminates automatically.
 - Enhanced test coverage in main.js to handle default behavior and ensure robust output.
 
 ---
