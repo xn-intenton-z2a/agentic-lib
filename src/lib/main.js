@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// src/lib/main.js
+// src/lib/main.js - Updated for evolving repository via iterative LLM completions
 
 import { fileURLToPath } from "url";
 

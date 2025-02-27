@@ -9,36 +9,48 @@ GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 
 [Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
 
-## Current State of the Software
+Mixed licensing:
+* This project is licensed under the GNU General Public License (GPL).
+* This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+* This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-This project is under active development. The core functionalities are stable, while experimental features are actively being enhanced. Our SDK supports automated CI/CD with built-in workflows for testing, publishing, fix resolving, and more.
+This README file will evolve as the test experiment within this repository evolves.
 
-## Quick Start Guide: 20 Detailed Steps
+---
+---
+
+## Quick Start Guide: 20 Detailed Steps to Evolve This Repository
 
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js` for experimental features.
-5. Review the test suite in `tests/unit/` to understand the functionality.
-6. Examine the workflows in `.github/workflows/` for automation details.
-7. Read through the CONTRIBUTING.md file to understand our collaboration guidelines.
-8. Execute `npm run start` to invoke the CLI tool and observe its output.
-9. Run `npm test` to validate that all tests pass.
-10. Inspect the build script via `npm run build` (note: it currently outputs a placeholder message).
-11. Review linting and formatting configurations in `.prettierrc` and `eslint.config.js`.
-12. Check the dependency definitions in `package.json` for project stability.
-13. Observe how GitHub Actions workflows trigger automated fixes and updates.
-14. Experiment with the auto-merge and issue management workflows provided.
-15. Study the examples in the `examples/` directory to see practical implementations.
-16. Create a feature branch and submit a pull request with improvements or fixes.
-17. Update documentation as needed when modifying workflows or code.
-18. Engage with maintainers via GitHub issues if you encounter any challenges.
-19. Monitor CI/CD outputs to ensure consistency and reliability.
-20. Enjoy leveraging the agentic-lib automation engine in your projects!
+4. Explore the source code in `src/lib/main.js` which is now part of an evolving experiment.
+5. Review the test suite in `tests/unit/` for current functionality.
+6. Examine the workflows in `.github/workflows/` to understand automated LLM-driven improvements.
+7. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
+8. Execute `npm run start` to observe the current CLI output.
+9. Run `npm test` to ensure that all tests pass.
+10. Read this updated 20 step plan that focuses on evolving the repository iteratively.
+11. Identify areas for improvement within the code or workflows.
+12. Use a large LLM (200K chat completion) to generate suggestions for enhancing the repository.
+13. Implement one improvement at a time based on LLM feedback.
+14. Validate your changes by running the full test suite and build scripts.
+15. Update documentation to reflect new features and evolving practices.
+16. Create a feature branch and submit a pull request with your improvements.
+17. Engage with automated workflows that test and merge your contributions.
+18. Monitor CI/CD pipelines for further iterative suggestions.
+19. Repeat the process to continuously evolve the repository using LLM completions.
+20. Enjoy the evolution: one LLM-driven update at a time, making this repository a living experiment in innovation.
+
+---
+---
 
 ## Further Documentation
 
 For more detailed information about workflow usage, configuration, and future enhancements, please refer to the [WORKFLOWS-README.md](WORKFLOWS-README.md).
+
+---
+---
 
 ## Contributing
 
@@ -103,3 +115,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
+
+---
+---
