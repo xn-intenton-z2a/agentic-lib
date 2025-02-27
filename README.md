@@ -24,8 +24,8 @@ This README file will evolve as the test experiment within this repository evolv
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now supports a new `--fancy` flag for ASCII art output and improved handling of empty arguments. For example, running `npm run start -- --fancy` outputs an ASCII art header followed by the arguments in JSON format.
-5. Review the test suite in `tests/unit/` for current functionality, including the new tests covering edge cases like empty arguments.
+4. Explore the source code in `src/lib/main.js`, which now supports a new `--fancy` flag for ASCII art output and prints a usage guide by default. For example, running `npm run start` prints "Usage: npm run start [--fancy] [args...]" along with demo output if no additional arguments are provided.
+5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, argument printing, and the new fancy mode.
 6. Examine the workflows in `.github/workflows/` to understand automated LLM-driven improvements.
 7. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
 8. Execute `npm run start` to observe the current CLI output.

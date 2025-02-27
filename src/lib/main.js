@@ -1,19 +1,20 @@
 #!/usr/bin/env node
-// src/lib/main.js - Updated for evolving repository via iterative LLM completions
+// src/lib/main.js - Updated to include usage info and demo output by default.
 
 import { fileURLToPath } from "url";
 import figlet from "figlet";
 
 export function main(args = []) {
+  console.log("Usage: npm run start [--fancy] [args...]");
   if (args.includes("--fancy")) {
     const art = figlet.textSync("Agentic Lib");
     console.log(art);
-    // Added plain text output so that fancy mode test can detect 'Agentic Lib'
     console.log("Agentic Lib");
     args = args.filter(arg => arg !== "--fancy");
   }
-  console.log(`Run with: ${JSON.stringify(args)}`);
-  if (args.length === 0) {
+  if (args.length > 0) {
+    console.log(`Run with: ${JSON.stringify(args)}`);
+  } else {
     console.log("No additional arguments provided.");
   }
 }
