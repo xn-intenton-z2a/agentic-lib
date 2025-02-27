@@ -12,8 +12,10 @@ export function main(args = []) {
   if (args.length === 0) {
     console.log("Demo: This is a demonstration of agentic-lib's functionality.");
     console.log("No additional arguments provided.");
-    // Terminate immediately when no user input is provided
-    process.exit(0);
+    if (process.env.NODE_ENV !== "test") {
+      process.exit(0);
+    }
+    return;
   }
 
   // Process --fancy flag
