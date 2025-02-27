@@ -24,7 +24,7 @@ This README file will evolve as the test experiment within this repository evolv
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now supports new CLI flags: `--fancy` for ASCII art output, `--time` for displaying the current time, and the new `--reverse` flag. When `--reverse` is provided, the script outputs the reversed list of arguments instead of the original order, ensuring consistent behavior.
+4. Explore the source code in `src/lib/main.js`, which now supports new CLI flags: `--fancy` for ASCII art output, `--time` for displaying the current time, and the new `--reverse` flag. When `--reverse` is provided, the script outputs the reversed list of arguments instead of the original order. **Note:** Running the command without any arguments will display demo output and terminate automatically.
 5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, argument printing, fancy mode, time mode, reverse mode, and the new demo output behavior.
 6. Examine the workflows in `.github/workflows/` to understand automated LLM-driven improvements.
 7. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
@@ -54,6 +54,7 @@ This README file will evolve as the test experiment within this repository evolv
 - Extended documentation and examples to help contributors better understand experimental features.
 - **New Feature:** In addition to existing flags, the main script now supports a `--reverse` flag that, when provided, outputs the reversed order of the supplied arguments for improved consistency.
 - Enhanced test coverage in main.js to handle default behavior and ensure robust output.
+- Planned improvements include interactive command suggestions and more granular error feedback to guide users in case of misuse.
 
 ---
 ---
