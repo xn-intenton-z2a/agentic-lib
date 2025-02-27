@@ -11,9 +11,14 @@ describe("Main Module Import", () => {
 });
 
 describe("Default Demo Output", () => {
-  test("should terminate without error", () => {
-    process.argv = ["node", "src/lib/main.js"];
-    main();
+  test("should print usage instructions and a message when no arguments are provided", () => {
+    let output = "";
+    const originalLog = console.log;
+    console.log = (msg) => { output += msg + "\n"; };
+    main([]);
+    console.log = originalLog;
+    expect(output).toContain("Usage: npm run start");
+    expect(output).toContain("No additional arguments provided.");
   });
 });
 
@@ -36,16 +41,5 @@ describe("Fancy Mode", () => {
     main(["--fancy", "testArg"]);
     console.log = originalLog;
     expect(output).toContain("Agentic Lib");
-  });
-});
-
-describe("Empty Arguments Handling", () => {
-  test("should print message when no arguments are provided", () => {
-    let output = "";
-    const originalLog = console.log;
-    console.log = (msg) => { output += msg + "\n"; };
-    main([]);
-    console.log = originalLog;
-    expect(output).toContain("No additional arguments provided.");
   });
 });
