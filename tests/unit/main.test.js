@@ -1,73 +1,86 @@
 import { describe, test, expect } from "vitest";
 
-// Set NODE_ENV to test to prevent process.exit from terminating tests
-process.env.NODE_ENV = "test";
+// Helper function to capture console output synchronously
+async function captureOutputAsync(fn) {
+  let output = "";
+  const originalLog = console.log;
+  console.log = (msg) => { output += msg + "\n"; };
+  try {
+    await fn();
+  } finally {
+    console.log = originalLog;
+  }
+  return output;
+}
 
-import * as mainModule from "@src/lib/main.js";
-import { main } from "@src/lib/main.js";
-
-// Basic tests remain unchanged as functionality is stable
+// Updated tests to use dynamic import() for ES Modules
 
 describe("Main Module Import", () => {
-  test("should be non-null", () => {
+  test("should be non-null", async () => {
+    const mainModule = await import("../../src/lib/main.js");
     expect(mainModule).not.toBeNull();
   });
 });
 
 describe("Default Demo Output", () => {
-  test("should print usage instructions, demo output, and a message when no arguments are provided", () => {
-    let output = "";
+  test("should print usage instructions, demo output, and a message when no arguments are provided", async () => {
+    const module = await import("../../src/lib/main.js");
+    let captured = "";
     const originalLog = console.log;
-    console.log = (msg) => { output += msg + "\n"; };
-    main([]);
+    console.log = (msg) => { captured += msg + "\n"; };
+    module.main([]);
     console.log = originalLog;
-    expect(output).toContain("Usage: npm run start");
-    expect(output).toContain("Demo: This is a demonstration of agentic-lib's functionality.");
-    expect(output).toContain("No additional arguments provided.");
+    expect(captured).toContain("Usage: npm run start");
+    expect(captured).toContain("Demo: This is a demonstration of agentic-lib's functionality.");
+    expect(captured).toContain("No additional arguments provided.");
   });
 });
 
 describe("CLI Arguments Handling", () => {
-  test("should print provided arguments correctly", () => {
-    let output = "";
+  test("should print provided arguments correctly", async () => {
+    const module = await import("../../src/lib/main.js");
+    let captured = "";
     const originalLog = console.log;
-    console.log = (msg) => { output += msg; };
-    main(["testArg1", "testArg2"]);
+    console.log = (msg) => { captured += msg + "\n"; };
+    module.main(["testArg1", "testArg2"]);
     console.log = originalLog;
-    expect(output).toContain('["testArg1","testArg2"]');
+    expect(captured).toContain('["testArg1","testArg2"]');
   });
 });
 
 describe("Fancy Mode", () => {
-  test("should print ASCII art when --fancy is provided", () => {
-    let output = "";
+  test("should print ASCII art when --fancy is provided", async () => {
+    const module = await import("../../src/lib/main.js");
+    let captured = "";
     const originalLog = console.log;
-    console.log = (msg) => { output += msg + "\n"; };
-    main(["--fancy", "testArg"]);
+    console.log = (msg) => { captured += msg + "\n"; };
+    module.main(["--fancy", "testArg"]);
     console.log = originalLog;
-    expect(output).toContain("Agentic Lib");
+    expect(captured).toContain("Agentic Lib");
   });
 });
 
 describe("Time Mode", () => {
-  test("should print the current time when --time is provided", () => {
-    let output = "";
+  test("should print the current time when --time is provided", async () => {
+    const module = await import("../../src/lib/main.js");
+    let captured = "";
     const originalLog = console.log;
-    console.log = (msg) => { output += msg + "\n"; };
-    main(["--time"]);
+    console.log = (msg) => { captured += msg + "\n"; };
+    module.main(["--time"]);
     console.log = originalLog;
     const timeRegex = /Current Time: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/;
-    expect(output).toMatch(timeRegex);
+    expect(captured).toMatch(timeRegex);
   });
 });
 
 describe("Reverse Mode", () => {
-  test("should reverse provided arguments when --reverse flag is provided", () => {
-    let output = "";
+  test("should reverse provided arguments when --reverse flag is provided", async () => {
+    const module = await import("../../src/lib/main.js");
+    let captured = "";
     const originalLog = console.log;
-    console.log = (msg) => { output += msg + "\n"; };
-    main(["--reverse", "first", "second", "third"]);
+    console.log = (msg) => { captured += msg + "\n"; };
+    module.main(["--reverse", "first", "second", "third"]);
     console.log = originalLog;
-    expect(output).toContain("Reversed Args: [\"third\",\"second\",\"first\"]");
+    expect(captured).toContain('Reversed Args: ["third","second","first"]');
   });
 });

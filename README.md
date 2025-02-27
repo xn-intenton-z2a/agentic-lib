@@ -24,7 +24,7 @@ This README file will evolve as the test experiment within this repository evolv
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now supports new CLI flags: `--fancy` for ASCII art output, `--time` for displaying the current time, and the new `--reverse` flag to reverse the order of provided arguments. Additionally, when no arguments are provided, it prints a usage message followed by demo output. *Note: The main function now avoids abrupt termination when `NODE_ENV` is set to `test`, making it easier to run tests without interruption.*
+4. Explore the source code in `src/lib/main.js`, which now supports new CLI flags: `--fancy` for ASCII art output, `--time` for displaying the current time, and the new `--reverse` flag to reverse the order of provided arguments. *Note: The main function now avoids abrupt termination when `NODE_ENV` is set to `test`, making it easier to run tests without interruption.*
 5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, argument printing, fancy mode, time mode, reverse mode, and the new demo output behavior.
 6. Examine the workflows in `.github/workflows/` to understand automated LLM-driven improvements.
 7. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
