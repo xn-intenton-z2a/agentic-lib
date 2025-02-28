@@ -96,3 +96,15 @@ describe("Uppercase Mode", () => {
     expect(captured).toContain('Uppercase Args: ["HELLO","WORLD"]');
   });
 });
+
+describe("Color Mode", () => {
+  test("should print colored output when --color flag is provided", async () => {
+    const module = await import("../../src/lib/main.js");
+    let captured = "";
+    const originalLog = console.log;
+    console.log = (msg) => { captured += msg + "\n"; };
+    module.main(["--color", "col1", "col2"]);
+    console.log = originalLog;
+    expect(captured).toContain('Colored Args: ["col1","col2"]');
+  });
+});

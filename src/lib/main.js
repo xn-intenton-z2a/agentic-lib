@@ -1,14 +1,15 @@
 #!/usr/bin/env node
-// src/lib/main.js - Updated to include usage info, demo output, automatic termination when no arguments are provided, and extended functionality.
-// Additional features: support the --reverse flag that reverses provided arguments, and a new --upper flag that converts provided arguments to uppercase.
+// src/lib/main.js - Updated to include usage info, demo output, automatic termination when no arguments are provided, extended functionality,
+// and a new --color flag that prints the remaining arguments in green color using the chalk dependency.
 
 import { fileURLToPath } from "url";
 import figlet from "figlet";
 import dayjs from "dayjs";
+import chalk from "chalk";
 
 export function main(args = []) {
-  console.log("Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [args...]");
-  console.log(""); // Blank line for readability
+  console.log("Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [args...]");
+  console.log("");
 
   // If no arguments are provided, display demo output and terminate
   if (args.length === 0) {
@@ -49,6 +50,12 @@ export function main(args = []) {
     args = args.filter(arg => arg !== "--upper");
     const upperArgs = args.map(arg => arg.toUpperCase());
     console.log(`Uppercase Args: ${JSON.stringify(upperArgs)}`);
+  }
+
+  // Process --color flag (new feature: prints the remaining arguments in green color)
+  if (args.includes("--color")) {
+    args = args.filter(arg => arg !== "--color");
+    console.log(chalk.green(`Colored Args: ${JSON.stringify(args)}`));
   }
 }
 
