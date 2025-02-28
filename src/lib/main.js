@@ -1,16 +1,15 @@
 #!/usr/bin/env node
-// src/lib/main.js - Improved version with clarifying comments and maintained functionality.
+// src/lib/main.js - Improved version with enhanced flag processing and sequential transformations.
 
-// This file processes CLI flags including --fancy, --time, --reverse, --upper, --color, --lower, --append, and now --capitalize.
-// The flags are processed in sequence. If both --upper and --lower are provided, the transformation applied
-// will be that of --lower (since it is processed last), so use them carefully as they override each other.
-// New feature: --capitalize flag that capitalizes each provided argument using change-case module.
+// This file processes CLI flags including --fancy, --time, --reverse, --upper, --color, --lower, --append, and --capitalize.
+// Flags are extracted separately from non-flag arguments to ensure proper sequential transformations.
+// If both --upper and --lower are provided, the transformation applied will be that of --lower (since it is processed later).
+// New feature: --capitalize flag that capitalizes each provided argument using the change-case module.
 
 import { fileURLToPath } from "url";
 import figlet from "figlet";
 import dayjs from "dayjs";
 import chalk from "chalk";
-import _ from "lodash";
 import { capitalCase } from "change-case";
 
 export function main(args = []) {
@@ -26,53 +25,61 @@ export function main(args = []) {
     return;
   }
 
-  if (args.includes("--fancy")) {
+  // Separate flags and non-flag arguments
+  const flagSet = new Set();
+  const nonFlagArgs = [];
+  for (const arg of args) {
+    if (arg.startsWith("--")) {
+      flagSet.add(arg);
+    } else {
+      nonFlagArgs.push(arg);
+    }
+  }
+
+  if (flagSet.has("--fancy")) {
     const art = figlet.textSync("Agentic Lib");
     console.log(art);
     console.log("Agentic Lib");
-    args = args.filter((arg) => arg !== "--fancy");
   }
 
-  if (args.includes("--time")) {
+  if (flagSet.has("--time")) {
     const currentTime = dayjs().format("YYYY-MM-DD HH:mm:ss");
     console.log(`Current Time: ${currentTime}`);
-    args = args.filter((arg) => arg !== "--time");
   }
 
-  if (args.includes("--reverse")) {
-    args = args.filter((arg) => arg !== "--reverse").reverse();
-    console.log(`Reversed Args: ${JSON.stringify(args)}`);
+  // Process reversal flag
+  if (flagSet.has("--reverse")) {
+    const reversed = [...nonFlagArgs].reverse();
+    console.log("Reversed Args: " + JSON.stringify(reversed));
+    nonFlagArgs.splice(0, nonFlagArgs.length, ...reversed);
   } else {
-    console.log(`Run with: ${JSON.stringify(args)}`);
+    console.log("Run with: " + JSON.stringify(nonFlagArgs));
   }
 
-  if (args.includes("--upper")) {
-    args = args.filter((arg) => arg !== "--upper");
-    const upperArgs = args.map((arg) => arg.toUpperCase());
-    console.log(`Uppercase Args: ${JSON.stringify(upperArgs)}`);
+  if (flagSet.has("--upper")) {
+    const upperArgs = nonFlagArgs.map(arg => arg.toUpperCase());
+    console.log("Uppercase Args: " + JSON.stringify(upperArgs));
+    nonFlagArgs.splice(0, nonFlagArgs.length, ...upperArgs);
   }
 
-  if (args.includes("--color")) {
-    args = args.filter((arg) => arg !== "--color");
-    console.log(chalk.green(`Colored Args: ${JSON.stringify(args)}`));
+  if (flagSet.has("--color")) {
+    console.log(chalk.green("Colored Args: " + JSON.stringify(nonFlagArgs)));
   }
 
-  if (args.includes("--lower")) {
-    args = args.filter((arg) => arg !== "--lower");
-    const lowerArgs = args.map((arg) => arg.toLowerCase());
-    console.log(`Lowercase Args: ${JSON.stringify(lowerArgs)}`);
+  if (flagSet.has("--lower")) {
+    const lowerArgs = nonFlagArgs.map(arg => arg.toLowerCase());
+    console.log("Lowercase Args: " + JSON.stringify(lowerArgs));
+    nonFlagArgs.splice(0, nonFlagArgs.length, ...lowerArgs);
   }
 
-  if (args.includes("--append")) {
-    args = args.filter((arg) => arg !== "--append");
-    const appended = _.join(args, " ") + "!";
-    console.log(`Appended Output: ${appended}`);
+  if (flagSet.has("--append")) {
+    const appended = nonFlagArgs.join(" ") + "!";
+    console.log("Appended Output: " + appended);
   }
 
-  if (args.includes("--capitalize")) {
-    args = args.filter((arg) => arg !== "--capitalize");
-    const capitalized = args.map((arg) => capitalCase(arg));
-    console.log(`Capitalized Args: ${JSON.stringify(capitalized)}`);
+  if (flagSet.has("--capitalize")) {
+    const capitalized = nonFlagArgs.map(arg => capitalCase(arg));
+    console.log("Capitalized Args: " + JSON.stringify(capitalized));
   }
 }
 

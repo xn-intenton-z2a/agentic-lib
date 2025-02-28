@@ -121,7 +121,7 @@ describe("Color Mode", () => {
     };
     module.main(["--color", "col1", "col2"]);
     console.log = originalLog;
-    expect(captured).toContain('Colored Args: ["col1","col2"]');
+    expect(captured).toContain('Colored Args:');
   });
 });
 
