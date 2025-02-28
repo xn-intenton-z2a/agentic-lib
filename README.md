@@ -2,23 +2,16 @@
 
 You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](WORKFLOWS-README.md)
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
-repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
-issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
-GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 
 [Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
 
 Mixed licensing:
 * This project is licensed under the GNU General Public License (GPL).
-* This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+* This file is part of the example suite for `agentic-lib`. See: https://github.com/xn-intenton-z2a/agentic-lib
 * This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 This README file will evolve as the test experiment within this repository evolves.
-
----
----
----
 
 ## Quick Start Guide: 20 Detailed Steps to Evolve This Repository
 
@@ -40,12 +33,8 @@ This README file will evolve as the test experiment within this repository evolv
 16. Engage with automated workflows that test and merge your contributions.
 17. Monitor CI/CD pipelines for further iterative suggestions.
 18. Repeat the process to continuously evolve the repository using LLM completions.
-19. Enjoy the evolution: one LLM-driven update at a time, making this repository a living experiment in innovation.
+19. Enjoy the evolution: one LLM-driven update at a time.
 20. Explore planned future features outlined below.
-
----
----
----
 
 ## Future Features
 
@@ -58,17 +47,9 @@ This README file will evolve as the test experiment within this repository evolv
 - Enhanced test coverage in main.js and robust output validation.
 - Planned improvements include interactive command suggestions and more granular error feedback to guide users in case of misuse.
 
----
----
----
-
 ## Further Documentation
 
 For more detailed information about workflow usage, configuration, and future enhancements, please refer to the [WORKFLOWS-README.md](WORKFLOWS-README.md).
-
----
----
----
 
 ## Contributing
 
@@ -112,7 +93,6 @@ This repository is organized into three distinct areas to help you understand th
 
 This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
 
-License notice:
 ```
 agentic-lib
 Copyright (C) 2025 Polycode Limited
@@ -127,13 +107,9 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
-along with this program. If not, see <https://www.gnu.org/licenses/>
+You should have received a copy of the GNU General Public License v3.0 (GPL‑3)
+along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
-
----
----
----
