@@ -21,7 +21,7 @@ This README file will evolve as the test experiment within this repository evolv
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now features refined CLI flag processing by separating flags from arguments. This update ensures sequential transformations and improved clarity.
+4. Explore the source code in `src/lib/main.js`, which now features refined CLI flag processing by separating flags from arguments and includes new functionality such as the `--camel` flag that converts arguments to camelCase.
 5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, individual flags, and combined flag scenarios.
 6. Examine the workflows in `.github/workflows/` to understand automated LLM-driven improvements.
 7. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
@@ -48,6 +48,7 @@ This README file will evolve as the test experiment within this repository evolv
 - Extended documentation and examples to help contributors better understand experimental features.
 - **New Feature:** Added a `--append` flag which joins remaining arguments with a space and appends an exclamation mark, powered by lodash.
 - **New Feature:** Added a `--capitalize` flag which capitalizes each provided argument using the change-case library.
+- **New Feature:** Added a `--camel` flag which converts each provided argument to camelCase using the change-case library.
 - Enhanced test coverage in main.js and robust output validation.
 - Planned improvements include interactive command suggestions and more granular error feedback to guide users in case of misuse.
 
@@ -122,6 +123,5 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
----
 ---
 ---
