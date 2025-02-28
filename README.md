@@ -29,22 +29,36 @@ This README file will evolve as the test experiment within this repository evolv
    - **--duplicate**: Duplicates each argument.
    - **--count**: Displays the count of non-flag arguments.
    - **--shuffle**: Randomly shuffles the order of non-flag arguments.
-5. A new wrapper function, **openaiChatCompletions**, has been added to simplify calls to the OpenAI API. This function mirrors the signature of the OpenAI SDK function and can be used internally or for testing purposes.
-6. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, individual flags (including the new shuffle mode and OpenAI wrapper), and combined flag scenarios.
-7. Examine the workflows in `.github/workflows/` to understand automated improvements.
-8. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
-9. Execute `npm run start` to observe the CLI output. **Note:** In production, the program terminates automatically after displaying usage and demo output.
-10. Run `npm test` to ensure that all tests pass.
-11. Use the updated transformation logic and API wrappers as a baseline and suggest further enhancements if needed.
-12. Identify areas for improvement in error messaging, interactive command suggestions, and flag conflict resolution.
-13. Leverage automated tools and LLM feedback to propose one enhancement at a time.
-14. Validate changes by running the full test suite and build scripts.
-15. Update documentation as new features are added or existing behavior evolves.
-16. Create a feature branch and submit a pull request with your improvements.
-17. Engage with automated workflows that test and merge your contributions.
-18. Monitor CI/CD pipelines for further iterative suggestions.
-19. Continuously refine the repository with automation and LLM-driven updates.
+5. A new wrapper function, **openaiChatCompletions**, has been added to simplify calls to the OpenAI API.
+6. **New Exported Utility Functions:**
+   The source file now exports several new utility functions to aid in common text and issue processing tasks:
+   - `generateUsage()`: Returns a usage message string.
+   - `reverseArgs(args)`: Returns a reversed copy of an arguments array.
+   - `toUpperCaseArgs(args)`: Converts all arguments to uppercase.
+   - `toLowerCaseArgs(args)`: Converts all arguments to lowercase.
+   - `shuffleArgs(args)`: Returns a new array with elements shuffled randomly.
+   - `sortArgs(args)`: Returns a sorted copy of the arguments array.
+   - `duplicateArgs(args)`: Returns a new array with each argument duplicated.
+   - `countArgs(args)`: Returns the count of arguments.
+   - `getIssueNumberFromBranch(branch, prefix)`: Extracts a numeric issue from a branch name given a specific prefix.
+   - `sanitizeCommitMessage(message)`: Sanitizes a commit message to remove unwanted characters.
+7. Review the test suite in `tests/unit/` for current functionality. New tests have been added for these utility functions.
+8. Examine the workflows in `.github/workflows/` to understand automated improvements.
+9. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on automated and human contributions.
+10. Execute `npm run start` to observe the CLI output. **Note:** In production, the program terminates automatically after displaying usage and demo output.
+11. Run `npm test` to ensure that all tests pass.
+12. Use the updated transformation logic and API wrappers as a baseline and suggest further enhancements if needed.
+13. Identify areas for improvement in error messaging, interactive command suggestions, and flag conflict resolution.
+14. Leverage automated tools and LLM feedback to propose one enhancement at a time.
+15. Validate changes by running the full test suite and build scripts.
+16. Update documentation as new features are added or existing behavior evolves.
+17. Create a feature branch and submit a pull request with your improvements.
+18. Engage with automated workflows that test and merge your contributions.
+19. Monitor CI/CD pipelines for further iterative suggestions.
 20. Enjoy the evolution, one automated update at a time.
+
+---
+---
 
 ## Future Features
 
@@ -55,53 +69,19 @@ This README file will evolve as the test experiment within this repository evolv
 - Integration of advanced GitHub Actions workflows for deeper automation.
 - **Upcoming Feature:** Real-time validation of flag combinations and immediate user feedback.
 - **Upcoming Feature:** Interactive prompt mode for enhanced user experience.
-- **Upcoming Feature:** Additional flag functionalities to further enhance text transformation, such as the recently added duplicate, count, and shuffle functionalities.
-- Continued improvements based on community feedback and automated suggestions.
+- **Upcoming Feature:** Additional flag functionalities to further enhance text transformation.
 
 ---
 ---
 
-## New Feature
+## New Exported Utility Functions
 
-- **openaiChatCompletions Wrapper:** A new function that exports a simple wrapper around the OpenAI SDK's chat completion API. It has the same signature as the underlying function and allows for easier mocking and testing of API calls.
-
-## Contributing
-
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-## Component Breakdown
-
-This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:
-
-### 1. Re‑usable Workflows (Core Functionality)
-- **Purpose:**  
-  These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.
-- **Stability:**  
-  They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.
-- **Licensing:**  
-  The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.
-- **Location:**  
-  Find these in the `.github/workflows/` directory.
-
-### 2. Example Workflows (Demonstrative Content)
-- **Purpose:**  
-  These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
-- **Stability:**  
-  While functional, they are intended primarily for demonstration and experimentation.
-- **Licensing:**  
-  The example workflows are covered by the MIT license to allow for broader use and modification.
-- **Location:**  
-  Look in the `examples/` directory for sample implementations.
-
-### 3. The Evolving main.js (Experimental Work in Progress)
-- **Purpose:**  
-  This file showcases experimental features and serves as a testbed for integrating new ideas into the system.
-- **Stability:**  
-  It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
-- **Licensing:**  
-  As part of the core project, it is under GPL‑3 with the attribution clause.
-- **Location:**  
-  The experimental code is located in `src/lib/main.js`.
+The source file now exports the following utility functions to help with various operations:
+- `generateUsage()`: Provides a standardized usage message.
+- `reverseArgs(args)`, `toUpperCaseArgs(args)`, `toLowerCaseArgs(args)`: Basic text transformations.
+- `shuffleArgs(args)`, `sortArgs(args)`, `duplicateArgs(args)`, `countArgs(args)`: Array manipulation utilities.
+- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name based on a prefix.
+- `sanitizeCommitMessage(message)`: Cleans commit messages for consistency in version control.
 
 ## License
 
@@ -131,3 +111,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
 ---
 ---
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
