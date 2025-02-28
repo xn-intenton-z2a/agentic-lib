@@ -1,19 +1,20 @@
 #!/usr/bin/env node
 // src/lib/main.js - Improved version with enhanced flag processing and sequential transformations.
 
-// This file processes CLI flags including --fancy, --time, --reverse, --upper, --color, --lower, --append, and --capitalize.
+// This file processes CLI flags including --fancy, --time, --reverse, --upper, --color, --lower, --append, --capitalize, and now --camel.
 // Flags are extracted separately from non-flag arguments to ensure proper sequential transformations.
 // If both --upper and --lower are provided, the transformation applied will be that of --lower (since it is processed later).
 // New feature: --capitalize flag that capitalizes each provided argument using the change-case module.
+// New feature: --camel flag that converts each provided argument to camelCase using the change-case module.
 
 import { fileURLToPath } from "url";
 import figlet from "figlet";
 import dayjs from "dayjs";
 import chalk from "chalk";
-import { capitalCase } from "change-case";
+import { capitalCase, camelCase } from "change-case";
 
 export function main(args = []) {
-  console.log("Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [args...]");
+  console.log("Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [--camel] [args...]");
   console.log("");
 
   if (args.length === 0) {
@@ -80,6 +81,12 @@ export function main(args = []) {
   if (flagSet.has("--capitalize")) {
     const capitalized = nonFlagArgs.map(arg => capitalCase(arg));
     console.log("Capitalized Args: " + JSON.stringify(capitalized));
+  }
+
+  if (flagSet.has("--camel")) {
+    const camelized = nonFlagArgs.map(arg => camelCase(arg));
+    console.log("CamelCase Args: " + JSON.stringify(camelized));
+    nonFlagArgs.splice(0, nonFlagArgs.length, ...camelized);
   }
 
   // Ensure process terminates in production after processing flags

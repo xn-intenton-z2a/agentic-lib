@@ -167,6 +167,20 @@ describe("Capitalize Mode", () => {
   });
 });
 
+describe("CamelCase Mode", () => {
+  test("should convert each provided argument to camelCase when --camel flag is provided", async () => {
+    const module = await import("../../src/lib/main.js");
+    let captured = "";
+    const originalLog = console.log;
+    console.log = (msg) => {
+      captured += msg + "\n";
+    };
+    module.main(["--camel", "hello world", "test string"]);
+    console.log = originalLog;
+    expect(captured).toContain('CamelCase Args: ["helloWorld","testString"]');
+  });
+});
+
 describe("Combined Flags", () => {
   test("should handle multiple flags applied sequentially", async () => {
     const module = await import("../../src/lib/main.js");
@@ -175,7 +189,7 @@ describe("Combined Flags", () => {
     console.log = (msg) => {
       captured += msg + "\n";
     };
-    module.main(["--fancy", "--time", "--reverse", "--upper", "--color", "--lower", "--append", "--capitalize", "Foo", "Bar"]);
+    module.main(["--fancy", "--time", "--reverse", "--upper", "--color", "--lower", "--append", "--capitalize", "--camel", "Foo", "Bar"]);
     console.log = originalLog;
     expect(captured).toContain("Agentic Lib");
     expect(captured).toMatch(/Current Time: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
@@ -185,5 +199,6 @@ describe("Combined Flags", () => {
     expect(captured).toContain("Lowercase Args:");
     expect(captured).toContain("Appended Output:");
     expect(captured).toContain("Capitalized Args:");
+    expect(captured).toContain("CamelCase Args:");
   });
 });
