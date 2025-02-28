@@ -24,8 +24,8 @@ This README file will evolve as the test experiment within this repository evolv
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now features a consistent transformation pipeline that sequentially applies CLI flag modifications such as --reverse, --upper, --lower, --append, --capitalize, and --camel, ensuring predictable outputs.
-5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, individual flags, and combined flag scenarios.
+4. Explore the source code in `src/lib/main.js`, which now features a consistent transformation pipeline that sequentially applies CLI flag modifications. New functionality includes a **--sort** flag that sorts non-flag arguments alphabetically.
+5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, individual flags (including the new sort mode), and combined flag scenarios.
 6. Examine the workflows in `.github/workflows/` to understand automated improvements.
 7. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
 8. Execute `npm run start` to observe the CLI output. **Note:** In production, the program terminates automatically after displaying usage and demo output.
