@@ -4,7 +4,9 @@ import { describe, test, expect } from "vitest";
 async function captureOutputAsync(fn) {
   let output = "";
   const originalLog = console.log;
-  console.log = (msg) => { output += msg + "\n"; };
+  console.log = (msg) => {
+    output += msg + "\n";
+  };
   try {
     await fn();
   } finally {
@@ -27,7 +29,9 @@ describe("Default Demo Output", () => {
     const module = await import("../../src/lib/main.js");
     let captured = "";
     const originalLog = console.log;
-    console.log = (msg) => { captured += msg + "\n"; };
+    console.log = (msg) => {
+      captured += msg + "\n";
+    };
     module.main([]);
     console.log = originalLog;
     expect(captured).toContain("Usage: npm run start");
@@ -41,7 +45,9 @@ describe("CLI Arguments Handling", () => {
     const module = await import("../../src/lib/main.js");
     let captured = "";
     const originalLog = console.log;
-    console.log = (msg) => { captured += msg + "\n"; };
+    console.log = (msg) => {
+      captured += msg + "\n";
+    };
     module.main(["testArg1", "testArg2"]);
     console.log = originalLog;
     expect(captured).toContain('["testArg1","testArg2"]');
@@ -53,7 +59,9 @@ describe("Fancy Mode", () => {
     const module = await import("../../src/lib/main.js");
     let captured = "";
     const originalLog = console.log;
-    console.log = (msg) => { captured += msg + "\n"; };
+    console.log = (msg) => {
+      captured += msg + "\n";
+    };
     module.main(["--fancy", "testArg"]);
     console.log = originalLog;
     expect(captured).toContain("Agentic Lib");
@@ -65,7 +73,9 @@ describe("Time Mode", () => {
     const module = await import("../../src/lib/main.js");
     let captured = "";
     const originalLog = console.log;
-    console.log = (msg) => { captured += msg + "\n"; };
+    console.log = (msg) => {
+      captured += msg + "\n";
+    };
     module.main(["--time"]);
     console.log = originalLog;
     const timeRegex = /Current Time: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/;
@@ -78,7 +88,9 @@ describe("Reverse Mode", () => {
     const module = await import("../../src/lib/main.js");
     let captured = "";
     const originalLog = console.log;
-    console.log = (msg) => { captured += msg + "\n"; };
+    console.log = (msg) => {
+      captured += msg + "\n";
+    };
     module.main(["--reverse", "first", "second", "third"]);
     console.log = originalLog;
     expect(captured).toContain('Reversed Args: ["third","second","first"]');
@@ -90,7 +102,9 @@ describe("Uppercase Mode", () => {
     const module = await import("../../src/lib/main.js");
     let captured = "";
     const originalLog = console.log;
-    console.log = (msg) => { captured += msg + "\n"; };
+    console.log = (msg) => {
+      captured += msg + "\n";
+    };
     module.main(["--upper", "hello", "world"]);
     console.log = originalLog;
     expect(captured).toContain('Uppercase Args: ["HELLO","WORLD"]');
@@ -102,7 +116,9 @@ describe("Color Mode", () => {
     const module = await import("../../src/lib/main.js");
     let captured = "";
     const originalLog = console.log;
-    console.log = (msg) => { captured += msg + "\n"; };
+    console.log = (msg) => {
+      captured += msg + "\n";
+    };
     module.main(["--color", "col1", "col2"]);
     console.log = originalLog;
     expect(captured).toContain('Colored Args: ["col1","col2"]');
@@ -114,7 +130,9 @@ describe("Lowercase Mode", () => {
     const module = await import("../../src/lib/main.js");
     let captured = "";
     const originalLog = console.log;
-    console.log = (msg) => { captured += msg + "\n"; };
+    console.log = (msg) => {
+      captured += msg + "\n";
+    };
     module.main(["--lower", "HeLLo", "WORLD"]);
     console.log = originalLog;
     expect(captured).toContain('Lowercase Args: ["hello","world"]');
@@ -126,7 +144,9 @@ describe("Combined Flags", () => {
     const module = await import("../../src/lib/main.js");
     let captured = "";
     const originalLog = console.log;
-    console.log = (msg) => { captured += msg + "\n"; };
+    console.log = (msg) => {
+      captured += msg + "\n";
+    };
     // Combined flags: fancy, time, reverse, upper, color, lower with sample arguments
     module.main(["--fancy", "--time", "--reverse", "--upper", "--color", "--lower", "Foo", "Bar"]);
     console.log = originalLog;
