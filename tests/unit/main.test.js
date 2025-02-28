@@ -193,13 +193,25 @@ describe("Sort Mode", () => {
   });
 });
 
+describe("Duplicate Mode", () => {
+  test("should duplicate each provided argument when --duplicate flag is provided", async () => {
+    const module = await import("../../src/lib/main.js");
+    let captured = "";
+    const originalLog = console.log;
+    console.log = (msg) => { captured += msg + "\n"; };
+    module.main(["--duplicate", "hello", "world"]);
+    console.log = originalLog;
+    expect(captured).toContain('Duplicated Args: ["hellohello","worldworld"]');
+  });
+});
+
 describe("Combined Flags", () => {
   test("should handle multiple flags applied sequentially", async () => {
     const module = await import("../../src/lib/main.js");
     let captured = "";
     const originalLog = console.log;
     console.log = (msg) => { captured += msg + "\n"; };
-    module.main(["--fancy", "--time", "--reverse", "--upper", "--color", "--lower", "--append", "--capitalize", "--camel", "--sort", "Foo", "Bar"]);
+    module.main(["--fancy", "--time", "--reverse", "--upper", "--color", "--lower", "--append", "--capitalize", "--camel", "--sort", "--duplicate", "Foo", "Bar"]);
     console.log = originalLog;
     expect(captured).toContain("Agentic Lib");
     expect(captured).toMatch(/Current Time: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
@@ -211,5 +223,6 @@ describe("Combined Flags", () => {
     expect(captured).toContain("Capitalized Args:");
     expect(captured).toContain("CamelCase Args:");
     expect(captured).toContain("Sorted Args:");
+    expect(captured).toContain("Duplicated Args:");
   });
 });
