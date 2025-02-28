@@ -2,7 +2,10 @@
 
 You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](WORKFLOWS-README.md)
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
+repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
+issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
+GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 
 [Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
 
@@ -21,40 +24,35 @@ This README file will evolve as the test experiment within this repository evolv
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now features a more consistent transformation pipeline that sequentially applies CLI flag modifications (such as --reverse, --upper, --lower, --camel, etc.) ensuring predictable output.
+4. Explore the source code in `src/lib/main.js`, which now features a consistent transformation pipeline that sequentially applies CLI flag modifications such as --reverse, --upper, --lower, --append, --capitalize, and --camel, ensuring predictable outputs.
 5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, individual flags, and combined flag scenarios.
-6. Examine the workflows in `.github/workflows/` to understand automated LLM-driven improvements.
+6. Examine the workflows in `.github/workflows/` to understand automated improvements.
 7. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
-8. Execute `npm run start` to observe the current CLI output. **Note:** In production, the program terminates automatically after displaying usage and demo output.
+8. Execute `npm run start` to observe the CLI output. **Note:** In production, the program terminates automatically after displaying usage and demo output.
 9. Run `npm test` to ensure that all tests pass.
 10. Use the updated transformation logic as a baseline and suggest further enhancements if needed.
-11. Identify areas for improvement within the code or workflows.
-12. Use automated tools or LLM feedback to suggest enhancements one at a time.
+11. Identify areas for improvement in error messaging, interactive command suggestions, and flag conflict resolution.
+12. Leverage automated tools and LLM feedback to propose one enhancement at a time.
 13. Validate changes by running the full test suite and build scripts.
-14. Update documentation to reflect new features and evolving practices.
+14. Update documentation as new features are added or existing behavior evolves.
 15. Create a feature branch and submit a pull request with your improvements.
 16. Engage with automated workflows that test and merge your contributions.
 17. Monitor CI/CD pipelines for further iterative suggestions.
-18. Repeat the process to continuously evolve the repository using LLM completions.
-19. Enjoy the evolution: one LLM-driven update at a time.
-20. Explore planned future features outlined below.
+18. Continuously refine the repository with automation and LLM-driven updates.
+19. Explore planned future features outlined below.
+20. Enjoy the evolution, one automated update at a time.
 
 ## Future Features
 
-- Enhanced CLI argument parsing and conflict resolution between flags.
-- Improved error messaging and logging within the main execution flow.
-- Additional automated tests to cover edge cases, especially for combined flag scenarios.
-- Integration of new GitHub Actions workflows to manage more aspects of repository automation.
-- Extended documentation and examples to help contributors better understand experimental features.
-- **New Feature:** Added a `--append` flag which joins remaining arguments with a space and appends an exclamation mark, powered by lodash.
-- **New Feature:** Added a `--capitalize` flag which capitalizes each provided argument using the change-case library.
-- **New Feature:** Added a `--camel` flag which converts each provided argument to camelCase using the change-case library.
-- Enhanced test coverage in main.js and robust output validation.
-- Planned improvements include interactive command suggestions and more granular error feedback to guide users in case of misuse.
-
-## Further Documentation
-
-For more detailed information about workflow usage, configuration, and future enhancements, please refer to the [WORKFLOWS-README.md](WORKFLOWS-README.md).
+- Enhanced CLI argument parsing with conflict detection and suggestion capabilities.
+- Improved error messaging and logging for clearer user guidance.
+- Interactive command suggestions to assist in flag usage.
+- Extended automated tests covering additional edge cases.
+- Integration of advanced GitHub Actions workflows for deeper automation.
+- **Upcoming Feature:** Real-time validation of flag combinations and immediate user feedback.
+- **Upcoming Feature:** Interactive prompt mode for enhanced user experience.
+- **Upcoming Feature:** Additional flag functionalities to further enhance text transformation.
+- Continued improvements based on community feedback and automated suggestions.
 
 ---
 ---
@@ -123,6 +121,5 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
----
 ---
 ---
