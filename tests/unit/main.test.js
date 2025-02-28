@@ -205,13 +205,25 @@ describe("Duplicate Mode", () => {
   });
 });
 
+describe("Count Mode", () => {
+  test("should print the count of non-flag arguments when --count flag is provided", async () => {
+    const module = await import("../../src/lib/main.js");
+    let captured = "";
+    const originalLog = console.log;
+    console.log = (msg) => { captured += msg + "\n"; };
+    module.main(["--count", "foo", "bar", "baz"]);
+    console.log = originalLog;
+    expect(captured).toContain('Count of Args: 3');
+  });
+});
+
 describe("Combined Flags", () => {
   test("should handle multiple flags applied sequentially", async () => {
     const module = await import("../../src/lib/main.js");
     let captured = "";
     const originalLog = console.log;
     console.log = (msg) => { captured += msg + "\n"; };
-    module.main(["--fancy", "--time", "--reverse", "--upper", "--color", "--lower", "--append", "--capitalize", "--camel", "--sort", "--duplicate", "Foo", "Bar"]);
+    module.main(["--fancy", "--time", "--reverse", "--upper", "--color", "--lower", "--append", "--capitalize", "--camel", "--sort", "--duplicate", "--count", "Foo", "Bar"]);
     console.log = originalLog;
     expect(captured).toContain("Agentic Lib");
     expect(captured).toMatch(/Current Time: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
@@ -224,5 +236,6 @@ describe("Combined Flags", () => {
     expect(captured).toContain("CamelCase Args:");
     expect(captured).toContain("Sorted Args:");
     expect(captured).toContain("Duplicated Args:");
+    expect(captured).toContain("Count of Args: 2");
   });
 });

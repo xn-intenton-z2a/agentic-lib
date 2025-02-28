@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // src/lib/main.js - Improved version with enhanced flag processing and explicit exit messages for clear termination.
-// Consolidated transformation pipeline for improved consistency between source and tests, with added sort and duplicate functionality.
+// Consolidated transformation pipeline for improved consistency between source and tests, with added sort, duplicate, and count functionalities.
 
 import { fileURLToPath } from "url";
 import figlet from "figlet";
@@ -9,7 +9,7 @@ import chalk from "chalk";
 import { capitalCase, camelCase } from "change-case";
 
 export function main(args = []) {
-  console.log("Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [--camel] [--sort] [--duplicate] [args...]");
+  console.log("Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [--camel] [--sort] [--duplicate] [--count] [args...]");
   console.log("");
 
   if (args.length === 0) {
@@ -81,16 +81,21 @@ export function main(args = []) {
     console.log("CamelCase Args: " + JSON.stringify(nonFlagArgs));
   }
 
-  // New Sort Mode: Sort arguments alphabetically if --sort flag is provided
+  // New Sort Mode
   if (flagSet.has("--sort")) {
     const sorted = nonFlagArgs.slice().sort();
     console.log("Sorted Args: " + JSON.stringify(sorted));
   }
 
-  // Extended Functionality: Duplicate each argument if --duplicate flag is provided
+  // Extended Functionality: Duplicate each argument
   if (flagSet.has("--duplicate")) {
     const duplicated = nonFlagArgs.map(arg => arg + arg);
     console.log("Duplicated Args: " + JSON.stringify(duplicated));
+  }
+
+  // Added Count Mode: Display the count of non-flag arguments
+  if (flagSet.has("--count")) {
+    console.log("Count of Args: " + nonFlagArgs.length);
   }
 
   if (process.env.NODE_ENV !== "test") {
