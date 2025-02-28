@@ -59,15 +59,18 @@ describe("Utility Functions", () => {
   });
 
   test("reverseArgs reverses the array correctly", () => {
-    expect(reverseArgs(["a", "b", "c"]).join("")).toBe("cba");
+    expect(reverseArgs(["a", "b", "c"]).join(""))
+      .toBe("cba");
   });
 
   test("toUpperCaseArgs converts array elements to uppercase", () => {
-    expect(toUpperCaseArgs(["a", "b"]).join(",")).toBe("A,B");
+    expect(toUpperCaseArgs(["a", "b"]).join(","))
+      .toBe("A,B");
   });
 
   test("toLowerCaseArgs converts array elements to lowercase", () => {
-    expect(toLowerCaseArgs(["A", "B"]).join(",")).toBe("a,b");
+    expect(toLowerCaseArgs(["A", "B"]).join(","))
+      .toBe("a,b");
   });
 
   test("shuffleArgs returns an array with the same elements in different order", () => {
@@ -82,7 +85,8 @@ describe("Utility Functions", () => {
   });
 
   test("duplicateArgs duplicates each element", () => {
-    expect(duplicateArgs(["a", "b"]).join(",")).toBe("aa,bb");
+    expect(duplicateArgs(["a", "b"]).join(","))
+      .toBe("aa,bb");
   });
 
   test("countArgs returns correct count", () => {
