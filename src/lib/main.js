@@ -1,11 +1,6 @@
 #!/usr/bin/env node
 // src/lib/main.js - Improved version with enhanced flag processing and sequential transformations.
-
-// This file processes CLI flags including --fancy, --time, --reverse, --upper, --color, --lower, --append, --capitalize, and now --camel.
-// Flags are extracted separately from non-flag arguments to ensure proper sequential transformations.
-// If both --upper and --lower are provided, the transformation applied will be that of --lower (since it is processed later).
-// New feature: --capitalize flag that capitalizes each provided argument using the change-case module.
-// New feature: --camel flag that converts each provided argument to camelCase using the change-case module.
+// Consolidated transformation pipeline for improved consistency between source and tests.
 
 import { fileURLToPath } from "url";
 import figlet from "figlet";
@@ -28,7 +23,7 @@ export function main(args = []) {
 
   // Separate flags and non-flag arguments
   const flagSet = new Set();
-  const nonFlagArgs = [];
+  let nonFlagArgs = [];
   for (const arg of args) {
     if (arg.startsWith("--")) {
       flagSet.add(arg);
@@ -50,17 +45,15 @@ export function main(args = []) {
 
   // Process reversal flag
   if (flagSet.has("--reverse")) {
-    const reversed = [...nonFlagArgs].reverse();
-    console.log("Reversed Args: " + JSON.stringify(reversed));
-    nonFlagArgs.splice(0, nonFlagArgs.length, ...reversed);
+    nonFlagArgs = [...nonFlagArgs].reverse();
+    console.log("Reversed Args: " + JSON.stringify(nonFlagArgs));
   } else {
     console.log("Run with: " + JSON.stringify(nonFlagArgs));
   }
 
   if (flagSet.has("--upper")) {
-    const upperArgs = nonFlagArgs.map(arg => arg.toUpperCase());
-    console.log("Uppercase Args: " + JSON.stringify(upperArgs));
-    nonFlagArgs.splice(0, nonFlagArgs.length, ...upperArgs);
+    nonFlagArgs = nonFlagArgs.map(arg => arg.toUpperCase());
+    console.log("Uppercase Args: " + JSON.stringify(nonFlagArgs));
   }
 
   if (flagSet.has("--color")) {
@@ -68,9 +61,8 @@ export function main(args = []) {
   }
 
   if (flagSet.has("--lower")) {
-    const lowerArgs = nonFlagArgs.map(arg => arg.toLowerCase());
-    console.log("Lowercase Args: " + JSON.stringify(lowerArgs));
-    nonFlagArgs.splice(0, nonFlagArgs.length, ...lowerArgs);
+    nonFlagArgs = nonFlagArgs.map(arg => arg.toLowerCase());
+    console.log("Lowercase Args: " + JSON.stringify(nonFlagArgs));
   }
 
   if (flagSet.has("--append")) {
@@ -84,12 +76,10 @@ export function main(args = []) {
   }
 
   if (flagSet.has("--camel")) {
-    const camelized = nonFlagArgs.map(arg => camelCase(arg));
-    console.log("CamelCase Args: " + JSON.stringify(camelized));
-    nonFlagArgs.splice(0, nonFlagArgs.length, ...camelized);
+    nonFlagArgs = nonFlagArgs.map(arg => camelCase(arg));
+    console.log("CamelCase Args: " + JSON.stringify(nonFlagArgs));
   }
 
-  // Ensure process terminates in production after processing flags
   if (process.env.NODE_ENV !== "test") {
     process.exit(0);
   }
