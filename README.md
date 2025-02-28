@@ -24,8 +24,8 @@ This README file will evolve as the test experiment within this repository evolv
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now supports new CLI flags: `--fancy` for ASCII art output, `--time` for displaying the current time, `--reverse` for displaying the reversed list of arguments, and the new `--upper` flag which converts arguments to uppercase. **Note:** Running the command without any arguments will display demo output and terminate automatically.
-5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, argument printing, fancy mode, time mode, reverse mode, uppercase mode, and the demo output behavior.
+4. Explore the source code in `src/lib/main.js`, which now supports new CLI flags: `--fancy` for ASCII art output, `--time` for displaying the current time, `--reverse` for displaying the reversed list of arguments, `--upper` for converting arguments to uppercase, and the new `--color` flag for printing arguments in a colored format. **Note:** Running the command without any arguments will display demo output and terminate automatically.
+5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, argument printing, fancy mode, time mode, reverse mode, uppercase mode, and color mode.
 6. Examine the workflows in `.github/workflows/` to understand automated LLM-driven improvements.
 7. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
 8. Execute `npm run start` to observe the current CLI output.
@@ -52,7 +52,7 @@ This README file will evolve as the test experiment within this repository evolv
 - Additional automated tests to cover edge cases and further improve reliability.
 - Integration of new GitHub Actions workflows to manage more aspects of repository automation.
 - Extended documentation and examples to help contributors better understand experimental features.
-- **New Feature:** In addition to existing flags, the main script now supports a `--reverse` flag that, when provided, outputs the reversed order of the supplied arguments, and a new `--upper` flag that outputs the arguments in uppercase.
+- **New Feature:** In addition to existing flags, the main script now supports a `--reverse` flag that outputs the reversed list of supplied arguments, a new `--upper` flag that outputs the arguments in uppercase, and a new `--color` flag that prints the arguments in green color using the chalk library.
 - Enhanced test coverage in main.js to handle default behavior and ensure robust output.
 - Planned improvements include interactive command suggestions and more granular error feedback to guide users in case of misuse.
 
@@ -130,6 +130,5 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
----
 ---
 ---
