@@ -121,6 +121,65 @@ export async function openaiChatCompletions(options) {
   return openai.chat.completions.create(options);
 }
 
+// New Exported Utility Functions
+
+// 1. Generates the usage message
+export function generateUsage() {
+  return "Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [--camel] [--shuffle] [--sort] [--duplicate] [--count] [args...]";
+}
+
+// 2. Returns the reversed array of arguments
+export function reverseArgs(args = []) {
+  return args.slice().reverse();
+}
+
+// 3. Converts all arguments to uppercase
+export function toUpperCaseArgs(args = []) {
+  return args.map(arg => arg.toUpperCase());
+}
+
+// 4. Converts all arguments to lowercase
+export function toLowerCaseArgs(args = []) {
+  return args.map(arg => arg.toLowerCase());
+}
+
+// 5. Randomly shuffles the arguments array
+export function shuffleArgs(args = []) {
+  const result = args.slice();
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+// 6. Returns a sorted (alphabetically) copy of the arguments array
+export function sortArgs(args = []) {
+  return args.slice().sort();
+}
+
+// 7. Returns a new array with each argument duplicated
+export function duplicateArgs(args = []) {
+  return args.map(arg => arg + arg);
+}
+
+// 8. Returns the count of arguments
+export function countArgs(args = []) {
+  return args.length;
+}
+
+// 9. Extracts an issue number from a branch name given a prefix (default is 'issue-')
+export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
+  const regex = new RegExp(prefix + "(\\d+)");
+  const match = branch.match(regex);
+  return match ? parseInt(match[1], 10) : null;
+}
+
+// 10. Sanitizes a commit message to remove unwanted characters
+export function sanitizeCommitMessage(message = "") {
+  return message.replace(/[^A-Za-z0-9 \-\_\.\~]/g, '').replace(/\s+/g, ' ').trim();
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   main(args);
