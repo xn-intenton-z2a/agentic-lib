@@ -1,6 +1,9 @@
 #!/usr/bin/env node
-// src/lib/main.js - Updated to include usage info, demo output, automatic termination when no arguments are provided, extended functionality,
-// and a new --color flag that prints the remaining arguments in green color using the chalk dependency, and a new --lower flag that prints the remaining arguments in lowercase.
+// src/lib/main.js - Improved version with clarifying comments and maintained functionality.
+// 
+// This file processes CLI flags including --fancy, --time, --reverse, --upper, --color, and --lower.
+// The flags are processed in sequence. If both --upper and --lower are provided, the transformation applied
+// will be that of --lower (since it is processed last), so use them carefully as they override each other.
 
 import { fileURLToPath } from "url";
 import figlet from "figlet";
@@ -45,20 +48,20 @@ export function main(args = []) {
     console.log(`Run with: ${JSON.stringify(args)}`);
   }
 
-  // Process --upper flag (new feature: converts the remaining arguments to uppercase)
+  // Process --upper flag (converts arguments to uppercase)
   if (args.includes("--upper")) {
     args = args.filter(arg => arg !== "--upper");
     const upperArgs = args.map(arg => arg.toUpperCase());
     console.log(`Uppercase Args: ${JSON.stringify(upperArgs)}`);
   }
 
-  // Process --color flag (new feature: prints the remaining arguments in green color)
+  // Process --color flag (prints the remaining arguments in green color)
   if (args.includes("--color")) {
     args = args.filter(arg => arg !== "--color");
     console.log(chalk.green(`Colored Args: ${JSON.stringify(args)}`));
   }
 
-  // Process --lower flag (new feature: converts the remaining arguments to lowercase)
+  // Process --lower flag (converts arguments to lowercase)
   if (args.includes("--lower")) {
     args = args.filter(arg => arg !== "--lower");
     const lowerArgs = args.map(arg => arg.toLowerCase());

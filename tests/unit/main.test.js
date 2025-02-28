@@ -120,3 +120,21 @@ describe("Lowercase Mode", () => {
     expect(captured).toContain('Lowercase Args: ["hello","world"]');
   });
 });
+
+describe("Combined Flags", () => {
+  test("should handle multiple flags applied sequentially", async () => {
+    const module = await import("../../src/lib/main.js");
+    let captured = "";
+    const originalLog = console.log;
+    console.log = (msg) => { captured += msg + "\n"; };
+    // Combined flags: fancy, time, reverse, upper, color, lower with sample arguments
+    module.main(["--fancy", "--time", "--reverse", "--upper", "--color", "--lower", "Foo", "Bar"]);
+    console.log = originalLog;
+    expect(captured).toContain("Agentic Lib");
+    expect(captured).toMatch(/Current Time: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
+    expect(captured).toContain("Reversed Args:");
+    expect(captured).toContain("Uppercase Args:");
+    expect(captured).toContain("Colored Args:");
+    expect(captured).toContain("Lowercase Args:");
+  });
+});
