@@ -108,3 +108,15 @@ describe("Color Mode", () => {
     expect(captured).toContain('Colored Args: ["col1","col2"]');
   });
 });
+
+describe("Lowercase Mode", () => {
+  test("should convert provided arguments to lowercase when --lower flag is provided", async () => {
+    const module = await import("../../src/lib/main.js");
+    let captured = "";
+    const originalLog = console.log;
+    console.log = (msg) => { captured += msg + "\n"; };
+    module.main(["--lower", "HeLLo", "WORLD"]);
+    console.log = originalLog;
+    expect(captured).toContain('Lowercase Args: ["hello","world"]');
+  });
+});
