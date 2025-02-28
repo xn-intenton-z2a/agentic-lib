@@ -181,15 +181,25 @@ describe("CamelCase Mode", () => {
   });
 });
 
+describe("Sort Mode", () => {
+  test("should sort provided arguments alphabetically when --sort flag is provided", async () => {
+    const module = await import("../../src/lib/main.js");
+    let captured = "";
+    const originalLog = console.log;
+    console.log = (msg) => { captured += msg + "\n"; };
+    module.main(["--sort", "banana", "apple", "cherry"]);
+    console.log = originalLog;
+    expect(captured).toContain('Sorted Args: ["apple","banana","cherry"]');
+  });
+});
+
 describe("Combined Flags", () => {
   test("should handle multiple flags applied sequentially", async () => {
     const module = await import("../../src/lib/main.js");
     let captured = "";
     const originalLog = console.log;
-    console.log = (msg) => {
-      captured += msg + "\n";
-    };
-    module.main(["--fancy", "--time", "--reverse", "--upper", "--color", "--lower", "--append", "--capitalize", "--camel", "Foo", "Bar"]);
+    console.log = (msg) => { captured += msg + "\n"; };
+    module.main(["--fancy", "--time", "--reverse", "--upper", "--color", "--lower", "--append", "--capitalize", "--camel", "--sort", "Foo", "Bar"]);
     console.log = originalLog;
     expect(captured).toContain("Agentic Lib");
     expect(captured).toMatch(/Current Time: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
@@ -200,5 +210,6 @@ describe("Combined Flags", () => {
     expect(captured).toContain("Appended Output:");
     expect(captured).toContain("Capitalized Args:");
     expect(captured).toContain("CamelCase Args:");
+    expect(captured).toContain("Sorted Args:");
   });
 });
