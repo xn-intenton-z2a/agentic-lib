@@ -81,6 +81,11 @@ export function main(args = []) {
     const capitalized = nonFlagArgs.map(arg => capitalCase(arg));
     console.log("Capitalized Args: " + JSON.stringify(capitalized));
   }
+
+  // Ensure process terminates in production after processing flags
+  if (process.env.NODE_ENV !== "test") {
+    process.exit(0);
+  }
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

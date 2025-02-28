@@ -21,11 +21,11 @@ This README file will evolve as the test experiment within this repository evolv
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now features refined CLI flag processing by separating flags from arguments. This update ensures sequential transformations (e.g. if both --upper and --lower are provided, --lower takes precedence) and improves clarity.
+4. Explore the source code in `src/lib/main.js`, which now features refined CLI flag processing by separating flags from arguments. This update ensures sequential transformations and improved clarity.
 5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, individual flags, and combined flag scenarios.
 6. Examine the workflows in `.github/workflows/` to understand automated LLM-driven improvements.
 7. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
-8. Execute `npm run start` to observe the current CLI output.
+8. Execute `npm run start` to observe the current CLI output. **Note:** In production, the program terminates automatically after displaying usage and demo output.
 9. Run `npm test` to ensure that all tests pass.
 10. Follow this updated guide that focuses on evolving the repository iteratively while keeping documentation in sync with the current behavior.
 11. Identify areas for improvement within the code or workflows.
