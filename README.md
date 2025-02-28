@@ -21,7 +21,7 @@ This README file will evolve as the test experiment within this repository evolv
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now supports updated CLI flags including combined behaviors and the new `--append` and `--capitalize` flags. The `--capitalize` flag capitalizes each provided argument using the change-case library.
+4. Explore the source code in `src/lib/main.js`, which now features refined CLI flag processing by separating flags from arguments. This update ensures sequential transformations (e.g. if both --upper and --lower are provided, --lower takes precedence) and improves clarity.
 5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, individual flags, and combined flag scenarios.
 6. Examine the workflows in `.github/workflows/` to understand automated LLM-driven improvements.
 7. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
@@ -122,5 +122,6 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
+---
 ---
 ---
