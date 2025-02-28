@@ -28,8 +28,9 @@ This README file will evolve as the test experiment within this repository evolv
    - **--sort**: Sorts non-flag arguments alphabetically.
    - **--duplicate**: Duplicates each argument.
    - **--count**: Displays the count of non-flag arguments.
+   - **--shuffle**: Randomly shuffles the order of non-flag arguments.
 5. A new wrapper function, **openaiChatCompletions**, has been added to simplify calls to the OpenAI API. This function mirrors the signature of the OpenAI SDK function and can be used internally or for testing purposes.
-6. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, individual flags (including the new count mode and OpenAI wrapper), and combined flag scenarios.
+6. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, individual flags (including the new shuffle mode and OpenAI wrapper), and combined flag scenarios.
 7. Examine the workflows in `.github/workflows/` to understand automated improvements.
 8. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
 9. Execute `npm run start` to observe the CLI output. **Note:** In production, the program terminates automatically after displaying usage and demo output.
@@ -54,7 +55,7 @@ This README file will evolve as the test experiment within this repository evolv
 - Integration of advanced GitHub Actions workflows for deeper automation.
 - **Upcoming Feature:** Real-time validation of flag combinations and immediate user feedback.
 - **Upcoming Feature:** Interactive prompt mode for enhanced user experience.
-- **Upcoming Feature:** Additional flag functionalities to further enhance text transformation, such as the recently added duplicate and count functionalities.
+- **Upcoming Feature:** Additional flag functionalities to further enhance text transformation, such as the recently added duplicate, count, and shuffle functionalities.
 - Continued improvements based on community feedback and automated suggestions.
 
 ---
@@ -94,7 +95,7 @@ This repository is organized into three distinct areas to help you understand th
 
 ### 3. The Evolving main.js (Experimental Work in Progress)
 - **Purpose:**  
-  This file showcases experimental features and serves as a testbed for integrating new ideas into the system. The newly added openaiChatCompletions function is part of these evolving features.
+  This file showcases experimental features and serves as a testbed for integrating new ideas into the system.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  

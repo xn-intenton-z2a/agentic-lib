@@ -26,6 +26,17 @@ describe("Main Module Import", () => {
 
 // [Other describe blocks for default demo output, CLI arguments handling, fancy mode, etc...]
 
+describe("Shuffle flag", () => {
+  test("should display shuffled arguments when --shuffle is provided", async () => {
+    const { main } = await import("../../src/lib/main.js");
+    const output = await captureOutputAsync(() => main(["--shuffle", "one", "two", "three"]));
+    expect(output).toContain("Shuffled Args:");
+    expect(output).toContain("one");
+    expect(output).toContain("two");
+    expect(output).toContain("three");
+  });
+});
+
 // New test suite for the openaiChatCompletions wrapper
 
 // Mock the OpenAI module

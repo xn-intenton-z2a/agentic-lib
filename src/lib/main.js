@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // src/lib/main.js - Improved version with enhanced flag processing and explicit exit messages for clear termination.
-// Consolidated transformation pipeline for improved consistency between source and tests, with added sort, duplicate, and count functionalities.
+// Consolidated transformation pipeline for improved consistency between source and tests, with added sort, duplicate, count, and new shuffle functionalities.
 
 import { fileURLToPath } from "url";
 import figlet from "figlet";
@@ -9,7 +9,7 @@ import chalk from "chalk";
 import { capitalCase, camelCase } from "change-case";
 
 export function main(args = []) {
-  console.log("Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [--camel] [--sort] [--duplicate] [--count] [args...]");
+  console.log("Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [--camel] [--shuffle] [--sort] [--duplicate] [--count] [args...]");
   console.log("");
 
   if (args.length === 0) {
@@ -79,6 +79,15 @@ export function main(args = []) {
   if (flagSet.has("--camel")) {
     nonFlagArgs = nonFlagArgs.map(arg => camelCase(arg));
     console.log("CamelCase Args: " + JSON.stringify(nonFlagArgs));
+  }
+
+  // New Shuffle Mode: Randomly shuffles the order of non-flag arguments
+  if (flagSet.has("--shuffle")) {
+    for (let i = nonFlagArgs.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [nonFlagArgs[i], nonFlagArgs[j]] = [nonFlagArgs[j], nonFlagArgs[i]];
+    }
+    console.log("Shuffled Args: " + JSON.stringify(nonFlagArgs));
   }
 
   // New Sort Mode
