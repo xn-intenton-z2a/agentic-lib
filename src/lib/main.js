@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// src/lib/main.js - Improved version with enhanced flag processing and sequential transformations.
+// src/lib/main.js - Improved version with enhanced flag processing and explicit exit messages for clear termination.
 // Consolidated transformation pipeline for improved consistency between source and tests.
 
 import { fileURLToPath } from "url";
@@ -16,6 +16,7 @@ export function main(args = []) {
     console.log("Demo: This is a demonstration of agentic-lib's functionality.");
     console.log("No additional arguments provided.");
     if (process.env.NODE_ENV !== "test") {
+      console.log("Exiting application.");
       process.exit(0);
     }
     return;
@@ -81,6 +82,7 @@ export function main(args = []) {
   }
 
   if (process.env.NODE_ENV !== "test") {
+    console.log("Exiting application.");
     process.exit(0);
   }
 }
