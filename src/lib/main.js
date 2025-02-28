@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // src/lib/main.js - Improved version with clarifying comments and maintained functionality.
 
-// This file processes CLI flags including --fancy, --time, --reverse, --upper, --color, and --lower.
+// This file processes CLI flags including --fancy, --time, --reverse, --upper, --color, --lower, and --append.
 // The flags are processed in sequence. If both --upper and --lower are provided, the transformation applied
 // will be that of --lower (since it is processed last), so use them carefully as they override each other.
 
@@ -9,9 +9,10 @@ import { fileURLToPath } from "url";
 import figlet from "figlet";
 import dayjs from "dayjs";
 import chalk from "chalk";
+import _ from "lodash";
 
 export function main(args = []) {
-  console.log("Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [args...]");
+  console.log("Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [args...]");
   console.log("");
 
   if (args.length === 0) {
@@ -58,6 +59,12 @@ export function main(args = []) {
     args = args.filter((arg) => arg !== "--lower");
     const lowerArgs = args.map((arg) => arg.toLowerCase());
     console.log(`Lowercase Args: ${JSON.stringify(lowerArgs)}`);
+  }
+
+  if (args.includes("--append")) {
+    args = args.filter((arg) => arg !== "--append");
+    const appended = _.join(args, " ") + "!";
+    console.log(`Appended Output: ${appended}`);
   }
 }
 

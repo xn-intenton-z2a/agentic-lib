@@ -25,7 +25,7 @@ This README file will evolve as the test experiment within this repository evolv
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now supports updated CLI flags including combined behaviors. New tests have been added to validate scenarios where multiple flags are used together.
+4. Explore the source code in `src/lib/main.js`, which now supports updated CLI flags including combined behaviors and the new `--append` flag that appends an exclamation mark to joined arguments.
 5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, individual flags, and combined flag scenarios.
 6. Examine the workflows in `.github/workflows/` to understand automated LLM-driven improvements.
 7. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
@@ -54,7 +54,7 @@ This README file will evolve as the test experiment within this repository evolv
 - Additional automated tests to cover edge cases, especially for combined flag scenarios.
 - Integration of new GitHub Actions workflows to manage more aspects of repository automation.
 - Extended documentation and examples to help contributors better understand experimental features.
-- **New Feature:** In addition to existing flags, combined flag scenarios have been tested to ensure consistent transformation order.
+- **New Feature:** Added a `--append` flag which joins remaining arguments with a space and appends an exclamation mark, powered by lodash.
 - Enhanced test coverage in main.js and robust output validation.
 - Planned improvements include interactive command suggestions and more granular error feedback to guide users in case of misuse.
 
