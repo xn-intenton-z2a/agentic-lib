@@ -8,17 +8,20 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 
 Mixed licensing:
 * This project is licensed under the GNU General Public License (GPL).
-* This file is part of the example suite for `agentic-lib`. See: https://github.com/xn-intenton-z2a/agentic-lib
+* This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 * This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 This README file will evolve as the test experiment within this repository evolves.
+
+---
+---
 
 ## Quick Start Guide: 20 Detailed Steps to Evolve This Repository
 
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now supports updated CLI flags including combined behaviors and the new `--append` flag that appends an exclamation mark to joined arguments.
+4. Explore the source code in `src/lib/main.js`, which now supports updated CLI flags including combined behaviors and the new `--append` and `--capitalize` flags. The `--capitalize` flag capitalizes each provided argument using the change-case library.
 5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, individual flags, and combined flag scenarios.
 6. Examine the workflows in `.github/workflows/` to understand automated LLM-driven improvements.
 7. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
@@ -44,12 +47,16 @@ This README file will evolve as the test experiment within this repository evolv
 - Integration of new GitHub Actions workflows to manage more aspects of repository automation.
 - Extended documentation and examples to help contributors better understand experimental features.
 - **New Feature:** Added a `--append` flag which joins remaining arguments with a space and appends an exclamation mark, powered by lodash.
+- **New Feature:** Added a `--capitalize` flag which capitalizes each provided argument using the change-case library.
 - Enhanced test coverage in main.js and robust output validation.
 - Planned improvements include interactive command suggestions and more granular error feedback to guide users in case of misuse.
 
 ## Further Documentation
 
 For more detailed information about workflow usage, configuration, and future enhancements, please refer to the [WORKFLOWS-README.md](WORKFLOWS-README.md).
+
+---
+---
 
 ## Contributing
 
@@ -93,6 +100,7 @@ This repository is organized into three distinct areas to help you understand th
 
 This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
 
+License notice:
 ```
 agentic-lib
 Copyright (C) 2025 Polycode Limited
@@ -107,9 +115,12 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License v3.0 (GPL‑3)
+You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
+
+---
+---
