@@ -15,7 +15,7 @@ async function captureOutputAsync(fn) {
   return output;
 }
 
-// Updated tests to use dynamic import() for ES Modules
+// Test suite for the main module
 
 describe("Main Module Import", () => {
   test("should be non-null", async () => {
@@ -147,7 +147,6 @@ describe("Combined Flags", () => {
     console.log = (msg) => {
       captured += msg + "\n";
     };
-    // Combined flags: fancy, time, reverse, upper, color, lower with sample arguments
     module.main(["--fancy", "--time", "--reverse", "--upper", "--color", "--lower", "Foo", "Bar"]);
     console.log = originalLog;
     expect(captured).toContain("Agentic Lib");
