@@ -24,8 +24,11 @@ This README file will evolve as the test experiment within this repository evolv
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now features a consistent transformation pipeline that sequentially applies CLI flag modifications. New functionality includes a **--sort** flag that sorts non-flag arguments alphabetically and a **--duplicate** flag that duplicates each argument.
-5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, individual flags (including the new sort and duplicate modes), and combined flag scenarios.
+4. Explore the source code in `src/lib/main.js`, which now features an updated transformation pipeline that sequentially applies CLI flag modifications. New functionality includes:
+   - **--sort**: Sorts non-flag arguments alphabetically.
+   - **--duplicate**: Duplicates each argument.
+   - **--count**: Displays the count of non-flag arguments.
+5. Review the test suite in `tests/unit/` for current functionality, including tests covering usage messaging, individual flags (including the new count mode), and combined flag scenarios.
 6. Examine the workflows in `.github/workflows/` to understand automated improvements.
 7. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file to follow collaboration guidelines.
 8. Execute `npm run start` to observe the CLI output. **Note:** In production, the program terminates automatically after displaying usage and demo output.
@@ -51,7 +54,7 @@ This README file will evolve as the test experiment within this repository evolv
 - Integration of advanced GitHub Actions workflows for deeper automation.
 - **Upcoming Feature:** Real-time validation of flag combinations and immediate user feedback.
 - **Upcoming Feature:** Interactive prompt mode for enhanced user experience.
-- **Upcoming Feature:** Additional flag functionalities to further enhance text transformation, such as the recently added duplicate functionality.
+- **Upcoming Feature:** Additional flag functionalities to further enhance text transformation, such as the recently added duplicate and count functionalities.
 - Continued improvements based on community feedback and automated suggestions.
 
 ---
@@ -115,7 +118,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+along with this program. If not, see <https://www.gnu.org/licenses/>
 
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
