@@ -1,13 +1,13 @@
 # agentic‑lib
 
-Thank you for your interest in contributing to **agentic‑lib**! This document outlines our guidelines for human and 
-automated contributions, ensuring that our core library remains robust, testable, and efficient in powering our 
+Thank you for your interest in contributing to **agentic‑lib**! This document outlines our guidelines for human and
+automated contributions, ensuring that our core library remains robust, testable, and efficient in powering our
 reusable GitHub Workflows.
 
 ## Mission Statement
 
-**agentic‑lib** Is a JavaScript library which can be used as a drop in JS implementation or wholesale replacement for 
-the steps, jobs, and re-usable workflows below in this repository. It is designed to be used in a GitHub Actions 
+**agentic‑lib** Is a JavaScript library which can be used as a drop in JS implementation or wholesale replacement for
+the steps, jobs, and re-usable workflows below in this repository. It is designed to be used in a GitHub Actions
 workflow to enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate
 through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be
 invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.
@@ -4083,15 +4083,15 @@ This repository is organized into three distinct areas to help you understand th
 - **Location:**  
   Look in the `examples/` directory for sample implementations.
 
-### 3. The Evolving main.js (Experimental Work in Progress)
+### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
 - **Purpose:**  
-  This file showcases experimental features and serves as a testbed for integrating new ideas into the system.
+  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
   As part of the core project, it is under GPL‑3 with the attribution clause.
 - **Location:**  
-  The experimental code is located in `src/lib/main.js`.
+  The code is located in `src/lib/main.js`.
 
 ## License
 
