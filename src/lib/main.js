@@ -104,6 +104,14 @@ export function main(args = []) {
   }
 }
 
+// New wrapper function for OpenAI chat completions.
+// This function mirrors the signature of openai.chat.completions.create and internally calls it.
+export async function openaiChatCompletions(options) {
+  const { default: OpenAI } = await import("openai");
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" });
+  return openai.chat.completions.create(options);
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   main(args);
