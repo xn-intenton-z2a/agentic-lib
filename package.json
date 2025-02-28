@@ -27,7 +27,8 @@
     "figlet": "^1.8.0",
     "openai": "^4.86.1",
     "zod": "^3.24.2",
-    "chalk": "^5.2.0"
+    "chalk": "^5.2.0",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
