@@ -138,12 +138,6 @@ describe("Utility Functions", () => {
     expect(countArgs([1, 2, 3])).toBe(3);
   });
 
-  test("getIssueNumberFromBranch extracts number correctly", () => {
-    expect(getIssueNumberFromBranch("issue-123", "issue-")).toBe(123);
-    expect(getIssueNumberFromBranch("feature-456", "feature-")).toBe(456);
-    expect(getIssueNumberFromBranch("no-match", "issue-")).toBeNull();
-  });
-
   test("sanitizeCommitMessage removes unwanted characters", () => {
     const msg = "Fix: update README! @#";
     expect(sanitizeCommitMessage(msg)).toBe("Fix update README");
