@@ -21,7 +21,7 @@ This README file will evolve as the test experiment within this repository evolv
 
 ## Updates
 
-- Fixed a bug in getIssueNumberFromBranch function where the regular expression was not properly escaping digits.
+- Added a new feature: the seeded shuffle functionality. Use the flag `--seeded-shuffle` followed by a seed and a list of arguments to shuffle them deterministically.
 
 ---
 ---
@@ -36,6 +36,7 @@ This README file will evolve as the test experiment within this repository evolv
    - **--duplicate**: Duplicates each argument.
    - **--count**: Displays the count of non-flag arguments.
    - **--shuffle**: Randomly shuffles the order of non-flag arguments.
+   - **--seeded-shuffle**: Deterministically shuffles arguments using a provided seed. Supply the seed as the first non-flag argument following the flag.
    - **Conflict detection for case flags**: When both `--upper` and `--lower` are provided, a warning is displayed and no transformation is applied.
 5. A new wrapper function, **openaiChatCompletions**, has been added to simplify calls to the OpenAI API.
 6. **New Exported Utility Functions:**
@@ -51,11 +52,12 @@ This README file will evolve as the test experiment within this repository evolv
    - `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name based on a prefix.
    - `sanitizeCommitMessage(message)`: Cleans commit messages for consistency in version control.
    - `reviewIssue(options)`: Evaluates the provided file contents and outputs.
-   - `appendIndexArgs(args)`
-   - `uniqueArgs(args)`
-   - `trimArgs(args)`
-   - `kebabCaseArgs(args)`
-   - `constantCaseArgs(args)`
+   - `appendIndexArgs(args)`: Appends each argument with its index.
+   - `uniqueArgs(args)`: Filters to only unique arguments.
+   - `trimArgs(args)`: Trims whitespace from each argument.
+   - `kebabCaseArgs(args)`: Converts arguments into kebab-case format.
+   - `constantCaseArgs(args)`: Converts arguments into CONSTANT_CASE format.
+   - **`seededShuffleArgs(args, seed)`**: Deterministically shuffles the provided arguments using a seed.
 7. Review the test suite in `tests/unit/` for current functionality. New tests have been added for these utility functions and for CLI flag behaviors.
 8. Examine the workflows in `.github/workflows/` to understand automated improvements.
 9. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on automated and human contributions.
@@ -88,6 +90,7 @@ The source file now exports the following utility functions to help with various
 - **`trimArgs(args)`**: Trims whitespace from each argument.
 - **`kebabCaseArgs(args)`**: Converts arguments into kebab-case format.
 - **`constantCaseArgs(args)`**: Converts arguments into CONSTANT_CASE format.
+- **`seededShuffleArgs(args, seed)`**: Deterministically shuffles the arguments using a provided seed.
 
 ---
 ---
