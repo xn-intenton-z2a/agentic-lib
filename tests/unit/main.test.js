@@ -100,7 +100,7 @@ describe("Utility Functions", () => {
   });
 
   test("reverseArgs reverses the array correctly", () => {
-    expect(reverseArgs(["a", "b", "c"]).join(""")).toBe("cba");
+    expect(reverseArgs(["a", "b", "c"]).join("")).toBe("cba");
   });
 
   test("toUpperCaseArgs converts array elements to uppercase", () => {
