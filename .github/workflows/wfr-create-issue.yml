@@ -39,7 +39,7 @@ on:
         type: string
         default: 'Please resolve the issue.'
       houseChoiceOptions:
-        description: 'Options for house choice, separated by commas.'
+        description: 'Options for house choice, separated by double pipes "||".'
         type: string
         required: false
         default: 'Make code changes that extend or improve the features or resolve issues shown in the included context.'
