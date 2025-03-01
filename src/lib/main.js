@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// src/lib/main.js - Improved version with enhanced flag processing, explicit exit messages, new reviewIssue utility, and added seeded shuffle functionality.
-// Consolidated transformation pipeline for improved consistency between source and tests, with added sort, duplicate, count, shuffle, and seeded shuffle functionalities.
+// src/lib/main.js - Improved version with enhanced flag processing, explicit exit messages, new reviewIssue utility, and added seeded shuffle and reverse words functionality.
+// Consolidated transformation pipeline for improved consistency between source and tests, with added sort, duplicate, count, shuffle, seeded shuffle, and reverse words functionalities.
 
 import { fileURLToPath } from "url";
 import figlet from "figlet";
@@ -125,6 +125,12 @@ export function main(args = []) {
     }
   }
 
+  // New Reverse Words Mode: Reverses each word's characters
+  if (flagSet.has("--reverse-words")) {
+    nonFlagArgs = reverseWordsArgs(nonFlagArgs);
+    console.log("Reversed Words Args: " + JSON.stringify(nonFlagArgs));
+  }
+
   if (process.env.NODE_ENV !== "test") {
     console.log("Exiting application.");
     process.exit(0);
@@ -142,7 +148,7 @@ export async function openaiChatCompletions(options) {
 
 // 1. Generates the usage message
 export function generateUsage() {
-  return "Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [--camel] [--shuffle] [--sort] [--duplicate] [--count] [--seeded-shuffle] [args...]";
+  return "Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [--camel] [--shuffle] [--sort] [--duplicate] [--count] [--seeded-shuffle] [--reverse-words] [args...]";
 }
 
 // 2. Returns the reversed array of arguments
@@ -251,6 +257,11 @@ export function seededShuffleArgs(args = [], seed = "") {
     [result[i], result[j]] = [result[j], result[i]];
   }
   return result;
+}
+
+// 18. Reverse Words: Returns a new array where each argument's characters are reversed
+export function reverseWordsArgs(args = []) {
+  return args.map(arg => arg.split('').reverse().join(''));
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
