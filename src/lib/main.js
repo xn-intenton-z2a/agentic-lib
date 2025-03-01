@@ -9,7 +9,7 @@ import chalk from "chalk";
 import { capitalCase, camelCase } from "change-case";
 
 export function main(args = []) {
-  console.log("Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [--camel] [--shuffle] [--sort] [--duplicate] [--count] [args...]");
+  console.log(generateUsage());
   console.log("");
 
   if (args.length === 0) {
@@ -170,7 +170,7 @@ export function countArgs(args = []) {
 
 // 9. Extracts an issue number from a branch name given a prefix (default is 'issue-')
 export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
-  const regex = new RegExp(prefix + "(\\d+)");
+  const regex = new RegExp(prefix + "(\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }

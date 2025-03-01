@@ -40,8 +40,8 @@ This README file will evolve as the test experiment within this repository evolv
    - `sortArgs(args)`: Returns a sorted copy of the arguments array.
    - `duplicateArgs(args)`: Returns a new array with each argument duplicated.
    - `countArgs(args)`: Returns the count of arguments.
-   - `getIssueNumberFromBranch(branch, prefix)`: Extracts a numeric issue from a branch name given a specific prefix.
-   - `sanitizeCommitMessage(message)`: Sanitizes a commit message to remove unwanted characters.
+   - `getIssueNumberFromBranch(branch, prefix)`: Extracts a numeric issue from a branch name based on a prefix.
+   - `sanitizeCommitMessage(message)`: Cleans commit messages for consistency in version control.
 7. Review the test suite in `tests/unit/` for current functionality. New tests have been added for these utility functions.
 8. Examine the workflows in `.github/workflows/` to understand automated improvements.
 9. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on automated and human contributions.
@@ -60,20 +60,6 @@ This README file will evolve as the test experiment within this repository evolv
 ---
 ---
 
-## Future Features
-
-- Enhanced CLI argument parsing with conflict detection and suggestion capabilities.
-- Improved error messaging and logging for clearer user guidance.
-- Interactive command suggestions to assist in flag usage.
-- Extended automated tests covering additional edge cases.
-- Integration of advanced GitHub Actions workflows for deeper automation.
-- **Upcoming Feature:** Real-time validation of flag combinations and immediate user feedback.
-- **Upcoming Feature:** Interactive prompt mode for enhanced user experience.
-- **Upcoming Feature:** Additional flag functionalities to further enhance text transformation.
-
----
----
-
 ## New Exported Utility Functions
 
 The source file now exports the following utility functions to help with various operations:
@@ -83,72 +69,86 @@ The source file now exports the following utility functions to help with various
 - `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name based on a prefix.
 - `sanitizeCommitMessage(message)`: Cleans commit messages for consistency in version control.
 
-## License
-
-This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
-
-License notice:
-```
-agentic-lib
-Copyright (C) 2025 Polycode Limited
-
-agentic-lib is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
-along with this program. If not, see <https://www.gnu.org/licenses/>
-
-IMPORTANT: Any derived work must include the following attribution:
-"This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
-```
-
 ---
 ---
 
 ## Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions are welcome! Below are detailed guidelines to help you contribute to agentic‑lib.
+
+Thank you for your interest in contributing to **agentic‑lib**! This document outlines our guidelines for human and automated contributions, ensuring that our core library remains robust, testable, and efficient in powering our reusable GitHub Workflows.
+
+### Mission Statement
+
+**agentic‑lib** is a JavaScript library that can be used as a drop-in JS implementation or wholesale replacement for the steps, jobs, and re‑usable workflows in this repository. It is designed to be used in a GitHub Actions workflow to enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is invoked using GitHub’s `workflow_call` event, so they can be composed like an SDK.
+
+### How to Contribute
+
+1. **Report Issues or Ideas:**
+   Open an issue on GitHub to share bug reports, feature requests, or improvements. Clear descriptions and reproducible steps are highly appreciated.
+
+2. **Submit Pull Requests:**
+   - Fork the repository and create a feature branch.
+   - Implement your changes, adhering to our coding style and standards.
+   - Add tests to cover new functionality.
+   - Update documentation if your changes affect usage or workflow behavior.
+   - Submit your pull request for review.
+
+3. **Enhance Automated Workflows:**
+   Contributions may involve adjustments to the AI-based fix verification logic, file update routines, logic for extracting issue numbers, and automated pull request merging mechanisms.
+
+4. **Run and Test the Library:**
+   Explore the capabilities of **agentic‑lib** by running the demo function with:
+   ```bash
+   npm run start [--help]
+   ```
+
+### Guidelines
+
+- **Code Quality:** Write modular, clean, and fully testable code. Our design decouples functionality from GitHub Actions globals to enhance reuse and testability.
+- **Documentation:** Keep inline comments and documentation up-to-date as you introduce changes.
+- **Compatibility:** Ensure your code runs on Node 20 and follows ECMAScript Module (ESM) standards.
+- **Feedback & Collaboration:** Your constructive feedback is valuable. Engage via GitHub issues and pull requests with maintainers and peers.
+
+---
+---
 
 ## Component Breakdown
 
 This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:
 
 ### 1. Re‑usable Workflows (Core Functionality)
-- **Purpose:**  
+- **Purpose:**
   These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.
-- **Stability:**  
-  They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.
-- **Licensing:**  
-  The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.
-- **Location:**  
+- **Stability:**
+  They are stable and well‑tested, designed to integrate into your CI/CD pipelines.
+- **Licensing:**
+  The core workflows are released under GPL‑3 with attribution required for derived work.
+- **Location:**
   Find these in the `.github/workflows/` directory.
 
 ### 2. Example Workflows (Demonstrative Content)
-- **Purpose:**  
+- **Purpose:**
   These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
-- **Stability:**  
-  While functional, they are intended primarily for demonstration and experimentation.
-- **Licensing:**  
-  The example workflows are covered by the MIT license to allow for broader use and modification.
-- **Location:**  
+- **Stability:**
+  While functional, they are primarily for demonstration and experimentation.
+- **Licensing:**
+  The example workflows are covered by the MIT license to allow broader use and modification.
+- **Location:**
   Look in the `examples/` directory for sample implementations.
 
-### 3. The Evolving main.js (Experimental Work in Progress)
-- **Purpose:**  
-  This file showcases experimental features and serves as a testbed for integrating new ideas into the system.
-- **Stability:**  
-  It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
-- **Licensing:**  
-  As part of the core project, it is under GPL‑3 with the attribution clause.
-- **Location:**  
-  The experimental code is located in `src/lib/main.js`.
+### 3. The Evolving main.js (JavaScript re‑implementation of Re‑usable Workflows)
+- **Purpose:**
+  This file implements the re‑usable workflows as a JavaScript module for programmatic access to core functionality.
+- **Stability:**
+  Under active development, it represents bleeding‑edge functionality that might not yet be production‑ready.
+- **Licensing:**
+  As part of the core project, it is licensed under GPL‑3 with the required attribution clause.
+- **Location:**
+  The code is located in `src/lib/main.js`.
+
+---
+---
 
 ## License
 
