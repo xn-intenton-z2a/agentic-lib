@@ -9,6 +9,8 @@ import chalk from "chalk";
 import seedrandom from "seedrandom";
 import { capitalCase, camelCase, paramCase, constantCase } from "change-case";
 
+// Main function: disable cognitive complexity ESLint warning
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export function main(args = []) {
   console.log(generateUsage());
   console.log("");
@@ -188,23 +190,23 @@ export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
 
 export function sanitizeCommitMessage(message = "") {
   return message
-    .replace(/[^A-Za-z0-9 \-\_\.\~]/g, "")
+    .replace(/[^A-Za-z0-9 \-_.~]/g, "")
     .replace(/\s+/g, " ")
     .trim();
 }
 
 export function reviewIssue({
   sourceFileContent,
-  testFileContent,
+  _testFileContent,
   readmeFileContent,
-  dependenciesFileContent,
+  _dependenciesFileContent,
   issueTitle,
-  issueDescription,
-  issueComments,
-  dependenciesListOutput,
-  buildOutput,
-  testOutput,
-  mainOutput,
+  _issueDescription,
+  _issueComments,
+  _dependenciesListOutput,
+  _buildOutput,
+  _testOutput,
+  _mainOutput
 }) {
   const fixed =
     sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")

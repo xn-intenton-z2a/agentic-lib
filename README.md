@@ -101,7 +101,7 @@ This repository is organized into three distinct areas to help you understand th
 - **Location:**  
   Look in the `examples/` directory for sample implementations.
 
-### 3. The Evolving main.js (JavaScript re‑implementation of Re‑usable Workflows)
+### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
 - **Purpose:**  
   This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
