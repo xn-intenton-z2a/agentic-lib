@@ -28,6 +28,7 @@ This README file will evolve as the test experiment within this repository evolv
 - `processFlags(flags)`: Processes the given flags and returns a summary message.
 - `enhancedDemo()`: Returns an enhanced demo message that includes environment details.
 - `logEnvironmentDetails()`: Logs environment details, such as the NODE_ENV setting.
+- `showVersion()`: Returns the current version of the library. Use the `--version` flag to display the version.
 
 ---
 

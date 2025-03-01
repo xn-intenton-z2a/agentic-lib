@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // src/lib/main.js - Enhanced version with a sequential transformation and extended utility functions for improved flag processing and additional functionalities.
-// This version now includes new functions: splitArguments, processFlags, enhancedDemo, and logEnvironmentDetails.
+// This version now includes new functions: splitArguments, processFlags, enhancedDemo, logEnvironmentDetails, and showVersion for version display.
 
 import { fileURLToPath } from "url";
+import { readFileSync } from "fs";
 
 // Main function
 export function main(args = []) {
@@ -22,6 +23,17 @@ export function main(args = []) {
 
   // Split arguments into flags and non-flag arguments using the new utility function
   const { flagArgs, nonFlagArgs } = splitArguments(args);
+
+  // New: if the version flag is provided, display the version and exit
+  if (flagArgs.includes("--version")) {
+    console.log(showVersion());
+    if (process.env.NODE_ENV !== "test") {
+      console.log("Exiting application.");
+      process.exit(0);
+    }
+    return;
+  }
+
   // Process the flags sequentially
   const flagProcessingResult = processFlags(flagArgs);
   console.log(flagProcessingResult);
@@ -37,7 +49,7 @@ export function main(args = []) {
 }
 
 export function generateUsage() {
-  return "Usage: npm run start [--usage] [args...]";
+  return "Usage: npm run start [--usage] [--version] [args...]";
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
@@ -83,6 +95,13 @@ export function enhancedDemo() {
 // New function: logs some environment details
 export function logEnvironmentDetails() {
   return `NODE_ENV: ${process.env.NODE_ENV || "undefined"}`;
+}
+
+// New function: shows the current version of the library
+export function showVersion() {
+  // Attempt to use the npm package version if available
+  const version = process.env.npm_package_version || "unknown";
+  return `Version: ${version}`;
 }
 
 export function reviewIssue({
