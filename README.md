@@ -24,9 +24,6 @@ This README file will evolve as the test experiment within this repository evolv
 - `generateUsage()`: Provides a usage message updated with the new flags.
 - `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name. (Updated regex for better digit capturing)
 - `sanitizeCommitMessage(message)`: Cleans up commit messages removing unsupported characters.
-- `splitArguments(args)`: Splits a list of arguments into flags and non-flag arguments.
-- `processFlags(flags)`: Processes the given flags and returns a summary message.
-- `enhancedDemo()`: Returns an enhanced demo message that includes environment details.
 - `logEnvironmentDetails()`: Logs environment details, such as the NODE_ENV setting.
 - `showVersion()`: Returns the current version of the library. Use the `--version` flag to display the version.
 
@@ -36,7 +33,6 @@ This README file will evolve as the test experiment within this repository evolv
 
 The current version synchronizes the README with the behavior of our evolving main.js implementation. Future enhancements include:
 
-- Advanced flag parsing strategies and more robust error handling.
 - Additional utility functions to further enhance workflow automation.
 - Improved integration with GitHub's API for dynamic issue and PR management.
 - Enhanced logging and monitoring features to support continuous integration improvements.
