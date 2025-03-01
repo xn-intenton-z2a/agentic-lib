@@ -3,7 +3,6 @@
 // This version now includes new functions: splitArguments, processFlags, enhancedDemo, logEnvironmentDetails, and showVersion for version display.
 
 import { fileURLToPath } from "url";
-import { readFileSync } from "fs";
 
 // Main function
 export function main(args = []) {
@@ -56,7 +55,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
   // Fixed regex to properly capture digits following prefix
-  const regex = new RegExp(prefix + "(\d+)");
+  const regex = new RegExp(prefix + "(\\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
