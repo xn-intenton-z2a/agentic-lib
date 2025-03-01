@@ -5,6 +5,7 @@ import {
   processFlags,
   enhancedDemo,
   logEnvironmentDetails,
+  showVersion
 } from "../../src/lib/main.js";
 
 describe("Main Module Import", () => {
@@ -27,7 +28,7 @@ describe("reviewIssue", () => {
       dependenciesListOutput: "npm list output",
       buildOutput: "build output",
       testOutput: "test output",
-      mainOutput: "main output",
+      mainOutput: "main output"
     };
     const result = reviewIssue(params);
     expect(result.fixed).toBe("true");
@@ -58,5 +59,10 @@ describe("Utility Functions", () => {
   test("logEnvironmentDetails returns NODE_ENV detail", () => {
     const details = logEnvironmentDetails();
     expect(details).toMatch(/NODE_ENV:/);
+  });
+
+  test("showVersion returns a version string", () => {
+    const versionStr = showVersion();
+    expect(versionStr).toMatch(/^Version:/);
   });
 });
