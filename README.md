@@ -24,7 +24,8 @@ This README file will evolve as the test experiment within this repository evolv
 - Added new flag: **--unique** to remove duplicate arguments from the input.
 - Revised the transformation pipeline in `main.js` to extend functionality as per issue requirements.
 - Extended test cases to cover the new **--unique** flag.
-- Updated documentation to reflect the new functionality.
+- Added new flag: **--vowel-count** to compute the total number of vowels in the provided arguments using lodash.
+- Updated documentation to reflect the new vowel count functionality.
 
 ---
 ---
@@ -34,9 +35,9 @@ This README file will evolve as the test experiment within this repository evolv
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now features an updated transformation pipeline including a new '--unique' flag.
+4. Explore the source code in `src/lib/main.js`, which now features an updated transformation pipeline including new '--unique' and '--vowel-count' flags.
 5. Review the test suite in `tests/unit/` for current functionality.
-6. Execute `npm run start` to observe the CLI output and test the new unique functionality.
+6. Execute `npm run start` to observe the CLI output and test the new functionalities.
 7. Run `npm test` to ensure all tests pass.
 8. Use the updated transformation logic and API wrappers as a baseline.
 9. Identify areas for improvement in error messaging and flag handling.
@@ -57,7 +58,7 @@ This README file will evolve as the test experiment within this repository evolv
 
 ## New Exported Utility Functions
 
-- `generateUsage()`: Provides a usage message updated with the new flag.
+- `generateUsage()`: Provides a usage message updated with the new flags.
 - `reverseArgs(args)`, `toUpperCaseArgs(args)`, `toLowerCaseArgs(args)`: Basic transformations.
 - `shuffleArgs(args)`, `sortArgs(args)`, `duplicateArgs(args)`, `uniqueArgs(args)`, `countArgs(args)`: Array manipulations. (New: `uniqueArgs` removes duplicate elements)
 - `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number.

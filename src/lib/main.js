@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import chalk from "chalk";
 import seedrandom from "seedrandom";
 import { capitalCase, camelCase, paramCase, constantCase } from "change-case";
+import _ from "lodash"; // Added lodash import for new vowel count feature
 
 // Main function: disable cognitive complexity ESLint warning
 // eslint-disable-next-line sonarjs/cognitive-complexity
@@ -131,6 +132,12 @@ export function main(args = []) {
     console.log("Reversed Words Args: " + JSON.stringify(resultArgs));
   }
 
+  // New feature: vowel count
+  if (flagSet.has("--vowel-count")) {
+    const vowelCount = _.sumBy(resultArgs, arg => (arg.match(/[aeiouAEIOU]/g) || []).length);
+    console.log("Vowel Count: " + vowelCount);
+  }
+
   if (process.env.NODE_ENV !== "test") {
     console.log("Exiting application.");
     process.exit(0);
@@ -146,7 +153,7 @@ export async function openaiChatCompletions(options) {
 
 // Exported Utility Functions
 export function generateUsage() {
-  return "Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [--camel] [--shuffle] [--sort] [--duplicate] [--unique] [--count] [--seeded-shuffle] [--reverse-words] [args...]";
+  return "Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [--camel] [--shuffle] [--sort] [--duplicate] [--unique] [--count] [--seeded-shuffle] [--reverse-words] [--vowel-count] [args...]";
 }
 
 export function reverseArgs(args = []) {
