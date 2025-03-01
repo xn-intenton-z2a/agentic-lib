@@ -177,7 +177,7 @@ export function countArgs(args = []) {
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
-  const regex = new RegExp(prefix + "(\d+)");
+  const regex = new RegExp(prefix + "(\\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
