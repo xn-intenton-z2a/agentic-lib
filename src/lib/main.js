@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // src/lib/main.js - Improved version with a sequential transformation pipeline for consistent flag processing.
-// Consolidated transformation pipeline for improved consistency between source and tests, with added sort, duplicate, count, shuffle, seeded shuffle, and reverse words functionalities.
+// Consolidated transformation pipeline for improved consistency between source and tests with added functionalities.
 
 import { fileURLToPath } from "url";
 import figlet from "figlet";
@@ -9,7 +9,6 @@ import chalk from "chalk";
 import seedrandom from "seedrandom";
 import { capitalCase, camelCase, paramCase, constantCase } from "change-case";
 
-// Utility functions are assumed to be exported from this module as well
 export function main(args = []) {
   console.log(generateUsage());
   console.log("");
@@ -79,13 +78,13 @@ export function main(args = []) {
   }
 
   if (flagSet.has("--capitalize")) {
-    const capitalized = resultArgs.map(arg => capitalCase(arg));
+    const capitalized = resultArgs.map((arg) => capitalCase(arg));
     console.log("Capitalized Args: " + JSON.stringify(capitalized));
     resultArgs = capitalized;
   }
 
   if (flagSet.has("--camel")) {
-    resultArgs = resultArgs.map(arg => camelCase(arg));
+    resultArgs = resultArgs.map((arg) => camelCase(arg));
     console.log("CamelCase Args: " + JSON.stringify(resultArgs));
   }
 
@@ -137,7 +136,7 @@ export async function openaiChatCompletions(options) {
   return openai.chat.completions.create(options);
 }
 
-// Exported Utility Functions (unchanged)
+// Exported Utility Functions
 export function generateUsage() {
   return "Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [--camel] [--shuffle] [--sort] [--duplicate] [--count] [--seeded-shuffle] [--reverse-words] [args...]";
 }
@@ -147,11 +146,11 @@ export function reverseArgs(args = []) {
 }
 
 export function toUpperCaseArgs(args = []) {
-  return args.map(arg => arg.toUpperCase());
+  return args.map((arg) => arg.toUpperCase());
 }
 
 export function toLowerCaseArgs(args = []) {
-  return args.map(arg => arg.toLowerCase());
+  return args.map((arg) => arg.toLowerCase());
 }
 
 export function shuffleArgs(args = []) {
@@ -168,7 +167,7 @@ export function sortArgs(args = []) {
 }
 
 export function duplicateArgs(args = []) {
-  return args.map(arg => arg + arg);
+  return args.map((arg) => arg + arg);
 }
 
 export function countArgs(args = []) {
@@ -182,7 +181,7 @@ export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
 }
 
 export function sanitizeCommitMessage(message = "") {
-  return message.replace(/[^A-Za-z0-9 \-\_\.\~]/g, '').replace(/\s+/g, ' ').trim();
+  return message.replace(/[^A-Za-z0-9 \-\_\.\~]/g, "").replace(/\s+/g, " ").trim();
 }
 
 export function reviewIssue({
@@ -198,8 +197,12 @@ export function reviewIssue({
   testOutput,
   mainOutput
 }) {
-  const fixed = sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib") ? "true" : "false";
-  const message = fixed === "true" ? "The issue has been resolved." : "Issue not resolved.";
+  const fixed = sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")
+    ? "true"
+    : "false";
+  const message = fixed === "true"
+    ? "The issue has been resolved."
+    : "Issue not resolved.";
   return { fixed, message, refinement: "None" };
 }
 
@@ -212,15 +215,15 @@ export function uniqueArgs(args = []) {
 }
 
 export function trimArgs(args = []) {
-  return args.map(arg => arg.trim());
+  return args.map((arg) => arg.trim());
 }
 
 export function kebabCaseArgs(args = []) {
-  return args.map(arg => paramCase(arg));
+  return args.map((arg) => paramCase(arg));
 }
 
 export function constantCaseArgs(args = []) {
-  return args.map(arg => constantCase(arg));
+  return args.map((arg) => constantCase(arg));
 }
 
 export function seededShuffleArgs(args = [], seed = "") {
@@ -234,7 +237,7 @@ export function seededShuffleArgs(args = [], seed = "") {
 }
 
 export function reverseWordsArgs(args = []) {
-  return args.map(arg => arg.split('').reverse().join(''));
+  return args.map((arg) => arg.split("").reverse().join(""));
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
