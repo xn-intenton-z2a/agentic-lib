@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// src/lib/main.js - Improved version with a sequential transformation pipeline for consistent flag processing.
-// Consolidated transformation pipeline for improved consistency between source and tests with added functionalities.
+// src/lib/main.js - Enhanced version with a sequential transformation and extended utility functions for improved flag processing and additional functionalities.
+// This version now includes new functions: splitArguments, processFlags, enhancedDemo, and logEnvironmentDetails.
 
 import { fileURLToPath } from "url";
 
@@ -12,6 +12,7 @@ export function main(args = []) {
 
   if (args.length === 0) {
     console.log("Demo: This is a demonstration of agentic-lib's functionality.");
+    console.log(enhancedDemo());
     console.log("No additional arguments provided.");
     if (process.env.NODE_ENV !== "test") {
       console.log("Exiting application.");
@@ -20,15 +21,14 @@ export function main(args = []) {
     return;
   }
 
-  // Separate flags and non-flag arguments
-  const flagSet = new Set();
-  const nonFlagArgs = [];
-  for (const arg of args) {
-    if (arg.startsWith("--")) {
-      flagSet.add(arg);
-    } else {
-      nonFlagArgs.push(arg);
-    }
+  // New: Split arguments into flags and non-flag arguments using the new utility function
+  const { flagArgs, nonFlagArgs } = splitArguments(args);
+  // Process the flags sequentially
+  const flagProcessingResult = processFlags(flagArgs);
+  console.log(flagProcessingResult);
+
+  if (nonFlagArgs.length > 0) {
+    console.log("Non-flag arguments:", nonFlagArgs.join(", "));
   }
 
   if (process.env.NODE_ENV !== "test") {
@@ -36,7 +36,6 @@ export function main(args = []) {
     process.exit(0);
   }
 }
-
 
 // Exported Utility Functions
 export function generateUsage() {
@@ -56,6 +55,38 @@ export function sanitizeCommitMessage(message = "") {
     .trim();
 }
 
+// New function: splits command line arguments into flag and non-flag arrays
+export function splitArguments(args = []) {
+  const flagArgs = [];
+  const nonFlagArgs = [];
+  for (const arg of args) {
+    if (arg.startsWith("--")) {
+      flagArgs.push(arg);
+    } else {
+      nonFlagArgs.push(arg);
+    }
+  }
+  return { flagArgs, nonFlagArgs };
+}
+
+// New function: processes an array of flags and returns a summary message
+export function processFlags(flags = []) {
+  if (flags.length === 0) return "No flags to process.";
+  // For demonstration purposes, simply join the flags and return a message
+  return `Processed flags: ${flags.join(", ")}`;
+}
+
+// New function: provides an enhanced demo output
+export function enhancedDemo() {
+  const envDetails = logEnvironmentDetails();
+  return `Enhanced Demo: Agentic-lib now supports additional argument processing.\n${envDetails}`;
+}
+
+// New function: logs some environment details
+export function logEnvironmentDetails() {
+  return `NODE_ENV: ${process.env.NODE_ENV || "undefined"}`;
+}
+
 export function reviewIssue({
   sourceFileContent,
   _testFileContent,
@@ -67,7 +98,7 @@ export function reviewIssue({
   _dependenciesListOutput,
   _buildOutput,
   _testOutput,
-  _mainOutput,
+  _mainOutput
 }) {
   const fixed =
     sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")
