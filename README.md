@@ -16,7 +16,6 @@ Mixed licensing:
 
 This README file will evolve as the test experiment within this repository evolves.
 
-
 ---
 ---
 
@@ -24,6 +23,11 @@ This README file will evolve as the test experiment within this repository evolv
 
 - `generateUsage()`: Provides a usage message updated with the new flags.
 - `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name.
+- `sanitizeCommitMessage(message)`: Cleans up commit messages removing unsupported characters.
+- `splitArguments(args)`: Splits a list of arguments into flags and non-flag arguments.
+- `processFlags(flags)`: Processes the given flags and returns a summary message.
+- `enhancedDemo()`: Returns an enhanced demo message that includes environment details.
+- `logEnvironmentDetails()`: Logs environment details, such as the NODE_ENV setting.
 
 ---
 ---
