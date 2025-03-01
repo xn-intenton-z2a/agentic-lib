@@ -22,6 +22,7 @@ This README file will evolve as the test experiment within this repository evolv
 ## Updates
 
 - Added new feature: the **--reverse-words** flag. When provided, each non-flag argument's characters are reversed individually. Also added the exported utility function `reverseWordsArgs`.
+- Revised transformation pipeline in `main.js` to process CLI flags sequentially, ensuring consistent output across all transformations.
 
 ---
 ---
@@ -161,6 +162,3 @@ along with this program. If not, see <https://www.gnu.org/licenses/>
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
-
----
----
