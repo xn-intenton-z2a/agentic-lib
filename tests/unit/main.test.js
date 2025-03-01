@@ -4,7 +4,7 @@ import {
   splitArguments,
   processFlags,
   enhancedDemo,
-  logEnvironmentDetails
+  logEnvironmentDetails,
 } from "../../src/lib/main.js";
 
 describe("Main Module Import", () => {
@@ -27,7 +27,7 @@ describe("reviewIssue", () => {
       dependenciesListOutput: "npm list output",
       buildOutput: "build output",
       testOutput: "test output",
-      mainOutput: "main output"
+      mainOutput: "main output",
     };
     const result = reviewIssue(params);
     expect(result.fixed).toBe("true");
