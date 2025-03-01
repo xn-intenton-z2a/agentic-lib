@@ -7,7 +7,7 @@ import figlet from "figlet";
 import dayjs from "dayjs";
 import chalk from "chalk";
 import seedrandom from "seedrandom";
-import { capitalCase, camelCase, paramCase, constantCase } from "change-case";
+import { capitalCase, camelCase, paramCase, constantCase, snakeCase } from "change-case";
 import _ from "lodash"; // Added lodash import for new vowel count feature
 
 // Main function: disable cognitive complexity ESLint warning
@@ -91,6 +91,16 @@ export function main(args = []) {
     console.log("CamelCase Args: " + JSON.stringify(resultArgs));
   }
 
+  if (flagSet.has("--snake")) {
+    resultArgs = snakeCaseArgs(resultArgs);
+    console.log("SnakeCase Args: " + JSON.stringify(resultArgs));
+  }
+
+  if (flagSet.has("--swap")) {
+    resultArgs = swapCaseArgs(resultArgs);
+    console.log("SwapCase Args: " + JSON.stringify(resultArgs));
+  }
+
   if (flagSet.has("--shuffle")) {
     resultArgs = shuffleArgs(resultArgs);
     console.log("Shuffled Args: " + JSON.stringify(resultArgs));
@@ -144,16 +154,29 @@ export function main(args = []) {
   }
 }
 
-// New wrapper function for OpenAI chat completions.
-export async function openaiChatCompletions(options) {
-  const { default: OpenAI } = await import("openai");
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" });
-  return openai.chat.completions.create(options);
+// New utility function: snakeCaseArgs
+export function snakeCaseArgs(args = []) {
+  return args.map((arg) => snakeCase(arg));
+}
+
+// New utility function: swapCaseArgs
+export function swapCaseArgs(args = []) {
+  return args.map(swapCase);
+}
+
+function swapCase(str) {
+  return str.split("").map(c => {
+    if (c === c.toUpperCase()) {
+      return c.toLowerCase();
+    } else {
+      return c.toUpperCase();
+    }
+  }).join("");
 }
 
 // Exported Utility Functions
 export function generateUsage() {
-  return "Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [--camel] [--shuffle] [--sort] [--duplicate] [--unique] [--count] [--seeded-shuffle] [--reverse-words] [--vowel-count] [args...]";
+  return "Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--lower] [--color] [--append] [--capitalize] [--camel] [--snake] [--swap] [--shuffle] [--sort] [--duplicate] [--unique] [--count] [--seeded-shuffle] [--reverse-words] [--vowel-count] [args...]";
 }
 
 export function reverseArgs(args = []) {

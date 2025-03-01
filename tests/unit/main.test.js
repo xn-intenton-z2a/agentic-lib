@@ -18,7 +18,9 @@ import {
   kebabCaseArgs,
   constantCaseArgs,
   seededShuffleArgs,
-  reverseWordsArgs
+  reverseWordsArgs,
+  snakeCaseArgs,
+  swapCaseArgs
 } from "../../src/lib/main.js";
 
 async function captureOutputAsync(fn) {
@@ -80,6 +82,16 @@ describe("Main function flag tests", () => {
     expect(output).toContain("Reversed Args:");
     expect(output).toContain("third");
     expect(output).toContain("first");
+  });
+
+  test("should convert arguments to snake_case when --snake is provided", async () => {
+    const output = await captureOutputAsync(() => main(["--snake", "Hello World", "TestCase"]));
+    expect(output).toContain("SnakeCase Args: " + JSON.stringify(["hello_world", "test_case"]));
+  });
+
+  test("should swap the case of arguments when --swap is provided", async () => {
+    const output = await captureOutputAsync(() => main(["--swap", "Hello", "wORLD"]));
+    expect(output).toContain("SwapCase Args: " + JSON.stringify(["hELLO", "World"]));
   });
 });
 
