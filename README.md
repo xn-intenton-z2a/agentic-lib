@@ -39,7 +39,7 @@ The current version synchronizes the README with the behavior of our evolving ma
 - Additional utility functions to further enhance workflow automation.
 - Improved integration with GitHub's API for dynamic issue and PR management.
 - Enhanced logging and monitoring features to support continuous integration improvements.
-- Improved extraction of issue numbers from branch names using a refined regex.
+- Consolidation of repetitive exit calls into a helper function for improved consistency.
 
 ---
 

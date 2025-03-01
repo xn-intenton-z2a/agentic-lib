@@ -1,8 +1,16 @@
 #!/usr/bin/env node
-// src/lib/main.js - Enhanced version with a sequential transformation and extended utility functions for improved flag processing and additional functionalities.
-// This version now includes new functions: splitArguments, processFlags, enhancedDemo, logEnvironmentDetails, and showVersion for version display.
+// src/lib/main.js - Enhanced version with a sequential transformation, extended utility functions for improved flag processing, and a consolidated exit routine.
+// This update also refines code consistency and improves maintainability.
 
 import { fileURLToPath } from "url";
+
+// Helper function to handle application exit in a consistent manner
+function exitApplication() {
+  console.log("Exiting application.");
+  if (process.env.NODE_ENV !== "test") {
+    process.exit(0);
+  }
+}
 
 // Main function
 export function main(args = []) {
@@ -15,10 +23,7 @@ export function main(args = []) {
     console.log("Demo: This is a demonstration of agentic-lib's functionality.");
     console.log(enhancedDemo());
     console.log("No additional arguments provided.");
-    if (process.env.NODE_ENV !== "test") {
-      console.log("Exiting application.");
-      process.exit(0);
-    }
+    exitApplication();
     return;
   }
 
@@ -28,10 +33,7 @@ export function main(args = []) {
   // If the version flag is provided, display the version and exit
   if (flagArgs.includes("--version")) {
     console.log(showVersion());
-    if (process.env.NODE_ENV !== "test") {
-      console.log("Exiting application.");
-      process.exit(0);
-    }
+    exitApplication();
     return;
   }
 
@@ -43,10 +45,7 @@ export function main(args = []) {
     console.log("Non-flag arguments:", nonFlagArgs.join(", "));
   }
 
-  if (process.env.NODE_ENV !== "test") {
-    console.log("Exiting application.");
-    process.exit(0);
-  }
+  exitApplication();
 }
 
 export function generateUsage() {
@@ -55,7 +54,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
   // Fixed regex to properly capture digits following prefix
-  const regex = new RegExp(prefix + "(\\d+)");
+  const regex = new RegExp(prefix + "(\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -116,7 +115,7 @@ export function reviewIssue({
   _dependenciesListOutput,
   _buildOutput,
   _testOutput,
-  _mainOutput,
+  _mainOutput
 }) {
   const fixed =
     sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")
