@@ -24,8 +24,11 @@ This README file will evolve as the test experiment within this repository evolv
 - `generateUsage()`: Provides a usage message updated with the new flags.
 - `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name. (Updated regex for better digit capturing)
 - `sanitizeCommitMessage(message)`: Cleans up commit messages removing unsupported characters.
-- `logEnvironmentDetails()`: Logs environment details, such as the NODE_ENV setting.
-- `showVersion()`: Returns the current version of the library. Use the `--version` flag to display the version.
+- `splitArguments(args)`: Splits command line arguments into flag and non-flag arrays.
+- `processFlags(flags)`: Processes an array of flags and returns a summary message.
+- `enhancedDemo()`: Provides an enhanced demo output including environmental details.
+- `logEnvironmentDetails()`: Logs current environment details such as NODE_ENV.
+- `showVersion()`: Returns the current version of the library.
 
 ---
 
