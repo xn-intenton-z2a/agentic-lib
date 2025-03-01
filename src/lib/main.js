@@ -175,7 +175,7 @@ export function countArgs(args = []) {
 
 // 9. Extracts an issue number from a branch name given a prefix (default is 'issue-')
 export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
-  const regex = new RegExp(prefix + "(\d+)");
+  const regex = new RegExp(prefix + "(\\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
