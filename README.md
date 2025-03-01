@@ -23,7 +23,7 @@ This README file will evolve as the test experiment within this repository evolv
 
 - `generateUsage()`: Provides a usage message updated with the new flags.
 - `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name. (Updated regex for better digit capturing)
-- `sanitizeCommitMessage(message)`: Cleans up commit messages removing unsupported characters.
+- `sanitizeCommitMessage(message)`: Cleans up commit messages by removing unsupported characters.
 - `splitArguments(args)`: Splits command line arguments into flag and non-flag arrays.
 - `processFlags(flags)`: Processes an array of flags and returns a summary message.
 - `enhancedDemo()`: Provides an enhanced demo output including environmental details.
@@ -39,6 +39,7 @@ The current version synchronizes the README with the behavior of our evolving ma
 - Additional utility functions to further enhance workflow automation.
 - Improved integration with GitHub's API for dynamic issue and PR management.
 - Enhanced logging and monitoring features to support continuous integration improvements.
+- Improved extraction of issue numbers from branch names using a refined regex.
 
 ---
 

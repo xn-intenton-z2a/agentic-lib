@@ -6,6 +6,8 @@ import {
   enhancedDemo,
   logEnvironmentDetails,
   showVersion,
+  getIssueNumberFromBranch,
+  sanitizeCommitMessage
 } from "../../src/lib/main.js";
 
 describe("Main Module Import", () => {
@@ -28,7 +30,7 @@ describe("reviewIssue", () => {
       dependenciesListOutput: "npm list output",
       buildOutput: "build output",
       testOutput: "test output",
-      mainOutput: "main output",
+      mainOutput: "main output"
     };
     const result = reviewIssue(params);
     expect(result.fixed).toBe("true");
@@ -64,5 +66,16 @@ describe("Utility Functions", () => {
   test("showVersion returns a version string", () => {
     const versionStr = showVersion();
     expect(versionStr).toMatch(/^Version:/);
+  });
+
+  test("getIssueNumberFromBranch extracts issue number correctly", () => {
+    expect(getIssueNumberFromBranch("issue-123")).toBe(123);
+    expect(getIssueNumberFromBranch("feature-issue-456-more")).toBe(456);
+    expect(getIssueNumberFromBranch("no-issue")).toBe(null);
+  });
+
+  test("sanitizeCommitMessage sanitizes commit messages", () => {
+    const raw = "Fix bug!!! -- urgent";
+    expect(sanitizeCommitMessage(raw)).toBe("Fix bug -- urgent");
   });
 });
