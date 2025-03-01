@@ -9,7 +9,7 @@ import chalk from "chalk";
 import { capitalCase, camelCase } from "change-case";
 
 export function main(args = []) {
-  console.log("Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [--camel] [--shuffle] [--sort] [--duplicate] [--count] [args...]");
+  console.log(generateUsage());
   console.log("");
 
   if (args.length === 0) {
