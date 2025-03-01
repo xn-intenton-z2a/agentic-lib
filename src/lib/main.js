@@ -115,11 +115,10 @@ export function reviewIssue({
   _dependenciesListOutput,
   _buildOutput,
   _testOutput,
-  _mainOutput
+  _mainOutput,
 }) {
   const fixed =
-    sourceFileContent.includes("Usage: npm run start") &&
-    readmeFileContent.includes("intentïon agentic-lib")
+    sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")
       ? "true"
       : "false";
   const message = fixed === "true" ? "The issue has been resolved." : "Issue not resolved.";
