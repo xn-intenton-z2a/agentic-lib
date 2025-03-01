@@ -1,6 +1,6 @@
 {
   "name": "@xn-intenton-z2a/agentic-lib",
-  "version": "2.1.1-2",
+  "version": "2.1.1-6",
   "description": "Agentic-lib Agentic Coding Systems SDK powering automated GitHub workflows.",
   "type": "module",
   "main": "src/lib/main.js",
@@ -29,7 +29,8 @@
     "zod": "^3.24.2",
     "chalk": "^5.2.0",
     "lodash": "^4.17.21",
-    "change-case": "^4.1.2"
+    "change-case": "^4.1.2",
+    "seedrandom": "^3.0.5"
   },
   "devDependencies": {
     "@microsoft/eslint-formatter-sarif": "^3.1.0",

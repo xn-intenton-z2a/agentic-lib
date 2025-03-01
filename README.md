@@ -19,6 +19,14 @@ This README file will evolve as the test experiment within this repository evolv
 ---
 ---
 
+## Updates
+
+- Added new feature: the **--reverse-words** flag. When provided, each non-flag argument's characters are reversed individually. Also added the exported utility function `reverseWordsArgs`.
+- Revised transformation pipeline in `main.js` to process CLI flags sequentially, ensuring consistent output across all transformations.
+
+---
+---
+
 ## Quick Start Guide: 20 Detailed Steps to Evolve This Repository
 
 1. Fork the repository and clone it to your local machine.
@@ -29,6 +37,9 @@ This README file will evolve as the test experiment within this repository evolv
    - **--duplicate**: Duplicates each argument.
    - **--count**: Displays the count of non-flag arguments.
    - **--shuffle**: Randomly shuffles the order of non-flag arguments.
+   - **--seeded-shuffle**: Deterministically shuffles arguments using a provided seed. Supply the seed as the first non-flag argument following the flag.
+   - **--reverse-words**: Reverses the characters of each non-flag argument.
+   - **Conflict detection for case flags**: When both `--upper` and `--lower` are provided, a warning is displayed and no transformation is applied.
 5. A new wrapper function, **openaiChatCompletions**, has been added to simplify calls to the OpenAI API.
 6. **New Exported Utility Functions:**
    The source file now exports several new utility functions to aid in common text and issue processing tasks:
@@ -40,9 +51,17 @@ This README file will evolve as the test experiment within this repository evolv
    - `sortArgs(args)`: Returns a sorted copy of the arguments array.
    - `duplicateArgs(args)`: Returns a new array with each argument duplicated.
    - `countArgs(args)`: Returns the count of arguments.
-   - `getIssueNumberFromBranch(branch, prefix)`: Extracts a numeric issue from a branch name based on a prefix.
+   - `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name based on a prefix.
    - `sanitizeCommitMessage(message)`: Cleans commit messages for consistency in version control.
-7. Review the test suite in `tests/unit/` for current functionality. New tests have been added for these utility functions.
+   - `reviewIssue(options)`: Evaluates the provided file contents and outputs.
+   - `appendIndexArgs(args)`: Appends each argument with its index.
+   - `uniqueArgs(args)`: Filters to only unique arguments.
+   - `trimArgs(args)`: Trims whitespace from each argument.
+   - `kebabCaseArgs(args)`: Converts arguments into kebab-case format.
+   - `constantCaseArgs(args)`: Converts arguments into CONSTANT_CASE format.
+   - `seededShuffleArgs(args, seed)`: Deterministically shuffles the provided arguments using a seed.
+   - **`reverseWordsArgs(args)`**: Reverses the characters of each argument.
+7. Review the test suite in `tests/unit/` for current functionality. New tests have been added for these utility functions and for CLI flag behaviors.
 8. Examine the workflows in `.github/workflows/` to understand automated improvements.
 9. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on automated and human contributions.
 10. Execute `npm run start` to observe the CLI output. **Note:** In production, the program terminates automatically after displaying usage and demo output.
@@ -68,6 +87,14 @@ The source file now exports the following utility functions to help with various
 - `shuffleArgs(args)`, `sortArgs(args)`, `duplicateArgs(args)`, `countArgs(args)`: Array manipulation utilities.
 - `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name based on a prefix.
 - `sanitizeCommitMessage(message)`: Cleans commit messages for consistency in version control.
+- **`reviewIssue(options)`**: Evaluates the provided file contents and outputs.
+- **`appendIndexArgs(args)`**: Appends each argument with its index.
+- **`uniqueArgs(args)`**: Filters to only unique arguments.
+- **`trimArgs(args)`**: Trims whitespace from each argument.
+- **`kebabCaseArgs(args)`**: Converts arguments into kebab-case format.
+- **`constantCaseArgs(args)`**: Converts arguments into CONSTANT_CASE format.
+- **`seededShuffleArgs(args, seed)`**: Deterministically shuffles the arguments using a provided seed.
+- **`reverseWordsArgs(args)`**: Reverses the characters of each argument.
 
 ---
 ---
@@ -135,6 +162,3 @@ along with this program. If not, see <https://www.gnu.org/licenses/>
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
-
----
----

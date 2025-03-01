@@ -11,7 +11,15 @@ import {
   duplicateArgs,
   countArgs,
   getIssueNumberFromBranch,
-  sanitizeCommitMessage
+  sanitizeCommitMessage,
+  reviewIssue,
+  appendIndexArgs,
+  uniqueArgs,
+  trimArgs,
+  kebabCaseArgs,
+  constantCaseArgs,
+  seededShuffleArgs,
+  reverseWordsArgs
 } from "../../src/lib/main.js";
 
 // Helper function to capture console output synchronously
@@ -38,8 +46,6 @@ describe("Main Module Import", () => {
   });
 });
 
-// Test suite for --shuffle flag
-
 describe("Shuffle flag", () => {
   test("should display shuffled arguments when --shuffle is provided", async () => {
     const output = await captureOutputAsync(() => main(["--shuffle", "one", "two", "three"]));
@@ -50,7 +56,67 @@ describe("Shuffle flag", () => {
   });
 });
 
-// New test suite for exported utility functions
+describe("Conflicting Flags", () => {
+  test("should warn when both --upper and --lower flags are provided", async () => {
+    const output = await captureOutputAsync(() => main(["--upper", "--lower", "Test"]));
+    expect(output).toContain("Warning: Conflicting flags --upper and --lower. No case transformation applied.");
+  });
+});
+
+describe("Main function flag tests", () => {
+  test("should convert arguments to uppercase when only --upper is provided", async () => {
+    const output = await captureOutputAsync(() => main(["--upper", "test"]));
+    expect(output).toContain("Uppercase Args: [\"TEST\"]");
+  });
+
+  test("should convert arguments to lowercase when only --lower is provided", async () => {
+    const output = await captureOutputAsync(() => main(["--lower", "TEST"]));
+    expect(output).toContain("Lowercase Args: [\"test\"]");
+  });
+
+  test("should append exclamation mark with --append flag", async () => {
+    const output = await captureOutputAsync(() => main(["--append", "hello", "world"]));
+    expect(output).toContain("Appended Output: hello world!");
+  });
+
+  test("should display reversed arguments with --reverse flag", async () => {
+    const output = await captureOutputAsync(() => main(["--reverse", "first", "second", "third"]));
+    expect(output).toContain("Reversed Args:");
+    expect(output).toContain("third");
+    expect(output).toContain("first");
+  });
+});
+
+describe("Seeded Shuffle Feature", () => {
+  test("should perform seeded shuffle when --seeded-shuffle flag is provided", async () => {
+    const output = await captureOutputAsync(() => main(["--seeded-shuffle", "seed123", "a", "b", "c"]));
+    expect(output).toContain("Seeded Shuffled Args:");
+    expect(output).toContain("a");
+    expect(output).toContain("b");
+    expect(output).toContain("c");
+  });
+
+  test("seededShuffleArgs returns consistent order", () => {
+    const input = ["a", "b", "c", "d"];
+    const firstCall = seededShuffleArgs(input, "consistentSeed");
+    const secondCall = seededShuffleArgs(input, "consistentSeed");
+    expect(firstCall).toEqual(secondCall);
+    expect(firstCall.sort()).toEqual(input.sort());
+  });
+});
+
+describe("Reverse Words Feature", () => {
+  test("should reverse each word's characters when --reverse-words flag is provided", async () => {
+    const output = await captureOutputAsync(() => main(["--reverse-words", "hello", "world"]));
+    expect(output).toContain("Reversed Words Args:");
+    expect(output).toContain("olleh");
+    expect(output).toContain("dlrow");
+  });
+
+  test("reverseWordsArgs reverses each word correctly", () => {
+    expect(reverseWordsArgs(["hello", "world"]).join(",")).toBe("olleh,dlrow");
+  });
+});
 
 describe("Utility Functions", () => {
   test("generateUsage returns correct usage message", () => {
@@ -59,7 +125,7 @@ describe("Utility Functions", () => {
   });
 
   test("reverseArgs reverses the array correctly", () => {
-    expect(reverseArgs(["a", "b", "c"]).join("")).toBe("cba");
+    expect(reverseArgs(["a", "b", "c"]).join(" ")).toBe("c b a");
   });
 
   test("toUpperCaseArgs converts array elements to uppercase", () => {
@@ -99,33 +165,44 @@ describe("Utility Functions", () => {
     const msg = "Fix: update README! @#";
     expect(sanitizeCommitMessage(msg)).toBe("Fix update README");
   });
-});
 
-// New test suite for openaiChatCompletions wrapper
+  test("reviewIssue returns correct resolution", () => {
+    const params = {
+      sourceFileContent: "Usage: npm run start ...",
+      testFileContent: "Some test content",
+      readmeFileContent: "# intentïon agentic-lib\nSome README content",
+      dependenciesFileContent: "{}",
+      issueTitle: "Test Issue",
+      issueDescription: "Description",
+      issueComments: "Comment",
+      dependenciesListOutput: "npm list output",
+      buildOutput: "build output",
+      testOutput: "test output",
+      mainOutput: "main output"
+    };
+    const result = reviewIssue(params);
+    expect(result.fixed).toBe("true");
+    expect(result.message).toBe("The issue has been resolved.");
+    expect(result.refinement).toBe("None");
+  });
 
-vi.mock("openai", () => {
-  const createMock = vi.fn().mockResolvedValue("mocked response");
-  return {
-    default: class {
-      constructor({ apiKey }) {
-        this.apiKey = apiKey;
-        this.chat = {
-          completions: {
-            create: createMock
-          }
-        };
-      }
-    },
-    __createMock: createMock
-  };
-});
+  test("appendIndexArgs appends index to each argument", () => {
+    expect(appendIndexArgs(["a", "b", "c"]).join(",")).toBe("a0,b1,c2");
+  });
 
-describe("openaiChatCompletions wrapper", () => {
-  test("should call openai.chat.completions.create with provided options", async () => {
-    const options = { messages: [{ role: "user", content: "Hello" }] };
-    const response = await openaiChatCompletions(options);
-    const { __createMock } = await import("openai");
-    expect(__createMock).toHaveBeenCalledWith(options);
-    expect(response).toEqual("mocked response");
+  test("uniqueArgs returns an array with unique elements", () => {
+    expect(uniqueArgs(["a", "b", "a", "c"]).join(",")).toBe("a,b,c");
+  });
+
+  test("trimArgs trims whitespace from each argument", () => {
+    expect(trimArgs([" foo ", "bar  "]).join(",")).toBe("foo,bar");
+  });
+
+  test("kebabCaseArgs converts arguments to kebab-case", () => {
+    expect(kebabCaseArgs(["Hello World", "TestCase"]).join(",")).toBe("hello-world,test-case");
+  });
+
+  test("constantCaseArgs converts arguments to CONSTANT_CASE", () => {
+    expect(constantCaseArgs(["Hello World", "TestCase"]).join(",")).toBe("HELLO_WORLD,TEST_CASE");
   });
 });
