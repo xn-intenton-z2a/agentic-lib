@@ -52,18 +52,23 @@ export function main(args = []) {
     console.log("Run with: " + JSON.stringify(nonFlagArgs));
   }
 
-  if (flagSet.has("--upper")) {
-    nonFlagArgs = nonFlagArgs.map(arg => arg.toUpperCase());
-    console.log("Uppercase Args: " + JSON.stringify(nonFlagArgs));
+  // Conflict detection: Do not allow both --upper and --lower
+  if (flagSet.has("--upper") && flagSet.has("--lower")) {
+    console.log("Warning: Conflicting flags --upper and --lower. No case transformation applied.");
+  } else {
+    if (flagSet.has("--upper")) {
+      nonFlagArgs = nonFlagArgs.map(arg => arg.toUpperCase());
+      console.log("Uppercase Args: " + JSON.stringify(nonFlagArgs));
+    }
+
+    if (flagSet.has("--lower")) {
+      nonFlagArgs = nonFlagArgs.map(arg => arg.toLowerCase());
+      console.log("Lowercase Args: " + JSON.stringify(nonFlagArgs));
+    }
   }
 
   if (flagSet.has("--color")) {
     console.log(chalk.green("Colored Args: " + JSON.stringify(nonFlagArgs)));
-  }
-
-  if (flagSet.has("--lower")) {
-    nonFlagArgs = nonFlagArgs.map(arg => arg.toLowerCase());
-    console.log("Lowercase Args: " + JSON.stringify(nonFlagArgs));
   }
 
   if (flagSet.has("--append")) {

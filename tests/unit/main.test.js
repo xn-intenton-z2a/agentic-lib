@@ -56,7 +56,42 @@ describe("Shuffle flag", () => {
   });
 });
 
-// New test suite for exported utility functions
+// New test suite for conflicting case flags
+
+describe("Conflicting Flags", () => {
+  test("should warn when both --upper and --lower flags are provided", async () => {
+    const output = await captureOutputAsync(() => main(["--upper", "--lower", "Test"]));
+    expect(output).toContain("Warning: Conflicting flags --upper and --lower. No case transformation applied.");
+  });
+});
+
+// Additional tests for new flags
+
+describe("Main function flag tests", () => {
+  test("should convert arguments to uppercase when only --upper is provided", async () => {
+    const output = await captureOutputAsync(() => main(["--upper", "test"]));
+    expect(output).toContain("Uppercase Args: [\"TEST\"]");
+  });
+
+  test("should convert arguments to lowercase when only --lower is provided", async () => {
+    const output = await captureOutputAsync(() => main(["--lower", "TEST"]));
+    expect(output).toContain("Lowercase Args: [\"test\"]");
+  });
+
+  test("should append exclamation mark with --append flag", async () => {
+    const output = await captureOutputAsync(() => main(["--append", "hello", "world"]));
+    expect(output).toContain("Appended Output: hello world!");
+  });
+
+  test("should display reversed arguments with --reverse flag", async () => {
+    const output = await captureOutputAsync(() => main(["--reverse", "first", "second", "third"]));
+    expect(output).toContain("Reversed Args:");
+    expect(output).toContain("third");
+    expect(output).toContain("first");
+  });
+});
+
+// New utility function tests
 
 describe("Utility Functions", () => {
   test("generateUsage returns correct usage message", () => {
@@ -65,7 +100,7 @@ describe("Utility Functions", () => {
   });
 
   test("reverseArgs reverses the array correctly", () => {
-    expect(reverseArgs(["a", "b", "c"]).join("")).toBe("cba");
+    expect(reverseArgs(["a", "b", "c"]).join(" ")).toBe("c b a");
   });
 
   test("toUpperCaseArgs converts array elements to uppercase", () => {
@@ -126,7 +161,6 @@ describe("Utility Functions", () => {
     expect(result.refinement).toBe("None");
   });
 
-  // New utility function tests
   test("appendIndexArgs appends index to each argument", () => {
     expect(appendIndexArgs(["a", "b", "c"]).join(",")).toBe("a0,b1,c2");
   });
