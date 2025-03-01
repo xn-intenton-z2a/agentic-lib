@@ -26,6 +26,18 @@ This README file will evolve as the test experiment within this repository evolv
 - Extended test cases to cover the new **--unique** flag.
 - Added new flag: **--vowel-count** to compute the total number of vowels in the provided arguments using lodash.
 - Updated documentation to reflect the new vowel count functionality.
+- **New:** Proposed strategy to execute the `agentic-lib` JavaScript library directly in workflows instead of using inline scripts.
+
+## Execution Strategy
+
+To improve maintainability and consistency, we recommend executing the `agentic-lib` JavaScript library directly from your workflow files rather than embedding inline script code. For example, in your workflow YAML, replace inline scripts with a command like:
+
+```yaml
+- name: Run agentic-lib CLI
+  run: node src/lib/main.js [--flags] [args]
+```
+
+This approach centralizes your logic within the library, enhances testability, and simplifies maintenance as updates to the library automatically propagate to all workflows that invoke it.
 
 ---
 ---
