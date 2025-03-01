@@ -95,8 +95,8 @@ export function main(args = []) {
   }
 
   if (flagSet.has("--sort")) {
-    const sorted = sortArgs(resultArgs);
-    console.log("Sorted Args: " + JSON.stringify(sorted));
+    resultArgs = sortArgs(resultArgs);
+    console.log("Sorted Args: " + JSON.stringify(resultArgs));
   }
 
   if (flagSet.has("--duplicate")) {
@@ -114,9 +114,8 @@ export function main(args = []) {
     } else {
       const seed = resultArgs[0];
       const remaining = resultArgs.slice(1);
-      const seededShuffled = seededShuffleArgs(remaining, seed);
-      console.log("Seeded Shuffled Args: " + JSON.stringify(seededShuffled));
-      resultArgs = seededShuffled;
+      resultArgs = seededShuffleArgs(remaining, seed);
+      console.log("Seeded Shuffled Args: " + JSON.stringify(resultArgs));
     }
   }
 

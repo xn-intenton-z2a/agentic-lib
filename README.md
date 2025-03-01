@@ -23,6 +23,7 @@ This README file will evolve as the test experiment within this repository evolv
 
 - Added new feature: the **--reverse-words** flag. When provided, each non-flag argument's characters are reversed individually. Also added the exported utility function `reverseWordsArgs`.
 - Revised transformation pipeline in `main.js` to process CLI flags sequentially, ensuring consistent output across all transformations.
+- **Improved consistency:** The `--sort` flag now updates the processed arguments similar to other transformation flags for better consistency between the source and test outputs.
 
 ---
 ---
@@ -33,7 +34,7 @@ This README file will evolve as the test experiment within this repository evolv
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
 4. Explore the source code in `src/lib/main.js`, which now features an updated transformation pipeline that sequentially applies CLI flag modifications. New functionality includes:
-   - **--sort**: Sorts non-flag arguments alphabetically.
+   - **--sort**: Sorts non-flag arguments alphabetically (now updates the internal argument state for consistency).
    - **--duplicate**: Duplicates each argument.
    - **--count**: Displays the count of non-flag arguments.
    - **--shuffle**: Randomly shuffles the order of non-flag arguments.
@@ -59,7 +60,7 @@ This README file will evolve as the test experiment within this repository evolv
    - `trimArgs(args)`: Trims whitespace from each argument.
    - `kebabCaseArgs(args)`: Converts arguments into kebab-case format.
    - `constantCaseArgs(args)`: Converts arguments into CONSTANT_CASE format.
-   - `seededShuffleArgs(args, seed)`: Deterministically shuffles the provided arguments using a seed.
+   - `seededShuffleArgs(args, seed)`: Deterministically shuffles the arguments using a provided seed.
    - **`reverseWordsArgs(args)`**: Reverses the characters of each argument.
 7. Review the test suite in `tests/unit/` for current functionality. New tests have been added for these utility functions and for CLI flag behaviors.
 8. Examine the workflows in `.github/workflows/` to understand automated improvements.
@@ -162,3 +163,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
+
+---
+---
