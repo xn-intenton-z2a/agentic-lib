@@ -4,8 +4,7 @@
 
 import { fileURLToPath } from "url";
 
-// Main function: disable cognitive complexity ESLint warning
-// eslint-disable-next-line sonarjs/cognitive-complexity
+// Main function
 export function main(args = []) {
   console.log(generateUsage());
   console.log("");
@@ -21,7 +20,7 @@ export function main(args = []) {
     return;
   }
 
-  // New: Split arguments into flags and non-flag arguments using the new utility function
+  // Split arguments into flags and non-flag arguments using the new utility function
   const { flagArgs, nonFlagArgs } = splitArguments(args);
   // Process the flags sequentially
   const flagProcessingResult = processFlags(flagArgs);
@@ -37,13 +36,13 @@ export function main(args = []) {
   }
 }
 
-// Exported Utility Functions
 export function generateUsage() {
   return "Usage: npm run start [--usage] [args...]";
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
-  const regex = new RegExp(prefix + "(\d+)");
+  // Fixed regex to avoid unnecessary escape
+  const regex = new RegExp(prefix + "(\\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -72,7 +71,6 @@ export function splitArguments(args = []) {
 // New function: processes an array of flags and returns a summary message
 export function processFlags(flags = []) {
   if (flags.length === 0) return "No flags to process.";
-  // For demonstration purposes, simply join the flags and return a message
   return `Processed flags: ${flags.join(", ")}`;
 }
 
@@ -92,7 +90,7 @@ export function reviewIssue({
   _testFileContent,
   readmeFileContent,
   _dependenciesFileContent,
-  issueTitle,
+  _issueTitle,
   _issueDescription,
   _issueComments,
   _dependenciesListOutput,
@@ -101,7 +99,8 @@ export function reviewIssue({
   _mainOutput
 }) {
   const fixed =
-    sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")
+    sourceFileContent.includes("Usage: npm run start") &&
+    readmeFileContent.includes("intentïon agentic-lib")
       ? "true"
       : "false";
   const message = fixed === "true" ? "The issue has been resolved." : "Issue not resolved.";
