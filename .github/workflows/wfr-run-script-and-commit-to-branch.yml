@@ -180,6 +180,7 @@ jobs:
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
           git switch -c '${{ env.branch }}'
+          git branch --set-upstream-to=origin/main
           git add -v --all
           git commit -v -m '${{ env.gitCommitMessage }}'
           git pull --rebase
