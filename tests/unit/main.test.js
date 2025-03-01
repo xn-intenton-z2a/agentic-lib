@@ -118,8 +118,6 @@ describe("Reverse Words Feature", () => {
   });
 });
 
-// Utility Functions tests
-
 describe("Utility Functions", () => {
   test("generateUsage returns correct usage message", () => {
     const usage = generateUsage();
