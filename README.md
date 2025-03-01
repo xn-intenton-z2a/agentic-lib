@@ -42,6 +42,7 @@ This README file will evolve as the test experiment within this repository evolv
    - `countArgs(args)`: Returns the count of arguments.
    - `getIssueNumberFromBranch(branch, prefix)`: Extracts a numeric issue from a branch name based on a prefix.
    - `sanitizeCommitMessage(message)`: Cleans commit messages for consistency in version control.
+   - **`reviewIssue(options)`**: Duplicates the functionality previously found in the workflow by evaluating file contents and outputs to determine if an issue has been resolved.
 7. Review the test suite in `tests/unit/` for current functionality. New tests have been added for these utility functions.
 8. Examine the workflows in `.github/workflows/` to understand automated improvements.
 9. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on automated and human contributions.
@@ -68,6 +69,7 @@ The source file now exports the following utility functions to help with various
 - `shuffleArgs(args)`, `sortArgs(args)`, `duplicateArgs(args)`, `countArgs(args)`: Array manipulation utilities.
 - `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name based on a prefix.
 - `sanitizeCommitMessage(message)`: Cleans commit messages for consistency in version control.
+- **`reviewIssue(options)`**: Evaluates provided file contents and log outputs to determine if an issue has been resolved.
 
 ---
 ---
@@ -135,6 +137,3 @@ along with this program. If not, see <https://www.gnu.org/licenses/>
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
-
----
----

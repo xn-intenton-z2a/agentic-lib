@@ -11,7 +11,8 @@ import {
   duplicateArgs,
   countArgs,
   getIssueNumberFromBranch,
-  sanitizeCommitMessage
+  sanitizeCommitMessage,
+  reviewIssue
 } from "../../src/lib/main.js";
 
 // Helper function to capture console output synchronously
@@ -98,6 +99,26 @@ describe("Utility Functions", () => {
   test("sanitizeCommitMessage removes unwanted characters", () => {
     const msg = "Fix: update README! @#";
     expect(sanitizeCommitMessage(msg)).toBe("Fix update README");
+  });
+
+  test("reviewIssue returns correct resolution", () => {
+    const params = {
+      sourceFileContent: "Usage: npm run start ...",
+      testFileContent: "Some test content",
+      readmeFileContent: "# intentïon agentic-lib\nSome README content",
+      dependenciesFileContent: "{}",
+      issueTitle: "Test Issue",
+      issueDescription: "Description",
+      issueComments: "Comment",
+      dependenciesListOutput: "npm list output",
+      buildOutput: "build output",
+      testOutput: "test output",
+      mainOutput: "main output"
+    };
+    const result = reviewIssue(params);
+    expect(result.fixed).toBe("true");
+    expect(result.message).toBe("The issue has been resolved.");
+    expect(result.refinement).toBe("None");
   });
 });
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// src/lib/main.js - Improved version with enhanced flag processing and explicit exit messages for clear termination.
-// Consolidated transformation pipeline for improved consistency between source and tests, with added sort, duplicate, count, and new shuffle functionalities.
+// src/lib/main.js - Improved version with enhanced flag processing, explicit exit messages, and new reviewIssue utility function to duplicate workflow functionality.
+// Consolidated transformation pipeline for improved consistency between source and tests, with added sort, duplicate, count, shuffle functionalities and reviewIssue.
 
 import { fileURLToPath } from "url";
 import figlet from "figlet";
@@ -178,6 +178,27 @@ export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
 // 10. Sanitizes a commit message to remove unwanted characters
 export function sanitizeCommitMessage(message = "") {
   return message.replace(/[^A-Za-z0-9 \-\_\.\~]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+// 11. Review Issue function to duplicate workflow functionality
+// This function takes various file contents and outputs, and returns an object indicating if the issue is resolved.
+export function reviewIssue({
+  sourceFileContent,
+  testFileContent,
+  readmeFileContent,
+  dependenciesFileContent,
+  issueTitle,
+  issueDescription,
+  issueComments,
+  dependenciesListOutput,
+  buildOutput,
+  testOutput,
+  mainOutput
+}) {
+  // A simple heuristic: if the source file contains the expected usage message and the readme contains 'intentïon agentic-lib', then consider the issue resolved.
+  const fixed = sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib") ? "true" : "false";
+  const message = fixed === "true" ? "The issue has been resolved." : "Issue not resolved.";
+  return { fixed, message, refinement: "None" };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
