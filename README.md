@@ -74,81 +74,41 @@ The source file now exports the following utility functions to help with various
 
 ## Contributing
 
-Contributions are welcome! Below are detailed guidelines to help you contribute to agentic‑lib.
-
-Thank you for your interest in contributing to **agentic‑lib**! This document outlines our guidelines for human and automated contributions, ensuring that our core library remains robust, testable, and efficient in powering our reusable GitHub Workflows.
-
-### Mission Statement
-
-**agentic‑lib** is a JavaScript library that can be used as a drop-in JS implementation or wholesale replacement for the steps, jobs, and re‑usable workflows in this repository. It is designed to be used in a GitHub Actions workflow to enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is invoked using GitHub’s `workflow_call` event, so they can be composed like an SDK.
-
-### How to Contribute
-
-1. **Report Issues or Ideas:**
-   Open an issue on GitHub to share bug reports, feature requests, or improvements. Clear descriptions and reproducible steps are highly appreciated.
-
-2. **Submit Pull Requests:**
-   - Fork the repository and create a feature branch.
-   - Implement your changes, adhering to our coding style and standards.
-   - Add tests to cover new functionality.
-   - Update documentation if your changes affect usage or workflow behavior.
-   - Submit your pull request for review.
-
-3. **Enhance Automated Workflows:**
-   Contributions may involve adjustments to the AI-based fix verification logic, file update routines, logic for extracting issue numbers, and automated pull request merging mechanisms.
-
-4. **Run and Test the Library:**
-   Explore the capabilities of **agentic‑lib** by running the demo function with:
-   ```bash
-   npm run start [--help]
-   ```
-
-### Guidelines
-
-- **Code Quality:** Write modular, clean, and fully testable code. Our design decouples functionality from GitHub Actions globals to enhance reuse and testability.
-- **Documentation:** Keep inline comments and documentation up-to-date as you introduce changes.
-- **Compatibility:** Ensure your code runs on Node 20 and follows ECMAScript Module (ESM) standards.
-- **Feedback & Collaboration:** Your constructive feedback is valuable. Engage via GitHub issues and pull requests with maintainers and peers.
-
----
----
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## Component Breakdown
 
 This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:
 
 ### 1. Re‑usable Workflows (Core Functionality)
-- **Purpose:**
+- **Purpose:**  
   These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.
-- **Stability:**
-  They are stable and well‑tested, designed to integrate into your CI/CD pipelines.
-- **Licensing:**
-  The core workflows are released under GPL‑3 with attribution required for derived work.
-- **Location:**
+- **Stability:**  
+  They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.
+- **Licensing:**  
+  The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.
+- **Location:**  
   Find these in the `.github/workflows/` directory.
 
 ### 2. Example Workflows (Demonstrative Content)
-- **Purpose:**
+- **Purpose:**  
   These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
-- **Stability:**
-  While functional, they are primarily for demonstration and experimentation.
-- **Licensing:**
-  The example workflows are covered by the MIT license to allow broader use and modification.
-- **Location:**
+- **Stability:**  
+  While functional, they are intended primarily for demonstration and experimentation.
+- **Licensing:**  
+  The example workflows are covered by the MIT license to allow for broader use and modification.
+- **Location:**  
   Look in the `examples/` directory for sample implementations.
 
-### 3. The Evolving main.js (JavaScript re‑implementation of Re‑usable Workflows)
-- **Purpose:**
-  This file implements the re‑usable workflows as a JavaScript module for programmatic access to core functionality.
-- **Stability:**
-  Under active development, it represents bleeding‑edge functionality that might not yet be production‑ready.
-- **Licensing:**
-  As part of the core project, it is licensed under GPL‑3 with the required attribution clause.
-- **Location:**
+### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
+- **Purpose:**  
+  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
+- **Stability:**  
+  It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
+- **Licensing:**  
+  As part of the core project, it is under GPL‑3 with the attribution clause.
+- **Location:**  
   The code is located in `src/lib/main.js`.
-
----
----
 
 ## License
 
