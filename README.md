@@ -21,7 +21,7 @@ This README file will evolve as the test experiment within this repository evolv
 
 ## Updates
 
-- Added a new feature: the seeded shuffle functionality. Use the flag `--seeded-shuffle` followed by a seed and a list of arguments to shuffle them deterministically.
+- Added new feature: the **--reverse-words** flag. When provided, each non-flag argument's characters are reversed individually. Also added the exported utility function `reverseWordsArgs`.
 
 ---
 ---
@@ -37,6 +37,7 @@ This README file will evolve as the test experiment within this repository evolv
    - **--count**: Displays the count of non-flag arguments.
    - **--shuffle**: Randomly shuffles the order of non-flag arguments.
    - **--seeded-shuffle**: Deterministically shuffles arguments using a provided seed. Supply the seed as the first non-flag argument following the flag.
+   - **--reverse-words**: Reverses the characters of each non-flag argument.
    - **Conflict detection for case flags**: When both `--upper` and `--lower` are provided, a warning is displayed and no transformation is applied.
 5. A new wrapper function, **openaiChatCompletions**, has been added to simplify calls to the OpenAI API.
 6. **New Exported Utility Functions:**
@@ -57,7 +58,8 @@ This README file will evolve as the test experiment within this repository evolv
    - `trimArgs(args)`: Trims whitespace from each argument.
    - `kebabCaseArgs(args)`: Converts arguments into kebab-case format.
    - `constantCaseArgs(args)`: Converts arguments into CONSTANT_CASE format.
-   - **`seededShuffleArgs(args, seed)`**: Deterministically shuffles the provided arguments using a seed.
+   - `seededShuffleArgs(args, seed)`: Deterministically shuffles the provided arguments using a seed.
+   - **`reverseWordsArgs(args)`**: Reverses the characters of each argument.
 7. Review the test suite in `tests/unit/` for current functionality. New tests have been added for these utility functions and for CLI flag behaviors.
 8. Examine the workflows in `.github/workflows/` to understand automated improvements.
 9. Read through the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on automated and human contributions.
@@ -91,6 +93,7 @@ The source file now exports the following utility functions to help with various
 - **`kebabCaseArgs(args)`**: Converts arguments into kebab-case format.
 - **`constantCaseArgs(args)`**: Converts arguments into CONSTANT_CASE format.
 - **`seededShuffleArgs(args, seed)`**: Deterministically shuffles the arguments using a provided seed.
+- **`reverseWordsArgs(args)`**: Reverses the characters of each argument.
 
 ---
 ---

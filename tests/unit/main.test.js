@@ -18,7 +18,8 @@ import {
   trimArgs,
   kebabCaseArgs,
   constantCaseArgs,
-  seededShuffleArgs
+  seededShuffleArgs,
+  reverseWordsArgs
 } from "../../src/lib/main.js";
 
 // Helper function to capture console output synchronously
@@ -90,7 +91,6 @@ describe("Seeded Shuffle Feature", () => {
   test("should perform seeded shuffle when --seeded-shuffle flag is provided", async () => {
     const output = await captureOutputAsync(() => main(["--seeded-shuffle", "seed123", "a", "b", "c"]));
     expect(output).toContain("Seeded Shuffled Args:");
-    // Check that the output includes all provided arguments (except the seed)
     expect(output).toContain("a");
     expect(output).toContain("b");
     expect(output).toContain("c");
@@ -101,8 +101,20 @@ describe("Seeded Shuffle Feature", () => {
     const firstCall = seededShuffleArgs(input, "consistentSeed");
     const secondCall = seededShuffleArgs(input, "consistentSeed");
     expect(firstCall).toEqual(secondCall);
-    // Ensure that the output array has same elements
     expect(firstCall.sort()).toEqual(input.sort());
+  });
+});
+
+describe("Reverse Words Feature", () => {
+  test("should reverse each word's characters when --reverse-words flag is provided", async () => {
+    const output = await captureOutputAsync(() => main(["--reverse-words", "hello", "world"]));
+    expect(output).toContain("Reversed Words Args:");
+    expect(output).toContain("olleh");
+    expect(output).toContain("dlrow");
+  });
+
+  test("reverseWordsArgs reverses each word correctly", () => {
+    expect(reverseWordsArgs(["hello", "world"]).join(",")).toBe("olleh,dlrow");
   });
 });
 
