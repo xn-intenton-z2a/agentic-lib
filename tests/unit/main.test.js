@@ -1,4 +1,4 @@
-import { describe, test, expect, vi } from "vitest";
+import { describe, test, expect } from "vitest";
 import {
   main,
   openaiChatCompletions,
@@ -22,7 +22,6 @@ import {
   reverseWordsArgs
 } from "../../src/lib/main.js";
 
-// Helper function to capture console output synchronously
 async function captureOutputAsync(fn) {
   let output = "";
   const originalLog = console.log;
@@ -36,8 +35,6 @@ async function captureOutputAsync(fn) {
   }
   return output;
 }
-
-// Existing test suites...
 
 describe("Main Module Import", () => {
   test("should be non-null", async () => {
@@ -66,12 +63,12 @@ describe("Conflicting Flags", () => {
 describe("Main function flag tests", () => {
   test("should convert arguments to uppercase when only --upper is provided", async () => {
     const output = await captureOutputAsync(() => main(["--upper", "test"]));
-    expect(output).toContain("Uppercase Args: [\"TEST\"]");
+    expect(output).toContain("Uppercase Args: " + JSON.stringify(["TEST"]));
   });
 
   test("should convert arguments to lowercase when only --lower is provided", async () => {
     const output = await captureOutputAsync(() => main(["--lower", "TEST"]));
-    expect(output).toContain("Lowercase Args: [\"test\"]");
+    expect(output).toContain("Lowercase Args: " + JSON.stringify(["test"]));
   });
 
   test("should append exclamation mark with --append flag", async () => {
@@ -152,7 +149,7 @@ describe("Utility Functions", () => {
   });
 
   test("countArgs returns correct count", () => {
-    expect(countArgs([1,2,3])).toBe(3);
+    expect(countArgs([1, 2, 3])).toBe(3);
   });
 
   test("getIssueNumberFromBranch extracts number correctly", () => {
