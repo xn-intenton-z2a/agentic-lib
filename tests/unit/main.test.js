@@ -20,7 +20,7 @@ describe("Main Module Import", () => {
 describe("reviewIssue", () => {
   test("reviewIssue returns correct resolution", () => {
     const params = {
-      sourceFileContent: "Usage: npm run start ...",
+      sourceFileContent: "Usage: npm run start [--usage|--help] [--version] [args...]",
       testFileContent: "Some test content",
       readmeFileContent: "# intentïon agentic-lib\nSome README content",
       dependenciesFileContent: "{}",
