@@ -16,55 +16,6 @@ Mixed licensing:
 
 This README file will evolve as the test experiment within this repository evolves.
 
----
----
-
-## Updates
-
-- Added new flag: **--unique** to remove duplicate arguments from the input.
-- Revised the transformation pipeline in `main.js` to extend functionality as per issue requirements.
-- Extended test cases to cover the new **--unique** flag.
-- Added new flag: **--vowel-count** to compute the total number of vowels in the provided arguments using lodash.
-- Added new flags: **--snake** for converting arguments to snake_case and **--swap** for swapping the case of each character.
-- Updated documentation to reflect the new snakeCaseArgs and swapCaseArgs functionalities.
-- **New:** Proposed strategy to execute the `agentic-lib` JavaScript library directly in workflows instead of using inline scripts.
-
-## Execution Strategy
-
-To improve maintainability and consistency, we recommend executing the `agentic-lib` JavaScript library directly from your workflow files rather than embedding inline script code. For example, in your workflow YAML, replace inline scripts with a command like:
-
-```yaml
-- name: Run agentic-lib CLI
-  run: node src/lib/main.js [--flags] [args]
-```
-
-This approach centralizes your logic within the library, enhances testability, and simplifies maintenance as updates to the library automatically propagate to all workflows that invoke it.
-
----
----
-
-## Quick Start Guide: 20 Detailed Steps to Evolve This Repository
-
-1. Fork the repository and clone it to your local machine.
-2. Ensure you have Node 20 or higher installed.
-3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now features an updated transformation pipeline including new '--unique', '--vowel-count', '--snake', and '--swap' flags.
-5. Review the test suite in `tests/unit/` for current functionality.
-6. Execute `npm run start` to observe the CLI output and test the new functionalities.
-7. Run `npm test` to ensure all tests pass.
-8. Use the updated transformation logic and API wrappers as a baseline.
-9. Identify areas for improvement in error messaging and flag handling.
-10. Validate changes by running the full test suite.
-11. Update documentation as new features are added.
-12. Create a feature branch and submit a pull request.
-13. Engage with CI/CD pipelines for iterative suggestions.
-14. Review automated workflows in `.github/workflows/`.
-15. Check consistency between source, tests, and documentation.
-16. Explore contributing guidelines in [CONTRIBUTING.md](CONTRIBUTING.md).
-17. Monitor dependency updates with `npm-check-updates`.
-18. Suggest new features or enhancements.
-19. Collaborate via GitHub issues and PR reviews to improve project quality.
-20. Enjoy the continuous evolution powered by **agentic‑lib**.
 
 ---
 ---
@@ -72,19 +23,7 @@ This approach centralizes your logic within the library, enhances testability, a
 ## New Exported Utility Functions
 
 - `generateUsage()`: Provides a usage message updated with the new flags.
-- `reverseArgs(args)`, `toUpperCaseArgs(args)`, `toLowerCaseArgs(args)`: Basic transformations.
-- `shuffleArgs(args)`, `sortArgs(args)`, `duplicateArgs(args)`, `uniqueArgs(args)`, `countArgs(args)`: Array manipulations. (New: `uniqueArgs` removes duplicate elements)
 - `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name.
-- `sanitizeCommitMessage(message)`: Cleans commit messages.
-- `reviewIssue(options)`: Evaluates file contents and outputs.
-- `appendIndexArgs(args)`: Appends indices to arguments.
-- `trimArgs(args)`: Trims whitespace from arguments.
-- `kebabCaseArgs(args)`: Converts arguments to kebab-case.
-- `constantCaseArgs(args)`: Converts arguments to CONSTANT_CASE.
-- `seededShuffleArgs(args, seed)`: Deterministically shuffles arguments.
-- `reverseWordsArgs(args)`: Reverses each argument's characters.
-- **New:** `snakeCaseArgs(args)`: Converts arguments to snake_case.
-- **New:** `swapCaseArgs(args)`: Swaps the letter case of arguments.
 
 ---
 ---
