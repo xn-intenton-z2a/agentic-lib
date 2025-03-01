@@ -187,7 +187,10 @@ export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
 }
 
 export function sanitizeCommitMessage(message = "") {
-  return message.replace(/[^A-Za-z0-9 \-\_\.\~]/g, "").replace(/\s+/g, " ").trim();
+  return message
+    .replace(/[^A-Za-z0-9 \-\_\.\~]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 export function reviewIssue({
@@ -201,14 +204,13 @@ export function reviewIssue({
   dependenciesListOutput,
   buildOutput,
   testOutput,
-  mainOutput
+  mainOutput,
 }) {
-  const fixed = sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")
-    ? "true"
-    : "false";
-  const message = fixed === "true"
-    ? "The issue has been resolved."
-    : "Issue not resolved.";
+  const fixed =
+    sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")
+      ? "true"
+      : "false";
+  const message = fixed === "true" ? "The issue has been resolved." : "Issue not resolved.";
   return { fixed, message, refinement: "None" };
 }
 

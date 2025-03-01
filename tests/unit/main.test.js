@@ -19,7 +19,7 @@ import {
   kebabCaseArgs,
   constantCaseArgs,
   seededShuffleArgs,
-  reverseWordsArgs
+  reverseWordsArgs,
 } from "../../src/lib/main.js";
 
 async function captureOutputAsync(fn) {
@@ -186,7 +186,7 @@ describe("Utility Functions", () => {
       dependenciesListOutput: "npm list output",
       buildOutput: "build output",
       testOutput: "test output",
-      mainOutput: "main output"
+      mainOutput: "main output",
     };
     const result = reviewIssue(params);
     expect(result.fixed).toBe("true");
