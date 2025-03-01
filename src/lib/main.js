@@ -103,6 +103,12 @@ export function main(args = []) {
     console.log("Duplicated Args: " + JSON.stringify(resultArgs));
   }
 
+  // New functionality: remove duplicate arguments
+  if (flagSet.has("--unique")) {
+    resultArgs = uniqueArgs(resultArgs);
+    console.log("Unique Args: " + JSON.stringify(resultArgs));
+  }
+
   if (flagSet.has("--count")) {
     console.log("Count of Args: " + countArgs(resultArgs));
   }
@@ -138,7 +144,7 @@ export async function openaiChatCompletions(options) {
 
 // Exported Utility Functions
 export function generateUsage() {
-  return "Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [--camel] [--shuffle] [--sort] [--duplicate] [--count] [--seeded-shuffle] [--reverse-words] [args...]";
+  return "Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [--camel] [--shuffle] [--sort] [--duplicate] [--unique] [--count] [--seeded-shuffle] [--reverse-words] [args...]";
 }
 
 export function reverseArgs(args = []) {

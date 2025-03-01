@@ -21,10 +21,10 @@ This README file will evolve as the test experiment within this repository evolv
 
 ## Updates
 
-- Added new feature: the **--reverse-words** flag, which reverses each word's characters.
-- Revised the transformation pipeline in `main.js` for consistent CLI flag processing.
-- Improved formatting and code quality to resolve build and linting issues.
-- Updated utility functions and tests for better consistency.
+- Added new flag: **--unique** to remove duplicate arguments from the input.
+- Revised the transformation pipeline in `main.js` to extend functionality as per issue requirements.
+- Extended test cases to cover the new **--unique** flag.
+- Updated documentation to reflect the new functionality.
 
 ---
 ---
@@ -34,9 +34,9 @@ This README file will evolve as the test experiment within this repository evolv
 1. Fork the repository and clone it to your local machine.
 2. Ensure you have Node 20 or higher installed.
 3. Run `npm ci` to install all dependencies.
-4. Explore the source code in `src/lib/main.js`, which now features an updated transformation pipeline.
+4. Explore the source code in `src/lib/main.js`, which now features an updated transformation pipeline including a new '--unique' flag.
 5. Review the test suite in `tests/unit/` for current functionality.
-6. Execute `npm run start` to observe the CLI output.
+6. Execute `npm run start` to observe the CLI output and test the new unique functionality.
 7. Run `npm test` to ensure all tests pass.
 8. Use the updated transformation logic and API wrappers as a baseline.
 9. Identify areas for improvement in error messaging and flag handling.
@@ -49,7 +49,7 @@ This README file will evolve as the test experiment within this repository evolv
 16. Explore contributing guidelines in [CONTRIBUTING.md](CONTRIBUTING.md).
 17. Monitor dependency updates with `npm-check-updates`.
 18. Suggest new features or enhancements.
-19. Collaborate via GitHub issues and PR reviews.
+19. Collaborate via GitHub issues and PR reviews to improve project quality.
 20. Enjoy the continuous evolution powered by **agentic‑lib**.
 
 ---
@@ -57,14 +57,13 @@ This README file will evolve as the test experiment within this repository evolv
 
 ## New Exported Utility Functions
 
-- `generateUsage()`: Provides a usage message.
+- `generateUsage()`: Provides a usage message updated with the new flag.
 - `reverseArgs(args)`, `toUpperCaseArgs(args)`, `toLowerCaseArgs(args)`: Basic transformations.
-- `shuffleArgs(args)`, `sortArgs(args)`, `duplicateArgs(args)`, `countArgs(args)`: Array manipulations.
+- `shuffleArgs(args)`, `sortArgs(args)`, `duplicateArgs(args)`, `uniqueArgs(args)`, `countArgs(args)`: Array manipulations. (New: `uniqueArgs` removes duplicate elements)
 - `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number.
 - `sanitizeCommitMessage(message)`: Cleans commit messages.
 - `reviewIssue(options)`: Evaluates file contents and outputs.
 - `appendIndexArgs(args)`: Appends indices.
-- `uniqueArgs(args)`: Filters unique elements.
 - `trimArgs(args)`: Trims whitespace.
 - `kebabCaseArgs(args)`: Converts to kebab-case.
 - `constantCaseArgs(args)`: Converts to CONSTANT_CASE.
@@ -84,33 +83,33 @@ This repository is organized into three distinct areas to help you understand th
 
 ### 1. Re‑usable Workflows (Core Functionality)
 - **Purpose:**  
-  These workflows form the backbone of the agentic‑lib system.
+  These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.
 - **Stability:**  
-  They are stable and well‑tested.
+  They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.
 - **Licensing:**  
-  Released under GPL‑3 with attribution requirements.
+  The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.
 - **Location:**  
-  In the `.github/workflows/` directory.
+  Find these in the `.github/workflows/` directory.
 
 ### 2. Example Workflows (Demonstrative Content)
 - **Purpose:**  
-  Provide practical examples of how to use the core workflows.
+  These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
 - **Stability:**  
-  Intended for demonstration and experimentation.
+  While functional, they are intended primarily for demonstration and experimentation.
 - **Licensing:**  
-  Covered by the MIT license.
+  The example workflows are covered by the MIT license to allow for broader use and modification.
 - **Location:**  
-  In the `examples/` directory.
+  Look in the `examples/` directory for sample implementations.
 
-### 3. The Evolving main.js (JavaScript Re‑implementation of Workflows)
+### 3. The Evolving main.js (JavaScript re‑implementation of Re‑usable Workflows)
 - **Purpose:**  
-  Enables programmatic access to the core functionality.
+  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
-  Under active development and may change frequently.
+  It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
-  Under GPL‑3 with attribution requirements.
+  As part of the core project, it is under GPL‑3 with the attribution clause.
 - **Location:**  
-  Located in `src/lib/main.js`.
+  The code is located in `src/lib/main.js`.
 
 ## License
 
@@ -131,7 +130,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License v3.0 (GPL‑3)
+You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 IMPORTANT: Any derived work must include the following attribution:

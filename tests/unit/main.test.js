@@ -115,6 +115,17 @@ describe("Reverse Words Feature", () => {
   });
 });
 
+describe("Unique flag", () => {
+  test("should return unique arguments when --unique flag is provided", async () => {
+    const output = await captureOutputAsync(() => main(["--unique", "apple", "banana", "apple", "cherry", "banana"]));
+    expect(output).toContain("Unique Args:");
+    // Ensure duplicates are removed
+    expect(output).toContain("apple");
+    expect(output).toContain("banana");
+    expect(output).toContain("cherry");
+  });
+});
+
 describe("Utility Functions", () => {
   test("generateUsage returns correct usage message", () => {
     const usage = generateUsage();
