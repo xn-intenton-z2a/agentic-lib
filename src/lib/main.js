@@ -7,10 +7,12 @@ import { readFileSync } from "fs";
 
 // Main function
 export function main(args = []) {
-  console.log(generateUsage());
+  const usage = generateUsage();
+  console.log(usage);
   console.log("");
 
-  if (args.length === 0) {
+  // If no arguments or a help/usage flag is provided, show demo and exit
+  if (args.length === 0 || args.includes("--help") || args.includes("--usage")) {
     console.log("Demo: This is a demonstration of agentic-lib's functionality.");
     console.log(enhancedDemo());
     console.log("No additional arguments provided.");
@@ -24,7 +26,7 @@ export function main(args = []) {
   // Split arguments into flags and non-flag arguments using the new utility function
   const { flagArgs, nonFlagArgs } = splitArguments(args);
 
-  // New: if the version flag is provided, display the version and exit
+  // If the version flag is provided, display the version and exit
   if (flagArgs.includes("--version")) {
     console.log(showVersion());
     if (process.env.NODE_ENV !== "test") {
@@ -49,11 +51,11 @@ export function main(args = []) {
 }
 
 export function generateUsage() {
-  return "Usage: npm run start [--usage] [--version] [args...]";
+  return "Usage: npm run start [--usage|--help] [--version] [args...]";
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
-  // Fixed regex to avoid unnecessary escape
+  // Fixed regex to properly capture digits following prefix
   const regex = new RegExp(prefix + "(\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
