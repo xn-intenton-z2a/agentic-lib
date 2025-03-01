@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 import figlet from "figlet";
 import dayjs from "dayjs";
 import chalk from "chalk";
-import { capitalCase, camelCase } from "change-case";
+import { capitalCase, camelCase, paramCase, constantCase } from "change-case";
 
 export function main(args = []) {
   console.log(generateUsage());
@@ -181,7 +181,6 @@ export function sanitizeCommitMessage(message = "") {
 }
 
 // 11. Review Issue function to duplicate workflow functionality
-// This function takes various file contents and outputs, and returns an object indicating if the issue is resolved.
 export function reviewIssue({
   sourceFileContent,
   testFileContent,
@@ -199,6 +198,33 @@ export function reviewIssue({
   const fixed = sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib") ? "true" : "false";
   const message = fixed === "true" ? "The issue has been resolved." : "Issue not resolved.";
   return { fixed, message, refinement: "None" };
+}
+
+// New Utility Functions added for enhanced argument processing
+
+// Returns a new array where each argument is concatenated with its index
+export function appendIndexArgs(args = []) {
+  return args.map((arg, index) => `${arg}${index}`);
+}
+
+// Returns a new array containing only unique arguments
+export function uniqueArgs(args = []) {
+  return Array.from(new Set(args));
+}
+
+// Returns a new array with each argument trimmed of whitespace
+export function trimArgs(args = []) {
+  return args.map(arg => arg.trim());
+}
+
+// Returns a new array with each argument converted to kebab-case
+export function kebabCaseArgs(args = []) {
+  return args.map(arg => paramCase(arg));
+}
+
+// Returns a new array with each argument converted to CONSTANT_CASE
+export function constantCaseArgs(args = []) {
+  return args.map(arg => constantCase(arg));
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
