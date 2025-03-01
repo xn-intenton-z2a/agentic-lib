@@ -29,7 +29,8 @@
     "zod": "^3.24.2",
     "chalk": "^5.2.0",
     "lodash": "^4.17.21",
-    "change-case": "^4.1.2"
+    "change-case": "^4.1.2",
+    "seedrandom": "^3.0.5"
   },
   "devDependencies": {
     "@microsoft/eslint-formatter-sarif": "^3.1.0",

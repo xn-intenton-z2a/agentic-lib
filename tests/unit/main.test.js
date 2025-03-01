@@ -17,7 +17,8 @@ import {
   uniqueArgs,
   trimArgs,
   kebabCaseArgs,
-  constantCaseArgs
+  constantCaseArgs,
+  seededShuffleArgs
 } from "../../src/lib/main.js";
 
 // Helper function to capture console output synchronously
@@ -44,8 +45,6 @@ describe("Main Module Import", () => {
   });
 });
 
-// Test suite for --shuffle flag
-
 describe("Shuffle flag", () => {
   test("should display shuffled arguments when --shuffle is provided", async () => {
     const output = await captureOutputAsync(() => main(["--shuffle", "one", "two", "three"]));
@@ -56,16 +55,12 @@ describe("Shuffle flag", () => {
   });
 });
 
-// New test suite for conflicting case flags
-
 describe("Conflicting Flags", () => {
   test("should warn when both --upper and --lower flags are provided", async () => {
     const output = await captureOutputAsync(() => main(["--upper", "--lower", "Test"]));
     expect(output).toContain("Warning: Conflicting flags --upper and --lower. No case transformation applied.");
   });
 });
-
-// Additional tests for new flags
 
 describe("Main function flag tests", () => {
   test("should convert arguments to uppercase when only --upper is provided", async () => {
@@ -91,7 +86,27 @@ describe("Main function flag tests", () => {
   });
 });
 
-// New utility function tests
+describe("Seeded Shuffle Feature", () => {
+  test("should perform seeded shuffle when --seeded-shuffle flag is provided", async () => {
+    const output = await captureOutputAsync(() => main(["--seeded-shuffle", "seed123", "a", "b", "c"]));
+    expect(output).toContain("Seeded Shuffled Args:");
+    // Check that the output includes all provided arguments (except the seed)
+    expect(output).toContain("a");
+    expect(output).toContain("b");
+    expect(output).toContain("c");
+  });
+
+  test("seededShuffleArgs returns consistent order", () => {
+    const input = ["a", "b", "c", "d"];
+    const firstCall = seededShuffleArgs(input, "consistentSeed");
+    const secondCall = seededShuffleArgs(input, "consistentSeed");
+    expect(firstCall).toEqual(secondCall);
+    // Ensure that the output array has same elements
+    expect(firstCall.sort()).toEqual(input.sort());
+  });
+});
+
+// Utility Functions tests
 
 describe("Utility Functions", () => {
   test("generateUsage returns correct usage message", () => {

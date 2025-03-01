@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-// src/lib/main.js - Improved version with enhanced flag processing, explicit exit messages, and new reviewIssue utility function to duplicate workflow functionality.
-// Consolidated transformation pipeline for improved consistency between source and tests, with added sort, duplicate, count, shuffle functionalities and reviewIssue.
+// src/lib/main.js - Improved version with enhanced flag processing, explicit exit messages, new reviewIssue utility, and added seeded shuffle functionality.
+// Consolidated transformation pipeline for improved consistency between source and tests, with added sort, duplicate, count, shuffle, and seeded shuffle functionalities.
 
 import { fileURLToPath } from "url";
 import figlet from "figlet";
 import dayjs from "dayjs";
 import chalk from "chalk";
+import seedrandom from "seedrandom";
 import { capitalCase, camelCase, paramCase, constantCase } from "change-case";
 
 export function main(args = []) {
@@ -112,6 +113,18 @@ export function main(args = []) {
     console.log("Count of Args: " + nonFlagArgs.length);
   }
 
+  // New Seeded Shuffle Mode: Shuffle arguments deterministically based on provided seed.
+  if (flagSet.has("--seeded-shuffle")) {
+    if (nonFlagArgs.length === 0) {
+      console.log("No seed provided for seeded shuffle.");
+    } else {
+      const seed = nonFlagArgs[0];
+      const remaining = nonFlagArgs.slice(1);
+      const seededShuffled = seededShuffleArgs(remaining, seed);
+      console.log("Seeded Shuffled Args: " + JSON.stringify(seededShuffled));
+    }
+  }
+
   if (process.env.NODE_ENV !== "test") {
     console.log("Exiting application.");
     process.exit(0);
@@ -119,7 +132,6 @@ export function main(args = []) {
 }
 
 // New wrapper function for OpenAI chat completions.
-// This function mirrors the signature of openai.chat.completions.create and internally calls it.
 export async function openaiChatCompletions(options) {
   const { default: OpenAI } = await import("openai");
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" });
@@ -130,7 +142,7 @@ export async function openaiChatCompletions(options) {
 
 // 1. Generates the usage message
 export function generateUsage() {
-  return "Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [--camel] [--shuffle] [--sort] [--duplicate] [--count] [args...]";
+  return "Usage: npm run start [--fancy] [--time] [--reverse] [--upper] [--color] [--lower] [--append] [--capitalize] [--camel] [--shuffle] [--sort] [--duplicate] [--count] [--seeded-shuffle] [args...]";
 }
 
 // 2. Returns the reversed array of arguments
@@ -205,31 +217,40 @@ export function reviewIssue({
   return { fixed, message, refinement: "None" };
 }
 
-// New Utility Functions added for enhanced argument processing
-
-// Returns a new array where each argument is concatenated with its index
+// 12. Appends index to each argument
 export function appendIndexArgs(args = []) {
   return args.map((arg, index) => `${arg}${index}`);
 }
 
-// Returns a new array containing only unique arguments
+// 13. Filters unique arguments
 export function uniqueArgs(args = []) {
   return Array.from(new Set(args));
 }
 
-// Returns a new array with each argument trimmed of whitespace
+// 14. Trims whitespace from each argument
 export function trimArgs(args = []) {
   return args.map(arg => arg.trim());
 }
 
-// Returns a new array with each argument converted to kebab-case
+// 15. Converts arguments to kebab-case
 export function kebabCaseArgs(args = []) {
   return args.map(arg => paramCase(arg));
 }
 
-// Returns a new array with each argument converted to CONSTANT_CASE
+// 16. Converts arguments to CONSTANT_CASE
 export function constantCaseArgs(args = []) {
   return args.map(arg => constantCase(arg));
+}
+
+// 17. Seeded Shuffle: Returns a new array with arguments shuffled deterministically using provided seed
+export function seededShuffleArgs(args = [], seed = "") {
+  const result = args.slice();
+  const rng = seedrandom(seed);
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
