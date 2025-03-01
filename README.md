@@ -22,7 +22,7 @@ This README file will evolve as the test experiment within this repository evolv
 ## New Exported Utility Functions
 
 - `generateUsage()`: Provides a usage message updated with the new flags.
-- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name.
+- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name. (Updated regex for better digit capturing)
 - `sanitizeCommitMessage(message)`: Cleans up commit messages removing unsupported characters.
 - `splitArguments(args)`: Splits a list of arguments into flags and non-flag arguments.
 - `processFlags(flags)`: Processes the given flags and returns a summary message.
