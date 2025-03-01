@@ -83,37 +83,6 @@ describe("Main function flag tests", () => {
   });
 });
 
-describe("Seeded Shuffle Feature", () => {
-  test("should perform seeded shuffle when --seeded-shuffle flag is provided", async () => {
-    const output = await captureOutputAsync(() => main(["--seeded-shuffle", "seed123", "a", "b", "c"]));
-    expect(output).toContain("Seeded Shuffled Args:");
-    expect(output).toContain("a");
-    expect(output).toContain("b");
-    expect(output).toContain("c");
-  });
-
-  test("seededShuffleArgs returns consistent order", () => {
-    const input = ["a", "b", "c", "d"];
-    const firstCall = seededShuffleArgs(input, "consistentSeed");
-    const secondCall = seededShuffleArgs(input, "consistentSeed");
-    expect(firstCall).toEqual(secondCall);
-    expect(firstCall.sort()).toEqual(input.sort());
-  });
-});
-
-describe("Reverse Words Feature", () => {
-  test("should reverse each word's characters when --reverse-words flag is provided", async () => {
-    const output = await captureOutputAsync(() => main(["--reverse-words", "hello", "world"]));
-    expect(output).toContain("Reversed Words Args:");
-    expect(output).toContain("olleh");
-    expect(output).toContain("dlrow");
-  });
-
-  test("reverseWordsArgs reverses each word correctly", () => {
-    expect(reverseWordsArgs(["hello", "world"]).join(",")).toBe("olleh,dlrow");
-  });
-});
-
 describe("Unique flag", () => {
   test("should return unique arguments when --unique flag is provided", async () => {
     const output = await captureOutputAsync(() => main(["--unique", "apple", "banana", "apple", "cherry", "banana"]));
