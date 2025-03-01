@@ -18,7 +18,7 @@ import {
   kebabCaseArgs,
   constantCaseArgs,
   seededShuffleArgs,
-  reverseWordsArgs,
+  reverseWordsArgs
 } from "../../src/lib/main.js";
 
 async function captureOutputAsync(fn) {
@@ -124,6 +124,14 @@ describe("Unique flag", () => {
   });
 });
 
+describe("Vowel Count Feature", () => {
+  test("should count vowels correctly when --vowel-count flag is provided", async () => {
+    const output = await captureOutputAsync(() => main(["--vowel-count", "hello", "world"]));
+    // hello has 2 vowels and world has 1 vowel: total 3
+    expect(output).toContain("Vowel Count: 3");
+  });
+});
+
 describe("Utility Functions", () => {
   test("generateUsage returns correct usage message", () => {
     const usage = generateUsage();
@@ -184,7 +192,7 @@ describe("Utility Functions", () => {
       dependenciesListOutput: "npm list output",
       buildOutput: "build output",
       testOutput: "test output",
-      mainOutput: "main output",
+      mainOutput: "main output"
     };
     const result = reviewIssue(params);
     expect(result.fixed).toBe("true");
