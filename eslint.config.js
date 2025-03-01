@@ -73,7 +73,7 @@ export default [
   },
   {
     files: ["**/*.js"],
-    ignores: ["**/tests/**/*.js", "**/*.test.js"],
+    ignores: ["**/tests/**/*.js", "**/*.test.js", "eslint.config.js"],
     rules: {
       ...security.configs.recommended.rules,
       "security/detect-non-literal-regexp": "off",
@@ -87,6 +87,6 @@ export default [
     },
   },
   {
-    ignores: ["build/", "coverage/", "dist/", "exports/", "node_modules/"],
+    ignores: ["build/", "coverage/", "dist/", "exports/", "node_modules/", "eslint.config.js"],
   },
 ];
