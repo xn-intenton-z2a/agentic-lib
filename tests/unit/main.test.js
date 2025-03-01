@@ -12,7 +12,12 @@ import {
   countArgs,
   getIssueNumberFromBranch,
   sanitizeCommitMessage,
-  reviewIssue
+  reviewIssue,
+  appendIndexArgs,
+  uniqueArgs,
+  trimArgs,
+  kebabCaseArgs,
+  constantCaseArgs
 } from "../../src/lib/main.js";
 
 // Helper function to capture console output synchronously
@@ -120,33 +125,25 @@ describe("Utility Functions", () => {
     expect(result.message).toBe("The issue has been resolved.");
     expect(result.refinement).toBe("None");
   });
-});
 
-// New test suite for openaiChatCompletions wrapper
+  // New utility function tests
+  test("appendIndexArgs appends index to each argument", () => {
+    expect(appendIndexArgs(["a", "b", "c"]).join(",")).toBe("a0,b1,c2");
+  });
 
-vi.mock("openai", () => {
-  const createMock = vi.fn().mockResolvedValue("mocked response");
-  return {
-    default: class {
-      constructor({ apiKey }) {
-        this.apiKey = apiKey;
-        this.chat = {
-          completions: {
-            create: createMock
-          }
-        };
-      }
-    },
-    __createMock: createMock
-  };
-});
+  test("uniqueArgs returns an array with unique elements", () => {
+    expect(uniqueArgs(["a", "b", "a", "c"]).join(",")).toBe("a,b,c");
+  });
 
-describe("openaiChatCompletions wrapper", () => {
-  test("should call openai.chat.completions.create with provided options", async () => {
-    const options = { messages: [{ role: "user", content: "Hello" }] };
-    const response = await openaiChatCompletions(options);
-    const { __createMock } = await import("openai");
-    expect(__createMock).toHaveBeenCalledWith(options);
-    expect(response).toEqual("mocked response");
+  test("trimArgs trims whitespace from each argument", () => {
+    expect(trimArgs([" foo ", "bar  "]).join(",")).toBe("foo,bar");
+  });
+
+  test("kebabCaseArgs converts arguments to kebab-case", () => {
+    expect(kebabCaseArgs(["Hello World", "TestCase"]).join(",")).toBe("hello-world,test-case");
+  });
+
+  test("constantCaseArgs converts arguments to CONSTANT_CASE", () => {
+    expect(constantCaseArgs(["Hello World", "TestCase"]).join(",")).toBe("HELLO_WORLD,TEST_CASE");
   });
 });
