@@ -230,13 +230,26 @@ Contributions come in many forms—whether you’re a developer, tester, or an a
 
 ## Issue House Choice Options
 
-- From contributing: Add a new feature to the source file (pull in at most 1 new dependency if needed).
-- From contributing: Extend the functionality in the source file.
-- From contributing: Improve the consistency of the source file and test file.
-- From contributing: Improve test coverage of the source file by the test file and fix bugs the tests would highlight.
-- From contributing: Ensure that the main defaults to the usage and some demo output and ensure execution terminates without user input.
-- From contributing: Synchronise the README with current behaviour and call out future features that have not yet been implemented.
-- From contributing: Ensure that README.md is consistent with the guidance in this CONTRIBUTING.md.
+agentic-lib activities:
+- Implement, vary or extend a workflow behaviour similar one in the supplied wfr-create-issue.yml. Update the Change log in README.md (or say what was checked).
+- Implement, vary or extend a wrapper for an OpenAI function similar to the supplied OpenAI function. Update the Change Log in README.md (or say what was checked).
+- Speculate what remote services may be useful to an agentic workflow and implement a wrapper for them. Update the Change Log in README.md (or say what was checked).
+- Add or extend features to support gathering telemetry data from GitHub Actions Workflows and implement that feature. Update the Change Log in README.md (or say what was checked).
+- Create or extend some library functions that use OPEN AI functions to wrap the delegation of a decision to an advanced LLM based chat completions API. Update the Change Log in README.md (or say what was checked).
+- Create or extend some library functions that use Kafka like messaging systems to communicate with other agentic workflows. Update the Change Log in README.md (or say what was checked).
+
+generic activities:
+- Review the Mission Statement and prune any "drift" from the source file where there are no longer relevant features. Update the Change Log in README.md (or say what was checked).
+- Find anything that might be a "simulated" or "demo" implementation and switch to a real implementation. Update the Change Log in README.md (or say what was checked).
+- Consider alternate code paths that could be explicitly handled to improve the range of supported behaviours. Update the Change Log in README.md (or say what was checked).
+- Look for any duplicated code that could be usefully abstracted out to become shared code and implement that abstraction. Update the Change Log in README.md (or say what was checked).
+- Ensure the main function so that it generates some demo output without an over the wire call, and hint a CLI switch that will do the real call. Update the Change Log in README.md (or say what was checked).
+
+undocumented chores:
+- Look for code that could be simplified using a library and introduce that library.
+- Refresh the README, consulting the guidance in CONTRIBUTING.md while retaining any relevant content and pruning irrelevant content.
+- Dry-run any examples in comments or the README against the current code and if they are not accurate or if they could cover more features, update the docs or code to be accurate.
+- Bring test coverage up as close to 100% as possible, have single layer mocked tests and deeper tests mocking at the external resource (e.g. file system or network).
 
 ## Agentic contribution house choice options (programmatically parsed): END
 
