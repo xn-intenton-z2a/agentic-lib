@@ -92,7 +92,12 @@ export function splitArguments(args = []) {
 // Processes an array of flags and returns a summary message
 export function processFlags(flags = []) {
   if (flags.length === 0) return "No flags to process.";
-  return `Processed flags: ${flags.join(", ")}`;
+  let result = `Processed flags: ${flags.join(", ")}`;
+  // Extended functionality: append verbose mode activation message if --verbose flag is present
+  if (flags.includes("--verbose")) {
+    result += " | Verbose mode enabled.";
+  }
+  return result;
 }
 
 // Provides an enhanced demo output including environmental details
@@ -123,7 +128,7 @@ export function reviewIssue({
   _dependenciesListOutput,
   _buildOutput,
   _testOutput,
-  _mainOutput,
+  _mainOutput
 }) {
   const fixed =
     sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")
