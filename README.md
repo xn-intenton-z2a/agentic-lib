@@ -45,7 +45,7 @@ This README file will evolve as the test experiment within this repository evolv
 - Updated demonstration output to include debug mode status.
 - Updated usage documentation to include the `--env` flag.
 - Improved consistency between source file and test file.
-- Refined the exit routine to clearly state when agentic-lib is terminating.
+- Ensured that when no arguments are provided, the default behavior is to print usage information along with a demonstration message and then exit.
 
 ---
 ---
