@@ -47,9 +47,18 @@ describe("Utility Functions", () => {
     expect(nonFlagArgs).toEqual(["input.txt", "output.txt"]);
   });
 
-  test("processFlags returns proper message", () => {
+  test("processFlags returns proper message without flags", () => {
     expect(processFlags([])).toBe("No flags to process.");
-    expect(processFlags(["--test", "--flag"]).includes("--test")).toBe(true);
+  });
+
+  test("processFlags returns proper message with flags", () => {
+    const result = processFlags(["--test", "--flag"]);
+    expect(result.includes("--test")).toBe(true);
+  });
+
+  test("processFlags with --verbose flag returns verbose message", () => {
+    const result = processFlags(["--verbose", "--debug"]);
+    expect(result).toContain("Verbose mode enabled.");
   });
 
   test("enhancedDemo returns a string containing NODE_ENV", () => {
