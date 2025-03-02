@@ -37,6 +37,7 @@ This README file will evolve as the test experiment within this repository evolv
 - Extended functionality: Added a new `--reverse` flag. When provided, the non-flag arguments are reversed and printed, demonstrating extended argument processing.
 - Added a new `--telemetry` flag to output telemetry data from GitHub Actions environments. This new utility function assists in gathering and monitoring workflow execution details.
 - Added a new `--version` flag to print the current version of the library.
+- **New:** Added a new `--create-issue` flag that simulates the behavior of the GitHub workflow for issue creation (wfr-create-issue.yml). It generates a simulated issue title and a random issue number.
 
 ---
 ---
@@ -47,7 +48,7 @@ This README file will evolve as the test experiment within this repository evolv
 - Extended flag processing functions for clearer output, including support for a `--verbose` and `--debug` flag for enhanced debugging.
 - Updated demonstration output to include debug mode status and environmental details.
 - Added telemetry gathering functionality via `gatherTelemetryData()` to capture GitHub Actions workflow details.
-- Increased test coverage by adding additional unit tests for new flags and functionality.
+- Increased test coverage by adding additional unit tests for new flags and functionality, including the simulated issue creation with `--create-issue`.
 
 ---
 ---
