@@ -21,26 +21,37 @@ This README file will evolve as the test experiment within this repository evolv
 
 ## New Exported Utility Functions
 
-- `generateUsage()`: Provides a usage message updated with the new flags.
-- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name. (Updated regex for better digit capturing)
-- `sanitizeCommitMessage(message)`: Cleans up commit messages by removing unsupported characters.
+- `generateUsage()`: Provides a usage message with updated flag options.
+- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name with improved regex.
+- `sanitizeCommitMessage(message)`: Cleans up commit messages by removing unsupported characters and extra spaces.
 - `splitArguments(args)`: Splits command line arguments into flag and non-flag arrays.
 - `processFlags(flags)`: Processes an array of flags and returns a summary message.
-- `enhancedDemo()`: Provides an enhanced demo output including environmental details.
+- `enhancedDemo()`: Provides demo output including environmental details.
 - `logEnvironmentDetails()`: Logs current environment details such as NODE_ENV.
 - `showVersion()`: Returns the current version of the library.
 
 ---
+---
+
+## Recent Improvements
+
+- Consolidated application exit routine and improved code commenting for clarity in `main.js`.
+- Extended flag processing functions for clearer output.
+- Updated documentation to reflect current function behavior and future enhancements.
+
+---
+---
 
 ## Future Enhancements
 
-The current version synchronizes the README with the behavior of our evolving main.js implementation. Future enhancements include:
+The current version synchronizes the README with the evolving implementation in `main.js`. Future enhancements include:
 
-- Additional utility functions to further enhance workflow automation.
+- Additional utility functions to further extend workflow automation.
 - Improved integration with GitHub's API for dynamic issue and PR management.
-- Enhanced logging and monitoring features to support continuous integration improvements.
-- Consolidation of repetitive exit calls into a helper function for improved consistency.
+- Enhanced logging and monitoring features for continuous integration.
+- Further consolidation of repetitive routines into helper functions.
 
+---
 ---
 
 ## Contributing
@@ -53,33 +64,33 @@ This repository is organized into three distinct areas to help you understand th
 
 ### 1. Re‑usable Workflows (Core Functionality)
 - **Purpose:**  
-  These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.
+  These workflows form the backbone of the agentic‑lib system, enabling automated processes such as testing, publishing, and issue management.
 - **Stability:**  
-  They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.
+  They are stable and well‑tested, designed for integration into CI/CD pipelines.
 - **Licensing:**  
-  The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.
+  The core workflows are released under GPL‑3 with an attribution requirement for any derived work.
 - **Location:**  
-  Find these in the `.github/workflows/` directory.
+  Located in the `.github/workflows/` directory.
 
 ### 2. Example Workflows (Demonstrative Content)
 - **Purpose:**  
-  These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
+  These files provide practical examples of how to use the core workflows, serving as learning tools and reference implementations.
 - **Stability:**  
-  While functional, they are intended primarily for demonstration and experimentation.
+  Intended primarily for demonstration and experimentation.
 - **Licensing:**  
-  The example workflows are covered by the MIT license to allow for broader use and modification.
+  Covered by the MIT license to allow for broader use and modification.
 - **Location:**  
-  Look in the `examples/` directory for sample implementations.
+  Found in the `examples/` directory.
 
 ### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
 - **Purpose:**  
-  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
+  Implements the reusable workflows as a JavaScript module for programmatic access to core functionality.
 - **Stability:**  
-  It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
+  Under active development; represents bleeding‑edge functionality that might change frequently.
 - **Licensing:**  
-  As part of the core project, it is under GPL‑3 with the attribution clause.
+  Part of the core project distributed under GPL‑3 with attribution.
 - **Location:**  
-  The code is located in `src/lib/main.js`.
+  Located in `src/lib/main.js`.
 
 ## License
 
