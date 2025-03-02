@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // src/lib/main.js - Enhanced version with default usage and demo output when no arguments are provided, and consolidated exit routine for clarity.
 // This update improves consistency between source and test files, extends functionality with new flags (--reverse, --env), refines log messages, and ensures proper exit behavior in both production and test environments.
+// Ref: Updated documentation examples to correctly reflect supported flags and behaviors.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
