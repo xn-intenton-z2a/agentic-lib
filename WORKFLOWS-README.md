@@ -212,7 +212,7 @@ Re-usable GitHub Actions Workflows:
 - [x] Write issue body when creating an issue from a linting error.
 - [x] repository0 init workflow which archives the 4 files (1 of 4): a generic README, package.json, src/lib/main.js, tests/unit/main.test.js, and initialises a CONTRIBUTING.md.
 - [x] apply fix should create a PR if it passes
-- [~] use a single branch pre-fix and check it to avoid conflicts
+- [x] use a single branch pre-fix and check it to avoid conflicts
 - [ ] apply-fix to be able to apply a fix to the main branch.
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
 - [ ] Publish a demo to GitHub sites
