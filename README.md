@@ -25,12 +25,12 @@ This README file will evolve as the test experiment within this repository evolv
 - `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name with improved regex.
 - `sanitizeCommitMessage(message)`: Cleans up commit messages by removing unsupported characters and extra spaces.
 - `splitArguments(args)`: Splits command line arguments into flag and non-flag arrays.
-- `processFlags(flags)`: Processes an array of flags and returns a summary message. Now supports a `--verbose` flag to enable extra logging and a `--debug` flag for additional debugging information.
+- `processFlags(flags)`: Processes an array of flags and returns a summary message. Now supports `--verbose` for extra logging and `--debug` for additional debugging information.
 - `enhancedDemo()`: Provides demo output including environmental details and debug status.
 - `logEnvironmentDetails()`: Logs current environment details such as NODE_ENV.
 - `showVersion()`: Returns the current version of the library.
 
-### New Feature
+### New Features
 
 - Added a new `--env` flag to print out environment variables. This aids in debugging and ensures transparency of the runtime environment.
 - Extended functionality: Added a new `--reverse` flag. When provided, the non-flag arguments are reversed and printed, demonstrating extended argument processing.
@@ -42,12 +42,9 @@ This README file will evolve as the test experiment within this repository evolv
 
 - Consolidated application exit routine and improved code commenting for clarity in `main.js`.
 - Extended flag processing functions for clearer output, including support for a `--verbose` flag and a new `--debug` flag for enhanced debugging.
-- Added an ASCII art welcome screen using `figlet` and `chalk` for a more engaging user experience (displayed only outside of test environment).
-- Updated demonstration output to include debug mode status.
-- Updated usage documentation to include the `--env` and `--reverse` flags.
-- Extended functionality to reverse non-flag input when `--reverse` flag is used.
-- Improved consistency between source file and test file.
-- Ensured that when no arguments are provided, the default behavior is to print usage information along with a demonstration message and then exit.
+- Added an ASCII art welcome screen using `figlet` and `chalk` for an engaging user experience (displayed only outside of test environment).
+- Updated demonstration output to include debug mode status and environmental details.
+- Enhanced consistency between source file and test file, ensuring that usage, exit behavior, and flag processing align with test expectations.
 
 ---
 ---
@@ -92,7 +89,7 @@ This repository is organized into three distinct areas to help you understand th
 - **Location:**  
   Look in the `examples/` directory for sample implementations.
 
-### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
+### 3. The Evolving main.js (JavaScript re‑implementation of Re‑usable Workflows)
 - **Purpose:**  
   This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
@@ -121,7 +118,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License v3.0 (GPL‑3)
+You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 IMPORTANT: Any derived work must include the following attribution:

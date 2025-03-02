@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // src/lib/main.js - Enhanced version with default usage and demo output when no arguments are provided, and consolidated exit routine for clarity.
-// This update improves consistency between source and test files, extends functionality with a new --reverse flag, refines log messages, and ensures that the program exits when no user input is provided.
+// This update improves consistency between source and test files, extends functionality with new flags (--reverse, --env), refines log messages, and ensures proper exit behavior in both production and test environments.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -59,6 +59,7 @@ export function main(args = []) {
 
   // New feature: Reverse the non-flag arguments if '--reverse' flag is provided
   if (flagArgs.includes("--reverse")) {
+    // Join non-flag args into a single string, then reverse the entire string
     const reversedInput = nonFlagArgs.join(" ").split("").reverse().join("");
     console.log(chalk.yellow("Reversed input: " + reversedInput));
   }

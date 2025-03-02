@@ -129,6 +129,7 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       main(["--reverse", "hello", "world"]);
     });
+    // "hello world" reversed becomes "dlrow olleh"
     expect(output).toContain("Reversed input: dlrow olleh");
   });
 });
