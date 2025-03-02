@@ -24,6 +24,15 @@ function captureOutput(callback) {
   return output;
 }
 
+// Prevent process.exit from terminating tests
+beforeAll(() => {
+  vi.spyOn(process, 'exit').mockImplementation((code) => { throw new Error(`process.exit: ${code}`); });
+});
+
+afterAll(() => {
+  process.exit.mockRestore && process.exit.mockRestore();
+});
+
 describe("Main Module Import", () => {
   test("should be non-null", async () => {
     const mainModule = await import("../../src/lib/main.js");
@@ -32,7 +41,7 @@ describe("Main Module Import", () => {
 });
 
 describe("reviewIssue", () => {
-  test("reviewIssue returns correct resolution", () => {
+  test("reviewIssue returns correct resolution when conditions met", () => {
     const params = {
       sourceFileContent: "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--reverse] [args...]",
       testFileContent: "Some test content",
@@ -50,6 +59,25 @@ describe("reviewIssue", () => {
     expect(result.fixed).toBe("true");
     expect(result.message).toBe("The issue has been resolved.");
     expect(result.refinement).toBe("None");
+  });
+
+  test("reviewIssue returns false when conditions not met", () => {
+    const params = {
+      sourceFileContent: "Some other content",
+      testFileContent: "Test content",
+      readmeFileContent: "# Some other header",
+      dependenciesFileContent: "{}",
+      issueTitle: "Issue",
+      issueDescription: "Description",
+      issueComments: "Comment",
+      dependenciesListOutput: "list output",
+      buildOutput: "build output",
+      testOutput: "test output",
+      mainOutput: "main output"
+    };
+    const result = reviewIssue(params);
+    expect(result.fixed).toBe("false");
+    expect(result.message).toBe("Issue not resolved.");
   });
 });
 
@@ -129,7 +157,7 @@ describe("Utility Functions", () => {
   test("main with --env flag prints environment variables", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
-      main(["--env"]);
+      try { main(["--env"]); } catch (e) {}
     });
     expect(output).toContain("Environment Variables:");
   });
@@ -137,7 +165,7 @@ describe("Utility Functions", () => {
   test("main with --help flag prints usage and demo output", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
-      main(["--help"]);
+      try { main(["--help"]); } catch (e) {}
     });
     expect(output).toContain("Usage: npm run start");
     expect(output).toContain("Demo: Demonstration of agentic-lib functionality:");
@@ -146,7 +174,7 @@ describe("Utility Functions", () => {
   test("main with --reverse flag prints reversed input", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
-      main(["--reverse", "hello", "world"]);
+      try { main(["--reverse", "hello", "world"]); } catch (e) {}
     });
     // "hello world" reversed becomes "dlrow olleh"
     expect(output).toContain("Reversed input: dlrow olleh");
@@ -156,9 +184,17 @@ describe("Utility Functions", () => {
     process.env.NODE_ENV = "test";
     process.env.GITHUB_WORKFLOW = "CI Test Workflow";
     const output = captureOutput(() => {
-      main(["--telemetry"]);
+      try { main(["--telemetry"]); } catch (e) {}
     });
     expect(output).toContain("Telemetry Data:");
     expect(output).toContain("CI Test Workflow");
+  });
+
+  test("main with --version flag prints version", () => {
+    process.env.NODE_ENV = "test";
+    const output = captureOutput(() => {
+      try { main(["--version"]); } catch (e) {}
+    });
+    expect(output).toMatch(/^Version:/);
   });
 });
