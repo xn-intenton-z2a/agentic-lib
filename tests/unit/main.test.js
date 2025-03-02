@@ -16,7 +16,7 @@ function captureOutput(callback) {
   const originalLog = console.log;
   let output = "";
   console.log = (msg, ...args) => {
-    output += msg + (args.length ? ' ' + args.join(' ') : '') + "\n";
+    output += msg + (args.length ? " " + args.join(" ") : "") + "\n";
   };
   callback();
   console.log = originalLog;
@@ -33,7 +33,7 @@ describe("Main Module Import", () => {
 describe("reviewIssue", () => {
   test("reviewIssue returns correct resolution", () => {
     const params = {
-      sourceFileContent: "Usage: npm run start [--usage|--help] [--version] [--env] [args...]",
+      sourceFileContent: "Usage: npm run start [--usage | --help] [--version] [--env] [args...]",
       testFileContent: "Some test content",
       readmeFileContent: "# intentïon agentic-lib\nSome README content",
       dependenciesFileContent: "{}",

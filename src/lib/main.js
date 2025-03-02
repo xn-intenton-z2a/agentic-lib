@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // src/lib/main.js - Enhanced version with improved flag processing, consolidated exit routine, and refined comments for clarity.
-// This update improves code consistency, adds ASCII art for a friendly welcome, extends flag processing with debug support, and enhances maintainability.
+// This update improves consistency between source and test files, refines log messages, and maintains current functionality.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -8,7 +8,7 @@ import figlet from "figlet";
 
 // Helper function to handle application exit in a consistent manner
 function exitApplication() {
-  console.log("Exiting agentic-lib.");
+  console.log(chalk.blue("Exiting agentic-lib."));
   // Prevent exiting during tests
   if (process.env.NODE_ENV !== "test") {
     process.exit(0);
@@ -64,11 +64,11 @@ export function main(args = []) {
 }
 
 export function generateUsage() {
-  return "Usage: npm run start [--usage|--help] [--version] [--env] [args...]";
+  return "Usage: npm run start [--usage | --help] [--version] [--env] [args...]";
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
-  // Regex captures one or more digits following the prefix; using proper escape for digit class
+  // Regex captures one or more digits following the prefix
   const regex = new RegExp(prefix + "(\\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
