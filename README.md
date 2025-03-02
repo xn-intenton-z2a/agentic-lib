@@ -31,6 +31,7 @@ This README file will evolve as the test experiment within this repository evolv
 - `showVersion()`: Returns the current version of the library.
 
 ---
+---
 
 ## Recent Improvements
 
