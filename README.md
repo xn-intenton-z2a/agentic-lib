@@ -25,8 +25,8 @@ This README file will evolve as the test experiment within this repository evolv
 - `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name with improved regex.
 - `sanitizeCommitMessage(message)`: Cleans up commit messages by removing unsupported characters and extra spaces.
 - `splitArguments(args)`: Splits command line arguments into flag and non-flag arrays.
-- `processFlags(flags)`: Processes an array of flags and returns a summary message. Now supports a `--verbose` flag to enable extra logging.
-- `enhancedDemo()`: Provides demo output including environmental details.
+- `processFlags(flags)`: Processes an array of flags and returns a summary message. Now supports a `--verbose` flag to enable extra logging and a `--debug` flag for additional debugging information.
+- `enhancedDemo()`: Provides demo output including environmental details and debug status.
 - `logEnvironmentDetails()`: Logs current environment details such as NODE_ENV.
 - `showVersion()`: Returns the current version of the library.
 
@@ -36,9 +36,10 @@ This README file will evolve as the test experiment within this repository evolv
 ## Recent Improvements
 
 - Consolidated application exit routine and improved code commenting for clarity in `main.js`.
-- Extended flag processing functions for clearer output, including support for a `--verbose` flag.
+- Extended flag processing functions for clearer output, including support for a `--verbose` flag and a new `--debug` flag for enhanced debugging.
 - Added an ASCII art welcome screen using `figlet` and `chalk` for a more engaging user experience (displayed only outside of test environment).
-- Updated documentation to reflect new visual enhancements and current function behaviors.
+- Updated demonstration output to include debug mode status.
+- Updated documentation to reflect new functionality and current function behaviors.
 
 ---
 ---
