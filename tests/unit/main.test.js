@@ -7,9 +7,8 @@ import {
   logEnvironmentDetails,
   showVersion,
   getIssueNumberFromBranch,
-  sanitizeCommitMessage
+  sanitizeCommitMessage,
 } from "../../src/lib/main.js";
-
 
 describe("Main Module Import", () => {
   test("should be non-null", async () => {
@@ -17,7 +16,6 @@ describe("Main Module Import", () => {
     expect(mainModule).not.toBeNull();
   });
 });
-
 
 describe("reviewIssue", () => {
   test("reviewIssue returns correct resolution", () => {
@@ -32,7 +30,7 @@ describe("reviewIssue", () => {
       dependenciesListOutput: "npm list output",
       buildOutput: "build output",
       testOutput: "test output",
-      mainOutput: "main output"
+      mainOutput: "main output",
     };
     const result = reviewIssue(params);
     expect(result.fixed).toBe("true");
@@ -40,7 +38,6 @@ describe("reviewIssue", () => {
     expect(result.refinement).toBe("None");
   });
 });
-
 
 describe("Utility Functions", () => {
   test("splitArguments splits flags and non-flags correctly", () => {

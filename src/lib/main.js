@@ -19,7 +19,7 @@ function exitApplication() {
 export function main(args = []) {
   // Display ASCII art welcome if not in test environment
   if (process.env.NODE_ENV !== "test") {
-    console.log(chalk.green(figlet.textSync('agentic-lib', { horizontalLayout: 'full' })));
+    console.log(chalk.green(figlet.textSync("agentic-lib", { horizontalLayout: "full" })));
   }
 
   const usage = generateUsage();
@@ -123,11 +123,12 @@ export function reviewIssue({
   _dependenciesListOutput,
   _buildOutput,
   _testOutput,
-  _mainOutput
+  _mainOutput,
 }) {
-  const fixed = sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")
-    ? "true"
-    : "false";
+  const fixed =
+    sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")
+      ? "true"
+      : "false";
   const message = fixed === "true" ? "The issue has been resolved." : "Issue not resolved.";
   return { fixed, message, refinement: "None" };
 }
