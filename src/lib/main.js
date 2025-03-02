@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 // src/lib/main.js - Enhanced version with improved flag processing, consolidated exit routine, and refined comments for clarity.
-// This update improves code consistency and maintainability.
+// This update improves code consistency, adds ASCII art for a friendly welcome, and enhances maintainability.
 
 import { fileURLToPath } from "url";
+import chalk from "chalk";
+import figlet from "figlet";
 
 // Helper function to handle application exit in a consistent manner
 function exitApplication() {
@@ -15,6 +17,11 @@ function exitApplication() {
 
 // Main function
 export function main(args = []) {
+  // Display ASCII art welcome if not in test environment
+  if (process.env.NODE_ENV !== "test") {
+    console.log(chalk.green(figlet.textSync('agentic-lib', { horizontalLayout: 'full' })));
+  }
+
   const usage = generateUsage();
   console.log(usage);
   console.log("");
@@ -54,7 +61,7 @@ export function generateUsage() {
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
-  // Regex captures one or more digits following the prefix
+  // Regex captures one or more digits following the prefix; note the double backslash for digit class
   const regex = new RegExp(prefix + "(\\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
