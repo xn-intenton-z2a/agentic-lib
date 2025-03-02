@@ -33,7 +33,7 @@ describe("Main Module Import", () => {
 describe("reviewIssue", () => {
   test("reviewIssue returns correct resolution", () => {
     const params = {
-      sourceFileContent: "Usage: npm run start [--usage | --help] [--version] [--env] [args...]",
+      sourceFileContent: "Usage: npm run start [--usage | --help] [--version] [--env] [--reverse] [args...]",
       testFileContent: "Some test content",
       readmeFileContent: "# intentïon agentic-lib\nSome README content",
       dependenciesFileContent: "{}",
@@ -122,5 +122,13 @@ describe("Utility Functions", () => {
     });
     expect(output).toContain("Usage: npm run start");
     expect(output).toContain("Demo: Demonstration of agentic-lib functionality:");
+  });
+
+  test("main with --reverse flag prints reversed input", () => {
+    process.env.NODE_ENV = "test";
+    const output = captureOutput(() => {
+      main(["--reverse", "hello", "world"]);
+    });
+    expect(output).toContain("Reversed input: dlrow olleh");
   });
 });

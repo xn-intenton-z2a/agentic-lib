@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // src/lib/main.js - Enhanced version with default usage and demo output when no arguments are provided, and consolidated exit routine for clarity.
-// This update improves consistency between source and test files, refines log messages, and ensures that the program exits when no user input is provided.
+// This update improves consistency between source and test files, extends functionality with a new --reverse flag, refines log messages, and ensures that the program exits when no user input is provided.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -57,6 +57,12 @@ export function main(args = []) {
   const flagProcessingResult = processFlags(flagArgs);
   console.log(flagProcessingResult);
 
+  // New feature: Reverse the non-flag arguments if '--reverse' flag is provided
+  if (flagArgs.includes("--reverse")) {
+    const reversedInput = nonFlagArgs.join(" ").split("").reverse().join("");
+    console.log(chalk.yellow("Reversed input: " + reversedInput));
+  }
+
   if (nonFlagArgs.length > 0) {
     console.log("Non-flag arguments:", nonFlagArgs.join(", "));
   }
@@ -65,12 +71,12 @@ export function main(args = []) {
 }
 
 export function generateUsage() {
-  return "Usage: npm run start [--usage | --help] [--version] [--env] [args...]";
+  return "Usage: npm run start [--usage | --help] [--version] [--env] [--reverse] [args...]";
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
   // Regex captures one or more digits following the prefix
-  const regex = new RegExp(prefix + "(\\d+)");
+  const regex = new RegExp(prefix + "(\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
