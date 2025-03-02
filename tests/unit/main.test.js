@@ -19,7 +19,9 @@ function captureOutput(callback) {
   console.log = (msg, ...args) => {
     output += msg + (args.length ? " " + args.join(" ") : "") + "\n";
   };
-  callback();
+  try {
+    callback();
+  } catch (e) {}
   console.log = originalLog;
   return output;
 }
@@ -196,5 +198,17 @@ describe("Utility Functions", () => {
       try { main(["--version"]); } catch (e) {}
     });
     expect(output).toMatch(/^Version:/);
+  });
+
+  test("main with --create-issue flag simulates issue creation", () => {
+    process.env.NODE_ENV = "test";
+    const output = captureOutput(() => {
+      try { main(["--create-issue", "Test Issue"]); } catch (e) {}
+    });
+    expect(output).toContain("Simulated Issue Created:");
+    expect(output).toContain("Title: Test Issue");
+    // Check that an issue number is printed (a number between 0 and 999)
+    const match = output.match(/Issue Number: (\d+)/);
+    expect(match).not.toBeNull();
   });
 });

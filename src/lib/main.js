@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // src/lib/main.js - Enhanced version with default usage, demo output, and improved exit routine.
 // Added instrumentation to help in test coverage improvement by exposing behavior via additional flags.
-// This update improves consistency between source and test files, extends functionality with new flags (--reverse, --env, --telemetry, --version), refines log messages, and ensures proper exit behavior in both production and test environments.
+// This update improves consistency between source and test files, extends functionality with new flags (--reverse, --env, --telemetry, --version, --create-issue), refines log messages, and ensures proper exit behavior in both production and test environments.
 // Ref: Updated documentation examples to correctly reflect supported flags and behaviors.
 
 import { fileURLToPath } from "url";
@@ -53,6 +53,17 @@ export function main(args = []) {
   // Split arguments into flags and non-flag arguments
   const { flagArgs, nonFlagArgs } = splitArguments(args);
 
+  // New feature: Simulate issue creation similar to the GitHub workflow (wfr-create-issue.yml)
+  if (flagArgs.includes("--create-issue")) {
+    const issueTitle = nonFlagArgs.length > 0 ? nonFlagArgs.join(" ") : "Default Issue Title";
+    const issueNumber = Math.floor(Math.random() * 1000);
+    console.log(chalk.magenta("Simulated Issue Created:"));
+    console.log(chalk.magenta("Title: " + issueTitle));
+    console.log(chalk.magenta("Issue Number: " + issueNumber));
+    exitApplication();
+    return;
+  }
+
   // If the version flag is provided, display the version and exit
   if (flagArgs.includes("--version")) {
     console.log(showVersion());
@@ -93,12 +104,12 @@ export function main(args = []) {
 }
 
 export function generateUsage() {
-  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--reverse] [args...]";
+  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--reverse] [--create-issue] [args...]";
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   // Regex captures one or more digits following the prefix
-  const regex = new RegExp(prefix + "(\\d+)");
+  const regex = new RegExp(prefix + "(\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
