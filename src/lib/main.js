@@ -8,7 +8,7 @@ import figlet from "figlet";
 
 // Helper function to handle application exit in a consistent manner
 function exitApplication() {
-  console.log("Exiting application.");
+  console.log("Exiting agentic-lib.");
   // Prevent exiting during tests
   if (process.env.NODE_ENV !== "test") {
     process.exit(0);
@@ -69,7 +69,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
   // Regex captures one or more digits following the prefix; using proper escape for digit class
-  const regex = new RegExp(prefix + "(\\d+)");
+  const regex = new RegExp(prefix + "(\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
