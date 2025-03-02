@@ -10,12 +10,14 @@ import {
   sanitizeCommitMessage
 } from "../../src/lib/main.js";
 
+
 describe("Main Module Import", () => {
   test("should be non-null", async () => {
     const mainModule = await import("../../src/lib/main.js");
     expect(mainModule).not.toBeNull();
   });
 });
+
 
 describe("reviewIssue", () => {
   test("reviewIssue returns correct resolution", () => {
@@ -38,6 +40,7 @@ describe("reviewIssue", () => {
     expect(result.refinement).toBe("None");
   });
 });
+
 
 describe("Utility Functions", () => {
   test("splitArguments splits flags and non-flags correctly", () => {
