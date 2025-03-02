@@ -67,7 +67,7 @@ On timer: Review Issue (issue reviewed and closed)
 ### Tuning the agentic coding system
 
 The default set-up is quite open which can be chaotic. To temper this chaos you can change these files which the workflow takes into consideration:
-- `CONTRIBUTING.md` - The workflow is itself a contributor and will be asked to follow these guidelines. Tip: Add a "prime directive" here.
+- `CONTRIBUTING.md` - The workflow is itself a contributor and will be asked to follow these guidelines. Start by writing your owm mission statement.
 - `eslint.config.js` - Code style rules and additional plugins can be added here.
 
 The following files are also taken into consideration but may also be changed (even blanked out completely) by the workflow:
