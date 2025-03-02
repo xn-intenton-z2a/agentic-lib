@@ -2,10 +2,7 @@
 
 You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](WORKFLOWS-README.md)
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
-repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
-issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
-GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 
 [Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
 
@@ -14,9 +11,8 @@ Mixed licensing:
 * This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 * This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-This README file will evolve as the test experiment within this repository evolves.
+This README file has been refreshed to align with the latest CONTRIBUTING guidelines. Irrelevant or outdated content has been pruned and relevant sections updated.
 
----
 ---
 
 ## New Exported Utility Functions
@@ -34,37 +30,37 @@ This README file will evolve as the test experiment within this repository evolv
 
 ### New Features
 
-- Added a new `--env` flag to print out environment variables. This aids in debugging and ensures transparency of the runtime environment.
-- Extended functionality: Added a new `--reverse` flag. When provided, the non-flag arguments are reversed and printed, demonstrating extended argument processing.
-- Added a new `--telemetry` flag to output telemetry data from GitHub Actions environments. This new utility function assists in gathering and monitoring workflow execution details.
-- Added a new `--version` flag to print the current version of the library.
-- **New:** Added a new `--create-issue` flag that simulates the behavior of the GitHub workflow for issue creation (wfr-create-issue.yml). It generates a simulated issue title and a random issue number.
+- Added a new `--env` flag to print out environment variables for debugging.
+- Extended functionality: Added a new `--reverse` flag. When provided, the non-flag arguments are reversed and printed.
+- Added a new `--telemetry` flag to output telemetry data from GitHub Actions environments.
+- Added a new `--version` flag to display the current version of the library.
+- **New:** Added a new `--create-issue` flag that simulates GitHub workflow issue creation by generating a simulated issue title and a random issue number.
 - **New:** Added `delegateDecisionToLLM()` which wraps OpenAI's chat completions API to delegate decisions to an advanced LLM.
 
----
 ---
 
 ## Recent Improvements
 
-- Consolidated application exit routine and improved code commenting for clarity in `main.js`.
-- Extended flag processing functions for clearer output, including support for a `--verbose` and `--debug` flag for enhanced debugging.
-- Updated demonstration output to include debug mode status and environmental details.
-- Added telemetry gathering functionality via `gatherTelemetryData()` to capture GitHub Actions workflow details.
-- Updated tests to cover new flag functionalities and the new LLM delegation wrapper.
+- Consolidated the application exit routine and improved code comments for clarity in `main.js`.
+- Extended flag processing functions to provide clearer outputs, with support for `--verbose` and `--debug` flags.
+- Refreshed this README to align with CONTRIBUTING guidelines by removing outdated text and restructuring content for clarity.
+- Enhanced test coverage and updated demonstration outputs to better reflect current functionality.
 
----
 ---
 
 ## Future Enhancements
 
-The current version synchronizes the README with the evolving implementation in `main.js`. Future enhancements include:
-
-- Additional utility functions to further extend workflow automation.
-- Improved integration with GitHub's API for dynamic issue and PR management.
-- Enhanced logging and monitoring features for continuous integration.
-- Further consolidation of repetitive routines into helper functions.
+- Further extend workflow automation functions for additional remote services.
+- Enhance integration with GitHub’s API for dynamic issue and PR management.
+- Expand logging and monitoring features for continuous integration.
+- Introduce abstractions to reduce duplication and simplify code where possible.
 
 ---
+
+## Changelog
+
+- **README Refresh:** Updated and pruned content to align with CONTRIBUTING guidelines. Clarified new features and improvements.
+
 ---
 
 ## Contributing
@@ -97,13 +93,15 @@ This repository is organized into three distinct areas to help you understand th
 
 ### 3. The Evolving main.js (JavaScript re‑implementation of Re‑usable Workflows)
 - **Purpose:**  
-  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
+  This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to core functionality.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
   As part of the core project, it is under GPL‑3 with the attribution clause.
 - **Location:**  
   The code is located in `src/lib/main.js`.
+
+---
 
 ## License
 
@@ -131,5 +129,4 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
----
 ---
