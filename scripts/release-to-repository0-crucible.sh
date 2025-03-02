@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# scripts/release-to-plot-code-lib.sh
-# Usage: ./scripts/release-to-plot-code-lib.sh <tag-version>
-# Example: ./scripts/release-to-plot-code-lib.sh 1.0.0
+# scripts/release-to-repository0-crucible.sh
+# Usage: ./scripts/release-to-repository0-crucible.sh <tag-version>
+# Example: ./scripts/release-to-repository0-crucible.sh 1.0.0
 #
 # This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
@@ -14,7 +14,7 @@ if [ -z "$1" ]; then
 fi
 
 TAG_VERSION="$1"
-DEST_DIR="../plot-code-lib/.github/workflows"
+DEST_DIR="../repository0-crucible/.github/workflows"
 
 cp -v .github/workflows/apply-fix.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/apply-fix.yml"
@@ -48,9 +48,7 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/update.yml"
 
 cp -v .github/workflows/truncate-workflow-history.yml "${DEST_DIR}/."
 
-cp -v scripts/archive.sh "${DEST_DIR}/../../scripts/."
 cp -v scripts/clean.sh "${DEST_DIR}/../../scripts/."
 cp -v scripts/export-source.sh "${DEST_DIR}/../../scripts/."
-cp -v scripts/initialise.sh "${DEST_DIR}/../../scripts/."
 cp -v scripts/truncate-git-history.sh "${DEST_DIR}/../../scripts/."
 cp -v scripts/update.sh "${DEST_DIR}/../../scripts/."
