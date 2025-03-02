@@ -29,7 +29,7 @@ on:
   workflow_call:
     inputs:
       branch:
-        description: 'The branch to create a PR from. e.g. "issue-123"'
+        description: 'The branch to create a PR from. e.g. "agentic-lib-issue-123"'
         type: string
         required: true
       baseBranch:

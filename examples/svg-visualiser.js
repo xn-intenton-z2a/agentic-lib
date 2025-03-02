@@ -511,7 +511,7 @@ export async function createIssue(params) {
 
 export async function listOpenPullRequests({ _x }) {
   return [
-    { number: 101, headRef: "issue-101", baseRef: "main" },
+    { number: 101, headRef: "agentic-lib-issue-101", baseRef: "main" },
     { number: 102, headRef: "feature-102", baseRef: "main" },
   ];
 }
@@ -695,7 +695,7 @@ async function main() {
     console.info("updateTargetForFixFallingBuild Result:", updateResult);
 
     // Demo: branch and issue utilities
-    const extracted = extractIssueNumber("issue-789-update", "issue-");
+    const extracted = extractIssueNumber("agentic-lib-issue-789-update", "agentic-lib-issue-");
     console.info("extractIssueNumber:", extracted);
     const autoMerge = autoMergePullRequest({ state: "open", mergeable: true, mergeable_state: "clean" });
     console.info("autoMergePullRequest:", autoMerge);

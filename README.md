@@ -44,9 +44,9 @@ This README file will evolve as the test experiment within this repository evolv
 
 - Consolidated application exit routine and improved code commenting for clarity in `main.js`.
 - Extended flag processing functions for clearer output, including support for a `--verbose` flag and a new `--debug` flag for enhanced debugging.
-- Added an ASCII art welcome screen using `figlet` and `chalk` for an engaging user experience (displayed only outside of test environment).
 - Updated demonstration output to include debug mode status and environmental details.
 - Added telemetry gathering functionality via `gatherTelemetryData()` to capture GitHub Actions workflow details.
+- Updated documentation examples to clearly show usage of the new flags (`--env`, `--reverse`) and to ensure accuracy with the current code behavior.
 
 ---
 ---

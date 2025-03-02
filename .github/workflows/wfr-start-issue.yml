@@ -68,7 +68,7 @@ on:
         required: false
         default: 'eslint.config.js'
       branchPrefix:
-        description: 'The prefix for the issue branch. e.g. "issue-".'
+        description: 'The prefix for the issue branch. e.g. "agentic-lib-issue-".'
         type: string
         required: true
       buildScript:
@@ -139,7 +139,7 @@ jobs:
       dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
       formattingFile: ${{ inputs.formattingFile || '.prettierrc' }}
       lintingFile: ${{ inputs.lintingFile || 'eslint.config.js' }}
-      branchPrefix: ${{ inputs.branchPrefix || 'issue-' }}
+      branchPrefix: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
       mainScript: ${{ inputs.mainScript || 'npm run start' }}

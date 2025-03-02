@@ -67,7 +67,7 @@ On timer: Review Issue (issue reviewed and closed)
 ### Tuning the agentic coding system
 
 The default set-up is quite open which can be chaotic. To temper this chaos you can change these files which the workflow takes into consideration:
-- `CONTRIBUTING.md` - The workflow is itself a contributor and will be asked to follow these guidelines. Tip: Add a "prime directive" here.
+- `CONTRIBUTING.md` - The workflow is itself a contributor and will be asked to follow these guidelines. Start by writing your owm mission statement.
 - `eslint.config.js` - Code style rules and additional plugins can be added here.
 
 The following files are also taken into consideration but may also be changed (even blanked out completely) by the workflow:
@@ -203,28 +203,37 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 
 ### TODO
 
+Re-usable GitHub Actions Workflows:
 - [x] Implement "apply-fix" by raising a bug, then running start-issue (with a new name) in a tolerant mode allowing builds to fail but gathering output.
 - [x] Run apply fix on a schedule checking if a fix is necessary.
 - [x] Add check for failed Test run then re-instate. e.g. #workflow_run:  workflows: - "Tests" / types: - completed
 - [x] Detect failing build rather than relying on a passive no change
-- [x] Trigger apply fix when a test run completes and attempt a fix if the tests failed, ideally just for automated branches (issues, apply-formatting, apply-linting). <- This will then fix a broken PR branch or a broken main branch.
+- [x] Trigger apply fix when a test run completes and attempt a fix if the tests failed, ideally just for automated branches (issues, agentic-lib-formatting, apply-linting). <- This will then fix a broken PR branch or a broken main branch.
 - [x] Write issue body when creating an issue from a linting error.
 - [x] repository0 init workflow which archives the 4 files (1 of 4): a generic README, package.json, src/lib/main.js, tests/unit/main.test.js, and initialises a CONTRIBUTING.md.
-- [ ] apply fix should create a PR if it passes
-- [ ] Switch the Workflow steps to Actions with bundled JS
-- [ ] Pick ideal Node version.
+- [x] apply fix should create a PR if it passes
+- [~] use a single branch pre-fix and check it to avoid conflicts
+- [ ] apply-fix to be able to apply a fix to the main branch.
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
 - [ ] Publish a demo to GitHub sites
-- [ ] repository0 seed from archived state.
-- [ ] Script the switch to between schedules.
 - [ ] Add git log to the context for review issue, issue worker and apply fixes.
-- [ ] Release bitpack encoder based on `repository0`.
-- [ ] Release owl-encoder based on `repository0`.
 - [ ] Consider: semantic-release for releasing versions.
 - [ ] Generate API.md based on the source file.
 - [ ] Update CHANGELOG.md when a publishing a release version of the changes since the last release.
 - [ ] Duplicate the test when publishing a release version with a version numbered test file.
 - [ ] Dashboard metrics (e.g. GitHub Insights? commits by agents)
+
+Marketplace GitHub Actions:
+- [ ] Consolidate reusable workflows jobs into a single GitHub Action GitHub Script step.
+- [ ] Move GitHub Script to a GitHub Action.
+- [ ] Build GitHub Action with the release process.
+- [ ] Switch example workflows to use the GitHub Actions.
+- [ ] Convert the actions library JS to an SDK.
+
+Supervisor:
+- [ ] Publish GitHub telemetry data to Kafka.
+- [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix).
+- [ ] Reduce schedule and workflow completed triggers (instead leaving the supervisor to invoke workflows).
 
 ---
 

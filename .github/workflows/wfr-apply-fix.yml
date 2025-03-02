@@ -84,7 +84,7 @@ on:
         required: false
         default: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       branch:
-        description: 'The branch to use for the fix. e.g. "issue-123"'
+        description: 'The branch to use for the fix. e.g. "agentic-lib-issue-123"'
         type: string
         required: false
         default: ${{ github.ref }}

@@ -132,7 +132,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@main'
     with:
       pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
-      branchPrefix: 'issue-'
+      branchPrefix: 'agentic-lib-issue-'
 
   automerge:
     needs:
@@ -157,4 +157,4 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@main'
     with:
       pullNumber: ${{ needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber || '' }}
-      branchPrefix: 'issue-'
+      branchPrefix: 'agentic-lib-issue-'
