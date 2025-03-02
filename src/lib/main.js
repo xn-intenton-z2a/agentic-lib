@@ -76,7 +76,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
   // Regex captures one or more digits following the prefix
-  const regex = new RegExp(prefix + "(\d+)");
+  const regex = new RegExp(prefix + "(\\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
