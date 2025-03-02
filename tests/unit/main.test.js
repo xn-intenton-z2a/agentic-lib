@@ -1,4 +1,4 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 import {
   reviewIssue,
   splitArguments,
@@ -7,8 +7,21 @@ import {
   logEnvironmentDetails,
   showVersion,
   getIssueNumberFromBranch,
-  sanitizeCommitMessage
+  sanitizeCommitMessage,
+  main
 } from "../../src/lib/main.js";
+
+// Helper function to capture console output
+function captureOutput(callback) {
+  const originalLog = console.log;
+  let output = "";
+  console.log = (msg, ...args) => {
+    output += msg + (args.length ? ' ' + args.join(' ') : '') + "\n";
+  };
+  callback();
+  console.log = originalLog;
+  return output;
+}
 
 describe("Main Module Import", () => {
   test("should be non-null", async () => {
@@ -20,7 +33,7 @@ describe("Main Module Import", () => {
 describe("reviewIssue", () => {
   test("reviewIssue returns correct resolution", () => {
     const params = {
-      sourceFileContent: "Usage: npm run start [--usage|--help] [--version] [args...]",
+      sourceFileContent: "Usage: npm run start [--usage|--help] [--version] [--env] [args...]",
       testFileContent: "Some test content",
       readmeFileContent: "# intentïon agentic-lib\nSome README content",
       dependenciesFileContent: "{}",
@@ -92,5 +105,14 @@ describe("Utility Functions", () => {
   test("sanitizeCommitMessage sanitizes commit messages", () => {
     const raw = "Fix bug!!! -- urgent";
     expect(sanitizeCommitMessage(raw)).toBe("Fix bug -- urgent");
+  });
+
+  test("main with --env flag prints environment variables", () => {
+    // Ensure NODE_ENV is test to prevent process.exit
+    process.env.NODE_ENV = "test";
+    const output = captureOutput(() => {
+      main(["--env"]);
+    });
+    expect(output).toContain("Environment Variables:");
   });
 });
