@@ -208,10 +208,12 @@ Re-usable GitHub Actions Workflows:
 - [x] Run apply fix on a schedule checking if a fix is necessary.
 - [x] Add check for failed Test run then re-instate. e.g. #workflow_run:  workflows: - "Tests" / types: - completed
 - [x] Detect failing build rather than relying on a passive no change
-- [x] Trigger apply fix when a test run completes and attempt a fix if the tests failed, ideally just for automated branches (issues, apply-formatting, apply-linting). <- This will then fix a broken PR branch or a broken main branch.
+- [x] Trigger apply fix when a test run completes and attempt a fix if the tests failed, ideally just for automated branches (issues, agentic-lib-formatting, apply-linting). <- This will then fix a broken PR branch or a broken main branch.
 - [x] Write issue body when creating an issue from a linting error.
 - [x] repository0 init workflow which archives the 4 files (1 of 4): a generic README, package.json, src/lib/main.js, tests/unit/main.test.js, and initialises a CONTRIBUTING.md.
 - [x] apply fix should create a PR if it passes
+- [~] use a single branch pre-fix and check it to avoid conflicts
+- [ ] apply-fix to be able to apply a fix to the main branch.
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
 - [ ] Publish a demo to GitHub sites
 - [ ] Add git log to the context for review issue, issue worker and apply fixes.

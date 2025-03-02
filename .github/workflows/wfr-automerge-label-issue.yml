@@ -33,7 +33,7 @@ on:
         type: string
         required: true
       branchPrefix:
-        description: 'The prefix for the issue branch. e.g. "issue-".'
+        description: 'The prefix for the issue branch. e.g. "agentic-lib-issue-".'
         type: string
         required: true
       commentPrefix:

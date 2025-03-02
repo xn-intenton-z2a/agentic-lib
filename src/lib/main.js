@@ -76,7 +76,7 @@ export function generateUsage() {
   return "Usage: npm run start [--usage | --help] [--version] [--env] [--reverse] [args...]";
 }
 
-export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
+export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   // Regex captures one or more digits following the prefix
   const regex = new RegExp(prefix + "(\\d+)");
   const match = branch.match(regex);

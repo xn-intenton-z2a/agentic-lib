@@ -97,8 +97,8 @@ describe("Utility Functions", () => {
   });
 
   test("getIssueNumberFromBranch extracts issue number correctly", () => {
-    expect(getIssueNumberFromBranch("issue-123")).toBe(123);
-    expect(getIssueNumberFromBranch("feature-issue-456-more")).toBe(456);
+    expect(getIssueNumberFromBranch("agentic-lib-issue-123")).toBe(123);
+    expect(getIssueNumberFromBranch("feature-agentic-lib-issue-456-more")).toBe(456);
     expect(getIssueNumberFromBranch("no-issue")).toBe(null);
   });
 

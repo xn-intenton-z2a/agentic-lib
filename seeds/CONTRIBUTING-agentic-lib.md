@@ -512,7 +512,7 @@ on:
         required: false
         default: 'eslint.config.js'
       branchPrefix:
-        description: 'The prefix for the issue branch. e.g. "issue-".'
+        description: 'The prefix for the issue branch. e.g. "agentic-lib-issue-".'
         type: string
         required: true
       buildScript:
@@ -566,7 +566,7 @@ jobs:
       dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
       formattingFile: ${{ inputs.formattingFile || '.prettierrc' }}
       lintingFile: ${{ inputs.lintingFile || 'eslint.config.js' }}
-      branchPrefix: ${{ inputs.branchPrefix || 'issue-' }}
+      branchPrefix: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
       mainScript: ${{ inputs.mainScript || 'npm run start' }}
@@ -2400,10 +2400,10 @@ on:
         required: false
         default: 'minor'
       branch:
-        description: 'The branch to push changes to. e.g. "apply-update"'
+        description: 'The branch to push changes to. e.g. "agentic-lib-update"'
         type: string
         required: false
-        default: 'apply-update'
+        default: 'agentic-lib-update'
       npmAuthOrganisation:
         description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
         type: string
@@ -2442,7 +2442,7 @@ jobs:
       mainScript: ${{ inputs.mainScript || 'npm run start' }}
       mainScriptTimeout: '5m'
       upgradeTarget: ${{ inputs.upgradeTarget || 'minor' }}
-      branch: ${{ inputs.branch || 'apply-update' }}
+      branch: ${{ inputs.branch || 'agentic-lib-update' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
@@ -3565,7 +3565,7 @@ jobs:
       testScript: 'npm test'
       mainScript: 'npm run start'
       upgradeTarget: ${{ inputs.upgradeTarget || 'patch' }}
-      branch: 'apply-update'
+      branch: 'agentic-lib-update'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
       gitCommitMessage: 'chore: dependency updates'
@@ -3583,7 +3583,7 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@main'
     with:
-      branch: 'apply-update'
+      branch: 'agentic-lib-update'
       baseBranch: 'main'
       gitCommitMessage: 'chore: dependency updates'
       label: 'automerge'
@@ -3693,7 +3693,7 @@ jobs:
       script: 'npm run formatting-fix -- "." ; npm run linting-fix "."'
       sarifScript: ''
       testScript: 'npm test'
-      branch: 'apply-formatting'
+      branch: 'agentic-lib-formatting'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
       gitCommitMessage: 'Updated by `npm run formatting-fix -- "." ; npm run linting-fix "."`'
@@ -3711,7 +3711,7 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@main'
     with:
-      branch: 'apply-formatting'
+      branch: 'agentic-lib-formatting'
       baseBranch: 'main'
       gitCommitMessage: 'chore: formatting fixes'
       label: 'automerge'

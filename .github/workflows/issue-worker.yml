@@ -64,21 +64,21 @@ jobs:
       contents: read
       id-token: write
     env:
-      branchPrefix: 'issue-'
+      branchPrefix: 'agentic-lib-'
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.ref }}
-      - name: Ensure there isn't already a branch for this intention type
+      - name: Ensure there isn't already a branch for this prefix
         shell: bash
         run: |
           git fetch origin
           if git branch -r | grep -q 'origin/${{ env.branchPrefix }}'; then
-            echo "A branch with the intention type prefix '${{ env.branchPrefix }}' already exists."
+            echo "A branch with the prefix '${{ env.branchPrefix }}' already exists."
             exit 1
           else
-            echo "No existing branch with the intention type prefix found."
+            echo "No existing branch with the prefix found."
           fi
 
   start-issue:
@@ -100,7 +100,7 @@ jobs:
       dependenciesFile: 'package.json'
       formattingFile: '.prettierrc'
       lintingFile: 'eslint.config.js'
-      branchPrefix: 'issue-'
+      branchPrefix: 'agentic-lib-issue-'
       buildScript: 'npm run build'
       testScript: 'npm test'
       mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
@@ -124,7 +124,7 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@main'
     with:
-      branch: 'issue-${{ needs.select-issue.outputs.issueNumber }}'
+      branch: 'agentic-lib-issue-${{ needs.select-issue.outputs.issueNumber }}'
       baseBranch: 'main'
       gitCommitMessage: 'Fix ready for issue ${{ needs.select-issue.outputs.issueNumber }}'
       label: 'automerge'
