@@ -10,6 +10,7 @@ import {
   sanitizeCommitMessage,
   gatherTelemetryData,
   delegateDecisionToLLM,
+  delegateDecisionToLLMWrapped,
   main
 } from "../../src/lib/main.js";
 
@@ -76,7 +77,7 @@ describe("reviewIssue", () => {
       dependenciesListOutput: "list output",
       buildOutput: "build output",
       testOutput: "test output",
-      mainOutput: "main output"
+      mainOutput: "test output"
     };
     const result = reviewIssue(params);
     expect(result.fixed).toBe("false");
@@ -208,14 +209,19 @@ describe("Utility Functions", () => {
     });
     expect(output).toContain("Simulated Issue Created:");
     expect(output).toContain("Title: Test Issue");
-    // Check that an issue number is printed (a number between 0 and 999)
     const match = output.match(/Issue Number: (\d+)/);
     expect(match).not.toBeNull();
   });
 
   test("delegateDecisionToLLM returns fallback message in test environment", async () => {
-    // In test environment without valid API key, it should return fallback message
     const response = await delegateDecisionToLLM("Should I deploy now?");
     expect(response).toBe("LLM decision could not be retrieved.");
+  });
+
+  test("delegateDecisionToLLMWrapped returns fallback object in test environment", async () => {
+    const response = await delegateDecisionToLLMWrapped("Should I deploy now?");
+    expect(response.fixed).toBe("false");
+    expect(response.message).toBe("LLM decision could not be retrieved.");
+    expect(response.refinement).toBe("None");
   });
 });
