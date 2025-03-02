@@ -61,7 +61,7 @@ export function generateUsage() {
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
-  // Regex captures one or more digits following the prefix; note the double backslash for digit class
+  // Regex captures one or more digits following the prefix; using proper escape for digit class
   const regex = new RegExp(prefix + "(\\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
@@ -128,14 +128,19 @@ export function reviewIssue({
   _dependenciesListOutput,
   _buildOutput,
   _testOutput,
-  _mainOutput
+  _mainOutput,
 }) {
   const fixed =
-    sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")
+    sourceFileContent.includes("Usage: npm run start") &&
+    readmeFileContent.includes("intentïon agentic-lib")
       ? "true"
       : "false";
   const message = fixed === "true" ? "The issue has been resolved." : "Issue not resolved.";
-  return { fixed, message, refinement: "None" };
+  return {
+    fixed,
+    message,
+    refinement: "None",
+  };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
