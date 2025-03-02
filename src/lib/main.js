@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// src/lib/main.js - Enhanced version with default usage, demo output, and improved exit routine.
+// src/lib/main.js - Enhanced version with default usage, demo output, improved exit routine and new LLM delegation functionality.
 // Added instrumentation to help in test coverage improvement by exposing behavior via additional flags.
-// This update improves consistency between source and test files, extends functionality with new flags (--reverse, --env, --telemetry, --version, --create-issue), refines log messages, and ensures proper exit behavior in both production and test environments.
+// This update improves consistency between source and test files, extends functionality with new flags (--reverse, --env, --telemetry, --version, --create-issue), adds a new function to delegate decisions to an advanced LLM using OpenAI's chat completions API, refines log messages, and ensures proper exit behavior in both production and test environments.
 // Ref: Updated documentation examples to correctly reflect supported flags and behaviors.
 
 import { fileURLToPath } from "url";
@@ -167,6 +167,27 @@ export function logEnvironmentDetails() {
 export function showVersion() {
   const version = process.env.npm_package_version || "unknown";
   return `Version: ${version}`;
+}
+
+// New function: Delegate a decision to an advanced LLM using OpenAI chat completions API
+export async function delegateDecisionToLLM(prompt) {
+  try {
+    const { Configuration, OpenAIApi } = await import("openai");
+    const configuration = new Configuration({
+      apiKey: process.env.OPENAI_API_KEY || ""
+    });
+    const openai = new OpenAIApi(configuration);
+    const response = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "You are a helpful assistant." },
+        { role: "user", content: prompt }
+      ]
+    });
+    return response.data.choices[0].message.content;
+  } catch (err) {
+    return "LLM decision could not be retrieved.";
+  }
 }
 
 export function reviewIssue({

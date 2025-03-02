@@ -30,6 +30,7 @@ This README file will evolve as the test experiment within this repository evolv
 - `logEnvironmentDetails()`: Logs current environment details such as NODE_ENV.
 - `showVersion()`: Returns the current version of the library.
 - `gatherTelemetryData()`: Gathers telemetry data from the GitHub Actions workflow environment (e.g., workflow name, run id, job, etc.).
+- `delegateDecisionToLLM(prompt)`: Delegates a decision to an advanced LLM via OpenAI's chat completions API. In test environments, it returns a fallback message.
 
 ### New Features
 
@@ -38,6 +39,7 @@ This README file will evolve as the test experiment within this repository evolv
 - Added a new `--telemetry` flag to output telemetry data from GitHub Actions environments. This new utility function assists in gathering and monitoring workflow execution details.
 - Added a new `--version` flag to print the current version of the library.
 - **New:** Added a new `--create-issue` flag that simulates the behavior of the GitHub workflow for issue creation (wfr-create-issue.yml). It generates a simulated issue title and a random issue number.
+- **New:** Added `delegateDecisionToLLM()` which wraps OpenAI's chat completions API to delegate decisions to an advanced LLM.
 
 ---
 ---
@@ -48,7 +50,7 @@ This README file will evolve as the test experiment within this repository evolv
 - Extended flag processing functions for clearer output, including support for a `--verbose` and `--debug` flag for enhanced debugging.
 - Updated demonstration output to include debug mode status and environmental details.
 - Added telemetry gathering functionality via `gatherTelemetryData()` to capture GitHub Actions workflow details.
-- Increased test coverage by adding additional unit tests for new flags and functionality, including the simulated issue creation with `--create-issue`.
+- Updated tests to cover new flag functionalities and the new LLM delegation wrapper.
 
 ---
 ---
