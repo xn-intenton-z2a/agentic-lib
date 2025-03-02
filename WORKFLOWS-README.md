@@ -203,6 +203,7 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 
 ### TODO
 
+Re-usable GitHub Actions Workflows:
 - [x] Implement "apply-fix" by raising a bug, then running start-issue (with a new name) in a tolerant mode allowing builds to fail but gathering output.
 - [x] Run apply fix on a schedule checking if a fix is necessary.
 - [x] Add check for failed Test run then re-instate. e.g. #workflow_run:  workflows: - "Tests" / types: - completed
@@ -210,21 +211,27 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 - [x] Trigger apply fix when a test run completes and attempt a fix if the tests failed, ideally just for automated branches (issues, apply-formatting, apply-linting). <- This will then fix a broken PR branch or a broken main branch.
 - [x] Write issue body when creating an issue from a linting error.
 - [x] repository0 init workflow which archives the 4 files (1 of 4): a generic README, package.json, src/lib/main.js, tests/unit/main.test.js, and initialises a CONTRIBUTING.md.
-- [ ] apply fix should create a PR if it passes
-- [ ] Switch the Workflow steps to Actions with bundled JS
-- [ ] Pick ideal Node version.
+- [x] apply fix should create a PR if it passes
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
 - [ ] Publish a demo to GitHub sites
-- [ ] repository0 seed from archived state.
-- [ ] Script the switch to between schedules.
 - [ ] Add git log to the context for review issue, issue worker and apply fixes.
-- [ ] Release bitpack encoder based on `repository0`.
-- [ ] Release owl-encoder based on `repository0`.
 - [ ] Consider: semantic-release for releasing versions.
 - [ ] Generate API.md based on the source file.
 - [ ] Update CHANGELOG.md when a publishing a release version of the changes since the last release.
 - [ ] Duplicate the test when publishing a release version with a version numbered test file.
 - [ ] Dashboard metrics (e.g. GitHub Insights? commits by agents)
+
+Marketplace GitHub Actions:
+- [ ] Consolidate reusable workflows jobs into a single GitHub Action GitHub Script step.
+- [ ] Move GitHub Script to a GitHub Action.
+- [ ] Build GitHub Action with the release process.
+- [ ] Switch example workflows to use the GitHub Actions.
+- [ ] Convert the actions library JS to an SDK.
+
+Supervisor:
+- [ ] Publish GitHub telemetry data to Kafka.
+- [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix).
+- [ ] Reduce schedule and workflow completed triggers (instead leaving the supervisor to invoke workflows).
 
 ---
 
