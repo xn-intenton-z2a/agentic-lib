@@ -9,6 +9,7 @@ import {
   getIssueNumberFromBranch,
   sanitizeCommitMessage,
   gatherTelemetryData,
+  delegateDecisionToLLM,
   main
 } from "../../src/lib/main.js";
 
@@ -210,5 +211,11 @@ describe("Utility Functions", () => {
     // Check that an issue number is printed (a number between 0 and 999)
     const match = output.match(/Issue Number: (\d+)/);
     expect(match).not.toBeNull();
+  });
+
+  test("delegateDecisionToLLM returns fallback message in test environment", async () => {
+    // In test environment without valid API key, it should return fallback message
+    const response = await delegateDecisionToLLM("Should I deploy now?");
+    expect(response).toBe("LLM decision could not be retrieved.");
   });
 });
