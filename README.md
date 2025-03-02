@@ -2,6 +2,72 @@
 
 You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](WORKFLOWS-README.md)
 
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+
+[Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
+
+Mixed licensing:
+* This project is licensed under the GNU General Public License (GPL).
+* This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+* This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+This README file has been refreshed to align with the latest CONTRIBUTING guidelines. Irrelevant or outdated content has been pruned and relevant sections updated.
+
+---
+
+## New Exported Utility Functions
+
+- `generateUsage()`: Provides a usage message with updated flag options.
+- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name with improved regex. (Fixed regex escaping for digit matching)
+- `sanitizeCommitMessage(message)`: Cleans up commit messages by removing unsupported characters and extra spaces.
+- `splitArguments(args)`: Splits command line arguments into flag and non-flag arrays.
+- `processFlags(flags)`: Processes an array of flags and returns a summary message. Now supports `--verbose` for extra logging and `--debug` for additional debugging information.
+- `enhancedDemo()`: Provides demo output including environmental details and debug status.
+- `logEnvironmentDetails()`: Logs current environment details such as NODE_ENV.
+- `showVersion()`: Returns the current version of the library.
+- `gatherTelemetryData()`: Gathers telemetry data from the GitHub Actions workflow environment (e.g., workflow name, run id, job, etc.).
+- `delegateDecisionToLLM(prompt)`: Delegates a decision to an advanced LLM via OpenAI's chat completions API. In test environments, it returns a fallback message.
+
+### New Features
+
+- Added a new `--env` flag to print out environment variables for debugging.
+- Extended functionality: Added a new `--reverse` flag. When provided, the non-flag arguments are reversed and printed.
+- Added a new `--telemetry` flag to output telemetry data from GitHub Actions environments.
+- Added a new `--version` flag to display the current version of the library.
+- **New:** Added a new `--create-issue` flag that simulates GitHub workflow issue creation by generating a simulated issue title and a random issue number.
+- **New:** Added `delegateDecisionToLLM()` which wraps OpenAI's chat completions API to delegate decisions to an advanced LLM.
+
+---
+
+## Recent Improvements
+
+- Consolidated the application exit routine and improved code comments for clarity in `main.js`.
+- Extended flag processing functions to provide clearer outputs, with support for `--verbose` and `--debug` flags.
+- Refreshed this README to align with CONTRIBUTING guidelines by removing outdated text and restructuring content for clarity.
+- Enhanced test coverage and updated demonstration outputs to better reflect current functionality.
+
+---
+
+## Future Enhancements
+
+- Further extend workflow automation functions for additional remote services.
+- Enhance integration with GitHub’s API for dynamic issue and PR management.
+- Expand logging and monitoring features for continuous integration.
+- Introduce abstractions to reduce duplication and simplify code where possible.
+
+---
+
+## Changelog
+
+- **Regex Fix:** Updated `getIssueNumberFromBranch` to properly escape digit matching in the regex.
+- **README Refresh:** Updated and pruned content to align with CONTRIBUTING guidelines. Clarified new features and improvements.
+
+---
+
+# intentïon agentic-lib
+
+You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](WORKFLOWS-README.md)
+
 The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
 repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
 issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
@@ -16,55 +82,6 @@ Mixed licensing:
 
 This README file will evolve as the test experiment within this repository evolves.
 
----
----
-
-## New Exported Utility Functions
-
-- `generateUsage()`: Provides a usage message with updated flag options.
-- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name with improved regex.
-- `sanitizeCommitMessage(message)`: Cleans up commit messages by removing unsupported characters and extra spaces.
-- `splitArguments(args)`: Splits command line arguments into flag and non-flag arrays.
-- `processFlags(flags)`: Processes an array of flags and returns a summary message. Now supports `--verbose` for extra logging and `--debug` for additional debugging information.
-- `enhancedDemo()`: Provides demo output including environmental details and debug status.
-- `logEnvironmentDetails()`: Logs current environment details such as NODE_ENV.
-- `showVersion()`: Returns the current version of the library.
-- `gatherTelemetryData()`: Gathers telemetry data from the GitHub Actions workflow environment (e.g., workflow name, run id, job, etc.).
-- `delegateDecisionToLLM(prompt)`: Delegates a decision to an advanced LLM via OpenAI's chat completions API. In test environments, it returns a fallback message.
-
-### New Features
-
-- Added a new `--env` flag to print out environment variables. This aids in debugging and ensures transparency of the runtime environment.
-- Extended functionality: Added a new `--reverse` flag. When provided, the non-flag arguments are reversed and printed, demonstrating extended argument processing.
-- Added a new `--telemetry` flag to output telemetry data from GitHub Actions environments. This new utility function assists in gathering and monitoring workflow execution details.
-- Added a new `--version` flag to print the current version of the library.
-- **New:** Added a new `--create-issue` flag that simulates the behavior of the GitHub workflow for issue creation (wfr-create-issue.yml). It generates a simulated issue title and a random issue number.
-- **New:** Added `delegateDecisionToLLM()` which wraps OpenAI's chat completions API to delegate decisions to an advanced LLM.
-
----
----
-
-## Recent Improvements
-
-- Consolidated application exit routine and improved code commenting for clarity in `main.js`.
-- Extended flag processing functions for clearer output, including support for a `--verbose` and `--debug` flag for enhanced debugging.
-- Updated demonstration output to include debug mode status and environmental details.
-- Added telemetry gathering functionality via `gatherTelemetryData()` to capture GitHub Actions workflow details.
-- Updated tests to cover new flag functionalities and the new LLM delegation wrapper.
-
----
----
-
-## Future Enhancements
-
-The current version synchronizes the README with the evolving implementation in `main.js`. Future enhancements include:
-
-- Additional utility functions to further extend workflow automation.
-- Improved integration with GitHub's API for dynamic issue and PR management.
-- Enhanced logging and monitoring features for continuous integration.
-- Further consolidation of repetitive routines into helper functions.
-
----
 ---
 
 ## Contributing
@@ -131,5 +148,4 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
----
 ---
