@@ -45,6 +45,13 @@ export function main(args = []) {
     return;
   }
 
+  // New feature: If the env flag is provided, display environment variables
+  if (flagArgs.includes("--env")) {
+    console.log("Environment Variables: " + JSON.stringify(process.env, null, 2));
+    exitApplication();
+    return;
+  }
+
   // Process the flags sequentially
   const flagProcessingResult = processFlags(flagArgs);
   console.log(flagProcessingResult);
@@ -57,7 +64,7 @@ export function main(args = []) {
 }
 
 export function generateUsage() {
-  return "Usage: npm run start [--usage|--help] [--version] [args...]";
+  return "Usage: npm run start [--usage|--help] [--version] [--env] [args...]";
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {

@@ -30,6 +30,10 @@ This README file will evolve as the test experiment within this repository evolv
 - `logEnvironmentDetails()`: Logs current environment details such as NODE_ENV.
 - `showVersion()`: Returns the current version of the library.
 
+### New Feature
+
+- Added a new `--env` flag to print out environment variables. This aids in debugging and ensures transparency of the runtime environment.
+
 ---
 ---
 
@@ -39,7 +43,8 @@ This README file will evolve as the test experiment within this repository evolv
 - Extended flag processing functions for clearer output, including support for a `--verbose` flag and a new `--debug` flag for enhanced debugging.
 - Added an ASCII art welcome screen using `figlet` and `chalk` for a more engaging user experience (displayed only outside of test environment).
 - Updated demonstration output to include debug mode status.
-- Updated documentation to reflect new functionality and current function behaviors.
+- Updated usage documentation to include the `--env` flag.
+- Synchronized this README with current functionality and outlined future enhancements.
 
 ---
 ---
@@ -93,6 +98,9 @@ This repository is organized into three distinct areas to help you understand th
   As part of the core project, it is under GPL‑3 with the attribution clause.
 - **Location:**  
   The code is located in `src/lib/main.js`.
+
+---
+---
 
 ## License
 
