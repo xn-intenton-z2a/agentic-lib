@@ -33,6 +33,7 @@ This README file will evolve as the test experiment within this repository evolv
 ### New Feature
 
 - Added a new `--env` flag to print out environment variables. This aids in debugging and ensures transparency of the runtime environment.
+- Extended functionality: Added a new `--reverse` flag. When provided, the non-flag arguments are reversed and printed, demonstrating extended argument processing.
 
 ---
 ---
@@ -43,7 +44,8 @@ This README file will evolve as the test experiment within this repository evolv
 - Extended flag processing functions for clearer output, including support for a `--verbose` flag and a new `--debug` flag for enhanced debugging.
 - Added an ASCII art welcome screen using `figlet` and `chalk` for a more engaging user experience (displayed only outside of test environment).
 - Updated demonstration output to include debug mode status.
-- Updated usage documentation to include the `--env` flag.
+- Updated usage documentation to include the `--env` and `--reverse` flags.
+- Extended functionality to reverse non-flag input when `--reverse` flag is used.
 - Improved consistency between source file and test file.
 - Ensured that when no arguments are provided, the default behavior is to print usage information along with a demonstration message and then exit.
 
