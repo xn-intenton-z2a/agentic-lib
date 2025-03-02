@@ -2,6 +2,7 @@
 // src/lib/main.js - Enhanced version with default usage, demo output, improved exit routine and new LLM delegation functionality.
 // Added instrumentation to help in test coverage improvement by exposing behavior via additional flags.
 // This update improves consistency between source and test files, extends functionality with new flags (--reverse, --env, --telemetry, --version, --create-issue), adds a new function to delegate decisions to an advanced LLM using OpenAI's chat completions API, refines log messages, and ensures proper exit behavior in both production and test environments.
+// Additionally, a new wrapper function (delegateDecisionToLLMWrapped) has been implemented to mimic an enhanced OpenAI function using a function calling style as per contributor guidelines.
 // Ref: Updated documentation examples to correctly reflect supported flags and behaviors.
 
 import { fileURLToPath } from "url";
@@ -187,6 +188,60 @@ export async function delegateDecisionToLLM(prompt) {
     return response.data.choices[0].message.content;
   } catch (err) {
     return "LLM decision could not be retrieved.";
+  }
+}
+
+// New function: A wrapped version of the OpenAI delegation function that mimics function calling behavior
+export async function delegateDecisionToLLMWrapped(prompt) {
+  try {
+    const { Configuration, OpenAIApi } = await import("openai");
+    const configuration = new Configuration({
+      apiKey: process.env.OPENAI_API_KEY || ""
+    });
+    const openai = new OpenAIApi(configuration);
+    
+    // Simulate tools usage as in the example
+    const tools = [{
+      type: "function",
+      function: {
+        name: "review_issue",
+        description: "Evaluate whether the supplied source file content resolves the issue. Return an object with fixed (string: 'true' or 'false'), message (explanation), and refinement (suggested refinement).",
+        parameters: {
+          type: "object",
+          properties: {
+            fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
+            message: { type: "string", description: "A message explaining the result" },
+            refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
+          },
+          required: ["fixed", "message", "refinement"],
+          additionalProperties: false
+        },
+        strict: true
+      }
+    }];
+
+    const response = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema." },
+        { role: "user", content: prompt }
+      ]
+      // Note: The actual 'tools' argument is not supported; this is a simulated behavior for demonstration purposes.
+    });
+
+    let result;
+    if (response.data.choices[0].message && response.data.choices[0].message.content) {
+      try {
+        result = JSON.parse(response.data.choices[0].message.content);
+      } catch (e) {
+        result = { fixed: "false", message: "Failed to parse response content.", refinement: "None" };
+      }
+    } else {
+      result = { fixed: "false", message: "No valid response received.", refinement: "None" };
+    }
+    return result;
+  } catch (err) {
+    return { fixed: "false", message: "LLM decision could not be retrieved.", refinement: "None" };
   }
 }
 

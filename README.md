@@ -2,7 +2,10 @@
 
 You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](WORKFLOWS-README.md)
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
+repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
+issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
+GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 
 [Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
 
@@ -27,6 +30,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - `showVersion()`: Returns the current version of the library.
 - `gatherTelemetryData()`: Gathers telemetry data from the GitHub Actions workflow environment (e.g., workflow name, run id, job, etc.).
 - `delegateDecisionToLLM(prompt)`: Delegates a decision to an advanced LLM via OpenAI's chat completions API. In test environments, it returns a fallback message.
+- **New:** `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM. It mimics function calling behavior and returns structured JSON responses based on OpenAI's chat completions API.
 
 ### New Features
 
@@ -35,7 +39,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - Added a new `--telemetry` flag to output telemetry data from GitHub Actions environments.
 - Added a new `--version` flag to display the current version of the library.
 - **New:** Added a new `--create-issue` flag that simulates GitHub workflow issue creation by generating a simulated issue title and a random issue number.
-- **New:** Added `delegateDecisionToLLM()` which wraps OpenAI's chat completions API to delegate decisions to an advanced LLM.
+- **New:** Added `delegateDecisionToLLMWrapped()` for a robust OpenAI function wrapper using a function-calling like approach.
 
 ---
 
@@ -45,6 +49,10 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - Extended flag processing functions to provide clearer outputs, with support for `--verbose` and `--debug` flags.
 - Refreshed this README to align with CONTRIBUTING guidelines by removing outdated text and restructuring content for clarity.
 - Enhanced test coverage and updated demonstration outputs to better reflect current functionality.
+- **Changelog Update:**
+  - Regex Fix: Updated `getIssueNumberFromBranch` to properly escape digit matching in the regex.
+  - README Refresh: Updated and pruned content to align with CONTRIBUTING guidelines. Clarified new features and improvements.
+  - Added `delegateDecisionToLLMWrapped` for an enhanced and robust OpenAI function wrapper.
 
 ---
 
@@ -54,13 +62,6 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - Enhance integration with GitHub’s API for dynamic issue and PR management.
 - Expand logging and monitoring features for continuous integration.
 - Introduce abstractions to reduce duplication and simplify code where possible.
-
----
-
-## Changelog
-
-- **Regex Fix:** Updated `getIssueNumberFromBranch` to properly escape digit matching in the regex.
-- **README Refresh:** Updated and pruned content to align with CONTRIBUTING guidelines. Clarified new features and improvements.
 
 ---
 
