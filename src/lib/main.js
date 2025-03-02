@@ -8,7 +8,7 @@ import figlet from "figlet";
 
 // Helper function to handle application exit in a consistent manner
 function exitApplication() {
-  console.log("Exiting application.");
+  console.log("Exiting agentic-lib.");
   // Prevent exiting during tests
   if (process.env.NODE_ENV !== "test") {
     process.exit(0);

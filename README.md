@@ -44,6 +44,7 @@ This README file will evolve as the test experiment within this repository evolv
 - Added an ASCII art welcome screen using `figlet` and `chalk` for a more engaging user experience (displayed only outside of test environment).
 - Updated demonstration output to include debug mode status.
 - Updated usage documentation to include the `--env` flag.
+- Refined the exit routine to clearly state when agentic-lib is terminating.
 - Synchronized this README with current functionality and outlined future enhancements.
 
 ---
@@ -98,9 +99,6 @@ This repository is organized into three distinct areas to help you understand th
   As part of the core project, it is under GPL‑3 with the attribution clause.
 - **Location:**  
   The code is located in `src/lib/main.js`.
-
----
----
 
 ## License
 

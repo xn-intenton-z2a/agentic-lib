@@ -108,11 +108,19 @@ describe("Utility Functions", () => {
   });
 
   test("main with --env flag prints environment variables", () => {
-    // Ensure NODE_ENV is test to prevent process.exit
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
       main(["--env"]);
     });
     expect(output).toContain("Environment Variables:");
+  });
+
+  test("main with --help flag prints usage and demo output", () => {
+    process.env.NODE_ENV = "test";
+    const output = captureOutput(() => {
+      main(["--help"]);
+    });
+    expect(output).toContain("Usage: npm run start");
+    expect(output).toContain("Demo: Demonstration of agentic-lib functionality:");
   });
 });
