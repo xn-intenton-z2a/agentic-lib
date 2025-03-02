@@ -18,7 +18,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 ## New Exported Utility Functions
 
 - `generateUsage()`: Provides a usage message with updated flag options.
-- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name with improved regex.
+- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name with improved regex. (Fixed regex escaping for digit matching)
 - `sanitizeCommitMessage(message)`: Cleans up commit messages by removing unsupported characters and extra spaces.
 - `splitArguments(args)`: Splits command line arguments into flag and non-flag arrays.
 - `processFlags(flags)`: Processes an array of flags and returns a summary message. Now supports `--verbose` for extra logging and `--debug` for additional debugging information.
@@ -59,7 +59,28 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 
 ## Changelog
 
+- **Regex Fix:** Updated `getIssueNumberFromBranch` to properly escape digit matching in the regex.
 - **README Refresh:** Updated and pruned content to align with CONTRIBUTING guidelines. Clarified new features and improvements.
+
+---
+
+# intentïon agentic-lib
+
+You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](WORKFLOWS-README.md)
+
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
+repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
+issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
+GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+
+[Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
+
+Mixed licensing:
+* This project is licensed under the GNU General Public License (GPL).
+* This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+* This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+This README file will evolve as the test experiment within this repository evolves.
 
 ---
 
@@ -93,15 +114,13 @@ This repository is organized into three distinct areas to help you understand th
 
 ### 3. The Evolving main.js (JavaScript re‑implementation of Re‑usable Workflows)
 - **Purpose:**  
-  This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to core functionality.
+  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
   As part of the core project, it is under GPL‑3 with the attribution clause.
 - **Location:**  
   The code is located in `src/lib/main.js`.
-
----
 
 ## License
 
