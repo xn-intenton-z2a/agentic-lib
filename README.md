@@ -44,8 +44,8 @@ This README file will evolve as the test experiment within this repository evolv
 - Added an ASCII art welcome screen using `figlet` and `chalk` for a more engaging user experience (displayed only outside of test environment).
 - Updated demonstration output to include debug mode status.
 - Updated usage documentation to include the `--env` flag.
+- Improved consistency between source file and test file.
 - Refined the exit routine to clearly state when agentic-lib is terminating.
-- Synchronized this README with current functionality and outlined future enhancements.
 
 ---
 ---
@@ -119,7 +119,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
+You should have received a copy of the GNU General Public License v3.0 (GPL‑3)
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 IMPORTANT: Any derived work must include the following attribution:
