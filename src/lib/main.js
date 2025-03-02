@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// src/lib/main.js - Enhanced version with improved flag processing, consolidated exit routine, and refined comments for clarity.
-// This update improves consistency between source and test files, refines log messages, and maintains current functionality.
+// src/lib/main.js - Enhanced version with default usage and demo output when no arguments are provided, and consolidated exit routine for clarity.
+// This update improves consistency between source and test files, refines log messages, and ensures that the program exits when no user input is provided.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -22,15 +22,16 @@ export function main(args = []) {
     console.log(chalk.green(figlet.textSync("agentic-lib", { horizontalLayout: "full" })));
   }
 
-  const usage = generateUsage();
-  console.log(usage);
-  console.log("");
-
-  // If no arguments or a help/usage flag is provided, show demo and exit
+  // If no arguments or a help/usage flag is provided, show usage info and demo, then exit
   if (args.length === 0 || args.includes("--help") || args.includes("--usage")) {
+    const usage = generateUsage();
+    console.log(usage);
+    console.log("");
     console.log("Demo: Demonstration of agentic-lib functionality:");
     console.log(enhancedDemo());
-    console.log("No additional arguments provided.");
+    if (args.length === 0) {
+      console.log("No additional arguments provided.");
+    }
     exitApplication();
     return;
   }
@@ -45,14 +46,14 @@ export function main(args = []) {
     return;
   }
 
-  // New feature: If the env flag is provided, display environment variables
+  // New feature: If the env flag is provided, display environment variables and exit
   if (flagArgs.includes("--env")) {
     console.log("Environment Variables: " + JSON.stringify(process.env, null, 2));
     exitApplication();
     return;
   }
 
-  // Process the flags sequentially
+  // Process the flags sequentially and output the result
   const flagProcessingResult = processFlags(flagArgs);
   console.log(flagProcessingResult);
 
@@ -69,7 +70,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
   // Regex captures one or more digits following the prefix
-  const regex = new RegExp(prefix + "(\\d+)");
+  const regex = new RegExp(prefix + "(\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
