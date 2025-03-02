@@ -7,7 +7,7 @@ import {
   logEnvironmentDetails,
   showVersion,
   getIssueNumberFromBranch,
-  sanitizeCommitMessage,
+  sanitizeCommitMessage
 } from "../../src/lib/main.js";
 
 describe("Main Module Import", () => {
@@ -30,7 +30,7 @@ describe("reviewIssue", () => {
       dependenciesListOutput: "npm list output",
       buildOutput: "build output",
       testOutput: "test output",
-      mainOutput: "main output",
+      mainOutput: "main output"
     };
     const result = reviewIssue(params);
     expect(result.fixed).toBe("true");
@@ -61,10 +61,16 @@ describe("Utility Functions", () => {
     expect(result).toContain("Verbose mode enabled.");
   });
 
-  test("enhancedDemo returns a string containing NODE_ENV", () => {
+  test("processFlags with --debug flag returns debug message", () => {
+    const result = processFlags(["--debug"]);
+    expect(result).toContain("Debug mode enabled.");
+  });
+
+  test("enhancedDemo returns a string containing NODE_ENV and debug status", () => {
     const demoMessage = enhancedDemo();
     expect(demoMessage).toContain("Enhanced Demo:");
     expect(demoMessage).toContain("NODE_ENV:");
+    expect(demoMessage).toContain("DEBUG_MODE:");
   });
 
   test("logEnvironmentDetails returns NODE_ENV detail", () => {

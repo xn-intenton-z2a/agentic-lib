@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // src/lib/main.js - Enhanced version with improved flag processing, consolidated exit routine, and refined comments for clarity.
-// This update improves code consistency, adds ASCII art for a friendly welcome, and enhances maintainability.
+// This update improves code consistency, adds ASCII art for a friendly welcome, extends flag processing with debug support, and enhances maintainability.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -97,13 +97,18 @@ export function processFlags(flags = []) {
   if (flags.includes("--verbose")) {
     result += " | Verbose mode enabled.";
   }
+  // New enhancement: add support for debug mode
+  if (flags.includes("--debug")) {
+    result += " | Debug mode enabled.";
+  }
   return result;
 }
 
 // Provides an enhanced demo output including environmental details
 export function enhancedDemo() {
   const envDetails = logEnvironmentDetails();
-  return `Enhanced Demo: Agentic-lib now supports additional argument processing.\n${envDetails}`;
+  const debugStatus = process.env.DEBUG_MODE ? `DEBUG_MODE: ${process.env.DEBUG_MODE}` : "DEBUG_MODE: off";
+  return `Enhanced Demo: Agentic-lib now supports additional argument processing.\n${envDetails}\n${debugStatus}`;
 }
 
 // Logs current environment details
@@ -128,7 +133,7 @@ export function reviewIssue({
   _dependenciesListOutput,
   _buildOutput,
   _testOutput,
-  _mainOutput,
+  _mainOutput
 }) {
   const fixed =
     sourceFileContent.includes("Usage: npm run start") &&
@@ -139,7 +144,7 @@ export function reviewIssue({
   return {
     fixed,
     message,
-    refinement: "None",
+    refinement: "None"
   };
 }
 
