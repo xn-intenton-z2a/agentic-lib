@@ -16,6 +16,18 @@ function exitApplication() {
   }
 }
 
+// New function: Gather telemetry data from GitHub Actions environment if available
+export function gatherTelemetryData() {
+  return {
+    githubWorkflow: process.env.GITHUB_WORKFLOW || "N/A",
+    githubRunId: process.env.GITHUB_RUN_ID || "N/A",
+    githubRunNumber: process.env.GITHUB_RUN_NUMBER || "N/A",
+    githubJob: process.env.GITHUB_JOB || "N/A",
+    githubAction: process.env.GITHUB_ACTION || "N/A",
+    nodeEnv: process.env.NODE_ENV || "undefined"
+  };
+}
+
 // Main function
 export function main(args = []) {
   // Display ASCII art welcome if not in test environment
@@ -54,6 +66,13 @@ export function main(args = []) {
     return;
   }
 
+  // New feature: If the telemetry flag is provided, display gathered telemetry data and exit
+  if (flagArgs.includes("--telemetry")) {
+    console.log("Telemetry Data: " + JSON.stringify(gatherTelemetryData(), null, 2));
+    exitApplication();
+    return;
+  }
+
   // Process the flags sequentially and output the result
   const flagProcessingResult = processFlags(flagArgs);
   console.log(flagProcessingResult);
@@ -73,7 +92,7 @@ export function main(args = []) {
 }
 
 export function generateUsage() {
-  return "Usage: npm run start [--usage | --help] [--version] [--env] [--reverse] [args...]";
+  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--reverse] [args...]";
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
