@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // src/lib/main.js - Enhanced version with default usage and demo output when no arguments are provided, and consolidated exit routine for clarity.
-// This update improves consistency between source and test files, extends functionality with new flags (--reverse, --env), refines log messages, and ensures proper exit behavior in both production and test environments.
+// This update improves consistency between source and test files, extends functionality with new flags (--reverse, --env, --telemetry), refines log messages, gathers telemetry data from GitHub Actions workflows, and ensures proper exit behavior in both production and test environments.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -13,6 +13,18 @@ function exitApplication() {
   if (process.env.NODE_ENV !== "test") {
     process.exit(0);
   }
+}
+
+// New function: Gather telemetry data from GitHub Actions environment if available
+export function gatherTelemetryData() {
+  return {
+    githubWorkflow: process.env.GITHUB_WORKFLOW || "N/A",
+    githubRunId: process.env.GITHUB_RUN_ID || "N/A",
+    githubRunNumber: process.env.GITHUB_RUN_NUMBER || "N/A",
+    githubJob: process.env.GITHUB_JOB || "N/A",
+    githubAction: process.env.GITHUB_ACTION || "N/A",
+    nodeEnv: process.env.NODE_ENV || "undefined"
+  };
 }
 
 // Main function
@@ -53,6 +65,13 @@ export function main(args = []) {
     return;
   }
 
+  // New feature: If the telemetry flag is provided, display gathered telemetry data and exit
+  if (flagArgs.includes("--telemetry")) {
+    console.log("Telemetry Data: " + JSON.stringify(gatherTelemetryData(), null, 2));
+    exitApplication();
+    return;
+  }
+
   // Process the flags sequentially and output the result
   const flagProcessingResult = processFlags(flagArgs);
   console.log(flagProcessingResult);
@@ -72,12 +91,12 @@ export function main(args = []) {
 }
 
 export function generateUsage() {
-  return "Usage: npm run start [--usage | --help] [--version] [--env] [--reverse] [args...]";
+  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--reverse] [args...]";
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "issue-") {
   // Regex captures one or more digits following the prefix
-  const regex = new RegExp(prefix + "(\\d+)");
+  const regex = new RegExp(prefix + "(\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }

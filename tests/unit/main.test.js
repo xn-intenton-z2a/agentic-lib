@@ -8,6 +8,7 @@ import {
   showVersion,
   getIssueNumberFromBranch,
   sanitizeCommitMessage,
+  gatherTelemetryData,
   main
 } from "../../src/lib/main.js";
 
@@ -33,7 +34,7 @@ describe("Main Module Import", () => {
 describe("reviewIssue", () => {
   test("reviewIssue returns correct resolution", () => {
     const params = {
-      sourceFileContent: "Usage: npm run start [--usage | --help] [--version] [--env] [--reverse] [args...]",
+      sourceFileContent: "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--reverse] [args...]",
       testFileContent: "Some test content",
       readmeFileContent: "# intentïon agentic-lib\nSome README content",
       dependenciesFileContent: "{}",
@@ -107,6 +108,24 @@ describe("Utility Functions", () => {
     expect(sanitizeCommitMessage(raw)).toBe("Fix bug -- urgent");
   });
 
+  test("gatherTelemetryData returns telemetry details", () => {
+    // Setup environment variables for telemetry simulation
+    process.env.GITHUB_WORKFLOW = "CI Workflow";
+    process.env.GITHUB_RUN_ID = "12345";
+    process.env.GITHUB_RUN_NUMBER = "67";
+    process.env.GITHUB_JOB = "build";
+    process.env.GITHUB_ACTION = "run";
+    process.env.NODE_ENV = "test";
+
+    const telemetry = gatherTelemetryData();
+    expect(telemetry.githubWorkflow).toBe("CI Workflow");
+    expect(telemetry.githubRunId).toBe("12345");
+    expect(telemetry.githubRunNumber).toBe("67");
+    expect(telemetry.githubJob).toBe("build");
+    expect(telemetry.githubAction).toBe("run");
+    expect(telemetry.nodeEnv).toBe("test");
+  });
+
   test("main with --env flag prints environment variables", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
@@ -131,5 +150,15 @@ describe("Utility Functions", () => {
     });
     // "hello world" reversed becomes "dlrow olleh"
     expect(output).toContain("Reversed input: dlrow olleh");
+  });
+
+  test("main with --telemetry flag prints telemetry data", () => {
+    process.env.NODE_ENV = "test";
+    process.env.GITHUB_WORKFLOW = "CI Test Workflow";
+    const output = captureOutput(() => {
+      main(["--telemetry"]);
+    });
+    expect(output).toContain("Telemetry Data:");
+    expect(output).toContain("CI Test Workflow");
   });
 });
