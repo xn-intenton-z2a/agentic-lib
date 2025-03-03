@@ -13,7 +13,16 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
+./scripts/deactivate-schedule.sh 1
+./scripts/deactivate-schedule.sh 2
 ./scripts/release-to-tansu-sqs-bridge.sh "${1?}"
 ./scripts/release-to-repository0.sh "${1?}"
 ./scripts/release-to-repository0-crucible.sh "${1?}"
 ./scripts/release-to-plot-code-lib.sh "${1?}"
+schedule=$(grep 'Workflow schedule: schedule-' ./CONTRIBUTING.md | sed 's/Workflow schedule: schedule-//')
+if [ -z "${schedule}" ]; then
+  echo "No schedule found in CONTRIBUTING.md, looking for line of the form 'Workflow schedule: schedule-<number>'"
+else
+  echo "Workflow schedule: schedule-${schedule?}"
+  ./scripts/activate-schedule.sh "${schedule?}"
+fi

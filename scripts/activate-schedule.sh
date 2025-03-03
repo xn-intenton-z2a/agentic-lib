@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# scripts/activate-schedule
+# scripts/activate-schedule.sh
 #
 # Usage: ./scripts/activate-schedule.sh <schedule-number>
 # Example: ./scripts/activate-schedule.sh 1
-# (activates schedule-2 and comments out all others.)
-# Example: ./scripts/activate-schedule.sh 2
-# (activates schedule-1 and comments out all others.)
+# (activates schedule-1 by uncommenting lines ending with "# schedule-1".)
 #
 # This script processes all .yml files in the .github/workflows directory.
 # It looks for lines with cron schedule definitions ending with a comment like "# schedule-N"
-# and then ensures that only the chosen schedule is uncommented.
+# and, if N matches the given parameter, removes the leading "#" and any extra spaces.
+#
+# Tested on macOS (zsh).
 
 set -euo pipefail
 
@@ -18,7 +18,7 @@ if [ "$#" -ne 1 ]; then
   exit 1
 fi
 
-activeSchedule="$1"
+active="$1"
 workflow_dir=".github/workflows"
 
 if [ ! -d "$workflow_dir" ]; then
@@ -26,31 +26,14 @@ if [ ! -d "$workflow_dir" ]; then
   exit 1
 fi
 
-echo "Activating schedule-$activeSchedule in all YAML workflow files in $workflow_dir..."
+echo "Activating schedule-$active in all YAML workflow files in $workflow_dir..."
 
 for file in "$workflow_dir"/*.yml; do
   echo "Processing $file..."
-  awk -v active="$activeSchedule" '
-  {
-    # If line contains a cron schedule with a schedule comment
-    if ($0 ~ /cron:.*#\s*schedule-[0-9]+/) {
-      # Capture leading whitespace
-      match($0, /^[[:space:]]*/);
-      indent = substr($0, RSTART, RLENGTH);
-      if ($0 ~ ("schedule-"active)) {
-         # Remove any leading "#" and whitespace
-         sub(/^[[:space:]]*#?[[:space:]]*/, "", $0);
-         print indent $0;
-      } else {
-         # Remove leading whitespace and comment the line
-         sub(/^[[:space:]]*/, "", $0);
-         print indent "# " $0;
-      }
-    } else {
-      print $0;
-    }
-  }
-  ' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+  # This sed command matches lines that start with whitespace, then a "#"
+  # followed by optional whitespace, then "cron:" … and ending with "# schedule-<active>"
+  sed -i.bak -E "s/^([[:space:]]*)#(- cron:.*# schedule-$active)/\1\2/" "$file"
+  rm -f "$file.bak"
 done
 
-echo "Schedule-$activeSchedule activated in workflows."
+echo "Schedule-$active activated in workflows."
