@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-// src/lib/main.js - Enhanced version with default usage, demo output, improved exit routine, new LLM delegation functionality, and Kafka messaging simulation.
-// Added instrumentation to help in test coverage improvement by exposing behavior via additional flags.
-// This update improves consistency between source and test files, extends functionality with new flags (--reverse, --env, --telemetry, --version, --create-issue), adds a new function to delegate decisions to an advanced LLM using OpenAI's chat completions API, refines log messages, and ensures proper exit behavior in both production and test environments.
-// Additionally, a new wrapper function (delegateDecisionToLLMWrapped) has been implemented to mimic an enhanced OpenAI function using a function calling style as per contributor guidelines.
-// New Kafka messaging simulation functions have been added to simulate inter-workflow communication via Kafka-like behavior.
-// Changelog Update: Extended delegateDecisionToLLMWrapped to support parsing of tool_calls in the response, aligning with the supplied OpenAI function example.
+// src/lib/main.js - Implementation aligned with the agentic‑lib mission statement.
+// This module serves as a JavaScript implementation for reusable GitHub Actions workflows.
+// It provides core features such as telemetry gathering, Kafka messaging simulation,
+// enhanced command-line flag processing, and integration with OpenAI's chat completions API
+// for autonomous decision-making.
+// Change Log: Pruned drift and aligned with the mission statement. Extended functionality with flags:
+// --env, --reverse, --telemetry, --version, --create-issue; enhanced delegateDecisionToLLMWrapped for simulated function calling behavior.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";

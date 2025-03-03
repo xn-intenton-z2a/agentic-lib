@@ -52,10 +52,11 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 
 - Consolidated the application exit routine and improved code comments for clarity in `main.js`.
 - Extended flag processing functions to provide clearer outputs, with support for `--verbose` and `--debug` flags.
-- Refreshed this README to align with CONTRIBUTING guidelines by removing outdated text and restructuring content for clarity.
+- Refresh README content to align with CONTRIBUTING guidelines by removing outdated text and restructuring content for clarity.
 - **Changelog Update:**
   - Regex Fix: Updated `getIssueNumberFromBranch` to properly escape digit matching in the regex.
   - README Refresh: Updated and pruned content to align with CONTRIBUTING guidelines. Clarified new features and improvements.
+  - **Pruned Drift:** Updated source file header comments to align with the agentic‑lib mission statement.
   - **Extended delegateDecisionToLLMWrapped**: Now parses tool_calls in the response for better simulation of OpenAI function calling behavior.
   - **Added Kafka messaging simulation functions** for simulating communication between workflows.
 
