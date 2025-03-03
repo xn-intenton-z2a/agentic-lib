@@ -9,6 +9,7 @@ import {
   getIssueNumberFromBranch,
   sanitizeCommitMessage,
   gatherTelemetryData,
+  gatherExtendedTelemetryData,
   delegateDecisionToLLM,
   delegateDecisionToLLMWrapped,
   sendMessageToKafka,
@@ -54,7 +55,7 @@ describe("Main Module Import", () => {
 describe("reviewIssue", () => {
   test("reviewIssue returns correct resolution when conditions met", () => {
     const params = {
-      sourceFileContent: "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--reverse] [args...]",
+      sourceFileContent: "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [args...]",
       testFileContent: "Some test content",
       readmeFileContent: "# intentïon agentic-lib\nSome README content",
       dependenciesFileContent: "{}",
@@ -164,6 +165,26 @@ describe("Utility Functions", () => {
     expect(telemetry.nodeEnv).toBe("test");
   });
 
+  test("gatherExtendedTelemetryData returns extended telemetry details", () => {
+    process.env.GITHUB_WORKFLOW = "CI Workflow";
+    process.env.GITHUB_RUN_ID = "12345";
+    process.env.GITHUB_RUN_NUMBER = "67";
+    process.env.GITHUB_JOB = "build";
+    process.env.GITHUB_ACTION = "run";
+    process.env.GITHUB_ACTOR = "tester";
+    process.env.GITHUB_REPOSITORY = "repo/test";
+    process.env.GITHUB_EVENT_NAME = "push";
+    process.env.CI = "true";
+    process.env.NODE_ENV = "test";
+
+    const extendedTelemetry = gatherExtendedTelemetryData();
+    expect(extendedTelemetry.githubWorkflow).toBe("CI Workflow");
+    expect(extendedTelemetry.githubActor).toBe("tester");
+    expect(extendedTelemetry.githubRepository).toBe("repo/test");
+    expect(extendedTelemetry.githubEventName).toBe("push");
+    expect(extendedTelemetry.ci).toBe("true");
+  });
+
   test("main with --env flag prints environment variables", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
@@ -213,6 +234,20 @@ describe("Utility Functions", () => {
     });
     expect(output).toContain("Telemetry Data:");
     expect(output).toContain("CI Test Workflow");
+  });
+
+  test("main with --telemetry-extended flag prints extended telemetry data", () => {
+    process.env.NODE_ENV = "test";
+    process.env.GITHUB_ACTOR = "extendedTester";
+    const output = captureOutput(() => {
+      try {
+        main(["--telemetry-extended"]);
+      } catch {
+        // ignore error
+      }
+    });
+    expect(output).toContain("Extended Telemetry Data:");
+    expect(output).toContain("extendedTester");
   });
 
   test("main with --version flag prints version", () => {

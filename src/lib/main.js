@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // src/lib/main.js - Implementation aligned with the agentic‑lib mission statement.
 // Change Log: Pruned drift and aligned with the mission statement. Extended functionality with flags:
-// --env, --reverse, --telemetry, --version, --create-issue, --simulate-remote, and added Kafka logging function: logKafkaOperations.
+// --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, and added Kafka logging function: logKafkaOperations.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -25,6 +25,17 @@ export function gatherTelemetryData() {
     githubJob: process.env.GITHUB_JOB || "N/A",
     githubAction: process.env.GITHUB_ACTION || "N/A",
     nodeEnv: process.env.NODE_ENV || "undefined",
+  };
+}
+
+// New function: Gather extended telemetry data including additional GitHub environment variables
+export function gatherExtendedTelemetryData() {
+  return {
+    ...gatherTelemetryData(),
+    githubActor: process.env.GITHUB_ACTOR || "N/A",
+    githubRepository: process.env.GITHUB_REPOSITORY || "N/A",
+    githubEventName: process.env.GITHUB_EVENT_NAME || "N/A",
+    ci: process.env.CI || "N/A",
   };
 }
 
@@ -103,6 +114,13 @@ export function main(args = []) {
     return;
   }
 
+  // New feature: If the telemetry-extended flag is provided, display extended telemetry data and exit
+  if (flagArgs.includes("--telemetry-extended")) {
+    console.log("Extended Telemetry Data: " + JSON.stringify(gatherExtendedTelemetryData(), null, 2));
+    exitApplication();
+    return;
+  }
+
   // New feature: If the telemetry flag is provided, display gathered telemetry data and exit
   if (flagArgs.includes("--telemetry")) {
     console.log("Telemetry Data: " + JSON.stringify(gatherTelemetryData(), null, 2));
@@ -135,7 +153,7 @@ export function main(args = []) {
 }
 
 export function generateUsage() {
-  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--reverse] [--create-issue] [--simulate-remote] [args...]";
+  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [--create-issue] [--simulate-remote] [args...]";
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
@@ -205,7 +223,7 @@ export async function delegateDecisionToLLM(prompt) {
           role: "system",
           content: "You are a helpful assistant.",
         },
-        { role: "user", content: prompt, },
+        { role: "user", content: prompt }
       ],
     });
     return response.data.choices[0].message.content;
@@ -229,7 +247,7 @@ export async function delegateDecisionToLLMWrapped(prompt) {
           content:
             "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema.",
         },
-        { role: "user", content: prompt, },
+        { role: "user", content: prompt }
       ],
     });
 
