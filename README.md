@@ -64,7 +64,8 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
   - **Extended delegateDecisionToLLMWrapped:** Now parses tool_calls in the response for better simulation of OpenAI function calling behavior.
   - **Added Kafka messaging simulation functions** for simulating communication between workflows.
   - **Added logKafkaOperations:** New function to log Kafka operations based on simulated send and receive functionality.
-  - **Added --simulate-remote flag** to simulate remote service calls.
+  - **Added --simulate-remote flag:** to simulate remote service calls.
+  - **Fixed linting and formatting issues in the source code.**
 
 ---
 

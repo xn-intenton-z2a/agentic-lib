@@ -24,7 +24,7 @@ export function gatherTelemetryData() {
     githubRunNumber: process.env.GITHUB_RUN_NUMBER || "N/A",
     githubJob: process.env.GITHUB_JOB || "N/A",
     githubAction: process.env.GITHUB_ACTION || "N/A",
-    nodeEnv: process.env.NODE_ENV || "undefined"
+    nodeEnv: process.env.NODE_ENV || "undefined",
   };
 }
 
@@ -54,7 +54,11 @@ export function logKafkaOperations(topic, message) {
 export function main(args = []) {
   // Display ASCII art welcome if not in test environment
   if (process.env.NODE_ENV !== "test") {
-    console.log(chalk.green(figlet.textSync("agentic-lib", { horizontalLayout: "full" })));
+    console.log(
+      chalk.green(
+        figlet.textSync("agentic-lib", { horizontalLayout: "full" })
+      )
+    );
   }
 
   // If no arguments or a help/usage flag is provided, show usage info and demo, then exit
@@ -191,18 +195,21 @@ export async function delegateDecisionToLLM(prompt) {
   try {
     const { Configuration, OpenAIApi } = await import("openai");
     const configuration = new Configuration({
-      apiKey: process.env.OPENAI_API_KEY || ""
+      apiKey: process.env.OPENAI_API_KEY || "",
     });
     const openai = new OpenAIApi(configuration);
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
-        { role: "system", content: "You are a helpful assistant." },
-        { role: "user", content: prompt }
-      ]
+        {
+          role: "system",
+          content: "You are a helpful assistant.",
+        },
+        { role: "user", content: prompt, },
+      ],
     });
     return response.data.choices[0].message.content;
-  } catch (err) {
+  } catch {
     return "LLM decision could not be retrieved.";
   }
 }
@@ -211,15 +218,19 @@ export async function delegateDecisionToLLMWrapped(prompt) {
   try {
     const { Configuration, OpenAIApi } = await import("openai");
     const configuration = new Configuration({
-      apiKey: process.env.OPENAI_API_KEY || ""
+      apiKey: process.env.OPENAI_API_KEY || "",
     });
     const openai = new OpenAIApi(configuration);
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
-        { role: "system", content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema." },
-        { role: "user", content: prompt }
-      ]
+        {
+          role: "system",
+          content:
+            "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema.",
+        },
+        { role: "user", content: prompt, },
+      ],
     });
 
     let result;
@@ -228,13 +239,13 @@ export async function delegateDecisionToLLMWrapped(prompt) {
       if (message.tool_calls && message.tool_calls.length > 0) {
         try {
           result = JSON.parse(message.tool_calls[0].function.arguments);
-        } catch (e) {
+        } catch {
           result = { fixed: "false", message: "Failed to parse tool_calls arguments.", refinement: "None" };
         }
       } else if (message.content) {
         try {
           result = JSON.parse(message.content);
-        } catch (e) {
+        } catch {
           result = { fixed: "false", message: "Failed to parse response content.", refinement: "None" };
         }
       } else {
@@ -244,7 +255,7 @@ export async function delegateDecisionToLLMWrapped(prompt) {
       result = { fixed: "false", message: "No valid response received.", refinement: "None" };
     }
     return result;
-  } catch (err) {
+  } catch {
     return { fixed: "false", message: "LLM decision could not be retrieved.", refinement: "None" };
   }
 }
@@ -260,7 +271,7 @@ export function reviewIssue({
   _dependenciesListOutput,
   _buildOutput,
   _testOutput,
-  _mainOutput
+  _mainOutput,
 }) {
   const fixed =
     sourceFileContent.includes("Usage: npm run start") &&
@@ -271,7 +282,7 @@ export function reviewIssue({
   return {
     fixed,
     message,
-    refinement: "None"
+    refinement: "None",
   };
 }
 
