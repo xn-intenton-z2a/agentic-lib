@@ -13,6 +13,7 @@ import {
   delegateDecisionToLLMWrapped,
   sendMessageToKafka,
   receiveMessageFromKafka,
+  logKafkaOperations,
   main
 } from "../../src/lib/main.js";
 
@@ -219,6 +220,12 @@ describe("Utility Functions", () => {
       try { main(["--simulate-remote"]); } catch (e) {}
     });
     expect(output).toContain("Simulated remote service call initiated.");
+  });
+
+  test("logKafkaOperations logs Kafka send and receive operations", () => {
+    const result = logKafkaOperations("testTopic", "Test Kafka Message");
+    expect(result.sendResult).toBe("Message sent to topic 'testTopic': Test Kafka Message");
+    expect(result.receiveResult).toBe("Simulated message from topic 'testTopic'");
   });
 
   test("delegateDecisionToLLM returns fallback message in test environment", async () => {

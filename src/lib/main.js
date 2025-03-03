@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // src/lib/main.js - Implementation aligned with the agentic‑lib mission statement.
 // Change Log: Pruned drift and aligned with the mission statement. Extended functionality with flags:
-// --env, --reverse, --telemetry, --version, --create-issue, and --simulate-remote for simulating remote service calls.
+// --env, --reverse, --telemetry, --version, --create-issue, --simulate-remote, and added Kafka logging function: logKafkaOperations.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -40,6 +40,14 @@ export function receiveMessageFromKafka(topic) {
   const simulatedMessage = `Simulated message from topic '${topic}'`;
   console.log(simulatedMessage);
   return simulatedMessage;
+}
+
+// New function: Log Kafka operations by sending and receiving a message for debugging purposes
+export function logKafkaOperations(topic, message) {
+  const sendResult = sendMessageToKafka(topic, message);
+  const receiveResult = receiveMessageFromKafka(topic);
+  console.log(chalk.blue("Kafka Operations:"), sendResult, receiveResult);
+  return { sendResult, receiveResult };
 }
 
 // Main function
