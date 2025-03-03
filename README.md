@@ -33,6 +33,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM that mimics function calling behavior. **Updated:** Now supports parsing of tool_calls in the response for improved compliance with OpenAI function calling format.
 - **New:** `sendMessageToKafka(topic, message)`: Simulates sending a message to a Kafka topic for inter-workflow communication.
 - **New:** `receiveMessageFromKafka(topic)`: Simulates receiving a message from a Kafka topic.
+- **New:** `logKafkaOperations(topic, message)`: Logs Kafka messaging operations by combining simulated send and receive functionality.
 - **New:** `--simulate-remote` flag: Simulates a remote service call for autonomous interaction.
 
 ---
@@ -45,8 +46,9 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - Added a new `--version` flag to display the current version of the library.
 - **New:** Added a new `--create-issue` flag that simulates GitHub workflow issue creation by generating a simulated issue title and a random issue number.
 - **New:** Added `delegateDecisionToLLMWrapped()` for an enhanced and robust OpenAI function wrapper. (Extended to parse tool_calls when available.)
-- **New:** Added simulated Kafka messaging functions (`sendMessageToKafka` and `receiveMessageFromKafka`) to facilitate messaging between agentic workflows.
-- **New:** Added `--simulate-remote` flag to simulate remote service calls inline with the autonomous decision making mission.
+- **New:** Added simulated Kafka messaging functions (`sendMessageToKafka` and `receiveMessageFromKafka`) for facilitating messaging between workflows.
+- **New:** Added `logKafkaOperations` to combine Kafka send and receive simulations for logging purposes.
+- **New:** Added `--simulate-remote` flag to simulate remote service calls.
 
 ---
 
@@ -61,6 +63,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
   - **Pruned Drift:** Updated source file header comments to align with the agentic‑lib mission statement.
   - **Extended delegateDecisionToLLMWrapped:** Now parses tool_calls in the response for better simulation of OpenAI function calling behavior.
   - **Added Kafka messaging simulation functions** for simulating communication between workflows.
+  - **Added logKafkaOperations:** New function to log Kafka operations based on simulated send and receive functionality.
   - **Added --simulate-remote flag** to simulate remote service calls.
 
 ---
