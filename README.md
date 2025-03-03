@@ -30,7 +30,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - `showVersion()`: Returns the current version of the library.
 - `gatherTelemetryData()`: Gathers telemetry data from the GitHub Actions workflow environment.
 - `delegateDecisionToLLM(prompt)`: Delegates a decision to an advanced LLM via OpenAI's chat completions API. (Falls back in test environments.)
-- `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM that mimics function calling behavior.
+- `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM that mimics function calling behavior. **Updated:** Now supports parsing of tool_calls in the response for improved compliance with OpenAI function calling format.
 - **New:** `sendMessageToKafka(topic, message)`: Simulates sending a message to a Kafka topic for inter-workflow communication.
 - **New:** `receiveMessageFromKafka(topic)`: Simulates receiving a message from a Kafka topic.
 
@@ -43,7 +43,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - Added a new `--telemetry` flag to output telemetry data from GitHub Actions environments.
 - Added a new `--version` flag to display the current version of the library.
 - **New:** Added a new `--create-issue` flag that simulates GitHub workflow issue creation by generating a simulated issue title and a random issue number.
-- **New:** Added `delegateDecisionToLLMWrapped()` for an enhanced and robust OpenAI function wrapper.
+- **New:** Added `delegateDecisionToLLMWrapped()` for an enhanced and robust OpenAI function wrapper. (Extended to parse tool_calls when available.)
 - **New:** Added simulated Kafka messaging functions (`sendMessageToKafka` and `receiveMessageFromKafka`) to facilitate messaging between agentic workflows.
 
 ---
@@ -53,11 +53,10 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - Consolidated the application exit routine and improved code comments for clarity in `main.js`.
 - Extended flag processing functions to provide clearer outputs, with support for `--verbose` and `--debug` flags.
 - Refreshed this README to align with CONTRIBUTING guidelines by removing outdated text and restructuring content for clarity.
-- Enhanced test coverage and updated demonstration outputs to better reflect current functionality.
 - **Changelog Update:**
   - Regex Fix: Updated `getIssueNumberFromBranch` to properly escape digit matching in the regex.
   - README Refresh: Updated and pruned content to align with CONTRIBUTING guidelines. Clarified new features and improvements.
-  - Added `delegateDecisionToLLMWrapped` for an enhanced and robust OpenAI function wrapper.
+  - **Extended delegateDecisionToLLMWrapped**: Now parses tool_calls in the response for better simulation of OpenAI function calling behavior.
   - **Added Kafka messaging simulation functions** for simulating communication between workflows.
 
 ---
