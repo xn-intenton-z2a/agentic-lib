@@ -58,16 +58,10 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 
 - Consolidated the application exit routine and improved code comments for clarity in `main.js`.
 - Extended flag processing functions to provide clearer outputs, with support for `--verbose` and `--debug` flags.
-- Refreshed the README content to align with CONTRIBUTING guidelines by removing outdated text and adding new features.
-- **Changelog Update:**
-  - Regex Fix: Updated `getIssueNumberFromBranch` to properly escape digit matching in the regex.
-  - README Refresh: Updated and pruned content to align with CONTRIBUTING guidelines. Clarified new features and improvements.
-  - **Pruned Drift:** Updated source file header comments to align with the agentic‑lib mission statement.
-  - **Extended delegateDecisionToLLMWrapped:** Now parses tool_calls in the response for better simulation of OpenAI function calling behavior.
-  - **Added Kafka messaging simulation functions** for simulating communication between workflows.
-  - **Added logKafkaOperations:** New function to log Kafka operations based on simulated send and receive functionality.
-  - **Added --simulate-remote flag:** to simulate remote service calls.
-  - **Extended Telemetry:** Added `gatherExtendedTelemetryData()` and `--telemetry-extended` flag to provide more detailed telemetry insights.
+- Refresh README content to align with CONTRIBUTING guidelines by removing outdated text and adding new features.
+- **Change Log Update:**
+  - Pruned drift and realigned the source file with the agentic‑lib mission statement.
+  - Extended functionality inline with the mission statement by enhancing flag processing and telemetry details.
 
 ---
 

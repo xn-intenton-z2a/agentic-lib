@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 // src/lib/main.js - Implementation aligned with the agentic‑lib mission statement.
-// Change Log: Pruned drift and aligned with the mission statement. Extended functionality with flags:
-// --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, and added Kafka logging function: logKafkaOperations.
+// Change Log: Pruned drift, aligned with the mission statement, and extended functionality inline with the mission by enhancing flag processing and telemetry details.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
