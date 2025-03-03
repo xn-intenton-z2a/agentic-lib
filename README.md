@@ -53,7 +53,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** Added simulated Kafka messaging functions (`sendMessageToKafka` and `receiveMessageFromKafka`) for facilitating messaging between workflows.
 - **New:** Added `logKafkaOperations` to combine Kafka send and receive simulations for logging purposes.
 - **New:** Added `analyzeSystemPerformance()` to provide system performance telemetry.
-- **New:** Added remote service wrapper function `callRemoteService` which uses native fetch to simulate remote API calls.
+- **New:** Added remote service wrapper function `callRemoteService` which uses native fetch to simulate API calls.
 - **New:** Added `--simulate-remote` flag to simulate remote service calls.
 
 ---
