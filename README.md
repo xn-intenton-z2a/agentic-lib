@@ -21,25 +21,30 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 ## New Exported Utility Functions
 
 - `generateUsage()`: Provides a usage message with updated flag options.
-- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name with improved regex. (Fixed regex escaping for digit matching)
+- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name with improved regex.
 - `sanitizeCommitMessage(message)`: Cleans up commit messages by removing unsupported characters and extra spaces.
 - `splitArguments(args)`: Splits command line arguments into flag and non-flag arrays.
-- `processFlags(flags)`: Processes an array of flags and returns a summary message. Now supports `--verbose` for extra logging and `--debug` for additional debugging information.
+- `processFlags(flags)`: Processes an array of flags and returns a summary message. Supports `--verbose` for extra logging and `--debug` for additional debugging information.
 - `enhancedDemo()`: Provides demo output including environmental details and debug status.
 - `logEnvironmentDetails()`: Logs current environment details such as NODE_ENV.
 - `showVersion()`: Returns the current version of the library.
-- `gatherTelemetryData()`: Gathers telemetry data from the GitHub Actions workflow environment (e.g., workflow name, run id, job, etc.).
-- `delegateDecisionToLLM(prompt)`: Delegates a decision to an advanced LLM via OpenAI's chat completions API. In test environments, it returns a fallback message.
-- **New:** `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM. It mimics function calling behavior and returns structured JSON responses based on OpenAI's chat completions API.
+- `gatherTelemetryData()`: Gathers telemetry data from the GitHub Actions workflow environment.
+- `delegateDecisionToLLM(prompt)`: Delegates a decision to an advanced LLM via OpenAI's chat completions API. (Falls back in test environments.)
+- `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM that mimics function calling behavior.
+- **New:** `sendMessageToKafka(topic, message)`: Simulates sending a message to a Kafka topic for inter-workflow communication.
+- **New:** `receiveMessageFromKafka(topic)`: Simulates receiving a message from a Kafka topic.
 
-### New Features
+---
+
+## New Features
 
 - Added a new `--env` flag to print out environment variables for debugging.
 - Extended functionality: Added a new `--reverse` flag. When provided, the non-flag arguments are reversed and printed.
 - Added a new `--telemetry` flag to output telemetry data from GitHub Actions environments.
 - Added a new `--version` flag to display the current version of the library.
 - **New:** Added a new `--create-issue` flag that simulates GitHub workflow issue creation by generating a simulated issue title and a random issue number.
-- **New:** Added `delegateDecisionToLLMWrapped()` for a robust OpenAI function wrapper using a function-calling like approach.
+- **New:** Added `delegateDecisionToLLMWrapped()` for an enhanced and robust OpenAI function wrapper.
+- **New:** Added simulated Kafka messaging functions (`sendMessageToKafka` and `receiveMessageFromKafka`) to facilitate messaging between agentic workflows.
 
 ---
 
@@ -53,6 +58,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
   - Regex Fix: Updated `getIssueNumberFromBranch` to properly escape digit matching in the regex.
   - README Refresh: Updated and pruned content to align with CONTRIBUTING guidelines. Clarified new features and improvements.
   - Added `delegateDecisionToLLMWrapped` for an enhanced and robust OpenAI function wrapper.
+  - **Added Kafka messaging simulation functions** for simulating communication between workflows.
 
 ---
 

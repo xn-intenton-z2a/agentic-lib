@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-// src/lib/main.js - Enhanced version with default usage, demo output, improved exit routine and new LLM delegation functionality.
+// src/lib/main.js - Enhanced version with default usage, demo output, improved exit routine, new LLM delegation functionality, and Kafka messaging simulation.
 // Added instrumentation to help in test coverage improvement by exposing behavior via additional flags.
 // This update improves consistency between source and test files, extends functionality with new flags (--reverse, --env, --telemetry, --version, --create-issue), adds a new function to delegate decisions to an advanced LLM using OpenAI's chat completions API, refines log messages, and ensures proper exit behavior in both production and test environments.
 // Additionally, a new wrapper function (delegateDecisionToLLMWrapped) has been implemented to mimic an enhanced OpenAI function using a function calling style as per contributor guidelines.
+// New Kafka messaging simulation functions have been added to simulate inter-workflow communication via Kafka-like behavior.
 // Ref: Updated documentation examples to correctly reflect supported flags and behaviors.
 
 import { fileURLToPath } from "url";
@@ -28,6 +29,22 @@ export function gatherTelemetryData() {
     githubAction: process.env.GITHUB_ACTION || "N/A",
     nodeEnv: process.env.NODE_ENV || "undefined"
   };
+}
+
+// Kafka messaging simulation functions
+export function sendMessageToKafka(topic, message) {
+  // Simulate sending a message to a Kafka topic.
+  // In a real implementation, you might use a library like kafkajs to connect to Kafka brokers.
+  console.log(`Simulating sending message to topic '${topic}': ${message}`);
+  return `Message sent to topic '${topic}': ${message}`;
+}
+
+export function receiveMessageFromKafka(topic) {
+  // Simulate receiving a message from a Kafka topic.
+  // In a real implementation, proper consumer logic would be applied.
+  const simulatedMessage = `Simulated message from topic '${topic}'`;
+  console.log(simulatedMessage);
+  return simulatedMessage;
 }
 
 // Main function
