@@ -11,6 +11,8 @@ import {
   gatherTelemetryData,
   delegateDecisionToLLM,
   delegateDecisionToLLMWrapped,
+  sendMessageToKafka,
+  receiveMessageFromKafka,
   main
 } from "../../src/lib/main.js";
 
@@ -223,5 +225,16 @@ describe("Utility Functions", () => {
     expect(response.fixed).toBe("false");
     expect(response.message).toBe("LLM decision could not be retrieved.");
     expect(response.refinement).toBe("None");
+  });
+
+  // New tests for Kafka messaging functions
+  test("sendMessageToKafka simulates sending message", () => {
+    const result = sendMessageToKafka("testTopic", "Hello Kafka");
+    expect(result).toBe("Message sent to topic 'testTopic': Hello Kafka");
+  });
+
+  test("receiveMessageFromKafka simulates receiving message", () => {
+    const result = receiveMessageFromKafka("testTopic");
+    expect(result).toBe("Simulated message from topic 'testTopic'");
   });
 });
