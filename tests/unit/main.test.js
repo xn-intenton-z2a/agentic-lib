@@ -143,7 +143,6 @@ describe("Utility Functions", () => {
   });
 
   test("gatherTelemetryData returns telemetry details", () => {
-    // Setup environment variables for telemetry simulation
     process.env.GITHUB_WORKFLOW = "CI Workflow";
     process.env.GITHUB_RUN_ID = "12345";
     process.env.GITHUB_RUN_NUMBER = "67";
@@ -182,7 +181,6 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       try { main(["--reverse", "hello", "world"]); } catch (e) {}
     });
-    // "hello world" reversed becomes "dlrow olleh"
     expect(output).toContain("Reversed input: dlrow olleh");
   });
 
@@ -215,6 +213,14 @@ describe("Utility Functions", () => {
     expect(match).not.toBeNull();
   });
 
+  test("main with --simulate-remote flag prints simulated remote service call", () => {
+    process.env.NODE_ENV = "test";
+    const output = captureOutput(() => {
+      try { main(["--simulate-remote"]); } catch (e) {}
+    });
+    expect(output).toContain("Simulated remote service call initiated.");
+  });
+
   test("delegateDecisionToLLM returns fallback message in test environment", async () => {
     const response = await delegateDecisionToLLM("Should I deploy now?");
     expect(response).toBe("LLM decision could not be retrieved.");
@@ -227,7 +233,6 @@ describe("Utility Functions", () => {
     expect(response.refinement).toBe("None");
   });
 
-  // New tests for Kafka messaging functions
   test("sendMessageToKafka simulates sending message", () => {
     const result = sendMessageToKafka("testTopic", "Hello Kafka");
     expect(result).toBe("Message sent to topic 'testTopic': Hello Kafka");
