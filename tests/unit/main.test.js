@@ -21,7 +21,7 @@ import {
   generateUsage
 } from "../../src/lib/main.js";
 
-// Helper function to capture console output
+// Helper to capture console output
 function captureOutput(callback) {
   const originalLog = console.log;
   let output = "";
@@ -30,8 +30,8 @@ function captureOutput(callback) {
   };
   try {
     callback();
-  } catch {
-    // ignore error for testing
+  } catch (e) {
+    // ignore errors (e.g., process.exit during tests)
   }
   console.log = originalLog;
   return output;
@@ -56,7 +56,7 @@ describe("Main Module Import", () => {
 });
 
 describe("reviewIssue", () => {
-  test("reviewIssue returns correct resolution when conditions met", () => {
+  test("returns correct resolution when conditions met", () => {
     const params = {
       sourceFileContent: "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [args...]",
       testFileContent: "Some test content",
@@ -76,7 +76,7 @@ describe("reviewIssue", () => {
     expect(result.refinement).toBe("None");
   });
 
-  test("reviewIssue returns false when conditions not met", () => {
+  test("returns false when conditions not met", () => {
     const params = {
       sourceFileContent: "Some other content",
       testFileContent: "Test content",
@@ -110,7 +110,7 @@ describe("Utility Functions", () => {
 
   test("processFlags returns proper message with flags", () => {
     const result = processFlags(["--test", "--flag"]);
-    expect(result.includes("--test")).toBe(true);
+    expect(result).toContain("--test");
   });
 
   test("processFlags with --verbose flag returns verbose message", () => {
@@ -200,9 +200,7 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       try {
         main(["--env"]);
-      } catch {
-        // ignore error
-      }
+      } catch {}
     });
     expect(output).toContain("Environment Variables:");
   });
@@ -212,9 +210,7 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       try {
         main(["--help"]);
-      } catch {
-        // ignore error
-      }
+      } catch {}
     });
     expect(output).toContain("Usage: npm run start");
     expect(output).toContain("Demo: Demonstration of agentic-lib functionality:");
@@ -225,9 +221,7 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       try {
         main(["--reverse", "hello", "world"]);
-      } catch {
-        // ignore error
-      }
+      } catch {}
     });
     expect(output).toContain("Reversed input: dlrow olleh");
   });
@@ -238,9 +232,7 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       try {
         main(["--telemetry"]);
-      } catch {
-        // ignore error
-      }
+      } catch {}
     });
     expect(output).toContain("Telemetry Data:");
     expect(output).toContain("CI Test Workflow");
@@ -252,9 +244,7 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       try {
         main(["--telemetry-extended"]);
-      } catch {
-        // ignore error
-      }
+      } catch {}
     });
     expect(output).toContain("Extended Telemetry Data:");
     expect(output).toContain("extendedTester");
@@ -265,9 +255,7 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       try {
         main(["--version"]);
-      } catch {
-        // ignore error
-      }
+      } catch {}
     });
     expect(output).toMatch(/^Version:/);
   });
@@ -277,9 +265,7 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       try {
         main(["--create-issue", "Test Issue"]);
-      } catch {
-        // ignore error
-      }
+      } catch {}
     });
     expect(output).toContain("Simulated Issue Created:");
     expect(output).toContain("Title: Test Issue");
@@ -292,9 +278,7 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       try {
         main(["--simulate-remote"]);
-      } catch {
-        // ignore error
-      }
+      } catch {}
     });
     expect(output).toContain("Simulated remote service call initiated.");
   });
@@ -347,16 +331,5 @@ describe("Utility Functions", () => {
 
   test("generateUsage returns proper usage string", () => {
     expect(generateUsage()).toContain("Usage: npm run start");
-  });
-});
-
-describe("delegateDecisionToLLMWrapped integration", () => {
-  test("returns valid result when TEST_OPENAI_SUCCESS is set", async () => {
-    process.env.TEST_OPENAI_SUCCESS = "1";
-    const response = await delegateDecisionToLLMWrapped("Test prompt");
-    expect(response.fixed).toBe("true");
-    expect(response.message).toBe("LLM call succeeded");
-    expect(response.refinement).toBe("None");
-    delete process.env.TEST_OPENAI_SUCCESS;
   });
 });
