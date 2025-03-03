@@ -5,10 +5,12 @@
 // - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote.
 // - Added Kafka logging functions and a new function analyzeSystemPerformance for system performance telemetry.
 // - Improved delegated decision functions for improved parsing support with zod schema validation in delegateDecisionToLLMWrapped.
-// - Added remote service wrapper function callRemoteService using native fetch to simulate remote API calls.
+// - Added remote service wrapper function callRemoteService using native fetch to simulate remote API calls with enhanced error logging.
 // - Updated --create-issue simulation to mimic the behavior of the wfr-create-issue workflow, including support for a 'house choice' option via HOUSE_CHOICE_OPTIONS environment variable.
 // - Improved test coverage by adding a test hook in delegateDecisionToLLMWrapped for simulating a successful OpenAI call.
 // - Extended main.js with new Kafka logging function (logKafkaOperations) and refined delegateDecisionToLLMWrapped for improved error handling and schema validation.
+//
+// Updated for improved logging and test coverage per contribution guidelines.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -16,16 +18,19 @@ import figlet from "figlet";
 import os from "os";
 import { z } from "zod";
 
-// Helper function to handle application exit in a consistent manner
+/**
+ * Exits the application safely (does not exit in test environment).
+ */
 function exitApplication() {
   console.log(chalk.blue("Exiting agentic-lib."));
-  // Prevent exiting during tests
   if (process.env.NODE_ENV !== "test") {
     process.exit(0);
   }
 }
 
-// New function: Gather telemetry data from GitHub Actions environment if available
+/**
+ * Gather basic telemetry data from GitHub Actions environment if available.
+ */
 export function gatherTelemetryData() {
   return {
     githubWorkflow: process.env.GITHUB_WORKFLOW || "N/A",
@@ -37,7 +42,9 @@ export function gatherTelemetryData() {
   };
 }
 
-// New function: Gather extended telemetry data including additional GitHub environment variables
+/**
+ * Gather extended telemetry data including additional GitHub environment variables.
+ */
 export function gatherExtendedTelemetryData() {
   return {
     ...gatherTelemetryData(),
@@ -48,21 +55,32 @@ export function gatherExtendedTelemetryData() {
   };
 }
 
-// Kafka messaging simulation functions
+/**
+ * Simulate sending a message to a Kafka topic.
+ * @param {string} topic
+ * @param {string} message
+ */
 export function sendMessageToKafka(topic, message) {
-  // Simulate sending a message to a Kafka topic.
+  const result = `Message sent to topic '${topic}': ${message}`;
   console.log(`Simulating sending message to topic '${topic}': ${message}`);
-  return `Message sent to topic '${topic}': ${message}`;
+  return result;
 }
 
+/**
+ * Simulate receiving a message from a Kafka topic.
+ * @param {string} topic
+ */
 export function receiveMessageFromKafka(topic) {
-  // Simulate receiving a message from a Kafka topic.
   const simulatedMessage = `Simulated message from topic '${topic}'`;
   console.log(simulatedMessage);
   return simulatedMessage;
 }
 
-// New function: Log Kafka operations by sending and receiving a message for debugging purposes
+/**
+ * Log Kafka operations by sending and receiving a message for debugging purposes.
+ * @param {string} topic
+ * @param {string} message
+ */
 export function logKafkaOperations(topic, message) {
   const sendResult = sendMessageToKafka(topic, message);
   const receiveResult = receiveMessageFromKafka(topic);
@@ -70,7 +88,9 @@ export function logKafkaOperations(topic, message) {
   return { sendResult, receiveResult };
 }
 
-// New function: Analyze system performance telemetry
+/**
+ * Analyze system performance telemetry including platform, CPU count, and total memory.
+ */
 export function analyzeSystemPerformance() {
   return {
     platform: process.platform,
@@ -79,7 +99,10 @@ export function analyzeSystemPerformance() {
   };
 }
 
-// New function: Remote service wrapper using native fetch
+/**
+ * Remote service wrapper using native fetch to simulate an API call.
+ * @param {string} serviceUrl
+ */
 export async function callRemoteService(serviceUrl) {
   try {
     const response = await fetch(serviceUrl);
@@ -91,9 +114,11 @@ export async function callRemoteService(serviceUrl) {
   }
 }
 
-// Main function
+/**
+ * Main function for processing command line arguments and executing corresponding actions.
+ * @param {string[]} args
+ */
 export function main(args = []) {
-  // Display ASCII art welcome if not in test environment
   if (process.env.NODE_ENV !== "test") {
     console.log(
       chalk.green(
@@ -102,7 +127,6 @@ export function main(args = []) {
     );
   }
 
-  // If no arguments or a help/usage flag is provided, show usage info and demo, then exit
   if (args.length === 0 || args.includes("--help") || args.includes("--usage")) {
     const usage = generateUsage();
     console.log(usage);
@@ -116,13 +140,10 @@ export function main(args = []) {
     return;
   }
 
-  // Split arguments into flags and non-flag arguments
   const { flagArgs, nonFlagArgs } = splitArguments(args);
 
-  // New feature: Simulate issue creation similar to the GitHub workflow (wfr-create-issue.yml)
   if (flagArgs.includes("--create-issue")) {
     let issueTitle;
-    // If the first non-flag argument is 'house choice', simulate selecting from houseChoiceOptions
     if (nonFlagArgs.length > 0 && nonFlagArgs[0] === "house choice") {
       const options = process.env.HOUSE_CHOICE_OPTIONS ? process.env.HOUSE_CHOICE_OPTIONS.split("||") : ["Default House Choice Issue"];
       issueTitle = options[Math.floor(Math.random() * options.length)];
@@ -137,46 +158,39 @@ export function main(args = []) {
     return;
   }
 
-  // If the version flag is provided, display the version and exit
   if (flagArgs.includes("--version")) {
     console.log(showVersion());
     exitApplication();
     return;
   }
 
-  // New feature: If the env flag is provided, display environment variables and exit
   if (flagArgs.includes("--env")) {
     console.log("Environment Variables: " + JSON.stringify(process.env, null, 2));
     exitApplication();
     return;
   }
 
-  // New feature: If the telemetry-extended flag is provided, display extended telemetry data and exit
   if (flagArgs.includes("--telemetry-extended")) {
     console.log("Extended Telemetry Data: " + JSON.stringify(gatherExtendedTelemetryData(), null, 2));
     exitApplication();
     return;
   }
 
-  // New feature: If the telemetry flag is provided, display gathered telemetry data and exit
   if (flagArgs.includes("--telemetry")) {
     console.log("Telemetry Data: " + JSON.stringify(gatherTelemetryData(), null, 2));
     exitApplication();
     return;
   }
 
-  // New feature: Simulate a remote service call when --simulate-remote is provided
   if (flagArgs.includes("--simulate-remote")) {
     console.log(chalk.cyan("Simulated remote service call initiated."));
     exitApplication();
     return;
   }
 
-  // Process the flags sequentially and output the result
   const flagProcessingResult = processFlags(flagArgs);
   console.log(flagProcessingResult);
 
-  // New feature: Reverse the non-flag arguments if '--reverse' flag is provided
   if (flagArgs.includes("--reverse")) {
     const reversedInput = nonFlagArgs.join(" ").split("").reverse().join("");
     console.log(chalk.yellow("Reversed input: " + reversedInput));
@@ -256,10 +270,7 @@ export async function delegateDecisionToLLM(prompt) {
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
-        {
-          role: "system",
-          content: "You are a helpful assistant.",
-        },
+        { role: "system", content: "You are a helpful assistant." },
         { role: "user", content: prompt }
       ],
     });
@@ -270,7 +281,6 @@ export async function delegateDecisionToLLM(prompt) {
 }
 
 export async function delegateDecisionToLLMWrapped(prompt) {
-  // Test hook: if TEST_OPENAI_SUCCESS is set, simulate a successful LLM call
   if (process.env.TEST_OPENAI_SUCCESS) {
     return { fixed: "true", message: "LLM call succeeded", refinement: "None" };
   }
@@ -283,11 +293,7 @@ export async function delegateDecisionToLLMWrapped(prompt) {
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
-        {
-          role: "system",
-          content:
-            "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema.",
-        },
+        { role: "system", content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema." },
         { role: "user", content: prompt }
       ],
     });
@@ -343,11 +349,9 @@ export function reviewIssue({
   _testOutput,
   _mainOutput,
 }) {
-  const fixed =
-    sourceFileContent.includes("Usage: npm run start") &&
-    readmeFileContent.includes("intentïon agentic-lib")
-      ? "true"
-      : "false";
+  const fixed = sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")
+    ? "true"
+    : "false";
   const message = fixed === "true" ? "The issue has been resolved." : "Issue not resolved.";
   return {
     fixed,

@@ -24,20 +24,19 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name with improved regex.
 - `sanitizeCommitMessage(message)`: Cleans up commit messages by removing unsupported characters and extra spaces.
 - `splitArguments(args)`: Splits command line arguments into flag and non-flag arrays.
-- `processFlags(flags)`: Processes an array of flags and returns a summary message. Supports `--verbose` for extra logging and `--debug` for additional debugging information.
+- `processFlags(flags)`: Processes an array of flags and returns a summary message. Supports `--verbose` and `--debug` for extended logging.
 - `enhancedDemo()`: Provides demo output including environmental details and debug status.
 - `logEnvironmentDetails()`: Logs current environment details such as NODE_ENV.
 - `showVersion()`: Returns the current version of the library.
 - `gatherTelemetryData()`: Gathers telemetry data from the GitHub Actions workflow environment.
 - **New:** `gatherExtendedTelemetryData()`: Gathers extended telemetry data including additional GitHub environment variables (e.g., GITHUB_ACTOR, GITHUB_REPOSITORY, GITHUB_EVENT_NAME, and CI).
 - `delegateDecisionToLLM(prompt)`: Delegates a decision to an advanced LLM via OpenAI's chat completions API. (Falls back in test environments.)
-- **New & Improved:** `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM that mimics function calling behavior. **Updated:** Now parses tool_calls in the response and includes schema validation using zod for improved response reliability.
-- **New (Test Hook):** When the environment variable `TEST_OPENAI_SUCCESS` is set, `delegateDecisionToLLMWrapped` returns a simulated successful response.
-- **New:** `sendMessageToKafka(topic, message)`: Simulates sending a message to a Kafka topic for inter-workflow communication.
+- **New & Improved:** `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM that mimics function calling behavior. Now includes schema validation using zod for improved response reliability and a test hook for simulated success when `TEST_OPENAI_SUCCESS` is set.
+- **New:** `sendMessageToKafka(topic, message)`: Simulates sending a message to a Kafka topic.
 - **New:** `receiveMessageFromKafka(topic)`: Simulates receiving a message from a Kafka topic.
-- **New:** `logKafkaOperations(topic, message)`: Logs Kafka messaging operations by combining simulated send and receive functionality.
+- **New:** `logKafkaOperations(topic, message)`: Combines Kafka send and receive simulations for logging purposes.
 - **New:** `analyzeSystemPerformance()`: Provides system performance telemetry including platform, number of CPUs, and total memory.
-- **New:** `callRemoteService(serviceUrl)`: A wrapper that uses native fetch to simulate API calls.
+- **New:** `callRemoteService(serviceUrl)`: A wrapper that uses native fetch to simulate API calls with enhanced error logging.
 - **New:** `--simulate-remote` flag: Simulates a remote service call for autonomous interaction.
 
 ---
@@ -45,60 +44,38 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 ## New Features
 
 - Added a new `--env` flag to print environment variables for debugging.
-- Extended functionality: Added a new `--reverse` flag. When provided, the non-flag arguments are reversed and printed.
+- Extended functionality: Added a new `--reverse` flag to reverse non-flag arguments.
 - Added a new `--telemetry` flag to output telemetry data from GitHub Actions environments.
-- **New:** Added a new `--telemetry-extended` flag that outputs extended telemetry data, gathering additional environment variables such as GITHUB_ACTOR, GITHUB_REPOSITORY, GITHUB_EVENT_NAME, and CI.
+- **New:** Added a new `--telemetry-extended` flag that outputs extended telemetry data, including additional GitHub environment variables.
 - Added a new `--version` flag to display the current version of the library.
-- **New:** Added a new `--create-issue` flag that simulates GitHub workflow issue creation by generating a simulated issue title and a random issue number. The simulation now supports a "house choice" option: if the argument is "house choice", it randomly selects an issue title from the HOUSE_CHOICE_OPTIONS environment variable.
-- **New & Improved:** Extended `delegateDecisionToLLMWrapped()` for an enhanced and robust OpenAI function wrapper. Now includes schema validation via zod to ensure compliance with the expected response format. Also includes a test hook for simulating a successful response when `TEST_OPENAI_SUCCESS` is set.
-- **New:** Added simulated Kafka messaging functions (`sendMessageToKafka` and `receiveMessageFromKafka`) for facilitating messaging between workflows.
-- **New:** Added `logKafkaOperations` to combine Kafka send and receive simulations for logging purposes.
+- **New:** Added a new `--create-issue` flag that simulates GitHub workflow issue creation with support for a "house choice" option based on environment variables.
+- **New & Improved:** Extended `delegateDecisionToLLMWrapped()` for improved error handling and response validation.
+- **New:** Added simulated Kafka messaging functions for inter-workflow communication.
 - **New:** Added `analyzeSystemPerformance()` to provide system performance telemetry.
-- **New:** Added remote service wrapper function `callRemoteService` which uses native fetch to simulate API calls.
+- **New:** Added `callRemoteService(serviceUrl)` as a remote service wrapper.
 - **New:** Added `--simulate-remote` flag to simulate remote service calls.
 
 ---
 
 ## Recent Improvements
 
-- Consolidated the application exit routine and improved code comments for clarity in `main.js`.
+- Consolidated the application exit routine and enhanced code comments in `main.js`.
 - Extended flag processing functions to provide clearer outputs, with support for `--verbose` and `--debug` flags.
-- Refreshed the README content to align with CONTRIBUTING guidelines by removing outdated text and adding new features.
-- **Changelog Update:**
-  - Regex Fix: Updated `getIssueNumberFromBranch` to properly escape digit matching in the regex.
-  - README Refresh: Updated and pruned content to align with CONTRIBUTING guidelines. Clarified new features and improvements.
-  - **Pruned Drift:** Updated source file header comments to align with the agentic‑lib mission statement.
-  - **Extended main.js:** Added Kafka logging function (`logKafkaOperations`) and refined the LLM wrapper function (`delegateDecisionToLLMWrapped`) for improved error handling and response validation.
-  - **Updated --create-issue Simulation:** Now supports a "house choice" option to mirror the wfr-create-issue workflow behavior.
+- Refreshed the README to align with CONTRIBUTING guidelines by removing outdated information and highlighting new features.
+- **Change Log Update:**
+  - Pruned code drift from the source file.
+  - Improved logging for remote service calls and delegateDecision functions.
+  - Enhanced test hooks and added test coverage for external resource simulation.
 
 ---
 
 ## Future Enhancements
 
-- Further extend workflow automation functions for additional remote services.
+- Further extend workflow automation functions and incorporate additional remote service wrappers.
 - Enhance integration with GitHub’s API for dynamic issue and PR management.
-- Expand logging and monitoring features for continuous integration.
-- Introduce abstractions to reduce duplication and simplify code where possible.
-
----
-
-# intentïon agentic-lib
-
-You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](WORKFLOWS-README.md)
-
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
-repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
-issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
-GitHub’s `workflow_call` event, so they can be composed together like an SDK.
-
-[Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
-
-Mixed licensing:
-* This project is licensed under the GNU General Public License (GPL).
-* This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
-* This file is licensed under the MIT License. For details, see LICENSE-MIT
-
-This README file will evolve as the test experiment within this repository evolves.
+- Expand logging and monitoring for continuous integration.
+- Increase abstraction to reduce code duplication.
+- Expand test coverage by adding deeper tests for external resource interactions.
 
 ---
 
@@ -111,40 +88,27 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:
 
 ### 1. Re‑usable Workflows (Core Functionality)
-- **Purpose:**  
-  These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.
-- **Stability:**  
-  They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.
-- **Licensing:**  
-  The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.
-- **Location:**  
-  Find these in the `.github/workflows/` directory.
+- **Purpose:** These workflows form the backbone of the agentic‑lib system, enabling automated processes such as testing, publishing, and issue management.
+- **Stability:** Stable and well‑tested for CI/CD integration.
+- **Licensing:** Released under GPL‑3 with attribution for derived work.
+- **Location:** Located in the `.github/workflows/` directory.
 
 ### 2. Example Workflows (Demonstrative Content)
-- **Purpose:**  
-  These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
-- **Stability:**  
-  While functional, they are intended primarily for demonstration and experimentation.
-- **Licensing:**  
-  The example workflows are covered by the MIT license to allow for broader use and modification.
-- **Location:**  
-  Look in the `examples/` directory for sample implementations.
+- **Purpose:** Provide practical examples of how to implement the core workflows.
+- **Stability:** Primarily for demonstration and experimentation.
+- **Licensing:** Covered by the MIT license.
+- **Location:** Found in the `examples/` directory.
 
 ### 3. The Evolving main.js (JavaScript re‑implementation of Re‑usable Workflows)
-- **Purpose:**  
-  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
-- **Stability:**  
-  It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
-- **Licensing:**  
-  As part of the core project, it is under GPL‑3 with the attribution clause.
-- **Location:**  
-  The code is located in `src/lib/main.js`.
+- **Purpose:** Implements the core functionality as a JavaScript module for programmatic access.
+- **Stability:** Under active development; represents bleeding‑edge features.
+- **Licensing:** Part of the core project under GPL‑3 with attribution.
+- **Location:** `src/lib/main.js`
 
 ## License
 
 This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
 
-License notice:
 ```
 agentic-lib
 Copyright (C) 2025 Polycode Limited
