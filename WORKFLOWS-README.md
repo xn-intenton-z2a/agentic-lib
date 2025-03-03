@@ -213,15 +213,18 @@ Re-usable GitHub Actions Workflows:
 - [x] repository0 init workflow which archives the 4 files (1 of 4): a generic README, package.json, src/lib/main.js, tests/unit/main.test.js, and initialises a CONTRIBUTING.md.
 - [x] apply fix should create a PR if it passes
 - [x] use a single branch pre-fix and check it to avoid conflicts
+- [ ] resolve-conflicts to check PRS for conflicts and resolve them.
+- [ ] review-issue to scan branches for issues and attempt to resolve (if originally unresolved) and raise a PR if resolved.
 - [ ] apply-fix to be able to apply a fix to the main branch.
-- [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
-- [ ] Publish a demo to GitHub sites
 - [ ] Add git log to the context for review issue, issue worker and apply fixes.
-- [ ] Consider: semantic-release for releasing versions.
-- [ ] Generate API.md based on the source file.
+- [ ] In issue worker, review issue to check state and recent changes before attempting to work on the issue.
+- [ ] In issue worker, check if the issue should be resolved before creating a PR and say why on th PR and in the issue.
+- [ ] Issue worker, to work a branch (instead of failing) if the branch is open but there is no PR, working may be resolving the issue or fixing the branch first.
 - [ ] Update CHANGELOG.md when a publishing a release version of the changes since the last release.
 - [ ] Duplicate the test when publishing a release version with a version numbered test file.
-- [ ] Dashboard metrics (e.g. GitHub Insights? commits by agents)
+- [ ] Generate API.md based on the source file.
+- [ ] Consider: semantic-release for releasing versions.
+- [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
 
 Marketplace GitHub Actions:
 - [ ] Consolidate reusable workflows jobs into a single GitHub Action GitHub Script step.
@@ -234,6 +237,8 @@ Supervisor:
 - [ ] Publish GitHub telemetry data to Kafka.
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix).
 - [ ] Reduce schedule and workflow completed triggers (instead leaving the supervisor to invoke workflows).
+- [ ] Dashboard metrics (e.g. GitHub Insights? commits by agents)
+- [ ] Publish a demo to GitHub sites that animates issue workflow, git logs applying changes to files and raising PRs with live links to the repository and a draggable timeline.
 
 ---
 
