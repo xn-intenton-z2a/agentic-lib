@@ -31,7 +31,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - `gatherTelemetryData()`: Gathers telemetry data from the GitHub Actions workflow environment.
 - **New:** `gatherExtendedTelemetryData()`: Gathers extended telemetry data including additional GitHub environment variables (e.g., GITHUB_ACTOR, GITHUB_REPOSITORY, GITHUB_EVENT_NAME, and CI).
 - `delegateDecisionToLLM(prompt)`: Delegates a decision to an advanced LLM via OpenAI's chat completions API. (Falls back in test environments.)
-- `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM that mimics function calling behavior. **Updated:** Now supports parsing of tool_calls in the response for improved compliance with OpenAI function calling format.
+- **New & Improved:** `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM that mimics function calling behavior. **Updated:** Now parses tool_calls in the response and includes schema validation using zod for improved response reliability.
 - **New:** `sendMessageToKafka(topic, message)`: Simulates sending a message to a Kafka topic for inter-workflow communication.
 - **New:** `receiveMessageFromKafka(topic)`: Simulates receiving a message from a Kafka topic.
 - **New:** `logKafkaOperations(topic, message)`: Logs Kafka messaging operations by combining simulated send and receive functionality.
@@ -48,7 +48,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** Added a new `--telemetry-extended` flag that outputs extended telemetry data, gathering additional environment variables such as GITHUB_ACTOR, GITHUB_REPOSITORY, GITHUB_EVENT_NAME, and CI.
 - Added a new `--version` flag to display the current version of the library.
 - **New:** Added a new `--create-issue` flag that simulates GitHub workflow issue creation by generating a simulated issue title and a random issue number.
-- **New:** Added `delegateDecisionToLLMWrapped()` for an enhanced and robust OpenAI function wrapper. (Extended to parse tool_calls when available.)
+- **New & Improved:** Extended `delegateDecisionToLLMWrapped()` for an enhanced and robust OpenAI function wrapper. Now includes schema validation via zod to ensure compliance with the expected response format.
 - **New:** Added simulated Kafka messaging functions (`sendMessageToKafka` and `receiveMessageFromKafka`) for facilitating messaging between workflows.
 - **New:** Added `logKafkaOperations` to combine Kafka send and receive simulations for logging purposes.
 - **New:** Added `analyzeSystemPerformance()` to provide system performance telemetry.
@@ -65,7 +65,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
   - Regex Fix: Updated `getIssueNumberFromBranch` to properly escape digit matching in the regex.
   - README Refresh: Updated and pruned content to align with CONTRIBUTING guidelines. Clarified new features and improvements.
   - **Pruned Drift:** Updated source file header comments to align with the agentic‑lib mission statement.
-  - **Extended delegateDecisionToLLMWrapped:** Now parses tool_calls in the response for better simulation of OpenAI function calling behavior.
+  - **Extended delegateDecisionToLLMWrapped:** Now parses tool_calls in the response for better simulation of OpenAI function calling behavior and includes schema validation using zod.
   - **Added Kafka messaging simulation functions** for simulating communication between workflows.
   - **Added logKafkaOperations:** New function to log Kafka operations based on simulated send and receive functionality.
   - **Added analyzeSystemPerformance:** New function to provide system performance telemetry.

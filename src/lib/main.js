@@ -5,11 +5,13 @@
 // - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote.
 // - Added Kafka logging functions and a new function analyzeSystemPerformance for system performance telemetry.
 // - Enhanced delegated decision functions for improved parsing support.
+// - Extended delegateDecisionToLLMWrapped with zod schema validation for improved response validation from OpenAI.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
 import figlet from "figlet";
 import os from "os";
+import { z } from "zod";
 
 // Helper function to handle application exit in a consistent manner
 function exitApplication() {
@@ -170,7 +172,7 @@ export function generateUsage() {
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
-  const regex = new RegExp(prefix + "(\\d+)");
+  const regex = new RegExp(prefix + "(\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -264,18 +266,24 @@ export async function delegateDecisionToLLMWrapped(prompt) {
       ],
     });
 
+    const ResponseSchema = z.object({
+      fixed: z.string(),
+      message: z.string(),
+      refinement: z.string(),
+    });
+
     let result;
-    const message = response.data.choices[0].message;
-    if (message) {
-      if (message.tool_calls && message.tool_calls.length > 0) {
+    const messageObj = response.data.choices[0].message;
+    if (messageObj) {
+      if (messageObj.tool_calls && messageObj.tool_calls.length > 0) {
         try {
-          result = JSON.parse(message.tool_calls[0].function.arguments);
+          result = JSON.parse(messageObj.tool_calls[0].function.arguments);
         } catch {
           result = { fixed: "false", message: "Failed to parse tool_calls arguments.", refinement: "None" };
         }
-      } else if (message.content) {
+      } else if (messageObj.content) {
         try {
-          result = JSON.parse(message.content);
+          result = JSON.parse(messageObj.content);
         } catch {
           result = { fixed: "false", message: "Failed to parse response content.", refinement: "None" };
         }
@@ -285,7 +293,12 @@ export async function delegateDecisionToLLMWrapped(prompt) {
     } else {
       result = { fixed: "false", message: "No valid response received.", refinement: "None" };
     }
-    return result;
+
+    const parsed = ResponseSchema.safeParse(result);
+    if (!parsed.success) {
+      return { fixed: "false", message: "LLM response schema validation failed.", refinement: "None" };
+    }
+    return parsed.data;
   } catch {
     return { fixed: "false", message: "LLM decision could not be retrieved.", refinement: "None" };
   }
