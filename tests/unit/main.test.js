@@ -18,6 +18,7 @@ import {
   logKafkaOperations,
   analyzeSystemPerformance,
   callRemoteService,
+  parseSarifOutput,
   main,
   generateUsage
 } from "../../src/lib/main.js";
@@ -355,5 +356,34 @@ describe("Utility Functions", () => {
 
   test("generateUsage returns proper usage string", () => {
     expect(generateUsage()).toContain("Usage: npm run start");
+  });
+
+  describe("parseSarifOutput Function", () => {
+    test("returns correct total issues for valid SARIF JSON", () => {
+      const sarifSample = JSON.stringify({
+        runs: [
+          { results: [{}, {}] },
+          { results: [{}] }
+        ]
+      });
+      const result = parseSarifOutput(sarifSample);
+      expect(result.totalIssues).toBe(3);
+    });
+
+    test("returns error property for invalid SARIF JSON", () => {
+      const result = parseSarifOutput("invalid json");
+      expect(result.error).toBeDefined();
+    });
+  });
+
+  test("main with --sarif flag processes SARIF JSON", () => {
+    process.env.NODE_ENV = "test";
+    const sarifJSON = JSON.stringify({ runs: [{ results: [{}, {}] }] });
+    const output = captureOutput(() => {
+      try {
+        main(["--sarif", sarifJSON]);
+      } catch (e) {}
+    });
+    expect(output).toContain("SARIF Report: Total issues: 2");
   });
 });
