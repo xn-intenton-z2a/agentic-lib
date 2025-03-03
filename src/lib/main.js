@@ -1,11 +1,7 @@
 #!/usr/bin/env node
 // src/lib/main.js - Implementation aligned with the agentic‑lib mission statement.
-// This module serves as a JavaScript implementation for reusable GitHub Actions workflows.
-// It provides core features such as telemetry gathering, Kafka messaging simulation,
-// enhanced command-line flag processing, and integration with OpenAI's chat completions API
-// for autonomous decision-making.
 // Change Log: Pruned drift and aligned with the mission statement. Extended functionality with flags:
-// --env, --reverse, --telemetry, --version, --create-issue; enhanced delegateDecisionToLLMWrapped for simulated function calling behavior.
+// --env, --reverse, --telemetry, --version, --create-issue, and --simulate-remote for simulating remote service calls.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -35,14 +31,12 @@ export function gatherTelemetryData() {
 // Kafka messaging simulation functions
 export function sendMessageToKafka(topic, message) {
   // Simulate sending a message to a Kafka topic.
-  // In a real implementation, you might use a library like kafkajs to connect to Kafka brokers.
   console.log(`Simulating sending message to topic '${topic}': ${message}`);
   return `Message sent to topic '${topic}': ${message}`;
 }
 
 export function receiveMessageFromKafka(topic) {
   // Simulate receiving a message from a Kafka topic.
-  // In a real implementation, proper consumer logic would be applied.
   const simulatedMessage = `Simulated message from topic '${topic}'`;
   console.log(simulatedMessage);
   return simulatedMessage;
@@ -104,13 +98,19 @@ export function main(args = []) {
     return;
   }
 
+  // New feature: Simulate a remote service call when --simulate-remote is provided
+  if (flagArgs.includes("--simulate-remote")) {
+    console.log(chalk.cyan("Simulated remote service call initiated."));
+    exitApplication();
+    return;
+  }
+
   // Process the flags sequentially and output the result
   const flagProcessingResult = processFlags(flagArgs);
   console.log(flagProcessingResult);
 
   // New feature: Reverse the non-flag arguments if '--reverse' flag is provided
   if (flagArgs.includes("--reverse")) {
-    // Join non-flag args into a single string, then reverse the entire string
     const reversedInput = nonFlagArgs.join(" ").split("").reverse().join("");
     console.log(chalk.yellow("Reversed input: " + reversedInput));
   }
@@ -123,25 +123,22 @@ export function main(args = []) {
 }
 
 export function generateUsage() {
-  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--reverse] [--create-issue] [args...]";
+  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--reverse] [--create-issue] [--simulate-remote] [args...]";
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
-  // Regex captures one or more digits following the prefix
   const regex = new RegExp(prefix + "(\\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
 
 export function sanitizeCommitMessage(message = "") {
-  // Remove special characters except allowed ones and trim extra spaces
   return message
     .replace(/[^A-Za-z0-9 \-_.~]/g, "")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-// Splits command line arguments into flag and non-flag arrays
 export function splitArguments(args = []) {
   const flagArgs = [];
   const nonFlagArgs = [];
@@ -155,40 +152,33 @@ export function splitArguments(args = []) {
   return { flagArgs, nonFlagArgs };
 }
 
-// Processes an array of flags and returns a summary message
 export function processFlags(flags = []) {
   if (flags.length === 0) return "No flags to process.";
   let result = `Processed flags: ${flags.join(", ")}`;
-  // Extended functionality: append verbose mode activation message if --verbose flag is present
   if (flags.includes("--verbose")) {
     result += " | Verbose mode enabled.";
   }
-  // New enhancement: add support for debug mode
   if (flags.includes("--debug")) {
     result += " | Debug mode enabled.";
   }
   return result;
 }
 
-// Provides an enhanced demo output including environmental details
 export function enhancedDemo() {
   const envDetails = logEnvironmentDetails();
   const debugStatus = process.env.DEBUG_MODE ? `DEBUG_MODE: ${process.env.DEBUG_MODE}` : "DEBUG_MODE: off";
   return `Enhanced Demo: Agentic-lib now supports additional argument processing.\n${envDetails}\n${debugStatus}`;
 }
 
-// Logs current environment details
 export function logEnvironmentDetails() {
   return `NODE_ENV: ${process.env.NODE_ENV || "undefined"}`;
 }
 
-// Returns the current version of the library
 export function showVersion() {
   const version = process.env.npm_package_version || "unknown";
   return `Version: ${version}`;
 }
 
-// New function: Delegate a decision to an advanced LLM using OpenAI chat completions API
 export async function delegateDecisionToLLM(prompt) {
   try {
     const { Configuration, OpenAIApi } = await import("openai");
@@ -209,7 +199,6 @@ export async function delegateDecisionToLLM(prompt) {
   }
 }
 
-// New function: A wrapped version of the OpenAI delegation function that mimics function calling behavior
 export async function delegateDecisionToLLMWrapped(prompt) {
   try {
     const { Configuration, OpenAIApi } = await import("openai");
@@ -217,34 +206,12 @@ export async function delegateDecisionToLLMWrapped(prompt) {
       apiKey: process.env.OPENAI_API_KEY || ""
     });
     const openai = new OpenAIApi(configuration);
-    
-    // Simulate tools usage as in the example
-    const tools = [{
-      type: "function",
-      function: {
-        name: "review_issue",
-        description: "Evaluate whether the supplied source file content resolves the issue. Return an object with fixed (string: 'true' or 'false'), message (explanation), and refinement (suggested refinement).",
-        parameters: {
-          type: "object",
-          properties: {
-            fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
-            message: { type: "string", description: "A message explaining the result" },
-            refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
-          },
-          required: ["fixed", "message", "refinement"],
-          additionalProperties: false
-        },
-        strict: true
-      }
-    }];
-
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
         { role: "system", content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema." },
         { role: "user", content: prompt }
       ]
-      // Note: The actual 'tools' argument is not supported; this is a simulated behavior for demonstration purposes.
     });
 
     let result;
