@@ -29,6 +29,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - `logEnvironmentDetails()`: Logs current environment details such as NODE_ENV.
 - `showVersion()`: Returns the current version of the library.
 - `gatherTelemetryData()`: Gathers telemetry data from the GitHub Actions workflow environment.
+- **New:** `gatherExtendedTelemetryData()`: Gathers extended telemetry data including additional GitHub environment variables (e.g., GITHUB_ACTOR, GITHUB_REPOSITORY, GITHUB_EVENT_NAME, and CI).
 - `delegateDecisionToLLM(prompt)`: Delegates a decision to an advanced LLM via OpenAI's chat completions API. (Falls back in test environments.)
 - `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM that mimics function calling behavior. **Updated:** Now supports parsing of tool_calls in the response for improved compliance with OpenAI function calling format.
 - **New:** `sendMessageToKafka(topic, message)`: Simulates sending a message to a Kafka topic for inter-workflow communication.
@@ -43,6 +44,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - Added a new `--env` flag to print environment variables for debugging.
 - Extended functionality: Added a new `--reverse` flag. When provided, the non-flag arguments are reversed and printed.
 - Added a new `--telemetry` flag to output telemetry data from GitHub Actions environments.
+- **New:** Added a new `--telemetry-extended` flag that outputs extended telemetry data, gathering additional environment variables such as GITHUB_ACTOR, GITHUB_REPOSITORY, GITHUB_EVENT_NAME, and CI.
 - Added a new `--version` flag to display the current version of the library.
 - **New:** Added a new `--create-issue` flag that simulates GitHub workflow issue creation by generating a simulated issue title and a random issue number.
 - **New:** Added `delegateDecisionToLLMWrapped()` for an enhanced and robust OpenAI function wrapper. (Extended to parse tool_calls when available.)
@@ -56,7 +58,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 
 - Consolidated the application exit routine and improved code comments for clarity in `main.js`.
 - Extended flag processing functions to provide clearer outputs, with support for `--verbose` and `--debug` flags.
-- Refreshed the README content to align with the CONTRIBUTING guidelines by removing outdated text and adding new features.
+- Refreshed the README content to align with CONTRIBUTING guidelines by removing outdated text and adding new features.
 - **Changelog Update:**
   - Regex Fix: Updated `getIssueNumberFromBranch` to properly escape digit matching in the regex.
   - README Refresh: Updated and pruned content to align with CONTRIBUTING guidelines. Clarified new features and improvements.
@@ -65,7 +67,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
   - **Added Kafka messaging simulation functions** for simulating communication between workflows.
   - **Added logKafkaOperations:** New function to log Kafka operations based on simulated send and receive functionality.
   - **Added --simulate-remote flag:** to simulate remote service calls.
-  - **Fixed linting and formatting issues in the source code.**
+  - **Extended Telemetry:** Added `gatherExtendedTelemetryData()` and `--telemetry-extended` flag to provide more detailed telemetry insights.
 
 ---
 
