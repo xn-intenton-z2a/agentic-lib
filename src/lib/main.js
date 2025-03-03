@@ -4,9 +4,10 @@
 // - Pruned drift and aligned with the mission statement.
 // - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote.
 // - Added Kafka logging functions and a new function analyzeSystemPerformance for system performance telemetry.
-// - Enhanced delegated decision functions for improved parsing support with zod schema validation in delegateDecisionToLLMWrapped.
+// - Improved delegated decision functions for improved parsing support with zod schema validation in delegateDecisionToLLMWrapped.
 // - Added remote service wrapper function callRemoteService using native fetch to simulate remote API calls.
 // - Improved test coverage by adding a test hook in delegateDecisionToLLMWrapped for simulating a successful OpenAI call.
+// - Extended main.js with new Kafka logging function (logKafkaOperations) and refined delegateDecisionToLLMWrapped for improved error handling and schema validation.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";

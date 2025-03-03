@@ -37,7 +37,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** `receiveMessageFromKafka(topic)`: Simulates receiving a message from a Kafka topic.
 - **New:** `logKafkaOperations(topic, message)`: Logs Kafka messaging operations by combining simulated send and receive functionality.
 - **New:** `analyzeSystemPerformance()`: Provides system performance telemetry including platform, number of CPUs, and total memory.
-- **New:** `callRemoteService(serviceUrl)`: A wrapper that uses native fetch to simulate remote service calls.
+- **New:** `callRemoteService(serviceUrl)`: A wrapper that uses native fetch to simulate API calls.
 - **New:** `--simulate-remote` flag: Simulates a remote service call for autonomous interaction.
 
 ---
@@ -68,12 +68,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
   - Regex Fix: Updated `getIssueNumberFromBranch` to properly escape digit matching in the regex.
   - README Refresh: Updated and pruned content to align with CONTRIBUTING guidelines. Clarified new features and improvements.
   - **Pruned Drift:** Updated source file header comments to align with the agentic‑lib mission statement.
-  - **Extended delegateDecisionToLLMWrapped:** Now parses tool_calls in the response for better simulation of OpenAI function calling behavior and includes schema validation using zod.
-  - **Added Kafka messaging simulation functions** for simulating communication between workflows.
-  - **Added logKafkaOperations:** New function to log Kafka operations based on simulated send and receive functionality.
-  - **Added analyzeSystemPerformance:** New function to provide system performance telemetry.
-  - **Added callRemoteService:** New remote service wrapper using native fetch to simulate API calls.
-  - **Improved Test Coverage:** Added a test hook in `delegateDecisionToLLMWrapped` and additional unit tests to simulate external resource calls.
+  - **Extended main.js:** Added Kafka logging function (`logKafkaOperations`) and refined the LLM wrapper function (`delegateDecisionToLLMWrapped`) for improved error handling and response validation.
 
 ---
 
