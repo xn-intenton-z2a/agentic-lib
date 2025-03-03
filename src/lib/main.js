@@ -4,7 +4,7 @@
 // This update improves consistency between source and test files, extends functionality with new flags (--reverse, --env, --telemetry, --version, --create-issue), adds a new function to delegate decisions to an advanced LLM using OpenAI's chat completions API, refines log messages, and ensures proper exit behavior in both production and test environments.
 // Additionally, a new wrapper function (delegateDecisionToLLMWrapped) has been implemented to mimic an enhanced OpenAI function using a function calling style as per contributor guidelines.
 // New Kafka messaging simulation functions have been added to simulate inter-workflow communication via Kafka-like behavior.
-// Ref: Updated documentation examples to correctly reflect supported flags and behaviors.
+// Changelog Update: Extended delegateDecisionToLLMWrapped to support parsing of tool_calls in the response, aligning with the supplied OpenAI function example.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -247,11 +247,22 @@ export async function delegateDecisionToLLMWrapped(prompt) {
     });
 
     let result;
-    if (response.data.choices[0].message && response.data.choices[0].message.content) {
-      try {
-        result = JSON.parse(response.data.choices[0].message.content);
-      } catch (e) {
-        result = { fixed: "false", message: "Failed to parse response content.", refinement: "None" };
+    const message = response.data.choices[0].message;
+    if (message) {
+      if (message.tool_calls && message.tool_calls.length > 0) {
+        try {
+          result = JSON.parse(message.tool_calls[0].function.arguments);
+        } catch (e) {
+          result = { fixed: "false", message: "Failed to parse tool_calls arguments.", refinement: "None" };
+        }
+      } else if (message.content) {
+        try {
+          result = JSON.parse(message.content);
+        } catch (e) {
+          result = { fixed: "false", message: "Failed to parse response content.", refinement: "None" };
+        }
+      } else {
+        result = { fixed: "false", message: "No valid response received.", refinement: "None" };
       }
     } else {
       result = { fixed: "false", message: "No valid response received.", refinement: "None" };
