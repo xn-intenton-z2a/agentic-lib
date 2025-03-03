@@ -14,7 +14,7 @@ import {
   sendMessageToKafka,
   receiveMessageFromKafka,
   logKafkaOperations,
-  main
+  main,
 } from "../../src/lib/main.js";
 
 // Helper function to capture console output
@@ -26,14 +26,18 @@ function captureOutput(callback) {
   };
   try {
     callback();
-  } catch (e) {}
+  } catch {
+    // ignore error for testing
+  }
   console.log = originalLog;
   return output;
 }
 
 // Prevent process.exit from terminating tests
 beforeAll(() => {
-  vi.spyOn(process, 'exit').mockImplementation((code) => { throw new Error(`process.exit: ${code}`); });
+  vi.spyOn(process, "exit").mockImplementation((code) => {
+    throw new Error(`process.exit: ${code}`);
+  });
 });
 
 afterAll(() => {
@@ -60,7 +64,7 @@ describe("reviewIssue", () => {
       dependenciesListOutput: "npm list output",
       buildOutput: "build output",
       testOutput: "test output",
-      mainOutput: "test output"
+      mainOutput: "test output",
     };
     const result = reviewIssue(params);
     expect(result.fixed).toBe("true");
@@ -80,7 +84,7 @@ describe("reviewIssue", () => {
       dependenciesListOutput: "list output",
       buildOutput: "build output",
       testOutput: "test output",
-      mainOutput: "test output"
+      mainOutput: "test output",
     };
     const result = reviewIssue(params);
     expect(result.fixed).toBe("false");
@@ -163,7 +167,11 @@ describe("Utility Functions", () => {
   test("main with --env flag prints environment variables", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
-      try { main(["--env"]); } catch (e) {}
+      try {
+        main(["--env"]);
+      } catch {
+        // ignore error
+      }
     });
     expect(output).toContain("Environment Variables:");
   });
@@ -171,7 +179,11 @@ describe("Utility Functions", () => {
   test("main with --help flag prints usage and demo output", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
-      try { main(["--help"]); } catch (e) {}
+      try {
+        main(["--help"]);
+      } catch {
+        // ignore error
+      }
     });
     expect(output).toContain("Usage: npm run start");
     expect(output).toContain("Demo: Demonstration of agentic-lib functionality:");
@@ -180,7 +192,11 @@ describe("Utility Functions", () => {
   test("main with --reverse flag prints reversed input", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
-      try { main(["--reverse", "hello", "world"]); } catch (e) {}
+      try {
+        main(["--reverse", "hello", "world"]);
+      } catch {
+        // ignore error
+      }
     });
     expect(output).toContain("Reversed input: dlrow olleh");
   });
@@ -189,7 +205,11 @@ describe("Utility Functions", () => {
     process.env.NODE_ENV = "test";
     process.env.GITHUB_WORKFLOW = "CI Test Workflow";
     const output = captureOutput(() => {
-      try { main(["--telemetry"]); } catch (e) {}
+      try {
+        main(["--telemetry"]);
+      } catch {
+        // ignore error
+      }
     });
     expect(output).toContain("Telemetry Data:");
     expect(output).toContain("CI Test Workflow");
@@ -198,7 +218,11 @@ describe("Utility Functions", () => {
   test("main with --version flag prints version", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
-      try { main(["--version"]); } catch (e) {}
+      try {
+        main(["--version"]);
+      } catch {
+        // ignore error
+      }
     });
     expect(output).toMatch(/^Version:/);
   });
@@ -206,7 +230,11 @@ describe("Utility Functions", () => {
   test("main with --create-issue flag simulates issue creation", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
-      try { main(["--create-issue", "Test Issue"]); } catch (e) {}
+      try {
+        main(["--create-issue", "Test Issue"]);
+      } catch {
+        // ignore error
+      }
     });
     expect(output).toContain("Simulated Issue Created:");
     expect(output).toContain("Title: Test Issue");
@@ -217,7 +245,11 @@ describe("Utility Functions", () => {
   test("main with --simulate-remote flag prints simulated remote service call", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
-      try { main(["--simulate-remote"]); } catch (e) {}
+      try {
+        main(["--simulate-remote"]);
+      } catch {
+        // ignore error
+      }
     });
     expect(output).toContain("Simulated remote service call initiated.");
   });
