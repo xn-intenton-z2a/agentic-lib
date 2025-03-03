@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 // src/lib/main.js - Implementation aligned with the agentic‑lib mission statement.
-// Change Log: Pruned drift and aligned with the mission statement. Extended functionality with flags:
-// --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, and added Kafka logging function: logKafkaOperations.
+// Change Log:
+// - Pruned drift and aligned with the mission statement.
+// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote.
+// - Added Kafka logging functions and a new function analyzeSystemPerformance for system performance telemetry.
+// - Enhanced delegated decision functions for improved parsing support.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
 import figlet from "figlet";
+import os from "os";
 
 // Helper function to handle application exit in a consistent manner
 function exitApplication() {
@@ -59,6 +63,15 @@ export function logKafkaOperations(topic, message) {
   const receiveResult = receiveMessageFromKafka(topic);
   console.log(chalk.blue("Kafka Operations:"), sendResult, receiveResult);
   return { sendResult, receiveResult };
+}
+
+// New function: Analyze system performance telemetry
+export function analyzeSystemPerformance() {
+  return {
+    platform: process.platform,
+    cpus: os.cpus().length,
+    totalMemory: os.totalmem(),
+  };
 }
 
 // Main function

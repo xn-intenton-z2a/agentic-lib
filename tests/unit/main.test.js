@@ -15,6 +15,7 @@ import {
   sendMessageToKafka,
   receiveMessageFromKafka,
   logKafkaOperations,
+  analyzeSystemPerformance,
   main,
 } from "../../src/lib/main.js";
 
@@ -183,6 +184,13 @@ describe("Utility Functions", () => {
     expect(extendedTelemetry.githubRepository).toBe("repo/test");
     expect(extendedTelemetry.githubEventName).toBe("push");
     expect(extendedTelemetry.ci).toBe("true");
+  });
+
+  test("analyzeSystemPerformance returns system details", () => {
+    const details = analyzeSystemPerformance();
+    expect(details).toHaveProperty("platform");
+    expect(details).toHaveProperty("cpus");
+    expect(typeof details.cpus).toBe("number");
   });
 
   test("main with --env flag prints environment variables", () => {
