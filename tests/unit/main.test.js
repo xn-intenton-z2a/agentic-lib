@@ -10,6 +10,7 @@ import {
   sanitizeCommitMessage,
   gatherTelemetryData,
   gatherExtendedTelemetryData,
+  gatherFullTelemetryData,
   delegateDecisionToLLM,
   delegateDecisionToLLMWrapped,
   sendMessageToKafka,
@@ -186,6 +187,29 @@ describe("Utility Functions", () => {
     expect(extendedTelemetry.githubRepository).toBe("repo/test");
     expect(extendedTelemetry.githubEventName).toBe("push");
     expect(extendedTelemetry.ci).toBe("true");
+  });
+
+  test("gatherFullTelemetryData returns full telemetry including additional keys", () => {
+    process.env.GITHUB_REF = "refs/heads/main";
+    process.env.GITHUB_SHA = "abc123";
+    process.env.GITHUB_HEAD_REF = "feature-branch";
+    process.env.GITHUB_BASE_REF = "main";
+    process.env.GITHUB_WORKFLOW = "CI Workflow";
+    process.env.GITHUB_RUN_ID = "12345";
+    process.env.GITHUB_RUN_NUMBER = "67";
+    process.env.GITHUB_JOB = "build";
+    process.env.GITHUB_ACTION = "run";
+    process.env.GITHUB_ACTOR = "tester";
+    process.env.GITHUB_REPOSITORY = "repo/test";
+    process.env.GITHUB_EVENT_NAME = "push";
+    process.env.CI = "true";
+    process.env.NODE_ENV = "test";
+
+    const fullTelemetry = gatherFullTelemetryData();
+    expect(fullTelemetry.githubRef).toBe("refs/heads/main");
+    expect(fullTelemetry.githubSha).toBe("abc123");
+    expect(fullTelemetry.githubHeadRef).toBe("feature-branch");
+    expect(fullTelemetry.githubBaseRef).toBe("main");
   });
 
   test("analyzeSystemPerformance returns system details", () => {

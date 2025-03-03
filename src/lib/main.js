@@ -9,8 +9,9 @@
 // - Updated --create-issue simulation to mimic the behavior of the wfr-create-issue workflow, including support for a 'house choice' option via HOUSE_CHOICE_OPTIONS environment variable.
 // - Improved test coverage by adding a test hook in delegateDecisionToLLMWrapped for simulating a successful OpenAI call.
 // - Extended main.js with new Kafka logging function (logKafkaOperations) and refined delegateDecisionToLLMWrapped for improved error handling and schema validation.
+// - Added new function gatherFullTelemetryData to collect additional GitHub Actions telemetry data.
 //
-// Updated for improved logging and test coverage per contribution guidelines.
+// Updated for improved logging, telemetry enhancements, and test coverage per contribution guidelines.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -52,6 +53,19 @@ export function gatherExtendedTelemetryData() {
     githubRepository: process.env.GITHUB_REPOSITORY || "N/A",
     githubEventName: process.env.GITHUB_EVENT_NAME || "N/A",
     ci: process.env.CI || "N/A",
+  };
+}
+
+/**
+ * Gather full telemetry data including additional GitHub environment variables such as refs and shas.
+ */
+export function gatherFullTelemetryData() {
+  return {
+    ...gatherExtendedTelemetryData(),
+    githubRef: process.env.GITHUB_REF || "N/A",
+    githubSha: process.env.GITHUB_SHA || "N/A",
+    githubHeadRef: process.env.GITHUB_HEAD_REF || "N/A",
+    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A",
   };
 }
 

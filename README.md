@@ -27,6 +27,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - `showVersion()`: Returns the current version of the library.
 - `gatherTelemetryData()`: Gathers telemetry data from the GitHub Actions workflow environment.
 - **New:** `gatherExtendedTelemetryData()`: Gathers extended telemetry data including additional GitHub environment variables (e.g., GITHUB_ACTOR, GITHUB_REPOSITORY, GITHUB_EVENT_NAME, and CI).
+- **New:** `gatherFullTelemetryData()`: Gathers full telemetry data including additional GitHub environment variables such as GITHUB_REF, GITHUB_SHA, GITHUB_HEAD_REF, and GITHUB_BASE_REF.
 - `delegateDecisionToLLM(prompt)`: Delegates a decision to an advanced LLM via OpenAI's chat completions API. (Falls back in test environments.)
 - **New & Improved:** `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM that mimics function calling behavior, with schema validation using zod.
 - **New:** `sendMessageToKafka(topic, message)`: Simulates sending a message to a Kafka topic.
@@ -34,7 +35,6 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** `logKafkaOperations(topic, message)`: Combines Kafka send and receive simulations for logging purposes.
 - **New:** `analyzeSystemPerformance()`: Provides system performance telemetry including platform, number of CPUs, and total memory.
 - **New:** `callRemoteService(serviceUrl)`: A wrapper that uses native fetch to simulate API calls with enhanced error logging.
-- **New:** `--simulate-remote` flag: Simulates a remote service call for autonomous interaction.
 
 ---
 
@@ -44,7 +44,6 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - Extended functionality with a new `--reverse` flag to reverse non-flag arguments.
 - Added a new `--telemetry` flag to output telemetry data from GitHub Actions environments.
 - **New:** Added a new `--telemetry-extended` flag that outputs extended telemetry data, including additional GitHub environment variables.
-- Added a new `--version` flag to display the current version of the library.
 - **New:** Added a new `--create-issue` flag that simulates GitHub workflow issue creation with support for a "house choice" option based on environment variables.
 - **New & Improved:** Extended `delegateDecisionToLLMWrapped()` for improved error handling and response validation.
 - **New:** Added simulated Kafka messaging functions for inter-workflow communication.
@@ -58,6 +57,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 
 - Consolidated the application exit routine and enhanced code comments in `main.js`.
 - Extended flag processing functions to provide clearer outputs, with support for `--verbose` and `--debug` flags.
+- **New:** Added `gatherFullTelemetryData()` for complete GitHub Actions telemetry, including additional environment variables such as GITHUB_REF and GITHUB_SHA.
 - Refreshed the README to align with the latest CONTRIBUTING guidelines by removing outdated information and highlighting new features.
 
 ---
