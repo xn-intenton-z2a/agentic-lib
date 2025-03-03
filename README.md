@@ -36,6 +36,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** `receiveMessageFromKafka(topic)`: Simulates receiving a message from a Kafka topic.
 - **New:** `logKafkaOperations(topic, message)`: Logs Kafka messaging operations by combining simulated send and receive functionality.
 - **New:** `analyzeSystemPerformance()`: Provides system performance telemetry including platform, number of CPUs, and total memory.
+- **New:** `callRemoteService(serviceUrl)`: A wrapper that uses native fetch to simulate remote service calls.
 - **New:** `--simulate-remote` flag: Simulates a remote service call for autonomous interaction.
 
 ---
@@ -52,6 +53,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** Added simulated Kafka messaging functions (`sendMessageToKafka` and `receiveMessageFromKafka`) for facilitating messaging between workflows.
 - **New:** Added `logKafkaOperations` to combine Kafka send and receive simulations for logging purposes.
 - **New:** Added `analyzeSystemPerformance()` to provide system performance telemetry.
+- **New:** Added remote service wrapper function `callRemoteService` which uses native fetch to simulate API calls.
 - **New:** Added `--simulate-remote` flag to simulate remote service calls.
 
 ---
@@ -69,6 +71,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
   - **Added Kafka messaging simulation functions** for simulating communication between workflows.
   - **Added logKafkaOperations:** New function to log Kafka operations based on simulated send and receive functionality.
   - **Added analyzeSystemPerformance:** New function to provide system performance telemetry.
+  - **Added callRemoteService:** New remote service wrapper using native fetch to simulate API calls.
   - **Added --simulate-remote flag:** to simulate remote service calls.
 
 ---
@@ -80,7 +83,6 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - Expand logging and monitoring features for continuous integration.
 - Introduce abstractions to reduce duplication and simplify code where possible.
 
----
 ---
 
 # intentïon agentic-lib
@@ -101,7 +103,6 @@ Mixed licensing:
 
 This README file will evolve as the test experiment within this repository evolves.
 
----
 ---
 
 ## Contributing
@@ -168,5 +169,4 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
----
 ---
