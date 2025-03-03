@@ -6,6 +6,7 @@
 // - Added Kafka logging functions and a new function analyzeSystemPerformance for system performance telemetry.
 // - Improved delegated decision functions for improved parsing support with zod schema validation in delegateDecisionToLLMWrapped.
 // - Added remote service wrapper function callRemoteService using native fetch to simulate remote API calls.
+// - Updated --create-issue simulation to mimic the behavior of the wfr-create-issue workflow, including support for a 'house choice' option via HOUSE_CHOICE_OPTIONS environment variable.
 // - Improved test coverage by adding a test hook in delegateDecisionToLLMWrapped for simulating a successful OpenAI call.
 // - Extended main.js with new Kafka logging function (logKafkaOperations) and refined delegateDecisionToLLMWrapped for improved error handling and schema validation.
 
@@ -120,7 +121,14 @@ export function main(args = []) {
 
   // New feature: Simulate issue creation similar to the GitHub workflow (wfr-create-issue.yml)
   if (flagArgs.includes("--create-issue")) {
-    const issueTitle = nonFlagArgs.length > 0 ? nonFlagArgs.join(" ") : "Default Issue Title";
+    let issueTitle;
+    // If the first non-flag argument is 'house choice', simulate selecting from houseChoiceOptions
+    if (nonFlagArgs.length > 0 && nonFlagArgs[0] === "house choice") {
+      const options = process.env.HOUSE_CHOICE_OPTIONS ? process.env.HOUSE_CHOICE_OPTIONS.split("||") : ["Default House Choice Issue"];
+      issueTitle = options[Math.floor(Math.random() * options.length)];
+    } else {
+      issueTitle = nonFlagArgs.length > 0 ? nonFlagArgs.join(" ") : "Default Issue Title";
+    }
     const issueNumber = Math.floor(Math.random() * 1000);
     console.log(chalk.magenta("Simulated Issue Created:"));
     console.log(chalk.magenta("Title: " + issueTitle));
