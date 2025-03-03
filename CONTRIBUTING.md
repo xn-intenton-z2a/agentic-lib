@@ -240,8 +240,8 @@ agentic-lib activities:
 - Create, vary or extend as many library functions as you can that use parse vitest's or eslint's default output or parse output in SARIF format. Update the Change Log in README.md (or say what was checked).
 
 generic activities:
-- Review the Mission Statement and prune any "drift" from the source file where there are no longer relevant features. Update the Change Log in README.md (or say what was checked).
-- Review the Mission Statement and create, vary or extend as many features as you can inline with the Mission Statement. Update the Change Log in README.md (or say what was checked).
+- Update the source file by applying the Mission Statement to prune any "drift" from the source file. Update the Change Log in README.md (or say what was checked).
+- Create, vary or extend as many features in the source file as you can inline with the Mission Statement. Update the Change Log in README.md (or say what was checked).
 #- Find anything that might be a "simulated" or "demo" implementation and switch to a real implementation. Update the Change Log in README.md (or say what was checked).
 #- Consider alternate code paths that could be explicitly handled to improve the range of supported behaviours. Update the Change Log in README.md (or say what was checked).
 #- Look for code that could be simplified using a library and introduce that library. Update the Change Log in README.md (or say what was checked).
