@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 0 */7 * *' # schedule-1
-    #- cron: '0 0 * * *' # schedule-2
+    - cron: '0 0 * * *' # schedule-2
 
 jobs:
   cleanup:

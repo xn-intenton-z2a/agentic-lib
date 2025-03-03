@@ -36,7 +36,7 @@ on:
       - completed
   schedule:
     - cron: '45 */6 * * *' # schedule-1
-    #- cron: '*/15 * * * *' # schedule-2
+    - cron: '*/15 * * * *' # schedule-2
 
 jobs:
 

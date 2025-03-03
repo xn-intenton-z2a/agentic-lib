@@ -43,7 +43,7 @@ on:
       - agentic-lib-update
   schedule:
     - cron: '0 0 1 * *' # schedule-1
-    #- cron: '*/30 * * * *' # schedule-2
+    - cron: '*/30 * * * *' # schedule-2
 
 jobs:
 

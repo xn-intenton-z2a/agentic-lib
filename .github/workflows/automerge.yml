@@ -19,7 +19,7 @@ on:
       - completed
   schedule:
     - cron: '0 */12 * * *' # schedule-1
-    #- cron: '*/30 * * * *' # schedule-2
+    - cron: '*/30 * * * *' # schedule-2
 
 jobs:
   pull-request-event:
