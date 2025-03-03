@@ -2,16 +2,13 @@
 // src/lib/main.js - Implementation aligned with the agentic‑lib mission statement.
 // Change Log:
 // - Pruned drift and aligned with the mission statement.
-// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote.
+// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, and new --sarif.
 // - Added Kafka logging functions and a new function analyzeSystemPerformance for system performance telemetry.
 // - Improved delegated decision functions for improved parsing support with zod schema validation in delegateDecisionToLLMWrapped.
 // - Added remote service wrapper function callRemoteService using native fetch to simulate remote API calls with enhanced error logging.
 // - Updated --create-issue simulation to mimic the behavior of the wfr-create-issue workflow, including support for a 'house choice' option via HOUSE_CHOICE_OPTIONS environment variable.
-// - Improved test coverage by adding a test hook in delegateDecisionToLLMWrapped for simulating a successful OpenAI call.
-// - Extended main.js with new Kafka logging function (logKafkaOperations) and refined delegateDecisionToLLMWrapped for improved error handling and schema validation.
 // - Added new function gatherFullTelemetryData to collect additional GitHub Actions telemetry data.
-//
-// Updated for improved logging, telemetry enhancements, and test coverage per contribution guidelines.
+// - Added new function parseSarifOutput to process SARIF formatted JSON reports and integrated flag --sarif in main command processing.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -129,6 +126,29 @@ export async function callRemoteService(serviceUrl) {
 }
 
 /**
+ * Parse SARIF formatted JSON to summarize issues.
+ * @param {string} sarifJson
+ */
+export function parseSarifOutput(sarifJson) {
+  try {
+    const sarif = JSON.parse(sarifJson);
+    let totalIssues = 0;
+    if (sarif.runs && Array.isArray(sarif.runs)) {
+      for (const run of sarif.runs) {
+        if (run.results && Array.isArray(run.results)) {
+          totalIssues += run.results.length;
+        }
+      }
+    }
+    console.log(chalk.green(`SARIF Report: Total issues: ${totalIssues}`));
+    return { totalIssues };
+  } catch (error) {
+    console.error(chalk.red("Error parsing SARIF JSON:"), error);
+    return { error: error.message };
+  }
+}
+
+/**
  * Main function for processing command line arguments and executing corresponding actions.
  * @param {string[]} args
  */
@@ -202,6 +222,16 @@ export function main(args = []) {
     return;
   }
 
+  if (flagArgs.includes("--sarif")) {
+    if (nonFlagArgs.length === 0) {
+      console.log(chalk.red("No SARIF JSON provided."));
+    } else {
+      parseSarifOutput(nonFlagArgs.join(" "));
+    }
+    exitApplication();
+    return;
+  }
+
   const flagProcessingResult = processFlags(flagArgs);
   console.log(flagProcessingResult);
 
@@ -218,7 +248,7 @@ export function main(args = []) {
 }
 
 export function generateUsage() {
-  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [--create-issue] [--simulate-remote] [args...]";
+  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [--create-issue] [--simulate-remote] [--sarif] [args...]";
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
