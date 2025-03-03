@@ -48,6 +48,7 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/update.yml"
 
 cp -v .github/workflows/truncate-workflow-history.yml "${DEST_DIR}/."
 
+cp -v scripts/activate-schedule.sh "${DEST_DIR}/../../scripts/."
 cp -v scripts/archive.sh "${DEST_DIR}/../../scripts/."
 cp -v scripts/clean.sh "${DEST_DIR}/../../scripts/."
 cp -v scripts/export-source.sh "${DEST_DIR}/../../scripts/."
