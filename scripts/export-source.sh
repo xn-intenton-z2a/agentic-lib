@@ -16,6 +16,7 @@ find "." -maxdepth 1 -type f -name 'jsconfig.json' -print -exec echo "==== Conte
 find "." -maxdepth 1 -type f -name 'eslint.config.js' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "./exports/$(date +%Y-%m-%d)-root-cat.txt"
 find "." -maxdepth 1 -type f -name '.prettierrc' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "./exports/$(date +%Y-%m-%d)-root-cat.txt"
 find "." -maxdepth 1 -type f -name 'LICENSE' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "./exports/$(date +%Y-%m-%d)-root-cat.txt"
+if [[ -e "./cdk" ]] ; then find "./cdk/src" -type f -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "./exports/$(date +%Y-%m-%d)-cdk-cat.txt" ; fi
 find "./src" -type f -name '*.js' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "./exports/$(date +%Y-%m-%d)-src-cat.txt"
 find "./tests" -type f -name '*.js' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "./exports/$(date +%Y-%m-%d)-test-cat.txt"
 find "./.github" -type f -name '*.yml' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "./exports/$(date +%Y-%m-%d)-github-workflow-cat.txt"
