@@ -16,6 +16,7 @@ import {
   receiveMessageFromKafka,
   logKafkaOperations,
   analyzeSystemPerformance,
+  callRemoteService,
   main,
 } from "../../src/lib/main.js";
 
@@ -323,5 +324,25 @@ describe("Utility Functions", () => {
   test("receiveMessageFromKafka simulates receiving message", () => {
     const result = receiveMessageFromKafka("testTopic");
     expect(result).toBe("Simulated message from topic 'testTopic'");
+  });
+
+  describe("Remote Service Wrapper", () => {
+    afterEach(() => {
+      global.fetch && vi.resetAllMocks();
+    });
+
+    test("callRemoteService returns data for successful call", async () => {
+      global.fetch = vi.fn(() =>
+        Promise.resolve({ json: () => Promise.resolve({ success: true }) })
+      );
+      const data = await callRemoteService("https://dummyapi.io/data");
+      expect(data).toEqual({ success: true });
+    });
+
+    test("callRemoteService returns error on failed call", async () => {
+      global.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
+      const data = await callRemoteService("https://dummyapi.io/data");
+      expect(data.error).toBe("Network error");
+    });
   });
 });
