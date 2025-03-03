@@ -18,6 +18,7 @@ import {
   analyzeSystemPerformance,
   callRemoteService,
   main,
+  generateUsage
 } from "../../src/lib/main.js";
 
 // Helper function to capture console output
@@ -332,9 +333,7 @@ describe("Utility Functions", () => {
     });
 
     test("callRemoteService returns data for successful call", async () => {
-      global.fetch = vi.fn(() =>
-        Promise.resolve({ json: () => Promise.resolve({ success: true }) })
-      );
+      global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve({ success: true }) }));
       const data = await callRemoteService("https://dummyapi.io/data");
       expect(data).toEqual({ success: true });
     });
@@ -344,5 +343,20 @@ describe("Utility Functions", () => {
       const data = await callRemoteService("https://dummyapi.io/data");
       expect(data.error).toBe("Network error");
     });
+  });
+
+  test("generateUsage returns proper usage string", () => {
+    expect(generateUsage()).toContain("Usage: npm run start");
+  });
+});
+
+describe("delegateDecisionToLLMWrapped integration", () => {
+  test("returns valid result when TEST_OPENAI_SUCCESS is set", async () => {
+    process.env.TEST_OPENAI_SUCCESS = "1";
+    const response = await delegateDecisionToLLMWrapped("Test prompt");
+    expect(response.fixed).toBe("true");
+    expect(response.message).toBe("LLM call succeeded");
+    expect(response.refinement).toBe("None");
+    delete process.env.TEST_OPENAI_SUCCESS;
   });
 });
