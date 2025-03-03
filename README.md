@@ -35,6 +35,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** `sendMessageToKafka(topic, message)`: Simulates sending a message to a Kafka topic for inter-workflow communication.
 - **New:** `receiveMessageFromKafka(topic)`: Simulates receiving a message from a Kafka topic.
 - **New:** `logKafkaOperations(topic, message)`: Logs Kafka messaging operations by combining simulated send and receive functionality.
+- **New:** `analyzeSystemPerformance()`: Provides system performance telemetry including platform, number of CPUs, and total memory.
 - **New:** `--simulate-remote` flag: Simulates a remote service call for autonomous interaction.
 
 ---
@@ -50,6 +51,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** Added `delegateDecisionToLLMWrapped()` for an enhanced and robust OpenAI function wrapper. (Extended to parse tool_calls when available.)
 - **New:** Added simulated Kafka messaging functions (`sendMessageToKafka` and `receiveMessageFromKafka`) for facilitating messaging between workflows.
 - **New:** Added `logKafkaOperations` to combine Kafka send and receive simulations for logging purposes.
+- **New:** Added `analyzeSystemPerformance()` to provide system performance telemetry.
 - **New:** Added `--simulate-remote` flag to simulate remote service calls.
 
 ---
@@ -58,10 +60,16 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 
 - Consolidated the application exit routine and improved code comments for clarity in `main.js`.
 - Extended flag processing functions to provide clearer outputs, with support for `--verbose` and `--debug` flags.
-- Refresh README content to align with CONTRIBUTING guidelines by removing outdated text and adding new features.
-- **Change Log Update:**
-  - Pruned drift and realigned the source file with the agentic‑lib mission statement.
-  - Extended functionality inline with the mission statement by enhancing flag processing and telemetry details.
+- Refreshed the README content to align with CONTRIBUTING guidelines by removing outdated text and adding new features.
+- **Changelog Update:**
+  - Regex Fix: Updated `getIssueNumberFromBranch` to properly escape digit matching in the regex.
+  - README Refresh: Updated and pruned content to align with CONTRIBUTING guidelines. Clarified new features and improvements.
+  - **Pruned Drift:** Updated source file header comments to align with the agentic‑lib mission statement.
+  - **Extended delegateDecisionToLLMWrapped:** Now parses tool_calls in the response for better simulation of OpenAI function calling behavior.
+  - **Added Kafka messaging simulation functions** for simulating communication between workflows.
+  - **Added logKafkaOperations:** New function to log Kafka operations based on simulated send and receive functionality.
+  - **Added analyzeSystemPerformance:** New function to provide system performance telemetry.
+  - **Added --simulate-remote flag:** to simulate remote service calls.
 
 ---
 
