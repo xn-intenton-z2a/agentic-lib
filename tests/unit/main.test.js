@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeAll, afterAll, afterEach } from "vitest";
+import { describe, test, expect, vi, beforeAll, afterAll } from "vitest";
 import {
   reviewIssue,
   splitArguments,
@@ -23,7 +23,7 @@ import {
   parseEslintSarifOutput,
   parseVitestOutput,
   main,
-  generateUsage,
+  generateUsage
 } from "../../src/lib/main.js";
 
 // Helper to capture console output
@@ -36,7 +36,7 @@ function captureOutput(callback) {
   try {
     callback();
   } catch (e) {
-    // ignore errors (e.g., process.exit during tests)
+    console.error("Ignored error:", e.message);
   }
   console.log = originalLog;
   return output;
@@ -74,7 +74,7 @@ describe("reviewIssue", () => {
       dependenciesListOutput: "npm list output",
       buildOutput: "build output",
       testOutput: "test output",
-      mainOutput: "test output",
+      mainOutput: "test output"
     };
     const result = reviewIssue(params);
     expect(result.fixed).toBe("true");
@@ -94,7 +94,7 @@ describe("reviewIssue", () => {
       dependenciesListOutput: "list output",
       buildOutput: "build output",
       testOutput: "test output",
-      mainOutput: "test output",
+      mainOutput: "test output"
     };
     const result = reviewIssue(params);
     expect(result.fixed).toBe("false");
@@ -229,7 +229,9 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       try {
         main(["--env"]);
-      } catch {}
+      } catch (error) {
+        console.error("Caught error:", error.message);
+      }
     });
     expect(output).toContain("Environment Variables:");
   });
@@ -239,7 +241,9 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       try {
         main(["--help"]);
-      } catch {}
+      } catch (error) {
+        console.error("Caught error:", error.message);
+      }
     });
     expect(output).toContain("Usage: npm run start");
     expect(output).toContain("Demo: Demonstration of agentic-lib functionality:");
@@ -250,7 +254,9 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       try {
         main(["--reverse", "hello", "world"]);
-      } catch {}
+      } catch (error) {
+        console.error("Caught error:", error.message);
+      }
     });
     expect(output).toContain("Reversed input: dlrow olleh");
   });
@@ -261,7 +267,9 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       try {
         main(["--telemetry"]);
-      } catch {}
+      } catch (error) {
+        console.error("Caught error:", error.message);
+      }
     });
     expect(output).toContain("Telemetry Data:");
     expect(output).toContain("CI Test Workflow");
@@ -273,7 +281,9 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       try {
         main(["--telemetry-extended"]);
-      } catch {}
+      } catch (error) {
+        console.error("Caught error:", error.message);
+      }
     });
     expect(output).toContain("Extended Telemetry Data:");
     expect(output).toContain("extendedTester");
@@ -284,7 +294,9 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       try {
         main(["--version"]);
-      } catch {}
+      } catch (error) {
+        console.error("Caught error:", error.message);
+      }
     });
     expect(output).toMatch(/^Version:/);
   });
@@ -294,7 +306,9 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       try {
         main(["--create-issue", "Test Issue"]);
-      } catch {}
+      } catch (error) {
+        console.error("Caught error:", error.message);
+      }
     });
     expect(output).toContain("Simulated Issue Created:");
     expect(output).toContain("Title: Test Issue");
@@ -307,7 +321,9 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       try {
         main(["--simulate-remote"]);
-      } catch {}
+      } catch (error) {
+        console.error("Caught error:", error.message);
+      }
     });
     expect(output).toContain("Simulated remote service call initiated.");
   });
@@ -349,7 +365,7 @@ describe("Utility Functions", () => {
 
   describe("Remote Service Wrapper", () => {
     afterEach(() => {
-      global.fetch && vi.resetAllMocks();
+      if (global.fetch) vi.resetAllMocks();
     });
 
     test("callRemoteService returns data for successful call", async () => {
@@ -389,7 +405,9 @@ describe("Utility Functions", () => {
       const output = captureOutput(() => {
         try {
           main(["--sarif", sarifJSON]);
-        } catch (e) {}
+        } catch (e) {
+          console.error("Caught error:", e.message);
+        }
       });
       expect(output).toContain("SARIF Report: Total issues: 2");
     });
