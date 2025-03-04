@@ -241,7 +241,7 @@ jobs:
             echo 'Creating or force pushing to branch: ${{ env.branchPrefix }}-fix-main'
             git switch --create-reflog '${{ env.branchPrefix }}-fix-main'
             git push -v --force origin '${{ env.branchPrefix }}-fix-main'
-            echo 'branch='${{ env.branchPrefix }}-fix-main' >> $GITHUB_OUTPUT
+            echo 'branch=${{ env.branchPrefix }}-fix-main' >> $GITHUB_OUTPUT
           else
             echo 'Retaining existing branch: ${{ needs.select-branch.outputs.branch }}'
             echo 'branch=${{ needs.select-branch.outputs.branch }}' >> $GITHUB_OUTPUT
