@@ -105,7 +105,23 @@ on:
         required: true
     outputs:
       fixApplied:
-        value: ${{ jobs.start-issue.outputs.fixApplied }}
+        value: ${{ jobs.apply-fix.outputs.fixApplied }}
+      message:
+        value: ${{ jobs.apply-fix.outputs.message }}
+      installAfterUpdateOutcome:
+        value: ${{ jobs.apply-fix.outputs.installAfterUpdateOutcome }}
+      ciAfterUpdateOutcome:
+        value: ${{ jobs.apply-fix.outputs.ciAfterUpdateOutcome }}
+      testAfterUpdateOutcome:
+        value: ${{ jobs.apply-fix.outputs.testAfterUpdateOutcome }}
+      mainAfterUpdateOutcome:
+        value: ${{ jobs.apply-fix.outputs.mainAfterUpdateOutcome }}
+      commitOutcome:
+        value: ${{ jobs.apply-fix.outputs.commitOutcome }}
+      postResolutionCommentOutcome:
+        value: ${{ jobs.start-issue.outputs.postResolutionCommentOutcome }}
+      allValidationStepsSuccessful:
+        value: ${{ jobs.start-issue.outputs.allValidationStepsSuccessful }}
 
 jobs:
   apply-fix:
@@ -475,12 +491,24 @@ jobs:
           git status -v
           git diff ${{ env.target }}
 
-      - run: |
+      - name: install-after-update
+        id: install-after-update
+        shell: bash
+        run: |
+          set +e
+          npm install
+          exit 0
+
+      - name: ci-after-update
+        id: ci-after-update
+        shell: bash
+        run: |
           set +e
           npm install
           exit 0
 
       - name: Test after update
+        id: test-after-update
         shell: bash
         run: |
           set +e
@@ -488,6 +516,7 @@ jobs:
           exit 0
 
       - name: Run main after update
+        id: main-after-update
         shell: bash
         run: |
           set +e
@@ -508,5 +537,43 @@ jobs:
           git push -v origin ${{ env.branch }}
           git status -v
 
+      - name: Extract Results
+        if: always()
+        id: results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fixApplied = '${{ steps.update-target.outputs.fixApplied }}';
+            const message = '${{ steps.update-target.outputs.message }}';
+            const installAfterUpdateOutcome = '${{ steps.install-after-update.outcome }}';
+            const ciAfterUpdateOutcome = '${{ steps.ci-after-update.outcome }}';
+            const testAfterUpdateOutcome = '${{ steps.test-after-update.outcome }}';
+            const mainAfterUpdateOutcome = '${{ steps.main-after-update.outcome }}';
+            const commitOutcome = '${{ steps.commit.outcome }}';
+            const allValidationStepsSuccessful = installAfterUpdateOutcome === "success" && ciAfterUpdateOutcome === "success" && testAfterUpdateOutcome === "success" && mainAfterUpdateOutcome === "success" && commitOutcome === "success";
+            core.setOutput('fixApplied', fixApplied);
+            core.setOutput('message', message);
+            core.setOutput('installAfterUpdateOutcome', installAfterUpdateOutcome);
+            core.setOutput('ciAfterUpdateOutcome', ciAfterUpdateOutcome);
+            core.setOutput('testAfterUpdateOutcome', testAfterUpdateOutcome);
+            core.setOutput('mainAfterUpdateOutcome', mainAfterUpdateOutcome);
+            core.setOutput('commitOutcome', commitOutcome);
+            core.setOutput('allValidationStepsSuccessful', allValidationStepsSuccessful);
+            core.info(`fixApplied: "${fixApplied}"`);
+            core.info(`message: "${message}"`);
+            core.info(`installAfterUpdateOutcome: "${installAfterUpdateOutcome}"`);
+            core.info(`ciAfterUpdateOutcome: "${ciAfterUpdateOutcome}"`);
+            core.info(`testAfterUpdateOutcome: "${testAfterUpdateOutcome}"`);
+            core.info(`mainAfterUpdateOutcome: "${mainAfterUpdateOutcome}"`);
+            core.info(`commitOutcome: "${commitOutcome}"`);
+            core.info(`allValidationStepsSuccessful: "${allValidationStepsSuccessful}"`);
+
     outputs:
-      fixApplied: ${{ steps.update-target.outputs.fixApplied }}
+      fixApplied: ${{ steps.results.outputs.fixApplied }}
+      message: ${{ steps.results.outputs.message }}
+      installAfterUpdateOutcome: ${{ steps.results.outputs.installAfterUpdateOutcome }}
+      ciAfterUpdateOutcome: ${{ steps.results.outputs.ciAfterUpdateOutcome }}
+      testAfterUpdateOutcome: ${{ steps.results.outputs.testAfterUpdateOutcome }}
+      mainAfterUpdateOutcome: ${{ steps.results.outputs.mainAfterUpdateOutcome }}
+      commitOutcome: ${{ steps.results.outputs.commitOutcome }}
+      allValidationStepsSuccessful: ${{ steps.results.outputs.allValidationStepsSuccessful }}

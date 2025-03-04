@@ -124,5 +124,5 @@ jobs:
     with:
       branch: 'agentic-lib-issue-${{ needs.select-issue.outputs.issueNumber }}'
       baseBranch: 'main'
-      gitCommitMessage: 'Fix ready for issue ${{ needs.select-issue.outputs.issueNumber }}'
+      gitCommitMessage: "${{ needs.start-issue.outputs.message }} (fixes #${{ needs.select-issue.outputs.issueNumber }})"
       label: 'automerge'
