@@ -393,19 +393,19 @@ jobs:
           script: |
             const applyFixEvenIfTestsPass = "${{ inputs.applyFixEvenIfTestsPass }}" === "true";
             const fixedFromTheBeginning = "${{ needs.needs-fix.outputs.needsFix }}" === "false";
-            const allSkipped = "${{ needs.npm-test.result == 'skipped' && needs.npm-build.result == 'skipped' && needs.npm-run.result == 'skipped' }}";
-            const anyDidntSucceed = "${{ needs.npm-test.result != 'success' || needs.npm-build.result != 'success' || needs.npm-run.result != 'success' }}";
-            const readyToMerge = applyFixEvenIfTestsPass || fixedFromTheBeginning || !allSkipped && !anyDidntSucceed;
+            const anySkipped = "${{ needs.npm-test-after-fix.result == 'skipped' || needs.npm-build-after-fix.result == 'skipped' || needs.npm-run-after-fix.result == 'skipped' }}";
+            const anyDidntSucceed = "${{ needs.npm-test-after-fix.result != 'success' || needs.npm-build-after-fix.result != 'success' || needs.npm-run-after-fix.result != 'success' }}";
+            const readyToMerge = applyFixEvenIfTestsPass || fixedFromTheBeginning || !anySkipped && !anyDidntSucceed;
             
             core.setOutput("applyFixEvenIfTestsPass", applyFixEvenIfTestsPass);
             core.setOutput("fixedFromTheBeginning", fixedFromTheBeginning);
-            core.setOutput("allSkipped", allSkipped);
+            core.setOutput("anySkipped", anySkipped);
             core.setOutput("anyDidntSucceed", anyDidntSucceed);
             core.setOutput("readyToMerge", readyToMerge);     
             
             core.info(`Apply fix even if tests pass: ${applyFixEvenIfTestsPass}`);
             core.info(`Fixed from the beginning: ${fixedFromTheBeginning}`);
-            core.info(`All skipped: ${allSkipped}`);
+            core.info(`Any skipped: ${anySkipped}`);
             core.info(`Any didn't succeed: ${anyDidntSucceed}`);
             core.info(`Ready to merge: ${readyToMerge}`);
 
