@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeAll, afterAll, afterEach } from "vitest";
+import { describe, test, expect, vi, beforeAll, afterAll } from "vitest";
 import {
   reviewIssue,
   splitArguments,

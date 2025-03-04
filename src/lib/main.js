@@ -2,22 +2,12 @@
 // src/lib/main.js - Implementation aligned with the agentic‑lib mission statement.
 // Change Log:
 // - Pruned drift and aligned with the mission statement.
-// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, and new --sarif.
-// - Added Kafka logging functions and a new function analyzeSystemPerformance for system performance telemetry.
-// - Improved delegated decision functions for improved parsing support with zod schema validation in delegateDecisionToLLMWrapped.
-// - Added remote service wrapper function callRemoteService using native fetch to simulate remote API calls with enhanced error logging.
-// - Added new function gatherFullTelemetryData to collect additional GitHub Actions telemetry data.
-// - Added new function parseSarifOutput to process SARIF formatted JSON reports and integrated flag --sarif in main command processing.
-// - Added new function simulateKafkaStream to simulate streaming of Kafka messages for inter-workflow communication.
-// - Added new function parseEslintSarifOutput to process ESLint SARIF output and summarize issues.
-// - Added new function parseVitestOutput to extract test summary from Vitest output logs.
-// - Extended delegateDecisionToLLMWrapped to improve error logging and validation handling, aligning it with supplied OpenAI function examples.
-// - Refactored regex usage and randomness to improve security and reduced cognitive complexity in delegateDecisionToLLMWrapped.
+// - Removed redundant simulation verbiage while retaining demo outputs.
+// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, and --sarif.
+// - Integrated Kafka logging, system performance telemetry, remote service wrappers (including analytics and notification), and improved LLM decision delegation with error logging and zod validation.
+// - Updated code comments and usage instructions to reflect the refined mission statement.
 //
-// New:
-// - Added new remote analytics service wrapper function callAnalyticsService to simulate sending analytics data to a remote endpoint.
-// - Added new remote notification service wrapper function callNotificationService to simulate sending notifications (e.g., alerts) to a remote endpoint.
-// - In delegateDecisionToLLMWrapped, added a check for test environment to bypass actual OpenAI API calls to prevent initialization errors in tests.
+// Note: All simulated implementations remain for demonstration and testing purposes as per current design guidelines.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
