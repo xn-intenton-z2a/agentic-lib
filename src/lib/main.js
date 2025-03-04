@@ -12,6 +12,7 @@
 // - Added new function simulateKafkaStream to simulate streaming of Kafka messages for inter-workflow communication.
 // - Added new function parseEslintSarifOutput to process ESLint SARIF output and summarize issues.
 // - Added new function parseVitestOutput to extract test summary from Vitest output logs.
+// - Extended delegateDecisionToLLMWrapped to improve error logging and validation handling, aligning it with supplied OpenAI function examples.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -412,7 +413,7 @@ export async function delegateDecisionToLLMWrapped(prompt) {
     let result;
     const messageObj = response.data.choices[0].message;
     if (messageObj) {
-      if (messageObj.tool_calls && messageObj.tool_calls.length > 0) {
+      if (messageObj.tool_calls && Array.isArray(messageObj.tool_calls) && messageObj.tool_calls.length > 0) {
         try {
           result = JSON.parse(messageObj.tool_calls[0].function.arguments);
         } catch {
@@ -436,7 +437,8 @@ export async function delegateDecisionToLLMWrapped(prompt) {
       return { fixed: "false", message: "LLM response schema validation failed.", refinement: "None" };
     }
     return parsed.data;
-  } catch {
+  } catch (error) {
+    console.error(chalk.red("delegateDecisionToLLMWrapped error:"), error);
     return { fixed: "false", message: "LLM decision could not be retrieved.", refinement: "None" };
   }
 }

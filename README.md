@@ -29,7 +29,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** `gatherExtendedTelemetryData()`: Gathers extended telemetry data including additional GitHub environment variables (e.g., GITHUB_ACTOR, GITHUB_REPOSITORY, GITHUB_EVENT_NAME, and CI).
 - **New:** `gatherFullTelemetryData()`: Gathers full telemetry data including additional GitHub environment variables such as GITHUB_REF, GITHUB_SHA, GITHUB_HEAD_REF, and GITHUB_BASE_REF.
 - `delegateDecisionToLLM(prompt)`: Delegates a decision to an advanced LLM via OpenAI's chat completions API. (Falls back in test environments.)
-- **New & Improved:** `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM that mimics function calling behavior, with schema validation using zod.
+- **New & Improved:** `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM that mimics function calling behavior, with improved error logging and schema validation using zod.
 - **New:** `sendMessageToKafka(topic, message)`: Simulates sending a message to a Kafka topic.
 - **New:** `receiveMessageFromKafka(topic)`: Simulates receiving a message from a Kafka topic.
 - **New:** `logKafkaOperations(topic, message)`: Combines Kafka send and receive simulations for logging purposes.
@@ -49,13 +49,13 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - Added a new `--telemetry` flag to output telemetry data from GitHub Actions environments.
 - **New:** Added a new `--telemetry-extended` flag that outputs extended telemetry data, including additional GitHub environment variables.
 - **New:** Added a new `--create-issue` flag that simulates GitHub workflow issue creation with support for a "house choice" option based on environment variables.
-- **New & Improved:** Extended `delegateDecisionToLLMWrapped()` for improved error handling and response validation.
+- **New & Improved:** Extended `delegateDecisionToLLMWrapped()` for improved error logging and schema validation, matching the supplied OpenAI function format.
 - **New:** Added simulated Kafka messaging functions for inter-workflow communication. This includes the new function `simulateKafkaStream` to simulate a stream of messages from a Kafka topic.
 - **New:** Added `analyzeSystemPerformance()` to provide system performance telemetry.
 - **New:** Added `callRemoteService(serviceUrl)` as a remote service wrapper.
 - **New:** Added `--simulate-remote` flag to simulate remote service calls.
 - **New:** Added `parseSarifOutput(sarifJson)` function and `--sarif` flag to process SARIF formatted JSON reports.
-- **New:** Added `parseEslintSarifOutput(sarifJson)` for processing ESLint SARIF outputs.
+- **New:** Added `parseEslintSarifOutput(eslintSarifJson)` for processing ESLint SARIF outputs.
 - **New:** Added `parseVitestOutput(outputStr)` for parsing Vitest output summary.
 
 ---
@@ -68,6 +68,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** Added `parseSarifOutput()` function for summarizing SARIF report data.
 - **New:** Added `simulateKafkaStream()` to simulate streaming Kafka messages.
 - **New:** Added `parseEslintSarifOutput()` and `parseVitestOutput()` to extend the library's capability to parse SARIF outputs from ESLint and test summaries from Vitest logs.
+- **New:** Extended `delegateDecisionToLLMWrapped()` for improved error handling, logging, and response validation in line with the supplied OpenAI function example.
 - Refreshed the README to align with the latest CONTRIBUTING guidelines by removing outdated information and highlighting new features.
 
 ---
