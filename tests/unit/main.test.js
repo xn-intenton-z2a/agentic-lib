@@ -20,6 +20,7 @@ import {
   analyzeSystemPerformance,
   callRemoteService,
   callAnalyticsService,
+  callNotificationService,
   parseSarifOutput,
   parseEslintSarifOutput,
   parseVitestOutput,
@@ -392,6 +393,19 @@ describe("Utility Functions", () => {
       global.fetch = vi.fn(() => Promise.reject(new Error("Analytics network error")));
       const data = await callAnalyticsService("https://analytics.example.com/record", { event: "click" });
       expect(data.error).toBe("Analytics network error");
+    });
+
+    test("callNotificationService returns data for successful call", async () => {
+      const notificationResponse = { status: "sent" };
+      global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve(notificationResponse) }));
+      const data = await callNotificationService("https://notify.example.com/send", { message: "Alert" });
+      expect(data).toEqual(notificationResponse);
+    });
+
+    test("callNotificationService returns error on failed call", async () => {
+      global.fetch = vi.fn(() => Promise.reject(new Error("Notification network error")));
+      const data = await callNotificationService("https://notify.example.com/send", { message: "Alert" });
+      expect(data.error).toBe("Notification network error");
     });
   });
 

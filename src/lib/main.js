@@ -6,7 +6,6 @@
 // - Added Kafka logging functions and a new function analyzeSystemPerformance for system performance telemetry.
 // - Improved delegated decision functions for improved parsing support with zod schema validation in delegateDecisionToLLMWrapped.
 // - Added remote service wrapper function callRemoteService using native fetch to simulate remote API calls with enhanced error logging.
-// - Updated --create-issue simulation to mimic the behavior of the wfr-create-issue workflow, including support for a 'house choice' option via HOUSE_CHOICE_OPTIONS environment variable.
 // - Added new function gatherFullTelemetryData to collect additional GitHub Actions telemetry data.
 // - Added new function parseSarifOutput to process SARIF formatted JSON reports and integrated flag --sarif in main command processing.
 // - Added new function simulateKafkaStream to simulate streaming of Kafka messages for inter-workflow communication.
@@ -17,6 +16,7 @@
 //
 // New:
 // - Added new remote analytics service wrapper function callAnalyticsService to simulate sending analytics data to a remote endpoint.
+// - Added new remote notification service wrapper function callNotificationService to simulate sending notifications (e.g., alerts) to a remote endpoint.
 // - In delegateDecisionToLLMWrapped, added a check for test environment to bypass actual OpenAI API calls to prevent initialization errors in tests.
 
 import { fileURLToPath } from "url";
@@ -173,6 +173,27 @@ export async function callAnalyticsService(serviceUrl, data) {
     return result;
   } catch (error) {
     console.error(chalk.red("Error calling analytics service:"), error);
+    return { error: error.message };
+  }
+}
+
+/**
+ * Remote notification service wrapper using fetch to simulate sending notifications.
+ * @param {string} serviceUrl
+ * @param {object} payload - The notification payload to send.
+ */
+export async function callNotificationService(serviceUrl, payload) {
+  try {
+    const response = await fetch(serviceUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const result = await response.json();
+    console.log(chalk.green("Notification Service Response:"), result);
+    return result;
+  } catch (error) {
+    console.error(chalk.red("Error calling notification service:"), error);
     return { error: error.message };
   }
 }
