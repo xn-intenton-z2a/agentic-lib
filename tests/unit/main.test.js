@@ -23,7 +23,7 @@ import {
   parseEslintSarifOutput,
   parseVitestOutput,
   main,
-  generateUsage
+  generateUsage,
 } from "../../src/lib/main.js";
 
 // Helper to capture console output
@@ -63,7 +63,8 @@ describe("Main Module Import", () => {
 describe("reviewIssue", () => {
   test("returns correct resolution when conditions met", () => {
     const params = {
-      sourceFileContent: "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [args...]",
+      sourceFileContent:
+        "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [args...]",
       testFileContent: "Some test content",
       readmeFileContent: "# intentïon agentic-lib\nSome README content",
       dependenciesFileContent: "{}",
@@ -73,7 +74,7 @@ describe("reviewIssue", () => {
       dependenciesListOutput: "npm list output",
       buildOutput: "build output",
       testOutput: "test output",
-      mainOutput: "test output"
+      mainOutput: "test output",
     };
     const result = reviewIssue(params);
     expect(result.fixed).toBe("true");
@@ -93,7 +94,7 @@ describe("reviewIssue", () => {
       dependenciesListOutput: "list output",
       buildOutput: "build output",
       testOutput: "test output",
-      mainOutput: "test output"
+      mainOutput: "test output",
     };
     const result = reviewIssue(params);
     expect(result.fixed).toBe("false");
@@ -371,10 +372,7 @@ describe("Utility Functions", () => {
   describe("parseSarifOutput Function", () => {
     test("returns correct total issues for valid SARIF JSON", () => {
       const sarifSample = JSON.stringify({
-        runs: [
-          { results: [{}, {}] },
-          { results: [{}] }
-        ]
+        runs: [{ results: [{}, {}] }, { results: [{}] }],
       });
       const result = parseSarifOutput(sarifSample);
       expect(result.totalIssues).toBe(3);
@@ -400,7 +398,7 @@ describe("Utility Functions", () => {
   describe("parseEslintSarifOutput Function", () => {
     test("returns correct total issues for valid ESLint SARIF JSON", () => {
       const eslintSarif = JSON.stringify({
-        runs: [{ results: [{}, {}] }]
+        runs: [{ results: [{}, {}] }],
       });
       const result = parseEslintSarifOutput(eslintSarif);
       expect(result.totalIssues).toBe(2);
