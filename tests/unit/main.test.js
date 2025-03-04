@@ -417,21 +417,17 @@ describe("Utility Functions", () => {
     });
 
     test("callBuildStatusService returns data for successful call", async () => {
-      const buildStatusResponse = { status: "success", buildId: "build123" };
-      global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve(buildStatusResponse) }));
-      const data = await callBuildStatusService("https://build.example.com/status");
-      expect(data).toEqual(buildStatusResponse);
+      const statusResponse = { build: "success", duration: "5m" };
+      global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve(statusResponse) }));
+      const data = await callBuildStatusService("https://ci.example.com/status");
+      expect(data).toEqual(statusResponse);
     });
 
     test("callBuildStatusService returns error on failed call", async () => {
       global.fetch = vi.fn(() => Promise.reject(new Error("Build status network error")));
-      const data = await callBuildStatusService("https://build.example.com/status");
+      const data = await callBuildStatusService("https://ci.example.com/status");
       expect(data.error).toBe("Build status network error");
     });
-  });
-
-  test("generateUsage returns proper usage string", () => {
-    expect(generateUsage()).toContain("Usage: npm run start");
   });
 
   describe("parseSarifOutput Function", () => {

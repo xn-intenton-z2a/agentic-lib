@@ -39,8 +39,8 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** `analyzeSystemPerformance()`: Provides system performance telemetry including platform, number of CPUs, and total memory.
 - **New:** `callRemoteService(serviceUrl)`: A wrapper that uses native fetch to simulate API calls with enhanced error logging.
 - **New:** `callAnalyticsService(serviceUrl, data)`: Simulates sending analytics data to a remote endpoint.
-- **New:** `callNotificationService(serviceUrl, payload)`: Simulates sending a notification to a remote endpoint, useful for alerts or updates from agentic workflows.
-- **New:** `callBuildStatusService(serviceUrl)`: A new wrapper for querying build status from a remote CI service.
+- **New:** `callNotificationService(serviceUrl, payload)`: Simulates sending a notification to a remote endpoint, which can be useful for sending alerts or updates from agentic workflows.
+- **New:** `callBuildStatusService(serviceUrl)`: A new remote service wrapper to simulate checking the CI build status.
 - **New:** `parseSarifOutput(sarifJson)`: Parses SARIF formatted JSON reports and summarizes total issues.
 - **New:** `parseEslintSarifOutput(eslintSarifJson)`: Processes ESLint SARIF outputs.
 - **New:** `parseVitestOutput(outputStr)`: Parses Vitest output logs to extract the number of tests passed.
@@ -60,7 +60,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** Added `callRemoteService(serviceUrl)` as a remote service wrapper.
 - **New:** Added `callAnalyticsService(serviceUrl, data)` to simulate remote analytics service calls.
 - **New:** Added `callNotificationService(serviceUrl, payload)` to simulate remote notification service calls.
-- **New:** Added `callBuildStatusService(serviceUrl)` as a new remote service wrapper to retrieve build status information from remote CI systems.
+- **New:** Added `callBuildStatusService(serviceUrl)` as a remote service wrapper to check build status.
 - **New:** Introduced a new `--simulate-remote` flag to simulate remote service calls, and a `--sarif` flag to process SARIF reports.
 - **New:** Added a new `--extended` flag to trigger extended logging and detailed Kafka stream simulation for enhanced diagnostics.
 
@@ -75,6 +75,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** Added notification and analytics service functionality via `callNotificationService()` and `callAnalyticsService()`, as well as a new build status service via `callBuildStatusService()`, to expand remote service integrations.
 - **New:** Enhanced LLM decision delegation in `delegateDecisionToLLMWrapped()` with improved error handling and schema validation.
 - **New:** Introduced extended Kafka simulation with the new `simulateKafkaDetailedStream()` function and the `--extended` flag to provide detailed logging diagnostics.
+- **New:** Added remote service wrapper `callBuildStatusService()` to simulate checking the CI build status.
 - **Checked:** Pruned drift by removing outdated simulation details and aligning the implementation closely with the agentic‑lib mission statement.
 
 ---
