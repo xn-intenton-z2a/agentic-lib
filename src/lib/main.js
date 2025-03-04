@@ -16,7 +16,7 @@ import { z } from "zod";
 import { randomInt } from "crypto";
 
 // Helper function to escape regex special characters
-function escapeRegExp(string) {
+func tion escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
