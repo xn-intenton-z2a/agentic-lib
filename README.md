@@ -35,10 +35,11 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** `receiveMessageFromKafka(topic)`: Simulates receiving a message from a Kafka topic.
 - **New:** `logKafkaOperations(topic, message)`: Combines Kafka send and receive simulations for logging purposes.
 - **New:** `simulateKafkaStream(topic, count)`: Simulates streaming a series of messages from a Kafka topic.
+- **New:** `simulateKafkaDetailedStream(topic, count)`: Extended Kafka stream simulation with detailed logging for diagnostics.
 - **New:** `analyzeSystemPerformance()`: Provides system performance telemetry including platform, number of CPUs, and total memory.
 - **New:** `callRemoteService(serviceUrl)`: A wrapper that uses native fetch to simulate API calls with enhanced error logging.
 - **New:** `callAnalyticsService(serviceUrl, data)`: Simulates sending analytics data to a remote endpoint.
-- **New:** `callNotificationService(serviceUrl, payload)`: Simulates sending a notification to a remote endpoint (e.g., alerts or system notifications).
+- **New:** `callNotificationService(serviceUrl, payload)`: Simulates sending a notification to a remote endpoint, which can be useful for sending alerts or updates from agentic workflows.
 - **New:** `parseSarifOutput(sarifJson)`: Parses SARIF formatted JSON reports and summarizes total issues.
 - **New:** `parseEslintSarifOutput(eslintSarifJson)`: Processes ESLint SARIF outputs.
 - **New:** `parseVitestOutput(outputStr)`: Parses Vitest output logs to extract the number of tests passed.
@@ -53,12 +54,13 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** Added a new `--telemetry-extended` flag that outputs extended telemetry data, including additional GitHub environment variables.
 - **New:** Added a new `--create-issue` flag that simulates GitHub workflow issue creation with support for a "house choice" option based on environment variables.
 - **New & Improved:** Extended `delegateDecisionToLLMWrapped()` for improved error logging and schema validation, matching the supplied OpenAI function format.
-- **New:** Simulated Kafka messaging functions for inter-workflow communication. This includes the new function `simulateKafkaStream` to simulate a stream of messages from a Kafka topic.
+- **New:** Simulated Kafka messaging functions for inter-workflow communication. This includes the new function `simulateKafkaStream` and the enhanced `simulateKafkaDetailedStream` for extended diagnostics.
 - **New:** Added `analyzeSystemPerformance()` to provide system performance telemetry.
 - **New:** Added `callRemoteService(serviceUrl)` as a remote service wrapper.
 - **New:** Added `callAnalyticsService(serviceUrl, data)` to simulate remote analytics service calls.
-- **New:** Added `callNotificationService(serviceUrl, payload)` to simulate remote notification service calls, which can be useful for sending alerts or updates from agentic workflows.
-- **New:** Added `--simulate-remote` and `--sarif` flags to simulate remote service calls and process SARIF reports, respectively.
+- **New:** Added `callNotificationService(serviceUrl, payload)` to simulate remote notification service calls.
+- **New:** Introduced a new `--simulate-remote` flag to simulate remote service calls, and a `--sarif` flag to process SARIF reports.
+- **New:** Added a new `--extended` flag to trigger extended logging and detailed Kafka stream simulation for enhanced diagnostics.
 
 ---
 
@@ -70,7 +72,8 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** Integrated telemetry gathering functions including `gatherExtendedTelemetryData()` and `gatherFullTelemetryData()` for comprehensive GitHub Actions data.
 - **New:** Added notification service functionality via `callNotificationService()` to expand remote service integrations.
 - **New:** Enhanced LLM decision delegation in `delegateDecisionToLLMWrapped()` with improved error handling and schema validation.
-- **New:** Pruned drift by removing outdated simulation details and aligning the implementation closely with the agentic‑lib mission statement.
+- **New:** Introduced extended Kafka simulation with the new `simulateKafkaDetailedStream()` function and the `--extended` flag to provide detailed logging diagnostics.
+- **Checked:** Pruned drift by removing outdated simulation details and aligning the implementation closely with the agentic‑lib mission statement.
 
 ---
 
@@ -150,7 +153,6 @@ IMPORTANT: Any derived work must include the following attribution:
 
 ---
 ---
----
 
 ## Contributing
 
@@ -216,6 +218,5 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
----
 ---
 ---
