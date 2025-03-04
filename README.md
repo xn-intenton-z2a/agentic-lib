@@ -55,7 +55,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** Added a new `--telemetry-extended` flag that outputs extended telemetry data, including additional GitHub environment variables.
 - **New:** Added a new `--create-issue` flag that simulates GitHub workflow issue creation with support for a "house choice" option based on environment variables.
 - **New & Improved:** Extended `delegateDecisionToLLMWrapped()` for improved error logging and schema validation, matching the supplied OpenAI function format.
-- **New:** Simulated Kafka messaging functions for inter-workflow communication. This includes the new function `simulateKafkaStream` and the enhanced `simulateKafkaDetailedStream` for extended diagnostics.
+- **New:** Simulated Kafka messaging functions for inter-workflow communication. This includes the new functions `simulateKafkaStream` and `simulateKafkaDetailedStream` for extended diagnostics.
 - **New:** Added `analyzeSystemPerformance()` to provide system performance telemetry.
 - **New:** Added `callRemoteService(serviceUrl)` as a remote service wrapper.
 - **New:** Added `callAnalyticsService(serviceUrl, data)` to simulate remote analytics service calls.
@@ -72,7 +72,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - Refactored regex construction in `getIssueNumberFromBranch` and randomness in issue simulation for improved safety.
 - Extended flag processing functions to provide clearer outputs, with support for `--verbose` and `--debug` flags.
 - **New:** Integrated telemetry gathering functions including `gatherExtendedTelemetryData()` and `gatherFullTelemetryData()` for comprehensive GitHub Actions data.
-- **New:** Added notification service functionality via `callNotificationService()` to expand remote service integrations.
+- **New:** Added notification and analytics service functionality via `callNotificationService()` and `callAnalyticsService()`, as well as a new build status service via `callBuildStatusService()`, to expand remote service integrations.
 - **New:** Enhanced LLM decision delegation in `delegateDecisionToLLMWrapped()` with improved error handling and schema validation.
 - **New:** Introduced extended Kafka simulation with the new `simulateKafkaDetailedStream()` function and the `--extended` flag to provide detailed logging diagnostics.
 - **New:** Added remote service wrapper `callBuildStatusService()` to simulate checking the CI build status.

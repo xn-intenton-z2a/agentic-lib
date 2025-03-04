@@ -211,15 +211,20 @@ Re-usable GitHub Actions Workflows:
 - [x] Trigger apply fix when a test run completes and attempt a fix if the tests failed, ideally just for automated branches (issues, agentic-lib-formatting, apply-linting). <- This will then fix a broken PR branch or a broken main branch.
 - [x] Write issue body when creating an issue from a linting error.
 - [x] repository0 init workflow which archives the 4 files (1 of 4): a generic README, package.json, src/lib/main.js, tests/unit/main.test.js, and initialises a CONTRIBUTING.md.
-- [x] apply fix should create a PR if it passes
-- [x] use a single branch pre-fix and check it to avoid conflicts
-- [ ] resolve-conflicts to check PRS for conflicts and resolve them.
-- [ ] review-issue to scan branches for issues and attempt to resolve (if originally unresolved) and raise a PR if resolved.
-- [ ] apply-fix to be able to apply a fix to the main branch.
+- [x] apply fix should create a PR if it passes.
+- [x] use a single branch pre-fix and check it to avoid conflicts.
+- [~] pass the change description for the commit message.
+- [~] locate the issue number in apply-fix and comment the issue.
+- [~] apply-fix to be able to apply a fix to the main branch.
+- [~] apply-fix check branches for conflicts and try to resolve them.
+- [ ] issue-worker to check if an issue is resolved before raising a PR.
+- [ ] apply-fix to check if an issue is resolved before raising a PR.
 - [ ] Add git log to the context for review issue, issue worker and apply fixes.
-- [ ] In issue worker, review issue to check state and recent changes before attempting to work on the issue.
-- [ ] In issue worker, check if the issue should be resolved before creating a PR and say why on th PR and in the issue.
+- [ ] issue-worker to review issue to check state and recent changes before attempting to work on the issue.
 - [ ] Issue worker, to work a branch (instead of failing) if the branch is open but there is no PR, working may be resolving the issue or fixing the branch first.
+- [ ] Add PR review comments via LLM.
+- [ ] Add PR review comments resolution via LLM.
+- [ ] Make a PR review required to automerge a PR.
 - [ ] Update CHANGELOG.md when a publishing a release version of the changes since the last release.
 - [ ] Duplicate the test when publishing a release version with a version numbered test file.
 - [ ] Generate API.md based on the source file.
@@ -237,8 +242,11 @@ Supervisor:
 - [ ] Publish GitHub telemetry data to Kafka.
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix).
 - [ ] Reduce schedule and workflow completed triggers (instead leaving the supervisor to invoke workflows).
-- [ ] Dashboard metrics (e.g. GitHub Insights? commits by agents)
+- [ ] Dashboard metrics (e.g. GitHub Insights? commits by agents).
 - [ ] Publish a demo to GitHub sites that animates issue workflow, git logs applying changes to files and raising PRs with live links to the repository and a draggable timeline.
+- [ ] Create a leaderboard project with a public test endpoint to see who can get the most throughput via tansu-sqs-bridge or an HTTP rest endpoint.
+- [ ] Shutdown fargate when not in use by periodically checking the consumer group offset, whether it's behind and the last time it was behind.
+- [ ] Start fargate when the s3 bucket is written to.
 
 ---
 
