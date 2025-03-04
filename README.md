@@ -57,9 +57,9 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** Added `callRemoteService(serviceUrl)` as a remote service wrapper.
 - **New:** Added `callAnalyticsService(serviceUrl, data)` to simulate remote analytics service calls, showcasing potential remote service integrations for agentic workflows.
 - **New:** Added `--simulate-remote` flag to simulate remote service calls.
-- **New:** Added `parseSarifOutput(sarifJson)` function and `--sarif` flag to process SARIF formatted JSON reports.
-- **New:** Added `parseEslintSarifOutput(eslintSarifJson)` for processing ESLint SARIF outputs.
-- **New:** Added `parseVitestOutput(outputStr)` for parsing Vitest output summary.
+- **New:** Added `parseSarifOutput()` function and `--sarif` flag to process SARIF formatted JSON reports.
+- **New:** Added `parseEslintSarifOutput()` for processing ESLint SARIF outputs.
+- **New:** Added `parseVitestOutput()` for parsing Vitest output summary.
 
 ---
 
@@ -126,8 +126,6 @@ This repository is organized into three distinct areas to help you understand th
 - **Location:**  
   The code is located in `src/lib/main.js`.
 
----
-
 ## License
 
 This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
@@ -157,6 +155,7 @@ IMPORTANT: Any derived work must include the following attribution:
 ---
 ---
 ---
+
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
@@ -185,7 +184,7 @@ This repository is organized into three distinct areas to help you understand th
 - **Location:**  
   Look in the `examples/` directory for sample implementations.
 
-### 3. The Evolving main.js (JavaScript re‑implementation of Re‑usable Workflows)
+### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
 - **Purpose:**  
   This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
@@ -215,8 +214,12 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
-along with this program. If not, see <https://www.gnu.org/licenses/>
+along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
+
+---
+---
+---
