@@ -124,7 +124,6 @@ This repository is organized into three distinct areas to help you understand th
   The code is located in `src/lib/main.js`.
 
 ---
----
 
 ## License
 
