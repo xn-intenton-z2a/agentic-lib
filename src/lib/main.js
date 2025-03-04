@@ -3,11 +3,10 @@
 // Change Log:
 // - Pruned drift and aligned with the mission statement.
 // - Removed redundant simulation verbiage while retaining demo outputs.
-// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, and --sarif.
-// - Integrated Kafka logging, system performance telemetry, remote service wrappers (including analytics and notification), and improved LLM decision delegation with error logging and zod validation.
-// - Updated code comments and usage instructions to reflect the refined mission statement.
-//
-// Note: All simulated implementations remain for demonstration and testing purposes as per current design guidelines.
+// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, and now --extended for detailed logging.
+// - Integrated Kafka logging, system performance telemetry, remote service wrappers (including analytics and notification), improved LLM decision delegation with error logging and zod validation.
+// - Added extended Kafka simulation function simulateKafkaDetailedStream for detailed diagnostics.
+// - Updated code comments and usage instructions to reflect the refined mission statement and new features.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -117,6 +116,18 @@ export function simulateKafkaStream(topic, count = 3) {
     console.log(msg);
     messages.push(msg);
   }
+  return messages;
+}
+
+/**
+ * Extended simulation of Kafka stream with detailed logging.
+ * @param {string} topic
+ * @param {number} count
+ * @returns {string[]} An array of detailed simulated messages.
+ */
+export function simulateKafkaDetailedStream(topic, count = 3) {
+  const messages = simulateKafkaStream(topic, count).map(msg => `${msg} (detailed)`);
+  messages.forEach(message => console.log(message));
   return messages;
 }
 
@@ -333,6 +344,13 @@ export function main(args = []) {
     return;
   }
 
+  // New extended flag for detailed logging
+  if (flagArgs.includes("--extended")) {
+    console.log(chalk.green("Extended logging activated."));
+    const detailedMessages = simulateKafkaDetailedStream("detailedTopic", 2);
+    console.log("Detailed messages:", detailedMessages.join(", "));
+  }
+
   const flagProcessingResult = processFlags(flagArgs);
   console.log(flagProcessingResult);
 
@@ -349,7 +367,7 @@ export function main(args = []) {
 }
 
 export function generateUsage() {
-  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [--create-issue] [--simulate-remote] [--sarif] [args...]";
+  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [--create-issue] [--simulate-remote] [--sarif] [--extended] [args...]";
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {

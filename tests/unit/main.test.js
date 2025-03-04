@@ -17,6 +17,7 @@ import {
   receiveMessageFromKafka,
   logKafkaOperations,
   simulateKafkaStream,
+  simulateKafkaDetailedStream,
   analyzeSystemPerformance,
   callRemoteService,
   callAnalyticsService,
@@ -343,6 +344,12 @@ describe("Utility Functions", () => {
     expect(messages[1]).toContain("Streamed message 2 from topic 'streamTopic'");
   });
 
+  test("simulateKafkaDetailedStream returns an array of detailed simulated messages", () => {
+    const messages = simulateKafkaDetailedStream("detailedTopic", 2);
+    expect(messages.length).toBe(2);
+    expect(messages[0]).toContain("(detailed)");
+  });
+
   test("delegateDecisionToLLM returns fallback message in test environment", async () => {
     const response = await delegateDecisionToLLM("Should I deploy now?");
     expect(response).toBe("LLM decision could not be retrieved.");
@@ -468,5 +475,18 @@ describe("Utility Functions", () => {
       const result = parseVitestOutput(sampleOutput);
       expect(result.error).toBeDefined();
     });
+  });
+
+  test("main with --extended flag prints extended logging", () => {
+    process.env.NODE_ENV = "test";
+    const output = captureOutput(() => {
+      try {
+        main(["--extended"]);
+      } catch (error) {
+        console.error("Caught error:", error.message);
+      }
+    });
+    expect(output).toContain("Extended logging activated.");
+    expect(output).toContain("Detailed messages:");
   });
 });
