@@ -41,9 +41,8 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** `callAnalyticsService(serviceUrl, data)`: Simulates sending analytics data to a remote endpoint.
 - **New:** `callNotificationService(serviceUrl, payload)`: Simulates sending a notification to a remote endpoint, which can be useful for sending alerts or updates from agentic workflows.
 - **New:** `callBuildStatusService(serviceUrl)`: A new remote service wrapper to simulate checking the CI build status.
-- **New:** `parseSarifOutput(sarifJson)`: Parses SARIF formatted JSON reports and summarizes total issues.
-- **New:** `parseEslintSarifOutput(eslintSarifJson)`: Processes ESLint SARIF outputs.
-- **New:** `parseVitestOutput(outputStr)`: Parses Vitest output logs to extract the number of tests passed.
+- **New:** Introduced a new `--simulate-remote` flag to simulate remote service calls, and a `--sarif` flag to process SARIF reports.
+- **New:** Added a new `--extended` flag to trigger extended logging and detailed Kafka stream simulation for enhanced diagnostics.
 
 ---
 
@@ -216,7 +215,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+along with this program. If not, see <https://www.gnu.org/licenses/>
 
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
