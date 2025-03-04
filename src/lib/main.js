@@ -11,7 +11,7 @@
 import { fileURLToPath } from "url";
 import chalk from "chalk";
 import figlet from "figlet";
-im   port os from "os";
+import os from "os";
 import { z } from "zod";
 import { randomInt } from "crypto";
 
