@@ -19,6 +19,7 @@ import {
   simulateKafkaStream,
   analyzeSystemPerformance,
   callRemoteService,
+  callAnalyticsService,
   parseSarifOutput,
   parseEslintSarifOutput,
   parseVitestOutput,
@@ -378,6 +379,19 @@ describe("Utility Functions", () => {
       global.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
       const data = await callRemoteService("https://dummyapi.io/data");
       expect(data.error).toBe("Network error");
+    });
+
+    test("callAnalyticsService returns data for successful call", async () => {
+      const analyticsResponse = { event: "click", status: "recorded" };
+      global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve(analyticsResponse) }));
+      const data = await callAnalyticsService("https://analytics.example.com/record", { event: "click" });
+      expect(data).toEqual(analyticsResponse);
+    });
+
+    test("callAnalyticsService returns error on failed call", async () => {
+      global.fetch = vi.fn(() => Promise.reject(new Error("Analytics network error")));
+      const data = await callAnalyticsService("https://analytics.example.com/record", { event: "click" });
+      expect(data.error).toBe("Analytics network error");
     });
   });
 
