@@ -16,6 +16,7 @@ import {
   sendMessageToKafka,
   receiveMessageFromKafka,
   logKafkaOperations,
+  simulateKafkaStream,
   analyzeSystemPerformance,
   callRemoteService,
   parseSarifOutput,
@@ -314,6 +315,13 @@ describe("Utility Functions", () => {
     expect(result.receiveResult).toBe("Simulated message from topic 'testTopic'");
   });
 
+  test("simulateKafkaStream returns an array of simulated messages", () => {
+    const messages = simulateKafkaStream("streamTopic", 2);
+    expect(messages.length).toBe(2);
+    expect(messages[0]).toContain("Streamed message 1 from topic 'streamTopic'");
+    expect(messages[1]).toContain("Streamed message 2 from topic 'streamTopic'");
+  });
+
   test("delegateDecisionToLLM returns fallback message in test environment", async () => {
     const response = await delegateDecisionToLLM("Should I deploy now?");
     expect(response).toBe("LLM decision could not be retrieved.");
@@ -374,16 +382,16 @@ describe("Utility Functions", () => {
       const result = parseSarifOutput("invalid json");
       expect(result.error).toBeDefined();
     });
-  });
 
-  test("main with --sarif flag processes SARIF JSON", () => {
-    process.env.NODE_ENV = "test";
-    const sarifJSON = JSON.stringify({ runs: [{ results: [{}, {}] }] });
-    const output = captureOutput(() => {
-      try {
-        main(["--sarif", sarifJSON]);
-      } catch (e) {}
+    test("main with --sarif flag processes SARIF JSON", () => {
+      process.env.NODE_ENV = "test";
+      const sarifJSON = JSON.stringify({ runs: [{ results: [{}, {}] }] });
+      const output = captureOutput(() => {
+        try {
+          main(["--sarif", sarifJSON]);
+        } catch (e) {}
+      });
+      expect(output).toContain("SARIF Report: Total issues: 2");
     });
-    expect(output).toContain("SARIF Report: Total issues: 2");
   });
 });
