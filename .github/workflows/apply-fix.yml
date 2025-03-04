@@ -68,7 +68,6 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            //import { execSync } from "child_process";
             const { execSync } = require('child_process');
 
             let branch;
@@ -92,35 +91,41 @@ jobs:
             core.info(`Selected branch: ${branch}`);
             core.setOutput("branch", branch);
 
-            // Detect and resolve merge conflicts between the selected branch and main.
-            execSync("git config --local user.email '${{ env.gitUserEmail }}'", { stdio: 'pipe' });
-            execSync("git config --local user.name '${{ env.gitUserName }}'", { stdio: 'pipe' });
-            execSync("git status -v", { stdio: 'pipe' });
-            try {
-              core.info("Fetching main branch...");
-              execSync("git fetch origin main", { stdio: 'pipe' });
-              core.info("Attempting a dry-run merge of main into the branch...");
-              // Attempt dry-run merge without committing.
-              execSync("git merge origin/main --no-commit --no-ff", { stdio: 'pipe' });
-              core.info("No merge conflicts detected.");
-              // Abort the merge attempt.
-              execSync("git merge --abort", { stdio: 'pipe' });
+            if (branch === "main") {
+              core.info("Main branch selected. Skipping auto-resolution.");
               core.setOutput("conflictsDetected", "false");
               core.setOutput("conflictsResolved", "true");
-            } catch (err) {
-              core.info("Merge conflicts detected.");
-              core.setOutput("conflictsDetected", "true");
+            } else {
+              core.info("Detect and resolve merge conflicts between the selected branch and main.");
+              execSync("git config --local user.email '${{ env.gitUserEmail }}'", { stdio: 'pipe' });
+              execSync("git config --local user.name '${{ env.gitUserName }}'", { stdio: 'pipe' });
+              execSync("git status -v", { stdio: 'pipe' });
               try {
-                core.info("Attempting auto-resolution by accepting main's changes...");
-                // Auto-resolve by checking out the version from main for all conflicting files.
-                execSync("git checkout --theirs .", { stdio: 'pipe' });
-                execSync("git add .", { stdio: 'pipe' });
-                execSync("git commit -m 'Auto-resolved merge conflicts: accepted main changes'", { stdio: 'pipe' });
-                core.info("Auto-resolution succeeded.");
-                core.setOutput("conflictsResolved", "true");
-              } catch (e) {
-                core.error("Auto-resolution failed: " + e.message);
-                core.setOutput("conflictsResolved", "false");
+                core.info("Fetching main branch...");
+                execSync("git fetch origin main", { stdio: 'pipe' });
+                core.info("Attempting a dry-run merge of main into the branch...");
+                // Attempt dry-run merge without committing.
+                execSync("git merge origin/main --no-commit --no-ff", { stdio: 'pipe' });
+                core.info("No merge conflicts detected.");
+                // Abort the merge attempt.
+                //execSync("git merge --abort", { stdio: 'pipe' });
+                //core.setOutput("conflictsDetected", "false");
+                //core.setOutput("conflictsResolved", "true");
+              } catch (err) {
+                core.info(`Merge conflicts detected. ${err.message}`);
+                core.setOutput("conflictsDetected", "true");
+                try {
+                  core.info("Attempting auto-resolution by accepting main's changes...");
+                  // Auto-resolve by checking out the version from main for all conflicting files.
+                  execSync("git checkout --theirs .", { stdio: 'pipe' });
+                  execSync("git add .", { stdio: 'pipe' });
+                  execSync("git commit -m 'Auto-resolved merge conflicts: accepted main changes'", { stdio: 'pipe' });
+                  core.info("Auto-resolution succeeded.");
+                  core.setOutput("conflictsResolved", "true");
+                } catch (e) {
+                  core.error("Auto-resolution failed: " + e.message);
+                  core.setOutput("conflictsResolved", "false");
+                }
               }
             }
 
