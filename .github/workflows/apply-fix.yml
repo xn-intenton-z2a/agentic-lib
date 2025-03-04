@@ -387,7 +387,7 @@ jobs:
         with:
           script: |
             const applyFixEvenIfTestsPass = "${{ inputs.applyFixEvenIfTestsPass }}" === "true";
-            const fixedFromTheBeginning = "${{ needs.needs-fix.outputs.needsFix }}" === "true";
+            const fixedFromTheBeginning = "${{ needs.needs-fix.outputs.needsFix }}" === "false";
             const allSkipped = "${{ needs.npm-test.result == 'skipped' && needs.npm-build.result == 'skipped' && needs.npm-run.result == 'skipped' }}";
             const anyDidntSucceed = "${{ needs.npm-test.result != 'success' || needs.npm-build.result != 'success' || needs.npm-run.result != 'success' }}";
             const readyToMerge = applyFixEvenIfTestsPass || fixedFromTheBeginning || !allSkipped && !anyDidntSucceed;
