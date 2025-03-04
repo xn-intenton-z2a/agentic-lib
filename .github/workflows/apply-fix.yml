@@ -237,7 +237,7 @@ jobs:
       - name: create-branch-if-required
         id: create-branch-if-required
         run: |
-          if [[ ${{ needs.select-branch.outputs.branch }} == 'main' && ${{ needs.needs-fix.outputs.needsFix }} == 'true']] ; then
+          if [[ '${{ needs.select-branch.outputs.branch }}' == 'main' && '${{ needs.needs-fix.outputs.needsFix }}' == 'true' ]] ; then
             echo 'Creating or force pushing to branch: ${{ env.branchPrefix }}-fix-main'
             git switch --create-reflog '${{ env.branchPrefix }}-fix-main'
             git push -v --force origin '${{ env.branchPrefix }}-fix-main'
