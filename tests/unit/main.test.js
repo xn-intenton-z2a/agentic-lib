@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeAll, afterAll, afterEach } from "vitest";
+import { describe, test, expect, vi, beforeAll, afterAll } from "vitest";
 import {
   reviewIssue,
   splitArguments,
@@ -20,6 +20,8 @@ import {
   analyzeSystemPerformance,
   callRemoteService,
   parseSarifOutput,
+  parseEslintSarifOutput,
+  parseVitestOutput,
   main,
   generateUsage
 } from "../../src/lib/main.js";
@@ -392,6 +394,35 @@ describe("Utility Functions", () => {
         } catch (e) {}
       });
       expect(output).toContain("SARIF Report: Total issues: 2");
+    });
+  });
+
+  describe("parseEslintSarifOutput Function", () => {
+    test("returns correct total issues for valid ESLint SARIF JSON", () => {
+      const eslintSarif = JSON.stringify({
+        runs: [{ results: [{}, {}] }]
+      });
+      const result = parseEslintSarifOutput(eslintSarif);
+      expect(result.totalIssues).toBe(2);
+    });
+
+    test("returns error property for invalid ESLint SARIF JSON", () => {
+      const result = parseEslintSarifOutput("invalid eslint json");
+      expect(result.error).toBeDefined();
+    });
+  });
+
+  describe("parseVitestOutput Function", () => {
+    test("returns correct testsPassed count when summary is present", () => {
+      const sampleOutput = "Some log info\n5 tests passed\nMore info";
+      const result = parseVitestOutput(sampleOutput);
+      expect(result.testsPassed).toBe(5);
+    });
+
+    test("returns error when test summary is missing", () => {
+      const sampleOutput = "No summary here";
+      const result = parseVitestOutput(sampleOutput);
+      expect(result.error).toBeDefined();
     });
   });
 });

@@ -37,6 +37,8 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** `analyzeSystemPerformance()`: Provides system performance telemetry including platform, number of CPUs, and total memory.
 - **New:** `callRemoteService(serviceUrl)`: A wrapper that uses native fetch to simulate API calls with enhanced error logging.
 - **New:** `parseSarifOutput(sarifJson)`: Parses SARIF formatted JSON reports and summarizes total issues.
+- **New:** `parseEslintSarifOutput(sarifJson)`: Parses ESLint SARIF formatted JSON reports and summarizes total issues.
+- **New:** `parseVitestOutput(outputStr)`: Parses Vitest output logs to extract the number of tests passed.
 
 ---
 
@@ -53,6 +55,8 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** Added `callRemoteService(serviceUrl)` as a remote service wrapper.
 - **New:** Added `--simulate-remote` flag to simulate remote service calls.
 - **New:** Added `parseSarifOutput(sarifJson)` function and `--sarif` flag to process SARIF formatted JSON reports.
+- **New:** Added `parseEslintSarifOutput(sarifJson)` for processing ESLint SARIF outputs.
+- **New:** Added `parseVitestOutput(outputStr)` for parsing Vitest output summary.
 
 ---
 
@@ -63,6 +67,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** Added `gatherFullTelemetryData()` for complete GitHub Actions telemetry, including additional environment variables such as GITHUB_REF and GITHUB_SHA.
 - **New:** Added `parseSarifOutput()` function for summarizing SARIF report data.
 - **New:** Added `simulateKafkaStream()` to simulate streaming Kafka messages.
+- **New:** Added `parseEslintSarifOutput()` and `parseVitestOutput()` to extend the library's capability to parse SARIF outputs from ESLint and test summaries from Vitest logs.
 - Refreshed the README to align with the latest CONTRIBUTING guidelines by removing outdated information and highlighting new features.
 
 ---
