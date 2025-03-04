@@ -10,6 +10,8 @@
 // - Added new function gatherFullTelemetryData to collect additional GitHub Actions telemetry data.
 // - Added new function parseSarifOutput to process SARIF formatted JSON reports and integrated flag --sarif in main command processing.
 // - Added new function simulateKafkaStream to simulate streaming of Kafka messages for inter-workflow communication.
+// - Added new function parseEslintSarifOutput to process ESLint SARIF output and summarize issues.
+// - Added new function parseVitestOutput to extract test summary from Vitest output logs.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -162,6 +164,46 @@ export function parseSarifOutput(sarifJson) {
   } catch (error) {
     console.error(chalk.red("Error parsing SARIF JSON:"), error);
     return { error: error.message };
+  }
+}
+
+/**
+ * Parse ESLint SARIF formatted JSON to summarize ESLint issues.
+ * @param {string} sarifJson
+ */
+export function parseEslintSarifOutput(sarifJson) {
+  try {
+    const sarif = JSON.parse(sarifJson);
+    let totalIssues = 0;
+    if (sarif.runs && Array.isArray(sarif.runs)) {
+      for (const run of sarif.runs) {
+        if (run.results && Array.isArray(run.results)) {
+          totalIssues += run.results.length;
+        }
+      }
+    }
+    console.log(chalk.green(`ESLint SARIF Report: Total issues: ${totalIssues}`));
+    return { totalIssues };
+  } catch (error) {
+    console.error(chalk.red("Error parsing ESLint SARIF JSON:"), error);
+    return { error: error.message };
+  }
+}
+
+/**
+ * Parse Vitest output string to extract test summary.
+ * Expected format: string containing "<number> tests passed".
+ * @param {string} outputStr
+ */
+export function parseVitestOutput(outputStr) {
+  const match = outputStr.match(/(\d+) tests passed/);
+  if (match) {
+    const testsPassed = parseInt(match[1], 10);
+    console.log(chalk.green(`Vitest Output: ${testsPassed} tests passed.`));
+    return { testsPassed };
+  } else {
+    console.error(chalk.red("Error parsing Vitest output: Summary not found."));
+    return { error: "Test summary not found" };
   }
 }
 
