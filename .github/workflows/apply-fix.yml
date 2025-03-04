@@ -26,7 +26,7 @@ on:
         description: 'Apply the fix even if the tests pass. e.g. true'
         required: false
         type: boolean
-        default: true
+        default: false
       scanForBranches:
         description: 'Scan for branches matching the pattern. e.g. true'
         required: false
