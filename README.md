@@ -70,6 +70,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** Integrated telemetry gathering functions including `gatherExtendedTelemetryData()` and `gatherFullTelemetryData()` for comprehensive GitHub Actions data.
 - **New:** Added notification service functionality via `callNotificationService()` to expand remote service integrations.
 - **New:** Enhanced LLM decision delegation in `delegateDecisionToLLMWrapped()` with improved error handling and schema validation.
+- **New:** Pruned drift by removing outdated simulation details and aligning the implementation closely with the agentic‑lib mission statement.
 
 ---
 
@@ -149,6 +150,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
 ---
 ---
+---
 
 ## Contributing
 
@@ -208,11 +210,12 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
-along with this program. If not, see <https://www.gnu.org/licenses/>
+along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
+---
 ---
 ---
