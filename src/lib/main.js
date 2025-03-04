@@ -9,6 +9,7 @@
 // - Updated --create-issue simulation to mimic the behavior of the wfr-create-issue workflow, including support for a 'house choice' option via HOUSE_CHOICE_OPTIONS environment variable.
 // - Added new function gatherFullTelemetryData to collect additional GitHub Actions telemetry data.
 // - Added new function parseSarifOutput to process SARIF formatted JSON reports and integrated flag --sarif in main command processing.
+// - Added new function simulateKafkaStream to simulate streaming of Kafka messages for inter-workflow communication.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -36,7 +37,7 @@ export function gatherTelemetryData() {
     githubRunNumber: process.env.GITHUB_RUN_NUMBER || "N/A",
     githubJob: process.env.GITHUB_JOB || "N/A",
     githubAction: process.env.GITHUB_ACTION || "N/A",
-    nodeEnv: process.env.NODE_ENV || "undefined",
+    nodeEnv: process.env.NODE_ENV || "undefined"
   };
 }
 
@@ -49,7 +50,7 @@ export function gatherExtendedTelemetryData() {
     githubActor: process.env.GITHUB_ACTOR || "N/A",
     githubRepository: process.env.GITHUB_REPOSITORY || "N/A",
     githubEventName: process.env.GITHUB_EVENT_NAME || "N/A",
-    ci: process.env.CI || "N/A",
+    ci: process.env.CI || "N/A"
   };
 }
 
@@ -62,7 +63,7 @@ export function gatherFullTelemetryData() {
     githubRef: process.env.GITHUB_REF || "N/A",
     githubSha: process.env.GITHUB_SHA || "N/A",
     githubHeadRef: process.env.GITHUB_HEAD_REF || "N/A",
-    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A",
+    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A"
   };
 }
 
@@ -100,13 +101,29 @@ export function logKafkaOperations(topic, message) {
 }
 
 /**
+ * Simulate streaming Kafka messages from a given topic.
+ * @param {string} topic - The Kafka topic to simulate streaming from.
+ * @param {number} count - Number of messages to simulate (default 3).
+ * @returns {string[]} An array of simulated messages.
+ */
+export function simulateKafkaStream(topic, count = 3) {
+  const messages = [];
+  for (let i = 0; i < count; i++) {
+    const msg = `Streamed message ${i + 1} from topic '${topic}'`;
+    console.log(msg);
+    messages.push(msg);
+  }
+  return messages;
+}
+
+/**
  * Analyze system performance telemetry including platform, CPU count, and total memory.
  */
 export function analyzeSystemPerformance() {
   return {
     platform: process.platform,
     cpus: os.cpus().length,
-    totalMemory: os.totalmem(),
+    totalMemory: os.totalmem()
   };
 }
 
