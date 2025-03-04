@@ -39,7 +39,7 @@ export function gatherTelemetryData() {
     githubRunNumber: process.env.GITHUB_RUN_NUMBER || "N/A",
     githubJob: process.env.GITHUB_JOB || "N/A",
     githubAction: process.env.GITHUB_ACTION || "N/A",
-    nodeEnv: process.env.NODE_ENV || "undefined"
+    nodeEnv: process.env.NODE_ENV || "undefined",
   };
 }
 
@@ -52,7 +52,7 @@ export function gatherExtendedTelemetryData() {
     githubActor: process.env.GITHUB_ACTOR || "N/A",
     githubRepository: process.env.GITHUB_REPOSITORY || "N/A",
     githubEventName: process.env.GITHUB_EVENT_NAME || "N/A",
-    ci: process.env.CI || "N/A"
+    ci: process.env.CI || "N/A",
   };
 }
 
@@ -65,7 +65,7 @@ export function gatherFullTelemetryData() {
     githubRef: process.env.GITHUB_REF || "N/A",
     githubSha: process.env.GITHUB_SHA || "N/A",
     githubHeadRef: process.env.GITHUB_HEAD_REF || "N/A",
-    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A"
+    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A",
   };
 }
 
@@ -125,7 +125,7 @@ export function analyzeSystemPerformance() {
   return {
     platform: process.platform,
     cpus: os.cpus().length,
-    totalMemory: os.totalmem()
+    totalMemory: os.totalmem(),
   };
 }
 
@@ -213,11 +213,7 @@ export function parseVitestOutput(outputStr) {
  */
 export function main(args = []) {
   if (process.env.NODE_ENV !== "test") {
-    console.log(
-      chalk.green(
-        figlet.textSync("agentic-lib", { horizontalLayout: "full" })
-      )
-    );
+    console.log(chalk.green(figlet.textSync("agentic-lib", { horizontalLayout: "full" })));
   }
 
   if (args.length === 0 || args.includes("--help") || args.includes("--usage")) {
@@ -238,7 +234,9 @@ export function main(args = []) {
   if (flagArgs.includes("--create-issue")) {
     let issueTitle;
     if (nonFlagArgs.length > 0 && nonFlagArgs[0] === "house choice") {
-      const options = process.env.HOUSE_CHOICE_OPTIONS ? process.env.HOUSE_CHOICE_OPTIONS.split("||") : ["Default House Choice Issue"];
+      const options = process.env.HOUSE_CHOICE_OPTIONS
+        ? process.env.HOUSE_CHOICE_OPTIONS.split("||")
+        : ["Default House Choice Issue"];
       issueTitle = options[Math.floor(Math.random() * options.length)];
     } else {
       issueTitle = nonFlagArgs.length > 0 ? nonFlagArgs.join(" ") : "Default Issue Title";
@@ -374,7 +372,7 @@ export async function delegateDecisionToLLM(prompt) {
       model: "gpt-3.5-turbo",
       messages: [
         { role: "system", content: "You are a helpful assistant." },
-        { role: "user", content: prompt }
+        { role: "user", content: prompt },
       ],
     });
     return response.data.choices[0].message.content;
@@ -396,8 +394,12 @@ export async function delegateDecisionToLLMWrapped(prompt) {
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
-        { role: "system", content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema." },
-        { role: "user", content: prompt }
+        {
+          role: "system",
+          content:
+            "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema.",
+        },
+        { role: "user", content: prompt },
       ],
     });
 
@@ -452,9 +454,10 @@ export function reviewIssue({
   _testOutput,
   _mainOutput,
 }) {
-  const fixed = sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")
-    ? "true"
-    : "false";
+  const fixed =
+    sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")
+      ? "true"
+      : "false";
   const message = fixed === "true" ? "The issue has been resolved." : "Issue not resolved.";
   return {
     fixed,
