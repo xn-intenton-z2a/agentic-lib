@@ -13,12 +13,19 @@
 // - Added new function parseEslintSarifOutput to process ESLint SARIF output and summarize issues.
 // - Added new function parseVitestOutput to extract test summary from Vitest output logs.
 // - Extended delegateDecisionToLLMWrapped to improve error logging and validation handling, aligning it with supplied OpenAI function examples.
+// - Refactored regex usage and randomness to improve security and reduced cognitive complexity in delegateDecisionToLLMWrapped.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
 import figlet from "figlet";
 import os from "os";
 import { z } from "zod";
+import { randomInt } from "crypto";
+
+// Helper function to escape regex special characters
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 /**
  * Exits the application safely (does not exit in test environment).
@@ -40,7 +47,7 @@ export function gatherTelemetryData() {
     githubRunNumber: process.env.GITHUB_RUN_NUMBER || "N/A",
     githubJob: process.env.GITHUB_JOB || "N/A",
     githubAction: process.env.GITHUB_ACTION || "N/A",
-    nodeEnv: process.env.NODE_ENV || "undefined",
+    nodeEnv: process.env.NODE_ENV || "undefined"
   };
 }
 
@@ -53,7 +60,7 @@ export function gatherExtendedTelemetryData() {
     githubActor: process.env.GITHUB_ACTOR || "N/A",
     githubRepository: process.env.GITHUB_REPOSITORY || "N/A",
     githubEventName: process.env.GITHUB_EVENT_NAME || "N/A",
-    ci: process.env.CI || "N/A",
+    ci: process.env.CI || "N/A"
   };
 }
 
@@ -66,7 +73,7 @@ export function gatherFullTelemetryData() {
     githubRef: process.env.GITHUB_REF || "N/A",
     githubSha: process.env.GITHUB_SHA || "N/A",
     githubHeadRef: process.env.GITHUB_HEAD_REF || "N/A",
-    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A",
+    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A"
   };
 }
 
@@ -126,7 +133,7 @@ export function analyzeSystemPerformance() {
   return {
     platform: process.platform,
     cpus: os.cpus().length,
-    totalMemory: os.totalmem(),
+    totalMemory: os.totalmem()
   };
 }
 
@@ -238,11 +245,11 @@ export function main(args = []) {
       const options = process.env.HOUSE_CHOICE_OPTIONS
         ? process.env.HOUSE_CHOICE_OPTIONS.split("||")
         : ["Default House Choice Issue"];
-      issueTitle = options[Math.floor(Math.random() * options.length)];
+      issueTitle = options[randomInt(0, options.length)];
     } else {
       issueTitle = nonFlagArgs.length > 0 ? nonFlagArgs.join(" ") : "Default Issue Title";
     }
-    const issueNumber = Math.floor(Math.random() * 1000);
+    const issueNumber = randomInt(0, 1000);
     console.log(chalk.magenta("Simulated Issue Created:"));
     console.log(chalk.magenta("Title: " + issueTitle));
     console.log(chalk.magenta("Issue Number: " + issueNumber));
@@ -310,7 +317,8 @@ export function generateUsage() {
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
-  const regex = new RegExp(prefix + "(\\d+)");
+  const safePrefix = escapeRegExp(prefix);
+  const regex = new RegExp(safePrefix + "(\\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -382,6 +390,27 @@ export async function delegateDecisionToLLM(prompt) {
   }
 }
 
+// Helper to parse LLM response message
+function parseLLMMessage(messageObj) {
+  let result;
+  if (messageObj.tool_calls && Array.isArray(messageObj.tool_calls) && messageObj.tool_calls.length > 0) {
+    try {
+      result = JSON.parse(messageObj.tool_calls[0].function.arguments);
+    } catch {
+      result = { fixed: "false", message: "Failed to parse tool_calls arguments.", refinement: "None" };
+    }
+  } else if (messageObj.content) {
+    try {
+      result = JSON.parse(messageObj.content);
+    } catch {
+      result = { fixed: "false", message: "Failed to parse response content.", refinement: "None" };
+    }
+  } else {
+    result = { fixed: "false", message: "No valid response received.", refinement: "None" };
+  }
+  return result;
+}
+
 export async function delegateDecisionToLLMWrapped(prompt) {
   if (process.env.TEST_OPENAI_SUCCESS) {
     return { fixed: "true", message: "LLM call succeeded", refinement: "None" };
@@ -410,28 +439,8 @@ export async function delegateDecisionToLLMWrapped(prompt) {
       refinement: z.string(),
     });
 
-    let result;
     const messageObj = response.data.choices[0].message;
-    if (messageObj) {
-      if (messageObj.tool_calls && Array.isArray(messageObj.tool_calls) && messageObj.tool_calls.length > 0) {
-        try {
-          result = JSON.parse(messageObj.tool_calls[0].function.arguments);
-        } catch {
-          result = { fixed: "false", message: "Failed to parse tool_calls arguments.", refinement: "None" };
-        }
-      } else if (messageObj.content) {
-        try {
-          result = JSON.parse(messageObj.content);
-        } catch {
-          result = { fixed: "false", message: "Failed to parse response content.", refinement: "None" };
-        }
-      } else {
-        result = { fixed: "false", message: "No valid response received.", refinement: "None" };
-      }
-    } else {
-      result = { fixed: "false", message: "No valid response received.", refinement: "None" };
-    }
-
+    const result = parseLLMMessage(messageObj);
     const parsed = ResponseSchema.safeParse(result);
     if (!parsed.success) {
       return { fixed: "false", message: "LLM response schema validation failed.", refinement: "None" };

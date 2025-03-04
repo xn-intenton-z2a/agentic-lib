@@ -14,11 +14,12 @@ Mixed licensing:
 This README file has been refreshed to align with the latest CONTRIBUTING guidelines. Irrelevant or outdated content has been pruned and relevant sections updated.
 
 ---
+---
 
 ## New Exported Utility Functions
 
 - `generateUsage()`: Provides a usage message with updated flag options.
-- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name with improved regex.
+- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name with improved regex safety.
 - `sanitizeCommitMessage(message)`: Cleans up commit messages by removing unsupported characters and extra spaces.
 - `splitArguments(args)`: Splits command line arguments into flag and non-flag arrays.
 - `processFlags(flags)`: Processes an array of flags and returns a summary message. Supports `--verbose` and `--debug` for extended logging.
@@ -37,7 +38,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** `analyzeSystemPerformance()`: Provides system performance telemetry including platform, number of CPUs, and total memory.
 - **New:** `callRemoteService(serviceUrl)`: A wrapper that uses native fetch to simulate API calls with enhanced error logging.
 - **New:** `parseSarifOutput(sarifJson)`: Parses SARIF formatted JSON reports and summarizes total issues.
-- **New:** `parseEslintSarifOutput(sarifJson)`: Parses ESLint SARIF formatted JSON reports and summarizes total issues.
+- **New:** `parseEslintSarifOutput(eslintSarifJson)`: For processing ESLint SARIF outputs.
 - **New:** `parseVitestOutput(outputStr)`: Parses Vitest output logs to extract the number of tests passed.
 
 ---
@@ -63,6 +64,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 ## Recent Improvements
 
 - Consolidated the application exit routine and enhanced code comments in `main.js`.
+- Refactored regex construction in `getIssueNumberFromBranch` and randomness in issue simulation for improved safety.
 - Extended flag processing functions to provide clearer outputs, with support for `--verbose` and `--debug` flags.
 - **New:** Added `gatherFullTelemetryData()` for complete GitHub Actions telemetry, including additional environment variables such as GITHUB_REF and GITHUB_SHA.
 - **New:** Added `parseSarifOutput()` function for summarizing SARIF report data.
@@ -149,4 +151,6 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
+---
+---
 ---
