@@ -14,6 +14,7 @@ Mixed licensing:
 This README file has been refreshed to align with the latest CONTRIBUTING guidelines. Irrelevant or outdated content has been pruned and relevant sections updated.
 
 ---
+---
 
 ## New Exported Utility Functions
 
@@ -123,6 +124,7 @@ This repository is organized into three distinct areas to help you understand th
   The code is located in `src/lib/main.js`.
 
 ---
+---
 
 ## License
 
@@ -150,4 +152,6 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
+---
+---
 ---
