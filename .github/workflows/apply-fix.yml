@@ -396,8 +396,8 @@ jobs:
           script: |
             const applyFixEvenIfTestsPass = "${{ inputs.applyFixEvenIfTestsPass }}" === "true";
             const fixedFromTheBeginning = "${{ needs.needs-fix.outputs.needsFix }}" === "false";
-            const anySkipped = "${{ needs.npm-test-after-fix.result == 'skipped' || needs.npm-build-after-fix.result == 'skipped' || needs.npm-run-after-fix.result == 'skipped' }}";
-            const anyDidntSucceed = "${{ needs.npm-test-after-fix.result != 'success' || needs.npm-build-after-fix.result != 'success' || needs.npm-run-after-fix.result != 'success' }}";
+            const anySkipped = "${{ needs.npm-test-after-fix.result == 'skipped' || needs.npm-build-after-fix.result == 'skipped' || needs.npm-run-after-fix.result == 'skipped' }}" === "true";
+            const anyDidntSucceed = "${{ needs.npm-test-after-fix.result != 'success' || needs.npm-build-after-fix.result != 'success' || needs.npm-run-after-fix.result != 'success' }}" === "true";
             const readyToMerge = applyFixEvenIfTestsPass || fixedFromTheBeginning || !anySkipped && !anyDidntSucceed;
             
             core.setOutput("applyFixEvenIfTestsPass", applyFixEvenIfTestsPass);
