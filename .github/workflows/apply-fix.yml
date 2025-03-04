@@ -153,7 +153,7 @@ jobs:
           node-version: 20
           cache: 'npm'
       - run: npm ci
-      - run: npm test
+      - run: npm run unit:test
 
   npm-build:
     needs: select-branch
@@ -309,7 +309,7 @@ jobs:
           git config --local user.name "${{ env.gitUserName }}"
           git pull --ff-only origin ${{ needs.branch-for-fix.outputs.branch }}
       - run: npm ci
-      - run: npm test
+      - run: npm run unit:test
 
   npm-build-after-fix:
     needs:
