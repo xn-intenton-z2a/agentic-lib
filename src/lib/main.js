@@ -3,8 +3,8 @@
 // Change Log:
 // - Pruned drift and aligned with the mission statement.
 // - Removed redundant simulation verbiage while retaining demo outputs.
-// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, and now --extended for detailed logging.
-// - Integrated Kafka logging, system performance telemetry, remote service wrappers (including analytics and notification), improved LLM decision delegation with error logging and zod validation.
+// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, --extended for detailed logging.
+// - Integrated Kafka logging, system performance telemetry, remote service wrappers (including analytics, notification, and build status), improved LLM decision delegation with error logging and zod validation.
 // - Added extended Kafka simulation function simulateKafkaDetailedStream for detailed diagnostics.
 // - Updated code comments and usage instructions to reflect the refined mission statement and new features.
 
@@ -195,6 +195,22 @@ export async function callNotificationService(serviceUrl, payload) {
     return result;
   } catch (error) {
     console.error(chalk.red("Error calling notification service:"), error);
+    return { error: error.message };
+  }
+}
+
+/**
+ * Remote build status service wrapper using fetch to simulate fetching build status data.
+ * @param {string} serviceUrl
+ */
+export async function callBuildStatusService(serviceUrl) {
+  try {
+    const response = await fetch(serviceUrl);
+    const data = await response.json();
+    console.log(chalk.green("Build Status Service Response:"), data);
+    return data;
+  } catch (error) {
+    console.error(chalk.red("Error calling build status service:"), error);
     return { error: error.message };
   }
 }

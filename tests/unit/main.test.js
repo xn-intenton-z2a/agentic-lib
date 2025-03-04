@@ -22,6 +22,7 @@ import {
   callRemoteService,
   callAnalyticsService,
   callNotificationService,
+  callBuildStatusService,
   parseSarifOutput,
   parseEslintSarifOutput,
   parseVitestOutput,
@@ -413,6 +414,19 @@ describe("Utility Functions", () => {
       global.fetch = vi.fn(() => Promise.reject(new Error("Notification network error")));
       const data = await callNotificationService("https://notify.example.com/send", { message: "Alert" });
       expect(data.error).toBe("Notification network error");
+    });
+
+    test("callBuildStatusService returns data for successful call", async () => {
+      const buildStatusResponse = { status: "success", buildId: "build123" };
+      global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve(buildStatusResponse) }));
+      const data = await callBuildStatusService("https://build.example.com/status");
+      expect(data).toEqual(buildStatusResponse);
+    });
+
+    test("callBuildStatusService returns error on failed call", async () => {
+      global.fetch = vi.fn(() => Promise.reject(new Error("Build status network error")));
+      const data = await callBuildStatusService("https://build.example.com/status");
+      expect(data.error).toBe("Build status network error");
     });
   });
 
