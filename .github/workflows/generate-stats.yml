@@ -17,7 +17,6 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
-            const core = require('@actions/core');
 
             // Get repository owner and name from context.
             const { owner, repo } = context.repo;
