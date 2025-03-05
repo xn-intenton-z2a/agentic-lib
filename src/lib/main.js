@@ -416,7 +416,6 @@ function handleFlagCommands(flagArgs, nonFlagArgs) {
     return true;
   }
   if (flagArgs.includes("--create-issue")) {
-    // Extended create issue simulation to mimic GitHub Actions workflow behavior (wfr-create-issue.yml)
     console.log(chalk.magenta("Simulated GitHub Issue Creation Workflow triggered."));
     let issueTitle;
     if (nonFlagArgs.length > 0 && nonFlagArgs[0] === "house choice") {
@@ -511,7 +510,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
+  const regex = new RegExp(safePrefix + "(\d{1,10})\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
