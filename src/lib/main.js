@@ -18,6 +18,7 @@
 // - Added function gatherFullSystemReport to return a complete diagnostic report combining health check, advanced telemetry, and combined telemetry data.
 // - Added function simulateRealKafkaStream to provide a more detailed simulation of Kafka streaming with additional logging.
 // - Extended create issue simulation in the flag handler (--create-issue) to mimic GitHub workflow behavior.
+// - Added new advanced analytics simulation function simulateAdvancedAnalytics and corresponding --advanced flag to combine Kafka simulation and advanced telemetry data.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -398,6 +399,20 @@ function printReport() {
 }
 
 /**
+ * New function to simulate advanced analytics combining Kafka simulation and advanced telemetry data.
+ * @param {string} topic
+ * @param {number} count
+ * @returns {object} Combined simulation result.
+ */
+export function simulateAdvancedAnalytics(topic, count = 3) {
+  console.log(chalk.blue(`Starting advanced analytics simulation on topic '${topic}' with count ${count}`));
+  const kafkaMessages = simulateRealKafkaStream(topic, count);
+  const advancedData = gatherAdvancedTelemetryData();
+  console.log(chalk.blue(`Advanced analytics data: ${JSON.stringify(advancedData, null, 2)}`));
+  return { kafkaMessages, advancedData };
+}
+
+/**
  * Refactored flag handling to reduce cognitive complexity in main function.
  * @param {string[]} flagArgs
  * @param {string[]} nonFlagArgs
@@ -483,6 +498,13 @@ function handleFlagCommands(flagArgs, nonFlagArgs) {
   } else if (nonFlagArgs.length > 0) {
     console.log("Non-flag arguments:", nonFlagArgs.join(","));
   }
+  if (flagArgs.includes("--advanced")) {
+    console.log(chalk.blue("Advanced analytics simulation initiated."));
+    const result = simulateAdvancedAnalytics("advancedTopic", 3);
+    console.log("Advanced analytics result:", result);
+    exitApplication();
+    return true;
+  }
   exitApplication();
   return false;
 }
@@ -505,7 +527,7 @@ export function main(args = []) {
 }
 
 export function generateUsage() {
-  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [--create-issue] [--simulate-remote] [--sarif] [--extended] [--report] [args...]";
+  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [--create-issue] [--simulate-remote] [--sarif] [--extended] [--report] [--advanced] [args...]";
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
