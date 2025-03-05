@@ -4,12 +4,12 @@
 // - Pruned drift and aligned with the mission statement.
 // - Removed redundant simulation verbiage while retaining demo outputs.
 // - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, --extended, and new --report for combined diagnostics.
-// - Integrated Kafka logging, system performance telemetry, remote service wrappers (analytics, notification, and build status) with improved HTTP error checking, improved LLM decision delegation with error logging and zod validation.
+// - Integrated Kafka logging, system performance telemetry, remote service wrappers with improved HTTP error checking.
 // - Added extended Kafka simulation function simulateKafkaDetailedStream for detailed diagnostics.
 // - Added new report functionality to output combined diagnostics from telemetry and system performance.
-// - Refactored main command processing logic to reduce cognitive complexity.
-// - Improved regex safety in getIssueNumberFromBranch by fixing regex escapes to correctly extract up to 10 digits.
-// - Extended OpenAI delegation mechanism by adding delegateDecisionToLLMAdvanced for advanced LLM chat completion with tool call schema.
+// - Refactored flag handling to reduce cognitive complexity.
+// - Improved regex safety in getIssueNumberFromBranch for proper extraction of issue numbers.
+// - Extended OpenAI delegation with delegateDecisionToLLMAdvanced using tool call schema.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -421,7 +421,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
+  const regex = new RegExp(safePrefix + "(\d{1,10})\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -530,11 +530,7 @@ export async function delegateDecisionToLLMWrapped(prompt) {
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
-        {
-          role: "system",
-          content:
-            "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema.",
-        },
+        { role: "system", content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema." },
         { role: "user", content: prompt },
       ],
     });

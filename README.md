@@ -11,9 +11,8 @@ Mixed licensing:
 * This file is part of the example suite for `agentic-lib` (see: https://github.com/xn-intenton-z2a/agentic-lib).
 * This file is licensed under the MIT License. For details, see LICENSE-MIT.
 
-This README has been refreshed in accordance with the CONTRIBUTING guidelines. Irrelevant and outdated content has been pruned, with relevant sections updated to reflect the current state of the library.
+This README has been refreshed in accordance with the CONTRIBUTING guidelines. Irrelevant and outdated content has been removed, and sections have been updated to reflect the current state of the library.
 
----
 ---
 
 ## New & Extended Library Functions
@@ -31,14 +30,14 @@ This README has been refreshed in accordance with the CONTRIBUTING guidelines. I
 - **New:** `gatherFullTelemetryData()`: Gathers full telemetry data including additional GitHub environment variables such as refs and shas.
 - `delegateDecisionToLLM(prompt)`: Delegates a decision to an LLM via OpenAI's API.
 - **Improved:** `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM with error logging and schema validation.
-- **New:** `delegateDecisionToLLMAdvanced(prompt, options)`: An extended wrapper for delegating decisions to an advanced LLM based chat completions API using function calling with tool schema.
+- **New:** `delegateDecisionToLLMAdvanced(prompt, options)`: An extended wrapper for delegating decisions to an advanced LLM based on chat completions with function calling schema.
 - **New:** `sendMessageToKafka(topic, message)`: Simulates sending a message to a Kafka topic.
 - **New:** `receiveMessageFromKafka(topic)`: Simulates receiving a message from a Kafka topic.
 - **New:** `logKafkaOperations(topic, message)`: Combines Kafka send and receive simulations for debugging.
 - **New:** `simulateKafkaStream(topic, count)`: Simulates streaming a series of messages from a Kafka topic.
 - **New:** `simulateKafkaDetailedStream(topic, count)`: Extended Kafka stream simulation with detailed logging.
 - **New:** `analyzeSystemPerformance()`: Provides system performance telemetry including platform, CPU count, and total memory.
-- **New:** `callRemoteService(serviceUrl)`: Simulates remote service API calls using fetch with HTTP response checking.
+- **New:** `callRemoteService(serviceUrl)`: Simulates remote service API calls using fetch with HTTP error checking.
 - **New:** `callAnalyticsService(serviceUrl, data)`: Simulates sending analytics data to a remote endpoint with HTTP response validation.
 - **New:** `callNotificationService(serviceUrl, payload)`: Simulates sending a notification with HTTP response checks.
 - **New:** `callBuildStatusService(serviceUrl)`: Simulates checking the CI build status with HTTP response validation.
@@ -51,7 +50,7 @@ This README has been refreshed in accordance with the CONTRIBUTING guidelines. I
 - Added new flags such as `--env`, `--reverse`, `--telemetry`, `--telemetry-extended`, `--create-issue`, and `--extended` to enhance functionality.
 - Integrated extended telemetry gathering functions and improved remote service wrappers with HTTP error checking.
 - Extended Kafka simulation with detailed logging for system diagnostics.
-- Refactored the main command processing to reduce cognitive complexity and improve maintainability.
+- Refactored main command processing to reduce cognitive complexity and improve maintainability.
 - **Fixed:** Updated regex in `getIssueNumberFromBranch` for proper extraction of issue numbers.
 - **Extended:** Added `delegateDecisionToLLMAdvanced` to enhance OpenAI API delegation with advanced options and tool call schema.
 
@@ -97,7 +96,7 @@ This repository is organized into three distinct areas to help you understand th
 - **Purpose:**  
   This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
-  It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
+  It is under active development and represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
   As part of the core project, it is under GPL‑3 with the attribution clause.
 - **Location:**  
@@ -131,8 +130,6 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
----
----
 ---
 
 ## Contributing
@@ -165,9 +162,9 @@ This repository is organized into three distinct areas to help you understand th
 
 ### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
 - **Purpose:**  
-  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
+  This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
-  It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
+  It is under active development and represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
   As part of the core project, it is under GPL‑3 with the attribution clause.
 - **Location:**  
@@ -198,7 +195,3 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
-
----
----
----
