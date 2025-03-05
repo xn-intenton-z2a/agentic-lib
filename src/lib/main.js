@@ -15,6 +15,7 @@
 // - Updated printReport to include advanced telemetry data.
 // - Added bulk Kafka simulation function simulateKafkaBulkStream.
 // - Added agentic health check function performAgenticHealthCheck for system diagnostics.
+// - Added new Kafka inter-workflow communication simulation function simulateKafkaInterWorkflowCommunication to enable communication between agentic workflows.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -150,6 +151,39 @@ export function simulateKafkaDetailedStream(topic, count = 3) {
   const messages = simulateKafkaStream(topic, count).map((msg) => `${msg} (detailed)`);
   messages.forEach((message) => console.log(message));
   return messages;
+}
+
+/**
+ * New function to simulate sending a bulk stream of Kafka messages.
+ * @param {string} topic
+ * @param {number} count
+ * @returns {string[]} An array of simulated bulk messages.
+ */
+export function simulateKafkaBulkStream(topic, count = 5) {
+  const messages = [];
+  for (let i = 0; i < count; i++) {
+    const msg = `Bulk message ${i + 1} from topic '${topic}'`;
+    console.log(msg);
+    messages.push(msg);
+  }
+  return messages;
+}
+
+/**
+ * New function to simulate inter-workflow Kafka communication by broadcasting a message to multiple topics.
+ * @param {string[]} topics - Array of Kafka topics.
+ * @param {string} message - The message to send.
+ * @returns {object} An object with each topic as a key and its messaging simulation as a value.
+ */
+export function simulateKafkaInterWorkflowCommunication(topics, message) {
+  const results = {};
+  topics.forEach(topic => {
+    const sent = sendMessageToKafka(topic, message);
+    const received = receiveMessageFromKafka(topic);
+    results[topic] = { sent, received };
+    console.log(chalk.blue(`Inter-workflow Kafka simulation for topic '${topic}':`, results[topic]));
+  });
+  return results;
 }
 
 /**
@@ -465,7 +499,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
+  const regex = new RegExp(safePrefix + "(\d{1,10})\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -671,26 +705,16 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
   }
 }
 
-// New function to simulate sending a bulk stream of Kafka messages.
 /**
- * Simulate sending a bulk stream of Kafka messages.
+ * New function to simulate sending a bulk stream of Kafka messages.
  * @param {string} topic
  * @param {number} count
  * @returns {string[]} An array of simulated bulk messages.
  */
-export function simulateKafkaBulkStream(topic, count = 5) {
-  const messages = [];
-  for (let i = 0; i < count; i++) {
-    const msg = `Bulk message ${i + 1} from topic '${topic}'`;
-    console.log(msg);
-    messages.push(msg);
-  }
-  return messages;
-}
+// (Already defined above as simulateKafkaBulkStream)
 
-// New function to perform a health check of the agentic system.
 /**
- * Perform a health check of the agentic system.
+ * New function to perform a health check of the agentic system.
  * Aggregates system performance and telemetry data to provide a health report.
  */
 export function performAgenticHealthCheck() {
