@@ -11,6 +11,8 @@
 // - Improved regex safety in getIssueNumberFromBranch for proper extraction of issue numbers.
 // - Extended OpenAI delegation with delegateDecisionToLLMAdvanced using tool call schema.
 // - Added new remote service wrapper: callDeploymentService, useful for triggering deployment actions in agentic workflows.
+// - Added new telemetry function gatherAdvancedTelemetryData to collect additional runtime and process information.
+// - Updated printReport to include advanced telemetry data.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -21,7 +23,7 @@ import { randomInt } from "crypto";
 
 // Helper function to escape regex special characters
 function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return string.replace(/[.*+?^${}()|[\\\]]/g, "\\$&");
 }
 
 /**
@@ -71,6 +73,19 @@ export function gatherFullTelemetryData() {
     githubSha: process.env.GITHUB_SHA || "N/A",
     githubHeadRef: process.env.GITHUB_HEAD_REF || "N/A",
     githubBaseRef: process.env.GITHUB_BASE_REF || "N/A",
+  };
+}
+
+/**
+ * Gather advanced telemetry data including runtime and process details.
+ */
+export function gatherAdvancedTelemetryData() {
+  return {
+    nodeVersion: process.version,
+    processPID: process.pid,
+    currentWorkingDirectory: process.cwd(),
+    platform: process.platform,
+    memoryUsage: process.memoryUsage(),
   };
 }
 
@@ -319,17 +334,19 @@ export function parseVitestOutput(outputStr) {
 }
 
 /**
- * New utility function to print a combined diagnostic report including system performance and telemetry data.
+ * New utility function to print a combined diagnostic report including system performance, telemetry data, and advanced telemetry.
  */
 function printReport() {
   const sysPerf = analyzeSystemPerformance();
   const telemetry = gatherTelemetryData();
   const extendedTelemetry = gatherExtendedTelemetryData();
   const fullTelemetry = gatherFullTelemetryData();
+  const advancedTelemetry = gatherAdvancedTelemetryData();
   console.log(chalk.green("System Performance: " + JSON.stringify(sysPerf, null, 2)));
   console.log(chalk.green("Telemetry Data: " + JSON.stringify(telemetry, null, 2)));
   console.log(chalk.green("Extended Telemetry Data: " + JSON.stringify(extendedTelemetry, null, 2)));
   console.log(chalk.green("Full Telemetry Data: " + JSON.stringify(fullTelemetry, null, 2)));
+  console.log(chalk.green("Advanced Telemetry Data: " + JSON.stringify(advancedTelemetry, null, 2)));
 }
 
 /**
