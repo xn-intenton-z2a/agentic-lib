@@ -12,6 +12,7 @@ import {
   gatherExtendedTelemetryData,
   gatherFullTelemetryData,
   gatherAdvancedTelemetryData,
+  gatherGitHubTelemetrySummary,
   gatherFullSystemReport,
   simulateRealKafkaStream,
   delegateDecisionToLLM,
@@ -248,6 +249,28 @@ describe("gatherAdvancedTelemetryData", () => {
     expect(advancedTelemetry).toHaveProperty("currentWorkingDirectory");
     expect(advancedTelemetry).toHaveProperty("platform");
     expect(advancedTelemetry).toHaveProperty("memoryUsage");
+  });
+});
+
+describe("gatherGitHubTelemetrySummary", () => {
+  test("returns merged telemetry data", () => {
+    process.env.GITHUB_WORKFLOW = "CI Workflow";
+    process.env.GITHUB_RUN_ID = "12345";
+    process.env.GITHUB_RUN_NUMBER = "67";
+    process.env.GITHUB_JOB = "build";
+    process.env.GITHUB_ACTION = "run";
+    process.env.GITHUB_ACTOR = "tester";
+    process.env.GITHUB_REPOSITORY = "repo/test";
+    process.env.GITHUB_EVENT_NAME = "push";
+    process.env.GITHUB_REF = "refs/heads/main";
+    process.env.GITHUB_SHA = "abc123";
+    process.env.GITHUB_HEAD_REF = "feature-branch";
+    process.env.GITHUB_BASE_REF = "main";
+    process.env.NODE_ENV = "test";
+    const summary = gatherGitHubTelemetrySummary();
+    expect(summary.githubWorkflow).toBe("CI Workflow");
+    expect(summary.githubActor).toBe("tester");
+    expect(summary.githubRef).toBe("refs/heads/main");
   });
 });
 
