@@ -21,6 +21,7 @@ import {
   simulateKafkaStream,
   simulateKafkaDetailedStream,
   simulateKafkaBulkStream,
+  simulateKafkaInterWorkflowCommunication,
   performAgenticHealthCheck,
   analyzeSystemPerformance,
   callRemoteService,
@@ -499,6 +500,16 @@ describe("New Features", () => {
     messages.forEach((msg, index) => {
       expect(msg).toContain(`Bulk message ${index + 1} from topic 'bulkTopic'`);
     });
+  });
+
+  test("simulateKafkaInterWorkflowCommunication returns simulation results for multiple topics", () => {
+    const topics = ["topicA", "topicB"];
+    const message = "Hello Workflows";
+    const results = simulateKafkaInterWorkflowCommunication(topics, message);
+    expect(results).toHaveProperty("topicA");
+    expect(results).toHaveProperty("topicB");
+    expect(results.topicA.sent).toContain(message);
+    expect(results.topicB.received).toContain("Simulated message");
   });
 
   test("performAgenticHealthCheck returns health report with status healthy", () => {
