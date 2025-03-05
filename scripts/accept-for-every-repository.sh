@@ -6,15 +6,19 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 cd ..
+echo "repository0..."
 cd repository0
 ./scripts/accept-release.sh
 cd ..
+echo "repository0-crucible..."
 cd repository0-crucible
 ./scripts/accept-release.sh
 cd ..
+echo "plot-code-lib..."
 cd plot-code-lib
 ./scripts/accept-release.sh
 cd ..
+echo "tansu-sqs-bridge..."
 cd tansu-sqs-bridge
 ./scripts/accept-release.sh
 cd ..

@@ -187,9 +187,12 @@ jobs:
           uniqueFile=$(echo "${{ steps.uniqueFile.outputs.uniqueFile }}" | tr -d '\n')
           uniqueUrl="${baseUrl}/stats/${uniqueFile}"
           pwd
+          echo "stats:"
           ls -larth "stats"
-          ls -larth "${latestUrl}"
-          ls -larth "${uniqueUrl}"
+          echo "stats/latest.html:"
+          ls -larth "/stats/latest.html"
+          echo "stats/${uniqueFile}:"
+          ls -larth "/stats/${uniqueFile}"
           echo "[INFO] Latest page URL: ${latestUrl}"
           echo "[INFO] Unique version URL: ${uniqueUrl}"
           echo "latestUrl=${latestUrl}" >> $GITHUB_OUTPUT
