@@ -148,7 +148,7 @@ jobs:
             if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir);
             }
-            const outputPath = path.join(outputDir, "index.html");
+            const outputPath = path.join(outputDir, "latest-stats.html");
             fs.writeFileSync(outputPath, html, "utf8");
             core.info(`Static site generated at ${outputPath}.`);
             core.setOutput("sitePath", outputPath);
@@ -164,7 +164,7 @@ jobs:
         run: |
           echo "[INFO] Generating a unique filename..."
           unique=$(date +%Y%m%d%H%M%S)-$(uuidgen).html
-          cp site/index.html "site/${unique}"
+          cp site/latest-stats.html "site/${unique}"
           echo "uniqueFile=${unique}" >> $GITHUB_OUTPUT
           echo "[INFO] Unique file created: site/${unique}"
 
@@ -183,9 +183,14 @@ jobs:
           repoName=${{ github.event.repository.name }}
           owner=${{ github.repository_owner }}
           baseUrl="https://${owner}.github.io/${repoName}"
+          latestUrl="${baseUrl}/latest-stats.html"
           uniqueFile=$(echo "${{ steps.uniqueFile.outputs.uniqueFile }}" | tr -d '\n')
           uniqueUrl="${baseUrl}/${uniqueFile}"
-          echo "[INFO] Default page URL: ${baseUrl}"
+          pwd
+          ls -larth "site"
+          ls -larth "${latestUrl}"
+          ls -larth "${uniqueUrl}"
+          echo "[INFO] Latest page URL: ${latestUrl}"
           echo "[INFO] Unique version URL: ${uniqueUrl}"
-          echo "defaultUrl=${defaultUrl}" >> $GITHUB_OUTPUT
+          echo "latestUrl=${latestUrl}" >> $GITHUB_OUTPUT
           echo "uniqueUrl=${uniqueUrl}" >> $GITHUB_OUTPUT
