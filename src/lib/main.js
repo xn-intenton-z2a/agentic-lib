@@ -7,7 +7,7 @@
 // - Integrated Kafka logging, system performance telemetry, remote service wrappers (analytics, notification, and build status), improved LLM decision delegation with error logging and zod validation.
 // - Added extended Kafka simulation function simulateKafkaDetailedStream for detailed diagnostics.
 // - Added new report functionality to output combined diagnostics from telemetry and system performance.
-// - Added extended diagnostic reporting: now report prints Extended Telemetry Data and Full Telemetry Data for enhanced diagnostics.
+// - Updated Change Log: Refreshed README content in line with CONTRIBUTING guidelines.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -521,8 +521,7 @@ export async function delegateDecisionToLLMWrapped(prompt) {
       messages: [
         {
           role: "system",
-          content:
-            "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema.",
+          content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema.",
         },
         { role: "user", content: prompt },
       ],

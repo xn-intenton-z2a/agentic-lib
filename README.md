@@ -8,12 +8,11 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 
 Mixed licensing:
 * This project is licensed under the GNU General Public License (GPL).
-* This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
-* This file is licensed under the MIT License. For details, see LICENSE-MIT
+* This file is part of the example suite for `agentic-lib` (see: https://github.com/xn-intenton-z2a/agentic-lib).
+* This file is licensed under the MIT License. For details, see LICENSE-MIT.
 
-This README file has been refreshed to align with the latest CONTRIBUTING guidelines. Irrelevant or outdated content has been pruned and relevant sections updated.
+This README has been refreshed in accordance with the CONTRIBUTING guidelines. Irrelevant and outdated content has been pruned, with relevant sections updated to reflect the current state of the library.
 
----
 ---
 
 ## New Exported Utility Functions
@@ -27,69 +26,46 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - `logEnvironmentDetails()`: Logs current environment details such as NODE_ENV.
 - `showVersion()`: Returns the current version of the library.
 - `gatherTelemetryData()`: Gathers telemetry data from the GitHub Actions workflow environment.
-- **New:** `gatherExtendedTelemetryData()`: Gathers extended telemetry data including additional GitHub environment variables (e.g., GITHUB_ACTOR, GITHUB_REPOSITORY, GITHUB_EVENT_NAME, and CI).
+- **New:** `gatherExtendedTelemetryData()`: Gathers extended telemetry data including additional GitHub environment variables (e.g. GITHUB_ACTOR, GITHUB_REPOSITORY, GITHUB_EVENT_NAME, and CI).
 - **New:** `gatherFullTelemetryData()`: Gathers full telemetry data including additional GitHub environment variables such as GITHUB_REF, GITHUB_SHA, GITHUB_HEAD_REF, and GITHUB_BASE_REF.
-- `delegateDecisionToLLM(prompt)`: Delegates a decision to an advanced LLM via OpenAI's chat completions API. (Falls back in test environments.)
+- `delegateDecisionToLLM(prompt)`: Delegates a decision to an LLM via OpenAI's API (with fallback in test environments).
 - **New & Improved:** `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM with improved error logging and schema validation.
 - **New:** `sendMessageToKafka(topic, message)`: Simulates sending a message to a Kafka topic.
 - **New:** `receiveMessageFromKafka(topic)`: Simulates receiving a message from a Kafka topic.
-- **New:** `logKafkaOperations(topic, message)`: Combines Kafka send and receive simulations for logging purposes.
+- **New:** `logKafkaOperations(topic, message)`: Combines Kafka send and receive simulations for debugging.
 - **New:** `simulateKafkaStream(topic, count)`: Simulates streaming a series of messages from a Kafka topic.
-- **New:** `simulateKafkaDetailedStream(topic, count)`: Extended Kafka stream simulation with detailed logging for diagnostics.
-- **New:** `analyzeSystemPerformance()`: Provides system performance telemetry including platform, number of CPUs, and total memory.
-- **New:** `callRemoteService(serviceUrl)`: A wrapper that uses native fetch to simulate API calls with enhanced error logging.
+- **New:** `simulateKafkaDetailedStream(topic, count)`: Extended Kafka stream simulation with detailed logging.
+- **New:** `analyzeSystemPerformance()`: Provides system performance telemetry including platform, CPU count, and total memory.
+- **New:** `callRemoteService(serviceUrl)`: Simulates remote service API calls using fetch with enhanced error logging.
 - **New:** `callAnalyticsService(serviceUrl, data)`: Simulates sending analytics data to a remote endpoint.
-- **New:** `callNotificationService(serviceUrl, payload)`: Simulates sending a notification, useful for alerts or updates from agentic workflows.
-- **New:** `callBuildStatusService(serviceUrl)`: A new remote service wrapper to simulate checking the CI build status.
-- **New Flags:** Introduced `--simulate-remote`, `--sarif`, and **`--report`** to trigger remote calls, process SARIF reports, and produce combined diagnostic reports respectively.
-- **New:** Extended the diagnostic report functionality (`--report`) to output Extended Telemetry Data and Full Telemetry Data for more comprehensive diagnostics.
-- **New:** Added **`--reverse`** flag to reverse non-flag arguments.
+- **New:** `callNotificationService(serviceUrl, payload)`: Simulates sending a notification, useful for alerts in agentic workflows.
+- **New:** `callBuildStatusService(serviceUrl)`: Simulates checking the CI build status.
+- **New Flags:** Introduced `--simulate-remote`, `--sarif`, and **`--report`** for remote calls, processing SARIF reports, and combined diagnostics respectively.
 
 ---
 
-## New Features
+## New Features & Recent Improvements
 
-- Added a new `--env` flag to print environment variables for debugging.
-- Extended functionality with a new `--reverse` flag to reverse non-flag arguments.
-- Added a new `--telemetry` flag to output telemetry data from GitHub Actions environments.
-- **New:** Added a `--telemetry-extended` flag that outputs extended telemetry data including additional GitHub environment variables.
-- **New:** Added a `--create-issue` flag that simulates GitHub workflow issue creation.
-- **New & Improved:** Extended `delegateDecisionToLLMWrapped()` for enhanced error logging and schema validation.
-- **New:** Simulated Kafka messaging functions for inter-workflow communication, including functions for detailed diagnostics.
-- **New:** Added `analyzeSystemPerformance()` to provide system performance telemetry.
-- **New:** Added remote service wrappers for analytics, notification, and build status checks.
-- **New:** Introduced a `--simulate-remote` flag to simulate remote service calls.
-- **New:** Added a `--sarif` flag to process SARIF reports.
-- **New:** Enhanced the `--report` flag to generate a combined diagnostic report that now includes Extended Telemetry Data and Full Telemetry Data.
-
----
-
-## Recent Improvements
-
-- Consolidated the application exit routine and enhanced code comments in `main.js`.
-- Refactored regex construction in `getIssueNumberFromBranch` and improved randomness in issue simulation.
-- Extended flag processing functions to provide clearer outputs, with support for `--verbose` and `--debug` flags.
-- **New:** Integrated telemetry gathering functions including `gatherExtendedTelemetryData()` and `gatherFullTelemetryData()` for comprehensive GitHub Actions data.
-- **New:** Enhanced remote service wrappers for analytics, notification, and build status checks.
-- **New:** Improved LLM decision delegation in `delegateDecisionToLLMWrapped()` with refined error handling and schema validation.
-- **New:** Extended Kafka simulation with the new `simulateKafkaDetailedStream()` function and the `--extended` flag for detailed logging diagnostics.
-- **New:** Extended diagnostic report functionality via the `--report` flag; the report now includes Extended Telemetry Data and Full Telemetry Data for better diagnostics.
+- Added new flags such as `--env`, `--reverse`, `--telemetry`, `--telemetry-extended`, `--create-issue`, and `--extended` to enhance functionality.
+- Integrated extended telemetry gathering functions and improved remote service wrappers.
+- Extended Kafka simulation with detailed logging for systems diagnostics.
+- Updated internal documentation and in-code comments for clarity and maintainability.
 
 ---
 
 ## Future Enhancements
 
-- Extend workflow automation functions to integrate additional remote service wrappers and notifications.
-- Enhance GitHub API integration for dynamic issue and PR management.
-- Expand logging and monitoring capabilities for continuous integration metrics.
-- Further abstract shared code to reduce duplication and improve modularity.
-- Increase test coverage, including more exhaustive tests for external resources.
+- Integration with additional remote services for more robust workflow automation.
+- Enhanced GitHub API integration for dynamic issue and PR management.
+- Expanded logging and monitoring capabilities to support more comprehensive CI/CD metrics.
 
 ---
 
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+---
 
 ## Component Breakdown
 
@@ -117,80 +93,15 @@ This repository is organized into three distinct areas to help you understand th
 
 ### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
 - **Purpose:**  
-  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
+  This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
-  It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
+  It is under active development and may change frequently, representing bleeding‑edge functionality.
 - **Licensing:**  
   As part of the core project, it is under GPL‑3 with the attribution clause.
 - **Location:**  
   The code is located in `src/lib/main.js`.
 
-## License
-
-This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
-
-License notice:
-```
-agentic-lib
-Copyright (C) 2025 Polycode Limited
-
-agentic-lib is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
-along with this program. If not, see <https://www.gnu.org/licenses/>
-
-IMPORTANT: Any derived work must include the following attribution:
-"This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
-```
-
 ---
----
-
-## Contributing
-
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-## Component Breakdown
-
-This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:
-
-### 1. Re‑usable Workflows (Core Functionality)
-- **Purpose:**  
-  These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.
-- **Stability:**  
-  They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.
-- **Licensing:**  
-  The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.
-- **Location:**  
-  Find these in the `.github/workflows/` directory.
-
-### 2. Example Workflows (Demonstrative Content)
-- **Purpose:**  
-  These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
-- **Stability:**  
-  While functional, they are intended primarily for demonstration and experimentation.
-- **Licensing:**  
-  The example workflows are covered by the MIT license to allow for broader use and modification.
-- **Location:**  
-  Look in the `examples/` directory for sample implementations.
-
-### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
-- **Purpose:**  
-  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
-- **Stability:**  
-  It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
-- **Licensing:**  
-  As part of the core project, it is under GPL‑3 with the attribution clause.
-- **Location:**  
-  The code is located in `src/lib/main.js`.
 
 ## License
 
@@ -218,5 +129,4 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
----
 ---
