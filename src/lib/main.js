@@ -13,6 +13,7 @@
 // - Added new remote service wrapper: callDeploymentService, useful for triggering deployment actions in agentic workflows.
 // - Added new telemetry function gatherAdvancedTelemetryData to collect additional runtime and process information.
 // - Updated printReport to include advanced telemetry data.
+// - Refreshed README to align with contributing guidelines.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -463,7 +464,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
+  const regex = new RegExp(safePrefix + "(\d{1,10})\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
