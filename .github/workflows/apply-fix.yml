@@ -98,6 +98,7 @@ jobs:
               execSync("git config --local user.email '${{ env.gitUserEmail }}'", { stdio: 'pipe' });
               execSync("git config --local user.name '${{ env.gitUserName }}'", { stdio: 'pipe' });
               execSync("git status -v", { stdio: 'pipe' });
+              execSync(`git pull --ff-only origin ${branch}`, { stdio: 'pipe' });
               try {
                 core.info("Fetching main branch...");
                 execSync("git fetch origin main", { stdio: 'pipe' });
