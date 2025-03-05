@@ -13,6 +13,8 @@
 // - Added new remote service wrapper: callDeploymentService, useful for triggering deployment actions in agentic workflows.
 // - Added new telemetry function gatherAdvancedTelemetryData to collect additional runtime and process information.
 // - Updated printReport to include advanced telemetry data.
+//
+// Fix: Updated regex in getIssueNumberFromBranch to correctly capture digits due to proper escaping in string-based regex creation.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
