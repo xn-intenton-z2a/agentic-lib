@@ -152,14 +152,41 @@ jobs:
             const outputPath = path.join(outputDir, "index.html");
             fs.writeFileSync(outputPath, html, "utf8");
             core.info(`Static site generated at ${outputPath}.`);
-            
-            // Optionally, set an output with the path or other info.
             core.setOutput("sitePath", outputPath);
-        env:
-          model: ${{ inputs.model }}
 
       - name: Upload generated site as artifact
         uses: actions/upload-artifact@v3
         with:
           name: stats-site
           path: site
+
+      - name: Generate unique filename for this version
+        id: uniqueFile
+        run: |
+          echo "[INFO] Generating a unique filename..."
+          unique=$(date +%Y%m%d%H%M%S)-$(uuidgen).html
+          cp site/index.html "site/${unique}"
+          echo "uniqueFile=${unique}" >> $GITHUB_OUTPUT
+          echo "[INFO] Unique file created: site/${unique}"
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: site
+          # Optionally specify a custom cname if needed:
+          # cname: your.custom.domain
+
+      - name: Output published URLs
+        run: |
+          echo "[INFO] Determining GitHub Pages URL..."
+          # GitHub Pages URL typically: https://<owner>.github.io/<repo>/
+          repoName=${{ github.event.repository.name }}
+          owner=${{ github.repository_owner }}
+          baseUrl="https://${owner}.github.io/${repoName}"
+          uniqueFile=$(echo "${{ steps.uniqueFile.outputs.uniqueFile }}" | tr -d '\n')
+          uniqueUrl="${baseUrl}/${uniqueFile}"
+          echo "[INFO] Default page URL: ${baseUrl}"
+          echo "[INFO] Unique version URL: ${uniqueUrl}"
+          echo "defaultUrl=${defaultUrl}" >> $GITHUB_OUTPUT
+          echo "uniqueUrl=${uniqueUrl}" >> $GITHUB_OUTPUT
