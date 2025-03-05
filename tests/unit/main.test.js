@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeAll, afterAll, afterEach } from "vitest";
+import { describe, test, expect, vi, beforeAll, afterAll } from "vitest";
 import {
   reviewIssue,
   splitArguments,
@@ -168,7 +168,6 @@ describe("Utility Functions", () => {
     process.env.GITHUB_JOB = "build";
     process.env.GITHUB_ACTION = "run";
     process.env.NODE_ENV = "test";
-
     const telemetry = gatherTelemetryData();
     expect(telemetry.githubWorkflow).toBe("CI Workflow");
     expect(telemetry.githubRunId).toBe("12345");
@@ -189,7 +188,6 @@ describe("Utility Functions", () => {
     process.env.GITHUB_EVENT_NAME = "push";
     process.env.CI = "true";
     process.env.NODE_ENV = "test";
-
     const extendedTelemetry = gatherExtendedTelemetryData();
     expect(extendedTelemetry.githubWorkflow).toBe("CI Workflow");
     expect(extendedTelemetry.githubActor).toBe("tester");
@@ -213,7 +211,6 @@ describe("Utility Functions", () => {
     process.env.GITHUB_EVENT_NAME = "push";
     process.env.CI = "true";
     process.env.NODE_ENV = "test";
-
     const fullTelemetry = gatherFullTelemetryData();
     expect(fullTelemetry.githubRef).toBe("refs/heads/main");
     expect(fullTelemetry.githubSha).toBe("abc123");
@@ -325,8 +322,8 @@ describe("Utility Functions", () => {
     const output = captureOutput(() => {
       try {
         main(["--simulate-remote"]);
-      } catch (error) {
-        console.error("Caught error:", error.message);
+      } catch (e) {
+        console.error("Caught error:", e.message);
       }
     });
     expect(output).toContain("Simulated remote service call initiated.");
@@ -498,5 +495,18 @@ describe("Utility Functions", () => {
     });
     expect(output).toContain("Extended logging activated.");
     expect(output).toContain("Detailed messages:");
+  });
+
+  test("main with --report flag prints combined diagnostics", () => {
+    process.env.NODE_ENV = "test";
+    const output = captureOutput(() => {
+      try {
+        main(["--report"]);
+      } catch (error) {
+        console.error("Caught error:", error.message);
+      }
+    });
+    expect(output).toContain("System Performance:");
+    expect(output).toContain("Telemetry Data:");
   });
 });
