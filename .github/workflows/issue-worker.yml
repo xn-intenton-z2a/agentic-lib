@@ -149,7 +149,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-issue-resolution.yml.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-issue-resolution.yml@main'
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       target: ${{ inputs.target || 'src/lib/main.js' }}

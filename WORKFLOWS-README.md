@@ -105,7 +105,7 @@ These workflows generalize the concept of work items as “tasks” rather than 
 - **Function:** Selects, validates, and initiates work on existing tasks.
 - **Reusable Workflows:**
   - [`wfr-select-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@1.2.0)
-  - [`wfr-apply-issue-resolution.yml.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-issue-resolution.yml.yml@1.2.0)
+  - [`wfr-apply-issue-resolution.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-issue-resolution.yml@1.2.0)
   - [`wfr-create-pr.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.2.0)
 
 ### Issue Reviewer (`issue-reviewer.yml`)

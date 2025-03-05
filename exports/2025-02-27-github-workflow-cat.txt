@@ -2023,9 +2023,9 @@ jobs:
 
     outputs:
       prMerged: ${{ steps.auto-merge-pr.outputs.prMerged }}
-./.github/workflows/wfr-apply-issue-resolution.yml.yml
-==== Content of ./.github/workflows/wfr-apply-issue-resolution.yml.yml ====
-# .github/workflows/wfr-apply-issue-resolution.yml.yml
+./.github/workflows/wfr-apply-issue-resolution.yml
+==== Content of ./.github/workflows/wfr-apply-issue-resolution.yml ====
+# .github/workflows/wfr-apply-issue-resolution.yml
 
 #
 # agentic-lib
@@ -3640,7 +3640,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-issue-resolution.yml.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-issue-resolution.yml@main'
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
