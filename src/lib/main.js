@@ -4,9 +4,10 @@
 // - Pruned drift and aligned with the mission statement.
 // - Removed redundant simulation verbiage while retaining demo outputs.
 // - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, --extended, and new --report for combined diagnostics.
-// - Integrated Kafka logging, system performance telemetry, remote service wrappers (including analytics, notification, and build status), improved LLM decision delegation with error logging and zod validation.
+// - Integrated Kafka logging, system performance telemetry, remote service wrappers (analytics, notification, and build status), improved LLM decision delegation with error logging and zod validation.
 // - Added extended Kafka simulation function simulateKafkaDetailedStream for detailed diagnostics.
 // - Added new report functionality to output combined diagnostics from telemetry and system performance.
+// - Added extended diagnostic reporting: now report prints Extended Telemetry Data and Full Telemetry Data for enhanced diagnostics.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -282,8 +283,14 @@ export function parseVitestOutput(outputStr) {
  * New utility function to print a combined diagnostic report including system performance and telemetry data.
  */
 function printReport() {
-  console.log(chalk.green("System Performance: " + JSON.stringify(analyzeSystemPerformance(), null, 2)));
-  console.log(chalk.green("Telemetry Data: " + JSON.stringify(gatherTelemetryData(), null, 2)));
+  const sysPerf = analyzeSystemPerformance();
+  const telemetry = gatherTelemetryData();
+  const extendedTelemetry = gatherExtendedTelemetryData();
+  const fullTelemetry = gatherFullTelemetryData();
+  console.log(chalk.green("System Performance: " + JSON.stringify(sysPerf, null, 2)));
+  console.log(chalk.green("Telemetry Data: " + JSON.stringify(telemetry, null, 2)));
+  console.log(chalk.green("Extended Telemetry Data: " + JSON.stringify(extendedTelemetry, null, 2)));
+  console.log(chalk.green("Full Telemetry Data: " + JSON.stringify(fullTelemetry, null, 2)));
 }
 
 /**
@@ -391,7 +398,7 @@ export function main(args = []) {
   }
 
   if (nonFlagArgs.length > 0) {
-    console.log("Non-flag arguments:", nonFlagArgs.join(", "));
+    console.log("Non-flag arguments:", nonFlagArgs.join(","));
   }
 
   exitApplication();
@@ -403,7 +410,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d+)");
+  const regex = new RegExp(safePrefix + "(\d+)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }

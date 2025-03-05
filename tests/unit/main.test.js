@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeAll, afterAll, afterEach } from "vitest";
+import { describe, test, expect, vi, beforeAll, afterAll } from "vitest";
 import {
   reviewIssue,
   splitArguments,
@@ -371,7 +371,7 @@ describe("Utility Functions", () => {
   });
 
   describe("Remote Service Wrapper", () => {
-    afterEach(() => {
+    afterAll(() => {
       if (global.fetch) vi.resetAllMocks();
     });
 
@@ -497,7 +497,7 @@ describe("Utility Functions", () => {
     expect(output).toContain("Detailed messages:");
   });
 
-  test("main with --report flag prints combined diagnostics", () => {
+  test("main with --report flag prints combined diagnostics including full and extended telemetry", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
       try {
@@ -508,5 +508,7 @@ describe("Utility Functions", () => {
     });
     expect(output).toContain("System Performance:");
     expect(output).toContain("Telemetry Data:");
+    expect(output).toContain("Extended Telemetry Data:");
+    expect(output).toContain("Full Telemetry Data:");
   });
 });

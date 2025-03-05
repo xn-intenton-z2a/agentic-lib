@@ -30,7 +30,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** `gatherExtendedTelemetryData()`: Gathers extended telemetry data including additional GitHub environment variables (e.g., GITHUB_ACTOR, GITHUB_REPOSITORY, GITHUB_EVENT_NAME, and CI).
 - **New:** `gatherFullTelemetryData()`: Gathers full telemetry data including additional GitHub environment variables such as GITHUB_REF, GITHUB_SHA, GITHUB_HEAD_REF, and GITHUB_BASE_REF.
 - `delegateDecisionToLLM(prompt)`: Delegates a decision to an advanced LLM via OpenAI's chat completions API. (Falls back in test environments.)
-- **New & Improved:** `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM that mimics function calling behavior, with improved error logging and schema validation using zod.
+- **New & Improved:** `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM with improved error logging and schema validation.
 - **New:** `sendMessageToKafka(topic, message)`: Simulates sending a message to a Kafka topic.
 - **New:** `receiveMessageFromKafka(topic)`: Simulates receiving a message from a Kafka topic.
 - **New:** `logKafkaOperations(topic, message)`: Combines Kafka send and receive simulations for logging purposes.
@@ -39,9 +39,10 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** `analyzeSystemPerformance()`: Provides system performance telemetry including platform, number of CPUs, and total memory.
 - **New:** `callRemoteService(serviceUrl)`: A wrapper that uses native fetch to simulate API calls with enhanced error logging.
 - **New:** `callAnalyticsService(serviceUrl, data)`: Simulates sending analytics data to a remote endpoint.
-- **New:** `callNotificationService(serviceUrl, payload)`: Simulates sending a notification to a remote endpoint, which can be useful for sending alerts or updates from agentic workflows.
+- **New:** `callNotificationService(serviceUrl, payload)`: Simulates sending a notification, useful for alerts or updates from agentic workflows.
 - **New:** `callBuildStatusService(serviceUrl)`: A new remote service wrapper to simulate checking the CI build status.
-- **New:** Introduced flags `--simulate-remote`, `--sarif`, and **`--report`** to trigger remote calls, process SARIF reports, and produce combined diagnostic reports respectively.
+- **New Flags:** Introduced `--simulate-remote`, `--sarif`, and **`--report`** to trigger remote calls, process SARIF reports, and produce combined diagnostic reports respectively.
+- **New:** Extended the diagnostic report functionality (`--report`) to output Extended Telemetry Data and Full Telemetry Data for more comprehensive diagnostics.
 - **New:** Added **`--reverse`** flag to reverse non-flag arguments.
 
 ---
@@ -51,29 +52,28 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - Added a new `--env` flag to print environment variables for debugging.
 - Extended functionality with a new `--reverse` flag to reverse non-flag arguments.
 - Added a new `--telemetry` flag to output telemetry data from GitHub Actions environments.
-- **New:** Added a new `--telemetry-extended` flag that outputs extended telemetry data, including additional GitHub environment variables.
-- **New:** Added a new `--create-issue` flag that simulates GitHub workflow issue creation with support for a "house choice" option based on environment variables.
-- **New & Improved:** Extended `delegateDecisionToLLMWrapped()` for improved error logging and schema validation, matching the supplied OpenAI function format.
-- **New:** Simulated Kafka messaging functions for inter-workflow communication. This includes the new functions `simulateKafkaStream` and `simulateKafkaDetailedStream` for extended diagnostics.
+- **New:** Added a `--telemetry-extended` flag that outputs extended telemetry data including additional GitHub environment variables.
+- **New:** Added a `--create-issue` flag that simulates GitHub workflow issue creation.
+- **New & Improved:** Extended `delegateDecisionToLLMWrapped()` for enhanced error logging and schema validation.
+- **New:** Simulated Kafka messaging functions for inter-workflow communication, including functions for detailed diagnostics.
 - **New:** Added `analyzeSystemPerformance()` to provide system performance telemetry.
-- **New:** Added remote service wrappers for analytics, notification, and build status checks via `callAnalyticsService()`, `callNotificationService()`, and `callBuildStatusService()`.
-- **New:** Introduced a new `--simulate-remote` flag to simulate remote service calls.
-- **New:** Added a new `--sarif` flag to process SARIF reports.
-- **New:** Added a new `--report` flag to generate a combined diagnostic report including system performance and telemetry data.
+- **New:** Added remote service wrappers for analytics, notification, and build status checks.
+- **New:** Introduced a `--simulate-remote` flag to simulate remote service calls.
+- **New:** Added a `--sarif` flag to process SARIF reports.
+- **New:** Enhanced the `--report` flag to generate a combined diagnostic report that now includes Extended Telemetry Data and Full Telemetry Data.
 
 ---
 
 ## Recent Improvements
 
 - Consolidated the application exit routine and enhanced code comments in `main.js`.
-- Refactored regex construction in `getIssueNumberFromBranch` and randomness in issue simulation for improved safety.
+- Refactored regex construction in `getIssueNumberFromBranch` and improved randomness in issue simulation.
 - Extended flag processing functions to provide clearer outputs, with support for `--verbose` and `--debug` flags.
 - **New:** Integrated telemetry gathering functions including `gatherExtendedTelemetryData()` and `gatherFullTelemetryData()` for comprehensive GitHub Actions data.
-- **New:** Added remote service wrappers for analytics, notification, and build status checks via `callAnalyticsService()`, `callNotificationService()`, and `callBuildStatusService()`.
-- **New:** Enhanced LLM decision delegation in `delegateDecisionToLLMWrapped()` with improved error handling and schema validation.
-- **New:** Introduced extended Kafka simulation with the new `simulateKafkaDetailedStream()` function and the `--extended` flag for detailed logging diagnostics.
-- **New:** Added combined diagnostic report functionality via the `--report` flag to output system performance and telemetry data.
-- **Checked:** Pruned drift by removing outdated simulation details and aligning the implementation closely with the agentic‑lib mission statement.
+- **New:** Enhanced remote service wrappers for analytics, notification, and build status checks.
+- **New:** Improved LLM decision delegation in `delegateDecisionToLLMWrapped()` with refined error handling and schema validation.
+- **New:** Extended Kafka simulation with the new `simulateKafkaDetailedStream()` function and the `--extended` flag for detailed logging diagnostics.
+- **New:** Extended diagnostic report functionality via the `--report` flag; the report now includes Extended Telemetry Data and Full Telemetry Data for better diagnostics.
 
 ---
 
@@ -83,7 +83,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - Enhance GitHub API integration for dynamic issue and PR management.
 - Expand logging and monitoring capabilities for continuous integration metrics.
 - Further abstract shared code to reduce duplication and improve modularity.
-- Increase test coverage, including deeper tests for external resources such as network services.
+- Increase test coverage, including more exhaustive tests for external resources.
 
 ---
 
