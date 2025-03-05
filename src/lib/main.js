@@ -17,9 +17,8 @@
 // - Added Kafka inter-workflow communication simulation function simulateKafkaInterWorkflowCommunication.
 // - Added function gatherFullSystemReport to return a complete diagnostic report combining health check, advanced telemetry, and combined telemetry data.
 // - Added function simulateRealKafkaStream to provide a more detailed simulation of Kafka streaming with additional logging.
-//
-// New Improvement:
-// - Extended create issue simulation in the flag handler (--create-issue) to mimic the behavior of the GitHub workflow wfr-create-issue.yml.
+// - Extended create issue simulation in the flag handler (--create-issue) to mimic GitHub workflow behavior.
+// - Added new telemetry aggregator function: gatherGitHubTelemetrySummary to merge telemetry data from various GitHub Actions environment variables.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -94,6 +93,16 @@ export function gatherAdvancedTelemetryData() {
     platform: process.platform,
     memoryUsage: process.memoryUsage(),
   };
+}
+
+/**
+ * New telemetry aggregator function to merge all levels of GitHub Actions telemetry data.
+ */
+export function gatherGitHubTelemetrySummary() {
+  const basic = gatherTelemetryData();
+  const extended = gatherExtendedTelemetryData();
+  const full = gatherFullTelemetryData();
+  return { ...basic, ...extended, ...full };
 }
 
 /**
@@ -503,7 +512,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
+  const regex = new RegExp(safePrefix + "(\d{1,10})\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }

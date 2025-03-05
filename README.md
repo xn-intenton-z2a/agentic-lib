@@ -21,7 +21,7 @@ remote service wrappers, advanced LLM delegation, and parsing utilities. This li
 - **Usage Information:**
   - Use `generateUsage()` to get up-to-date flag options.
 - **Telemetry:**
-  - Includes functions such as `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, and the new `gatherFullSystemReport()` for complete diagnostics.
+  - Includes functions such as `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and the new `gatherGitHubTelemetrySummary()` as well as `gatherFullSystemReport()` for complete diagnostics.
 - **Remote Service Wrappers:**
   - Simplifies API calls through wrappers for deployment, build status, analytics, and notifications.
 - **LLM Delegation:**
@@ -37,7 +37,8 @@ remote service wrappers, advanced LLM delegation, and parsing utilities. This li
 - Updated telemetry, Kafka, and remote service wrappers with improved error checking.
 - Introduced advanced LLM delegation using function calling.
 - **New:** Added functions `gatherFullSystemReport` and `simulateRealKafkaStream` for comprehensive diagnostics and enhanced Kafka simulation.
-- **New:** Extended create issue simulation to reflect the behavior of the GitHub Actions workflow, enhancing the '--create-issue' flag functionality.
+- **New:** Added telemetry aggregator function `gatherGitHubTelemetrySummary` to merge telemetry data from various GitHub Actions environment variables.
+- **New:** Extended create issue simulation to reflect the behavior of the GitHub Actions workflow.
 
 ---
 
@@ -79,7 +80,6 @@ This repository is organized into three distinct areas to help you understand th
 - **Location:**  
   The code is located in `src/lib/main.js`.
 
----
 ---
 
 ## License
