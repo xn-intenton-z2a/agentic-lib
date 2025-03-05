@@ -13,8 +13,8 @@
 // - Added new remote service wrapper: callDeploymentService, useful for triggering deployment actions in agentic workflows.
 // - Added new telemetry function gatherAdvancedTelemetryData to collect additional runtime and process information.
 // - Updated printReport to include advanced telemetry data.
-//
-// Fix: Updated regex in getIssueNumberFromBranch to correctly capture digits due to proper escaping in string-based regex creation.
+// - Added bulk Kafka simulation function simulateKafkaBulkStream.
+// - Added agentic health check function performAgenticHealthCheck for system diagnostics.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -465,7 +465,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
+  const regex = new RegExp(safePrefix + "(\d{1,10})\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -669,6 +669,41 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
     console.error(chalk.red("delegateDecisionToLLMAdvanced error:"), error);
     return { fixed: "false", message: "LLM advanced decision could not be retrieved.", refinement: "None" };
   }
+}
+
+// New function to simulate sending a bulk stream of Kafka messages.
+/**
+ * Simulate sending a bulk stream of Kafka messages.
+ * @param {string} topic
+ * @param {number} count
+ * @returns {string[]} An array of simulated bulk messages.
+ */
+export function simulateKafkaBulkStream(topic, count = 5) {
+  const messages = [];
+  for (let i = 0; i < count; i++) {
+    const msg = `Bulk message ${i + 1} from topic '${topic}'`;
+    console.log(msg);
+    messages.push(msg);
+  }
+  return messages;
+}
+
+// New function to perform a health check of the agentic system.
+/**
+ * Perform a health check of the agentic system.
+ * Aggregates system performance and telemetry data to provide a health report.
+ */
+export function performAgenticHealthCheck() {
+  const sysPerf = analyzeSystemPerformance();
+  const telemetry = gatherTelemetryData();
+  const healthReport = {
+    timestamp: new Date().toISOString(),
+    system: sysPerf,
+    telemetry: telemetry,
+    status: "healthy",
+  };
+  console.log(chalk.green("Agentic Health Check:"), JSON.stringify(healthReport, null, 2));
+  return healthReport;
 }
 
 export function reviewIssue({
