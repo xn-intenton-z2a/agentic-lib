@@ -41,6 +41,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
   - callAnalyticsService(serviceUrl, data)
   - callNotificationService(serviceUrl, payload)
   - callBuildStatusService(serviceUrl)
+  - callDeploymentService(serviceUrl, payload)  <-- New deployment service wrapper
 - **Parsing Utilities**:
   - parseSarifOutput(sarifJson)
   - parseEslintSarifOutput(sarifJson)
@@ -56,6 +57,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - Upgraded Kafka simulation with detailed logging for improved diagnostics.
 - Introduced advanced LLM delegation with function calling support via OpenAI.
 - Fixed regex escaping in getIssueNumberFromBranch to correctly extract issue numbers.
+- Added new remote service wrapper: **callDeploymentService** for triggering deployment operations in agentic workflows.
 
 ---
 
@@ -125,7 +127,7 @@ This repository is organized into three distinct areas to help you understand th
 
 ### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
 - **Purpose:**  
-  This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to the core functionality.
+  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
@@ -160,5 +162,3 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
-
----

@@ -3,13 +3,14 @@
 // Change Log:
 // - Pruned drift and aligned with the mission statement.
 // - Removed redundant simulation verbiage while retaining demo outputs.
-// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, --extended, and new --report for combined diagnostics.
+// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, --extended, --report.
 // - Integrated Kafka logging, system performance telemetry, remote service wrappers with improved HTTP error checking.
 // - Added extended Kafka simulation function simulateKafkaDetailedStream for detailed diagnostics.
 // - Added new report functionality to output combined diagnostics from telemetry and system performance.
 // - Refactored flag handling to reduce cognitive complexity.
 // - Improved regex safety in getIssueNumberFromBranch for proper extraction of issue numbers.
 // - Extended OpenAI delegation with delegateDecisionToLLMAdvanced using tool call schema.
+// - Added new remote service wrapper: callDeploymentService, useful for triggering deployment actions in agentic workflows.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -231,6 +232,30 @@ export async function callBuildStatusService(serviceUrl) {
 }
 
 /**
+ * New remote deployment service wrapper using fetch to simulate triggering a deployment.
+ * @param {string} serviceUrl
+ * @param {object} payload - The deployment payload to send.
+ */
+export async function callDeploymentService(serviceUrl, payload) {
+  try {
+    const response = await fetch(serviceUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const result = await response.json();
+    console.log(chalk.green("Deployment Service Response:"), result);
+    return result;
+  } catch (error) {
+    console.error(chalk.red("Error calling deployment service:"), error);
+    return { error: error.message };
+  }
+}
+
+/**
  * Parse SARIF formatted JSON to summarize issues.
  * @param {string} sarifJson
  */
@@ -421,7 +446,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
+  const regex = new RegExp(safePrefix + "(\d{1,10})\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }

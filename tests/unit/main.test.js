@@ -24,6 +24,7 @@ import {
   callAnalyticsService,
   callNotificationService,
   callBuildStatusService,
+  callDeploymentService,
   parseSarifOutput,
   parseEslintSarifOutput,
   parseVitestOutput,
@@ -410,6 +411,19 @@ describe("Remote Service Wrapper", () => {
     global.fetch = vi.fn(() => Promise.reject(new Error("Build status network error")));
     const data = await callBuildStatusService("https://ci.example.com/status");
     expect(data.error).toBe("Build status network error");
+  });
+
+  test("callDeploymentService returns data for successful call", async () => {
+    const deploymentResponse = { deployment: "triggered", id: "dep123" };
+    global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(deploymentResponse) }));
+    const data = await callDeploymentService("https://deploy.example.com/trigger", { version: "1.0.0" });
+    expect(data).toEqual(deploymentResponse);
+  });
+
+  test("callDeploymentService returns error on failed call", async () => {
+    global.fetch = vi.fn(() => Promise.reject(new Error("Deployment network error")));
+    const data = await callDeploymentService("https://deploy.example.com/trigger", { version: "1.0.0" });
+    expect(data.error).toBe("Deployment network error");
   });
 });
 
