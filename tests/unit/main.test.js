@@ -333,6 +333,7 @@ describe("main function flags", () => {
         main(["--create-issue", "Test Issue"]);
       } catch (error) {}
     });
+    expect(output).toContain("Simulated GitHub Issue Creation Workflow triggered.");
     expect(output).toContain("Simulated Issue Created:");
     expect(output).toContain("Title: Test Issue");
     const match = output.match(/Issue Number: (\d+)/);
