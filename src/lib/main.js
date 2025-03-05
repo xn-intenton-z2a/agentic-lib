@@ -709,11 +709,6 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
 }
 
 /**
- * New function to simulate sending a bulk stream of Kafka messages.
- * (Already defined above as simulateKafkaBulkStream)
- */
-
-/**
  * New function to perform a health check of the agentic system.
  * Aggregates system performance and telemetry data to provide a health report.
  */
