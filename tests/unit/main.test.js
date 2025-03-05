@@ -567,7 +567,7 @@ describe("New Features", () => {
     const messages = simulateRealKafkaStream("realTopic", 2);
     expect(messages.length).toBe(2);
     messages.forEach((msg, index) => {
-      expect(msg).toContain(`Real Kafka stream message ${index + 1} from topic 'realTopic'");
+      expect(msg).toContain(`Real Kafka stream message ${index + 1} from topic 'realTopic'`);
     });
   });
 });
