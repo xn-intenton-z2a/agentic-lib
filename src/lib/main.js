@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 // src/lib/main.js - Implementation aligned with the agentic‑lib mission statement.
 // Change Log:
-// - Pruned drift and aligned with the mission statement.
+// - Pruned (change on branch) drift and aligned with the mission statement.
 // - Removed redundant simulation verbiage while retaining demo outputs.
 // - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, and now --extended for detailed logging.
 // - Integrated Kafka logging, system performance telemetry, remote service wrappers (including analytics, notification, and build status), improved LLM decision delegation with error logging and zod validation.
 // - Added extended Kafka simulation function simulateKafkaDetailedStream for detailed diagnostics.
-// - Updated (change from branch) code comments and usage instructions to reflect the refined mission statement and new features.
+// - Updated code comments and usage instructions to reflect the refined mission statement and new features.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
