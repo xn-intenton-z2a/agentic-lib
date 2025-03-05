@@ -27,6 +27,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
   - gatherTelemetryData()
   - gatherExtendedTelemetryData()
   - gatherFullTelemetryData()
+  - **gatherAdvancedTelemetryData()**: Collects additional runtime and process information such as Node version, process PID, current working directory, platform, and memory usage.
 - **LLM Delegation Functions**:
   - delegateDecisionToLLM()
   - delegateDecisionToLLMWrapped()
@@ -53,7 +54,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 ## Recent Improvements
 
 - Extended flag handling and new flag options including `--simulate-remote`, `--sarif`, and `--report`.
-- Improved telemetry data functions by introducing extended and full telemetry options.
+- Improved telemetry data functions by introducing extended, full, and advanced telemetry options. (New function: gatherAdvancedTelemetryData)
 - Enhanced remote service wrappers with robust HTTP error checking.
 - Upgraded Kafka simulation with detailed logging for improved diagnostics.
 - Introduced advanced LLM delegation with function calling support via OpenAI.
@@ -139,5 +140,33 @@ This repository is organized into three distinct areas to help you understand th
   The code is located in `src/lib/main.js`.
 
 ---
+---
+
+## License
+
+This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
+
+License notice:
+```
+agentic-lib
+Copyright (C) 2025 Polycode Limited
+
+agentic-lib is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+IMPORTANT: Any derived work must include the following attribution:
+"This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+```
+
 ---
 ---

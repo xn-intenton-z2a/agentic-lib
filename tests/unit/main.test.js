@@ -11,6 +11,7 @@ import {
   gatherTelemetryData,
   gatherExtendedTelemetryData,
   gatherFullTelemetryData,
+  gatherAdvancedTelemetryData,
   delegateDecisionToLLM,
   delegateDecisionToLLMWrapped,
   delegateDecisionToLLMAdvanced,
@@ -234,6 +235,17 @@ describe("gatherFullTelemetryData", () => {
   });
 });
 
+describe("gatherAdvancedTelemetryData", () => {
+  test("returns advanced telemetry details with runtime info", () => {
+    const advancedTelemetry = gatherAdvancedTelemetryData();
+    expect(advancedTelemetry).toHaveProperty("nodeVersion");
+    expect(advancedTelemetry).toHaveProperty("processPID");
+    expect(advancedTelemetry).toHaveProperty("currentWorkingDirectory");
+    expect(advancedTelemetry).toHaveProperty("platform");
+    expect(advancedTelemetry).toHaveProperty("memoryUsage");
+  });
+});
+
 describe("analyzeSystemPerformance", () => {
   test("returns system details", () => {
     const details = analyzeSystemPerformance();
@@ -343,7 +355,7 @@ describe("main function flags", () => {
     expect(output).toContain("Detailed messages:");
   });
 
-  test("--report flag prints combined diagnostics", () => {
+  test("--report flag prints combined diagnostics including advanced telemetry", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
       try {
@@ -354,6 +366,7 @@ describe("main function flags", () => {
     expect(output).toContain("Telemetry Data:");
     expect(output).toContain("Extended Telemetry Data:");
     expect(output).toContain("Full Telemetry Data:");
+    expect(output).toContain("Advanced Telemetry Data:");
   });
 });
 
