@@ -7,7 +7,8 @@
 // - Integrated Kafka logging, system performance telemetry, remote service wrappers (analytics, notification, and build status) with improved HTTP error checking, improved LLM decision delegation with error logging and zod validation.
 // - Added extended Kafka simulation function simulateKafkaDetailedStream for detailed diagnostics.
 // - Added new report functionality to output combined diagnostics from telemetry and system performance.
-// - Updated Change Log: Refreshed README content in line with CONTRIBUTING guidelines.
+// - Refactored main command processing logic to reduce cognitive complexity.
+// - Improved regex safety in getIssueNumberFromBranch by fixing regex escapes to correctly extract up to 10 digits.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -306,29 +307,23 @@ function printReport() {
 }
 
 /**
- * Main function for processing command line arguments and executing corresponding actions.
- * @param {string[]} args
+ * Refactored flag handling to reduce cognitive complexity in main function.
+ * @param {string[]} flagArgs
+ * @param {string[]} nonFlagArgs
+ * @returns {boolean} Returns true if a flag triggered an exit.
  */
-export function main(args = []) {
-  if (process.env.NODE_ENV !== "test") {
-    console.log(chalk.green(figlet.textSync("agentic-lib", { horizontalLayout: "full" })));
-  }
-
-  if (args.length === 0 || args.includes("--help") || args.includes("--usage")) {
-    const usage = generateUsage();
-    console.log(usage);
+function handleFlagCommands(flagArgs, nonFlagArgs) {
+  if (flagArgs.length === 0 || flagArgs.includes("--help") || flagArgs.includes("--usage")) {
+    console.log(generateUsage());
     console.log("");
     console.log("Demo: Demonstration of agentic-lib functionality:");
     console.log(enhancedDemo());
-    if (args.length === 0) {
+    if (flagArgs.length === 0) {
       console.log("No additional arguments provided.");
     }
     exitApplication();
-    return;
+    return true;
   }
-
-  const { flagArgs, nonFlagArgs } = splitArguments(args);
-
   if (flagArgs.includes("--create-issue")) {
     let issueTitle;
     if (nonFlagArgs.length > 0 && nonFlagArgs[0] === "house choice") {
@@ -344,39 +339,33 @@ export function main(args = []) {
     console.log(chalk.magenta("Title: " + issueTitle));
     console.log(chalk.magenta("Issue Number: " + issueNumber));
     exitApplication();
-    return;
+    return true;
   }
-
   if (flagArgs.includes("--version")) {
     console.log(showVersion());
     exitApplication();
-    return;
+    return true;
   }
-
   if (flagArgs.includes("--env")) {
     console.log("Environment Variables: " + JSON.stringify(process.env, null, 2));
     exitApplication();
-    return;
+    return true;
   }
-
   if (flagArgs.includes("--telemetry-extended")) {
     console.log("Extended Telemetry Data: " + JSON.stringify(gatherExtendedTelemetryData(), null, 2));
     exitApplication();
-    return;
+    return true;
   }
-
   if (flagArgs.includes("--telemetry")) {
     console.log("Telemetry Data: " + JSON.stringify(gatherTelemetryData(), null, 2));
     exitApplication();
-    return;
+    return true;
   }
-
   if (flagArgs.includes("--simulate-remote")) {
     console.log(chalk.cyan("Simulated remote service call initiated."));
     exitApplication();
-    return;
+    return true;
   }
-
   if (flagArgs.includes("--sarif")) {
     if (nonFlagArgs.length === 0) {
       console.log(chalk.red("No SARIF JSON provided."));
@@ -384,22 +373,31 @@ export function main(args = []) {
       parseSarifOutput(nonFlagArgs.join(" "));
     }
     exitApplication();
-    return;
+    return true;
   }
-
-  // New report flag for combined diagnostics
   if (flagArgs.includes("--report")) {
     printReport();
     exitApplication();
-    return;
+    return true;
   }
-
-  // New extended flag for detailed logging
   if (flagArgs.includes("--extended")) {
     console.log(chalk.green("Extended logging activated."));
     const detailedMessages = simulateKafkaDetailedStream("detailedTopic", 2);
     console.log("Detailed messages:", detailedMessages.join(", "));
   }
+  return false;
+}
+
+/**
+ * Main function for processing command line arguments and executing corresponding actions.
+ * @param {string[]} args
+ */
+export function main(args = []) {
+  if (process.env.NODE_ENV !== "test") {
+    console.log(chalk.green(figlet.textSync("agentic-lib", { horizontalLayout: "full" })));
+  }
+  const { flagArgs, nonFlagArgs } = splitArguments(args);
+  if (handleFlagCommands(flagArgs, nonFlagArgs)) return;
 
   const flagProcessingResult = processFlags(flagArgs);
   console.log(flagProcessingResult);
@@ -422,7 +420,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d+)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
