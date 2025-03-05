@@ -502,7 +502,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
+  const regex = new RegExp(safePrefix + "(\d{1,10})\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -707,11 +707,6 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
     return { fixed: "false", message: "LLM advanced decision could not be retrieved.", refinement: "None" };
   }
 }
-
-/**
- * New function to simulate sending a bulk stream of Kafka messages.
- * (Already defined above as simulateKafkaBulkStream)
- */
 
 /**
  * New function to perform a health check of the agentic system.
