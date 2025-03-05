@@ -216,8 +216,8 @@ Re-usable GitHub Actions Workflows:
 - [x] pass the change description for the commit message.
 - [x] locate the issue number in apply-fix and comment the issue.
 - [x] apply-fix to be able to apply a fix to the main branch.
-- [~] apply-fix check branches for conflicts and try to resolve them.
-- [~] pull before changes to reduce the chance of conflicts.
+- [x] apply-fix check branches for conflicts and try to resolve them.
+- [x] pull before changes to reduce the chance of conflicts.
 - [ ] apply-fix to add issue details to the completion request.
 - [ ] Add git log to the context for review issue, issue worker and apply fixes.
 - [ ] apply-fix to check if an issue is resolved before raising a PR.
