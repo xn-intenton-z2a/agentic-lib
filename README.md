@@ -18,7 +18,7 @@ This README has been refreshed in accordance with the CONTRIBUTING guidelines. I
 ## New Exported Utility Functions
 
 - `generateUsage()`: Provides a usage message with updated flag options.
-- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name with improved regex safety.
+- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name with improved regex safety (now limits digits to a maximum of 10 characters).
 - `sanitizeCommitMessage(message)`: Cleans up commit messages by removing unsupported characters and extra spaces.
 - `splitArguments(args)`: Splits command line arguments into flag and non-flag arrays.
 - `processFlags(flags)`: Processes an array of flags and returns a summary message. Supports `--verbose` and `--debug` for extended logging.
@@ -49,7 +49,7 @@ This README has been refreshed in accordance with the CONTRIBUTING guidelines. I
 - Added new flags such as `--env`, `--reverse`, `--telemetry`, `--telemetry-extended`, `--create-issue`, and `--extended` to enhance functionality.
 - Integrated extended telemetry gathering functions and improved remote service wrappers with HTTP error checking.
 - Extended Kafka simulation with detailed logging for system diagnostics.
-- Updated internal documentation and in-code comments for clarity and maintainability.
+- Refactored the main command processing to reduce cognitive complexity and improve maintainability.
 
 ---
 
@@ -95,7 +95,7 @@ This repository is organized into three distinct areas to help you understand th
 - **Purpose:**  
   This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
-  It is under active development and may change frequently, representing bleeding‑edge functionality.
+  It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
   As part of the core project, it is under GPL‑3 with the attribution clause.
 - **Location:**  
