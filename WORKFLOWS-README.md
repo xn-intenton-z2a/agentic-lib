@@ -105,7 +105,7 @@ These workflows generalize the concept of work items as “tasks” rather than 
 - **Function:** Selects, validates, and initiates work on existing tasks.
 - **Reusable Workflows:**
   - [`wfr-select-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@1.2.0)
-  - [`wfr-start-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-start-issue.yml@1.2.0)
+  - [`wfr-apply-issue-resolution.yml.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-issue-resolution.yml.yml@1.2.0)
   - [`wfr-create-pr.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.2.0)
 
 ### Issue Reviewer (`issue-reviewer.yml`)
@@ -217,12 +217,11 @@ Re-usable GitHub Actions Workflows:
 - [x] locate the issue number in apply-fix and comment the issue.
 - [x] apply-fix to be able to apply a fix to the main branch.
 - [~] apply-fix check branches for conflicts and try to resolve them.
+- [~] pull before changes to reduce the chance of conflicts.
 - [ ] apply-fix to add issue details to the completion request.
+- [ ] Add git log to the context for review issue, issue worker and apply fixes.
 - [ ] apply-fix to check if an issue is resolved before raising a PR.
 - [ ] issue-worker to check if an issue is resolved before raising a PR.
-- [ ] Add git log to the context for review issue, issue worker and apply fixes.
-- [ ] issue-worker to review issue to check state and recent changes before attempting to work on the issue.
-- [ ] Issue worker, to work a branch (instead of failing) if the branch is open but there is no PR, working may be resolving the issue or fixing the branch first.
 - [ ] Add PR review comments via LLM.
 - [ ] Add PR review comments resolution via LLM.
 - [ ] Make a PR review required to automerge a PR.
@@ -231,6 +230,7 @@ Re-usable GitHub Actions Workflows:
 - [ ] Generate API.md based on the source file.
 - [ ] Consider: semantic-release for releasing versions.
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
+- [ ] Pre-request with file and a some context in a completions request for which files should be sent.
 
 Marketplace GitHub Actions:
 - [ ] Consolidate reusable workflows jobs into a single GitHub Action GitHub Script step.

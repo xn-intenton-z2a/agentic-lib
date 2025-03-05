@@ -4,7 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: Linting
-concurrency: branch-${{ github.ref_name }}
+concurrency: agentic-lib
 run-name: "Linting [${{ github.ref_name }}]"
 
 on:

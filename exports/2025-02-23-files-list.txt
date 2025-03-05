@@ -30,7 +30,7 @@
 ./.github/workflows/truncate-workflow-history.yml
 ./.github/workflows/wfr-automerge-label-issue.yml
 ./.github/workflows/wfr-automerge-merge-pr.yml
-./.github/workflows/wfr-start-issue.yml
+./.github/workflows/wfr-apply-issue-resolution.yml.yml
 ./.github/workflows/test.yml
 ./.github/workflows/wfr-update.yml
 ./.github/workflows/wfr-echo.yml

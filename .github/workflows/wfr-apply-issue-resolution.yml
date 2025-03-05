@@ -1,4 +1,4 @@
-# .github/workflows/wfr-start-issue.yml
+# .github/workflows/wfr-apply-issue-resolution.yml
 
 #
 # agentic-lib
@@ -125,6 +125,8 @@ on:
         value: ${{ jobs.start-issue.outputs.postResolutionCommentOutcome }}
       allValidationStepsSuccessful:
         value: ${{ jobs.start-issue.outputs.allValidationStepsSuccessful }}
+      branch:
+        value: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}${{ inputs.issueNumber }}
 
 jobs:
   start-issue:
@@ -139,7 +141,7 @@ jobs:
       dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
       formattingFile: ${{ inputs.formattingFile || '.prettierrc' }}
       lintingFile: ${{ inputs.lintingFile || 'eslint.config.js' }}
-      branchPrefix: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}
+      branch: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}${{ inputs.issueNumber }}
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
       mainScript: ${{ inputs.mainScript || 'npm run start' }}
@@ -152,6 +154,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -171,6 +176,12 @@ jobs:
           echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
           echo "always-auth=true" >> .npmrc
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
 
       - run: npm ci
 
@@ -550,11 +561,11 @@ jobs:
           git config --local user.email '${{ env.gitUserEmail }}'
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
-          git switch -c '${{ env.branchPrefix }}${{ env.issueNumber }}'
+          git switch -c '${{ env.branch }}'
           git add -v --all
           git diff '${{ env.target }}'
           git commit -m '${{ steps.update-target.outputs.message }} (fixes #${{ env.issueNumber }})'
-          git push --set-upstream origin '${{ env.branchPrefix }}${{ env.issueNumber }}' -v
+          git push --set-upstream origin '${{ env.branch }}' -v
           git status -v
 
       - name: Post Resolution Comment
@@ -564,7 +575,7 @@ jobs:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
             const issueNumber = parseInt("${{ env.issueNumber }}");
-            const branchName = `${{ env.branchPrefix }}${{ env.issueNumber }}`;
+            const branchName = `${{ env.branch }}`;
             const branchUrl = `https://github.com/${{ github.repository }}/tree/${branchName}`;
             const body = `${branchUrl}`;
             await github.rest.issues.createComment({
