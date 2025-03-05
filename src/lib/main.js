@@ -18,7 +18,7 @@ import { randomInt } from "crypto";
 
 // Helper function to escape regex special characters
 function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /**
@@ -41,7 +41,7 @@ export function gatherTelemetryData() {
     githubRunNumber: process.env.GITHUB_RUN_NUMBER || "N/A",
     githubJob: process.env.GITHUB_JOB || "N/A",
     githubAction: process.env.GITHUB_ACTION || "N/A",
-    nodeEnv: process.env.NODE_ENV || "undefined"
+    nodeEnv: process.env.NODE_ENV || "undefined",
   };
 }
 
@@ -54,7 +54,7 @@ export function gatherExtendedTelemetryData() {
     githubActor: process.env.GITHUB_ACTOR || "N/A",
     githubRepository: process.env.GITHUB_REPOSITORY || "N/A",
     githubEventName: process.env.GITHUB_EVENT_NAME || "N/A",
-    ci: process.env.CI || "N/A"
+    ci: process.env.CI || "N/A",
   };
 }
 
@@ -67,7 +67,7 @@ export function gatherFullTelemetryData() {
     githubRef: process.env.GITHUB_REF || "N/A",
     githubSha: process.env.GITHUB_SHA || "N/A",
     githubHeadRef: process.env.GITHUB_HEAD_REF || "N/A",
-    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A"
+    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A",
   };
 }
 
@@ -127,8 +127,8 @@ export function simulateKafkaStream(topic, count = 3) {
  * @returns {string[]} An array of detailed simulated messages.
  */
 export function simulateKafkaDetailedStream(topic, count = 3) {
-  const messages = simulateKafkaStream(topic, count).map(msg => `${msg} (detailed)`);
-  messages.forEach(message => console.log(message));
+  const messages = simulateKafkaStream(topic, count).map((msg) => `${msg} (detailed)`);
+  messages.forEach((message) => console.log(message));
   return messages;
 }
 
@@ -139,7 +139,7 @@ export function analyzeSystemPerformance() {
   return {
     platform: process.platform,
     cpus: os.cpus().length,
-    totalMemory: os.totalmem()
+    totalMemory: os.totalmem(),
   };
 }
 
@@ -166,9 +166,9 @@ export async function callRemoteService(serviceUrl) {
 export async function callAnalyticsService(serviceUrl, data) {
   try {
     const response = await fetch(serviceUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
     });
     const result = await response.json();
     console.log(chalk.green("Analytics Service Response:"), result);
@@ -187,9 +187,9 @@ export async function callAnalyticsService(serviceUrl, data) {
 export async function callNotificationService(serviceUrl, payload) {
   try {
     const response = await fetch(serviceUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
     const result = await response.json();
     console.log(chalk.green("Notification Service Response:"), result);
@@ -521,7 +521,8 @@ export async function delegateDecisionToLLMWrapped(prompt) {
       messages: [
         {
           role: "system",
-          content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema.",
+          content:
+            "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema.",
         },
         { role: "user", content: prompt },
       ],
