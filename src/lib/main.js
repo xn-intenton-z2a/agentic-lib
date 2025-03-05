@@ -18,7 +18,6 @@
 // - Added function gatherFullSystemReport to return a complete diagnostic report combining health check, advanced telemetry, and combined telemetry data.
 // - Added function simulateRealKafkaStream to provide a more detailed simulation of Kafka streaming with additional logging.
 // - Extended create issue simulation in the flag handler (--create-issue) to mimic GitHub workflow behavior.
-// - Added new telemetry aggregator function: gatherGitHubTelemetrySummary to merge telemetry data from various GitHub Actions environment variables.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -512,7 +511,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})\b");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
