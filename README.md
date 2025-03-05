@@ -2,43 +2,117 @@
 
 You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](WORKFLOWS-README.md)
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
-repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
-issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
-GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 
 [Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
 
 ---
+---
 
 ## Overview
 
-The agentic‑lib provides a rich set of JavaScript functions mirroring GitHub Actions workflows, including telemetry, Kafka simulations,
-remote service wrappers, advanced LLM delegation, and parsing utilities. This library is designed for seamless automation and CI/CD integration.
+The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Actions workflows. It includes telemetry gathering, Kafka simulations, remote service wrappers, advanced LLM delegation, and parsing utilities. These functions empower you to build fully automated CI/CD integrations.
 
 ## Key Features
 
 - **Usage Information:**
-  - Use `generateUsage()` to get up-to-date flag options.
+  - Use `generateUsage()` to display available flag options.
 - **Telemetry:**
-  - Includes functions such as `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and the new `gatherGitHubTelemetrySummary()` as well as `gatherFullSystemReport()` for complete diagnostics.
+  - Functions include `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and the new `gatherGitHubTelemetrySummary()` and `gatherFullSystemReport()` for comprehensive diagnostics.
 - **Remote Service Wrappers:**
-  - Simplifies API calls through wrappers for deployment, build status, analytics, and notifications.
+  - Simplify API calls with wrappers to handle deployment, build status, analytics, and notifications.
 - **LLM Delegation:**
-  - Leverages functions like `delegateDecisionToLLM()`, `delegateDecisionToLLMWrapped()`, and `delegateDecisionToLLMAdvanced()` for AI-assisted decisions.
+  - Utilize functions like `delegateDecisionToLLM()`, `delegateDecisionToLLMWrapped()`, and `delegateDecisionToLLMAdvanced()` for AI-assisted decision making.
 - **Kafka Operations:**
-  - Supports Kafka simulation and detailed logging via functions like `simulateKafkaDetailedStream()`, with new improvements through `simulateRealKafkaStream()`.
-- **Create Issue Simulation:**
-  - **New:** The `--create-issue` flag now mimics the behavior of the GitHub workflow `wfr-create-issue.yml`, including handling of house choice options and simulated issue creation.
+  - Simulate Kafka messaging and logging via functions like `simulateKafkaDetailedStream()`, `simulateKafkaBulkStream()`, and `simulateKafkaInterWorkflowCommunication()`, along with enhanced simulation via `simulateRealKafkaStream()`.
+- **Issue Creation Simulation:**
+  - The `--create-issue` flag now mimics GitHub Actions workflow behavior, incorporating house choice options and simulated issue creation.
 
 ## Recent Improvements
 
-- Extended flag handling with robust diagnostics.
-- Updated telemetry, Kafka, and remote service wrappers with improved error checking.
-- Introduced advanced LLM delegation using function calling.
-- **New:** Added functions `gatherFullSystemReport` and `simulateRealKafkaStream` for comprehensive diagnostics and enhanced Kafka simulation.
-- **New:** Added telemetry aggregator function `gatherGitHubTelemetrySummary` to merge telemetry data from various GitHub Actions environment variables.
-- **New:** Extended create issue simulation to reflect the behavior of the GitHub Actions workflow.
+- Extended flag handling with improved diagnostics and error checking.
+- Enhanced telemetry and Kafka simulation functions with detailed logging and performance metrics.
+- Advanced LLM delegation incorporated to support function calling with strict schemas.
+- New diagnostic functions: `gatherFullSystemReport` and `simulateRealKafkaStream`.
+
+---
+---
+
+## Contributing
+
+Contributions are welcome! Please follow the guidelines outlined in [CONTRIBUTING.md](CONTRIBUTING.md). We welcome improvements that enhance code quality, add test coverage, and extend functionality in line with the mission of agentic‑lib. Whether reporting issues or submitting pull requests, please ensure your contributions are well-documented and adhere to coding standards.
+
+### How to Contribute
+
+1. **Report Issues or Ideas:**
+   - Open a GitHub issue with clear, reproducible steps if you encounter bugs or have feature requests.
+2. **Submit Pull Requests:**
+   - Fork the repository, create a feature branch, implement changes, add tests, update documentation, and submit your pull request.
+3. **Enhance Functionality:**
+   - Implement new workflows or improve existing ones (e.g., advanced LLM delegation, remote service integrations, improved telemetry). Update the change log accordingly.
+
+---
+---
+
+## Component Breakdown
+
+### 1. Re‑usable Workflows (Core Functionality)
+- **Purpose:**
+  - Backbone of the system enabling automated testing, publishing, and issue management.
+- **Stability:**
+  - Stable and well‑tested for integration into CI/CD pipelines.
+- **Licensing:**
+  - Released under GPL‑3 with attribution requirements.
+- **Location:**
+  - `.github/workflows/` directory.
+
+### 2. Example Workflows (Demonstrative Content)
+- **Purpose:**
+  - Serve as reference implementations and learning tools.
+- **Stability:**
+  - Functional but primarily for demonstration and experimentation.
+- **Licensing:**
+  - Covered under the MIT License.
+- **Location:**
+  - `examples/` directory.
+
+### 3. The Evolving main.js (JavaScript Re‑implementation)
+- **Purpose:**
+  - Provides programmatic access to the core workflows as a JavaScript module.
+- **Stability:**
+  - Under active development and may evolve rapidly.
+- **Licensing:**
+  - GPL‑3 with attribution clauses.
+- **Location:**
+  - `src/lib/main.js`.
+
+---
+---
+
+## License
+
+This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
+
+License notice:
+```
+agentic-lib
+Copyright (C) 2025 Polycode Limited
+
+agentic-lib is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License v3.0 (GPL‑3) along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+IMPORTANT: Any derived work must include the following attribution:
+"This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+```
 
 ---
 ---
@@ -81,9 +155,6 @@ This repository is organized into three distinct areas to help you understand th
 - **Location:**  
   The code is located in `src/lib/main.js`.
 
----
----
-
 ## License
 
 This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
@@ -103,7 +174,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License v3.0 (GPL‑3)
+You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 IMPORTANT: Any derived work must include the following attribution:
@@ -112,4 +183,3 @@ IMPORTANT: Any derived work must include the following attribution:
 
 ---
 ---
-
