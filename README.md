@@ -18,7 +18,7 @@ This README has been refreshed in accordance with the CONTRIBUTING guidelines. I
 ## New Exported Utility Functions
 
 - `generateUsage()`: Provides a usage message with updated flag options.
-- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name with improved regex safety (now limits digits to a maximum of 10 characters).
+- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name with improved regex safety (now limits digits to a maximum of 10 characters). [Fixed regex escaping]
 - `sanitizeCommitMessage(message)`: Cleans up commit messages by removing unsupported characters and extra spaces.
 - `splitArguments(args)`: Splits command line arguments into flag and non-flag arrays.
 - `processFlags(flags)`: Processes an array of flags and returns a summary message. Supports `--verbose` and `--debug` for extended logging.
@@ -50,6 +50,7 @@ This README has been refreshed in accordance with the CONTRIBUTING guidelines. I
 - Integrated extended telemetry gathering functions and improved remote service wrappers with HTTP error checking.
 - Extended Kafka simulation with detailed logging for system diagnostics.
 - Refactored the main command processing to reduce cognitive complexity and improve maintainability.
+- **Fixed:** Updated regex in `getIssueNumberFromBranch` for proper extraction of issue numbers.
 
 ---
 

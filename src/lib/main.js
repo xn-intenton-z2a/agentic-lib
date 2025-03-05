@@ -8,7 +8,7 @@
 // - Added extended Kafka simulation function simulateKafkaDetailedStream for detailed diagnostics.
 // - Added new report functionality to output combined diagnostics from telemetry and system performance.
 // - Refactored main command processing logic to reduce cognitive complexity.
-// - Improved regex safety in getIssueNumberFromBranch by limiting digit length to 10.
+// - Improved regex safety in getIssueNumberFromBranch by fixing regex escapes to correctly extract up to 10 digits.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -420,7 +420,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})\b");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
