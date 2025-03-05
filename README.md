@@ -21,25 +21,22 @@ remote service wrappers, advanced LLM delegation, and parsing utilities. This li
 - **Usage Information:**
   - Use `generateUsage()` to get up-to-date flag options.
 - **Telemetry:**
-  - Includes functions such as `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()` to collect comprehensive runtime data.
+  - Includes functions such as `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, and the new `gatherFullSystemReport()` for complete diagnostics.
 - **Remote Service Wrappers:**
   - Simplifies API calls through wrappers for deployment, build status, analytics, and notifications.
 - **LLM Delegation:**
   - Leverages functions like `delegateDecisionToLLM()`, `delegateDecisionToLLMWrapped()`, and `delegateDecisionToLLMAdvanced()` for AI-assisted decisions.
 - **Kafka Operations:**
-  - Supports Kafka simulation and detailed logging via functions like `simulateKafkaDetailedStream()`.
+  - Supports Kafka simulation and detailed logging via functions like `simulateKafkaDetailedStream()`, with new improvements through `simulateRealKafkaStream()`.
 - **New Enhancements:**
-  - **Bulk Kafka Streaming:** Use `simulateKafkaBulkStream()` to simulate sending a batch of Kafka messages.
-  - **Kafka Inter-Workflow Communication:** Use `simulateKafkaInterWorkflowCommunication()` to simulate messaging between agentic workflows.
-  - **Agentic Health Check:** Use `performAgenticHealthCheck()` to obtain a diagnostic report of system performance and telemetry.
+  - **Full System Report:** Use `gatherFullSystemReport()` to obtain a combined diagnostic report including health check, advanced telemetry, and combined GitHub telemetry data.
 
 ## Recent Improvements
 
 - Extended flag handling with robust diagnostics.
 - Updated telemetry, Kafka, and remote service wrappers with improved error checking.
 - Introduced advanced LLM delegation using function calling.
-- Fixed: Corrected regex in `getIssueNumberFromBranch` to properly extract issue numbers.
-- Added new bulk Kafka simulation, Kafka inter-workflow communication simulation, and health check functions to enhance diagnostic and inter-workflow messaging capabilities.
+- **New:** Added functions `gatherFullSystemReport` and `simulateRealKafkaStream` to provide comprehensive diagnostics and enhance Kafka communication simulation.
 
 ---
 
@@ -178,4 +175,4 @@ IMPORTANT: Any derived work must include the following attribution:
 ```
 
 ---
-
+---

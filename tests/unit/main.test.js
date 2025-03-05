@@ -12,6 +12,8 @@ import {
   gatherExtendedTelemetryData,
   gatherFullTelemetryData,
   gatherAdvancedTelemetryData,
+  gatherFullSystemReport,
+  simulateRealKafkaStream,
   delegateDecisionToLLM,
   delegateDecisionToLLMWrapped,
   delegateDecisionToLLMAdvanced,
@@ -518,5 +520,20 @@ describe("New Features", () => {
     expect(report).toHaveProperty("timestamp");
     expect(report).toHaveProperty("system");
     expect(report).toHaveProperty("telemetry");
+  });
+
+  test("gatherFullSystemReport returns combined report with all keys", () => {
+    const report = gatherFullSystemReport();
+    expect(report).toHaveProperty("healthCheck");
+    expect(report).toHaveProperty("advancedTelemetry");
+    expect(report).toHaveProperty("combinedTelemetry");
+  });
+
+  test("simulateRealKafkaStream returns messages with detailed logs", () => {
+    const messages = simulateRealKafkaStream("realTopic", 2);
+    expect(messages.length).toBe(2);
+    messages.forEach((msg, index) => {
+      expect(msg).toContain(`Real Kafka stream message ${index + 1} from topic 'realTopic'`);
+    });
   });
 });
