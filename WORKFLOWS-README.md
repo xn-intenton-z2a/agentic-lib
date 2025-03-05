@@ -218,6 +218,7 @@ Re-usable GitHub Actions Workflows:
 - [x] apply-fix to be able to apply a fix to the main branch.
 - [x] apply-fix check branches for conflicts and try to resolve them.
 - [x] pull before changes to reduce the chance of conflicts.
+- [ ] Dashboard metrics from github (e.g. GitHub Insights? commits by agents).
 - [ ] apply-fix to add issue details to the completion request.
 - [ ] Add git log to the context for review issue, issue worker and apply fixes.
 - [ ] apply-fix to check if an issue is resolved before raising a PR.
@@ -243,7 +244,7 @@ Supervisor:
 - [ ] Publish GitHub telemetry data to Kafka.
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix).
 - [ ] Reduce schedule and workflow completed triggers (instead leaving the supervisor to invoke workflows).
-- [ ] Dashboard metrics (e.g. GitHub Insights? commits by agents).
+- [ ] Dashboard metrics from kafka (e.g. GitHub Insights? commits by agents).
 - [ ] Publish a demo to GitHub sites that animates issue workflow, git logs applying changes to files and raising PRs with live links to the repository and a draggable timeline.
 - [ ] Create a leaderboard project with a public test endpoint to see who can get the most throughput via tansu-sqs-bridge or an HTTP rest endpoint.
 - [ ] Shutdown fargate when not in use by periodically checking the consumer group offset, whether it's behind and the last time it was behind.
