@@ -56,7 +56,7 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New & Improved:** Extended `delegateDecisionToLLMWrapped()` for improved error logging and schema validation, matching the supplied OpenAI function format.
 - **New:** Simulated Kafka messaging functions for inter-workflow communication. This includes the new functions `simulateKafkaStream` and `simulateKafkaDetailedStream` for extended diagnostics.
 - **New:** Added `analyzeSystemPerformance()` to provide system performance telemetry.
-- **New:** Added remote service wrappers for analytics, notification, and build status checks.
+- **New:** Added remote service wrappers for analytics, notification, and build status checks via `callAnalyticsService()`, `callNotificationService()`, and `callBuildStatusService()`.
 - **New:** Introduced a new `--simulate-remote` flag to simulate remote service calls.
 - **New:** Added a new `--sarif` flag to process SARIF reports.
 - **New:** Added a new `--report` flag to generate a combined diagnostic report including system performance and telemetry data.
@@ -212,7 +212,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
-along with this program. If not, see <https://www.gnu.org/licenses/>
+along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
