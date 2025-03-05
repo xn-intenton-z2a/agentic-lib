@@ -20,6 +20,8 @@ import {
   logKafkaOperations,
   simulateKafkaStream,
   simulateKafkaDetailedStream,
+  simulateKafkaBulkStream,
+  performAgenticHealthCheck,
   analyzeSystemPerformance,
   callRemoteService,
   callAnalyticsService,
@@ -486,5 +488,24 @@ describe("delegateDecisionToLLMAdvanced", () => {
     const result = await delegateDecisionToLLMAdvanced("test prompt", { refinement: "Advanced default" });
     expect(result.fixed).toBe("true");
     expect(result.message).toBe("LLM advanced call succeeded");
+  });
+});
+
+// New Features Tests
+describe("New Features", () => {
+  test("simulateKafkaBulkStream returns specified count of messages", () => {
+    const messages = simulateKafkaBulkStream("bulkTopic", 3);
+    expect(messages.length).toBe(3);
+    messages.forEach((msg, index) => {
+      expect(msg).toContain(`Bulk message ${index + 1} from topic 'bulkTopic'`);
+    });
+  });
+
+  test("performAgenticHealthCheck returns health report with status healthy", () => {
+    const report = performAgenticHealthCheck();
+    expect(report).toHaveProperty("status", "healthy");
+    expect(report).toHaveProperty("timestamp");
+    expect(report).toHaveProperty("system");
+    expect(report).toHaveProperty("telemetry");
   });
 });
