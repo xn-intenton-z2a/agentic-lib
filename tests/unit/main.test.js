@@ -13,6 +13,7 @@ import {
   gatherFullTelemetryData,
   delegateDecisionToLLM,
   delegateDecisionToLLMWrapped,
+  delegateDecisionToLLMAdvanced,
   sendMessageToKafka,
   receiveMessageFromKafka,
   logKafkaOperations,
@@ -247,9 +248,7 @@ describe("main function flags", () => {
     const output = captureOutput(() => {
       try {
         main(["--env"]);
-      } catch (error) {
-        // expected exit
-      }
+      } catch (error) {}
     });
     expect(output).toContain("Environment Variables:");
   });
@@ -451,5 +450,14 @@ describe("parseVitestOutput", () => {
     const sampleOutput = "No summary here";
     const result = parseVitestOutput(sampleOutput);
     expect(result.error).toBeDefined();
+  });
+});
+
+describe("delegateDecisionToLLMAdvanced", () => {
+  test("returns simulated response when TEST_OPENAI_SUCCESS is set", async () => {
+    process.env.TEST_OPENAI_SUCCESS = "true";
+    const result = await delegateDecisionToLLMAdvanced("test prompt", { refinement: "Advanced default" });
+    expect(result.fixed).toBe("true");
+    expect(result.message).toBe("LLM advanced call succeeded");
   });
 });

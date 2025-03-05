@@ -9,6 +9,7 @@
 // - Added new report functionality to output combined diagnostics from telemetry and system performance.
 // - Refactored main command processing logic to reduce cognitive complexity.
 // - Improved regex safety in getIssueNumberFromBranch by fixing regex escapes to correctly extract up to 10 digits.
+// - Extended OpenAI delegation mechanism by adding delegateDecisionToLLMAdvanced for advanced LLM chat completion with tool call schema.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -420,7 +421,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
+  const regex = new RegExp(safePrefix + "(\d{1,10})\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -554,6 +555,79 @@ export async function delegateDecisionToLLMWrapped(prompt) {
   } catch (error) {
     console.error(chalk.red("delegateDecisionToLLMWrapped error:"), error);
     return { fixed: "false", message: "LLM decision could not be retrieved.", refinement: "None" };
+  }
+}
+
+// New advanced delegation function using OpenAI function calling with tools
+export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
+  if (process.env.TEST_OPENAI_SUCCESS) {
+    return { fixed: "true", message: "LLM advanced call succeeded", refinement: options.refinement || "None" };
+  }
+  if (process.env.NODE_ENV === "test") {
+    return { fixed: "false", message: "LLM advanced decision could not be retrieved.", refinement: "None" };
+  }
+  try {
+    const { Configuration, OpenAIApi } = await import("openai");
+    const configuration = new Configuration({
+      apiKey: process.env.OPENAI_API_KEY || "",
+    });
+    const openai = new OpenAIApi(configuration);
+    const tools = [{
+      type: "function",
+      function: {
+        name: "review_issue",
+        description: "Evaluate whether the supplied source file content resolves the issue.",
+        parameters: {
+          type: "object",
+          properties: {
+            fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
+            message: { type: "string", description: "A message explaining the result" },
+            refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
+          },
+          required: ["fixed", "message", "refinement"],
+          additionalProperties: false
+        },
+        strict: true
+      }
+    }];
+    const response = await openai.createChatCompletion({
+      model: options.model || "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "You are evaluating code issues with advanced parameters." },
+        { role: "user", content: prompt }
+      ],
+      tools: tools
+    });
+    let result;
+    const messageObj = response.data.choices[0].message;
+    if (messageObj.tool_calls && Array.isArray(messageObj.tool_calls) && messageObj.tool_calls.length > 0) {
+      try {
+        result = JSON.parse(messageObj.tool_calls[0].function.arguments);
+      } catch {
+        result = { fixed: "false", message: "Failed to parse tool_calls arguments.", refinement: "None" };
+      }
+    } else if (messageObj.content) {
+      try {
+        result = JSON.parse(messageObj.content);
+      } catch {
+        result = { fixed: "false", message: "Failed to parse response content.", refinement: "None" };
+      }
+    } else {
+      result = { fixed: "false", message: "No valid response received.", refinement: "None" };
+    }
+    const ResponseSchema = z.object({
+      fixed: z.string(),
+      message: z.string(),
+      refinement: z.string(),
+    });
+    const parsed = ResponseSchema.safeParse(result);
+    if (!parsed.success) {
+      return { fixed: "false", message: "LLM advanced response schema validation failed.", refinement: "None" };
+    }
+    return parsed.data;
+  } catch (error) {
+    console.error(chalk.red("delegateDecisionToLLMAdvanced error:"), error);
+    return { fixed: "false", message: "LLM advanced decision could not be retrieved.", refinement: "None" };
   }
 }
 

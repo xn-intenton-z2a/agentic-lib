@@ -15,10 +15,10 @@ This README has been refreshed in accordance with the CONTRIBUTING guidelines. I
 
 ---
 
-## New Exported Utility Functions
+## New & Extended Library Functions
 
 - `generateUsage()`: Provides a usage message with updated flag options.
-- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name with improved regex safety (now limits digits to a maximum of 10 characters). [Fixed regex escaping]
+- `getIssueNumberFromBranch(branch, prefix)`: Extracts an issue number from a branch name with improved regex safety.
 - `sanitizeCommitMessage(message)`: Cleans up commit messages by removing unsupported characters and extra spaces.
 - `splitArguments(args)`: Splits command line arguments into flag and non-flag arrays.
 - `processFlags(flags)`: Processes an array of flags and returns a summary message. Supports `--verbose` and `--debug` for extended logging.
@@ -26,21 +26,22 @@ This README has been refreshed in accordance with the CONTRIBUTING guidelines. I
 - `logEnvironmentDetails()`: Logs current environment details such as NODE_ENV.
 - `showVersion()`: Returns the current version of the library.
 - `gatherTelemetryData()`: Gathers telemetry data from the GitHub Actions workflow environment.
-- **New:** `gatherExtendedTelemetryData()`: Gathers extended telemetry data including additional GitHub environment variables (e.g. GITHUB_ACTOR, GITHUB_REPOSITORY, GITHUB_EVENT_NAME, and CI).
-- **New:** `gatherFullTelemetryData()`: Gathers full telemetry data including additional GitHub environment variables such as GITHUB_REF, GITHUB_SHA, GITHUB_HEAD_REF, and GITHUB_BASE_REF.
-- `delegateDecisionToLLM(prompt)`: Delegates a decision to an LLM via OpenAI's API (with fallback in test environments).
-- **New & Improved:** `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM with improved error logging and schema validation.
+- **New:** `gatherExtendedTelemetryData()`: Gathers extended telemetry data including additional GitHub environment variables.
+- **New:** `gatherFullTelemetryData()`: Gathers full telemetry data including additional GitHub environment variables such as refs and shas.
+- `delegateDecisionToLLM(prompt)`: Delegates a decision to an LLM via OpenAI's API.
+- **Improved:** `delegateDecisionToLLMWrapped(prompt)`: An enhanced wrapper for delegating decisions to an LLM with error logging and schema validation.
+- **New:** `delegateDecisionToLLMAdvanced(prompt, options)`: An extended wrapper for delegating decisions to an advanced LLM based chat completions API using function calling with tool schema.
 - **New:** `sendMessageToKafka(topic, message)`: Simulates sending a message to a Kafka topic.
 - **New:** `receiveMessageFromKafka(topic)`: Simulates receiving a message from a Kafka topic.
 - **New:** `logKafkaOperations(topic, message)`: Combines Kafka send and receive simulations for debugging.
 - **New:** `simulateKafkaStream(topic, count)`: Simulates streaming a series of messages from a Kafka topic.
 - **New:** `simulateKafkaDetailedStream(topic, count)`: Extended Kafka stream simulation with detailed logging.
 - **New:** `analyzeSystemPerformance()`: Provides system performance telemetry including platform, CPU count, and total memory.
-- **New:** `callRemoteService(serviceUrl)`: Simulates remote service API calls using fetch with HTTP response checking to validate success.
+- **New:** `callRemoteService(serviceUrl)`: Simulates remote service API calls using fetch with HTTP response checking.
 - **New:** `callAnalyticsService(serviceUrl, data)`: Simulates sending analytics data to a remote endpoint with HTTP response validation.
-- **New:** `callNotificationService(serviceUrl, payload)`: Simulates sending a notification, useful for alerts in agentic workflows, with HTTP response checks.
+- **New:** `callNotificationService(serviceUrl, payload)`: Simulates sending a notification with HTTP response checks.
 - **New:** `callBuildStatusService(serviceUrl)`: Simulates checking the CI build status with HTTP response validation.
-- **New Flags:** Introduced `--simulate-remote`, `--sarif`, and **`--report`** for remote calls, processing SARIF reports, and combined diagnostics respectively.
+- **New Flags:** Introduced `--simulate-remote`, `--sarif`, and `--report` for remote calls, processing SARIF reports, and combined diagnostics respectively.
 
 ---
 
@@ -51,6 +52,7 @@ This README has been refreshed in accordance with the CONTRIBUTING guidelines. I
 - Extended Kafka simulation with detailed logging for system diagnostics.
 - Refactored the main command processing to reduce cognitive complexity and improve maintainability.
 - **Fixed:** Updated regex in `getIssueNumberFromBranch` for proper extraction of issue numbers.
+- **Extended:** Added `delegateDecisionToLLMAdvanced` to enhance OpenAI API delegation with advanced options and tool call schema.
 
 ---
 
