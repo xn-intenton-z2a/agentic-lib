@@ -10,12 +10,15 @@
 // - Refactored flag handling to reduce cognitive complexity.
 // - Improved regex safety in getIssueNumberFromBranch for proper extraction of issue numbers.
 // - Extended OpenAI delegation with delegateDecisionToLLMAdvanced using tool call schema.
-// - Added new remote service wrapper: callDeploymentService, useful for triggering deployment actions in agentic workflows.
-// - Added new telemetry function gatherAdvancedTelemetryData to collect additional runtime and process information.
-// - Updated printReport to include advanced telemetry data.
+// - Added new remote service wrapper: callDeploymentService.
+// - Added new telemetry function gatherAdvancedTelemetryData.
 // - Added bulk Kafka simulation function simulateKafkaBulkStream.
-// - Added agentic health check function performAgenticHealthCheck for system diagnostics.
-// - Added new Kafka inter-workflow communication simulation function simulateKafkaInterWorkflowCommunication to enable communication between agentic workflows.
+// - Added agentic health check function performAgenticHealthCheck.
+// - Added Kafka inter-workflow communication simulation function simulateKafkaInterWorkflowCommunication.
+//
+// New Enhancements:
+// - Added function gatherFullSystemReport to return a complete diagnostic report combining health check, advanced telemetry, and combined telemetry data.
+// - Added function simulateRealKafkaStream to provide a more detailed simulation of Kafka streaming with additional logging.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -26,7 +29,7 @@ import { randomInt } from "crypto";
 
 // Helper function to escape regex special characters
 function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\\\]]/g, "\\$&");
+  return string.replace(/[.*+?^${}()|[\"]]\/g, "\\$&");
 }
 
 /**
@@ -181,7 +184,7 @@ export function simulateKafkaInterWorkflowCommunication(topics, message) {
     const sent = sendMessageToKafka(topic, message);
     const received = receiveMessageFromKafka(topic);
     results[topic] = { sent, received };
-    console.log(chalk.blue(`Inter-workflow Kafka simulation for topic '${topic}':`, results[topic]));
+    console.log(chalk.blue(`Inter-workflow Kafka simulation for topic '${topic}':`), results[topic]);
   });
   return results;
 }
@@ -499,7 +502,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
+  const regex = new RegExp(safePrefix + "(\d{1,10})\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -707,11 +710,8 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
 
 /**
  * New function to simulate sending a bulk stream of Kafka messages.
- * @param {string} topic
- * @param {number} count
- * @returns {string[]} An array of simulated bulk messages.
+ * (Already defined above as simulateKafkaBulkStream)
  */
-// (Already defined above as simulateKafkaBulkStream)
 
 /**
  * New function to perform a health check of the agentic system.
@@ -728,6 +728,32 @@ export function performAgenticHealthCheck() {
   };
   console.log(chalk.green("Agentic Health Check:"), JSON.stringify(healthReport, null, 2));
   return healthReport;
+}
+
+/**
+ * New function to gather a full system report combining various diagnostics.
+ */
+export function gatherFullSystemReport() {
+  return {
+    healthCheck: performAgenticHealthCheck(),
+    advancedTelemetry: gatherAdvancedTelemetryData(),
+    combinedTelemetry: { ...gatherTelemetryData(), ...gatherExtendedTelemetryData(), ...gatherFullTelemetryData() }
+  };
+}
+
+/**
+ * New function to simulate a more realistic Kafka streaming process with additional logging details.
+ */
+export function simulateRealKafkaStream(topic, count = 3) {
+  console.log(chalk.blue(`Starting real Kafka stream simulation on topic '${topic}' with count ${count}`));
+  const messages = [];
+  for (let i = 0; i < count; i++) {
+    const msg = `Real Kafka stream message ${i + 1} from topic '${topic}'`;
+    console.log(chalk.blue(msg));
+    messages.push(msg);
+  }
+  console.log(chalk.blue(`Completed real Kafka stream simulation on topic '${topic}'`));
+  return messages;
 }
 
 export function reviewIssue({
