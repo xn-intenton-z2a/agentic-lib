@@ -4,7 +4,7 @@
 // - Pruned drift and aligned with the mission statement.
 // - Removed redundant simulation verbiage while retaining demo outputs.
 // - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, --extended, and new --report for combined diagnostics.
-// - Integrated Kafka logging, system performance telemetry, remote service wrappers (analytics, notification, and build status), improved LLM decision delegation with error logging and zod validation.
+// - Integrated Kafka logging, system performance telemetry, remote service wrappers (analytics, notification, and build status) with improved HTTP error checking, improved LLM decision delegation with error logging and zod validation.
 // - Added extended Kafka simulation function simulateKafkaDetailedStream for detailed diagnostics.
 // - Added new report functionality to output combined diagnostics from telemetry and system performance.
 // - Updated Change Log: Refreshed README content in line with CONTRIBUTING guidelines.
@@ -150,6 +150,9 @@ export function analyzeSystemPerformance() {
 export async function callRemoteService(serviceUrl) {
   try {
     const response = await fetch(serviceUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     const data = await response.json();
     return data;
   } catch (error) {
@@ -170,6 +173,9 @@ export async function callAnalyticsService(serviceUrl, data) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     const result = await response.json();
     console.log(chalk.green("Analytics Service Response:"), result);
     return result;
@@ -191,6 +197,9 @@ export async function callNotificationService(serviceUrl, payload) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     const result = await response.json();
     console.log(chalk.green("Notification Service Response:"), result);
     return result;
@@ -207,6 +216,9 @@ export async function callNotificationService(serviceUrl, payload) {
 export async function callBuildStatusService(serviceUrl) {
   try {
     const response = await fetch(serviceUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     const status = await response.json();
     console.log(chalk.green("Build Status Service Response:"), status);
     return status;

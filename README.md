@@ -36,10 +36,10 @@ This README has been refreshed in accordance with the CONTRIBUTING guidelines. I
 - **New:** `simulateKafkaStream(topic, count)`: Simulates streaming a series of messages from a Kafka topic.
 - **New:** `simulateKafkaDetailedStream(topic, count)`: Extended Kafka stream simulation with detailed logging.
 - **New:** `analyzeSystemPerformance()`: Provides system performance telemetry including platform, CPU count, and total memory.
-- **New:** `callRemoteService(serviceUrl)`: Simulates remote service API calls using fetch with enhanced error logging.
-- **New:** `callAnalyticsService(serviceUrl, data)`: Simulates sending analytics data to a remote endpoint.
-- **New:** `callNotificationService(serviceUrl, payload)`: Simulates sending a notification, useful for alerts in agentic workflows.
-- **New:** `callBuildStatusService(serviceUrl)`: Simulates checking the CI build status.
+- **New:** `callRemoteService(serviceUrl)`: Simulates remote service API calls using fetch with HTTP response checking to validate success.
+- **New:** `callAnalyticsService(serviceUrl, data)`: Simulates sending analytics data to a remote endpoint with HTTP response validation.
+- **New:** `callNotificationService(serviceUrl, payload)`: Simulates sending a notification, useful for alerts in agentic workflows, with HTTP response checks.
+- **New:** `callBuildStatusService(serviceUrl)`: Simulates checking the CI build status with HTTP response validation.
 - **New Flags:** Introduced `--simulate-remote`, `--sarif`, and **`--report`** for remote calls, processing SARIF reports, and combined diagnostics respectively.
 
 ---
@@ -47,8 +47,8 @@ This README has been refreshed in accordance with the CONTRIBUTING guidelines. I
 ## New Features & Recent Improvements
 
 - Added new flags such as `--env`, `--reverse`, `--telemetry`, `--telemetry-extended`, `--create-issue`, and `--extended` to enhance functionality.
-- Integrated extended telemetry gathering functions and improved remote service wrappers.
-- Extended Kafka simulation with detailed logging for systems diagnostics.
+- Integrated extended telemetry gathering functions and improved remote service wrappers with HTTP error checking.
+- Extended Kafka simulation with detailed logging for system diagnostics.
 - Updated internal documentation and in-code comments for clarity and maintainability.
 
 ---

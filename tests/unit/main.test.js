@@ -376,7 +376,7 @@ describe("Utility Functions", () => {
     });
 
     test("callRemoteService returns data for successful call", async () => {
-      global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve({ success: true }) }));
+      global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ success: true }) }));
       const data = await callRemoteService("https://dummyapi.io/data");
       expect(data).toEqual({ success: true });
     });
@@ -389,7 +389,7 @@ describe("Utility Functions", () => {
 
     test("callAnalyticsService returns data for successful call", async () => {
       const analyticsResponse = { event: "click", status: "recorded" };
-      global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve(analyticsResponse) }));
+      global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(analyticsResponse) }));
       const data = await callAnalyticsService("https://analytics.example.com/record", { event: "click" });
       expect(data).toEqual(analyticsResponse);
     });
@@ -402,7 +402,7 @@ describe("Utility Functions", () => {
 
     test("callNotificationService returns data for successful call", async () => {
       const notificationResponse = { status: "sent" };
-      global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve(notificationResponse) }));
+      global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(notificationResponse) }));
       const data = await callNotificationService("https://notify.example.com/send", { message: "Alert" });
       expect(data).toEqual(notificationResponse);
     });
@@ -415,7 +415,7 @@ describe("Utility Functions", () => {
 
     test("callBuildStatusService returns data for successful call", async () => {
       const statusResponse = { build: "success", duration: "5m" };
-      global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve(statusResponse) }));
+      global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(statusResponse) }));
       const data = await callBuildStatusService("https://ci.example.com/status");
       expect(data).toEqual(statusResponse);
     });
