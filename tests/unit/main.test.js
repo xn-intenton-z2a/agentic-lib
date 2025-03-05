@@ -77,7 +77,7 @@ describe("reviewIssue", () => {
       dependenciesListOutput: "npm list output",
       buildOutput: "build output",
       testOutput: "test output",
-      mainOutput: "test output",
+      mainOutput: "test output"
     };
     const result = reviewIssue(params);
     expect(result.fixed).toBe("true");
@@ -97,7 +97,7 @@ describe("reviewIssue", () => {
       dependenciesListOutput: "list output",
       buildOutput: "build output",
       testOutput: "test output",
-      mainOutput: "test output",
+      mainOutput: "test output"
     };
     const result = reviewIssue(params);
     expect(result.fixed).toBe("false");
