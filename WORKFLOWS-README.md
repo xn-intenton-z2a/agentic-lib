@@ -213,12 +213,13 @@ Re-usable GitHub Actions Workflows:
 - [x] repository0 init workflow which archives the 4 files (1 of 4): a generic README, package.json, src/lib/main.js, tests/unit/main.test.js, and initialises a CONTRIBUTING.md.
 - [x] apply fix should create a PR if it passes.
 - [x] use a single branch pre-fix and check it to avoid conflicts.
-- [~] pass the change description for the commit message.
-- [~] locate the issue number in apply-fix and comment the issue.
-- [~] apply-fix to be able to apply a fix to the main branch.
+- [x] pass the change description for the commit message.
+- [x] locate the issue number in apply-fix and comment the issue.
+- [x] apply-fix to be able to apply a fix to the main branch.
 - [~] apply-fix check branches for conflicts and try to resolve them.
-- [ ] issue-worker to check if an issue is resolved before raising a PR.
+- [ ] apply-fix to add issue details to the completion request.
 - [ ] apply-fix to check if an issue is resolved before raising a PR.
+- [ ] issue-worker to check if an issue is resolved before raising a PR.
 - [ ] Add git log to the context for review issue, issue worker and apply fixes.
 - [ ] issue-worker to review issue to check state and recent changes before attempting to work on the issue.
 - [ ] Issue worker, to work a branch (instead of failing) if the branch is open but there is no PR, working may be resolving the issue or fixing the branch first.

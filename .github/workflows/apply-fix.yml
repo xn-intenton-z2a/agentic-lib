@@ -38,9 +38,7 @@ on:
     types:
       - completed
     branches:
-      - agentic-lib-issue-*
-      - agentic-lib-formatting
-      - agentic-lib-update
+      - agentic-lib-*
   schedule:
     - cron: '0 0 1 * *' # schedule-1
     - cron: '*/30 * * * *' # schedule-2
