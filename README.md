@@ -28,15 +28,16 @@ remote service wrappers, advanced LLM delegation, and parsing utilities. This li
   - Leverages functions like `delegateDecisionToLLM()`, `delegateDecisionToLLMWrapped()`, and `delegateDecisionToLLMAdvanced()` for AI-assisted decisions.
 - **Kafka Operations:**
   - Supports Kafka simulation and detailed logging via functions like `simulateKafkaDetailedStream()`, with new improvements through `simulateRealKafkaStream()`.
-- **New Enhancements:**
-  - **Full System Report:** Use `gatherFullSystemReport()` to obtain a combined diagnostic report including health check, advanced telemetry, and combined GitHub telemetry data.
+- **Create Issue Simulation:**
+  - **New:** The `--create-issue` flag now mimics the behavior of the GitHub workflow `wfr-create-issue.yml`, including handling of house choice options and simulated issue creation.
 
 ## Recent Improvements
 
 - Extended flag handling with robust diagnostics.
 - Updated telemetry, Kafka, and remote service wrappers with improved error checking.
 - Introduced advanced LLM delegation using function calling.
-- **New:** Added functions `gatherFullSystemReport` and `simulateRealKafkaStream` to provide comprehensive diagnostics and enhance Kafka communication simulation.
+- **New:** Added functions `gatherFullSystemReport` and `simulateRealKafkaStream` for comprehensive diagnostics and enhanced Kafka simulation.
+- **New:** Extended create issue simulation to reflect the behavior of the GitHub Actions workflow, enhancing the '--create-issue' flag functionality.
 
 ---
 
@@ -79,6 +80,7 @@ This repository is organized into three distinct areas to help you understand th
   The code is located in `src/lib/main.js`.
 
 ---
+---
 
 ## License
 
@@ -107,7 +109,7 @@ IMPORTANT: Any derived work must include the following attribution:
 ```
 
 ---
-
+---
 ---
 
 ## Contributing
@@ -174,5 +176,6 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
+---
 ---
 ---

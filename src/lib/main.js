@@ -15,10 +15,11 @@
 // - Added bulk Kafka simulation function simulateKafkaBulkStream.
 // - Added agentic health check function performAgenticHealthCheck.
 // - Added Kafka inter-workflow communication simulation function simulateKafkaInterWorkflowCommunication.
-//
-// New Enhancements:
 // - Added function gatherFullSystemReport to return a complete diagnostic report combining health check, advanced telemetry, and combined telemetry data.
 // - Added function simulateRealKafkaStream to provide a more detailed simulation of Kafka streaming with additional logging.
+//
+// New Improvement:
+// - Extended create issue simulation in the flag handler (--create-issue) to mimic the behavior of the GitHub workflow wfr-create-issue.yml.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -407,6 +408,8 @@ function handleFlagCommands(flagArgs, nonFlagArgs) {
     return true;
   }
   if (flagArgs.includes("--create-issue")) {
+    // Extended create issue simulation to mimic GitHub Actions workflow behavior (wfr-create-issue.yml)
+    console.log(chalk.magenta("Simulated GitHub Issue Creation Workflow triggered."));
     let issueTitle;
     if (nonFlagArgs.length > 0 && nonFlagArgs[0] === "house choice") {
       const options = process.env.HOUSE_CHOICE_OPTIONS
@@ -467,6 +470,13 @@ function handleFlagCommands(flagArgs, nonFlagArgs) {
     const detailedMessages = simulateKafkaDetailedStream("detailedTopic", 2);
     console.log("Detailed messages:", detailedMessages.join(", "));
   }
+  if (flagArgs.includes("--reverse")) {
+    const reversedInput = nonFlagArgs.join(" ").split("").reverse().join("");
+    console.log(chalk.yellow("Reversed input: " + reversedInput));
+  } else if (nonFlagArgs.length > 0) {
+    console.log("Non-flag arguments:", nonFlagArgs.join(","));
+  }
+  exitApplication();
   return false;
 }
 
@@ -483,15 +493,6 @@ export function main(args = []) {
 
   const flagProcessingResult = processFlags(flagArgs);
   console.log(flagProcessingResult);
-
-  if (flagArgs.includes("--reverse")) {
-    const reversedInput = nonFlagArgs.join(" ").split("").reverse().join("");
-    console.log(chalk.yellow("Reversed input: " + reversedInput));
-  }
-
-  if (nonFlagArgs.length > 0) {
-    console.log("Non-flag arguments:", nonFlagArgs.join(","));
-  }
 
   exitApplication();
 }
