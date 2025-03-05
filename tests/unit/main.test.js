@@ -397,6 +397,16 @@ describe("main function flags", () => {
     expect(output).toContain("Full Telemetry Data:");
     expect(output).toContain("Advanced Telemetry Data:");
   });
+
+  test("--advanced flag prints advanced analytics simulation", () => {
+    process.env.NODE_ENV = "test";
+    const output = captureOutput(() => {
+      try {
+        main(["--advanced"]);
+      } catch (error) {}
+    });
+    expect(output).toContain("Advanced analytics data:");
+  });
 });
 
 describe("Remote Service Wrapper", () => {

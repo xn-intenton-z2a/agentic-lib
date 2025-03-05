@@ -2,7 +2,10 @@
 
 You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](WORKFLOWS-README.md)
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
+repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
+issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
+GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 
 [Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
 
@@ -27,6 +30,8 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
   - Simulate Kafka messaging and logging via functions like `simulateKafkaDetailedStream()`, `simulateKafkaBulkStream()`, and `simulateKafkaInterWorkflowCommunication()`, along with enhanced simulation via `simulateRealKafkaStream()`.
 - **Issue Creation Simulation:**
   - The `--create-issue` flag now mimics GitHub Actions workflow behavior, incorporating house choice options and simulated issue creation.
+- **Advanced Analytics Simulation:**
+  - New advanced analytics simulation (`--advanced` flag) combines detailed Kafka simulation with advanced telemetry data, providing deeper insights into system performance.
 
 ## Recent Improvements
 
@@ -34,6 +39,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - Enhanced telemetry and Kafka simulation functions with detailed logging and performance metrics.
 - Advanced LLM delegation incorporated to support function calling with strict schemas.
 - New diagnostic functions: `gatherFullSystemReport` and `simulateRealKafkaStream`.
+- **New:** Added `simulateAdvancedAnalytics` function and the `--advanced` CLI flag to simulate advanced analytics combining Kafka streaming and telemetry data.
 
 ---
 ---
@@ -108,7 +114,8 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License v3.0 (GPL‑3) along with this program. If not, see <https://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License v3.0 (GPL‑3)
+along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
@@ -145,7 +152,7 @@ This repository is organized into three distinct areas to help you understand th
 - **Location:**  
   Look in the `examples/` directory for sample implementations.
 
-### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
+### 3. The Evolving main.js (JavaScript re‑implementation of Re‑usable Workflows)
 - **Purpose:**  
   This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
