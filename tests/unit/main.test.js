@@ -27,7 +27,7 @@ import {
   parseEslintSarifOutput,
   parseVitestOutput,
   main,
-  generateUsage
+  generateUsage,
 } from "../../src/lib/main.js";
 
 // Helper to capture console output
@@ -78,7 +78,7 @@ describe("reviewIssue", () => {
       dependenciesListOutput: "npm list output",
       buildOutput: "build output",
       testOutput: "test output",
-      mainOutput: "test output"
+      mainOutput: "test output",
     };
     const result = reviewIssue(params);
     expect(result.fixed).toBe("true");
@@ -98,7 +98,7 @@ describe("reviewIssue", () => {
       dependenciesListOutput: "list output",
       buildOutput: "build output",
       testOutput: "test output",
-      mainOutput: "test output"
+      mainOutput: "test output",
     };
     const result = reviewIssue(params);
     expect(result.fixed).toBe("false");
