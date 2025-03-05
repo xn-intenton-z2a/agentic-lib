@@ -29,7 +29,7 @@ import { randomInt } from "crypto";
 
 // Helper function to escape regex special characters
 function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\"]]\/g, "\\$&");
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /**
