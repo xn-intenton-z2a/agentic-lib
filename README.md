@@ -41,8 +41,8 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New:** `callAnalyticsService(serviceUrl, data)`: Simulates sending analytics data to a remote endpoint.
 - **New:** `callNotificationService(serviceUrl, payload)`: Simulates sending a notification to a remote endpoint, which can be useful for sending alerts or updates from agentic workflows.
 - **New:** `callBuildStatusService(serviceUrl)`: A new remote service wrapper to simulate checking the CI build status.
-- **New:** Introduced a new `--simulate-remote` flag to simulate remote service calls, and a `--sarif` flag to process SARIF reports.
-- **New:** Added a new `--extended` flag to trigger extended logging and detailed Kafka stream simulation for enhanced diagnostics.
+- **New:** Introduced flags `--simulate-remote`, `--sarif`, and **`--report`** to trigger remote calls, process SARIF reports, and produce combined diagnostic reports respectively.
+- **New:** Added **`--reverse`** flag to reverse non-flag arguments.
 
 ---
 
@@ -56,12 +56,10 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - **New & Improved:** Extended `delegateDecisionToLLMWrapped()` for improved error logging and schema validation, matching the supplied OpenAI function format.
 - **New:** Simulated Kafka messaging functions for inter-workflow communication. This includes the new functions `simulateKafkaStream` and `simulateKafkaDetailedStream` for extended diagnostics.
 - **New:** Added `analyzeSystemPerformance()` to provide system performance telemetry.
-- **New:** Added `callRemoteService(serviceUrl)` as a remote service wrapper.
-- **New:** Added `callAnalyticsService(serviceUrl, data)` to simulate remote analytics service calls.
-- **New:** Added `callNotificationService(serviceUrl, payload)` to simulate remote notification service calls.
-- **New:** Added `callBuildStatusService(serviceUrl)` as a remote service wrapper to check build status.
-- **New:** Introduced a new `--simulate-remote` flag to simulate remote service calls, and a `--sarif` flag to process SARIF reports.
-- **New:** Added a new `--extended` flag to trigger extended logging and detailed Kafka stream simulation for enhanced diagnostics.
+- **New:** Added remote service wrappers for analytics, notification, and build status checks via `callAnalyticsService()`, `callNotificationService()`, and `callBuildStatusService()`.
+- **New:** Introduced a new `--simulate-remote` flag to simulate remote service calls.
+- **New:** Added a new `--sarif` flag to process SARIF reports.
+- **New:** Added a new `--report` flag to generate a combined diagnostic report including system performance and telemetry data.
 
 ---
 
@@ -71,10 +69,10 @@ This README file has been refreshed to align with the latest CONTRIBUTING guidel
 - Refactored regex construction in `getIssueNumberFromBranch` and randomness in issue simulation for improved safety.
 - Extended flag processing functions to provide clearer outputs, with support for `--verbose` and `--debug` flags.
 - **New:** Integrated telemetry gathering functions including `gatherExtendedTelemetryData()` and `gatherFullTelemetryData()` for comprehensive GitHub Actions data.
-- **New:** Added notification and analytics service functionality via `callNotificationService()` and `callAnalyticsService()`, as well as a new build status service via `callBuildStatusService()`, to expand remote service integrations.
+- **New:** Added remote service wrappers for analytics, notification, and build status checks via `callAnalyticsService()`, `callNotificationService()`, and `callBuildStatusService()`.
 - **New:** Enhanced LLM decision delegation in `delegateDecisionToLLMWrapped()` with improved error handling and schema validation.
-- **New:** Introduced extended Kafka simulation with the new `simulateKafkaDetailedStream()` function and the `--extended` flag to provide detailed logging diagnostics.
-- **New:** Added remote service wrapper `callBuildStatusService()` to simulate checking the CI build status.
+- **New:** Introduced extended Kafka simulation with the new `simulateKafkaDetailedStream()` function and the `--extended` flag for detailed logging diagnostics.
+- **New:** Added combined diagnostic report functionality via the `--report` flag to output system performance and telemetry data.
 - **Checked:** Pruned drift by removing outdated simulation details and aligning the implementation closely with the agentic‑lib mission statement.
 
 ---
@@ -155,7 +153,6 @@ IMPORTANT: Any derived work must include the following attribution:
 
 ---
 ---
----
 
 ## Contributing
 
@@ -221,6 +218,5 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
----
 ---
 ---

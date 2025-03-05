@@ -3,10 +3,10 @@
 // Change Log:
 // - Pruned drift and aligned with the mission statement.
 // - Removed redundant simulation verbiage while retaining demo outputs.
-// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, and now --extended for detailed logging.
+// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, --extended, and new --report for combined diagnostics.
 // - Integrated Kafka logging, system performance telemetry, remote service wrappers (including analytics, notification, and build status), improved LLM decision delegation with error logging and zod validation.
 // - Added extended Kafka simulation function simulateKafkaDetailedStream for detailed diagnostics.
-// - Updated code comments and usage instructions to reflect (change from main) the refined mission statement and new features.
+// - Added new report functionality to output combined diagnostics from telemetry and system performance.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -279,6 +279,14 @@ export function parseVitestOutput(outputStr) {
 }
 
 /**
+ * New utility function to print a combined diagnostic report including system performance and telemetry data.
+ */
+function printReport() {
+  console.log(chalk.green("System Performance: " + JSON.stringify(analyzeSystemPerformance(), null, 2)));
+  console.log(chalk.green("Telemetry Data: " + JSON.stringify(gatherTelemetryData(), null, 2)));
+}
+
+/**
  * Main function for processing command line arguments and executing corresponding actions.
  * @param {string[]} args
  */
@@ -360,6 +368,13 @@ export function main(args = []) {
     return;
   }
 
+  // New report flag for combined diagnostics
+  if (flagArgs.includes("--report")) {
+    printReport();
+    exitApplication();
+    return;
+  }
+
   // New extended flag for detailed logging
   if (flagArgs.includes("--extended")) {
     console.log(chalk.green("Extended logging activated."));
@@ -383,7 +398,7 @@ export function main(args = []) {
 }
 
 export function generateUsage() {
-  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [--create-issue] [--simulate-remote] [--sarif] [--extended] [args...]";
+  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [--create-issue] [--simulate-remote] [--sarif] [--extended] [--report] [args...]";
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
