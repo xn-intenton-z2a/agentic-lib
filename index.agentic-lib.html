@@ -85,18 +85,13 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="recent-improvements" href="#recent-improvements"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Recent Improvements</h2>
 <ul class="md-github">
-<li class="md-github">Extended flag handling with improved diagnostics and error checking. (Refactored handling in <code class="md-github">main.js</code>)</li>
+<li class="md-github">Extended flag handling with improved diagnostics and error checking.</li>
 <li class="md-github">Enhanced telemetry and Kafka simulation functions with detailed logging and performance metrics.</li>
 <li class="md-github">Advanced LLM delegation incorporated to support function calling with strict schemas.</li>
 <li class="md-github">New diagnostic functions: <code class="md-github">gatherFullSystemReport</code> and <code class="md-github">simulateRealKafkaStream</code>.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">simulateAdvancedAnalytics</code> function and the <code class="md-github">--advanced</code> CLI flag to simulate advanced analytics combining Kafka streaming and telemetry data.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">delegateDecisionToLLMAdvancedVerbose</code> function for enhanced logging during LLM delegation.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">gatherCustomTelemetryData</code> to provide additional system metrics for improved telemetry data collection in GitHub Actions workflows.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">delegateDecisionToLLMAdvancedStrict</code> to support timeout-based advanced LLM delegation.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Fixed openai Configuration import issue in LLM delegation functions to support ESM module structure.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Refactored flag handling to extract helper functions for improved maintainability.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Improved regex in <code class="md-github">getIssueNumberFromBranch</code> to correctly extract issue numbers.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">gatherWorkflowTelemetryData</code> to capture additional GitHub Actions telemetry metrics.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">simulateAdvancedAnalytics</code> function and the <code class="md-github">--advanced</code> CLI flag.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">delegateDecisionToLLMAdvancedVerbose</code> and <code class="md-github">delegateDecisionToLLMAdvancedStrict</code> for enhanced LLM delegation with verbose logging and timeout support.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Pruned drift and removed redundant simulation verbiage from the source file to fully align with the agentic‑lib mission statement.</li>
 </ul>
 <hr class="md-github">
 <hr class="md-github">
@@ -161,10 +156,71 @@ IMPORTANT: Any derived work must include the following attribution:
 </code></pre>
 <hr class="md-github">
 <hr class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="contributing-1" href="#contributing-1"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Contributing</h2>
+<p class="md-github">Contributions are welcome! Please see <a href="CONTRIBUTING.md" class="md-github">CONTRIBUTING.md</a> for guidelines.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="component-breakdown-1" href="#component-breakdown-1"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Component Breakdown</h2>
+<p class="md-github">This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:</p>
+<h3 class="md-github"><a class="md-github__anchor" name="1-reusable-workflows-core-functionality-1" href="#1-reusable-workflows-core-functionality-1"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>1. Re‑usable Workflows (Core Functionality)</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Purpose:</strong><br>
+These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.</li>
+<li class="md-github"><strong class="md-github">Stability:</strong><br>
+They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.</li>
+<li class="md-github"><strong class="md-github">Licensing:</strong><br>
+The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.</li>
+<li class="md-github"><strong class="md-github">Location:</strong><br>
+Find these in the <code class="md-github">.github/workflows/</code> directory.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="2-example-workflows-demonstrative-content-1" href="#2-example-workflows-demonstrative-content-1"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>2. Example Workflows (Demonstrative Content)</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Purpose:</strong><br>
+These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.</li>
+<li class="md-github"><strong class="md-github">Stability:</strong><br>
+While functional, they are intended primarily for demonstration and experimentation.</li>
+<li class="md-github"><strong class="md-github">Licensing:</strong><br>
+The example workflows are covered by the MIT license to allow for broader use and modification.</li>
+<li class="md-github"><strong class="md-github">Location:</strong><br>
+Look in the <code class="md-github">examples/</code> directory for sample implementations.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="3-the-evolving-mainjs-javascript-re-implementation-of-reusable-workflows-1" href="#3-the-evolving-mainjs-javascript-re-implementation-of-reusable-workflows-1"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Purpose:</strong><br>
+This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.</li>
+<li class="md-github"><strong class="md-github">Stability:</strong><br>
+It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.</li>
+<li class="md-github"><strong class="md-github">Licensing:</strong><br>
+As part of the core project, it is under GPL‑3 with the attribution clause.</li>
+<li class="md-github"><strong class="md-github">Location:</strong><br>
+The code is located in <code class="md-github">src/lib/main.js</code>.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="license-1" href="#license-1"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>License</h2>
+<p class="md-github">This project is licensed under the GNU General Public License (GPL). See <a href="LICENSE" class="md-github">LICENSE</a> for details.</p>
+<p class="md-github">License notice:</p>
+<pre class="md-github"><code class="md-github">agentic-lib
+Copyright (C) 2025 Polycode Limited
+
+agentic-lib is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
+along with this program. If not, see &lt;https://www.gnu.org/licenses/&gt;.
+
+IMPORTANT: Any derived work must include the following attribution:
+&quot;This work is derived from https://github.com/xn-intenton-z2a/agentic-lib&quot;
+</code></pre>
+<hr class="md-github">
+<hr class="md-github">
 
   </section>
   <footer>
-    <p>Generated on 2025-03-06T22:35:56.721Z</p>
+    <p>Generated on 2025-03-06T23:05:47.548Z</p>
   </footer>
 </body>
 </html>
