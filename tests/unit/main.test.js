@@ -17,6 +17,8 @@ import {
   gatherCustomTelemetryData,
   gatherFullSystemReport,
   simulateRealKafkaStream,
+  delegateDecisionToLLM,
+  delegateDecisionToLLMWrapped,
   delegateDecisionToLLMAdvancedVerbose,
   delegateDecisionToLLMAdvancedStrict,
   simulateKafkaBulkStream,
@@ -83,7 +85,7 @@ describe("reviewIssue", () => {
       testOutput: "test output",
       mainOutput: "test output"
     };
-    const result = reviewIssue(params);
+    const result = agenticLib.reviewIssue(params);
     expect(result.fixed).toBe("true");
     expect(result.message).toBe("The issue has been resolved.");
     expect(result.refinement).toBe("None");
@@ -103,7 +105,7 @@ describe("reviewIssue", () => {
       testOutput: "test output",
       mainOutput: "test output"
     };
-    const result = reviewIssue(params);
+    const result = agenticLib.reviewIssue(params);
     expect(result.fixed).toBe("false");
     expect(result.message).toBe("Issue not resolved.");
   });
@@ -112,7 +114,7 @@ describe("reviewIssue", () => {
 describe("splitArguments", () => {
   test("splits flags and non-flags correctly", () => {
     const args = ["--verbose", "input.txt", "--debug", "output.txt"];
-    const { flagArgs, nonFlagArgs } = splitArguments(args);
+    const { flagArgs, nonFlagArgs } = agenticLib.splitArguments(args);
     expect(flagArgs).toEqual(["--verbose", "--debug"]);
     expect(nonFlagArgs).toEqual(["input.txt", "output.txt"]);
   });
@@ -120,25 +122,25 @@ describe("splitArguments", () => {
 
 describe("processFlags", () => {
   test("returns proper message without flags", () => {
-    expect(processFlags([])).toBe("No flags to process.");
+    expect(agenticLib.processFlags([])).toBe("No flags to process.");
   });
   test("returns proper message with flags", () => {
-    const result = processFlags(["--test", "--flag"]);
+    const result = agenticLib.processFlags(["--test", "--flag"]);
     expect(result).toContain("--test");
   });
   test("with --verbose flag returns verbose message", () => {
-    const result = processFlags(["--verbose", "--debug"]);
+    const result = agenticLib.processFlags(["--verbose", "--debug"]);
     expect(result).toContain("Verbose mode enabled.");
   });
   test("with --debug flag returns debug message", () => {
-    const result = processFlags(["--debug"]);
+    const result = agenticLib.processFlags(["--debug"]);
     expect(result).toContain("Debug mode enabled.");
   });
 });
 
 describe("enhancedDemo", () => {
   test("returns a string containing NODE_ENV and debug status", () => {
-    const demoMessage = enhancedDemo();
+    const demoMessage = agenticLib.enhancedDemo();
     expect(demoMessage).toContain("Enhanced Demo:");
     expect(demoMessage).toContain("NODE_ENV:");
     expect(demoMessage).toContain("DEBUG_MODE:");
@@ -147,30 +149,30 @@ describe("enhancedDemo", () => {
 
 describe("logEnvironmentDetails", () => {
   test("returns NODE_ENV detail", () => {
-    const details = logEnvironmentDetails();
+    const details = agenticLib.logEnvironmentDetails();
     expect(details).toMatch(/NODE_ENV:/);
   });
 });
 
 describe("showVersion", () => {
   test("returns a version string", () => {
-    const versionStr = showVersion();
+    const versionStr = agenticLib.showVersion();
     expect(versionStr).toMatch(/^Version:/);
   });
 });
 
 describe("getIssueNumberFromBranch", () => {
   test("extracts issue number correctly", () => {
-    expect(getIssueNumberFromBranch("agentic-lib-issue-123")).toBe(123);
-    expect(getIssueNumberFromBranch("feature-agentic-lib-issue-456-more")).toBe(456);
-    expect(getIssueNumberFromBranch("no-issue")).toBe(null);
+    expect(agenticLib.getIssueNumberFromBranch("agentic-lib-issue-123")).toBe(123);
+    expect(agenticLib.getIssueNumberFromBranch("feature-agentic-lib-issue-456-more")).toBe(456);
+    expect(agenticLib.getIssueNumberFromBranch("no-issue")).toBe(null);
   });
 });
 
 describe("sanitizeCommitMessage", () => {
   test("sanitizes commit messages", () => {
     const raw = "Fix bug!!! -- urgent";
-    expect(sanitizeCommitMessage(raw)).toBe("Fix bug -- urgent");
+    expect(agenticLib.sanitizeCommitMessage(raw)).toBe("Fix bug -- urgent");
   });
 });
 
@@ -182,7 +184,7 @@ describe("gatherTelemetryData", () => {
     process.env.GITHUB_JOB = "build";
     process.env.GITHUB_ACTION = "run";
     process.env.NODE_ENV = "test";
-    const telemetry = gatherTelemetryData();
+    const telemetry = agenticLib.gatherTelemetryData();
     expect(telemetry.githubWorkflow).toBe("CI Workflow");
     expect(telemetry.githubRunId).toBe("12345");
     expect(telemetry.githubRunNumber).toBe("67");
@@ -204,7 +206,7 @@ describe("gatherExtendedTelemetryData", () => {
     process.env.GITHUB_EVENT_NAME = "push";
     process.env.CI = "true";
     process.env.NODE_ENV = "test";
-    const extendedTelemetry = gatherExtendedTelemetryData();
+    const extendedTelemetry = agenticLib.gatherExtendedTelemetryData();
     expect(extendedTelemetry.githubWorkflow).toBe("CI Workflow");
     expect(extendedTelemetry.githubActor).toBe("tester");
     expect(extendedTelemetry.githubRepository).toBe("repo/test");
@@ -229,7 +231,7 @@ describe("gatherFullTelemetryData", () => {
     process.env.GITHUB_EVENT_NAME = "push";
     process.env.CI = "true";
     process.env.NODE_ENV = "test";
-    const fullTelemetry = gatherFullTelemetryData();
+    const fullTelemetry = agenticLib.gatherFullTelemetryData();
     expect(fullTelemetry.githubRef).toBe("refs/heads/main");
     expect(fullTelemetry.githubSha).toBe("abc123");
     expect(fullTelemetry.githubHeadRef).toBe("feature-branch");
@@ -239,7 +241,7 @@ describe("gatherFullTelemetryData", () => {
 
 describe("gatherAdvancedTelemetryData", () => {
   test("returns advanced telemetry details with runtime info", () => {
-    const advancedTelemetry = gatherAdvancedTelemetryData();
+    const advancedTelemetry = agenticLib.gatherAdvancedTelemetryData();
     expect(advancedTelemetry).toHaveProperty("nodeVersion");
     expect(advancedTelemetry).toHaveProperty("processPID");
     expect(advancedTelemetry).toHaveProperty("currentWorkingDirectory");
@@ -263,7 +265,7 @@ describe("gatherGitHubTelemetrySummary", () => {
     process.env.GITHUB_HEAD_REF = "feature-branch";
     process.env.GITHUB_BASE_REF = "main";
     process.env.NODE_ENV = "test";
-    const summary = gatherGitHubTelemetrySummary();
+    const summary = agenticLib.gatherGitHubTelemetrySummary();
     expect(summary.githubWorkflow).toBe("CI Workflow");
     expect(summary.githubActor).toBe("tester");
     expect(summary.githubRef).toBe("refs/heads/main");
@@ -272,7 +274,7 @@ describe("gatherGitHubTelemetrySummary", () => {
 
 describe("gatherCustomTelemetryData", () => {
   test("returns custom telemetry details with system metrics", () => {
-    const customTelemetry = gatherCustomTelemetryData();
+    const customTelemetry = agenticLib.gatherCustomTelemetryData();
     expect(customTelemetry).toHaveProperty("osUptime");
     expect(customTelemetry).toHaveProperty("loadAverages");
     expect(customTelemetry).toHaveProperty("networkInterfaces");
@@ -282,7 +284,7 @@ describe("gatherCustomTelemetryData", () => {
 
 describe("analyzeSystemPerformance", () => {
   test("returns system details", () => {
-    const details = analyzeSystemPerformance();
+    const details = agenticLib.analyzeSystemPerformance();
     expect(details).toHaveProperty("platform");
     expect(details).toHaveProperty("cpus");
     expect(typeof details.cpus).toBe("number");
@@ -294,7 +296,7 @@ describe("main function flags", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
       try {
-        main(["--env"]);
+        agenticLib.main(["--env"]);
       } catch (error) {}
     });
     expect(output).toContain("Environment Variables:");
@@ -304,7 +306,7 @@ describe("main function flags", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
       try {
-        main(["--help"]);
+        agenticLib.main(["--help"]);
       } catch (error) {}
     });
     expect(output).toContain("Usage: npm run start");
@@ -315,7 +317,7 @@ describe("main function flags", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
       try {
-        main(["--reverse", "hello", "world"]);
+        agenticLib.main(["--reverse", "hello", "world"]);
       } catch (error) {}
     });
     expect(output).toContain("Reversed input: dlrow olleh");
@@ -326,7 +328,7 @@ describe("main function flags", () => {
     process.env.GITHUB_WORKFLOW = "CI Test Workflow";
     const output = captureOutput(() => {
       try {
-        main(["--telemetry"]);
+        agenticLib.main(["--telemetry"]);
       } catch (error) {}
     });
     expect(output).toContain("Telemetry Data:");
@@ -338,7 +340,7 @@ describe("main function flags", () => {
     process.env.GITHUB_ACTOR = "extendedTester";
     const output = captureOutput(() => {
       try {
-        main(["--telemetry-extended"]);
+        agenticLib.main(["--telemetry-extended"]);
       } catch (error) {}
     });
     expect(output).toContain("Extended Telemetry Data:");
@@ -349,7 +351,7 @@ describe("main function flags", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
       try {
-        main(["--version"]);
+        agenticLib.main(["--version"]);
       } catch (error) {}
     });
     expect(output).toMatch(/^Version:/);
@@ -360,7 +362,7 @@ describe("main function flags", () => {
     process.env.ISSUE_BODY = "Please resolve this issue.";
     const output = captureOutput(() => {
       try {
-        main(["--create-issue", "Test Issue"]);
+        agenticLib.main(["--create-issue", "Test Issue"]);
       } catch (error) {}
     });
     expect(output).toContain("Simulated GitHub Issue Creation Workflow triggered.");
@@ -375,7 +377,7 @@ describe("main function flags", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
       try {
-        main(["--simulate-remote"]);
+        agenticLib.main(["--simulate-remote"]);
       } catch (e) {}
     });
     expect(output).toContain("Simulated remote service call initiated.");
@@ -385,7 +387,7 @@ describe("main function flags", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
       try {
-        main(["--extended"]);
+        agenticLib.main(["--extended"]);
       } catch (error) {}
     });
     expect(output).toContain("Extended logging activated.");
@@ -396,7 +398,7 @@ describe("main function flags", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
       try {
-        main(["--report"]);
+        agenticLib.main(["--report"]);
       } catch (error) {}
     });
     expect(output).toContain("System Performance:");
@@ -410,7 +412,7 @@ describe("main function flags", () => {
     process.env.NODE_ENV = "test";
     const output = captureOutput(() => {
       try {
-        main(["--advanced"]);
+        agenticLib.main(["--advanced"]);
       } catch (error) {}
     });
     expect(output).toContain("Advanced analytics data:");
@@ -424,65 +426,65 @@ describe("Remote Service Wrapper", () => {
 
   test("callRemoteService returns data for successful call", async () => {
     global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ success: true }) }));
-    const data = await callRemoteService("https://dummyapi.io/data");
+    const data = await agenticLib.callRemoteService("https://dummyapi.io/data");
     expect(data).toEqual({ success: true });
   });
 
   test("callRemoteService returns error on failed call", async () => {
     global.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
-    const data = await callRemoteService("https://dummyapi.io/data");
+    const data = await agenticLib.callRemoteService("https://dummyapi.io/data");
     expect(data.error).toBe("Network error");
   });
 
   test("callAnalyticsService returns data for successful call", async () => {
     const analyticsResponse = { event: "click", status: "recorded" };
     global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(analyticsResponse) }));
-    const data = await callAnalyticsService("https://analytics.example.com/record", { event: "click" });
+    const data = await agenticLib.callAnalyticsService("https://analytics.example.com/record", { event: "click" });
     expect(data).toEqual(analyticsResponse);
   });
 
   test("callAnalyticsService returns error on failed call", async () => {
     global.fetch = vi.fn(() => Promise.reject(new Error("Analytics network error")));
-    const data = await callAnalyticsService("https://analytics.example.com/record", { event: "click" });
+    const data = await agenticLib.callAnalyticsService("https://analytics.example.com/record", { event: "click" });
     expect(data.error).toBe("Analytics network error");
   });
 
   test("callNotificationService returns data for successful call", async () => {
     const notificationResponse = { status: "sent" };
     global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(notificationResponse) }));
-    const data = await callNotificationService("https://notify.example.com/send", { message: "Alert" });
+    const data = await agenticLib.callNotificationService("https://notify.example.com/send", { message: "Alert" });
     expect(data).toEqual(notificationResponse);
   });
 
   test("callNotificationService returns error on failed call", async () => {
     global.fetch = vi.fn(() => Promise.reject(new Error("Notification network error")));
-    const data = await callNotificationService("https://notify.example.com/send", { message: "Alert" });
+    const data = await agenticLib.callNotificationService("https://notify.example.com/send", { message: "Alert" });
     expect(data.error).toBe("Notification network error");
   });
 
   test("callBuildStatusService returns data for successful call", async () => {
     const statusResponse = { build: "success", duration: "5m" };
     global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(statusResponse) }));
-    const data = await callBuildStatusService("https://ci.example.com/status");
+    const data = await agenticLib.callBuildStatusService("https://ci.example.com/status");
     expect(data).toEqual(statusResponse);
   });
 
   test("callBuildStatusService returns error on failed call", async () => {
     global.fetch = vi.fn(() => Promise.reject(new Error("Build status network error")));
-    const data = await callBuildStatusService("https://ci.example.com/status");
+    const data = await agenticLib.callBuildStatusService("https://ci.example.com/status");
     expect(data.error).toBe("Build status network error");
   });
 
   test("callDeploymentService returns data for successful call", async () => {
     const deploymentResponse = { deployment: "triggered", id: "dep123" };
     global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(deploymentResponse) }));
-    const data = await callDeploymentService("https://deploy.example.com/trigger", { version: "1.0.0" });
+    const data = await agenticLib.callDeploymentService("https://deploy.example.com/trigger", { version: "1.0.0" });
     expect(data).toEqual(deploymentResponse);
   });
 
   test("callDeploymentService returns error on failed call", async () => {
     global.fetch = vi.fn(() => Promise.reject(new Error("Deployment network error")));
-    const data = await callDeploymentService("https://deploy.example.com/trigger", { version: "1.0.0" });
+    const data = await agenticLib.callDeploymentService("https://deploy.example.com/trigger", { version: "1.0.0" });
     expect(data.error).toBe("Deployment network error");
   });
 });
@@ -490,12 +492,12 @@ describe("Remote Service Wrapper", () => {
 describe("parseSarifOutput", () => {
   test("returns correct total issues for valid SARIF JSON", () => {
     const sarifSample = JSON.stringify({ runs: [{ results: [{}, {}] }, { results: [{}] }] });
-    const result = parseSarifOutput(sarifSample);
+    const result = agenticLib.parseSarifOutput(sarifSample);
     expect(result.totalIssues).toBe(3);
   });
 
   test("returns error property for invalid SARIF JSON", () => {
-    const result = parseSarifOutput("invalid json");
+    const result = agenticLib.parseSarifOutput("invalid json");
     expect(result.error).toBeDefined();
   });
 });
@@ -503,12 +505,12 @@ describe("parseSarifOutput", () => {
 describe("parseEslintSarifOutput", () => {
   test("returns correct total issues for valid ESLint SARIF JSON", () => {
     const eslintSarif = JSON.stringify({ runs: [{ results: [{}, {}] }] });
-    const result = parseEslintSarifOutput(eslintSarif);
+    const result = agenticLib.parseEslintSarifOutput(eslintSarif);
     expect(result.totalIssues).toBe(2);
   });
 
   test("returns error property for invalid ESLint SARIF JSON", () => {
-    const result = parseEslintSarifOutput("invalid eslint json");
+    const result = agenticLib.parseEslintSarifOutput("invalid eslint json");
     expect(result.error).toBeDefined();
   });
 });
@@ -516,13 +518,13 @@ describe("parseEslintSarifOutput", () => {
 describe("parseVitestOutput", () => {
   test("returns correct testsPassed count when summary is present", () => {
     const sampleOutput = "Some log info\n5 tests passed\nMore info";
-    const result = parseVitestOutput(sampleOutput);
+    const result = agenticLib.parseVitestOutput(sampleOutput);
     expect(result.testsPassed).toBe(5);
   });
 
   test("returns error when test summary is missing", () => {
     const sampleOutput = "No summary here";
-    const result = parseVitestOutput(sampleOutput);
+    const result = agenticLib.parseVitestOutput(sampleOutput);
     expect(result.error).toBeDefined();
   });
 });
@@ -530,7 +532,7 @@ describe("parseVitestOutput", () => {
 describe("delegateDecisionToLLMAdvancedVerbose", () => {
   test("returns simulated response with verbose logging when TEST_OPENAI_SUCCESS is set", async () => {
     process.env.TEST_OPENAI_SUCCESS = "true";
-    const result = await delegateDecisionToLLMAdvancedVerbose("test verbose", { refinement: "Verbose check" });
+    const result = await agenticLib.delegateDecisionToLLMAdvancedVerbose("test verbose", { refinement: "Verbose check" });
     expect(result.fixed).toBe("true");
     expect(result.message).toBe("LLM advanced call succeeded");
   });
@@ -539,15 +541,15 @@ describe("delegateDecisionToLLMAdvancedVerbose", () => {
 describe("delegateDecisionToLLMAdvancedStrict", () => {
   test("returns simulated response when TEST_OPENAI_SUCCESS is set", async () => {
     process.env.TEST_OPENAI_SUCCESS = "true";
-    const result = await delegateDecisionToLLMAdvancedStrict("test strict", { refinement: "Strict check", timeout: 5000 });
+    const result = await agenticLib.delegateDecisionToLLMAdvancedStrict("test strict", { refinement: "Strict check", timeout: 5000 });
     expect(result.fixed).toBe("true");
     expect(result.message).toBe("LLM advanced call succeeded");
   });
 
   test("returns timeout error when underlying call does not resolve in time", async () => {
-    process.env.TEST_OPENAI_SUCCESS = undefined;
+    delete process.env.TEST_OPENAI_SUCCESS;
     const spy = vi.spyOn(agenticLib, 'delegateDecisionToLLMAdvanced').mockImplementation(() => new Promise(() => {}));
-    const result = await delegateDecisionToLLMAdvancedStrict("test timeout", { timeout: 10, refinement: "Strict check" });
+    const result = await agenticLib.delegateDecisionToLLMAdvancedStrict("test timeout", { timeout: 10, refinement: "Strict check" });
     expect(result.fixed).toBe("false");
     expect(result.message).toBe("LLM advanced strict call timed out");
     expect(result.refinement).toBe("Timeout exceeded");
@@ -557,7 +559,7 @@ describe("delegateDecisionToLLMAdvancedStrict", () => {
 
 describe("New Features", () => {
   test("simulateKafkaBulkStream returns specified count of messages", () => {
-    const messages = simulateKafkaBulkStream("bulkTopic", 3);
+    const messages = agenticLib.simulateKafkaBulkStream("bulkTopic", 3);
     expect(messages.length).toBe(3);
     messages.forEach((msg, index) => {
       expect(msg).toContain(`Bulk message ${index + 1} from topic 'bulkTopic'`);
@@ -567,7 +569,7 @@ describe("New Features", () => {
   test("simulateKafkaInterWorkflowCommunication returns simulation results for multiple topics", () => {
     const topics = ["topicA", "topicB"];
     const message = "Hello Workflows";
-    const results = simulateKafkaInterWorkflowCommunication(topics, message);
+    const results = agenticLib.simulateKafkaInterWorkflowCommunication(topics, message);
     expect(results).toHaveProperty("topicA");
     expect(results).toHaveProperty("topicB");
     expect(results.topicA.sent).toContain(message);
@@ -575,7 +577,7 @@ describe("New Features", () => {
   });
 
   test("performAgenticHealthCheck returns health report with status healthy", () => {
-    const report = performAgenticHealthCheck();
+    const report = agenticLib.performAgenticHealthCheck();
     expect(report).toHaveProperty("status", "healthy");
     expect(report).toHaveProperty("timestamp");
     expect(report).toHaveProperty("system");
@@ -583,17 +585,33 @@ describe("New Features", () => {
   });
 
   test("gatherFullSystemReport returns combined report with all keys", () => {
-    const report = gatherFullSystemReport();
+    const report = agenticLib.gatherFullSystemReport();
     expect(report).toHaveProperty("healthCheck");
     expect(report).toHaveProperty("advancedTelemetry");
     expect(report).toHaveProperty("combinedTelemetry");
   });
 
   test("simulateRealKafkaStream returns messages with detailed logs", () => {
-    const messages = simulateRealKafkaStream("realTopic", 2);
+    const messages = agenticLib.simulateRealKafkaStream("realTopic", 2);
     expect(messages.length).toBe(2);
     messages.forEach((msg, index) => {
       expect(msg).toContain(`Real Kafka stream message ${index + 1} from topic 'realTopic'`);
     });
+  });
+});
+
+// Additional tests to improve coverage for LLM delegation fallback behaviors
+
+describe("delegateDecisionToLLM fallback", () => {
+  test("delegateDecisionToLLM returns fallback message when openai call fails", async () => {
+    // Since we likely won't have a real OpenAI key in test, this should trigger the catch block.
+    const result = await agenticLib.delegateDecisionToLLM("test prompt");
+    expect(result).toBe("LLM decision could not be retrieved.");
+  });
+
+  test("delegateDecisionToLLMWrapped returns fallback message when openai call fails", async () => {
+    // This should trigger the catch block for delegateDecisionToLLMWrapped
+    const result = await agenticLib.delegateDecisionToLLMWrapped("test prompt");
+    expect(result.fixed).toBe("false");
   });
 });

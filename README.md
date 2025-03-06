@@ -51,7 +51,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - **New:** Added `delegateDecisionToLLMAdvancedStrict` to support timeout-based advanced LLM delegation.
 - **New:** Refactored flag handling to extract helper functions for improved maintainability.
 - **New:** Improved regex in `getIssueNumberFromBranch` to prevent potential super-linear runtime.
-- **New:** Updated test coverage with enhanced mocks for remote service calls.
+- **New:** Increased test coverage by adding additional unit tests for LLM delegation fallback behaviors and other functions.
 
 ---
 ---
