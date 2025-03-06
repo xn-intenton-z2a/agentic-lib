@@ -23,19 +23,20 @@
       h1 { font-size: 1.8em; margin-bottom: 0.5em; }
       #controls { margin-bottom: 1em; text-align: center; }
       #autoReloadLabel { font-size: 1em; margin-left: 0.5em; }
-      /* Main content container that fills available space */
+      /* Main content container fills available space */
       #mainContent {
-          flex: 1; /* Fills remaining vertical space */
+          flex: 1;
           display: flex;
           flex-direction: column;
       }
-      /* Grid for the tiles */
+      /* Grid container: fill available space and auto-size rows */
       .grid {
+          flex: 1;
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
           gap: 1em;
-          flex: 1; /* Let grid fill available space */
           overflow-y: auto;
+          grid-auto-rows: 1fr;  /* Each row takes equal available space */
       }
       .tile {
           border: 2px solid #ccc;
@@ -43,15 +44,14 @@
           overflow: hidden;
           background-color: #fff;
           cursor: pointer;
-          /* Ensure tiles take full available height of a row */
           display: flex;
           flex-direction: column;
       }
+      /* The iframe now fills its container completely */
       .tile iframe {
           width: 100%;
-          height: 200px;
+          height: 100%;
           border: none;
-          flex-shrink: 0;
       }
       .tile:hover {
           box-shadow: 0 0 10px rgba(0,0,0,0.2);
@@ -66,11 +66,9 @@
 </head>
 <body>
 <header>
-  <h1>Dynamic Tiled Web Viewer</h1>
-  <p>Click a tile to open the page in a new tab.</p>
-  <p>Repository: <a href="https://github.com/xn-intenton-z2a/agentic-lib">xn-intenton-z2a</a></p>
-  <p>Latest agentic-lib stats: <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest.html</a></p>
-  <p>All repository stats: <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all.html</a></p>
+  <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">xn-intenton-z2a</a></p>
+  <p><a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest</a></p>
+  <p><a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all</a></p>
 </header>
 <div id="controls">
   <label>
@@ -92,9 +90,8 @@
   const urls = [
     "https://xn-intenton-z2a.github.io/agentic-lib/latest.html",
     "https://xn-intenton-z2a.github.io/repository0/latest.html",
-    "https://xn-intenton-z2a.github.io/repository0-crucible/latest.html",
     "https://xn-intenton-z2a.github.io/plot-code-lib/latest.html",
-    "https://xn-intenton-z2a.github.io/tansu-sqs-bridge/latest.html"
+    "https://xn-intenton-z2a.github.io/repository0-crucible/latest.html",
   ];
 
   const tileContainer = document.getElementById('tileContainer');
@@ -107,6 +104,7 @@
     const tile = document.createElement('div');
     tile.className = 'tile';
     tile.dataset.url = url;
+    // No fixed height: iframe will take full height of its container.
     tile.innerHTML = `<iframe src="${url}" title="Tile ${index + 1}"></iframe>`;
 
     // Clicking a tile opens the URL in a new tab.
@@ -121,17 +119,14 @@
   let currentTile = 0;
   function autoReload() {
     if (!autoReloadSwitch.checked) return;
-    const tiles = document.querySelectorAll('.tile iframe');
-    if (tiles.length === 0) return;
-    // Reload current tile's iframe.
-    const iframe = tiles[currentTile];
-    iframe.contentWindow.location.reload(true);
-    // Move to next tile (wrap around).
-    currentTile = (currentTile + 1) % tiles.length;
+    const iframes = document.querySelectorAll('.tile iframe');
+    if (iframes.length === 0) return;
+    iframes[currentTile].contentWindow.location.reload(true);
+    currentTile = (currentTile + 1) % iframes.length;
   }
-  setInterval(autoReload, 10000); // 10 seconds interval
+  setInterval(autoReload, 10000);
 
-  // Listen for changes on the auto-reload switch to update the label.
+  // Update label on auto-reload switch change.
   autoReloadSwitch.addEventListener('change', () => {
     document.getElementById('autoReloadLabel').textContent = autoReloadSwitch.checked ? "Auto-reload enabled" : "Auto-reload disabled";
   });
