@@ -363,6 +363,7 @@ describe("main function flags", () => {
 
   test("--create-issue flag simulates issue creation", () => {
     process.env.NODE_ENV = "test";
+    process.env.ISSUE_BODY = "Please resolve this issue.";
     const output = captureOutput(() => {
       try {
         main(["--create-issue", "Test Issue"]);
@@ -371,6 +372,7 @@ describe("main function flags", () => {
     expect(output).toContain("Simulated GitHub Issue Creation Workflow triggered.");
     expect(output).toContain("Simulated Issue Created:");
     expect(output).toContain("Title: Test Issue");
+    expect(output).toContain("Issue Body: Please resolve this issue.");
     const match = output.match(/Issue Number: (\d+)/);
     expect(match).not.toBeNull();
   });
