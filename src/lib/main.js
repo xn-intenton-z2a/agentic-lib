@@ -7,8 +7,8 @@
 // - Integrated Kafka logging, system performance telemetry, remote service wrappers with improved HTTP error checking.
 // - Added extended Kafka simulation function simulateKafkaDetailedStream for detailed diagnostics.
 // - Added new report functionality to output combined diagnostics from telemetry and system performance.
-// - Refactored flag handling to reduce cognitive complexity.
-// - Improved regex safety in getIssueNumberFromBranch for proper extraction of issue numbers.
+// - Refactored flag handling to reduce cognitive complexity by extracting helper functions.
+// - Improved regex safety in getIssueNumberFromBranch by adding a negative lookahead to prevent super-linear backtracking.
 // - Extended OpenAI delegation with delegateDecisionToLLMAdvanced using tool call schema.
 // - Added new remote service wrapper: callDeploymentService.
 // - Added new telemetry function gatherAdvancedTelemetryData.
@@ -20,9 +20,7 @@
 // - Added new advanced analytics simulation function simulateAdvancedAnalytics and corresponding --advanced flag.
 // - Added new advanced delegation verbose function delegateDecisionToLLMAdvancedVerbose.
 // - Added new telemetry function gatherCustomTelemetryData.
-// - New: Added delegateDecisionToLLMAdvancedStrict for advanced LLM delegation with timeout support using Promise.race.
-//
-// Note: Improved error handling in remote service wrappers to ensure robust error reporting for external resource mocking and testing.
+// - Added delegateDecisionToLLMAdvancedStrict for advanced LLM delegation with timeout support using Promise.race.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -117,7 +115,7 @@ export function gatherCustomTelemetryData() {
     osUptime: os.uptime(),
     loadAverages: os.loadavg(),
     networkInterfaces: os.networkInterfaces(),
-    hostname: os.hostname()
+    hostname: os.hostname(),
   };
 }
 
@@ -206,7 +204,7 @@ export function simulateKafkaBulkStream(topic, count = 5) {
  */
 export function simulateKafkaInterWorkflowCommunication(topics, message) {
   const results = {};
-  topics.forEach(topic => {
+  topics.forEach((topic) => {
     const sent = sendMessageToKafka(topic, message);
     const received = receiveMessageFromKafka(topic);
     results[topic] = { sent, received };
@@ -419,7 +417,6 @@ function printReport() {
   console.log(chalk.green("Extended Telemetry Data: " + JSON.stringify(extendedTelemetry, null, 2)));
   console.log(chalk.green("Full Telemetry Data: " + JSON.stringify(fullTelemetry, null, 2)));
   console.log(chalk.green("Advanced Telemetry Data: " + JSON.stringify(advancedTelemetry, null, 2)));
-  // Also print custom telemetry data
   console.log(chalk.green("Custom Telemetry Data: " + JSON.stringify(gatherCustomTelemetryData(), null, 2)));
 }
 
@@ -437,6 +434,82 @@ export function simulateAdvancedAnalytics(topic, count = 3) {
   return { kafkaMessages, advancedData };
 }
 
+// Helper functions to refactor flag commands handling
+function printUsageAndDemo(flagArgs, nonFlagArgs) {
+  console.log(generateUsage());
+  console.log("");
+  console.log("Demo: Demonstration of agentic‐lib functionality:");
+  console.log(enhancedDemo());
+  if (flagArgs.length === 0) {
+    console.log("No additional arguments provided.");
+  }
+}
+
+function handleBasicFlag(flag, nonFlagArgs) {
+  switch (flag) {
+    case "--create-issue": {
+      console.log(chalk.magenta("Simulated GitHub Issue Creation Workflow triggered."));
+      let issueTitle;
+      if (nonFlagArgs.length > 0 && nonFlagArgs[0] === "house choice") {
+        const options = process.env.HOUSE_CHOICE_OPTIONS ? process.env.HOUSE_CHOICE_OPTIONS.split("||") : ["Default House Choice Issue"];
+        issueTitle = options[randomInt(0, options.length)];
+      } else {
+        issueTitle = nonFlagArgs.length > 0 ? nonFlagArgs.join(" ") : "Default Issue Title";
+      }
+      const issueBody = process.env.ISSUE_BODY || "Please resolve the issue.";
+      const issueNumber = randomInt(100, 1000);
+      console.log(chalk.magenta("Simulated Issue Created:"));
+      console.log(chalk.magenta("Title: " + issueTitle));
+      console.log(chalk.magenta("Issue Body: " + issueBody));
+      console.log(chalk.magenta("Issue Number: " + issueNumber));
+      return true;
+    }
+    case "--version":
+      console.log(showVersion());
+      return true;
+    case "--env":
+      console.log("Environment Variables: " + JSON.stringify(process.env, null, 2));
+      return true;
+    case "--telemetry-extended":
+      console.log("Extended Telemetry Data: " + JSON.stringify(gatherExtendedTelemetryData(), null, 2));
+      return true;
+    case "--telemetry":
+      console.log("Telemetry Data: " + JSON.stringify(gatherTelemetryData(), null, 2));
+      return true;
+    case "--simulate-remote":
+      console.log(chalk.cyan("Simulated remote service call initiated."));
+      return true;
+    case "--sarif": {
+      if (nonFlagArgs.length === 0) {
+        console.log(chalk.red("No SARIF JSON provided."));
+      } else {
+        parseSarifOutput(nonFlagArgs.join(" "));
+      }
+      return true;
+    }
+    case "--report":
+      printReport();
+      return true;
+    case "--extended":
+      console.log(chalk.green("Extended logging activated."));
+      const detailedMessages = simulateKafkaDetailedStream("detailedTopic", 2);
+      console.log("Detailed messages:", detailedMessages.join(", "));
+      return false;
+    case "--reverse": {
+      const reversedInput = nonFlagArgs.join(" ").split("").reverse().join("");
+      console.log(chalk.yellow("Reversed input: " + reversedInput));
+      return false;
+    }
+    case "--advanced":
+      console.log(chalk.blue("Advanced analytics simulation initiated."));
+      const result = simulateAdvancedAnalytics("advancedTopic", 3);
+      console.log("Advanced analytics result:", result);
+      return true;
+    default:
+      return false;
+  }
+}
+
 /**
  * Refactored flag handling to reduce cognitive complexity in main function.
  * @param {string[]} flagArgs
@@ -445,90 +518,18 @@ export function simulateAdvancedAnalytics(topic, count = 3) {
  */
 function handleFlagCommands(flagArgs, nonFlagArgs) {
   if (flagArgs.length === 0 || flagArgs.includes("--help") || flagArgs.includes("--usage")) {
-    console.log(generateUsage());
-    console.log("");
-    console.log("Demo: Demonstration of agentic‐lib functionality:");
-    console.log(enhancedDemo());
-    if (flagArgs.length === 0) {
-      console.log("No additional arguments provided.");
+    printUsageAndDemo(flagArgs, nonFlagArgs);
+    exitApplication();
+    return true;
+  }
+  for (const flag of flagArgs) {
+    if (handleBasicFlag(flag, nonFlagArgs)) {
+      exitApplication();
+      return true;
     }
-    exitApplication();
-    return true;
   }
-  if (flagArgs.includes("--create-issue")) {
-    console.log(chalk.magenta("Simulated GitHub Issue Creation Workflow triggered."));
-    let issueTitle;
-    if (nonFlagArgs.length > 0 && nonFlagArgs[0] === "house choice") {
-      const options = process.env.HOUSE_CHOICE_OPTIONS ? process.env.HOUSE_CHOICE_OPTIONS.split("||") : ["Default House Choice Issue"];
-      issueTitle = options[randomInt(0, options.length)];
-    } else {
-      issueTitle = nonFlagArgs.length > 0 ? nonFlagArgs.join(" ") : "Default Issue Title";
-    }
-    const issueBody = process.env.ISSUE_BODY || "Please resolve the issue.";
-    const issueNumber = randomInt(100, 1000);
-    console.log(chalk.magenta("Simulated Issue Created:"));
-    console.log(chalk.magenta("Title: " + issueTitle));
-    console.log(chalk.magenta("Issue Body: " + issueBody));
-    console.log(chalk.magenta("Issue Number: " + issueNumber));
-    exitApplication();
-    return true;
-  }
-  if (flagArgs.includes("--version")) {
-    console.log(showVersion());
-    exitApplication();
-    return true;
-  }
-  if (flagArgs.includes("--env")) {
-    console.log("Environment Variables: " + JSON.stringify(process.env, null, 2));
-    exitApplication();
-    return true;
-  }
-  if (flagArgs.includes("--telemetry-extended")) {
-    console.log("Extended Telemetry Data: " + JSON.stringify(gatherExtendedTelemetryData(), null, 2));
-    exitApplication();
-    return true;
-  }
-  if (flagArgs.includes("--telemetry")) {
-    console.log("Telemetry Data: " + JSON.stringify(gatherTelemetryData(), null, 2));
-    exitApplication();
-    return true;
-  }
-  if (flagArgs.includes("--simulate-remote")) {
-    console.log(chalk.cyan("Simulated remote service call initiated."));
-    exitApplication();
-    return true;
-  }
-  if (flagArgs.includes("--sarif")) {
-    if (nonFlagArgs.length === 0) {
-      console.log(chalk.red("No SARIF JSON provided."));
-    } else {
-      parseSarifOutput(nonFlagArgs.join(" "));
-    }
-    exitApplication();
-    return true;
-  }
-  if (flagArgs.includes("--report")) {
-    printReport();
-    exitApplication();
-    return true;
-  }
-  if (flagArgs.includes("--extended")) {
-    console.log(chalk.green("Extended logging activated."));
-    const detailedMessages = simulateKafkaDetailedStream("detailedTopic", 2);
-    console.log("Detailed messages:", detailedMessages.join(", "));
-  }
-  if (flagArgs.includes("--reverse")) {
-    const reversedInput = nonFlagArgs.join(" ").split("").reverse().join("");
-    console.log(chalk.yellow("Reversed input: " + reversedInput));
-  } else if (nonFlagArgs.length > 0) {
+  if (nonFlagArgs.length > 0) {
     console.log("Non-flag arguments:", nonFlagArgs.join(","));
-  }
-  if (flagArgs.includes("--advanced")) {
-    console.log(chalk.blue("Advanced analytics simulation initiated."));
-    const result = simulateAdvancedAnalytics("advancedTopic", 3);
-    console.log("Advanced analytics result:", result);
-    exitApplication();
-    return true;
   }
   exitApplication();
   return false;
@@ -557,7 +558,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
+  const regex = new RegExp(`${safePrefix}(\d{1,10})(?!\d)`);
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -668,11 +669,7 @@ export async function delegateDecisionToLLMWrapped(prompt) {
       ],
     });
 
-    const ResponseSchema = z.object({
-      fixed: z.string(),
-      message: z.string(),
-      refinement: z.string(),
-    });
+    const ResponseSchema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
 
     const messageObj = response.data.choices[0].message;
     const result = parseLLMMessage(messageObj);
@@ -698,31 +695,33 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
       apiKey: process.env.OPENAI_API_KEY || "",
     });
     const openai = new OpenAIApi(configuration);
-    const tools = [{
-      type: "function",
-      function: {
-        name: "review_issue",
-        description: "Evaluate whether the supplied source file content resolves the issue.",
-        parameters: {
-          type: "object",
-          properties: {
-            fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
-            message: { type: "string", description: "A message explaining the result" },
-            refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
+    const tools = [
+      {
+        type: "function",
+        function: {
+          name: "review_issue",
+          description: "Evaluate whether the supplied source file content resolves the issue.",
+          parameters: {
+            type: "object",
+            properties: {
+              fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
+              message: { type: "string", description: "A message explaining the result" },
+              refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
+            },
+            required: ["fixed", "message", "refinement"],
+            additionalProperties: false,
           },
-          required: ["fixed", "message", "refinement"],
-          additionalProperties: false
+          strict: true,
         },
-        strict: true
-      }
-    }];
+      },
+    ];
     const response = await openai.createChatCompletion({
       model: options.model || "gpt-3.5-turbo",
       messages: [
         { role: "system", content: "You are evaluating code issues with advanced parameters." },
-        { role: "user", content: prompt }
+        { role: "user", content: prompt },
       ],
-      tools: tools
+      tools: tools,
     });
     let result;
     const messageObj = response.data.choices[0].message;
@@ -741,11 +740,7 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
     } else {
       result = { fixed: "false", message: "No valid response received.", refinement: "None" };
     }
-    const ResponseSchema = z.object({
-      fixed: z.string(),
-      message: z.string(),
-      refinement: z.string(),
-    });
+    const ResponseSchema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
     const parsed = ResponseSchema.safeParse(result);
     if (!parsed.success) {
       return { fixed: "false", message: "LLM advanced response schema validation failed.", refinement: "None" };
@@ -805,7 +800,7 @@ export function gatherFullSystemReport() {
   return {
     healthCheck: performAgenticHealthCheck(),
     advancedTelemetry: gatherAdvancedTelemetryData(),
-    combinedTelemetry: { ...gatherTelemetryData(), ...gatherExtendedTelemetryData(), ...gatherFullTelemetryData() }
+    combinedTelemetry: { ...gatherTelemetryData(), ...gatherExtendedTelemetryData(), ...gatherFullTelemetryData() },
   };
 }
 
@@ -837,10 +832,9 @@ export function reviewIssue({
   _testOutput,
   _mainOutput,
 }) {
-  const fixed =
-    sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")
-      ? "true"
-      : "false";
+  const fixed = sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")
+    ? "true"
+    : "false";
   const message = fixed === "true" ? "The issue has been resolved." : "Issue not resolved.";
   return {
     fixed,
