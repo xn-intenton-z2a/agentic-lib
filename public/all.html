@@ -1,0 +1,116 @@
+<!-- public/all.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dynamic Tiled Web Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+      /* Basic reset and body styling */
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: Arial, sans-serif; background-color: #f9f9f9; color: #333; padding: 1em; }
+      header { margin-bottom: 1em; text-align: center; }
+      h1 { font-size: 1.8em; margin-bottom: 0.5em; }
+      #controls { margin-bottom: 1em; text-align: center; }
+      #autoReloadLabel { font-size: 1em; margin-left: 0.5em; }
+      /* Grid for the tiles */
+      .grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 1em;
+      }
+      .tile {
+          border: 2px solid #ccc;
+          border-radius: 4px;
+          overflow: hidden;
+          position: relative;
+          background-color: #fff;
+          cursor: pointer;
+      }
+      .tile iframe {
+          width: 100%;
+          height: 200px;
+          border: none;
+      }
+      .tile:hover {
+          box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      }
+      footer {
+          margin-top: 1em;
+          text-align: center;
+          font-size: 0.9em;
+          color: #777;
+      }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Dynamic Tiled Web Viewer</h1>
+  <p>Click a tile to open the page in a new tab.</p>
+  <p>Repository: <a href="https://github.com/xn-intenton-z2a/agentic-lib">xn-intenton-z2a</a></p>
+  <p>Latest agentic-lib stats: <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest.html</a></p>
+  <p>All repository stats: <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">latest.html</a></p>
+</header>
+<div id="controls">
+  <label>
+    <input type="checkbox" id="autoReloadSwitch" checked>
+    <span id="autoReloadLabel">Auto-reload enabled</span>
+  </label>
+</div>
+<div class="grid" id="tileContainer">
+  <!-- Tiles will be generated here -->
+</div>
+<footer>
+  <p>Page generated on <span id="generatedTime"></span></p>
+</footer>
+
+<script>
+  const urls = [
+    "https://xn-intenton-z2a.github.io/agentic-lib/latest.html",
+    "https://xn-intenton-z2a.github.io/repository0/latest.html",
+    "https://xn-intenton-z2a.github.io/repository0-crucible/latest.html",
+    "https://xn-intenton-z2a.github.io/plot-code-lib/latest.html",
+    "https://xn-intenton-z2a.github.io/tansu-sqs-bridge/latest.html"
+  ];
+
+  const tileContainer = document.getElementById('tileContainer');
+  const autoReloadSwitch = document.getElementById('autoReloadSwitch');
+  const generatedTime = document.getElementById('generatedTime');
+  generatedTime.textContent = new Date().toISOString();
+
+  // Generate grid tiles
+  urls.forEach((url, index) => {
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    tile.dataset.url = url;
+    tile.innerHTML = `<iframe src="${url}" title="Tile ${index + 1}"></iframe>`;
+
+    // Clicking a tile opens the URL in a new tab.
+    tile.addEventListener('click', (e) => {
+      window.open(url, '_blank');
+    });
+
+    tileContainer.appendChild(tile);
+  });
+
+  // Auto-reload: cycle through tiles, reloading one every 10 seconds.
+  let currentTile = 0;
+  function autoReload() {
+    if (!autoReloadSwitch.checked) return;
+    const tiles = document.querySelectorAll('.tile iframe');
+    if (tiles.length === 0) return;
+    // Reload current tile's iframe
+    const iframe = tiles[currentTile];
+    iframe.contentWindow.location.reload(true);
+    // Move to next tile (wrap around)
+    currentTile = (currentTile + 1) % tiles.length;
+  }
+  setInterval(autoReload, 10000); // 10 seconds interval
+
+  // Listen for changes on the auto-reload switch to update the label.
+  autoReloadSwitch.addEventListener('change', () => {
+    document.getElementById('autoReloadLabel').textContent = autoReloadSwitch.checked ? "Auto-reload enabled" : "Auto-reload disabled";
+  });
+</script>
+</body>
+</html>
