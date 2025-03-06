@@ -21,6 +21,8 @@ fi
 TAG_VERSION="$1"
 DEST_DIR="$2"
 
+mkdir -p "${DEST_DIR}"
+
 cp -v .github/workflows/apply-fix.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/apply-fix.yml"
 
@@ -56,6 +58,8 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/update.yml"
 
 cp -v .github/workflows/truncate-workflow-history.yml "${DEST_DIR}/."
 
+mkdir -p "${DEST_DIR}/../../scripts"
+
 cp -v scripts/accept-release.sh "${DEST_DIR}/../../scripts/."
 cp -v scripts/activate-schedule.sh "${DEST_DIR}/../../scripts/."
 cp -v scripts/archive.sh "${DEST_DIR}/../../scripts/."
@@ -66,3 +70,7 @@ cp -v scripts/initialise.sh "${DEST_DIR}/../../scripts/."
 cp -v scripts/md-to-html.js "${DEST_DIR}/../../scripts/."
 cp -v scripts/truncate-git-history.sh "${DEST_DIR}/../../scripts/."
 cp -v scripts/update.sh "${DEST_DIR}/../../scripts/."
+
+mkdir -p "${DEST_DIR}/../../public"
+
+cp -v public/all.html "${DEST_DIR}/../../public/."

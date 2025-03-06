@@ -3,9 +3,9 @@ name: ∞ Stats
 on:
   workflow_dispatch:
   schedule:
-    #- cron: '0 0 */7 * *' # schedule-1
-    - cron: '0 */2 * * *' # schedule-2
-    #- cron: '0,30 * * * *' # schedule-3
+    #- cron: '0 0/4 * * *' # schedule-1
+    - cron: '0,30 * * * *' # schedule-2
+    #- cron: '0,10 * * * *' # schedule-3
 
 jobs:
   generate-site:
@@ -23,6 +23,14 @@ jobs:
           cache: 'npm'
 
       - run: npm install
+
+      - name: engine
+        id: engine
+        shell: bash
+        run: |
+          engine=$(grep '^[[:space:]]*- cron:.*#' .github/workflows/stats.yml | sed 's/^[[:space:]]*- cron:.*# //g')
+          echo "engine=${engine}"
+          echo "engine=${engine}" >> $GITHUB_OUTPUT
 
       - name: Generate statistics page
         uses: actions/github-script@v7
@@ -104,53 +112,56 @@ jobs:
             });
             const lastFiveCommitMessages = lastFiveCommitsResp.data.map(commit => commit.commit.message);
 
-            // Generate a simple HTML page with inline CSS.
             const html = `
               <!DOCTYPE html>
               <html lang="en">
               <head>
               <meta charset="UTF-8">
-              <title>${repo} Repository Statistics</title>
+              <title>${repo} stats</title>
               <style>
             body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
-            header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
-            h1 { font-size: 2em; }
+            header {  }
+            h1 { font-size: 1.5em; font-family: monospace; }
             section { margin-bottom: 1.5em; }
+            section.p { font-family: monospace; }
             ul { list-style: none; padding: 0; }
-            li { margin: 0.5em 0; }
+            li { margin: 0.25em 0; }
             .label { font-weight: bold; }
             footer { margin-top: 2em; font-size: 0.9em; color: #777; }
               </style>
               </head>
               <body>
               <header>
-              <h1>Repository Statistics for ${repo}</h1>
-              <p>Repository: <a href="https://github.com/xn-intenton-z2a/${repo}">${repo}</a></p>
-              <p>Latest agentic-lib stats: <a href="https://xn-intenton-z2a.github.io/${repo}/latest.html">latest.html</a></p>
-              <p>All repository stats: <a href="https://xn-intenton-z2a.github.io/${repo}/all.html">latest.html</a></p>
+              <h1>${repo}</h1>
               </header>
               <section>
-              <p><span class="label">Open Issues:</span> ${openIssues}</p>
+              <p><span class="label">Open Pull Requests (${openPRs}):</span> ${prTitles.join('; ') || 'None'}</p>
               </section>
               <section>
               <p><span class="label">Branches (${branchCount}):</span> ${branchNames.join(', ')}</p>
               </section>
               <section>
-              <p><span class="label">Open Pull Requests (${openPRs}):</span> ${prTitles.join('; ') || 'None'}</p>
+              <p><span class="label">Open Issues:</span> ${openIssues}</p>
               </section>
               <section>
-              <p><span class="label">Time since last push anywhere:</span> ${hoursSinceLastPush} hours</p>
-              <p><span class="label">Time since last push to main:</span> ${hoursSinceLastPushMain} hours</p>
+              <p><span class="label">Engine:</span> ${{ steps.engine.outputs.engine }}</p>
               </section>
               <section>
-              <p><span class="label">Commits in the last hour:</span> ${commitsLastHour}</p>
-              <p><span class="label">Commits in the last day:</span> ${commitsLastDay}</p>
+              <p><span class="label">Hours since push anywhere:</span> ${hoursSinceLastPush}</p>
+              <p><span class="label">Hours since push to main:</span> ${hoursSinceLastPushMain}</p>
               </section>
               <section>
-              <p><span class="label">Last 5 commit messages from main:</span></p>
+              <p><span class="label">Commits to main last hour:</span> ${commitsLastHour}</p>
+              <p><span class="label">Commits to main last day:</span> ${commitsLastDay}</p>
+              </section>
+              <section>
+              <p><span class="label">Last commits on main:</span></p>
               <ul>
               ${lastFiveCommitMessages.map(msg => `<li>${msg}</li>`).join('')}
               </ul>
+              </section>
+              <section>
+              <p><a href="https://github.com/xn-intenton-z2a/${repo}" target="_blank">repository 🔗</a> - <a href="https://xn-intenton-z2a.github.io/${repo}/index.html" target="_blank">site 🔗</a> - <a href="https://xn-intenton-z2a.github.io/${repo}/latest.html" target="_blank">stats 🔗</a> - <a href="https://xn-intenton-z2a.github.io/${repo}/all.html" target="_blank">all stats 🔗</a></p>
               </section>
               <footer>
               <p>Generated on ${now.toISOString()}</p>
@@ -218,7 +229,7 @@ jobs:
           ls -larth "public/latest.html"
           echo "public/${uniqueFile}:"
           ls -larth "public/${uniqueFile}"
-          echo "::notice:: Latest page URL: ${latestUrl}"
-          echo "::notice:: Unique version URL: ${uniqueUrl}"
+          echo "::notice:: latestUrl: ${latestUrl}"
+          echo "::notice:: uniqueUrl: ${uniqueUrl}"
           echo "latestUrl=${latestUrl}" >> $GITHUB_OUTPUT
           echo "uniqueUrl=${uniqueUrl}" >> $GITHUB_OUTPUT

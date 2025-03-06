@@ -1,42 +1,63 @@
-<!-- public/all.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dynamic Tiled Web Viewer</title>
+  <title>agentic-lib</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-      /* Basic reset and body styling */
+      /* Basic reset and box-sizing */
       * { box-sizing: border-box; margin: 0; padding: 0; }
-      body { font-family: Arial, sans-serif; background-color: #f9f9f9; color: #333; padding: 1em; }
-      header { margin-bottom: 1em; text-align: center; }
+      html, body { height: 100%; }
+      body {
+          font-family: Arial, sans-serif;
+          background-color: #f9f9f9;
+          color: #333;
+          display: flex;
+          flex-direction: column;
+          padding: 1em;
+      }
+      header {
+          margin-bottom: 1em;
+          text-align: center;
+      }
       h1 { font-size: 1.8em; margin-bottom: 0.5em; }
-      #controls { margin-bottom: 1em; text-align: center; }
+      #controls { margin-top: 1em; margin-bottom: 1em; text-align: center; }
       #autoReloadLabel { font-size: 1em; margin-left: 0.5em; }
-      /* Grid for the tiles */
+      /* Main content container fills available space */
+      #mainContent {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+      }
+      /* Grid container: fill available space and auto-size rows */
       .grid {
+          flex: 1;
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
           gap: 1em;
+          overflow-y: auto;
+          grid-auto-rows: 1fr;  /* Each row takes equal available space */
       }
       .tile {
           border: 2px solid #ccc;
           border-radius: 4px;
           overflow: hidden;
-          position: relative;
           background-color: #fff;
           cursor: pointer;
+          display: flex;
+          flex-direction: column;
       }
+      /* The iframe now fills its container completely */
       .tile iframe {
           width: 100%;
-          height: 200px;
+          height: 100%;
           border: none;
       }
       .tile:hover {
           box-shadow: 0 0 10px rgba(0,0,0,0.2);
       }
       footer {
-          margin-top: 1em;
+          margin-top: 0;
           text-align: center;
           font-size: 0.9em;
           color: #777;
@@ -45,48 +66,44 @@
 </head>
 <body>
 <header>
-  <h1>Dynamic Tiled Web Viewer</h1>
-  <p>Click a tile to open the page in a new tab.</p>
-  <p>Repository: <a href="https://github.com/xn-intenton-z2a/agentic-lib">xn-intenton-z2a</a></p>
-  <p>Latest agentic-lib stats: <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest.html</a></p>
-  <p>All repository stats: <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">latest.html</a></p>
+  <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/index.html">site</a></p>
 </header>
+<div id="mainContent">
+  <div class="grid" id="tileContainer">
+    <!-- Tiles will be generated here -->
+  </div>
+</div>
 <div id="controls">
   <label>
     <input type="checkbox" id="autoReloadSwitch" checked>
     <span id="autoReloadLabel">Auto-reload enabled</span>
   </label>
 </div>
-<div class="grid" id="tileContainer">
-  <!-- Tiles will be generated here -->
-</div>
 <footer>
-  <p>Page generated on <span id="generatedTime"></span></p>
 </footer>
 
 <script>
+  // Configuration: list of URLs to display in the tiles.
   const urls = [
     "https://xn-intenton-z2a.github.io/agentic-lib/latest.html",
     "https://xn-intenton-z2a.github.io/repository0/latest.html",
-    "https://xn-intenton-z2a.github.io/repository0-crucible/latest.html",
     "https://xn-intenton-z2a.github.io/plot-code-lib/latest.html",
-    "https://xn-intenton-z2a.github.io/tansu-sqs-bridge/latest.html"
+    "https://xn-intenton-z2a.github.io/repository0-crucible/latest.html",
   ];
 
   const tileContainer = document.getElementById('tileContainer');
   const autoReloadSwitch = document.getElementById('autoReloadSwitch');
-  const generatedTime = document.getElementById('generatedTime');
-  generatedTime.textContent = new Date().toISOString();
 
   // Generate grid tiles
   urls.forEach((url, index) => {
     const tile = document.createElement('div');
     tile.className = 'tile';
     tile.dataset.url = url;
+    // No fixed height: iframe will take full height of its container.
     tile.innerHTML = `<iframe src="${url}" title="Tile ${index + 1}"></iframe>`;
 
     // Clicking a tile opens the URL in a new tab.
-    tile.addEventListener('click', (e) => {
+    tile.addEventListener('click', () => {
       window.open(url, '_blank');
     });
 
@@ -97,17 +114,14 @@
   let currentTile = 0;
   function autoReload() {
     if (!autoReloadSwitch.checked) return;
-    const tiles = document.querySelectorAll('.tile iframe');
-    if (tiles.length === 0) return;
-    // Reload current tile's iframe
-    const iframe = tiles[currentTile];
-    iframe.contentWindow.location.reload(true);
-    // Move to next tile (wrap around)
-    currentTile = (currentTile + 1) % tiles.length;
+    const iframes = document.querySelectorAll('.tile iframe');
+    if (iframes.length === 0) return;
+    iframes[currentTile].contentWindow.location.reload(true);
+    currentTile = (currentTile + 1) % iframes.length;
   }
-  setInterval(autoReload, 10000); // 10 seconds interval
+  setInterval(autoReload, 10000);
 
-  // Listen for changes on the auto-reload switch to update the label.
+  // Update label on auto-reload switch change.
   autoReloadSwitch.addEventListener('change', () => {
     document.getElementById('autoReloadLabel').textContent = autoReloadSwitch.checked ? "Auto-reload enabled" : "Auto-reload disabled";
   });
