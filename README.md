@@ -43,18 +43,13 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 
 ## Recent Improvements
 
-- Extended flag handling with improved diagnostics and error checking. (Refactored handling in `main.js`)
+- Extended flag handling with improved diagnostics and error checking.
 - Enhanced telemetry and Kafka simulation functions with detailed logging and performance metrics.
 - Advanced LLM delegation incorporated to support function calling with strict schemas.
 - New diagnostic functions: `gatherFullSystemReport` and `simulateRealKafkaStream`.
-- **New:** Added `simulateAdvancedAnalytics` function and the `--advanced` CLI flag to simulate advanced analytics combining Kafka streaming and telemetry data.
-- **New:** Added `delegateDecisionToLLMAdvancedVerbose` function for enhanced logging during LLM delegation.
-- **New:** Added `gatherCustomTelemetryData` to provide additional system metrics for improved telemetry data collection in GitHub Actions workflows.
-- **New:** Added `delegateDecisionToLLMAdvancedStrict` to support timeout-based advanced LLM delegation.
-- **New:** Fixed openai Configuration import issue in LLM delegation functions to support ESM module structure.
-- **New:** Refactored flag handling to extract helper functions for improved maintainability.
-- **New:** Improved regex in `getIssueNumberFromBranch` to correctly extract issue numbers.
-- **New:** Added `gatherWorkflowTelemetryData` to capture additional GitHub Actions telemetry metrics.
+- **New:** Added `simulateAdvancedAnalytics` function and the `--advanced` CLI flag.
+- **New:** Added `delegateDecisionToLLMAdvancedVerbose` and `delegateDecisionToLLMAdvancedStrict` for enhanced LLM delegation with verbose logging and timeout support.
+- **New:** Pruned drift and removed redundant simulation verbiage from the source file to fully align with the agentic‑lib mission statement.
 
 ---
 ---

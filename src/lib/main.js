@@ -1,28 +1,14 @@
 #!/usr/bin/env node
 // src/lib/main.js - Implementation aligned with the agentic‐lib mission statement.
 // Change Log:
-// - Pruned drift and aligned with the mission statement.
-// - Removed redundant simulation verbiage while retaining demo outputs.
+// - Aligned with the agentic‐lib mission statement by pruning drift and removing redundant simulation verbiage.
 // - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, --extended, --report, --advanced.
-// - Integrated Kafka logging, system performance telemetry, remote service wrappers with improved HTTP error checking.
-// - Added extended Kafka simulation function simulateKafkaDetailedStream for detailed diagnostics.
-// - Added new report functionality to output combined diagnostics from telemetry and system performance.
-// - Refactored flag handling to reduce cognitive complexity by extracting helper functions.
-// - Improved regex safety in getIssueNumberFromBranch by adding a negative lookahead to prevent super-linear backtracking.
-// - Extended OpenAI delegation with delegateDecisionToLLMAdvanced using tool call schema.
-// - Added new remote service wrapper: callDeploymentService.
-// - Added new telemetry function gatherAdvancedTelemetryData.
-// - Added bulk Kafka simulation function simulateKafkaBulkStream.
-// - Added agentic health check function performAgenticHealthCheck.
-// - Added Kafka inter‐workflow communication simulation function simulateKafkaInterWorkflowCommunication.
-// - Added function gatherFullSystemReport to return a complete diagnostic report combining health check, advanced telemetry, and combined telemetry data.
-// - Added function simulateRealKafkaStream to provide a more detailed simulation of Kafka streaming with additional logging.
-// - Added new advanced analytics simulation function simulateAdvancedAnalytics and corresponding --advanced flag.
-// - Added new advanced delegation verbose function delegateDecisionToLLMAdvancedVerbose.
-// - Added new telemetry function gatherCustomTelemetryData.
-// - Added delegateDecisionToLLMAdvancedStrict for advanced LLM delegation with timeout support using Promise.race.
-// - Fixed openai Configuration import issue in LLM delegation functions to support ESM module structure.
-// - New: Added gatherWorkflowTelemetryData to capture additional GitHub Actions telemetry metrics.
+// - Integrated Kafka logging, system performance telemetry, and remote service wrappers with improved HTTP error checking.
+// - Added detailed Kafka simulation functions and advanced analytics simulation for deeper diagnostics.
+// - Refactored flag handling and improved regex safety in getIssueNumberFromBranch.
+// - Enhanced OpenAI delegation functions to support ESM module structure and advanced LLM delegation with function calls.
+// - Added functions: gatherCustomTelemetryData, gatherWorkflowTelemetryData, performAgenticHealthCheck, and gatherFullSystemReport.
+// - Updated change log to reflect pruning of drift in alignment with the mission statement.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -572,7 +558,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(`${safePrefix}(\\d{1,10})(?!\\d)`);
+  const regex = new RegExp(`${safePrefix}(\d{1,10})(?!\d)`);
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
