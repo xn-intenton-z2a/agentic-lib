@@ -121,10 +121,11 @@ jobs:
               <style>
             body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
             header {  }
-            h1 { font-size: 2em; }
+            h1 { font-size: 1.5em; font-family: monospace; }
             section { margin-bottom: 1.5em; }
+            section.p { font-family: monospace; }
             ul { list-style: none; padding: 0; }
-            li { margin: 0.5em 0; }
+            li { margin: 0.25em 0; }
             .label { font-weight: bold; }
             footer { margin-top: 2em; font-size: 0.9em; color: #777; }
               </style>
@@ -134,13 +135,13 @@ jobs:
               <h1>${repo}</h1>
               </header>
               <section>
+              <p><span class="label">Open Pull Requests (${openPRs}):</span> ${prTitles.join('; ') || 'None'}</p>
+              </section>
+              <section>
               <p><span class="label">Branches (${branchCount}):</span> ${branchNames.join(', ')}</p>
               </section>
               <section>
               <p><span class="label">Open Issues:</span> ${openIssues}</p>
-              </section>
-              <section>
-              <p><span class="label">Open Pull Requests (${openPRs}):</span> ${prTitles.join('; ') || 'None'}</p>
               </section>
               <section>
               <p><span class="label">Engine:</span> ${{ steps.engine.outputs.engine }}</p>
