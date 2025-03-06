@@ -49,6 +49,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - **New:** Added `delegateDecisionToLLMAdvancedVerbose` function for enhanced logging during LLM delegation.
 - **New:** Added `gatherCustomTelemetryData` to provide additional system metrics for improved telemetry data collection in GitHub Actions workflows.
 - **New:** Added `delegateDecisionToLLMAdvancedStrict` to support timeout-based advanced LLM delegation.
+- **New:** Fixed openai Configuration import issue in LLM delegation functions to support ESM module structure.
 - **New:** Refactored flag handling to extract helper functions for improved maintainability.
 - **New:** Improved regex in `getIssueNumberFromBranch` to correctly extract issue numbers.
 - **New:** Increased test coverage by adding additional unit tests for LLM delegation fallback behaviors and other functions.
