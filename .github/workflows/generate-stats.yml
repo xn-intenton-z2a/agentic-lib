@@ -180,6 +180,7 @@ jobs:
           # cname: your.custom.domain
           publish_branch: github-pages
           destination_dir: 'stats'
+          keep_files: true
 
       - name: Output published URLs
         run: |
