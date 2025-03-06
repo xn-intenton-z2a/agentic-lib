@@ -18,6 +18,7 @@ import {
   delegateDecisionToLLM,
   delegateDecisionToLLMWrapped,
   delegateDecisionToLLMAdvanced,
+  delegateDecisionToLLMAdvancedVerbose,
   sendMessageToKafka,
   receiveMessageFromKafka,
   logKafkaOperations,
@@ -523,6 +524,15 @@ describe("delegateDecisionToLLMAdvanced", () => {
   test("returns simulated response when TEST_OPENAI_SUCCESS is set", async () => {
     process.env.TEST_OPENAI_SUCCESS = "true";
     const result = await delegateDecisionToLLMAdvanced("test prompt", { refinement: "Advanced default" });
+    expect(result.fixed).toBe("true");
+    expect(result.message).toBe("LLM advanced call succeeded");
+  });
+});
+
+describe("delegateDecisionToLLMAdvancedVerbose", () => {
+  test("returns simulated response with verbose logging when TEST_OPENAI_SUCCESS is set", async () => {
+    process.env.TEST_OPENAI_SUCCESS = "true";
+    const result = await delegateDecisionToLLMAdvancedVerbose("test verbose", { refinement: "Verbose check" });
     expect(result.fixed).toBe("true");
     expect(result.message).toBe("LLM advanced call succeeded");
   });
