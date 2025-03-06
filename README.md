@@ -25,7 +25,9 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - **Usage Information:**
   - Use `generateUsage()` to display available flag options.
 - **Telemetry:**
-  - Functions include `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and the new `gatherGitHubTelemetrySummary()` and `gatherFullSystemReport()` for comprehensive diagnostics.
+  - Functions include `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and `gatherGitHubTelemetrySummary()` for comprehensive diagnostics.
+  - **Extended Telemetry:**
+    - The new function `gatherCustomTelemetryData()` collects additional system metrics such as uptime, load averages, network interfaces, and hostname for deeper insights in GitHub Actions workflows.
 - **Remote Service Wrappers:**
   - Simplify API calls with wrappers to handle deployment, build status, analytics, and notifications.
 - **LLM Delegation:**
@@ -45,6 +47,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - New diagnostic functions: `gatherFullSystemReport` and `simulateRealKafkaStream`.
 - **New:** Added `simulateAdvancedAnalytics` function and the `--advanced` CLI flag to simulate advanced analytics combining Kafka streaming and telemetry data.
 - **New:** Added `delegateDecisionToLLMAdvancedVerbose` function for enhanced logging during LLM delegation.
+- **New:** Added `gatherCustomTelemetryData` to provide additional system metrics for improved telemetry data collection in GitHub Actions workflows.
 
 ---
 ---
