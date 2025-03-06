@@ -127,7 +127,7 @@ jobs:
               <h1>Repository Statistics for ${repo}</h1>
               <p>Repository: <a href="https://github.com/xn-intenton-z2a/${repo}">${repo}</a></p>
               <p>Latest agentic-lib stats: <a href="https://xn-intenton-z2a.github.io/${repo}/latest.html">latest.html</a></p>
-              <p>All repository stats: <a href="https://xn-intenton-z2a.github.io/${repo}/all.html">latest.html</a></p>
+              <p>All repository stats: <a href="https://xn-intenton-z2a.github.io/${repo}/all.html">all.html</a></p>
               </header>
               <section>
               <p><span class="label">Open Issues:</span> ${openIssues}</p>
@@ -218,7 +218,7 @@ jobs:
           ls -larth "public/latest.html"
           echo "public/${uniqueFile}:"
           ls -larth "public/${uniqueFile}"
-          echo "::notice:: Latest page URL: ${latestUrl}"
-          echo "::notice:: Unique version URL: ${uniqueUrl}"
+          echo "::notice:: Latest page URL: [${latestUrl}](${latestUrl})"
+          echo "::notice:: Unique version URL: [${uniqueUrl}](${uniqueUrl})"
           echo "latestUrl=${latestUrl}" >> $GITHUB_OUTPUT
           echo "uniqueUrl=${uniqueUrl}" >> $GITHUB_OUTPUT
