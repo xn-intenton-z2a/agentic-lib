@@ -600,17 +600,13 @@ describe("New Features", () => {
   });
 });
 
-// Additional tests to improve coverage for LLM delegation fallback behaviors
-
 describe("delegateDecisionToLLM fallback", () => {
   test("delegateDecisionToLLM returns fallback message when openai call fails", async () => {
-    // Since we likely won't have a real OpenAI key in test, this should trigger the catch block.
     const result = await agenticLib.delegateDecisionToLLM("test prompt");
     expect(result).toBe("LLM decision could not be retrieved.");
   });
 
   test("delegateDecisionToLLMWrapped returns fallback message when openai call fails", async () => {
-    // This should trigger the catch block for delegateDecisionToLLMWrapped
     const result = await agenticLib.delegateDecisionToLLMWrapped("test prompt");
     expect(result.fixed).toBe("false");
   });
