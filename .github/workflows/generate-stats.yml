@@ -179,6 +179,7 @@ jobs:
           # Optionally specify a custom cname if needed:
           # cname: your.custom.domain
           publish_branch: github-pages
+          destination_dir: 'stats'
 
       - name: Output published URLs
         run: |
