@@ -559,7 +559,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(`${safePrefix}(\d{1,10})(?!\d)`);
+  const regex = new RegExp(`${safePrefix}(\\d{1,10})(?!\\d)`);
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -613,7 +613,8 @@ export function showVersion() {
 
 export async function delegateDecisionToLLM(prompt) {
   try {
-    const { Configuration, OpenAIApi } = await import("openai");
+    const openaiModule = await import("openai");
+    const { Configuration, OpenAIApi } = openaiModule;
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY || "",
     });
@@ -657,7 +658,8 @@ export async function delegateDecisionToLLMWrapped(prompt) {
     return { fixed: "true", message: "LLM call succeeded", refinement: "None" };
   }
   try {
-    const { Configuration, OpenAIApi } = await import("openai");
+    const openaiModule = await import("openai");
+    const { Configuration, OpenAIApi } = openaiModule;
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY || "",
     });
@@ -689,7 +691,8 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
     return { fixed: "true", message: "LLM advanced call succeeded", refinement: options.refinement || "None" };
   }
   try {
-    const { Configuration, OpenAIApi } = await import("openai");
+    const openaiModule = await import("openai");
+    const { Configuration, OpenAIApi } = openaiModule;
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY || "",
     });
@@ -708,10 +711,10 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
               refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
             },
             required: ["fixed", "message", "refinement"],
-            additionalProperties: false,
+            additionalProperties: false
           },
-          strict: true,
-        },
+          strict: true
+        }
       },
     ];
     const response = await openai.createChatCompletion({
