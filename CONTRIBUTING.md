@@ -265,7 +265,7 @@ undocumented chores:
 
 # intentïon agentic-lib
 
-You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](WORKFLOWS-README.md)
+You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](https://github.com/xn-intenton-z2a/agentic-lib/WORKFLOWS-README.md)
 
 The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
 repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
