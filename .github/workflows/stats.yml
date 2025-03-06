@@ -122,10 +122,10 @@ jobs:
             body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
             header {  }
             h1 { font-size: 1.5em; font-family: monospace; }
-            section { margin-bottom: 1.5em; }
+            section { margin-bottom: 1em; }
             section.p { font-family: monospace; }
             ul { list-style: none; padding: 0; }
-            li { margin: 0.25em 0; }
+            li { margin: 0.5em 0; }
             .label { font-weight: bold; }
             footer { margin-top: 2em; font-size: 0.9em; color: #777; }
               </style>
