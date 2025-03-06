@@ -31,7 +31,7 @@ function generateHTML(content) {
   <header>
     <h1>Repository Statistics for agentic-lib</h1>
     <p>Owner: <a href="https://github.com/xn-intenton-z2a/">xn-intenton-z2a</a></p>
-    <p>Index: <a href="https://xn-intenton-z2a.github.io/agentic-lib/index.html">index.html</a></p>
+    <p>Latest: <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest.html</a></p>
   </header>
   <section>
     ${content}
