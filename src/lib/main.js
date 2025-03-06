@@ -21,6 +21,8 @@
 // - Added new advanced delegation verbose function delegateDecisionToLLMAdvancedVerbose.
 // - Added new telemetry function gatherCustomTelemetryData.
 // - New: Added delegateDecisionToLLMAdvancedStrict for advanced LLM delegation with timeout support using Promise.race.
+//
+// Note: Improved error handling in remote service wrappers to ensure robust error reporting for external resource mocking and testing.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -237,8 +239,9 @@ export async function callRemoteService(serviceUrl) {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error(chalk.red("Error calling remote service:"), error);
-    return { error: error.message };
+    const errMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error(chalk.red("Error calling remote service:"), errMsg);
+    return { error: errMsg };
   }
 }
 
@@ -261,8 +264,9 @@ export async function callAnalyticsService(serviceUrl, data) {
     console.log(chalk.green("Analytics Service Response:"), result);
     return result;
   } catch (error) {
-    console.error(chalk.red("Error calling analytics service:"), error);
-    return { error: error.message };
+    const errMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error(chalk.red("Error calling analytics service:"), errMsg);
+    return { error: errMsg };
   }
 }
 
@@ -285,8 +289,9 @@ export async function callNotificationService(serviceUrl, payload) {
     console.log(chalk.green("Notification Service Response:"), result);
     return result;
   } catch (error) {
-    console.error(chalk.red("Error calling notification service:"), error);
-    return { error: error.message };
+    const errMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error(chalk.red("Error calling notification service:"), errMsg);
+    return { error: errMsg };
   }
 }
 
@@ -304,8 +309,9 @@ export async function callBuildStatusService(serviceUrl) {
     console.log(chalk.green("Build Status Service Response:"), status);
     return status;
   } catch (error) {
-    console.error(chalk.red("Error calling build status service:"), error);
-    return { error: error.message };
+    const errMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error(chalk.red("Error calling build status service:"), errMsg);
+    return { error: errMsg };
   }
 }
 
@@ -328,8 +334,9 @@ export async function callDeploymentService(serviceUrl, payload) {
     console.log(chalk.green("Deployment Service Response:"), result);
     return result;
   } catch (error) {
-    console.error(chalk.red("Error calling deployment service:"), error);
-    return { error: error.message };
+    const errMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error(chalk.red("Error calling deployment service:"), errMsg);
+    return { error: errMsg };
   }
 }
 
@@ -351,8 +358,9 @@ export function parseSarifOutput(sarifJson) {
     console.log(chalk.green(`SARIF Report: Total issues: ${totalIssues}`));
     return { totalIssues };
   } catch (error) {
-    console.error(chalk.red("Error parsing SARIF JSON:"), error);
-    return { error: error.message };
+    const errMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error(chalk.red("Error parsing SARIF JSON:"), errMsg);
+    return { error: errMsg };
   }
 }
 
@@ -374,8 +382,9 @@ export function parseEslintSarifOutput(sarifJson) {
     console.log(chalk.green(`ESLint SARIF Report: Total issues: ${totalIssues}`));
     return { totalIssues };
   } catch (error) {
-    console.error(chalk.red("Error parsing ESLint SARIF JSON:"), error);
-    return { error: error.message };
+    const errMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error(chalk.red("Error parsing ESLint SARIF JSON:"), errMsg);
+    return { error: errMsg };
   }
 }
 
