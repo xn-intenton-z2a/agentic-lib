@@ -81,7 +81,7 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="recent-improvements" href="#recent-improvements"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Recent Improvements</h2>
 <ul class="md-github">
-<li class="md-github">Extended flag handling with improved diagnostics and error checking.</li>
+<li class="md-github">Extended flag handling with improved diagnostics and error checking. (Refactored handling in <code class="md-github">main.js</code>)</li>
 <li class="md-github">Enhanced telemetry and Kafka simulation functions with detailed logging and performance metrics.</li>
 <li class="md-github">Advanced LLM delegation incorporated to support function calling with strict schemas.</li>
 <li class="md-github">New diagnostic functions: <code class="md-github">gatherFullSystemReport</code> and <code class="md-github">simulateRealKafkaStream</code>.</li>
@@ -89,7 +89,9 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 <li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">delegateDecisionToLLMAdvancedVerbose</code> function for enhanced logging during LLM delegation.</li>
 <li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">gatherCustomTelemetryData</code> to provide additional system metrics for improved telemetry data collection in GitHub Actions workflows.</li>
 <li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">delegateDecisionToLLMAdvancedStrict</code> to support timeout-based advanced LLM delegation.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Improved test coverage through enhanced mocks for remote service calls and deeper integration tests.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Refactored flag handling to extract helper functions for improved maintainability.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Improved regex in <code class="md-github">getIssueNumberFromBranch</code> to prevent potential super-linear runtime.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Updated test coverage with enhanced mocks for remote service calls.</li>
 </ul>
 <hr class="md-github">
 <hr class="md-github">
@@ -157,7 +159,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-06T10:02:07.987Z</p>
+    <p>Generated on 2025-03-06T12:02:50.314Z</p>
   </footer>
 </body>
 </html>
