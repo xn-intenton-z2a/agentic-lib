@@ -21,7 +21,7 @@
 // - Added new advanced delegation verbose function delegateDecisionToLLMAdvancedVerbose.
 // - Added new telemetry function gatherCustomTelemetryData.
 // - Added delegateDecisionToLLMAdvancedStrict for advanced LLM delegation with timeout support using Promise.race.
-// - [New] Minor adjustments to enhance testability and improve branch coverage by adding fallback conditions in LLM functions.
+// - [New] Fixed openai Configuration import issue in LLM delegation functions to support ESM module structure.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -611,14 +611,17 @@ export function showVersion() {
   return `Version: ${version}`;
 }
 
+// Updated delegateDecisionToLLM to correctly import Configuration and OpenAIApi
 export async function delegateDecisionToLLM(prompt) {
   try {
     const openaiModule = await import("openai");
-    const { Configuration, OpenAIApi } = openaiModule;
-    const configuration = new Configuration({
+    const Config = openaiModule.Configuration ? (openaiModule.Configuration.default || openaiModule.Configuration) : null;
+    if (!Config) throw new Error("OpenAI Configuration not available");
+    const Api = openaiModule.OpenAIApi;
+    const configuration = new Config({
       apiKey: process.env.OPENAI_API_KEY || "",
     });
-    const openai = new OpenAIApi(configuration);
+    const openai = new Api(configuration);
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
@@ -659,11 +662,13 @@ export async function delegateDecisionToLLMWrapped(prompt) {
   }
   try {
     const openaiModule = await import("openai");
-    const { Configuration, OpenAIApi } = openaiModule;
-    const configuration = new Configuration({
+    const Config = openaiModule.Configuration ? (openaiModule.Configuration.default || openaiModule.Configuration) : null;
+    if (!Config) throw new Error("OpenAI Configuration not available");
+    const Api = openaiModule.OpenAIApi;
+    const configuration = new Config({
       apiKey: process.env.OPENAI_API_KEY || "",
     });
-    const openai = new OpenAIApi(configuration);
+    const openai = new Api(configuration);
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
@@ -692,11 +697,13 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
   }
   try {
     const openaiModule = await import("openai");
-    const { Configuration, OpenAIApi } = openaiModule;
-    const configuration = new Configuration({
+    const Config = openaiModule.Configuration ? (openaiModule.Configuration.default || openaiModule.Configuration) : null;
+    if (!Config) throw new Error("OpenAI Configuration not available");
+    const Api = openaiModule.OpenAIApi;
+    const configuration = new Config({
       apiKey: process.env.OPENAI_API_KEY || "",
     });
-    const openai = new OpenAIApi(configuration);
+    const openai = new Api(configuration);
     const tools = [
       {
         type: "function",
