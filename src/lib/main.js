@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// src/lib/main.js - Implementation aligned with the agentic‑lib mission statement.
+// src/lib/main.js - Implementation aligned with the agentic‐lib mission statement.
 // Change Log:
 // - Pruned drift and aligned with the mission statement.
 // - Removed redundant simulation verbiage while retaining demo outputs.
@@ -14,13 +14,13 @@
 // - Added new telemetry function gatherAdvancedTelemetryData.
 // - Added bulk Kafka simulation function simulateKafkaBulkStream.
 // - Added agentic health check function performAgenticHealthCheck.
-// - Added Kafka inter-workflow communication simulation function simulateKafkaInterWorkflowCommunication.
+// - Added Kafka inter‐workflow communication simulation function simulateKafkaInterWorkflowCommunication.
 // - Added function gatherFullSystemReport to return a complete diagnostic report combining health check, advanced telemetry, and combined telemetry data.
 // - Added function simulateRealKafkaStream to provide a more detailed simulation of Kafka streaming with additional logging.
-// - Extended create issue simulation in the flag handler (--create-issue) to mimic GitHub workflow behavior including house choice and issue body logging.
-// - Added new advanced analytics simulation function simulateAdvancedAnalytics and corresponding --advanced flag to combine Kafka simulation and advanced telemetry data.
-// - Added new function delegateDecisionToLLMAdvancedVerbose to provide extended logging for advanced LLM delegation.
-// - Added new telemetry function gatherCustomTelemetryData to collect additional system metrics for GitHub Actions workflows.
+// - Added new advanced analytics simulation function simulateAdvancedAnalytics and corresponding --advanced flag.
+// - Added new advanced delegation verbose function delegateDecisionToLLMAdvancedVerbose.
+// - Added new telemetry function gatherCustomTelemetryData.
+// - New: Added delegateDecisionToLLMAdvancedStrict for advanced LLM delegation with timeout support using Promise.race.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -38,7 +38,7 @@ function escapeRegExp(string) {
  * Exits the application safely (does not exit in test environment).
  */
 function exitApplication() {
-  console.log(chalk.blue("Exiting agentic-lib."));
+  console.log(chalk.blue("Exiting agentic‐lib."));
   if (process.env.NODE_ENV !== "test") {
     process.exit(0);
   }
@@ -438,7 +438,7 @@ function handleFlagCommands(flagArgs, nonFlagArgs) {
   if (flagArgs.length === 0 || flagArgs.includes("--help") || flagArgs.includes("--usage")) {
     console.log(generateUsage());
     console.log("");
-    console.log("Demo: Demonstration of agentic-lib functionality:");
+    console.log("Demo: Demonstration of agentic‐lib functionality:");
     console.log(enhancedDemo());
     if (flagArgs.length === 0) {
       console.log("No additional arguments provided.");
@@ -531,7 +531,7 @@ function handleFlagCommands(flagArgs, nonFlagArgs) {
  */
 export function main(args = []) {
   if (process.env.NODE_ENV !== "test") {
-    console.log(chalk.green(figlet.textSync("agentic-lib", { horizontalLayout: "full" })));
+    console.log(chalk.green(figlet.textSync("agentic‐lib", { horizontalLayout: "full" })));
   }
   const { flagArgs, nonFlagArgs } = splitArguments(args);
   if (handleFlagCommands(flagArgs, nonFlagArgs)) return;
@@ -588,7 +588,7 @@ export function processFlags(flags = []) {
 export function enhancedDemo() {
   const envDetails = logEnvironmentDetails();
   const debugStatus = process.env.DEBUG_MODE ? `DEBUG_MODE: ${process.env.DEBUG_MODE}` : "DEBUG_MODE: off";
-  return `Enhanced Demo: Agentic-lib now supports additional argument processing.\n${envDetails}\n${debugStatus}`;
+  return `Enhanced Demo: Agentic‐lib now supports additional argument processing.\n${envDetails}\n${debugStatus}`;
 }
 
 export function logEnvironmentDetails() {
@@ -642,11 +642,8 @@ function parseLLMMessage(messageObj) {
 }
 
 export async function delegateDecisionToLLMWrapped(prompt) {
-  if (process.env.TEST_OPENAI_SUCCESS) {
+  if (process.env.TEST_OPENAI_SUCCESS === "true") {
     return { fixed: "true", message: "LLM call succeeded", refinement: "None" };
-  }
-  if (process.env.NODE_ENV === "test") {
-    return { fixed: "false", message: "LLM decision could not be retrieved.", refinement: "None" };
   }
   try {
     const { Configuration, OpenAIApi } = await import("openai");
@@ -683,11 +680,8 @@ export async function delegateDecisionToLLMWrapped(prompt) {
 
 // New advanced delegation function using OpenAI function calling with tools
 export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
-  if (process.env.TEST_OPENAI_SUCCESS) {
+  if (process.env.TEST_OPENAI_SUCCESS === "true") {
     return { fixed: "true", message: "LLM advanced call succeeded", refinement: options.refinement || "None" };
-  }
-  if (process.env.NODE_ENV === "test") {
-    return { fixed: "false", message: "LLM advanced decision could not be retrieved.", refinement: "None" };
   }
   try {
     const { Configuration, OpenAIApi } = await import("openai");
@@ -760,6 +754,22 @@ export async function delegateDecisionToLLMAdvancedVerbose(prompt, options = {})
   const result = await delegateDecisionToLLMAdvanced(prompt, options);
   console.log(chalk.blue("Verbose LLM advanced decision result:"), result);
   return result;
+}
+
+// New advanced delegation function with timeout support
+export async function delegateDecisionToLLMAdvancedStrict(prompt, options = {}) {
+  const timeout = options.timeout || 5000;
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error("LLM advanced strict call timed out")), timeout);
+  });
+  try {
+    const resultPromise = delegateDecisionToLLMAdvanced(prompt, options);
+    const result = await Promise.race([resultPromise, timeoutPromise]);
+    return result;
+  } catch (error) {
+    console.error(chalk.red("delegateDecisionToLLMAdvancedStrict error:"), error);
+    return { fixed: "false", message: error.message, refinement: "Timeout exceeded" };
+  }
 }
 
 /**

@@ -1,4 +1,5 @@
 import { describe, test, expect, vi, beforeAll, afterAll } from "vitest";
+import * as agenticLib from "../../src/lib/main.js";
 import {
   reviewIssue,
   splitArguments,
@@ -20,6 +21,7 @@ import {
   delegateDecisionToLLMWrapped,
   delegateDecisionToLLMAdvanced,
   delegateDecisionToLLMAdvancedVerbose,
+  delegateDecisionToLLMAdvancedStrict,
   sendMessageToKafka,
   receiveMessageFromKafka,
   logKafkaOperations,
@@ -314,7 +316,7 @@ describe("main function flags", () => {
       } catch (error) {}
     });
     expect(output).toContain("Usage: npm run start");
-    expect(output).toContain("Demo: Demonstration of agentic-lib functionality:");
+    expect(output).toContain("Demo: Demonstration of agentic‐lib functionality:");
   });
 
   test("--reverse flag prints reversed input", () => {
@@ -551,7 +553,25 @@ describe("delegateDecisionToLLMAdvancedVerbose", () => {
   });
 });
 
-// New Features Tests
+describe("delegateDecisionToLLMAdvancedStrict", () => {
+  test("returns simulated response when TEST_OPENAI_SUCCESS is set", async () => {
+    process.env.TEST_OPENAI_SUCCESS = "true";
+    const result = await delegateDecisionToLLMAdvancedStrict("test strict", { refinement: "Strict check", timeout: 5000 });
+    expect(result.fixed).toBe("true");
+    expect(result.message).toBe("LLM advanced call succeeded");
+  });
+
+  test("returns timeout error when underlying call does not resolve in time", async () => {
+    process.env.TEST_OPENAI_SUCCESS = undefined;
+    const spy = vi.spyOn(agenticLib, 'delegateDecisionToLLMAdvanced').mockImplementation(() => new Promise(() => {}));
+    const result = await delegateDecisionToLLMAdvancedStrict("test timeout", { timeout: 10, refinement: "Strict check" });
+    expect(result.fixed).toBe("false");
+    expect(result.message).toBe("LLM advanced strict call timed out");
+    expect(result.refinement).toBe("Timeout exceeded");
+    spy.mockRestore();
+  });
+});
+
 describe("New Features", () => {
   test("simulateKafkaBulkStream returns specified count of messages", () => {
     const messages = simulateKafkaBulkStream("bulkTopic", 3);
