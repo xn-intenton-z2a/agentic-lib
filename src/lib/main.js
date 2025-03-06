@@ -20,6 +20,7 @@
 // - Extended create issue simulation in the flag handler (--create-issue) to mimic GitHub workflow behavior.
 // - Added new advanced analytics simulation function simulateAdvancedAnalytics and corresponding --advanced flag to combine Kafka simulation and advanced telemetry data.
 // - Added new function delegateDecisionToLLMAdvancedVerbose to provide extended logging for advanced LLM delegation.
+// - Added new telemetry function gatherCustomTelemetryData to collect additional system metrics for GitHub Actions workflows.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -104,6 +105,18 @@ export function gatherGitHubTelemetrySummary() {
   const extended = gatherExtendedTelemetryData();
   const full = gatherFullTelemetryData();
   return { ...basic, ...extended, ...full };
+}
+
+/**
+ * New telemetry function to collect additional system metrics for GitHub Actions workflows.
+ */
+export function gatherCustomTelemetryData() {
+  return {
+    osUptime: os.uptime(),
+    loadAverages: os.loadavg(),
+    networkInterfaces: os.networkInterfaces(),
+    hostname: os.hostname()
+  };
 }
 
 /**
@@ -397,6 +410,8 @@ function printReport() {
   console.log(chalk.green("Extended Telemetry Data: " + JSON.stringify(extendedTelemetry, null, 2)));
   console.log(chalk.green("Full Telemetry Data: " + JSON.stringify(fullTelemetry, null, 2)));
   console.log(chalk.green("Advanced Telemetry Data: " + JSON.stringify(advancedTelemetry, null, 2)));
+  // Also print custom telemetry data
+  console.log(chalk.green("Custom Telemetry Data: " + JSON.stringify(gatherCustomTelemetryData(), null, 2)));
 }
 
 /**
@@ -533,7 +548,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
+  const regex = new RegExp(safePrefix + "(\d{1,10})\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }

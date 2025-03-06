@@ -13,6 +13,7 @@ import {
   gatherFullTelemetryData,
   gatherAdvancedTelemetryData,
   gatherGitHubTelemetrySummary,
+  gatherCustomTelemetryData,
   gatherFullSystemReport,
   simulateRealKafkaStream,
   delegateDecisionToLLM,
@@ -272,6 +273,16 @@ describe("gatherGitHubTelemetrySummary", () => {
     expect(summary.githubWorkflow).toBe("CI Workflow");
     expect(summary.githubActor).toBe("tester");
     expect(summary.githubRef).toBe("refs/heads/main");
+  });
+});
+
+describe("gatherCustomTelemetryData", () => {
+  test("returns custom telemetry details with system metrics", () => {
+    const customTelemetry = gatherCustomTelemetryData();
+    expect(customTelemetry).toHaveProperty("osUptime");
+    expect(customTelemetry).toHaveProperty("loadAverages");
+    expect(customTelemetry).toHaveProperty("networkInterfaces");
+    expect(customTelemetry).toHaveProperty("hostname");
   });
 });
 
