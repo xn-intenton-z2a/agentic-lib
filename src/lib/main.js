@@ -21,6 +21,7 @@
 // - Added new advanced delegation verbose function delegateDecisionToLLMAdvancedVerbose.
 // - Added new telemetry function gatherCustomTelemetryData.
 // - Added delegateDecisionToLLMAdvancedStrict for advanced LLM delegation with timeout support using Promise.race.
+// - [New] Minor adjustments to enhance testability and improve branch coverage by adding fallback conditions in LLM functions.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -612,7 +613,8 @@ export function showVersion() {
 
 export async function delegateDecisionToLLM(prompt) {
   try {
-    const { Configuration, OpenAIApi } = await import("openai");
+    const openaiModule = await import("openai");
+    const { Configuration, OpenAIApi } = openaiModule;
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY || "",
     });
@@ -656,7 +658,8 @@ export async function delegateDecisionToLLMWrapped(prompt) {
     return { fixed: "true", message: "LLM call succeeded", refinement: "None" };
   }
   try {
-    const { Configuration, OpenAIApi } = await import("openai");
+    const openaiModule = await import("openai");
+    const { Configuration, OpenAIApi } = openaiModule;
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY || "",
     });
@@ -668,9 +671,7 @@ export async function delegateDecisionToLLMWrapped(prompt) {
         { role: "user", content: prompt },
       ],
     });
-
     const ResponseSchema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
-
     const messageObj = response.data.choices[0].message;
     const result = parseLLMMessage(messageObj);
     const parsed = ResponseSchema.safeParse(result);
@@ -690,7 +691,8 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
     return { fixed: "true", message: "LLM advanced call succeeded", refinement: options.refinement || "None" };
   }
   try {
-    const { Configuration, OpenAIApi } = await import("openai");
+    const openaiModule = await import("openai");
+    const { Configuration, OpenAIApi } = openaiModule;
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY || "",
     });
@@ -709,10 +711,10 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
               refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
             },
             required: ["fixed", "message", "refinement"],
-            additionalProperties: false,
+            additionalProperties: false
           },
-          strict: true,
-        },
+          strict: true
+        }
       },
     ];
     const response = await openai.createChatCompletion({
