@@ -80,7 +80,6 @@
   </label>
 </div>
 <footer>
-  <p>Page generated on <span id="generatedTime"></span></p>
 </footer>
 
 <script>
@@ -94,8 +93,6 @@
 
   const tileContainer = document.getElementById('tileContainer');
   const autoReloadSwitch = document.getElementById('autoReloadSwitch');
-  const generatedTime = document.getElementById('generatedTime');
-  generatedTime.textContent = new Date().toISOString();
 
   // Generate grid tiles
   urls.forEach((url, index) => {
