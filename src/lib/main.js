@@ -3,7 +3,7 @@
 // Change Log:
 // - Pruned drift and aligned with the mission statement.
 // - Removed redundant simulation verbiage while retaining demo outputs.
-// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, --extended, --report.
+// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, --extended, --report, --advanced.
 // - Integrated Kafka logging, system performance telemetry, remote service wrappers with improved HTTP error checking.
 // - Added extended Kafka simulation function simulateKafkaDetailedStream for detailed diagnostics.
 // - Added new report functionality to output combined diagnostics from telemetry and system performance.
@@ -19,6 +19,7 @@
 // - Added function simulateRealKafkaStream to provide a more detailed simulation of Kafka streaming with additional logging.
 // - Extended create issue simulation in the flag handler (--create-issue) to mimic GitHub workflow behavior.
 // - Added new advanced analytics simulation function simulateAdvancedAnalytics and corresponding --advanced flag to combine Kafka simulation and advanced telemetry data.
+// - Added new function delegateDecisionToLLMAdvancedVerbose to provide extended logging for advanced LLM delegation.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -532,7 +533,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
+  const regex = new RegExp(safePrefix + "(\d{1,10})\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -736,6 +737,14 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
     console.error(chalk.red("delegateDecisionToLLMAdvanced error:"), error);
     return { fixed: "false", message: "LLM advanced decision could not be retrieved.", refinement: "None" };
   }
+}
+
+// New function providing an extended verbose wrapper around the advanced LLM delegation
+export async function delegateDecisionToLLMAdvancedVerbose(prompt, options = {}) {
+  console.log(chalk.blue("Invoking advanced LLM delegation with verbose mode."));
+  const result = await delegateDecisionToLLMAdvanced(prompt, options);
+  console.log(chalk.blue("Verbose LLM advanced decision result:"), result);
+  return result;
 }
 
 /**

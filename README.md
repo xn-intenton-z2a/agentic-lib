@@ -29,13 +29,13 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - **Remote Service Wrappers:**
   - Simplify API calls with wrappers to handle deployment, build status, analytics, and notifications.
 - **LLM Delegation:**
-  - Utilize functions like `delegateDecisionToLLM()`, `delegateDecisionToLLMWrapped()`, and `delegateDecisionToLLMAdvanced()` for AI-assisted decision making.
+  - Utilize functions like `delegateDecisionToLLM()`, `delegateDecisionToLLMWrapped()`, `delegateDecisionToLLMAdvanced()`, and the newly added `delegateDecisionToLLMAdvancedVerbose()` for enhanced logging and decision making.
 - **Kafka Operations:**
   - Simulate Kafka messaging and logging via functions like `simulateKafkaDetailedStream()`, `simulateKafkaBulkStream()`, and `simulateKafkaInterWorkflowCommunication()`, along with enhanced simulation via `simulateRealKafkaStream()`.
 - **Issue Creation Simulation:**
   - The `--create-issue` flag now mimics GitHub Actions workflow behavior, incorporating house choice options and simulated issue creation.
 - **Advanced Analytics Simulation:**
-  - New advanced analytics simulation (`--advanced` flag) combines detailed Kafka simulation with advanced telemetry data, providing deeper insights into system performance.
+  - New advanced analytics simulation (`--advanced` flag) combines detailed Kafka simulation with advanced telemetry data for deeper insights into system performance.
 
 ## Recent Improvements
 
@@ -44,6 +44,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - Advanced LLM delegation incorporated to support function calling with strict schemas.
 - New diagnostic functions: `gatherFullSystemReport` and `simulateRealKafkaStream`.
 - **New:** Added `simulateAdvancedAnalytics` function and the `--advanced` CLI flag to simulate advanced analytics combining Kafka streaming and telemetry data.
+- **New:** Added `delegateDecisionToLLMAdvancedVerbose` function for enhanced logging during LLM delegation.
 
 ---
 ---
@@ -67,34 +68,34 @@ Contributions are welcome! Please follow the guidelines outlined in [CONTRIBUTIN
 ## Component Breakdown
 
 ### 1. Re‑usable Workflows (Core Functionality)
-- **Purpose:**
-  - Backbone of the system enabling automated testing, publishing, and issue management.
-- **Stability:**
-  - Stable and well‑tested for integration into CI/CD pipelines.
-- **Licensing:**
-  - Released under GPL‑3 with attribution requirements.
-- **Location:**
-  - `.github/workflows/` directory.
+- **Purpose:**  
+  These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.
+- **Stability:**  
+  They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.
+- **Licensing:**  
+  The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.
+- **Location:**  
+  Find these in the `.github/workflows/` directory.
 
 ### 2. Example Workflows (Demonstrative Content)
-- **Purpose:**
-  - Serve as reference implementations and learning tools.
-- **Stability:**
-  - Functional but primarily for demonstration and experimentation.
-- **Licensing:**
-  - Covered under the MIT License.
-- **Location:**
-  - `examples/` directory.
+- **Purpose:**  
+  These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
+- **Stability:**  
+  While functional, they are intended primarily for demonstration and experimentation.
+- **Licensing:**  
+  The example workflows are covered by the MIT license to allow for broader use and modification.
+- **Location:**  
+  Look in the `examples/` directory for sample implementations.
 
-### 3. The Evolving main.js (JavaScript Re‑implementation)
-- **Purpose:**
-  - Provides programmatic access to the core workflows as a JavaScript module.
-- **Stability:**
-  - Under active development and may evolve rapidly.
-- **Licensing:**
-  - GPL‑3 with attribution clauses.
-- **Location:**
-  - `src/lib/main.js`.
+### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
+- **Purpose:**  
+  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
+- **Stability:**  
+  It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
+- **Licensing:**  
+  As part of the core project, it is under GPL‑3 with the attribution clause.
+- **Location:**  
+  The code is located in `src/lib/main.js`.
 
 ---
 ---
@@ -118,14 +119,13 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License v3.0 (GPL‑3)
+You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
----
 ---
 ---
 
@@ -193,6 +193,5 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
----
 ---
 ---
