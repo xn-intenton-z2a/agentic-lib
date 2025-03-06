@@ -274,6 +274,10 @@ GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 
 [Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
 
+[Also on GitHub Pages](https://xn-intenton-z2a.github.io/agentic-lib/index.html)
+
+[See the latest repository stats](https://xn-intenton-z2a.github.io/agentic-lib/latest.html)
+
 Mixed licensing:
 * This project is licensed under the GNU General Public License (GPL).
 * This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
