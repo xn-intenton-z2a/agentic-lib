@@ -192,6 +192,7 @@ jobs:
           # cname: your.custom.domain
           publish_branch: github-pages
           keep_files: true
+          enable_jekyll: 'true'
 
       - name: Output published URLs
         run: |
