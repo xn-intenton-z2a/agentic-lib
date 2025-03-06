@@ -548,7 +548,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})\b");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -645,9 +645,6 @@ export async function delegateDecisionToLLMWrapped(prompt) {
   if (process.env.TEST_OPENAI_SUCCESS === "true") {
     return { fixed: "true", message: "LLM call succeeded", refinement: "None" };
   }
-  if (process.env.NODE_ENV === "test") {
-    return { fixed: "false", message: "LLM decision could not be retrieved.", refinement: "None" };
-  }
   try {
     const { Configuration, OpenAIApi } = await import("openai");
     const configuration = new Configuration({
@@ -685,9 +682,6 @@ export async function delegateDecisionToLLMWrapped(prompt) {
 export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
   if (process.env.TEST_OPENAI_SUCCESS === "true") {
     return { fixed: "true", message: "LLM advanced call succeeded", refinement: options.refinement || "None" };
-  }
-  if (process.env.NODE_ENV === "test") {
-    return { fixed: "false", message: "LLM advanced decision could not be retrieved.", refinement: "None" };
   }
   try {
     const { Configuration, OpenAIApi } = await import("openai");
