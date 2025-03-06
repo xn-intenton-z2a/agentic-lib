@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dynamic Tiled Web Viewer</title>
+  <title>agentic-lib</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
       /* Basic reset and box-sizing */
@@ -66,20 +66,18 @@
 </head>
 <body>
 <header>
-  <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">xn-intenton-z2a</a></p>
-  <p><a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest</a></p>
-  <p><a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all</a></p>
+  <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/index.html">site</a></p>
 </header>
+<div id="mainContent">
+  <div class="grid" id="tileContainer">
+    <!-- Tiles will be generated here -->
+  </div>
+</div>
 <div id="controls">
   <label>
     <input type="checkbox" id="autoReloadSwitch" checked>
     <span id="autoReloadLabel">Auto-reload enabled</span>
   </label>
-</div>
-<div id="mainContent">
-  <div class="grid" id="tileContainer">
-    <!-- Tiles will be generated here -->
-  </div>
 </div>
 <footer>
   <p>Page generated on <span id="generatedTime"></span></p>
