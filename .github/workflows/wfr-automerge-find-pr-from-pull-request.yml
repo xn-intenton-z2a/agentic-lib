@@ -1,0 +1,112 @@
+# .github/workflows/wfr-automerge-find-pr-from-pull-request.yml
+
+#
+# agentic-lib
+# Copyright (C) 2025 Polycode Limited
+#
+# This file is part of agentic-lib.
+#
+# agentic-lib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# IMPORTANT: Any derived work must include the following attribution:
+# "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+#
+
+name: ∞ Get Pull Request
+
+on:
+  workflow_call:
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+    outputs:
+      pullNumber:
+        description: 'The pull request number. e.g. "123"'
+        value: ${{ jobs.check-pr.outputs.pullNumber }}
+      shouldSkipMerge:
+        description: 'Set to "true", if the merge request should be skipped because there is not a PR in the right state.'
+        value: ${{ jobs.check-pr.outputs.shouldSkipMerge }}
+      prMerged:
+        description: 'Set to "true", if the PR has been merged either already or by this process.'
+        value: ${{ jobs.check-pr.outputs.prMerged }}
+
+jobs:
+  check-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: check-pr
+        id: check-pr
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const pullNumber = pr.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            let shouldSkipMerge;
+            let prMerged;
+  
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: pullNumber,
+            });
+
+            if (pullRequest.state === "closed") {
+              core.info(`PR #${pr.number} is already closed.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'true';
+            } else if (pullRequest.state !== "open") {
+              core.info(`PR #${pr.number} is not open it is ${pullRequest.state}.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'false';
+            } else if (pullRequest.mergeable === true) {
+              core.info(`PR #${pr.number} is mergeable at state ${pullRequest.state}.`);
+              shouldSkipMerge = 'false';    //   <--- This PR is mergeable.
+              prMerged = 'false';
+            } else if (pullRequest.mergeable === false) {
+              core.info(`PR #${pullNumber} is not mergeable.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'false';
+            } else if (pullRequest.mergeable === null) {
+              core.info(`PR #${pullNumber} does not yet have a value for mergeability.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'false';
+            } else {
+              core.info(`PR #${pullNumber} is not known.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'false';
+            }
+            
+            core.setOutput('pullNumber', !pullNumber ? '' : pullNumber.toString());
+            core.setOutput('shouldSkipMerge', shouldSkipMerge);
+            core.setOutput('prMerged', prMerged);
+            core.info(`pullNumber: '${!pullNumber ? '' : pullNumber.toString()}'`);
+            core.info(`shouldSkipMerge: '${shouldSkipMerge}'`);
+            core.info(`prMerged: '${prMerged}'`);
+
+    outputs:
+      pullNumber: ${{ steps.check-pr.outputs.pullNumber }}
+      shouldSkipMerge: ${{ steps.check-pr.outputs.shouldSkipMerge }}
+      prMerged: ${{ steps.check-pr.outputs.prMerged }}

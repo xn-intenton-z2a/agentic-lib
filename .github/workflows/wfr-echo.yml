@@ -1,0 +1,45 @@
+# .github/workflows/wfr-echo.yml
+
+#
+# agentic-lib
+# Copyright (C) 2025 Polycode Limited
+#
+# This file is part of agentic-lib.
+#
+# agentic-lib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# IMPORTANT: Any derived work must include the following attribution:
+# "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+#
+
+name: ∞ Echo
+
+on:
+  workflow_call:
+    inputs:
+      message:
+        description: 'The message to echo. e.g. "Hello, World!"'
+        required: false
+        type: string
+        default: 'Hello, World!'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    env:
+      message: ${{ inputs.message || 'Hello, World!' }}
+
+    steps:
+      - run: echo '${{ env.message }}'
