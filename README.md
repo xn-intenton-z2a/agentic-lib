@@ -92,6 +92,7 @@ This repository is organized into three distinct areas:
 
 This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
 
+License notice:
 ```
 agentic-lib
 Copyright (C) 2025 Polycode Limited
