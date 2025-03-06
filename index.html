@@ -60,7 +60,7 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 </li>
 <li class="md-github"><strong class="md-github">LLM Delegation:</strong>
 <ul class="md-github">
-<li class="md-github">Utilize functions like <code class="md-github">delegateDecisionToLLM()</code>, <code class="md-github">delegateDecisionToLLMWrapped()</code>, <code class="md-github">delegateDecisionToLLMAdvanced()</code>, and the newly added <code class="md-github">delegateDecisionToLLMAdvancedVerbose()</code> for enhanced logging and decision making.</li>
+<li class="md-github">Utilize functions like <code class="md-github">delegateDecisionToLLM()</code>, <code class="md-github">delegateDecisionToLLMWrapped()</code>, <code class="md-github">delegateDecisionToLLMAdvanced()</code>, <code class="md-github">delegateDecisionToLLMAdvancedVerbose()</code>, and the newly added <code class="md-github">delegateDecisionToLLMAdvancedStrict()</code> for enhanced logging, decision making, and timeout support.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Kafka Operations:</strong>
@@ -88,7 +88,8 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 <li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">simulateAdvancedAnalytics</code> function and the <code class="md-github">--advanced</code> CLI flag to simulate advanced analytics combining Kafka streaming and telemetry data.</li>
 <li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">delegateDecisionToLLMAdvancedVerbose</code> function for enhanced logging during LLM delegation.</li>
 <li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">gatherCustomTelemetryData</code> to provide additional system metrics for improved telemetry data collection in GitHub Actions workflows.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Enhanced the <code class="md-github">--create-issue</code> flag simulation to include issue body logging along with title and issue number, reflecting the workflow behavior in wfr-create-issue.yml.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">delegateDecisionToLLMAdvancedStrict</code> to support timeout-based advanced LLM delegation.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Improved test coverage through enhanced mocks for remote service calls and deeper integration tests.</li>
 </ul>
 <hr class="md-github">
 <hr class="md-github">
@@ -156,7 +157,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-06T06:02:43.807Z</p>
+    <p>Generated on 2025-03-06T08:02:25.461Z</p>
   </footer>
 </body>
 </html>
