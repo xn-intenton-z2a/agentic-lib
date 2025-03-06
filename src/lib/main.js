@@ -8,7 +8,8 @@
 // - Refactored flag handling and improved regex safety in getIssueNumberFromBranch.
 // - Enhanced OpenAI delegation functions to support ESM module structure and advanced LLM delegation with function calls.
 // - Added functions: gatherCustomTelemetryData, gatherWorkflowTelemetryData, performAgenticHealthCheck, and gatherFullSystemReport.
-// - Updated change log to reflect pruning of drift in alignment with the mission statement.
+// - Updated delegateDecisionToLLM to correctly import Configuration and OpenAIApi.
+// - Refreshed README content as per CONTRIBUTING guidelines.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -541,7 +542,7 @@ function handleFlagCommands(flagArgs, nonFlagArgs) {
  */
 export function main(args = []) {
   if (process.env.NODE_ENV !== "test") {
-    console.log(chalk.green(figlet.textSync("agentic‐lib", { horizontalLayout: "full" })));
+    console.log(chalk.green(figlet.textSync("agentic‐lib", { horizontalLayout: "full" }))); 
   }
   const { flagArgs, nonFlagArgs } = splitArguments(args);
   if (handleFlagCommands(flagArgs, nonFlagArgs)) return;
@@ -558,7 +559,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(`${safePrefix}(\\d{1,10})(?!\\d)`);
+  const regex = new RegExp(`${safePrefix}(\d{1,10})(?!\d)`);
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
