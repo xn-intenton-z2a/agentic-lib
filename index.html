@@ -52,6 +52,11 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 <li class="md-github">The new function <code class="md-github">gatherCustomTelemetryData()</code> collects additional system metrics such as uptime, load averages, network interfaces, and hostname for deeper insights in GitHub Actions workflows.</li>
 </ul>
 </li>
+<li class="md-github"><strong class="md-github">Workflow Telemetry:</strong>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">New:</strong> <code class="md-github">gatherWorkflowTelemetryData()</code> collects additional GitHub Actions specific telemetry such as run attempts, event type, and start time.</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Remote Service Wrappers:</strong>
@@ -61,7 +66,7 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 </li>
 <li class="md-github"><strong class="md-github">LLM Delegation:</strong>
 <ul class="md-github">
-<li class="md-github">Utilize functions like <code class="md-github">delegateDecisionToLLM()</code>, <code class="md-github">delegateDecisionToLLMWrapped()</code>, <code class="md-github">delegateDecisionToLLMAdvanced()</code>, <code class="md-github">delegateDecisionToLLMAdvancedVerbose()</code>, and the newly added <code class="md-github">delegateDecisionToLLMAdvancedStrict()</code> for enhanced logging, decision making, and timeout support.</li>
+<li class="md-github">Utilize functions like <code class="md-github">delegateDecisionToLLM()</code>, <code class="md-github">delegateDecisionToLLMWrapped()</code>, <code class="md-github">delegateDecisionToLLMAdvanced()</code>, <code class="md-github">delegateDecisionToLLMAdvancedVerbose()</code>, and <code class="md-github">delegateDecisionToLLMAdvancedStrict()</code> for enhanced logging, decision making, and timeout support.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Kafka Operations:</strong>
@@ -93,7 +98,7 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 <li class="md-github"><strong class="md-github">New:</strong> Fixed openai Configuration import issue in LLM delegation functions to support ESM module structure.</li>
 <li class="md-github"><strong class="md-github">New:</strong> Refactored flag handling to extract helper functions for improved maintainability.</li>
 <li class="md-github"><strong class="md-github">New:</strong> Improved regex in <code class="md-github">getIssueNumberFromBranch</code> to correctly extract issue numbers.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Increased test coverage by adding additional unit tests for LLM delegation fallback behaviors and other functions.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">gatherWorkflowTelemetryData</code> to capture additional GitHub Actions telemetry metrics.</li>
 </ul>
 <hr class="md-github">
 <hr class="md-github">
@@ -161,7 +166,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-06T18:02:28.763Z</p>
+    <p>Generated on 2025-03-06T18:47:39.392Z</p>
   </footer>
 </body>
 </html>
