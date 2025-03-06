@@ -548,7 +548,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
+  const regex = new RegExp(safePrefix + "(\d{1,10})\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -642,7 +642,7 @@ function parseLLMMessage(messageObj) {
 }
 
 export async function delegateDecisionToLLMWrapped(prompt) {
-  if (process.env.TEST_OPENAI_SUCCESS) {
+  if (process.env.TEST_OPENAI_SUCCESS === "true") {
     return { fixed: "true", message: "LLM call succeeded", refinement: "None" };
   }
   if (process.env.NODE_ENV === "test") {
@@ -683,7 +683,7 @@ export async function delegateDecisionToLLMWrapped(prompt) {
 
 // New advanced delegation function using OpenAI function calling with tools
 export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
-  if (process.env.TEST_OPENAI_SUCCESS) {
+  if (process.env.TEST_OPENAI_SUCCESS === "true") {
     return { fixed: "true", message: "LLM advanced call succeeded", refinement: options.refinement || "None" };
   }
   if (process.env.NODE_ENV === "test") {
