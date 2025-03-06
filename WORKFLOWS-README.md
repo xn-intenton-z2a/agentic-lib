@@ -218,7 +218,7 @@ Re-usable GitHub Actions Workflows:
 - [x] apply-fix to be able to apply a fix to the main branch.
 - [x] apply-fix check branches for conflicts and try to resolve them.
 - [x] pull before changes to reduce the chance of conflicts.
-- [ ] Dashboard metrics from github (e.g. GitHub Insights? commits by agents).
+- [x] Dashboard metrics from github (e.g. GitHub Insights? commits by agents).
 - [ ] apply-fix to add issue details to the completion request.
 - [ ] Add git log to the context for review issue, issue worker and apply fixes.
 - [ ] apply-fix to check if an issue is resolved before raising a PR.
