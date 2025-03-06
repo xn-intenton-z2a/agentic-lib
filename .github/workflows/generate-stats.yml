@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  generate-stats:
+  generate-site:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -12,6 +12,13 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - run: npm install
 
       - name: Generate statistics page
         uses: actions/github-script@v7
@@ -147,7 +154,7 @@ jobs:
             `;
   
             // Ensure the output directory exists.
-            const outputDir = "stats";
+            const outputDir = "site";
             if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir);
             }
@@ -156,30 +163,34 @@ jobs:
             core.info(`Static site generated at ${outputPath}.`);
             core.setOutput("sitePath", outputPath);
 
-      - name: Upload generated site as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: stats-site
-          path: 'stats'
+      - name: Generate index page
+        shell: bash
+        run: |
+          ./scripts/md-to-html.js < README.md > site/index.html
 
       - name: Generate unique filename for this version
         id: uniqueFile
         run: |
           echo "[INFO] Generating a unique filename..."
           unique=$(date +%Y%m%d%H%M%S)-$(uuidgen).html
-          cp stats/latest.html "stats/${unique}"
+          cp site/latest.html "site/${unique}"
           echo "uniqueFile=${unique}" >> $GITHUB_OUTPUT
-          echo "[INFO] Unique file created: stats/${unique}"
+          echo "[INFO] Unique file created: site/${unique}"
+
+      - name: Upload generated site as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: 'site'
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: 'stats'
+          publish_dir: 'site'
           # Optionally specify a custom cname if needed:
           # cname: your.custom.domain
           publish_branch: github-pages
-          destination_dir: 'stats'
           keep_files: true
 
       - name: Output published URLs
@@ -189,16 +200,16 @@ jobs:
           repoName=${{ github.event.repository.name }}
           owner=${{ github.repository_owner }}
           baseUrl="https://${owner}.github.io/${repoName}"
-          latestUrl="${baseUrl}/stats/latest.html"
+          latestUrl="${baseUrl}/latest.html"
           uniqueFile=$(echo "${{ steps.uniqueFile.outputs.uniqueFile }}" | tr -d '\n')
-          uniqueUrl="${baseUrl}/stats/${uniqueFile}"
+          uniqueUrl="${baseUrl}/${uniqueFile}"
           pwd
-          echo "stats:"
-          ls -larth "stats"
-          echo "stats/latest.html:"
-          ls -larth "stats/latest.html"
-          echo "stats/${uniqueFile}:"
-          ls -larth "stats/${uniqueFile}"
+          echo "site:"
+          ls -larth "site"
+          echo "site/latest.html:"
+          ls -larth "site/latest.html"
+          echo "site/${uniqueFile}:"
+          ls -larth "site/${uniqueFile}"
           echo "[INFO] Latest page URL: ${latestUrl}"
           echo "[INFO] Unique version URL: ${uniqueUrl}"
           echo "latestUrl=${latestUrl}" >> $GITHUB_OUTPUT
