@@ -21,7 +21,8 @@
 // - Added new advanced delegation verbose function delegateDecisionToLLMAdvancedVerbose.
 // - Added new telemetry function gatherCustomTelemetryData.
 // - Added delegateDecisionToLLMAdvancedStrict for advanced LLM delegation with timeout support using Promise.race.
-// - [New] Fixed openai Configuration import issue in LLM delegation functions to support ESM module structure.
+// - Fixed openai Configuration import issue in LLM delegation functions to support ESM module structure.
+// - New: Added gatherWorkflowTelemetryData to capture additional GitHub Actions telemetry metrics.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -117,6 +118,17 @@ export function gatherCustomTelemetryData() {
     loadAverages: os.loadavg(),
     networkInterfaces: os.networkInterfaces(),
     hostname: os.hostname(),
+  };
+}
+
+/**
+ * New function to gather additional GitHub Actions specific telemetry data.
+ */
+export function gatherWorkflowTelemetryData() {
+  return {
+    githubRunAttempt: process.env.GITHUB_RUN_ATTEMPT || "N/A",
+    githubWorkflowEvent: process.env.GITHUB_EVENT || "N/A",
+    githubRunStartedAt: process.env.GITHUB_RUN_STARTED_AT || "N/A",
   };
 }
 
@@ -419,6 +431,7 @@ function printReport() {
   console.log(chalk.green("Full Telemetry Data: " + JSON.stringify(fullTelemetry, null, 2)));
   console.log(chalk.green("Advanced Telemetry Data: " + JSON.stringify(advancedTelemetry, null, 2)));
   console.log(chalk.green("Custom Telemetry Data: " + JSON.stringify(gatherCustomTelemetryData(), null, 2)));
+  console.log(chalk.green("Workflow Telemetry Data: " + JSON.stringify(gatherWorkflowTelemetryData(), null, 2)));
 }
 
 /**
@@ -559,7 +572,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(`${safePrefix}(\\d{1,10})(?!\\d)`);
+  const regex = new RegExp(`${safePrefix}(\d{1,10})(?!\d)`);
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
