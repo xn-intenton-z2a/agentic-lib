@@ -615,7 +615,8 @@ export function showVersion() {
 export async function delegateDecisionToLLM(prompt) {
   try {
     const openaiModule = await import("openai");
-    const Config = openaiModule.Configuration.default || openaiModule.Configuration;
+    const Config = openaiModule.Configuration ? (openaiModule.Configuration.default || openaiModule.Configuration) : null;
+    if (!Config) throw new Error("OpenAI Configuration not available");
     const Api = openaiModule.OpenAIApi;
     const configuration = new Config({
       apiKey: process.env.OPENAI_API_KEY || "",
@@ -661,7 +662,8 @@ export async function delegateDecisionToLLMWrapped(prompt) {
   }
   try {
     const openaiModule = await import("openai");
-    const Config = openaiModule.Configuration.default || openaiModule.Configuration;
+    const Config = openaiModule.Configuration ? (openaiModule.Configuration.default || openaiModule.Configuration) : null;
+    if (!Config) throw new Error("OpenAI Configuration not available");
     const Api = openaiModule.OpenAIApi;
     const configuration = new Config({
       apiKey: process.env.OPENAI_API_KEY || "",
@@ -695,7 +697,8 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
   }
   try {
     const openaiModule = await import("openai");
-    const Config = openaiModule.Configuration.default || openaiModule.Configuration;
+    const Config = openaiModule.Configuration ? (openaiModule.Configuration.default || openaiModule.Configuration) : null;
+    if (!Config) throw new Error("OpenAI Configuration not available");
     const Api = openaiModule.OpenAIApi;
     const configuration = new Config({
       apiKey: process.env.OPENAI_API_KEY || "",
