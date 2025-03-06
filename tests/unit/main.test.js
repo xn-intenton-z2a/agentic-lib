@@ -1,4 +1,5 @@
 import { describe, test, expect, vi, beforeAll, afterAll } from "vitest";
+import * as agenticLib from "../../src/lib/main.js";
 import {
   reviewIssue,
   splitArguments,
@@ -315,7 +316,7 @@ describe("main function flags", () => {
       } catch (error) {}
     });
     expect(output).toContain("Usage: npm run start");
-    expect(output).toContain("Demo: Demonstration of agentic-lib functionality:");
+    expect(output).toContain("Demo: Demonstration of agentic‐lib functionality:");
   });
 
   test("--reverse flag prints reversed input", () => {
@@ -552,7 +553,6 @@ describe("delegateDecisionToLLMAdvancedVerbose", () => {
   });
 });
 
-// New tests for delegateDecisionToLLMAdvancedStrict
 describe("delegateDecisionToLLMAdvancedStrict", () => {
   test("returns simulated response when TEST_OPENAI_SUCCESS is set", async () => {
     process.env.TEST_OPENAI_SUCCESS = "true";
@@ -563,24 +563,15 @@ describe("delegateDecisionToLLMAdvancedStrict", () => {
 
   test("returns timeout error when underlying call does not resolve in time", async () => {
     process.env.TEST_OPENAI_SUCCESS = undefined;
-    // Temporarily override delegateDecisionToLLMAdvanced to simulate a hanging call
-    const originalFunction = delegateDecisionToLLMAdvanced;
-    const hangingFunction = () => new Promise(() => {});
-    
-    // Override
-    delegateDecisionToLLMAdvanced = hangingFunction;
-    
-    const result = await delegateDecisionToLLMAdvancedStrict("test timeout", { timeout: 10 });
+    const spy = vi.spyOn(agenticLib, 'delegateDecisionToLLMAdvanced').mockImplementation(() => new Promise(() => {}));
+    const result = await delegateDecisionToLLMAdvancedStrict("test timeout", { timeout: 10, refinement: "Strict check" });
     expect(result.fixed).toBe("false");
     expect(result.message).toBe("LLM advanced strict call timed out");
     expect(result.refinement).toBe("Timeout exceeded");
-    
-    // Restore original function
-    delegateDecisionToLLMAdvanced = originalFunction;
+    spy.mockRestore();
   });
 });
 
-// New Features Tests
 describe("New Features", () => {
   test("simulateKafkaBulkStream returns specified count of messages", () => {
     const messages = simulateKafkaBulkStream("bulkTopic", 3);
