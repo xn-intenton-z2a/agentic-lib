@@ -15,6 +15,7 @@ import {
   gatherAdvancedTelemetryData,
   gatherGitHubTelemetrySummary,
   gatherCustomTelemetryData,
+  gatherWorkflowTelemetryData,
   gatherFullSystemReport,
   simulateRealKafkaStream,
   delegateDecisionToLLM,
@@ -279,6 +280,18 @@ describe("gatherCustomTelemetryData", () => {
     expect(customTelemetry).toHaveProperty("loadAverages");
     expect(customTelemetry).toHaveProperty("networkInterfaces");
     expect(customTelemetry).toHaveProperty("hostname");
+  });
+});
+
+describe("gatherWorkflowTelemetryData", () => {
+  test("returns workflow telemetry details", () => {
+    process.env.GITHUB_RUN_ATTEMPT = "3";
+    process.env.GITHUB_EVENT = "push";
+    process.env.GITHUB_RUN_STARTED_AT = "2025-03-06T16:00:00Z";
+    const workflowTelemetry = agenticLib.gatherWorkflowTelemetryData();
+    expect(workflowTelemetry.githubRunAttempt).toBe("3");
+    expect(workflowTelemetry.githubWorkflowEvent).toBe("push");
+    expect(workflowTelemetry.githubRunStartedAt).toBe("2025-03-06T16:00:00Z");
   });
 });
 

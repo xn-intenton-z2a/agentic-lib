@@ -28,10 +28,12 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
   - Functions include `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and `gatherGitHubTelemetrySummary()` for comprehensive diagnostics.
   - **Extended Telemetry:**
     - The new function `gatherCustomTelemetryData()` collects additional system metrics such as uptime, load averages, network interfaces, and hostname for deeper insights in GitHub Actions workflows.
+  - **Workflow Telemetry:**
+    - **New:** `gatherWorkflowTelemetryData()` collects additional GitHub Actions specific telemetry such as run attempts, event type, and start time.
 - **Remote Service Wrappers:**
   - Simplify API calls with wrappers to handle deployment, build status, analytics, and notifications.
 - **LLM Delegation:**
-  - Utilize functions like `delegateDecisionToLLM()`, `delegateDecisionToLLMWrapped()`, `delegateDecisionToLLMAdvanced()`, `delegateDecisionToLLMAdvancedVerbose()`, and the newly added `delegateDecisionToLLMAdvancedStrict()` for enhanced logging, decision making, and timeout support.
+  - Utilize functions like `delegateDecisionToLLM()`, `delegateDecisionToLLMWrapped()`, `delegateDecisionToLLMAdvanced()`, `delegateDecisionToLLMAdvancedVerbose()`, and `delegateDecisionToLLMAdvancedStrict()` for enhanced logging, decision making, and timeout support.
 - **Kafka Operations:**
   - Simulate Kafka messaging and logging via functions like `simulateKafkaDetailedStream()`, `simulateKafkaBulkStream()`, and `simulateKafkaInterWorkflowCommunication()`, along with enhanced simulation via `simulateRealKafkaStream()`.
 - **Issue Creation Simulation:**
@@ -52,7 +54,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - **New:** Fixed openai Configuration import issue in LLM delegation functions to support ESM module structure.
 - **New:** Refactored flag handling to extract helper functions for improved maintainability.
 - **New:** Improved regex in `getIssueNumberFromBranch` to correctly extract issue numbers.
-- **New:** Increased test coverage by adding additional unit tests for LLM delegation fallback behaviors and other functions.
+- **New:** Added `gatherWorkflowTelemetryData` to capture additional GitHub Actions telemetry metrics.
 
 ---
 ---
