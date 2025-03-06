@@ -17,7 +17,7 @@
 // - Added Kafka inter-workflow communication simulation function simulateKafkaInterWorkflowCommunication.
 // - Added function gatherFullSystemReport to return a complete diagnostic report combining health check, advanced telemetry, and combined telemetry data.
 // - Added function simulateRealKafkaStream to provide a more detailed simulation of Kafka streaming with additional logging.
-// - Extended create issue simulation in the flag handler (--create-issue) to mimic GitHub workflow behavior.
+// - Extended create issue simulation in the flag handler (--create-issue) to mimic GitHub workflow behavior including house choice and issue body logging.
 // - Added new advanced analytics simulation function simulateAdvancedAnalytics and corresponding --advanced flag to combine Kafka simulation and advanced telemetry data.
 // - Added new function delegateDecisionToLLMAdvancedVerbose to provide extended logging for advanced LLM delegation.
 // - Added new telemetry function gatherCustomTelemetryData to collect additional system metrics for GitHub Actions workflows.
@@ -450,16 +450,16 @@ function handleFlagCommands(flagArgs, nonFlagArgs) {
     console.log(chalk.magenta("Simulated GitHub Issue Creation Workflow triggered."));
     let issueTitle;
     if (nonFlagArgs.length > 0 && nonFlagArgs[0] === "house choice") {
-      const options = process.env.HOUSE_CHOICE_OPTIONS
-        ? process.env.HOUSE_CHOICE_OPTIONS.split("||")
-        : ["Default House Choice Issue"];
+      const options = process.env.HOUSE_CHOICE_OPTIONS ? process.env.HOUSE_CHOICE_OPTIONS.split("||") : ["Default House Choice Issue"];
       issueTitle = options[randomInt(0, options.length)];
     } else {
       issueTitle = nonFlagArgs.length > 0 ? nonFlagArgs.join(" ") : "Default Issue Title";
     }
-    const issueNumber = randomInt(0, 1000);
+    const issueBody = process.env.ISSUE_BODY || "Please resolve the issue.";
+    const issueNumber = randomInt(100, 1000);
     console.log(chalk.magenta("Simulated Issue Created:"));
     console.log(chalk.magenta("Title: " + issueTitle));
+    console.log(chalk.magenta("Issue Body: " + issueBody));
     console.log(chalk.magenta("Issue Number: " + issueNumber));
     exitApplication();
     return true;
@@ -548,7 +548,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
+  const regex = new RegExp(safePrefix + "(\d{1,10})\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -754,7 +754,7 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
   }
 }
 
-// New function providing an extended verbose wrapper around the advanced LLM delegation
+// New advanced delegation verbose function
 export async function delegateDecisionToLLMAdvancedVerbose(prompt, options = {}) {
   console.log(chalk.blue("Invoking advanced LLM delegation with verbose mode."));
   const result = await delegateDecisionToLLMAdvanced(prompt, options);
