@@ -218,7 +218,7 @@ jobs:
           ls -larth "public/latest.html"
           echo "public/${uniqueFile}:"
           ls -larth "public/${uniqueFile}"
-          echo "::notice:: Latest page URL: [${latestUrl}](${latestUrl})"
-          echo "::notice:: Unique version URL: [${uniqueUrl}](${uniqueUrl})"
+          echo "::notice:: latestUrl: ${latestUrl}"
+          echo "::notice:: uniqueUrl: ${uniqueUrl}"
           echo "latestUrl=${latestUrl}" >> $GITHUB_OUTPUT
           echo "uniqueUrl=${uniqueUrl}" >> $GITHUB_OUTPUT
