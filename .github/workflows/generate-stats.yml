@@ -121,7 +121,8 @@ jobs:
               <body>
               <header>
               <h1>Repository Statistics for ${repo}</h1>
-            <p>Owner: ${owner}</p>
+              <p>Owner: <a href="https://github.com/xn-intenton-z2a/">${owner}</a></p>
+              <p>Index: <a href="https://xn-intenton-z2a.github.io/agentic-lib/index.html">index.html</a></p>
               </header>
               <section>
               <p><span class="label">Open Issues:</span> ${openIssues}</p>
