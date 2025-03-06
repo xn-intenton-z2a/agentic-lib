@@ -31,7 +31,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - **Remote Service Wrappers:**
   - Simplify API calls with wrappers to handle deployment, build status, analytics, and notifications.
 - **LLM Delegation:**
-  - Utilize functions like `delegateDecisionToLLM()`, `delegateDecisionToLLMWrapped()`, `delegateDecisionToLLMAdvanced()`, and the newly added `delegateDecisionToLLMAdvancedVerbose()` for enhanced logging and decision making.
+  - Utilize functions like `delegateDecisionToLLM()`, `delegateDecisionToLLMWrapped()`, `delegateDecisionToLLMAdvanced()`, `delegateDecisionToLLMAdvancedVerbose()`, and the newly added `delegateDecisionToLLMAdvancedStrict()` for enhanced logging, decision making, and timeout support.
 - **Kafka Operations:**
   - Simulate Kafka messaging and logging via functions like `simulateKafkaDetailedStream()`, `simulateKafkaBulkStream()`, and `simulateKafkaInterWorkflowCommunication()`, along with enhanced simulation via `simulateRealKafkaStream()`.
 - **Issue Creation Simulation:**
@@ -48,7 +48,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - **New:** Added `simulateAdvancedAnalytics` function and the `--advanced` CLI flag to simulate advanced analytics combining Kafka streaming and telemetry data.
 - **New:** Added `delegateDecisionToLLMAdvancedVerbose` function for enhanced logging during LLM delegation.
 - **New:** Added `gatherCustomTelemetryData` to provide additional system metrics for improved telemetry data collection in GitHub Actions workflows.
-- **New:** Enhanced the `--create-issue` flag simulation to include issue body logging along with title and issue number, reflecting the workflow behavior in wfr-create-issue.yml.
+- **New:** Added `delegateDecisionToLLMAdvancedStrict` to support timeout-based advanced LLM delegation.
 
 ---
 ---

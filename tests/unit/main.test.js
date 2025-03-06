@@ -20,6 +20,7 @@ import {
   delegateDecisionToLLMWrapped,
   delegateDecisionToLLMAdvanced,
   delegateDecisionToLLMAdvancedVerbose,
+  delegateDecisionToLLMAdvancedStrict,
   sendMessageToKafka,
   receiveMessageFromKafka,
   logKafkaOperations,
@@ -551,6 +552,34 @@ describe("delegateDecisionToLLMAdvancedVerbose", () => {
   });
 });
 
+// New tests for delegateDecisionToLLMAdvancedStrict
+describe("delegateDecisionToLLMAdvancedStrict", () => {
+  test("returns simulated response when TEST_OPENAI_SUCCESS is set", async () => {
+    process.env.TEST_OPENAI_SUCCESS = "true";
+    const result = await delegateDecisionToLLMAdvancedStrict("test strict", { refinement: "Strict check", timeout: 5000 });
+    expect(result.fixed).toBe("true");
+    expect(result.message).toBe("LLM advanced call succeeded");
+  });
+
+  test("returns timeout error when underlying call does not resolve in time", async () => {
+    process.env.TEST_OPENAI_SUCCESS = undefined;
+    // Temporarily override delegateDecisionToLLMAdvanced to simulate a hanging call
+    const originalFunction = delegateDecisionToLLMAdvanced;
+    const hangingFunction = () => new Promise(() => {});
+    
+    // Override
+    delegateDecisionToLLMAdvanced = hangingFunction;
+    
+    const result = await delegateDecisionToLLMAdvancedStrict("test timeout", { timeout: 10 });
+    expect(result.fixed).toBe("false");
+    expect(result.message).toBe("LLM advanced strict call timed out");
+    expect(result.refinement).toBe("Timeout exceeded");
+    
+    // Restore original function
+    delegateDecisionToLLMAdvanced = originalFunction;
+  });
+});
+
 // New Features Tests
 describe("New Features", () => {
   test("simulateKafkaBulkStream returns specified count of messages", () => {
@@ -590,7 +619,7 @@ describe("New Features", () => {
     const messages = simulateRealKafkaStream("realTopic", 2);
     expect(messages.length).toBe(2);
     messages.forEach((msg, index) => {
-      expect(msg).toContain(`Real Kafka stream message ${index + 1} from topic 'realTopic'`);
+      expect(msg).toContain(`Real Kafka stream message ${index + 1} from topic 'realTopic'");
     });
   });
 });

@@ -17,10 +17,11 @@
 // - Added Kafka inter-workflow communication simulation function simulateKafkaInterWorkflowCommunication.
 // - Added function gatherFullSystemReport to return a complete diagnostic report combining health check, advanced telemetry, and combined telemetry data.
 // - Added function simulateRealKafkaStream to provide a more detailed simulation of Kafka streaming with additional logging.
-// - Extended create issue simulation in the flag handler (--create-issue) to mimic GitHub workflow behavior including house choice and issue body logging.
-// - Added new advanced analytics simulation function simulateAdvancedAnalytics and corresponding --advanced flag to combine Kafka simulation and advanced telemetry data.
-// - Added new function delegateDecisionToLLMAdvancedVerbose to provide extended logging for advanced LLM delegation.
-// - Added new telemetry function gatherCustomTelemetryData to collect additional system metrics for GitHub Actions workflows.
+// - Added new advanced analytics simulation function simulateAdvancedAnalytics and corresponding --advanced flag.
+// - Added new advanced delegation verbose function delegateDecisionToLLMAdvancedVerbose.
+// - Added new telemetry function gatherCustomTelemetryData.
+// - 
+// - New: Added delegateDecisionToLLMAdvancedStrict for advanced LLM delegation with timeout support using Promise.race.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -548,7 +549,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})\\b");
+  const regex = new RegExp(safePrefix + "(\d{1,10})\b");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -760,6 +761,22 @@ export async function delegateDecisionToLLMAdvancedVerbose(prompt, options = {})
   const result = await delegateDecisionToLLMAdvanced(prompt, options);
   console.log(chalk.blue("Verbose LLM advanced decision result:"), result);
   return result;
+}
+
+// New advanced delegation function with timeout support
+export async function delegateDecisionToLLMAdvancedStrict(prompt, options = {}) {
+  const timeout = options.timeout || 5000;
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error("LLM advanced strict call timed out")), timeout);
+  });
+  try {
+    const resultPromise = delegateDecisionToLLMAdvanced(prompt, options);
+    const result = await Promise.race([resultPromise, timeoutPromise]);
+    return result;
+  } catch (error) {
+    console.error(chalk.red("delegateDecisionToLLMAdvancedStrict error:"), error);
+    return { fixed: "false", message: error.message, refinement: "Timeout exceeded" };
+  }
 }
 
 /**
