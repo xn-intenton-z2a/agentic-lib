@@ -124,7 +124,7 @@ jobs:
               const commitDate = new Date(commit.commit.author.date);
               const hh = commitDate.getHours().toString().padStart(2, '0');
               const mm = commitDate.getMinutes().toString().padStart(2, '0');
-              const truncatedMsg = truncate(commit.commit.message, 128);
+              const truncatedMsg = truncate(commit.commit.message, 64);
               return `[${hh}:${mm}] - ${truncatedMsg}`;
             });
 
@@ -175,13 +175,16 @@ jobs:
                   <p><span class="label">Branches (${branchCount}):</span> ${branchDetails.join(', ') || 'None'}</p>
                 </section>
                 <section>
+                  <p>Test status on main: ${testStatus} (last passed ${testsLastPassedMinutes} minutes ago)</p>
+                </section>
+                <section>
                   <p><span class="label">Open Issues:</span> ${openIssues}</p>
                   <p><span class="label">Issues closed in last hour:</span> ${issuesClosedLastHour}</p>
                   <p><span class="label">Issues closed in last 24 hours:</span> ${issuesClosedLastDay}</p>
                 </section>
                 <section>
-                  <p><span class="label">Minutes since push anywhere:</span> ${diffMinutes} minutes</p>
-                  <p><span class="label">Minutes since push to main:</span> ${diffMinutesMain} minutes</p>
+                  <p><span class="label">Minutes since push anywhere:</span> ${diffMinutes}</p>
+                  <p><span class="label">Minutes since push to main:</span> ${diffMinutesMain}</p>
                 </section>
                 <section>
                   <p><span class="label">Commits to main last hour:</span> ${commitsLastHour}</p>
@@ -192,11 +195,6 @@ jobs:
                   <ul>
                     ${lastFiveCommitMessages.map(msg => `<li>${msg}</li>`).join('')}
                   </ul>
-                </section>
-                <section>
-                  <p><span class="label">Additional Metrics:</span></p>
-                  <p>Average PR Age: ${averagePRAge} minutes</p>
-                  <p>Test status on main: ${testStatus} (last passed ${testsLastPassedMinutes} minutes ago)</p>
                 </section>
                 <section>
                   <p>
