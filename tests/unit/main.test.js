@@ -604,3 +604,19 @@ describe("delegateDecisionToLLM fallback", () => {
     expect(result.fixed).toBe("false");
   });
 });
+
+describe("Additional Functions", () => {
+  test("splitArguments with empty array returns empty arrays", () => {
+    const result = agenticLib.splitArguments([]);
+    expect(result.flagArgs).toEqual([]);
+    expect(result.nonFlagArgs).toEqual([]);
+  });
+  
+  test("printReport function logs output", () => {
+    const output = captureOutput(() => {
+      agenticLib.printReport();
+    });
+    expect(output).toContain("System Performance:");
+    expect(output).toContain("Telemetry Data:");
+  });
+});
