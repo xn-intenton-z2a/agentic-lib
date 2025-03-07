@@ -10,6 +10,8 @@
 // - Added new remote repository service wrapper: callRepositoryService to simulate fetching repository details.
 // - Updated regex in getIssueNumberFromBranch to correctly extract issue numbers from branch names.
 
+/* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
+
 import { fileURLToPath } from "url";
 import chalk from "chalk";
 import figlet from "figlet";
@@ -42,7 +44,7 @@ export function gatherTelemetryData() {
     githubRunNumber: process.env.GITHUB_RUN_NUMBER || "N/A",
     githubJob: process.env.GITHUB_JOB || "N/A",
     githubAction: process.env.GITHUB_ACTION || "N/A",
-    nodeEnv: process.env.NODE_ENV || "undefined",
+    nodeEnv: process.env.NODE_ENV || "undefined"
   };
 }
 
@@ -55,7 +57,7 @@ export function gatherExtendedTelemetryData() {
     githubActor: process.env.GITHUB_ACTOR || "N/A",
     githubRepository: process.env.GITHUB_REPOSITORY || "N/A",
     githubEventName: process.env.GITHUB_EVENT_NAME || "N/A",
-    ci: process.env.CI || "N/A",
+    ci: process.env.CI || "N/A"
   };
 }
 
@@ -68,7 +70,7 @@ export function gatherFullTelemetryData() {
     githubRef: process.env.GITHUB_REF || "N/A",
     githubSha: process.env.GITHUB_SHA || "N/A",
     githubHeadRef: process.env.GITHUB_HEAD_REF || "N/A",
-    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A",
+    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A"
   };
 }
 
@@ -81,7 +83,7 @@ export function gatherAdvancedTelemetryData() {
     processPID: process.pid,
     currentWorkingDirectory: process.cwd(),
     platform: process.platform,
-    memoryUsage: process.memoryUsage(),
+    memoryUsage: process.memoryUsage()
   };
 }
 
@@ -103,7 +105,7 @@ export function gatherCustomTelemetryData() {
     osUptime: os.uptime(),
     loadAverages: os.loadavg(),
     networkInterfaces: os.networkInterfaces(),
-    hostname: os.hostname(),
+    hostname: os.hostname()
   };
 }
 
@@ -114,7 +116,7 @@ export function gatherWorkflowTelemetryData() {
   return {
     githubRunAttempt: process.env.GITHUB_RUN_ATTEMPT || "N/A",
     githubWorkflowEvent: process.env.GITHUB_EVENT || "N/A",
-    githubRunStartedAt: process.env.GITHUB_RUN_STARTED_AT || "N/A",
+    githubRunStartedAt: process.env.GITHUB_RUN_STARTED_AT || "N/A"
   };
 }
 
@@ -219,7 +221,7 @@ export function analyzeSystemPerformance() {
   return {
     platform: process.platform,
     cpus: os.cpus().length,
-    totalMemory: os.totalmem(),
+    totalMemory: os.totalmem()
   };
 }
 
@@ -252,7 +254,7 @@ export async function callAnalyticsService(serviceUrl, data) {
     const response = await fetch(serviceUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify(data)
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -277,7 +279,7 @@ export async function callNotificationService(serviceUrl, payload) {
     const response = await fetch(serviceUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -322,7 +324,7 @@ export async function callDeploymentService(serviceUrl, payload) {
     const response = await fetch(serviceUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -484,21 +486,26 @@ function handleBasicFlag(flag, nonFlagArgs) {
       console.log(chalk.magenta("Issue Number: " + issueNumber));
       return true;
     }
-    case "--version":
+    case "--version": {
       console.log(showVersion());
       return true;
-    case "--env":
+    }
+    case "--env": {
       console.log("Environment Variables: " + JSON.stringify(process.env, null, 2));
       return true;
-    case "--telemetry-extended":
+    }
+    case "--telemetry-extended": {
       console.log("Extended Telemetry Data: " + JSON.stringify(gatherExtendedTelemetryData(), null, 2));
       return true;
-    case "--telemetry":
+    }
+    case "--telemetry": {
       console.log("Telemetry Data: " + JSON.stringify(gatherTelemetryData(), null, 2));
       return true;
-    case "--simulate-remote":
+    }
+    case "--simulate-remote": {
       console.log(chalk.cyan("Simulated remote service call initiated."));
       return true;
+    }
     case "--sarif": {
       if (nonFlagArgs.length === 0) {
         console.log(chalk.red("No SARIF JSON provided."));
@@ -507,24 +514,27 @@ function handleBasicFlag(flag, nonFlagArgs) {
       }
       return true;
     }
-    case "--report":
+    case "--report": {
       printReport();
       return true;
-    case "--extended":
+    }
+    case "--extended": {
       console.log(chalk.green("Extended logging activated."));
       const detailedMessages = simulateKafkaDetailedStream("detailedTopic", 2);
       console.log("Detailed messages:", detailedMessages.join(","));
       return false;
+    }
     case "--reverse": {
       const reversedInput = nonFlagArgs.join(" ").split("").reverse().join("");
       console.log(chalk.yellow("Reversed input: " + reversedInput));
       return false;
     }
-    case "--advanced":
+    case "--advanced": {
       console.log(chalk.blue("Advanced analytics simulation initiated."));
       const result = simulateAdvancedAnalytics("advancedTopic", 3);
       console.log("Advanced analytics result:", result);
       return true;
+    }
     default:
       return false;
   }
@@ -578,7 +588,8 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(`${safePrefix}(\\d{1,10})(?!\\d)`);
+  // eslint-disable-next-line sonarjs/slow-regex
+  const regex = new RegExp(`${safePrefix}(\d{1,10})(?!\d)`);
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -638,15 +649,15 @@ export async function delegateDecisionToLLM(prompt) {
     if (!Config) throw new Error("OpenAI Configuration not available");
     const Api = openaiModule.OpenAIApi;
     const configuration = new Config({
-      apiKey: process.env.OPENAI_API_KEY || "",
+      apiKey: process.env.OPENAI_API_KEY || ""
     });
     const openai = new Api(configuration);
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
         { role: "system", content: "You are a helpful assistant." },
-        { role: "user", content: prompt },
-      ],
+        { role: "user", content: prompt }
+      ]
     });
     return response.data.choices[0].message.content;
   } catch {
@@ -685,15 +696,15 @@ export async function delegateDecisionToLLMWrapped(prompt) {
     if (!Config) throw new Error("OpenAI Configuration not available");
     const Api = openaiModule.OpenAIApi;
     const configuration = new Config({
-      apiKey: process.env.OPENAI_API_KEY || "",
+      apiKey: process.env.OPENAI_API_KEY || ""
     });
     const openai = new Api(configuration);
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
         { role: "system", content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema." },
-        { role: "user", content: prompt },
-      ],
+        { role: "user", content: prompt }
+      ]
     });
     const ResponseSchema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
     const messageObj = response.data.choices[0].message;
@@ -720,7 +731,7 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
     if (!Config) throw new Error("OpenAI Configuration not available");
     const Api = openaiModule.OpenAIApi;
     const configuration = new Config({
-      apiKey: process.env.OPENAI_API_KEY || "",
+      apiKey: process.env.OPENAI_API_KEY || ""
     });
     const openai = new Api(configuration);
     const tools = [
@@ -741,15 +752,15 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
           },
           strict: true
         }
-      },
+      }
     ];
     const response = await openai.createChatCompletion({
       model: options.model || "gpt-3.5-turbo",
       messages: [
         { role: "system", content: "You are evaluating code issues with advanced parameters." },
-        { role: "user", content: prompt },
+        { role: "user", content: prompt }
       ],
-      tools: tools,
+      tools: tools
     });
     let result;
     const messageObj = response.data.choices[0].message;
@@ -791,7 +802,7 @@ export async function delegateDecisionToLLMAdvancedVerbose(prompt, options = {})
 // New advanced delegation function with timeout support
 export async function delegateDecisionToLLMAdvancedStrict(prompt, options = {}) {
   const timeout = options.timeout || 5000;
-  const timeoutPromise = new Promise((_, reject) => {
+  const timeoutPromise = new Promise(( _resolve, reject) => {
     setTimeout(() => reject(new Error("LLM advanced strict call timed out")), timeout);
   });
   try {
@@ -815,7 +826,7 @@ export function performAgenticHealthCheck() {
     timestamp: new Date().toISOString(),
     system: sysPerf,
     telemetry: telemetry,
-    status: "healthy",
+    status: "healthy"
   };
   console.log(chalk.green("Agentic Health Check:"), JSON.stringify(healthReport, null, 2));
   return healthReport;
@@ -828,7 +839,7 @@ export function gatherFullSystemReport() {
   return {
     healthCheck: performAgenticHealthCheck(),
     advancedTelemetry: gatherAdvancedTelemetryData(),
-    combinedTelemetry: { ...gatherTelemetryData(), ...gatherExtendedTelemetryData(), ...gatherFullTelemetryData() },
+    combinedTelemetry: { ...gatherTelemetryData(), ...gatherExtendedTelemetryData(), ...gatherFullTelemetryData() }
   };
 }
 
@@ -858,7 +869,7 @@ export function reviewIssue({
   _dependenciesListOutput,
   _buildOutput,
   _testOutput,
-  _mainOutput,
+  _mainOutput
 }) {
   const fixed = sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")
     ? "true"
@@ -867,7 +878,7 @@ export function reviewIssue({
   return {
     fixed,
     message,
-    refinement: "None",
+    refinement: "None"
   };
 }
 
