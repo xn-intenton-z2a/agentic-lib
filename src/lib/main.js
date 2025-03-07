@@ -9,6 +9,7 @@
 // - Enhanced OpenAI delegation functions to support ESM module structure and advanced LLM delegation with function calls.
 // - Added new remote repository service wrapper: callRepositoryService to simulate fetching repository details.
 // - Updated regex in getIssueNumberFromBranch to correctly extract issue numbers from branch names.
+// - Exported printReport for enhanced test coverage and diagnostic verification.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -589,7 +590,7 @@ export function generateUsage() {
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
   // Correctly escape \d for regex pattern
-  const regex = new RegExp(`${safePrefix}(\\d{1,10})(?!\\d)`);
+  const regex = new RegExp(`${safePrefix}(\d{1,10})(?!\d)`);
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -881,6 +882,8 @@ export function reviewIssue({
     refinement: "None"
   };
 }
+
+export { printReport };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
