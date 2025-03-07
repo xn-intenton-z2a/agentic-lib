@@ -8,7 +8,7 @@
 // - Refactored flag handling and improved regex safety in getIssueNumberFromBranch.
 // - Enhanced OpenAI delegation functions to support ESM module structure and advanced LLM delegation with function calls.
 // - Added new remote repository service wrapper: callRepositoryService to simulate fetching repository details.
-// - Refreshed README content as per CONTRIBUTING guidelines.
+// - Updated regex in getIssueNumberFromBranch to correctly extract issue numbers from branch names.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";

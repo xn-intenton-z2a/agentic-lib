@@ -46,6 +46,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - Enhanced telemetry and Kafka simulation functions with detailed logging and performance metrics.
 - Advanced LLM delegation functions with strict schema validation, verbose logging, and timeout support.
 - **New:** Added remote repository service wrapper function `callRepositoryService` to simulate fetching repository details.
+- **Updated:** Improved regex in the `getIssueNumberFromBranch` function to correctly extract issue numbers from branch names.
 - **Refreshed:** README content and documentation as per CONTRIBUTING guidelines.
 
 ---
@@ -115,3 +116,4 @@ IMPORTANT: Any derived work must include the following attribution:
 ```
 
 ---
+
