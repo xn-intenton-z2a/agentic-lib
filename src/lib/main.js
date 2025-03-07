@@ -7,9 +7,8 @@
 // - Added detailed Kafka simulation functions and advanced analytics simulation for deeper diagnostics.
 // - Refactored flag handling and improved regex safety in getIssueNumberFromBranch.
 // - Enhanced OpenAI delegation functions to support ESM module structure and advanced LLM delegation with function calls.
-// - Added functions: gatherCustomTelemetryData, gatherWorkflowTelemetryData, performAgenticHealthCheck, and gatherFullSystemReport.
-// - Updated delegateDecisionToLLM to correctly import Configuration and OpenAIApi.
-// - Refreshed README content as per CONTRIBUTING guidelines.
+// - Added new remote repository service wrapper: callRepositoryService to simulate fetching repository details.
+// - Updated regex in getIssueNumberFromBranch to correctly extract issue numbers from branch names.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -334,6 +333,26 @@ export async function callDeploymentService(serviceUrl, payload) {
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : "Unknown error";
     console.error(chalk.red("Error calling deployment service:"), errMsg);
+    return { error: errMsg };
+  }
+}
+
+/**
+ * New remote repository service wrapper using fetch to simulate fetching repository details.
+ * @param {string} serviceUrl
+ */
+export async function callRepositoryService(serviceUrl) {
+  try {
+    const response = await fetch(serviceUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const repoDetails = await response.json();
+    console.log(chalk.green("Repository Service Response:"), repoDetails);
+    return repoDetails;
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error(chalk.red("Error calling repository service:"), errMsg);
     return { error: errMsg };
   }
 }
