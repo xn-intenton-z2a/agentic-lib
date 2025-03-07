@@ -31,6 +31,7 @@ import {
   callNotificationService,
   callBuildStatusService,
   callDeploymentService,
+  callRepositoryService,
   parseSarifOutput,
   parseEslintSarifOutput,
   parseVitestOutput,
@@ -499,6 +500,20 @@ describe("Remote Service Wrapper", () => {
     global.fetch = vi.fn(() => Promise.reject(new Error("Deployment network error")));
     const data = await agenticLib.callDeploymentService("https://deploy.example.com/trigger", { version: "1.0.0" });
     expect(data.error).toBe("Deployment network error");
+  });
+
+  describe("Repository Service Wrapper", () => {
+    test("callRepositoryService returns data for successful call", async () => {
+      const repoResponse = { repo: "test-repo", stars: 100 };
+      global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(repoResponse) }));
+      const data = await agenticLib.callRepositoryService("https://api.example.com/repo");
+      expect(data).toEqual(repoResponse);
+    });
+    test("callRepositoryService returns error on failed call", async () => {
+      global.fetch = vi.fn(() => Promise.reject(new Error("Repository network error")));
+      const data = await agenticLib.callRepositoryService("https://api.example.com/repo");
+      expect(data.error).toBe("Repository network error");
+    });
   });
 });
 

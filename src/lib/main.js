@@ -9,6 +9,7 @@
 // - Enhanced OpenAI delegation functions to support ESM module structure and advanced LLM delegation with function calls.
 // - Added functions: gatherCustomTelemetryData, gatherWorkflowTelemetryData, performAgenticHealthCheck, and gatherFullSystemReport.
 // - Updated delegateDecisionToLLM to correctly import Configuration and OpenAIApi.
+// - Added new remote repository service wrapper: callRepositoryService to simulate fetching repository details.
 // - Refreshed README content as per CONTRIBUTING guidelines.
 
 import { fileURLToPath } from "url";
@@ -339,6 +340,26 @@ export async function callDeploymentService(serviceUrl, payload) {
 }
 
 /**
+ * New remote repository service wrapper using fetch to simulate fetching repository details.
+ * @param {string} serviceUrl
+ */
+export async function callRepositoryService(serviceUrl) {
+  try {
+    const response = await fetch(serviceUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const repoDetails = await response.json();
+    console.log(chalk.green("Repository Service Response:"), repoDetails);
+    return repoDetails;
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error(chalk.red("Error calling repository service:"), errMsg);
+    return { error: errMsg };
+  }
+}
+
+/**
  * Parse SARIF formatted JSON to summarize issues.
  * @param {string} sarifJson
  */
@@ -559,7 +580,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(`${safePrefix}(\\d{1,10})(?!\\d)`);
+  const regex = new RegExp(`${safePrefix}(\d{1,10})(?!\d)`);
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
