@@ -649,7 +649,7 @@ export function splitArguments(args = []) {
 
 export function processFlags(flags = []) {
   if (flags.length === 0) return "No flags to process.";
-  let result = `Processed flags: ${flags.join(", ")}`;
+  let result = `Processed flags: ${flags.join(",")}`;
   if (flags.includes("--verbose")) {
     result += " | Verbose mode enabled.";
   }
