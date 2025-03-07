@@ -33,7 +33,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - **Remote Service Wrappers:**
   - Simplify API interactions with wrappers for deployment, build status, analytics, notifications, logging, and repository details.
 - **LLM Delegation:**
-  - Advanced functions like `delegateDecisionToLLM()`, `delegateDecisionToLLMWrapped()`, `delegateDecisionToLLMAdvancedVerbose()`, and `delegateDecisionToLLMAdvancedStrict()` support robust decision delegation with function calling and timeout features.
+  - Advanced functions like `delegateDecisionToLLM()`, `delegateDecisionToLLMWrapped()`, `delegateDecisionToLLMAdvancedVerbose()`, and `delegateDecisionToLLMAdvancedStrict()` support robust decision delegation with function calling and timeout support.
 - **Kafka Operations:**
   - Simulate Kafka messaging with functions like `simulateKafkaDetailedStream()`, `simulateKafkaBulkStream()`, `simulateKafkaInterWorkflowCommunication()`, and `simulateRealKafkaStream()`.
 - **Issue Simulation:**
