@@ -8,7 +8,8 @@
 // - Refactored flag handling and improved regex safety in getIssueNumberFromBranch.
 // - Enhanced OpenAI delegation functions to support ESM module structure and advanced LLM delegation with function calls.
 // - Added functions: gatherCustomTelemetryData, gatherWorkflowTelemetryData, performAgenticHealthCheck, and gatherFullSystemReport.
-// - Updated change log to reflect pruning of drift in alignment with the mission statement.
+// - Updated delegateDecisionToLLM to correctly import Configuration and OpenAIApi.
+// - Refreshed README content as per CONTRIBUTING guidelines.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
