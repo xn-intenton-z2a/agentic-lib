@@ -7,8 +7,6 @@
 // - Added detailed Kafka simulation functions and advanced analytics simulation for deeper diagnostics.
 // - Refactored flag handling and improved regex safety in getIssueNumberFromBranch.
 // - Enhanced OpenAI delegation functions to support ESM module structure and advanced LLM delegation with function calls.
-// - Added functions: gatherCustomTelemetryData, gatherWorkflowTelemetryData, performAgenticHealthCheck, and gatherFullSystemReport.
-// - Updated delegateDecisionToLLM to correctly import Configuration and OpenAIApi.
 // - Added new remote repository service wrapper: callRepositoryService to simulate fetching repository details.
 // - Refreshed README content as per CONTRIBUTING guidelines.
 
