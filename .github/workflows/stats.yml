@@ -175,7 +175,7 @@ jobs:
                   <p><span class="label">Branches (${branchCount}):</span> ${branchDetails.join(', ') || 'None'}</p>
                 </section>
                 <section>
-                  <p>Test status on main: ${testStatus} (last passed ${testsLastPassedMinutes} minutes ago)</p>
+                  <p><span class="label">Test status on main:</span> ${testStatus} (last passed ${testsLastPassedMinutes} minutes ago)</p>
                 </section>
                 <section>
                   <p><span class="label">Open Issues:</span> ${openIssues}</p>
