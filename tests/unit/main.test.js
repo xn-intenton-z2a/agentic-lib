@@ -532,6 +532,33 @@ describe("parseVitestOutput", () => {
   });
 });
 
+describe("parseVitestSarifOutput", () => {
+  test("returns test summaries array for valid vitest SARIF JSON", () => {
+    const sampleSarif = JSON.stringify({ runs: [{ results: [ { message: { text: "Test case passed" } }, { message: { text: "Test case failed" } } ] }] });
+    const result = agenticLib.parseVitestSarifOutput(sampleSarif);
+    expect(result.testSummaries).toEqual(["Test case passed", "Test case failed"]);
+  });
+  test("returns error property for invalid vitest SARIF JSON", () => {
+    const result = agenticLib.parseVitestSarifOutput("invalid vitest json");
+    expect(result.error).toBeDefined();
+  });
+});
+
+describe("parseEslintDetailedOutput", () => {
+  test("returns detailed issues for valid ESLint SARIF JSON", () => {
+    const sampleSarif = JSON.stringify({ runs: [{ results: [ { ruleId: "no-unused-vars", message: { text: "Unused variable" } }, { ruleId: "no-extra-semi", message: { text: "Unnecessary semicolon" } } ] }] });
+    const result = agenticLib.parseEslintDetailedOutput(sampleSarif);
+    expect(result.eslintIssues).toEqual([
+      { ruleId: "no-unused-vars", message: "Unused variable" },
+      { ruleId: "no-extra-semi", message: "Unnecessary semicolon" }
+    ]);
+  });
+  test("returns error property for invalid ESLint SARIF JSON", () => {
+    const result = agenticLib.parseEslintDetailedOutput("invalid eslint json");
+    expect(result.error).toBeDefined();
+  });
+});
+
 describe("delegateDecisionToLLMAdvancedVerbose", () => {
   test("returns simulated response with verbose logging when TEST_OPENAI_SUCCESS is set", async () => {
     process.env.TEST_OPENAI_SUCCESS = "true";

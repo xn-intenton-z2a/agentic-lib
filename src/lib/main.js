@@ -2,7 +2,7 @@
 // src/lib/main.js - Implementation aligned with the agentic‐lib mission statement.
 // Change Log:
 // - Aligned with the agentic‐lib mission statement by pruning drift and removing redundant simulation verbiage.
-// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, --extended, --report, --advanced.
+// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, --extended, --report, --advanced, --analytics.
 // - Integrated Kafka logging, system performance telemetry, and remote service wrappers with improved HTTP error checking.
 // - Added detailed Kafka simulation functions and advanced analytics simulation for deeper diagnostics.
 // - Refactored flag handling and improved regex safety in getIssueNumberFromBranch.
@@ -10,6 +10,7 @@
 // - Added new remote repository service wrapper: callRepositoryService to simulate fetching repository details.
 // - Added new flag '--analytics' to simulate an analytics service call aligned with evolving workflow requirements.
 // - Updated regex in getIssueNumberFromBranch to correctly extract issue numbers from branch names.
+// - Added new functions to parse detailed SARIF outputs from Vitest and ESLint: parseVitestSarifOutput and parseEslintDetailedOutput.
 // - Exported printReport for enhanced test coverage and diagnostic verification.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
@@ -23,7 +24,7 @@ import { randomInt } from "crypto";
 
 // Helper function to escape regex special characters
 function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return string.replace(/[.*+?^${}()|[\\\]]/g, "\\$&");
 }
 
 /**
@@ -597,7 +598,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  // Correctly escape \d for regex pattern
+  // Correctly escape \d for regex pattern (double escaping for string literal)
   const regex = new RegExp(`${safePrefix}(\\d{1,10})(?!\\d)`);
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
@@ -865,6 +866,58 @@ export function simulateRealKafkaStream(topic, count = 3) {
   }
   console.log(chalk.blue(`Completed real Kafka stream simulation on topic '${topic}'`));
   return messages;
+}
+
+/**
+ * New functions to parse detailed SARIF outputs from Vitest and ESLint
+ */
+export function parseVitestSarifOutput(sarifJson) {
+  try {
+    const sarif = JSON.parse(sarifJson);
+    const testSummaries = [];
+    if (sarif.runs && Array.isArray(sarif.runs)) {
+      sarif.runs.forEach(run => {
+        if (run.results && Array.isArray(run.results)) {
+          run.results.forEach(result => {
+            if (result.message && result.message.text) {
+              testSummaries.push(result.message.text);
+            }
+          });
+        }
+      });
+    }
+    console.log(chalk.green("Vitest SARIF Report:"), testSummaries);
+    return { testSummaries };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error(chalk.red("Error parsing Vitest SARIF JSON:"), errMsg);
+    return { error: errMsg };
+  }
+}
+
+export function parseEslintDetailedOutput(sarifJson) {
+  try {
+    const sarif = JSON.parse(sarifJson);
+    const eslintIssues = [];
+    if (sarif.runs && Array.isArray(sarif.runs)) {
+      sarif.runs.forEach(run => {
+        if (run.results && Array.isArray(run.results)) {
+          run.results.forEach(result => {
+            eslintIssues.push({
+              ruleId: result.ruleId || "unknown",
+              message: result.message && result.message.text ? result.message.text : ""
+            });
+          });
+        }
+      });
+    }
+    console.log(chalk.green("ESLint Detailed SARIF Report:"), eslintIssues);
+    return { eslintIssues };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error(chalk.red("Error parsing ESLint Detailed SARIF JSON:"), errMsg);
+    return { error: errMsg };
+  }
 }
 
 export function reviewIssue({

@@ -42,6 +42,8 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
   - **New:** The `--analytics` flag simulates an analytics service call to record events for deeper insights into workflow performance.
 - **Advanced Analytics Simulation:**
   - The `--advanced` flag integrates detailed Kafka simulation with advanced telemetry for deep system insights.
+- **SARIF Parsing Enhancements:**
+  - **New:** Added functions `parseVitestSarifOutput` and `parseEslintDetailedOutput` to parse and provide detailed information from SARIF outputs of Vitest and ESLint respectively.
 
 ### Recent Improvements
 
@@ -51,6 +53,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - **New:** Added remote repository service wrapper function `callRepositoryService` to simulate fetching repository details.
 - **New:** Added `--analytics` flag to simulate analytics service calls.
 - **Updated:** Improved regex in the `getIssueNumberFromBranch` function to correctly extract issue numbers from branch names.
+- **New:** Added parsing functions for detailed SARIF outputs: `parseVitestSarifOutput` for Vitest and `parseEslintDetailedOutput` for ESLint.
 - **Test Coverage:** Increased test coverage nearly to 100% with additional unit tests for edge cases and improved mocking for external resource calls.
 
 ---
