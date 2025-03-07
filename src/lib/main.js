@@ -8,6 +8,7 @@
 // - Refactored flag handling and improved regex safety in getIssueNumberFromBranch.
 // - Enhanced OpenAI delegation functions to support ESM module structure and advanced LLM delegation with function calls.
 // - Added new remote repository service wrapper: callRepositoryService to simulate fetching repository details.
+// - Added new flag '--analytics' to simulate an analytics service call aligned with evolving workflow requirements.
 // - Updated regex in getIssueNumberFromBranch to correctly extract issue numbers from branch names.
 // - Exported printReport for enhanced test coverage and diagnostic verification.
 
@@ -536,6 +537,13 @@ function handleBasicFlag(flag, nonFlagArgs) {
       console.log("Advanced analytics result:", result);
       return true;
     }
+    case "--analytics": {
+      console.log(chalk.cyan("Simulated analytics service call initiated."));
+      callAnalyticsService("https://analytics.example.com/record", { event: "testAnalytics" })
+        .then((res) => console.log(chalk.green("Simulated Analytics Service Response:"), res))
+        .catch((err) => console.error(chalk.red("Analytics call failed:"), err.message));
+      return false;
+    }
     default:
       return false;
   }
@@ -584,7 +592,7 @@ export function main(args = []) {
 }
 
 export function generateUsage() {
-  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [--create-issue] [--simulate-remote] [--sarif] [--extended] [--report] [--advanced] [args...]";
+  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [--create-issue] [--simulate-remote] [--sarif] [--extended] [--report] [--advanced] [--analytics] [args...]";
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {

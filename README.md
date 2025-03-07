@@ -38,6 +38,8 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
   - Simulate Kafka messaging with functions like `simulateKafkaDetailedStream()`, `simulateKafkaBulkStream()`, `simulateKafkaInterWorkflowCommunication()`, and `simulateRealKafkaStream()`.
 - **Issue Simulation:**
   - The `--create-issue` flag mimics GitHub issue creation workflows with dynamic title selection (including a "house choice" option).
+- **Analytics Simulation:**
+  - **New:** The `--analytics` flag simulates an analytics service call to record events for deeper insights into workflow performance.
 - **Advanced Analytics Simulation:**
   - The `--advanced` flag integrates detailed Kafka simulation with advanced telemetry for deep system insights.
 
@@ -47,6 +49,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - Enhanced telemetry and Kafka simulation functions with detailed logging and performance metrics.
 - Advanced LLM delegation functions with strict schema validation, verbose logging, and timeout support.
 - **New:** Added remote repository service wrapper function `callRepositoryService` to simulate fetching repository details.
+- **New:** Added `--analytics` flag to simulate analytics service calls.
 - **Updated:** Improved regex in the `getIssueNumberFromBranch` function to correctly extract issue numbers from branch names.
 - **Test Coverage:** Increased test coverage nearly to 100% with additional unit tests for edge cases and improved mocking for external resource calls.
 

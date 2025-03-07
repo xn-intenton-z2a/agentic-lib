@@ -396,6 +396,16 @@ describe("main function flags", () => {
     });
     expect(output).toContain("Advanced analytics data:");
   });
+
+  test("--analytics flag triggers simulated analytics call", () => {
+    process.env.NODE_ENV = "test";
+    const output = captureOutput(() => {
+      try {
+        agenticLib.main(["--analytics"]);
+      } catch (error) {}
+    });
+    expect(output).toContain("Simulated analytics service call initiated.");
+  });
 });
 
 describe("Remote Service Wrapper", () => {
