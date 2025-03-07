@@ -8,10 +8,9 @@
 // - Refactored flag handling and improved regex safety in getIssueNumberFromBranch.
 // - Enhanced OpenAI delegation functions to support ESM module structure and advanced LLM delegation with function calls.
 // - Added new remote repository service wrapper: callRepositoryService to simulate fetching repository details.
-// - Added new flag '--analytics' to simulate an analytics service call aligned with evolving workflow requirements.
-// - Updated regex in getIssueNumberFromBranch to correctly extract issue numbers from branch names.
-// - Added new functions to parse detailed SARIF outputs from Vitest and ESLint: parseVitestSarifOutput and parseEslintDetailedOutput.
-// - Exported printReport for enhanced test coverage and diagnostic verification.
+// - Added new analytics service call simulation via --analytics flag.
+// - Added parsing functions for detailed SARIF outputs from Vitest and ESLint: parseVitestSarifOutput and parseEslintDetailedOutput.
+// - Added remote logging service wrapper function: callLoggingService to simulate logging events.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -24,7 +23,7 @@ import { randomInt } from "crypto";
 
 // Helper function to escape regex special characters
 function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\\\]]/g, "\\$&");
+  return string.replace(/[.*+?^${}()|[\\\[\]]/g, "\\$&");
 }
 
 /**
@@ -343,6 +342,31 @@ export async function callDeploymentService(serviceUrl, payload) {
 }
 
 /**
+ * New remote logging service wrapper using fetch to simulate sending log data.
+ * @param {string} serviceUrl
+ * @param {object} logData - The log data payload to send.
+ */
+export async function callLoggingService(serviceUrl, logData) {
+  try {
+    const response = await fetch(serviceUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(logData)
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const result = await response.json();
+    console.log(chalk.green("Logging Service Response:"), result);
+    return result;
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error(chalk.red("Error calling logging service:"), errMsg);
+    return { error: errMsg };
+  }
+}
+
+/**
  * New remote repository service wrapper using fetch to simulate fetching repository details.
  * @param {string} serviceUrl
  */
@@ -598,7 +622,6 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  // Correctly escape \d for regex pattern (double escaping for string literal)
   const regex = new RegExp(`${safePrefix}(\\d{1,10})(?!\\d)`);
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
@@ -626,7 +649,7 @@ export function splitArguments(args = []) {
 
 export function processFlags(flags = []) {
   if (flags.length === 0) return "No flags to process.";
-  let result = `Processed flags: ${flags.join(", ")}`;
+  let result = `Processed flags: ${flags.join(",")}`;
   if (flags.includes("--verbose")) {
     result += " | Verbose mode enabled.";
   }

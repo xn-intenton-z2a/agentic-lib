@@ -31,9 +31,9 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
   - **Workflow Telemetry:**
     - New function `gatherWorkflowTelemetryData()` collects workflow-specific details such as run attempts and start times.
 - **Remote Service Wrappers:**
-  - Simplify API interactions with wrappers for deployment, build status, analytics, notifications, and now repository details.
+  - Simplify API interactions with wrappers for deployment, build status, analytics, notifications, logging, and repository details.
 - **LLM Delegation:**
-  - Advanced functions like `delegateDecisionToLLM()`, `delegateDecisionToLLMWrapped()`, `delegateDecisionToLLMAdvancedVerbose()`, and `delegateDecisionToLLMAdvancedStrict()` support robust decision delegation with function calling and timeout features.
+  - Advanced functions like `delegateDecisionToLLM()`, `delegateDecisionToLLMWrapped()`, `delegateDecisionToLLMAdvancedVerbose()`, and `delegateDecisionToLLMAdvancedStrict()` support robust decision delegation with function calling and timeout support.
 - **Kafka Operations:**
   - Simulate Kafka messaging with functions like `simulateKafkaDetailedStream()`, `simulateKafkaBulkStream()`, `simulateKafkaInterWorkflowCommunication()`, and `simulateRealKafkaStream()`.
 - **Issue Simulation:**
@@ -51,6 +51,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - Enhanced telemetry and Kafka simulation functions with detailed logging and performance metrics.
 - Advanced LLM delegation functions with strict schema validation, verbose logging, and timeout support.
 - **New:** Added remote repository service wrapper function `callRepositoryService` to simulate fetching repository details.
+- **New:** Added remote logging service wrapper function `callLoggingService` to simulate logging events.
 - **New:** Added `--analytics` flag to simulate analytics service calls.
 - **Updated:** Improved regex in the `getIssueNumberFromBranch` function to correctly extract issue numbers from branch names.
 - **New:** Added parsing functions for detailed SARIF outputs: `parseVitestSarifOutput` for Vitest and `parseEslintDetailedOutput` for ESLint.
