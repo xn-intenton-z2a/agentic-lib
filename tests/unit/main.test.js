@@ -490,6 +490,20 @@ describe("Remote Service Wrapper", () => {
       expect(data.error).toBe("Repository network error");
     });
   });
+
+  describe("Logging Service Wrapper", () => {
+    test("callLoggingService returns data for successful call", async () => {
+      const logResponse = { status: "logged" };
+      global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(logResponse) }));
+      const data = await agenticLib.callLoggingService("https://log.example.com/record", { message: "Log event" });
+      expect(data).toEqual(logResponse);
+    });
+    test("callLoggingService returns error on failed call", async () => {
+      global.fetch = vi.fn(() => Promise.reject(new Error("Logging network error")));
+      const data = await agenticLib.callLoggingService("https://log.example.com/record", { message: "Log event" });
+      expect(data.error).toBe("Logging network error");
+    });
+  });
 });
 
 describe("parseSarifOutput", () => {
