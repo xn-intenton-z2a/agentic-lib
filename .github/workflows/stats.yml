@@ -195,6 +195,9 @@ jobs:
                   <p><span class="label">Issues closed in last 24 hours:</span> ${issuesClosedLastDay}</p>
                 </section>
                 <section>
+                  <p><span class="label">Engine:</span> ${{ steps.engine.outputs.engine }}</p>
+                </section>
+                <section>
                   <p><span class="label">Minutes since push anywhere:</span> ${diffMinutes}</p>
                   <p><span class="label">Minutes since push to main:</span> ${diffMinutesMain}</p>
                 </section>
