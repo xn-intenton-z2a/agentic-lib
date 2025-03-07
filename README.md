@@ -14,6 +14,7 @@ GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 [See the latest repository stats](https://xn-intenton-z2a.github.io/agentic-lib/latest.html)
 
 ---
+---
 
 ## Overview
 
@@ -49,6 +50,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - **Updated:** Improved regex in the `getIssueNumberFromBranch` function to correctly extract issue numbers from branch names.
 - **Refreshed:** README content and documentation as per CONTRIBUTING guidelines.
 
+---
 ---
 
 ## Contributing
@@ -116,4 +118,4 @@ IMPORTANT: Any derived work must include the following attribution:
 ```
 
 ---
-
+---

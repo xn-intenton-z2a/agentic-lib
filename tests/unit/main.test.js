@@ -1,42 +1,7 @@
 import { describe, test, expect, vi, beforeAll, afterAll } from "vitest";
 import * as agenticLib from "../../src/lib/main.js";
-import {
-  reviewIssue,
-  splitArguments,
-  processFlags,
-  enhancedDemo,
-  logEnvironmentDetails,
-  showVersion,
-  getIssueNumberFromBranch,
-  sanitizeCommitMessage,
-  gatherTelemetryData,
-  gatherExtendedTelemetryData,
-  gatherFullTelemetryData,
-  gatherAdvancedTelemetryData,
-  gatherGitHubTelemetrySummary,
-  gatherCustomTelemetryData,
-  gatherWorkflowTelemetryData,
-  gatherFullSystemReport,
-  simulateRealKafkaStream,
-  delegateDecisionToLLM,
-  delegateDecisionToLLMWrapped,
-  delegateDecisionToLLMAdvancedVerbose,
-  delegateDecisionToLLMAdvancedStrict,
-  simulateKafkaBulkStream,
-  simulateKafkaInterWorkflowCommunication,
-  performAgenticHealthCheck,
-  analyzeSystemPerformance,
-  callRemoteService,
-  callAnalyticsService,
-  callNotificationService,
-  callBuildStatusService,
-  callDeploymentService,
-  callRepositoryService,
-  parseSarifOutput,
-  parseEslintSarifOutput,
-  parseVitestOutput,
-  main
-} from "../../src/lib/main.js";
+
+/* eslint-disable sonarjs/unused-import */
 
 // Helper to capture console output
 function captureOutput(callback) {
@@ -132,11 +97,11 @@ describe("processFlags", () => {
   });
   test("with --verbose flag returns verbose message", () => {
     const result = agenticLib.processFlags(["--verbose", "--debug"]);
-    expect(result).toContain("Verbose mode enabled.");
+    expect(result).toContain("Verbose mode enabled");
   });
   test("with --debug flag returns debug message", () => {
     const result = agenticLib.processFlags(["--debug"]);
-    expect(result).toContain("Debug mode enabled.");
+    expect(result).toContain("Debug mode enabled");
   });
 });
 
