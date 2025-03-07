@@ -20,7 +20,7 @@ Mixed licensing:
 [Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
 
 Examples:
-* [`plot-code-lib`](https://github.com/xn-intenton-z2a/plot-code-lib) - A CLI generating SVG and novel formats plots for formulae. 
+* [`repository0-plot-code-lib`](https://github.com/xn-intenton-z2a/repository0-plot-code-lib) - A CLI generating SVG and novel formats plots for formulae. 
 * Send a PR to add your example, either descending from `repository0` or using the `agentic-lib` SDK directly.
 
 ## Should you use the `agentic-lib` Coding System?

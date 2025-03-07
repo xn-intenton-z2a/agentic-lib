@@ -71,7 +71,7 @@ git log --since="12 hours ago" --follow -p src/lib/main.js > "./exports/$(date +
 # scripts/initialise.sh
 # Usage: ./scripts/initialise.sh <intention>
 # Example: ./scripts/initialise.sh (randomly selects an intention)
-# Example: ./scripts/initialise.sh "plot-code-lib"
+# Example: ./scripts/initialise.sh "repository0-plot-code-lib"
 # Example: ./scripts/initialise.sh "owl-builder"
 #
 # This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
@@ -121,12 +121,12 @@ echo ".github/workflows/test.yml"
 diff .github/workflows/test.yml ../repository0/.github/workflows/test.yml
 echo ".github/workflows/update.yml"
 diff .github/workflows/update.yml ../repository0/.github/workflows/update.yml
-./scripts/release-to-plot-code-lib.sh
-==== Content of ./scripts/release-to-plot-code-lib.sh ====
+./scripts/release-to-repository0-plot-code-lib.sh
+==== Content of ./scripts/release-to-repository0-plot-code-lib.sh ====
 #!/usr/bin/env bash
-# scripts/release-to-plot-code-lib.sh
-# Usage: ./scripts/release-to-plot-code-lib.sh <tag-version>
-# Example: ./scripts/release-to-plot-code-lib.sh 1.0.0
+# scripts/release-to-repository0-plot-code-lib.sh
+# Usage: ./scripts/release-to-repository0-plot-code-lib.sh <tag-version>
+# Example: ./scripts/release-to-repository0-plot-code-lib.sh 1.0.0
 #
 # This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
@@ -139,7 +139,7 @@ if [ -z "$1" ]; then
 fi
 
 TAG_VERSION="$1"
-DEST_DIR="../plot-code-lib/.github/workflows"
+DEST_DIR="../repository0-plot-code-lib/.github/workflows"
 
 cp -v .github/workflows/apply-fix.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/apply-fix.yml"

@@ -25,7 +25,7 @@
 ./scripts/export-source.sh
 ./scripts/initialise.sh
 ./scripts/diff-workflows.sh
-./scripts/release-to-plot-code-lib.sh
+./scripts/release-to-repository0-plot-code-lib.sh
 ./scripts/update.sh
 ./scripts/release-to-repository0.sh
 ./scripts/clean.sh

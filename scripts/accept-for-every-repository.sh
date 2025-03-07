@@ -14,8 +14,8 @@ echo "repository0-crucible..."
 cd repository0-crucible
 ./scripts/accept-release.sh
 cd ..
-echo "plot-code-lib..."
-cd plot-code-lib
+echo "repository0-plot-code-lib..."
+cd repository0-plot-code-lib
 ./scripts/accept-release.sh
 cd ..
 echo "tansu-sqs-bridge..."

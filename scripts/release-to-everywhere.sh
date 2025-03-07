@@ -19,7 +19,7 @@ fi
 ./scripts/release-to-tansu-sqs-bridge.sh "${1?}"
 ./scripts/release-to-repository0.sh "${1?}"
 ./scripts/release-to-repository0-crucible.sh "${1?}"
-./scripts/release-to-plot-code-lib.sh "${1?}"
+./scripts/release-to-repository0-plot-code-lib.sh "${1?}"
 schedule=$(grep 'Workflow schedule: schedule-' ./CONTRIBUTING.md | sed 's/Workflow schedule: schedule-//')
 if [ -z "${schedule}" ]; then
   echo "No schedule found in CONTRIBUTING.md, looking for line of the form 'Workflow schedule: schedule-<number>'"
