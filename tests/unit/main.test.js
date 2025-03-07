@@ -605,8 +605,6 @@ describe("delegateDecisionToLLM fallback", () => {
   });
 });
 
-// Additional Tests for improved coverage
-
 describe("Additional Functions", () => {
   test("splitArguments with empty array returns empty arrays", () => {
     const result = agenticLib.splitArguments([]);
