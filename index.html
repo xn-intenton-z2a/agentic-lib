@@ -32,88 +32,32 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 <p class="md-github"><a href="https://xn-intenton-z2a.github.io/agentic-lib/index.html" class="md-github">Also on GitHub Pages</a></p>
 <p class="md-github"><a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html" class="md-github">See the latest repository stats</a></p>
 <hr class="md-github">
-<hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
-<p class="md-github">The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Actions workflows. It includes telemetry gathering, Kafka simulations, remote service wrappers, advanced LLM delegation, and parsing utilities. These functions empower you to build fully automated CI/CD integrations.</p>
+<p class="md-github">agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Actions workflows. It includes telemetry gathering, Kafka simulations, remote service wrappers, advanced LLM delegation, and parsing utilities enabling automated CI/CD integrations.</p>
 <h3 class="md-github"><a class="md-github__anchor" name="key-features" href="#key-features"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Key Features</h3>
 <ul class="md-github">
-<li class="md-github"><strong class="md-github">Usage Information:</strong>
-<ul class="md-github">
-<li class="md-github">Use <code class="md-github">generateUsage()</code> to display available flag options.</li>
+<li class="md-github"><strong class="md-github">Usage Information:</strong><br>
+Use <code class="md-github">generateUsage()</code> to display available flag options.</li>
+<li class="md-github"><strong class="md-github">Telemetry:</strong><br>
+Comprehensive diagnostics including <code class="md-github">gatherTelemetryData()</code>, <code class="md-github">gatherExtendedTelemetryData()</code>, <code class="md-github">gatherAdvancedTelemetryData()</code>, and <code class="md-github">gatherFullTelemetryData()</code>.</li>
+<li class="md-github"><strong class="md-github">Remote Service Wrappers:</strong><br>
+Simplified API interactions for deployment, build status, analytics, notifications, logging, and repository details.</li>
+<li class="md-github"><strong class="md-github">LLM Delegation:</strong><br>
+Advanced functions supporting robust decision delegation with schema validation and timeout support.</li>
+<li class="md-github"><strong class="md-github">Kafka Operations:</strong><br>
+Simulated messaging for inter-workflow communication using Kafka-like functions.</li>
+<li class="md-github"><strong class="md-github">SARIF Parsing:</strong><br>
+Functions such as <code class="md-github">parseVitestSarifOutput</code> and <code class="md-github">parseEslintDetailedOutput</code> for parsing SARIF outputs.</li>
 </ul>
-</li>
-<li class="md-github"><strong class="md-github">Telemetry:</strong>
-<ul class="md-github">
-<li class="md-github">Comprehensive diagnostics with functions like <code class="md-github">gatherTelemetryData()</code>, <code class="md-github">gatherExtendedTelemetryData()</code>, <code class="md-github">gatherAdvancedTelemetryData()</code>, <code class="md-github">gatherFullTelemetryData()</code>, and <code class="md-github">gatherGitHubTelemetrySummary()</code>.</li>
-<li class="md-github"><strong class="md-github">Extended Telemetry:</strong>
-<ul class="md-github">
-<li class="md-github">New function <code class="md-github">gatherCustomTelemetryData()</code> collects additional system metrics for in‑depth GitHub Actions monitoring.</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">Workflow Telemetry:</strong>
-<ul class="md-github">
-<li class="md-github">New function <code class="md-github">gatherWorkflowTelemetryData()</code> collects workflow-specific details such as run attempts and start times.</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">Remote Service Wrappers:</strong>
-<ul class="md-github">
-<li class="md-github">Simplify API interactions with wrappers for deployment, build status, analytics, notifications, logging, and repository details.</li>
-<li class="md-github"><strong class="md-github">Improved Error Handling:</strong>
-<ul class="md-github">
-<li class="md-github">Remote service wrappers now use a common error handling helper to reduce code duplication and improve reliability.</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">LLM Delegation:</strong>
-<ul class="md-github">
-<li class="md-github">Advanced functions like <code class="md-github">delegateDecisionToLLM()</code>, <code class="md-github">delegateDecisionToLLMWrapped()</code>, <code class="md-github">delegateDecisionToLLMAdvancedVerbose()</code>, <code class="md-github">delegateDecisionToLLMAdvancedStrict()</code>, and <code class="md-github">delegateDecisionToLLMAdvanced()</code> support robust decision delegation with function calling and timeout support.</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">Kafka Operations:</strong>
-<ul class="md-github">
-<li class="md-github">Simulate Kafka messaging with functions like <code class="md-github">simulateKafkaDetailedStream()</code>, <code class="md-github">simulateKafkaBulkStream()</code>, <code class="md-github">simulateKafkaInterWorkflowCommunication()</code>, and <code class="md-github">simulateRealKafkaStream()</code>.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Added functions <code class="md-github">simulateKafkaProducer()</code>, <code class="md-github">simulateKafkaConsumer()</code>, and <code class="md-github">simulateKafkaRequestResponse()</code> to enhance inter-workflow messaging, simulating producer, consumer, and request-response patterns respectively.</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">Issue Simulation:</strong>
-<ul class="md-github">
-<li class="md-github">The <code class="md-github">--create-issue</code> flag mimics GitHub issue creation workflows with dynamic title selection (including a &quot;house choice&quot; option).</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">Analytics Simulation:</strong>
-<ul class="md-github">
-<li class="md-github"><strong class="md-github">New:</strong> The <code class="md-github">--analytics</code> flag simulates an analytics service call to record events for deeper insights into workflow performance.</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">Advanced Analytics Simulation:</strong>
-<ul class="md-github">
-<li class="md-github">The <code class="md-github">--advanced</code> flag integrates detailed Kafka simulation with advanced telemetry for deep system insights.</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">SARIF Parsing Enhancements:</strong>
-<ul class="md-github">
-<li class="md-github"><strong class="md-github">New:</strong> Added functions <code class="md-github">parseVitestSarifOutput</code> and <code class="md-github">parseEslintDetailedOutput</code> to parse and provide detailed information from SARIF outputs of Vitest and ESLint respectively.</li>
-</ul>
-</li>
-</ul>
-<hr class="md-github">
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="recent-improvements" href="#recent-improvements"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Recent Improvements</h2>
 <ul class="md-github">
 <li class="md-github">Extended flag handling with improved diagnostics and error checking.</li>
-<li class="md-github">Enhanced telemetry and Kafka simulation functions with detailed logging and performance metrics.</li>
-<li class="md-github">Advanced LLM delegation functions with strict schema validation, verbose logging, and timeout support.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Added remote repository service wrapper function <code class="md-github">callRepositoryService</code> to simulate fetching repository details.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Added remote logging service wrapper function <code class="md-github">callLoggingService</code> to simulate logging events.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">--analytics</code> flag to simulate analytics service calls.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Added Kafka simulation enhancements including producer, consumer, and request-response functions.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Improved error handling in <code class="md-github">simulateKafkaRequestResponse</code> to gracefully recover from simulated errors, increasing test coverage.</li>
-<li class="md-github"><strong class="md-github">Fix:</strong> Updated the regex escaping in <code class="md-github">getIssueNumberFromBranch</code> to properly extract issue numbers from branch names.</li>
+<li class="md-github">Enhanced telemetry and Kafka simulation functions with detailed logging and metrics.</li>
+<li class="md-github">Advanced LLM delegation functions with strict schema validation and timeout support.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Added wrappers for remote repository and logging services.</li>
+<li class="md-github"><strong class="md-github">Updated:</strong> Refreshed README documentation to align with CONTRIBUTING guidelines.</li>
 </ul>
-<hr class="md-github">
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="contributing" href="#contributing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Contributing</h2>
 <p class="md-github">Contributions are welcome! Please see <a href="CONTRIBUTING.md" class="md-github">CONTRIBUTING.md</a> for guidelines.</p>
@@ -152,6 +96,7 @@ As part of the core project, it is under GPL‑3 with the attribution clause.</l
 <li class="md-github"><strong class="md-github">Location:</strong><br>
 The code is located in <code class="md-github">src/lib/main.js</code>.</li>
 </ul>
+<hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="license" href="#license"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>License</h2>
 <p class="md-github">This project is licensed under the GNU General Public License (GPL). See <a href="LICENSE" class="md-github">LICENSE</a> for details.</p>
 <p class="md-github">License notice:</p>
@@ -175,11 +120,10 @@ IMPORTANT: Any derived work must include the following attribution:
 &quot;This work is derived from https://github.com/xn-intenton-z2a/agentic-lib&quot;
 </code></pre>
 <hr class="md-github">
-<hr class="md-github">
 
   </section>
   <footer>
-    <p>Generated on 2025-03-08T14:49:34.034Z</p>
+    <p>Generated on 2025-03-08T15:06:21.599Z</p>
   </footer>
 </body>
 </html>
