@@ -14,95 +14,77 @@ GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 [See the latest repository stats](https://xn-intenton-z2a.github.io/agentic-lib/latest.html)
 
 ---
----
 
 ## Overview
 
-The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Actions workflows. It includes telemetry gathering, Kafka simulations, remote service wrappers, advanced LLM delegation, and parsing utilities. These functions empower you to build fully automated CI/CD integrations.
+agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Actions workflows. It includes telemetry gathering, Kafka simulations, remote service wrappers, advanced LLM delegation, and parsing utilities enabling automated CI/CD integrations.
 
 ### Key Features
 
-- **Usage Information:**
-  - Use `generateUsage()` to display available flag options.
-- **Telemetry:**
-  - Comprehensive diagnostics with functions like `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and `gatherGitHubTelemetrySummary()`.
-  - **Extended Telemetry:**
-    - New function `gatherCustomTelemetryData()` collects additional system metrics for in‑depth GitHub Actions monitoring.
-  - **Workflow Telemetry:**
-    - New function `gatherWorkflowTelemetryData()` collects workflow-specific details such as run attempts and start times.
-- **Remote Service Wrappers:**
-  - Simplify API interactions with wrappers for deployment, build status, analytics, notifications, logging, and repository details.
-  - **Improved Error Handling:**
-    - Remote service wrappers now use a common error handling helper to reduce code duplication and improve reliability.
-- **LLM Delegation:**
-  - Advanced functions like `delegateDecisionToLLM()`, `delegateDecisionToLLMWrapped()`, `delegateDecisionToLLMAdvancedVerbose()`, `delegateDecisionToLLMAdvancedStrict()`, and `delegateDecisionToLLMAdvanced()` support robust decision delegation with function calling and timeout support.
-- **Kafka Operations:**
-  - Simulate Kafka messaging with functions like `simulateKafkaDetailedStream()`, `simulateKafkaBulkStream()`, `simulateKafkaInterWorkflowCommunication()`, and `simulateRealKafkaStream()`.
-  - **New:** Added functions `simulateKafkaProducer()`, `simulateKafkaConsumer()`, and `simulateKafkaRequestResponse()` to enhance inter-workflow messaging, simulating producer, consumer, and request-response patterns respectively.
-- **Issue Simulation:**
-  - The `--create-issue` flag mimics GitHub issue creation workflows with dynamic title selection (including a "house choice" option).
-- **Analytics Simulation:**
-  - **New:** The `--analytics` flag simulates an analytics service call to record events for deeper insights into workflow performance.
-- **Advanced Analytics Simulation:**
-  - The `--advanced` flag integrates detailed Kafka simulation with advanced telemetry for deep system insights.
-- **SARIF Parsing Enhancements:**
-  - **New:** Added functions `parseVitestSarifOutput` and `parseEslintDetailedOutput` to parse and provide detailed information from SARIF outputs of Vitest and ESLint respectively.
+- **Usage Information:**  
+  Use `generateUsage()` to display available flag options.
+- **Telemetry:**  
+  Comprehensive diagnostics including `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, and `gatherFullTelemetryData()`.
+- **Remote Service Wrappers:**  
+  Simplified API interactions for deployment, build status, analytics, notifications, logging, and repository details.
+- **LLM Delegation:**  
+  Advanced functions supporting robust decision delegation with schema validation and timeout support.
+- **Kafka Operations:**  
+  Simulated messaging for inter-workflow communication using Kafka-like functions.
+- **SARIF Parsing:**  
+  Functions such as `parseVitestSarifOutput` and `parseEslintDetailedOutput` for parsing SARIF outputs.
 
----
 ---
 
 ## Recent Improvements
 
 - Extended flag handling with improved diagnostics and error checking.
-- Enhanced telemetry and Kafka simulation functions with detailed logging and performance metrics.
-- Advanced LLM delegation functions with strict schema validation, verbose logging, and timeout support.
-- **New:** Added remote repository service wrapper function `callRepositoryService` to simulate fetching repository details.
-- **New:** Added remote logging service wrapper function `callLoggingService` to simulate logging events.
-- **New:** Added `--analytics` flag to simulate analytics service calls.
-- **New:** Added Kafka simulation enhancements including producer, consumer, and request-response functions.
-- **New:** Improved error handling in `simulateKafkaRequestResponse` to gracefully recover from simulated errors, increasing test coverage.
-- **Fix:** Updated the regex escaping in `getIssueNumberFromBranch` to properly extract issue numbers from branch names.
+- Enhanced telemetry and Kafka simulation functions with detailed logging and metrics.
+- Advanced LLM delegation functions with strict schema validation and timeout support.
+- **New:** Added wrappers for remote repository and logging services.
+- **Updated:** Refreshed README documentation to align with CONTRIBUTING guidelines.
 
----
 ---
 
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
+---
+
 ## Component Breakdown
 
-This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:
-
 ### 1. Re‑usable Workflows (Core Functionality)
-- **Purpose:**  
+- **Purpose:**
   These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.
-- **Stability:**  
+- **Stability:**
   They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.
-- **Licensing:**  
+- **Licensing:**
   The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.
-- **Location:**  
+- **Location:**
   Find these in the `.github/workflows/` directory.
 
 ### 2. Example Workflows (Demonstrative Content)
-- **Purpose:**  
+- **Purpose:**
   These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
-- **Stability:**  
+- **Stability:**
   While functional, they are intended primarily for demonstration and experimentation.
-- **Licensing:**  
+- **Licensing:**
   The example workflows are covered by the MIT license to allow for broader use and modification.
-- **Location:**  
+- **Location:**
   Look in the `examples/` directory for sample implementations.
 
 ### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
-- **Purpose:**  
-  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
-- **Stability:**  
+- **Purpose:**
+  This file implements the re‑usable workflows as a JavaScript module, enabling programmatic access to the core functionality.
+- **Stability:**
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
-- **Licensing:**  
+- **Licensing:**
   As part of the core project, it is under GPL‑3 with the attribution clause.
-- **Location:**  
-  The code is located in `src/lib/main.js`.
+- **Location:**
+  The code is located in `src/lib/main.js`
+
+---
 
 ## License
 
@@ -129,6 +111,3 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
-
----
----

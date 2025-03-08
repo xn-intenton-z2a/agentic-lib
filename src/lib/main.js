@@ -12,6 +12,7 @@
 // - Refactored remote service wrappers to use a common error handling helper, reducing code duplication and improving test coverage.
 // - Added new Kafka producer, consumer, and request-response simulation functions to enhance inter-workflow messaging.
 // - Improved error handling in simulateKafkaRequestResponse to gracefully handle unexpected errors.
+// - Refreshed README documentation to align with CONTRIBUTING guidelines.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -665,7 +666,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
