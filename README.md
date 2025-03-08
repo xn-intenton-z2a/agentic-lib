@@ -86,8 +86,6 @@ This repository is organized into three distinct areas to help you understand th
 - **Location:**  
   The code is located in `src/lib/main.js`.
 
----
-
 ## License
 
 This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
