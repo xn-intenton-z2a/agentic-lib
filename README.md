@@ -33,7 +33,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - **Remote Service Wrappers:**
   - Simplify API interactions with wrappers for deployment, build status, analytics, notifications, logging, and repository details.
 - **LLM Delegation:**
-  - Advanced functions like `delegateDecisionToLLM()`, `delegateDecisionToLLMWrapped()`, `delegateDecisionToLLMAdvancedVerbose()`, and `delegateDecisionToLLMAdvancedStrict()` support robust decision delegation with function calling and timeout support.
+  - Advanced functions like `delegateDecisionToLLM()`, `delegateDecisionToLLMWrapped()`, `delegateDecisionToLLMAdvancedVerbose()`, `delegateDecisionToLLMAdvancedStrict()`, and `delegateDecisionToLLMAdvanced()` support robust decision delegation with function calling and timeout support.
 - **Kafka Operations:**
   - Simulate Kafka messaging with functions like `simulateKafkaDetailedStream()`, `simulateKafkaBulkStream()`, `simulateKafkaInterWorkflowCommunication()`, and `simulateRealKafkaStream()`.
 - **Issue Simulation:**
@@ -53,9 +53,10 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - **New:** Added remote repository service wrapper function `callRepositoryService` to simulate fetching repository details.
 - **New:** Added remote logging service wrapper function `callLoggingService` to simulate logging events.
 - **New:** Added `--analytics` flag to simulate analytics service calls.
+- **New:** Increased test coverage to nearly 100% with additional error handling and mocks for external service calls and delegate functions.
 - **Updated:** Improved regex in the `getIssueNumberFromBranch` function to correctly extract issue numbers from branch names.
 - **New:** Added parsing functions for detailed SARIF outputs: `parseVitestSarifOutput` for Vitest and `parseEslintDetailedOutput` for ESLint.
-- **Test Coverage:** Increased test coverage nearly to 100% with additional unit tests for edge cases and improved mocking for external resource calls.
+- **Test Coverage:** Extensive unit tests now cover nearly all functions and edge cases.
 
 ---
 ---

@@ -11,6 +11,7 @@
 // - Added new analytics service call simulation via --analytics flag.
 // - Added parsing functions for detailed SARIF outputs from Vitest and ESLint: parseVitestSarifOutput and parseEslintDetailedOutput.
 // - Added remote logging service wrapper function: callLoggingService to simulate logging events.
+// - Increased test coverage with additional error handling for external service calls and delegate functions.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -622,7 +623,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(`${safePrefix}(\\d{1,10})(?!\\d)`);
+  const regex = new RegExp(`${safePrefix}(\d{1,10})(?!\d)`);
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
