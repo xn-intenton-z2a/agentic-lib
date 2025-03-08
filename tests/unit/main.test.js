@@ -580,6 +580,7 @@ describe("delegateDecisionToLLMAdvancedVerbose", () => {
     const result = await agenticLib.delegateDecisionToLLMAdvancedVerbose("test verbose", { refinement: "Verbose check" });
     expect(result.fixed).toBe("true");
     expect(result.message).toBe("LLM advanced call succeeded");
+    expect(result.refinement).toBe("Verbose check");
   });
 });
 
