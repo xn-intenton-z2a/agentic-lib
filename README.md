@@ -60,8 +60,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - **New:** Added remote logging service wrapper function `callLoggingService` to simulate logging events.
 - **New:** Added `--analytics` flag to simulate analytics service calls.
 - **New:** Added Kafka simulation enhancements including producer, consumer, and request-response functions.
-- **Updated:** Improved regex in the `getIssueNumberFromBranch` function to correctly extract issue numbers from branch names.
-- **New:** Added parsing functions for detailed SARIF outputs: `parseVitestSarifOutput` for Vitest and `parseEslintDetailedOutput` for ESLint.
+- **New:** Improved error handling in `simulateKafkaRequestResponse` to gracefully recover from simulated errors, increasing test coverage.
 
 ---
 ---
@@ -75,33 +74,33 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:
 
 ### 1. Re‑usable Workflows (Core Functionality)
-- **Purpose:**  
+- **Purpose:**
   These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.
-- **Stability:**  
+- **Stability:**
   They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.
-- **Licensing:**  
+- **Licensing:**
   The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.
-- **Location:**  
+- **Location:**
   Find these in the `.github/workflows/` directory.
 
 ### 2. Example Workflows (Demonstrative Content)
-- **Purpose:**  
+- **Purpose:**
   These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
-- **Stability:**  
+- **Stability:**
   While functional, they are intended primarily for demonstration and experimentation.
-- **Licensing:**  
+- **Licensing:**
   The example workflows are covered by the MIT license to allow for broader use and modification.
-- **Location:**  
+- **Location:**
   Look in the `examples/` directory for sample implementations.
 
 ### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
-- **Purpose:**  
+- **Purpose:**
   This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
-- **Stability:**  
+- **Stability:**
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
-- **Licensing:**  
+- **Licensing:**
   As part of the core project, it is under GPL‑3 with the attribution clause.
-- **Location:**  
+- **Location:**
   The code is located in `src/lib/main.js`.
 
 ## License

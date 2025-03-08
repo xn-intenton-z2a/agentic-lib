@@ -11,6 +11,7 @@
 // - Added new analytics service call simulation via --analytics flag.
 // - Refactored remote service wrappers to use a common error handling helper, reducing code duplication and improving test coverage.
 // - Added new Kafka producer, consumer, and request-response simulation functions to enhance inter-workflow messaging.
+// - Improved error handling in simulateKafkaRequestResponse to gracefully handle unexpected errors.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -261,10 +262,15 @@ export function simulateKafkaConsumer(topic, count = 3) {
  */
 export async function simulateKafkaRequestResponse(topic, request, responseDelay = 1000) {
   console.log(chalk.blue(`Sending request on topic '${topic}': ${request}`));
-  await new Promise(resolve => setTimeout(resolve, responseDelay));
-  const response = `Response to '${request}' on topic '${topic}'`;
-  console.log(chalk.blue(`Received response: ${response}`));
-  return response;
+  try {
+    await new Promise(resolve => setTimeout(resolve, responseDelay));
+    const response = `Response to '${request}' on topic '${topic}'`;
+    console.log(chalk.blue(`Received response: ${response}`));
+    return response;
+  } catch (error) {
+    console.error(chalk.red("Error in Kafka request-response simulation:"), error);
+    return `Error in simulation: ${error.message}`;
+  }
 }
 
 /**
@@ -659,7 +665,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
