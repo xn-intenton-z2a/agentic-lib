@@ -43,6 +43,7 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - Advanced LLM delegation functions with strict schema validation and timeout support.
 - New wrappers for remote repository and logging services.
 - **Improved:** Enhanced error handling in `simulateKafkaRequestResponse` to gracefully catch synchronous errors, boosting test coverage to nearly 100%.
+- **Fixed:** Updated the regex in `getIssueNumberFromBranch` to correctly extract issue numbers from branch names.
 
 ---
 
