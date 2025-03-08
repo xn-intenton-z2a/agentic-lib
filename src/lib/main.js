@@ -264,7 +264,15 @@ export function simulateKafkaConsumer(topic, count = 3) {
 export async function simulateKafkaRequestResponse(topic, request, responseDelay = 1000) {
   console.log(chalk.blue(`Sending request on topic '${topic}': ${request}`));
   try {
-    await new Promise(resolve => setTimeout(resolve, responseDelay));
+    await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        try {
+          resolve();
+        } catch (e) {
+          reject(e);
+        }
+      }, responseDelay);
+    });
     const response = `Response to '${request}' on topic '${topic}'`;
     console.log(chalk.blue(`Received response: ${response}`));
     return response;
@@ -666,7 +674,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
