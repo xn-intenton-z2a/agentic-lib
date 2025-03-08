@@ -11,6 +11,7 @@
 // - Added new analytics service call simulation via --analytics flag.
 // - Added parsing functions for detailed SARIF outputs from Vitest and ESLint: parseVitestSarifOutput and parseEslintDetailedOutput.
 // - Added remote logging service wrapper function: callLoggingService to simulate logging events.
+// - Refactored remote service wrappers to use a common error handling helper, reducing code duplication and improving test coverage.
 // - Increased test coverage with additional error handling for external service calls and delegate functions.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
@@ -25,6 +26,13 @@ import { randomInt } from "crypto";
 // Helper function to escape regex special characters
 function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Common helper for error handling in remote service wrappers
+function handleFetchError(error, serviceName) {
+  const errMsg = error instanceof Error ? error.message : "Unknown error";
+  console.error(chalk.red(`Error calling ${serviceName}:`), errMsg);
+  return { error: errMsg };
 }
 
 /**
@@ -241,9 +249,7 @@ export async function callRemoteService(serviceUrl) {
     const data = await response.json();
     return data;
   } catch (error) {
-    const errMsg = error instanceof Error ? error.message : "Unknown error";
-    console.error(chalk.red("Error calling remote service:"), errMsg);
-    return { error: errMsg };
+    return handleFetchError(error, "remote service");
   }
 }
 
@@ -266,9 +272,7 @@ export async function callAnalyticsService(serviceUrl, data) {
     console.log(chalk.green("Analytics Service Response:"), result);
     return result;
   } catch (error) {
-    const errMsg = error instanceof Error ? error.message : "Unknown error";
-    console.error(chalk.red("Error calling analytics service:"), errMsg);
-    return { error: errMsg };
+    return handleFetchError(error, "analytics service");
   }
 }
 
@@ -291,9 +295,7 @@ export async function callNotificationService(serviceUrl, payload) {
     console.log(chalk.green("Notification Service Response:"), result);
     return result;
   } catch (error) {
-    const errMsg = error instanceof Error ? error.message : "Unknown error";
-    console.error(chalk.red("Error calling notification service:"), errMsg);
-    return { error: errMsg };
+    return handleFetchError(error, "notification service");
   }
 }
 
@@ -311,9 +313,7 @@ export async function callBuildStatusService(serviceUrl) {
     console.log(chalk.green("Build Status Service Response:"), status);
     return status;
   } catch (error) {
-    const errMsg = error instanceof Error ? error.message : "Unknown error";
-    console.error(chalk.red("Error calling build status service:"), errMsg);
-    return { error: errMsg };
+    return handleFetchError(error, "build status service");
   }
 }
 
@@ -336,9 +336,7 @@ export async function callDeploymentService(serviceUrl, payload) {
     console.log(chalk.green("Deployment Service Response:"), result);
     return result;
   } catch (error) {
-    const errMsg = error instanceof Error ? error.message : "Unknown error";
-    console.error(chalk.red("Error calling deployment service:"), errMsg);
-    return { error: errMsg };
+    return handleFetchError(error, "deployment service");
   }
 }
 
@@ -361,9 +359,7 @@ export async function callLoggingService(serviceUrl, logData) {
     console.log(chalk.green("Logging Service Response:"), result);
     return result;
   } catch (error) {
-    const errMsg = error instanceof Error ? error.message : "Unknown error";
-    console.error(chalk.red("Error calling logging service:"), errMsg);
-    return { error: errMsg };
+    return handleFetchError(error, "logging service");
   }
 }
 
@@ -381,9 +377,7 @@ export async function callRepositoryService(serviceUrl) {
     console.log(chalk.green("Repository Service Response:"), repoDetails);
     return repoDetails;
   } catch (error) {
-    const errMsg = error instanceof Error ? error.message : "Unknown error";
-    console.error(chalk.red("Error calling repository service:"), errMsg);
-    return { error: errMsg };
+    return handleFetchError(error, "repository service");
   }
 }
 
@@ -501,7 +495,7 @@ function handleBasicFlag(flag, nonFlagArgs) {
       console.log(chalk.magenta("Simulated GitHub Issue Creation Workflow triggered."));
       let issueTitle;
       if (nonFlagArgs.length > 0 && nonFlagArgs[0] === "house choice") {
-        const options = process.env.HOUSE_CHOICE_OPTIONS ? process.env.HOUSE_CHOICE_OPTIONS.split("||") : ["Default House Choice Issue"]; 
+        const options = process.env.HOUSE_CHOICE_OPTIONS ? process.env.HOUSE_CHOICE_OPTIONS.split("||") : ["Default House Choice Issue"];
         issueTitle = options[randomInt(0, options.length)];
       } else {
         issueTitle = nonFlagArgs.length > 0 ? nonFlagArgs.join(" ") : "Default Issue Title";
