@@ -12,6 +12,7 @@
 // - Refactored remote service wrappers to use a common error handling helper, reducing code duplication and improving test coverage.
 // - Added new Kafka producer, consumer, and request-response simulation functions to enhance inter-workflow messaging.
 // - Improved error handling in simulateKafkaRequestResponse to gracefully handle unexpected errors.
+// - Refreshed README documentation to align with CONTRIBUTING guidelines.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
