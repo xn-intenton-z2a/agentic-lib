@@ -48,7 +48,10 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - **SARIF Parsing Enhancements:**
   - **New:** Added functions `parseVitestSarifOutput` and `parseEslintDetailedOutput` to parse and provide detailed information from SARIF outputs of Vitest and ESLint respectively.
 
-### Recent Improvements
+---
+---
+
+## Recent Improvements
 
 - Extended flag handling with improved diagnostics and error checking.
 - Enhanced telemetry and Kafka simulation functions with detailed logging and performance metrics.
