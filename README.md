@@ -60,8 +60,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - **New:** Added remote logging service wrapper function `callLoggingService` to simulate logging events.
 - **New:** Added `--analytics` flag to simulate analytics service calls.
 - **New:** Added Kafka simulation enhancements including producer, consumer, and request-response functions.
-- **Updated:** Improved regex in the `getIssueNumberFromBranch` function to correctly extract issue numbers from branch names.
-- **New:** Added parsing functions for detailed SARIF outputs: `parseVitestSarifOutput` for Vitest and `parseEslintDetailedOutput` for ESLint.
+- **New:** Improved error handling in `simulateKafkaRequestResponse` to gracefully recover from simulated errors, increasing test coverage.
 
 ---
 ---

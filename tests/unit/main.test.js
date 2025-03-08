@@ -664,6 +664,14 @@ describe("New Features", () => {
       const response = await agenticLib.simulateKafkaRequestResponse("reqResTopic", "Request Data", 50);
       expect(response).toBe("Response to 'Request Data' on topic 'reqResTopic'");
     });
+
+    test("simulateKafkaRequestResponse handles error gracefully", async () => {
+      const originalSetTimeout = global.setTimeout;
+      global.setTimeout = () => { throw new Error("Simulated error") };
+      const response = await agenticLib.simulateKafkaRequestResponse("errorTopic", "Test Failure", 10);
+      expect(response).toContain("Error in simulation: Simulated error");
+      global.setTimeout = originalSetTimeout;
+    });
   });
 });
 
