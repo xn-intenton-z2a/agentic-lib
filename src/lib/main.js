@@ -623,7 +623,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
