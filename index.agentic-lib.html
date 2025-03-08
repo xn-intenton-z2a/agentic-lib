@@ -75,6 +75,7 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 <li class="md-github"><strong class="md-github">Kafka Operations:</strong>
 <ul class="md-github">
 <li class="md-github">Simulate Kafka messaging with functions like <code class="md-github">simulateKafkaDetailedStream()</code>, <code class="md-github">simulateKafkaBulkStream()</code>, <code class="md-github">simulateKafkaInterWorkflowCommunication()</code>, and <code class="md-github">simulateRealKafkaStream()</code>.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Added functions <code class="md-github">simulateKafkaProducer()</code>, <code class="md-github">simulateKafkaConsumer()</code>, and <code class="md-github">simulateKafkaRequestResponse()</code> to enhance inter-workflow messaging, simulating producer, consumer, and request-response patterns respectively.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Issue Simulation:</strong>
@@ -98,7 +99,9 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 </ul>
 </li>
 </ul>
-<h3 class="md-github"><a class="md-github__anchor" name="recent-improvements" href="#recent-improvements"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Recent Improvements</h3>
+<hr class="md-github">
+<hr class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="recent-improvements" href="#recent-improvements"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Recent Improvements</h2>
 <ul class="md-github">
 <li class="md-github">Extended flag handling with improved diagnostics and error checking.</li>
 <li class="md-github">Enhanced telemetry and Kafka simulation functions with detailed logging and performance metrics.</li>
@@ -106,8 +109,7 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 <li class="md-github"><strong class="md-github">New:</strong> Added remote repository service wrapper function <code class="md-github">callRepositoryService</code> to simulate fetching repository details.</li>
 <li class="md-github"><strong class="md-github">New:</strong> Added remote logging service wrapper function <code class="md-github">callLoggingService</code> to simulate logging events.</li>
 <li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">--analytics</code> flag to simulate analytics service calls.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Refactored remote service wrappers to use a common error handling helper for cleaner code and improved reliability.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Increased test coverage to nearly 100% with additional error handling and mocks for external service calls and delegate functions.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Added Kafka simulation enhancements including producer, consumer, and request-response functions.</li>
 <li class="md-github"><strong class="md-github">Updated:</strong> Improved regex in the <code class="md-github">getIssueNumberFromBranch</code> function to correctly extract issue numbers from branch names.</li>
 <li class="md-github"><strong class="md-github">New:</strong> Added parsing functions for detailed SARIF outputs: <code class="md-github">parseVitestSarifOutput</code> for Vitest and <code class="md-github">parseEslintDetailedOutput</code> for ESLint.</li>
 </ul>
@@ -177,7 +179,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-08T10:23:05.907Z</p>
+    <p>Generated on 2025-03-08T10:35:37.619Z</p>
   </footer>
 </body>
 </html>
