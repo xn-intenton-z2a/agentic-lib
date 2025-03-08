@@ -61,6 +61,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - **New:** Added `--analytics` flag to simulate analytics service calls.
 - **New:** Added Kafka simulation enhancements including producer, consumer, and request-response functions.
 - **New:** Improved error handling in `simulateKafkaRequestResponse` to gracefully recover from simulated errors, increasing test coverage.
+- **Fix:** Updated the regex escaping in `getIssueNumberFromBranch` to properly extract issue numbers from branch names.
 
 ---
 ---
