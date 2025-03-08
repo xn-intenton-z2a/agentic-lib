@@ -38,6 +38,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
   - Advanced functions like `delegateDecisionToLLM()`, `delegateDecisionToLLMWrapped()`, `delegateDecisionToLLMAdvancedVerbose()`, `delegateDecisionToLLMAdvancedStrict()`, and `delegateDecisionToLLMAdvanced()` support robust decision delegation with function calling and timeout support.
 - **Kafka Operations:**
   - Simulate Kafka messaging with functions like `simulateKafkaDetailedStream()`, `simulateKafkaBulkStream()`, `simulateKafkaInterWorkflowCommunication()`, and `simulateRealKafkaStream()`.
+  - **New:** Added functions `simulateKafkaProducer()`, `simulateKafkaConsumer()`, and `simulateKafkaRequestResponse()` to enhance inter-workflow messaging, simulating producer, consumer, and request-response patterns respectively.
 - **Issue Simulation:**
   - The `--create-issue` flag mimics GitHub issue creation workflows with dynamic title selection (including a "house choice" option).
 - **Analytics Simulation:**
@@ -55,8 +56,7 @@ The agentic‑lib provides a rich set of JavaScript functions that mirror GitHub
 - **New:** Added remote repository service wrapper function `callRepositoryService` to simulate fetching repository details.
 - **New:** Added remote logging service wrapper function `callLoggingService` to simulate logging events.
 - **New:** Added `--analytics` flag to simulate analytics service calls.
-- **New:** Refactored remote service wrappers to use a common error handling helper for cleaner code and improved reliability.
-- **New:** Increased test coverage to nearly 100% with additional error handling and mocks for external service calls and delegate functions.
+- **New:** Added Kafka simulation enhancements including producer, consumer, and request-response functions.
 - **Updated:** Improved regex in the `getIssueNumberFromBranch` function to correctly extract issue numbers from branch names.
 - **New:** Added parsing functions for detailed SARIF outputs: `parseVitestSarifOutput` for Vitest and `parseEslintDetailedOutput` for ESLint.
 
