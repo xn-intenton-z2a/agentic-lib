@@ -24,7 +24,7 @@ import { randomInt } from "crypto";
 
 // Helper function to escape regex special characters
 function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\[\]]/g, "\\$&");
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /**
@@ -501,7 +501,7 @@ function handleBasicFlag(flag, nonFlagArgs) {
       console.log(chalk.magenta("Simulated GitHub Issue Creation Workflow triggered."));
       let issueTitle;
       if (nonFlagArgs.length > 0 && nonFlagArgs[0] === "house choice") {
-        const options = process.env.HOUSE_CHOICE_OPTIONS ? process.env.HOUSE_CHOICE_OPTIONS.split("||") : ["Default House Choice Issue"];
+        const options = process.env.HOUSE_CHOICE_OPTIONS ? process.env.HOUSE_CHOICE_OPTIONS.split("||") : ["Default House Choice Issue"]; 
         issueTitle = options[randomInt(0, options.length)];
       } else {
         issueTitle = nonFlagArgs.length > 0 ? nonFlagArgs.join(" ") : "Default Issue Title";
@@ -623,7 +623,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
