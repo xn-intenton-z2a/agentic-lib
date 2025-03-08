@@ -9,10 +9,8 @@
 // - Enhanced OpenAI delegation functions to support ESM module structure and advanced LLM delegation with function calls.
 // - Added new remote repository service wrapper: callRepositoryService to simulate fetching repository details.
 // - Added new analytics service call simulation via --analytics flag.
-// - Added parsing functions for detailed SARIF outputs from Vitest and ESLint: parseVitestSarifOutput and parseEslintDetailedOutput.
-// - Added remote logging service wrapper function: callLoggingService to simulate logging events.
 // - Refactored remote service wrappers to use a common error handling helper, reducing code duplication and improving test coverage.
-// - Increased test coverage with additional error handling for external service calls and delegate functions.
+// - Added new Kafka producer, consumer, and request-response simulation functions to enhance inter-workflow messaging.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -223,6 +221,50 @@ export function simulateKafkaInterWorkflowCommunication(topics, message) {
     console.log(chalk.blue(`Inter-workflow Kafka simulation for topic '${topic}':`), results[topic]);
   });
   return results;
+}
+
+/**
+ * New function to simulate a Kafka producer sending messages.
+ * @param {string} topic
+ * @param {string[]} messages
+ * @returns {object} An object containing the produced messages.
+ */
+export function simulateKafkaProducer(topic, messages = []) {
+  console.log(chalk.blue(`Producing messages to topic '${topic}'`));
+  messages.forEach((msg) => console.log(chalk.blue(`Produced message: ${msg}`)));
+  return { topic, producedMessages: messages };
+}
+
+/**
+ * New function to simulate a Kafka consumer receiving messages.
+ * @param {string} topic
+ * @param {number} count
+ * @returns {string[]} Array of consumed messages.
+ */
+export function simulateKafkaConsumer(topic, count = 3) {
+  console.log(chalk.blue(`Consuming messages from topic '${topic}'`));
+  const consumed = [];
+  for (let i = 0; i < count; i++) {
+    const msg = `Consumed message ${i + 1} from topic '${topic}'`;
+    console.log(chalk.blue(msg));
+    consumed.push(msg);
+  }
+  return consumed;
+}
+
+/**
+ * New function to simulate a Kafka request-response pattern between workflows.
+ * @param {string} topic
+ * @param {string} request
+ * @param {number} responseDelay
+ * @returns {Promise<string>} Response message after delay.
+ */
+export async function simulateKafkaRequestResponse(topic, request, responseDelay = 1000) {
+  console.log(chalk.blue(`Sending request on topic '${topic}': ${request}`));
+  await new Promise(resolve => setTimeout(resolve, responseDelay));
+  const response = `Response to '${request}' on topic '${topic}'`;
+  console.log(chalk.blue(`Received response: ${response}`));
+  return response;
 }
 
 /**

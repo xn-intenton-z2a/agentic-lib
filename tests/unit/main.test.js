@@ -643,6 +643,28 @@ describe("New Features", () => {
       expect(msg).toContain(`Real Kafka stream message ${index + 1} from topic 'realTopic'`);
     });
   });
+
+  describe("Kafka Producer/Consumer", () => {
+    test("simulateKafkaProducer returns the produced messages", () => {
+      const messages = ["msg1", "msg2", "msg3"];
+      const result = agenticLib.simulateKafkaProducer("producerTopic", messages);
+      expect(result.topic).toBe("producerTopic");
+      expect(result.producedMessages).toEqual(messages);
+    });
+
+    test("simulateKafkaConsumer returns the correct number of consumed messages", () => {
+      const consumed = agenticLib.simulateKafkaConsumer("consumerTopic", 4);
+      expect(consumed.length).toBe(4);
+      consumed.forEach((msg, index) => {
+        expect(msg).toContain(`Consumed message ${index + 1} from topic 'consumerTopic'`);
+      });
+    });
+
+    test("simulateKafkaRequestResponse returns appropriate response", async () => {
+      const response = await agenticLib.simulateKafkaRequestResponse("reqResTopic", "Request Data", 50);
+      expect(response).toBe("Response to 'Request Data' on topic 'reqResTopic'");
+    });
+  });
 });
 
 describe("delegateDecisionToLLM fallback", () => {
