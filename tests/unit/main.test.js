@@ -673,7 +673,6 @@ describe("Additional Functions", () => {
   });
 });
 
-// Additional test block for delegateDecisionToLLMAdvanced
 describe("delegateDecisionToLLMAdvanced", () => {
   test("returns simulated response when TEST_OPENAI_SUCCESS is true", async () => {
     process.env.TEST_OPENAI_SUCCESS = "true";
