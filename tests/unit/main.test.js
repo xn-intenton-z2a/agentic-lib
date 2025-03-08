@@ -580,6 +580,7 @@ describe("delegateDecisionToLLMAdvancedVerbose", () => {
     const result = await agenticLib.delegateDecisionToLLMAdvancedVerbose("test verbose", { refinement: "Verbose check" });
     expect(result.fixed).toBe("true");
     expect(result.message).toBe("LLM advanced call succeeded");
+    expect(result.refinement).toBe("Verbose check");
   });
 });
 
@@ -670,5 +671,14 @@ describe("Additional Functions", () => {
     });
     expect(output).toContain("System Performance:");
     expect(output).toContain("Telemetry Data:");
+  });
+});
+
+describe("delegateDecisionToLLMAdvanced", () => {
+  test("returns simulated response when TEST_OPENAI_SUCCESS is true", async () => {
+    process.env.TEST_OPENAI_SUCCESS = "true";
+    const result = await agenticLib.delegateDecisionToLLMAdvanced("test advanced", { refinement: "test" });
+    expect(result.fixed).toBe("true");
+    process.env.TEST_OPENAI_SUCCESS = "false";
   });
 });
