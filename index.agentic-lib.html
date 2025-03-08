@@ -60,6 +60,11 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 <li class="md-github"><strong class="md-github">Remote Service Wrappers:</strong>
 <ul class="md-github">
 <li class="md-github">Simplify API interactions with wrappers for deployment, build status, analytics, notifications, logging, and repository details.</li>
+<li class="md-github"><strong class="md-github">Improved Error Handling:</strong>
+<ul class="md-github">
+<li class="md-github">Remote service wrappers now use a common error handling helper to reduce code duplication and improve reliability.</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">LLM Delegation:</strong>
@@ -101,10 +106,10 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 <li class="md-github"><strong class="md-github">New:</strong> Added remote repository service wrapper function <code class="md-github">callRepositoryService</code> to simulate fetching repository details.</li>
 <li class="md-github"><strong class="md-github">New:</strong> Added remote logging service wrapper function <code class="md-github">callLoggingService</code> to simulate logging events.</li>
 <li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">--analytics</code> flag to simulate analytics service calls.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Refactored remote service wrappers to use a common error handling helper for cleaner code and improved reliability.</li>
 <li class="md-github"><strong class="md-github">New:</strong> Increased test coverage to nearly 100% with additional error handling and mocks for external service calls and delegate functions.</li>
 <li class="md-github"><strong class="md-github">Updated:</strong> Improved regex in the <code class="md-github">getIssueNumberFromBranch</code> function to correctly extract issue numbers from branch names.</li>
 <li class="md-github"><strong class="md-github">New:</strong> Added parsing functions for detailed SARIF outputs: <code class="md-github">parseVitestSarifOutput</code> for Vitest and <code class="md-github">parseEslintDetailedOutput</code> for ESLint.</li>
-<li class="md-github"><strong class="md-github">Test Coverage:</strong> Extensive unit tests now cover nearly all functions and edge cases.</li>
 </ul>
 <hr class="md-github">
 <hr class="md-github">
@@ -172,7 +177,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-08T08:49:18.202Z</p>
+    <p>Generated on 2025-03-08T09:06:44.603Z</p>
   </footer>
 </body>
 </html>
