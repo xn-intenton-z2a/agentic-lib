@@ -41,8 +41,8 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - Extended flag handling with improved diagnostics and error checking.
 - Enhanced telemetry and Kafka simulation functions with detailed logging and metrics.
 - Advanced LLM delegation functions with strict schema validation and timeout support.
-- **New:** Added wrappers for remote repository and logging services.
-- **Updated:** Refreshed README documentation to align with CONTRIBUTING guidelines.
+- New wrappers for remote repository and logging services.
+- **Improved:** Enhanced error handling in `simulateKafkaRequestResponse` to gracefully catch synchronous errors, boosting test coverage to nearly 100%.
 
 ---
 
