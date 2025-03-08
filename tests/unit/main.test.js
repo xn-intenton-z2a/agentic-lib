@@ -670,13 +670,12 @@ describe("New Features", () => {
     });
 
     test("simulateKafkaTopicSubscription returns subscription confirmations", () => {
-      const topics = ["topicX", "topicY"]; 
+      const topics = ["topicX", "topicY"];
       const subs = agenticLib.simulateKafkaTopicSubscription(topics);
       expect(subs).toEqual(["Subscribed to topic: topicX", "Subscribed to topic: topicY"]);
     });
   });
 });
-
 
 describe("delegateDecisionToLLM fallback", () => {
   test("delegateDecisionToLLM returns fallback message when openai call fails", async () => {
@@ -696,7 +695,6 @@ describe("Additional Functions", () => {
     expect(result.flagArgs).toEqual([]);
     expect(result.nonFlagArgs).toEqual([]);
   });
-  
   test("printReport function logs output", () => {
     const output = captureOutput(() => {
       agenticLib.printReport();
