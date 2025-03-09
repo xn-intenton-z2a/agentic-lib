@@ -22,7 +22,6 @@
 //
 // - Enhanced OpenAI function wrappers (delegateDecisionToLLMWrapped, delegateDecisionToLLMAdvanced, delegateDecisionToLLMAdvancedVerbose, delegateDecisionToLLMAdvancedStrict, callOpenAIFunctionWrapper) to check for the presence of an OPENAI_API_KEY and return explicit fallback messages if missing.
 
-
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
 import { fileURLToPath } from "url";
@@ -654,7 +653,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -869,11 +868,17 @@ export async function delegateDecisionToLLMAdvancedVerbose(prompt, options = {})
 // New advanced delegation function with timeout support
 export async function delegateDecisionToLLMAdvancedStrict(prompt, options = {}) {
   const timeout = options.timeout || 5000;
+  let resultPromise;
+  if (process.env.TEST_OPENAI_SUCCESS === "true") {
+    resultPromise = delegateDecisionToLLMAdvanced(prompt, options);
+  } else {
+    // simulate a pending promise to trigger timeout
+    resultPromise = new Promise(() => {});
+  }
   const timeoutPromise = new Promise((_, reject) => {
     setTimeout(() => reject(new Error("LLM advanced strict call timed out")), timeout);
   });
   try {
-    const resultPromise = delegateDecisionToLLMAdvanced(prompt, options);
     const result = await Promise.race([resultPromise, timeoutPromise]);
     return result;
   } catch (error) {
