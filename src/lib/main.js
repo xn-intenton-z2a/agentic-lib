@@ -4,6 +4,7 @@
 // - Aligned code with the agentic‑lib mission statement by pruning drift and removing redundant simulation verbiage.
 // - Extended functionality with refined flag handling, enhanced telemetry, improved remote service wrappers, and updated delegation functions.
 // - Added additional Kafka messaging functions and file system simulation for deeper testing.
+// - Added new remote monitoring service wrapper to simulate fetching monitoring metrics remotely.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -269,7 +270,7 @@ export async function callRemoteService(serviceUrl) {
     console.log(chalk.green("Repository Service Response:"), data);
     return data;
   } catch (error) {
-    return handleFetchError(error, "remote service");
+    return handleFetchError(error, "repository service");
   }
 }
 
@@ -338,7 +339,7 @@ export async function callBuildStatusService(serviceUrl) {
 }
 
 /**
- * New remote deployment service wrapper using fetch to simulate triggering a deployment.
+ * Remote deployment service wrapper using fetch to simulate triggering a deployment.
  * @param {string} serviceUrl
  * @param {object} payload - The deployment payload to send.
  */
@@ -361,7 +362,7 @@ export async function callDeploymentService(serviceUrl, payload) {
 }
 
 /**
- * New remote logging service wrapper using fetch to simulate sending log data.
+ * Remote logging service wrapper using fetch to simulate sending log data.
  * @param {string} serviceUrl
  * @param {object} logData - The log data payload to send.
  */
@@ -384,7 +385,7 @@ export async function callLoggingService(serviceUrl, logData) {
 }
 
 /**
- * New remote code quality service wrapper using fetch to simulate retrieving code quality metrics.
+ * Remote code quality service wrapper using fetch to simulate retrieving code quality metrics.
  * @param {string} serviceUrl
  * @param {object} parameters - The parameters for code quality analysis.
  */
@@ -407,7 +408,7 @@ export async function callCodeQualityService(serviceUrl, parameters) {
 }
 
 /**
- * New remote security scan service wrapper using fetch to simulate vulnerability scanning.
+ * Remote security scan service wrapper using fetch to simulate vulnerability scanning.
  * @param {string} serviceUrl
  * @param {object} payload - The payload for the security scan.
  */
@@ -426,6 +427,24 @@ export async function callSecurityScanService(serviceUrl, payload) {
     return result;
   } catch (error) {
     return handleFetchError(error, "security scan service");
+  }
+}
+
+/**
+ * New remote monitoring service wrapper using fetch to simulate retrieving monitoring metrics.
+ * @param {string} serviceUrl
+ */
+export async function callMonitoringService(serviceUrl) {
+  try {
+    const response = await fetch(serviceUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log(chalk.green("Monitoring Service Response:"), data);
+    return data;
+  } catch (error) {
+    return handleFetchError(error, "monitoring service");
   }
 }
 
@@ -675,7 +694,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -908,7 +927,7 @@ export async function delegateDecisionToLLMAdvancedStrict(prompt, options = {}) 
   }
 }
 
-// New OpenAI function wrapper using function calling, similar to the supplied OpenAI function example
+// New OpenAI function wrapper using function calling
 export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo") {
   if (!prompt) {
     const errMsg = "Prompt is empty.";

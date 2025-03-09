@@ -29,7 +29,8 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
   - `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and the new `gatherTotalTelemetry()` to aggregate all telemetry data from GitHub Actions workflows.
   - **New:** `gatherCIEnvironmentMetrics()` to capture additional GitHub Actions CI environment metrics such as workspace and event path.
 - **Remote Service Wrappers:**  
-  Simplified API interactions for deployment, build status, analytics, notifications, logging, repository details, code quality analysis, and **security scans** via `callSecurityScanService`.
+  Simplified API interactions for deployment, build status, analytics, notifications, logging, repository details, code quality analysis, and security scans via `callSecurityScanService`.
+  - **New:** **Monitoring Service:** `callMonitoringService()` simulates a remote monitoring API call to check system metrics.
 - **LLM Delegation:**  
   Advanced functions supporting robust decision delegation with schema validation and timeout support. *New:* `callOpenAIFunctionWrapper` wraps an OpenAI function call using a function calling schema, enhanced with an empty prompt check and improved error handling.
   - **New:** Added `delegateDecisionToLLMEnhanced` for improved OpenAI delegation with enhanced logging.
@@ -52,7 +53,7 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - **Configuration Display:**
   *New:* The `--config` flag and accompanying `printConfiguration()` function display current node configuration, platform, and working directory.
 - **Issue Creation Simulation:**
-  *New:* The `--create-issue` flag has been enhanced to mimic the GitHub Actions workflow (wfr-create-issue.yml) for issue creation, supporting dynamic "house choice" options via the environment variable `HOUSE_CHOICE_OPTIONS` and logging a JSON formatted summary of the simulated issue creation.
+  *New:* The `--create-issue` flag has been enhanced to mimic the GitHub Actions workflow for issue creation, supporting dynamic "house choice" options via the environment variable `HOUSE_CHOICE_OPTIONS` and logging a JSON formatted summary of the simulated issue creation.
 
 ---
 
@@ -63,6 +64,7 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - Enhanced telemetry and Kafka simulation functions with detailed logging and metrics.
 - Advanced LLM delegation functions updated with strict schema validation and timeout support.
 - Implemented wrappers for remote repository, logging, analytics, code quality services, and security scanning.
+- **New:** Added remote monitoring service wrapper (`callMonitoringService`) to simulate external monitoring API calls.
 - **New:** Updated `--create-issue` flag behavior for dynamic house choice and JSON logging of issue creation details.
 - **New:** Introduced `--config` flag to display current runtime configuration.
 - **New:** Added `gatherTotalTelemetry()` to aggregate telemetry data from multiple sources.
