@@ -56,6 +56,7 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
   *New:* The `--create-issue` flag has been enhanced to mimic the GitHub Actions workflow for issue creation, supporting dynamic "house choice" options via the environment variable `HOUSE_CHOICE_OPTIONS` and logging a JSON formatted summary of the simulated issue creation.
 
 ---
+---
 
 ## Recent Improvements
 
@@ -73,6 +74,7 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - **New:** Added `simulateFileSystemCall()` for simulating file system interactions.
 - **New:** Added `gatherCIEnvironmentMetrics()` to capture additional CI environment metrics.
 
+---
 ---
 
 ## Contributing
