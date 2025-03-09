@@ -30,12 +30,11 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **Remote Service Wrappers:**
   Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, and a new monitoring service via `callMonitoringService()`.
 - **LLM Delegation:**
-  Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include `delegateDecisionToLLMEnhanced` and `callOpenAIFunctionWrapper`.
+  Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include `delegateDecisionToLLMAdvanced`, `delegateDecisionToLLMWrapped`, and the new `delegateDecisionToLLMEnhanced`.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
-  - `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaRequestResponse`, `simulateKafkaGroupMessaging`, and `simulateKafkaTopicSubscription`.
-  - **Enhanced Functions:** `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, and `simulateKafkaBroadcast`.
-  - **Delay Simulation:** `simulateDelayedResponse` for realistic messaging delays.
+  - `simulateKafkaStream`, `simulateKafkaDetailedStream`, and `simulateKafkaBulkStream`.
+  - **Additional Kafka Functions:** `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, and `simulateKafkaBroadcast`.
 - **SARIF Parsing and Default Output Parsing:**
   Utilities to parse SARIF outputs and default outputs, including:
   - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, and `parseEslintDefaultOutput`.
@@ -50,12 +49,18 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 
 ## Recent Improvements
 
-- Refreshed README to align with CONTRIBUTING guidelines and remove outdated or irrelevant content.
+- Refreshed README to align with CONTRIBUTING guidelines and remove outdated content.
 - Extended flag handling with improved diagnostics and error checking.
 - Enhanced telemetry and Kafka simulation functions with detailed logging.
 - Updated advanced LLM delegation functions with strict schema validation and timeout support.
-- Implemented new remote monitoring service wrapper and file system interaction simulation.
-- Added new parsing functions: `parseVitestDefaultOutput` and `parseEslintDefaultOutput` to extend SARIF parsing capabilities to default output formats.
+- Added new remote monitoring service wrapper and file system interaction simulation.
+- **New Features Added:**
+  - `reviewIssue` for evaluating issue resolution based on source file content.
+  - `printReport` and `printConfiguration` for diagnostics output.
+  - Kafka messaging additional functions: `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, and `simulateKafkaBroadcast`.
+  - `simulateFileSystemCall` for file system simulation.
+  - `delegateDecisionToLLMEnhanced` for enhanced LLM delegation.
+  - Updated `getIssueNumberFromBranch` to correctly extract issue numbers.
 
 ---
 

@@ -677,7 +677,7 @@ describe("New Features", () => {
     const messages = agenticLib.simulateKafkaBulkStream("bulkTopic", 3);
     expect(messages.length).toBe(3);
     messages.forEach((msg, index) => {
-      expect(msg).toContain("Bulk message " + (index + 1) + " from topic 'bulkTopic'");
+      expect(msg).toContain(`Bulk message ${index + 1} from topic 'bulkTopic'`);
     });
   });
 
@@ -710,7 +710,7 @@ describe("New Features", () => {
     const messages = agenticLib.simulateRealKafkaStream("realTopic", 2);
     expect(messages.length).toBe(2);
     messages.forEach((msg, index) => {
-      expect(msg).toContain("Real Kafka stream message " + (index + 1) + " from topic 'realTopic'");
+      expect(msg).toContain(`Real Kafka stream message ${index + 1} from topic 'realTopic'`);
     });
   });
 
@@ -726,7 +726,7 @@ describe("New Features", () => {
       const consumed = agenticLib.simulateKafkaConsumer("consumerTopic", 4);
       expect(consumed.length).toBe(4);
       consumed.forEach((msg, index) => {
-        expect(msg).toContain("Consumed message " + (index + 1) + " from topic 'consumerTopic'");
+        expect(msg).toContain(`Consumed message ${index + 1} from topic 'consumerTopic'`);
       });
     });
   });
@@ -737,7 +737,7 @@ describe("New Features", () => {
       const result = agenticLib.simulateKafkaPriorityMessaging("priorityTopic", messages, "high");
       expect(result.length).toBe(2);
       result.forEach((msg, index) => {
-        expect(msg).toContain("Priority(high) Message " + (index + 1) + " from topic 'priorityTopic':");
+        expect(msg).toContain(`Priority(high) Message ${index + 1} from topic 'priorityTopic':`);
       });
     });
 
