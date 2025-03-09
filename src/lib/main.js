@@ -5,7 +5,7 @@
 // - Extended functionality with refined flag handling, enhanced telemetry, improved remote service wrappers, and updated delegation functions.
 // - Added additional Kafka messaging functions and file system simulation for deeper testing.
 // - Added new remote monitoring service wrapper to simulate fetching monitoring metrics remotely.
-// 
+
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
 import { fileURLToPath } from "url";
@@ -694,7 +694,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }

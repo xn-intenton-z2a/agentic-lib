@@ -59,40 +59,38 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
----
-
 ## Component Breakdown
 
 This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:
 
 ### 1. Re‑usable Workflows (Core Functionality)
-- **Purpose:**
+- **Purpose:**  
   These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.
-- **Stability:**
+- **Stability:**  
   They are stable and well‑tested, designed for integration in CI/CD pipelines.
-- **Licensing:**
+- **Licensing:**  
   Core workflows are released under GPL‑3 with attribution required for derived work.
-- **Location:**
+- **Location:**  
   Located in the `.github/workflows/` directory.
 
 ### 2. Example Workflows (Demonstrative Content)
-- **Purpose:**
+- **Purpose:**  
   Practical examples of how to use core workflows; serve as learning tools and reference implementations.
-- **Stability:**
+- **Stability:**  
   Functional but intended primarily for demonstration and experimentation.
-- **Licensing:**
+- **Licensing:**  
   Covered by the MIT license for broader use and modification.
-- **Location:**
+- **Location:**  
   Found in the `examples/` directory.
 
 ### 3. The Evolving main.js (JavaScript Re‑implementation of Workflows)
-- **Purpose:**
+- **Purpose:**  
   Implements re‑usable workflows as a JavaScript module, enabling programmatic access to core functionality.
-- **Stability:**
+- **Stability:**  
   Under active development; may change frequently and represent bleeding‑edge functionality.
-- **Licensing:**
+- **Licensing:**  
   Under GPL‑3 with the attribution clause.
-- **Location:**
+- **Location:**  
   Located in `src/lib/main.js`.
 
 ---
