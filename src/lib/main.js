@@ -702,9 +702,7 @@ export async function delegateDecisionToLLM(prompt) {
     const Config = openaiModule.Configuration ? (openaiModule.Configuration.default || openaiModule.Configuration) : null;
     if (!Config) throw new Error("OpenAI Configuration not available");
     const Api = openaiModule.OpenAIApi;
-    const configuration = new Config({
-      apiKey: process.env.OPENAI_API_KEY || ""
-    });
+    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY || "" });
     const openai = new Api(configuration);
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
@@ -749,9 +747,7 @@ export async function delegateDecisionToLLMWrapped(prompt) {
     const Config = openaiModule.Configuration ? (openaiModule.Configuration.default || openaiModule.Configuration) : null;
     if (!Config) throw new Error("OpenAI Configuration not available");
     const Api = openaiModule.OpenAIApi;
-    const configuration = new Config({
-      apiKey: process.env.OPENAI_API_KEY || ""
-    });
+    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY || "" });
     const openai = new Api(configuration);
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
@@ -784,9 +780,7 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
     const Config = openaiModule.Configuration ? (openaiModule.Configuration.default || openaiModule.Configuration) : null;
     if (!Config) throw new Error("OpenAI Configuration not available");
     const Api = openaiModule.OpenAIApi;
-    const configuration = new Config({
-      apiKey: process.env.OPENAI_API_KEY || ""
-    });
+    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY || "" });
     const openai = new Api(configuration);
     const tools = [
       {
@@ -856,7 +850,7 @@ export async function delegateDecisionToLLMAdvancedVerbose(prompt, options = {})
 // New advanced delegation function with timeout support
 export async function delegateDecisionToLLMAdvancedStrict(prompt, options = {}) {
   const timeout = options.timeout || 5000;
-  const timeoutPromise = new Promise(( _resolve, reject) => {
+  const timeoutPromise = new Promise((_, reject) => {
     setTimeout(() => reject(new Error("LLM advanced strict call timed out")), timeout);
   });
   try {
@@ -983,9 +977,9 @@ export function parseVitestSarifOutput(sarifJson) {
     const sarif = JSON.parse(sarifJson);
     const testSummaries = [];
     if (sarif.runs && Array.isArray(sarif.runs)) {
-      sarif.runs.forEach(run => {
+      sarif.runs.forEach((run) => {
         if (run.results && Array.isArray(run.results)) {
-          run.results.forEach(result => {
+          run.results.forEach((result) => {
             if (result.message && result.message.text) {
               testSummaries.push(result.message.text);
             }
@@ -1007,9 +1001,9 @@ export function parseEslintDetailedOutput(sarifJson) {
     const sarif = JSON.parse(sarifJson);
     const eslintIssues = [];
     if (sarif.runs && Array.isArray(sarif.runs)) {
-      sarif.runs.forEach(run => {
+      sarif.runs.forEach((run) => {
         if (run.results && Array.isArray(run.results)) {
-          run.results.forEach(result => {
+          run.results.forEach((result) => {
             eslintIssues.push({
               ruleId: result.ruleId || "unknown",
               message: result.message && result.message.text ? result.message.text : ""
@@ -1090,7 +1084,7 @@ export function simulateKafkaConsumer(topic, count = 1) {
  */
 export async function simulateKafkaRequestResponse(topic, requestData, delay = 50) {
   try {
-    await new Promise(resolve => setTimeout(resolve, delay));
+    await new Promise((resolve) => setTimeout(resolve, delay));
     return `Response to '${requestData}' on topic '${topic}'`;
   } catch (error) {
     return `Error in simulation: ${error.message}`;
@@ -1118,7 +1112,7 @@ export function simulateKafkaGroupMessaging(group, message, consumerCount = 1) {
  * @returns {string[]} Array of subscription confirmations.
  */
 export function simulateKafkaTopicSubscription(topics = []) {
-  return topics.map(topic => `Subscribed to topic: ${topic}`);
+  return topics.map((topic) => `Subscribed to topic: ${topic}`);
 }
 
 // New Kafka Messaging Extensions
@@ -1133,7 +1127,7 @@ export function simulateKafkaTopicSubscription(topics = []) {
 export function simulateKafkaPriorityMessaging(topic, messages = [], priority = "high") {
   console.log(`Simulating priority messaging on '${topic}' with priority ${priority}`);
   const prioritizedMessages = messages.map((msg, index) => `Priority(${priority}) Message ${index + 1} from topic '${topic}': ${msg}`);
-  prioritizedMessages.forEach(message => console.log(message));
+  prioritizedMessages.forEach((message) => console.log(message));
   return prioritizedMessages;
 }
 
