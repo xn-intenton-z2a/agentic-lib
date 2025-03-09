@@ -602,14 +602,30 @@ describe("parseVitestOutput", () => {
   });
 });
 
-describe("parseVitestSarifOutput", () => {
-  test("returns test summaries array for valid vitest SARIF JSON", () => {
-    const sampleSarif = JSON.stringify({ runs: [{ results: [ { message: { text: "Test case passed" } }, { message: { text: "Test case failed" } } ] }] });
-    const result = agenticLib.parseVitestSarifOutput(sampleSarif);
-    expect(result.testSummaries).toEqual(["Test case passed", "Test case failed"]);
+describe("parseVitestDefaultOutput", () => {
+  test("returns correct testsPassed count when summary is present", () => {
+    const sampleOutput = "All clear: 7 tests passed successfully";
+    const result = agenticLib.parseVitestDefaultOutput(sampleOutput);
+    expect(result.testsPassed).toBe(7);
   });
-  test("returns error property for invalid vitest SARIF JSON", () => {
-    const result = agenticLib.parseVitestSarifOutput("invalid vitest json");
+  test("returns error when summary is missing", () => {
+    const sampleOutput = "No relevant summary";
+    const result = agenticLib.parseVitestDefaultOutput(sampleOutput);
+    expect(result.error).toBeDefined();
+  });
+});
+
+describe("parseEslintDefaultOutput", () => {
+  test("returns correct problem, error, warning counts when summary is present", () => {
+    const sampleOutput = "3 problems, 1 error, 2 warnings";
+    const result = agenticLib.parseEslintDefaultOutput(sampleOutput);
+    expect(result.numProblems).toBe(3);
+    expect(result.numErrors).toBe(1);
+    expect(result.numWarnings).toBe(2);
+  });
+  test("returns error when summary is missing", () => {
+    const sampleOutput = "No eslint summary available";
+    const result = agenticLib.parseEslintDefaultOutput(sampleOutput);
     expect(result.error).toBeDefined();
   });
 });

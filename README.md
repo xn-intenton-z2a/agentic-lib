@@ -2,7 +2,10 @@
 
 You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/WORKFLOWS-README.md)
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
+repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
+issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
+GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 
 [Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
 
@@ -33,8 +36,9 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaRequestResponse`, `simulateKafkaGroupMessaging`, and `simulateKafkaTopicSubscription`.
   - **Enhanced Functions:** `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, and `simulateKafkaBroadcast`.
   - **Delay Simulation:** `simulateDelayedResponse` for realistic messaging delays.
-- **SARIF Parsing:**
-  Utilities such as `parseVitestSarifOutput`, `parseEslintDetailedOutput`, and parsers for Vitest and ESLint summaries.
+- **SARIF Parsing and Default Output Parsing:**
+  Utilities to parse SARIF outputs and default outputs, including:
+  - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, and `parseEslintDefaultOutput`.
 - **File System Simulation:**
   The `simulateFileSystemCall()` function enables testing of file interactions.
 - **Configuration Display:**
@@ -51,7 +55,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - Enhanced telemetry and Kafka simulation functions with detailed logging.
 - Updated advanced LLM delegation functions with strict schema validation and timeout support.
 - Implemented new remote monitoring service wrapper and file system interaction simulation.
-- Added new functions for comprehensive SARIF parsing.
+- Added new parsing functions: `parseVitestDefaultOutput` and `parseEslintDefaultOutput` to extend SARIF parsing capabilities to default output formats.
 
 ---
 

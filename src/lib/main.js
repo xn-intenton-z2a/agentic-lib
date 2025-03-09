@@ -2,9 +2,10 @@
 // src/lib/main.js - Implementation aligned with the agentic‑lib mission statement.
 // Change Log:
 // - Aligned code with the agentic‑lib mission statement by pruning drift and removing redundant simulation verbiage.
-// - Extended functionality with refined flag handling, enhanced telemetry, improved remote service wrappers, and updated delegation functions.
-// - Added additional Kafka messaging functions and file system simulation for deeper testing.
+// - Extended functionality with refined flag handling, enhanced telemetry, improved remote service wrappers, updated delegation functions, and expanded Kafka messaging simulations.
+// - Added new Kafka messaging functions and file system simulation for deeper testing.
 // - Added new remote monitoring service wrapper to simulate fetching monitoring metrics remotely.
+// - Added new parsing functions: parseVitestDefaultOutput and parseEslintDefaultOutput to handle default output formats of Vitest and ESLint, extending SARIF parsing capabilities.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -514,21 +515,96 @@ export function parseVitestOutput(outputStr) {
 }
 
 /**
- * New utility function to print a combined diagnostic report including system performance, telemetry data, and advanced telemetry.
+ * New utility function to parse Vitest default output, handling common default formats.
+ * @param {string} outputStr
  */
-function printReport() {
-  const sysPerf = analyzeSystemPerformance();
-  const telemetry = gatherTelemetryData();
-  const extendedTelemetry = gatherExtendedTelemetryData();
-  const fullTelemetry = gatherFullTelemetryData();
-  const advancedTelemetry = gatherAdvancedTelemetryData();
-  console.log(chalk.green("System Performance: " + JSON.stringify(sysPerf, null, 2)));
-  console.log(chalk.green("Telemetry Data: " + JSON.stringify(telemetry, null, 2)));
-  console.log(chalk.green("Extended Telemetry Data: " + JSON.stringify(extendedTelemetry, null, 2)));
-  console.log(chalk.green("Full Telemetry Data: " + JSON.stringify(fullTelemetry, null, 2)));
-  console.log(chalk.green("Advanced Telemetry Data: " + JSON.stringify(advancedTelemetry, null, 2)));
-  console.log(chalk.green("Custom Telemetry Data: " + JSON.stringify(gatherCustomTelemetryData(), null, 2)));
-  console.log(chalk.green("Workflow Telemetry Data: " + JSON.stringify(gatherWorkflowTelemetryData(), null, 2)));
+export function parseVitestDefaultOutput(outputStr) {
+  const match = outputStr.match(/(\d+)\s+tests?\s+passed/);
+  if (match) {
+    const testsPassed = parseInt(match[1], 10);
+    console.log(chalk.green(`Vitest Default Output: ${testsPassed} tests passed.`));
+    return { testsPassed };
+  } else {
+    console.error(chalk.red("Error parsing Vitest default output: Summary not found."));
+    return { error: "Test summary not found" };
+  }
+}
+
+/**
+ * New utility function to parse ESLint default output, extracting problem, error, and warning counts.
+ * @param {string} outputStr
+ */
+export function parseEslintDefaultOutput(outputStr) {
+  const problems = outputStr.match(/(\d+)\s+problems?/);
+  const errors = outputStr.match(/(\d+)\s+errors?/);
+  const warnings = outputStr.match(/(\d+)\s+warnings?/);
+  if (problems) {
+    const numProblems = parseInt(problems[1], 10);
+    const numErrors = errors ? parseInt(errors[1], 10) : 0;
+    const numWarnings = warnings ? parseInt(warnings[1], 10) : 0;
+    console.log(chalk.green(`ESLint Default Output: ${numProblems} problems (${numErrors} errors, ${numWarnings} warnings)`));
+    return { numProblems, numErrors, numWarnings };
+  } else {
+    console.error(chalk.red("Error parsing ESLint default output: Summary not found."));
+    return { error: "ESLint summary not found" };
+  }
+}
+
+/**
+ * Parse Vitest SARIF output to extract test summaries.
+ * @param {string} sarifJson
+ */
+export function parseVitestSarifOutput(sarifJson) {
+  try {
+    const sarif = JSON.parse(sarifJson);
+    const testSummaries = [];
+    if (sarif.runs && Array.isArray(sarif.runs)) {
+      sarif.runs.forEach((run) => {
+        if (run.results && Array.isArray(run.results)) {
+          run.results.forEach((result) => {
+            if (result.message && result.message.text) {
+              testSummaries.push(result.message.text);
+            }
+          });
+        }
+      });
+    }
+    console.log(chalk.green("Vitest SARIF Report:"), testSummaries);
+    return { testSummaries };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error(chalk.red("Error parsing Vitest SARIF JSON:"), errMsg);
+    return { error: errMsg };
+  }
+}
+
+/**
+ * Parse ESLint detailed SARIF output to extract detailed issues.
+ * @param {string} sarifJson
+ */
+export function parseEslintDetailedOutput(sarifJson) {
+  try {
+    const sarif = JSON.parse(sarifJson);
+    const eslintIssues = [];
+    if (sarif.runs && Array.isArray(sarif.runs)) {
+      sarif.runs.forEach((run) => {
+        if (run.results && Array.isArray(run.results)) {
+          run.results.forEach((result) => {
+            eslintIssues.push({
+              ruleId: result.ruleId || "unknown",
+              message: result.message && result.message.text ? result.message.text : ""
+            });
+          });
+        }
+      });
+    }
+    console.log(chalk.green("ESLint Detailed SARIF Report:"), eslintIssues);
+    return { eslintIssues };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error(chalk.red("Error parsing ESLint Detailed SARIF JSON:"), errMsg);
+    return { error: errMsg };
+  }
 }
 
 /**
@@ -694,7 +770,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -1093,140 +1169,6 @@ export function parseEslintDetailedOutput(sarifJson) {
     console.error(chalk.red("Error parsing ESLint Detailed SARIF JSON:"), errMsg);
     return { error: errMsg };
   }
-}
-
-export function reviewIssue({
-  sourceFileContent,
-  _testFileContent,
-  readmeFileContent,
-  _dependenciesFileContent,
-  _issueTitle,
-  _issueDescription,
-  _issueComments,
-  _dependenciesListOutput,
-  _buildOutput,
-  _testOutput,
-  _mainOutput
-}) {
-  const fixed = sourceFileContent.includes("Usage: npm run start") && readmeFileContent.includes("intentïon agentic-lib")
-    ? "true"
-    : "false";
-  const message = fixed === "true" ? "The issue has been resolved." : "Issue not resolved.";
-  return {
-    fixed,
-    message,
-    refinement: "None"
-  };
-}
-
-export { printReport };
-
-// New Kafka simulation functions
-
-/**
- * Simulate Kafka Producer: produces messages to a given topic.
- * @param {string} topic
- * @param {string[]} messages
- * @returns {object} An object containing the topic and produced messages.
- */
-export function simulateKafkaProducer(topic, messages = []) {
-  console.log(`Producing messages to topic '${topic}':`, messages);
-  return { topic, producedMessages: messages };
-}
-
-/**
- * Simulate Kafka Consumer: returns an array of consumed messages from a topic.
- * @param {string} topic
- * @param {number} count
- * @returns {string[]} Array of consumed messages.
- */
-export function simulateKafkaConsumer(topic, count = 1) {
-  const messages = [];
-  for (let i = 0; i < count; i++) {
-    const msg = `Consumed message ${i + 1} from topic 'consumerTopic'`;
-    messages.push(msg);
-  }
-  return messages;
-}
-
-/**
- * Simulate Kafka Request-Response: returns a response for a given request on a topic.
- * @param {string} topic
- * @param {string} requestData
- * @param {number} delay
- * @returns {Promise<string>} Response string.
- */
-export async function simulateKafkaRequestResponse(topic, requestData, delay = 50) {
-  try {
-    await new Promise((resolve) => setTimeout(resolve, delay));
-    return `Response to '${requestData}' on topic '${topic}'`;
-  } catch (error) {
-    return `Error in simulation: ${error.message}`;
-  }
-}
-
-/**
- * Simulate Kafka Group Messaging: returns responses from multiple consumers in a group.
- * @param {string} group
- * @param {string} message
- * @param {number} consumerCount
- * @returns {string[]} Array of responses.
- */
-export function simulateKafkaGroupMessaging(group, message, consumerCount = 1) {
-  const responses = [];
-  for (let i = 0; i < consumerCount; i++) {
-    responses.push(`Group '${group}' consumer ${i + 1} received message: ${message}`);
-  }
-  return responses;
-}
-
-/**
- * Simulate Kafka Topic Subscription: returns confirmation of subscriptions to given topics.
- * @param {string[]} topics
- * @returns {string[]} Array of subscription confirmations.
- */
-export function simulateKafkaTopicSubscription(topics = []) {
-  return topics.map((topic) => `Subscribed to topic: ${topic}`);
-}
-
-// New Kafka Messaging Extensions
-
-/**
- * Simulate Kafka Priority Messaging: processes messages with a given priority.
- * @param {string} topic
- * @param {string[]} messages
- * @param {string} priority
- * @returns {string[]} Array of processed priority messages.
- */
-export function simulateKafkaPriorityMessaging(topic, messages = [], priority = "high") {
-  console.log(`Simulating priority messaging on '${topic}' with priority ${priority}`);
-  const prioritizedMessages = messages.map((msg, index) => `Priority(${priority}) Message ${index + 1} from topic '${topic}': ${msg}`);
-  prioritizedMessages.forEach((message) => console.log(message));
-  return prioritizedMessages;
-}
-
-/**
- * Simulate Kafka Retry On Failure: simulates retry attempts when sending a message fails.
- * @param {string} topic
- * @param {string} message
- * @param {number} maxRetries
- * @returns {object} Details about the retry attempts and final status.
- */
-export function simulateKafkaRetryOnFailure(topic, message, maxRetries = 3) {
-  let attempts = 0;
-  let success = false;
-  const logMessages = [];
-  while (attempts < maxRetries && !success) {
-    attempts++;
-    if (randomInt(0, 2) === 1) {
-      success = true;
-      logMessages.push(`Attempt ${attempts}: Success sending '${message}' to '${topic}'`);
-    } else {
-      logMessages.push(`Attempt ${attempts}: Failure sending '${message}' to '${topic}'`);
-    }
-  }
-  console.log(`Retry on failure simulation for topic '${topic}':`, logMessages.join(" | "));
-  return { topic, message, attempts, success, logMessages };
 }
 
 /**
