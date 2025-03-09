@@ -729,6 +729,18 @@ describe("New Features", () => {
       expect(result.logMessages.length).toBeGreaterThan(0);
     });
   });
+
+  test("simulateKafkaBroadcast returns broadcast responses for each topic", () => {
+    const topics = ["broadcast1", "broadcast2"];
+    const message = "Broadcast Message";
+    const responses = agenticLib.simulateKafkaBroadcast(topics, message);
+    expect(Object.keys(responses).length).toBe(2);
+    topics.forEach(topic => {
+      expect(responses[topic].broadcast).toBe(true);
+      expect(responses[topic].sent).toContain(message);
+      expect(responses[topic].received).toContain(`Simulated message from topic '${topic}'`);
+    });
+  });
 });
 
 describe("delegateDecisionToLLM fallback", () => {
