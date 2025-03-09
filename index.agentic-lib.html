@@ -24,7 +24,10 @@
   <section>
     <h1 class="md-github"><a class="md-github__anchor" name="intentïon-agentic-lib" href="#intentïon-agentic-lib"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>intentïon agentic-lib</h1>
 <p class="md-github">You probably want to start with the workflow documentation here: <a href="https://github.com/xn-intenton-z2a/agentic-lib/blob/main/WORKFLOWS-README.md" class="md-github">WORKFLOWS-README.md</a></p>
-<p class="md-github">The <strong class="md-github">intentïon <code class="md-github">agentic-lib</code></strong> is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s <code class="md-github">workflow_call</code> event, so they can be composed together like an SDK.</p>
+<p class="md-github">The <strong class="md-github">intentïon <code class="md-github">agentic-lib</code></strong> is a collection of reusable GitHub Actions workflows that enable your
+repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
+issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
+GitHub’s <code class="md-github">workflow_call</code> event, so they can be composed together like an SDK.</p>
 <p class="md-github"><a href="https://github.com/xn-intenton-z2a/repository0" class="md-github">Start using the Repository Template</a></p>
 <p class="md-github"><a href="https://xn-intenton-z2a.github.io/agentic-lib/index.html" class="md-github">Also on GitHub Pages</a></p>
 <p class="md-github"><a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html" class="md-github">See the latest repository stats</a></p>
@@ -45,17 +48,20 @@ Comprehensive diagnostics via multiple telemetry functions such as:
 <li class="md-github"><strong class="md-github">Remote Service Wrappers:</strong>
 Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, and a new monitoring service via <code class="md-github">callMonitoringService()</code>.</li>
 <li class="md-github"><strong class="md-github">LLM Delegation:</strong>
-Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include <code class="md-github">delegateDecisionToLLMEnhanced</code> and <code class="md-github">callOpenAIFunctionWrapper</code>.</li>
+Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include <code class="md-github">delegateDecisionToLLMAdvanced</code>, <code class="md-github">delegateDecisionToLLMWrapped</code>, and the new <code class="md-github">delegateDecisionToLLMEnhanced</code>.</li>
 <li class="md-github"><strong class="md-github">Kafka Operations:</strong>
 Simulated messaging functions for inter-workflow communication, including:
 <ul class="md-github">
-<li class="md-github"><code class="md-github">simulateKafkaProducer</code>, <code class="md-github">simulateKafkaConsumer</code>, <code class="md-github">simulateKafkaRequestResponse</code>, <code class="md-github">simulateKafkaGroupMessaging</code>, and <code class="md-github">simulateKafkaTopicSubscription</code>.</li>
-<li class="md-github"><strong class="md-github">Enhanced Functions:</strong> <code class="md-github">simulateKafkaPriorityMessaging</code>, <code class="md-github">simulateKafkaRetryOnFailure</code>, and <code class="md-github">simulateKafkaBroadcast</code>.</li>
-<li class="md-github"><strong class="md-github">Delay Simulation:</strong> <code class="md-github">simulateDelayedResponse</code> for realistic messaging delays.</li>
+<li class="md-github"><code class="md-github">simulateKafkaStream</code>, <code class="md-github">simulateKafkaDetailedStream</code>, and <code class="md-github">simulateKafkaBulkStream</code>.</li>
+<li class="md-github"><strong class="md-github">Additional Kafka Functions:</strong> <code class="md-github">simulateKafkaProducer</code>, <code class="md-github">simulateKafkaConsumer</code>, <code class="md-github">simulateKafkaPriorityMessaging</code>, <code class="md-github">simulateKafkaRetryOnFailure</code>, and <code class="md-github">simulateKafkaBroadcast</code>.</li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">SARIF Parsing:</strong>
-Utilities such as <code class="md-github">parseVitestSarifOutput</code>, <code class="md-github">parseEslintDetailedOutput</code>, and parsers for Vitest and ESLint summaries.</li>
+<li class="md-github"><strong class="md-github">SARIF Parsing and Default Output Parsing:</strong>
+Utilities to parse SARIF outputs and default outputs, including:
+<ul class="md-github">
+<li class="md-github"><code class="md-github">parseSarifOutput</code>, <code class="md-github">parseEslintSarifOutput</code>, <code class="md-github">parseVitestOutput</code>, <code class="md-github">parseVitestDefaultOutput</code>, and <code class="md-github">parseEslintDefaultOutput</code>.</li>
+</ul>
+</li>
 <li class="md-github"><strong class="md-github">File System Simulation:</strong>
 The <code class="md-github">simulateFileSystemCall()</code> function enables testing of file interactions.</li>
 <li class="md-github"><strong class="md-github">Configuration Display:</strong>
@@ -66,12 +72,21 @@ Enhanced <code class="md-github">--create-issue</code> flag mimics GitHub Action
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="recent-improvements" href="#recent-improvements"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Recent Improvements</h2>
 <ul class="md-github">
-<li class="md-github">Refreshed README to align with CONTRIBUTING guidelines and remove outdated or irrelevant content.</li>
+<li class="md-github">Refreshed README to align with CONTRIBUTING guidelines and remove outdated content.</li>
 <li class="md-github">Extended flag handling with improved diagnostics and error checking.</li>
 <li class="md-github">Enhanced telemetry and Kafka simulation functions with detailed logging.</li>
 <li class="md-github">Updated advanced LLM delegation functions with strict schema validation and timeout support.</li>
-<li class="md-github">Implemented new remote monitoring service wrapper and file system interaction simulation.</li>
-<li class="md-github">Added new functions for comprehensive SARIF parsing.</li>
+<li class="md-github">Added new remote monitoring service wrapper and file system interaction simulation.</li>
+<li class="md-github"><strong class="md-github">New Features Added:</strong>
+<ul class="md-github">
+<li class="md-github"><code class="md-github">reviewIssue</code> for evaluating issue resolution based on source file content.</li>
+<li class="md-github"><code class="md-github">printReport</code> and <code class="md-github">printConfiguration</code> for diagnostics output.</li>
+<li class="md-github">Kafka messaging additional functions: <code class="md-github">simulateKafkaProducer</code>, <code class="md-github">simulateKafkaConsumer</code>, <code class="md-github">simulateKafkaPriorityMessaging</code>, <code class="md-github">simulateKafkaRetryOnFailure</code>, and <code class="md-github">simulateKafkaBroadcast</code>.</li>
+<li class="md-github"><code class="md-github">simulateFileSystemCall</code> for file system simulation.</li>
+<li class="md-github"><code class="md-github">delegateDecisionToLLMEnhanced</code> for enhanced LLM delegation.</li>
+<li class="md-github">Updated <code class="md-github">getIssueNumberFromBranch</code> to correctly extract issue numbers.</li>
+</ul>
+</li>
 </ul>
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="contributing" href="#contributing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Contributing</h2>
@@ -138,7 +153,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-09T19:03:31.191Z</p>
+    <p>Generated on 2025-03-09T19:12:18.749Z</p>
   </footer>
 </body>
 </html>
