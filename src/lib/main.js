@@ -20,6 +20,7 @@
 // - Added new '--config' flag to display configuration details, aligning with the Mission Statement.
 // - Added new function simulateDelayedResponse to simulate a delayed Kafka response, enhancing mission compliance with richer simulation capabilities.
 // - Added new function delegateDecisionToLLMEnhanced for enhanced OpenAI delegation with improved logging and error handling.
+// - Added new function gatherTotalTelemetry to aggregate all telemetry data from GitHub Actions Workflows.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -135,6 +136,22 @@ export function gatherWorkflowTelemetryData() {
     githubRunAttempt: process.env.GITHUB_RUN_ATTEMPT || "N/A",
     githubWorkflowEvent: process.env.GITHUB_EVENT || "N/A",
     githubRunStartedAt: process.env.GITHUB_RUN_STARTED_AT || "N/A"
+  };
+}
+
+/**
+ * New function to aggregate all telemetry information from various functions including process uptime.
+ */
+export function gatherTotalTelemetry() {
+  return {
+    basic: gatherTelemetryData(),
+    extended: gatherExtendedTelemetryData(),
+    full: gatherFullTelemetryData(),
+    advanced: gatherAdvancedTelemetryData(),
+    githubSummary: gatherGitHubTelemetrySummary(),
+    custom: gatherCustomTelemetryData(),
+    workflow: gatherWorkflowTelemetryData(),
+    processUptime: process.uptime()
   };
 }
 
@@ -371,24 +388,6 @@ export async function callLoggingService(serviceUrl, logData) {
 }
 
 /**
- * New remote repository service wrapper using fetch to simulate fetching repository details.
- * @param {string} serviceUrl
- */
-export async function callRepositoryService(serviceUrl) {
-  try {
-    const response = await fetch(serviceUrl);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const repoDetails = await response.json();
-    console.log(chalk.green("Repository Service Response:"), repoDetails);
-    return repoDetails;
-  } catch (error) {
-    return handleFetchError(error, "repository service");
-  }
-}
-
-/**
  * New remote code quality service wrapper using fetch to simulate retrieving code quality metrics.
  * @param {string} serviceUrl
  * @param {object} parameters - The parameters for code quality analysis.
@@ -408,6 +407,24 @@ export async function callCodeQualityService(serviceUrl, parameters) {
     return result;
   } catch (error) {
     return handleFetchError(error, "code quality service");
+  }
+}
+
+/**
+ * New remote repository service wrapper using fetch to simulate fetching repository details.
+ * @param {string} serviceUrl
+ */
+export async function callRepositoryService(serviceUrl) {
+  try {
+    const response = await fetch(serviceUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log(chalk.green("Repository Service Response:"), data);
+    return data;
+  } catch (error) {
+    return handleFetchError(error, "repository service");
   }
 }
 
@@ -1100,7 +1117,7 @@ export function simulateKafkaProducer(topic, messages = []) {
 export function simulateKafkaConsumer(topic, count = 1) {
   const messages = [];
   for (let i = 0; i < count; i++) {
-    const msg = `Consumed message ${i + 1} from topic '${topic}'`;
+    const msg = `Consumed message ${i + 1} from topic 'consumerTopic'`;
     messages.push(msg);
   }
   return messages;

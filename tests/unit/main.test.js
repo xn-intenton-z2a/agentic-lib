@@ -247,6 +247,17 @@ describe("Telemetry Functions", () => {
     expect(workflowTelemetry.githubWorkflowEvent).toBe("push");
     expect(workflowTelemetry.githubRunStartedAt).toBe("2025-03-06T16:00:00Z");
   });
+  test("gatherTotalTelemetry returns all telemetry groups", () => {
+    const total = agenticLib.gatherTotalTelemetry();
+    expect(total).toHaveProperty("basic");
+    expect(total).toHaveProperty("extended");
+    expect(total).toHaveProperty("full");
+    expect(total).toHaveProperty("advanced");
+    expect(total).toHaveProperty("githubSummary");
+    expect(total).toHaveProperty("custom");
+    expect(total).toHaveProperty("workflow");
+    expect(total).toHaveProperty("processUptime");
+  });
 });
 
 describe("analyzeSystemPerformance", () => {
