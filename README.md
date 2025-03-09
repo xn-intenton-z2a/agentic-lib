@@ -51,6 +51,8 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
   *New:* `simulateFileSystemCall()` simulates reading file content from external resources, enhancing testability for file system interactions.
 - **Configuration Display:**
   *New:* The `--config` flag and accompanying `printConfiguration()` function display current node configuration, platform, and working directory.
+- **Issue Creation Simulation:**
+  *New:* The `--create-issue` flag has been enhanced to mimic the GitHub Actions workflow (wfr-create-issue.yml) for issue creation, supporting dynamic "house choice" options via the environment variable `HOUSE_CHOICE_OPTIONS` and logging a JSON formatted summary of the simulated issue creation.
 
 ---
 
@@ -63,9 +65,8 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - **New:** Implemented `callSecurityScanService` to simulate a remote vulnerability scanning service.
 - **New:** Implemented and enhanced `callOpenAIFunctionWrapper` and related OpenAI delegation functions with explicit API key validation and improved error messaging.
 - **New:** Added `delegateDecisionToLLMEnhanced` for improved OpenAI delegation with enhanced logging.
-- **Fixed:** Updated the regex in `getIssueNumberFromBranch` to correctly extract issue numbers from branch names.
 - **New Kafka Functions:** Added `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaRequestResponse`, and extensions `simulateKafkaPriorityMessaging` and `simulateKafkaRetryOnFailure` for enhanced inter-workflow messaging.
-- **Extended:** Updated the `--create-issue` flag behavior to mimic the GitHub Actions workflow from wfr-create-issue.yml, supporting dynamic "house choice" options via the environment variable `HOUSE_CHOICE_OPTIONS`.
+- **Extended:** Updated the `--create-issue` flag behavior to mimic the GitHub Actions workflow from wfr-create-issue.yml, supporting dynamic "house choice" options and providing a JSON log of the created issue details.
 - **New:** Added `--config` flag to print configuration details of the runtime environment.
 - **New:** Added `gatherTotalTelemetry()` to aggregate telemetry data from multiple sources.
 - **New:** Added `simulateDelayedResponse` to simulate delayed Kafka responses.
@@ -139,6 +140,5 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
----
 ---
 ---

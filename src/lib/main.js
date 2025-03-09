@@ -16,15 +16,14 @@
 // - Added new remote code quality service wrapper: callCodeQualityService to simulate retrieving code quality metrics from a remote service.
 // - Updated delegateDecisionToLLM to correctly import Configuration and OpenAIApi.
 // - Enhanced OpenAI function wrapper: callOpenAIFunctionWrapper now includes an empty prompt check and improved error handling with detailed logging.
-// - Extended '--create-issue' flag workflow behavior to mimic the GitHub Actions workflow (wfr-create-issue.yml) by supporting house choice options from the environment variable HOUSE_CHOICE_OPTIONS.
+// - Extended '--create-issue' flag workflow behavior to mimic the GitHub Actions workflow (wfr-create-issue.yml) by supporting dynamic house choice options via the environment variable HOUSE_CHOICE_OPTIONS and logging simulated issue creation details in JSON format.
 // - Added new '--config' flag to display configuration details, aligning with the Mission Statement.
 // - Added new function simulateDelayedResponse to simulate a delayed Kafka response, enhancing mission compliance with richer simulation capabilities.
 // - Added new function delegateDecisionToLLMEnhanced for enhanced OpenAI delegation with improved logging and error handling.
 // - Added new function gatherTotalTelemetry to aggregate all telemetry data from GitHub Actions Workflows.
 // - New: Added simulateFileSystemCall to simulate external file system calls for deeper testing and mocking of external resources.
 // - New: Added simulateKafkaBroadcast to simulate broadcasting a Kafka message to multiple topics concurrently.
-// - Added new function gatherCIEnvironmentMetrics to capture additional CI environment metrics from GitHub Actions.
-// - New remote service wrapper for repository details: callRepositoryService.
+// - New: Added callRepositoryService function as it was missing and required by tests
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -570,6 +569,13 @@ function handleBasicFlag(flag, nonFlagArgs) {
       }
       const issueBody = process.env.ISSUE_BODY || "Please resolve the issue.";
       const issueNumber = randomInt(100, 1000);
+      // New: Log simulated issue creation details in JSON format to mimic the workflow behavior from wfr-create-issue.yml
+      console.log(chalk.magenta(JSON.stringify({
+        issueTitle,
+        issueBody,
+        issueNumber,
+        status: "Created via simulated workflow"
+      })));
       console.log(chalk.magenta("Simulated Issue Created:"));
       console.log(chalk.magenta("Title: " + issueTitle));
       console.log(chalk.magenta("Issue Body: " + issueBody));
