@@ -41,7 +41,7 @@ Use <code class="md-github">generateUsage()</code> to display available flag opt
 <li class="md-github"><strong class="md-github">Telemetry:</strong><br>
 Comprehensive diagnostics including <code class="md-github">gatherTelemetryData()</code>, <code class="md-github">gatherExtendedTelemetryData()</code>, <code class="md-github">gatherAdvancedTelemetryData()</code>, and <code class="md-github">gatherFullTelemetryData()</code>.</li>
 <li class="md-github"><strong class="md-github">Remote Service Wrappers:</strong><br>
-Simplified API interactions for deployment, build status, analytics, notifications, logging, and repository details.</li>
+Simplified API interactions for deployment, build status, analytics, notifications, logging, repository details, and now code quality analysis via <code class="md-github">callCodeQualityService</code>.</li>
 <li class="md-github"><strong class="md-github">LLM Delegation:</strong><br>
 Advanced functions supporting robust decision delegation with schema validation and timeout support.</li>
 <li class="md-github"><strong class="md-github">Kafka Operations:</strong><br>
@@ -55,9 +55,8 @@ Functions such as <code class="md-github">parseVitestSarifOutput</code> and <cod
 <li class="md-github">Extended flag handling with improved diagnostics and error checking.</li>
 <li class="md-github">Enhanced telemetry and Kafka simulation functions with detailed logging and metrics.</li>
 <li class="md-github">Advanced LLM delegation functions with strict schema validation and timeout support.</li>
-<li class="md-github">New wrappers for remote repository and logging services.</li>
-<li class="md-github"><strong class="md-github">Improved:</strong> Enhanced error handling in <code class="md-github">simulateKafkaRequestResponse</code> to gracefully catch synchronous errors, boosting test coverage to nearly 100%.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Added Kafka group messaging via <code class="md-github">simulateKafkaGroupMessaging</code> and topic subscription simulation via <code class="md-github">simulateKafkaTopicSubscription</code> to better simulate inter-workflow communications.</li>
+<li class="md-github">New wrappers for remote repository, logging, and analytics services.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Added remote code quality service wrapper <code class="md-github">callCodeQualityService</code> to simulate fetching code quality metrics from a remote service.</li>
 <li class="md-github"><strong class="md-github">Fixed:</strong> Updated the regex in <code class="md-github">getIssueNumberFromBranch</code> to correctly extract issue numbers from branch names.</li>
 </ul>
 <hr class="md-github">
@@ -124,7 +123,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-09T02:28:03.303Z</p>
+    <p>Generated on 2025-03-09T02:44:08.588Z</p>
   </footer>
 </body>
 </html>
