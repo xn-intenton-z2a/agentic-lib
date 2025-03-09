@@ -24,11 +24,11 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - **Usage Information:**  
   Use `generateUsage()` to display available flag options.
 - **Telemetry:**  
-  Comprehensive diagnostics including `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and now the new `gatherTotalTelemetry()` to aggregate all telemetry data from GitHub Actions workflows.
+  Comprehensive diagnostics including `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and the new `gatherTotalTelemetry()` to aggregate all telemetry data from GitHub Actions workflows.
 - **Remote Service Wrappers:**  
-  Simplified API interactions for deployment, build status, analytics, notifications, logging, repository details, and code quality analysis via `callCodeQualityService` and the new `callRepositoryService`.
+  Simplified API interactions for deployment, build status, analytics, notifications, logging, repository details, and code quality analysis via `callCodeQualityService` and `callRepositoryService`.
 - **LLM Delegation:**  
-  Advanced functions supporting robust decision delegation with schema validation and timeout support. *New:* `callOpenAIFunctionWrapper` is implemented to wrap an OpenAI function call using the function calling schema, now enhanced with an empty prompt check, improved error reporting, and explicit API key validation.
+  Advanced functions supporting robust decision delegation with schema validation and timeout support. *New:* `callOpenAIFunctionWrapper` wraps an OpenAI function call using a function calling schema, enhanced with an empty prompt check and improved error handling.
   - **New:** Added `delegateDecisionToLLMEnhanced` for improved OpenAI delegation with enhanced logging.
 - **Kafka Operations:**  
   Simulated messaging for inter-workflow communication using Kafka-like functions. New functions include:
@@ -40,13 +40,14 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
   - **New Extensions:**
     - `simulateKafkaPriorityMessaging`: Simulate priority-based messaging.
     - `simulateKafkaRetryOnFailure`: Simulate sending messages with retry on failure.
-  - **New:** `simulateDelayedResponse`: Simulate a delayed Kafka response to enhance realistic messaging scenarios.
+    - **New:** `simulateKafkaBroadcast`: Simulate broadcasting a message to multiple Kafka topics concurrently, extending inter-workflow communication capabilities.
+  - **New:** `simulateDelayedResponse`: Simulate a delayed Kafka response for more realistic messaging scenarios.
 - **SARIF Parsing:**  
   Functions such as `parseVitestSarifOutput` and `parseEslintDetailedOutput` for parsing SARIF outputs.
 - **File System Simulation:**
-  *New:* `simulateFileSystemCall()` function to emulate reading file content from external resources, enabling deeper testing and mocking of file system interactions.
+  *New:* `simulateFileSystemCall()` simulates reading file content from external resources, enhancing testability for file system interactions.
 - **Configuration Display:**
-  *New:* The `--config` flag and accompanying `printConfiguration()` function display current node configuration, platform, and working directory, aligning with the mission of transparency and diagnostics.
+  *New:* The `--config` flag and accompanying `printConfiguration()` function display current node configuration, platform, and working directory.
 
 ---
 
@@ -57,14 +58,15 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - Advanced LLM delegation functions with strict schema validation and timeout support.
 - New wrappers for remote repository, logging, analytics, and code quality services.
 - **New:** Implemented and enhanced `callOpenAIFunctionWrapper` and related OpenAI delegation functions with explicit API key validation and improved error messaging.
-- **New:** Added `delegateDecisionToLLMEnhanced` function for improved OpenAI delegation with enhanced logging.
+- **New:** Added `delegateDecisionToLLMEnhanced` for improved OpenAI delegation with enhanced logging.
 - **Fixed:** Updated the regex in `getIssueNumberFromBranch` to correctly extract issue numbers from branch names.
-- **New Kafka Functions:** Added `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaRequestResponse`, as well as extensions `simulateKafkaPriorityMessaging` and `simulateKafkaRetryOnFailure` for enhanced inter-workflow messaging.
+- **New Kafka Functions:** Added `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaRequestResponse`, and extensions `simulateKafkaPriorityMessaging` and `simulateKafkaRetryOnFailure` for enhanced inter-workflow messaging.
 - **Extended:** Updated the `--create-issue` flag behavior to mimic the GitHub Actions workflow from wfr-create-issue.yml, supporting dynamic "house choice" options via the environment variable `HOUSE_CHOICE_OPTIONS`.
 - **New:** Added `--config` flag to print configuration details of the runtime environment.
-- **New:** Added `gatherTotalTelemetry()` function to aggregate all telemetry data from various methods, providing a comprehensive view of the GitHub Actions environment.
-- **New:** Added `simulateDelayedResponse` function to simulate delayed Kafka responses, aligning with mission requirements by providing a more realistic messaging simulation.
-- **New:** Added `simulateFileSystemCall()` to simulate external file system calls, enhancing testability for interactions with non-network external resources.
+- **New:** Added `gatherTotalTelemetry()` to aggregate telemetry data from multiple sources.
+- **New:** Added `simulateDelayedResponse` to simulate delayed Kafka responses.
+- **New:** Added `simulateKafkaBroadcast` to enable broadcasting messages across multiple topics.
+- **New:** Added `simulateFileSystemCall()` for simulating file system interactions.
 
 ---
 
@@ -131,7 +133,5 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
-
----
 
 ---

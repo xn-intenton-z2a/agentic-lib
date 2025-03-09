@@ -21,8 +21,8 @@
 // - Added new function simulateDelayedResponse to simulate a delayed Kafka response, enhancing mission compliance with richer simulation capabilities.
 // - Added new function delegateDecisionToLLMEnhanced for enhanced OpenAI delegation with improved logging and error handling.
 // - Added new function gatherTotalTelemetry to aggregate all telemetry data from GitHub Actions Workflows.
-// - 
 // - New: Added simulateFileSystemCall to simulate external file system calls for deeper testing and mocking of external resources.
+// - New: Added simulateKafkaBroadcast to simulate broadcasting a Kafka message to multiple topics concurrently.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -653,7 +653,7 @@ function handleFlagCommands(flagArgs, nonFlagArgs) {
  */
 export function main(args = []) {
   if (process.env.NODE_ENV !== "test") {
-    console.log(chalk.green(figlet.textSync("agentic‐lib", { horizontalLayout: "full" }))); 
+    console.log(chalk.green(figlet.textSync("agentic‐lib", { horizontalLayout: "full" })));
   }
   const { flagArgs, nonFlagArgs } = splitArguments(args);
   if (handleFlagCommands(flagArgs, nonFlagArgs)) return;
@@ -1277,6 +1277,24 @@ export async function simulateFileSystemCall(filePath) {
     console.error(chalk.red("File system call failed:"), error.message);
     return null;
   }
+}
+
+// New Function: simulateKafkaBroadcast to simulate Kafka broadcast messaging across topics
+/**
+ * Simulate Kafka Broadcast: sends the same message to multiple topics concurrently.
+ * @param {string[]} topics - Array of topic names.
+ * @param {string} message - The message to broadcast.
+ * @returns {object} An object mapping each topic to its broadcast response.
+ */
+export function simulateKafkaBroadcast(topics, message) {
+  const responses = {};
+  topics.forEach((topic) => {
+    const sent = sendMessageToKafka(topic, message);
+    const received = receiveMessageFromKafka(topic);
+    responses[topic] = { sent, received, broadcast: true };
+    console.log(chalk.blue(`Broadcast to '${topic}':`), responses[topic]);
+  });
+  return responses;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
