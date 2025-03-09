@@ -228,7 +228,7 @@ Contributions come in many forms—whether you’re a developer, tester, or an a
 
 ## Agentic contribution house choice options (programmatically parsed): START
 
-Workflow schedule: schedule-3
+Workflow schedule: schedule-1
 
 ## Issue House Choice Options
 
