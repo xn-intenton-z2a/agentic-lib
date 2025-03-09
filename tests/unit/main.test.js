@@ -514,7 +514,7 @@ describe("parseSarifOutput", () => {
     const result = agenticLib.parseSarifOutput(sarifSample);
     expect(result.totalIssues).toBe(3);
   });
-
+  
   test("returns error property for invalid SARIF JSON", () => {
     const result = agenticLib.parseSarifOutput("invalid json");
     expect(result.error).toBeDefined();
@@ -527,7 +527,7 @@ describe("parseEslintSarifOutput", () => {
     const result = agenticLib.parseEslintSarifOutput(eslintSarif);
     expect(result.totalIssues).toBe(2);
   });
-
+  
   test("returns error property for invalid ESLint SARIF JSON", () => {
     const result = agenticLib.parseEslintSarifOutput("invalid eslint json");
     expect(result.error).toBeDefined();
@@ -540,7 +540,7 @@ describe("parseVitestOutput", () => {
     const result = agenticLib.parseVitestOutput(sampleOutput);
     expect(result.testsPassed).toBe(5);
   });
-
+  
   test("returns error when test summary is missing", () => {
     const sampleOutput = "No summary here";
     const result = agenticLib.parseVitestOutput(sampleOutput);
@@ -687,6 +687,25 @@ describe("New Features", () => {
       const topics = ["topicX", "topicY"];
       const subs = agenticLib.simulateKafkaTopicSubscription(topics);
       expect(subs).toEqual(["Subscribed to topic: topicX", "Subscribed to topic: topicY"]);
+    });
+  });
+
+  describe("New Kafka Additional Functions", () => {
+    test("simulateKafkaPriorityMessaging returns messages with priority tags", () => {
+      const messages = ["Hello", "World"];
+      const result = agenticLib.simulateKafkaPriorityMessaging("priorityTopic", messages, "high");
+      expect(result.length).toBe(2);
+      result.forEach((msg, index) => {
+        expect(msg).toContain(`Priority(high) Message ${index + 1} from topic 'priorityTopic':`);
+      });
+    });
+
+    test("simulateKafkaRetryOnFailure returns an object with attempts and success info", () => {
+      const result = agenticLib.simulateKafkaRetryOnFailure("retryTopic", "Test Message", 5);
+      expect(result).toHaveProperty("attempts");
+      expect(result).toHaveProperty("success");
+      expect(result).toHaveProperty("logMessages");
+      expect(result.logMessages.length).toBeGreaterThan(0);
     });
   });
 });
