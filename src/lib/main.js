@@ -23,8 +23,8 @@
 // - Added new function gatherTotalTelemetry to aggregate all telemetry data from GitHub Actions Workflows.
 // - New: Added simulateFileSystemCall to simulate external file system calls for deeper testing and mocking of external resources.
 // - New: Added simulateKafkaBroadcast to simulate broadcasting a Kafka message to multiple topics concurrently.
-// - New: Added gatherCIEnvironmentMetrics to capture additional CI environment metrics from GitHub Actions.
-// - New: Added callSecurityScanService to simulate a remote vulnerability scanning service for security analysis.
+// - Added new function gatherCIEnvironmentMetrics to capture additional CI environment metrics from GitHub Actions.
+// - New remote service wrapper for repository details: callRepositoryService.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -689,7 +689,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -1314,6 +1314,21 @@ export function simulateKafkaBroadcast(topics, message) {
     console.log(chalk.blue(`Broadcast to '${topic}':`), responses[topic]);
   });
   return responses;
+}
+
+// New: Added callRepositoryService function as it was missing and required by tests
+export async function callRepositoryService(serviceUrl) {
+  try {
+    const response = await fetch(serviceUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log(chalk.green("Repository Service Response:"), data);
+    return data;
+  } catch (error) {
+    return handleFetchError(error, "repository service");
+  }
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
