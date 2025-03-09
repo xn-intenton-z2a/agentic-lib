@@ -19,8 +19,7 @@
 // - Extended '--create-issue' flag workflow behavior to mimic the GitHub Actions workflow (wfr-create-issue.yml) by supporting house choice options from the environment variable HOUSE_CHOICE_OPTIONS.
 // - Added new '--config' flag to display configuration details, aligning with the Mission Statement.
 // - Added new function simulateDelayedResponse to simulate a delayed Kafka response, enhancing mission compliance with richer simulation capabilities.
-//
-// - Enhanced OpenAI function wrappers (delegateDecisionToLLMWrapped, delegateDecisionToLLMAdvanced, delegateDecisionToLLMAdvancedVerbose, delegateDecisionToLLMAdvancedStrict, callOpenAIFunctionWrapper) to check for the presence of an OPENAI_API_KEY and return explicit fallback messages if missing.
+// - Added new function delegateDecisionToLLMEnhanced for enhanced OpenAI delegation with improved logging and error handling.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -525,7 +524,6 @@ function handleBasicFlag(flag, nonFlagArgs) {
     case "--create-issue": {
       console.log(chalk.magenta("Simulated GitHub Issue Creation Workflow triggered."));
       let issueTitle;
-      // Extended behavior: mimic workflow in wfr-create-issue.yml by checking if the issue title is 'house choice'
       if (nonFlagArgs.length > 0 && nonFlagArgs[0] === "house choice") {
         const options = process.env.HOUSE_CHOICE_OPTIONS ? process.env.HOUSE_CHOICE_OPTIONS.split("||") : ["Default House Choice Issue"];
         issueTitle = options[randomInt(0, options.length)];
@@ -872,7 +870,6 @@ export async function delegateDecisionToLLMAdvancedStrict(prompt, options = {}) 
   if (process.env.TEST_OPENAI_SUCCESS === "true") {
     resultPromise = delegateDecisionToLLMAdvanced(prompt, options);
   } else {
-    // simulate a pending promise to trigger timeout
     resultPromise = new Promise(() => {});
   }
   const timeoutPromise = new Promise((_, reject) => {
@@ -1178,7 +1175,6 @@ export function simulateKafkaRetryOnFailure(topic, message, maxRetries = 3) {
   const logMessages = [];
   while (attempts < maxRetries && !success) {
     attempts++;
-    // Simulate a 50% chance of success
     if (randomInt(0, 2) === 1) {
       success = true;
       logMessages.push(`Attempt ${attempts}: Success sending '${message}' to '${topic}'`);
@@ -1219,6 +1215,31 @@ export async function simulateDelayedResponse(topic, message, delay = 100) {
   } catch (error) {
     console.error(chalk.red("Error simulating delayed response:"), error.message);
     return `Error simulating delayed response: ${error.message}`;
+  }
+}
+
+/**
+ * New function for enhanced OpenAI delegation with improved logging and error handling.
+ * This function wraps callOpenAIFunctionWrapper and provides additional checks.
+ * @param {string} prompt
+ * @param {object} options
+ */
+export async function delegateDecisionToLLMEnhanced(prompt, options = {}) {
+  if (!prompt) {
+    console.error(chalk.red("Delegate Decision To LLM Enhanced error:"), "Prompt is empty.");
+    return { fixed: "false", message: "Prompt is empty.", refinement: "Provide a valid prompt." };
+  }
+  if (!process.env.OPENAI_API_KEY) {
+    console.error(chalk.red("Delegate Decision To LLM Enhanced error:"), "OpenAI API key is missing.");
+    return { fixed: "false", message: "OpenAI API key is missing.", refinement: "Provide a valid API key." };
+  }
+  try {
+    const result = await callOpenAIFunctionWrapper(prompt, options.model || "gpt-3.5-turbo");
+    console.log(chalk.blue("Delegate Decision To LLM Enhanced result:"), result);
+    return result;
+  } catch (error) {
+    console.error(chalk.red("Delegate Decision To LLM Enhanced error:"), error);
+    return { fixed: "false", message: "Enhanced LLM decision failed: " + error.message, refinement: "Check OpenAI service." };
   }
 }
 

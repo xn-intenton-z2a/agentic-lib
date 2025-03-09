@@ -732,6 +732,21 @@ describe("delegateDecisionToLLM fallback", () => {
   });
 });
 
+describe("delegateDecisionToLLMEnhanced", () => {
+  test("returns fallback message when prompt is empty", async () => {
+    const result = await agenticLib.delegateDecisionToLLMEnhanced("");
+    expect(result.fixed).toBe("false");
+    expect(result.message).toContain("Prompt is empty");
+  });
+
+  test("returns fallback message when API key is missing", async () => {
+    delete process.env.OPENAI_API_KEY;
+    const result = await agenticLib.delegateDecisionToLLMEnhanced("test prompt");
+    expect(result.fixed).toBe("false");
+    expect(result.message).toContain("OpenAI API key is missing");
+  });
+});
+
 describe("Additional Functions", () => {
   test("splitArguments with empty array returns empty arrays", () => {
     const result = agenticLib.splitArguments([]);
