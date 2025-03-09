@@ -427,24 +427,6 @@ export async function callCodeQualityService(serviceUrl, parameters) {
 }
 
 /**
- * New remote repository service wrapper using fetch to simulate fetching repository details.
- * @param {string} serviceUrl
- */
-export async function callRepositoryService(serviceUrl) {
-  try {
-    const response = await fetch(serviceUrl);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    console.log(chalk.green("Repository Service Response:"), data);
-    return data;
-  } catch (error) {
-    return handleFetchError(error, "repository service");
-  }
-}
-
-/**
  * New remote security scan service wrapper using fetch to simulate vulnerability scanning.
  * @param {string} serviceUrl
  * @param {object} payload - The payload for the security scan.
