@@ -43,6 +43,8 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
   - **New:** `simulateDelayedResponse`: Simulate a delayed Kafka response to enhance realistic messaging scenarios.
 - **SARIF Parsing:**  
   Functions such as `parseVitestSarifOutput` and `parseEslintDetailedOutput` for parsing SARIF outputs.
+- **File System Simulation:**
+  *New:* `simulateFileSystemCall()` function to emulate reading file content from external resources, enabling deeper testing and mocking of file system interactions.
 - **Configuration Display:**
   *New:* The `--config` flag and accompanying `printConfiguration()` function display current node configuration, platform, and working directory, aligning with the mission of transparency and diagnostics.
 
@@ -60,8 +62,9 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - **New Kafka Functions:** Added `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaRequestResponse`, as well as extensions `simulateKafkaPriorityMessaging` and `simulateKafkaRetryOnFailure` for enhanced inter-workflow messaging.
 - **Extended:** Updated the `--create-issue` flag behavior to mimic the GitHub Actions workflow from wfr-create-issue.yml, supporting dynamic "house choice" options via the environment variable `HOUSE_CHOICE_OPTIONS`.
 - **New:** Added `--config` flag to print configuration details of the runtime environment.
-- **New:** **Added `gatherTotalTelemetry()` function** to aggregate all telemetry data from various methods, providing a comprehensive view of the GitHub Actions environment.
+- **New:** Added `gatherTotalTelemetry()` function to aggregate all telemetry data from various methods, providing a comprehensive view of the GitHub Actions environment.
 - **New:** Added `simulateDelayedResponse` function to simulate delayed Kafka responses, aligning with mission requirements by providing a more realistic messaging simulation.
+- **New:** Added `simulateFileSystemCall()` to simulate external file system calls, enhancing testability for interactions with non-network external resources.
 
 ---
 

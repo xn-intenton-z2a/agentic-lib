@@ -21,6 +21,8 @@
 // - Added new function simulateDelayedResponse to simulate a delayed Kafka response, enhancing mission compliance with richer simulation capabilities.
 // - Added new function delegateDecisionToLLMEnhanced for enhanced OpenAI delegation with improved logging and error handling.
 // - Added new function gatherTotalTelemetry to aggregate all telemetry data from GitHub Actions Workflows.
+// - 
+// - New: Added simulateFileSystemCall to simulate external file system calls for deeper testing and mocking of external resources.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -668,7 +670,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -1257,6 +1259,23 @@ export async function delegateDecisionToLLMEnhanced(prompt, options = {}) {
   } catch (error) {
     console.error(chalk.red("Delegate Decision To LLM Enhanced error:"), error);
     return { fixed: "false", message: "Enhanced LLM decision failed: " + error.message, refinement: "Check OpenAI service." };
+  }
+}
+
+/**
+ * New function to simulate an external file system call.
+ * Reads file content with UTF-8 encoding.
+ * @param {string} filePath - The path to the file.
+ * @returns {Promise<string|null>} The content of the file or null if an error occurs.
+ */
+export async function simulateFileSystemCall(filePath) {
+  try {
+    const fs = await import('fs/promises');
+    const content = await fs.readFile(filePath, { encoding: 'utf8' });
+    return content;
+  } catch (error) {
+    console.error(chalk.red("File system call failed:"), error.message);
+    return null;
   }
 }
 
