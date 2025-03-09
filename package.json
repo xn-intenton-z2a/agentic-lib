@@ -16,6 +16,7 @@
     "test": "vitest tests/unit/*.test.js",
     "test:unit": "vitest --coverage tests/unit/*.test.js",
     "start": "node src/lib/main.js",
+    "diagnostics": "node src/lib/main.js --diagnostics",
     "release": "echo \"Automated release script to be implemented\""
   },
   "keywords": [],
