@@ -26,7 +26,7 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - **Telemetry:**  
   Comprehensive diagnostics including `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and now the new `gatherTotalTelemetry()` to aggregate all telemetry data from GitHub Actions workflows.
 - **Remote Service Wrappers:**  
-  Simplified API interactions for deployment, build status, analytics, notifications, logging, repository details, and code quality analysis via `callCodeQualityService`.
+  Simplified API interactions for deployment, build status, analytics, notifications, logging, repository details, and code quality analysis via `callCodeQualityService` and the new `callRepositoryService`.
 - **LLM Delegation:**  
   Advanced functions supporting robust decision delegation with schema validation and timeout support. *New:* `callOpenAIFunctionWrapper` is implemented to wrap an OpenAI function call using the function calling schema, now enhanced with an empty prompt check, improved error reporting, and explicit API key validation.
   - **New:** Added `delegateDecisionToLLMEnhanced` for improved OpenAI delegation with enhanced logging.

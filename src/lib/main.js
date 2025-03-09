@@ -411,6 +411,24 @@ export async function callCodeQualityService(serviceUrl, parameters) {
 }
 
 /**
+ * New remote repository service wrapper using fetch to simulate fetching repository details.
+ * @param {string} serviceUrl
+ */
+export async function callRepositoryService(serviceUrl) {
+  try {
+    const response = await fetch(serviceUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log(chalk.green("Repository Service Response:"), data);
+    return data;
+  } catch (error) {
+    return handleFetchError(error, "repository service");
+  }
+}
+
+/**
  * Parse SARIF formatted JSON to summarize issues.
  * @param {string} sarifJson
  */
@@ -650,7 +668,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
