@@ -748,8 +748,10 @@ describe("Additional Functions", () => {
 });
 
 describe("callOpenAIFunctionWrapper", () => {
-  test("returns fallback message when OpenAI call fails", async () => {
+  test("returns fallback message when OpenAI call fails or API key is missing", async () => {
+    delete process.env.OPENAI_API_KEY;
     const result = await agenticLib.callOpenAIFunctionWrapper("test prompt");
     expect(result.fixed).toBe("false");
+    expect(result.message).toContain("OpenAI API key is missing");
   });
 });

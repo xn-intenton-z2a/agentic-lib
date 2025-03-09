@@ -28,7 +28,7 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - **Remote Service Wrappers:**  
   Simplified API interactions for deployment, build status, analytics, notifications, logging, repository details, and code quality analysis via `callCodeQualityService`.
 - **LLM Delegation:**  
-  Advanced functions supporting robust decision delegation with schema validation and timeout support. *New:* `callOpenAIFunctionWrapper` is implemented to wrap an OpenAI function call using the function calling schema, now enhanced with an empty prompt check and improved error reporting.
+  Advanced functions supporting robust decision delegation with schema validation and timeout support. *New:* `callOpenAIFunctionWrapper` is implemented to wrap an OpenAI function call using the function calling schema, now enhanced with an empty prompt check, improved error reporting, and explicit API key validation.
 - **Kafka Operations:**  
   Simulated messaging for inter-workflow communication using Kafka-like functions. New functions include:
   - `simulateKafkaProducer`: Simulate the production of messages to a topic.
@@ -53,7 +53,7 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - Enhanced telemetry and Kafka simulation functions with detailed logging and metrics.
 - Advanced LLM delegation functions with strict schema validation and timeout support.
 - New wrappers for remote repository, logging, analytics, and code quality services.
-- **New:** Implemented and enhanced `callOpenAIFunctionWrapper` with an empty prompt check and improved error reporting to better support function calling in advanced LLM delegation.
+- **New:** Implemented and enhanced `callOpenAIFunctionWrapper` and related OpenAI delegation functions with explicit API key validation and improved error messaging.
 - **Fixed:** Updated the regex in `getIssueNumberFromBranch` to correctly extract issue numbers from branch names.
 - **New Kafka Functions:** Added `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaRequestResponse`, as well as extensions `simulateKafkaPriorityMessaging` and `simulateKafkaRetryOnFailure` for enhanced inter-workflow messaging.
 - **Extended:** Updated the `--create-issue` flag behavior to mimic the GitHub Actions workflow from wfr-create-issue.yml, supporting dynamic "house choice" options via the environment variable `HOUSE_CHOICE_OPTIONS`.
