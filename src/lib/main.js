@@ -20,7 +20,7 @@
 // - Added new '--config' flag to display configuration details, aligning with the Mission Statement.
 // - Added new function simulateDelayedResponse to simulate a delayed Kafka response, enhancing mission compliance with richer simulation capabilities.
 // - Added new function delegateDecisionToLLMEnhanced for enhanced OpenAI delegation with improved logging and error handling.
-// New: Added gatherTotalTelemetry function to aggregate all telemetry data from GitHub Actions Workflows.
+// - Added new function gatherTotalTelemetry to aggregate all telemetry data from GitHub Actions Workflows.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -388,24 +388,6 @@ export async function callLoggingService(serviceUrl, logData) {
 }
 
 /**
- * New remote repository service wrapper using fetch to simulate fetching repository details.
- * @param {string} serviceUrl
- */
-export async function callRepositoryService(serviceUrl) {
-  try {
-    const response = await fetch(serviceUrl);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const repoDetails = await response.json();
-    console.log(chalk.green("Repository Service Response:"), repoDetails);
-    return repoDetails;
-  } catch (error) {
-    return handleFetchError(error, "repository service");
-  }
-}
-
-/**
  * New remote code quality service wrapper using fetch to simulate retrieving code quality metrics.
  * @param {string} serviceUrl
  * @param {object} parameters - The parameters for code quality analysis.
@@ -668,7 +650,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
