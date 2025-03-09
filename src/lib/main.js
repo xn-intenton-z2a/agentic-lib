@@ -23,6 +23,7 @@
 // - Added new function gatherTotalTelemetry to aggregate all telemetry data from GitHub Actions Workflows.
 // - New: Added simulateFileSystemCall to simulate external file system calls for deeper testing and mocking of external resources.
 // - New: Added simulateKafkaBroadcast to simulate broadcasting a Kafka message to multiple topics concurrently.
+// - New: Added gatherCIEnvironmentMetrics to capture additional CI environment metrics from GitHub Actions.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -109,7 +110,18 @@ export function gatherAdvancedTelemetryData() {
 }
 
 /**
- * New telemetry aggregator function to merge all levels of GitHub Actions telemetry data.
+ * New telemetry function to capture additional CI environment metrics from GitHub Actions.
+ */
+export function gatherCIEnvironmentMetrics() {
+  return {
+    githubWorkspace: process.env.GITHUB_WORKSPACE || "N/A",
+    githubEventPath: process.env.GITHUB_EVENT_PATH || "N/A",
+    githubPath: process.env.GITHUB_PATH || "N/A"
+  };
+}
+
+/**
+ * New telemetry aggregator function to merge all levels of GitHub Actions telemetry data, including CI metrics.
  */
 export function gatherGitHubTelemetrySummary() {
   const basic = gatherTelemetryData();
@@ -142,7 +154,7 @@ export function gatherWorkflowTelemetryData() {
 }
 
 /**
- * New function to aggregate all telemetry information from various functions including process uptime.
+ * New function to aggregate all telemetry information from various functions including process uptime and CI environment metrics.
  */
 export function gatherTotalTelemetry() {
   return {
@@ -153,6 +165,7 @@ export function gatherTotalTelemetry() {
     githubSummary: gatherGitHubTelemetrySummary(),
     custom: gatherCustomTelemetryData(),
     workflow: gatherWorkflowTelemetryData(),
+    ciEnvMetrics: gatherCIEnvironmentMetrics(),
     processUptime: process.uptime()
   };
 }
@@ -670,7 +683,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }

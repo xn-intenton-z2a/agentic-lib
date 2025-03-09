@@ -256,7 +256,17 @@ describe("Telemetry Functions", () => {
     expect(total).toHaveProperty("githubSummary");
     expect(total).toHaveProperty("custom");
     expect(total).toHaveProperty("workflow");
+    expect(total).toHaveProperty("ciEnvMetrics");
     expect(total).toHaveProperty("processUptime");
+  });
+  test("gatherCIEnvironmentMetrics returns CI environment metrics", () => {
+    process.env.GITHUB_WORKSPACE = "test-workspace";
+    process.env.GITHUB_EVENT_PATH = "/path/to/event.json";
+    process.env.GITHUB_PATH = "/home/runner/work/agentic-lib";
+    const ciEnv = agenticLib.gatherCIEnvironmentMetrics();
+    expect(ciEnv.githubWorkspace).toBe("test-workspace");
+    expect(ciEnv.githubEventPath).toBe("/path/to/event.json");
+    expect(ciEnv.githubPath).toBe("/home/runner/work/agentic-lib");
   });
 });
 
