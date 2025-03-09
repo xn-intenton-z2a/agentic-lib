@@ -292,7 +292,7 @@ describe("main function flags", () => {
       } catch (error) {}
     });
     expect(output).toContain("Usage: npm run start");
-    expect(output).toContain("Demo: Demonstration of agentic‐lib functionality:");
+    expect(output).toContain("Demo: Demonstration of agentic‑lib functionality:");
   });
 
   test("--reverse flag prints reversed input", () => {

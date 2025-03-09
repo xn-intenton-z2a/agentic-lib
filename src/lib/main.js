@@ -1,29 +1,9 @@
 #!/usr/bin/env node
-// src/lib/main.js - Implementation aligned with the agentic‐lib mission statement.
+// src/lib/main.js - Implementation aligned with the agentic‑lib mission statement.
 // Change Log:
-// - Aligned with the agentic‐lib mission statement by pruning drift and removing redundant simulation verbiage.
-// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, --extended, --report, --advanced, --analytics, --config.
-// - Integrated Kafka logging, system performance telemetry, remote service wrappers with improved HTTP error checking.
-// - Added detailed Kafka simulation functions and advanced analytics simulation for deeper diagnostics.
-// - Refactored flag handling and improved regex safety in getIssueNumberFromBranch.
-// - Enhanced OpenAI delegation functions to support ESM module structure and advanced LLM delegation with function calls.
-// - Added new remote repository service wrapper: callRepositoryService to simulate fetching repository details.
-// - Added new analytics service call simulation via --analytics flag.
-// - Refactored remote service wrappers to use a common error handling helper, reducing code duplication and improving test coverage.
-// - Added new Kafka producer, consumer, and request-response simulation functions to enhance inter-workflow messaging.
-// - Added new Kafka simulation functions: simulateKafkaGroupMessaging and simulateKafkaTopicSubscription to simulate group messaging and topic subscriptions.
-// - Improved error handling in simulateKafkaRequestResponse to gracefully catch synchronous errors (boosting test coverage).
-// - Added new remote code quality service wrapper: callCodeQualityService to simulate retrieving code quality metrics from a remote service.
-// - Updated delegateDecisionToLLM to correctly import Configuration and OpenAIApi.
-// - Enhanced OpenAI function wrapper: callOpenAIFunctionWrapper now includes an empty prompt check and improved error handling with detailed logging.
-// - Extended '--create-issue' flag workflow behavior to mimic the GitHub Actions workflow (wfr-create-issue.yml) by supporting dynamic house choice options via the environment variable HOUSE_CHOICE_OPTIONS and logging simulated issue creation details in JSON format.
-// - Added new '--config' flag to display configuration details, aligning with the Mission Statement.
-// - Added new function simulateDelayedResponse to simulate a delayed Kafka response, enhancing mission compliance with richer simulation capabilities.
-// - Added new function delegateDecisionToLLMEnhanced for enhanced OpenAI delegation with improved logging and error handling.
-// - Added new function gatherTotalTelemetry to aggregate all telemetry data from GitHub Actions Workflows.
-// - New: Added simulateFileSystemCall to simulate external file system calls for deeper testing and mocking of external resources.
-// - New: Added simulateKafkaBroadcast to simulate broadcasting a Kafka message to multiple topics concurrently.
-// - New: Added callRepositoryService function as it was missing and required by tests
+// - Aligned code with the agentic‑lib mission statement by pruning drift and removing redundant simulation verbiage.
+// - Extended functionality with refined flag handling, enhanced telemetry, improved remote service wrappers, and updated delegation functions.
+// - Added additional Kafka messaging functions and file system simulation for deeper testing.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -50,7 +30,7 @@ function handleFetchError(error, serviceName) {
  * Exits the application safely (does not exit in test environment).
  */
 function exitApplication() {
-  console.log(chalk.blue("Exiting agentic‐lib."));
+  console.log(chalk.blue("Exiting agentic‑lib."));
   if (process.env.NODE_ENV !== "test") {
     process.exit(0);
   }
@@ -549,7 +529,7 @@ export function simulateAdvancedAnalytics(topic, count = 3) {
 function printUsageAndDemo(flagArgs, nonFlagArgs) {
   console.log(generateUsage());
   console.log("");
-  console.log("Demo: Demonstration of agentic‐lib functionality:");
+  console.log("Demo: Demonstration of agentic‑lib functionality:");
   console.log(enhancedDemo());
   if (flagArgs.length === 0) {
     console.log("No additional arguments provided.");
@@ -569,7 +549,6 @@ function handleBasicFlag(flag, nonFlagArgs) {
       }
       const issueBody = process.env.ISSUE_BODY || "Please resolve the issue.";
       const issueNumber = randomInt(100, 1000);
-      // New: Log simulated issue creation details in JSON format to mimic the workflow behavior from wfr-create-issue.yml
       console.log(chalk.magenta(JSON.stringify({
         issueTitle,
         issueBody,
@@ -678,7 +657,7 @@ function handleFlagCommands(flagArgs, nonFlagArgs) {
  */
 export function main(args = []) {
   if (process.env.NODE_ENV !== "test") {
-    console.log(chalk.green(figlet.textSync("agentic‐lib", { horizontalLayout: "full" })));
+    console.log(chalk.green(figlet.textSync("agentic‑lib", { horizontalLayout: "full" })));
   }
   const { flagArgs, nonFlagArgs } = splitArguments(args);
   if (handleFlagCommands(flagArgs, nonFlagArgs)) return;
@@ -695,7 +674,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -735,7 +714,7 @@ export function processFlags(flags = []) {
 export function enhancedDemo() {
   const envDetails = logEnvironmentDetails();
   const debugStatus = process.env.DEBUG_MODE ? `DEBUG_MODE: ${process.env.DEBUG_MODE}` : "DEBUG_MODE: off";
-  return `Enhanced Demo: Agentic‐lib now supports additional argument processing.\n${envDetails}\n${debugStatus}`;
+  return `Enhanced Demo: Agentic‑lib now supports additional argument processing.\n${envDetails}\n${debugStatus}`;
 }
 
 export function logEnvironmentDetails() {
