@@ -14,8 +14,8 @@
 // - Added new Kafka simulation functions: simulateKafkaGroupMessaging and simulateKafkaTopicSubscription to simulate group messaging and topic subscriptions.
 // - Improved error handling in simulateKafkaRequestResponse to gracefully catch synchronous errors (boosting test coverage).
 // - Added new remote code quality service wrapper: callCodeQualityService to simulate retrieving code quality metrics from a remote service.
-// - Implemented new OpenAIFunction wrapper: callOpenAIFunctionWrapper to support OpenAI function calling with strict schema validation.
-// - Added new Kafka messaging extensions: simulateKafkaPriorityMessaging and simulateKafkaRetryOnFailure for enhanced inter-workflow communication.
+// - Updated delegateDecisionToLLM to correctly import Configuration and OpenAIApi.
+// - Enhanced OpenAI function wrapper: callOpenAIFunctionWrapper now includes an empty prompt check and improved error handling with detailed logging.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -865,6 +865,11 @@ export async function delegateDecisionToLLMAdvancedStrict(prompt, options = {}) 
 
 // New OpenAI function wrapper using function calling, similar to the supplied OpenAI function example
 export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo") {
+  if (!prompt) {
+    const errMsg = "Prompt is empty.";
+    console.error(chalk.red("callOpenAIFunctionWrapper error:"), errMsg);
+    return { fixed: "false", message: errMsg, refinement: "None" };
+  }
   try {
     const openaiModule = await import("openai");
     const Config = openaiModule.Configuration ? (openaiModule.Configuration.default || openaiModule.Configuration) : null;
@@ -922,7 +927,7 @@ export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo")
     return result;
   } catch (error) {
     console.error(chalk.red("callOpenAIFunctionWrapper error:"), error);
-    return { fixed: "false", message: error.message, refinement: "None" };
+    return { fixed: "false", message: "Enhanced wrapper failure: " + error.message, refinement: "None" };
   }
 }
 
