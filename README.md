@@ -2,10 +2,7 @@
 
 You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/WORKFLOWS-README.md)
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
-repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
-issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
-GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 
 [Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
 
@@ -41,6 +38,8 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
     - `simulateKafkaRetryOnFailure`: Simulate sending messages with retry on failure.
 - **SARIF Parsing:**  
   Functions such as `parseVitestSarifOutput` and `parseEslintDetailedOutput` for parsing SARIF outputs.
+- **Configuration Display:**
+  *New:* The `--config` flag and accompanying `printConfiguration()` function display current node configuration, platform, and working directory, aligning with the mission of transparency and diagnostics.
 
 ---
 
@@ -54,6 +53,7 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - **Fixed:** Updated the regex in `getIssueNumberFromBranch` to correctly extract issue numbers from branch names.
 - **New Kafka Functions:** Added `simulateKafkaProducer`, `simulateKafkaConsumer`, and `simulateKafkaRequestResponse`, along with additional extensions `simulateKafkaPriorityMessaging` and `simulateKafkaRetryOnFailure` for enhanced inter-workflow messaging.
 - **Extended:** Updated the `--create-issue` flag behavior to mimic the GitHub Actions workflow from wfr-create-issue.yml, supporting dynamic "house choice" options via the environment variable `HOUSE_CHOICE_OPTIONS`.
+- **New:** Added `--config` flag to print configuration details of the runtime environment.
 
 ---
 
