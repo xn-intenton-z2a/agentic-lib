@@ -144,4 +144,3 @@ describe("sanitizeCommitMessage", () => {
 });
 
 // ... Additional tests omitted for brevity
-
