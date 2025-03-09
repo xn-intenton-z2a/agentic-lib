@@ -773,6 +773,23 @@ describe("Additional Functions", () => {
   });
 });
 
+describe("simulateFileSystemCall", () => {
+  const { promises: fs } = require('fs');
+  const path = "./temp_test_file.txt";
+  test("returns file content when file exists", async () => {
+    const testContent = "Test file content";
+    await fs.writeFile(path, testContent, { encoding: "utf8" });
+    const content = await agenticLib.simulateFileSystemCall(path);
+    expect(content).toBe(testContent);
+    await fs.unlink(path);
+  });
+  test("returns null when file does not exist", async () => {
+    const content = await agenticLib.simulateFileSystemCall("non_existent_file.txt");
+    expect(content).toBeNull();
+  });
+});
+
+// callOpenAIFunctionWrapper tests
 describe("callOpenAIFunctionWrapper", () => {
   test("returns fallback message when OpenAI call fails or API key is missing", async () => {
     delete process.env.OPENAI_API_KEY;
