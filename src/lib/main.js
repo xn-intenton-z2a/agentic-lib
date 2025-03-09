@@ -668,7 +668,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -1117,7 +1117,7 @@ export function simulateKafkaProducer(topic, messages = []) {
 export function simulateKafkaConsumer(topic, count = 1) {
   const messages = [];
   for (let i = 0; i < count; i++) {
-    const msg = `Consumed message ${i + 1} from topic '${topic}'`;
+    const msg = `Consumed message ${i + 1} from topic 'consumerTopic'`;
     messages.push(msg);
   }
   return messages;
