@@ -6,7 +6,7 @@
 // - Added new Kafka messaging functions and file system simulation for deeper testing.
 // - Added new remote monitoring service wrapper to simulate fetching monitoring metrics remotely.
 // - Added new parsing functions: parseVitestDefaultOutput and parseEslintDefaultOutput to handle default output formats of Vitest and ESLint, extending SARIF parsing capabilities.
-// - Updated getIssueNumberFromBranch to properly extract issue numbers using escaped regex.
+// - Updated getIssueNumberFromBranch to correctly extract issue numbers using double-escaped regex for digit matching.
 // - Added new utility functions: reviewIssue, printReport, simulateKafkaProducer, simulateKafkaConsumer, simulateKafkaPriorityMessaging, simulateKafkaRetryOnFailure, simulateFileSystemCall, delegateDecisionToLLMEnhanced, and printConfiguration.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
@@ -31,13 +31,11 @@ function handleFetchError(error, serviceName) {
 }
 
 /**
- * Exits the application safely (does not exit in test environment).
+ * Exits the application safely.
  */
 function exitApplication() {
   console.log(chalk.blue("Exiting agentic‑lib."));
-  if (process.env.NODE_ENV !== "test") {
-    process.exit(0);
-  }
+  process.exit(0);
 }
 
 /**
