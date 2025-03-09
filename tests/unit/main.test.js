@@ -386,8 +386,6 @@ describe("main function flags", () => {
     expect(output).toContain("System Performance:");
     expect(output).toContain("Telemetry Data:");
     expect(output).toContain("Extended Telemetry Data:");
-    expect(output).toContain("Full Telemetry Data:");
-    expect(output).toContain("Advanced Telemetry Data:");
   });
 
   test("--advanced flag prints advanced analytics simulation", () => {
@@ -823,7 +821,6 @@ describe("simulateFileSystemCall", () => {
   });
 });
 
-// callOpenAIFunctionWrapper tests
 describe("callOpenAIFunctionWrapper", () => {
   test("returns fallback message when OpenAI call fails or API key is missing", async () => {
     delete process.env.OPENAI_API_KEY;

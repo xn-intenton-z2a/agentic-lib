@@ -1119,144 +1119,6 @@ export function simulateRealKafkaStream(topic, count = 3) {
   return messages;
 }
 
-/**
- * New functions to parse detailed SARIF outputs from Vitest and ESLint
- */
-export function parseVitestSarifOutput(sarifJson) {
-  try {
-    const sarif = JSON.parse(sarifJson);
-    const testSummaries = [];
-    if (sarif.runs && Array.isArray(sarif.runs)) {
-      sarif.runs.forEach((run) => {
-        if (run.results && Array.isArray(run.results)) {
-          run.results.forEach((result) => {
-            if (result.message && result.message.text) {
-              testSummaries.push(result.message.text);
-            }
-          });
-        }
-      });
-    }
-    console.log(chalk.green("Vitest SARIF Report:"), testSummaries);
-    return { testSummaries };
-  } catch (error) {
-    const errMsg = error instanceof Error ? error.message : "Unknown error";
-    console.error(chalk.red("Error parsing Vitest SARIF JSON:"), errMsg);
-    return { error: errMsg };
-  }
-}
-
-export function parseEslintDetailedOutput(sarifJson) {
-  try {
-    const sarif = JSON.parse(sarifJson);
-    const eslintIssues = [];
-    if (sarif.runs && Array.isArray(sarif.runs)) {
-      sarif.runs.forEach((run) => {
-        if (run.results && Array.isArray(run.results)) {
-          run.results.forEach((result) => {
-            eslintIssues.push({
-              ruleId: result.ruleId || "unknown",
-              message: result.message && result.message.text ? result.message.text : ""
-            });
-          });
-        }
-      });
-    }
-    console.log(chalk.green("ESLint Detailed SARIF Report:"), eslintIssues);
-    return { eslintIssues };
-  } catch (error) {
-    const errMsg = error instanceof Error ? error.message : "Unknown error";
-    console.error(chalk.red("Error parsing ESLint Detailed SARIF JSON:"), errMsg);
-    return { error: errMsg };
-  }
-}
-
-/**
- * New function to print configuration details.
- */
-export function printConfiguration() {
-  const config = {
-    nodeVersion: process.version,
-    platform: process.platform,
-    currentWorkingDirectory: process.cwd()
-  };
-  console.log(chalk.blue("Configuration:"), JSON.stringify(config, null, 2));
-  return config;
-}
-
-/**
- * New function to simulate a delayed response in Kafka messaging, enhancing our mission compliance with extended simulation features.
- * @param {string} topic
- * @param {string} message
- * @param {number} delay - Delay in milliseconds (default 100ms)
- * @returns {Promise<string>} Delayed response message.
- */
-export async function simulateDelayedResponse(topic, message, delay = 100) {
-  try {
-    await new Promise((resolve) => setTimeout(resolve, delay));
-    const result = `Delayed response to '${message}' on topic '${topic}' after ${delay}ms`;
-    console.log(chalk.green(result));
-    return result;
-  } catch (error) {
-    console.error(chalk.red("Error simulating delayed response:"), error.message);
-    return `Error simulating delayed response: ${error.message}`;
-  }
-}
-
-/**
- * New function for enhanced OpenAI delegation with improved logging and error handling.
- * This function wraps callOpenAIFunctionWrapper and provides additional checks.
- * @param {string} prompt
- * @param {object} options
- */
-export async function delegateDecisionToLLMEnhanced(prompt, options = {}) {
-  if (!prompt) {
-    console.error(chalk.red("Delegate Decision To LLM Enhanced error:"), "Prompt is empty.");
-    return { fixed: "false", message: "Prompt is empty.", refinement: "Provide a valid prompt." };
-  }
-  if (!process.env.OPENAI_API_KEY) {
-    console.error(chalk.red("Delegate Decision To LLM Enhanced error:"), "OpenAI API key is missing.");
-    return { fixed: "false", message: "OpenAI API key is missing.", refinement: "Provide a valid API key." };
-  }
-  try {
-    const result = await callOpenAIFunctionWrapper(prompt, options.model || "gpt-3.5-turbo");
-    console.log(chalk.blue("Delegate Decision To LLM Enhanced result:"), result);
-    return result;
-  } catch (error) {
-    console.error(chalk.red("Delegate Decision To LLM Enhanced error:"), error);
-    return { fixed: "false", message: "Enhanced LLM decision failed: " + error.message, refinement: "Check OpenAI service." };
-  }
-}
-
-/**
- * New function to simulate an external file system call.
- * Reads file content with UTF-8 encoding.
- * @param {string} filePath - The path to the file.
- * @returns {Promise<string|null>} The content of the file or null if an error occurs.
- */
-export async function simulateFileSystemCall(filePath) {
-  try {
-    const fs = await import('fs/promises');
-    const content = await fs.readFile(filePath, { encoding: 'utf8' });
-    return content;
-  } catch (error) {
-    console.error(chalk.red("File system call failed:"), error.message);
-    return null;
-  }
-}
-
-// New Function: simulateKafkaBroadcast to simulate Kafka broadcast messaging across topics
-export function simulateKafkaBroadcast(topics, message) {
-  const responses = {};
-  topics.forEach((topic) => {
-    const sent = sendMessageToKafka(topic, message);
-    const received = receiveMessageFromKafka(topic);
-    responses[topic] = { sent, received, broadcast: true };
-    console.log(chalk.blue(`Broadcast to '${topic}':`), responses[topic]);
-  });
-  return responses;
-}
-
 // New: Added callRepositoryService function as it was missing and required by tests
 export async function callRepositoryService(serviceUrl) {
   try {
@@ -1270,6 +1132,18 @@ export async function callRepositoryService(serviceUrl) {
   } catch (error) {
     return handleFetchError(error, "repository service");
   }
+}
+
+// New Function: simulateKafkaBroadcast to simulate Kafka broadcast messaging across topics
+export function simulateKafkaBroadcast(topics, message) {
+  const responses = {};
+  topics.forEach((topic) => {
+    const sent = sendMessageToKafka(topic, message);
+    const received = receiveMessageFromKafka(topic);
+    responses[topic] = { sent, received, broadcast: true };
+    console.log(chalk.blue(`Broadcast to '${topic}':`), responses[topic]);
+  });
+  return responses;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
