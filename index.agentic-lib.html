@@ -43,7 +43,11 @@ Comprehensive diagnostics including <code class="md-github">gatherTelemetryData(
 <li class="md-github"><strong class="md-github">Remote Service Wrappers:</strong><br>
 Simplified API interactions for deployment, build status, analytics, notifications, logging, repository details, and code quality analysis via <code class="md-github">callCodeQualityService</code>.</li>
 <li class="md-github"><strong class="md-github">LLM Delegation:</strong><br>
-Advanced functions supporting robust decision delegation with schema validation and timeout support. <em class="md-github">New:</em> <code class="md-github">callOpenAIFunctionWrapper</code> is implemented to wrap an OpenAI function call using the function calling schema, now enhanced with an empty prompt check, improved error reporting, and explicit API key validation.</li>
+Advanced functions supporting robust decision delegation with schema validation and timeout support. <em class="md-github">New:</em> <code class="md-github">callOpenAIFunctionWrapper</code> is implemented to wrap an OpenAI function call using the function calling schema, now enhanced with an empty prompt check, improved error reporting, and explicit API key validation.
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">delegateDecisionToLLMEnhanced</code> for enhanced OpenAI delegation with improved logging and error handling.</li>
+</ul>
+</li>
 <li class="md-github"><strong class="md-github">Kafka Operations:</strong><br>
 Simulated messaging for inter-workflow communication using Kafka-like functions. New functions include:
 <ul class="md-github">
@@ -74,6 +78,7 @@ Functions such as <code class="md-github">parseVitestSarifOutput</code> and <cod
 <li class="md-github">Advanced LLM delegation functions with strict schema validation and timeout support.</li>
 <li class="md-github">New wrappers for remote repository, logging, analytics, and code quality services.</li>
 <li class="md-github"><strong class="md-github">New:</strong> Implemented and enhanced <code class="md-github">callOpenAIFunctionWrapper</code> and related OpenAI delegation functions with explicit API key validation and improved error messaging.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">delegateDecisionToLLMEnhanced</code> function for improved OpenAI delegation with enhanced logging.</li>
 <li class="md-github"><strong class="md-github">Fixed:</strong> Updated the regex in <code class="md-github">getIssueNumberFromBranch</code> to correctly extract issue numbers from branch names.</li>
 <li class="md-github"><strong class="md-github">New Kafka Functions:</strong> Added <code class="md-github">simulateKafkaProducer</code>, <code class="md-github">simulateKafkaConsumer</code>, <code class="md-github">simulateKafkaRequestResponse</code>, as well as extensions <code class="md-github">simulateKafkaPriorityMessaging</code> and <code class="md-github">simulateKafkaRetryOnFailure</code> for enhanced inter-workflow messaging.</li>
 <li class="md-github"><strong class="md-github">Extended:</strong> Updated the <code class="md-github">--create-issue</code> flag behavior to mimic the GitHub Actions workflow from wfr-create-issue.yml, supporting dynamic &quot;house choice&quot; options via the environment variable <code class="md-github">HOUSE_CHOICE_OPTIONS</code>.</li>
@@ -144,7 +149,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-09T11:20:44.344Z</p>
+    <p>Generated on 2025-03-09T11:27:39.397Z</p>
   </footer>
 </body>
 </html>
