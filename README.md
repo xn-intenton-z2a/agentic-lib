@@ -58,21 +58,18 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 
 ## Recent Improvements
 
+- Aligned code with the agentic‑lib mission statement by pruning drift and removing redundant simulation verbiage.
 - Extended flag handling with improved diagnostics and error checking.
 - Enhanced telemetry and Kafka simulation functions with detailed logging and metrics.
-- Advanced LLM delegation functions with strict schema validation and timeout support.
-- New wrappers for remote repository, logging, analytics, code quality services, and **security scanning**.
-- **New:** Implemented `callSecurityScanService` to simulate a remote vulnerability scanning service.
-- **New:** Implemented and enhanced `callOpenAIFunctionWrapper` and related OpenAI delegation functions with explicit API key validation and improved error messaging.
-- **New:** Added `delegateDecisionToLLMEnhanced` for improved OpenAI delegation with enhanced logging.
-- **New Kafka Functions:** Added `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaRequestResponse`, and extensions `simulateKafkaPriorityMessaging` and `simulateKafkaRetryOnFailure` for enhanced inter-workflow messaging.
-- **Extended:** Updated the `--create-issue` flag behavior to mimic the GitHub Actions workflow from wfr-create-issue.yml, supporting dynamic "house choice" options and providing a JSON log of the created issue details.
-- **New:** Added `--config` flag to print configuration details of the runtime environment.
+- Advanced LLM delegation functions updated with strict schema validation and timeout support.
+- Implemented wrappers for remote repository, logging, analytics, code quality services, and security scanning.
+- **New:** Updated `--create-issue` flag behavior for dynamic house choice and JSON logging of issue creation details.
+- **New:** Introduced `--config` flag to display current runtime configuration.
 - **New:** Added `gatherTotalTelemetry()` to aggregate telemetry data from multiple sources.
-- **New:** Added `simulateDelayedResponse` to simulate delayed Kafka responses.
-- **New:** Added `simulateKafkaBroadcast` to enable broadcasting messages across multiple topics.
+- **New:** Added `simulateDelayedResponse` for realistic simulated Kafka response delays.
+- **New:** Added `simulateKafkaBroadcast` for broadcasting messages across multiple topics.
 - **New:** Added `simulateFileSystemCall()` for simulating file system interactions.
-- **New:** Added `gatherCIEnvironmentMetrics()` to capture additional CI environment metrics from GitHub Actions.
+- **New:** Added `gatherCIEnvironmentMetrics()` to capture additional CI environment metrics.
 
 ---
 
