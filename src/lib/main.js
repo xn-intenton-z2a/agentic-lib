@@ -15,6 +15,8 @@
 // - Improved error handling in simulateKafkaRequestResponse to gracefully catch synchronous errors (boosting test coverage).
 // - Added new remote code quality service wrapper: callCodeQualityService to simulate retrieving code quality metrics from a remote service.
 // - Implemented new OpenAIFunction wrapper: callOpenAIFunctionWrapper to support OpenAI function calling with strict schema validation.
+// - Added new Kafka messaging extensions: simulateKafkaPriorityMessaging and simulateKafkaRetryOnFailure for enhanced inter-workflow communication.
+
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -642,7 +644,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -1118,6 +1120,47 @@ export function simulateKafkaGroupMessaging(group, message, consumerCount = 1) {
  */
 export function simulateKafkaTopicSubscription(topics = []) {
   return topics.map(topic => `Subscribed to topic: ${topic}`);
+}
+
+// New Kafka Messaging Extensions
+
+/**
+ * Simulate Kafka Priority Messaging: processes messages with a given priority.
+ * @param {string} topic
+ * @param {string[]} messages
+ * @param {string} priority
+ * @returns {string[]} Array of processed priority messages.
+ */
+export function simulateKafkaPriorityMessaging(topic, messages = [], priority = "high") {
+  console.log(`Simulating priority messaging on '${topic}' with priority ${priority}`);
+  const prioritizedMessages = messages.map((msg, index) => `Priority(${priority}) Message ${index + 1} from topic '${topic}': ${msg}`);
+  prioritizedMessages.forEach(message => console.log(message));
+  return prioritizedMessages;
+}
+
+/**
+ * Simulate Kafka Retry On Failure: simulates retry attempts when sending a message fails.
+ * @param {string} topic
+ * @param {string} message
+ * @param {number} maxRetries
+ * @returns {object} Details about the retry attempts and final status.
+ */
+export function simulateKafkaRetryOnFailure(topic, message, maxRetries = 3) {
+  let attempts = 0;
+  let success = false;
+  const logMessages = [];
+  while (attempts < maxRetries && !success) {
+    attempts++;
+    // Simulate a 50% chance of success
+    if (randomInt(0, 2) === 1) {
+      success = true;
+      logMessages.push(`Attempt ${attempts}: Success sending '${message}' to '${topic}'`);
+    } else {
+      logMessages.push(`Attempt ${attempts}: Failure sending '${message}' to '${topic}'`);
+    }
+  }
+  console.log(`Retry on failure simulation for topic '${topic}':`, logMessages.join(" | "));
+  return { topic, message, attempts, success, logMessages };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

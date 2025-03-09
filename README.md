@@ -36,6 +36,9 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
   - `simulateKafkaRequestResponse`: Simulate a request-response mechanism over Kafka.
   - `simulateKafkaGroupMessaging`: Enhance group messaging simulation across consumers.
   - `simulateKafkaTopicSubscription`: Simulate confirmation of topic subscriptions.
+  - **New Extensions:**
+    - `simulateKafkaPriorityMessaging`: Simulate priority-based messaging.
+    - `simulateKafkaRetryOnFailure`: Simulate sending messages with retry on failure.
 - **SARIF Parsing:**  
   Functions such as `parseVitestSarifOutput` and `parseEslintDetailedOutput` for parsing SARIF outputs.
 
@@ -49,7 +52,7 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - New wrappers for remote repository, logging, analytics, and code quality services.
 - **New:** Implemented `callOpenAIFunctionWrapper` to wrap an OpenAI function call using the function calling schema.
 - **Fixed:** Updated the regex in `getIssueNumberFromBranch` to correctly extract issue numbers from branch names.
-- **New Kafka Functions:** Added `simulateKafkaProducer`, `simulateKafkaConsumer`, and `simulateKafkaRequestResponse` along with existing Kafka simulation functions.
+- **New Kafka Functions:** Added `simulateKafkaProducer`, `simulateKafkaConsumer`, and `simulateKafkaRequestResponse`, along with additional extensions `simulateKafkaPriorityMessaging` and `simulateKafkaRetryOnFailure` for enhanced inter-workflow messaging.
 
 ---
 
