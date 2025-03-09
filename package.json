@@ -1,6 +1,6 @@
 {
   "name": "@xn-intenton-z2a/agentic-lib",
-  "version": "2.6.3-3",
+  "version": "2.6.3-4",
   "description": "Agentic-lib Agentic Coding Systems SDK powering automated GitHub workflows.",
   "type": "module",
   "main": "src/lib/main.js",
@@ -44,6 +44,8 @@
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-security": "^3.0.1",
     "eslint-plugin-sonarjs": "^3.0.2",
+    "figlet": "^1.8.0",
+    "lodash": "^4.17.21",
     "markdown-it-github": "^0.5.0",
     "markdown-it": "^14.1.0",
     "npm-check-updates": "^17.1.15",

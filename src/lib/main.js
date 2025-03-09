@@ -11,6 +11,7 @@
 // - Added new analytics service call simulation via --analytics flag.
 // - Refactored remote service wrappers to use a common error handling helper, reducing code duplication and improving test coverage.
 // - Added new Kafka producer, consumer, and request-response simulation functions to enhance inter-workflow messaging.
+// - Added new Kafka simulation functions: simulateKafkaGroupMessaging and simulateKafkaTopicSubscription to simulate group messaging and topic subscriptions.
 // - Improved error handling in simulateKafkaRequestResponse to gracefully catch synchronous errors (boosting test coverage).
 // - Refreshed README documentation to align with CONTRIBUTING guidelines and include improved test coverage notes.
 
@@ -280,6 +281,36 @@ export async function simulateKafkaRequestResponse(topic, request, responseDelay
     console.error(chalk.red("Error in Kafka request-response simulation:"), error);
     return `Error in simulation: ${error.message}`;
   }
+}
+
+/**
+ * New function to simulate group messaging in Kafka, broadcasting a message to a consumer group.
+ * @param {string} group - The consumer group name.
+ * @param {string} message - The message to broadcast.
+ * @param {number} consumerCount - Number of consumers in the group (default 3).
+ * @returns {string[]} Array of responses from each consumer.
+ */
+export function simulateKafkaGroupMessaging(group, message, consumerCount = 3) {
+  console.log(chalk.blue(`Broadcasting message to Kafka consumer group '${group}': ${message}`));
+  const responses = [];
+  for (let i = 0; i < consumerCount; i++) {
+    const response = `Group '${group}' consumer ${i + 1} received message: ${message}`;
+    console.log(chalk.blue(response));
+    responses.push(response);
+  }
+  return responses;
+}
+
+/**
+ * New function to simulate subscription to multiple Kafka topics.
+ * @param {string[]} topics - Array of topics to subscribe to.
+ * @returns {string[]} Array of subscription confirmation messages.
+ */
+export function simulateKafkaTopicSubscription(topics) {
+  console.log(chalk.blue("Subscribing to Kafka topics:"), topics.join(", "));
+  const subscriptions = topics.map(topic => `Subscribed to topic: ${topic}`);
+  subscriptions.forEach(subscription => console.log(chalk.blue(subscription)));
+  return subscriptions;
 }
 
 /**

@@ -30,7 +30,7 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - **LLM Delegation:**  
   Advanced functions supporting robust decision delegation with schema validation and timeout support.
 - **Kafka Operations:**  
-  Simulated messaging for inter-workflow communication using Kafka-like functions.
+  Simulated messaging for inter-workflow communication using Kafka-like functions. *New Kafka functions added:* `simulateKafkaGroupMessaging` and `simulateKafkaTopicSubscription` enhance group messaging and topic subscription simulations.
 - **SARIF Parsing:**  
   Functions such as `parseVitestSarifOutput` and `parseEslintDetailedOutput` for parsing SARIF outputs.
 
@@ -43,6 +43,7 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - Advanced LLM delegation functions with strict schema validation and timeout support.
 - New wrappers for remote repository and logging services.
 - **Improved:** Enhanced error handling in `simulateKafkaRequestResponse` to gracefully catch synchronous errors, boosting test coverage to nearly 100%.
+- **New:** Added Kafka group messaging via `simulateKafkaGroupMessaging` and topic subscription simulation via `simulateKafkaTopicSubscription` to better simulate inter-workflow communications.
 - **Fixed:** Updated the regex in `getIssueNumberFromBranch` to correctly extract issue numbers from branch names.
 
 ---
@@ -84,8 +85,6 @@ This repository is organized into three distinct areas to help you understand th
   As part of the core project, it is under GPL‑3 with the attribution clause.
 - **Location:**  
   The code is located in `src/lib/main.js`.
-
----
 
 ## License
 

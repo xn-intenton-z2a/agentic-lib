@@ -143,8 +143,8 @@ describe("sanitizeCommitMessage", () => {
   });
 });
 
-describe("gatherTelemetryData", () => {
-  test("returns telemetry details", () => {
+describe("Telemetry Functions", () => {
+  test("gatherTelemetryData returns telemetry details", () => {
     process.env.GITHUB_WORKFLOW = "CI Workflow";
     process.env.GITHUB_RUN_ID = "12345";
     process.env.GITHUB_RUN_NUMBER = "67";
@@ -159,10 +159,8 @@ describe("gatherTelemetryData", () => {
     expect(telemetry.githubAction).toBe("run");
     expect(telemetry.nodeEnv).toBe("test");
   });
-});
 
-describe("gatherExtendedTelemetryData", () => {
-  test("returns extended telemetry details", () => {
+  test("gatherExtendedTelemetryData returns extended telemetry details", () => {
     process.env.GITHUB_WORKFLOW = "CI Workflow";
     process.env.GITHUB_RUN_ID = "12345";
     process.env.GITHUB_RUN_NUMBER = "67";
@@ -180,10 +178,8 @@ describe("gatherExtendedTelemetryData", () => {
     expect(extendedTelemetry.githubEventName).toBe("push");
     expect(extendedTelemetry.ci).toBe("true");
   });
-});
 
-describe("gatherFullTelemetryData", () => {
-  test("returns full telemetry including additional keys", () => {
+  test("gatherFullTelemetryData returns full telemetry including additional keys", () => {
     process.env.GITHUB_REF = "refs/heads/main";
     process.env.GITHUB_SHA = "abc123";
     process.env.GITHUB_HEAD_REF = "feature-branch";
@@ -204,10 +200,8 @@ describe("gatherFullTelemetryData", () => {
     expect(fullTelemetry.githubHeadRef).toBe("feature-branch");
     expect(fullTelemetry.githubBaseRef).toBe("main");
   });
-});
 
-describe("gatherAdvancedTelemetryData", () => {
-  test("returns advanced telemetry details with runtime info", () => {
+  test("gatherAdvancedTelemetryData returns advanced telemetry details with runtime info", () => {
     const advancedTelemetry = agenticLib.gatherAdvancedTelemetryData();
     expect(advancedTelemetry).toHaveProperty("nodeVersion");
     expect(advancedTelemetry).toHaveProperty("processPID");
@@ -215,10 +209,8 @@ describe("gatherAdvancedTelemetryData", () => {
     expect(advancedTelemetry).toHaveProperty("platform");
     expect(advancedTelemetry).toHaveProperty("memoryUsage");
   });
-});
 
-describe("gatherGitHubTelemetrySummary", () => {
-  test("returns merged telemetry data", () => {
+  test("gatherGitHubTelemetrySummary returns merged telemetry data", () => {
     process.env.GITHUB_WORKFLOW = "CI Workflow";
     process.env.GITHUB_RUN_ID = "12345";
     process.env.GITHUB_RUN_NUMBER = "67";
@@ -237,20 +229,16 @@ describe("gatherGitHubTelemetrySummary", () => {
     expect(summary.githubActor).toBe("tester");
     expect(summary.githubRef).toBe("refs/heads/main");
   });
-});
 
-describe("gatherCustomTelemetryData", () => {
-  test("returns custom telemetry details with system metrics", () => {
+  test("gatherCustomTelemetryData returns custom telemetry details with system metrics", () => {
     const customTelemetry = agenticLib.gatherCustomTelemetryData();
     expect(customTelemetry).toHaveProperty("osUptime");
     expect(customTelemetry).toHaveProperty("loadAverages");
     expect(customTelemetry).toHaveProperty("networkInterfaces");
     expect(customTelemetry).toHaveProperty("hostname");
   });
-});
 
-describe("gatherWorkflowTelemetryData", () => {
-  test("returns workflow telemetry details", () => {
+  test("gatherWorkflowTelemetryData returns workflow telemetry details", () => {
     process.env.GITHUB_RUN_ATTEMPT = "3";
     process.env.GITHUB_EVENT = "push";
     process.env.GITHUB_RUN_STARTED_AT = "2025-03-06T16:00:00Z";
@@ -672,6 +660,20 @@ describe("New Features", () => {
       expect(response).toContain("Error in simulation: Simulated error");
       global.setTimeout = originalSetTimeout;
     });
+
+    test("simulateKafkaGroupMessaging returns responses from all consumers in group", () => {
+      const responses = agenticLib.simulateKafkaGroupMessaging("group1", "Group Message", 4);
+      expect(responses.length).toBe(4);
+      responses.forEach((resp, index) => {
+        expect(resp).toContain(`Group 'group1' consumer ${index + 1} received message: Group Message`);
+      });
+    });
+
+    test("simulateKafkaTopicSubscription returns subscription confirmations", () => {
+      const topics = ["topicX", "topicY"];
+      const subs = agenticLib.simulateKafkaTopicSubscription(topics);
+      expect(subs).toEqual(["Subscribed to topic: topicX", "Subscribed to topic: topicY"]);
+    });
   });
 });
 
@@ -693,7 +695,6 @@ describe("Additional Functions", () => {
     expect(result.flagArgs).toEqual([]);
     expect(result.nonFlagArgs).toEqual([]);
   });
-  
   test("printReport function logs output", () => {
     const output = captureOutput(() => {
       agenticLib.printReport();
