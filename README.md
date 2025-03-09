@@ -73,6 +73,7 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - **New:** Added `gatherCIEnvironmentMetrics()` to capture additional CI environment metrics from GitHub Actions.
 
 ---
+---
 
 ## Contributing
 
@@ -138,6 +139,5 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
----
 ---
 ---
