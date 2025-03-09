@@ -14,6 +14,7 @@ GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 [See the latest repository stats](https://xn-intenton-z2a.github.io/agentic-lib/latest.html)
 
 ---
+---
 
 ## Overview
 
@@ -24,7 +25,9 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - **Usage Information:**  
   Use `generateUsage()` to display available flag options.
 - **Telemetry:**  
-  Comprehensive diagnostics including `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and the new `gatherTotalTelemetry()` to aggregate all telemetry data from GitHub Actions workflows.
+  Comprehensive diagnostics including:
+  - `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and the new `gatherTotalTelemetry()` to aggregate all telemetry data from GitHub Actions workflows.
+  - **New:** `gatherCIEnvironmentMetrics()` to capture additional GitHub Actions CI environment metrics such as workspace and event path.
 - **Remote Service Wrappers:**  
   Simplified API interactions for deployment, build status, analytics, notifications, logging, repository details, and code quality analysis via `callCodeQualityService` and `callRepositoryService`.
 - **LLM Delegation:**  
@@ -67,7 +70,9 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - **New:** Added `simulateDelayedResponse` to simulate delayed Kafka responses.
 - **New:** Added `simulateKafkaBroadcast` to enable broadcasting messages across multiple topics.
 - **New:** Added `simulateFileSystemCall()` for simulating file system interactions.
+- **New:** Added `gatherCIEnvironmentMetrics()` to capture additional CI environment metrics from GitHub Actions.
 
+---
 ---
 
 ## Contributing
@@ -134,4 +139,5 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
+---
 ---
