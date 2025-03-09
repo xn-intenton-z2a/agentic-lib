@@ -17,7 +17,6 @@
 // - Implemented new OpenAIFunction wrapper: callOpenAIFunctionWrapper to support OpenAI function calling with strict schema validation.
 // - Added new Kafka messaging extensions: simulateKafkaPriorityMessaging and simulateKafkaRetryOnFailure for enhanced inter-workflow communication.
 
-
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
 import { fileURLToPath } from "url";
@@ -644,7 +643,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
