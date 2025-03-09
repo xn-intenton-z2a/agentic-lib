@@ -669,7 +669,7 @@ describe("New Features", () => {
 
     test("simulateKafkaRequestResponse handles error gracefully", async () => {
       const originalSetTimeout = global.setTimeout;
-      global.setTimeout = () => { throw new Error("Simulated error") };
+      global.setTimeout = () => { throw new Error("Simulated error"); };
       const response = await agenticLib.simulateKafkaRequestResponse("errorTopic", "Test Failure", 10);
       expect(response).toContain("Error in simulation: Simulated error");
       global.setTimeout = originalSetTimeout;
