@@ -31,13 +31,11 @@ function handleFetchError(error, serviceName) {
 }
 
 /**
- * Exits the application safely (does not exit in test environment).
+ * Exits the application safely.
  */
 function exitApplication() {
   console.log(chalk.blue("Exiting agentic‑lib."));
-  if (process.env.NODE_ENV !== "test") {
-    process.exit(0);
-  }
+  process.exit(0);
 }
 
 /**
@@ -772,7 +770,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }

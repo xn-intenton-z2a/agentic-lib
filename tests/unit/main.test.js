@@ -710,7 +710,7 @@ describe("New Features", () => {
     const messages = agenticLib.simulateRealKafkaStream("realTopic", 2);
     expect(messages.length).toBe(2);
     messages.forEach((msg, index) => {
-      expect(msg).toContain(`Real Kafka stream message ${index + 1} from topic 'realTopic'`);
+      expect(msg).toContain(`Real Kafka stream message ${index + 1} from topic 'realTopic'");
     });
   });
 
@@ -726,7 +726,7 @@ describe("New Features", () => {
       const consumed = agenticLib.simulateKafkaConsumer("consumerTopic", 4);
       expect(consumed.length).toBe(4);
       consumed.forEach((msg, index) => {
-        expect(msg).toContain(`Consumed message ${index + 1} from topic 'consumerTopic'`);
+        expect(msg).toContain(`Consumed message ${index + 1} from topic 'consumerTopic'");
       });
     });
   });
@@ -830,7 +830,6 @@ describe("callOpenAIFunctionWrapper", () => {
   });
 });
 
-// Additional test suite for main execution without using deprecated done callback
 describe("run-main", () => {
   test("main execution completes (throws due to exit) in test mode", () => {
     process.env.NODE_ENV = "test";
