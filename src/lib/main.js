@@ -642,7 +642,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -1051,6 +1051,74 @@ export function reviewIssue({
 }
 
 export { printReport };
+
+// New Kafka simulation functions
+
+/**
+ * Simulate Kafka Producer: produces messages to a given topic.
+ * @param {string} topic
+ * @param {string[]} messages
+ * @returns {object} An object containing the topic and produced messages.
+ */
+export function simulateKafkaProducer(topic, messages = []) {
+  console.log(`Producing messages to topic '${topic}':`, messages);
+  return { topic, producedMessages: messages };
+}
+
+/**
+ * Simulate Kafka Consumer: returns an array of consumed messages from a topic.
+ * @param {string} topic
+ * @param {number} count
+ * @returns {string[]} Array of consumed messages.
+ */
+export function simulateKafkaConsumer(topic, count = 1) {
+  const messages = [];
+  for (let i = 0; i < count; i++) {
+    const msg = `Consumed message ${i + 1} from topic '${topic}'`;
+    messages.push(msg);
+  }
+  return messages;
+}
+
+/**
+ * Simulate Kafka Request-Response: returns a response for a given request on a topic.
+ * @param {string} topic
+ * @param {string} requestData
+ * @param {number} delay
+ * @returns {Promise<string>} Response string.
+ */
+export async function simulateKafkaRequestResponse(topic, requestData, delay = 50) {
+  try {
+    await new Promise(resolve => setTimeout(resolve, delay));
+    return `Response to '${requestData}' on topic '${topic}'`;
+  } catch (error) {
+    return `Error in simulation: ${error.message}`;
+  }
+}
+
+/**
+ * Simulate Kafka Group Messaging: returns responses from multiple consumers in a group.
+ * @param {string} group
+ * @param {string} message
+ * @param {number} consumerCount
+ * @returns {string[]} Array of responses.
+ */
+export function simulateKafkaGroupMessaging(group, message, consumerCount = 1) {
+  const responses = [];
+  for (let i = 0; i < consumerCount; i++) {
+    responses.push(`Group '${group}' consumer ${i + 1} received message: ${message}`);
+  }
+  return responses;
+}
+
+/**
+ * Simulate Kafka Topic Subscription: returns confirmation of subscriptions to given topics.
+ * @param {string[]} topics
+ * @returns {string[]} Array of subscription confirmations.
+ */
+export function simulateKafkaTopicSubscription(topics = []) {
+  return topics.map(topic => `Subscribed to topic: ${topic}`);
+}
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
