@@ -545,6 +545,21 @@ describe("Remote Service Wrapper", () => {
       expect(data.error).toBe("Security scan network error");
     });
   });
+
+  describe("Monitoring Service Wrapper", () => {
+    test("callMonitoringService returns data for successful call", async () => {
+      const monitorResponse = { status: "operational", load: 0.75 };
+      global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(monitorResponse) }));
+      const data = await agenticLib.callMonitoringService("https://monitor.example.com/status");
+      expect(data).toEqual(monitorResponse);
+    });
+
+    test("callMonitoringService returns error on failed call", async () => {
+      global.fetch = vi.fn(() => Promise.reject(new Error("Monitoring network error")));
+      const data = await agenticLib.callMonitoringService("https://monitor.example.com/status");
+      expect(data.error).toBe("Monitoring network error");
+    });
+  });
 });
 
 describe("parseSarifOutput", () => {
