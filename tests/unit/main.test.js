@@ -492,6 +492,20 @@ describe("Remote Service Wrapper", () => {
       expect(data.error).toBe("Logging network error");
     });
   });
+
+  describe("Code Quality Service Wrapper", () => {
+    test("callCodeQualityService returns data for successful call", async () => {
+      const qualityResponse = { quality: "excellent", score: 95 };
+      global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(qualityResponse) }));
+      const data = await agenticLib.callCodeQualityService("https://quality.example.com/metrics", { repo: "test-repo" });
+      expect(data).toEqual(qualityResponse);
+    });
+    test("callCodeQualityService returns error on failed call", async () => {
+      global.fetch = vi.fn(() => Promise.reject(new Error("Code quality network error")));
+      const data = await agenticLib.callCodeQualityService("https://quality.example.com/metrics", { repo: "test-repo" });
+      expect(data.error).toBe("Code quality network error");
+    });
+  });
 });
 
 describe("parseSarifOutput", () => {

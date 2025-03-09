@@ -13,6 +13,7 @@
 // - Added new Kafka producer, consumer, and request-response simulation functions to enhance inter-workflow messaging.
 // - Added new Kafka simulation functions: simulateKafkaGroupMessaging and simulateKafkaTopicSubscription to simulate group messaging and topic subscriptions.
 // - Improved error handling in simulateKafkaRequestResponse to gracefully catch synchronous errors (boosting test coverage).
+// - Added new remote code quality service wrapper: callCodeQualityService to simulate retrieving code quality metrics from a remote service.
 // - Refreshed README documentation to align with CONTRIBUTING guidelines and include improved test coverage notes.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
@@ -466,6 +467,29 @@ export async function callRepositoryService(serviceUrl) {
     return repoDetails;
   } catch (error) {
     return handleFetchError(error, "repository service");
+  }
+}
+
+/**
+ * New remote code quality service wrapper using fetch to simulate retrieving code quality metrics.
+ * @param {string} serviceUrl
+ * @param {object} parameters - The parameters for code quality analysis.
+ */
+export async function callCodeQualityService(serviceUrl, parameters) {
+  try {
+    const response = await fetch(serviceUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(parameters)
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const result = await response.json();
+    console.log(chalk.green("Code Quality Service Response:"), result);
+    return result;
+  } catch (error) {
+    return handleFetchError(error, "code quality service");
   }
 }
 
