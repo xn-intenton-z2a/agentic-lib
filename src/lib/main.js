@@ -266,6 +266,7 @@ export async function callRemoteService(serviceUrl) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
+    console.log(chalk.green("Repository Service Response:"), data);
     return data;
   } catch (error) {
     return handleFetchError(error, "remote service");
@@ -674,7 +675,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -1284,12 +1285,6 @@ export async function simulateFileSystemCall(filePath) {
 }
 
 // New Function: simulateKafkaBroadcast to simulate Kafka broadcast messaging across topics
-/**
- * Simulate Kafka Broadcast: sends the same message to multiple topics concurrently.
- * @param {string[]} topics - Array of topic names.
- * @param {string} message - The message to broadcast.
- * @returns {object} An object mapping each topic to its broadcast response.
- */
 export function simulateKafkaBroadcast(topics, message) {
   const responses = {};
   topics.forEach((topic) => {
