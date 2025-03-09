@@ -26,7 +26,7 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - **Telemetry:**  
   Comprehensive diagnostics including `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, and `gatherFullTelemetryData()`.
 - **Remote Service Wrappers:**  
-  Simplified API interactions for deployment, build status, analytics, notifications, logging, and repository details.
+  Simplified API interactions for deployment, build status, analytics, notifications, logging, repository details, and now code quality analysis via `callCodeQualityService`.
 - **LLM Delegation:**  
   Advanced functions supporting robust decision delegation with schema validation and timeout support.
 - **Kafka Operations:**  
@@ -41,9 +41,8 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - Extended flag handling with improved diagnostics and error checking.
 - Enhanced telemetry and Kafka simulation functions with detailed logging and metrics.
 - Advanced LLM delegation functions with strict schema validation and timeout support.
-- New wrappers for remote repository and logging services.
-- **Improved:** Enhanced error handling in `simulateKafkaRequestResponse` to gracefully catch synchronous errors, boosting test coverage to nearly 100%.
-- **New:** Added Kafka group messaging via `simulateKafkaGroupMessaging` and topic subscription simulation via `simulateKafkaTopicSubscription` to better simulate inter-workflow communications.
+- New wrappers for remote repository, logging, and analytics services.
+- **New:** Added remote code quality service wrapper `callCodeQualityService` to simulate fetching code quality metrics from a remote service.
 - **Fixed:** Updated the regex in `getIssueNumberFromBranch` to correctly extract issue numbers from branch names.
 
 ---
@@ -113,4 +112,3 @@ IMPORTANT: Any derived work must include the following attribution:
 ```
 
 ---
-
