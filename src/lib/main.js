@@ -24,6 +24,7 @@
 // - New: Added simulateFileSystemCall to simulate external file system calls for deeper testing and mocking of external resources.
 // - New: Added simulateKafkaBroadcast to simulate broadcasting a Kafka message to multiple topics concurrently.
 // - New: Added gatherCIEnvironmentMetrics to capture additional CI environment metrics from GitHub Actions.
+// - New: Added callSecurityScanService to simulate a remote vulnerability scanning service for security analysis.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -444,6 +445,29 @@ export async function callRepositoryService(serviceUrl) {
 }
 
 /**
+ * New remote security scan service wrapper using fetch to simulate vulnerability scanning.
+ * @param {string} serviceUrl
+ * @param {object} payload - The payload for the security scan.
+ */
+export async function callSecurityScanService(serviceUrl, payload) {
+  try {
+    const response = await fetch(serviceUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const result = await response.json();
+    console.log(chalk.green("Security Scan Service Response:"), result);
+    return result;
+  } catch (error) {
+    return handleFetchError(error, "security scan service");
+  }
+}
+
+/**
  * Parse SARIF formatted JSON to summarize issues.
  * @param {string} sarifJson
  */
@@ -683,7 +707,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }

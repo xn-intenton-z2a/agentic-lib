@@ -537,6 +537,20 @@ describe("Remote Service Wrapper", () => {
       expect(data.error).toBe("Code quality network error");
     });
   });
+
+  describe("Security Service Wrapper", () => {
+    test("callSecurityScanService returns data for successful call", async () => {
+      const scanResponse = { vulnerabilities: 0, details: "All clear" };
+      global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(scanResponse) }));
+      const data = await agenticLib.callSecurityScanService("https://security.example.com/scan", { target: "repo" });
+      expect(data).toEqual(scanResponse);
+    });
+    test("callSecurityScanService returns error on failed call", async () => {
+      global.fetch = vi.fn(() => Promise.reject(new Error("Security scan network error")));
+      const data = await agenticLib.callSecurityScanService("https://security.example.com/scan", { target: "repo" });
+      expect(data.error).toBe("Security scan network error");
+    });
+  });
 });
 
 describe("parseSarifOutput", () => {
@@ -673,7 +687,7 @@ describe("New Features", () => {
     const messages = agenticLib.simulateRealKafkaStream("realTopic", 2);
     expect(messages.length).toBe(2);
     messages.forEach((msg, index) => {
-      expect(msg).toContain(`Real Kafka stream message ${index + 1} from topic 'realTopic'`);
+      expect(msg).toContain(`Real Kafka stream message ${index + 1} from topic 'realTopic'");
     });
   });
 
@@ -689,7 +703,7 @@ describe("New Features", () => {
       const consumed = agenticLib.simulateKafkaConsumer("consumerTopic", 4);
       expect(consumed.length).toBe(4);
       consumed.forEach((msg, index) => {
-        expect(msg).toContain(`Consumed message ${index + 1} from topic 'consumerTopic'`);
+        expect(msg).toContain(`Consumed message ${index + 1} from topic 'consumerTopic'");
       });
     });
 
