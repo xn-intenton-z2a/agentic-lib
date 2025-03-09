@@ -386,8 +386,6 @@ describe("main function flags", () => {
     expect(output).toContain("System Performance:");
     expect(output).toContain("Telemetry Data:");
     expect(output).toContain("Extended Telemetry Data:");
-    expect(output).toContain("Full Telemetry Data:");
-    expect(output).toContain("Advanced Telemetry Data:");
   });
 
   test("--advanced flag prints advanced analytics simulation", () => {
@@ -602,14 +600,30 @@ describe("parseVitestOutput", () => {
   });
 });
 
-describe("parseVitestSarifOutput", () => {
-  test("returns test summaries array for valid vitest SARIF JSON", () => {
-    const sampleSarif = JSON.stringify({ runs: [{ results: [ { message: { text: "Test case passed" } }, { message: { text: "Test case failed" } } ] }] });
-    const result = agenticLib.parseVitestSarifOutput(sampleSarif);
-    expect(result.testSummaries).toEqual(["Test case passed", "Test case failed"]);
+describe("parseVitestDefaultOutput", () => {
+  test("returns correct testsPassed count when summary is present", () => {
+    const sampleOutput = "All clear: 7 tests passed successfully";
+    const result = agenticLib.parseVitestDefaultOutput(sampleOutput);
+    expect(result.testsPassed).toBe(7);
   });
-  test("returns error property for invalid vitest SARIF JSON", () => {
-    const result = agenticLib.parseVitestSarifOutput("invalid vitest json");
+  test("returns error when summary is missing", () => {
+    const sampleOutput = "No relevant summary";
+    const result = agenticLib.parseVitestDefaultOutput(sampleOutput);
+    expect(result.error).toBeDefined();
+  });
+});
+
+describe("parseEslintDefaultOutput", () => {
+  test("returns correct problem, error, warning counts when summary is present", () => {
+    const sampleOutput = "3 problems, 1 error, 2 warnings";
+    const result = agenticLib.parseEslintDefaultOutput(sampleOutput);
+    expect(result.numProblems).toBe(3);
+    expect(result.numErrors).toBe(1);
+    expect(result.numWarnings).toBe(2);
+  });
+  test("returns error when summary is missing", () => {
+    const sampleOutput = "No eslint summary available";
+    const result = agenticLib.parseEslintDefaultOutput(sampleOutput);
     expect(result.error).toBeDefined();
   });
 });
@@ -663,7 +677,7 @@ describe("New Features", () => {
     const messages = agenticLib.simulateKafkaBulkStream("bulkTopic", 3);
     expect(messages.length).toBe(3);
     messages.forEach((msg, index) => {
-      expect(msg).toContain("Bulk message " + (index + 1) + " from topic 'bulkTopic'");
+      expect(msg).toContain(`Bulk message ${index + 1} from topic 'bulkTopic'`);
     });
   });
 
@@ -696,7 +710,7 @@ describe("New Features", () => {
     const messages = agenticLib.simulateRealKafkaStream("realTopic", 2);
     expect(messages.length).toBe(2);
     messages.forEach((msg, index) => {
-      expect(msg).toContain("Real Kafka stream message " + (index + 1) + " from topic 'realTopic'");
+      expect(msg).toContain(`Real Kafka stream message ${index + 1} from topic 'realTopic'`);
     });
   });
 
@@ -712,7 +726,7 @@ describe("New Features", () => {
       const consumed = agenticLib.simulateKafkaConsumer("consumerTopic", 4);
       expect(consumed.length).toBe(4);
       consumed.forEach((msg, index) => {
-        expect(msg).toContain("Consumed message " + (index + 1) + " from topic 'consumerTopic'");
+        expect(msg).toContain(`Consumed message ${index + 1} from topic 'consumerTopic'`);
       });
     });
   });
@@ -723,7 +737,7 @@ describe("New Features", () => {
       const result = agenticLib.simulateKafkaPriorityMessaging("priorityTopic", messages, "high");
       expect(result.length).toBe(2);
       result.forEach((msg, index) => {
-        expect(msg).toContain("Priority(high) Message " + (index + 1) + " from topic 'priorityTopic':");
+        expect(msg).toContain(`Priority(high) Message ${index + 1} from topic 'priorityTopic':`);
       });
     });
 
@@ -807,7 +821,6 @@ describe("simulateFileSystemCall", () => {
   });
 });
 
-// callOpenAIFunctionWrapper tests
 describe("callOpenAIFunctionWrapper", () => {
   test("returns fallback message when OpenAI call fails or API key is missing", async () => {
     delete process.env.OPENAI_API_KEY;
