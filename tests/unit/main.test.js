@@ -159,7 +159,7 @@ describe("Telemetry Functions", () => {
     expect(telemetry.githubAction).toBe("run");
     expect(telemetry.nodeEnv).toBe("test");
   });
-
+  
   test("gatherExtendedTelemetryData returns extended telemetry details", () => {
     process.env.GITHUB_WORKFLOW = "CI Workflow";
     process.env.GITHUB_RUN_ID = "12345";
@@ -178,7 +178,7 @@ describe("Telemetry Functions", () => {
     expect(extendedTelemetry.githubEventName).toBe("push");
     expect(extendedTelemetry.ci).toBe("true");
   });
-
+  
   test("gatherFullTelemetryData returns full telemetry including additional keys", () => {
     process.env.GITHUB_REF = "refs/heads/main";
     process.env.GITHUB_SHA = "abc123";
@@ -200,7 +200,7 @@ describe("Telemetry Functions", () => {
     expect(fullTelemetry.githubHeadRef).toBe("feature-branch");
     expect(fullTelemetry.githubBaseRef).toBe("main");
   });
-
+  
   test("gatherAdvancedTelemetryData returns advanced telemetry details with runtime info", () => {
     const advancedTelemetry = agenticLib.gatherAdvancedTelemetryData();
     expect(advancedTelemetry).toHaveProperty("nodeVersion");
@@ -209,7 +209,7 @@ describe("Telemetry Functions", () => {
     expect(advancedTelemetry).toHaveProperty("platform");
     expect(advancedTelemetry).toHaveProperty("memoryUsage");
   });
-
+  
   test("gatherGitHubTelemetrySummary returns merged telemetry data", () => {
     process.env.GITHUB_WORKFLOW = "CI Workflow";
     process.env.GITHUB_RUN_ID = "12345";
@@ -229,7 +229,7 @@ describe("Telemetry Functions", () => {
     expect(summary.githubActor).toBe("tester");
     expect(summary.githubRef).toBe("refs/heads/main");
   });
-
+  
   test("gatherCustomTelemetryData returns custom telemetry details with system metrics", () => {
     const customTelemetry = agenticLib.gatherCustomTelemetryData();
     expect(customTelemetry).toHaveProperty("osUptime");
@@ -237,7 +237,7 @@ describe("Telemetry Functions", () => {
     expect(customTelemetry).toHaveProperty("networkInterfaces");
     expect(customTelemetry).toHaveProperty("hostname");
   });
-
+  
   test("gatherWorkflowTelemetryData returns workflow telemetry details", () => {
     process.env.GITHUB_RUN_ATTEMPT = "3";
     process.env.GITHUB_EVENT = "push";
