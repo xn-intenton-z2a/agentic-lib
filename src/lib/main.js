@@ -16,6 +16,7 @@
 // - Added new remote code quality service wrapper: callCodeQualityService to simulate retrieving code quality metrics from a remote service.
 // - Updated delegateDecisionToLLM to correctly import Configuration and OpenAIApi.
 // - Enhanced OpenAI function wrapper: callOpenAIFunctionWrapper now includes an empty prompt check and improved error handling with detailed logging.
+// - Extended '--create-issue' flag workflow behavior to mimic the GitHub Actions workflow (wfr-create-issue.yml) by supporting house choice options from the environment variable HOUSE_CHOICE_OPTIONS.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -520,6 +521,7 @@ function handleBasicFlag(flag, nonFlagArgs) {
     case "--create-issue": {
       console.log(chalk.magenta("Simulated GitHub Issue Creation Workflow triggered."));
       let issueTitle;
+      // Extended behavior: mimic workflow in wfr-create-issue.yml by checking if the issue title is 'house choice'
       if (nonFlagArgs.length > 0 && nonFlagArgs[0] === "house choice") {
         const options = process.env.HOUSE_CHOICE_OPTIONS ? process.env.HOUSE_CHOICE_OPTIONS.split("||") : ["Default House Choice Issue"];
         issueTitle = options[randomInt(0, options.length)];
@@ -643,7 +645,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
