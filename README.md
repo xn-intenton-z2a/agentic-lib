@@ -29,7 +29,7 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
   - `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and the new `gatherTotalTelemetry()` to aggregate all telemetry data from GitHub Actions workflows.
   - **New:** `gatherCIEnvironmentMetrics()` to capture additional GitHub Actions CI environment metrics such as workspace and event path.
 - **Remote Service Wrappers:**  
-  Simplified API interactions for deployment, build status, analytics, notifications, logging, repository details, and code quality analysis via `callCodeQualityService` and `callRepositoryService`.
+  Simplified API interactions for deployment, build status, analytics, notifications, logging, repository details, code quality analysis, and **security scans** via `callSecurityScanService`.
 - **LLM Delegation:**  
   Advanced functions supporting robust decision delegation with schema validation and timeout support. *New:* `callOpenAIFunctionWrapper` wraps an OpenAI function call using a function calling schema, enhanced with an empty prompt check and improved error handling.
   - **New:** Added `delegateDecisionToLLMEnhanced` for improved OpenAI delegation with enhanced logging.
@@ -59,7 +59,8 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - Extended flag handling with improved diagnostics and error checking.
 - Enhanced telemetry and Kafka simulation functions with detailed logging and metrics.
 - Advanced LLM delegation functions with strict schema validation and timeout support.
-- New wrappers for remote repository, logging, analytics, and code quality services.
+- New wrappers for remote repository, logging, analytics, code quality services, and **security scanning**.
+- **New:** Implemented `callSecurityScanService` to simulate a remote vulnerability scanning service.
 - **New:** Implemented and enhanced `callOpenAIFunctionWrapper` and related OpenAI delegation functions with explicit API key validation and improved error messaging.
 - **New:** Added `delegateDecisionToLLMEnhanced` for improved OpenAI delegation with enhanced logging.
 - **Fixed:** Updated the regex in `getIssueNumberFromBranch` to correctly extract issue numbers from branch names.
@@ -72,7 +73,6 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - **New:** Added `simulateFileSystemCall()` for simulating file system interactions.
 - **New:** Added `gatherCIEnvironmentMetrics()` to capture additional CI environment metrics from GitHub Actions.
 
----
 ---
 
 ## Contributing
@@ -139,5 +139,6 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
+---
 ---
 ---

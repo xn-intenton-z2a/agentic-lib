@@ -23,7 +23,8 @@
 // - Added new function gatherTotalTelemetry to aggregate all telemetry data from GitHub Actions Workflows.
 // - New: Added simulateFileSystemCall to simulate external file system calls for deeper testing and mocking of external resources.
 // - New: Added simulateKafkaBroadcast to simulate broadcasting a Kafka message to multiple topics concurrently.
-// - New: Added gatherCIEnvironmentMetrics to capture additional CI environment metrics from GitHub Actions.
+// - Added new function gatherCIEnvironmentMetrics to capture additional CI environment metrics from GitHub Actions.
+// - New remote service wrapper for repository details: callRepositoryService.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -426,20 +427,25 @@ export async function callCodeQualityService(serviceUrl, parameters) {
 }
 
 /**
- * New remote repository service wrapper using fetch to simulate fetching repository details.
+ * New remote security scan service wrapper using fetch to simulate vulnerability scanning.
  * @param {string} serviceUrl
+ * @param {object} payload - The payload for the security scan.
  */
-export async function callRepositoryService(serviceUrl) {
+export async function callSecurityScanService(serviceUrl, payload) {
   try {
-    const response = await fetch(serviceUrl);
+    const response = await fetch(serviceUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const data = await response.json();
-    console.log(chalk.green("Repository Service Response:"), data);
-    return data;
+    const result = await response.json();
+    console.log(chalk.green("Security Scan Service Response:"), result);
+    return result;
   } catch (error) {
-    return handleFetchError(error, "repository service");
+    return handleFetchError(error, "security scan service");
   }
 }
 
@@ -1308,6 +1314,21 @@ export function simulateKafkaBroadcast(topics, message) {
     console.log(chalk.blue(`Broadcast to '${topic}':`), responses[topic]);
   });
   return responses;
+}
+
+// New: Added callRepositoryService function as it was missing and required by tests
+export async function callRepositoryService(serviceUrl) {
+  try {
+    const response = await fetch(serviceUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log(chalk.green("Repository Service Response:"), data);
+    return data;
+  } catch (error) {
+    return handleFetchError(error, "repository service");
+  }
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
