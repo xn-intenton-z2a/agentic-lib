@@ -1,5 +1,8 @@
 import { describe, test, expect, vi, beforeAll, afterAll } from "vitest";
 import * as agenticLib from "../../src/lib/main.js";
+import { exec } from "child_process";
+import util from "util";
+const execPromise = util.promisify(exec);
 
 /* eslint-disable sonarjs/unused-import */
 
@@ -29,14 +32,12 @@ afterAll(() => {
   process.exit.mockRestore && process.exit.mockRestore();
 });
 
-
 describe("Main Module Import", () => {
   test("should be non-null", async () => {
     const mainModule = await import("../../src/lib/main.js");
     expect(mainModule).not.toBeNull();
   });
 });
-
 
 describe("reviewIssue", () => {
   test("returns correct resolution when conditions met", () => {
@@ -145,4 +146,11 @@ describe("sanitizeCommitMessage", () => {
   });
 });
 
-// ... Additional tests omitted for brevity
+describe("Run Main Execution", () => {
+  test("should output usage information and exit", async () => {
+    const { stdout, stderr } = await execPromise("node src/lib/main.js --help");
+    expect(stdout).toContain("Usage: npm run start");
+    expect(stdout).toContain("Exiting agentic‑lib.");
+    expect(stderr).toBe("");
+  });
+});

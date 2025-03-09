@@ -6,7 +6,7 @@
 // - Added new Kafka messaging functions and file system simulation for deeper testing.
 // - Added new remote monitoring service wrapper to simulate fetching monitoring metrics remotely.
 // - Added new parsing functions: parseVitestDefaultOutput and parseEslintDefaultOutput to handle default output formats of Vitest and ESLint, extending SARIF parsing capabilities.
-// - Updated getIssueNumberFromBranch to correctly extract issue numbers using double-escaped regex for digit matching.
+// - Updated getIssueNumberFromBranch to correctly extract issue numbers using properly escaped regex for digit matching.
 // - Added new utility functions: reviewIssue, printReport, simulateKafkaProducer, simulateKafkaConsumer, simulateKafkaPriorityMessaging, simulateKafkaRetryOnFailure, simulateFileSystemCall, delegateDecisionToLLMEnhanced, and printConfiguration.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
