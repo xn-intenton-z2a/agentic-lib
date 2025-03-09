@@ -60,7 +60,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - Kafka messaging additional functions: `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, and `simulateKafkaBroadcast`.
   - `simulateFileSystemCall` for file system simulation.
   - `delegateDecisionToLLMEnhanced` for enhanced LLM delegation.
-  - Updated `getIssueNumberFromBranch` to correctly extract issue numbers.
+  - **Updated getIssueNumberFromBranch to correctly extract issue numbers by fixing regex escapes.**
 
 ---
 

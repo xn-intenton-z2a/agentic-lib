@@ -829,3 +829,11 @@ describe("callOpenAIFunctionWrapper", () => {
     expect(result.message).toContain("OpenAI API key is missing");
   });
 });
+
+// Additional test suite for main execution without using deprecated done callback
+describe("run-main", () => {
+  test("main execution completes (throws due to exit) in test mode", () => {
+    process.env.NODE_ENV = "test";
+    expect(() => { agenticLib.main([]); }).toThrow(/process.exit/);
+  });
+});
