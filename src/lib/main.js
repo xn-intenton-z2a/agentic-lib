@@ -20,6 +20,7 @@
 // - Added new '--config' flag to display configuration details, aligning with the Mission Statement.
 // - Added new function simulateDelayedResponse to simulate a delayed Kafka response, enhancing mission compliance with richer simulation capabilities.
 // - Added new function delegateDecisionToLLMEnhanced for enhanced OpenAI delegation with improved logging and error handling.
+// - New: Added gatherTotalTelemetry function to aggregate all telemetry data from GitHub Actions Workflows.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -135,6 +136,22 @@ export function gatherWorkflowTelemetryData() {
     githubRunAttempt: process.env.GITHUB_RUN_ATTEMPT || "N/A",
     githubWorkflowEvent: process.env.GITHUB_EVENT || "N/A",
     githubRunStartedAt: process.env.GITHUB_RUN_STARTED_AT || "N/A"
+  };
+}
+
+/**
+ * New function to aggregate all telemetry information from various functions including process uptime.
+ */
+export function gatherTotalTelemetry() {
+  return {
+    basic: gatherTelemetryData(),
+    extended: gatherExtendedTelemetryData(),
+    full: gatherFullTelemetryData(),
+    advanced: gatherAdvancedTelemetryData(),
+    githubSummary: gatherGitHubTelemetrySummary(),
+    custom: gatherCustomTelemetryData(),
+    workflow: gatherWorkflowTelemetryData(),
+    processUptime: process.uptime()
   };
 }
 
@@ -651,7 +668,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }

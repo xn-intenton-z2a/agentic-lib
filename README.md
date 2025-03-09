@@ -24,12 +24,12 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - **Usage Information:**  
   Use `generateUsage()` to display available flag options.
 - **Telemetry:**  
-  Comprehensive diagnostics including `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, and `gatherFullTelemetryData()`.
+  Comprehensive diagnostics including `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and now the new `gatherTotalTelemetry()` to aggregate all telemetry data from GitHub Actions workflows.
 - **Remote Service Wrappers:**  
   Simplified API interactions for deployment, build status, analytics, notifications, logging, repository details, and code quality analysis via `callCodeQualityService`.
 - **LLM Delegation:**  
   Advanced functions supporting robust decision delegation with schema validation and timeout support. *New:* `callOpenAIFunctionWrapper` is implemented to wrap an OpenAI function call using the function calling schema, now enhanced with an empty prompt check, improved error reporting, and explicit API key validation.
-  - **New:** Added `delegateDecisionToLLMEnhanced` for enhanced OpenAI delegation with improved logging and error handling.
+  - **New:** Added `delegateDecisionToLLMEnhanced` for improved OpenAI delegation with enhanced logging.
 - **Kafka Operations:**  
   Simulated messaging for inter-workflow communication using Kafka-like functions. New functions include:
   - `simulateKafkaProducer`: Simulate the production of messages to a topic.
@@ -60,6 +60,7 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - **New Kafka Functions:** Added `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaRequestResponse`, as well as extensions `simulateKafkaPriorityMessaging` and `simulateKafkaRetryOnFailure` for enhanced inter-workflow messaging.
 - **Extended:** Updated the `--create-issue` flag behavior to mimic the GitHub Actions workflow from wfr-create-issue.yml, supporting dynamic "house choice" options via the environment variable `HOUSE_CHOICE_OPTIONS`.
 - **New:** Added `--config` flag to print configuration details of the runtime environment.
+- **New:** **Added `gatherTotalTelemetry()` function** to aggregate all telemetry data from various methods, providing a comprehensive view of the GitHub Actions environment.
 - **New:** Added `simulateDelayedResponse` function to simulate delayed Kafka responses, aligning with mission requirements by providing a more realistic messaging simulation.
 
 ---

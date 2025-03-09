@@ -247,6 +247,17 @@ describe("Telemetry Functions", () => {
     expect(workflowTelemetry.githubWorkflowEvent).toBe("push");
     expect(workflowTelemetry.githubRunStartedAt).toBe("2025-03-06T16:00:00Z");
   });
+  test("gatherTotalTelemetry returns all telemetry groups", () => {
+    const total = agenticLib.gatherTotalTelemetry();
+    expect(total).toHaveProperty("basic");
+    expect(total).toHaveProperty("extended");
+    expect(total).toHaveProperty("full");
+    expect(total).toHaveProperty("advanced");
+    expect(total).toHaveProperty("githubSummary");
+    expect(total).toHaveProperty("custom");
+    expect(total).toHaveProperty("workflow");
+    expect(total).toHaveProperty("processUptime");
+  });
 });
 
 describe("analyzeSystemPerformance", () => {
@@ -652,7 +663,7 @@ describe("New Features", () => {
     const messages = agenticLib.simulateRealKafkaStream("realTopic", 2);
     expect(messages.length).toBe(2);
     messages.forEach((msg, index) => {
-      expect(msg).toContain(`Real Kafka stream message ${index + 1} from topic 'realTopic'`);
+      expect(msg).toContain(`Real Kafka stream message ${index + 1} from topic 'realTopic'");
     });
   });
 
@@ -668,7 +679,7 @@ describe("New Features", () => {
       const consumed = agenticLib.simulateKafkaConsumer("consumerTopic", 4);
       expect(consumed.length).toBe(4);
       consumed.forEach((msg, index) => {
-        expect(msg).toContain(`Consumed message ${index + 1} from topic 'consumerTopic'`);
+        expect(msg).toContain(`Consumed message ${index + 1} from topic 'consumerTopic'");
       });
     });
 
