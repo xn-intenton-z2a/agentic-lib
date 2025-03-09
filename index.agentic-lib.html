@@ -84,21 +84,18 @@ Functions such as <code class="md-github">parseVitestSarifOutput</code> and <cod
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="recent-improvements" href="#recent-improvements"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Recent Improvements</h2>
 <ul class="md-github">
+<li class="md-github">Aligned code with the agentic‑lib mission statement by pruning drift and removing redundant simulation verbiage.</li>
 <li class="md-github">Extended flag handling with improved diagnostics and error checking.</li>
 <li class="md-github">Enhanced telemetry and Kafka simulation functions with detailed logging and metrics.</li>
-<li class="md-github">Advanced LLM delegation functions with strict schema validation and timeout support.</li>
-<li class="md-github">New wrappers for remote repository, logging, analytics, code quality services, and <strong class="md-github">security scanning</strong>.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Implemented <code class="md-github">callSecurityScanService</code> to simulate a remote vulnerability scanning service.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Implemented and enhanced <code class="md-github">callOpenAIFunctionWrapper</code> and related OpenAI delegation functions with explicit API key validation and improved error messaging.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">delegateDecisionToLLMEnhanced</code> for improved OpenAI delegation with enhanced logging.</li>
-<li class="md-github"><strong class="md-github">New Kafka Functions:</strong> Added <code class="md-github">simulateKafkaProducer</code>, <code class="md-github">simulateKafkaConsumer</code>, <code class="md-github">simulateKafkaRequestResponse</code>, and extensions <code class="md-github">simulateKafkaPriorityMessaging</code> and <code class="md-github">simulateKafkaRetryOnFailure</code> for enhanced inter-workflow messaging.</li>
-<li class="md-github"><strong class="md-github">Extended:</strong> Updated the <code class="md-github">--create-issue</code> flag behavior to mimic the GitHub Actions workflow from wfr-create-issue.yml, supporting dynamic &quot;house choice&quot; options and providing a JSON log of the created issue details.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">--config</code> flag to print configuration details of the runtime environment.</li>
+<li class="md-github">Advanced LLM delegation functions updated with strict schema validation and timeout support.</li>
+<li class="md-github">Implemented wrappers for remote repository, logging, analytics, code quality services, and security scanning.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Updated <code class="md-github">--create-issue</code> flag behavior for dynamic house choice and JSON logging of issue creation details.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Introduced <code class="md-github">--config</code> flag to display current runtime configuration.</li>
 <li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">gatherTotalTelemetry()</code> to aggregate telemetry data from multiple sources.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">simulateDelayedResponse</code> to simulate delayed Kafka responses.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">simulateKafkaBroadcast</code> to enable broadcasting messages across multiple topics.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">simulateDelayedResponse</code> for realistic simulated Kafka response delays.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">simulateKafkaBroadcast</code> for broadcasting messages across multiple topics.</li>
 <li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">simulateFileSystemCall()</code> for simulating file system interactions.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">gatherCIEnvironmentMetrics()</code> to capture additional CI environment metrics from GitHub Actions.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">gatherCIEnvironmentMetrics()</code> to capture additional CI environment metrics.</li>
 </ul>
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="contributing" href="#contributing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Contributing</h2>
@@ -165,7 +162,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-09T17:09:53.220Z</p>
+    <p>Generated on 2025-03-09T17:19:54.005Z</p>
   </footer>
 </body>
 </html>
