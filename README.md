@@ -39,6 +39,7 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
   - **New Extensions:**
     - `simulateKafkaPriorityMessaging`: Simulate priority-based messaging.
     - `simulateKafkaRetryOnFailure`: Simulate sending messages with retry on failure.
+  - **New:** `simulateDelayedResponse`: Simulate a delayed Kafka response to enhance realistic messaging scenarios.
 - **SARIF Parsing:**  
   Functions such as `parseVitestSarifOutput` and `parseEslintDetailedOutput` for parsing SARIF outputs.
 - **Configuration Display:**
@@ -54,9 +55,10 @@ agentic‑lib provides a rich set of JavaScript functions that mirror GitHub Act
 - New wrappers for remote repository, logging, analytics, and code quality services.
 - **New:** Implemented and enhanced `callOpenAIFunctionWrapper` with an empty prompt check and improved error reporting to better support function calling in advanced LLM delegation.
 - **Fixed:** Updated the regex in `getIssueNumberFromBranch` to correctly extract issue numbers from branch names.
-- **New Kafka Functions:** Added `simulateKafkaProducer`, `simulateKafkaConsumer`, and `simulateKafkaRequestResponse`, along with additional extensions `simulateKafkaPriorityMessaging` and `simulateKafkaRetryOnFailure` for enhanced inter-workflow messaging.
+- **New Kafka Functions:** Added `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaRequestResponse`, as well as extensions `simulateKafkaPriorityMessaging` and `simulateKafkaRetryOnFailure` for enhanced inter-workflow messaging.
 - **Extended:** Updated the `--create-issue` flag behavior to mimic the GitHub Actions workflow from wfr-create-issue.yml, supporting dynamic "house choice" options via the environment variable `HOUSE_CHOICE_OPTIONS`.
 - **New:** Added `--config` flag to print configuration details of the runtime environment.
+- **New:** Added `simulateDelayedResponse` function to simulate delayed Kafka responses, aligning with mission requirements by providing a more realistic messaging simulation.
 
 ---
 

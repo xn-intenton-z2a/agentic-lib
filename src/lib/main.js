@@ -18,6 +18,7 @@
 // - Enhanced OpenAI function wrapper: callOpenAIFunctionWrapper now includes an empty prompt check and improved error handling with detailed logging.
 // - Extended '--create-issue' flag workflow behavior to mimic the GitHub Actions workflow (wfr-create-issue.yml) by supporting house choice options from the environment variable HOUSE_CHOICE_OPTIONS.
 // - Added new '--config' flag to display configuration details, aligning with the Mission Statement.
+// - Added new function simulateDelayedResponse to simulate a delayed Kafka response, enhancing mission compliance with richer simulation capabilities.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -1179,6 +1180,25 @@ export function printConfiguration() {
   };
   console.log(chalk.blue("Configuration:"), JSON.stringify(config, null, 2));
   return config;
+}
+
+/**
+ * New function to simulate a delayed response in Kafka messaging, enhancing our mission compliance with extended simulation features.
+ * @param {string} topic
+ * @param {string} message
+ * @param {number} delay - Delay in milliseconds (default 100ms)
+ * @returns {Promise<string>} Delayed response message.
+ */
+export async function simulateDelayedResponse(topic, message, delay = 100) {
+  try {
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    const result = `Delayed response to '${message}' on topic '${topic}' after ${delay}ms`;
+    console.log(chalk.green(result));
+    return result;
+  } catch (error) {
+    console.error(chalk.red("Error simulating delayed response:"), error.message);
+    return `Error simulating delayed response: ${error.message}`;
+  }
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
