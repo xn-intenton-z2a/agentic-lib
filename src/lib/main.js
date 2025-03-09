@@ -20,7 +20,7 @@
 // - Added new '--config' flag to display configuration details, aligning with the Mission Statement.
 // - Added new function simulateDelayedResponse to simulate a delayed Kafka response, enhancing mission compliance with richer simulation capabilities.
 // - Added new function delegateDecisionToLLMEnhanced for enhanced OpenAI delegation with improved logging and error handling.
-// - New: Added gatherTotalTelemetry function to aggregate all telemetry data from GitHub Actions Workflows.
+// New: Added gatherTotalTelemetry function to aggregate all telemetry data from GitHub Actions Workflows.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -668,7 +668,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
