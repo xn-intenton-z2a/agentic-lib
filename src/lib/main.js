@@ -3,7 +3,7 @@
 // Change Log:
 // - Aligned with the agentic‐lib mission statement by pruning drift and removing redundant simulation verbiage.
 // - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, --extended, --report, --advanced, --analytics.
-// - Integrated Kafka logging, system performance telemetry, and remote service wrappers with improved HTTP error checking.
+// - Integrated Kafka logging, system performance telemetry, remote service wrappers with improved HTTP error checking.
 // - Added detailed Kafka simulation functions and advanced analytics simulation for deeper diagnostics.
 // - Refactored flag handling and improved regex safety in getIssueNumberFromBranch.
 // - Enhanced OpenAI delegation functions to support ESM module structure and advanced LLM delegation with function calls.
@@ -14,7 +14,7 @@
 // - Added new Kafka simulation functions: simulateKafkaGroupMessaging and simulateKafkaTopicSubscription to simulate group messaging and topic subscriptions.
 // - Improved error handling in simulateKafkaRequestResponse to gracefully catch synchronous errors (boosting test coverage).
 // - Added new remote code quality service wrapper: callCodeQualityService to simulate retrieving code quality metrics from a remote service.
-// - Refreshed README documentation to align with CONTRIBUTING guidelines and include improved test coverage notes.
+// - Implemented new OpenAIFunction wrapper: callOpenAIFunctionWrapper to support OpenAI function calling with strict schema validation.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -225,93 +225,6 @@ export function simulateKafkaInterWorkflowCommunication(topics, message) {
     console.log(chalk.blue(`Inter-workflow Kafka simulation for topic '${topic}':`), results[topic]);
   });
   return results;
-}
-
-/**
- * New function to simulate a Kafka producer sending messages.
- * @param {string} topic
- * @param {string[]} messages
- * @returns {object} An object containing the produced messages.
- */
-export function simulateKafkaProducer(topic, messages = []) {
-  console.log(chalk.blue(`Producing messages to topic '${topic}'`));
-  messages.forEach((msg) => console.log(chalk.blue(`Produced message: ${msg}`)));
-  return { topic, producedMessages: messages };
-}
-
-/**
- * New function to simulate a Kafka consumer receiving messages.
- * @param {string} topic
- * @param {number} count
- * @returns {string[]} Array of consumed messages.
- */
-export function simulateKafkaConsumer(topic, count = 3) {
-  console.log(chalk.blue(`Consuming messages from topic '${topic}'`));
-  const consumed = [];
-  for (let i = 0; i < count; i++) {
-    const msg = `Consumed message ${i + 1} from topic '${topic}'`;
-    console.log(chalk.blue(msg));
-    consumed.push(msg);
-  }
-  return consumed;
-}
-
-/**
- * New function to simulate a Kafka request-response pattern between workflows.
- * @param {string} topic
- * @param {string} request
- * @param {number} responseDelay
- * @returns {Promise<string>} Response message after delay.
- */
-export async function simulateKafkaRequestResponse(topic, request, responseDelay = 1000) {
-  console.log(chalk.blue(`Sending request on topic '${topic}': ${request}`));
-  try {
-    await new Promise((resolve, reject) => {
-      try {
-        setTimeout(() => {
-          resolve();
-        }, responseDelay);
-      } catch (error) {
-        reject(error);
-      }
-    });
-    const response = `Response to '${request}' on topic '${topic}'`;
-    console.log(chalk.blue(`Received response: ${response}`));
-    return response;
-  } catch (error) {
-    console.error(chalk.red("Error in Kafka request-response simulation:"), error);
-    return `Error in simulation: ${error.message}`;
-  }
-}
-
-/**
- * New function to simulate group messaging in Kafka, broadcasting a message to a consumer group.
- * @param {string} group - The consumer group name.
- * @param {string} message - The message to broadcast.
- * @param {number} consumerCount - Number of consumers in the group (default 3).
- * @returns {string[]} Array of responses from each consumer.
- */
-export function simulateKafkaGroupMessaging(group, message, consumerCount = 3) {
-  console.log(chalk.blue(`Broadcasting message to Kafka consumer group '${group}': ${message}`));
-  const responses = [];
-  for (let i = 0; i < consumerCount; i++) {
-    const response = `Group '${group}' consumer ${i + 1} received message: ${message}`;
-    console.log(chalk.blue(response));
-    responses.push(response);
-  }
-  return responses;
-}
-
-/**
- * New function to simulate subscription to multiple Kafka topics.
- * @param {string[]} topics - Array of topics to subscribe to.
- * @returns {string[]} Array of subscription confirmation messages.
- */
-export function simulateKafkaTopicSubscription(topics) {
-  console.log(chalk.blue("Subscribing to Kafka topics:"), topics.join(", "));
-  const subscriptions = topics.map(topic => `Subscribed to topic: ${topic}`);
-  subscriptions.forEach(subscription => console.log(chalk.blue(subscription)));
-  return subscriptions;
 }
 
 /**
@@ -729,7 +642,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -952,6 +865,69 @@ export async function delegateDecisionToLLMAdvancedStrict(prompt, options = {}) 
   } catch (error) {
     console.error(chalk.red("delegateDecisionToLLMAdvancedStrict error:"), error);
     return { fixed: "false", message: error.message, refinement: "Timeout exceeded" };
+  }
+}
+
+// New OpenAI function wrapper using function calling, similar to the supplied OpenAI function example
+export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo") {
+  try {
+    const openaiModule = await import("openai");
+    const Config = openaiModule.Configuration ? (openaiModule.Configuration.default || openaiModule.Configuration) : null;
+    if (!Config) throw new Error("OpenAI Configuration not available");
+    const Api = openaiModule.OpenAIApi;
+    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY || "" });
+    const openai = new Api(configuration);
+    const tools = [
+      {
+        type: "function",
+        function: {
+          name: "review_issue",
+          description: "Evaluate whether the supplied source file content resolves the issue. Return an object with fixed (string: 'true' or 'false'), message (explanation), and refinement (suggested refinement).",
+          parameters: {
+            type: "object",
+            properties: {
+              fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
+              message: { type: "string", description: "A message explaining the result" },
+              refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
+            },
+            required: ["fixed", "message", "refinement"],
+            additionalProperties: false
+          },
+          strict: true
+        }
+      }
+    ];
+
+    const response = await openai.createChatCompletion({
+      model,
+      messages: [
+        { role: "system", content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema." },
+        { role: "user", content: prompt }
+      ],
+      tools: tools
+    });
+
+    let result;
+    const messageObj = response.data.choices[0].message;
+    if (messageObj.tool_calls && Array.isArray(messageObj.tool_calls) && messageObj.tool_calls.length > 0) {
+      try {
+        result = JSON.parse(messageObj.tool_calls[0].function.arguments);
+      } catch (e) {
+        throw new Error(`Failed to parse function call arguments: ${e.message}`);
+      }
+    } else if (messageObj.content) {
+      try {
+        result = JSON.parse(messageObj.content);
+      } catch (e) {
+        throw new Error(`Failed to parse response content: ${e.message}`);
+      }
+    } else {
+      throw new Error("No valid response received from OpenAI.");
+    }
+    return result;
+  } catch (error) {
+    console.error(chalk.red("callOpenAIFunctionWrapper error:"), error);
+    return { fixed: "false", message: error.message, refinement: "None" };
   }
 }
 

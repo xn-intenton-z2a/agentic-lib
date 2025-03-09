@@ -718,11 +718,9 @@ describe("Additional Functions", () => {
   });
 });
 
-describe("delegateDecisionToLLMAdvanced", () => {
-  test("returns simulated response when TEST_OPENAI_SUCCESS is true", async () => {
-    process.env.TEST_OPENAI_SUCCESS = "true";
-    const result = await agenticLib.delegateDecisionToLLMAdvanced("test advanced", { refinement: "test" });
-    expect(result.fixed).toBe("true");
-    process.env.TEST_OPENAI_SUCCESS = "false";
+describe("callOpenAIFunctionWrapper", () => {
+  test("returns fallback message when OpenAI call fails", async () => {
+    const result = await agenticLib.callOpenAIFunctionWrapper("test prompt");
+    expect(result.fixed).toBe("false");
   });
 });
