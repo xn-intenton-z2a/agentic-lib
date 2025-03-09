@@ -39,13 +39,13 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 <li class="md-github"><strong class="md-github">Usage Information:</strong><br>
 Use <code class="md-github">generateUsage()</code> to display available flag options.</li>
 <li class="md-github"><strong class="md-github">Telemetry:</strong><br>
-Comprehensive diagnostics including <code class="md-github">gatherTelemetryData()</code>, <code class="md-github">gatherExtendedTelemetryData()</code>, <code class="md-github">gatherAdvancedTelemetryData()</code>, and <code class="md-github">gatherFullTelemetryData()</code>.</li>
+Comprehensive diagnostics including <code class="md-github">gatherTelemetryData()</code>, <code class="md-github">gatherExtendedTelemetryData()</code>, <code class="md-github">gatherAdvancedTelemetryData()</code>, <code class="md-github">gatherFullTelemetryData()</code>, and now the new <code class="md-github">gatherTotalTelemetry()</code> to aggregate all telemetry data from GitHub Actions workflows.</li>
 <li class="md-github"><strong class="md-github">Remote Service Wrappers:</strong><br>
-Simplified API interactions for deployment, build status, analytics, notifications, logging, repository details, and code quality analysis via <code class="md-github">callCodeQualityService</code>.</li>
+Simplified API interactions for deployment, build status, analytics, notifications, logging, repository details, and code quality analysis via <code class="md-github">callCodeQualityService</code> and the new <code class="md-github">callRepositoryService</code>.</li>
 <li class="md-github"><strong class="md-github">LLM Delegation:</strong><br>
 Advanced functions supporting robust decision delegation with schema validation and timeout support. <em class="md-github">New:</em> <code class="md-github">callOpenAIFunctionWrapper</code> is implemented to wrap an OpenAI function call using the function calling schema, now enhanced with an empty prompt check, improved error reporting, and explicit API key validation.
 <ul class="md-github">
-<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">delegateDecisionToLLMEnhanced</code> for enhanced OpenAI delegation with improved logging and error handling.</li>
+<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">delegateDecisionToLLMEnhanced</code> for improved OpenAI delegation with enhanced logging.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Kafka Operations:</strong><br>
@@ -83,6 +83,7 @@ Functions such as <code class="md-github">parseVitestSarifOutput</code> and <cod
 <li class="md-github"><strong class="md-github">New Kafka Functions:</strong> Added <code class="md-github">simulateKafkaProducer</code>, <code class="md-github">simulateKafkaConsumer</code>, <code class="md-github">simulateKafkaRequestResponse</code>, as well as extensions <code class="md-github">simulateKafkaPriorityMessaging</code> and <code class="md-github">simulateKafkaRetryOnFailure</code> for enhanced inter-workflow messaging.</li>
 <li class="md-github"><strong class="md-github">Extended:</strong> Updated the <code class="md-github">--create-issue</code> flag behavior to mimic the GitHub Actions workflow from wfr-create-issue.yml, supporting dynamic &quot;house choice&quot; options via the environment variable <code class="md-github">HOUSE_CHOICE_OPTIONS</code>.</li>
 <li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">--config</code> flag to print configuration details of the runtime environment.</li>
+<li class="md-github"><strong class="md-github">New:</strong> <strong class="md-github">Added <code class="md-github">gatherTotalTelemetry()</code> function</strong> to aggregate all telemetry data from various methods, providing a comprehensive view of the GitHub Actions environment.</li>
 <li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">simulateDelayedResponse</code> function to simulate delayed Kafka responses, aligning with mission requirements by providing a more realistic messaging simulation.</li>
 </ul>
 <hr class="md-github">
@@ -149,7 +150,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-09T12:52:45.006Z</p>
+    <p>Generated on 2025-03-09T12:59:38.643Z</p>
   </footer>
 </body>
 </html>
