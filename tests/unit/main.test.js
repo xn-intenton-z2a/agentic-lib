@@ -744,7 +744,7 @@ describe("New Features", () => {
     topics.forEach(topic => {
       expect(responses[topic].broadcast).toBe(true);
       expect(responses[topic].sent).toContain(message);
-      expect(responses[topic].received).toContain("Simulated message from topic '" + topic + "'");
+      expect(responses[topic].received).toContain(`Simulated message from topic '${topic}'`);
     });
   });
 });
