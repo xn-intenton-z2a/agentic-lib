@@ -2,7 +2,7 @@
 // src/lib/main.js - Implementation aligned with the agentic‐lib mission statement.
 // Change Log:
 // - Aligned with the agentic‐lib mission statement by pruning drift and removing redundant simulation verbiage.
-// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, --extended, --report, --advanced, --analytics.
+// - Extended functionality with flags: --env, --reverse, --telemetry, --telemetry-extended, --version, --create-issue, --simulate-remote, --sarif, --extended, --report, --advanced, --analytics, --config.
 // - Integrated Kafka logging, system performance telemetry, remote service wrappers with improved HTTP error checking.
 // - Added detailed Kafka simulation functions and advanced analytics simulation for deeper diagnostics.
 // - Refactored flag handling and improved regex safety in getIssueNumberFromBranch.
@@ -17,6 +17,7 @@
 // - Updated delegateDecisionToLLM to correctly import Configuration and OpenAIApi.
 // - Enhanced OpenAI function wrapper: callOpenAIFunctionWrapper now includes an empty prompt check and improved error handling with detailed logging.
 // - Extended '--create-issue' flag workflow behavior to mimic the GitHub Actions workflow (wfr-create-issue.yml) by supporting house choice options from the environment variable HOUSE_CHOICE_OPTIONS.
+// - Added new '--config' flag to display configuration details, aligning with the Mission Statement.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -592,6 +593,10 @@ function handleBasicFlag(flag, nonFlagArgs) {
         .catch((err) => console.error(chalk.red("Analytics call failed:"), err.message));
       return false;
     }
+    case "--config": {
+      printConfiguration();
+      return false;
+    }
     default:
       return false;
   }
@@ -640,7 +645,7 @@ export function main(args = []) {
 }
 
 export function generateUsage() {
-  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [--create-issue] [--simulate-remote] [--sarif] [--extended] [--report] [--advanced] [--analytics] [args...]";
+  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [--create-issue] [--simulate-remote] [--sarif] [--extended] [--report] [--advanced] [--analytics] [--config] [args...]";
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
@@ -1161,6 +1166,19 @@ export function simulateKafkaRetryOnFailure(topic, message, maxRetries = 3) {
   }
   console.log(`Retry on failure simulation for topic '${topic}':`, logMessages.join(" | "));
   return { topic, message, attempts, success, logMessages };
+}
+
+/**
+ * New function to print configuration details.
+ */
+export function printConfiguration() {
+  const config = {
+    nodeVersion: process.version,
+    platform: process.platform,
+    currentWorkingDirectory: process.cwd()
+  };
+  console.log(chalk.blue("Configuration:"), JSON.stringify(config, null, 2));
+  return config;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
