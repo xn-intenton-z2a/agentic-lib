@@ -77,6 +77,12 @@ jobs:
               if (filteredPRs.length > 0) {
                 pullRequest = filteredPRs[0];
                 core.info(`Found pull request #${pullRequest.number}.`);
+                const { data: pullRequestFromGet } = await github.rest.pulls.get({
+                  owner,
+                  repo,
+                  pull_number: pullNumber,
+                });
+                pullRequest = pullRequestFromGet;
                 core.info(JSON.stringify(pullRequest));
               } else {
                 core.info(`No pull request found with number #${pullNumber}.`);
