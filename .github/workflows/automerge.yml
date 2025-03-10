@@ -99,6 +99,7 @@ jobs:
               if (filteredPRs.length > 0) {
                 pullRequest = filteredPRs[0];
                 core.info(`Found open pull request with label ${{ needs.label.outputs.pullRequestLabel }}: #${pullRequest.number}.`);
+                core.info(JSON.stringify(pullRequest));
               } else {
                 core.info(`No open pull request found with label ${{ needs.label.outputs.pullRequestLabel }}.`);
                 pullRequest = null;
