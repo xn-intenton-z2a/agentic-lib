@@ -94,7 +94,7 @@ jobs:
               direction: 'asc'
             });
             if (pullRequests.length > 0) {
-              const filteredPRs = pullRequests.filter(pr => pr.labels.some(label => label.name === '${{ needs.label.outputs.pullRequestLabel }}' );
+              const filteredPRs = pullRequests.filter(pr => pr.labels.some(label => label.name === '${{ needs.label.outputs.pullRequestLabel }}' ));
               if (filteredPRs.length > 0) {
                 pullRequest = filteredPRs[0];
                 core.info(`Found open pull request with label ${{ needs.label.outputs.pullRequestLabel }}: #${pullNumber}.`);
