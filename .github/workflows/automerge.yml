@@ -22,6 +22,9 @@ on:
     #- cron: '*/30 * * * *' # schedule-2
     #- cron: '*/10 * * * *' # schedule-3
 
+env:
+  pullRequestLabel: 'automerge'
+
 jobs:
   pull-request-event:
     if: github.event_name == 'pull_request'
@@ -52,7 +55,7 @@ jobs:
           echo "Triggered by: workflow_dispatch"
 
   pr:
-    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, env.pullRequestLabel )
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-from-pull-request.yml@main'
 
   cs:
@@ -78,6 +81,19 @@ jobs:
               sort: 'created',
               direction: 'asc'
             });
+            if (pullRequests.length > 0) {
+              const filteredPRs = pullRequests.filter(pr => pr.labels.*.name === '${{ env.pullRequestLabel }}' );
+              if (filteredPRs.length > 0) {
+                pullRequest = filteredPRs[0];
+                core.info(`Found open pull request with label ${{ env.pullRequestLabel }}: #${pullNumber}.`);
+              } else {
+                core.info(`No open pull request found with label ${{ env.pullRequestLabel }}.`);
+                pullRequest = null;
+              }
+            } else {
+              pullRequest = null;
+              core.info('No open pull requests found.');
+            }
             if (pullRequests.length > 0) {
               pullNumber = pullRequests[0].number;
             } else {
