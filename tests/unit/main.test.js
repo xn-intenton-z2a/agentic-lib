@@ -154,3 +154,12 @@ describe("Run Main Execution", () => {
     expect(stderr).toBe("");
   });
 });
+
+describe("delegateDecisionToLLMAdvancedOptimized", () => {
+  test("returns success object when TEST_OPENAI_SUCCESS is true", async () => {
+    process.env.TEST_OPENAI_SUCCESS = "true";
+    const result = await agenticLib.delegateDecisionToLLMAdvancedOptimized("Test prompt", { refinement: "None" });
+    expect(result.fixed).toBe("true");
+    process.env.TEST_OPENAI_SUCCESS = "";
+  });
+});

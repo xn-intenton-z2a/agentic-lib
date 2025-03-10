@@ -8,6 +8,7 @@
 // - Added new parsing functions: parseVitestDefaultOutput and parseEslintDefaultOutput to handle default output formats of Vitest and ESLint, extending SARIF parsing capabilities.
 // - Updated getIssueNumberFromBranch to correctly extract issue numbers using properly escaped regex for digit matching.
 // - Added new utility functions: reviewIssue, printReport, simulateKafkaProducer, simulateKafkaConsumer, simulateKafkaPriorityMessaging, simulateKafkaRetryOnFailure, simulateFileSystemCall, delegateDecisionToLLMEnhanced, and printConfiguration.
+// - Updated advanced LLM delegation functions with strict schema validation, timeout support, and added an optimized wrapper: delegateDecisionToLLMAdvancedOptimized.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -770,7 +771,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -842,27 +843,6 @@ export async function delegateDecisionToLLM(prompt) {
   } catch {
     return "LLM decision could not be retrieved.";
   }
-}
-
-// Helper to parse LLM response message
-function parseLLMMessage(messageObj) {
-  let result;
-  if (messageObj.tool_calls && Array.isArray(messageObj.tool_calls) && messageObj.tool_calls.length > 0) {
-    try {
-      result = JSON.parse(messageObj.tool_calls[0].function.arguments);
-    } catch {
-      result = { fixed: "false", message: "Failed to parse tool_calls arguments.", refinement: "None" };
-    }
-  } else if (messageObj.content) {
-    try {
-      result = JSON.parse(messageObj.content);
-    } catch {
-      result = { fixed: "false", message: "Failed to parse response content.", refinement: "None" };
-    }
-  } else {
-    result = { fixed: "false", message: "No valid response received.", refinement: "None" };
-  }
-  return result;
 }
 
 export async function delegateDecisionToLLMWrapped(prompt) {
@@ -1000,6 +980,80 @@ export async function delegateDecisionToLLMAdvancedStrict(prompt, options = {}) 
   } catch (error) {
     console.error(chalk.red("delegateDecisionToLLMAdvancedStrict error:"), error);
     return { fixed: "false", message: error.message, refinement: "Timeout exceeded" };
+  }
+}
+
+// New optimized advanced delegation function with configurable temperature
+export async function delegateDecisionToLLMAdvancedOptimized(prompt, options = {}) {
+  if (process.env.TEST_OPENAI_SUCCESS === "true") {
+    return { fixed: "true", message: "LLM advanced optimized call succeeded", refinement: options.refinement || "None" };
+  }
+  if (!process.env.OPENAI_API_KEY) {
+    console.error(chalk.red("OpenAI API key is missing."));
+    return { fixed: "false", message: "OpenAI API key is missing.", refinement: "Provide a valid API key." };
+  }
+  try {
+    const openaiModule = await import("openai");
+    const Config = openaiModule.Configuration ? (openaiModule.Configuration.default || openaiModule.Configuration) : null;
+    if (!Config) throw new Error("OpenAI Configuration not available");
+    const Api = openaiModule.OpenAIApi;
+    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY || "" });
+    const openai = new Api(configuration);
+    const tools = [
+      {
+        type: "function",
+        function: {
+          name: "review_issue",
+          description: "Evaluate whether the supplied source file content resolves the issue efficiently with optimized performance.",
+          parameters: {
+            type: "object",
+            properties: {
+              fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
+              message: { type: "string", description: "A message explaining the result" },
+              refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
+            },
+            required: ["fixed", "message", "refinement"],
+            additionalProperties: false
+          },
+          strict: true
+        }
+      }
+    ];
+    const response = await openai.createChatCompletion({
+      model: options.model || "gpt-3.5-turbo",
+      temperature: options.temperature || 0.7,
+      messages: [
+        { role: "system", content: "You are evaluating code issues with advanced optimized parameters." },
+        { role: "user", content: prompt }
+      ],
+      tools: tools
+    });
+    let result;
+    const messageObj = response.data.choices[0].message;
+    if (messageObj.tool_calls && Array.isArray(messageObj.tool_calls) && messageObj.tool_calls.length > 0) {
+      try {
+        result = JSON.parse(messageObj.tool_calls[0].function.arguments);
+      } catch {
+        result = { fixed: "false", message: "Failed to parse tool_calls arguments.", refinement: "None" };
+      }
+    } else if (messageObj.content) {
+      try {
+        result = JSON.parse(messageObj.content);
+      } catch {
+        result = { fixed: "false", message: "Failed to parse response content.", refinement: "None" };
+      }
+    } else {
+      result = { fixed: "false", message: "No valid response received.", refinement: "None" };
+    }
+    const ResponseSchema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
+    const parsed = ResponseSchema.safeParse(result);
+    if (!parsed.success) {
+      return { fixed: "false", message: "LLM advanced optimized response schema validation failed.", refinement: "None" };
+    }
+    return parsed.data;
+  } catch (error) {
+    console.error(chalk.red("delegateDecisionToLLMAdvancedOptimized error:"), error);
+    return { fixed: "false", message: "LLM advanced optimized decision could not be retrieved.", refinement: "None" };
   }
 }
 

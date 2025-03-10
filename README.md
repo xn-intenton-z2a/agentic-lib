@@ -13,6 +13,13 @@ GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 
 [See the latest repository stats](https://xn-intenton-z2a.github.io/agentic-lib/latest.html)
 
+Mixed licensing:
+* This project is licensed under the GNU General Public License (GPL).
+* This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+* This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+This README file will evolve as the test experiment within this repository evolves.
+
 ---
 
 ## Overview
@@ -30,7 +37,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **Remote Service Wrappers:**
   Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, and a new monitoring service via `callMonitoringService()`.
 - **LLM Delegation:**
-  Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include `delegateDecisionToLLMAdvanced`, `delegateDecisionToLLMWrapped`, and the new `delegateDecisionToLLMEnhanced`.
+  Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include `delegateDecisionToLLMAdvanced`, `delegateDecisionToLLMWrapped`, `delegateDecisionToLLMAdvancedVerbose`, `delegateDecisionToLLMAdvancedStrict`, and the new **`delegateDecisionToLLMAdvancedOptimized`** which offers configurable temperature for optimized performance.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
   - `simulateKafkaStream`, `simulateKafkaDetailedStream`, and `simulateKafkaBulkStream`.
@@ -52,15 +59,14 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - Refreshed README to align with CONTRIBUTING guidelines and remove outdated content.
 - Extended flag handling with improved diagnostics and error checking.
 - Enhanced telemetry and Kafka simulation functions with detailed logging.
-- Updated advanced LLM delegation functions with strict schema validation and timeout support.
+- **Updated advanced LLM delegation functions:** Now includes strict schema validation, timeout support, and a new optimized wrapper (`delegateDecisionToLLMAdvancedOptimized`) for enhanced performance using configurable temperature.
 - Added new remote monitoring service wrapper and file system interaction simulation.
 - **New Features Added:**
   - `reviewIssue` for evaluating issue resolution based on source file content.
   - `printReport` and `printConfiguration` for diagnostics output.
-  - Kafka messaging additional functions: `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, and `simulateKafkaBroadcast`.
+  - Additional Kafka messaging functions: `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, and `simulateKafkaBroadcast`.
   - `simulateFileSystemCall` for file system simulation.
   - `delegateDecisionToLLMEnhanced` for enhanced LLM delegation.
-  - **Updated getIssueNumberFromBranch to correctly extract issue numbers by fixing regex escapes.**
 
 ---
 
@@ -100,9 +106,7 @@ This repository is organized into three distinct areas to help you understand th
 - **Licensing:**  
   Under GPL‑3 with the attribution clause.
 - **Location:**  
-  Located in `src/lib/main.js`.
-
----
+  The code is located in `src/lib/main.js`.
 
 ## License
 
@@ -123,7 +127,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License v3.0 (GPL‑3)
+You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 IMPORTANT: Any derived work must include the following attribution:
