@@ -73,7 +73,8 @@ jobs:
               const filteredPRs = pullRequests.filter(pr => pr.number === pullNumber);
               if (filteredPRs.length > 0) {
                 pullRequest = filteredPRs[0];
-                core.info(`Found pull request #${pullNumber}.`);
+                core.info(`Found pull request #${pullRequest.number}.`);
+                core.info(JSON.stringify(pullRequest));
               } else {
                 core.info(`No pull request found with number #${pullNumber}.`);
                 pullRequest = null;
