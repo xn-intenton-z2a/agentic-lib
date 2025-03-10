@@ -99,13 +99,13 @@ This repository is organized into three distinct areas to help you understand th
 - **Location:**  
   Found in the `examples/` directory.
 
-### 3. The Evolving main.js (JavaScript Re‑implementation of Workflows)
+### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
 - **Purpose:**  
-  Implements re‑usable workflows as a JavaScript module, enabling programmatic access to core functionality.
+  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
-  Under active development; may change frequently and represent bleeding‑edge functionality.
+  It is under active development; may change frequently and represent bleeding‑edge functionality.
 - **Licensing:**  
-  Under GPL‑3 with the attribution clause.
+  As part of the core project, it is under GPL‑3 with the attribution clause.
 - **Location:**  
   The code is located in `src/lib/main.js`.
 
@@ -137,4 +137,3 @@ IMPORTANT: Any derived work must include the following attribution:
 
 ---
 ---
-
