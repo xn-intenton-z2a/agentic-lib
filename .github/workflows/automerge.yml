@@ -26,6 +26,16 @@ env:
   pullRequestLabel: 'automerge'
 
 jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: echo
+        shell: bash
+        run: |
+          echo "Label: ${{ env.pullRequestLabel }}"
+    outputs:
+      pullRequestLabel: ${{ env.pullRequestLabel }}
+
   pull-request-event:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -55,7 +65,8 @@ jobs:
           echo "Triggered by: workflow_dispatch"
 
   pr:
-    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, env.pullRequestLabel )
+    needs: label
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, needs.label.outputs.pullRequestLabel )
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-from-pull-request.yml@main'
 
   cs:
@@ -63,6 +74,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-in-check-suite.yml@main'
 
   ls:
+    needs: label
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
@@ -82,12 +94,12 @@ jobs:
               direction: 'asc'
             });
             if (pullRequests.length > 0) {
-              const filteredPRs = pullRequests.filter(pr => pr.labels.*.name === '${{ env.pullRequestLabel }}' );
+              const filteredPRs = pullRequests.filter(pr => pr.labels.some(label => label.name === '${{ needs.label.outputs.pullRequestLabel }}' );
               if (filteredPRs.length > 0) {
                 pullRequest = filteredPRs[0];
-                core.info(`Found open pull request with label ${{ env.pullRequestLabel }}: #${pullNumber}.`);
+                core.info(`Found open pull request with label ${{ needs.label.outputs.pullRequestLabel }}: #${pullNumber}.`);
               } else {
-                core.info(`No open pull request found with label ${{ env.pullRequestLabel }}.`);
+                core.info(`No open pull request found with label ${{ needs.label.outputs.pullRequestLabel }}.`);
                 pullRequest = null;
               }
             } else {
