@@ -64,29 +64,26 @@ jobs:
             const pullNumber = pr.number;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
+            let pullRequest;
             let shouldSkipMerge;
             let prMerged;
             
             const { data: pullRequests } = await github.rest.pulls.list({
               owner: owner,
               repo: repo,
-              state: 'open',
-              per_page: 256,
-              sort: 'created',
-              direction: 'asc'
             });
             if (pullRequests.length > 0) {
               const filteredPRs = pullRequests.filter(pr => pr.number === pullNumber);
               if (filteredPRs.length > 0) {
                 pullRequest = filteredPRs[0];
-                core.info(`Found open pull request #${pullNumber}.`);
+                core.info(`Found pull request #${pullNumber}.`);
               } else {
-                core.info(`No open pull request found with number ${pullNumber}.`);
+                core.info(`No pull request found with number #${pullNumber}.`);
                 pullRequest = null;
               }
             } else {
               pullRequest = null;
-              core.info('No open pull requests found.');
+              core.info('No pull requests found.');
             }
             //const { data: pullRequest } = await github.rest.pulls.get({
             //  owner,

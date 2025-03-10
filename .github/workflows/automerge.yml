@@ -84,6 +84,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            let pullRequest;
             let pullNumber;
             const { data: pullRequests } = await github.rest.pulls.list({
               owner: context.repo.owner,
@@ -97,7 +98,7 @@ jobs:
               const filteredPRs = pullRequests.filter(pr => pr.labels.some(label => label.name === '${{ needs.label.outputs.pullRequestLabel }}' ));
               if (filteredPRs.length > 0) {
                 pullRequest = filteredPRs[0];
-                core.info(`Found open pull request with label ${{ needs.label.outputs.pullRequestLabel }}: #${pullNumber}.`);
+                core.info(`Found open pull request with label ${{ needs.label.outputs.pullRequestLabel }}: #${pullRequest.number}.`);
               } else {
                 core.info(`No open pull request found with label ${{ needs.label.outputs.pullRequestLabel }}.`);
                 pullRequest = null;
