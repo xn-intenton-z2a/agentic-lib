@@ -52,7 +52,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **Configuration Display:**
   The `--config` flag and `printConfiguration()` function display detailed runtime configuration.
 - **Issue Creation Simulation:**
-  Enhanced `--create-issue` flag mimics GitHub Actions issue creation with dynamic title selection and JSON logging.
+  The `--create-issue` flag now closely mimics the GitHub Actions issue creation workflow (wfr-create-issue.yml), including dynamic title selection based on the environment variable `HOUSE_CHOICE_OPTIONS` and enhanced JSON logging.
 
 ---
 
@@ -70,6 +70,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - Additional Kafka messaging functions: `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, and `simulateKafkaBroadcast`.
   - `simulateFileSystemCall` for file system simulation.
   - `delegateDecisionToLLMEnhanced` for enhanced LLM delegation.
+  - **Extended '--create-issue' Workflow Simulation:** Now simulates GitHub issue creation more realistically by dynamically selecting issue titles and logging detailed JSON output, in alignment with the provided wfr-create-issue.yml workflow.
 
 ---
 
