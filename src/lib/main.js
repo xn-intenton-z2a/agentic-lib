@@ -9,7 +9,7 @@
 // - Updated getIssueNumberFromBranch to correctly extract issue numbers using properly escaped regex for digit matching.
 // - Added new utility functions: reviewIssue, printReport, simulateKafkaProducer, simulateKafkaConsumer, simulateKafkaPriorityMessaging, simulateKafkaRetryOnFailure, simulateFileSystemCall, delegateDecisionToLLMEnhanced, and printConfiguration.
 // - Updated advanced LLM delegation functions with strict schema validation, timeout support, and added an optimized wrapper: delegateDecisionToLLMAdvancedOptimized.
-// - Updated openAI function wrapper (callOpenAIFunctionWrapper) to use strict schema validation using Zod and improved error handling as per OpenAI function calling example.
+// - Updated openAI function wrapper (callOpenAIFunctionWrapper) to use strict schema validation using Zod and improved error handling as per OpenAI function calling example, now supporting an optional verbose mode for additional logging.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -770,6 +770,7 @@ export function generateUsage() {
   return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [--create-issue] [--simulate-remote] [--sarif] [--extended] [--report] [--advanced] [--analytics] [--config] [args...]";
 }
 
+// Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
   const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
@@ -1059,7 +1060,10 @@ export async function delegateDecisionToLLMAdvancedOptimized(prompt, options = {
 }
 
 // New OpenAI function wrapper using function calling
-export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo") {
+export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo", verbose = false) {
+  if (verbose) {
+    console.log(chalk.blue("callOpenAIFunctionWrapper invoked with prompt:"), prompt);
+  }
   if (!prompt) {
     const errMsg = "Prompt is empty.";
     console.error(chalk.red("callOpenAIFunctionWrapper error:"), errMsg);
@@ -1126,6 +1130,9 @@ export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo")
     const parsed = ResponseSchema.safeParse(result);
     if (!parsed.success) {
       throw new Error("LLM function wrapper response schema validation failed.");
+    }
+    if (verbose) {
+      console.log(chalk.blue("callOpenAIFunctionWrapper response:"), parsed.data);
     }
     return parsed.data;
   } catch (error) {
