@@ -39,6 +39,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, and a new monitoring service via `callMonitoringService()`.
 - **LLM Delegation:**
   Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include `delegateDecisionToLLMAdvanced`, `delegateDecisionToLLMWrapped`, `delegateDecisionToLLMAdvancedVerbose`, `delegateDecisionToLLMAdvancedStrict`, and the new **`delegateDecisionToLLMAdvancedOptimized`** which offers configurable temperature for optimized performance.
+  - **Enhanced OpenAI Function Wrapper:** `callOpenAIFunctionWrapper` has been updated to follow strict schema validation using Zod, mirroring the supplied OpenAI function example.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
   - `simulateKafkaStream`, `simulateKafkaDetailedStream`, and `simulateKafkaBulkStream`.
@@ -61,6 +62,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - Extended flag handling with improved diagnostics and error checking.
 - Enhanced telemetry and Kafka simulation functions with detailed logging.
 - **Updated advanced LLM delegation functions:** Now includes strict schema validation, timeout support, and a new optimized wrapper (`delegateDecisionToLLMAdvancedOptimized`) for enhanced performance using configurable temperature.
+- **Enhanced OpenAI Function Wrapper:** Updated `callOpenAIFunctionWrapper` to implement advanced schema validation using Zod, following the provided OpenAI function example.
 - Added new remote monitoring service wrapper and file system interaction simulation.
 - **New Features Added:**
   - `reviewIssue` for evaluating issue resolution based on source file content.

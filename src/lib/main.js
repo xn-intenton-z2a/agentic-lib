@@ -9,6 +9,7 @@
 // - Updated getIssueNumberFromBranch to correctly extract issue numbers using properly escaped regex for digit matching.
 // - Added new utility functions: reviewIssue, printReport, simulateKafkaProducer, simulateKafkaConsumer, simulateKafkaPriorityMessaging, simulateKafkaRetryOnFailure, simulateFileSystemCall, delegateDecisionToLLMEnhanced, and printConfiguration.
 // - Updated advanced LLM delegation functions with strict schema validation, timeout support, and added an optimized wrapper: delegateDecisionToLLMAdvancedOptimized.
+// - Updated openAI function wrapper (callOpenAIFunctionWrapper) to use strict schema validation using Zod and improved error handling as per OpenAI function calling example.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -771,7 +772,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -1096,7 +1097,6 @@ export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo")
         }
       }
     ];
-
     const response = await openai.createChatCompletion({
       model,
       messages: [
@@ -1105,7 +1105,6 @@ export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo")
       ],
       tools: tools
     });
-
     let result;
     const messageObj = response.data.choices[0].message;
     if (messageObj.tool_calls && Array.isArray(messageObj.tool_calls) && messageObj.tool_calls.length > 0) {
@@ -1123,7 +1122,12 @@ export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo")
     } else {
       throw new Error("No valid response received from OpenAI.");
     }
-    return result;
+    const ResponseSchema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
+    const parsed = ResponseSchema.safeParse(result);
+    if (!parsed.success) {
+      throw new Error("LLM function wrapper response schema validation failed.");
+    }
+    return parsed.data;
   } catch (error) {
     console.error(chalk.red("callOpenAIFunctionWrapper error:"), error);
     return { fixed: "false", message: "Enhanced wrapper failure: " + error.message, refinement: "None" };
