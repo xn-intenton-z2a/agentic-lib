@@ -7,6 +7,7 @@
 // - Added new remote monitoring service wrapper to simulate fetching monitoring metrics remotely.
 // - Added new parsing functions: parseVitestDefaultOutput and parseEslintDefaultOutput to handle default output formats of Vitest and ESLint, extending SARIF parsing capabilities.
 // - Updated getIssueNumberFromBranch to correctly extract issue numbers using properly escaped regex for digit matching.
+// - Extended '--create-issue' workflow behavior to more accurately simulate GitHub Issue creation as defined in the wfr-create-issue workflow. The simulation now features dynamic title selection from environment variables and enhanced logging.
 // - Added new utility functions: reviewIssue, printReport, simulateKafkaProducer, simulateKafkaConsumer, simulateKafkaPriorityMessaging, simulateKafkaRetryOnFailure, simulateFileSystemCall, delegateDecisionToLLMEnhanced, and printConfiguration.
 // - Updated advanced LLM delegation functions with strict schema validation, timeout support, and added an optimized wrapper: delegateDecisionToLLMAdvancedOptimized.
 // - Updated openAI function wrapper (callOpenAIFunctionWrapper) to use strict schema validation using Zod and improved error handling as per OpenAI function calling example, now supporting an optional verbose mode for additional logging.
@@ -638,6 +639,7 @@ function handleBasicFlag(flag, nonFlagArgs) {
   switch (flag) {
     case "--create-issue": {
       console.log(chalk.magenta("Simulated GitHub Issue Creation Workflow triggered."));
+      // Extended behavior to simulate issue creation based on wfr-create-issue workflow
       let issueTitle;
       if (nonFlagArgs.length > 0 && nonFlagArgs[0] === "house choice") {
         const options = process.env.HOUSE_CHOICE_OPTIONS ? process.env.HOUSE_CHOICE_OPTIONS.split("||") : ["Default House Choice Issue"];
