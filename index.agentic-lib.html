@@ -58,7 +58,7 @@ Simplified API interactions for various remote services, including deployment, b
 <li class="md-github"><strong class="md-github">LLM Delegation:</strong>
 Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include <code class="md-github">delegateDecisionToLLMAdvanced</code>, <code class="md-github">delegateDecisionToLLMWrapped</code>, <code class="md-github">delegateDecisionToLLMAdvancedVerbose</code>, <code class="md-github">delegateDecisionToLLMAdvancedStrict</code>, and the new <strong class="md-github"><code class="md-github">delegateDecisionToLLMAdvancedOptimized</code></strong> which offers configurable temperature for optimized performance.
 <ul class="md-github">
-<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> <code class="md-github">callOpenAIFunctionWrapper</code> has been updated to follow strict schema validation using Zod, mirroring the supplied OpenAI function example.</li>
+<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> <code class="md-github">callOpenAIFunctionWrapper</code> has been updated to implement advanced schema validation using Zod, now supporting an optional verbose mode for detailed logging. This update aligns with the supplied OpenAI function example.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Kafka Operations:</strong>
@@ -88,7 +88,7 @@ Enhanced <code class="md-github">--create-issue</code> flag mimics GitHub Action
 <li class="md-github">Extended flag handling with improved diagnostics and error checking.</li>
 <li class="md-github">Enhanced telemetry and Kafka simulation functions with detailed logging.</li>
 <li class="md-github"><strong class="md-github">Updated advanced LLM delegation functions:</strong> Now includes strict schema validation, timeout support, and a new optimized wrapper (<code class="md-github">delegateDecisionToLLMAdvancedOptimized</code>) for enhanced performance using configurable temperature.</li>
-<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> Updated <code class="md-github">callOpenAIFunctionWrapper</code> to implement advanced schema validation using Zod, following the provided OpenAI function example.</li>
+<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> <code class="md-github">callOpenAIFunctionWrapper</code> has been updated to include an optional verbose mode for additional logging and robust error handling, closely mirroring the supplied OpenAI function example.</li>
 <li class="md-github">Added new remote monitoring service wrapper and file system interaction simulation.</li>
 <li class="md-github"><strong class="md-github">New Features Added:</strong>
 <ul class="md-github">
@@ -165,7 +165,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-11T12:10:18.310Z</p>
+    <p>Generated on 2025-03-11T14:06:48.110Z</p>
   </footer>
 </body>
 </html>
