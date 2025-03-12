@@ -11,6 +11,7 @@
 // - Added new utility functions: reviewIssue, printReport, simulateKafkaProducer, simulateKafkaConsumer, simulateKafkaPriorityMessaging, simulateKafkaRetryOnFailure, simulateFileSystemCall, delegateDecisionToLLMEnhanced, and printConfiguration.
 // - Updated advanced LLM delegation functions with strict schema validation, timeout support, and added an optimized wrapper: delegateDecisionToLLMAdvancedOptimized.
 // - Updated openAI function wrapper (callOpenAIFunctionWrapper) to use strict schema validation using Zod and improved error handling as per OpenAI function calling example, now supporting an optional verbose mode for additional logging.
+// - Added new advanced LLM delegation enhanced wrapper: delegateDecisionToLLMAdvancedEnhanced for improved logging and debugging using advanced OpenAI function calling.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -1059,6 +1060,15 @@ export async function delegateDecisionToLLMAdvancedOptimized(prompt, options = {
     console.error(chalk.red("delegateDecisionToLLMAdvancedOptimized error:"), error);
     return { fixed: "false", message: "LLM advanced optimized decision could not be retrieved.", refinement: "None" };
   }
+}
+
+// New advanced delegation enhanced wrapper for improved logging and debugging
+export async function delegateDecisionToLLMAdvancedEnhanced(prompt, options = {}) {
+  const result = await delegateDecisionToLLMAdvancedOptimized(prompt, options);
+  if (options.verbose) {
+    console.log(chalk.blue("Enhanced LLM delegation result:"), result);
+  }
+  return result;
 }
 
 // New OpenAI function wrapper using function calling

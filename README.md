@@ -39,7 +39,8 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, and a new monitoring service via `callMonitoringService()`.
 - **LLM Delegation:**
   Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include `delegateDecisionToLLMAdvanced`, `delegateDecisionToLLMWrapped`, `delegateDecisionToLLMAdvancedVerbose`, `delegateDecisionToLLMAdvancedStrict`, and the new **`delegateDecisionToLLMAdvancedOptimized`** which offers configurable temperature for optimized performance.
-  - **Enhanced OpenAI Function Wrapper:** `callOpenAIFunctionWrapper` has been updated to implement advanced schema validation using Zod, now supporting an optional verbose mode for detailed logging. This update aligns with the supplied OpenAI function example.
+  - **Enhanced OpenAI Function Wrapper:** `callOpenAIFunctionWrapper` has been updated to support verbose mode and robust error handling.
+  - **New Enhanced Delegation Wrapper:** **`delegateDecisionToLLMAdvancedEnhanced`** has been added to improve logging and debugging of OpenAI function calls.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
   - `simulateKafkaStream`, `simulateKafkaDetailedStream`, and `simulateKafkaBulkStream`.
@@ -62,7 +63,8 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - Extended flag handling with improved diagnostics and error checking.
 - Enhanced telemetry and Kafka simulation functions with detailed logging.
 - **Updated advanced LLM delegation functions:** Now includes strict schema validation, timeout support, and a new optimized wrapper (`delegateDecisionToLLMAdvancedOptimized`) for enhanced performance using configurable temperature.
-- **Enhanced OpenAI Function Wrapper:** `callOpenAIFunctionWrapper` has been updated to include an optional verbose mode for additional logging and robust error handling, closely mirroring the supplied OpenAI function example.
+- **Enhanced OpenAI Function Wrapper:** Updated `callOpenAIFunctionWrapper` to support verbose mode and robust error handling.
+- **Added new Enhanced Delegation Wrapper:** Introduced `delegateDecisionToLLMAdvancedEnhanced` for improved logging and debugging in OpenAI function calls.
 - Added new remote monitoring service wrapper and file system interaction simulation.
 - **New Features Added:**
   - `reviewIssue` for evaluating issue resolution based on source file content.
@@ -86,27 +88,27 @@ This repository is organized into three distinct areas to help you understand th
 - **Purpose:**  
   These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.
 - **Stability:**  
-  They are stable and well‑tested, designed for integration in CI/CD pipelines.
+  They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.
 - **Licensing:**  
-  Core workflows are released under GPL‑3 with attribution required for derived work.
+  The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.
 - **Location:**  
-  Located in the `.github/workflows/` directory.
+  Find these in the `.github/workflows/` directory.
 
 ### 2. Example Workflows (Demonstrative Content)
 - **Purpose:**  
-  Practical examples of how to use core workflows; serve as learning tools and reference implementations.
+  These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
 - **Stability:**  
-  Functional but intended primarily for demonstration and experimentation.
+  While functional, they are intended primarily for demonstration and experimentation.
 - **Licensing:**  
-  Covered by the MIT license for broader use and modification.
+  The example workflows are covered by the MIT license to allow for broader use and modification.
 - **Location:**  
-  Found in the `examples/` directory.
+  Look in the `examples/` directory for sample implementations.
 
 ### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
 - **Purpose:**  
   This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
-  It is under active development; may change frequently and represent bleeding‑edge functionality.
+  It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
   As part of the core project, it is under GPL‑3 with the attribution clause.
 - **Location:**  
