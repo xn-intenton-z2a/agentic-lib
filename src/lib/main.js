@@ -10,8 +10,9 @@
 // - Extended '--create-issue' workflow behavior to more accurately simulate GitHub Issue creation as defined in the wfr-create-issue workflow. The simulation now features dynamic title selection from environment variables and enhanced logging.
 // - Added new utility functions: reviewIssue, printReport, simulateKafkaProducer, simulateKafkaConsumer, simulateKafkaPriorityMessaging, simulateKafkaRetryOnFailure, simulateFileSystemCall, delegateDecisionToLLMEnhanced, and printConfiguration.
 // - Updated advanced LLM delegation functions with strict schema validation, timeout support, and added an optimized wrapper: delegateDecisionToLLMAdvancedOptimized.
-// - Updated openAI function wrapper (callOpenAIFunctionWrapper) to use strict schema validation using Zod and improved error handling as per OpenAI function calling example, now supporting an optional verbose mode for additional logging.
+// - Updated openAI function wrapper (callOpenAIFunctionWrapper) to use strict schema validation using Zod and improved error handling, now supporting an optional verbose mode for additional logging.
 // - Added new advanced LLM delegation enhanced wrapper: delegateDecisionToLLMAdvancedEnhanced for improved logging and debugging using advanced OpenAI function calling.
+// - Extended OpenAI function wrapper: callOpenAIFunctionWrapper now includes enhanced logging, detailed error handling, and robust response parsing.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -776,7 +777,7 @@ export function generateUsage() {
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -1126,14 +1127,14 @@ export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo",
     if (messageObj.tool_calls && Array.isArray(messageObj.tool_calls) && messageObj.tool_calls.length > 0) {
       try {
         result = JSON.parse(messageObj.tool_calls[0].function.arguments);
-      } catch (e) {
-        throw new Error(`Failed to parse function call arguments: ${e.message}`);
+      } catch (error) {
+        throw new Error(`Failed to parse tool_calls arguments: ${error.message}`);
       }
     } else if (messageObj.content) {
       try {
         result = JSON.parse(messageObj.content);
-      } catch (e) {
-        throw new Error(`Failed to parse response content: ${e.message}`);
+      } catch (error) {
+        throw new Error(`Failed to parse response content: ${error.message}`);
       }
     } else {
       throw new Error("No valid response received from OpenAI.");
