@@ -32,14 +32,12 @@ afterAll(() => {
   process.exit.mockRestore && process.exit.mockRestore();
 });
 
-
 describe("Main Module Import", () => {
   test("should be non-null", async () => {
     const mainModule = await import("../../src/lib/main.js");
     expect(mainModule).not.toBeNull();
   });
 });
-
 
 describe("reviewIssue", () => {
   test("returns correct resolution when conditions met", () => {
@@ -145,6 +143,17 @@ describe("sanitizeCommitMessage", () => {
   test("sanitizes commit messages", () => {
     const raw = "Fix bug!!! -- urgent";
     expect(agenticLib.sanitizeCommitMessage(raw)).toBe("Fix bug -- urgent");
+  });
+});
+
+describe("gatherExtraTelemetryData", () => {
+  test("returns extra telemetry data with expected keys", () => {
+    const extraData = agenticLib.gatherExtraTelemetryData();
+    expect(extraData).toHaveProperty("npmPackageVersion");
+    expect(extraData).toHaveProperty("currentTimestamp");
+    expect(extraData).toHaveProperty("cpuUsage");
+    expect(extraData).toHaveProperty("freeMemory");
+    expect(typeof extraData.npmPackageVersion).toBe("string");
   });
 });
 

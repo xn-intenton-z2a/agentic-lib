@@ -35,11 +35,12 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   Comprehensive diagnostics via multiple telemetry functions such as:
   - `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and the new `gatherTotalTelemetry()`.
   - **CI Metrics:** `gatherCIEnvironmentMetrics()` captures additional GitHub Actions metrics.
+  - **Extra Telemetry:** New function `gatherExtraTelemetryData()` provides additional metrics including current timestamp, CPU usage, and free memory.
 - **Remote Service Wrappers:**
   Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, and a new monitoring service via `callMonitoringService()`.
 - **LLM Delegation:**
   Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include `delegateDecisionToLLMAdvanced`, `delegateDecisionToLLMWrapped`, `delegateDecisionToLLMAdvancedVerbose`, `delegateDecisionToLLMAdvancedStrict`, and the new **`delegateDecisionToLLMAdvancedOptimized`** which offers configurable temperature for optimized performance.
-  - **Enhanced OpenAI Function Wrapper:** `callOpenAIFunctionWrapper` has been updated to support verbose mode with enhanced logging and detailed error handling.
+  - **Enhanced OpenAI Function Wrapper:** `callOpenAIFunctionWrapper` has been updated to support verbose mode with enhanced logging, detailed error handling, and robust response parsing.
   - **New Enhanced Delegation Wrapper:** **`delegateDecisionToLLMAdvancedEnhanced`** has been added to improve logging and debugging of OpenAI function calls.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
@@ -66,6 +67,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **Enhanced OpenAI Function Wrapper:** Updated `callOpenAIFunctionWrapper` to support verbose mode with enhanced logging, detailed error handling, and robust response parsing.
 - **Added new Enhanced Delegation Wrapper:** Introduced `delegateDecisionToLLMAdvancedEnhanced` for improved logging and debugging in OpenAI function calls.
 - Added new remote monitoring service wrapper and file system interaction simulation.
+- **New Telemetry Function Added:** `gatherExtraTelemetryData` has been added to extend telemetry data collection with additional metrics.
 - **New Features Added:**
   - `reviewIssue` for evaluating issue resolution based on source file content.
   - `printReport` and `printConfiguration` for diagnostics output.

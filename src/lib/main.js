@@ -13,6 +13,7 @@
 // - Updated openAI function wrapper (callOpenAIFunctionWrapper) to use strict schema validation using Zod and improved error handling, now supporting an optional verbose mode for additional logging.
 // - Added new advanced LLM delegation enhanced wrapper: delegateDecisionToLLMAdvancedEnhanced for improved logging and debugging using advanced OpenAI function calling.
 // - Extended OpenAI function wrapper: callOpenAIFunctionWrapper now includes enhanced logging, detailed error handling, and robust response parsing.
+// - Added new telemetry function gatherExtraTelemetryData to provide additional metrics including timestamp, CPU usage, and free memory.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -154,6 +155,18 @@ export function gatherTotalTelemetry() {
     workflow: gatherWorkflowTelemetryData(),
     ciEnvMetrics: gatherCIEnvironmentMetrics(),
     processUptime: process.uptime()
+  };
+}
+
+/**
+ * New telemetry function to gather extra telemetry data including current timestamp, CPU usage and free memory.
+ */
+export function gatherExtraTelemetryData() {
+  return {
+    npmPackageVersion: process.env.npm_package_version || "unknown",
+    currentTimestamp: new Date().toISOString(),
+    cpuUsage: process.cpuUsage(),
+    freeMemory: os.freemem()
   };
 }
 
