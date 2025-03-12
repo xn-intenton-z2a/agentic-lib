@@ -51,6 +51,7 @@ Comprehensive diagnostics via multiple telemetry functions such as:
 <ul class="md-github">
 <li class="md-github"><code class="md-github">gatherTelemetryData()</code>, <code class="md-github">gatherExtendedTelemetryData()</code>, <code class="md-github">gatherAdvancedTelemetryData()</code>, <code class="md-github">gatherFullTelemetryData()</code>, and the new <code class="md-github">gatherTotalTelemetry()</code>.</li>
 <li class="md-github"><strong class="md-github">CI Metrics:</strong> <code class="md-github">gatherCIEnvironmentMetrics()</code> captures additional GitHub Actions metrics.</li>
+<li class="md-github"><strong class="md-github">Extra Telemetry:</strong> New function <code class="md-github">gatherExtraTelemetryData()</code> provides additional metrics including current timestamp, CPU usage, and free memory.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Remote Service Wrappers:</strong>
@@ -58,7 +59,7 @@ Simplified API interactions for various remote services, including deployment, b
 <li class="md-github"><strong class="md-github">LLM Delegation:</strong>
 Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include <code class="md-github">delegateDecisionToLLMAdvanced</code>, <code class="md-github">delegateDecisionToLLMWrapped</code>, <code class="md-github">delegateDecisionToLLMAdvancedVerbose</code>, <code class="md-github">delegateDecisionToLLMAdvancedStrict</code>, and the new <strong class="md-github"><code class="md-github">delegateDecisionToLLMAdvancedOptimized</code></strong> which offers configurable temperature for optimized performance.
 <ul class="md-github">
-<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> <code class="md-github">callOpenAIFunctionWrapper</code> has been updated to support verbose mode with enhanced logging and detailed error handling.</li>
+<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> <code class="md-github">callOpenAIFunctionWrapper</code> has been updated to support verbose mode with enhanced logging, detailed error handling, and robust response parsing.</li>
 <li class="md-github"><strong class="md-github">New Enhanced Delegation Wrapper:</strong> <strong class="md-github"><code class="md-github">delegateDecisionToLLMAdvancedEnhanced</code></strong> has been added to improve logging and debugging of OpenAI function calls.</li>
 </ul>
 </li>
@@ -92,6 +93,7 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 <li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> Updated <code class="md-github">callOpenAIFunctionWrapper</code> to support verbose mode with enhanced logging, detailed error handling, and robust response parsing.</li>
 <li class="md-github"><strong class="md-github">Added new Enhanced Delegation Wrapper:</strong> Introduced <code class="md-github">delegateDecisionToLLMAdvancedEnhanced</code> for improved logging and debugging in OpenAI function calls.</li>
 <li class="md-github">Added new remote monitoring service wrapper and file system interaction simulation.</li>
+<li class="md-github"><strong class="md-github">New Telemetry Function Added:</strong> <code class="md-github">gatherExtraTelemetryData</code> has been added to extend telemetry data collection with additional metrics.</li>
 <li class="md-github"><strong class="md-github">New Features Added:</strong>
 <ul class="md-github">
 <li class="md-github"><code class="md-github">reviewIssue</code> for evaluating issue resolution based on source file content.</li>
@@ -168,7 +170,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-12T16:07:27.496Z</p>
+    <p>Generated on 2025-03-12T18:08:05.408Z</p>
   </footer>
 </body>
 </html>
