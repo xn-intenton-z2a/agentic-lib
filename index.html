@@ -55,7 +55,7 @@ Comprehensive diagnostics via multiple telemetry functions such as:
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Remote Service Wrappers:</strong>
-Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, and a new monitoring service via <code class="md-github">callMonitoringService()</code>.</li>
+Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, monitoring, and now package management through <code class="md-github">callPackageManagementService()</code>.</li>
 <li class="md-github"><strong class="md-github">LLM Delegation:</strong>
 Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include <code class="md-github">delegateDecisionToLLMAdvanced</code>, <code class="md-github">delegateDecisionToLLMWrapped</code>, <code class="md-github">delegateDecisionToLLMAdvancedVerbose</code>, <code class="md-github">delegateDecisionToLLMAdvancedStrict</code>, and the new <strong class="md-github"><code class="md-github">delegateDecisionToLLMAdvancedOptimized</code></strong> which offers configurable temperature for optimized performance.
 <ul class="md-github">
@@ -102,6 +102,7 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 <li class="md-github"><code class="md-github">simulateFileSystemCall</code> for file system simulation.</li>
 <li class="md-github"><code class="md-github">delegateDecisionToLLMEnhanced</code> for enhanced LLM delegation.</li>
 <li class="md-github"><strong class="md-github">Extended '--create-issue' Workflow Simulation:</strong> Now simulates GitHub issue creation more realistically by dynamically selecting issue titles and logging detailed JSON output, in alignment with the provided wfr-create-issue.yml workflow.</li>
+<li class="md-github"><strong class="md-github">New Remote Service:</strong> Added <code class="md-github">callPackageManagementService</code> to simulate package management and dependency analysis in agentic workflows.</li>
 </ul>
 </li>
 </ul>
@@ -170,7 +171,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-12T20:06:51.962Z</p>
+    <p>Generated on 2025-03-12T22:05:50.491Z</p>
   </footer>
 </body>
 </html>
