@@ -58,7 +58,8 @@ Simplified API interactions for various remote services, including deployment, b
 <li class="md-github"><strong class="md-github">LLM Delegation:</strong>
 Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include <code class="md-github">delegateDecisionToLLMAdvanced</code>, <code class="md-github">delegateDecisionToLLMWrapped</code>, <code class="md-github">delegateDecisionToLLMAdvancedVerbose</code>, <code class="md-github">delegateDecisionToLLMAdvancedStrict</code>, and the new <strong class="md-github"><code class="md-github">delegateDecisionToLLMAdvancedOptimized</code></strong> which offers configurable temperature for optimized performance.
 <ul class="md-github">
-<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> <code class="md-github">callOpenAIFunctionWrapper</code> has been updated to implement advanced schema validation using Zod, now supporting an optional verbose mode for detailed logging. This update aligns with the supplied OpenAI function example.</li>
+<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> <code class="md-github">callOpenAIFunctionWrapper</code> has been updated to support verbose mode and robust error handling.</li>
+<li class="md-github"><strong class="md-github">New Enhanced Delegation Wrapper:</strong> <strong class="md-github"><code class="md-github">delegateDecisionToLLMAdvancedEnhanced</code></strong> has been added to improve logging and debugging of OpenAI function calls.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Kafka Operations:</strong>
@@ -88,7 +89,8 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 <li class="md-github">Extended flag handling with improved diagnostics and error checking.</li>
 <li class="md-github">Enhanced telemetry and Kafka simulation functions with detailed logging.</li>
 <li class="md-github"><strong class="md-github">Updated advanced LLM delegation functions:</strong> Now includes strict schema validation, timeout support, and a new optimized wrapper (<code class="md-github">delegateDecisionToLLMAdvancedOptimized</code>) for enhanced performance using configurable temperature.</li>
-<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> <code class="md-github">callOpenAIFunctionWrapper</code> has been updated to include an optional verbose mode for additional logging and robust error handling, closely mirroring the supplied OpenAI function example.</li>
+<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> Updated <code class="md-github">callOpenAIFunctionWrapper</code> to support verbose mode and robust error handling.</li>
+<li class="md-github"><strong class="md-github">Added new Enhanced Delegation Wrapper:</strong> Introduced <code class="md-github">delegateDecisionToLLMAdvancedEnhanced</code> for improved logging and debugging in OpenAI function calls.</li>
 <li class="md-github">Added new remote monitoring service wrapper and file system interaction simulation.</li>
 <li class="md-github"><strong class="md-github">New Features Added:</strong>
 <ul class="md-github">
@@ -111,29 +113,29 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 <li class="md-github"><strong class="md-github">Purpose:</strong><br>
 These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.</li>
 <li class="md-github"><strong class="md-github">Stability:</strong><br>
-They are stable and well‑tested, designed for integration in CI/CD pipelines.</li>
+They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.</li>
 <li class="md-github"><strong class="md-github">Licensing:</strong><br>
-Core workflows are released under GPL‑3 with attribution required for derived work.</li>
+The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.</li>
 <li class="md-github"><strong class="md-github">Location:</strong><br>
-Located in the <code class="md-github">.github/workflows/</code> directory.</li>
+Find these in the <code class="md-github">.github/workflows/</code> directory.</li>
 </ul>
 <h3 class="md-github"><a class="md-github__anchor" name="2-example-workflows-demonstrative-content" href="#2-example-workflows-demonstrative-content"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>2. Example Workflows (Demonstrative Content)</h3>
 <ul class="md-github">
 <li class="md-github"><strong class="md-github">Purpose:</strong><br>
-Practical examples of how to use core workflows; serve as learning tools and reference implementations.</li>
+These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.</li>
 <li class="md-github"><strong class="md-github">Stability:</strong><br>
-Functional but intended primarily for demonstration and experimentation.</li>
+While functional, they are intended primarily for demonstration and experimentation.</li>
 <li class="md-github"><strong class="md-github">Licensing:</strong><br>
-Covered by the MIT license for broader use and modification.</li>
+The example workflows are covered by the MIT license to allow for broader use and modification.</li>
 <li class="md-github"><strong class="md-github">Location:</strong><br>
-Found in the <code class="md-github">examples/</code> directory.</li>
+Look in the <code class="md-github">examples/</code> directory for sample implementations.</li>
 </ul>
 <h3 class="md-github"><a class="md-github__anchor" name="3-the-evolving-mainjs-javascript-re-implementation-of-reusable-workflows" href="#3-the-evolving-mainjs-javascript-re-implementation-of-reusable-workflows"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)</h3>
 <ul class="md-github">
 <li class="md-github"><strong class="md-github">Purpose:</strong><br>
 This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.</li>
 <li class="md-github"><strong class="md-github">Stability:</strong><br>
-It is under active development; may change frequently and represent bleeding‑edge functionality.</li>
+It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.</li>
 <li class="md-github"><strong class="md-github">Licensing:</strong><br>
 As part of the core project, it is under GPL‑3 with the attribution clause.</li>
 <li class="md-github"><strong class="md-github">Location:</strong><br>
@@ -166,7 +168,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-12T04:07:21.922Z</p>
+    <p>Generated on 2025-03-12T06:08:17.436Z</p>
   </footer>
 </body>
 </html>
