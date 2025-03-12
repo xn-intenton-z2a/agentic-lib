@@ -157,6 +157,13 @@ describe("gatherExtraTelemetryData", () => {
   });
 });
 
+describe("Remote Service Wrappers", () => {
+  test("callPackageManagementService returns error for invalid URL", async () => {
+    const result = await agenticLib.callPackageManagementService("http://invalid.url");
+    expect(result).toHaveProperty("error");
+  });
+});
+
 describe("Run Main Execution", () => {
   test("should output usage information and exit", async () => {
     const { stdout, stderr } = await execPromise("node src/lib/main.js --help");
