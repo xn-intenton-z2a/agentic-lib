@@ -165,3 +165,12 @@ describe("delegateDecisionToLLMAdvancedOptimized", () => {
     process.env.TEST_OPENAI_SUCCESS = "";
   });
 });
+
+describe("delegateDecisionToLLMAdvancedEnhanced", () => {
+  test("returns success object when TEST_OPENAI_SUCCESS is true", async () => {
+    process.env.TEST_OPENAI_SUCCESS = "true";
+    const result = await agenticLib.delegateDecisionToLLMAdvancedEnhanced("Test prompt", { refinement: "Enhanced", verbose: true });
+    expect(result.fixed).toBe("true");
+    process.env.TEST_OPENAI_SUCCESS = "";
+  });
+});
