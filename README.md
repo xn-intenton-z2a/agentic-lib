@@ -37,7 +37,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - **CI Metrics:** `gatherCIEnvironmentMetrics()` captures additional GitHub Actions metrics.
   - **Extra Telemetry:** New function `gatherExtraTelemetryData()` provides additional metrics including current timestamp, CPU usage, and free memory.
 - **Remote Service Wrappers:**
-  Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, and a new monitoring service via `callMonitoringService()`.
+  Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, monitoring, and now package management through `callPackageManagementService()`.
 - **LLM Delegation:**
   Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include `delegateDecisionToLLMAdvanced`, `delegateDecisionToLLMWrapped`, `delegateDecisionToLLMAdvancedVerbose`, `delegateDecisionToLLMAdvancedStrict`, and the new **`delegateDecisionToLLMAdvancedOptimized`** which offers configurable temperature for optimized performance.
   - **Enhanced OpenAI Function Wrapper:** `callOpenAIFunctionWrapper` has been updated to support verbose mode with enhanced logging, detailed error handling, and robust response parsing.
@@ -75,6 +75,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - `simulateFileSystemCall` for file system simulation.
   - `delegateDecisionToLLMEnhanced` for enhanced LLM delegation.
   - **Extended '--create-issue' Workflow Simulation:** Now simulates GitHub issue creation more realistically by dynamically selecting issue titles and logging detailed JSON output, in alignment with the provided wfr-create-issue.yml workflow.
+  - **New Remote Service:** Added `callPackageManagementService` to simulate package management and dependency analysis in agentic workflows.
 
 ---
 
