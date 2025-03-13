@@ -6,6 +6,8 @@
 // - Added new Kafka messaging functions and file system simulation for deeper testing.
 // - Added new remote monitoring service wrapper to simulate fetching monitoring metrics remotely.
 // - Added new parsing functions: parseVitestDefaultOutput and parseEslintDefaultOutput to handle default output formats of Vitest and ESLint, extending SARIF parsing capabilities.
+// - Added additional parsing functions: parseVitestSarifOutput and parseEslintDetailedOutput for detailed SARIF output parsing.
+// - Added new combined SARIF parser function: parseCombinedSarifOutput to aggregate Vitest and ESLint issues from SARIF reports.
 // - Updated getIssueNumberFromBranch to correctly extract issue numbers using properly escaped regex for digit matching.
 // - Extended '--create-issue' workflow behavior to more accurately simulate GitHub Issue creation as defined in the wfr-create-issue workflow. The simulation now features dynamic title selection from environment variables and enhanced logging.
 // - Added new utility functions: reviewIssue, printReport, simulateKafkaProducer, simulateKafkaConsumer, simulateKafkaPriorityMessaging, simulateKafkaRetryOnFailure, simulateFileSystemCall, delegateDecisionToLLMEnhanced, and printConfiguration.
@@ -681,6 +683,33 @@ export function parseEslintDetailedOutput(sarifJson) {
 }
 
 /**
+ * New function to combine SARIF outputs from Vitest and ESLint and summarize their issues.
+ * @param {string} sarifJson
+ */
+export function parseCombinedSarifOutput(sarifJson) {
+  try {
+    const sarif = JSON.parse(sarifJson);
+    let vitestIssues = 0;
+    let eslintIssues = 0;
+    if (sarif.runs && Array.isArray(sarif.runs)) {
+      sarif.runs.forEach((run) => {
+        if (run.tool && run.tool.driver && run.tool.driver.name === "Vitest") {
+          if (run.results) vitestIssues += run.results.length;
+        } else if (run.tool && run.tool.driver && run.tool.driver.name === "ESLint") {
+          if (run.results) eslintIssues += run.results.length;
+        }
+      });
+    }
+    console.log(chalk.green(`Combined SARIF Report: Vitest issues: ${vitestIssues}, ESLint issues: ${eslintIssues}`));
+    return { vitestIssues, eslintIssues };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error(chalk.red("Error parsing combined SARIF JSON:"), errMsg);
+    return { error: errMsg };
+  }
+}
+
+/**
  * New function to simulate advanced analytics combining Kafka simulation and advanced telemetry data.
  * @param {string} topic
  * @param {number} count
@@ -845,7 +874,7 @@ export function generateUsage() {
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
