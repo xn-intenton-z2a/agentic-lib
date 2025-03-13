@@ -15,6 +15,8 @@
 // - Extended OpenAI function wrapper: callOpenAIFunctionWrapper now includes enhanced logging, detailed error handling, and robust response parsing.
 // - Added new telemetry function gatherExtraTelemetryData to provide additional metrics including timestamp, CPU usage, and free memory.
 // - *** Added new remote package management service wrapper (callPackageManagementService) to simulate dependency and package analysis in agentic workflows ***
+// - *** Added new telemetry function gatherGithubEnvTelemetry to capture all GitHub Actions environment variables ***
+// - Updated gatherTotalTelemetry to include GitHub environment variables.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -155,7 +157,8 @@ export function gatherTotalTelemetry() {
     custom: gatherCustomTelemetryData(),
     workflow: gatherWorkflowTelemetryData(),
     ciEnvMetrics: gatherCIEnvironmentMetrics(),
-    processUptime: process.uptime()
+    processUptime: process.uptime(),
+    githubEnv: gatherGithubEnvTelemetry() // Newly added telemetry
   };
 }
 
@@ -169,6 +172,20 @@ export function gatherExtraTelemetryData() {
     cpuUsage: process.cpuUsage(),
     freeMemory: os.freemem()
   };
+}
+
+/**
+ * New telemetry function to capture all GitHub Actions environment variables.
+ */
+export function gatherGithubEnvTelemetry() {
+  const githubEnv = {};
+  for (const key in process.env) {
+    if (key.startsWith("GITHUB_")) {
+      githubEnv[key] = process.env[key];
+    }
+  }
+  console.log(chalk.green("GitHub Environment Telemetry:"), JSON.stringify(githubEnv, null, 2));
+  return githubEnv;
 }
 
 /**

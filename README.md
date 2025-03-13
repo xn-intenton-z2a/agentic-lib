@@ -36,6 +36,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and the new `gatherTotalTelemetry()`.
   - **CI Metrics:** `gatherCIEnvironmentMetrics()` captures additional GitHub Actions metrics.
   - **Extra Telemetry:** New function `gatherExtraTelemetryData()` provides additional metrics including current timestamp, CPU usage, and free memory.
+  - **GitHub Environment Telemetry:** New function `gatherGithubEnvTelemetry()` aggregates all environment variables starting with `GITHUB_` to provide deeper context.
 - **Remote Service Wrappers:**
   Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, monitoring, and now package management through `callPackageManagementService()`.
 - **LLM Delegation:**
@@ -63,19 +64,16 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - Refreshed README to align with CONTRIBUTING guidelines and remove outdated content.
 - Extended flag handling with improved diagnostics and error checking.
 - Enhanced telemetry and Kafka simulation functions with detailed logging.
-- **Updated advanced LLM delegation functions:** Now includes strict schema validation, timeout support, and a new optimized wrapper (`delegateDecisionToLLMAdvancedOptimized`) for enhanced performance using configurable temperature.
-- **Enhanced OpenAI Function Wrapper:** Updated `callOpenAIFunctionWrapper` to support verbose mode with enhanced logging, detailed error handling, and robust response parsing.
-- **Added new Enhanced Delegation Wrapper:** Introduced `delegateDecisionToLLMAdvancedEnhanced` for improved logging and debugging in OpenAI function calls.
+- **Telemetry Enhancements:**
+  - Added new function `gatherGithubEnvTelemetry` to capture all GitHub environment variables for more comprehensive telemetry.
+  - Updated `gatherTotalTelemetry` to include GitHub environment telemetry.
+- **LLM Delegation Enhancements:**
+  - Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using `delegateDecisionToLLMAdvancedOptimized`.
+  - Enhanced `callOpenAIFunctionWrapper` to support verbose logging and robust error handling.
+  - Added new enhanced delegation wrapper `delegateDecisionToLLMAdvancedEnhanced` for improved debugging.
 - Added new remote monitoring service wrapper and file system interaction simulation.
-- **New Telemetry Function Added:** `gatherExtraTelemetryData` has been added to extend telemetry data collection with additional metrics.
-- **New Features Added:**
-  - `reviewIssue` for evaluating issue resolution based on source file content.
-  - `printReport` and `printConfiguration` for diagnostics output.
-  - Additional Kafka messaging functions: `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, and `simulateKafkaBroadcast`.
-  - `simulateFileSystemCall` for file system simulation.
-  - `delegateDecisionToLLMEnhanced` for enhanced LLM delegation.
-  - **Extended '--create-issue' Workflow Simulation:** Now simulates GitHub issue creation more realistically by dynamically selecting issue titles and logging detailed JSON output, in alignment with the provided wfr-create-issue.yml workflow.
-  - **New Remote Service:** Added `callPackageManagementService` to simulate package management and dependency analysis in agentic workflows.
+- **New Remote Service:** Added `callPackageManagementService` to simulate package management and dependency analysis in agentic workflows.
+- **Additional Kafka Functions:** Extended Kafka simulation functions including `simulateKafkaBroadcast`.
 
 ---
 

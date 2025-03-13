@@ -157,6 +157,15 @@ describe("gatherExtraTelemetryData", () => {
   });
 });
 
+describe("gatherGithubEnvTelemetry", () => {
+  test("returns only GitHub environment variables", () => {
+    process.env.GITHUB_TEST_ABC = "test_value";
+    const envTelemetry = agenticLib.gatherGithubEnvTelemetry();
+    expect(envTelemetry).toHaveProperty("GITHUB_TEST_ABC", "test_value");
+    delete process.env.GITHUB_TEST_ABC;
+  });
+});
+
 describe("Remote Service Wrappers", () => {
   test("callPackageManagementService returns error for invalid URL", async () => {
     const result = await agenticLib.callPackageManagementService("http://invalid.url");
