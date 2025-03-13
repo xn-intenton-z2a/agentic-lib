@@ -15,9 +15,7 @@
 // - Extended OpenAI function wrapper: callOpenAIFunctionWrapper now includes enhanced logging, detailed error handling, and robust response parsing.
 // - Added new telemetry function gatherExtraTelemetryData to provide additional metrics including timestamp, CPU usage, and free memory.
 // - Added new remote package management service wrapper (callPackageManagementService) to simulate dependency and package analysis in agentic workflows.
-// - Added new telemetry function gatherGithubEnvTelemetry to capture all GitHub Actions environment variables.
-// - Updated gatherTotalTelemetry to include GitHub environment variables.
-// - *** Extended Kafka messaging simulation with new function simulateKafkaTopicRouting for dynamic topic routing based on message keys. ***
+// - Extended Kafka messaging simulation with new function simulateKafkaTopicRouting for dynamic topic routing based on message keys.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -847,7 +845,7 @@ export function generateUsage() {
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\\d{1,10})(?!\\\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
