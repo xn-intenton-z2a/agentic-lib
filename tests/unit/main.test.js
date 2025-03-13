@@ -173,6 +173,19 @@ describe("Remote Service Wrappers", () => {
   });
 });
 
+describe("Kafka Messaging Functions", () => {
+  test("simulateKafkaTopicRouting routes messages based on routing key", () => {
+    const topics = ["orders", "payments", "orders-critical", "logs"];
+    const routingKey = "orders";
+    const message = "Test Message";
+    const result = agenticLib.simulateKafkaTopicRouting(topics, routingKey, message);
+    expect(result).toHaveProperty("orders");
+    expect(result).toHaveProperty("orders-critical");
+    expect(Object.keys(result)).not.toContain("payments");
+    expect(Object.keys(result)).not.toContain("logs");
+  });
+});
+
 describe("Run Main Execution", () => {
   test("should output usage information and exit", async () => {
     const { stdout, stderr } = await execPromise("node src/lib/main.js --help");
