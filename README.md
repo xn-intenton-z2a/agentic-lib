@@ -41,7 +41,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, monitoring, and now package management through `callPackageManagementService()`.
 - **LLM Delegation:**
   Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include `delegateDecisionToLLMWrapped`, `delegateDecisionToLLMAdvanced`, `delegateDecisionToLLMAdvancedVerbose`, `delegateDecisionToLLMAdvancedStrict`, and the new **`delegateDecisionToLLMAdvancedOptimized`** which offers configurable temperature for optimized performance.
-  - **Enhanced OpenAI Function Wrapper:** `callOpenAIFunctionWrapper` has been updated to support verbose logging and robust error handling.
+  - **Enhanced OpenAI Function Wrapper:** `callOpenAIFunctionWrapper` has been updated to support verbose logging, robust error handling, and now an optional timeout parameter.
   - **New Enhanced Delegation Wrapper:** **`delegateDecisionToLLMAdvancedEnhanced`** has been added to improve logging and debugging of OpenAI function calls.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
@@ -69,11 +69,8 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - Updated `gatherTotalTelemetry` to include GitHub environment telemetry.
 - **LLM Delegation Enhancements:**
   - Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using `delegateDecisionToLLMAdvancedOptimized`.
-  - Enhanced `callOpenAIFunctionWrapper` to support verbose logging and robust error handling.
+  - Enhanced `callOpenAIFunctionWrapper` to support verbose logging, robust error handling, and now an optional timeout parameter.
   - Added new enhanced delegation wrapper `delegateDecisionToLLMAdvancedEnhanced` for improved debugging.
-- **Regex Fix:** Updated `getIssueNumberFromBranch` to correctly escape the regex for digit matching.
-- Added new remote monitoring service wrapper and file system interaction simulation.
-- **New Remote Service:** Added `callPackageManagementService` to simulate package management and dependency analysis in agentic workflows.
 - **Kafka Messaging Enhancements:**
   - Extended Kafka simulation functions to include dynamic message routing with `simulateKafkaTopicRouting` for targeted inter-workflow communication.
 

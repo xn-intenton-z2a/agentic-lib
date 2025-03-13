@@ -10,9 +10,9 @@
 // - Extended '--create-issue' workflow behavior to more accurately simulate GitHub Issue creation as defined in the wfr-create-issue workflow. The simulation now features dynamic title selection from environment variables and enhanced logging.
 // - Added new utility functions: reviewIssue, printReport, simulateKafkaProducer, simulateKafkaConsumer, simulateKafkaPriorityMessaging, simulateKafkaRetryOnFailure, simulateFileSystemCall, delegateDecisionToLLMEnhanced, and printConfiguration.
 // - Updated advanced LLM delegation functions with strict schema validation, timeout support, and added an optimized wrapper: delegateDecisionToLLMAdvancedOptimized.
-// - Updated openAI function wrapper (callOpenAIFunctionWrapper) to use strict schema validation using Zod and improved error handling, now supporting an optional verbose mode for additional logging.
+// - Updated openAI function wrapper (callOpenAIFunctionWrapper) to use strict schema validation using Zod and improved error handling, now supporting an optional verbose mode for additional logging, and extended with timeout support.
 // - Added new advanced LLM delegation enhanced wrapper: delegateDecisionToLLMAdvancedEnhanced for improved logging and debugging using advanced OpenAI function calling.
-// - Extended OpenAI function wrapper: callOpenAIFunctionWrapper now includes enhanced logging, detailed error handling, and robust response parsing.
+// - Extended OpenAI function wrapper: callOpenAIFunctionWrapper now includes enhanced logging, detailed error handling, robust response parsing, and an optional timeout parameter.
 // - Added new telemetry function gatherExtraTelemetryData to provide additional metrics including timestamp, CPU usage, and free memory.
 // - Added new remote package management service wrapper (callPackageManagementService) to simulate dependency and package analysis in agentic workflows.
 // - Extended Kafka messaging simulation with new function simulateKafkaTopicRouting for dynamic topic routing based on message keys.
@@ -1141,7 +1141,7 @@ export async function delegateDecisionToLLMAdvancedEnhanced(prompt, options = {}
 }
 
 // New OpenAI function wrapper using function calling
-export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo", verbose = false) {
+export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo", verbose = false, options = {}) {
   if (verbose) {
     console.log(chalk.blue("callOpenAIFunctionWrapper invoked with prompt:"), prompt);
   }
@@ -1182,7 +1182,10 @@ export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo",
         }
       }
     ];
-    const response = await openai.createChatCompletion({
+    if (verbose) {
+      console.log(chalk.blue("Calling OpenAI chat completion..."));
+    }
+    const openaiCall = openai.createChatCompletion({
       model,
       messages: [
         { role: "system", content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema." },
@@ -1190,6 +1193,15 @@ export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo",
       ],
       tools: tools
     });
+    let response;
+    if (options.timeout && options.timeout > 0) {
+      response = await Promise.race([
+        openaiCall,
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout exceeded")), options.timeout))
+      ]);
+    } else {
+      response = await openaiCall;
+    }
     let result;
     const messageObj = response.data.choices[0].message;
     if (messageObj.tool_calls && Array.isArray(messageObj.tool_calls) && messageObj.tool_calls.length > 0) {
