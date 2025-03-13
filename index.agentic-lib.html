@@ -58,7 +58,7 @@ Comprehensive diagnostics via multiple telemetry functions such as:
 <li class="md-github"><strong class="md-github">Remote Service Wrappers:</strong>
 Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, monitoring, and now package management through <code class="md-github">callPackageManagementService()</code>.</li>
 <li class="md-github"><strong class="md-github">LLM Delegation:</strong>
-Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include <code class="md-github">delegateDecisionToLLMAdvanced</code>, <code class="md-github">delegateDecisionToLLMWrapped</code>, <code class="md-github">delegateDecisionToLLMAdvancedVerbose</code>, <code class="md-github">delegateDecisionToLLMAdvancedStrict</code>, and the new <strong class="md-github"><code class="md-github">delegateDecisionToLLMAdvancedOptimized</code></strong> which offers configurable temperature for optimized performance.
+Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include <code class="md-github">delegateDecisionToLLMWrapped</code>, <code class="md-github">delegateDecisionToLLMAdvanced</code>, <code class="md-github">delegateDecisionToLLMAdvancedVerbose</code>, <code class="md-github">delegateDecisionToLLMAdvancedStrict</code>, and the new <strong class="md-github"><code class="md-github">delegateDecisionToLLMAdvancedOptimized</code></strong> which offers configurable temperature for optimized performance.
 <ul class="md-github">
 <li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> <code class="md-github">callOpenAIFunctionWrapper</code> has been updated to support verbose mode with enhanced logging, detailed error handling, and robust response parsing.</li>
 <li class="md-github"><strong class="md-github">New Enhanced Delegation Wrapper:</strong> <strong class="md-github"><code class="md-github">delegateDecisionToLLMAdvancedEnhanced</code></strong> has been added to improve logging and debugging of OpenAI function calls.</li>
@@ -68,7 +68,7 @@ Advanced functions supporting decision delegation with schema validation, timeou
 Simulated messaging functions for inter-workflow communication, including:
 <ul class="md-github">
 <li class="md-github"><code class="md-github">simulateKafkaStream</code>, <code class="md-github">simulateKafkaDetailedStream</code>, and <code class="md-github">simulateKafkaBulkStream</code>.</li>
-<li class="md-github"><strong class="md-github">Additional Kafka Functions:</strong> <code class="md-github">simulateKafkaProducer</code>, <code class="md-github">simulateKafkaConsumer</code>, <code class="md-github">simulateKafkaPriorityMessaging</code>, <code class="md-github">simulateKafkaRetryOnFailure</code>, and <code class="md-github">simulateKafkaBroadcast</code>.</li>
+<li class="md-github"><strong class="md-github">Additional Kafka Functions:</strong> <code class="md-github">simulateKafkaProducer</code>, <code class="md-github">simulateKafkaConsumer</code>, <code class="md-github">simulateKafkaPriorityMessaging</code>, <code class="md-github">simulateKafkaRetryOnFailure</code>, <code class="md-github">simulateKafkaBroadcast</code>, and the new <strong class="md-github"><code class="md-github">simulateKafkaTopicRouting</code></strong> which enables dynamic routing of messages based on a routing key.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">SARIF Parsing and Default Output Parsing:</strong>
@@ -105,7 +105,11 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 </li>
 <li class="md-github">Added new remote monitoring service wrapper and file system interaction simulation.</li>
 <li class="md-github"><strong class="md-github">New Remote Service:</strong> Added <code class="md-github">callPackageManagementService</code> to simulate package management and dependency analysis in agentic workflows.</li>
-<li class="md-github"><strong class="md-github">Additional Kafka Functions:</strong> Extended Kafka simulation functions including <code class="md-github">simulateKafkaBroadcast</code>.</li>
+<li class="md-github"><strong class="md-github">Kafka Messaging Enhancements:</strong>
+<ul class="md-github">
+<li class="md-github">Extended Kafka simulation functions to include dynamic message routing with <code class="md-github">simulateKafkaTopicRouting</code> for targeted inter-workflow communication.</li>
+</ul>
+</li>
 </ul>
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="contributing" href="#contributing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Contributing</h2>
@@ -172,7 +176,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-13T04:07:24.074Z</p>
+    <p>Generated on 2025-03-13T06:08:17.889Z</p>
   </footer>
 </body>
 </html>
