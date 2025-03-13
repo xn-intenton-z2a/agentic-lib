@@ -71,6 +71,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using `delegateDecisionToLLMAdvancedOptimized`.
   - Enhanced `callOpenAIFunctionWrapper` to support verbose logging and robust error handling.
   - Added new enhanced delegation wrapper `delegateDecisionToLLMAdvancedEnhanced` for improved debugging.
+- **Regex Fix:** Updated `getIssueNumberFromBranch` to correctly escape the regex for digit matching.
 - Added new remote monitoring service wrapper and file system interaction simulation.
 - **New Remote Service:** Added `callPackageManagementService` to simulate package management and dependency analysis in agentic workflows.
 - **Kafka Messaging Enhancements:**
