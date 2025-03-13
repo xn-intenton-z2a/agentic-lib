@@ -41,7 +41,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, monitoring, and now package management through `callPackageManagementService()`.
 - **LLM Delegation:**
   Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include `delegateDecisionToLLMWrapped`, `delegateDecisionToLLMAdvanced`, `delegateDecisionToLLMAdvancedVerbose`, `delegateDecisionToLLMAdvancedStrict`, and the new **`delegateDecisionToLLMAdvancedOptimized`** which offers configurable temperature for optimized performance.
-  - **Enhanced OpenAI Function Wrapper:** `callOpenAIFunctionWrapper` has been updated to support verbose mode with enhanced logging, detailed error handling, and robust response parsing.
+  - **Enhanced OpenAI Function Wrapper:** `callOpenAIFunctionWrapper` has been updated to support verbose logging and robust error handling.
   - **New Enhanced Delegation Wrapper:** **`delegateDecisionToLLMAdvancedEnhanced`** has been added to improve logging and debugging of OpenAI function calls.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
