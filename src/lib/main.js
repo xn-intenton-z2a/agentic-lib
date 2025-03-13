@@ -14,9 +14,10 @@
 // - Added new advanced LLM delegation enhanced wrapper: delegateDecisionToLLMAdvancedEnhanced for improved logging and debugging using advanced OpenAI function calling.
 // - Extended OpenAI function wrapper: callOpenAIFunctionWrapper now includes enhanced logging, detailed error handling, and robust response parsing.
 // - Added new telemetry function gatherExtraTelemetryData to provide additional metrics including timestamp, CPU usage, and free memory.
-// - *** Added new remote package management service wrapper (callPackageManagementService) to simulate dependency and package analysis in agentic workflows ***
-// - *** Added new telemetry function gatherGithubEnvTelemetry to capture all GitHub Actions environment variables ***
+// - Added new remote package management service wrapper (callPackageManagementService) to simulate dependency and package analysis in agentic workflows.
+// - Added new telemetry function gatherGithubEnvTelemetry to capture all GitHub Actions environment variables.
 // - Updated gatherTotalTelemetry to include GitHub environment variables.
+// - *** Extended Kafka messaging simulation with new function simulateKafkaTopicRouting for dynamic topic routing based on message keys. ***
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -280,6 +281,26 @@ export function simulateKafkaInterWorkflowCommunication(topics, message) {
     console.log(chalk.blue(`Inter-workflow Kafka simulation for topic '${topic}':`), results[topic]);
   });
   return results;
+}
+
+/**
+ * New function to simulate dynamic routing of Kafka messages based on a routing key.
+ * This function routes the message to only those topics that include the routing key as a substring.
+ * @param {string[]} topics - Array of Kafka topics.
+ * @param {string} routingKey - The key used to determine target topics.
+ * @param {string} message - The message to route.
+ * @returns {object} An object mapping targeted topics to the simulated message sent.
+ */
+export function simulateKafkaTopicRouting(topics, routingKey, message) {
+  const routed = {};
+  topics.forEach((topic) => {
+    if (topic.includes(routingKey)) {
+      const sent = sendMessageToKafka(topic, message);
+      routed[topic] = sent;
+      console.log(chalk.blue(`Routing message to topic '${topic}' based on routing key '${routingKey}':`), sent);
+    }
+  });
+  return routed;
 }
 
 /**

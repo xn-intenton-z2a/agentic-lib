@@ -40,13 +40,13 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **Remote Service Wrappers:**
   Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, monitoring, and now package management through `callPackageManagementService()`.
 - **LLM Delegation:**
-  Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include `delegateDecisionToLLMAdvanced`, `delegateDecisionToLLMWrapped`, `delegateDecisionToLLMAdvancedVerbose`, `delegateDecisionToLLMAdvancedStrict`, and the new **`delegateDecisionToLLMAdvancedOptimized`** which offers configurable temperature for optimized performance.
+  Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include `delegateDecisionToLLMWrapped`, `delegateDecisionToLLMAdvanced`, `delegateDecisionToLLMAdvancedVerbose`, `delegateDecisionToLLMAdvancedStrict`, and the new **`delegateDecisionToLLMAdvancedOptimized`** which offers configurable temperature for optimized performance.
   - **Enhanced OpenAI Function Wrapper:** `callOpenAIFunctionWrapper` has been updated to support verbose mode with enhanced logging, detailed error handling, and robust response parsing.
   - **New Enhanced Delegation Wrapper:** **`delegateDecisionToLLMAdvancedEnhanced`** has been added to improve logging and debugging of OpenAI function calls.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
   - `simulateKafkaStream`, `simulateKafkaDetailedStream`, and `simulateKafkaBulkStream`.
-  - **Additional Kafka Functions:** `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, and `simulateKafkaBroadcast`.
+  - **Additional Kafka Functions:** `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, `simulateKafkaBroadcast`, and the new **`simulateKafkaTopicRouting`** which enables dynamic routing of messages based on a routing key.
 - **SARIF Parsing and Default Output Parsing:**
   Utilities to parse SARIF outputs and default outputs, including:
   - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, and `parseEslintDefaultOutput`.
@@ -73,7 +73,8 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - Added new enhanced delegation wrapper `delegateDecisionToLLMAdvancedEnhanced` for improved debugging.
 - Added new remote monitoring service wrapper and file system interaction simulation.
 - **New Remote Service:** Added `callPackageManagementService` to simulate package management and dependency analysis in agentic workflows.
-- **Additional Kafka Functions:** Extended Kafka simulation functions including `simulateKafkaBroadcast`.
+- **Kafka Messaging Enhancements:**
+  - Extended Kafka simulation functions to include dynamic message routing with `simulateKafkaTopicRouting` for targeted inter-workflow communication.
 
 ---
 
