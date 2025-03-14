@@ -21,6 +21,7 @@
 //     - simulateKafkaTopicRouting: for dynamic topic routing based on message keys.
 //     - simulateKafkaBroadcast: for broadcasting messages to multiple topics.
 //     - simulateKafkaConsumerGroup: NEW - simulates a Kafka consumer group consuming messages from multiple topics.
+// - Added new function delegateDecisionToLLMChat to wrap advanced LLM based chat completions using OpenAI API.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -1414,6 +1415,51 @@ export function delegateDecisionToLLMEnhanced(prompt) {
     return Promise.resolve({ fixed: "false", message: "OpenAI API key is missing.", refinement: "Provide a valid API key." });
   }
   return Promise.resolve({ fixed: "false", message: "LLM enhanced decision could not be retrieved.", refinement: "None" });
+}
+
+// New function to wrap advanced LLM chat completions using OpenAI API
+export async function delegateDecisionToLLMChat(prompt, options = {}) {
+  if (!prompt) {
+    return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
+  }
+  if (!process.env.OPENAI_API_KEY) {
+    return { fixed: "false", message: "Missing API key.", refinement: "Set the OPENAI_API_KEY environment variable." };
+  }
+  try {
+    const openaiModule = await import("openai");
+    const Config = openaiModule.Configuration ? (openaiModule.Configuration.default || openaiModule.Configuration) : null;
+    if (!Config) throw new Error("OpenAI configuration missing");
+    const Api = openaiModule.OpenAIApi;
+    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY });
+    const openai = new Api(configuration);
+    const response = await openai.createChatCompletion({
+      model: options.model || "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "You are a helpful assistant that helps determine if an issue is resolved in the supplied code." },
+        { role: "user", content: prompt }
+      ],
+      temperature: options.temperature || 0.5
+    });
+    let result;
+    if (response.data.choices && response.data.choices.length > 0) {
+      const message = response.data.choices[0].message;
+      try {
+        result = JSON.parse(message.content);
+      } catch (e) {
+        result = { fixed: "false", message: "Could not parse response content.", refinement: e.message };
+      }
+    } else {
+      result = { fixed: "false", message: "No response from OpenAI.", refinement: "Retry" };
+    }
+    const schema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
+    const validation = schema.safeParse(result);
+    if (!validation.success) {
+      return { fixed: "false", message: "Schema validation failed for LLM response.", refinement: "Response does not match expected format." };
+    }
+    return validation.data;
+  } catch (error) {
+    return { fixed: "false", message: error.message, refinement: "LLM delegation failed." };
+  }
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
