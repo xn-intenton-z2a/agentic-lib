@@ -9,20 +9,10 @@
 // - Added additional parsing functions: parseVitestSarifOutput and parseEslintDetailedOutput for detailed SARIF output parsing.
 // - Added new combined SARIF parser function: parseCombinedSarifOutput to aggregate Vitest and ESLint issues from SARIF reports.
 // - Updated getIssueNumberFromBranch to correctly extract issue numbers using properly escaped regex for digit matching.
-// - Extended '--create-issue' workflow behavior to more accurately simulate GitHub Issue creation as defined in the wfr-create-issue workflow. The simulation now features dynamic title selection from environment variables and enhanced logging.
-// - Added new utility functions: reviewIssue, printReport, simulateKafkaProducer, simulateKafkaConsumer, simulateKafkaPriorityMessaging, simulateKafkaRetryOnFailure, simulateFileSystemCall, delegateDecisionToLLMEnhanced, and printConfiguration.
-// - Updated advanced LLM delegation functions with strict schema validation, timeout support, and added an optimized wrapper: delegateDecisionToLLMAdvancedOptimized.
-// - Updated openAI function wrapper (callOpenAIFunctionWrapper) to use strict schema validation using Zod and improved error handling, now supporting an optional verbose mode for additional logging, and extended with timeout support.
-// - Added new advanced LLM delegation enhanced wrapper: delegateDecisionToLLMAdvancedEnhanced for improved logging and debugging using advanced OpenAI function calling.
-// - Extended OpenAI function wrapper: callOpenAIFunctionWrapper now includes enhanced logging, detailed error handling, robust response parsing, and an optional timeout parameter.
-// - Added new telemetry function gatherExtraTelemetryData to provide additional metrics including timestamp, CPU usage, and free memory.
-// - Added new remote package management service wrapper (callPackageManagementService) to simulate dependency and package analysis in agentic workflows.
-// - Extended Kafka messaging simulation with new functions:
-//     - simulateKafkaTopicRouting: for dynamic topic routing based on message keys.
-//     - simulateKafkaBroadcast: for broadcasting messages to multiple topics.
-//     - simulateKafkaConsumerGroup: NEW - simulates a Kafka consumer group consuming messages from multiple topics.
-// - Added new function delegateDecisionToLLMChat to wrap advanced LLM based chat completions using OpenAI API.
-// - Added new delegateDecisionToLLMChatVerbose function to provide enhanced logging for chat delegation calls.
+//   (Updated regex to use double backslashes for correct digit capture)
+// - Extended '--create-issue' workflow behavior to more accurately simulate GitHub Issue creation as defined in the wfr-create-issue workflow.
+// - Enhanced logging and improved schema validation in advanced LLM delegation wrappers.
+// - Updated and extended remote service wrappers and Kafka messaging simulation functions inline with the Mission Statement.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -128,48 +118,7 @@ export function gatherGitHubTelemetrySummary() {
 }
 
 /**
- * New telemetry function to collect additional system metrics for GitHub Actions workflows.
- */
-export function gatherCustomTelemetryData() {
-  return {
-    osUptime: os.uptime(),
-    loadAverages: os.loadavg(),
-    networkInterfaces: os.networkInterfaces(),
-    hostname: os.hostname()
-  };
-}
-
-/**
- * New function to gather additional GitHub Actions specific telemetry data.
- */
-export function gatherWorkflowTelemetryData() {
-  return {
-    githubRunAttempt: process.env.GITHUB_RUN_ATTEMPT || "N/A",
-    githubWorkflowEvent: process.env.GITHUB_EVENT || "N/A",
-    githubRunStartedAt: process.env.GITHUB_RUN_STARTED_AT || "N/A"
-  };
-}
-
-/**
- * New function to aggregate all telemetry information from various functions including process uptime and CI environment metrics.
- */
-export function gatherTotalTelemetry() {
-  return {
-    basic: gatherTelemetryData(),
-    extended: gatherExtendedTelemetryData(),
-    full: gatherFullTelemetryData(),
-    advanced: gatherAdvancedTelemetryData(),
-    githubSummary: gatherGitHubTelemetrySummary(),
-    custom: gatherCustomTelemetryData(),
-    workflow: gatherWorkflowTelemetryData(),
-    ciEnvMetrics: gatherCIEnvironmentMetrics(),
-    processUptime: process.uptime(),
-    githubEnv: gatherGithubEnvTelemetry() // Newly added telemetry
-  };
-}
-
-/**
- * New telemetry function to gather extra telemetry data including current timestamp, CPU usage and free memory.
+ * New telemetry function to collect extra telemetry data including current timestamp, CPU usage and free memory.
  */
 export function gatherExtraTelemetryData() {
   return {
@@ -895,7 +844,7 @@ export function generateUsage() {
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }

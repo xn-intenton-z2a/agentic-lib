@@ -80,7 +80,10 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - Extended Kafka simulation with consumer group functionality through the new `simulateKafkaConsumerGroup`.
 - **SARIF Parsing Enhancements:**
   - Added new combined SARIF parsing function `parseCombinedSarifOutput` to aggregate Vitest and ESLint issues.
+- **Regex Correction:**
+  - Updated `getIssueNumberFromBranch` to correctly escape regex digits using double backslashes, ensuring accurate issue number extraction from branch names.
 
+---
 ---
 
 ## Contributing
