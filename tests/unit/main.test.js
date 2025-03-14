@@ -46,3 +46,20 @@ describe("delegateDecisionToLLMChat", () => {
     process.env.OPENAI_API_KEY = originalApiKey;
   });
 });
+
+describe("delegateDecisionToLLMChatVerbose", () => {
+  test("returns error if prompt is empty (verbose)", async () => {
+    const result = await agenticLib.delegateDecisionToLLMChatVerbose("", {});
+    expect(result.fixed).toBe("false");
+    expect(result.message).toContain("Prompt is required");
+  });
+
+  test("returns error if API key is missing (verbose)", async () => {
+    const originalApiKey = process.env.OPENAI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+    const result = await agenticLib.delegateDecisionToLLMChatVerbose("Test prompt", {});
+    expect(result.fixed).toBe("false");
+    expect(result.message).toContain("Missing API key");
+    process.env.OPENAI_API_KEY = originalApiKey;
+  });
+});

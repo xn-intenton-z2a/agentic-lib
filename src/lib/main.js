@@ -22,6 +22,7 @@
 //     - simulateKafkaBroadcast: for broadcasting messages to multiple topics.
 //     - simulateKafkaConsumerGroup: NEW - simulates a Kafka consumer group consuming messages from multiple topics.
 // - Added new function delegateDecisionToLLMChat to wrap advanced LLM based chat completions using OpenAI API.
+// - Added new delegateDecisionToLLMChatVerbose function to provide enhanced logging for chat delegation calls.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -1460,6 +1461,14 @@ export async function delegateDecisionToLLMChat(prompt, options = {}) {
   } catch (error) {
     return { fixed: "false", message: error.message, refinement: "LLM delegation failed." };
   }
+}
+
+// New enhanced verbose function for LLM chat delegation
+export async function delegateDecisionToLLMChatVerbose(prompt, options = {}) {
+  console.log(chalk.blue("Invoking LLM chat delegation in verbose mode."));
+  const result = await delegateDecisionToLLMChat(prompt, options);
+  console.log(chalk.blue("LLM chat delegation verbose result:"), result);
+  return result;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
