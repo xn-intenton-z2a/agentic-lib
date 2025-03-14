@@ -43,7 +43,8 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include `delegateDecisionToLLMWrapped`, `delegateDecisionToLLMAdvanced`, `delegateDecisionToLLMAdvancedVerbose`, `delegateDecisionToLLMAdvancedStrict`, and the new **`delegateDecisionToLLMAdvancedOptimized`** which offers configurable temperature for optimized performance.
   - **Enhanced OpenAI Function Wrapper:** `callOpenAIFunctionWrapper` has been updated to support verbose logging, robust error handling, and now an optional timeout parameter.
   - **New Enhanced Delegation Wrapper:** **`delegateDecisionToLLMAdvancedEnhanced`** has been added to improve logging and debugging of OpenAI function calls.
-  - **New Chat Delegation Function:** **`delegateDecisionToLLMChat`** wraps advanced LLM chat completions using OpenAI API, providing an additional streamlined method for decision delegation.
+  - **New Chat Delegation Function:** **`delegateDecisionToLLMChat`** wraps advanced LLM chat completions using OpenAI API, providing a streamlined method for decision delegation.
+  - **New Chat Delegation Verbose Function:** **`delegateDecisionToLLMChatVerbose`** has been introduced for enhanced logging during chat delegation calls.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
   - `simulateKafkaStream`, `simulateKafkaDetailedStream`, and `simulateKafkaBulkStream`.
@@ -73,7 +74,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using `delegateDecisionToLLMAdvancedOptimized`.
   - Enhanced `callOpenAIFunctionWrapper` to support verbose logging, robust error handling, and now an optional timeout parameter.
   - Added new enhanced delegation wrapper `delegateDecisionToLLMAdvancedEnhanced` for improved debugging.
-  - **New:** Added `delegateDecisionToLLMChat` to provide a simplified, chat-based decision delegation using OpenAI API.
+  - **New:** Added `delegateDecisionToLLMChat` and `delegateDecisionToLLMChatVerbose` to provide improved chat-based decision delegation using OpenAI API with detailed logging.
 - **Kafka Messaging Enhancements:**
   - Extended Kafka simulation functions to include dynamic message routing with `simulateKafkaTopicRouting` for targeted inter-workflow communication.
   - Extended Kafka simulation with consumer group functionality through the new `simulateKafkaConsumerGroup`.
