@@ -74,7 +74,8 @@ Simulated messaging functions for inter-workflow communication, including:
 <li class="md-github"><strong class="md-github">SARIF Parsing and Default Output Parsing:</strong>
 Utilities to parse SARIF outputs and default outputs, including:
 <ul class="md-github">
-<li class="md-github"><code class="md-github">parseSarifOutput</code>, <code class="md-github">parseEslintSarifOutput</code>, <code class="md-github">parseVitestOutput</code>, <code class="md-github">parseVitestDefaultOutput</code>, and <code class="md-github">parseEslintDefaultOutput</code>.</li>
+<li class="md-github"><code class="md-github">parseSarifOutput</code>, <code class="md-github">parseEslintSarifOutput</code>, <code class="md-github">parseVitestOutput</code>, <code class="md-github">parseVitestDefaultOutput</code>, <code class="md-github">parseEslintDefaultOutput</code>, <code class="md-github">parseVitestSarifOutput</code>, and <code class="md-github">parseEslintDetailedOutput</code>.</li>
+<li class="md-github"><strong class="md-github">New Combined Parser:</strong> <code class="md-github">parseCombinedSarifOutput</code> aggregates issues from both Vitest and ESLint based SARIF reports.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">File System Simulation:</strong>
@@ -106,6 +107,11 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 <li class="md-github"><strong class="md-github">Kafka Messaging Enhancements:</strong>
 <ul class="md-github">
 <li class="md-github">Extended Kafka simulation functions to include dynamic message routing with <code class="md-github">simulateKafkaTopicRouting</code> for targeted inter-workflow communication.</li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">SARIF Parsing Enhancements:</strong>
+<ul class="md-github">
+<li class="md-github">Added new combined SARIF parsing function <code class="md-github">parseCombinedSarifOutput</code> to aggregate Vitest and ESLint issues.</li>
 </ul>
 </li>
 </ul>
@@ -174,7 +180,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-14T00:25:40.739Z</p>
+    <p>Generated on 2025-03-14T02:30:23.985Z</p>
   </footer>
 </body>
 </html>
