@@ -184,6 +184,13 @@ describe("Kafka Messaging Functions", () => {
     expect(Object.keys(result)).not.toContain("payments");
     expect(Object.keys(result)).not.toContain("logs");
   });
+  test("simulateKafkaConsumerGroup returns messages for each topic", () => {
+    const topics = ["topic1", "topic2"];
+    const consumerGroup = "groupA";
+    const result = agenticLib.simulateKafkaConsumerGroup(topics, consumerGroup);
+    expect(result.consumerGroup).toBe(consumerGroup);
+    expect(Object.keys(result.messages)).toEqual(expect.arrayContaining(topics));
+  });
 });
 
 describe("Run Main Execution", () => {
