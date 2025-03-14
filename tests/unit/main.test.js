@@ -1,26 +1,5 @@
 import { describe, test, expect, vi, beforeAll, afterAll } from "vitest";
 import * as agenticLib from "../../src/lib/main.js";
-import { exec } from "child_process";
-import util from "util";
-const execPromise = util.promisify(exec);
-
-/* eslint-disable sonarjs/unused-import */
-
-// Helper to capture console output
-function captureOutput(callback) {
-  const originalLog = console.log;
-  let output = "";
-  console.log = (msg, ...args) => {
-    output += msg + (args.length ? " " + args.join(" ") : "") + "\n";
-  };
-  try {
-    callback();
-  } catch (e) {
-    console.error("Ignored error:", e.message);
-  }
-  console.log = originalLog;
-  return output;
-}
 
 beforeAll(() => {
   vi.spyOn(process, "exit").mockImplementation((code) => {
@@ -42,5 +21,11 @@ describe("Main Module Import", () => {
 describe("reviewIssue", () => {
   test("returns correct resolution when conditions met", () => {
     const params = {
-      sourceFileContent:
-        "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [args...]",
+      sourceFileContent: "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [args...]"
+    };
+    const result = agenticLib.reviewIssue(params);
+    expect(result.fixed).toBe("true");
+    expect(result.message).toBe("The issue has been resolved.");
+    expect(result.refinement).toBe("None");
+  });
+});
