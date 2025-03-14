@@ -46,7 +46,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
   - `simulateKafkaStream`, `simulateKafkaDetailedStream`, and `simulateKafkaBulkStream`.
-  - **Additional Kafka Functions:** `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, `simulateKafkaBroadcast`, and the new **`simulateKafkaTopicRouting`** which enables dynamic routing of messages based on a routing key.
+  - **Additional Kafka Functions:** `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, `simulateKafkaBroadcast`, `simulateKafkaTopicRouting`, and the new **`simulateKafkaConsumerGroup`** which simulates a consumer group handling messages from multiple topics.
 - **SARIF Parsing and Default Output Parsing:**
   Utilities to parse SARIF outputs and default outputs, including:
   - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, `parseEslintDefaultOutput`, `parseVitestSarifOutput`, and `parseEslintDetailedOutput`.
@@ -74,6 +74,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - Added new enhanced delegation wrapper `delegateDecisionToLLMAdvancedEnhanced` for improved debugging.
 - **Kafka Messaging Enhancements:**
   - Extended Kafka simulation functions to include dynamic message routing with `simulateKafkaTopicRouting` for targeted inter-workflow communication.
+  - Extended Kafka simulation with consumer group functionality through the new `simulateKafkaConsumerGroup`.
 - **SARIF Parsing Enhancements:**
   - Added new combined SARIF parsing function `parseCombinedSarifOutput` to aggregate Vitest and ESLint issues.
 

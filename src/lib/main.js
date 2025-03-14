@@ -17,7 +17,10 @@
 // - Extended OpenAI function wrapper: callOpenAIFunctionWrapper now includes enhanced logging, detailed error handling, robust response parsing, and an optional timeout parameter.
 // - Added new telemetry function gatherExtraTelemetryData to provide additional metrics including timestamp, CPU usage, and free memory.
 // - Added new remote package management service wrapper (callPackageManagementService) to simulate dependency and package analysis in agentic workflows.
-// - Extended Kafka messaging simulation with new function simulateKafkaTopicRouting for dynamic topic routing based on message keys.
+// - Extended Kafka messaging simulation with new functions:
+//     - simulateKafkaTopicRouting: for dynamic topic routing based on message keys.
+//     - simulateKafkaBroadcast: for broadcasting messages to multiple topics.
+//     - simulateKafkaConsumerGroup: NEW - simulates a Kafka consumer group consuming messages from multiple topics.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -301,6 +304,22 @@ export function simulateKafkaTopicRouting(topics, routingKey, message) {
     }
   });
   return routed;
+}
+
+/**
+ * New function to simulate a Kafka consumer group consuming messages from multiple topics.
+ * @param {string[]} topics - Array of Kafka topics to consume from.
+ * @param {string} consumerGroup - Identifier for the consumer group.
+ * @returns {object} An object containing the consumer group and the messages consumed from each topic.
+ */
+export function simulateKafkaConsumerGroup(topics, consumerGroup) {
+  const groupMessages = {};
+  topics.forEach((topic) => {
+    // Simulate 3 consumed messages per topic using existing simulateKafkaConsumer
+    groupMessages[topic] = simulateKafkaConsumer(topic, 3);
+  });
+  console.log(chalk.blue(`Simulated Kafka consumer group '${consumerGroup}':`), groupMessages);
+  return { consumerGroup, messages: groupMessages };
 }
 
 /**
@@ -874,7 +893,7 @@ export function generateUsage() {
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
