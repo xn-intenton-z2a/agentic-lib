@@ -49,7 +49,8 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - **Additional Kafka Functions:** `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, `simulateKafkaBroadcast`, and the new **`simulateKafkaTopicRouting`** which enables dynamic routing of messages based on a routing key.
 - **SARIF Parsing and Default Output Parsing:**
   Utilities to parse SARIF outputs and default outputs, including:
-  - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, and `parseEslintDefaultOutput`.
+  - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, `parseEslintDefaultOutput`, `parseVitestSarifOutput`, and `parseEslintDetailedOutput`.
+  - **New Combined Parser:** `parseCombinedSarifOutput` aggregates issues from both Vitest and ESLint based SARIF reports.
 - **File System Simulation:**
   The `simulateFileSystemCall()` function enables testing of file interactions.
 - **Configuration Display:**
@@ -73,6 +74,8 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - Added new enhanced delegation wrapper `delegateDecisionToLLMAdvancedEnhanced` for improved debugging.
 - **Kafka Messaging Enhancements:**
   - Extended Kafka simulation functions to include dynamic message routing with `simulateKafkaTopicRouting` for targeted inter-workflow communication.
+- **SARIF Parsing Enhancements:**
+  - Added new combined SARIF parsing function `parseCombinedSarifOutput` to aggregate Vitest and ESLint issues.
 
 ---
 
