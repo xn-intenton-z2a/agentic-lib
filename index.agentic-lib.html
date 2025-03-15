@@ -58,14 +58,7 @@ Comprehensive diagnostics via multiple telemetry functions such as:
 <li class="md-github"><strong class="md-github">Remote Service Wrappers:</strong>
 Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, monitoring, and now package management through <code class="md-github">callPackageManagementService()</code>.</li>
 <li class="md-github"><strong class="md-github">LLM Delegation:</strong>
-Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include <code class="md-github">delegateDecisionToLLMWrapped</code>, <code class="md-github">delegateDecisionToLLMAdvanced</code>, <code class="md-github">delegateDecisionToLLMAdvancedVerbose</code>, <code class="md-github">delegateDecisionToLLMAdvancedStrict</code>, and the new <strong class="md-github"><code class="md-github">delegateDecisionToLLMAdvancedOptimized</code></strong> which offers configurable temperature for optimized performance.
-<ul class="md-github">
-<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> <code class="md-github">callOpenAIFunctionWrapper</code> has been updated to support verbose logging, robust error handling, and now an optional timeout parameter.</li>
-<li class="md-github"><strong class="md-github">New Enhanced Delegation Wrapper:</strong> <strong class="md-github"><code class="md-github">delegateDecisionToLLMAdvancedEnhanced</code></strong> has been added to improve logging and debugging of OpenAI function calls.</li>
-<li class="md-github"><strong class="md-github">New Chat Delegation Function:</strong> <strong class="md-github"><code class="md-github">delegateDecisionToLLMChat</code></strong> wraps advanced LLM chat completions using OpenAI API, providing a streamlined method for decision delegation.</li>
-<li class="md-github"><strong class="md-github">New Chat Delegation Verbose Function:</strong> <strong class="md-github"><code class="md-github">delegateDecisionToLLMChatVerbose</code></strong> has been introduced for enhanced logging during chat delegation calls.</li>
-</ul>
-</li>
+Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include <code class="md-github">delegateDecisionToLLMWrapped</code>, <code class="md-github">delegateDecisionToLLMAdvanced</code>, <code class="md-github">delegateDecisionToLLMAdvancedVerbose</code>, <code class="md-github">delegateDecisionToLLMAdvancedStrict</code>, <code class="md-github">delegateDecisionToLLMAdvancedOptimized</code>, and the new <strong class="md-github"><code class="md-github">delegateDecisionToLLMChat</code></strong> and <strong class="md-github"><code class="md-github">delegateDecisionToLLMChatVerbose</code></strong> which provide improved chat-based decision delegation using OpenAI API.</li>
 <li class="md-github"><strong class="md-github">Kafka Operations:</strong>
 Simulated messaging functions for inter-workflow communication, including:
 <ul class="md-github">
@@ -81,7 +74,7 @@ Utilities to parse SARIF outputs and default outputs, including:
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">File System Simulation:</strong>
-The <code class="md-github">simulateFileSystemCall()</code> function enables testing of file interactions.</li>
+The <code class="md-github">simulateFileSystemCall()</code> function enables testing of file interactions with safe file path resolution.</li>
 <li class="md-github"><strong class="md-github">Configuration Display:</strong>
 The <code class="md-github">--config</code> flag and <code class="md-github">printConfiguration()</code> function display detailed runtime configuration.</li>
 <li class="md-github"><strong class="md-github">Issue Creation Simulation:</strong>
@@ -92,8 +85,8 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 <h2 class="md-github"><a class="md-github__anchor" name="recent-improvements" href="#recent-improvements"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Recent Improvements</h2>
 <ul class="md-github">
 <li class="md-github">Refreshed README to align with CONTRIBUTING guidelines and remove outdated content.</li>
-<li class="md-github">Extended flag handling with improved diagnostics and error checking.</li>
-<li class="md-github">Enhanced telemetry and Kafka simulation functions with detailed logging.</li>
+<li class="md-github">Extended flag handling with improved diagnostics, including extraction of flag specific logic to reduce cognitive complexity.</li>
+<li class="md-github">Enhanced telemetry and Kafka simulation functions with detailed logging and timestamp enrichment.</li>
 <li class="md-github"><strong class="md-github">Telemetry Enhancements:</strong>
 <ul class="md-github">
 <li class="md-github">Added new function <code class="md-github">gatherGithubEnvTelemetry</code> to capture all GitHub environment variables for more comprehensive telemetry.</li>
@@ -103,9 +96,8 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 <li class="md-github"><strong class="md-github">LLM Delegation Enhancements:</strong>
 <ul class="md-github">
 <li class="md-github">Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using <code class="md-github">delegateDecisionToLLMAdvancedOptimized</code>.</li>
-<li class="md-github">Enhanced <code class="md-github">callOpenAIFunctionWrapper</code> to support verbose logging, robust error handling, and now an optional timeout parameter.</li>
-<li class="md-github">Added new enhanced delegation wrapper <code class="md-github">delegateDecisionToLLMAdvancedEnhanced</code> for improved debugging.</li>
-<li class="md-github"><strong class="md-github">New:</strong> Added <code class="md-github">delegateDecisionToLLMChat</code> and <code class="md-github">delegateDecisionToLLMChatVerbose</code> to provide improved chat-based decision delegation using OpenAI API with detailed logging.</li>
+<li class="md-github">Enhanced <code class="md-github">callOpenAIFunctionWrapper</code> to support verbose logging, robust error handling, and an optional timeout parameter.</li>
+<li class="md-github">Added new enhanced delegation wrappers <code class="md-github">delegateDecisionToLLMAdvancedEnhanced</code>, <code class="md-github">delegateDecisionToLLMChat</code>, and <code class="md-github">delegateDecisionToLLMChatVerbose</code> for improved debugging and chat-based decision delegation.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Kafka Messaging Enhancements:</strong>
@@ -119,9 +111,16 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 <li class="md-github">Added new combined SARIF parsing function <code class="md-github">parseCombinedSarifOutput</code> to aggregate Vitest and ESLint issues.</li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">Regex Correction:</strong>
+<li class="md-github"><strong class="md-github">OpenAI Function Wrapper Update:</strong>
 <ul class="md-github">
-<li class="md-github">Updated <code class="md-github">getIssueNumberFromBranch</code> to correctly escape regex digits using double backslashes, ensuring accurate issue number extraction from branch names.</li>
+<li class="md-github">Extended <code class="md-github">callOpenAIFunctionWrapper</code> with timeout support and robust error handling.</li>
+<li class="md-github">Removed duplicate implementation of <code class="md-github">delegateDecisionToLLMEnhanced</code> to reduce ambiguity.</li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">Lint Fixes and Code Quality:</strong>
+<ul class="md-github">
+<li class="md-github">Resolved unused variable issues and ensured promise constructor parameter names match the required pattern.</li>
+<li class="md-github">Updated <code class="md-github">simulateFileSystemCall</code> to use safe file path resolution and handle errors.</li>
 </ul>
 </li>
 </ul>
@@ -191,7 +190,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-15T04:07:01.875Z</p>
+    <p>Generated on 2025-03-15T06:07:16.019Z</p>
   </footer>
 </body>
 </html>
