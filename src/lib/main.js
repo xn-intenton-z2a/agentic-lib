@@ -14,6 +14,7 @@
 // - Updated and extended remote service wrappers and Kafka messaging simulation functions inline with the Mission Statement.
 // - Extended OpenAI function wrapper (callOpenAIFunctionWrapper) with timeout support and robust error handling; removed duplicate delegateDecisionToLLMEnhanced function.
 // - NEW: Added simulateKafkaWorkflowMessaging to simulate full Kafka based inter-workflow messaging combining routing and consumer group simulation.
+// - NEW: Added simulateKafkaDirectMessage to simulate direct Kafka messaging for agentic workflow communication.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -324,6 +325,20 @@ export function simulateKafkaWorkflowMessaging(topics, routingKey, message, cons
   });
   const consumerGroupResults = simulateKafkaConsumerGroup(Object.keys(routedMessages), consumerGroup);
   return { routedMessages, consumerGroupResults };
+}
+
+/**
+ * New function to simulate direct Kafka messaging to a designated topic.
+ * This function sends a message directly and retrieves a simulated receipt.
+ * @param {string} topic
+ * @param {string} message
+ * @returns {object} An object containing the topic, sent message confirmation, and received simulated response.
+ */
+export function simulateKafkaDirectMessage(topic, message) {
+  const sent = sendMessageToKafka(topic, message);
+  const receipt = receiveMessageFromKafka(topic);
+  console.log(chalk.blue(`Direct message to '${topic}': Sent -> ${sent}, Received -> ${receipt}`));
+  return { topic, sent, receipt };
 }
 
 /**
