@@ -13,7 +13,7 @@
 // - Enhanced logging and improved schema validation in advanced LLM delegation wrappers.
 // - Updated and extended remote service wrappers and Kafka messaging simulation functions inline with the Mission Statement.
 // - Extended OpenAI function wrapper (callOpenAIFunctionWrapper) with timeout support and robust error handling; removed duplicate delegateDecisionToLLMEnhanced function.
-// - FIX: Resolved lint issues including unused variable names, promise constructor parameter naming, cognitive complexity in flag handling, safe file system access, and added missing parseLLMMessage helper.
+// - NEW: Added simulateKafkaWorkflowMessaging to simulate full Kafka based inter-workflow messaging combining routing and consumer group simulation.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -302,6 +302,28 @@ export function simulateKafkaConsumerGroup(topics, consumerGroup) {
   });
   console.log(chalk.blue(`Simulated Kafka consumer group '${consumerGroup}':`), groupMessages);
   return { consumerGroup, messages: groupMessages };
+}
+
+/**
+ * New function to simulate full Kafka workflow messaging.
+ * It routes the message to topics matching the routing key and simulates consumption by a consumer group.
+ * @param {string[]} topics - Array of Kafka topics.
+ * @param {string} routingKey - Routing key to filter topics.
+ * @param {string} message - Message to broadcast.
+ * @param {string} consumerGroup - Consumer group identifier.
+ * @returns {object} An object containing routed messages and consumer group results.
+ */
+export function simulateKafkaWorkflowMessaging(topics, routingKey, message, consumerGroup) {
+  const routedMessages = {};
+  topics.forEach(topic => {
+    if (topic.includes(routingKey)) {
+      const sentMessage = sendMessageToKafka(topic, message);
+      routedMessages[topic] = { sent: sentMessage };
+      console.log(chalk.blue(`Workflow routing: Message routed to '${topic}'`));
+    }
+  });
+  const consumerGroupResults = simulateKafkaConsumerGroup(Object.keys(routedMessages), consumerGroup);
+  return { routedMessages, consumerGroupResults };
 }
 
 /**
