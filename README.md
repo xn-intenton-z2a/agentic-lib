@@ -79,6 +79,8 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - **Direct Messaging:** Added new function `simulateKafkaDirectMessage` to simulate direct Kafka messaging.
 - **SARIF Parsing Enhancements:**
   - Added new combined SARIF parsing function `parseCombinedSarifOutput` to aggregate Vitest and ESLint issues.
+- **Issue Creation Workflow Enhancement:**
+  - Enhanced the `--create-issue` flag simulation to mimic the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting issue titles and outputting a structured JSON object with issue details.
 - **OpenAI Function Wrapper Update:**
   - Extended `callOpenAIFunctionWrapper` with timeout support and robust error handling.
   - Removed duplicate implementation of `delegateDecisionToLLMEnhanced` to reduce ambiguity.

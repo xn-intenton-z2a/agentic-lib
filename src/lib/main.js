@@ -10,6 +10,7 @@
 // - Added new combined SARIF parser function: parseCombinedSarifOutput to aggregate Vitest and ESLint issues from SARIF reports.
 // - Updated getIssueNumberFromBranch to correctly extract issue numbers using properly escaped regex for digit matching.
 // - Extended '--create-issue' workflow behavior to more accurately simulate GitHub Issue creation as defined in the wfr-create-issue workflow.
+//   NEW: Enhanced create-issue workflow simulation now outputs a detailed JSON object matching GitHub workflow behavior.
 // - Enhanced logging and improved schema validation in advanced LLM delegation wrappers.
 // - Updated and extended remote service wrappers and Kafka messaging simulation functions inline with the Mission Statement.
 // - Extended OpenAI function wrapper (callOpenAIFunctionWrapper) with timeout support and robust error handling; removed duplicate delegateDecisionToLLMEnhanced function.
@@ -775,34 +776,30 @@ function printUsageAndDemo(flagArgs, nonFlagArgs) {
   }
 }
 
+// Updated create issue handler to simulate GitHub Actions issue creation workflow as per wfr-create-issue.yml
 function handleCreateIssue(nonFlagArgs) {
   console.log(chalk.magenta("Simulated GitHub Issue Creation Workflow triggered."));
   let issueTitle;
   if (nonFlagArgs.length > 0 && nonFlagArgs[0] === "house choice") {
-    const options = process.env.HOUSE_CHOICE_OPTIONS
-      ? process.env.HOUSE_CHOICE_OPTIONS.split("||")
-      : ["Default House Choice Issue"];
-    issueTitle = options[randomInt(0, options.length)];
+    const options = process.env.HOUSE_CHOICE_OPTIONS ? process.env.HOUSE_CHOICE_OPTIONS.split("||") : ["Default House Choice Issue"];
+    issueTitle = options[Math.floor(Math.random() * options.length)];
   } else {
     issueTitle = nonFlagArgs.length > 0 ? nonFlagArgs.join(" ") : "Default Issue Title";
   }
   const issueBody = process.env.ISSUE_BODY || "Please resolve the issue.";
   const issueNumber = randomInt(100, 1000);
-  console.log(
-    chalk.magenta(
-      JSON.stringify({
-        issueTitle,
-        issueBody,
-        issueNumber,
-        status: "Created via simulated workflow",
-      })
-    )
-  );
+  const issueData = {
+    issueTitle: issueTitle,
+    issueBody: issueBody,
+    issueNumber: issueNumber,
+    status: "Created via simulated workflow"
+  };
+  console.log(chalk.magenta(JSON.stringify(issueData, null, 2)));
   console.log(chalk.magenta("Simulated Issue Created:"));
   console.log(chalk.magenta("Title: " + issueTitle));
   console.log(chalk.magenta("Issue Body: " + issueBody));
   console.log(chalk.magenta("Issue Number: " + issueNumber));
-  return true;
+  return issueData;
 }
 
 function handleBasicFlag(flag, nonFlagArgs) {
