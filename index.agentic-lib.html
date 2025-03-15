@@ -63,7 +63,7 @@ Advanced functions supporting decision delegation with schema validation, timeou
 Simulated messaging functions for inter-workflow communication, including:
 <ul class="md-github">
 <li class="md-github"><code class="md-github">simulateKafkaStream</code>, <code class="md-github">simulateKafkaDetailedStream</code>, and <code class="md-github">simulateKafkaBulkStream</code>.</li>
-<li class="md-github"><strong class="md-github">Additional Kafka Functions:</strong> <code class="md-github">simulateKafkaProducer</code>, <code class="md-github">simulateKafkaConsumer</code>, <code class="md-github">simulateKafkaPriorityMessaging</code>, <code class="md-github">simulateKafkaRetryOnFailure</code>, <code class="md-github">simulateKafkaBroadcast</code>, <code class="md-github">simulateKafkaTopicRouting</code>, and the new <strong class="md-github"><code class="md-github">simulateKafkaConsumerGroup</code></strong> which simulates a consumer group handling messages from multiple topics.</li>
+<li class="md-github"><strong class="md-github">Additional Kafka Functions:</strong> <code class="md-github">simulateKafkaProducer</code>, <code class="md-github">simulateKafkaConsumer</code>, <code class="md-github">simulateKafkaPriorityMessaging</code>, <code class="md-github">simulateKafkaRetryOnFailure</code>, <code class="md-github">simulateKafkaBroadcast</code>, <code class="md-github">simulateKafkaTopicRouting</code>, <code class="md-github">simulateKafkaConsumerGroup</code>, and the new <strong class="md-github"><code class="md-github">simulateKafkaWorkflowMessaging</code></strong> which simulates full Kafka workflow messaging by routing messages based on a key and processing them via a consumer group.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">SARIF Parsing and Default Output Parsing:</strong>
@@ -104,6 +104,7 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 <ul class="md-github">
 <li class="md-github">Extended Kafka simulation functions to include dynamic message routing with <code class="md-github">simulateKafkaTopicRouting</code> for targeted inter-workflow communication.</li>
 <li class="md-github">Extended Kafka simulation with consumer group functionality through the new <code class="md-github">simulateKafkaConsumerGroup</code>.</li>
+<li class="md-github"><strong class="md-github">New Kafka Workflow Messaging:</strong> Added <code class="md-github">simulateKafkaWorkflowMessaging</code> to simulate full Kafka workflow messaging, combining routing based on a key with consumer group consumption for enhanced inter-workflow communication.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">SARIF Parsing Enhancements:</strong>
@@ -190,7 +191,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-15T08:07:22.094Z</p>
+    <p>Generated on 2025-03-15T10:05:43.905Z</p>
   </footer>
 </body>
 </html>
