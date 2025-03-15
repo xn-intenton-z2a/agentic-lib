@@ -15,6 +15,7 @@
 // - Extended OpenAI function wrapper (callOpenAIFunctionWrapper) with timeout support and robust error handling; removed duplicate delegateDecisionToLLMEnhanced function.
 // - NEW: Added simulateKafkaWorkflowMessaging to simulate full Kafka based inter-workflow messaging combining routing and consumer group simulation.
 // - NEW: Added simulateKafkaDirectMessage to simulate direct Kafka messaging for agentic workflow communication.
+// - NEW: Added enhanced chat-based delegation function delegateDecisionToLLMChatEnhanced to improve logging and debugging for chat completions based on OpenAI API.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -596,7 +597,7 @@ export function parseEslintSarifOutput(sarifJson) {
     let totalIssues = 0;
     if (sarif.runs && Array.isArray(sarif.runs)) {
       for (const run of sarif.runs) {
-        if (run.results && Array.isArray(run.results)) {
+        if (run.results && Array.isArray(sarif.results)) {
           totalIssues += run.results.length;
         }
       }
@@ -1511,6 +1512,16 @@ export async function delegateDecisionToLLMChatVerbose(prompt, options = {}) {
   console.log(chalk.blue("Invoking LLM chat delegation in verbose mode."));
   const result = await delegateDecisionToLLMChat(prompt, options);
   console.log(chalk.blue("LLM chat delegation verbose result:"), result);
+  return result;
+}
+
+// NEW: Added enhanced chat-based delegation function for additional logging and debugging
+export async function delegateDecisionToLLMChatEnhanced(prompt, options = {}) {
+  console.log(chalk.blue("Invoking enhanced LLM chat delegation."));
+  const result = await delegateDecisionToLLMChat(prompt, options);
+  if (options.verbose) {
+    console.log(chalk.blue("Enhanced LLM chat delegation result:"), result);
+  }
   return result;
 }
 

@@ -40,7 +40,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **Remote Service Wrappers:**
   Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, monitoring, and now package management through `callPackageManagementService()`.
 - **LLM Delegation:**
-  Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include `delegateDecisionToLLMWrapped`, `delegateDecisionToLLMAdvanced`, `delegateDecisionToLLMAdvancedVerbose`, `delegateDecisionToLLMAdvancedStrict`, `delegateDecisionToLLMAdvancedOptimized`, and the new **`delegateDecisionToLLMChat`** and **`delegateDecisionToLLMChatVerbose`** which provide improved chat-based decision delegation using OpenAI API.
+  Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include `delegateDecisionToLLMWrapped`, `delegateDecisionToLLMAdvanced`, `delegateDecisionToLLMAdvancedVerbose`, `delegateDecisionToLLMAdvancedStrict`, `delegateDecisionToLLMAdvancedOptimized`, and the new **`delegateDecisionToLLMChat`**, **`delegateDecisionToLLMChatVerbose`**, and **`delegateDecisionToLLMChatEnhanced`** which provide improved chat-based decision delegation using OpenAI API.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
   - `simulateKafkaStream`, `simulateKafkaDetailedStream`, and `simulateKafkaBulkStream`.
@@ -71,7 +71,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **LLM Delegation Enhancements:**
   - Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using `delegateDecisionToLLMAdvancedOptimized`.
   - Enhanced `callOpenAIFunctionWrapper` to support verbose logging, robust error handling, and an optional timeout parameter.
-  - Added new enhanced delegation wrappers `delegateDecisionToLLMAdvancedEnhanced`, `delegateDecisionToLLMChat`, and `delegateDecisionToLLMChatVerbose` for improved debugging and chat-based decision delegation.
+  - Added new enhanced delegation wrappers `delegateDecisionToLLMWrapped`, `delegateDecisionToLLMAdvanced`, and new chat-based delegation functions: **`delegateDecisionToLLMChat`**, **`delegateDecisionToLLMChatVerbose`**, and **`delegateDecisionToLLMChatEnhanced`** for improved debugging and chat-based decision delegation.
 - **Kafka Messaging Enhancements:**
   - Extended Kafka simulation functions to include dynamic message routing with `simulateKafkaTopicRouting` for targeted inter-workflow communication.
   - Extended Kafka simulation with consumer group functionality through the new `simulateKafkaConsumerGroup`.
@@ -82,9 +82,6 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **OpenAI Function Wrapper Update:**
   - Extended `callOpenAIFunctionWrapper` with timeout support and robust error handling.
   - Removed duplicate implementation of `delegateDecisionToLLMEnhanced` to reduce ambiguity.
-- **Lint Fixes and Code Quality:**
-  - Resolved unused variable issues and ensured promise constructor parameter names match the required pattern.
-  - Updated `simulateFileSystemCall` to use safe file path resolution and handle errors.
 
 ---
 ---
