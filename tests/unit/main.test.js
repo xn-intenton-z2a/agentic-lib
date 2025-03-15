@@ -84,3 +84,14 @@ describe("simulateKafkaWorkflowMessaging", () => {
     expect(Object.keys(result.routedMessages)).toContain("special-trade");
   });
 });
+
+describe("simulateKafkaDirectMessage", () => {
+  test("should simulate direct Kafka messaging", () => {
+    const topic = "test-topic";
+    const msg = "Hello Kafka";
+    const result = agenticLib.simulateKafkaDirectMessage(topic, msg);
+    expect(result).toHaveProperty("sent");
+    expect(result).toHaveProperty("receipt");
+    expect(result.topic).toBe(topic);
+  });
+});
