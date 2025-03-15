@@ -64,6 +64,7 @@ Simulated messaging functions for inter-workflow communication, including:
 <ul class="md-github">
 <li class="md-github"><code class="md-github">simulateKafkaStream</code>, <code class="md-github">simulateKafkaDetailedStream</code>, and <code class="md-github">simulateKafkaBulkStream</code>.</li>
 <li class="md-github"><strong class="md-github">Additional Kafka Functions:</strong> <code class="md-github">simulateKafkaProducer</code>, <code class="md-github">simulateKafkaConsumer</code>, <code class="md-github">simulateKafkaPriorityMessaging</code>, <code class="md-github">simulateKafkaRetryOnFailure</code>, <code class="md-github">simulateKafkaBroadcast</code>, <code class="md-github">simulateKafkaTopicRouting</code>, <code class="md-github">simulateKafkaConsumerGroup</code>, and the new <strong class="md-github"><code class="md-github">simulateKafkaWorkflowMessaging</code></strong> which simulates full Kafka workflow messaging by routing messages based on a key and processing them via a consumer group.</li>
+<li class="md-github"><strong class="md-github">Direct Messaging:</strong> New function <strong class="md-github"><code class="md-github">simulateKafkaDirectMessage</code></strong> provides direct Kafka messaging simulation for targeted workflow communication.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">SARIF Parsing and Default Output Parsing:</strong>
@@ -105,6 +106,7 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 <li class="md-github">Extended Kafka simulation functions to include dynamic message routing with <code class="md-github">simulateKafkaTopicRouting</code> for targeted inter-workflow communication.</li>
 <li class="md-github">Extended Kafka simulation with consumer group functionality through the new <code class="md-github">simulateKafkaConsumerGroup</code>.</li>
 <li class="md-github"><strong class="md-github">New Kafka Workflow Messaging:</strong> Added <code class="md-github">simulateKafkaWorkflowMessaging</code> to simulate full Kafka workflow messaging, combining routing based on a key with consumer group consumption for enhanced inter-workflow communication.</li>
+<li class="md-github"><strong class="md-github">Direct Messaging:</strong> Added new function <code class="md-github">simulateKafkaDirectMessage</code> to simulate direct Kafka messaging.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">SARIF Parsing Enhancements:</strong>
@@ -191,7 +193,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-15T12:08:59.392Z</p>
+    <p>Generated on 2025-03-15T14:06:12.705Z</p>
   </footer>
 </body>
 </html>
