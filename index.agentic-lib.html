@@ -58,7 +58,7 @@ Comprehensive diagnostics via multiple telemetry functions such as:
 <li class="md-github"><strong class="md-github">Remote Service Wrappers:</strong>
 Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, monitoring, and now package management through <code class="md-github">callPackageManagementService()</code>.</li>
 <li class="md-github"><strong class="md-github">LLM Delegation:</strong>
-Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include <code class="md-github">delegateDecisionToLLMWrapped</code>, <code class="md-github">delegateDecisionToLLMAdvanced</code>, <code class="md-github">delegateDecisionToLLMAdvancedVerbose</code>, <code class="md-github">delegateDecisionToLLMAdvancedStrict</code>, <code class="md-github">delegateDecisionToLLMAdvancedOptimized</code>, and the new <strong class="md-github"><code class="md-github">delegateDecisionToLLMChat</code></strong> and <strong class="md-github"><code class="md-github">delegateDecisionToLLMChatVerbose</code></strong> which provide improved chat-based decision delegation using OpenAI API.</li>
+Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include <code class="md-github">delegateDecisionToLLMWrapped</code>, <code class="md-github">delegateDecisionToLLMAdvanced</code>, <code class="md-github">delegateDecisionToLLMAdvancedVerbose</code>, <code class="md-github">delegateDecisionToLLMAdvancedStrict</code>, <code class="md-github">delegateDecisionToLLMAdvancedOptimized</code>, and the new <strong class="md-github"><code class="md-github">delegateDecisionToLLMChat</code></strong>, <strong class="md-github"><code class="md-github">delegateDecisionToLLMChatVerbose</code></strong>, and <strong class="md-github"><code class="md-github">delegateDecisionToLLMChatEnhanced</code></strong> which provide improved chat-based decision delegation using OpenAI API.</li>
 <li class="md-github"><strong class="md-github">Kafka Operations:</strong>
 Simulated messaging functions for inter-workflow communication, including:
 <ul class="md-github">
@@ -98,7 +98,7 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 <ul class="md-github">
 <li class="md-github">Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using <code class="md-github">delegateDecisionToLLMAdvancedOptimized</code>.</li>
 <li class="md-github">Enhanced <code class="md-github">callOpenAIFunctionWrapper</code> to support verbose logging, robust error handling, and an optional timeout parameter.</li>
-<li class="md-github">Added new enhanced delegation wrappers <code class="md-github">delegateDecisionToLLMAdvancedEnhanced</code>, <code class="md-github">delegateDecisionToLLMChat</code>, and <code class="md-github">delegateDecisionToLLMChatVerbose</code> for improved debugging and chat-based decision delegation.</li>
+<li class="md-github">Added new enhanced delegation wrappers <code class="md-github">delegateDecisionToLLMWrapped</code>, <code class="md-github">delegateDecisionToLLMAdvanced</code>, and new chat-based delegation functions: <strong class="md-github"><code class="md-github">delegateDecisionToLLMChat</code></strong>, <strong class="md-github"><code class="md-github">delegateDecisionToLLMChatVerbose</code></strong>, and <strong class="md-github"><code class="md-github">delegateDecisionToLLMChatEnhanced</code></strong> for improved debugging and chat-based decision delegation.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Kafka Messaging Enhancements:</strong>
@@ -118,12 +118,6 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 <ul class="md-github">
 <li class="md-github">Extended <code class="md-github">callOpenAIFunctionWrapper</code> with timeout support and robust error handling.</li>
 <li class="md-github">Removed duplicate implementation of <code class="md-github">delegateDecisionToLLMEnhanced</code> to reduce ambiguity.</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">Lint Fixes and Code Quality:</strong>
-<ul class="md-github">
-<li class="md-github">Resolved unused variable issues and ensured promise constructor parameter names match the required pattern.</li>
-<li class="md-github">Updated <code class="md-github">simulateFileSystemCall</code> to use safe file path resolution and handle errors.</li>
 </ul>
 </li>
 </ul>
@@ -193,7 +187,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-15T16:06:06.551Z</p>
+    <p>Generated on 2025-03-15T18:06:59.750Z</p>
   </footer>
 </body>
 </html>
