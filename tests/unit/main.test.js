@@ -63,3 +63,10 @@ describe("delegateDecisionToLLMChatVerbose", () => {
     process.env.OPENAI_API_KEY = originalApiKey;
   });
 });
+
+describe("gatherTotalTelemetry", () => {
+  test("should contain githubEnv property", () => {
+    const total = agenticLib.gatherTotalTelemetry();
+    expect(total).toHaveProperty("githubEnv");
+  });
+});

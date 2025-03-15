@@ -61,6 +61,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   The `--create-issue` flag now closely mimics the GitHub Actions issue creation workflow (wfr-create-issue.yml), including dynamic title selection based on the environment variable `HOUSE_CHOICE_OPTIONS` and enhanced JSON logging.
 
 ---
+---
 
 ## Recent Improvements
 
@@ -69,7 +70,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - Enhanced telemetry and Kafka simulation functions with detailed logging.
 - **Telemetry Enhancements:**
   - Added new function `gatherGithubEnvTelemetry` to capture all GitHub environment variables for more comprehensive telemetry.
-  - Updated `gatherTotalTelemetry` to include GitHub environment telemetry.
+  - Added new function `gatherTotalTelemetry` to aggregate all telemetry sources into one unified report.
 - **LLM Delegation Enhancements:**
   - Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using `delegateDecisionToLLMAdvancedOptimized`.
   - Enhanced `callOpenAIFunctionWrapper` to support verbose logging, robust error handling, and now an optional timeout parameter.
