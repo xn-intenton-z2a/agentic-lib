@@ -71,3 +71,16 @@ describe("gatherTotalTelemetry", () => {
     expect(total).toHaveProperty("githubEnv");
   });
 });
+
+describe("simulateKafkaWorkflowMessaging", () => {
+  test("should simulate routing and consumer group messaging", () => {
+    const topics = ["sales", "special-trade", "random"];
+    const routingKey = "special";
+    const message = "Test message";
+    const consumerGroup = "group1";
+    const result = agenticLib.simulateKafkaWorkflowMessaging(topics, routingKey, message, consumerGroup);
+    expect(result).toHaveProperty("routedMessages");
+    expect(result).toHaveProperty("consumerGroupResults");
+    expect(Object.keys(result.routedMessages)).toContain("special-trade");
+  });
+});
