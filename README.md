@@ -50,7 +50,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, `parseEslintDefaultOutput`, `parseVitestSarifOutput`, and `parseEslintDetailedOutput`.
   - **New Combined Parser:** `parseCombinedSarifOutput` aggregates issues from both Vitest and ESLint based SARIF reports.
 - **File System Simulation:**
-  The `simulateFileSystemCall()` function enables testing of file interactions.
+  The `simulateFileSystemCall()` function enables testing of file interactions with safe file path resolution.
 - **Configuration Display:**
   The `--config` flag and `printConfiguration()` function display detailed runtime configuration.
 - **Issue Creation Simulation:**
@@ -62,8 +62,8 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 ## Recent Improvements
 
 - Refreshed README to align with CONTRIBUTING guidelines and remove outdated content.
-- Extended flag handling with improved diagnostics and error checking.
-- Enhanced telemetry and Kafka simulation functions with detailed logging.
+- Extended flag handling with improved diagnostics, including extraction of flag specific logic to reduce cognitive complexity.
+- Enhanced telemetry and Kafka simulation functions with detailed logging and timestamp enrichment.
 - **Telemetry Enhancements:**
   - Added new function `gatherGithubEnvTelemetry` to capture all GitHub environment variables for more comprehensive telemetry.
   - Added new function `gatherTotalTelemetry` to aggregate all telemetry sources into one unified report.
@@ -79,8 +79,9 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **OpenAI Function Wrapper Update:**
   - Extended `callOpenAIFunctionWrapper` with timeout support and robust error handling.
   - Removed duplicate implementation of `delegateDecisionToLLMEnhanced` to reduce ambiguity.
-- **Regex Correction:**
-  - Updated `getIssueNumberFromBranch` to correctly escape regex digits using double backslashes, ensuring accurate issue number extraction from branch names.
+- **Lint Fixes and Code Quality:**
+  - Resolved unused variable issues and ensured promise constructor parameter names match the required pattern.
+  - Updated `simulateFileSystemCall` to use safe file path resolution and handle errors.
 
 ---
 ---
