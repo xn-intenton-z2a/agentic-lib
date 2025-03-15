@@ -9,10 +9,10 @@
 // - Added additional parsing functions: parseVitestSarifOutput and parseEslintDetailedOutput for detailed SARIF output parsing.
 // - Added new combined SARIF parser function: parseCombinedSarifOutput to aggregate Vitest and ESLint issues from SARIF reports.
 // - Updated getIssueNumberFromBranch to correctly extract issue numbers using properly escaped regex for digit matching.
-//   (Updated regex to use double backslashes for correct digit capture)
 // - Extended '--create-issue' workflow behavior to more accurately simulate GitHub Issue creation as defined in the wfr-create-issue workflow.
 // - Enhanced logging and improved schema validation in advanced LLM delegation wrappers.
 // - Updated and extended remote service wrappers and Kafka messaging simulation functions inline with the Mission Statement.
+// - Added new function gatherTotalTelemetry to aggregate all telemetry sources into one unified report.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -141,6 +141,21 @@ export function gatherGithubEnvTelemetry() {
   }
   console.log(chalk.green("GitHub Environment Telemetry:"), JSON.stringify(githubEnv, null, 2));
   return githubEnv;
+}
+
+/**
+ * New function to aggregate all telemetry data into one unified report.
+ */
+export function gatherTotalTelemetry() {
+  return {
+    ...gatherTelemetryData(),
+    ...gatherExtendedTelemetryData(),
+    ...gatherFullTelemetryData(),
+    ...gatherAdvancedTelemetryData(),
+    ...gatherCIEnvironmentMetrics(),
+    ...gatherExtraTelemetryData(),
+    githubEnv: gatherGithubEnvTelemetry()
+  };
 }
 
 /**
