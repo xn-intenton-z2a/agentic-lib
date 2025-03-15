@@ -12,7 +12,7 @@
 // - Extended '--create-issue' workflow behavior to more accurately simulate GitHub Issue creation as defined in the wfr-create-issue workflow.
 // - Enhanced logging and improved schema validation in advanced LLM delegation wrappers.
 // - Updated and extended remote service wrappers and Kafka messaging simulation functions inline with the Mission Statement.
-// - Added new function gatherTotalTelemetry to aggregate all telemetry sources into one unified report.
+// - Extended OpenAI function wrapper (callOpenAIFunctionWrapper) with timeout support and robust error handling; removed duplicate delegateDecisionToLLMEnhanced function.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -867,7 +867,7 @@ export function generateUsage() {
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -1396,25 +1396,6 @@ export async function simulateFileSystemCall(filePath) {
   } catch (e) {
     return null;
   }
-}
-
-export function delegateDecisionToLLMEnhanced(prompt) {
-  if (!prompt) {
-    return Promise.resolve({ fixed: "false", message: "Prompt is empty.", refinement: "None" });
-  }
-  if (!process.env.OPENAI_API_KEY) {
-    console.error(chalk.red("OpenAI API key is missing."));
-    return Promise.resolve({
-      fixed: "false",
-      message: "OpenAI API key is missing.",
-      refinement: "Provide a valid API key.",
-    });
-  }
-  return Promise.resolve({
-    fixed: "false",
-    message: "LLM enhanced decision could not be retrieved.",
-    refinement: "None",
-  });
 }
 
 // New function to wrap advanced LLM chat completions using OpenAI API
