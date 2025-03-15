@@ -21,7 +21,8 @@ describe("Main Module Import", () => {
 describe("reviewIssue", () => {
   test("returns correct resolution when conditions met", () => {
     const params = {
-      sourceFileContent: "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [args...]"
+      sourceFileContent:
+        "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [args...]",
     };
     const result = agenticLib.reviewIssue(params);
     expect(result.fixed).toBe("true");
