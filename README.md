@@ -25,7 +25,7 @@ This README file will evolve as the test experiment within this repository evolv
 
 ## Overview
 
-agentic‑lib provides a comprehensive set of JavaScript functions that mirror GitHub Actions workflows. It includes robust telemetry gathering, simulated Kafka messaging, remote service wrappers, advanced LLM delegation, SARIF parsing utilities, and file system interactions. These tools support continuous integration and automated code evolution.
+agentic‑lib provides a comprehensive set of JavaScript functions that mirror GitHub Actions workflows. It includes robust telemetry gathering, simulated Kafka messaging, remote service wrappers, advanced LLM delegation (including new chat-based decision delegation functions), SARIF parsing utilities, and file system interactions. These tools support continuous integration and automated code evolution.
 
 ### Key Features
 
@@ -40,12 +40,14 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **Remote Service Wrappers:**
   Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, monitoring, and package management through `callPackageManagementService()`.
 - **LLM Delegation:**
-  Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include `delegateDecisionToLLMWrapped`, `delegateDecisionToLLMAdvanced`, `delegateDecisionToLLMAdvancedVerbose`, `delegateDecisionToLLMAdvancedStrict`, `delegateDecisionToLLMAdvancedOptimized`, and the new **`delegateDecisionToLLMChat`**, **`delegateDecisionToLLMChatVerbose`**, and **`delegateDecisionToLLMChatEnhanced`** for improved chat-based decision delegation using OpenAI API.
+  Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling.
+  - Existing functions include `delegateDecisionToLLM`, `delegateDecisionToLLMWrapped`, and several advanced variants.
+  - **New Chat-Based Delegation:** Added functions `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, and `delegateDecisionToLLMChatEnhanced` for improved, chat-based interaction using the OpenAI API.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
   - `simulateKafkaStream`, `simulateKafkaDetailedStream`, and `simulateKafkaBulkStream`.
-  - **Additional Kafka Functions:** `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, `simulateKafkaBroadcast`, `simulateKafkaTopicRouting`, `simulateKafkaConsumerGroup`, and the new **`simulateKafkaWorkflowMessaging`** which simulates full Kafka workflow messaging by routing messages based on a key and processing them via a consumer group.
-  - **Direct Messaging:** New function **`simulateKafkaDirectMessage`** provides direct Kafka messaging simulation for targeted workflow communication.
+  - **Additional Kafka Functions:** `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, `simulateKafkaBroadcast`, `simulateKafkaTopicRouting`, `simulateKafkaConsumerGroup`, and the new `simulateKafkaWorkflowMessaging` which simulates full Kafka workflow messaging by routing messages based on a key and processing them via a consumer group.
+  - **Direct Messaging:** New function `simulateKafkaDirectMessage` provides direct Kafka messaging simulation for targeted workflow communication.
 - **SARIF Parsing and Default Output Parsing:**
   Utilities to parse SARIF outputs and default outputs, including:
   - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, `parseEslintDefaultOutput`, `parseVitestSarifOutput`, and `parseEslintDetailedOutput`.
@@ -63,26 +65,23 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 ## Recent Improvements
 
 - Refreshed README to align with CONTRIBUTING guidelines and remove outdated content.
-- Extended flag handling with improved diagnostics, including extraction of flag specific logic to reduce cognitive complexity.
-- Enhanced telemetry and Kafka simulation functions with detailed logging and timestamp enrichment.
+- Extended flag handling with improved diagnostics and extracted flag-specific logic to reduce cognitive complexity.
 - **Telemetry Enhancements:**
   - Added new function `gatherGithubEnvTelemetry` to capture all GitHub environment variables for more comprehensive telemetry.
   - Added new function `gatherTotalTelemetry` to aggregate all telemetry sources into one unified report.
 - **LLM Delegation Enhancements:**
   - Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using `delegateDecisionToLLMAdvancedOptimized`.
-  - Enhanced `callOpenAIFunctionWrapper` to support verbose logging, robust error handling, and an optional timeout parameter.
-  - Added new enhanced delegation wrappers `delegateDecisionToLLMWrapped`, `delegateDecisionToLLMAdvanced`, and new chat-based delegation functions: **`delegateDecisionToLLMChat`**, **`delegateDecisionToLLMChatVerbose`**, and **`delegateDecisionToLLMChatEnhanced`** for improved debugging and chat-based decision delegation.
+  - Enhanced `callOpenAIFunctionWrapper` with verbose logging, robust error handling, and optional timeout parameters.
+  - **New Chat-Based Delegation Functions:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, and `delegateDecisionToLLMChatEnhanced` for improved chat-based LLM decision delegation.
 - **Kafka Messaging Enhancements:**
   - Extended Kafka simulation functions to include dynamic message routing with `simulateKafkaTopicRouting` for targeted inter-workflow communication.
-  - Extended Kafka simulation with consumer group functionality through the new `simulateKafkaConsumerGroup`.
-  - **New Kafka Workflow Messaging:** Added `simulateKafkaWorkflowMessaging` to simulate full Kafka workflow messaging, combining routing based on a key with consumer group consumption for enhanced inter-workflow communication.
-  - **Direct Messaging:** Added new function `simulateKafkaDirectMessage` to simulate direct Kafka messaging.
+  - Added consumer group functionality via the new `simulateKafkaConsumerGroup`.
+  - **New Kafka Workflow Messaging:** Implemented `simulateKafkaWorkflowMessaging` to simulate full Kafka workflow messaging.
+  - **Direct Messaging:** Added new function `simulateKafkaDirectMessage`.
 - **SARIF Parsing Enhancements:**
-  - Added new combined SARIF parsing function `parseCombinedSarifOutput` to aggregate Vitest and ESLint issues.
+  - Added combined SARIF parsing function `parseCombinedSarifOutput` to aggregate issues across tools.
 - **Issue Creation Workflow Enhancement:**
-  - Enhanced the `--create-issue` flag simulation to mimic the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting issue titles and outputting a structured JSON object with issue details.
-- **Testing Improvements:**
-  - Added new tests for `simulateFileSystemCall` using mocked file system interactions to ensure robust external resource handling.
+  - Enhanced the `--create-issue` flag simulation to mimic GitHub Actions workflow with dynamic title selection and structured JSON output.
 
 ---
 ---
@@ -117,7 +116,7 @@ This repository is organized into three distinct areas to help you understand th
 
 ### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
 - **Purpose:**  
-  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
+  This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to core functionality.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
