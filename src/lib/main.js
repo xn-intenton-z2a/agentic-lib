@@ -71,7 +71,7 @@ export function gatherTelemetryData() {
     githubRunNumber: process.env.GITHUB_RUN_NUMBER || "N/A",
     githubJob: process.env.GITHUB_JOB || "N/A",
     githubAction: process.env.GITHUB_ACTION || "N/A",
-    nodeEnv: process.env.NODE_ENV || "undefined",
+    nodeEnv: process.env.NODE_ENV || "undefined"
   };
 }
 
@@ -84,7 +84,7 @@ export function gatherExtendedTelemetryData() {
     githubActor: process.env.GITHUB_ACTOR || "N/A",
     githubRepository: process.env.GITHUB_REPOSITORY || "N/A",
     githubEventName: process.env.GITHUB_EVENT_NAME || "N/A",
-    ci: process.env.CI || "N/A",
+    ci: process.env.CI || "N/A"
   };
 }
 
@@ -97,7 +97,7 @@ export function gatherFullTelemetryData() {
     githubRef: process.env.GITHUB_REF || "N/A",
     githubSha: process.env.GITHUB_SHA || "N/A",
     githubHeadRef: process.env.GITHUB_HEAD_REF || "N/A",
-    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A",
+    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A"
   };
 }
 
@@ -110,7 +110,7 @@ export function gatherAdvancedTelemetryData() {
     processPID: process.pid,
     currentWorkingDirectory: process.cwd(),
     platform: process.platform,
-    memoryUsage: process.memoryUsage(),
+    memoryUsage: process.memoryUsage()
   };
 }
 
@@ -121,7 +121,7 @@ export function gatherCIEnvironmentMetrics() {
   return {
     githubWorkspace: process.env.GITHUB_WORKSPACE || "N/A",
     githubEventPath: process.env.GITHUB_EVENT_PATH || "N/A",
-    githubPath: process.env.GITHUB_PATH || "N/A",
+    githubPath: process.env.GITHUB_PATH || "N/A"
   };
 }
 
@@ -143,7 +143,7 @@ export function gatherExtraTelemetryData() {
     npmPackageVersion: process.env.npm_package_version || "unknown",
     currentTimestamp: new Date().toISOString(),
     cpuUsage: process.cpuUsage(),
-    freeMemory: os.freemem(),
+    freeMemory: os.freemem()
   };
 }
 
@@ -172,7 +172,7 @@ export function gatherTotalTelemetry() {
     ...gatherAdvancedTelemetryData(),
     ...gatherCIEnvironmentMetrics(),
     ...gatherExtraTelemetryData(),
-    githubEnv: gatherGithubEnvTelemetry(),
+    githubEnv: gatherGithubEnvTelemetry()
   };
 }
 
@@ -350,7 +350,7 @@ export function analyzeSystemPerformance() {
   return {
     platform: process.platform,
     cpus: os.cpus().length,
-    totalMemory: os.totalmem(),
+    totalMemory: os.totalmem()
   };
 }
 
@@ -382,7 +382,7 @@ export async function callAnalyticsService(serviceUrl, data) {
     const response = await fetch(serviceUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify(data)
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -405,7 +405,7 @@ export async function callNotificationService(serviceUrl, payload) {
     const response = await fetch(serviceUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -446,7 +446,7 @@ export async function callDeploymentService(serviceUrl, payload) {
     const response = await fetch(serviceUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -469,7 +469,7 @@ export async function callLoggingService(serviceUrl, logData) {
     const response = await fetch(serviceUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(logData),
+      body: JSON.stringify(logData)
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -492,7 +492,7 @@ export async function callCodeQualityService(serviceUrl, parameters) {
     const response = await fetch(serviceUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(parameters),
+      body: JSON.stringify(parameters)
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -515,7 +515,7 @@ export async function callSecurityScanService(serviceUrl, payload) {
     const response = await fetch(serviceUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -709,7 +709,7 @@ export function parseEslintDetailedOutput(sarifJson) {
           run.results.forEach((result) => {
             eslintIssues.push({
               ruleId: result.ruleId || "unknown",
-              message: result.message && result.message.text ? result.message.text : "",
+              message: result.message && result.message.text ? result.message.text : ""
             });
           });
         }
@@ -992,8 +992,8 @@ export async function delegateDecisionToLLM(prompt) {
       model: "gpt-3.5-turbo",
       messages: [
         { role: "system", content: "You are a helpful assistant." },
-        { role: "user", content: prompt },
-      ],
+        { role: "user", content: prompt }
+      ]
     });
     return response.data.choices[0].message.content;
   } catch {
@@ -1022,10 +1022,10 @@ export async function delegateDecisionToLLMWrapped(prompt) {
         {
           role: "system",
           content:
-            "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema.",
+            "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema."
         },
-        { role: "user", content: prompt },
-      ],
+        { role: "user", content: prompt }
+      ]
     });
     const ResponseSchema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
     const messageObj = response.data.choices[0].message;
@@ -1068,22 +1068,22 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
             properties: {
               fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
               message: { type: "string", description: "A message explaining the result" },
-              refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" },
+              refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
             },
             required: ["fixed", "message", "refinement"],
-            additionalProperties: false,
+            additionalProperties: false
           },
-          strict: true,
-        },
-      },
+          strict: true
+        }
+      }
     ];
     const response = await openai.createChatCompletion({
       model: options.model || "gpt-3.5-turbo",
       messages: [
         { role: "system", content: "You are evaluating code issues with advanced parameters." },
-        { role: "user", content: prompt },
+        { role: "user", content: prompt }
       ],
-      tools: tools,
+      tools: tools
     });
     let result;
     const messageObj = response.data.choices[0].message;
@@ -1143,7 +1143,7 @@ export async function delegateDecisionToLLMAdvancedOptimized(prompt, options = {
     return {
       fixed: "true",
       message: "LLM advanced optimized call succeeded",
-      refinement: options.refinement || "None",
+      refinement: options.refinement || "None"
     };
   }
   if (!process.env.OPENAI_API_KEY) {
@@ -1169,23 +1169,23 @@ export async function delegateDecisionToLLMAdvancedOptimized(prompt, options = {
             properties: {
               fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
               message: { type: "string", description: "A message explaining the result" },
-              refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" },
+              refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
             },
             required: ["fixed", "message", "refinement"],
-            additionalProperties: false,
+            additionalProperties: false
           },
-          strict: true,
-        },
-      },
+          strict: true
+        }
+      }
     ];
     const response = await openai.createChatCompletion({
       model: options.model || "gpt-3.5-turbo",
       temperature: options.temperature || 0.7,
       messages: [
         { role: "system", content: "You are evaluating code issues with advanced optimized parameters." },
-        { role: "user", content: prompt },
+        { role: "user", content: prompt }
       ],
-      tools: tools,
+      tools: tools
     });
     let result;
     const messageObj = response.data.choices[0].message;
@@ -1210,7 +1210,7 @@ export async function delegateDecisionToLLMAdvancedOptimized(prompt, options = {
       return {
         fixed: "false",
         message: "LLM advanced optimized response schema validation failed.",
-        refinement: "None",
+        refinement: "None"
       };
     }
     return parsed.data;
@@ -1263,14 +1263,14 @@ export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo",
             properties: {
               fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
               message: { type: "string", description: "A message explaining the result" },
-              refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" },
+              refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
             },
             required: ["fixed", "message", "refinement"],
-            additionalProperties: false,
+            additionalProperties: false
           },
-          strict: true,
-        },
-      },
+          strict: true
+        }
+      }
     ];
     if (verbose) {
       console.log(chalk.blue("Calling OpenAI chat completion..."));
@@ -1281,11 +1281,11 @@ export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo",
         {
           role: "system",
           content:
-            "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema.",
+            "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema."
         },
-        { role: "user", content: prompt },
+        { role: "user", content: prompt }
       ],
-      tools: tools,
+      tools: tools
     });
     let response;
     if (options.timeout && options.timeout > 0) {
@@ -1339,7 +1339,7 @@ export function performAgenticHealthCheck() {
     timestamp: new Date().toISOString(),
     system: sysPerf,
     telemetry: telemetry,
-    status: "healthy",
+    status: "healthy"
   };
   console.log(chalk.green("Agentic Health Check:"), JSON.stringify(healthReport, null, 2));
   return healthReport;
@@ -1352,7 +1352,7 @@ export function gatherFullSystemReport() {
   return {
     healthCheck: performAgenticHealthCheck(),
     advancedTelemetry: gatherAdvancedTelemetryData(),
-    combinedTelemetry: { ...gatherTelemetryData(), ...gatherExtendedTelemetryData(), ...gatherFullTelemetryData() },
+    combinedTelemetry: { ...gatherTelemetryData(), ...gatherExtendedTelemetryData(), ...gatherFullTelemetryData() }
   };
 }
 
@@ -1472,11 +1472,11 @@ export async function delegateDecisionToLLMChat(prompt, options = {}) {
       messages: [
         {
           role: "system",
-          content: "You are a helpful assistant that helps determine if an issue is resolved in the supplied code.",
+          content: "You are a helpful assistant that helps determine if an issue is resolved in the supplied code."
         },
-        { role: "user", content: prompt },
+        { role: "user", content: prompt }
       ],
-      temperature: options.temperature || 0.5,
+      temperature: options.temperature || 0.5
     });
     let result;
     if (response.data.choices && response.data.choices.length > 0) {
@@ -1495,7 +1495,7 @@ export async function delegateDecisionToLLMChat(prompt, options = {}) {
       return {
         fixed: "false",
         message: "Schema validation failed for LLM response.",
-        refinement: "Response does not match expected format.",
+        refinement: "Response does not match expected format."
       };
     }
     return validation.data;

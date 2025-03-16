@@ -38,9 +38,9 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - **Extra Telemetry:** New function `gatherExtraTelemetryData()` provides additional metrics including current timestamp, CPU usage, and free memory.
   - **GitHub Environment Telemetry:** New function `gatherGithubEnvTelemetry()` aggregates all environment variables starting with `GITHUB_` to provide deeper context.
 - **Remote Service Wrappers:**
-  Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, monitoring, and now package management through `callPackageManagementService()`.
+  Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, monitoring, and package management through `callPackageManagementService()`.
 - **LLM Delegation:**
-  Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include `delegateDecisionToLLMWrapped`, `delegateDecisionToLLMAdvanced`, `delegateDecisionToLLMAdvancedVerbose`, `delegateDecisionToLLMAdvancedStrict`, `delegateDecisionToLLMAdvancedOptimized`, and the new **`delegateDecisionToLLMChat`**, **`delegateDecisionToLLMChatVerbose`**, and **`delegateDecisionToLLMChatEnhanced`** which provide improved chat-based decision delegation using OpenAI API.
+  Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling. Functions include `delegateDecisionToLLMWrapped`, `delegateDecisionToLLMAdvanced`, `delegateDecisionToLLMAdvancedVerbose`, `delegateDecisionToLLMAdvancedStrict`, `delegateDecisionToLLMAdvancedOptimized`, and the new **`delegateDecisionToLLMChat`**, **`delegateDecisionToLLMChatVerbose`**, and **`delegateDecisionToLLMChatEnhanced`** for improved chat-based decision delegation using OpenAI API.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
   - `simulateKafkaStream`, `simulateKafkaDetailedStream`, and `simulateKafkaBulkStream`.
@@ -81,9 +81,8 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - Added new combined SARIF parsing function `parseCombinedSarifOutput` to aggregate Vitest and ESLint issues.
 - **Issue Creation Workflow Enhancement:**
   - Enhanced the `--create-issue` flag simulation to mimic the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting issue titles and outputting a structured JSON object with issue details.
-- **OpenAI Function Wrapper Update:**
-  - Extended `callOpenAIFunctionWrapper` with timeout support and robust error handling.
-  - Removed duplicate implementation of `delegateDecisionToLLMEnhanced` to reduce ambiguity.
+- **Testing Improvements:**
+  - Added new tests for `simulateFileSystemCall` using mocked file system interactions to ensure robust external resource handling.
 
 ---
 ---
