@@ -43,6 +43,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling.
   - Existing functions include `delegateDecisionToLLM`, `delegateDecisionToLLMWrapped`, and several advanced variants.
   - **New Chat-Based Delegation:** Added functions `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, and `delegateDecisionToLLMChatEnhanced` for improved, chat-based interaction using the OpenAI API.
+  - **Enhanced OpenAI Function Wrapper:** The `callOpenAIFunctionWrapper` function has been extended with improved error messaging and verbose logging to provide better diagnostics when interacting with the OpenAI API.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
   - `simulateKafkaStream`, `simulateKafkaDetailedStream`, and `simulateKafkaBulkStream`.
@@ -71,7 +72,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - Added new function `gatherTotalTelemetry` to aggregate all telemetry sources into one unified report.
 - **LLM Delegation Enhancements:**
   - Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using `delegateDecisionToLLMAdvancedOptimized`.
-  - Enhanced `callOpenAIFunctionWrapper` with verbose logging, robust error handling, and optional timeout parameters.
+  - Enhanced `callOpenAIFunctionWrapper` with robust error handling and verbose logging to improve diagnostic clarity during OpenAI API interactions.
   - **New Chat-Based Delegation Functions:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, and `delegateDecisionToLLMChatEnhanced` for improved chat-based LLM decision delegation.
 - **Kafka Messaging Enhancements:**
   - Extended Kafka simulation functions to include dynamic message routing with `simulateKafkaTopicRouting` for targeted inter-workflow communication.
