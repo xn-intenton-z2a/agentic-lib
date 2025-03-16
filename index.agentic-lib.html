@@ -61,8 +61,8 @@ Simplified API interactions for various remote services, including deployment, b
 Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling.
 <ul class="md-github">
 <li class="md-github">Existing functions include <code class="md-github">delegateDecisionToLLM</code>, <code class="md-github">delegateDecisionToLLMWrapped</code>, and several advanced variants.</li>
-<li class="md-github"><strong class="md-github">New Chat-Based Delegation:</strong> Added functions <code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, <code class="md-github">delegateDecisionToLLMChatEnhanced</code>, and now <strong class="md-github"><code class="md-github">delegateDecisionToLLMChatOptimized</code></strong> for optimized, chat-based interaction using the OpenAI API.</li>
-<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> The <code class="md-github">callOpenAIFunctionWrapper</code> function has been extended with improved error handling and verbose logging to provide better diagnostics when interacting with the OpenAI API.</li>
+<li class="md-github"><strong class="md-github">New Chat-Based Delegation:</strong> Added <code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, <code class="md-github">delegateDecisionToLLMChatEnhanced</code>, and <strong class="md-github"><code class="md-github">delegateDecisionToLLMChatOptimized</code></strong> for optimized, chat-based interaction using the OpenAI API.</li>
+<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> Improved through <code class="md-github">callOpenAIFunctionWrapper</code> for better error handling and diagnostic logging.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Kafka Operations:</strong>
@@ -78,6 +78,7 @@ Utilities to parse SARIF outputs and default outputs, including:
 <ul class="md-github">
 <li class="md-github"><code class="md-github">parseSarifOutput</code>, <code class="md-github">parseEslintSarifOutput</code>, <code class="md-github">parseVitestOutput</code>, <code class="md-github">parseVitestDefaultOutput</code>, <code class="md-github">parseEslintDefaultOutput</code>, <code class="md-github">parseVitestSarifOutput</code>, and <code class="md-github">parseEslintDetailedOutput</code>.</li>
 <li class="md-github"><strong class="md-github">New Combined Parser:</strong> <code class="md-github">parseCombinedSarifOutput</code> aggregates issues from both Vitest and ESLint based SARIF reports.</li>
+<li class="md-github"><strong class="md-github">New Combined Default Parser:</strong> <code class="md-github">parseCombinedDefaultOutput</code> aggregates summaries from Vitest and ESLint default outputs.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">File System Simulation:</strong>
@@ -103,8 +104,7 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 <ul class="md-github">
 <li class="md-github">Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using <code class="md-github">delegateDecisionToLLMAdvancedOptimized</code>.</li>
 <li class="md-github">Enhanced <code class="md-github">callOpenAIFunctionWrapper</code> with robust error handling and verbose logging to improve diagnostic clarity during OpenAI API interactions.</li>
-<li class="md-github"><strong class="md-github">New Chat-Based Delegation Functions:</strong> Added <code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, <code class="md-github">delegateDecisionToLLMChatEnhanced</code>, and now <code class="md-github">delegateDecisionToLLMChatOptimized</code> for optimized chat-based LLM delegation with improved error handling.</li>
-<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> Improved the wrapper for OpenAI function calling with enhanced logging and error handling.</li>
+<li class="md-github"><strong class="md-github">New Chat-Based Delegation Functions:</strong> Added <code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, <code class="md-github">delegateDecisionToLLMChatEnhanced</code>, and <code class="md-github">delegateDecisionToLLMChatOptimized</code>.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Kafka Messaging Enhancements:</strong>
@@ -115,9 +115,10 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 <li class="md-github"><strong class="md-github">Direct Messaging:</strong> Added new function <code class="md-github">simulateKafkaDirectMessage</code>.</li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">SARIF Parsing Enhancements:</strong>
+<li class="md-github"><strong class="md-github">SARIF and Default Output Parsing Enhancements:</strong>
 <ul class="md-github">
 <li class="md-github">Added combined SARIF parsing function <code class="md-github">parseCombinedSarifOutput</code> to aggregate issues across tools.</li>
+<li class="md-github"><strong class="md-github">New Combined Default Parser:</strong> Added <code class="md-github">parseCombinedDefaultOutput</code> to aggregate Vitest and ESLint default output summaries.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Issue Creation Workflow Enhancement:</strong>
@@ -192,7 +193,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-16T16:06:19.878Z</p>
+    <p>Generated on 2025-03-16T18:07:06.662Z</p>
   </footer>
 </body>
 </html>
