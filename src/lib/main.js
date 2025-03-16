@@ -20,7 +20,7 @@
 // - NEW: Added enhanced chat-based delegation function delegateDecisionToLLMChatEnhanced to improve logging and debugging for chat completions based on OpenAI API.
 // - NEW: Added enhanced chat-based delegation wrappers: delegateDecisionToLLMChat, delegateDecisionToLLMChatVerbose, delegateDecisionToLLMChatEnhanced for improved decision delegation via advanced LLM chat completions.
 // - NEW: Added delegateDecisionToLLMChatOptimized for optimized chat-based LLM delegation with improved error handling and performance.
-// - NEW: Improved OpenAI function wrapper (callOpenAIFunctionWrapper) with enhanced error handling and logging for better function calling responses.
+// - NEW: Enhanced chat delegation functions now trim prompts to catch whitespace-only inputs, ensuring uniform error responses when prompts are invalid.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -1156,6 +1156,9 @@ export async function delegateDecisionToLLMAdvancedStrict(prompt, options = {}) 
 
 // New optimized advanced delegation function with configurable temperature
 export async function delegateDecisionToLLMAdvancedOptimized(prompt, options = {}) {
+  if (!prompt || prompt.trim() === "") {
+    return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
+  }
   if (process.env.TEST_OPENAI_SUCCESS === "true") {
     return {
       fixed: "true",
@@ -1172,7 +1175,7 @@ export async function delegateDecisionToLLMAdvancedOptimized(prompt, options = {
     const Config = openaiModule.Configuration ? openaiModule.Configuration.default || openaiModule.Configuration : null;
     if (!Config) throw new Error("OpenAI Configuration not available");
     const Api = openaiModule.OpenAIApi;
-    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY || "" });
+    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY });
     const openai = new Api(configuration);
     const tools = [
       {
@@ -1251,7 +1254,7 @@ export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo",
   if (verbose) {
     console.log(chalk.blue("callOpenAIFunctionWrapper invoked with prompt:"), prompt);
   }
-  if (!prompt) {
+  if (!prompt || prompt.trim() === "") {
     const errMsg = "Prompt is empty.";
     console.error(chalk.red("callOpenAIFunctionWrapper error:"), errMsg);
     return { fixed: "false", message: errMsg, refinement: "None" };
@@ -1471,7 +1474,7 @@ export async function simulateFileSystemCall(filePath) {
 
 // New function to wrap advanced LLM chat completions using OpenAI API
 export async function delegateDecisionToLLMChat(prompt, options = {}) {
-  if (!prompt) {
+  if (!prompt || prompt.trim() === "") {
     return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
   }
   if (!process.env.OPENAI_API_KEY) {
@@ -1541,7 +1544,7 @@ export async function delegateDecisionToLLMChatEnhanced(prompt, options = {}) {
 
 // NEW: Added optimized chat-based delegation function with improved performance and error handling
 export async function delegateDecisionToLLMChatOptimized(prompt, options = {}) {
-  if (!prompt) {
+  if (!prompt || prompt.trim() === "") {
     return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
   }
   if (!process.env.OPENAI_API_KEY) {
