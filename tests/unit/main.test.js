@@ -133,3 +133,15 @@ describe("simulateFileSystemCall", () => {
     readFileSpy.mockRestore();
   });
 });
+
+describe("parseCombinedDefaultOutput", () => {
+  test("should parse both vitest and eslint default outputs", () => {
+    const vitestStr = "42 tests passed";
+    const eslintStr = "10 problems, 3 errors, 5 warnings";
+    const result = agenticLib.parseCombinedDefaultOutput(vitestStr, eslintStr);
+    expect(result.vitest.testsPassed).toBe(42);
+    expect(result.eslint.numProblems).toBe(10);
+    expect(result.eslint.numErrors).toBe(3);
+    expect(result.eslint.numWarnings).toBe(5);
+  });
+});
