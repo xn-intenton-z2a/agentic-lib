@@ -1,5 +1,6 @@
 import { describe, test, expect, vi, beforeAll, afterAll } from "vitest";
 import * as agenticLib from "../../src/lib/main.js";
+import { promises as fs } from "fs";
 
 beforeAll(() => {
   vi.spyOn(process, "exit").mockImplementation((code) => {
@@ -93,5 +94,25 @@ describe("simulateKafkaDirectMessage", () => {
     expect(result).toHaveProperty("sent");
     expect(result).toHaveProperty("receipt");
     expect(result.topic).toBe(topic);
+  });
+});
+
+describe("simulateFileSystemCall", () => {
+  test("returns file content if file exists", async () => {
+    const dummyPath = "./dummy.txt";
+    // Mock fs.readFile to return a predetermined string
+    const readFileSpy = vi.spyOn(fs, "readFile").mockResolvedValue("file content");
+    const result = await agenticLib.simulateFileSystemCall(dummyPath);
+    expect(result).toBe("file content");
+    readFileSpy.mockRestore();
+  });
+
+  test("returns null and logs error if file does not exist", async () => {
+    const dummyPath = "./nonexistent.txt";
+    const error = new Error("File not found");
+    const readFileSpy = vi.spyOn(fs, "readFile").mockRejectedValue(error);
+    const result = await agenticLib.simulateFileSystemCall(dummyPath);
+    expect(result).toBeNull();
+    readFileSpy.mockRestore();
   });
 });
