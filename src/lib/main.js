@@ -13,13 +13,13 @@
 //   NEW: Enhanced create-issue workflow simulation now outputs a detailed JSON object matching GitHub workflow behavior.
 // - Enhanced logging and improved schema validation in advanced LLM delegation wrappers.
 // - Updated and extended remote service wrappers and Kafka messaging simulation functions inline with the Mission Statement.
-// - Extended OpenAI function wrapper (callOpenAIFunctionWrapper) with timeout support, robust error handling, and enhanced debug logging; removed duplicate delegateDecisionToLLMEnhanced function.
+// - Extended OpenAI function wrapper (callOpenAIFunctionWrapper) with timeout support, robust error handling, and enhanced debug logging for better debugging of OpenAI API interactions; removed duplicate delegateDecisionToLLMEnhanced function.
 // - NEW: Added simulateKafkaWorkflowMessaging to simulate full Kafka based inter-workflow messaging combining routing and consumer group simulation.
 // - NEW: Added simulateKafkaDirectMessage to simulate direct Kafka messaging for agentic workflow communication.
 // - NEW: Added enhanced chat-based delegation function delegateDecisionToLLMChatEnhanced to improve logging and debugging for chat completions based on OpenAI API.
-// - NEW: Added enhanced chat-based delegation wrappers: delegateDecisionToLLMChat, delegateDecisionToLLMChatVerbose, and delegateDecisionToLLMChatEnhanced for improved decision delegation via advanced LLM chat completions.
-// - NEW: Enhanced callOpenAIFunctionWrapper with improved error messaging and verbose logging for better debugging of OpenAI API interactions.
-
+// - NEW: Added enhanced chat-based delegation wrappers: delegateDecisionToLLMChat, delegateDecisionToLLMChatVerbose, delegateDecisionToLLMChatEnhanced for improved decision delegation via advanced LLM chat completions.
+// - NEW: Added delegateDecisionToLLMChatOptimized for optimized chat-based LLM delegation with improved error handling and performance.
+//
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
 import { fileURLToPath } from "url";
@@ -1522,6 +1522,46 @@ export async function delegateDecisionToLLMChatEnhanced(prompt, options = {}) {
     console.log(chalk.blue("Enhanced LLM chat delegation result:"), result);
   }
   return result;
+}
+
+// NEW: Added optimized chat-based delegation function with improved performance and error handling
+export async function delegateDecisionToLLMChatOptimized(prompt, options = {}) {
+  if (!prompt) {
+    return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
+  }
+  if (!process.env.OPENAI_API_KEY) {
+    return { fixed: "false", message: "Missing API key.", refinement: "Set the OPENAI_API_KEY environment variable." };
+  }
+  try {
+    const openaiModule = await import("openai");
+    const Config = openaiModule.Configuration ? openaiModule.Configuration.default || openaiModule.Configuration : null;
+    if (!Config) throw new Error("OpenAI configuration missing");
+    const Api = openaiModule.OpenAIApi;
+    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY });
+    const openai = new Api(configuration);
+    const response = await openai.createChatCompletion({
+      model: options.model || "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "You are a helpful assistant that checks if an issue is resolved." },
+        { role: "user", content: prompt }
+      ],
+      temperature: options.temperature || 0.5
+    });
+    let result;
+    if (response.data.choices && response.data.choices.length > 0) {
+      const message = response.data.choices[0].message;
+      try {
+        result = JSON.parse(message.content);
+      } catch (e) {
+        result = { fixed: "false", message: "Failed to parse response content.", refinement: e.message };
+      }
+    } else {
+      result = { fixed: "false", message: "No response from OpenAI.", refinement: "Retry" };
+    }
+    return result;
+  } catch (error) {
+    return { fixed: "false", message: error.message, refinement: "LLM chat delegation optimized failed." };
+  }
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

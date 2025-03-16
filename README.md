@@ -42,12 +42,12 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **LLM Delegation:**
   Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling.
   - Existing functions include `delegateDecisionToLLM`, `delegateDecisionToLLMWrapped`, and several advanced variants.
-  - **New Chat-Based Delegation:** Added functions `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, and `delegateDecisionToLLMChatEnhanced` for improved, chat-based interaction using the OpenAI API.
+  - **New Chat-Based Delegation:** Added functions `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and now **`delegateDecisionToLLMChatOptimized`** for optimized, chat-based interaction using the OpenAI API.
   - **Enhanced OpenAI Function Wrapper:** The `callOpenAIFunctionWrapper` function has been extended with improved error messaging and verbose logging to provide better diagnostics when interacting with the OpenAI API.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
   - `simulateKafkaStream`, `simulateKafkaDetailedStream`, and `simulateKafkaBulkStream`.
-  - **Additional Kafka Functions:** `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, `simulateKafkaBroadcast`, `simulateKafkaTopicRouting`, `simulateKafkaConsumerGroup`, and the new `simulateKafkaWorkflowMessaging` which simulates full Kafka workflow messaging by routing messages based on a key and processing them via a consumer group.
+  - **Additional Kafka Functions:** `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, `simulateKafkaBroadcast`, `simulateKafkaTopicRouting`, `simulateKafkaConsumerGroup`, and `simulateKafkaWorkflowMessaging` which simulates full Kafka workflow messaging by routing messages based on a key and processing them via a consumer group.
   - **Direct Messaging:** New function `simulateKafkaDirectMessage` provides direct Kafka messaging simulation for targeted workflow communication.
 - **SARIF Parsing and Default Output Parsing:**
   Utilities to parse SARIF outputs and default outputs, including:
@@ -73,7 +73,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **LLM Delegation Enhancements:**
   - Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using `delegateDecisionToLLMAdvancedOptimized`.
   - Enhanced `callOpenAIFunctionWrapper` with robust error handling and verbose logging to improve diagnostic clarity during OpenAI API interactions.
-  - **New Chat-Based Delegation Functions:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, and `delegateDecisionToLLMChatEnhanced` for improved chat-based LLM decision delegation.
+  - **New Chat-Based Delegation Functions:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and now `delegateDecisionToLLMChatOptimized` for optimized chat-based LLM delegation with improved error handling.
 - **Kafka Messaging Enhancements:**
   - Extended Kafka simulation functions to include dynamic message routing with `simulateKafkaTopicRouting` for targeted inter-workflow communication.
   - Added consumer group functionality via the new `simulateKafkaConsumerGroup`.
@@ -117,7 +117,7 @@ This repository is organized into three distinct areas to help you understand th
 
 ### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
 - **Purpose:**  
-  This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to core functionality.
+  This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
