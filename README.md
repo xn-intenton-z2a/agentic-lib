@@ -43,7 +43,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling.
   - Existing functions include `delegateDecisionToLLM`, `delegateDecisionToLLMWrapped`, and several advanced variants.
   - **New Chat-Based Delegation:** Added functions `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and now **`delegateDecisionToLLMChatOptimized`** for optimized, chat-based interaction using the OpenAI API.
-  - **Enhanced OpenAI Function Wrapper:** The `callOpenAIFunctionWrapper` function has been extended with improved error messaging and verbose logging to provide better diagnostics when interacting with the OpenAI API.
+  - **Enhanced OpenAI Function Wrapper:** The `callOpenAIFunctionWrapper` function has been extended with improved error handling and verbose logging to provide better diagnostics when interacting with the OpenAI API.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
   - `simulateKafkaStream`, `simulateKafkaDetailedStream`, and `simulateKafkaBulkStream`.
@@ -74,6 +74,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using `delegateDecisionToLLMAdvancedOptimized`.
   - Enhanced `callOpenAIFunctionWrapper` with robust error handling and verbose logging to improve diagnostic clarity during OpenAI API interactions.
   - **New Chat-Based Delegation Functions:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and now `delegateDecisionToLLMChatOptimized` for optimized chat-based LLM delegation with improved error handling.
+  - **Enhanced OpenAI Function Wrapper:** Improved the wrapper for OpenAI function calling with enhanced logging and error handling.
 - **Kafka Messaging Enhancements:**
   - Extended Kafka simulation functions to include dynamic message routing with `simulateKafkaTopicRouting` for targeted inter-workflow communication.
   - Added consumer group functionality via the new `simulateKafkaConsumerGroup`.

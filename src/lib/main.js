@@ -19,7 +19,8 @@
 // - NEW: Added enhanced chat-based delegation function delegateDecisionToLLMChatEnhanced to improve logging and debugging for chat completions based on OpenAI API.
 // - NEW: Added enhanced chat-based delegation wrappers: delegateDecisionToLLMChat, delegateDecisionToLLMChatVerbose, delegateDecisionToLLMChatEnhanced for improved decision delegation via advanced LLM chat completions.
 // - NEW: Added delegateDecisionToLLMChatOptimized for optimized chat-based LLM delegation with improved error handling and performance.
-//
+// - NEW: Improved OpenAI function wrapper (callOpenAIFunctionWrapper) with enhanced error handling and logging for better function calling responses.
+
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
 import { fileURLToPath } from "url";
