@@ -42,8 +42,8 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **LLM Delegation:**
   Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling.
   - Existing functions include `delegateDecisionToLLM`, `delegateDecisionToLLMWrapped`, and several advanced variants.
-  - **New Chat-Based Delegation:** Added functions `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and now **`delegateDecisionToLLMChatOptimized`** for optimized, chat-based interaction using the OpenAI API.
-  - **Enhanced OpenAI Function Wrapper:** The `callOpenAIFunctionWrapper` function has been extended with improved error handling and verbose logging to provide better diagnostics when interacting with the OpenAI API.
+  - **New Chat-Based Delegation:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and **`delegateDecisionToLLMChatOptimized`** for optimized, chat-based interaction using the OpenAI API.
+  - **Enhanced OpenAI Function Wrapper:** Improved through `callOpenAIFunctionWrapper` for better error handling and diagnostic logging.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
   - `simulateKafkaStream`, `simulateKafkaDetailedStream`, and `simulateKafkaBulkStream`.
@@ -53,6 +53,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   Utilities to parse SARIF outputs and default outputs, including:
   - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, `parseEslintDefaultOutput`, `parseVitestSarifOutput`, and `parseEslintDetailedOutput`.
   - **New Combined Parser:** `parseCombinedSarifOutput` aggregates issues from both Vitest and ESLint based SARIF reports.
+  - **New Combined Default Parser:** `parseCombinedDefaultOutput` aggregates summaries from Vitest and ESLint default outputs.
 - **File System Simulation:**
   The `simulateFileSystemCall()` function enables testing of file interactions with safe file path resolution.
 - **Configuration Display:**
@@ -73,15 +74,15 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **LLM Delegation Enhancements:**
   - Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using `delegateDecisionToLLMAdvancedOptimized`.
   - Enhanced `callOpenAIFunctionWrapper` with robust error handling and verbose logging to improve diagnostic clarity during OpenAI API interactions.
-  - **New Chat-Based Delegation Functions:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and now `delegateDecisionToLLMChatOptimized` for optimized chat-based LLM delegation with improved error handling.
-  - **Enhanced OpenAI Function Wrapper:** Improved the wrapper for OpenAI function calling with enhanced logging and error handling.
+  - **New Chat-Based Delegation Functions:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and `delegateDecisionToLLMChatOptimized`.
 - **Kafka Messaging Enhancements:**
   - Extended Kafka simulation functions to include dynamic message routing with `simulateKafkaTopicRouting` for targeted inter-workflow communication.
   - Added consumer group functionality via the new `simulateKafkaConsumerGroup`.
   - **New Kafka Workflow Messaging:** Implemented `simulateKafkaWorkflowMessaging` to simulate full Kafka workflow messaging.
   - **Direct Messaging:** Added new function `simulateKafkaDirectMessage`.
-- **SARIF Parsing Enhancements:**
+- **SARIF and Default Output Parsing Enhancements:**
   - Added combined SARIF parsing function `parseCombinedSarifOutput` to aggregate issues across tools.
+  - **New Combined Default Parser:** Added `parseCombinedDefaultOutput` to aggregate Vitest and ESLint default output summaries.
 - **Issue Creation Workflow Enhancement:**
   - Enhanced the `--create-issue` flag simulation to mimic GitHub Actions workflow with dynamic title selection and structured JSON output.
 

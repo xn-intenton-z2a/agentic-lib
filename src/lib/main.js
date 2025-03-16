@@ -8,6 +8,7 @@
 // - Added new parsing functions: parseVitestDefaultOutput and parseEslintDefaultOutput to handle default output formats of Vitest and ESLint, extending SARIF parsing capabilities.
 // - Added additional parsing functions: parseVitestSarifOutput and parseEslintDetailedOutput for detailed SARIF output parsing.
 // - Added new combined SARIF parser function: parseCombinedSarifOutput to aggregate Vitest and ESLint issues from SARIF reports.
+// - NEW: Added combined default output parser function: parseCombinedDefaultOutput to aggregate Vitest and ESLint default outputs.
 // - Updated getIssueNumberFromBranch to correctly extract issue numbers using properly escaped regex for digit matching.
 // - Extended '--create-issue' workflow behavior to more accurately simulate GitHub Issue creation as defined in the wfr-create-issue workflow.
 //   NEW: Enhanced create-issue workflow simulation now outputs a detailed JSON object matching GitHub workflow behavior.
@@ -752,6 +753,19 @@ export function parseCombinedSarifOutput(sarifJson) {
     console.error(chalk.red("Error parsing combined SARIF JSON:"), errMsg);
     return { error: errMsg };
   }
+}
+
+/**
+ * NEW: Combined Default Output Parser
+ * Aggregates Vitest default output and ESLint default output summaries into one object.
+ * @param {string} vitestOutput - Default output from Vitest
+ * @param {string} eslintOutput - Default output from ESLint
+ * @returns {object} Combined summary with properties from both outputs
+ */
+export function parseCombinedDefaultOutput(vitestOutput, eslintOutput) {
+  const vitestResult = parseVitestDefaultOutput(vitestOutput);
+  const eslintResult = parseEslintDefaultOutput(eslintOutput);
+  return { vitest: vitestResult, eslint: eslintResult };
 }
 
 /**
