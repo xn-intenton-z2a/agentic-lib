@@ -17,6 +17,7 @@
 // - NEW: Added simulateKafkaWorkflowMessaging to simulate full Kafka based inter-workflow messaging combining routing and consumer group simulation.
 // - NEW: Added simulateKafkaDirectMessage to simulate direct Kafka messaging for agentic workflow communication.
 // - NEW: Added enhanced chat-based delegation function delegateDecisionToLLMChatEnhanced to improve logging and debugging for chat completions based on OpenAI API.
+// - NEW: Added enhanced chat-based delegation wrappers: delegateDecisionToLLMChat, delegateDecisionToLLMChatVerbose, and delegateDecisionToLLMChatEnhanced for improved decision delegation via advanced LLM chat completions.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
