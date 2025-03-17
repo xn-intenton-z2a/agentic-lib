@@ -43,7 +43,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling.
   - Existing functions include `delegateDecisionToLLM`, `delegateDecisionToLLMWrapped`, and several advanced variants.
   - **New Chat-Based Delegation:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and **`delegateDecisionToLLMChatOptimized`** for optimized, chat-based interaction using the OpenAI API.
-  - **Enhanced OpenAI Function Wrapper:** Extended `callOpenAIFunctionWrapper` with refined error handling, verbose logging, and standardized schema validation for improved debugging.
+  - **Enhanced OpenAI Function Wrapper:** Extended `callOpenAIFunctionWrapper` with refined error handling, verbose logging, and standardized schema validation to improve diagnostic clarity during OpenAI API interactions.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
   - `simulateKafkaStream`, `simulateKafkaDetailedStream`, and `simulateKafkaBulkStream`.
@@ -59,7 +59,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **CI Workflow Simulation:**
   **NEW:** `simulateCIWorkflowLifecycle` aggregates CI telemetry and simulates Kafka messaging to mimic a full workflow lifecycle.
 - **Issue Creation Simulation:**
-  The `--create-issue` flag now closely mimics the GitHub Actions issue creation workflow (wfr-create-issue.yml), including dynamic title selection based on the environment variable `HOUSE_CHOICE_OPTIONS` and enhanced JSON logging.
+  **NEW:** The `--create-issue` flag now closely mimics the GitHub Actions issue creation workflow (wfr-create-issue.yml). It dynamically selects an issue title based on an environment variable `HOUSE_CHOICE_OPTIONS` (when set to "house choice") and logs detailed JSON output to simulate real issue creation.
 
 ---
 ---
@@ -86,7 +86,9 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **CI Workflow Simulation Enhancement:**
   - **NEW:** Added `simulateCIWorkflowLifecycle` to simulate a complete CI workflow lifecycle by combining telemetry data and Kafka broadcast messaging.
 - **Issue Creation Workflow Enhancement:**
-  - Enhanced the `--create-issue` flag simulation to closely mimic the behavior defined in the wfr-create-issue.yml workflow, using dynamic title selection with `HOUSE_CHOICE_OPTIONS` and detailed logging for issue creation.
+  - **NEW:** Enhanced the `--create-issue` flag simulation. It now mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from `HOUSE_CHOICE_OPTIONS` if set to "house choice", and logs detailed issue creation information in a JSON format.
+- **Regex Escaping Fix:**
+  - Fixed the regex escaping in `getIssueNumberFromBranch` to accurately extract issue numbers from branch names.
 
 ---
 ---
@@ -121,7 +123,7 @@ This repository is organized into three distinct areas to help you understand th
 
 ### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
 - **Purpose:**  
-  This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to the core functionality.
+  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  

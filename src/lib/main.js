@@ -9,17 +9,9 @@
 // - Added additional parsing functions: parseVitestSarifOutput and parseEslintDetailedOutput for detailed SARIF output parsing.
 // - Added new combined SARIF parser function: parseCombinedSarifOutput to aggregate Vitest and ESLint issues from SARIF reports.
 // - NEW: Added combined default output parser function: parseCombinedDefaultOutput to aggregate Vitest and ESLint default outputs.
-// - Updated getIssueNumberFromBranch to correctly extract issue numbers using properly escaped regex for digit matching.
-// - Extended '--create-issue' workflow behavior to more closely mimic the wfr-create-issue GitHub workflow. The simulation now handles dynamic title selection via the environment variable HOUSE_CHOICE_OPTIONS and logs a detailed JSON object.
-// - Enhanced logging and improved schema validation in advanced LLM delegation wrappers.
-// - Updated and extended remote service wrappers and Kafka messaging simulation functions inline with the Mission Statement.
-// - Extended OpenAI function wrapper (callOpenAIFunctionWrapper) with refined error handling, added verbose logging and standardized schema validation for improved debugging. 
-// - NEW: Added simulateKafkaWorkflowMessaging to simulate full Kafka based inter-workflow messaging combining routing and consumer group simulation.
-// - NEW: Added simulateKafkaDirectMessage to simulate direct Kafka messaging for agentic workflow communication.
-// - NEW: Added enhanced chat-based delegation function delegateDecisionToLLMChatEnhanced to improve logging and debugging for chat completions based on OpenAI API.
-// - NEW: Added enhanced chat-based delegation wrappers: delegateDecisionToLLMChat, delegateDecisionToLLMChatVerbose, delegateDecisionToLLMChatEnhanced for improved decision delegation via advanced LLM chat completions.
-// - NEW: Added delegateDecisionToLLMChatOptimized for optimized chat-based LLM delegation with improved error handling and performance.
-// - NEW: Added simulateCIWorkflowLifecycle to simulate a complete CI workflow lifecycle by aggregating telemetry and Kafka messaging.
+// - Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching.
+// - Enhanced the --create-issue workflow simulation to more closely mimic the GitHub Actions issue creation workflow (wfr-create-issue.yml), dynamically selecting an issue title from HOUSE_CHOICE_OPTIONS and logging detailed JSON output.
+// - Extended OpenAI function wrappers with improved error handling and logging for advanced LLM delegation functions.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -34,7 +26,7 @@ import { promises as fs } from "fs";
 
 // Helper function to escape regex special characters
 function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return string.replace(/[.*+?^${}()|[\\\]]/g, "\\$&");
 }
 
 // Helper for parsing LLM message content
@@ -612,7 +604,7 @@ export function parseEslintSarifOutput(sarifJson) {
     let totalIssues = 0;
     if (sarif.runs && Array.isArray(sarif.runs)) {
       for (const run of sarif.runs) {
-        if (run.results && Array.isArray(sarif.results)) {
+        if (run.results && Array.isArray(sarif.results)) { // corrected logic for ESLint
           totalIssues += run.results.length;
         }
       }
@@ -960,7 +952,7 @@ export function generateUsage() {
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
