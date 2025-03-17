@@ -62,8 +62,7 @@ Advanced functions supporting decision delegation with schema validation, timeou
 <ul class="md-github">
 <li class="md-github">Existing functions include <code class="md-github">delegateDecisionToLLM</code>, <code class="md-github">delegateDecisionToLLMWrapped</code>, and several advanced variants.</li>
 <li class="md-github"><strong class="md-github">New Chat-Based Delegation:</strong> Added <code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, <code class="md-github">delegateDecisionToLLMChatEnhanced</code>, and <strong class="md-github"><code class="md-github">delegateDecisionToLLMChatOptimized</code></strong> for optimized, chat-based interaction using the OpenAI API.</li>
-<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> Improved through <code class="md-github">callOpenAIFunctionWrapper</code> for better error handling and diagnostic logging.</li>
-<li class="md-github"><strong class="md-github">Enhancement:</strong> Chat delegation functions now trim whitespace-only prompts, ensuring uniform error responses when prompts are invalid.</li>
+<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> Extended <code class="md-github">callOpenAIFunctionWrapper</code> with refined error handling, verbose logging, and standardized schema validation for improved debugging.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Kafka Operations:</strong>
@@ -74,7 +73,7 @@ Simulated messaging functions for inter-workflow communication, including:
 <li class="md-github"><strong class="md-github">Direct Messaging:</strong> New function <code class="md-github">simulateKafkaDirectMessage</code> provides direct Kafka messaging simulation for targeted workflow communication.</li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">SARIF Parsing and Default Output Parsing Enhancements:</strong>
+<li class="md-github"><strong class="md-github">SARIF and Default Output Parsing Enhancements:</strong>
 Utilities to parse SARIF outputs and default outputs, including:
 <ul class="md-github">
 <li class="md-github"><code class="md-github">parseSarifOutput</code>, <code class="md-github">parseEslintSarifOutput</code>, <code class="md-github">parseVitestOutput</code>, <code class="md-github">parseVitestDefaultOutput</code>, <code class="md-github">parseEslintDefaultOutput</code>, <code class="md-github">parseVitestSarifOutput</code>, and <code class="md-github">parseEslintDetailedOutput</code>.</li>
@@ -106,7 +105,7 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 <li class="md-github"><strong class="md-github">LLM Delegation Enhancements:</strong>
 <ul class="md-github">
 <li class="md-github">Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using <code class="md-github">delegateDecisionToLLMAdvancedOptimized</code>.</li>
-<li class="md-github">Enhanced <code class="md-github">callOpenAIFunctionWrapper</code> with robust error handling and verbose logging to improve diagnostic clarity during OpenAI API interactions.</li>
+<li class="md-github">Enhanced <code class="md-github">callOpenAIFunctionWrapper</code> with refined error handling, verbose logging, and standardized schema validation to improve diagnostic clarity during OpenAI API interactions.</li>
 <li class="md-github"><strong class="md-github">New Chat-Based Delegation Functions:</strong> Added <code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, <code class="md-github">delegateDecisionToLLMChatEnhanced</code>, and <code class="md-github">delegateDecisionToLLMChatOptimized</code> with additional input validation for better reliability.</li>
 </ul>
 </li>
@@ -201,7 +200,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-17T04:07:40.205Z</p>
+    <p>Generated on 2025-03-17T06:08:54.483Z</p>
   </footer>
 </body>
 </html>
