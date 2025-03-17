@@ -10,8 +10,7 @@
 // - Added new combined SARIF parser function: parseCombinedSarifOutput to aggregate Vitest and ESLint issues from SARIF reports.
 // - NEW: Added combined default output parser function: parseCombinedDefaultOutput to aggregate Vitest and ESLint default outputs.
 // - Updated getIssueNumberFromBranch to correctly extract issue numbers using properly escaped regex for digit matching.
-// - Extended '--create-issue' workflow behavior to more accurately simulate GitHub Issue creation as defined in the wfr-create-issue workflow.
-//   NEW: Enhanced create-issue workflow simulation now outputs a detailed JSON object matching GitHub workflow behavior.
+// - Extended '--create-issue' workflow behavior to more closely mimic the wfr-create-issue GitHub workflow. The simulation now handles dynamic title selection via the environment variable HOUSE_CHOICE_OPTIONS and logs a detailed JSON object.
 // - Enhanced logging and improved schema validation in advanced LLM delegation wrappers.
 // - Updated and extended remote service wrappers and Kafka messaging simulation functions inline with the Mission Statement.
 // - Extended OpenAI function wrapper (callOpenAIFunctionWrapper) with refined error handling, added verbose logging and standardized schema validation for improved debugging. 

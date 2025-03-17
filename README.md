@@ -58,8 +58,6 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   The `simulateFileSystemCall()` function enables testing of file interactions with safe file path resolution.
 - **CI Workflow Simulation:**
   **NEW:** `simulateCIWorkflowLifecycle` aggregates CI telemetry and simulates Kafka messaging to mimic a full workflow lifecycle.
-- **Configuration Display:**
-  The `--config` flag and `printConfiguration()` function display detailed runtime configuration.
 - **Issue Creation Simulation:**
   The `--create-issue` flag now closely mimics the GitHub Actions issue creation workflow (wfr-create-issue.yml), including dynamic title selection based on the environment variable `HOUSE_CHOICE_OPTIONS` and enhanced JSON logging.
 
@@ -76,7 +74,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **LLM Delegation Enhancements:**
   - Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using `delegateDecisionToLLMAdvancedOptimized`.
   - Enhanced `callOpenAIFunctionWrapper` with refined error handling, verbose logging, and standardized schema validation to improve diagnostic clarity during OpenAI API interactions.
-  - **New Chat-Based Delegation Functions:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and `delegateDecisionToLLMChatOptimized` with additional input validation for better reliability.
+  - **New Chat-Based Delegation Functions:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and **`delegateDecisionToLLMChatOptimized`** with additional input validation for better reliability.
 - **Kafka Messaging Enhancements:**
   - Extended Kafka simulation functions to include dynamic message routing with `simulateKafkaTopicRouting` for targeted inter-workflow communication.
   - Added consumer group functionality via the new `simulateKafkaConsumerGroup`.
@@ -88,7 +86,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **CI Workflow Simulation Enhancement:**
   - **NEW:** Added `simulateCIWorkflowLifecycle` to simulate a complete CI workflow lifecycle by combining telemetry data and Kafka broadcast messaging.
 - **Issue Creation Workflow Enhancement:**
-  - Enhanced the `--create-issue` flag simulation to mimic GitHub Actions workflow with dynamic title selection and structured JSON output.
+  - Enhanced the `--create-issue` flag simulation to closely mimic the behavior defined in the wfr-create-issue.yml workflow, using dynamic title selection with `HOUSE_CHOICE_OPTIONS` and detailed logging for issue creation.
 
 ---
 ---
