@@ -85,8 +85,6 @@ Utilities to parse SARIF outputs and default outputs, including:
 The <code class="md-github">simulateFileSystemCall()</code> function enables testing of file interactions with safe file path resolution.</li>
 <li class="md-github"><strong class="md-github">CI Workflow Simulation:</strong>
 <strong class="md-github">NEW:</strong> <code class="md-github">simulateCIWorkflowLifecycle</code> aggregates CI telemetry and simulates Kafka messaging to mimic a full workflow lifecycle.</li>
-<li class="md-github"><strong class="md-github">Configuration Display:</strong>
-The <code class="md-github">--config</code> flag and <code class="md-github">printConfiguration()</code> function display detailed runtime configuration.</li>
 <li class="md-github"><strong class="md-github">Issue Creation Simulation:</strong>
 The <code class="md-github">--create-issue</code> flag now closely mimics the GitHub Actions issue creation workflow (wfr-create-issue.yml), including dynamic title selection based on the environment variable <code class="md-github">HOUSE_CHOICE_OPTIONS</code> and enhanced JSON logging.</li>
 </ul>
@@ -106,7 +104,7 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 <ul class="md-github">
 <li class="md-github">Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using <code class="md-github">delegateDecisionToLLMAdvancedOptimized</code>.</li>
 <li class="md-github">Enhanced <code class="md-github">callOpenAIFunctionWrapper</code> with refined error handling, verbose logging, and standardized schema validation to improve diagnostic clarity during OpenAI API interactions.</li>
-<li class="md-github"><strong class="md-github">New Chat-Based Delegation Functions:</strong> Added <code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, <code class="md-github">delegateDecisionToLLMChatEnhanced</code>, and <code class="md-github">delegateDecisionToLLMChatOptimized</code> with additional input validation for better reliability.</li>
+<li class="md-github"><strong class="md-github">New Chat-Based Delegation Functions:</strong> Added <code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, <code class="md-github">delegateDecisionToLLMChatEnhanced</code>, and <strong class="md-github"><code class="md-github">delegateDecisionToLLMChatOptimized</code></strong> with additional input validation for better reliability.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Kafka Messaging Enhancements:</strong>
@@ -130,7 +128,7 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 </li>
 <li class="md-github"><strong class="md-github">Issue Creation Workflow Enhancement:</strong>
 <ul class="md-github">
-<li class="md-github">Enhanced the <code class="md-github">--create-issue</code> flag simulation to mimic GitHub Actions workflow with dynamic title selection and structured JSON output.</li>
+<li class="md-github">Enhanced the <code class="md-github">--create-issue</code> flag simulation to closely mimic the behavior defined in the wfr-create-issue.yml workflow, using dynamic title selection with <code class="md-github">HOUSE_CHOICE_OPTIONS</code> and detailed logging for issue creation.</li>
 </ul>
 </li>
 </ul>
@@ -200,7 +198,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-17T08:08:45.609Z</p>
+    <p>Generated on 2025-03-17T10:07:02.146Z</p>
   </footer>
 </body>
 </html>
