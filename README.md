@@ -59,7 +59,10 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **CI Workflow Simulation:**
   **NEW:** `simulateCIWorkflowLifecycle` aggregates CI telemetry and simulates Kafka messaging to mimic a full workflow lifecycle.
 - **Issue Creation Simulation:**
-  **NEW:** The `--create-issue` flag now closely mimics the GitHub Actions issue creation workflow (wfr-create-issue.yml). It dynamically selects an issue title based on an environment variable `HOUSE_CHOICE_OPTIONS` (when set to "house choice") and logs detailed JSON output to simulate real issue creation.
+  **NEW:** The `--create-issue` flag now closely mimics the GitHub Actions workflow (wfr-create-issue.yml). It dynamically selects an issue title based on an environment variable `HOUSE_CHOICE_OPTIONS` (when set to "house choice") and logs detailed issue creation information in a JSON format.
+
+- **Test Coverage Improvements:**
+  Extensive unit tests have been added and external resources such as file system and network calls are mocked to bring coverage close to 100%.
 
 ---
 ---
@@ -87,6 +90,8 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - **NEW:** Added `simulateCIWorkflowLifecycle` to simulate a complete CI workflow lifecycle by combining telemetry data and Kafka broadcast messaging.
 - **Issue Creation Workflow Enhancement:**
   - **NEW:** Enhanced the `--create-issue` flag simulation. It now mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from `HOUSE_CHOICE_OPTIONS` if set to "house choice", and logs detailed issue creation information in a JSON format.
+- **Test Coverage Improvements:**
+  - Additional unit tests have been added to cover most functions with mocks for external resources, ensuring robust and near-100% test coverage.
 - **Regex Escaping Fix:**
   - Fixed the regex escaping in `getIssueNumberFromBranch` to accurately extract issue numbers from branch names.
 
