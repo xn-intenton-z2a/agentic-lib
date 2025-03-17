@@ -62,7 +62,7 @@ Advanced functions supporting decision delegation with schema validation, timeou
 <ul class="md-github">
 <li class="md-github">Existing functions include <code class="md-github">delegateDecisionToLLM</code>, <code class="md-github">delegateDecisionToLLMWrapped</code>, and several advanced variants.</li>
 <li class="md-github"><strong class="md-github">New Chat-Based Delegation:</strong> Added <code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, <code class="md-github">delegateDecisionToLLMChatEnhanced</code>, and <strong class="md-github"><code class="md-github">delegateDecisionToLLMChatOptimized</code></strong> for optimized, chat-based interaction using the OpenAI API.</li>
-<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> Extended <code class="md-github">callOpenAIFunctionWrapper</code> with refined error handling, verbose logging, and standardized schema validation for improved debugging.</li>
+<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> Extended <code class="md-github">callOpenAIFunctionWrapper</code> with refined error handling, verbose logging, and standardized schema validation to improve diagnostic clarity during OpenAI API interactions.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Kafka Operations:</strong>
@@ -86,7 +86,7 @@ The <code class="md-github">simulateFileSystemCall()</code> function enables tes
 <li class="md-github"><strong class="md-github">CI Workflow Simulation:</strong>
 <strong class="md-github">NEW:</strong> <code class="md-github">simulateCIWorkflowLifecycle</code> aggregates CI telemetry and simulates Kafka messaging to mimic a full workflow lifecycle.</li>
 <li class="md-github"><strong class="md-github">Issue Creation Simulation:</strong>
-The <code class="md-github">--create-issue</code> flag now closely mimics the GitHub Actions issue creation workflow (wfr-create-issue.yml), including dynamic title selection based on the environment variable <code class="md-github">HOUSE_CHOICE_OPTIONS</code> and enhanced JSON logging.</li>
+<strong class="md-github">NEW:</strong> The <code class="md-github">--create-issue</code> flag now closely mimics the GitHub Actions issue creation workflow (wfr-create-issue.yml). It dynamically selects an issue title based on an environment variable <code class="md-github">HOUSE_CHOICE_OPTIONS</code> (when set to &quot;house choice&quot;) and logs detailed JSON output to simulate real issue creation.</li>
 </ul>
 <hr class="md-github">
 <hr class="md-github">
@@ -128,7 +128,12 @@ The <code class="md-github">--create-issue</code> flag now closely mimics the Gi
 </li>
 <li class="md-github"><strong class="md-github">Issue Creation Workflow Enhancement:</strong>
 <ul class="md-github">
-<li class="md-github">Enhanced the <code class="md-github">--create-issue</code> flag simulation to closely mimic the behavior defined in the wfr-create-issue.yml workflow, using dynamic title selection with <code class="md-github">HOUSE_CHOICE_OPTIONS</code> and detailed logging for issue creation.</li>
+<li class="md-github"><strong class="md-github">NEW:</strong> Enhanced the <code class="md-github">--create-issue</code> flag simulation. It now mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from <code class="md-github">HOUSE_CHOICE_OPTIONS</code> if set to &quot;house choice&quot;, and logs detailed issue creation information in a JSON format.</li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">Regex Escaping Fix:</strong>
+<ul class="md-github">
+<li class="md-github">Fixed the regex escaping in <code class="md-github">getIssueNumberFromBranch</code> to accurately extract issue numbers from branch names.</li>
 </ul>
 </li>
 </ul>
@@ -163,7 +168,7 @@ Look in the <code class="md-github">examples/</code> directory for sample implem
 <h3 class="md-github"><a class="md-github__anchor" name="3-the-evolving-mainjs-javascript-re-implementation-of-reusable-workflows" href="#3-the-evolving-mainjs-javascript-re-implementation-of-reusable-workflows"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)</h3>
 <ul class="md-github">
 <li class="md-github"><strong class="md-github">Purpose:</strong><br>
-This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to the core functionality.</li>
+This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.</li>
 <li class="md-github"><strong class="md-github">Stability:</strong><br>
 It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.</li>
 <li class="md-github"><strong class="md-github">Licensing:</strong><br>
@@ -198,7 +203,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-17T16:07:34.442Z</p>
+    <p>Generated on 2025-03-17T18:07:57.467Z</p>
   </footer>
 </body>
 </html>
