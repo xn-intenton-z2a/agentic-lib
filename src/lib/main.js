@@ -20,7 +20,7 @@
 // - NEW: Added enhanced chat-based delegation function delegateDecisionToLLMChatEnhanced to improve logging and debugging for chat completions based on OpenAI API.
 // - NEW: Added enhanced chat-based delegation wrappers: delegateDecisionToLLMChat, delegateDecisionToLLMChatVerbose, delegateDecisionToLLMChatEnhanced for improved decision delegation via advanced LLM chat completions.
 // - NEW: Added delegateDecisionToLLMChatOptimized for optimized chat-based LLM delegation with improved error handling and performance.
-// - NEW: Enhanced chat delegation functions now trim prompts to catch whitespace-only inputs, ensuring uniform error responses when prompts are invalid.
+// - NEW: Added simulateCIWorkflowLifecycle to simulate a complete CI workflow lifecycle by aggregating telemetry and Kafka messaging.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -178,6 +178,17 @@ export function gatherTotalTelemetry() {
     ...gatherExtraTelemetryData(),
     githubEnv: gatherGithubEnvTelemetry()
   };
+}
+
+/**
+ * NEW: Simulate a CI Workflow Lifecycle by aggregating telemetry and initiating Kafka messaging simulation.
+ */
+export function simulateCIWorkflowLifecycle() {
+  console.log(chalk.blue("Starting CI Workflow Lifecycle Simulation."));
+  const telemetry = gatherTotalTelemetry();
+  const kafkaBroadcast = simulateKafkaBroadcast(["ci-status"], "CI Workflow lifecycle simulation started.");
+  console.log(chalk.green("CI Workflow Lifecycle Simulation:"), { telemetry, kafkaBroadcast });
+  return { telemetry, kafkaBroadcast };
 }
 
 /**
@@ -890,6 +901,12 @@ function handleBasicFlag(flag, nonFlagArgs) {
       printConfiguration();
       return false;
     }
+    case "--simulate-ci-workflow": {
+      console.log(chalk.cyan("Simulated CI Workflow Lifecycle initiated."));
+      const result = simulateCIWorkflowLifecycle();
+      console.log(chalk.green("CI Workflow Lifecycle Result:"), result);
+      return true;
+    }
     default:
       return false;
   }
@@ -938,7 +955,7 @@ export function main(args = []) {
 }
 
 export function generateUsage() {
-  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [--create-issue] [--simulate-remote] [--sarif] [--extended] [--report] [--advanced] [--analytics] [--config] [args...]";
+  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [--create-issue] [--simulate-remote] [--sarif] [--extended] [--report] [--advanced] [--analytics] [--config] [--simulate-ci-workflow] [args...]";
 }
 
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching

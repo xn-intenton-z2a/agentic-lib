@@ -57,6 +57,8 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - **New Combined Default Parser:** Added `parseCombinedDefaultOutput` to aggregate Vitest and ESLint default output summaries.
 - **File System Simulation:**
   The `simulateFileSystemCall()` function enables testing of file interactions with safe file path resolution.
+- **CI Workflow Simulation:**
+  **NEW:** `simulateCIWorkflowLifecycle` aggregates CI telemetry and simulates Kafka messaging to mimic a full workflow lifecycle.
 - **Configuration Display:**
   The `--config` flag and `printConfiguration()` function display detailed runtime configuration.
 - **Issue Creation Simulation:**
@@ -75,7 +77,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **LLM Delegation Enhancements:**
   - Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using `delegateDecisionToLLMAdvancedOptimized`.
   - Enhanced `callOpenAIFunctionWrapper` with robust error handling and verbose logging to improve diagnostic clarity during OpenAI API interactions.
-  - **New Chat-Based Delegation Functions:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and `delegateDecisionToLLMChatOptimized` with additional input validation (trimming whitespace) for better reliability.
+  - **New Chat-Based Delegation Functions:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and `delegateDecisionToLLMChatOptimized` with additional input validation for better reliability.
 - **Kafka Messaging Enhancements:**
   - Extended Kafka simulation functions to include dynamic message routing with `simulateKafkaTopicRouting` for targeted inter-workflow communication.
   - Added consumer group functionality via the new `simulateKafkaConsumerGroup`.
@@ -84,6 +86,8 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **SARIF and Default Output Parsing Enhancements:**
   - Added combined SARIF parsing function `parseCombinedSarifOutput` to aggregate issues across tools.
   - **New Combined Default Parser:** Added `parseCombinedDefaultOutput` to aggregate Vitest and ESLint default output summaries.
+- **CI Workflow Simulation Enhancement:**
+  - **NEW:** Added `simulateCIWorkflowLifecycle` to simulate a complete CI workflow lifecycle by combining telemetry data and Kafka broadcast messaging.
 - **Issue Creation Workflow Enhancement:**
   - Enhanced the `--create-issue` flag simulation to mimic GitHub Actions workflow with dynamic title selection and structured JSON output.
 
