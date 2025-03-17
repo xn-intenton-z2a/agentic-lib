@@ -23,7 +23,7 @@ describe("reviewIssue", () => {
   test("returns correct resolution when conditions met", () => {
     const params = {
       sourceFileContent:
-        "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [args...]",
+        "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [args...]"
     };
     const result = agenticLib.reviewIssue(params);
     expect(result.fixed).toBe("true");
@@ -117,7 +117,6 @@ describe("simulateKafkaDirectMessage", () => {
 describe("simulateFileSystemCall", () => {
   test("returns file content if file exists", async () => {
     const dummyPath = "./dummy.txt";
-    // Mock fs.readFile to return a predetermined string
     const readFileSpy = vi.spyOn(fs, "readFile").mockResolvedValue("file content");
     const result = await agenticLib.simulateFileSystemCall(dummyPath);
     expect(result).toBe("file content");
@@ -143,5 +142,14 @@ describe("parseCombinedDefaultOutput", () => {
     expect(result.eslint.numProblems).toBe(10);
     expect(result.eslint.numErrors).toBe(3);
     expect(result.eslint.numWarnings).toBe(5);
+  });
+});
+
+describe("simulateCIWorkflowLifecycle", () => {
+  test("should return telemetry and kafkaBroadcast properties", () => {
+    const result = agenticLib.simulateCIWorkflowLifecycle();
+    expect(result).toHaveProperty("telemetry");
+    expect(result).toHaveProperty("kafkaBroadcast");
+    expect(result.telemetry).toHaveProperty("githubEnv");
   });
 });
