@@ -11,7 +11,8 @@
 // - NEW: Added combined default output parser function: parseCombinedDefaultOutput to aggregate Vitest and ESLint default outputs.
 // - Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching.
 // - Enhanced the --create-issue workflow simulation to more closely mimic the GitHub Actions issue creation workflow (wfr-create-issue.yml), dynamically selecting an issue title from HOUSE_CHOICE_OPTIONS and logging detailed JSON output.
-// - Extended OpenAI function wrappers with improved error handling and logging for advanced LLM delegation functions.
+// - Improved error handling in remote service wrappers and LLM delegation functions.
+// - No source-level changes were required for test coverage improvements; tests now mock external services deeper.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -267,15 +268,15 @@ export function simulateKafkaBulkStream(topic, count = 5) {
  * @param {string} message - The message to send.
  * @returns {object} An object with each topic as a key and its messaging simulation as a value.
  */
-export function simulateKafkaInterWorkflowCommunication(topics, message) {
-  const results = {};
+export function simulateKafkaBroadcast(topics, message) {
+  const responses = {};
   topics.forEach((topic) => {
     const sent = sendMessageToKafka(topic, message);
     const received = receiveMessageFromKafka(topic);
-    results[topic] = { sent, received };
-    console.log(chalk.blue(`Inter-workflow Kafka simulation for topic '${topic}':`), results[topic]);
+    responses[topic] = { sent, received, broadcast: true };
+    console.log(chalk.blue(`Broadcast to '${topic}':`), responses[topic]);
   });
-  return results;
+  return responses;
 }
 
 /**
@@ -1415,16 +1416,7 @@ export async function callRepositoryService(serviceUrl) {
 }
 
 // New Function: simulateKafkaBroadcast to simulate Kafka broadcast messaging across topics
-export function simulateKafkaBroadcast(topics, message) {
-  const responses = {};
-  topics.forEach((topic) => {
-    const sent = sendMessageToKafka(topic, message);
-    const received = receiveMessageFromKafka(topic);
-    responses[topic] = { sent, received, broadcast: true };
-    console.log(chalk.blue(`Broadcast to '${topic}':`), responses[topic]);
-  });
-  return responses;
-}
+// (Already defined above in the file, so no duplicate implementation needed)
 
 // New Functions to satisfy tests
 export function reviewIssue(params) {

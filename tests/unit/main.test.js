@@ -153,3 +153,57 @@ describe("simulateCIWorkflowLifecycle", () => {
     expect(result.telemetry).toHaveProperty("githubEnv");
   });
 });
+
+describe("getIssueNumberFromBranch", () => {
+  test("should extract issue number correctly", () => {
+    const branch = "agentic-lib-issue-123";
+    const issueNum = agenticLib.getIssueNumberFromBranch(branch);
+    expect(issueNum).toBe(123);
+  });
+
+  test("should return null for non-matching branch", () => {
+    const branch = "feature-new-idea";
+    const issueNum = agenticLib.getIssueNumberFromBranch(branch);
+    expect(issueNum).toBeNull();
+  });
+});
+
+describe("sanitizeCommitMessage", () => {
+  test("should remove unwanted characters and extra spaces", () => {
+    const msg = "Commit: Fix issue! @#$$%^&*()";
+    const sanitized = agenticLib.sanitizeCommitMessage(msg);
+    expect(sanitized).toBe("Commit Fix issue");
+  });
+});
+
+describe("callRepositoryService", () => {
+  test("should return data when service responds successfully", async () => {
+    const dummyData = { success: true };
+    const fetchMock = vi.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => dummyData
+    });
+    const result = await agenticLib.callRepositoryService("https://example.com");
+    expect(result).toEqual(dummyData);
+    fetchMock.mockRestore();
+  });
+
+  test("should handle error when service fails", async () => {
+    const error = new Error("Not Found");
+    const fetchMock = vi.spyOn(global, 'fetch').mockRejectedValue(error);
+    const result = await agenticLib.callRepositoryService("https://example.com");
+    expect(result).toHaveProperty("error");
+    fetchMock.mockRestore();
+  });
+});
+
+describe("simulateKafkaBroadcast", () => {
+  test("should simulate broadcast messaging across topics", () => {
+    const topics = ["topic1", "topic2"];
+    const message = "Broadcast message";
+    const result = agenticLib.simulateKafkaBroadcast(topics, message);
+    expect(result).toHaveProperty("topic1");
+    expect(result).toHaveProperty("topic2");
+    expect(result.topic1.broadcast).toBe(true);
+  });
+});
