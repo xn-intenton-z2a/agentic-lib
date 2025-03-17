@@ -43,14 +43,13 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling.
   - Existing functions include `delegateDecisionToLLM`, `delegateDecisionToLLMWrapped`, and several advanced variants.
   - **New Chat-Based Delegation:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and **`delegateDecisionToLLMChatOptimized`** for optimized, chat-based interaction using the OpenAI API.
-  - **Enhanced OpenAI Function Wrapper:** Improved through `callOpenAIFunctionWrapper` for better error handling and diagnostic logging.
-  - **Enhancement:** Chat delegation functions now trim whitespace-only prompts, ensuring uniform error responses when prompts are invalid.
+  - **Enhanced OpenAI Function Wrapper:** Extended `callOpenAIFunctionWrapper` with refined error handling, verbose logging, and standardized schema validation for improved debugging.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
   - `simulateKafkaStream`, `simulateKafkaDetailedStream`, and `simulateKafkaBulkStream`.
   - **Additional Kafka Functions:** `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, `simulateKafkaBroadcast`, `simulateKafkaTopicRouting`, `simulateKafkaConsumerGroup`, and `simulateKafkaWorkflowMessaging` which simulates full Kafka workflow messaging by routing messages based on a key and processing them via a consumer group.
   - **Direct Messaging:** New function `simulateKafkaDirectMessage` provides direct Kafka messaging simulation for targeted workflow communication.
-- **SARIF Parsing and Default Output Parsing Enhancements:**
+- **SARIF and Default Output Parsing Enhancements:**
   Utilities to parse SARIF outputs and default outputs, including:
   - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, `parseEslintDefaultOutput`, `parseVitestSarifOutput`, and `parseEslintDetailedOutput`.
   - **New Combined Parser:** `parseCombinedSarifOutput` aggregates issues from both Vitest and ESLint based SARIF reports.
@@ -76,7 +75,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - Added new function `gatherTotalTelemetry` to aggregate all telemetry sources into one unified report.
 - **LLM Delegation Enhancements:**
   - Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using `delegateDecisionToLLMAdvancedOptimized`.
-  - Enhanced `callOpenAIFunctionWrapper` with robust error handling and verbose logging to improve diagnostic clarity during OpenAI API interactions.
+  - Enhanced `callOpenAIFunctionWrapper` with refined error handling, verbose logging, and standardized schema validation to improve diagnostic clarity during OpenAI API interactions.
   - **New Chat-Based Delegation Functions:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and `delegateDecisionToLLMChatOptimized` with additional input validation for better reliability.
 - **Kafka Messaging Enhancements:**
   - Extended Kafka simulation functions to include dynamic message routing with `simulateKafkaTopicRouting` for targeted inter-workflow communication.

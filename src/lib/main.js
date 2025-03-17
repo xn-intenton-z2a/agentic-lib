@@ -14,7 +14,7 @@
 //   NEW: Enhanced create-issue workflow simulation now outputs a detailed JSON object matching GitHub workflow behavior.
 // - Enhanced logging and improved schema validation in advanced LLM delegation wrappers.
 // - Updated and extended remote service wrappers and Kafka messaging simulation functions inline with the Mission Statement.
-// - Extended OpenAI function wrapper (callOpenAIFunctionWrapper) with timeout support, robust error handling, and enhanced debug logging for better debugging of OpenAI API interactions; removed duplicate delegateDecisionToLLMEnhanced function.
+// - Extended OpenAI function wrapper (callOpenAIFunctionWrapper) with refined error handling, added verbose logging and standardized schema validation for improved debugging. 
 // - NEW: Added simulateKafkaWorkflowMessaging to simulate full Kafka based inter-workflow messaging combining routing and consumer group simulation.
 // - NEW: Added simulateKafkaDirectMessage to simulate direct Kafka messaging for agentic workflow communication.
 // - NEW: Added enhanced chat-based delegation function delegateDecisionToLLMChatEnhanced to improve logging and debugging for chat completions based on OpenAI API.
@@ -1266,7 +1266,7 @@ export async function delegateDecisionToLLMAdvancedEnhanced(prompt, options = {}
   return result;
 }
 
-// New OpenAI function wrapper using function calling
+// NEW: Extended OpenAI function wrapper with refined error handling and verbose logging
 export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo", verbose = false, options = {}) {
   if (verbose) {
     console.log(chalk.blue("callOpenAIFunctionWrapper invoked with prompt:"), prompt);
@@ -1274,7 +1274,7 @@ export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo",
   if (!prompt || prompt.trim() === "") {
     const errMsg = "Prompt is empty.";
     console.error(chalk.red("callOpenAIFunctionWrapper error:"), errMsg);
-    return { fixed: "false", message: errMsg, refinement: "None" };
+    return { fixed: "false", message: errMsg, refinement: "Provide a valid prompt." };
   }
   if (!process.env.OPENAI_API_KEY) {
     const errMsg = "OpenAI API key is missing.";
