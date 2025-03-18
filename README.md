@@ -32,7 +32,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **Remote Service Wrappers:** Simplified API interactions for multiple services, including analytics, notifications, build status, deployment, logging, code quality, security scans, monitoring, and package management.
 - **LLM Delegation:** Advanced functions that support decision delegation with schema validation, timeout support, and optimized performance. New chat-based delegation features include:
   - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and `delegateDecisionToLLMChatOptimized`.
-- **Kafka Operations:** Simulated messaging functions for inter-workflow communication, including direct messaging and dynamic topic routing.
+- **Kafka Operations:** Simulated messaging functions for inter-workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, and now extended with delayed messaging and transactional simulation.
 - **SARIF and Default Output Parsing:** Utilities such as:
   - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, `parseEslintDefaultOutput`, `parseVitestSarifOutput`, `parseEslintDetailedOutput`.
   - New combined parsers: `parseCombinedSarifOutput` and `parseCombinedDefaultOutput`.
@@ -46,7 +46,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 
 - Refreshed this README to align with the CONTRIBUTING guidelines.
 - Extended flag handling and improved telemetry and LLM delegation functions.
-- Enhanced Kafka messaging simulations and SARIF/default output parsing utilities.
+- Enhanced Kafka messaging simulations including additions of `simulateKafkaDelayedMessage` and `simulateKafkaTransaction` to better emulate delayed processing and transactional message sending.
 - Increased test coverage with comprehensive unit tests and improved mocks.
 
 ---
@@ -54,8 +54,6 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
----
 
 ## Component Breakdown
 
