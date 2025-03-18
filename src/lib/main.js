@@ -1222,13 +1222,13 @@ export async function delegateDecisionToLLMAdvancedOptimized(prompt, options = {
     if (messageObj.tool_calls && Array.isArray(messageObj.tool_calls) && messageObj.tool_calls.length > 0) {
       try {
         result = JSON.parse(messageObj.tool_calls[0].function.arguments);
-      } catch {
+      } catch (error) {
         result = { fixed: "false", message: "Failed to parse tool_calls arguments.", refinement: "None" };
       }
     } else if (messageObj.content) {
       try {
         result = JSON.parse(messageObj.content);
-      } catch {
+      } catch (error) {
         result = { fixed: "false", message: "Failed to parse response content.", refinement: "None" };
       }
     } else {
@@ -1487,6 +1487,7 @@ export function simulateKafkaTransaction(messagesArray) {
   messagesArray.forEach(({ topic, message }) => {
     const result = sendMessageToKafka(topic, message);
     results[topic] = { sent: result, transaction: true };
+    console.log(chalk.blue(`Kafka Transaction Simulation: Message sent to topic '${topic}': ${message}`));
   });
   console.log(chalk.blue("Kafka Transaction Simulation:"), results);
   return { success: true, transaction: results };
@@ -1599,6 +1600,17 @@ export async function delegateDecisionToLLMChatOptimized(prompt, options = {}) {
     return result;
   } catch (error) {
     return { fixed: "false", message: error.message, refinement: "LLM chat delegation optimized failed." };
+  }
+}
+
+// NEW: Added simulateFileSystemCall function to simulate file system operations
+export async function simulateFileSystemCall(filePath) {
+  try {
+    const content = await fs.readFile(filePath, "utf8");
+    return content;
+  } catch (error) {
+    console.error(chalk.red("File read error:"), error.message);
+    return null;
   }
 }
 
