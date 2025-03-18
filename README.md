@@ -2,10 +2,7 @@
 
 You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/WORKFLOWS-README.md)
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
-repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
-issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
-GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows and a comprehensive JavaScript library that enables your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, allowing workflows to be composed together like an SDK.
 
 [Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
 
@@ -15,132 +12,78 @@ GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 
 Mixed licensing:
 * This project is licensed under the GNU General Public License (GPL).
-* This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
-* This file is licensed under the MIT License. For details, see LICENSE-MIT
+* This file is part of the example suite for `agentic-lib` (see: https://github.com/xn-intenton-z2a/agentic-lib).
+* This file is licensed under the MIT License. For details, see LICENSE-MIT.
 
-This README file will evolve as the test experiment within this repository evolves.
+This README has been refreshed in accordance with the CONTRIBUTING guidelines. Irrelevant and outdated content has been pruned, while core information remains to help you understand and contribute to the project.
 
----
 ---
 
 ## Overview
 
-agentic‑lib provides a comprehensive set of JavaScript functions that mirror GitHub Actions workflows. It includes robust telemetry gathering, simulated Kafka messaging, remote service wrappers, advanced LLM delegation (including new chat-based decision delegation functions), SARIF parsing utilities, and file system interactions. These tools support continuous integration and automated code evolution.
+agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Actions workflows. Key features include:
 
-### Key Features
-
-- **Usage Information:**
-  Use `generateUsage()` to display available command-line options.
-- **Telemetry:**
-  Comprehensive diagnostics via multiple telemetry functions such as:
+- **Usage Information:** Use `generateUsage()` to display available command-line options.
+- **Telemetry:** Comprehensive diagnostics via functions such as:
   - `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and the new `gatherTotalTelemetry()`.
   - **CI Metrics:** `gatherCIEnvironmentMetrics()` captures additional GitHub Actions metrics.
-  - **Extra Telemetry:** New function `gatherExtraTelemetryData()` provides additional metrics including current timestamp, CPU usage, and free memory.
-  - **GitHub Environment Telemetry:** New function `gatherGithubEnvTelemetry()` aggregates all environment variables starting with `GITHUB_` to provide deeper context.
-- **Remote Service Wrappers:**
-  Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, monitoring, and package management through `callPackageManagementService()`.
-- **LLM Delegation:**
-  Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling.
-  - Existing functions include `delegateDecisionToLLM`, `delegateDecisionToLLMWrapped`, and several advanced variants.
-  - **New Chat-Based Delegation:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and **`delegateDecisionToLLMChatOptimized`** for optimized, chat-based interaction using the OpenAI API.
-  - **Enhanced OpenAI Function Wrapper:** Extended `callOpenAIFunctionWrapper` with refined error handling, verbose logging, timeout support, and standardized schema validation to improve diagnostic clarity during OpenAI API interactions.
-- **Kafka Operations:**
-  Simulated messaging functions for inter-workflow communication, including:
-  - `simulateKafkaStream`, `simulateKafkaDetailedStream`, and `simulateKafkaBulkStream`.
-  - **Additional Kafka Functions:** `simulateKafkaProducer`, `simulateKafkaConsumer`, `simulateKafkaPriorityMessaging`, `simulateKafkaRetryOnFailure`, `simulateKafkaBroadcast`, `simulateKafkaTopicRouting`, `simulateKafkaConsumerGroup`, and `simulateKafkaWorkflowMessaging` which simulates full Kafka workflow messaging by routing messages based on a key and processing them via a consumer group.
-  - **Direct Messaging:** New function `simulateKafkaDirectMessage` provides direct Kafka messaging simulation for targeted workflow communication.
-- **SARIF and Default Output Parsing Enhancements:**
-  Utilities to parse SARIF outputs and default outputs, including:
-  - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, `parseEslintDefaultOutput`, `parseVitestSarifOutput`, and `parseEslintDetailedOutput`.
-  - **New Combined Parser:** `parseCombinedSarifOutput` aggregates issues from both Vitest and ESLint based SARIF reports.
-  - **New Combined Default Parser:** Added `parseCombinedDefaultOutput` to aggregate Vitest and ESLint default output summaries.
-- **File System Simulation:**
-  The `simulateFileSystemCall()` function enables testing of file interactions with safe file path resolution.
-- **CI Workflow Simulation:**
-  **NEW:** `simulateCIWorkflowLifecycle` aggregates CI telemetry and simulates Kafka messaging to mimic a full workflow lifecycle.
-- **Issue Creation Simulation:**
-  **NEW:** Enhanced the `--create-issue` flag simulation. It now mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from `HOUSE_CHOICE_OPTIONS` if set to "house choice", and logs detailed issue creation information in a JSON format.
+  - **Extra Telemetry:** `gatherExtraTelemetryData()` provides metrics like timestamp, CPU usage, and free memory.
+  - **GitHub Environment Telemetry:** `gatherGithubEnvTelemetry()` aggregates all environment variables starting with `GITHUB_`.
+- **Remote Service Wrappers:** Simplified API interactions for multiple services, including analytics, notifications, build status, deployment, logging, code quality, security scans, monitoring, and package management.
+- **LLM Delegation:** Advanced functions that support decision delegation with schema validation, timeout support, and optimized performance. New chat-based delegation features include:
+  - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and `delegateDecisionToLLMChatOptimized`.
+- **Kafka Operations:** Simulated messaging functions for inter-workflow communication, including direct messaging and dynamic topic routing.
+- **SARIF and Default Output Parsing:** Utilities such as:
+  - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, `parseEslintDefaultOutput`, `parseVitestSarifOutput`, `parseEslintDetailedOutput`.
+  - New combined parsers: `parseCombinedSarifOutput` and `parseCombinedDefaultOutput`.
+- **File System Simulation:** `simulateFileSystemCall()` enables testing of file interactions with safe file path resolution.
+- **CI Workflow Simulation:** `simulateCIWorkflowLifecycle` aggregates telemetry data and simulates Kafka messaging to mimic a full workflow lifecycle.
+- **Issue Creation Simulation:** The enhanced `--create-issue` flag mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from `HOUSE_CHOICE_OPTIONS` and logging detailed creation information in JSON format.
 
-- **Test Coverage Improvements:**
-  Extensive unit tests have been added and external resources such as file system and network calls are mocked to bring coverage close to 100%.
-
----
 ---
 
 ## Recent Improvements
 
-- Refreshed README to align with CONTRIBUTING guidelines and remove outdated content.
-- Extended flag handling with improved diagnostics and extracted flag-specific logic to reduce cognitive complexity.
-- **Telemetry Enhancements:**
-  - Added new function `gatherGithubEnvTelemetry` to capture all GitHub environment variables for more comprehensive telemetry.
-  - Added new function `gatherTotalTelemetry` to aggregate all telemetry sources into one unified report.
-- **LLM Delegation Enhancements:**
-  - Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using `delegateDecisionToLLMAdvancedOptimized`.
-  - **Extended OpenAI Function Wrapper:** Updated `callOpenAIFunctionWrapper` to include timeout support and improved error logging, aligning it more closely with the provided OpenAI function example.
-  - **New Chat-Based Delegation Functions:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and **`delegateDecisionToLLMChatOptimized`** with additional input validation for better reliability.
-- **Kafka Messaging Enhancements:**
-  - Extended Kafka simulation functions to include dynamic message routing with `simulateKafkaTopicRouting` for targeted inter-workflow communication.
-  - Added consumer group functionality via the new `simulateKafkaConsumerGroup`.
-  - **New Kafka Workflow Messaging:** Implemented `simulateKafkaWorkflowMessaging` to simulate full Kafka workflow messaging.
-  - **Direct Messaging:** Added new function `simulateKafkaDirectMessage`.
-- **SARIF and Default Output Parsing Enhancements:**
-  - Added combined SARIF parsing function `parseCombinedSarifOutput` to aggregate issues across tools.
-  - **New Combined Default Parser:** Added `parseCombinedDefaultOutput` to aggregate Vitest and ESLint default output summaries.
-- **CI Workflow Simulation Enhancement:**
-  - **NEW:** Added `simulateCIWorkflowLifecycle` to simulate a complete CI workflow lifecycle by combining telemetry data and Kafka broadcast messaging.
-- **Issue Creation Workflow Enhancement:**
-  - **NEW:** Enhanced the `--create-issue` flag simulation. It now closely mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from `HOUSE_CHOICE_OPTIONS` and logging detailed issue creation information in a JSON format.
-- **Test Coverage Improvements:**
-  - Additional unit tests have been added to cover most functions with mocks for external resources, ensuring robust and near-100% test coverage.
-- **Regex Escaping Fix:**
-  - Fixed the regex escaping in `getIssueNumberFromBranch` to accurately extract issue numbers from branch names.
+- Refreshed this README to align with the CONTRIBUTING guidelines.
+- Extended flag handling and improved telemetry and LLM delegation functions.
+- Enhanced Kafka messaging simulations and SARIF/default output parsing utilities.
+- Increased test coverage with comprehensive unit tests and improved mocks.
 
----
 ---
 
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
+---
+
 ## Component Breakdown
 
-This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:
+This repository is organized into three distinct areas:
 
 ### 1. Re‑usable Workflows (Core Functionality)
-- **Purpose:**  
-  These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.
-- **Stability:**  
-  They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.
-- **Licensing:**  
-  The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.
-- **Location:**  
-  Find these in the `.github/workflows/` directory.
+- **Purpose:** These workflows serve as the backbone of the agentic‑lib system, automating testing, publishing, and issue management.
+- **Stability:** Stable and well‑tested, designed for integration into CI/CD pipelines.
+- **Licensing:** Released under GPL‑3 with an attribution requirement for derived works.
+- **Location:** `.github/workflows/`
 
 ### 2. Example Workflows (Demonstrative Content)
-- **Purpose:**  
-  These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
-- **Stability:**  
-  While functional, they are intended primarily for demonstration and experimentation.
-- **Licensing:**  
-  The example workflows are covered by the MIT license to allow for broader use and modification.
-- **Location:**  
-  Look in the `examples/` directory for sample implementations.
+- **Purpose:** Practical examples demonstrating how to use core workflows. Great for learning and reference.
+- **Stability:** Functional, intended primarily for demonstration and experimentation.
+- **Licensing:** Covered by the MIT license for broader use and modification.
+- **Location:** `examples/`
 
 ### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
-- **Purpose:**  
-  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
-- **Stability:**  
-  It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
-- **Licensing:**  
-  As part of the core project, it is under GPL‑3 with the attribution clause.
-- **Location:**  
-  The code is located in `src/lib/main.js`.
+- **Purpose:** Provides programmatic access to core functionality with cutting‑edge features.
+- **Stability:** Under active development; represents bleeding‑edge functionality that may evolve.
+- **Licensing:** Under GPL‑3 with attribution; located in `src/lib/main.js`.
+
+---
 
 ## License
 
 This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
 
-License notice:
 ```
 agentic-lib
 Copyright (C) 2025 Polycode Limited
@@ -161,6 +104,3 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
-
----
----
