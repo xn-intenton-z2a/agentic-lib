@@ -43,7 +43,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling.
   - Existing functions include `delegateDecisionToLLM`, `delegateDecisionToLLMWrapped`, and several advanced variants.
   - **New Chat-Based Delegation:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and **`delegateDecisionToLLMChatOptimized`** for optimized, chat-based interaction using the OpenAI API.
-  - **Enhanced OpenAI Function Wrapper:** Extended `callOpenAIFunctionWrapper` with refined error handling, verbose logging, and standardized schema validation to improve diagnostic clarity during OpenAI API interactions.
+  - **Enhanced OpenAI Function Wrapper:** Extended `callOpenAIFunctionWrapper` with refined error handling, verbose logging, timeout support, and standardized schema validation to improve diagnostic clarity during OpenAI API interactions.
 - **Kafka Operations:**
   Simulated messaging functions for inter-workflow communication, including:
   - `simulateKafkaStream`, `simulateKafkaDetailedStream`, and `simulateKafkaBulkStream`.
@@ -59,7 +59,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **CI Workflow Simulation:**
   **NEW:** `simulateCIWorkflowLifecycle` aggregates CI telemetry and simulates Kafka messaging to mimic a full workflow lifecycle.
 - **Issue Creation Simulation:**
-  **NEW:** The `--create-issue` flag now closely mimics the GitHub Actions workflow (wfr-create-issue.yml). It dynamically selects an issue title based on an environment variable `HOUSE_CHOICE_OPTIONS` (when set to "house choice") and logs detailed issue creation information in a JSON format.
+  **NEW:** Enhanced the `--create-issue` flag simulation. It now mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from `HOUSE_CHOICE_OPTIONS` if set to "house choice", and logs detailed issue creation information in a JSON format.
 
 - **Test Coverage Improvements:**
   Extensive unit tests have been added and external resources such as file system and network calls are mocked to bring coverage close to 100%.
@@ -76,7 +76,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
   - Added new function `gatherTotalTelemetry` to aggregate all telemetry sources into one unified report.
 - **LLM Delegation Enhancements:**
   - Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using `delegateDecisionToLLMAdvancedOptimized`.
-  - Enhanced `callOpenAIFunctionWrapper` with refined error handling, verbose logging, and standardized schema validation to improve diagnostic clarity during OpenAI API interactions.
+  - **Extended OpenAI Function Wrapper:** Updated `callOpenAIFunctionWrapper` to include timeout support and improved error logging, aligning it more closely with the provided OpenAI function example.
   - **New Chat-Based Delegation Functions:** Added `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and **`delegateDecisionToLLMChatOptimized`** with additional input validation for better reliability.
 - **Kafka Messaging Enhancements:**
   - Extended Kafka simulation functions to include dynamic message routing with `simulateKafkaTopicRouting` for targeted inter-workflow communication.
@@ -89,7 +89,7 @@ agentic‑lib provides a comprehensive set of JavaScript functions that mirror G
 - **CI Workflow Simulation Enhancement:**
   - **NEW:** Added `simulateCIWorkflowLifecycle` to simulate a complete CI workflow lifecycle by combining telemetry data and Kafka broadcast messaging.
 - **Issue Creation Workflow Enhancement:**
-  - **NEW:** Enhanced the `--create-issue` flag simulation. It now mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from `HOUSE_CHOICE_OPTIONS` if set to "house choice", and logs detailed issue creation information in a JSON format.
+  - **NEW:** Enhanced the `--create-issue` flag simulation. It now closely mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from `HOUSE_CHOICE_OPTIONS` and logging detailed issue creation information in a JSON format.
 - **Test Coverage Improvements:**
   - Additional unit tests have been added to cover most functions with mocks for external resources, ensuring robust and near-100% test coverage.
 - **Regex Escaping Fix:**
