@@ -2,7 +2,7 @@
 
 You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/WORKFLOWS-README.md)
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows and a comprehensive JavaScript library that enables your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, allowing workflows to be composed together like an SDK.
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 
 [Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
 
@@ -62,21 +62,22 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 This repository is organized into three distinct areas:
 
 ### 1. Re‑usable Workflows (Core Functionality)
-- **Purpose:** These workflows serve as the backbone of the agentic‑lib system, automating testing, publishing, and issue management.
-- **Stability:** Stable and well‑tested, designed for integration into CI/CD pipelines.
-- **Licensing:** Released under GPL‑3 with an attribution requirement for derived works.
-- **Location:** `.github/workflows/`
+- **Purpose:** These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.
+- **Stability:** They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.
+- **Licensing:** The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.
+- **Location:** Find these in the `.github/workflows/` directory.
 
 ### 2. Example Workflows (Demonstrative Content)
-- **Purpose:** Practical examples demonstrating how to use core workflows. Great for learning and reference.
-- **Stability:** Functional, intended primarily for demonstration and experimentation.
-- **Licensing:** Covered by the MIT license for broader use and modification.
-- **Location:** `examples/`
+- **Purpose:** These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
+- **Stability:** While functional, they are intended primarily for demonstration and experimentation.
+- **Licensing:** The example workflows are covered by the MIT license to allow for broader use and modification.
+- **Location:** Look in the `examples/` directory for sample implementations.
 
 ### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
-- **Purpose:** Provides programmatic access to core functionality with cutting‑edge features.
-- **Stability:** Under active development; represents bleeding‑edge functionality that may evolve.
-- **Licensing:** Under GPL‑3 with attribution; located in `src/lib/main.js`.
+- **Purpose:** This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
+- **Stability:** It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
+- **Licensing:** As part of the core project, it is under GPL‑3 with the attribution clause.
+- **Location:** The code is located in `src/lib/main.js`.
 
 ---
 
