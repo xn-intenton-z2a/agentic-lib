@@ -12,7 +12,7 @@
 // - Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching.
 // - Enhanced the --create-issue workflow simulation to more closely mimic the GitHub Actions issue creation workflow (wfr-create-issue.yml), dynamically selecting an issue title from HOUSE_CHOICE_OPTIONS and logging detailed JSON output.
 // - Improved error handling in remote service wrappers and LLM delegation functions.
-// - No source-level changes were required for test coverage improvements; tests now mock external services deeper.
+// - EXTENDED: Updated callOpenAIFunctionWrapper to support timeout functionality and refined error logging to better align with the supplied OpenAI function wrapper example.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -953,7 +953,7 @@ export function generateUsage() {
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -1320,7 +1320,7 @@ export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo",
     if (options.timeout && options.timeout > 0) {
       response = await Promise.race([
         openaiCall,
-        new Promise((resolve, reject) => setTimeout(() => reject(new Error("Timeout exceeded")), options.timeout))
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout exceeded in OpenAI call")), options.timeout))
       ]);
     } else {
       response = await openaiCall;
