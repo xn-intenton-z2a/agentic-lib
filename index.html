@@ -24,184 +24,85 @@
   <section>
     <h1 class="md-github"><a class="md-github__anchor" name="intentïon-agentic-lib" href="#intentïon-agentic-lib"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>intentïon agentic-lib</h1>
 <p class="md-github">You probably want to start with the workflow documentation here: <a href="https://github.com/xn-intenton-z2a/agentic-lib/blob/main/WORKFLOWS-README.md" class="md-github">WORKFLOWS-README.md</a></p>
-<p class="md-github">The <strong class="md-github">intentïon <code class="md-github">agentic-lib</code></strong> is a collection of reusable GitHub Actions workflows that enable your
-repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
-issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
-GitHub’s <code class="md-github">workflow_call</code> event, so they can be composed together like an SDK.</p>
+<p class="md-github">The <strong class="md-github">intentïon <code class="md-github">agentic-lib</code></strong> is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s <code class="md-github">workflow_call</code> event, so they can be composed together like an SDK.</p>
 <p class="md-github"><a href="https://github.com/xn-intenton-z2a/repository0" class="md-github">Start using the Repository Template</a></p>
 <p class="md-github"><a href="https://xn-intenton-z2a.github.io/agentic-lib/index.html" class="md-github">Also on GitHub Pages</a></p>
 <p class="md-github"><a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html" class="md-github">See the latest repository stats</a></p>
 <p class="md-github">Mixed licensing:</p>
 <ul class="md-github">
 <li class="md-github">This project is licensed under the GNU General Public License (GPL).</li>
-<li class="md-github">This file is part of the example suite for <code class="md-github">agentic-lib</code> see: https://github.com/xn-intenton-z2a/agentic-lib</li>
-<li class="md-github">This file is licensed under the MIT License. For details, see LICENSE-MIT</li>
+<li class="md-github">This file is part of the example suite for <code class="md-github">agentic-lib</code> (see: https://github.com/xn-intenton-z2a/agentic-lib).</li>
+<li class="md-github">This file is licensed under the MIT License. For details, see LICENSE-MIT.</li>
 </ul>
-<p class="md-github">This README file will evolve as the test experiment within this repository evolves.</p>
-<hr class="md-github">
+<p class="md-github">This README has been refreshed in accordance with the CONTRIBUTING guidelines. Irrelevant and outdated content has been pruned, while core information remains to help you understand and contribute to the project.</p>
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
-<p class="md-github">agentic‑lib provides a comprehensive set of JavaScript functions that mirror GitHub Actions workflows. It includes robust telemetry gathering, simulated Kafka messaging, remote service wrappers, advanced LLM delegation (including new chat-based decision delegation functions), SARIF parsing utilities, and file system interactions. These tools support continuous integration and automated code evolution.</p>
-<h3 class="md-github"><a class="md-github__anchor" name="key-features" href="#key-features"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Key Features</h3>
+<p class="md-github">agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Actions workflows. Key features include:</p>
 <ul class="md-github">
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Usage Information:</strong>
-Use <code class="md-github">generateUsage()</code> to display available command-line options.</p>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Telemetry:</strong>
-Comprehensive diagnostics via multiple telemetry functions such as:</p>
+<li class="md-github"><strong class="md-github">Usage Information:</strong> Use <code class="md-github">generateUsage()</code> to display available command-line options.</li>
+<li class="md-github"><strong class="md-github">Telemetry:</strong> Comprehensive diagnostics via functions such as:
 <ul class="md-github">
 <li class="md-github"><code class="md-github">gatherTelemetryData()</code>, <code class="md-github">gatherExtendedTelemetryData()</code>, <code class="md-github">gatherAdvancedTelemetryData()</code>, <code class="md-github">gatherFullTelemetryData()</code>, and the new <code class="md-github">gatherTotalTelemetry()</code>.</li>
 <li class="md-github"><strong class="md-github">CI Metrics:</strong> <code class="md-github">gatherCIEnvironmentMetrics()</code> captures additional GitHub Actions metrics.</li>
-<li class="md-github"><strong class="md-github">Extra Telemetry:</strong> New function <code class="md-github">gatherExtraTelemetryData()</code> provides additional metrics including current timestamp, CPU usage, and free memory.</li>
-<li class="md-github"><strong class="md-github">GitHub Environment Telemetry:</strong> New function <code class="md-github">gatherGithubEnvTelemetry()</code> aggregates all environment variables starting with <code class="md-github">GITHUB_</code> to provide deeper context.</li>
+<li class="md-github"><strong class="md-github">Extra Telemetry:</strong> <code class="md-github">gatherExtraTelemetryData()</code> provides metrics like timestamp, CPU usage, and free memory.</li>
+<li class="md-github"><strong class="md-github">GitHub Environment Telemetry:</strong> <code class="md-github">gatherGithubEnvTelemetry()</code> aggregates all environment variables starting with <code class="md-github">GITHUB_</code>.</li>
 </ul>
 </li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Remote Service Wrappers:</strong>
-Simplified API interactions for various remote services, including deployment, build status, analytics, notifications, code quality, security scans, monitoring, and package management through <code class="md-github">callPackageManagementService()</code>.</p>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">LLM Delegation:</strong>
-Advanced functions supporting decision delegation with schema validation, timeout support, and enhanced error handling.</p>
+<li class="md-github"><strong class="md-github">Remote Service Wrappers:</strong> Simplified API interactions for multiple services, including analytics, notifications, build status, deployment, logging, code quality, security scans, monitoring, and package management.</li>
+<li class="md-github"><strong class="md-github">LLM Delegation:</strong> Advanced functions that support decision delegation with schema validation, timeout support, and optimized performance. New chat-based delegation features include:
 <ul class="md-github">
-<li class="md-github">Existing functions include <code class="md-github">delegateDecisionToLLM</code>, <code class="md-github">delegateDecisionToLLMWrapped</code>, and several advanced variants.</li>
-<li class="md-github"><strong class="md-github">New Chat-Based Delegation:</strong> Added <code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, <code class="md-github">delegateDecisionToLLMChatEnhanced</code>, and <strong class="md-github"><code class="md-github">delegateDecisionToLLMChatOptimized</code></strong> for optimized, chat-based interaction using the OpenAI API.</li>
-<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> Extended <code class="md-github">callOpenAIFunctionWrapper</code> with refined error handling, verbose logging, timeout support, and standardized schema validation to improve diagnostic clarity during OpenAI API interactions.</li>
+<li class="md-github"><code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, <code class="md-github">delegateDecisionToLLMChatEnhanced</code>, and <code class="md-github">delegateDecisionToLLMChatOptimized</code>.</li>
 </ul>
 </li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Kafka Operations:</strong>
-Simulated messaging functions for inter-workflow communication, including:</p>
+<li class="md-github"><strong class="md-github">Kafka Operations:</strong> Simulated messaging functions for inter-workflow communication, including direct messaging and dynamic topic routing.</li>
+<li class="md-github"><strong class="md-github">SARIF and Default Output Parsing:</strong> Utilities such as:
 <ul class="md-github">
-<li class="md-github"><code class="md-github">simulateKafkaStream</code>, <code class="md-github">simulateKafkaDetailedStream</code>, and <code class="md-github">simulateKafkaBulkStream</code>.</li>
-<li class="md-github"><strong class="md-github">Additional Kafka Functions:</strong> <code class="md-github">simulateKafkaProducer</code>, <code class="md-github">simulateKafkaConsumer</code>, <code class="md-github">simulateKafkaPriorityMessaging</code>, <code class="md-github">simulateKafkaRetryOnFailure</code>, <code class="md-github">simulateKafkaBroadcast</code>, <code class="md-github">simulateKafkaTopicRouting</code>, <code class="md-github">simulateKafkaConsumerGroup</code>, and <code class="md-github">simulateKafkaWorkflowMessaging</code> which simulates full Kafka workflow messaging by routing messages based on a key and processing them via a consumer group.</li>
-<li class="md-github"><strong class="md-github">Direct Messaging:</strong> New function <code class="md-github">simulateKafkaDirectMessage</code> provides direct Kafka messaging simulation for targeted workflow communication.</li>
+<li class="md-github"><code class="md-github">parseSarifOutput</code>, <code class="md-github">parseEslintSarifOutput</code>, <code class="md-github">parseVitestOutput</code>, <code class="md-github">parseVitestDefaultOutput</code>, <code class="md-github">parseEslintDefaultOutput</code>, <code class="md-github">parseVitestSarifOutput</code>, <code class="md-github">parseEslintDetailedOutput</code>.</li>
+<li class="md-github">New combined parsers: <code class="md-github">parseCombinedSarifOutput</code> and <code class="md-github">parseCombinedDefaultOutput</code>.</li>
 </ul>
 </li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">SARIF and Default Output Parsing Enhancements:</strong>
-Utilities to parse SARIF outputs and default outputs, including:</p>
-<ul class="md-github">
-<li class="md-github"><code class="md-github">parseSarifOutput</code>, <code class="md-github">parseEslintSarifOutput</code>, <code class="md-github">parseVitestOutput</code>, <code class="md-github">parseVitestDefaultOutput</code>, <code class="md-github">parseEslintDefaultOutput</code>, <code class="md-github">parseVitestSarifOutput</code>, and <code class="md-github">parseEslintDetailedOutput</code>.</li>
-<li class="md-github"><strong class="md-github">New Combined Parser:</strong> <code class="md-github">parseCombinedSarifOutput</code> aggregates issues from both Vitest and ESLint based SARIF reports.</li>
-<li class="md-github"><strong class="md-github">New Combined Default Parser:</strong> Added <code class="md-github">parseCombinedDefaultOutput</code> to aggregate Vitest and ESLint default output summaries.</li>
+<li class="md-github"><strong class="md-github">File System Simulation:</strong> <code class="md-github">simulateFileSystemCall()</code> enables testing of file interactions with safe file path resolution.</li>
+<li class="md-github"><strong class="md-github">CI Workflow Simulation:</strong> <code class="md-github">simulateCIWorkflowLifecycle</code> aggregates telemetry data and simulates Kafka messaging to mimic a full workflow lifecycle.</li>
+<li class="md-github"><strong class="md-github">Issue Creation Simulation:</strong> The enhanced <code class="md-github">--create-issue</code> flag mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from <code class="md-github">HOUSE_CHOICE_OPTIONS</code> and logging detailed creation information in JSON format.</li>
 </ul>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">File System Simulation:</strong>
-The <code class="md-github">simulateFileSystemCall()</code> function enables testing of file interactions with safe file path resolution.</p>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">CI Workflow Simulation:</strong>
-<strong class="md-github">NEW:</strong> <code class="md-github">simulateCIWorkflowLifecycle</code> aggregates CI telemetry and simulates Kafka messaging to mimic a full workflow lifecycle.</p>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Issue Creation Simulation:</strong>
-<strong class="md-github">NEW:</strong> Enhanced the <code class="md-github">--create-issue</code> flag simulation. It now mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from <code class="md-github">HOUSE_CHOICE_OPTIONS</code> if set to &quot;house choice&quot;, and logs detailed issue creation information in a JSON format.</p>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Test Coverage Improvements:</strong>
-Extensive unit tests have been added and external resources such as file system and network calls are mocked to bring coverage close to 100%.</p>
-</li>
-</ul>
-<hr class="md-github">
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="recent-improvements" href="#recent-improvements"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Recent Improvements</h2>
 <ul class="md-github">
-<li class="md-github">Refreshed README to align with CONTRIBUTING guidelines and remove outdated content.</li>
-<li class="md-github">Extended flag handling with improved diagnostics and extracted flag-specific logic to reduce cognitive complexity.</li>
-<li class="md-github"><strong class="md-github">Telemetry Enhancements:</strong>
-<ul class="md-github">
-<li class="md-github">Added new function <code class="md-github">gatherGithubEnvTelemetry</code> to capture all GitHub environment variables for more comprehensive telemetry.</li>
-<li class="md-github">Added new function <code class="md-github">gatherTotalTelemetry</code> to aggregate all telemetry sources into one unified report.</li>
+<li class="md-github">Refreshed this README to align with the CONTRIBUTING guidelines.</li>
+<li class="md-github">Extended flag handling and improved telemetry and LLM delegation functions.</li>
+<li class="md-github">Enhanced Kafka messaging simulations and SARIF/default output parsing utilities.</li>
+<li class="md-github">Increased test coverage with comprehensive unit tests and improved mocks.</li>
 </ul>
-</li>
-<li class="md-github"><strong class="md-github">LLM Delegation Enhancements:</strong>
-<ul class="md-github">
-<li class="md-github">Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using <code class="md-github">delegateDecisionToLLMAdvancedOptimized</code>.</li>
-<li class="md-github"><strong class="md-github">Extended OpenAI Function Wrapper:</strong> Updated <code class="md-github">callOpenAIFunctionWrapper</code> to include timeout support and improved error logging, aligning it more closely with the provided OpenAI function example.</li>
-<li class="md-github"><strong class="md-github">New Chat-Based Delegation Functions:</strong> Added <code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, <code class="md-github">delegateDecisionToLLMChatEnhanced</code>, and <strong class="md-github"><code class="md-github">delegateDecisionToLLMChatOptimized</code></strong> with additional input validation for better reliability.</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">Kafka Messaging Enhancements:</strong>
-<ul class="md-github">
-<li class="md-github">Extended Kafka simulation functions to include dynamic message routing with <code class="md-github">simulateKafkaTopicRouting</code> for targeted inter-workflow communication.</li>
-<li class="md-github">Added consumer group functionality via the new <code class="md-github">simulateKafkaConsumerGroup</code>.</li>
-<li class="md-github"><strong class="md-github">New Kafka Workflow Messaging:</strong> Implemented <code class="md-github">simulateKafkaWorkflowMessaging</code> to simulate full Kafka workflow messaging.</li>
-<li class="md-github"><strong class="md-github">Direct Messaging:</strong> Added new function <code class="md-github">simulateKafkaDirectMessage</code>.</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">SARIF and Default Output Parsing Enhancements:</strong>
-<ul class="md-github">
-<li class="md-github">Added combined SARIF parsing function <code class="md-github">parseCombinedSarifOutput</code> to aggregate issues across tools.</li>
-<li class="md-github"><strong class="md-github">New Combined Default Parser:</strong> Added <code class="md-github">parseCombinedDefaultOutput</code> to aggregate Vitest and ESLint default output summaries.</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">CI Workflow Simulation Enhancement:</strong>
-<ul class="md-github">
-<li class="md-github"><strong class="md-github">NEW:</strong> Added <code class="md-github">simulateCIWorkflowLifecycle</code> to simulate a complete CI workflow lifecycle by combining telemetry data and Kafka broadcast messaging.</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">Issue Creation Workflow Enhancement:</strong>
-<ul class="md-github">
-<li class="md-github"><strong class="md-github">NEW:</strong> Enhanced the <code class="md-github">--create-issue</code> flag simulation. It now closely mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from <code class="md-github">HOUSE_CHOICE_OPTIONS</code> and logging detailed issue creation information in a JSON format.</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">Test Coverage Improvements:</strong>
-<ul class="md-github">
-<li class="md-github">Additional unit tests have been added to cover most functions with mocks for external resources, ensuring robust and near-100% test coverage.</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">Regex Escaping Fix:</strong>
-<ul class="md-github">
-<li class="md-github">Fixed the regex escaping in <code class="md-github">getIssueNumberFromBranch</code> to accurately extract issue numbers from branch names.</li>
-</ul>
-</li>
-</ul>
-<hr class="md-github">
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="contributing" href="#contributing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Contributing</h2>
 <p class="md-github">Contributions are welcome! Please see <a href="CONTRIBUTING.md" class="md-github">CONTRIBUTING.md</a> for guidelines.</p>
+<hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="component-breakdown" href="#component-breakdown"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Component Breakdown</h2>
-<p class="md-github">This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:</p>
+<p class="md-github">This repository is organized into three distinct areas:</p>
 <h3 class="md-github"><a class="md-github__anchor" name="1-reusable-workflows-core-functionality" href="#1-reusable-workflows-core-functionality"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>1. Re‑usable Workflows (Core Functionality)</h3>
 <ul class="md-github">
-<li class="md-github"><strong class="md-github">Purpose:</strong><br>
-These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.</li>
-<li class="md-github"><strong class="md-github">Stability:</strong><br>
-They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.</li>
-<li class="md-github"><strong class="md-github">Licensing:</strong><br>
-The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.</li>
-<li class="md-github"><strong class="md-github">Location:</strong><br>
-Find these in the <code class="md-github">.github/workflows/</code> directory.</li>
+<li class="md-github"><strong class="md-github">Purpose:</strong> These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.</li>
+<li class="md-github"><strong class="md-github">Stability:</strong> They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.</li>
+<li class="md-github"><strong class="md-github">Licensing:</strong> The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.</li>
+<li class="md-github"><strong class="md-github">Location:</strong> Find these in the <code class="md-github">.github/workflows/</code> directory.</li>
 </ul>
 <h3 class="md-github"><a class="md-github__anchor" name="2-example-workflows-demonstrative-content" href="#2-example-workflows-demonstrative-content"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>2. Example Workflows (Demonstrative Content)</h3>
 <ul class="md-github">
-<li class="md-github"><strong class="md-github">Purpose:</strong><br>
-These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.</li>
-<li class="md-github"><strong class="md-github">Stability:</strong><br>
-While functional, they are intended primarily for demonstration and experimentation.</li>
-<li class="md-github"><strong class="md-github">Licensing:</strong><br>
-The example workflows are covered by the MIT license to allow for broader use and modification.</li>
-<li class="md-github"><strong class="md-github">Location:</strong><br>
-Look in the <code class="md-github">examples/</code> directory for sample implementations.</li>
+<li class="md-github"><strong class="md-github">Purpose:</strong> These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.</li>
+<li class="md-github"><strong class="md-github">Stability:</strong> While functional, they are intended primarily for demonstration and experimentation.</li>
+<li class="md-github"><strong class="md-github">Licensing:</strong> The example workflows are covered by the MIT license to allow for broader use and modification.</li>
+<li class="md-github"><strong class="md-github">Location:</strong> Look in the <code class="md-github">examples/</code> directory for sample implementations.</li>
 </ul>
 <h3 class="md-github"><a class="md-github__anchor" name="3-the-evolving-mainjs-javascript-re-implementation-of-reusable-workflows" href="#3-the-evolving-mainjs-javascript-re-implementation-of-reusable-workflows"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)</h3>
 <ul class="md-github">
-<li class="md-github"><strong class="md-github">Purpose:</strong><br>
-This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.</li>
-<li class="md-github"><strong class="md-github">Stability:</strong><br>
-It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.</li>
-<li class="md-github"><strong class="md-github">Licensing:</strong><br>
-As part of the core project, it is under GPL‑3 with the attribution clause.</li>
-<li class="md-github"><strong class="md-github">Location:</strong><br>
-The code is located in <code class="md-github">src/lib/main.js</code>.</li>
+<li class="md-github"><strong class="md-github">Purpose:</strong> This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.</li>
+<li class="md-github"><strong class="md-github">Stability:</strong> It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.</li>
+<li class="md-github"><strong class="md-github">Licensing:</strong> As part of the core project, it is under GPL‑3 with the attribution clause.</li>
+<li class="md-github"><strong class="md-github">Location:</strong> The code is located in <code class="md-github">src/lib/main.js</code>.</li>
 </ul>
+<hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="license" href="#license"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>License</h2>
 <p class="md-github">This project is licensed under the GNU General Public License (GPL). See <a href="LICENSE" class="md-github">LICENSE</a> for details.</p>
-<p class="md-github">License notice:</p>
 <pre class="md-github"><code class="md-github">agentic-lib
 Copyright (C) 2025 Polycode Limited
 
@@ -221,12 +122,10 @@ along with this program. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 IMPORTANT: Any derived work must include the following attribution:
 &quot;This work is derived from https://github.com/xn-intenton-z2a/agentic-lib&quot;
 </code></pre>
-<hr class="md-github">
-<hr class="md-github">
 
   </section>
   <footer>
-    <p>Generated on 2025-03-18T12:10:25.757Z</p>
+    <p>Generated on 2025-03-18T14:06:39.233Z</p>
   </footer>
 </body>
 </html>
