@@ -13,6 +13,7 @@
 // - Enhanced the --create-issue workflow simulation to more closely mimic the GitHub Actions issue creation workflow (wfr-create-issue.yml), dynamically selecting an issue title from HOUSE_CHOICE_OPTIONS and logging detailed JSON output.
 // - Improved error handling in remote service wrappers and LLM delegation functions.
 // - EXTENDED: Updated callOpenAIFunctionWrapper to support timeout functionality and refined error logging to better align with the supplied OpenAI function wrapper example.
+// - EXTENDED: Added new Kafka simulation functions simulateKafkaDelayedMessage and simulateKafkaTransaction to model delayed messaging and transactional message sending.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -1221,13 +1222,13 @@ export async function delegateDecisionToLLMAdvancedOptimized(prompt, options = {
     if (messageObj.tool_calls && Array.isArray(messageObj.tool_calls) && messageObj.tool_calls.length > 0) {
       try {
         result = JSON.parse(messageObj.tool_calls[0].function.arguments);
-      } catch {
+      } catch (error) {
         result = { fixed: "false", message: "Failed to parse tool_calls arguments.", refinement: "None" };
       }
     } else if (messageObj.content) {
       try {
         result = JSON.parse(messageObj.content);
-      } catch {
+      } catch (error) {
         result = { fixed: "false", message: "Failed to parse response content.", refinement: "None" };
       }
     } else {
@@ -1458,15 +1459,38 @@ export function simulateKafkaRetryOnFailure(topic, message, maxAttempts) {
   return { attempts: maxAttempts, success: true, logMessages };
 }
 
-export async function simulateFileSystemCall(filePath) {
-  try {
-    const safePath = path.resolve(filePath);
-    const data = await fs.readFile(safePath, "utf8");
-    return data;
-  } catch (e) {
-    console.error(chalk.red('Error reading file:'), e);
-    return null;
-  }
+// NEW: Added Kafka simulation functions for delayed messaging and transaction simulation
+/**
+ * Simulate sending a delayed message to a Kafka topic.
+ * @param {string} topic - The topic name.
+ * @param {string} message - The message to deliver.
+ * @param {number} delay - Delay in milliseconds.
+ * @returns {Promise<object>} Promise that resolves to an object with topic, message, and status.
+ */
+export function simulateKafkaDelayedMessage(topic, message, delay = 5000) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const sentMessage = `Delayed message sent to topic '${topic}': ${message}`;
+      console.log(chalk.blue(sentMessage));
+      resolve({ topic, message: sentMessage, delayed: true });
+    }, delay);
+  });
+}
+
+/**
+ * Simulate a Kafka transaction by sending multiple messages as a single transaction.
+ * @param {Array<{topic: string, message: string}>} messagesArray - Array of message objects.
+ * @returns {object} Transaction result with success flag and details.
+ */
+export function simulateKafkaTransaction(messagesArray) {
+  let results = {};
+  messagesArray.forEach(({ topic, message }) => {
+    const result = sendMessageToKafka(topic, message);
+    results[topic] = { sent: result, transaction: true };
+    console.log(chalk.blue(`Kafka Transaction Simulation: Message sent to topic '${topic}': ${message}`));
+  });
+  console.log(chalk.blue("Kafka Transaction Simulation:"), results);
+  return { success: true, transaction: results };
 }
 
 // New function to wrap advanced LLM chat completions using OpenAI API
@@ -1576,6 +1600,17 @@ export async function delegateDecisionToLLMChatOptimized(prompt, options = {}) {
     return result;
   } catch (error) {
     return { fixed: "false", message: error.message, refinement: "LLM chat delegation optimized failed." };
+  }
+}
+
+// NEW: Added simulateFileSystemCall function to simulate file system operations
+export async function simulateFileSystemCall(filePath) {
+  try {
+    const content = await fs.readFile(filePath, "utf8");
+    return content;
+  } catch (error) {
+    console.error(chalk.red("File read error:"), error.message);
+    return null;
   }
 }
 

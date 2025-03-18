@@ -114,6 +114,30 @@ describe("simulateKafkaDirectMessage", () => {
   });
 });
 
+describe("simulateKafkaDelayedMessage", () => {
+  test("should simulate delayed Kafka messaging", async () => {
+    const topic = "delayed-topic";
+    const message = "Delayed Hello";
+    const result = await agenticLib.simulateKafkaDelayedMessage(topic, message, 100);
+    expect(result).toHaveProperty("delayed", true);
+    expect(result.topic).toBe(topic);
+    expect(result.message).toContain(message);
+  });
+});
+
+describe("simulateKafkaTransaction", () => {
+  test("should simulate a Kafka transaction", () => {
+    const messagesArray = [
+      { topic: "txn-topic1", message: "Message 1" },
+      { topic: "txn-topic2", message: "Message 2" }
+    ];
+    const result = agenticLib.simulateKafkaTransaction(messagesArray);
+    expect(result).toHaveProperty("success", true);
+    expect(result.transaction).toHaveProperty("txn-topic1");
+    expect(result.transaction).toHaveProperty("txn-topic2");
+  });
+});
+
 describe("simulateFileSystemCall", () => {
   test("returns file content if file exists", async () => {
     const dummyPath = "./dummy.txt";
