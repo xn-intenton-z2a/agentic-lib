@@ -68,7 +68,7 @@ Advanced functions supporting decision delegation with schema validation, timeou
 <ul class="md-github">
 <li class="md-github">Existing functions include <code class="md-github">delegateDecisionToLLM</code>, <code class="md-github">delegateDecisionToLLMWrapped</code>, and several advanced variants.</li>
 <li class="md-github"><strong class="md-github">New Chat-Based Delegation:</strong> Added <code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, <code class="md-github">delegateDecisionToLLMChatEnhanced</code>, and <strong class="md-github"><code class="md-github">delegateDecisionToLLMChatOptimized</code></strong> for optimized, chat-based interaction using the OpenAI API.</li>
-<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> Extended <code class="md-github">callOpenAIFunctionWrapper</code> with refined error handling, verbose logging, and standardized schema validation to improve diagnostic clarity during OpenAI API interactions.</li>
+<li class="md-github"><strong class="md-github">Enhanced OpenAI Function Wrapper:</strong> Extended <code class="md-github">callOpenAIFunctionWrapper</code> with refined error handling, verbose logging, timeout support, and standardized schema validation to improve diagnostic clarity during OpenAI API interactions.</li>
 </ul>
 </li>
 <li class="md-github">
@@ -99,7 +99,7 @@ The <code class="md-github">simulateFileSystemCall()</code> function enables tes
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Issue Creation Simulation:</strong>
-<strong class="md-github">NEW:</strong> The <code class="md-github">--create-issue</code> flag now closely mimics the GitHub Actions workflow (wfr-create-issue.yml). It dynamically selects an issue title based on an environment variable <code class="md-github">HOUSE_CHOICE_OPTIONS</code> (when set to &quot;house choice&quot;) and logs detailed issue creation information in a JSON format.</p>
+<strong class="md-github">NEW:</strong> Enhanced the <code class="md-github">--create-issue</code> flag simulation. It now mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from <code class="md-github">HOUSE_CHOICE_OPTIONS</code> if set to &quot;house choice&quot;, and logs detailed issue creation information in a JSON format.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Test Coverage Improvements:</strong>
@@ -121,7 +121,7 @@ Extensive unit tests have been added and external resources such as file system 
 <li class="md-github"><strong class="md-github">LLM Delegation Enhancements:</strong>
 <ul class="md-github">
 <li class="md-github">Updated advanced LLM delegation functions to include strict schema validation, timeout support, and optimized performance via configurable temperature using <code class="md-github">delegateDecisionToLLMAdvancedOptimized</code>.</li>
-<li class="md-github">Enhanced <code class="md-github">callOpenAIFunctionWrapper</code> with refined error handling, verbose logging, and standardized schema validation to improve diagnostic clarity during OpenAI API interactions.</li>
+<li class="md-github"><strong class="md-github">Extended OpenAI Function Wrapper:</strong> Updated <code class="md-github">callOpenAIFunctionWrapper</code> to include timeout support and improved error logging, aligning it more closely with the provided OpenAI function example.</li>
 <li class="md-github"><strong class="md-github">New Chat-Based Delegation Functions:</strong> Added <code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, <code class="md-github">delegateDecisionToLLMChatEnhanced</code>, and <strong class="md-github"><code class="md-github">delegateDecisionToLLMChatOptimized</code></strong> with additional input validation for better reliability.</li>
 </ul>
 </li>
@@ -146,7 +146,7 @@ Extensive unit tests have been added and external resources such as file system 
 </li>
 <li class="md-github"><strong class="md-github">Issue Creation Workflow Enhancement:</strong>
 <ul class="md-github">
-<li class="md-github"><strong class="md-github">NEW:</strong> Enhanced the <code class="md-github">--create-issue</code> flag simulation. It now mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from <code class="md-github">HOUSE_CHOICE_OPTIONS</code> if set to &quot;house choice&quot;, and logs detailed issue creation information in a JSON format.</li>
+<li class="md-github"><strong class="md-github">NEW:</strong> Enhanced the <code class="md-github">--create-issue</code> flag simulation. It now closely mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from <code class="md-github">HOUSE_CHOICE_OPTIONS</code> and logging detailed issue creation information in a JSON format.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Test Coverage Improvements:</strong>
@@ -226,7 +226,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-18T04:07:35.002Z</p>
+    <p>Generated on 2025-03-18T06:08:52.478Z</p>
   </footer>
 </body>
 </html>
