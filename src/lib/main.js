@@ -9,7 +9,7 @@
 // - Added additional parsing functions: parseVitestSarifOutput and parseEslintDetailedOutput for detailed SARIF output parsing.
 // - Added new combined SARIF parser function: parseCombinedSarifOutput to aggregate Vitest and ESLint issues from SARIF reports.
 // - NEW: Added combined default output parser function: parseCombinedDefaultOutput to aggregate Vitest and ESLint default outputs.
-// - Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching. (Fixed: now escapes correctly using \\\\d notation)
+// - Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching. (Fixed: now uses double backslashes in regex)
 // - Enhanced the --create-issue workflow simulation to more closely mimic the GitHub Actions issue creation workflow (wfr-create-issue.yml), dynamically selecting an issue title from HOUSE_CHOICE_OPTIONS and logging detailed JSON output.
 // - Improved error handling in remote service wrappers and LLM delegation functions.
 // - EXTENDED: Updated callOpenAIFunctionWrapper to support timeout functionality and refined error logging to better align with the supplied OpenAI function wrapper example.
@@ -953,7 +953,7 @@ export function generateUsage() {
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\\\d{1,10})(?!\\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -1414,9 +1414,6 @@ export async function callRepositoryService(serviceUrl) {
     return handleFetchError(error, "repository service");
   }
 }
-
-// New Function: simulateKafkaBroadcast to simulate Kafka broadcast messaging across topics
-// (Already defined above in the file, so no duplicate implementation needed)
 
 // New Functions to satisfy tests
 export function reviewIssue(params) {
