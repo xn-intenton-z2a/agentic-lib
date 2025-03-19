@@ -2,7 +2,10 @@
 
 You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/WORKFLOWS-README.md)
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
+repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
+issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
+GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 
 [Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
 
@@ -32,7 +35,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
   - **GitHub Environment Telemetry:** `gatherGithubEnvTelemetry()` aggregates all environment variables starting with `GITHUB_`.
 - **Remote Service Wrappers:** Simplified API interactions for multiple services, including analytics, notifications, build status, deployment, logging, code quality, security scans, monitoring, and package management.
 - **LLM Delegation:** Advanced functions that support decision delegation with schema validation, timeout support, and optimized performance. New chat-based delegation features include:
-  - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and `delegateDecisionToLLMChatOptimized`.
+  - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, and the newly added `delegateDecisionToLLMChatOptimized` for improved prompt validation.
   - **NEW:** `delegateDecisionToLLMFunctionCallWrapper` has been added to extend our OpenAI function delegation capabilities following the supplied function calling example.
 - **Kafka Operations:** Simulated messaging functions for inter-workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, and extended functionalities:
   - Previously available functions: `simulateKafkaDelayedMessage` and `simulateKafkaTransaction`.
@@ -54,6 +57,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - Extended flag handling and improved telemetry and LLM delegation functions.
 - **Extended Kafka Messaging Simulations:** Added `simulateKafkaPriorityQueue` and `simulateKafkaMessagePersistence` to enhance inter-workflow communication and simulate message persistence and priority handling.
 - **New OpenAI Function Wrapper:** Implemented `delegateDecisionToLLMFunctionCallWrapper` to extend our OpenAI function delegation capabilities following the supplied function calling example.
+- **New Chat Delegation Function:** Added `delegateDecisionToLLMChatOptimized` to provide improved prompt validation and error responses.
 - **New Simulation Utilities:** Implemented `reviewIssue`, `simulateKafkaConsumer`, `simulateKafkaDelayedMessage`, `simulateKafkaTransaction`, `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, `simulateFileSystemCall`, and `callRepositoryService` to cover additional test scenarios.
 - Increased test coverage with comprehensive unit tests and improved mocks.
 

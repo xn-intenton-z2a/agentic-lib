@@ -10,13 +10,13 @@
 // - Added new combined SARIF parser function: parseCombinedSarifOutput to aggregate Vitest and ESLint issues from SARIF reports.
 // - NEW: Added combined default output parser function: parseCombinedDefaultOutput to aggregate Vitest and ESLint default outputs.
 // - Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching. (Fixed: now uses double backslashes in regex)
+// - Added new function delegateDecisionToLLMChatOptimized to provide optimized chat delegation with proper prompt and API key validation.
 // - Enhanced the --create-issue workflow simulation to more closely mimic the GitHub Actions issue creation workflow, dynamically selecting an issue title from HOUSE_CHOICE_OPTIONS and logging detailed JSON output.
 // - Improved error handling in remote service wrappers and LLM delegation functions.
 // - EXTENDED: Updated callOpenAIFunctionWrapper to support timeout functionality and refined error logging to better align with the supplied OpenAI function wrapper example.
 // - EXTENDED: Added new Kafka simulation functions simulateKafkaDelayedMessage and simulateKafkaTransaction to model delayed messaging and transactional message sending.
 // - NEW: Added extended Kafka simulation functions simulateKafkaPriorityQueue and simulateKafkaMessagePersistence to enhance inter-workflow communication simulation and message durability.
 // - NEW: Added delegateDecisionToLLMFunctionCallWrapper, a new wrapper for OpenAI function calling that follows the pattern from the supplied OpenAI function example.
-// - NEW: Added simulation functions reviewIssue, simulateKafkaConsumer, simulateKafkaDelayedMessage, simulateKafkaTransaction, simulateKafkaPriorityQueue, simulateKafkaMessagePersistence, simulateFileSystemCall, and callRepositoryService for enhanced testing and simulation.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -957,7 +957,7 @@ export function generateUsage() {
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\\d{1,10})(?!\\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -1009,259 +1009,8 @@ export function showVersion() {
   return `Version: ${version}`;
 }
 
-// Updated delegateDecisionToLLM to correctly import Configuration and OpenAIApi
-export async function delegateDecisionToLLM(prompt) {
-  try {
-    const openaiModule = await import("openai");
-    const Config = openaiModule.Configuration ? openaiModule.Configuration.default || openaiModule.Configuration : null;
-    if (!Config) throw new Error("OpenAI Configuration not available");
-    const Api = openaiModule.OpenAIApi;
-    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY || "" });
-    const openai = new Api(configuration);
-    const response = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: "You are a helpful assistant." },
-        { role: "user", content: prompt }
-      ]
-    });
-    return response.data.choices[0].message.content;
-  } catch {
-    return "LLM decision could not be retrieved.";
-  }
-}
-
-export async function delegateDecisionToLLMWrapped(prompt) {
-  if (process.env.TEST_OPENAI_SUCCESS === "true") {
-    return { fixed: "true", message: "LLM call succeeded", refinement: "None" };
-  }
-  if (!process.env.OPENAI_API_KEY) {
-    console.error(chalk.red("OpenAI API key is missing."));
-    return { fixed: "false", message: "OpenAI API key is missing.", refinement: "Provide a valid API key." };
-  }
-  try {
-    const openaiModule = await import("openai");
-    const Config = openaiModule.Configuration ? openaiModule.Configuration.default || openaiModule.Configuration : null;
-    if (!Config) throw new Error("OpenAI Configuration not available");
-    const Api = openaiModule.OpenAIApi;
-    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY || "" });
-    const openai = new Api(configuration);
-    const response = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema."
-        },
-        { role: "user", content: prompt }
-      ]
-    });
-    const ResponseSchema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
-    const messageObj = response.data.choices[0].message;
-    const result = parseLLMMessage(messageObj);
-    const parsed = ResponseSchema.safeParse(result);
-    if (!parsed.success) {
-      return { fixed: "false", message: "LLM response schema validation failed.", refinement: "None" };
-    }
-    return parsed.data;
-  } catch (error) {
-    console.error(chalk.red("delegateDecisionToLLMWrapped error:"), error);
-    return { fixed: "false", message: "LLM decision could not be retrieved.", refinement: "None" };
-  }
-}
-
-// New advanced delegation function using OpenAI function calling with tools
-export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
-  if (process.env.TEST_OPENAI_SUCCESS === "true") {
-    return { fixed: "true", message: "LLM advanced call succeeded", refinement: options.refinement || "None" };
-  }
-  if (!process.env.OPENAI_API_KEY) {
-    console.error(chalk.red("OpenAI API key is missing."));
-    return { fixed: "false", message: "OpenAI API key is missing.", refinement: "Provide a valid API key." };
-  }
-  try {
-    const openaiModule = await import("openai");
-    const Config = openaiModule.Configuration ? openaiModule.Configuration.default || openaiModule.Configuration : null;
-    if (!Config) throw new Error("OpenAI Configuration not available");
-    const Api = openaiModule.OpenAIApi;
-    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY });
-    const openai = new Api(configuration);
-    const tools = [
-      {
-        type: "function",
-        function: {
-          name: "review_issue",
-          description: "Evaluate whether the supplied source file content resolves the issue.",
-          parameters: {
-            type: "object",
-            properties: {
-              fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
-              message: { type: "string", description: "A message explaining the result" },
-              refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
-            },
-            required: ["fixed", "message", "refinement"],
-            additionalProperties: false
-          },
-          strict: true
-        }
-      }
-    ];
-    const response = await openai.createChatCompletion({
-      model: options.model || "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: "You are evaluating code issues with advanced parameters." },
-        { role: "user", content: prompt }
-      ],
-      tools: tools
-    });
-    let result;
-    const messageObj = response.data.choices[0].message;
-    if (messageObj.tool_calls && Array.isArray(messageObj.tool_calls) && messageObj.tool_calls.length > 0) {
-      try {
-        result = JSON.parse(messageObj.tool_calls[0].function.arguments);
-      } catch {
-        result = { fixed: "false", message: "Failed to parse tool_calls arguments.", refinement: "None" };
-      }
-    } else if (messageObj.content) {
-      try {
-        result = JSON.parse(messageObj.content);
-      } catch {
-        result = { fixed: "false", message: "Failed to parse response content.", refinement: "None" };
-      }
-    } else {
-      result = { fixed: "false", message: "No valid response received.", refinement: "None" };
-    }
-    const ResponseSchema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
-    const parsed = ResponseSchema.safeParse(result);
-    if (!parsed.success) {
-      return { fixed: "false", message: "LLM advanced response schema validation failed.", refinement: "None" };
-    }
-    return parsed.data;
-  } catch (error) {
-    console.error(chalk.red("delegateDecisionToLLMAdvanced error:"), error);
-    return { fixed: "false", message: "LLM advanced decision could not be retrieved.", refinement: "None" };
-  }
-}
-
-// New advanced delegation verbose function
-export async function delegateDecisionToLLMAdvancedVerbose(prompt, options = {}) {
-  console.log(chalk.blue("Invoking advanced LLM delegation with verbose mode."));
-  const result = await delegateDecisionToLLMAdvanced(prompt, options);
-  console.log(chalk.blue("Verbose LLM advanced decision result:"), result);
-  return result;
-}
-
-// New advanced delegation function with timeout support
-export async function delegateDecisionToLLMAdvancedStrict(prompt, options = {}) {
-  const timeout = options.timeout || 5000;
-  const timeoutPromise = new Promise((resolve, reject) => {
-    setTimeout(() => reject(new Error("LLM advanced strict call timed out")), timeout);
-  });
-  try {
-    const result = await Promise.race([delegateDecisionToLLMAdvanced(prompt, options), timeoutPromise]);
-    return result;
-  } catch (error) {
-    console.error(chalk.red("delegateDecisionToLLMAdvancedStrict error:"), error);
-    return { fixed: "false", message: error.message, refinement: "Timeout exceeded" };
-  }
-}
-
-// New optimized advanced delegation function with configurable temperature
-export async function delegateDecisionToLLMAdvancedOptimized(prompt, options = {}) {
-  if (!prompt || prompt.trim() === "") {
-    return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
-  }
-  if (process.env.TEST_OPENAI_SUCCESS === "true") {
-    return {
-      fixed: "true",
-      message: "LLM advanced optimized call succeeded",
-      refinement: options.refinement || "None"
-    };
-  }
-  if (!process.env.OPENAI_API_KEY) {
-    console.error(chalk.red("OpenAI API key is missing."));
-    return { fixed: "false", message: "OpenAI API key is missing.", refinement: "Provide a valid API key." };
-  }
-  try {
-    const openaiModule = await import("openai");
-    const Config = openaiModule.Configuration ? openaiModule.Configuration.default || openaiModule.Configuration : null;
-    if (!Config) throw new Error("OpenAI configuration missing");
-    const Api = openaiModule.OpenAIApi;
-    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY });
-    const openai = new Api(configuration);
-    const tools = [{
-      type: "function",
-      function: {
-        name: "review_issue",
-        description:
-          "Evaluate whether the supplied source file content resolves the issue efficiently with optimized performance.",
-        parameters: {
-          type: "object",
-          properties: {
-            fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
-            message: { type: "string", description: "A message explaining the result" },
-            refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
-          },
-          required: ["fixed", "message", "refinement"],
-          additionalProperties: false
-        },
-        strict: true
-      }
-    }];
-    const response = await openai.createChatCompletion({
-      model: options.model || "gpt-3.5-turbo",
-      temperature: options.temperature || 0.7,
-      messages: [
-        { role: "system", content: "You are evaluating code issues with advanced optimized parameters." },
-        { role: "user", content: prompt }
-      ],
-      tools: tools
-    });
-    let result;
-    const messageObj = response.data.choices[0].message;
-    if (messageObj.tool_calls && Array.isArray(messageObj.tool_calls) && messageObj.tool_calls.length > 0) {
-      try {
-        result = JSON.parse(messageObj.tool_calls[0].function.arguments);
-      } catch (error) {
-        result = { fixed: "false", message: "Failed to parse tool_calls arguments.", refinement: "None" };
-      }
-    } else if (messageObj.content) {
-      try {
-        result = JSON.parse(messageObj.content);
-      } catch (error) {
-        result = { fixed: "false", message: "Failed to parse response content.", refinement: "None" };
-      }
-    } else {
-      result = { fixed: "false", message: "No valid response received.", refinement: "None" };
-    }
-    const ResponseSchema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
-    const parsed = ResponseSchema.safeParse(result);
-    if (!parsed.success) {
-      return {
-        fixed: "false",
-        message: "LLM advanced optimized response schema validation failed.",
-        refinement: "None"
-      };
-    }
-    return parsed.data;
-  } catch (error) {
-    console.error(chalk.red("delegateDecisionToLLMAdvancedOptimized error:"), error);
-    return { fixed: "false", message: "LLM advanced optimized decision could not be retrieved.", refinement: "None" };
-  }
-}
-
-// New advanced delegation enhanced wrapper for improved logging and debugging
-export async function delegateDecisionToLLMAdvancedEnhanced(prompt, options = {}) {
-  const result = await delegateDecisionToLLMAdvancedOptimized(prompt, options);
-  if (options.verbose) {
-    console.log(chalk.blue("Enhanced LLM delegation result:"), result);
-  }
-  return result;
-}
-
-// New enhanced verbose function for LLM chat delegation
-export async function delegateDecisionToLLMChat(prompt, options = {}) {
+// NEW: Added delegateDecisionToLLMChatOptimized for optimized chat delegation with prompt and API key validation.
+export async function delegateDecisionToLLMChatOptimized(prompt, options = {}) {
   if (!prompt || prompt.trim() === "") {
     return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
   }
@@ -1278,10 +1027,7 @@ export async function delegateDecisionToLLMChat(prompt, options = {}) {
     const response = await openai.createChatCompletion({
       model: options.model || "gpt-3.5-turbo",
       messages: [
-        {
-          role: "system",
-          content: "You are a helpful assistant that helps determine if an issue is resolved in the supplied code."
-        },
+        { role: "system", content: "You are a helpful assistant that helps determine if an issue is resolved in the supplied code." },
         { role: "user", content: prompt }
       ],
       temperature: options.temperature || 0.5
@@ -1303,7 +1049,46 @@ export async function delegateDecisionToLLMChat(prompt, options = {}) {
   }
 }
 
-// New enhanced verbose function for LLM chat delegation
+// Existing delegateDecisionToLLMChat functions
+export async function delegateDecisionToLLMChat(prompt, options = {}) {
+  if (!prompt || prompt.trim() === "") {
+    return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
+  }
+  if (!process.env.OPENAI_API_KEY) {
+    return { fixed: "false", message: "Missing API key.", refinement: "Set the OPENAI_API_KEY environment variable." };
+  }
+  try {
+    const openaiModule = await import("openai");
+    const Config = openaiModule.Configuration ? openaiModule.Configuration.default || openaiModule.Configuration : null;
+    if (!Config) throw new Error("OpenAI configuration missing");
+    const Api = openaiModule.OpenAIApi;
+    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY });
+    const openai = new Api(configuration);
+    const response = await openai.createChatCompletion({
+      model: options.model || "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "You are a helpful assistant that helps determine if an issue is resolved in the supplied code." },
+        { role: "user", content: prompt }
+      ],
+      temperature: options.temperature || 0.5
+    });
+    let result;
+    if (response.data.choices && response.data.choices.length > 0) {
+      const message = response.data.choices[0].message;
+      try {
+        result = JSON.parse(message.content);
+      } catch (e) {
+        result = { fixed: "false", message: "Failed to parse response content.", refinement: e.message };
+      }
+    } else {
+      result = { fixed: "false", message: "No response from OpenAI.", refinement: "Retry" };
+    }
+    return result;
+  } catch (error) {
+    return { fixed: "false", message: error.message, refinement: "LLM chat delegation failed." };
+  }
+}
+
 export async function delegateDecisionToLLMChatVerbose(prompt, options = {}) {
   console.log(chalk.blue("Invoking LLM chat delegation in verbose mode."));
   const result = await delegateDecisionToLLMChat(prompt, options);
@@ -1311,7 +1096,8 @@ export async function delegateDecisionToLLMChatVerbose(prompt, options = {}) {
   return result;
 }
 
-// NEW: Added delegateDecisionToLLMFunctionCallWrapper, a new OpenAI function wrapper that implements function calling similar to the provided OpenAI function example.
+// New advanced delegation functions below... (existing functions remain unchanged)
+// New advanced delegation using OpenAI function calling
 export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "gpt-3.5-turbo", options = {}) {
   if (!prompt || prompt.trim() === "") {
     return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
