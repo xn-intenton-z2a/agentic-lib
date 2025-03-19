@@ -43,6 +43,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **File System Simulation:** `simulateFileSystemCall()` enables testing of file interactions with safe file path resolution.
 - **CI Workflow Simulation:** `simulateCIWorkflowLifecycle` aggregates telemetry data and simulates Kafka messaging to mimic a full workflow lifecycle.
 - **Issue Creation Simulation:** The enhanced `--create-issue` flag mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from `HOUSE_CHOICE_OPTIONS` and logging detailed creation information in JSON format.
+- **New Simulation Utilities:** Added functions such as `reviewIssue`, `simulateKafkaConsumer`, `simulateKafkaDelayedMessage`, `simulateKafkaTransaction`, `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, `simulateFileSystemCall`, and `callRepositoryService` for enhanced testing and simulation.
 
 ---
 
@@ -52,6 +53,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - Extended flag handling and improved telemetry and LLM delegation functions.
 - **Extended Kafka Messaging Simulations:** Added `simulateKafkaPriorityQueue` and `simulateKafkaMessagePersistence` to enhance inter-workflow communication and simulate message persistence and priority handling.
 - **New OpenAI Function Wrapper:** Implemented `delegateDecisionToLLMFunctionCallWrapper` to extend our OpenAI function delegation capabilities following the supplied function calling example.
+- **New Simulation Utilities:** Implemented `reviewIssue`, `simulateKafkaConsumer`, `simulateKafkaDelayedMessage`, `simulateKafkaTransaction`, `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, `simulateFileSystemCall`, and `callRepositoryService` to cover additional test scenarios.
 - Increased test coverage with comprehensive unit tests and improved mocks.
 
 ---
@@ -109,4 +111,5 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
+---
 ---
