@@ -10,11 +10,12 @@
 // - Added new combined SARIF parser function: parseCombinedSarifOutput to aggregate Vitest and ESLint issues from SARIF reports.
 // - NEW: Added combined default output parser function: parseCombinedDefaultOutput to aggregate Vitest and ESLint default outputs.
 // - Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching. (Fixed: now uses double backslashes in regex)
-// - Enhanced the --create-issue workflow simulation to more closely mimic the GitHub Actions issue creation workflow (wfr-create-issue.yml), dynamically selecting an issue title from HOUSE_CHOICE_OPTIONS and logging detailed JSON output.
+// - Enhanced the --create-issue workflow simulation to more closely mimic the GitHub Actions issue creation workflow, dynamically selecting an issue title from HOUSE_CHOICE_OPTIONS and logging detailed JSON output.
 // - Improved error handling in remote service wrappers and LLM delegation functions.
 // - EXTENDED: Updated callOpenAIFunctionWrapper to support timeout functionality and refined error logging to better align with the supplied OpenAI function wrapper example.
 // - EXTENDED: Added new Kafka simulation functions simulateKafkaDelayedMessage and simulateKafkaTransaction to model delayed messaging and transactional message sending.
 // - NEW: Added extended Kafka simulation functions simulateKafkaPriorityQueue and simulateKafkaMessagePersistence to enhance inter-workflow communication simulation and message durability.
+// - NEW: Added delegateDecisionToLLMFunctionCallWrapper, a new wrapper for OpenAI function calling that follows the pattern from the supplied OpenAI function example.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -955,7 +956,7 @@ export function generateUsage() {
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\\d{1,10})(?!\\\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -1360,46 +1361,146 @@ export async function callOpenAIFunctionWrapper(prompt, model = "gpt-3.5-turbo",
 }
 
 /**
- * New function to perform a health check of the agentic system.
- * Aggregates system performance and telemetry data to provide a health report.
+ * NEW: Added delegateDecisionToLLMFunctionCallWrapper, a new OpenAI function wrapper that implements function calling similar to the provided OpenAI function example.
  */
-export function performAgenticHealthCheck() {
-  const sysPerf = analyzeSystemPerformance();
-  const telemetry = gatherTelemetryData();
-  const healthReport = {
-    timestamp: new Date().toISOString(),
-    system: sysPerf,
-    telemetry: telemetry,
-    status: "healthy"
-  };
-  console.log(chalk.green("Agentic Health Check:"), JSON.stringify(healthReport, null, 2));
-  return healthReport;
-}
-
-/**
- * New function to gather a full system report combining various diagnostics.
- */
-export function gatherFullSystemReport() {
-  return {
-    healthCheck: performAgenticHealthCheck(),
-    advancedTelemetry: gatherAdvancedTelemetryData(),
-    combinedTelemetry: { ...gatherTelemetryData(), ...gatherExtendedTelemetryData(), ...gatherFullTelemetryData() }
-  };
-}
-
-/**
- * New function to simulate a more realistic Kafka streaming process with additional logging details.
- */
-export function simulateRealKafkaStream(topic, count = 3) {
-  console.log(chalk.blue(`Starting real Kafka stream simulation on topic '${topic}' with count ${count}`));
-  const messages = [];
-  for (let i = 0; i < count; i++) {
-    const msg = `Real Kafka stream message ${i + 1} from topic '${topic}'`;
-    console.log(chalk.blue(msg));
-    messages.push(msg);
+export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "gpt-3.5-turbo", options = {}) {
+  if (!prompt || prompt.trim() === "") {
+    return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
   }
-  console.log(chalk.blue(`Completed real Kafka stream simulation on topic '${topic}'`));
-  return messages;
+  if (!process.env.OPENAI_API_KEY) {
+    console.error(chalk.red("OpenAI API key is missing."));
+    return { fixed: "false", message: "Missing API key.", refinement: "Set the OPENAI_API_KEY environment variable." };
+  }
+  try {
+    const openaiModule = await import("openai");
+    const Config = openaiModule.Configuration ? openaiModule.Configuration.default || openaiModule.Configuration : null;
+    if (!Config) throw new Error("OpenAI configuration missing");
+    const Api = openaiModule.OpenAIApi;
+    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY });
+    const openai = new Api(configuration);
+    const ResponseSchema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
+    const tools = [{
+      type: "function",
+      function: {
+        name: "review_issue",
+        description: "Evaluate whether the supplied source file content resolves the issue. Return an object with fixed, message, and refinement.",
+        parameters: {
+          type: "object",
+          properties: {
+            fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
+            message: { type: "string", description: "Explanation of the result" },
+            refinement: { type: "string", description: "Suggested refinement if not resolved" }
+          },
+          required: ["fixed", "message", "refinement"],
+          additionalProperties: false
+        },
+        strict: true
+      }
+    }];
+    const response = await openai.createChatCompletion({
+      model,
+      messages: [
+        { role: "system", content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema." },
+        { role: "user", content: prompt }
+      ],
+      tools: tools,
+      temperature: options.temperature || 0.7
+    });
+    let result;
+    const messageObj = response.data.choices[0].message;
+    if (messageObj.tool_calls && Array.isArray(messageObj.tool_calls) && messageObj.tool_calls.length > 0) {
+      try {
+        result = JSON.parse(messageObj.tool_calls[0].function.arguments);
+      } catch (e) {
+        throw new Error("Failed to parse tool_calls arguments: " + e.message);
+      }
+    } else if (messageObj.content) {
+      try {
+        result = JSON.parse(messageObj.content);
+      } catch (e) {
+        throw new Error("Failed to parse response content: " + e.message);
+      }
+    } else {
+      throw new Error("No valid response received from OpenAI.");
+    }
+    const parsed = ResponseSchema.safeParse(result);
+    if (!parsed.success) {
+      throw new Error("LLM response schema validation failed.");
+    }
+    return parsed.data;
+  } catch (error) {
+    console.error("delegateDecisionToLLMFunctionCallWrapper error:", error);
+    return { fixed: "false", message: error.message, refinement: "LLM delegation failed." };
+  }
+}
+
+// New enhanced verbose function for LLM chat delegation
+export async function delegateDecisionToLLMChatVerbose(prompt, options = {}) {
+  console.log(chalk.blue("Invoking LLM chat delegation in verbose mode."));
+  const result = await delegateDecisionToLLMChat(prompt, options);
+  console.log(chalk.blue("LLM chat delegation verbose result:"), result);
+  return result;
+}
+
+// NEW: Added enhanced chat-based delegation function for additional logging and debugging
+export async function delegateDecisionToLLMChatEnhanced(prompt, options = {}) {
+  console.log(chalk.blue("Invoking enhanced LLM chat delegation."));
+  const result = await delegateDecisionToLLMChat(prompt, options);
+  if (options.verbose) {
+    console.log(chalk.blue("Enhanced LLM chat delegation result:"), result);
+  }
+  return result;
+}
+
+// NEW: Added optimized chat-based delegation function with improved performance and error handling
+export async function delegateDecisionToLLMChatOptimized(prompt, options = {}) {
+  if (!prompt || prompt.trim() === "") {
+    return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
+  }
+  if (!process.env.OPENAI_API_KEY) {
+    return { fixed: "false", message: "Missing API key.", refinement: "Set the OPENAI_API_KEY environment variable." };
+  }
+  try {
+    const openaiModule = await import("openai");
+    const Config = openaiModule.Configuration ? openaiModule.Configuration.default || openaiModule.Configuration : null;
+    if (!Config) throw new Error("OpenAI configuration missing");
+    const Api = openaiModule.OpenAIApi;
+    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY });
+    const openai = new Api(configuration);
+    const response = await openai.createChatCompletion({
+      model: options.model || "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "You are a helpful assistant that checks if an issue is resolved." },
+        { role: "user", content: prompt }
+      ],
+      temperature: options.temperature || 0.5
+    });
+    let result;
+    if (response.data.choices && response.data.choices.length > 0) {
+      const message = response.data.choices[0].message;
+      try {
+        result = JSON.parse(message.content);
+      } catch (e) {
+        result = { fixed: "false", message: "Failed to parse response content.", refinement: e.message };
+      }
+    } else {
+      result = { fixed: "false", message: "No response from OpenAI.", refinement: "Retry" };
+    }
+    return result;
+  } catch (error) {
+    return { fixed: "false", message: error.message, refinement: "LLM chat delegation optimized failed." };
+  }
+}
+
+// NEW: Added simulateFileSystemCall function to simulate file system operations
+export async function simulateFileSystemCall(filePath) {
+  try {
+    const content = await fs.readFile(filePath, "utf8");
+    return content;
+  } catch (error) {
+    console.error(chalk.red("File read error:"), error.message);
+    return null;
+  }
 }
 
 // New: Added callRepositoryService function as it was missing and required by tests
@@ -1635,17 +1736,6 @@ export async function delegateDecisionToLLMChatOptimized(prompt, options = {}) {
     return result;
   } catch (error) {
     return { fixed: "false", message: error.message, refinement: "LLM chat delegation optimized failed." };
-  }
-}
-
-// NEW: Added simulateFileSystemCall function to simulate file system operations
-export async function simulateFileSystemCall(filePath) {
-  try {
-    const content = await fs.readFile(filePath, "utf8");
-    return content;
-  } catch (error) {
-    console.error(chalk.red("File read error:"), error.message);
-    return null;
   }
 }
 
