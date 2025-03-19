@@ -46,6 +46,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **New Simulation Utilities:** Added functions such as `reviewIssue`, `simulateKafkaConsumer`, `simulateKafkaDelayedMessage`, `simulateKafkaTransaction`, `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, `simulateFileSystemCall`, and `callRepositoryService` for enhanced testing and simulation.
 
 ---
+---
 
 ## Recent Improvements
 
@@ -56,6 +57,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **New Simulation Utilities:** Implemented `reviewIssue`, `simulateKafkaConsumer`, `simulateKafkaDelayedMessage`, `simulateKafkaTransaction`, `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, `simulateFileSystemCall`, and `callRepositoryService` to cover additional test scenarios.
 - Increased test coverage with comprehensive unit tests and improved mocks.
 
+---
 ---
 
 ## Contributing
@@ -84,6 +86,7 @@ This repository is organized into three distinct areas:
 - **Licensing:** As part of the core project, it is under GPL‑3 with the attribution clause.
 - **Location:** The code is located in `src/lib/main.js`.
 
+---
 ---
 
 ## License
