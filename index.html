@@ -24,7 +24,10 @@
   <section>
     <h1 class="md-github"><a class="md-github__anchor" name="intentïon-agentic-lib" href="#intentïon-agentic-lib"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>intentïon agentic-lib</h1>
 <p class="md-github">You probably want to start with the workflow documentation here: <a href="https://github.com/xn-intenton-z2a/agentic-lib/blob/main/WORKFLOWS-README.md" class="md-github">WORKFLOWS-README.md</a></p>
-<p class="md-github">The <strong class="md-github">intentïon <code class="md-github">agentic-lib</code></strong> is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s <code class="md-github">workflow_call</code> event, so they can be composed together like an SDK.</p>
+<p class="md-github">The <strong class="md-github">intentïon <code class="md-github">agentic-lib</code></strong> is a collection of reusable GitHub Actions workflows that enable your
+repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
+issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
+GitHub’s <code class="md-github">workflow_call</code> event, so they can be composed together like an SDK.</p>
 <p class="md-github"><a href="https://github.com/xn-intenton-z2a/repository0" class="md-github">Start using the Repository Template</a></p>
 <p class="md-github"><a href="https://xn-intenton-z2a.github.io/agentic-lib/index.html" class="md-github">Also on GitHub Pages</a></p>
 <p class="md-github"><a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html" class="md-github">See the latest repository stats</a></p>
@@ -52,7 +55,8 @@
 <li class="md-github"><strong class="md-github">Remote Service Wrappers:</strong> Simplified API interactions for multiple services, including analytics, notifications, build status, deployment, logging, code quality, security scans, monitoring, and package management.</li>
 <li class="md-github"><strong class="md-github">LLM Delegation:</strong> Advanced functions that support decision delegation with schema validation, timeout support, and optimized performance. New chat-based delegation features include:
 <ul class="md-github">
-<li class="md-github"><code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, <code class="md-github">delegateDecisionToLLMChatEnhanced</code>, and <code class="md-github">delegateDecisionToLLMChatOptimized</code>.</li>
+<li class="md-github"><code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, and the newly added <code class="md-github">delegateDecisionToLLMChatOptimized</code> for improved prompt validation.</li>
+<li class="md-github"><strong class="md-github">NEW:</strong> <code class="md-github">delegateDecisionToLLMFunctionCallWrapper</code> has been added to extend our OpenAI function delegation capabilities following the supplied function calling example.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Kafka Operations:</strong> Simulated messaging functions for inter-workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, and extended functionalities:
@@ -70,15 +74,21 @@
 <li class="md-github"><strong class="md-github">File System Simulation:</strong> <code class="md-github">simulateFileSystemCall()</code> enables testing of file interactions with safe file path resolution.</li>
 <li class="md-github"><strong class="md-github">CI Workflow Simulation:</strong> <code class="md-github">simulateCIWorkflowLifecycle</code> aggregates telemetry data and simulates Kafka messaging to mimic a full workflow lifecycle.</li>
 <li class="md-github"><strong class="md-github">Issue Creation Simulation:</strong> The enhanced <code class="md-github">--create-issue</code> flag mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from <code class="md-github">HOUSE_CHOICE_OPTIONS</code> and logging detailed creation information in JSON format.</li>
+<li class="md-github"><strong class="md-github">New Simulation Utilities:</strong> Added functions such as <code class="md-github">reviewIssue</code>, <code class="md-github">simulateKafkaConsumer</code>, <code class="md-github">simulateKafkaDelayedMessage</code>, <code class="md-github">simulateKafkaTransaction</code>, <code class="md-github">simulateKafkaPriorityQueue</code>, <code class="md-github">simulateKafkaMessagePersistence</code>, <code class="md-github">simulateFileSystemCall</code>, and <code class="md-github">callRepositoryService</code> for enhanced testing and simulation.</li>
 </ul>
+<hr class="md-github">
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="recent-improvements" href="#recent-improvements"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Recent Improvements</h2>
 <ul class="md-github">
 <li class="md-github">Refreshed this README to align with the CONTRIBUTING guidelines.</li>
 <li class="md-github">Extended flag handling and improved telemetry and LLM delegation functions.</li>
 <li class="md-github"><strong class="md-github">Extended Kafka Messaging Simulations:</strong> Added <code class="md-github">simulateKafkaPriorityQueue</code> and <code class="md-github">simulateKafkaMessagePersistence</code> to enhance inter-workflow communication and simulate message persistence and priority handling.</li>
+<li class="md-github"><strong class="md-github">New OpenAI Function Wrapper:</strong> Implemented <code class="md-github">delegateDecisionToLLMFunctionCallWrapper</code> to extend our OpenAI function delegation capabilities following the supplied function calling example.</li>
+<li class="md-github"><strong class="md-github">New Chat Delegation Function:</strong> Added <code class="md-github">delegateDecisionToLLMChatOptimized</code> to provide improved prompt validation and error responses.</li>
+<li class="md-github"><strong class="md-github">New Simulation Utilities:</strong> Implemented <code class="md-github">reviewIssue</code>, <code class="md-github">simulateKafkaConsumer</code>, <code class="md-github">simulateKafkaDelayedMessage</code>, <code class="md-github">simulateKafkaTransaction</code>, <code class="md-github">simulateKafkaPriorityQueue</code>, <code class="md-github">simulateKafkaMessagePersistence</code>, <code class="md-github">simulateFileSystemCall</code>, and <code class="md-github">callRepositoryService</code> to cover additional test scenarios.</li>
 <li class="md-github">Increased test coverage with comprehensive unit tests and improved mocks.</li>
 </ul>
+<hr class="md-github">
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="contributing" href="#contributing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Contributing</h2>
 <p class="md-github">Contributions are welcome! Please see <a href="CONTRIBUTING.md" class="md-github">CONTRIBUTING.md</a> for guidelines.</p>
@@ -106,6 +116,7 @@
 <li class="md-github"><strong class="md-github">Location:</strong> The code is located in <code class="md-github">src/lib/main.js</code>.</li>
 </ul>
 <hr class="md-github">
+<hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="license" href="#license"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>License</h2>
 <p class="md-github">This project is licensed under the GNU General Public License (GPL). See <a href="LICENSE" class="md-github">LICENSE</a> for details.</p>
 <pre class="md-github"><code class="md-github">agentic-lib
@@ -127,10 +138,12 @@ along with this program. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 IMPORTANT: Any derived work must include the following attribution:
 &quot;This work is derived from https://github.com/xn-intenton-z2a/agentic-lib&quot;
 </code></pre>
+<hr class="md-github">
+<hr class="md-github">
 
   </section>
   <footer>
-    <p>Generated on 2025-03-19T16:07:10.959Z</p>
+    <p>Generated on 2025-03-19T18:08:20.227Z</p>
   </footer>
 </body>
 </html>
