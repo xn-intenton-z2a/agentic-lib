@@ -138,6 +138,33 @@ describe("simulateKafkaTransaction", () => {
   });
 });
 
+describe("simulateKafkaPriorityQueue", () => {
+  test("should return messages sorted by priority", () => {
+    const topic = "priority-topic";
+    const messages = [
+      { message: "Low priority", priority: 1 },
+      { message: "High priority", priority: 10 },
+      { message: "Medium priority", priority: 5 }
+    ];
+    const sorted = agenticLib.simulateKafkaPriorityQueue(topic, messages);
+    expect(sorted[0]).toContain("High priority");
+    expect(sorted[sorted.length - 1]).toContain("Low priority");
+  });
+});
+
+describe("simulateKafkaMessagePersistence", () => {
+  test("should persist messages and return updated store", () => {
+    const topic = "persistent-topic";
+    const msg1 = "First message";
+    const msg2 = "Second message";
+    const result1 = agenticLib.simulateKafkaMessagePersistence(topic, msg1);
+    const result2 = agenticLib.simulateKafkaMessagePersistence(topic, msg2);
+    expect(result1.persistedMessages).toContain(msg1);
+    expect(result2.persistedMessages).toContain(msg1);
+    expect(result2.persistedMessages).toContain(msg2);
+  });
+});
+
 describe("simulateFileSystemCall", () => {
   test("returns file content if file exists", async () => {
     const dummyPath = "./dummy.txt";

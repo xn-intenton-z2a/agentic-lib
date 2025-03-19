@@ -14,6 +14,7 @@
 // - Improved error handling in remote service wrappers and LLM delegation functions.
 // - EXTENDED: Updated callOpenAIFunctionWrapper to support timeout functionality and refined error logging to better align with the supplied OpenAI function wrapper example.
 // - EXTENDED: Added new Kafka simulation functions simulateKafkaDelayedMessage and simulateKafkaTransaction to model delayed messaging and transactional message sending.
+// - NEW: Added extended Kafka simulation functions simulateKafkaPriorityQueue and simulateKafkaMessagePersistence to enhance inter-workflow communication simulation and message durability.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -1491,6 +1492,40 @@ export function simulateKafkaTransaction(messagesArray) {
   });
   console.log(chalk.blue("Kafka Transaction Simulation:"), results);
   return { success: true, transaction: results };
+}
+
+// NEW: Added extended Kafka simulation functions
+/**
+ * New function to simulate a Kafka priority queue.
+ * It receives an array of message objects with a priority and returns them sorted by descending priority.
+ * @param {string} topic
+ * @param {Array<{message: string, priority: number}>} messages
+ * @returns {Array<string>} Sorted messages for simulation
+ */
+export function simulateKafkaPriorityQueue(topic, messages) {
+  const sorted = messages.sort((a, b) => b.priority - a.priority);
+  sorted.forEach(msg => {
+    console.log(chalk.blue(`Priority message on '${topic}': ${msg.message} (priority ${msg.priority})`));
+  });
+  return sorted.map(msg => `Priority message from topic '${topic}': ${msg.message}`);
+}
+
+// In-memory persistence store for Kafka messages simulation
+const kafkaPersistentStore = {};
+/**
+ * New function to simulate persistence of Kafka messages.
+ * It stores messages in an in-memory store and returns the updated store for the topic.
+ * @param {string} topic
+ * @param {string} message
+ * @returns {object} Object with topic and persisted messages
+ */
+export function simulateKafkaMessagePersistence(topic, message) {
+  if (!kafkaPersistentStore[topic]) {
+    kafkaPersistentStore[topic] = [];
+  }
+  kafkaPersistentStore[topic].push(message);
+  console.log(chalk.blue(`Persisted message on '${topic}': ${message}`));
+  return { topic, persistedMessages: kafkaPersistentStore[topic] };
 }
 
 // New function to wrap advanced LLM chat completions using OpenAI API

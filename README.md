@@ -18,6 +18,7 @@ Mixed licensing:
 This README has been refreshed in accordance with the CONTRIBUTING guidelines. Irrelevant and outdated content has been pruned, while core information remains to help you understand and contribute to the project.
 
 ---
+---
 
 ## Overview
 
@@ -32,7 +33,9 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **Remote Service Wrappers:** Simplified API interactions for multiple services, including analytics, notifications, build status, deployment, logging, code quality, security scans, monitoring, and package management.
 - **LLM Delegation:** Advanced functions that support decision delegation with schema validation, timeout support, and optimized performance. New chat-based delegation features include:
   - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and `delegateDecisionToLLMChatOptimized`.
-- **Kafka Operations:** Simulated messaging functions for inter-workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, and now extended with delayed messaging and transactional simulation.
+- **Kafka Operations:** Simulated messaging functions for inter-workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, and extended functionalities:
+  - Previously available functions: `simulateKafkaDelayedMessage` and `simulateKafkaTransaction`.
+  - **New Functions:** `simulateKafkaPriorityQueue` and `simulateKafkaMessagePersistence` for enhanced simulation of priority messaging and message durability.
 - **SARIF and Default Output Parsing:** Utilities such as:
   - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, `parseEslintDefaultOutput`, `parseVitestSarifOutput`, `parseEslintDetailedOutput`.
   - New combined parsers: `parseCombinedSarifOutput` and `parseCombinedDefaultOutput`.
@@ -46,7 +49,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 
 - Refreshed this README to align with the CONTRIBUTING guidelines.
 - Extended flag handling and improved telemetry and LLM delegation functions.
-- Enhanced Kafka messaging simulations including additions of `simulateKafkaDelayedMessage` and `simulateKafkaTransaction` to better emulate delayed processing and transactional message sending.
+- **Extended Kafka Messaging Simulations:** Added `simulateKafkaPriorityQueue` and `simulateKafkaMessagePersistence` to enhance inter-workflow communication and simulate message persistence and priority handling.
 - Increased test coverage with comprehensive unit tests and improved mocks.
 
 ---
