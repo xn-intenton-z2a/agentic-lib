@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // src/lib/main.js - Implementation aligned with the agentic‑lib mission statement.
 // Change Log:
-// - Aligned code with the agentic‑lib mission statement by pruning drift and removing redundant simulation verbiage.
+// - Fixed ESLint SARIF parser to correctly use run.results instead of sarif.results for counting issues.
+// - Extended default output parsers for Vitest and ESLint to use case-insensitive matching for increased robustness.
 // - Extended functionality with refined flag handling, enhanced telemetry, improved remote service wrappers, updated delegation functions, and expanded Kafka messaging simulations.
-// - Added new Kafka messaging functions and file system simulation for deeper testing.
+// - Added new Kafka simulation functions and file system simulation for deeper testing.
 // - Added new remote monitoring service wrapper to simulate fetching monitoring metrics remotely.
 // - Added new parsing functions: parseVitestDefaultOutput and parseEslintDefaultOutput to handle default output formats of Vitest and ESLint, extending SARIF parsing capabilities.
 // - Added additional parsing functions: parseVitestSarifOutput and parseEslintDetailedOutput for detailed SARIF output parsing.
@@ -609,7 +610,7 @@ export function parseEslintSarifOutput(sarifJson) {
     let totalIssues = 0;
     if (sarif.runs && Array.isArray(sarif.runs)) {
       for (const run of sarif.runs) {
-        if (run.results && Array.isArray(sarif.results)) { // corrected logic for ESLint
+        if (run.results && Array.isArray(run.results)) { // Fixed: use run.results
           totalIssues += run.results.length;
         }
       }
@@ -629,7 +630,7 @@ export function parseEslintSarifOutput(sarifJson) {
  * @param {string} outputStr
  */
 export function parseVitestOutput(outputStr) {
-  const match = outputStr.match(/(\d+) tests passed/);
+  const match = outputStr.match(/(\d+)\s+tests?\s+passed/i);
   if (match) {
     const testsPassed = parseInt(match[1], 10);
     console.log(chalk.green(`Vitest Output: ${testsPassed} tests passed.`));
@@ -645,7 +646,7 @@ export function parseVitestOutput(outputStr) {
  * @param {string} outputStr
  */
 export function parseVitestDefaultOutput(outputStr) {
-  const match = outputStr.match(/(\d+)\s+tests?\s+passed/);
+  const match = outputStr.match(/(\d+)\s+tests?\s+passed/i);
   if (match) {
     const testsPassed = parseInt(match[1], 10);
     console.log(chalk.green(`Vitest Default Output: ${testsPassed} tests passed.`));
@@ -661,9 +662,9 @@ export function parseVitestDefaultOutput(outputStr) {
  * @param {string} outputStr
  */
 export function parseEslintDefaultOutput(outputStr) {
-  const problems = outputStr.match(/(\d+)\s+problems?/);
-  const errors = outputStr.match(/(\d+)\s+errors?/);
-  const warnings = outputStr.match(/(\d+)\s+warnings?/);
+  const problems = outputStr.match(/(\d+)\s+problems?/i);
+  const errors = outputStr.match(/(\d+)\s+errors?/i);
+  const warnings = outputStr.match(/(\d+)\s+warnings?/i);
   if (problems) {
     const numProblems = parseInt(problems[1], 10);
     const numErrors = errors ? parseInt(errors[1], 10) : 0;

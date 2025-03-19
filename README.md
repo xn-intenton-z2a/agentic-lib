@@ -43,6 +43,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **SARIF and Default Output Parsing:** Utilities such as:
   - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, `parseEslintDefaultOutput`, `parseVitestSarifOutput`, `parseEslintDetailedOutput`.
   - New combined parsers: `parseCombinedSarifOutput` and `parseCombinedDefaultOutput`.
+  - *Recent Fix:* The ESLint SARIF parser was fixed to correctly count issues using the `run.results` array. Default output parsers for Vitest and ESLint are now case-insensitive.
 - **File System Simulation:** `simulateFileSystemCall()` enables testing of file interactions with safe file path resolution.
 - **CI Workflow Simulation:** `simulateCIWorkflowLifecycle` aggregates telemetry data and simulates Kafka messaging to mimic a full workflow lifecycle.
 - **Issue Creation Simulation:** The enhanced `--create-issue` flag mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from `HOUSE_CHOICE_OPTIONS` and logging detailed creation information in JSON format.
@@ -59,6 +60,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **New OpenAI Function Wrapper:** Implemented `delegateDecisionToLLMFunctionCallWrapper` to extend our OpenAI function delegation capabilities following the supplied function calling example.
 - **New Chat Delegation Function:** Added `delegateDecisionToLLMChatOptimized` to provide improved prompt validation and error responses.
 - **New Simulation Utilities:** Implemented `reviewIssue`, `simulateKafkaConsumer`, `simulateKafkaDelayedMessage`, `simulateKafkaTransaction`, `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, `simulateFileSystemCall`, and `callRepositoryService` to cover additional test scenarios.
+- **Parsing Enhancements:** Fixed the ESLint SARIF parser to correctly use the results array, and updated default output parsers for Vitest and ESLint to be case-insensitive.
 - Increased test coverage with comprehensive unit tests and improved mocks.
 
 ---
