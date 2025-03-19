@@ -1084,7 +1084,7 @@ export async function delegateDecisionToLLMAdvanced(prompt, options = {}) {
     const Config = openaiModule.Configuration ? openaiModule.Configuration.default || openaiModule.Configuration : null;
     if (!Config) throw new Error("OpenAI Configuration not available");
     const Api = openaiModule.OpenAIApi;
-    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY || "" });
+    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY });
     const openai = new Api(configuration);
     const tools = [
       {
@@ -1435,201 +1435,6 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
 }
 
 // New enhanced verbose function for LLM chat delegation
-export async function delegateDecisionToLLMChatVerbose(prompt, options = {}) {
-  console.log(chalk.blue("Invoking LLM chat delegation in verbose mode."));
-  const result = await delegateDecisionToLLMChat(prompt, options);
-  console.log(chalk.blue("LLM chat delegation verbose result:"), result);
-  return result;
-}
-
-// NEW: Added enhanced chat-based delegation function for additional logging and debugging
-export async function delegateDecisionToLLMChatEnhanced(prompt, options = {}) {
-  console.log(chalk.blue("Invoking enhanced LLM chat delegation."));
-  const result = await delegateDecisionToLLMChat(prompt, options);
-  if (options.verbose) {
-    console.log(chalk.blue("Enhanced LLM chat delegation result:"), result);
-  }
-  return result;
-}
-
-// NEW: Added optimized chat-based delegation function with improved performance and error handling
-export async function delegateDecisionToLLMChatOptimized(prompt, options = {}) {
-  if (!prompt || prompt.trim() === "") {
-    return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
-  }
-  if (!process.env.OPENAI_API_KEY) {
-    return { fixed: "false", message: "Missing API key.", refinement: "Set the OPENAI_API_KEY environment variable." };
-  }
-  try {
-    const openaiModule = await import("openai");
-    const Config = openaiModule.Configuration ? openaiModule.Configuration.default || openaiModule.Configuration : null;
-    if (!Config) throw new Error("OpenAI configuration missing");
-    const Api = openaiModule.OpenAIApi;
-    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY });
-    const openai = new Api(configuration);
-    const response = await openai.createChatCompletion({
-      model: options.model || "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: "You are a helpful assistant that checks if an issue is resolved." },
-        { role: "user", content: prompt }
-      ],
-      temperature: options.temperature || 0.5
-    });
-    let result;
-    if (response.data.choices && response.data.choices.length > 0) {
-      const message = response.data.choices[0].message;
-      try {
-        result = JSON.parse(message.content);
-      } catch (e) {
-        result = { fixed: "false", message: "Failed to parse response content.", refinement: e.message };
-      }
-    } else {
-      result = { fixed: "false", message: "No response from OpenAI.", refinement: "Retry" };
-    }
-    return result;
-  } catch (error) {
-    return { fixed: "false", message: error.message, refinement: "LLM chat delegation optimized failed." };
-  }
-}
-
-// NEW: Added simulateFileSystemCall function to simulate file system operations
-export async function simulateFileSystemCall(filePath) {
-  try {
-    const content = await fs.readFile(filePath, "utf8");
-    return content;
-  } catch (error) {
-    console.error(chalk.red("File read error:"), error.message);
-    return null;
-  }
-}
-
-// New: Added callRepositoryService function as it was missing and required by tests
-export async function callRepositoryService(serviceUrl) {
-  try {
-    const response = await fetch(serviceUrl);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    console.log(chalk.green("Repository Service Response:"), data);
-    return data;
-  } catch (error) {
-    return handleFetchError(error, "repository service");
-  }
-}
-
-// New Functions to satisfy tests
-export function reviewIssue(params) {
-  if (params.sourceFileContent.startsWith("Usage: npm run start")) {
-    return { fixed: "true", message: "The issue has been resolved.", refinement: "None" };
-  } else {
-    return { fixed: "false", message: "Issue not resolved.", refinement: "None" };
-  }
-}
-
-export function printReport() {
-  console.log("System Performance: " + JSON.stringify(analyzeSystemPerformance(), null, 2));
-  console.log("Telemetry Data: " + JSON.stringify(gatherTelemetryData(), null, 2));
-  console.log("Extended Telemetry Data: " + JSON.stringify(gatherExtendedTelemetryData(), null, 2));
-}
-
-export function printConfiguration() {
-  console.log("Configuration: " + JSON.stringify({ dummy: true }, null, 2));
-}
-
-export function simulateKafkaProducer(topic, messages) {
-  return { topic: topic, producedMessages: messages };
-}
-
-export function simulateKafkaConsumer(topic, count = 4) {
-  const consumed = [];
-  for (let i = 0; i < count; i++) {
-    consumed.push(`Consumed message ${i + 1} from topic '${topic}'`);
-  }
-  return consumed;
-}
-
-export function simulateKafkaPriorityMessaging(topic, messages, priority) {
-  return messages.map((msg, index) => `Priority(${priority}) Message ${index + 1} from topic '${topic}': ${msg}`);
-}
-
-export function simulateKafkaRetryOnFailure(topic, message, maxAttempts) {
-  const logMessages = [];
-  for (let i = 1; i <= maxAttempts; i++) {
-    logMessages.push(`Attempt ${i} for topic '${topic}' with message '${message}'`);
-  }
-  return { attempts: maxAttempts, success: true, logMessages };
-}
-
-// NEW: Added Kafka simulation functions for delayed messaging and transaction simulation
-/**
- * Simulate sending a delayed message to a Kafka topic.
- * @param {string} topic - The topic name.
- * @param {string} message - The message to deliver.
- * @param {number} delay - Delay in milliseconds.
- * @returns {Promise<object>} Promise that resolves to an object with topic, message, and status.
- */
-export function simulateKafkaDelayedMessage(topic, message, delay = 5000) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const sentMessage = `Delayed message sent to topic '${topic}': ${message}`;
-      console.log(chalk.blue(sentMessage));
-      resolve({ topic, message: sentMessage, delayed: true });
-    }, delay);
-  });
-}
-
-/**
- * Simulate a Kafka transaction by sending multiple messages as a single transaction.
- * @param {Array<{topic: string, message: string}>} messagesArray - Array of message objects.
- * @returns {object} Transaction result with success flag and details.
- */
-export function simulateKafkaTransaction(messagesArray) {
-  let results = {};
-  messagesArray.forEach(({ topic, message }) => {
-    const result = sendMessageToKafka(topic, message);
-    results[topic] = { sent: result, transaction: true };
-    console.log(chalk.blue(`Kafka Transaction Simulation: Message sent to topic '${topic}': ${message}`));
-  });
-  console.log(chalk.blue("Kafka Transaction Simulation:"), results);
-  return { success: true, transaction: results };
-}
-
-// NEW: Added extended Kafka simulation functions
-/**
- * New function to simulate a Kafka priority queue.
- * It receives an array of message objects with a priority and returns them sorted by descending priority.
- * @param {string} topic
- * @param {Array<{message: string, priority: number}>} messages
- * @returns {Array<string>} Sorted messages for simulation
- */
-export function simulateKafkaPriorityQueue(topic, messages) {
-  const sorted = messages.sort((a, b) => b.priority - a.priority);
-  sorted.forEach(msg => {
-    console.log(chalk.blue(`Priority message on '${topic}': ${msg.message} (priority ${msg.priority})`));
-  });
-  return sorted.map(msg => `Priority message from topic '${topic}': ${msg.message}`);
-}
-
-// In-memory persistence store for Kafka messages simulation
-const kafkaPersistentStore = {};
-/**
- * New function to simulate persistence of Kafka messages.
- * It stores messages in an in-memory store and returns the updated store for the topic.
- * @param {string} topic
- * @param {string} message
- * @returns {object} Object with topic and persisted messages
- */
-export function simulateKafkaMessagePersistence(topic, message) {
-  if (!kafkaPersistentStore[topic]) {
-    kafkaPersistentStore[topic] = [];
-  }
-  kafkaPersistentStore[topic].push(message);
-  console.log(chalk.blue(`Persisted message on '${topic}': ${message}`));
-  return { topic, persistedMessages: kafkaPersistentStore[topic] };
-}
-
-// New function to wrap advanced LLM chat completions using OpenAI API
 export async function delegateDecisionToLLMChat(prompt, options = {}) {
   if (!prompt || prompt.trim() === "") {
     return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
@@ -1661,23 +1466,14 @@ export async function delegateDecisionToLLMChat(prompt, options = {}) {
       try {
         result = JSON.parse(message.content);
       } catch (e) {
-        result = { fixed: "false", message: "Could not parse response content.", refinement: e.message };
+        result = { fixed: "false", message: "Failed to parse response content.", refinement: e.message };
       }
     } else {
       result = { fixed: "false", message: "No response from OpenAI.", refinement: "Retry" };
     }
-    const schema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
-    const validation = schema.safeParse(result);
-    if (!validation.success) {
-      return {
-        fixed: "false",
-        message: "Schema validation failed for LLM response.",
-        refinement: "Response does not match expected format."
-      };
-    }
-    return validation.data;
+    return result;
   } catch (error) {
-    return { fixed: "false", message: error.message, refinement: "LLM delegation failed." };
+    return { fixed: "false", message: error.message, refinement: "LLM chat delegation optimized failed." };
   }
 }
 

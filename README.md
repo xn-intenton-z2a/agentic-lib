@@ -33,7 +33,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **Remote Service Wrappers:** Simplified API interactions for multiple services, including analytics, notifications, build status, deployment, logging, code quality, security scans, monitoring, and package management.
 - **LLM Delegation:** Advanced functions that support decision delegation with schema validation, timeout support, and optimized performance. New chat-based delegation features include:
   - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatEnhanced`, and `delegateDecisionToLLMChatOptimized`.
-  - **NEW:** `delegateDecisionToLLMFunctionCallWrapper` has been added to extend the OpenAI function wrapper capabilities with function calling support as per the supplied OpenAI example.
+  - **NEW:** `delegateDecisionToLLMFunctionCallWrapper` has been added to extend our OpenAI function delegation capabilities following the supplied function calling example.
 - **Kafka Operations:** Simulated messaging functions for inter-workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, and extended functionalities:
   - Previously available functions: `simulateKafkaDelayedMessage` and `simulateKafkaTransaction`.
   - **New Functions:** `simulateKafkaPriorityQueue` and `simulateKafkaMessagePersistence` for enhanced simulation of priority messaging and message durability.
@@ -108,3 +108,5 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
+
+---
