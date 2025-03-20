@@ -33,7 +33,7 @@ import { promises as fs } from "fs";
 
 // Helper function to escape regex special characters
 function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\\\]])/g, "\\$&");
+  return string.replace(/[.*+?^${}()|[\]\]/g, "\\$&");
 }
 
 // Helper for parsing LLM message content
@@ -959,7 +959,7 @@ export function generateUsage() {
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\\d{1,10})(?!\\\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }

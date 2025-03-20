@@ -40,7 +40,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **Kafka Operations:** Simulated messaging functions for inter-workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, and extended functionalities:
   - Previously available functions: `simulateKafkaDelayedMessage` and `simulateKafkaTransaction`.
   - **New Functions:** `simulateKafkaPriorityQueue` and `simulateKafkaMessagePersistence` for enhanced simulation of priority messaging and message durability.
-  - **NEW:** **simulateKafkaMulticast** has been added to simulate multicast messaging across multiple topics with optional delay, extending our Kafka simulation capabilities.
+  - **NEW:** **simulateKafkaMulticast** has been added to simulate multicast messaging across multiple topics with an optional delay parameter, extending our Kafka simulation capabilities.
 - **SARIF and Default Output Parsing:** Utilities such as:
   - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, `parseEslintDefaultOutput`, `parseVitestSarifOutput`, `parseEslintDetailedOutput`.
   - New combined parsers: `parseCombinedSarifOutput` and `parseCombinedDefaultOutput`.
@@ -96,6 +96,7 @@ This repository is organized into three distinct areas:
 - **Location:** The code is located in `src/lib/main.js`.
 
 ---
+
 
 ## License
 
