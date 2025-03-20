@@ -22,7 +22,6 @@ This README has been refreshed in accordance with the CONTRIBUTING guidelines. I
 
 ---
 
-
 ## Overview
 
 agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Actions workflows. Key features include:
@@ -52,7 +51,6 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 
 ---
 
-
 ## Recent Improvements
 
 - Refreshed this README to align with the CONTRIBUTING guidelines.
@@ -67,7 +65,6 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - Increased test coverage with comprehensive unit tests and improved mocks.
 
 ---
-
 
 ## Contributing
 
@@ -97,7 +94,6 @@ This repository is organized into three distinct areas:
 
 ---
 
-
 ## License
 
 This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
@@ -122,3 +118,5 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
+
+---
