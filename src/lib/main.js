@@ -959,7 +959,7 @@ export function generateUsage() {
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -1120,13 +1120,13 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
       type: "function",
       function: {
         name: "review_issue",
-        description: "Evaluate whether the supplied source file content resolves the issue. Return an object with fixed, message, and refinement.",
+        description: "Evaluate whether the supplied source file content resolves the issue. Return an object with fixed (string: 'true' or 'false'), message (explanation), and refinement (suggested refinement).",
         parameters: {
           type: "object",
           properties: {
             fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
-            message: { type: "string", description: "Explanation of the result" },
-            refinement: { type: "string", description: "Suggested refinement if not resolved" }
+            message: { type: "string", description: "A message explaining the result" },
+            refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
           },
           required: ["fixed", "message", "refinement"],
           additionalProperties: false
