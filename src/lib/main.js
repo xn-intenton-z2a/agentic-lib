@@ -17,6 +17,7 @@
 // - EXTENDED: Updated callOpenAIFunctionWrapper to support timeout functionality and refined error logging to better align with the supplied OpenAI function wrapper example.
 // - EXTENDED: Added new Kafka simulation functions simulateKafkaDelayedMessage and simulateKafkaTransaction to model delayed messaging and transactional message sending.
 // - NEW: Added extended Kafka simulation functions simulateKafkaPriorityQueue and simulateKafkaMessagePersistence to enhance inter-workflow communication simulation and message durability.
+// - NEW: Added simulateKafkaMulticast function to simulate multicast messaging across multiple topics with optional delay.
 // - NEW: Added delegateDecisionToLLMFunctionCallWrapper, a new wrapper for OpenAI function calling that follows the pattern from the supplied OpenAI function example.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
@@ -32,7 +33,7 @@ import { promises as fs } from "fs";
 
 // Helper function to escape regex special characters
 function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\\\]]/g, "\\$&");
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 // Helper for parsing LLM message content
@@ -958,7 +959,7 @@ export function generateUsage() {
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\\d{1,10})(?!\\\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -1119,13 +1120,13 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
       type: "function",
       function: {
         name: "review_issue",
-        description: "Evaluate whether the supplied source file content resolves the issue. Return an object with fixed, message, and refinement.",
+        description: "Evaluate whether the supplied source file content resolves the issue. Return an object with fixed (string: 'true' or 'false'), message (explanation), and refinement (suggested refinement).",
         parameters: {
           type: "object",
           properties: {
             fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
-            message: { type: "string", description: "Explanation of the result" },
-            refinement: { type: "string", description: "Suggested refinement if not resolved" }
+            message: { type: "string", description: "A message explaining the result" },
+            refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
           },
           required: ["fixed", "message", "refinement"],
           additionalProperties: false
@@ -1216,6 +1217,21 @@ export function simulateKafkaMessagePersistence(topic, message) {
   }
   persistenceStore[topic].push(message);
   return { topic, persistedMessages: persistenceStore[topic] };
+}
+
+// NEW: Function to simulate multicast messaging to multiple Kafka topics with optional delay
+export function simulateKafkaMulticast(topics, message, multicastOptions = {}) {
+  const results = {};
+  const delay = multicastOptions.delay || 0;
+  topics.forEach(topic => {
+    let finalMessage = message;
+    if (delay > 0) {
+      finalMessage += ` (delayed by ${delay}ms)`;
+    }
+    results[topic] = { multicast: finalMessage };
+    console.log(chalk.blue(`Multicast to '${topic}': ${finalMessage}`));
+  });
+  return results;
 }
 
 // Function to simulate file system call

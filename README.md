@@ -21,7 +21,6 @@ Mixed licensing:
 This README has been refreshed in accordance with the CONTRIBUTING guidelines. Irrelevant and outdated content has been pruned, while core information remains to help you understand and contribute to the project.
 
 ---
----
 
 ## Overview
 
@@ -40,30 +39,31 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **Kafka Operations:** Simulated messaging functions for inter-workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, and extended functionalities:
   - Previously available functions: `simulateKafkaDelayedMessage` and `simulateKafkaTransaction`.
   - **New Functions:** `simulateKafkaPriorityQueue` and `simulateKafkaMessagePersistence` for enhanced simulation of priority messaging and message durability.
+  - **NEW:** **simulateKafkaMulticast** has been added to simulate multicast messaging across multiple topics with an optional delay parameter, extending our Kafka simulation capabilities.
 - **SARIF and Default Output Parsing:** Utilities such as:
   - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, `parseEslintDefaultOutput`, `parseVitestSarifOutput`, `parseEslintDetailedOutput`.
   - New combined parsers: `parseCombinedSarifOutput` and `parseCombinedDefaultOutput`.
-  - *Recent Fix:* The ESLint SARIF parser was fixed to correctly count issues using the `run.results` array. Default output parsers for Vitest and ESLint are now case-insensitive.
+  - *Recent Fix:* The ESLint SARIF parser was fixed to correctly use the results array, and updated default output parsers for Vitest and ESLint are now case-insensitive.
 - **File System Simulation:** `simulateFileSystemCall()` enables testing of file interactions with safe file path resolution.
 - **CI Workflow Simulation:** `simulateCIWorkflowLifecycle` aggregates telemetry data and simulates Kafka messaging to mimic a full workflow lifecycle.
 - **Issue Creation Simulation:** The enhanced `--create-issue` flag mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from `HOUSE_CHOICE_OPTIONS` and logging detailed creation information in JSON format.
-- **New Simulation Utilities:** Added functions such as `reviewIssue`, `simulateKafkaConsumer`, `simulateKafkaDelayedMessage`, `simulateKafkaTransaction`, `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, `simulateFileSystemCall`, and `callRepositoryService` for enhanced testing and simulation.
+- **New Simulation Utilities:** Implemented additional Kafka messaging functions, including **simulateKafkaMulticast**, to enable multicast messaging across topics, as well as various other functions covering file system simulation and remote service calls.
 
----
 ---
 
 ## Recent Improvements
 
 - Refreshed this README to align with the CONTRIBUTING guidelines.
 - Extended flag handling and improved telemetry and LLM delegation functions.
-- **Extended Kafka Messaging Simulations:** Added `simulateKafkaPriorityQueue` and `simulateKafkaMessagePersistence` to enhance inter-workflow communication and simulate message persistence and priority handling.
+- **Extended Kafka Messaging Simulations:**
+  - Added `simulateKafkaPriorityQueue` and `simulateKafkaMessagePersistence` to enhance inter-workflow communication and simulate message persistence and priority handling.
+  - **NEW:** Added `simulateKafkaMulticast` to simulate multicast messaging across multiple topics with an optional delay parameter.
 - **New OpenAI Function Wrapper:** Implemented `delegateDecisionToLLMFunctionCallWrapper` to extend our OpenAI function delegation capabilities following the supplied function calling example.
 - **New Chat Delegation Function:** Added `delegateDecisionToLLMChatOptimized` to provide improved prompt validation and error responses.
-- **New Simulation Utilities:** Implemented `reviewIssue`, `simulateKafkaConsumer`, `simulateKafkaDelayedMessage`, `simulateKafkaTransaction`, `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, `simulateFileSystemCall`, and `callRepositoryService` to cover additional test scenarios.
+- **New Simulation Utilities:** Implemented `reviewIssue`, `simulateKafkaConsumer`, `simulateKafkaDelayedMessage`, `simulateKafkaTransaction`, `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, `simulateKafkaMulticast`, `simulateFileSystemCall`, and `callRepositoryService` to cover additional test scenarios.
 - **Parsing Enhancements:** Fixed the ESLint SARIF parser to correctly use the results array, and updated default output parsers for Vitest and ESLint to be case-insensitive.
 - Increased test coverage with comprehensive unit tests and improved mocks.
 
----
 ---
 
 ## Contributing
@@ -93,7 +93,6 @@ This repository is organized into three distinct areas:
 - **Location:** The code is located in `src/lib/main.js`.
 
 ---
----
 
 ## License
 
@@ -120,5 +119,4 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
----
 ---

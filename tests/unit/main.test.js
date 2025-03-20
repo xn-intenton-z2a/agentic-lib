@@ -275,3 +275,16 @@ describe("simulateKafkaBroadcast", () => {
     expect(result.topic1.broadcast).toBe(true);
   });
 });
+
+describe("simulateKafkaMulticast", () => {
+  test("should simulate multicast messaging to multiple topics", () => {
+    const topics = ["multi1", "multi2", "multi3"];
+    const message = "Multicast message";
+    const options = { delay: 50 };
+    const result = agenticLib.simulateKafkaMulticast(topics, message, options);
+    topics.forEach(topic => {
+      expect(result[topic].multicast).toContain(message);
+      expect(result[topic].multicast).toContain("delayed by 50ms");
+    });
+  });
+});
