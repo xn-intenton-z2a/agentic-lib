@@ -28,47 +28,42 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 
 - **Usage Information:** Use `generateUsage()` to display available command-line options.
 - **Telemetry:** Comprehensive diagnostics via functions such as:
-  - `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and the new `gatherTotalTelemetry()`.
+  - `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and `gatherTotalTelemetry()`.
   - **CI Metrics:** `gatherCIEnvironmentMetrics()` captures additional GitHub Actions metrics.
   - **Extra Telemetry:** `gatherExtraTelemetryData()` provides metrics like timestamp, CPU usage, and free memory.
   - **GitHub Environment Telemetry:** `gatherGithubEnvTelemetry()` aggregates all environment variables starting with `GITHUB_`.
 - **Remote Service Wrappers:** Simplified API interactions for multiple services, including analytics, notifications, build status, deployment, logging, code quality, security scans, monitoring, and package management.
-- **LLM Delegation:** Advanced functions that support decision delegation with schema validation, timeout support, and optimized performance. New chat-based delegation features include:
-  - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, and the newly added `delegateDecisionToLLMChatOptimized` for improved prompt validation.
-  - **NEW:** `delegateDecisionToLLMFunctionCallWrapper` has been added to extend our OpenAI function delegation capabilities following the supplied function calling example.
+- **LLM Delegation:** Functions to support decision delegation with advanced OpenAI capabilities. New features include:
+  - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, and `delegateDecisionToLLMChatOptimized` for enhanced prompt validation.
+  - **NEW:** `delegateDecisionToLLMFunctionCallWrapper` extends our OpenAI function delegation capabilities.
 - **Kafka Operations:** Simulated messaging functions for inter-workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, and extended functionalities:
-  - Previously available functions: `simulateKafkaDelayedMessage` and `simulateKafkaTransaction`.
-  - **New Functions:** `simulateKafkaPriorityQueue` and `simulateKafkaMessagePersistence` for enhanced simulation of priority messaging and message durability.
-  - **NEW:** **simulateKafkaMulticast** has been added to simulate multicast messaging across multiple topics with an optional delay parameter, extending our Kafka simulation capabilities.
-- **SARIF and Default Output Parsing:** Utilities such as:
+  - Improved simulations such as `simulateKafkaDelayedMessage`, `simulateKafkaTransaction`, `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, and **simulateKafkaMulticast** for multicast messaging with delay options.
+- **SARIF and Default Output Parsing:** Utilities like:
   - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, `parseEslintDefaultOutput`, `parseVitestSarifOutput`, `parseEslintDetailedOutput`.
   - New combined parsers: `parseCombinedSarifOutput` and `parseCombinedDefaultOutput`.
-  - *Recent Fix:* The ESLint SARIF parser was fixed to correctly use the results array, and updated default output parsers for Vitest and ESLint are now case-insensitive.
-- **File System Simulation:** `simulateFileSystemCall()` enables testing of file interactions with safe file path resolution.
+- **File System Simulation:** `simulateFileSystemCall()` enables safe file interactions for testing.
 - **CI Workflow Simulation:** `simulateCIWorkflowLifecycle` aggregates telemetry data and simulates Kafka messaging to mimic a full workflow lifecycle.
-- **Issue Creation Simulation:** The enhanced `--create-issue` flag mimics the GitHub Actions workflow (wfr-create-issue.yml) by dynamically selecting an issue title from `HOUSE_CHOICE_OPTIONS` and logging detailed creation information in JSON format.
-- **New Simulation Utilities:** Implemented additional Kafka messaging functions, including **simulateKafkaMulticast**, to enable multicast messaging across topics, as well as various other functions covering file system simulation and remote service calls.
+- **Issue Creation Simulation:** The enhanced `--create-issue` flag mimics a GitHub Actions workflow by dynamically selecting an issue title from `HOUSE_CHOICE_OPTIONS` and logging detailed JSON output.
 
 ---
 
 ## Recent Improvements
 
-- Refreshed this README to align with the CONTRIBUTING guidelines.
-- Extended flag handling and improved telemetry and LLM delegation functions.
+- Refreshed this README based on the CONTRIBUTING guidelines.
+- Extended flag handling, telemetry functions, and LLM delegation capabilities.
 - **Extended Kafka Messaging Simulations:**
-  - Added `simulateKafkaPriorityQueue` and `simulateKafkaMessagePersistence` to enhance inter-workflow communication and simulate message persistence and priority handling.
-  - **NEW:** Added `simulateKafkaMulticast` to simulate multicast messaging across multiple topics with an optional delay parameter.
-- **New OpenAI Function Wrapper:** Implemented `delegateDecisionToLLMFunctionCallWrapper` to extend our OpenAI function delegation capabilities following the supplied function calling example.
-- **New Chat Delegation Function:** Added `delegateDecisionToLLMChatOptimized` to provide improved prompt validation and error responses.
-- **New Simulation Utilities:** Implemented `reviewIssue`, `simulateKafkaConsumer`, `simulateKafkaDelayedMessage`, `simulateKafkaTransaction`, `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, `simulateKafkaMulticast`, `simulateFileSystemCall`, and `callRepositoryService` to cover additional test scenarios.
-- **Parsing Enhancements:** Fixed the ESLint SARIF parser to correctly use the results array, and updated default output parsers for Vitest and ESLint to be case-insensitive.
-- Increased test coverage with comprehensive unit tests and improved mocks.
+  - Added `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, and **simulateKafkaMulticast** for improved simulation of priority messaging, persistence, and multicast functionality.
+- **New OpenAI Function Wrapper:** Implemented `delegateDecisionToLLMFunctionCallWrapper` following advanced function calling patterns.
+- **New Chat Delegation Function:** Added `delegateDecisionToLLMChatOptimized` for improved prompt validation and error handling.
+- **Enhanced Telemetry and Simulation Utilities:** Additional functions for issue review, advanced analytics, and robust file and network simulation.
 
 ---
 
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+---
 
 ## Component Breakdown
 
@@ -83,13 +78,13 @@ This repository is organized into three distinct areas:
 ### 2. Example Workflows (Demonstrative Content)
 - **Purpose:** These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
 - **Stability:** While functional, they are intended primarily for demonstration and experimentation.
-- **Licensing:** The example workflows are covered by the MIT license to allow for broader use and modification.
+- **Licensing:** The example workflows are covered by the MIT license for broader use and modification.
 - **Location:** Look in the `examples/` directory for sample implementations.
 
 ### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
-- **Purpose:** This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
-- **Stability:** It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
-- **Licensing:** As part of the core project, it is under GPL‑3 with the attribution clause.
+- **Purpose:** This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to the core functionality.
+- **Stability:** Under active development; represents bleeding‑edge functionality not yet production‑ready.
+- **Licensing:** Part of the core project under GPL‑3 with the attribution clause.
 - **Location:** The code is located in `src/lib/main.js`.
 
 ---
@@ -118,5 +113,3 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
-
----

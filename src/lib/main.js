@@ -10,15 +10,14 @@
 // - Added additional parsing functions: parseVitestSarifOutput and parseEslintDetailedOutput for detailed SARIF output parsing.
 // - Added new combined SARIF parser function: parseCombinedSarifOutput to aggregate Vitest and ESLint issues from SARIF reports.
 // - NEW: Added combined default output parser function: parseCombinedDefaultOutput to aggregate Vitest and ESLint default outputs.
-// - Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching. (Fixed: now uses double backslashes in regex)
+// - Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching.
 // - Added new function delegateDecisionToLLMChatOptimized to provide optimized chat delegation with proper prompt and API key validation.
-// - Enhanced the --create-issue workflow simulation to more closely mimic the GitHub Actions issue creation workflow, dynamically selecting an issue title from HOUSE_CHOICE_OPTIONS and logging detailed JSON output.
-// - Improved error handling in remote service wrappers and LLM delegation functions.
-// - EXTENDED: Updated callOpenAIFunctionWrapper to support timeout functionality and refined error logging to better align with the supplied OpenAI function wrapper example.
-// - EXTENDED: Added new Kafka simulation functions simulateKafkaDelayedMessage and simulateKafkaTransaction to model delayed messaging and transactional message sending.
-// - NEW: Added extended Kafka simulation functions simulateKafkaPriorityQueue and simulateKafkaMessagePersistence to enhance inter-workflow communication simulation and message durability.
-// - NEW: Added simulateKafkaMulticast function to simulate multicast messaging across multiple topics with optional delay.
-// - NEW: Added delegateDecisionToLLMFunctionCallWrapper, a new wrapper for OpenAI function calling that follows the pattern from the supplied OpenAI function example.
+// - Enhanced the --create-issue workflow simulation to mimic the GitHub Actions issue creation workflow with dynamic issue title selection based on HOUSE_CHOICE_OPTIONS.
+// - EXTENDED: Updated callOpenAIFunctionWrapper to support timeout functionality and refined error logging.
+// - EXTENDED: Added new Kafka simulation functions simulateKafkaDelayedMessage and simulateKafkaTransaction.
+// - NEW: Added extended Kafka simulation functions simulateKafkaPriorityQueue, simulateKafkaMessagePersistence, and simulateKafkaMulticast for multicast messaging with optional delay.
+// - NEW: Added delegateDecisionToLLMFunctionCallWrapper for advanced OpenAI function calling support.
+// - UPDATED: Refreshed README handling in accordance with CONTRIBUTING guidelines.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -287,7 +286,6 @@ export function simulateKafkaBroadcast(topics, message) {
 
 /**
  * New function to simulate dynamic routing of Kafka messages based on a routing key.
- * This function routes the message to only those topics that include the routing key as a substring.
  * @param {string[]} topics - Array of Kafka topics.
  * @param {string} routingKey - The key used to determine target topics.
  * @param {string} message - The message to route.
@@ -344,7 +342,6 @@ export function simulateKafkaWorkflowMessaging(topics, routingKey, message, cons
 
 /**
  * New function to simulate direct Kafka messaging to a designated topic.
- * This function sends a message directly and retrieves a simulated receipt.
  * @param {string} topic
  * @param {string} message
  * @returns {object} An object containing the topic, sent message confirmation, and received simulated response.
