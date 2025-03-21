@@ -61,6 +61,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
   - Added `delegateDecisionToLLMChatOptimized` for improved prompt validation and error handling.
   - **NEW:** Added `delegateDecisionToLLMChatAdvanced` for advanced delegation with the ability to incorporate additional context into the prompt.
 - **Enhanced Telemetry and Simulation Utilities:** Additional functions for issue review, advanced analytics, and robust file and network simulation.
+- **Drift Pruning:** Removed deprecated and extraneous code to align the source implementation strictly with the agentic‑lib mission statement.
 
 ---
 
@@ -117,4 +118,5 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
+---
 ---
