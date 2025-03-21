@@ -9,7 +9,7 @@
 // - Added new parsing functions: parseVitestDefaultOutput and parseEslintDefaultOutput to handle default output formats of Vitest and ESLint, extending SARIF parsing capabilities.
 // - Added additional parsing functions: parseVitestSarifOutput and parseEslintDetailedOutput for detailed SARIF output parsing.
 // - Added new combined SARIF parser function: parseCombinedSarifOutput to aggregate Vitest and ESLint issues from SARIF reports.
-// - NEW: Added combined default output parser function: parseCombinedDefaultOutput to aggregate Vitest and ESLint default outputs.
+// - Added combined default output parser function: parseCombinedDefaultOutput to aggregate Vitest and ESLint default outputs.
 // - Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching.
 // - Fixed getIssueNumberFromBranch regex to correctly capture the issue number from branch names.
 // - Added new function delegateDecisionToLLMChatOptimized to provide optimized chat delegation with proper prompt and API key validation.
@@ -18,7 +18,8 @@
 // - EXTENDED: Added new Kafka simulation functions simulateKafkaDelayedMessage and simulateKafkaTransaction.
 // - NEW: Added extended Kafka simulation functions simulateKafkaPriorityQueue, simulateKafkaMessagePersistence, simulateKafkaMulticast, and simulateKafkaRebroadcast for enhanced multicast and rebroadcast messaging across agentic workflows.
 // - NEW: Added delegateDecisionToLLMFunctionCallWrapper for advanced OpenAI function calling support.
-//
+// - NEW: Added delegateDecisionToLLMChatAdvanced for advanced delegation with extra context support.
+
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
 import { fileURLToPath } from "url";
@@ -978,7 +979,7 @@ export function generateUsage() {
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -1188,6 +1189,19 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
     console.error("delegateDecisionToLLMFunctionCallWrapper error:", error);
     return { fixed: "false", message: error.message, refinement: "LLM delegation failed." };
   }
+}
+
+// NEW: Added delegateDecisionToLLMChatAdvanced for advanced delegation with extra context support.
+export async function delegateDecisionToLLMChatAdvanced(prompt, extraContext = "", options = {}) {
+  if (!prompt || prompt.trim() === "") {
+    return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
+  }
+  if (!process.env.OPENAI_API_KEY) {
+    return { fixed: "false", message: "Missing API key.", refinement: "Set the OPENAI_API_KEY environment variable." };
+  }
+  const extendedPrompt = prompt + "\nContext: " + extraContext;
+  const result = await delegateDecisionToLLMChatOptimized(extendedPrompt, options);
+  return result;
 }
 
 // Simulation functions for testing and enhanced simulation and utility

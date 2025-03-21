@@ -100,6 +100,23 @@ describe("delegateDecisionToLLMFunctionCallWrapper", () => {
   });
 });
 
+describe("delegateDecisionToLLMChatAdvanced", () => {
+  test("returns error if prompt is empty", async () => {
+    const result = await agenticLib.delegateDecisionToLLMChatAdvanced("", "Some extra context", {});
+    expect(result.fixed).toBe("false");
+    expect(result.message).toContain("Prompt is required");
+  });
+
+  test("returns error if API key is missing", async () => {
+    const originalApiKey = process.env.OPENAI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+    const result = await agenticLib.delegateDecisionToLLMChatAdvanced("Test prompt", "Extra context", {});
+    expect(result.fixed).toBe("false");
+    expect(result.message).toContain("Missing API key");
+    process.env.OPENAI_API_KEY = originalApiKey;
+  });
+});
+
 describe("gatherTotalTelemetry", () => {
   test("should contain githubEnv property", () => {
     const total = agenticLib.gatherTotalTelemetry();
