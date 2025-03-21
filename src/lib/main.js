@@ -15,7 +15,7 @@
 // - Enhanced the --create-issue workflow simulation to mimic the GitHub Actions issue creation workflow with dynamic issue title selection based on HOUSE_CHOICE_OPTIONS.
 // - EXTENDED: Updated callOpenAIFunctionWrapper to support timeout functionality and refined error logging.
 // - EXTENDED: Added new Kafka simulation functions simulateKafkaDelayedMessage and simulateKafkaTransaction.
-// - NEW: Added extended Kafka simulation functions simulateKafkaPriorityQueue, simulateKafkaMessagePersistence, and simulateKafkaMulticast for multicast messaging with optional delay.
+// - NEW: Added extended Kafka simulation functions simulateKafkaPriorityQueue, simulateKafkaMessagePersistence, simulateKafkaMulticast, and simulateKafkaRebroadcast for enhanced multicast and rebroadcast messaging across agentic workflows.
 // - NEW: Added delegateDecisionToLLMFunctionCallWrapper for advanced OpenAI function calling support.
 // - UPDATED: Refreshed README handling in accordance with CONTRIBUTING guidelines.
 
@@ -351,6 +351,28 @@ export function simulateKafkaDirectMessage(topic, message) {
   const receipt = receiveMessageFromKafka(topic);
   console.log(chalk.blue(`Direct message to '${topic}': Sent -> ${sent}, Received -> ${receipt}`));
   return { topic, sent, receipt };
+}
+
+/**
+ * NEW: Added simulateKafkaRebroadcast to simulate rebroadcasting a Kafka message to multiple topics repeatedly, 
+ * simulating peer-to-peer message propagation across agentic workflows.
+ * @param {string[]} topics - Array of topics to rebroadcast the message.
+ * @param {string} message - The message to rebroadcast.
+ * @param {number} repeat - Number of times to rebroadcast.
+ * @returns {object} An object mapping each topic to an array of rebroadcast confirmations.
+ */
+export function simulateKafkaRebroadcast(topics, message, repeat = 2) {
+  const results = {};
+  topics.forEach(topic => {
+    results[topic] = [];
+    for (let i = 0; i < repeat; i++) {
+      const sent = sendMessageToKafka(topic, message);
+      const received = receiveMessageFromKafka(topic);
+      results[topic].push({ sent, received });
+      console.log(chalk.blue(`Rebroadcast ${i+1} to '${topic}': Sent -> ${sent}, Received -> ${received}`));
+    }
+  });
+  return results;
 }
 
 /**
@@ -956,7 +978,7 @@ export function generateUsage() {
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }

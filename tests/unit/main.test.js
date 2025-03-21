@@ -288,3 +288,19 @@ describe("simulateKafkaMulticast", () => {
     });
   });
 });
+
+describe("simulateKafkaRebroadcast", () => {
+  test("should rebroadcast message to multiple topics repeatedly", () => {
+    const topics = ["rebroadcast1", "rebroadcast2"];
+    const message = "Rebroadcast message";
+    const repeat = 3;
+    const result = agenticLib.simulateKafkaRebroadcast(topics, message, repeat);
+    topics.forEach(topic => {
+      expect(result[topic].length).toBe(repeat);
+      result[topic].forEach(entry => {
+        expect(entry.sent).toContain(message);
+        expect(entry.received).toContain(topic);
+      });
+    });
+  });
+});

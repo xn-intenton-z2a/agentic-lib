@@ -18,8 +18,10 @@ Mixed licensing:
 * This file is part of the example suite for `agentic-lib` (see: https://github.com/xn-intenton-z2a/agentic-lib).
 * This file is licensed under the MIT License. For details, see LICENSE-MIT.
 
-This README has been refreshed in accordance with the CONTRIBUTING guidelines. Irrelevant and outdated content has been pruned, while core information remains to help you understand and contribute to the project.
+This README has been refreshed in accordance with the CONTRIBUTING guidelines. Irrelevant and outdated content has been pruned,
+while core information remains to help you understand and contribute to the project.
 
+---
 ---
 
 ## Overview
@@ -37,7 +39,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
   - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, and `delegateDecisionToLLMChatOptimized` for enhanced prompt validation.
   - **NEW:** `delegateDecisionToLLMFunctionCallWrapper` extends our OpenAI function delegation capabilities.
 - **Kafka Operations:** Simulated messaging functions for inter-workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, and extended functionalities:
-  - Improved simulations such as `simulateKafkaDelayedMessage`, `simulateKafkaTransaction`, `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, and **simulateKafkaMulticast** for multicast messaging with delay options.
+  - Improved simulations such as `simulateKafkaDelayedMessage`, `simulateKafkaTransaction`, `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, **simulateKafkaMulticast**, and **simulateKafkaRebroadcast** for enhanced multicast and rebroadcast messaging.
 - **SARIF and Default Output Parsing:** Utilities like:
   - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, `parseEslintDefaultOutput`, `parseVitestSarifOutput`, `parseEslintDetailedOutput`.
   - New combined parsers: `parseCombinedSarifOutput` and `parseCombinedDefaultOutput`.
@@ -52,7 +54,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - Refreshed this README based on the CONTRIBUTING guidelines.
 - Extended flag handling, telemetry functions, and LLM delegation capabilities.
 - **Extended Kafka Messaging Simulations:**
-  - Added `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, and **simulateKafkaMulticast** for improved simulation of priority messaging, persistence, and multicast functionality.
+  - Added `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, **simulateKafkaMulticast**, and **simulateKafkaRebroadcast** for improved simulation of priority messaging, persistence, multicast functionality, and rebroadcast messaging.
 - **New OpenAI Function Wrapper:** Implemented `delegateDecisionToLLMFunctionCallWrapper` following advanced function calling patterns.
 - **New Chat Delegation Function:** Added `delegateDecisionToLLMChatOptimized` for improved prompt validation and error handling.
 - **Enhanced Telemetry and Simulation Utilities:** Additional functions for issue review, advanced analytics, and robust file and network simulation.
@@ -62,8 +64,6 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
----
 
 ## Component Breakdown
 
@@ -78,13 +78,13 @@ This repository is organized into three distinct areas:
 ### 2. Example Workflows (Demonstrative Content)
 - **Purpose:** These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
 - **Stability:** While functional, they are intended primarily for demonstration and experimentation.
-- **Licensing:** The example workflows are covered by the MIT license for broader use and modification.
+- **Licensing:** The example workflows are covered by the MIT license to allow for broader use and modification.
 - **Location:** Look in the `examples/` directory for sample implementations.
 
 ### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
-- **Purpose:** This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to the core functionality.
-- **Stability:** Under active development; represents bleeding‑edge functionality not yet production‑ready.
-- **Licensing:** Part of the core project under GPL‑3 with the attribution clause.
+- **Purpose:** This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
+- **Stability:** It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
+- **Licensing:** As part of the core project, it is under GPL‑3 with the attribution clause.
 - **Location:** The code is located in `src/lib/main.js`.
 
 ---
@@ -113,3 +113,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
+
+---
+---
