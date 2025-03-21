@@ -8,7 +8,7 @@
 // - Added new simulation functions including Kafka delays, rebroadcast, multicast, and priority messaging.
 // - Added new remote monitoring service wrapper to simulate fetching monitoring metrics remotely.
 // - Added combined SARIF and default output parsers and new LLM delegation wrappers for advanced OpenAI interactions.
-// - Updated getIssueNumberFromBranch to correctly escape backslashes and capture the correct issue number.
+// - Updated getIssueNumberFromBranch to correctly escape backslashes and capture the correct issue number. (Fixed regex for proper digit matching)
 // - Overall pruned extraneous code to adhere strictly to the agentic‑lib mission.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
@@ -970,7 +970,7 @@ export function generateUsage() {
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
