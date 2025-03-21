@@ -38,6 +38,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **LLM Delegation:** Functions to support decision delegation with advanced OpenAI capabilities. New features include:
   - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, and `delegateDecisionToLLMChatOptimized` for enhanced prompt validation.
   - **NEW:** `delegateDecisionToLLMFunctionCallWrapper` extends our OpenAI function delegation capabilities.
+  - **NEW:** `delegateDecisionToLLMChatAdvanced` has been added for advanced delegation with extra context support.
 - **Kafka Operations:** Simulated messaging functions for inter-workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, and extended functionalities:
   - Improved simulations such as `simulateKafkaDelayedMessage`, `simulateKafkaTransaction`, `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, **simulateKafkaMulticast**, and **simulateKafkaRebroadcast** for enhanced multicast and rebroadcast messaging.
 - **SARIF and Default Output Parsing:** Utilities like:
@@ -56,7 +57,9 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **Extended Kafka Messaging Simulations:**
   - Added `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, **simulateKafkaMulticast**, and **simulateKafkaRebroadcast** for improved simulation of priority messaging, persistence, multicast functionality, and rebroadcast messaging.
 - **New OpenAI Function Wrapper:** Implemented `delegateDecisionToLLMFunctionCallWrapper` following advanced function calling patterns.
-- **New Chat Delegation Function:** Added `delegateDecisionToLLMChatOptimized` for improved prompt validation and error handling.
+- **New Chat Delegation Functions:**
+  - Added `delegateDecisionToLLMChatOptimized` for improved prompt validation and error handling.
+  - **NEW:** Added `delegateDecisionToLLMChatAdvanced` for advanced delegation with the ability to incorporate additional context into the prompt.
 - **Enhanced Telemetry and Simulation Utilities:** Additional functions for issue review, advanced analytics, and robust file and network simulation.
 
 ---
