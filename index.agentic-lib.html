@@ -37,7 +37,9 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 <li class="md-github">This file is part of the example suite for <code class="md-github">agentic-lib</code> (see: https://github.com/xn-intenton-z2a/agentic-lib).</li>
 <li class="md-github">This file is licensed under the MIT License. For details, see LICENSE-MIT.</li>
 </ul>
-<p class="md-github">This README has been refreshed in accordance with the CONTRIBUTING guidelines. Irrelevant and outdated content has been pruned, while core information remains to help you understand and contribute to the project.</p>
+<p class="md-github">This README has been refreshed in accordance with the CONTRIBUTING guidelines. Irrelevant and outdated content has been pruned,
+while core information remains to help you understand and contribute to the project.</p>
+<hr class="md-github">
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
 <p class="md-github">agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Actions workflows. Key features include:</p>
@@ -60,7 +62,7 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 </li>
 <li class="md-github"><strong class="md-github">Kafka Operations:</strong> Simulated messaging functions for inter-workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, and extended functionalities:
 <ul class="md-github">
-<li class="md-github">Improved simulations such as <code class="md-github">simulateKafkaDelayedMessage</code>, <code class="md-github">simulateKafkaTransaction</code>, <code class="md-github">simulateKafkaPriorityQueue</code>, <code class="md-github">simulateKafkaMessagePersistence</code>, and <strong class="md-github">simulateKafkaMulticast</strong> for multicast messaging with delay options.</li>
+<li class="md-github">Improved simulations such as <code class="md-github">simulateKafkaDelayedMessage</code>, <code class="md-github">simulateKafkaTransaction</code>, <code class="md-github">simulateKafkaPriorityQueue</code>, <code class="md-github">simulateKafkaMessagePersistence</code>, <strong class="md-github">simulateKafkaMulticast</strong>, and <strong class="md-github">simulateKafkaRebroadcast</strong> for enhanced multicast and rebroadcast messaging.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">SARIF and Default Output Parsing:</strong> Utilities like:
@@ -80,7 +82,7 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 <li class="md-github">Extended flag handling, telemetry functions, and LLM delegation capabilities.</li>
 <li class="md-github"><strong class="md-github">Extended Kafka Messaging Simulations:</strong>
 <ul class="md-github">
-<li class="md-github">Added <code class="md-github">simulateKafkaPriorityQueue</code>, <code class="md-github">simulateKafkaMessagePersistence</code>, and <strong class="md-github">simulateKafkaMulticast</strong> for improved simulation of priority messaging, persistence, and multicast functionality.</li>
+<li class="md-github">Added <code class="md-github">simulateKafkaPriorityQueue</code>, <code class="md-github">simulateKafkaMessagePersistence</code>, <strong class="md-github">simulateKafkaMulticast</strong>, and <strong class="md-github">simulateKafkaRebroadcast</strong> for improved simulation of priority messaging, persistence, multicast functionality, and rebroadcast messaging.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">New OpenAI Function Wrapper:</strong> Implemented <code class="md-github">delegateDecisionToLLMFunctionCallWrapper</code> following advanced function calling patterns.</li>
@@ -90,7 +92,6 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="contributing" href="#contributing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Contributing</h2>
 <p class="md-github">Contributions are welcome! Please see <a href="CONTRIBUTING.md" class="md-github">CONTRIBUTING.md</a> for guidelines.</p>
-<hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="component-breakdown" href="#component-breakdown"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Component Breakdown</h2>
 <p class="md-github">This repository is organized into three distinct areas:</p>
 <h3 class="md-github"><a class="md-github__anchor" name="1-reusable-workflows-core-functionality" href="#1-reusable-workflows-core-functionality"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>1. Re‑usable Workflows (Core Functionality)</h3>
@@ -104,14 +105,14 @@ GitHub’s <code class="md-github">workflow_call</code> event, so they can be co
 <ul class="md-github">
 <li class="md-github"><strong class="md-github">Purpose:</strong> These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.</li>
 <li class="md-github"><strong class="md-github">Stability:</strong> While functional, they are intended primarily for demonstration and experimentation.</li>
-<li class="md-github"><strong class="md-github">Licensing:</strong> The example workflows are covered by the MIT license for broader use and modification.</li>
+<li class="md-github"><strong class="md-github">Licensing:</strong> The example workflows are covered by the MIT license to allow for broader use and modification.</li>
 <li class="md-github"><strong class="md-github">Location:</strong> Look in the <code class="md-github">examples/</code> directory for sample implementations.</li>
 </ul>
 <h3 class="md-github"><a class="md-github__anchor" name="3-the-evolving-mainjs-javascript-re-implementation-of-reusable-workflows" href="#3-the-evolving-mainjs-javascript-re-implementation-of-reusable-workflows"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)</h3>
 <ul class="md-github">
-<li class="md-github"><strong class="md-github">Purpose:</strong> This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to the core functionality.</li>
-<li class="md-github"><strong class="md-github">Stability:</strong> Under active development; represents bleeding‑edge functionality not yet production‑ready.</li>
-<li class="md-github"><strong class="md-github">Licensing:</strong> Part of the core project under GPL‑3 with the attribution clause.</li>
+<li class="md-github"><strong class="md-github">Purpose:</strong> This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.</li>
+<li class="md-github"><strong class="md-github">Stability:</strong> It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.</li>
+<li class="md-github"><strong class="md-github">Licensing:</strong> As part of the core project, it is under GPL‑3 with the attribution clause.</li>
 <li class="md-github"><strong class="md-github">Location:</strong> The code is located in <code class="md-github">src/lib/main.js</code>.</li>
 </ul>
 <hr class="md-github">
@@ -136,10 +137,11 @@ along with this program. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 IMPORTANT: Any derived work must include the following attribution:
 &quot;This work is derived from https://github.com/xn-intenton-z2a/agentic-lib&quot;
 </code></pre>
+<hr class="md-github">
 
   </section>
   <footer>
-    <p>Generated on 2025-03-21T04:07:36.195Z</p>
+    <p>Generated on 2025-03-21T06:08:55.354Z</p>
   </footer>
 </body>
 </html>
