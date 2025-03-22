@@ -22,7 +22,6 @@ This README has been refreshed in accordance with the CONTRIBUTING guidelines. I
 while core information remains to help you understand and contribute to the project.
 
 ---
----
 
 ## Overview
 
@@ -38,7 +37,8 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **LLM Delegation:** Functions to support decision delegation with advanced OpenAI capabilities. New features include:
   - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, and `delegateDecisionToLLMChatOptimized` for enhanced prompt validation.
   - **NEW:** `delegateDecisionToLLMFunctionCallWrapper` extends our OpenAI function delegation capabilities.
-  - **NEW:** `delegateDecisionToLLMChatAdvanced` has been added for advanced delegation with extra context support.
+  - **NEW:** `delegateDecisionToLLMChatAdvanced` for advanced delegation with extra context support.
+  - **NEW:** `delegateDecisionToLLMChatPremium` has been added to extend OpenAI function delegation with additional logging and configurable base URL support.
 - **Kafka Operations:** Simulated messaging functions for inter-workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, and extended functionalities:
   - Improved simulations such as `simulateKafkaDelayedMessage`, `simulateKafkaTransaction`, `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, **simulateKafkaMulticast**, and **simulateKafkaRebroadcast** for enhanced multicast and rebroadcast messaging.
 - **SARIF and Default Output Parsing:** Utilities like:
@@ -56,10 +56,11 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - Extended flag handling, telemetry functions, and LLM delegation capabilities.
 - **Extended Kafka Messaging Simulations:**
   - Added `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, **simulateKafkaMulticast**, and **simulateKafkaRebroadcast** for improved simulation of priority messaging, persistence, multicast functionality, and rebroadcast messaging.
-- **New OpenAI Function Wrapper:** Implemented `delegateDecisionToLLMFunctionCallWrapper` following advanced function calling patterns.
-- **New Chat Delegation Functions:**
+- **New OpenAI Function Wrappers:**
+  - Implemented `delegateDecisionToLLMFunctionCallWrapper` following advanced function calling patterns.
   - Added `delegateDecisionToLLMChatOptimized` for improved prompt validation and error handling.
-  - **NEW:** Added `delegateDecisionToLLMChatAdvanced` for advanced delegation with the ability to incorporate additional context into the prompt.
+  - Added `delegateDecisionToLLMChatAdvanced` for advanced delegation with the ability to incorporate additional context.
+  - **NEW:** Added `delegateDecisionToLLMChatPremium` to extend OpenAI function delegation with additional logging and configurable base URL support.
 - **Enhanced Telemetry and Simulation Utilities:** Additional functions for issue review, advanced analytics, and robust file and network simulation.
 - **Drift Pruning:** Removed deprecated and extraneous code to align the source implementation strictly with the agentic‑lib mission statement.
 
@@ -118,5 +119,4 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
----
 ---
