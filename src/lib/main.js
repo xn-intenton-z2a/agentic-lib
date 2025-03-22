@@ -10,7 +10,7 @@
 // - Added combined SARIF and default output parsers and new LLM delegation wrappers for advanced OpenAI interactions.
 // - Added new OpenAI wrapper function: delegateDecisionToLLMChatPremium, which extends the OpenAI delegation with additional logging and base URL configuration.
 // - Updated getIssueNumberFromBranch to correctly escape backslashes and capture the correct issue number.
-// - Overall pruned extraneous code to adhere strictly to the agentic‑lib mission.
+// - Overall pruned extraneous code to adhere strictly with the agentic‑lib mission.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -971,7 +971,7 @@ export function generateUsage() {
 // Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
