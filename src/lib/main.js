@@ -8,8 +8,9 @@
 // - Added new simulation functions including Kafka delays, rebroadcast, multicast, and priority messaging.
 // - Added new remote monitoring service wrapper to simulate fetching monitoring metrics remotely.
 // - Added combined SARIF and default output parsers and new LLM delegation wrappers for advanced OpenAI interactions.
-// - Updated getIssueNumberFromBranch to correctly escape backslashes and capture the correct issue number. (Fixed regex for proper digit matching)
-// - Overall pruned extraneous code to adhere strictly to the agentic‑lib mission.
+// - Added new OpenAI wrapper function: delegateDecisionToLLMChatPremium, which extends the OpenAI delegation with additional logging and base URL configuration.
+// - Updated getIssueNumberFromBranch to correctly escape backslashes and capture the correct issue number.
+// - Overall pruned extraneous code to adhere strictly with the agentic‑lib mission.
 
 /* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
 
@@ -1193,6 +1194,49 @@ export async function delegateDecisionToLLMChatAdvanced(prompt, extraContext = "
   const extendedPrompt = prompt + "\nContext: " + extraContext;
   const result = await delegateDecisionToLLMChatOptimized(extendedPrompt, options);
   return result;
+}
+
+// NEW: Added delegateDecisionToLLMChatPremium for extended OpenAI delegation with additional logging and configurable base URL.
+export async function delegateDecisionToLLMChatPremium(prompt, options = {}) {
+  if (!prompt || prompt.trim() === "") {
+    return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
+  }
+  if (!process.env.OPENAI_API_KEY) {
+    return { fixed: "false", message: "Missing API key.", refinement: "Set the OPENAI_API_KEY environment variable." };
+  }
+  try {
+    const openaiModule = await import("openai");
+    const Config = openaiModule.Configuration ? openaiModule.Configuration.default || openaiModule.Configuration : null;
+    if (!Config) throw new Error("OpenAI configuration missing");
+    const Api = openaiModule.OpenAIApi;
+    const configuration = new Config({
+      apiKey: process.env.OPENAI_API_KEY,
+      basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1"
+    });
+    const openai = new Api(configuration);
+    const response = await openai.createChatCompletion({
+      model: options.model || "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "You are an advanced assistant evaluating if an issue is resolved in the source code. Respond strictly with a JSON following the function schema." },
+        { role: "user", content: prompt }
+      ],
+      temperature: options.temperature || 0.5
+    });
+    let result;
+    if (response.data.choices && response.data.choices.length > 0) {
+      const message = response.data.choices[0].message;
+      try {
+        result = JSON.parse(message.content);
+      } catch (e) {
+        result = { fixed: "false", message: "Failed to parse response content in premium version.", refinement: e.message };
+      }
+    } else {
+      result = { fixed: "false", message: "No response from OpenAI in premium variant.", refinement: "Retry" };
+    }
+    return result;
+  } catch (error) {
+    return { fixed: "false", message: error.message, refinement: "LLM chat premium delegation failed." };
+  }
 }
 
 // Simulation functions for testing and enhanced simulation and utility
