@@ -3,7 +3,7 @@
 // Change Log:
 // - Pruned drift and removed deprecated code to strictly align with the mission statement.
 // - Fixed ESLint SARIF parser to use run.results properly.
-// - Extended output parsers for Vitest and ESLint with case-insensitive improvements.
+// - Extended output parsers for Vitest and ESLint with case‑insensitive improvements.
 // - Enhanced flag handling and telemetry functions.
 // - Added dummy implementations for printReport and printConfiguration.
 // - Removed unused imports and functions for cleanup.
@@ -892,7 +892,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
