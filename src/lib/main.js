@@ -52,6 +52,16 @@ function printConfiguration() {
 }
 
 /**
+ * Function to print usage information and demo.
+ */
+function printUsageAndDemo(flagArgs, nonFlagArgs) {
+  console.log(generateUsage());
+  if (nonFlagArgs.length > 0) {
+    console.log("Non-flag arguments:", nonFlagArgs.join(", "));
+  }
+}
+
+/**
  * Gather basic telemetry data from GitHub Actions environment if available.
  */
 export function gatherTelemetryData() {
@@ -882,7 +892,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
