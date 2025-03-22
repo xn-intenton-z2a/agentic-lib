@@ -27,7 +27,7 @@ while core information remains to help you understand and contribute to the proj
 
 agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Actions workflows. Key features include:
 
-- **Usage Information:** Use `generateUsage()` to display available command-line options.
+- **Usage Information:** Use `generateUsage()` to display available command‑line options.
 - **Telemetry:** Comprehensive diagnostics via functions such as:
   - `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and `gatherTotalTelemetry()`.
   - **CI Metrics:** `gatherCIEnvironmentMetrics()` captures additional GitHub Actions metrics.
@@ -39,7 +39,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
   - **NEW:** `delegateDecisionToLLMFunctionCallWrapper` extends our OpenAI function delegation capabilities.
   - **NEW:** `delegateDecisionToLLMChatAdvanced` for advanced delegation with extra context support.
   - **NEW:** `delegateDecisionToLLMChatPremium` has been added to extend OpenAI function delegation with additional logging and configurable base URL support.
-- **Kafka Operations:** Simulated messaging functions for inter-workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, and extended functionalities:
+- **Kafka Operations:** Simulated messaging functions for inter‑workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, and extended functionalities:
   - Improved simulations such as `simulateKafkaDelayedMessage`, `simulateKafkaTransaction`, `simulateKafkaPriorityQueue`, `simulateKafkaMessagePersistence`, **simulateKafkaMulticast**, and **simulateKafkaRebroadcast** for enhanced multicast and rebroadcast messaging.
 - **SARIF and Default Output Parsing:** Utilities like:
   - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, `parseEslintDefaultOutput`, `parseVitestSarifOutput`, `parseEslintDetailedOutput`.
@@ -86,7 +86,7 @@ This repository is organized into three distinct areas:
 - **Licensing:** The example workflows are covered by the MIT license to allow for broader use and modification.
 - **Location:** Look in the `examples/` directory for sample implementations.
 
-### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
+### 3. The Evolving main.js (JavaScript re‑implementation of Re‑usable Workflows)
 - **Purpose:** This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:** It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:** As part of the core project, it is under GPL‑3 with the attribution clause.
@@ -118,3 +118,5 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
+
+---

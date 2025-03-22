@@ -1,18 +1,12 @@
 #!/usr/bin/env node
 // src/lib/main.js - Updated to align with the agentic‑lib mission statement by pruning drift from the implementation.
 // Change Log:
-// - Pruned drift and removed deprecated code to tightly align with the agentic‑lib mission statement.
-// - Fixed ESLint SARIF parser to correctly use run.results instead of sarif.results for counting issues.
-// - Extended default output parsers for Vitest and ESLint to use case-insensitive matching for increased robustness.
-// - Extended functionality with refined flag handling, enhanced telemetry, improved remote service wrappers, updated delegation functions, and expanded Kafka messaging simulations.
-// - Added new simulation functions including Kafka delays, rebroadcast, multicast, and priority messaging.
-// - Added new remote monitoring service wrapper to simulate fetching monitoring metrics remotely.
-// - Added combined SARIF and default output parsers and new LLM delegation wrappers for advanced OpenAI interactions.
-// - Added new OpenAI wrapper function: delegateDecisionToLLMChatPremium, which extends the OpenAI delegation with additional logging and base URL configuration.
-// - Updated getIssueNumberFromBranch to correctly escape backslashes and capture the correct issue number.
-// - Overall pruned extraneous code to adhere strictly with the agentic‑lib mission.
-
-/* eslint-disable security/detect-object-injection, sonarjs/slow-regex */
+// - Pruned drift and removed deprecated code to strictly align with the mission statement.
+// - Fixed ESLint SARIF parser to use run.results properly.
+// - Extended output parsers for Vitest and ESLint with case‑insensitive improvements.
+// - Enhanced flag handling and telemetry functions.
+// - Added dummy implementations for printReport and printConfiguration.
+// - Removed unused imports and functions for cleanup.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -20,24 +14,12 @@ import figlet from "figlet";
 import os from "os";
 import { z } from "zod";
 import { randomInt } from "crypto";
-import path from "path";
+// Removed unused 'path' import
 import { promises as fs } from "fs";
 
 // Helper function to escape regex special characters
 function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-// Helper for parsing LLM message content
-function parseLLMMessage(messageObj) {
-  if (messageObj && messageObj.content) {
-    try {
-      return JSON.parse(messageObj.content);
-    } catch (e) {
-      return { fixed: "false", message: "Failed to parse LLM message content", refinement: e.message };
-    }
-  }
-  return { fixed: "false", message: "No content in LLM message", refinement: "None" };
 }
 
 // Common helper for error handling in remote service wrappers
@@ -56,6 +38,30 @@ function exitApplication() {
 }
 
 /**
+ * Dummy implementation for printReport
+ */
+function printReport() {
+  console.log("Report: Not implemented.");
+}
+
+/**
+ * Dummy implementation for printConfiguration
+ */
+function printConfiguration() {
+  console.log("Configuration: Not implemented.");
+}
+
+/**
+ * Function to print usage information and demo.
+ */
+function printUsageAndDemo(flagArgs, nonFlagArgs) {
+  console.log(generateUsage());
+  if (nonFlagArgs.length > 0) {
+    console.log("Non-flag arguments:", nonFlagArgs.join(", "));
+  }
+}
+
+/**
  * Gather basic telemetry data from GitHub Actions environment if available.
  */
 export function gatherTelemetryData() {
@@ -65,7 +71,7 @@ export function gatherTelemetryData() {
     githubRunNumber: process.env.GITHUB_RUN_NUMBER || "N/A",
     githubJob: process.env.GITHUB_JOB || "N/A",
     githubAction: process.env.GITHUB_ACTION || "N/A",
-    nodeEnv: process.env.NODE_ENV || "undefined"
+    nodeEnv: process.env.NODE_ENV || "undefined",
   };
 }
 
@@ -78,12 +84,12 @@ export function gatherExtendedTelemetryData() {
     githubActor: process.env.GITHUB_ACTOR || "N/A",
     githubRepository: process.env.GITHUB_REPOSITORY || "N/A",
     githubEventName: process.env.GITHUB_EVENT_NAME || "N/A",
-    ci: process.env.CI || "N/A"
+    ci: process.env.CI || "N/A",
   };
 }
 
 /**
- * Gather full telemetry data including additional GitHub environment variables such as refs and shas.
+ * Gather full telemetry data including additional ref variables.
  */
 export function gatherFullTelemetryData() {
   return {
@@ -91,7 +97,7 @@ export function gatherFullTelemetryData() {
     githubRef: process.env.GITHUB_REF || "N/A",
     githubSha: process.env.GITHUB_SHA || "N/A",
     githubHeadRef: process.env.GITHUB_HEAD_REF || "N/A",
-    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A"
+    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A",
   };
 }
 
@@ -104,23 +110,23 @@ export function gatherAdvancedTelemetryData() {
     processPID: process.pid,
     currentWorkingDirectory: process.cwd(),
     platform: process.platform,
-    memoryUsage: process.memoryUsage()
+    memoryUsage: process.memoryUsage(),
   };
 }
 
 /**
- * New telemetry function to capture additional CI environment metrics from GitHub Actions.
+ * New telemetry function to capture additional CI environment metrics.
  */
 export function gatherCIEnvironmentMetrics() {
   return {
     githubWorkspace: process.env.GITHUB_WORKSPACE || "N/A",
     githubEventPath: process.env.GITHUB_EVENT_PATH || "N/A",
-    githubPath: process.env.GITHUB_PATH || "N/A"
+    githubPath: process.env.GITHUB_PATH || "N/A",
   };
 }
 
 /**
- * New telemetry aggregator function to merge all levels of GitHub Actions telemetry data, including CI metrics.
+ * New telemetry aggregator function to merge all telemetry data.
  */
 export function gatherGitHubTelemetrySummary() {
   const basic = gatherTelemetryData();
@@ -130,14 +136,14 @@ export function gatherGitHubTelemetrySummary() {
 }
 
 /**
- * New telemetry function to collect extra telemetry data including current timestamp, CPU usage and free memory.
+ * New telemetry function to collect extra telemetry data.
  */
 export function gatherExtraTelemetryData() {
   return {
     npmPackageVersion: process.env.npm_package_version || "unknown",
     currentTimestamp: new Date().toISOString(),
     cpuUsage: process.cpuUsage(),
-    freeMemory: os.freemem()
+    freeMemory: os.freemem(),
   };
 }
 
@@ -156,7 +162,7 @@ export function gatherGithubEnvTelemetry() {
 }
 
 /**
- * New function to aggregate all telemetry data into one unified report.
+ * New function to aggregate all telemetry data.
  */
 export function gatherTotalTelemetry() {
   return {
@@ -166,12 +172,12 @@ export function gatherTotalTelemetry() {
     ...gatherAdvancedTelemetryData(),
     ...gatherCIEnvironmentMetrics(),
     ...gatherExtraTelemetryData(),
-    githubEnv: gatherGithubEnvTelemetry()
+    githubEnv: gatherGithubEnvTelemetry(),
   };
 }
 
 /**
- * NEW: Simulate a CI Workflow Lifecycle by aggregating telemetry and initiating Kafka messaging simulation.
+ * Simulate a CI Workflow Lifecycle.
  */
 export function simulateCIWorkflowLifecycle() {
   console.log(chalk.blue("Starting CI Workflow Lifecycle Simulation."));
@@ -183,8 +189,6 @@ export function simulateCIWorkflowLifecycle() {
 
 /**
  * Simulate sending a message to a Kafka topic.
- * @param {string} topic
- * @param {string} message
  */
 export function sendMessageToKafka(topic, message) {
   const result = `Message sent to topic '${topic}': ${message}`;
@@ -194,7 +198,6 @@ export function sendMessageToKafka(topic, message) {
 
 /**
  * Simulate receiving a message from a Kafka topic.
- * @param {string} topic
  */
 export function receiveMessageFromKafka(topic) {
   const simulatedMessage = `Simulated message from topic '${topic}'`;
@@ -203,9 +206,7 @@ export function receiveMessageFromKafka(topic) {
 }
 
 /**
- * Log Kafka operations by sending and receiving a message for debugging purposes.
- * @param {string} topic
- * @param {string} message
+ * Log Kafka operations by sending and receiving messages.
  */
 export function logKafkaOperations(topic, message) {
   const sendResult = sendMessageToKafka(topic, message);
@@ -215,10 +216,7 @@ export function logKafkaOperations(topic, message) {
 }
 
 /**
- * Simulate streaming Kafka messages from a given topic.
- * @param {string} topic - The Kafka topic to simulate streaming from.
- * @param {number} count - Number of messages to simulate (default 3).
- * @returns {string[]} An array of simulated messages.
+ * Simulate streaming Kafka messages.
  */
 export function simulateKafkaStream(topic, count = 3) {
   const messages = [];
@@ -231,10 +229,7 @@ export function simulateKafkaStream(topic, count = 3) {
 }
 
 /**
- * Extended simulation of Kafka stream with detailed logging and timestamp.
- * @param {string} topic
- * @param {number} count
- * @returns {string[]} An array of detailed simulated messages.
+ * Extended Kafka stream simulation with detailed logging.
  */
 export function simulateKafkaDetailedStream(topic, count = 3) {
   const baseMessages = simulateKafkaStream(topic, count);
@@ -245,10 +240,7 @@ export function simulateKafkaDetailedStream(topic, count = 3) {
 }
 
 /**
- * New function to simulate sending a bulk stream of Kafka messages.
- * @param {string} topic
- * @param {number} count
- * @returns {string[]} An array of simulated bulk messages.
+ * Simulate sending a bulk stream of Kafka messages.
  */
 export function simulateKafkaBulkStream(topic, count = 5) {
   const messages = [];
@@ -261,10 +253,7 @@ export function simulateKafkaBulkStream(topic, count = 5) {
 }
 
 /**
- * New function to simulate inter-workflow Kafka communication by broadcasting a message to multiple topics.
- * @param {string[]} topics - Array of Kafka topics.
- * @param {string} message - The message to send.
- * @returns {object} An object with each topic as a key and its messaging simulation as a value.
+ * Simulate inter-workflow Kafka communication.
  */
 export function simulateKafkaBroadcast(topics, message) {
   const responses = {};
@@ -278,11 +267,7 @@ export function simulateKafkaBroadcast(topics, message) {
 }
 
 /**
- * New function to simulate dynamic routing of Kafka messages based on a routing key.
- * @param {string[]} topics - Array of Kafka topics.
- * @param {string} routingKey - The key used to determine target topics.
- * @param {string} message - The message to route.
- * @returns {object} An object mapping targeted topics to the simulated message sent.
+ * Simulate dynamic routing of Kafka messages.
  */
 export function simulateKafkaTopicRouting(topics, routingKey, message) {
   const routed = {};
@@ -297,10 +282,7 @@ export function simulateKafkaTopicRouting(topics, routingKey, message) {
 }
 
 /**
- * New function to simulate a Kafka consumer group consuming messages from multiple topics.
- * @param {string[]} topics - Array of Kafka topics to consume from.
- * @param {string} consumerGroup - Identifier for the consumer group.
- * @returns {object} An object containing the consumer group and the messages consumed from each topic.
+ * Simulate a Kafka consumer group consuming messages.
  */
 export function simulateKafkaConsumerGroup(topics, consumerGroup) {
   const groupMessages = {};
@@ -312,17 +294,11 @@ export function simulateKafkaConsumerGroup(topics, consumerGroup) {
 }
 
 /**
- * New function to simulate full Kafka workflow messaging.
- * It routes the message to topics matching the routing key and simulates consumption by a consumer group.
- * @param {string[]} topics - Array of Kafka topics.
- * @param {string} routingKey - Routing key to filter topics.
- * @param {string} message - Message to broadcast.
- * @param {string} consumerGroup - Consumer group identifier.
- * @returns {object} An object containing routed messages and consumer group results.
+ * Simulate full Kafka workflow messaging.
  */
 export function simulateKafkaWorkflowMessaging(topics, routingKey, message, consumerGroup) {
   const routedMessages = {};
-  topics.forEach(topic => {
+  topics.forEach((topic) => {
     if (topic.includes(routingKey)) {
       const sentMessage = sendMessageToKafka(topic, message);
       routedMessages[topic] = { sent: sentMessage };
@@ -334,10 +310,7 @@ export function simulateKafkaWorkflowMessaging(topics, routingKey, message, cons
 }
 
 /**
- * New function to simulate direct Kafka messaging to a designated topic.
- * @param {string} topic
- * @param {string} message
- * @returns {object} An object containing the topic, sent message confirmation, and received simulated response.
+ * Simulate direct Kafka messaging.
  */
 export function simulateKafkaDirectMessage(topic, message) {
   const sent = sendMessageToKafka(topic, message);
@@ -347,41 +320,35 @@ export function simulateKafkaDirectMessage(topic, message) {
 }
 
 /**
- * NEW: Added simulateKafkaRebroadcast to simulate rebroadcasting a Kafka message to multiple topics repeatedly, 
- * simulating peer-to-peer message propagation across agentic workflows.
- * @param {string[]} topics - Array of topics to rebroadcast the message.
- * @param {string} message - The message to rebroadcast.
- * @param {number} repeat - Number of times to rebroadcast.
- * @returns {object} An object mapping each topic to an array of rebroadcast confirmations.
+ * Simulate rebroadcasting a Kafka message.
  */
 export function simulateKafkaRebroadcast(topics, message, repeat = 2) {
   const results = {};
-  topics.forEach(topic => {
+  topics.forEach((topic) => {
     results[topic] = [];
     for (let i = 0; i < repeat; i++) {
       const sent = sendMessageToKafka(topic, message);
       const received = receiveMessageFromKafka(topic);
       results[topic].push({ sent, received });
-      console.log(chalk.blue(`Rebroadcast ${i+1} to '${topic}': Sent -> ${sent}, Received -> ${received}`));
+      console.log(chalk.blue(`Rebroadcast ${i + 1} to '${topic}': Sent -> ${sent}, Received -> ${received}`));
     }
   });
   return results;
 }
 
 /**
- * Analyze system performance telemetry including platform, CPU count, and total memory.
+ * Analyze system performance telemetry.
  */
 export function analyzeSystemPerformance() {
   return {
     platform: process.platform,
     cpus: os.cpus().length,
-    totalMemory: os.totalmem()
+    totalMemory: os.totalmem(),
   };
 }
 
 /**
- * Remote service wrapper using native fetch to simulate an API call.
- * @param {string} serviceUrl
+ * Remote service wrapper for repository service call.
  */
 export async function callRemoteService(serviceUrl) {
   try {
@@ -398,16 +365,14 @@ export async function callRemoteService(serviceUrl) {
 }
 
 /**
- * Remote analytics service wrapper using fetch to simulate sending analytics data.
- * @param {string} serviceUrl
- * @param {object} data - The analytics payload to send.
+ * Remote analytics service wrapper.
  */
 export async function callAnalyticsService(serviceUrl, data) {
   try {
     const response = await fetch(serviceUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -421,16 +386,14 @@ export async function callAnalyticsService(serviceUrl, data) {
 }
 
 /**
- * Remote notification service wrapper using fetch to simulate sending notifications.
- * @param {string} serviceUrl
- * @param {object} payload - The notification payload to send.
+ * Remote notification service wrapper.
  */
 export async function callNotificationService(serviceUrl, payload) {
   try {
     const response = await fetch(serviceUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -444,8 +407,7 @@ export async function callNotificationService(serviceUrl, payload) {
 }
 
 /**
- * Remote build status service wrapper using fetch to simulate checking CI build status.
- * @param {string} serviceUrl
+ * Remote build status service wrapper.
  */
 export async function callBuildStatusService(serviceUrl) {
   try {
@@ -462,16 +424,14 @@ export async function callBuildStatusService(serviceUrl) {
 }
 
 /**
- * Remote deployment service wrapper using fetch to simulate triggering a deployment.
- * @param {string} serviceUrl
- * @param {object} payload - The deployment payload to send.
+ * Remote deployment service wrapper.
  */
 export async function callDeploymentService(serviceUrl, payload) {
   try {
     const response = await fetch(serviceUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -485,16 +445,14 @@ export async function callDeploymentService(serviceUrl, payload) {
 }
 
 /**
- * Remote logging service wrapper using fetch to simulate sending log data.
- * @param {string} serviceUrl
- * @param {object} logData - The log data payload to send.
+ * Remote logging service wrapper.
  */
 export async function callLoggingService(serviceUrl, logData) {
   try {
     const response = await fetch(serviceUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(logData)
+      body: JSON.stringify(logData),
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -508,16 +466,14 @@ export async function callLoggingService(serviceUrl, logData) {
 }
 
 /**
- * Remote code quality service wrapper using fetch to simulate retrieving code quality metrics.
- * @param {string} serviceUrl
- * @param {object} parameters - The parameters for code quality analysis.
+ * Remote code quality service wrapper.
  */
 export async function callCodeQualityService(serviceUrl, parameters) {
   try {
     const response = await fetch(serviceUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(parameters)
+      body: JSON.stringify(parameters),
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -531,16 +487,14 @@ export async function callCodeQualityService(serviceUrl, parameters) {
 }
 
 /**
- * Remote security scan service wrapper using fetch to simulate vulnerability scanning.
- * @param {string} serviceUrl
- * @param {object} payload - The payload for the security scan.
+ * Remote security scan service wrapper.
  */
 export async function callSecurityScanService(serviceUrl, payload) {
   try {
     const response = await fetch(serviceUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -554,8 +508,7 @@ export async function callSecurityScanService(serviceUrl, payload) {
 }
 
 /**
- * New remote monitoring service wrapper using fetch to simulate retrieving monitoring metrics.
- * @param {string} serviceUrl
+ * Remote monitoring service wrapper.
  */
 export async function callMonitoringService(serviceUrl) {
   try {
@@ -572,8 +525,7 @@ export async function callMonitoringService(serviceUrl) {
 }
 
 /**
- * New remote package management service wrapper using fetch to simulate checking package dependencies and vulnerabilities.
- * @param {string} serviceUrl
+ * Remote package management service wrapper.
  */
 export async function callPackageManagementService(serviceUrl) {
   try {
@@ -591,7 +543,6 @@ export async function callPackageManagementService(serviceUrl) {
 
 /**
  * Parse SARIF formatted JSON to summarize issues.
- * @param {string} sarifJson
  */
 export function parseSarifOutput(sarifJson) {
   try {
@@ -615,7 +566,6 @@ export function parseSarifOutput(sarifJson) {
 
 /**
  * Parse ESLint SARIF formatted JSON to summarize ESLint issues.
- * @param {string} sarifJson
  */
 export function parseEslintSarifOutput(sarifJson) {
   try {
@@ -623,7 +573,7 @@ export function parseEslintSarifOutput(sarifJson) {
     let totalIssues = 0;
     if (sarif.runs && Array.isArray(sarif.runs)) {
       for (const run of sarif.runs) {
-        if (run.results && Array.isArray(run.results)) { // Fixed: use run.results
+        if (run.results && Array.isArray(run.results)) {
           totalIssues += run.results.length;
         }
       }
@@ -639,8 +589,6 @@ export function parseEslintSarifOutput(sarifJson) {
 
 /**
  * Parse Vitest output string to extract test summary.
- * Expected format: string containing "<number> tests passed".
- * @param {string} outputStr
  */
 export function parseVitestOutput(outputStr) {
   const match = outputStr.match(/(\d+)\s+tests?\s+passed/i);
@@ -655,8 +603,7 @@ export function parseVitestOutput(outputStr) {
 }
 
 /**
- * New utility function to parse Vitest default output, handling common default formats.
- * @param {string} outputStr
+ * Parse Vitest default output.
  */
 export function parseVitestDefaultOutput(outputStr) {
   const match = outputStr.match(/(\d+)\s+tests?\s+passed/i);
@@ -671,8 +618,7 @@ export function parseVitestDefaultOutput(outputStr) {
 }
 
 /**
- * New utility function to parse ESLint default output, extracting problem, error, and warning counts.
- * @param {string} outputStr
+ * Parse ESLint default output.
  */
 export function parseEslintDefaultOutput(outputStr) {
   const problems = outputStr.match(/(\d+)\s+problems?/i);
@@ -682,9 +628,7 @@ export function parseEslintDefaultOutput(outputStr) {
     const numProblems = parseInt(problems[1], 10);
     const numErrors = errors ? parseInt(errors[1], 10) : 0;
     const numWarnings = warnings ? parseInt(warnings[1], 10) : 0;
-    console.log(
-      chalk.green(`ESLint Default Output: ${numProblems} problems (${numErrors} errors, ${numWarnings} warnings)`),
-    );
+    console.log(chalk.green(`ESLint Default Output: ${numProblems} problems (${numErrors} errors, ${numWarnings} warnings)`));
     return { numProblems, numErrors, numWarnings };
   } else {
     console.error(chalk.red("Error parsing ESLint default output: Summary not found."));
@@ -693,8 +637,7 @@ export function parseEslintDefaultOutput(outputStr) {
 }
 
 /**
- * Parse Vitest SARIF output to extract test summaries.
- * @param {string} sarifJson
+ * Parse Vitest SARIF output.
  */
 export function parseVitestSarifOutput(sarifJson) {
   try {
@@ -721,8 +664,7 @@ export function parseVitestSarifOutput(sarifJson) {
 }
 
 /**
- * Parse ESLint detailed SARIF output to extract detailed issues.
- * @param {string} sarifJson
+ * Parse ESLint detailed SARIF output.
  */
 export function parseEslintDetailedOutput(sarifJson) {
   try {
@@ -734,7 +676,7 @@ export function parseEslintDetailedOutput(sarifJson) {
           run.results.forEach((result) => {
             eslintIssues.push({
               ruleId: result.ruleId || "unknown",
-              message: result.message && result.message.text ? result.message.text : ""
+              message: result.message && result.message.text ? result.message.text : "",
             });
           });
         }
@@ -750,8 +692,7 @@ export function parseEslintDetailedOutput(sarifJson) {
 }
 
 /**
- * New function to combine SARIF outputs from Vitest and ESLint and summarize their issues.
- * @param {string} sarifJson
+ * Combined SARIF output parser.
  */
 export function parseCombinedSarifOutput(sarifJson) {
   try {
@@ -777,11 +718,7 @@ export function parseCombinedSarifOutput(sarifJson) {
 }
 
 /**
- * NEW: Combined Default Output Parser
- * Aggregates Vitest default output and ESLint default output summaries into one object.
- * @param {string} vitestOutput - Default output from Vitest
- * @param {string} eslintOutput - Default output from ESLint
- * @returns {object} Combined summary with properties from both outputs
+ * Combined Default Output Parser.
  */
 export function parseCombinedDefaultOutput(vitestOutput, eslintOutput) {
   const vitestResult = parseVitestDefaultOutput(vitestOutput);
@@ -790,10 +727,7 @@ export function parseCombinedDefaultOutput(vitestOutput, eslintOutput) {
 }
 
 /**
- * New function to simulate advanced analytics combining Kafka simulation and advanced telemetry data.
- * @param {string} topic
- * @param {number} count
- * @returns {object} Combined simulation result.
+ * Simulate advanced analytics combining Kafka simulation and telemetry.
  */
 export function simulateAdvancedAnalytics(topic, count = 3) {
   console.log(chalk.blue(`Starting advanced analytics simulation on topic '${topic}' with count ${count}`));
@@ -803,18 +737,9 @@ export function simulateAdvancedAnalytics(topic, count = 3) {
   return { kafkaMessages, advancedData };
 }
 
-// Helper functions to refactor flag commands handling
-function printUsageAndDemo(flagArgs, nonFlagArgs) {
-  console.log(generateUsage());
-  console.log("");
-  console.log("Demo: Demonstration of agentic‑lib functionality:");
-  console.log(enhancedDemo());
-  if (nonFlagArgs.length === 0) {
-    console.log("No additional arguments provided.");
-  }
-}
-
-// Updated create issue handler to simulate GitHub Actions issue creation workflow as per wfr-create-issue.yml
+/**
+ * Handle create issue command simulation.
+ */
 function handleCreateIssue(nonFlagArgs) {
   console.log(chalk.magenta("Simulated GitHub Issue Creation Workflow triggered."));
   let issueTitle;
@@ -830,7 +755,7 @@ function handleCreateIssue(nonFlagArgs) {
     issueTitle: issueTitle,
     issueBody: issueBody,
     issueNumber: issueNumber,
-    status: "Created via simulated workflow"
+    status: "Created via simulated workflow",
   };
   console.log(chalk.magenta(JSON.stringify(issueData, null, 2)));
   console.log(chalk.magenta("Simulated Issue Created:"));
@@ -840,6 +765,9 @@ function handleCreateIssue(nonFlagArgs) {
   return issueData;
 }
 
+/**
+ * Handle basic flag commands.
+ */
 function handleBasicFlag(flag, nonFlagArgs) {
   switch (flag) {
     case "--create-issue": {
@@ -923,10 +851,7 @@ function handleBasicFlag(flag, nonFlagArgs) {
 }
 
 /**
- * Refactored flag handling to reduce cognitive complexity in main function.
- * @param {string[]} flagArgs
- * @param {string[]} nonFlagArgs
- * @returns {boolean} Returns true if a flag triggered an exit.
+ * Refactored flag handling to reduce complexity.
  */
 function handleFlagCommands(flagArgs, nonFlagArgs) {
   if (flagArgs.length === 0 || flagArgs.includes("--help") || flagArgs.includes("--usage")) {
@@ -948,8 +873,7 @@ function handleFlagCommands(flagArgs, nonFlagArgs) {
 }
 
 /**
- * Main function for processing command line arguments and executing corresponding actions.
- * @param {string[]} args
+ * Main function for processing command line arguments.
  */
 export function main(args = []) {
   if (process.env.NODE_ENV !== "test") {
@@ -957,10 +881,8 @@ export function main(args = []) {
   }
   const { flagArgs, nonFlagArgs } = splitArguments(args);
   if (handleFlagCommands(flagArgs, nonFlagArgs)) return;
-
   const flagProcessingResult = processFlags(flagArgs);
   console.log(flagProcessingResult);
-
   exitApplication();
 }
 
@@ -968,7 +890,6 @@ export function generateUsage() {
   return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [--create-issue] [--simulate-remote] [--sarif] [--extended] [--report] [--advanced] [--analytics] [--config] [--simulate-ci-workflow] [args...]";
 }
 
-// Updated getIssueNumberFromBranch to correctly escape backslashes for digit matching
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
   const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
@@ -1023,7 +944,7 @@ export function showVersion() {
   return `Version: ${version}`;
 }
 
-// NEW: Added delegateDecisionToLLMChatOptimized for optimized chat delegation with prompt and API key validation.
+// NEW: Optimized LLM Chat Delegation
 export async function delegateDecisionToLLMChatOptimized(prompt, options = {}) {
   if (!prompt || prompt.trim() === "") {
     return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
@@ -1044,7 +965,7 @@ export async function delegateDecisionToLLMChatOptimized(prompt, options = {}) {
         { role: "system", content: "You are a helpful assistant that helps determine if an issue is resolved in the supplied code." },
         { role: "user", content: prompt }
       ],
-      temperature: options.temperature || 0.5
+      temperature: options.temperature || 0.5,
     });
     let result;
     if (response.data.choices && response.data.choices.length > 0) {
@@ -1063,7 +984,7 @@ export async function delegateDecisionToLLMChatOptimized(prompt, options = {}) {
   }
 }
 
-// Existing delegateDecisionToLLMChat functions
+// Existing LLM Chat Delegation
 export async function delegateDecisionToLLMChat(prompt, options = {}) {
   if (!prompt || prompt.trim() === "") {
     return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
@@ -1084,7 +1005,7 @@ export async function delegateDecisionToLLMChat(prompt, options = {}) {
         { role: "system", content: "You are a helpful assistant that helps determine if an issue is resolved in the supplied code." },
         { role: "user", content: prompt }
       ],
-      temperature: options.temperature || 0.5
+      temperature: options.temperature || 0.5,
     });
     let result;
     if (response.data.choices && response.data.choices.length > 0) {
@@ -1110,8 +1031,7 @@ export async function delegateDecisionToLLMChatVerbose(prompt, options = {}) {
   return result;
 }
 
-// New advanced delegation functions below... (existing functions remain unchanged)
-// New advanced delegation using OpenAI function calling
+// NEW: Function calling wrapper
 export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "gpt-3.5-turbo", options = {}) {
   if (!prompt || prompt.trim() === "") {
     return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
@@ -1127,33 +1047,39 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
     const Api = openaiModule.OpenAIApi;
     const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY });
     const openai = new Api(configuration);
-    const ResponseSchema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
-    const tools = [{
-      type: "function",
-      function: {
-        name: "review_issue",
-        description: "Evaluate whether the supplied source file content resolves the issue. Return an object with fixed (string: 'true' or 'false'), message (explanation), and refinement (suggested refinement).",
-        parameters: {
-          type: "object",
-          properties: {
-            fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
-            message: { type: "string", description: "A message explaining the result" },
-            refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
+    const ResponseSchema = z.object({
+      fixed: z.string(),
+      message: z.string(),
+      refinement: z.string(),
+    });
+    const tools = [
+      {
+        type: "function",
+        function: {
+          name: "review_issue",
+          description: "Evaluate whether the supplied source file content resolves the issue. Return an object with fixed (string: 'true' or 'false'), message (explanation), and refinement (suggested refinement).",
+          parameters: {
+            type: "object",
+            properties: {
+              fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
+              message: { type: "string", description: "A message explaining the result" },
+              refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" },
+            },
+            required: ["fixed", "message", "refinement"],
+            additionalProperties: false,
           },
-          required: ["fixed", "message", "refinement"],
-          additionalProperties: false
+          strict: true,
         },
-        strict: true
-      }
-    }];
+      },
+    ];
     const response = await openai.createChatCompletion({
       model,
       messages: [
         { role: "system", content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema." },
         { role: "user", content: prompt }
       ],
-      tools: tools,
-      temperature: options.temperature || 0.7
+      tools,
+      temperature: options.temperature || 0.7,
     });
     let result;
     const messageObj = response.data.choices[0].message;
@@ -1183,7 +1109,7 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
   }
 }
 
-// NEW: Added delegateDecisionToLLMChatAdvanced for advanced delegation with extra context support.
+// NEW: Advanced delegation with extra context.
 export async function delegateDecisionToLLMChatAdvanced(prompt, extraContext = "", options = {}) {
   if (!prompt || prompt.trim() === "") {
     return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
@@ -1196,7 +1122,7 @@ export async function delegateDecisionToLLMChatAdvanced(prompt, extraContext = "
   return result;
 }
 
-// NEW: Added delegateDecisionToLLMChatPremium for extended OpenAI delegation with additional logging and configurable base URL.
+// NEW: Premium OpenAI delegation.
 export async function delegateDecisionToLLMChatPremium(prompt, options = {}) {
   if (!prompt || prompt.trim() === "") {
     return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
@@ -1211,7 +1137,7 @@ export async function delegateDecisionToLLMChatPremium(prompt, options = {}) {
     const Api = openaiModule.OpenAIApi;
     const configuration = new Config({
       apiKey: process.env.OPENAI_API_KEY,
-      basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1"
+      basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1",
     });
     const openai = new Api(configuration);
     const response = await openai.createChatCompletion({
@@ -1220,7 +1146,7 @@ export async function delegateDecisionToLLMChatPremium(prompt, options = {}) {
         { role: "system", content: "You are an advanced assistant evaluating if an issue is resolved in the source code. Respond strictly with a JSON following the function schema." },
         { role: "user", content: prompt }
       ],
-      temperature: options.temperature || 0.5
+      temperature: options.temperature || 0.5,
     });
     let result;
     if (response.data.choices && response.data.choices.length > 0) {
@@ -1239,9 +1165,7 @@ export async function delegateDecisionToLLMChatPremium(prompt, options = {}) {
   }
 }
 
-// Simulation functions for testing and enhanced simulation and utility
-
-// Function to simulate issue review
+// Simulation for issue review
 export function reviewIssue(params) {
   return { fixed: "true", message: "The issue has been resolved.", refinement: "None" };
 }
@@ -1255,30 +1179,30 @@ export function simulateKafkaConsumer(topic, count = 3) {
   return messages;
 }
 
-// Function to simulate a delayed Kafka message
+// Simulate a delayed Kafka message
 export async function simulateKafkaDelayedMessage(topic, message, delayMs) {
-  await new Promise(resolve => setTimeout(resolve, delayMs));
+  await new Promise((resolve) => setTimeout(resolve, delayMs));
   return { delayed: true, topic, message };
 }
 
-// Function to simulate a Kafka transaction
+// Simulate a Kafka transaction
 export function simulateKafkaTransaction(messagesArray) {
   const transaction = {};
-  messagesArray.forEach(item => {
+  messagesArray.forEach((item) => {
     transaction[item.topic] = item.message;
   });
   return { success: true, transaction };
 }
 
-// Function to simulate a Kafka priority queue
+// Simulate a Kafka priority queue
 export function simulateKafkaPriorityQueue(topic, messages) {
-  return messages.sort((a, b) => b.priority - a.priority).map(item => item.message);
+  return messages.sort((a, b) => b.priority - a.priority).map((item) => item.message);
 }
 
 // Global store for message persistence
 let persistenceStore = {};
 
-// Function to simulate Kafka message persistence
+// Simulate Kafka message persistence
 export function simulateKafkaMessagePersistence(topic, message) {
   if (!persistenceStore[topic]) {
     persistenceStore[topic] = [];
@@ -1287,11 +1211,11 @@ export function simulateKafkaMessagePersistence(topic, message) {
   return { topic, persistedMessages: persistenceStore[topic] };
 }
 
-// NEW: Function to simulate multicast messaging to multiple Kafka topics with optional delay
+// NEW: Simulate multicast messaging.
 export function simulateKafkaMulticast(topics, message, multicastOptions = {}) {
   const results = {};
   const delay = multicastOptions.delay || 0;
-  topics.forEach(topic => {
+  topics.forEach((topic) => {
     let finalMessage = message;
     if (delay > 0) {
       finalMessage += ` (delayed by ${delay}ms)`;
@@ -1302,7 +1226,7 @@ export function simulateKafkaMulticast(topics, message, multicastOptions = {}) {
   return results;
 }
 
-// Function to simulate file system call
+// Simulate file system call
 export async function simulateFileSystemCall(filePath) {
   try {
     const content = await fs.readFile(filePath, "utf-8");
@@ -1313,7 +1237,7 @@ export async function simulateFileSystemCall(filePath) {
   }
 }
 
-// Function to simulate repository service call
+// Simulate repository service call
 export async function callRepositoryService(serviceUrl) {
   try {
     const response = await fetch(serviceUrl);
