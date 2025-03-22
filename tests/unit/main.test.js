@@ -23,7 +23,7 @@ describe("reviewIssue", () => {
   test("returns correct resolution when conditions met", () => {
     const params = {
       sourceFileContent:
-        "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [args...]"
+        "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [args...]",
     };
     const result = agenticLib.reviewIssue(params);
     expect(result.fixed).toBe("true");
@@ -180,7 +180,7 @@ describe("simulateKafkaTransaction", () => {
   test("should simulate a Kafka transaction", () => {
     const messagesArray = [
       { topic: "txn-topic1", message: "Message 1" },
-      { topic: "txn-topic2", message: "Message 2" }
+      { topic: "txn-topic2", message: "Message 2" },
     ];
     const result = agenticLib.simulateKafkaTransaction(messagesArray);
     expect(result).toHaveProperty("success", true);
@@ -195,7 +195,7 @@ describe("simulateKafkaPriorityQueue", () => {
     const messages = [
       { message: "Low priority", priority: 1 },
       { message: "High priority", priority: 10 },
-      { message: "Medium priority", priority: 5 }
+      { message: "Medium priority", priority: 5 },
     ];
     const sorted = agenticLib.simulateKafkaPriorityQueue(topic, messages);
     expect(sorted[0]).toContain("High priority");
@@ -281,9 +281,9 @@ describe("sanitizeCommitMessage", () => {
 describe("callRepositoryService", () => {
   test("should return data when service responds successfully", async () => {
     const dummyData = { success: true };
-    const fetchMock = vi.spyOn(global, 'fetch').mockResolvedValue({
+    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValue({
       ok: true,
-      json: async () => dummyData
+      json: async () => dummyData,
     });
     const result = await agenticLib.callRepositoryService("https://example.com");
     expect(result).toEqual(dummyData);
@@ -292,7 +292,7 @@ describe("callRepositoryService", () => {
 
   test("should handle error when service fails", async () => {
     const error = new Error("Not Found");
-    const fetchMock = vi.spyOn(global, 'fetch').mockRejectedValue(error);
+    const fetchMock = vi.spyOn(global, "fetch").mockRejectedValue(error);
     const result = await agenticLib.callRepositoryService("https://example.com");
     expect(result).toHaveProperty("error");
     fetchMock.mockRestore();
@@ -316,7 +316,7 @@ describe("simulateKafkaMulticast", () => {
     const message = "Multicast message";
     const options = { delay: 50 };
     const result = agenticLib.simulateKafkaMulticast(topics, message, options);
-    topics.forEach(topic => {
+    topics.forEach((topic) => {
       expect(result[topic].multicast).toContain(message);
       expect(result[topic].multicast).toContain("delayed by 50ms");
     });
@@ -329,9 +329,9 @@ describe("simulateKafkaRebroadcast", () => {
     const message = "Rebroadcast message";
     const repeat = 3;
     const result = agenticLib.simulateKafkaRebroadcast(topics, message, repeat);
-    topics.forEach(topic => {
+    topics.forEach((topic) => {
       expect(result[topic].length).toBe(repeat);
-      result[topic].forEach(entry => {
+      result[topic].forEach((entry) => {
         expect(entry.sent).toContain(message);
         expect(entry.received).toContain(topic);
       });
