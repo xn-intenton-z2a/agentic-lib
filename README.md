@@ -59,8 +59,6 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
----
-
 ## Component Breakdown
 
 This repository is organized into three distinct areas:
