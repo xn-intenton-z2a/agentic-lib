@@ -34,7 +34,7 @@
 <li class="md-github">This file is part of the example suite for <code class="md-github">agentic-lib</code> (see: https://github.com/xn-intenton-z2a/agentic-lib).</li>
 <li class="md-github">This file is licensed under the MIT License. For details, see LICENSE-MIT.</li>
 </ul>
-<p class="md-github"><em class="md-github">Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained.</em></p>
+<p class="md-github"><em class="md-github">Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained. NEW: Added gatherWorkflowTelemetry to capture additional GitHub Actions telemetry data.</em></p>
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
 <p class="md-github">agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Actions workflows. Key features include:</p>
@@ -42,7 +42,7 @@
 <li class="md-github"><strong class="md-github">Usage Information:</strong> Use <code class="md-github">generateUsage()</code> to display available command‑line options.</li>
 <li class="md-github"><strong class="md-github">Telemetry:</strong> Comprehensive diagnostics via functions such as:
 <ul class="md-github">
-<li class="md-github"><code class="md-github">gatherTelemetryData()</code>, <code class="md-github">gatherExtendedTelemetryData()</code>, <code class="md-github">gatherAdvancedTelemetryData()</code>, <code class="md-github">gatherFullTelemetryData()</code>, and <code class="md-github">gatherTotalTelemetry()</code>.</li>
+<li class="md-github"><code class="md-github">gatherTelemetryData()</code>, <code class="md-github">gatherExtendedTelemetryData()</code>, <code class="md-github">gatherAdvancedTelemetryData()</code>, <code class="md-github">gatherFullTelemetryData()</code>, <code class="md-github">gatherTotalTelemetry()</code>, and now <code class="md-github">gatherWorkflowTelemetry()</code> for enhanced workflow-specific telemetry.</li>
 <li class="md-github"><strong class="md-github">CI Metrics:</strong> <code class="md-github">gatherCIEnvironmentMetrics()</code> captures additional GitHub Actions metrics.</li>
 <li class="md-github"><strong class="md-github">Extra Telemetry:</strong> <code class="md-github">gatherExtraTelemetryData()</code> provides metrics like timestamps, CPU usage, and free memory.</li>
 <li class="md-github"><strong class="md-github">GitHub Environment Telemetry:</strong> <code class="md-github">gatherGithubEnvTelemetry()</code> aggregates all environment variables starting with <code class="md-github">GITHUB_</code>.</li>
@@ -74,13 +74,12 @@
 <li class="md-github">README refreshed to align with the CONTRIBUTING guidelines. Outdated content has been pruned and core information retained.</li>
 <li class="md-github">Extended Kafka Messaging Simulations including multicast and rebroadcast features.</li>
 <li class="md-github">New OpenAI Function Wrappers: <code class="md-github">delegateDecisionToLLMFunctionCallWrapper</code>, <code class="md-github">delegateDecisionToLLMChatOptimized</code>, <code class="md-github">delegateDecisionToLLMChatAdvanced</code>, and <code class="md-github">delegateDecisionToLLMChatPremium</code>.</li>
-<li class="md-github">Enhanced telemetry and simulation utilities.</li>
+<li class="md-github">Enhanced telemetry and simulation utilities. <strong class="md-github">NEW:</strong> Added <code class="md-github">gatherWorkflowTelemetry()</code> to capture more detailed GitHub Actions workflow data.</li>
 <li class="md-github">Drift pruning applied across the codebase.</li>
 </ul>
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="contributing" href="#contributing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Contributing</h2>
 <p class="md-github">Contributions are welcome! Please see <a href="CONTRIBUTING.md" class="md-github">CONTRIBUTING.md</a> for guidelines.</p>
-<hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="component-breakdown" href="#component-breakdown"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Component Breakdown</h2>
 <p class="md-github">This repository is organized into three distinct areas:</p>
 <h3 class="md-github"><a class="md-github__anchor" name="1-reusable-workflows-core-functionality" href="#1-reusable-workflows-core-functionality"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>1. Re‑usable Workflows (Core Functionality)</h3>
@@ -130,7 +129,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-23T04:06:57.318Z</p>
+    <p>Generated on 2025-03-23T06:07:47.703Z</p>
   </footer>
 </body>
 </html>
