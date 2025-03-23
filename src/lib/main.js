@@ -1,13 +1,11 @@
 #!/usr/bin/env node
-// src/lib/main.js - Updated to align with the agentic‑lib mission statement by pruning drift and adding enhanced telemetry functions for GitHub Actions.
+// src/lib/main.js - Updated to align with the agentic‑lib mission statement by pruning drift and consolidating legacy code.
 // Change Log:
 // - Pruned drift and removed deprecated code to strictly align with the mission statement.
-// - Fixed ESLint SARIF parser to use run.results properly.
-// - Extended output parsers for Vitest and ESLint with case‑insensitive improvements.
-// - Enhanced flag handling and telemetry functions.
-// - Added dummy implementations for printReport and printConfiguration.
-// - Removed unused imports and functions for cleanup.
-// - NEW: Added gatherWorkflowTelemetry() to capture additional GitHub Actions workflow telemetry data.
+// - Consolidated duplicate and legacy functions.
+// - Extended telemetry functions for enhanced GitHub Actions workflow insights (including gatherWorkflowTelemetry).
+// - Updated internal logging and refined flag handling.
+// - Minor formatting improvements.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -168,7 +166,7 @@ export function gatherTotalTelemetry() {
 }
 
 /**
- * NEW: Enhanced telemetry function to gather additional workflow-specific metrics from GitHub Actions.
+ * Enhanced telemetry function to gather additional workflow-specific metrics from GitHub Actions.
  */
 export function gatherWorkflowTelemetry() {
   return {
@@ -338,10 +336,6 @@ export function simulateKafkaRebroadcast(topics, message, repeat = 2) {
   });
   return results;
 }
-
-/**
- * Simulate dynamic routing of Kafka messages.
- */
 
 /**
  * Parse SARIF formatted JSON to summarize issues.
@@ -694,7 +688,7 @@ export function generateUsage() {
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }

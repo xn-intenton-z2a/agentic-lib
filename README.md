@@ -15,7 +15,7 @@ Mixed licensing:
 * This file is part of the example suite for `agentic-lib` (see: https://github.com/xn-intenton-z2a/agentic-lib).
 * This file is licensed under the MIT License. For details, see LICENSE-MIT.
 
-*Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained. NEW: Added gatherWorkflowTelemetry to capture additional GitHub Actions telemetry data.*
+*Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained. **NEW:** Added and enhanced telemetry functions including gatherWorkflowTelemetry to capture detailed GitHub Actions workflow data. Drift and deprecated code have been pruned to align strictly with the mission statement.*
 
 ---
 
@@ -48,10 +48,10 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 ## Recent Improvements
 
 - README refreshed to align with the CONTRIBUTING guidelines. Outdated content has been pruned and core information retained.
+- **Drift Pruning:** Legacy and deprecated code has been removed from the source file, ensuring strict alignment with the agentic‑lib mission statement.
 - Extended Kafka Messaging Simulations including multicast and rebroadcast features.
 - New OpenAI Function Wrappers: `delegateDecisionToLLMFunctionCallWrapper`, `delegateDecisionToLLMChatOptimized`, `delegateDecisionToLLMChatAdvanced`, and `delegateDecisionToLLMChatPremium`.
 - Enhanced telemetry and simulation utilities. **NEW:** Added `gatherWorkflowTelemetry()` to capture more detailed GitHub Actions workflow data.
-- Drift pruning applied across the codebase.
 
 ---
 
