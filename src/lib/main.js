@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// src/lib/main.js - Updated to align with the agentic‑lib mission statement by pruning drift from the implementation.
+// src/lib/main.js - Updated to align with the agentic‑lib mission statement by pruning drift and adding enhanced telemetry functions for GitHub Actions.
 // Change Log:
 // - Pruned drift and removed deprecated code to strictly align with the mission statement.
 // - Fixed ESLint SARIF parser to use run.results properly.
@@ -7,6 +7,7 @@
 // - Enhanced flag handling and telemetry functions.
 // - Added dummy implementations for printReport and printConfiguration.
 // - Removed unused imports and functions for cleanup.
+// - NEW: Added gatherWorkflowTelemetry() to capture additional GitHub Actions workflow telemetry data.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -71,7 +72,7 @@ export function gatherTelemetryData() {
     githubRunNumber: process.env.GITHUB_RUN_NUMBER || "N/A",
     githubJob: process.env.GITHUB_JOB || "N/A",
     githubAction: process.env.GITHUB_ACTION || "N/A",
-    nodeEnv: process.env.NODE_ENV || "undefined",
+    nodeEnv: process.env.NODE_ENV || "undefined"
   };
 }
 
@@ -84,7 +85,7 @@ export function gatherExtendedTelemetryData() {
     githubActor: process.env.GITHUB_ACTOR || "N/A",
     githubRepository: process.env.GITHUB_REPOSITORY || "N/A",
     githubEventName: process.env.GITHUB_EVENT_NAME || "N/A",
-    ci: process.env.CI || "N/A",
+    ci: process.env.CI || "N/A"
   };
 }
 
@@ -97,7 +98,7 @@ export function gatherFullTelemetryData() {
     githubRef: process.env.GITHUB_REF || "N/A",
     githubSha: process.env.GITHUB_SHA || "N/A",
     githubHeadRef: process.env.GITHUB_HEAD_REF || "N/A",
-    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A",
+    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A"
   };
 }
 
@@ -110,7 +111,7 @@ export function gatherAdvancedTelemetryData() {
     processPID: process.pid,
     currentWorkingDirectory: process.cwd(),
     platform: process.platform,
-    memoryUsage: process.memoryUsage(),
+    memoryUsage: process.memoryUsage()
   };
 }
 
@@ -121,18 +122,8 @@ export function gatherCIEnvironmentMetrics() {
   return {
     githubWorkspace: process.env.GITHUB_WORKSPACE || "N/A",
     githubEventPath: process.env.GITHUB_EVENT_PATH || "N/A",
-    githubPath: process.env.GITHUB_PATH || "N/A",
+    githubPath: process.env.GITHUB_PATH || "N/A"
   };
-}
-
-/**
- * New telemetry aggregator function to merge all telemetry data.
- */
-export function gatherGitHubTelemetrySummary() {
-  const basic = gatherTelemetryData();
-  const extended = gatherExtendedTelemetryData();
-  const full = gatherFullTelemetryData();
-  return { ...basic, ...extended, ...full };
 }
 
 /**
@@ -143,7 +134,7 @@ export function gatherExtraTelemetryData() {
     npmPackageVersion: process.env.npm_package_version || "unknown",
     currentTimestamp: new Date().toISOString(),
     cpuUsage: process.cpuUsage(),
-    freeMemory: os.freemem(),
+    freeMemory: os.freemem()
   };
 }
 
@@ -172,7 +163,19 @@ export function gatherTotalTelemetry() {
     ...gatherAdvancedTelemetryData(),
     ...gatherCIEnvironmentMetrics(),
     ...gatherExtraTelemetryData(),
-    githubEnv: gatherGithubEnvTelemetry(),
+    githubEnv: gatherGithubEnvTelemetry()
+  };
+}
+
+/**
+ * NEW: Enhanced telemetry function to gather additional workflow-specific metrics from GitHub Actions.
+ */
+export function gatherWorkflowTelemetry() {
+  return {
+    ...gatherTotalTelemetry(),
+    buildTimestamp: new Date().toISOString(),
+    runnerOs: process.env.RUNNER_OS || 'unknown',
+    repository: process.env.GITHUB_REPOSITORY || 'N/A'
   };
 }
 
@@ -337,209 +340,8 @@ export function simulateKafkaRebroadcast(topics, message, repeat = 2) {
 }
 
 /**
- * Analyze system performance telemetry.
+ * Simulate dynamic routing of Kafka messages.
  */
-export function analyzeSystemPerformance() {
-  return {
-    platform: process.platform,
-    cpus: os.cpus().length,
-    totalMemory: os.totalmem(),
-  };
-}
-
-/**
- * Remote service wrapper for repository service call.
- */
-export async function callRemoteService(serviceUrl) {
-  try {
-    const response = await fetch(serviceUrl);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    console.log(chalk.green("Repository Service Response:"), data);
-    return data;
-  } catch (error) {
-    return handleFetchError(error, "repository service");
-  }
-}
-
-/**
- * Remote analytics service wrapper.
- */
-export async function callAnalyticsService(serviceUrl, data) {
-  try {
-    const response = await fetch(serviceUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const result = await response.json();
-    console.log(chalk.green("Analytics Service Response:"), result);
-    return result;
-  } catch (error) {
-    return handleFetchError(error, "analytics service");
-  }
-}
-
-/**
- * Remote notification service wrapper.
- */
-export async function callNotificationService(serviceUrl, payload) {
-  try {
-    const response = await fetch(serviceUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const result = await response.json();
-    console.log(chalk.green("Notification Service Response:"), result);
-    return result;
-  } catch (error) {
-    return handleFetchError(error, "notification service");
-  }
-}
-
-/**
- * Remote build status service wrapper.
- */
-export async function callBuildStatusService(serviceUrl) {
-  try {
-    const response = await fetch(serviceUrl);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const status = await response.json();
-    console.log(chalk.green("Build Status Service Response:"), status);
-    return status;
-  } catch (error) {
-    return handleFetchError(error, "build status service");
-  }
-}
-
-/**
- * Remote deployment service wrapper.
- */
-export async function callDeploymentService(serviceUrl, payload) {
-  try {
-    const response = await fetch(serviceUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const result = await response.json();
-    console.log(chalk.green("Deployment Service Response:"), result);
-    return result;
-  } catch (error) {
-    return handleFetchError(error, "deployment service");
-  }
-}
-
-/**
- * Remote logging service wrapper.
- */
-export async function callLoggingService(serviceUrl, logData) {
-  try {
-    const response = await fetch(serviceUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(logData),
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const result = await response.json();
-    console.log(chalk.green("Logging Service Response:"), result);
-    return result;
-  } catch (error) {
-    return handleFetchError(error, "logging service");
-  }
-}
-
-/**
- * Remote code quality service wrapper.
- */
-export async function callCodeQualityService(serviceUrl, parameters) {
-  try {
-    const response = await fetch(serviceUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(parameters),
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const result = await response.json();
-    console.log(chalk.green("Code Quality Service Response:"), result);
-    return result;
-  } catch (error) {
-    return handleFetchError(error, "code quality service");
-  }
-}
-
-/**
- * Remote security scan service wrapper.
- */
-export async function callSecurityScanService(serviceUrl, payload) {
-  try {
-    const response = await fetch(serviceUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const result = await response.json();
-    console.log(chalk.green("Security Scan Service Response:"), result);
-    return result;
-  } catch (error) {
-    return handleFetchError(error, "security scan service");
-  }
-}
-
-/**
- * Remote monitoring service wrapper.
- */
-export async function callMonitoringService(serviceUrl) {
-  try {
-    const response = await fetch(serviceUrl);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    console.log(chalk.green("Monitoring Service Response:"), data);
-    return data;
-  } catch (error) {
-    return handleFetchError(error, "monitoring service");
-  }
-}
-
-/**
- * Remote package management service wrapper.
- */
-export async function callPackageManagementService(serviceUrl) {
-  try {
-    const response = await fetch(serviceUrl);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    console.log(chalk.green("Package Management Service Response:"), data);
-    return data;
-  } catch (error) {
-    return handleFetchError(error, "package management service");
-  }
-}
 
 /**
  * Parse SARIF formatted JSON to summarize issues.
@@ -676,7 +478,7 @@ export function parseEslintDetailedOutput(sarifJson) {
           run.results.forEach((result) => {
             eslintIssues.push({
               ruleId: result.ruleId || "unknown",
-              message: result.message && result.message.text ? result.message.text : "",
+              message: result.message && result.message.text ? result.message.text : ""
             });
           });
         }
@@ -755,7 +557,7 @@ function handleCreateIssue(nonFlagArgs) {
     issueTitle: issueTitle,
     issueBody: issueBody,
     issueNumber: issueNumber,
-    status: "Created via simulated workflow",
+    status: "Created via simulated workflow"
   };
   console.log(chalk.magenta(JSON.stringify(issueData, null, 2)));
   console.log(chalk.magenta("Simulated Issue Created:"));
@@ -1050,7 +852,7 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
     const ResponseSchema = z.object({
       fixed: z.string(),
       message: z.string(),
-      refinement: z.string(),
+      refinement: z.string()
     });
     const tools = [
       {
@@ -1063,14 +865,14 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
             properties: {
               fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
               message: { type: "string", description: "A message explaining the result" },
-              refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" },
+              refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
             },
             required: ["fixed", "message", "refinement"],
-            additionalProperties: false,
+            additionalProperties: false
           },
-          strict: true,
-        },
-      },
+          strict: true
+        }
+      }
     ];
     const response = await openai.createChatCompletion({
       model,
@@ -1245,6 +1047,7 @@ export async function callRepositoryService(serviceUrl) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
+    console.log(chalk.green("Repository Service Response:"), data);
     return data;
   } catch (error) {
     return { error: error.message };

@@ -15,7 +15,7 @@ Mixed licensing:
 * This file is part of the example suite for `agentic-lib` (see: https://github.com/xn-intenton-z2a/agentic-lib).
 * This file is licensed under the MIT License. For details, see LICENSE-MIT.
 
-*Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained.*
+*Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained. NEW: Added gatherWorkflowTelemetry to capture additional GitHub Actions telemetry data.*
 
 ---
 
@@ -25,7 +25,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 
 - **Usage Information:** Use `generateUsage()` to display available command‑line options.
 - **Telemetry:** Comprehensive diagnostics via functions such as:
-  - `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, and `gatherTotalTelemetry()`.
+  - `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, `gatherTotalTelemetry()`, and now `gatherWorkflowTelemetry()` for enhanced workflow-specific telemetry.
   - **CI Metrics:** `gatherCIEnvironmentMetrics()` captures additional GitHub Actions metrics.
   - **Extra Telemetry:** `gatherExtraTelemetryData()` provides metrics like timestamps, CPU usage, and free memory.
   - **GitHub Environment Telemetry:** `gatherGithubEnvTelemetry()` aggregates all environment variables starting with `GITHUB_`.
@@ -50,7 +50,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - README refreshed to align with the CONTRIBUTING guidelines. Outdated content has been pruned and core information retained.
 - Extended Kafka Messaging Simulations including multicast and rebroadcast features.
 - New OpenAI Function Wrappers: `delegateDecisionToLLMFunctionCallWrapper`, `delegateDecisionToLLMChatOptimized`, `delegateDecisionToLLMChatAdvanced`, and `delegateDecisionToLLMChatPremium`.
-- Enhanced telemetry and simulation utilities.
+- Enhanced telemetry and simulation utilities. **NEW:** Added `gatherWorkflowTelemetry()` to capture more detailed GitHub Actions workflow data.
 - Drift pruning applied across the codebase.
 
 ---
@@ -58,8 +58,6 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
----
 
 ## Component Breakdown
 
