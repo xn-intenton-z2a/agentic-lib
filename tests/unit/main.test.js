@@ -23,12 +23,25 @@ describe("reviewIssue", () => {
   test("returns correct resolution when conditions met", () => {
     const params = {
       sourceFileContent:
-        "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [args...]",
+        "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [args...]"
     };
     const result = agenticLib.reviewIssue(params);
     expect(result.fixed).toBe("true");
     expect(result.message).toBe("The issue has been resolved.");
     expect(result.refinement).toBe("None");
+  });
+});
+
+describe("Telemetry Functions", () => {
+  test("gatherTotalTelemetry should contain githubEnv property", () => {
+    const total = agenticLib.gatherTotalTelemetry();
+    expect(total).toHaveProperty("githubEnv");
+  });
+  test("gatherWorkflowTelemetry returns additional workflow properties", () => {
+    const workflowTelemetry = agenticLib.gatherWorkflowTelemetry();
+    expect(workflowTelemetry).toHaveProperty("buildTimestamp");
+    expect(workflowTelemetry).toHaveProperty("runnerOs");
+    expect(workflowTelemetry).toHaveProperty("repository");
   });
 });
 
@@ -134,13 +147,6 @@ describe("delegateDecisionToLLMChatPremium", () => {
   });
 });
 
-describe("gatherTotalTelemetry", () => {
-  test("should contain githubEnv property", () => {
-    const total = agenticLib.gatherTotalTelemetry();
-    expect(total).toHaveProperty("githubEnv");
-  });
-});
-
 describe("simulateKafkaWorkflowMessaging", () => {
   test("should simulate routing and consumer group messaging", () => {
     const topics = ["sales", "special-trade", "random"];
@@ -180,7 +186,7 @@ describe("simulateKafkaTransaction", () => {
   test("should simulate a Kafka transaction", () => {
     const messagesArray = [
       { topic: "txn-topic1", message: "Message 1" },
-      { topic: "txn-topic2", message: "Message 2" },
+      { topic: "txn-topic2", message: "Message 2" }
     ];
     const result = agenticLib.simulateKafkaTransaction(messagesArray);
     expect(result).toHaveProperty("success", true);
@@ -195,7 +201,7 @@ describe("simulateKafkaPriorityQueue", () => {
     const messages = [
       { message: "Low priority", priority: 1 },
       { message: "High priority", priority: 10 },
-      { message: "Medium priority", priority: 5 },
+      { message: "Medium priority", priority: 5 }
     ];
     const sorted = agenticLib.simulateKafkaPriorityQueue(topic, messages);
     expect(sorted[0]).toContain("High priority");
