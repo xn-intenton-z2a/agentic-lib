@@ -1,11 +1,9 @@
 #!/usr/bin/env node
 // src/lib/main.js - Updated to align with the agentic‑lib mission statement by pruning drift and consolidating legacy code.
 // Change Log:
-// - Pruned drift and removed deprecated code to strictly align with the mission statement.
-// - Consolidated duplicate and legacy functions.
-// - Extended telemetry functions for enhanced GitHub Actions workflow insights (including gatherWorkflowTelemetry).
-// - Updated internal logging and refined flag handling.
-// - Minor formatting improvements.
+// - Pruned drift and removed deprecated duplicate function definitions.
+// - Consolidated duplicate exports (simulateKafkaConsumer, simulateKafkaDelayedMessage, simulateKafkaTransaction, simulateKafkaPriorityQueue, simulateKafkaMessagePersistence, simulateKafkaMulticast, simulateFileSystemCall, callRepositoryService).
+// - Added a main() function to enable CLI execution.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -58,6 +56,13 @@ function printUsageAndDemo(flagArgs, nonFlagArgs) {
   if (nonFlagArgs.length > 0) {
     console.log("Non-flag arguments:", nonFlagArgs.join(", "));
   }
+}
+
+/**
+ * Dummy generateUsage function
+ */
+function generateUsage() {
+  return "Usage: agentic-lib [options]";
 }
 
 /**
@@ -337,9 +342,9 @@ export function simulateKafkaRebroadcast(topics, message, repeat = 2) {
   return results;
 }
 
-/**
- * Simulate dynamic Kafka consumer
- */
+// --- Consolidated single declarations below (duplicates removed) ---
+
+// Simulate a Kafka consumer
 export function simulateKafkaConsumer(topic, count = 3) {
   const messages = [];
   for (let i = 0; i < count; i++) {
@@ -421,9 +426,10 @@ export async function callRepositoryService(serviceUrl) {
   }
 }
 
+// LLM and issue review functions
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -701,85 +707,13 @@ export function reviewIssue(params) {
   return { fixed: "true", message: "The issue has been resolved.", refinement: "None" };
 }
 
-// Function to simulate a Kafka consumer
-export function simulateKafkaConsumer(topic, count = 3) {
-  const messages = [];
-  for (let i = 0; i < count; i++) {
-    messages.push(`Consumer message ${i + 1} from topic '${topic}'`);
-  }
-  return messages;
-}
-
-// Simulate a delayed Kafka message
-export async function simulateKafkaDelayedMessage(topic, message, delayMs) {
-  await new Promise((resolve) => setTimeout(resolve, delayMs));
-  return { delayed: true, topic, message };
-}
-
-// Simulate a Kafka transaction
-export function simulateKafkaTransaction(messagesArray) {
-  const transaction = {};
-  messagesArray.forEach((item) => {
-    transaction[item.topic] = item.message;
-  });
-  return { success: true, transaction };
-}
-
-// Simulate a Kafka priority queue
-export function simulateKafkaPriorityQueue(topic, messages) {
-  return messages.sort((a, b) => b.priority - a.priority).map((item) => item.message);
-}
-
-// Global store for message persistence
-let persistenceStore = {};
-
-// Simulate Kafka message persistence
-export function simulateKafkaMessagePersistence(topic, message) {
-  if (!persistenceStore[topic]) {
-    persistenceStore[topic] = [];
-  }
-  persistenceStore[topic].push(message);
-  return { topic, persistedMessages: persistenceStore[topic] };
-}
-
-// NEW: Simulate multicast messaging.
-export function simulateKafkaMulticast(topics, message, multicastOptions = {}) {
-  const results = {};
-  const delay = multicastOptions.delay || 0;
-  topics.forEach((topic) => {
-    let finalMessage = message;
-    if (delay > 0) {
-      finalMessage += ` (delayed by ${delay}ms)`;
-    }
-    results[topic] = { multicast: finalMessage };
-    console.log(chalk.blue(`Multicast to '${topic}': ${finalMessage}`));
-  });
-  return results;
-}
-
-// Simulate file system call
-export async function simulateFileSystemCall(filePath) {
-  try {
-    const content = await fs.readFile(filePath, "utf-8");
-    return content;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-}
-
-// Simulate repository service call
-export async function callRepositoryService(serviceUrl) {
-  try {
-    const response = await fetch(serviceUrl);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    console.log(chalk.green("Repository Service Response:"), data);
-    return data;
-  } catch (error) {
-    return { error: error.message };
+// --- Added main() function for CLI execution ---
+function main(args) {
+  const { flagArgs, nonFlagArgs } = splitArguments(args);
+  if (flagArgs.includes("--help")) {
+    printUsageAndDemo(flagArgs, nonFlagArgs);
+  } else {
+    console.log(enhancedDemo());
   }
 }
 
