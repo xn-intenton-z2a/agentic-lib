@@ -4,6 +4,8 @@
 // - Pruned drift and removed deprecated duplicate function definitions.
 // - Consolidated duplicate exports (simulateKafkaConsumer, simulateKafkaDelayedMessage, simulateKafkaTransaction, simulateKafkaPriorityQueue, simulateKafkaMessagePersistence, simulateKafkaMulticast, simulateFileSystemCall, callRepositoryService).
 // - Added a main() function to enable CLI execution.
+// - Fixed regex in getIssueNumberFromBranch to correctly extract issue numbers.
+// - Added parseCombinedDefaultOutput to parse both Vitest and ESLint default outputs.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -429,7 +431,7 @@ export async function callRepositoryService(serviceUrl) {
 // LLM and issue review functions
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -705,6 +707,17 @@ export async function delegateDecisionToLLMChatPremium(prompt, options = {}) {
 // Simulation for issue review
 export function reviewIssue(params) {
   return { fixed: "true", message: "The issue has been resolved.", refinement: "None" };
+}
+
+// NEW: Added parseCombinedDefaultOutput to parse vitest and eslint default outputs
+export function parseCombinedDefaultOutput(vitestStr, eslintStr) {
+  const vitestMatch = vitestStr.match(/(\d+)/);
+  const testsPassed = vitestMatch ? parseInt(vitestMatch[1], 10) : 0;
+  const eslintMatch = eslintStr.match(/(\d+)\s+problems,\s+(\d+)\s+errors,\s+(\d+)\s+warnings/);
+  const numProblems = eslintMatch ? parseInt(eslintMatch[1], 10) : 0;
+  const numErrors = eslintMatch ? parseInt(eslintMatch[2], 10) : 0;
+  const numWarnings = eslintMatch ? parseInt(eslintMatch[3], 10) : 0;
+  return { vitest: { testsPassed }, eslint: { numProblems, numErrors, numWarnings } };
 }
 
 // --- Added main() function for CLI execution ---
