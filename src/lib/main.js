@@ -338,357 +338,92 @@ export function simulateKafkaRebroadcast(topics, message, repeat = 2) {
 }
 
 /**
- * Parse SARIF formatted JSON to summarize issues.
+ * Simulate dynamic Kafka consumer
  */
-export function parseSarifOutput(sarifJson) {
+export function simulateKafkaConsumer(topic, count = 3) {
+  const messages = [];
+  for (let i = 0; i < count; i++) {
+    messages.push(`Consumer message ${i + 1} from topic '${topic}'`);
+  }
+  return messages;
+}
+
+// Simulate a delayed Kafka message
+export async function simulateKafkaDelayedMessage(topic, message, delayMs) {
+  await new Promise((resolve) => setTimeout(resolve, delayMs));
+  return { delayed: true, topic, message };
+}
+
+// Simulate a Kafka transaction
+export function simulateKafkaTransaction(messagesArray) {
+  const transaction = {};
+  messagesArray.forEach((item) => {
+    transaction[item.topic] = item.message;
+  });
+  return { success: true, transaction };
+}
+
+// Simulate a Kafka priority queue
+export function simulateKafkaPriorityQueue(topic, messages) {
+  return messages.sort((a, b) => b.priority - a.priority).map((item) => item.message);
+}
+
+// Global store for message persistence
+let persistenceStore = {};
+
+// Simulate Kafka message persistence
+export function simulateKafkaMessagePersistence(topic, message) {
+  if (!persistenceStore[topic]) {
+    persistenceStore[topic] = [];
+  }
+  persistenceStore[topic].push(message);
+  return { topic, persistedMessages: persistenceStore[topic] };
+}
+
+// NEW: Simulate multicast messaging.
+export function simulateKafkaMulticast(topics, message, multicastOptions = {}) {
+  const results = {};
+  const delay = multicastOptions.delay || 0;
+  topics.forEach((topic) => {
+    let finalMessage = message;
+    if (delay > 0) {
+      finalMessage += ` (delayed by ${delay}ms)`;
+    }
+    results[topic] = { multicast: finalMessage };
+    console.log(chalk.blue(`Multicast to '${topic}': ${finalMessage}`));
+  });
+  return results;
+}
+
+// Simulate file system call
+export async function simulateFileSystemCall(filePath) {
   try {
-    const sarif = JSON.parse(sarifJson);
-    let totalIssues = 0;
-    if (sarif.runs && Array.isArray(sarif.runs)) {
-      for (const run of sarif.runs) {
-        if (run.results && Array.isArray(run.results)) {
-          totalIssues += run.results.length;
-        }
-      }
-    }
-    console.log(chalk.green(`SARIF Report: Total issues: ${totalIssues}`));
-    return { totalIssues };
+    const content = await fs.readFile(filePath, "utf-8");
+    return content;
   } catch (error) {
-    const errMsg = error instanceof Error ? error.message : "Unknown error";
-    console.error(chalk.red("Error parsing SARIF JSON:"), errMsg);
-    return { error: errMsg };
+    console.error(error);
+    return null;
   }
 }
 
-/**
- * Parse ESLint SARIF formatted JSON to summarize ESLint issues.
- */
-export function parseEslintSarifOutput(sarifJson) {
+// Simulate repository service call
+export async function callRepositoryService(serviceUrl) {
   try {
-    const sarif = JSON.parse(sarifJson);
-    let totalIssues = 0;
-    if (sarif.runs && Array.isArray(sarif.runs)) {
-      for (const run of sarif.runs) {
-        if (run.results && Array.isArray(run.results)) {
-          totalIssues += run.results.length;
-        }
-      }
+    const response = await fetch(serviceUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-    console.log(chalk.green(`ESLint SARIF Report: Total issues: ${totalIssues}`));
-    return { totalIssues };
+    const data = await response.json();
+    console.log(chalk.green("Repository Service Response:"), data);
+    return data;
   } catch (error) {
-    const errMsg = error instanceof Error ? error.message : "Unknown error";
-    console.error(chalk.red("Error parsing ESLint SARIF JSON:"), errMsg);
-    return { error: errMsg };
+    return { error: error.message };
   }
-}
-
-/**
- * Parse Vitest output string to extract test summary.
- */
-export function parseVitestOutput(outputStr) {
-  const match = outputStr.match(/(\d+)\s+tests?\s+passed/i);
-  if (match) {
-    const testsPassed = parseInt(match[1], 10);
-    console.log(chalk.green(`Vitest Output: ${testsPassed} tests passed.`));
-    return { testsPassed };
-  } else {
-    console.error(chalk.red("Error parsing Vitest output: Summary not found."));
-    return { error: "Test summary not found" };
-  }
-}
-
-/**
- * Parse Vitest default output.
- */
-export function parseVitestDefaultOutput(outputStr) {
-  const match = outputStr.match(/(\d+)\s+tests?\s+passed/i);
-  if (match) {
-    const testsPassed = parseInt(match[1], 10);
-    console.log(chalk.green(`Vitest Default Output: ${testsPassed} tests passed.`));
-    return { testsPassed };
-  } else {
-    console.error(chalk.red("Error parsing Vitest default output: Summary not found."));
-    return { error: "Test summary not found" };
-  }
-}
-
-/**
- * Parse ESLint default output.
- */
-export function parseEslintDefaultOutput(outputStr) {
-  const problems = outputStr.match(/(\d+)\s+problems?/i);
-  const errors = outputStr.match(/(\d+)\s+errors?/i);
-  const warnings = outputStr.match(/(\d+)\s+warnings?/i);
-  if (problems) {
-    const numProblems = parseInt(problems[1], 10);
-    const numErrors = errors ? parseInt(errors[1], 10) : 0;
-    const numWarnings = warnings ? parseInt(warnings[1], 10) : 0;
-    console.log(chalk.green(`ESLint Default Output: ${numProblems} problems (${numErrors} errors, ${numWarnings} warnings)`));
-    return { numProblems, numErrors, numWarnings };
-  } else {
-    console.error(chalk.red("Error parsing ESLint default output: Summary not found."));
-    return { error: "ESLint summary not found" };
-  }
-}
-
-/**
- * Parse Vitest SARIF output.
- */
-export function parseVitestSarifOutput(sarifJson) {
-  try {
-    const sarif = JSON.parse(sarifJson);
-    const testSummaries = [];
-    if (sarif.runs && Array.isArray(sarif.runs)) {
-      sarif.runs.forEach((run) => {
-        if (run.results && Array.isArray(run.results)) {
-          run.results.forEach((result) => {
-            if (result.message && result.message.text) {
-              testSummaries.push(result.message.text);
-            }
-          });
-        }
-      });
-    }
-    console.log(chalk.green("Vitest SARIF Report:"), testSummaries);
-    return { testSummaries };
-  } catch (error) {
-    const errMsg = error instanceof Error ? error.message : "Unknown error";
-    console.error(chalk.red("Error parsing Vitest SARIF JSON:"), errMsg);
-    return { error: errMsg };
-  }
-}
-
-/**
- * Parse ESLint detailed SARIF output.
- */
-export function parseEslintDetailedOutput(sarifJson) {
-  try {
-    const sarif = JSON.parse(sarifJson);
-    const eslintIssues = [];
-    if (sarif.runs && Array.isArray(sarif.runs)) {
-      sarif.runs.forEach((run) => {
-        if (run.results && Array.isArray(run.results)) {
-          run.results.forEach((result) => {
-            eslintIssues.push({
-              ruleId: result.ruleId || "unknown",
-              message: result.message && result.message.text ? result.message.text : ""
-            });
-          });
-        }
-      });
-    }
-    console.log(chalk.green("ESLint Detailed SARIF Report:"), eslintIssues);
-    return { eslintIssues };
-  } catch (error) {
-    const errMsg = error instanceof Error ? error.message : "Unknown error";
-    console.error(chalk.red("Error parsing ESLint Detailed SARIF JSON:"), errMsg);
-    return { error: errMsg };
-  }
-}
-
-/**
- * Combined SARIF output parser.
- */
-export function parseCombinedSarifOutput(sarifJson) {
-  try {
-    const sarif = JSON.parse(sarifJson);
-    let vitestIssues = 0;
-    let eslintIssues = 0;
-    if (sarif.runs && Array.isArray(sarif.runs)) {
-      sarif.runs.forEach((run) => {
-        if (run.tool && run.tool.driver && run.tool.driver.name === "Vitest") {
-          if (run.results) vitestIssues += run.results.length;
-        } else if (run.tool && run.tool.driver && run.tool.driver.name === "ESLint") {
-          if (run.results) eslintIssues += run.results.length;
-        }
-      });
-    }
-    console.log(chalk.green(`Combined SARIF Report: Vitest issues: ${vitestIssues}, ESLint issues: ${eslintIssues}`));
-    return { vitestIssues, eslintIssues };
-  } catch (error) {
-    const errMsg = error instanceof Error ? error.message : "Unknown error";
-    console.error(chalk.red("Error parsing combined SARIF JSON:"), errMsg);
-    return { error: errMsg };
-  }
-}
-
-/**
- * Combined Default Output Parser.
- */
-export function parseCombinedDefaultOutput(vitestOutput, eslintOutput) {
-  const vitestResult = parseVitestDefaultOutput(vitestOutput);
-  const eslintResult = parseEslintDefaultOutput(eslintOutput);
-  return { vitest: vitestResult, eslint: eslintResult };
-}
-
-/**
- * Simulate advanced analytics combining Kafka simulation and telemetry.
- */
-export function simulateAdvancedAnalytics(topic, count = 3) {
-  console.log(chalk.blue(`Starting advanced analytics simulation on topic '${topic}' with count ${count}`));
-  const kafkaMessages = simulateKafkaStream(topic, count);
-  const advancedData = gatherAdvancedTelemetryData();
-  console.log(chalk.blue(`Advanced analytics data: ${JSON.stringify(advancedData, null, 2)}`));
-  return { kafkaMessages, advancedData };
-}
-
-/**
- * Handle create issue command simulation.
- */
-function handleCreateIssue(nonFlagArgs) {
-  console.log(chalk.magenta("Simulated GitHub Issue Creation Workflow triggered."));
-  let issueTitle;
-  if (nonFlagArgs.length > 0 && nonFlagArgs[0] === "house choice") {
-    const options = process.env.HOUSE_CHOICE_OPTIONS ? process.env.HOUSE_CHOICE_OPTIONS.split("||") : ["Default House Choice Issue"];
-    issueTitle = options[Math.floor(Math.random() * options.length)];
-  } else {
-    issueTitle = nonFlagArgs.length > 0 ? nonFlagArgs.join(" ") : "Default Issue Title";
-  }
-  const issueBody = process.env.ISSUE_BODY || "Please resolve the issue.";
-  const issueNumber = randomInt(100, 1000);
-  const issueData = {
-    issueTitle: issueTitle,
-    issueBody: issueBody,
-    issueNumber: issueNumber,
-    status: "Created via simulated workflow"
-  };
-  console.log(chalk.magenta(JSON.stringify(issueData, null, 2)));
-  console.log(chalk.magenta("Simulated Issue Created:"));
-  console.log(chalk.magenta("Title: " + issueTitle));
-  console.log(chalk.magenta("Issue Body: " + issueBody));
-  console.log(chalk.magenta("Issue Number: " + issueNumber));
-  return issueData;
-}
-
-/**
- * Handle basic flag commands.
- */
-function handleBasicFlag(flag, nonFlagArgs) {
-  switch (flag) {
-    case "--create-issue": {
-      const res = handleCreateIssue(nonFlagArgs);
-      return res;
-    }
-    case "--version": {
-      console.log(showVersion());
-      return true;
-    }
-    case "--env": {
-      console.log("Environment Variables: " + JSON.stringify(process.env, null, 2));
-      return true;
-    }
-    case "--telemetry-extended": {
-      console.log("Extended Telemetry Data: " + JSON.stringify(gatherExtendedTelemetryData(), null, 2));
-      return true;
-    }
-    case "--telemetry": {
-      console.log("Telemetry Data: " + JSON.stringify(gatherTelemetryData(), null, 2));
-      return true;
-    }
-    case "--simulate-remote": {
-      console.log(chalk.cyan("Simulated remote service call initiated."));
-      return true;
-    }
-    case "--sarif": {
-      if (nonFlagArgs.length === 0) {
-        console.log(chalk.red("No SARIF JSON provided."));
-      } else {
-        parseSarifOutput(nonFlagArgs.join(" "));
-      }
-      return true;
-    }
-    case "--report": {
-      printReport();
-      return true;
-    }
-    case "--extended": {
-      console.log(chalk.green("Extended logging activated."));
-      const detailedMessages = simulateKafkaDetailedStream("detailedTopic", 2);
-      console.log("Detailed messages:", detailedMessages.join(","));
-      return false;
-    }
-    case "--reverse": {
-      const reversedInput = nonFlagArgs.join(" ").split("").reverse().join("");
-      console.log(chalk.yellow("Reversed input: " + reversedInput));
-      return false;
-    }
-    case "--advanced": {
-      console.log(chalk.blue("Advanced analytics simulation initiated."));
-      const result = simulateAdvancedAnalytics("advancedTopic", 3);
-      console.log("Advanced analytics result:", result);
-      return true;
-    }
-    case "--analytics": {
-      console.log(chalk.cyan("Simulated analytics service call initiated."));
-      (async () => {
-        try {
-          const res = await callAnalyticsService("https://analytics.example.com/record", { event: "testAnalytics" });
-          console.log(chalk.green("Simulated Analytics Service Response:"), res);
-        } catch (err) {
-          console.error(chalk.red("Analytics call failed:"), err.message);
-        }
-      })();
-      return false;
-    }
-    case "--config": {
-      printConfiguration();
-      return false;
-    }
-    case "--simulate-ci-workflow": {
-      console.log(chalk.cyan("Simulated CI Workflow Lifecycle initiated."));
-      const result = simulateCIWorkflowLifecycle();
-      console.log(chalk.green("CI Workflow Lifecycle Result:"), result);
-      return true;
-    }
-    default:
-      return false;
-  }
-}
-
-/**
- * Refactored flag handling to reduce complexity.
- */
-function handleFlagCommands(flagArgs, nonFlagArgs) {
-  if (flagArgs.length === 0 || flagArgs.includes("--help") || flagArgs.includes("--usage")) {
-    printUsageAndDemo(flagArgs, nonFlagArgs);
-    exitApplication();
-    return true;
-  }
-  for (const flag of flagArgs) {
-    if (handleBasicFlag(flag, nonFlagArgs)) {
-      exitApplication();
-      return true;
-    }
-  }
-  if (nonFlagArgs.length > 0) {
-    console.log("Non-flag arguments:", nonFlagArgs.join(","));
-  }
-  exitApplication();
-  return false;
-}
-
-/**
- * Main function for processing command line arguments.
- */
-export function main(args = []) {
-  if (process.env.NODE_ENV !== "test") {
-    console.log(chalk.green(figlet.textSync("agentic‑lib", { horizontalLayout: "full" })));
-  }
-  const { flagArgs, nonFlagArgs } = splitArguments(args);
-  if (handleFlagCommands(flagArgs, nonFlagArgs)) return;
-  const flagProcessingResult = processFlags(flagArgs);
-  console.log(flagProcessingResult);
-  exitApplication();
-}
-
-export function generateUsage() {
-  return "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [--create-issue] [--simulate-remote] [--sarif] [--extended] [--report] [--advanced] [--analytics] [--config] [--simulate-ci-workflow] [args...]";
 }
 
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
