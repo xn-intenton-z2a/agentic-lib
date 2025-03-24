@@ -15,7 +15,7 @@ Mixed licensing:
 * This file is part of the example suite for `agentic-lib` (see: https://github.com/xn-intenton-z2a/agentic-lib).
 * This file is licensed under the MIT License. For details, see LICENSE-MIT.
 
-*Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained. **NEW:** Added and enhanced telemetry functions including gatherWorkflowTelemetry to capture detailed GitHub Actions workflow data. Drift and deprecated code have been pruned to align strictly with the mission statement. **FIX:** Corrected issue number extraction and added parseCombinedDefaultOutput for parsing test outputs.*
+*Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained. **NEW:** Added and enhanced telemetry functions including gatherWorkflowTelemetry to capture detailed GitHub Actions workflow data. Drift and deprecated code have been pruned to align strictly with the mission statement. **FIX:** Corrected getIssueNumberFromBranch function and added parseCombinedDefaultOutput for parsing test outputs. **EXT:** Implemented simulateIssueCreation in main.js to simulate issue creation similar to wfr-create-issue.yml workflow behavior.
 
 ---
 
@@ -41,7 +41,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
   - New combined parsers: `parseCombinedSarifOutput` and **`parseCombinedDefaultOutput`**.
 - **File System Simulation:** `simulateFileSystemCall()` enables safe file interactions for testing purposes.
 - **CI Workflow Simulation:** `simulateCIWorkflowLifecycle` aggregates telemetry data and simulates Kafka messaging to emulate a complete workflow lifecycle.
-- **Issue Creation Simulation:** The enhanced `--create-issue` flag mimics a GitHub Actions workflow by dynamically selecting an issue title from `HOUSE_CHOICE_OPTIONS` and logging detailed JSON output.
+- **Issue Creation Simulation:** **NEW:** `simulateIssueCreation` mimics a GitHub Actions workflow for issue creation. It selects an issue title from provided house choice options when the title is set to "house choice", generates a simulated issue number, and logs the details.
 
 ---
 
@@ -53,6 +53,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - New OpenAI Function Wrappers: `delegateDecisionToLLMFunctionCallWrapper`, `delegateDecisionToLLMChatOptimized`, `delegateDecisionToLLMChatAdvanced`, and `delegateDecisionToLLMChatPremium`.
 - Enhanced telemetry and simulation utilities.
 - **FIX:** Corrected getIssueNumberFromBranch function and added `parseCombinedDefaultOutput` for parsing test outputs.
+- **EXT:** Implemented simulateIssueCreation to simulate issue creation workflow behavior similar to the provided wfr-create-issue.yml.
 
 ---
 
@@ -108,5 +109,3 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
-
----
