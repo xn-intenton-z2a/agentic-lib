@@ -18,7 +18,6 @@ Mixed licensing:
 *Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained. **NEW:** Added and enhanced telemetry functions including gatherWorkflowTelemetry to capture detailed GitHub Actions workflow data. Drift and deprecated code have been pruned to align strictly with the mission statement. **FIX:** Corrected getIssueNumberFromBranch function and added parseCombinedDefaultOutput for parsing test outputs. **EXT:** Implemented simulateIssueCreation in main.js to simulate issue creation similar to wfr-create-issue.yml workflow behavior. **NEW:** Added parseVitestDefaultOutput and parseEslintSarifOutput functions to parse Vitest default output and ESLint SARIF output respectively.
 
 ---
----
 
 ## Overview
 
