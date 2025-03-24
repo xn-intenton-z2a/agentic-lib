@@ -7,6 +7,8 @@
 // - Fixed regex in getIssueNumberFromBranch to correctly extract issue numbers.
 // - Added parseCombinedDefaultOutput to parse both Vitest and ESLint default outputs.
 // - NEW: Added simulateIssueCreation to mimic the behavior of the wfr-create-issue.yml workflow.
+// - NEW: Added parseVitestDefaultOutput to parse Vitest default output.
+// - NEW: Added parseEslintSarifOutput to parse ESLint SARIF output format.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -719,6 +721,37 @@ export function parseCombinedDefaultOutput(vitestStr, eslintStr) {
   const numErrors = eslintMatch ? parseInt(eslintMatch[2], 10) : 0;
   const numWarnings = eslintMatch ? parseInt(eslintMatch[3], 10) : 0;
   return { vitest: { testsPassed }, eslint: { numProblems, numErrors, numWarnings } };
+}
+
+// NEW: Parse Vitest default output
+export function parseVitestDefaultOutput(vitestStr) {
+  const match = vitestStr.match(/(\d+)\s+tests passed/);
+  const testsPassed = match ? parseInt(match[1], 10) : 0;
+  return { testsPassed };
+}
+
+// NEW: Parse ESLint SARIF output
+export function parseEslintSarifOutput(sarifContent) {
+  try {
+    const sarifJson = typeof sarifContent === 'string' ? JSON.parse(sarifContent) : sarifContent;
+    let numProblems = 0, numErrors = 0, numWarnings = 0;
+    if (sarifJson.runs && sarifJson.runs.length > 0) {
+      sarifJson.runs.forEach(run => {
+        run.results && run.results.forEach(result => {
+          if (result.level === "error") {
+            numErrors++;
+          } else if (result.level === "warning") {
+            numWarnings++;
+          }
+          numProblems++;
+        });
+      });
+    }
+    return { numProblems, numErrors, numWarnings };
+  } catch (e) {
+    console.error("Failed to parse ESLint SARIF output:", e);
+    return { numProblems: 0, numErrors: 0, numWarnings: 0 };
+  }
 }
 
 // NEW: Simulate Issue Creation Workflow similar to wfr-create-issue.yml

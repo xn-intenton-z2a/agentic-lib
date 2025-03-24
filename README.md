@@ -15,7 +15,7 @@ Mixed licensing:
 * This file is part of the example suite for `agentic-lib` (see: https://github.com/xn-intenton-z2a/agentic-lib).
 * This file is licensed under the MIT License. For details, see LICENSE-MIT.
 
-*Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained. **NEW:** Added and enhanced telemetry functions including gatherWorkflowTelemetry to capture detailed GitHub Actions workflow data. Drift and deprecated code have been pruned to align strictly with the mission statement. **FIX:** Corrected getIssueNumberFromBranch function and added parseCombinedDefaultOutput for parsing test outputs. **EXT:** Implemented simulateIssueCreation in main.js to simulate issue creation similar to wfr-create-issue.yml workflow behavior.
+*Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained. **NEW:** Added and enhanced telemetry functions including gatherWorkflowTelemetry to capture detailed GitHub Actions workflow data. Drift and deprecated code have been pruned to align strictly with the mission statement. **FIX:** Corrected getIssueNumberFromBranch function and added parseCombinedDefaultOutput for parsing test outputs. **EXT:** Implemented simulateIssueCreation in main.js to simulate issue creation similar to wfr-create-issue.yml workflow behavior. **NEW:** Added parseVitestDefaultOutput and parseEslintSarifOutput functions to parse Vitest default output and ESLint SARIF output respectively.
 
 ---
 
@@ -37,8 +37,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
   - **NEW:** `delegateDecisionToLLMChatPremium` extends OpenAI function delegation with additional logging and configurable base URL support.
 - **Kafka Operations:** Simulated messaging functions for inter‑workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, multicast, and rebroadcast functionalities.
 - **SARIF and Default Output Parsing:** Utilities like:
-  - `parseSarifOutput`, `parseEslintSarifOutput`, `parseVitestOutput`, `parseVitestDefaultOutput`, `parseEslintDefaultOutput`, `parseVitestSarifOutput`, and `parseEslintDetailedOutput`.
-  - New combined parsers: `parseCombinedSarifOutput` and **`parseCombinedDefaultOutput`**.
+  - `parseCombinedDefaultOutput` and **NEW:** `parseVitestDefaultOutput` and `parseEslintSarifOutput` to parse outputs of Vitest and ESLint SARIF formats.
 - **File System Simulation:** `simulateFileSystemCall()` enables safe file interactions for testing purposes.
 - **CI Workflow Simulation:** `simulateCIWorkflowLifecycle` aggregates telemetry data and simulates Kafka messaging to emulate a complete workflow lifecycle.
 - **Issue Creation Simulation:** **NEW:** `simulateIssueCreation` mimics a GitHub Actions workflow for issue creation. It selects an issue title from provided house choice options when the title is set to "house choice", generates a simulated issue number, and logs the details.
@@ -54,6 +53,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - Enhanced telemetry and simulation utilities.
 - **FIX:** Corrected getIssueNumberFromBranch function and added `parseCombinedDefaultOutput` for parsing test outputs.
 - **EXT:** Implemented simulateIssueCreation to simulate issue creation workflow behavior similar to the provided wfr-create-issue.yml.
+- **NEW:** Added parsing functions `parseVitestDefaultOutput` and `parseEslintSarifOutput` to process Vitest and ESLint SARIF outputs.
 
 ---
 

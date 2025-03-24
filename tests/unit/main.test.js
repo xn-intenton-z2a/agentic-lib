@@ -253,6 +253,28 @@ describe("parseCombinedDefaultOutput", () => {
   });
 });
 
+describe("parseVitestDefaultOutput", () => {
+  test("should correctly parse Vitest output", () => {
+    const vitestStr = "37 tests passed";
+    const result = agenticLib.parseVitestDefaultOutput(vitestStr);
+    expect(result.testsPassed).toBe(37);
+  });
+});
+
+describe("parseEslintSarifOutput", () => {
+  test("should correctly parse ESLint SARIF output", () => {
+    const sarif = {
+      runs: [
+        { results: [ { level: "error" }, { level: "warning" }, { level: "error" } ] }
+      ]
+    };
+    const result = agenticLib.parseEslintSarifOutput(sarif);
+    expect(result.numProblems).toBe(3);
+    expect(result.numErrors).toBe(2);
+    expect(result.numWarnings).toBe(1);
+  });
+});
+
 describe("simulateCIWorkflowLifecycle", () => {
   test("should return telemetry and kafkaBroadcast properties", () => {
     const result = agenticLib.simulateCIWorkflowLifecycle();
@@ -345,7 +367,6 @@ describe("simulateKafkaRebroadcast", () => {
   });
 });
 
-// NEW: Tests for simulateIssueCreation workflow simulation
 describe("simulateIssueCreation", () => {
   test("should select a random issue title when 'house choice' is provided", () => {
     const params = {
