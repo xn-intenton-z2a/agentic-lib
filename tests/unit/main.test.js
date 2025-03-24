@@ -344,3 +344,30 @@ describe("simulateKafkaRebroadcast", () => {
     });
   });
 });
+
+// NEW: Tests for simulateIssueCreation workflow simulation
+describe("simulateIssueCreation", () => {
+  test("should select a random issue title when 'house choice' is provided", () => {
+    const params = {
+      issueTitle: "house choice",
+      issueBody: "Please resolve the issue.",
+      houseChoiceOptions: ["Option A", "Option B", "Option C"]
+    };
+    const result = agenticLib.simulateIssueCreation(params);
+    expect(params.houseChoiceOptions).toContain(result.issueTitle);
+    expect(result.issueBody).toBe(params.issueBody);
+    expect(result.issueNumber).toBeGreaterThanOrEqual(100);
+    expect(result.issueNumber).toBeLessThan(1000);
+  });
+  
+  test("should use the provided issue title if not 'house choice'", () => {
+    const params = {
+      issueTitle: "Explicit Title",
+      issueBody: "Detailed issue body.",
+      houseChoiceOptions: ["Option A", "Option B"]
+    };
+    const result = agenticLib.simulateIssueCreation(params);
+    expect(result.issueTitle).toBe("Explicit Title");
+    expect(result.issueBody).toBe(params.issueBody);
+  });
+});

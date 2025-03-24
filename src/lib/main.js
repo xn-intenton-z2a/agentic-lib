@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-// src/lib/main.js - Updated to align with the agentic‑lib mission statement by pruning drift and consolidating legacy code.
+// src/lib/main.js - Updated to align with the agentic‑lib mission statement by pruning drift, consolidating legacy code, and extending workflow simulation functionality.
 // Change Log:
 // - Pruned drift and removed deprecated duplicate function definitions.
 // - Consolidated duplicate exports (simulateKafkaConsumer, simulateKafkaDelayedMessage, simulateKafkaTransaction, simulateKafkaPriorityQueue, simulateKafkaMessagePersistence, simulateKafkaMulticast, simulateFileSystemCall, callRepositoryService).
 // - Added a main() function to enable CLI execution.
 // - Fixed regex in getIssueNumberFromBranch to correctly extract issue numbers.
 // - Added parseCombinedDefaultOutput to parse both Vitest and ESLint default outputs.
+// - NEW: Added simulateIssueCreation to mimic the behavior of the wfr-create-issue.yml workflow.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -431,7 +432,7 @@ export async function callRepositoryService(serviceUrl) {
 // LLM and issue review functions
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -718,6 +719,20 @@ export function parseCombinedDefaultOutput(vitestStr, eslintStr) {
   const numErrors = eslintMatch ? parseInt(eslintMatch[2], 10) : 0;
   const numWarnings = eslintMatch ? parseInt(eslintMatch[3], 10) : 0;
   return { vitest: { testsPassed }, eslint: { numProblems, numErrors, numWarnings } };
+}
+
+// NEW: Simulate Issue Creation Workflow similar to wfr-create-issue.yml
+export function simulateIssueCreation(params) {
+  // params: { issueTitle, issueBody, houseChoiceOptions }
+  let selectedTitle = params.issueTitle;
+  if (params.issueTitle === "house choice" && Array.isArray(params.houseChoiceOptions) && params.houseChoiceOptions.length > 0) {
+    const randomIndex = randomInt(0, params.houseChoiceOptions.length);
+    selectedTitle = params.houseChoiceOptions[randomIndex];
+  }
+  // Generate a simulated issue number
+  const issueNumber = randomInt(100, 1000);
+  console.log(chalk.green(`Simulated issue creation: { issueTitle: ${selectedTitle}, issueBody: ${params.issueBody}, issueNumber: ${issueNumber} }`));
+  return { issueTitle: selectedTitle, issueBody: params.issueBody, issueNumber };
 }
 
 // --- Added main() function for CLI execution ---
