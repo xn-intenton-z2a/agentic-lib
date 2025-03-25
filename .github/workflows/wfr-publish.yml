@@ -33,6 +33,11 @@ on:
         required: true
         type: string
         default: 'prerelease'
+      githubRelease:
+        description: 'Whether to create a GitHub release. e.g. true'
+        type: boolean
+        required: false
+        default: true
       buildScript:
         description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
         type: string
@@ -121,6 +126,12 @@ jobs:
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
 
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
       - name: released
         id: released
         if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
@@ -135,7 +146,7 @@ jobs:
           echo "releasedVersion=${releasedVersion}"
 
       - name: Create GitHub Release
-        if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
+        if: ${{ inputs.githubRelease == 'true' || env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ steps.released.outputs.releasedVersion }}
