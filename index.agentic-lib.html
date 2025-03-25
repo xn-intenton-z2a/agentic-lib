@@ -34,7 +34,7 @@
 <li class="md-github">This file is part of the example suite for <code class="md-github">agentic-lib</code> (see: https://github.com/xn-intenton-z2a/agentic-lib).</li>
 <li class="md-github">This file is licensed under the MIT License. For details, see LICENSE-MIT.</li>
 </ul>
-<p class="md-github">*Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained. <strong class="md-github">NEW:</strong> Added and enhanced telemetry functions including gatherWorkflowTelemetry to capture detailed GitHub Actions workflow data. Drift and deprecated code have been pruned to align strictly with the mission statement. <strong class="md-github">FIX:</strong> Corrected getIssueNumberFromBranch function and added parseCombinedDefaultOutput for parsing test outputs. <strong class="md-github">EXT:</strong> Implemented simulateIssueCreation in main.js to simulate issue creation similar to wfr-create-issue.yml workflow behavior. <strong class="md-github">NEW:</strong> Added parseVitestDefaultOutput and parseEslintSarifOutput functions to parse Vitest default output and ESLint SARIF output respectively.</p>
+<p class="md-github">*Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained. <strong class="md-github">NEW:</strong> Added and enhanced telemetry functions including gatherWorkflowTelemetry and <strong class="md-github">EXT:</strong> Added gatherCIWorkflowMetrics to extend telemetry data collection from GitHub Actions workflows. Drift and deprecated code have been pruned to align strictly with the mission statement. <strong class="md-github">FIX:</strong> Corrected getIssueNumberFromBranch function and added parseCombinedDefaultOutput for parsing test outputs. <strong class="md-github">EXT:</strong> Implemented simulateIssueCreation in main.js to simulate issue creation similar to wfr-create-issue.yml workflow behavior. <strong class="md-github">NEW:</strong> Added parseVitestDefaultOutput and parseEslintSarifOutput functions to parse Vitest default output and ESLint SARIF output respectively.</p>
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
 <p class="md-github">agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Actions workflows. Key features include:</p>
@@ -46,6 +46,7 @@
 <li class="md-github"><strong class="md-github">CI Metrics:</strong> <code class="md-github">gatherCIEnvironmentMetrics()</code> captures additional GitHub Actions metrics.</li>
 <li class="md-github"><strong class="md-github">Extra Telemetry:</strong> <code class="md-github">gatherExtraTelemetryData()</code> provides metrics like timestamps, CPU usage, and free memory.</li>
 <li class="md-github"><strong class="md-github">GitHub Environment Telemetry:</strong> <code class="md-github">gatherGithubEnvTelemetry()</code> aggregates all environment variables starting with <code class="md-github">GITHUB_</code>.</li>
+<li class="md-github"><strong class="md-github">EXT:</strong> <code class="md-github">gatherCIWorkflowMetrics()</code> now gathers additional metrics such as uptime, CPU and memory usage, and build time.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Remote Service Wrappers:</strong> Simplified API interactions for multiple services, including analytics, notifications, build status, deployment, logging, code quality, security scans, monitoring, and package management.</li>
@@ -76,7 +77,7 @@
 <li class="md-github">New OpenAI Function Wrappers: <code class="md-github">delegateDecisionToLLMFunctionCallWrapper</code>, <code class="md-github">delegateDecisionToLLMChatOptimized</code>, <code class="md-github">delegateDecisionToLLMChatAdvanced</code>, and <code class="md-github">delegateDecisionToLLMChatPremium</code>.</li>
 <li class="md-github">Enhanced telemetry and simulation utilities.</li>
 <li class="md-github"><strong class="md-github">FIX:</strong> Corrected getIssueNumberFromBranch function and added <code class="md-github">parseCombinedDefaultOutput</code> for parsing test outputs.</li>
-<li class="md-github"><strong class="md-github">EXT:</strong> Implemented simulateIssueCreation to simulate issue creation workflow behavior similar to the provided wfr-create-issue.yml.</li>
+<li class="md-github"><strong class="md-github">EXT:</strong> Implemented simulateIssueCreation and extended telemetry functions with new <strong class="md-github">gatherCIWorkflowMetrics</strong> to capture additional CI workflow metrics.</li>
 <li class="md-github"><strong class="md-github">NEW:</strong> Added parsing functions <code class="md-github">parseVitestDefaultOutput</code> and <code class="md-github">parseEslintSarifOutput</code> to process Vitest and ESLint SARIF outputs.</li>
 </ul>
 <hr class="md-github">
@@ -103,7 +104,7 @@
 <li class="md-github"><strong class="md-github">Purpose:</strong> Implements the re‑usable workflows as a JavaScript module for programmatic access to core functionality.</li>
 <li class="md-github"><strong class="md-github">Stability:</strong> Under active development and may change frequently, representing bleeding‑edge functionality.</li>
 <li class="md-github"><strong class="md-github">Licensing:</strong> Part of the core project, licensed under GPL‑3 with attribution.</li>
-<li class="md-github"><strong class="md-github">Location:</strong> Located in <code class="md-github">src/lib/main.js</code>.</li>
+<li class="md-github"><strong class="md-github">Location:</strong> The code is located in <code class="md-github">src/lib/main.js</code>.</li>
 </ul>
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="license" href="#license"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>License</h2>
@@ -130,7 +131,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-25T04:07:52.771Z</p>
+    <p>Generated on 2025-03-25T06:10:37.652Z</p>
   </footer>
 </body>
 </html>
