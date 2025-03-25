@@ -15,7 +15,7 @@ Mixed licensing:
 * This file is part of the example suite for `agentic-lib` (see: https://github.com/xn-intenton-z2a/agentic-lib).
 * This file is licensed under the MIT License. For details, see LICENSE-MIT.
 
-*Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained. **NEW:** Added and enhanced telemetry functions including gatherWorkflowTelemetry to capture detailed GitHub Actions workflow data. Drift and deprecated code have been pruned to align strictly with the mission statement. **FIX:** Corrected getIssueNumberFromBranch function and added parseCombinedDefaultOutput for parsing test outputs. **EXT:** Implemented simulateIssueCreation in main.js to simulate issue creation similar to wfr-create-issue.yml workflow behavior. **NEW:** Added parseVitestDefaultOutput and parseEslintSarifOutput functions to parse Vitest default output and ESLint SARIF output respectively.
+*Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained. **NEW:** Added and enhanced telemetry functions including gatherWorkflowTelemetry and **EXT:** Added gatherCIWorkflowMetrics to extend telemetry data collection from GitHub Actions workflows. Drift and deprecated code have been pruned to align strictly with the mission statement. **FIX:** Corrected getIssueNumberFromBranch function and added parseCombinedDefaultOutput for parsing test outputs. **EXT:** Implemented simulateIssueCreation in main.js to simulate issue creation similar to wfr-create-issue.yml workflow behavior. **NEW:** Added parseVitestDefaultOutput and parseEslintSarifOutput functions to parse Vitest default output and ESLint SARIF output respectively.
 
 ---
 
@@ -29,6 +29,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
   - **CI Metrics:** `gatherCIEnvironmentMetrics()` captures additional GitHub Actions metrics.
   - **Extra Telemetry:** `gatherExtraTelemetryData()` provides metrics like timestamps, CPU usage, and free memory.
   - **GitHub Environment Telemetry:** `gatherGithubEnvTelemetry()` aggregates all environment variables starting with `GITHUB_`.
+  - **EXT:** `gatherCIWorkflowMetrics()` now gathers additional metrics such as uptime, CPU and memory usage, and build time.
 - **Remote Service Wrappers:** Simplified API interactions for multiple services, including analytics, notifications, build status, deployment, logging, code quality, security scans, monitoring, and package management.
 - **LLM Delegation:** Functions to support decision delegation with advanced OpenAI capabilities:
   - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, and `delegateDecisionToLLMChatOptimized` for enhanced prompt validation.
@@ -52,7 +53,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - New OpenAI Function Wrappers: `delegateDecisionToLLMFunctionCallWrapper`, `delegateDecisionToLLMChatOptimized`, `delegateDecisionToLLMChatAdvanced`, and `delegateDecisionToLLMChatPremium`.
 - Enhanced telemetry and simulation utilities.
 - **FIX:** Corrected getIssueNumberFromBranch function and added `parseCombinedDefaultOutput` for parsing test outputs.
-- **EXT:** Implemented simulateIssueCreation to simulate issue creation workflow behavior similar to the provided wfr-create-issue.yml.
+- **EXT:** Implemented simulateIssueCreation and extended telemetry functions with new **gatherCIWorkflowMetrics** to capture additional CI workflow metrics.
 - **NEW:** Added parsing functions `parseVitestDefaultOutput` and `parseEslintSarifOutput` to process Vitest and ESLint SARIF outputs.
 
 ---
@@ -81,7 +82,7 @@ This repository is organized into three distinct areas:
 - **Purpose:** Implements the re‑usable workflows as a JavaScript module for programmatic access to core functionality.
 - **Stability:** Under active development and may change frequently, representing bleeding‑edge functionality.
 - **Licensing:** Part of the core project, licensed under GPL‑3 with attribution.
-- **Location:** Located in `src/lib/main.js`.
+- **Location:** The code is located in `src/lib/main.js`.
 
 ---
 

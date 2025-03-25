@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// src/lib/main.js - Updated to align with the agentic‑lib mission statement by pruning drift, consolidating legacy code, and extending workflow simulation functionality.
+// src/lib/main.js - Updated to align with the agentic‑lib mission statement by pruning drift, consolidating legacy code, and extending workflow simulation and telemetry functionality.
 // Change Log:
 // - Pruned drift and removed deprecated duplicate function definitions.
 // - Consolidated duplicate exports (simulateKafkaConsumer, simulateKafkaDelayedMessage, simulateKafkaTransaction, simulateKafkaPriorityQueue, simulateKafkaMessagePersistence, simulateKafkaMulticast, simulateFileSystemCall, callRepositoryService).
@@ -9,6 +9,7 @@
 // - NEW: Added simulateIssueCreation to mimic the behavior of the wfr-create-issue.yml workflow.
 // - NEW: Added parseVitestDefaultOutput to parse Vitest default output.
 // - NEW: Added parseEslintSarifOutput to parse ESLint SARIF output format.
+// - EXT: Added gatherCIWorkflowMetrics to extend telemetry data collection from GitHub Actions workflows.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -185,6 +186,23 @@ export function gatherWorkflowTelemetry() {
     runnerOs: process.env.RUNNER_OS || 'unknown',
     repository: process.env.GITHUB_REPOSITORY || 'N/A'
   };
+}
+
+/**
+ * NEW: Extended telemetry function to capture additional CI workflow metrics.
+ */
+export function gatherCIWorkflowMetrics() {
+  const metrics = {
+    uptime: process.uptime(),
+    memoryUsage: process.memoryUsage(),
+    cpuUsage: process.cpuUsage(),
+    buildTime: new Date().toISOString(),
+    workflow: process.env.GITHUB_WORKFLOW || "N/A",
+    repository: process.env.GITHUB_REPOSITORY || "N/A",
+    actor: process.env.GITHUB_ACTOR || "N/A"
+  };
+  console.log(chalk.green("CI Workflow Metrics:"), metrics);
+  return metrics;
 }
 
 /**
