@@ -6,7 +6,6 @@
 // - Added a main() function to enable CLI execution.
 // - Fixed regex in getIssueNumberFromBranch to correctly extract issue numbers.
 // - Added parseCombinedDefaultOutput to parse both Vitest and ESLint default outputs.
-// - NEW: Added simulateIssueCreation to mimic the behavior of the wfr-create-issue.yml workflow, now extended to handle string-delimited house choices (split by "||").
 // - NEW: Added parseVitestDefaultOutput to parse Vitest default output.
 // - NEW: Added parseEslintSarifOutput to parse ESLint SARIF output format.
 // - EXT: Added gatherCIWorkflowMetrics to extend telemetry data collection from GitHub Actions workflows.
@@ -464,7 +463,7 @@ export async function callRepositoryService(serviceUrl) {
 // LLM and issue review functions
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
