@@ -43,6 +43,13 @@ describe("Telemetry Functions", () => {
     expect(workflowTelemetry).toHaveProperty("runnerOs");
     expect(workflowTelemetry).toHaveProperty("repository");
   });
+  test("gatherCIWorkflowMetrics returns essential CI workflow metrics", () => {
+    const metrics = agenticLib.gatherCIWorkflowMetrics();
+    expect(metrics).toHaveProperty("uptime");
+    expect(metrics).toHaveProperty("workflow");
+    expect(metrics).toHaveProperty("repository");
+    expect(metrics).toHaveProperty("actor");
+  });
 });
 
 describe("delegateDecisionToLLMChat", () => {
