@@ -380,7 +380,7 @@ describe("simulateKafkaRebroadcast", () => {
 });
 
 describe("simulateIssueCreation", () => {
-  test("should select a random issue title when 'house choice' is provided", () => {
+  test("should select a random issue title when 'house choice' is provided as an array", () => {
     const params = {
       issueTitle: "house choice",
       issueBody: "Please resolve the issue.",
@@ -397,10 +397,22 @@ describe("simulateIssueCreation", () => {
     const params = {
       issueTitle: "Explicit Title",
       issueBody: "Detailed issue body.",
-      houseChoiceOptions: ["Option A", "Option B"]
+      houseChoiceOptions: "Option A || Option B"
     };
     const result = agenticLib.simulateIssueCreation(params);
     expect(result.issueTitle).toBe("Explicit Title");
+    expect(result.issueBody).toBe(params.issueBody);
+  });
+
+  test("should split houseChoiceOptions string when 'house choice' is provided", () => {
+    const params = {
+      issueTitle: "house choice",
+      issueBody: "Issue body for string test.",
+      houseChoiceOptions: "Option X || Option Y || Option Z"
+    };
+    const result = agenticLib.simulateIssueCreation(params);
+    const choices = ["Option X", "Option Y", "Option Z"];
+    expect(choices).toContain(result.issueTitle);
     expect(result.issueBody).toBe(params.issueBody);
   });
 });

@@ -18,8 +18,8 @@ Mixed licensing:
 *Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained.
 **NEW:** Added and enhanced telemetry functions including gatherWorkflowTelemetry, gatherCIWorkflowMetrics, and now **gatherSystemMetrics** to capture additional system-level telemetry such as load average and user info.
 **FIX:** Corrected getIssueNumberFromBranch function and added parseCombinedDefaultOutput for parsing test outputs.
-**EXT:** Implemented simulateIssueCreation to simulate issue creation similar to wfr-create-issue.yml workflow behavior.
-**NEW:** Added parseVitestDefaultOutput and parseEslintSarifOutput functions to parse Vitest default output and ESLint SARIF output respectively.
+**EXT:** Implemented simulateIssueCreation to simulate issue creation similar to wfr-create-issue.yml workflow behavior. Extended simulateIssueCreation to support houseChoiceOptions provided as a string delimited by "||", as well as an array.
+**NEW:** Added parsing functions `parseVitestDefaultOutput` and `parseEslintSarifOutput` to process Vitest and ESLint SARIF outputs.
 
 ---
 
@@ -29,14 +29,14 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 
 - **Usage Information:** Use `generateUsage()` to display available command‑line options.
 - **Telemetry:** Comprehensive diagnostics via functions such as:
-  - `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, `gatherTotalTelemetry()`, `gatherWorkflowTelemetry()`, and now **`gatherSystemMetrics()`** for system-level telemetry.
+  - `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, `gatherTotalTelemetry()`, `gatherWorkflowTelemetry()`, `gatherCIWorkflowMetrics()`, and now **`gatherSystemMetrics()`** for system-level telemetry.
   - **CI Metrics:** `gatherCIEnvironmentMetrics()` captures additional GitHub Actions metrics.
   - **Extra Telemetry:** `gatherExtraTelemetryData()` provides metrics like timestamps, CPU usage, and free memory.
   - **GitHub Environment Telemetry:** `gatherGithubEnvTelemetry()` aggregates all environment variables starting with `GITHUB_`.
   - **EXT:** `gatherCIWorkflowMetrics()` now gathers additional metrics such as uptime, CPU and memory usage, and build time.
 - **Remote Service Wrappers:** Simplified API interactions for multiple services, including analytics, notifications, build status, deployment, logging, code quality, security scans, monitoring, and package management.
 - **LLM Delegation:** Functions to support decision delegation with advanced OpenAI capabilities:
-  - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatOptimized` for enhanced prompt validation.
+  - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, and `delegateDecisionToLLMChatOptimized` for enhanced prompt validation.
   - **NEW:** `delegateDecisionToLLMFunctionCallWrapper` extends our OpenAI function delegation capabilities.
   - **NEW:** `delegateDecisionToLLMChatAdvanced` for advanced delegation with extra context support.
   - **NEW:** `delegateDecisionToLLMChatPremium` extends OpenAI function delegation with additional logging and configurable base URL support.
@@ -45,7 +45,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
   - `parseCombinedDefaultOutput` and **NEW:** `parseVitestDefaultOutput` and `parseEslintSarifOutput` to parse outputs of Vitest and ESLint SARIF formats.
 - **File System Simulation:** `simulateFileSystemCall()` enables safe file interactions for testing purposes.
 - **CI Workflow Simulation:** `simulateCIWorkflowLifecycle` aggregates telemetry data and simulates Kafka messaging to emulate a complete workflow lifecycle.
-- **Issue Creation Simulation:** **NEW:** `simulateIssueCreation` mimics a GitHub Actions workflow for issue creation. It selects an issue title from provided house choice options when the title is set to "house choice", generates a simulated issue number, and logs the details.
+- **Issue Creation Simulation:** **NEW:** `simulateIssueCreation` mimics a GitHub Actions workflow for issue creation. When the issueTitle is set to "house choice", it now supports receiving houseChoiceOptions as either an array or a string (delimited by "||") and selects a random option accordingly.
 
 ---
 
