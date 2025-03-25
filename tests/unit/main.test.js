@@ -50,6 +50,11 @@ describe("Telemetry Functions", () => {
     expect(metrics).toHaveProperty("repository");
     expect(metrics).toHaveProperty("actor");
   });
+  test("gatherSystemMetrics returns loadAverage and userInfo", () => {
+    const sysMetrics = agenticLib.gatherSystemMetrics();
+    expect(Array.isArray(sysMetrics.loadAverage)).toBe(true);
+    expect(sysMetrics).toHaveProperty('userInfo');
+  });
 });
 
 describe("delegateDecisionToLLMChat", () => {

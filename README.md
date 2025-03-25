@@ -15,7 +15,11 @@ Mixed licensing:
 * This file is part of the example suite for `agentic-lib` (see: https://github.com/xn-intenton-z2a/agentic-lib).
 * This file is licensed under the MIT License. For details, see LICENSE-MIT.
 
-*Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained. **NEW:** Added and enhanced telemetry functions including gatherWorkflowTelemetry and **EXT:** Added gatherCIWorkflowMetrics to extend telemetry data collection from GitHub Actions workflows. Drift and deprecated code have been pruned to align strictly with the mission statement. **FIX:** Corrected getIssueNumberFromBranch function and added parseCombinedDefaultOutput for parsing test outputs. **EXT:** Implemented simulateIssueCreation in main.js to simulate issue creation similar to wfr-create-issue.yml workflow behavior. **NEW:** Added parseVitestDefaultOutput and parseEslintSarifOutput functions to parse Vitest default output and ESLint SARIF output respectively.
+*Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained.
+**NEW:** Added and enhanced telemetry functions including gatherWorkflowTelemetry, gatherCIWorkflowMetrics, and now **gatherSystemMetrics** to capture additional system-level telemetry such as load average and user info.
+**FIX:** Corrected getIssueNumberFromBranch function and added parseCombinedDefaultOutput for parsing test outputs.
+**EXT:** Implemented simulateIssueCreation to simulate issue creation similar to wfr-create-issue.yml workflow behavior.
+**NEW:** Added parseVitestDefaultOutput and parseEslintSarifOutput functions to parse Vitest default output and ESLint SARIF output respectively.
 
 ---
 
@@ -25,14 +29,14 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 
 - **Usage Information:** Use `generateUsage()` to display available command‑line options.
 - **Telemetry:** Comprehensive diagnostics via functions such as:
-  - `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, `gatherTotalTelemetry()`, and now `gatherWorkflowTelemetry()` for enhanced workflow-specific telemetry.
+  - `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, `gatherTotalTelemetry()`, `gatherWorkflowTelemetry()`, and now **`gatherSystemMetrics()`** for system-level telemetry.
   - **CI Metrics:** `gatherCIEnvironmentMetrics()` captures additional GitHub Actions metrics.
   - **Extra Telemetry:** `gatherExtraTelemetryData()` provides metrics like timestamps, CPU usage, and free memory.
   - **GitHub Environment Telemetry:** `gatherGithubEnvTelemetry()` aggregates all environment variables starting with `GITHUB_`.
   - **EXT:** `gatherCIWorkflowMetrics()` now gathers additional metrics such as uptime, CPU and memory usage, and build time.
 - **Remote Service Wrappers:** Simplified API interactions for multiple services, including analytics, notifications, build status, deployment, logging, code quality, security scans, monitoring, and package management.
 - **LLM Delegation:** Functions to support decision delegation with advanced OpenAI capabilities:
-  - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, and `delegateDecisionToLLMChatOptimized` for enhanced prompt validation.
+  - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatOptimized` for enhanced prompt validation.
   - **NEW:** `delegateDecisionToLLMFunctionCallWrapper` extends our OpenAI function delegation capabilities.
   - **NEW:** `delegateDecisionToLLMChatAdvanced` for advanced delegation with extra context support.
   - **NEW:** `delegateDecisionToLLMChatPremium` extends OpenAI function delegation with additional logging and configurable base URL support.
@@ -51,7 +55,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **Drift Pruning:** Legacy and deprecated code has been removed from the source file, ensuring strict alignment with the agentic‑lib mission statement.
 - Extended Kafka Messaging Simulations including multicast and rebroadcast features.
 - New OpenAI Function Wrappers: `delegateDecisionToLLMFunctionCallWrapper`, `delegateDecisionToLLMChatOptimized`, `delegateDecisionToLLMChatAdvanced`, and `delegateDecisionToLLMChatPremium`.
-- Enhanced telemetry and simulation utilities.
+- Enhanced telemetry and simulation utilities, including the **NEW:** `gatherSystemMetrics` function.
 - **FIX:** Corrected getIssueNumberFromBranch function and added `parseCombinedDefaultOutput` for parsing test outputs.
 - **EXT:** Implemented simulateIssueCreation and extended telemetry functions with new **gatherCIWorkflowMetrics** to capture additional CI workflow metrics.
 - **NEW:** Added parsing functions `parseVitestDefaultOutput` and `parseEslintSarifOutput` to process Vitest and ESLint SARIF outputs.

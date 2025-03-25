@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// src/lib/main.js - Updated to align with the agentic‑lib mission statement by pruning drift, consolidating legacy code, and extending workflow simulation and telemetry functionality.
+// src/lib/main.js - Updated to align with the agentic‑lib mission statement by pruning drift, consolidating legacy code, and extending telemetry and workflow simulation functionality.
 // Change Log:
 // - Pruned drift and removed deprecated duplicate function definitions.
 // - Consolidated duplicate exports (simulateKafkaConsumer, simulateKafkaDelayedMessage, simulateKafkaTransaction, simulateKafkaPriorityQueue, simulateKafkaMessagePersistence, simulateKafkaMulticast, simulateFileSystemCall, callRepositoryService).
@@ -10,6 +10,7 @@
 // - NEW: Added parseVitestDefaultOutput to parse Vitest default output.
 // - NEW: Added parseEslintSarifOutput to parse ESLint SARIF output format.
 // - EXT: Added gatherCIWorkflowMetrics to extend telemetry data collection from GitHub Actions workflows.
+// - NEW: Added gatherSystemMetrics to capture additional system telemetry such as load average and user info.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -203,6 +204,17 @@ export function gatherCIWorkflowMetrics() {
   };
   console.log(chalk.green("CI Workflow Metrics:"), metrics);
   return metrics;
+}
+
+/**
+ * NEW: Gather additional system-level telemetry such as load averages and user information.
+ */
+export function gatherSystemMetrics() {
+  return {
+    loadAverage: os.loadavg(),
+    systemUptime: os.uptime(),
+    userInfo: os.userInfo()
+  };
 }
 
 /**
@@ -452,7 +464,7 @@ export async function callRepositoryService(serviceUrl) {
 // LLM and issue review functions
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
