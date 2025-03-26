@@ -35,8 +35,8 @@
 <li class="md-github">This file is licensed under the MIT License. For details, see LICENSE-MIT.</li>
 </ul>
 <p class="md-github">*Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained.
-<strong class="md-github">NEW:</strong> Added and enhanced telemetry functions including gatherWorkflowTelemetry, gatherCIWorkflowMetrics, gatherSystemMetrics and parsing functions parseCombinedDefaultOutput, parseVitestDefaultOutput, parseEslintSarifOutput, and <strong class="md-github">parseEslintDefaultOutput</strong> to process output formats.
-<strong class="md-github">FIX:</strong> Corrected getIssueNumberFromBranch function and added parseCombinedDefaultOutput for parsing test outputs.
+<strong class="md-github">NEW:</strong> Added and enhanced telemetry functions including gatherWorkflowTelemetry, gatherCIWorkflowMetrics, gatherSystemMetrics and parsing functions parseCombinedDefaultOutput, parseVitestDefaultOutput, parseEslintSarifOutput, and parseEslintDefaultOutput to process output formats.
+<strong class="md-github">FIX:</strong> Corrected getIssueNumberFromBranch function (fixed regex pattern) and added parseCombinedDefaultOutput for parsing test outputs.
 <strong class="md-github">EXT:</strong> Implemented simulateIssueCreation to simulate issue creation similar to wfr-create-issue.yml workflow behavior. Extended simulateIssueCreation to support houseChoiceOptions provided as a string delimited by &quot;||&quot;, as well as an array.
 <strong class="md-github">NEW:</strong> Added OpenAI delegation wrappers: delegateDecisionToLLMFunctionCallWrapper, delegateDecisionToLLMChatOptimized, delegateDecisionToLLMChatAdvanced, and delegateDecisionToLLMChatPremium.
 <strong class="md-github">NEW:</strong> Added remote service wrapper simulateRemoteServiceWrapper to simulate interactions with remote logging or monitoring services, useful in agentic workflows.</p>
@@ -80,7 +80,7 @@
 <li class="md-github">Extended Kafka Messaging Simulations including multicast and rebroadcast features.</li>
 <li class="md-github">New OpenAI Function Wrappers: <code class="md-github">delegateDecisionToLLMFunctionCallWrapper</code>, <code class="md-github">delegateDecisionToLLMChatOptimized</code>, <code class="md-github">delegateDecisionToLLMChatAdvanced</code>, and <code class="md-github">delegateDecisionToLLMChatPremium</code>.</li>
 <li class="md-github">Enhanced telemetry and simulation utilities, including <strong class="md-github">NEW:</strong> <code class="md-github">gatherSystemMetrics</code> function.</li>
-<li class="md-github"><strong class="md-github">FIX:</strong> Corrected getIssueNumberFromBranch function and added <code class="md-github">parseCombinedDefaultOutput</code> for parsing test outputs.</li>
+<li class="md-github"><strong class="md-github">FIX:</strong> Corrected getIssueNumberFromBranch function (now using the correct regex) and added <code class="md-github">parseCombinedDefaultOutput</code> for parsing test outputs.</li>
 <li class="md-github"><strong class="md-github">EXT:</strong> Implemented simulateIssueCreation and extended telemetry functions with new <strong class="md-github">gatherCIWorkflowMetrics</strong> to capture additional CI workflow metrics.</li>
 <li class="md-github"><strong class="md-github">NEW:</strong> Added parsing functions <code class="md-github">parseVitestDefaultOutput</code>, <code class="md-github">parseEslintSarifOutput</code>, and <strong class="md-github">parseEslintDefaultOutput</strong> to process Vitest and ESLint outputs in different formats.</li>
 <li class="md-github"><strong class="md-github">NEW:</strong> Added remote service wrapper <strong class="md-github">simulateRemoteServiceWrapper</strong> for simulating remote logging or monitoring service interactions.</li>
@@ -136,7 +136,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-26T20:06:52.587Z</p>
+    <p>Generated on 2025-03-26T22:05:51.139Z</p>
   </footer>
 </body>
 </html>
