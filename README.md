@@ -20,6 +20,7 @@ Mixed licensing:
 **FIX:** Corrected getIssueNumberFromBranch function and added parseCombinedDefaultOutput for parsing test outputs.
 **EXT:** Implemented simulateIssueCreation to simulate issue creation similar to wfr-create-issue.yml workflow behavior. Extended simulateIssueCreation to support houseChoiceOptions provided as a string delimited by "||", as well as an array.
 **NEW:** Added OpenAI delegation wrappers: delegateDecisionToLLMFunctionCallWrapper, delegateDecisionToLLMChatOptimized, delegateDecisionToLLMChatAdvanced, and delegateDecisionToLLMChatPremium.
+**NEW:** Added remote service wrapper simulateRemoteServiceWrapper to simulate interactions with remote logging or monitoring services, useful in agentic workflows.
 
 ---
 
@@ -33,7 +34,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
   - **CI Metrics:** `gatherCIEnvironmentMetrics()` captures additional GitHub Actions metrics.
   - **Extra Telemetry:** `gatherExtraTelemetryData()` provides metrics like timestamps, CPU usage, and free memory.
   - **GitHub Environment Telemetry:** `gatherGithubEnvTelemetry()` aggregates all environment variables starting with `GITHUB_`.
-- **Remote Service Wrappers:** Simplified API interactions for multiple services, including analytics, notifications, build status, deployment, logging, code quality, security scans, monitoring, and package management.
+- **Remote Service Wrappers:** Simplified API interactions for multiple services, including a new **simulateRemoteServiceWrapper** to simulate remote interactions, such as logging or monitoring services.
 - **LLM Delegation:** Functions to support decision delegation with advanced OpenAI capabilities:
   - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, and `delegateDecisionToLLMChatOptimized` for enhanced prompt validation.
   - **NEW:** `delegateDecisionToLLMFunctionCallWrapper` extends our OpenAI function delegation capabilities.
@@ -58,6 +59,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **FIX:** Corrected getIssueNumberFromBranch function and added `parseCombinedDefaultOutput` for parsing test outputs.
 - **EXT:** Implemented simulateIssueCreation and extended telemetry functions with new **gatherCIWorkflowMetrics** to capture additional CI workflow metrics.
 - **NEW:** Added parsing functions `parseVitestDefaultOutput`, `parseEslintSarifOutput`, and **parseEslintDefaultOutput** to process Vitest and ESLint outputs in different formats.
+- **NEW:** Added remote service wrapper **simulateRemoteServiceWrapper** for simulating remote logging or monitoring service interactions.
 
 ---
 

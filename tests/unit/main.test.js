@@ -426,3 +426,14 @@ describe("simulateIssueCreation", () => {
     expect(result.issueBody).toBe(params.issueBody);
   });
 });
+
+describe("simulateRemoteServiceWrapper", () => {
+  test("should simulate a remote service call and return success response", async () => {
+    const serviceUrl = "https://example-remote-service.com/api";
+    const payload = { data: "test" };
+    const response = await agenticLib.simulateRemoteServiceWrapper(serviceUrl, payload);
+    expect(response.status).toBe("success");
+    expect(response.serviceUrl).toBe(serviceUrl);
+    expect(response.receivedPayload).toEqual(payload);
+  });
+});
