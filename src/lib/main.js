@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// src/lib/main.js - Updated to align with the agentic‑lib mission statement by pruning drift, consolidating legacy code, and extending telemetry and workflow simulation functionality.
+// src/lib/main.js - Updated to align with the agentic‑lib mission statement by pruning drift, consolidating legacy code, and extending telemetry, workflow simulation functionality, and parsing utilities for test outputs.
 // Change Log:
 // - Pruned drift and removed deprecated duplicate function definitions.
 // - Consolidated duplicate exports (simulateKafkaConsumer, simulateKafkaDelayedMessage, simulateKafkaTransaction, simulateKafkaPriorityQueue, simulateKafkaMessagePersistence, simulateKafkaMulticast, simulateFileSystemCall, callRepositoryService).
@@ -8,6 +8,7 @@
 // - Added parseCombinedDefaultOutput to parse both Vitest and ESLint default outputs.
 // - NEW: Added parseVitestDefaultOutput to parse Vitest default output.
 // - NEW: Added parseEslintSarifOutput to parse ESLint SARIF output format.
+// - NEW: Added parseEslintDefaultOutput to parse ESLint default output format.
 // - EXT: Added gatherCIWorkflowMetrics to extend telemetry data collection from GitHub Actions workflows.
 // - NEW: Added gatherSystemMetrics to capture additional system telemetry such as load average and user info.
 
@@ -463,7 +464,7 @@ export async function callRepositoryService(serviceUrl) {
 // LLM and issue review functions
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -781,6 +782,13 @@ export function parseEslintSarifOutput(sarifContent) {
     console.error("Failed to parse ESLint SARIF output:", e);
     return { numProblems: 0, numErrors: 0, numWarnings: 0 };
   }
+}
+
+// NEW: Parse ESLint default output format
+export function parseEslintDefaultOutput(eslintStr) {
+  const regex = /(\d+)\s+problems?,\s+(\d+)\s+errors?,\s+(\d+)\s+warnings?/i;
+  const match = eslintStr.match(regex);
+  return match ? { numProblems: parseInt(match[1], 10), numErrors: parseInt(match[2], 10), numWarnings: parseInt(match[3], 10) } : { numProblems: 0, numErrors: 0, numWarnings: 0 };
 }
 
 // NEW: Simulate Issue Creation Workflow similar to wfr-create-issue.yml

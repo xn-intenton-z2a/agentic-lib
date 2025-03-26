@@ -16,10 +16,10 @@ Mixed licensing:
 * This file is licensed under the MIT License. For details, see LICENSE-MIT.
 
 *Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained.
-**NEW:** Added and enhanced telemetry functions including gatherWorkflowTelemetry, gatherCIWorkflowMetrics, and now **gatherSystemMetrics** to capture additional system-level telemetry such as load average and user info.
+**NEW:** Added and enhanced telemetry functions including gatherWorkflowTelemetry, gatherCIWorkflowMetrics, gatherSystemMetrics and parsing functions parseCombinedDefaultOutput, parseVitestDefaultOutput, parseEslintSarifOutput, and **parseEslintDefaultOutput** to process output formats.
 **FIX:** Corrected getIssueNumberFromBranch function and added parseCombinedDefaultOutput for parsing test outputs.
 **EXT:** Implemented simulateIssueCreation to simulate issue creation similar to wfr-create-issue.yml workflow behavior. Extended simulateIssueCreation to support houseChoiceOptions provided as a string delimited by "||", as well as an array.
-**NEW:** Added parsing functions `parseVitestDefaultOutput` and `parseEslintSarifOutput` to process Vitest and ESLint SARIF outputs.
+**NEW:** Added OpenAI delegation wrappers: delegateDecisionToLLMFunctionCallWrapper, delegateDecisionToLLMChatOptimized, delegateDecisionToLLMChatAdvanced, and delegateDecisionToLLMChatPremium.
 
 ---
 
@@ -29,23 +29,22 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 
 - **Usage Information:** Use `generateUsage()` to display available command‑line options.
 - **Telemetry:** Comprehensive diagnostics via functions such as:
-  - `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, `gatherTotalTelemetry()`, `gatherWorkflowTelemetry()`, `gatherCIWorkflowMetrics()`, and now **`gatherSystemMetrics()`** for system-level telemetry.
+  - `gatherTelemetryData()`, `gatherExtendedTelemetryData()`, `gatherAdvancedTelemetryData()`, `gatherFullTelemetryData()`, `gatherTotalTelemetry()`, `gatherWorkflowTelemetry()`, `gatherCIWorkflowMetrics()`, and **`gatherSystemMetrics()`** for system-level telemetry.
   - **CI Metrics:** `gatherCIEnvironmentMetrics()` captures additional GitHub Actions metrics.
   - **Extra Telemetry:** `gatherExtraTelemetryData()` provides metrics like timestamps, CPU usage, and free memory.
   - **GitHub Environment Telemetry:** `gatherGithubEnvTelemetry()` aggregates all environment variables starting with `GITHUB_`.
-  - **EXT:** `gatherCIWorkflowMetrics()` now gathers additional metrics such as uptime, CPU and memory usage, and build time.
 - **Remote Service Wrappers:** Simplified API interactions for multiple services, including analytics, notifications, build status, deployment, logging, code quality, security scans, monitoring, and package management.
 - **LLM Delegation:** Functions to support decision delegation with advanced OpenAI capabilities:
   - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, and `delegateDecisionToLLMChatOptimized` for enhanced prompt validation.
   - **NEW:** `delegateDecisionToLLMFunctionCallWrapper` extends our OpenAI function delegation capabilities.
   - **NEW:** `delegateDecisionToLLMChatAdvanced` for advanced delegation with extra context support.
   - **NEW:** `delegateDecisionToLLMChatPremium` extends OpenAI function delegation with additional logging and configurable base URL support.
-- **Kafka Operations:** Simulated messaging functions for inter‑workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, multicast, and rebroadcast functionalities.
-- **SARIF and Default Output Parsing:** Utilities like:
-  - `parseCombinedDefaultOutput` and **NEW:** `parseVitestDefaultOutput` and `parseEslintSarifOutput` to parse outputs of Vitest and ESLint SARIF formats.
+- **Kafka Operations:** Simulated messaging functions for inter‑workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, multicast, rebroadcast, and consumer group messaging.
+- **Parsing Utilities:** Functions such as:
+  - `parseCombinedDefaultOutput` and **NEW:** `parseVitestDefaultOutput`, `parseEslintSarifOutput`, and **parseEslintDefaultOutput** to parse outputs from Vitest and ESLint in different formats.
 - **File System Simulation:** `simulateFileSystemCall()` enables safe file interactions for testing purposes.
 - **CI Workflow Simulation:** `simulateCIWorkflowLifecycle` aggregates telemetry data and simulates Kafka messaging to emulate a complete workflow lifecycle.
-- **Issue Creation Simulation:** **NEW:** `simulateIssueCreation` mimics a GitHub Actions workflow for issue creation. When the issueTitle is set to "house choice", it now supports receiving houseChoiceOptions as either an array or a string (delimited by "||") and selects a random option accordingly.
+- **Issue Creation Simulation:** **NEW:** `simulateIssueCreation` mimics a GitHub Actions workflow for issue creation.
 
 ---
 
@@ -55,10 +54,10 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **Drift Pruning:** Legacy and deprecated code has been removed from the source file, ensuring strict alignment with the agentic‑lib mission statement.
 - Extended Kafka Messaging Simulations including multicast and rebroadcast features.
 - New OpenAI Function Wrappers: `delegateDecisionToLLMFunctionCallWrapper`, `delegateDecisionToLLMChatOptimized`, `delegateDecisionToLLMChatAdvanced`, and `delegateDecisionToLLMChatPremium`.
-- Enhanced telemetry and simulation utilities, including the **NEW:** `gatherSystemMetrics` function.
+- Enhanced telemetry and simulation utilities, including **NEW:** `gatherSystemMetrics` function.
 - **FIX:** Corrected getIssueNumberFromBranch function and added `parseCombinedDefaultOutput` for parsing test outputs.
 - **EXT:** Implemented simulateIssueCreation and extended telemetry functions with new **gatherCIWorkflowMetrics** to capture additional CI workflow metrics.
-- **NEW:** Added parsing functions `parseVitestDefaultOutput` and `parseEslintSarifOutput` to process Vitest and ESLint SARIF outputs.
+- **NEW:** Added parsing functions `parseVitestDefaultOutput`, `parseEslintSarifOutput`, and **parseEslintDefaultOutput** to process Vitest and ESLint outputs in different formats.
 
 ---
 
