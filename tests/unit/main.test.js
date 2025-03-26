@@ -287,6 +287,16 @@ describe("parseEslintSarifOutput", () => {
   });
 });
 
+describe("parseEslintDefaultOutput", () => {
+  test("should correctly parse ESLint default output", () => {
+    const eslintStr = "12 problems, 4 errors, 8 warnings";
+    const result = agenticLib.parseEslintDefaultOutput(eslintStr);
+    expect(result.numProblems).toBe(12);
+    expect(result.numErrors).toBe(4);
+    expect(result.numWarnings).toBe(8);
+  });
+});
+
 describe("simulateCIWorkflowLifecycle", () => {
   test("should return telemetry and kafkaBroadcast properties", () => {
     const result = agenticLib.simulateCIWorkflowLifecycle();
