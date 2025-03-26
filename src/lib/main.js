@@ -24,7 +24,7 @@ import { promises as fs } from "fs";
 
 // Helper function to escape regex special characters
 function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
 }
 
 // Common helper for error handling in remote service wrappers
@@ -127,7 +127,7 @@ export function gatherAdvancedTelemetryData() {
 }
 
 /**
- * New telemetry function to capture additional CI environment metrics.
+ * NEW telemetry function to capture additional CI environment metrics.
  */
 export function gatherCIEnvironmentMetrics() {
   return {
@@ -138,7 +138,7 @@ export function gatherCIEnvironmentMetrics() {
 }
 
 /**
- * New telemetry function to collect extra telemetry data.
+ * NEW telemetry function to collect extra telemetry data.
  */
 export function gatherExtraTelemetryData() {
   return {
@@ -150,7 +150,7 @@ export function gatherExtraTelemetryData() {
 }
 
 /**
- * New telemetry function to capture all GitHub Actions environment variables.
+ * NEW telemetry function to capture all GitHub Actions environment variables.
  */
 export function gatherGithubEnvTelemetry() {
   const githubEnv = {};
@@ -538,7 +538,7 @@ export async function delegateDecisionToLLMChatOptimized(prompt, options = {}) {
         { role: "system", content: "You are a helpful assistant that helps determine if an issue is resolved in the supplied code." },
         { role: "user", content: prompt }
       ],
-      temperature: options.temperature || 0.5,
+      temperature: options.temperature || 0.5
     });
     let result;
     if (response.data.choices && response.data.choices.length > 0) {
@@ -578,7 +578,7 @@ export async function delegateDecisionToLLMChat(prompt, options = {}) {
         { role: "system", content: "You are a helpful assistant that helps determine if an issue is resolved in the supplied code." },
         { role: "user", content: prompt }
       ],
-      temperature: options.temperature || 0.5,
+      temperature: options.temperature || 0.5
     });
     let result;
     if (response.data.choices && response.data.choices.length > 0) {
@@ -652,7 +652,7 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
         { role: "user", content: prompt }
       ],
       tools,
-      temperature: options.temperature || 0.7,
+      temperature: options.temperature || 0.7
     });
     let result;
     const messageObj = response.data.choices[0].message;
@@ -710,7 +710,7 @@ export async function delegateDecisionToLLMChatPremium(prompt, options = {}) {
     const Api = openaiModule.OpenAIApi;
     const configuration = new Config({
       apiKey: process.env.OPENAI_API_KEY,
-      basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1",
+      basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1"
     });
     const openai = new Api(configuration);
     const response = await openai.createChatCompletion({
@@ -719,7 +719,7 @@ export async function delegateDecisionToLLMChatPremium(prompt, options = {}) {
         { role: "system", content: "You are an advanced assistant evaluating if an issue is resolved in the source code. Respond strictly with a JSON following the function schema." },
         { role: "user", content: prompt }
       ],
-      temperature: options.temperature || 0.5,
+      temperature: options.temperature || 0.5
     });
     let result;
     if (response.data.choices && response.data.choices.length > 0) {
@@ -789,16 +789,16 @@ export function parseEslintSarifOutput(sarifContent) {
 export function parseEslintDefaultOutput(eslintStr) {
   const regex = /(\d+)\s+problems?,\s+(\d+)\s+errors?,\s+(\d+)\s+warnings?/i;
   const match = eslintStr.match(regex);
-  return match ? { numProblems: parseInt(match[1], 10), numErrors: parseInt(match[2], 10), numWarnings: parseInt(match[3], 10) } : { numProblems: 0, numErrors: 0, numWarnings: 0 };
+  return match
+    ? { numProblems: parseInt(match[1], 10), numErrors: parseInt(match[2], 10), numWarnings: parseInt(match[3], 10) }
+    : { numProblems: 0, numErrors: 0, numWarnings: 0 };
 }
 
 // NEW: Simulate Issue Creation Workflow similar to wfr-create-issue.yml
 export function simulateIssueCreation(params) {
-  // params: { issueTitle, issueBody, houseChoiceOptions }
   let selectedTitle = params.issueTitle;
   if (selectedTitle === "house choice") {
     if (typeof params.houseChoiceOptions === "string") {
-      // Split the string by '||' if it contains a delimiter
       params.houseChoiceOptions = params.houseChoiceOptions.split("||").map(option => option.trim());
     }
     if (Array.isArray(params.houseChoiceOptions) && params.houseChoiceOptions.length > 0) {
@@ -806,7 +806,6 @@ export function simulateIssueCreation(params) {
       selectedTitle = params.houseChoiceOptions[randomIndex];
     }
   }
-  // Generate a simulated issue number
   const issueNumber = randomInt(100, 1000);
   console.log(chalk.green(`Simulated issue creation: { issueTitle: ${selectedTitle}, issueBody: ${params.issueBody}, issueNumber: ${issueNumber} }`));
   return { issueTitle: selectedTitle, issueBody: params.issueBody, issueNumber };

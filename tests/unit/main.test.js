@@ -333,7 +333,7 @@ describe("callRepositoryService", () => {
     const dummyData = { success: true };
     const fetchMock = vi.spyOn(global, "fetch").mockResolvedValue({
       ok: true,
-      json: async () => dummyData,
+      json: async () => dummyData
     });
     const result = await agenticLib.callRepositoryService("https://example.com");
     expect(result).toEqual(dummyData);
