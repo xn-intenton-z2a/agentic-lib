@@ -298,36 +298,11 @@ export function simulateKafkaDirectMessage(topic, message) {
   return { topic, sent, receipt };
 }
 
-export function simulateKafkaRebroadcast(topics, message, repeat = 2) {
-  const results = {};
-  topics.forEach((topic) => {
-    results[topic] = [];
-    for (let i = 0; i < repeat; i++) {
-      const sent = sendMessageToKafka(topic, message);
-      const received = receiveMessageFromKafka(topic);
-      results[topic].push({ sent, received });
-      console.log(chalk.blue(`Rebroadcast ${i + 1} to '${topic}': Sent -> ${sent}, Received -> ${received}`));
-    }
-  });
-  return results;
-}
-
-// Simulate a Kafka consumer
-export function simulateKafkaConsumer(topic, count = 3) {
-  const messages = [];
-  for (let i = 0; i < count; i++) {
-    messages.push(`Consumer message ${i + 1} from topic '${topic}'`);
-  }
-  return messages;
-}
-
-// Simulate a delayed Kafka message
 export async function simulateKafkaDelayedMessage(topic, message, delayMs) {
-  await new Promise((resolve) => setTimeout(resolve, delayMs));
+  await new Promise(resolve => setTimeout(resolve, delayMs));
   return { delayed: true, topic, message };
 }
 
-// Simulate a Kafka transaction
 export function simulateKafkaTransaction(messagesArray) {
   const transaction = {};
   messagesArray.forEach((item) => {
@@ -336,7 +311,6 @@ export function simulateKafkaTransaction(messagesArray) {
   return { success: true, transaction };
 }
 
-// Simulate a Kafka priority queue
 export function simulateKafkaPriorityQueue(topic, messages) {
   return messages.sort((a, b) => b.priority - a.priority).map((item) => item.message);
 }
@@ -396,7 +370,7 @@ export async function callRepositoryService(serviceUrl) {
 // LLM and issue review functions
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
