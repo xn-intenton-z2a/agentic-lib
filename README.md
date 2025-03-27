@@ -18,9 +18,9 @@ Mixed licensing:
 *Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained.
 **NEW:** Added and enhanced telemetry functions including gatherWorkflowTelemetry, gatherCIWorkflowMetrics, gatherSystemMetrics and parsing functions parseCombinedDefaultOutput, parseVitestDefaultOutput, parseEslintSarifOutput, and parseEslintDefaultOutput to process output formats.
 **FIX:** Corrected getIssueNumberFromBranch function (fixed regex pattern) and added parseCombinedDefaultOutput for parsing test outputs.
-**EXT:** Implemented simulateIssueCreation to simulate issue creation similar to wfr-create-issue.yml workflow behavior. Extended simulateIssueCreation to support houseChoiceOptions provided as a string delimited by "||", as well as an array.
+**EXT:** Implemented simulateIssueCreation to simulate a GitHub Actions workflow for issue creation similar to wfr-create-issue.yml, and enhanced it to log a creation timestamp and additional details. Extended simulateIssueCreation to support houseChoiceOptions provided as a string delimited by "||", as well as an array.
 **NEW:** Added OpenAI delegation wrappers: delegateDecisionToLLMFunctionCallWrapper, delegateDecisionToLLMChatOptimized, delegateDecisionToLLMChatAdvanced, and delegateDecisionToLLMChatPremium.
-**NEW:** Added remote service wrapper simulateRemoteServiceWrapper to simulate interactions with remote logging or monitoring services, useful in agentic workflows.
+**NEW:** Added remote service wrapper simulateRemoteServiceWrapper for simulating interactions with remote logging or monitoring services.
 
 ---
 
@@ -45,7 +45,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
   - `parseCombinedDefaultOutput` and **NEW:** `parseVitestDefaultOutput`, `parseEslintSarifOutput`, and **parseEslintDefaultOutput** to parse outputs from Vitest and ESLint in different formats.
 - **File System Simulation:** `simulateFileSystemCall()` enables safe file interactions for testing purposes.
 - **CI Workflow Simulation:** `simulateCIWorkflowLifecycle` aggregates telemetry data and simulates Kafka messaging to emulate a complete workflow lifecycle.
-- **Issue Creation Simulation:** **NEW:** `simulateIssueCreation` mimics a GitHub Actions workflow for issue creation.
+- **Issue Creation Simulation:** **NEW:** `simulateIssueCreation` mimics a GitHub Actions workflow for issue creation, now enhanced to include a timestamp and additional detail logging.
 
 ---
 
@@ -57,7 +57,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - New OpenAI Function Wrappers: `delegateDecisionToLLMFunctionCallWrapper`, `delegateDecisionToLLMChatOptimized`, `delegateDecisionToLLMChatAdvanced`, and `delegateDecisionToLLMChatPremium`.
 - Enhanced telemetry and simulation utilities, including **NEW:** `gatherSystemMetrics` function.
 - **FIX:** Corrected getIssueNumberFromBranch function (now using the correct regex) and added `parseCombinedDefaultOutput` for parsing test outputs.
-- **EXT:** Implemented simulateIssueCreation and extended telemetry functions with new **gatherCIWorkflowMetrics** to capture additional CI workflow metrics.
+- **EXT:** Implemented and enhanced simulateIssueCreation to mimic GitHub issue creation workflow behavior, including randomized title selection and timestamp logging.
 - **NEW:** Added parsing functions `parseVitestDefaultOutput`, `parseEslintSarifOutput`, and **parseEslintDefaultOutput** to process Vitest and ESLint outputs in different formats.
 - **NEW:** Added remote service wrapper **simulateRemoteServiceWrapper** for simulating remote logging or monitoring service interactions.
 

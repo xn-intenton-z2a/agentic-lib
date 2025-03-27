@@ -12,6 +12,7 @@
 // - EXT: Added gatherCIWorkflowMetrics to extend telemetry data collection from GitHub Actions workflows.
 // - NEW: Added gatherSystemMetrics to capture additional system telemetry such as load average and user info.
 // - NEW: Added simulateRemoteServiceWrapper to simulate interactions with remote services useful in agentic workflows (e.g., logging, monitoring).
+// - EXT: Enhanced simulateIssueCreation to better mimic GitHub issue creation workflow by logging a timestamp and additional details.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -807,7 +808,8 @@ export function simulateIssueCreation(params) {
     }
   }
   const issueNumber = randomInt(100, 1000);
-  console.log(chalk.green(`Simulated issue creation: { issueTitle: ${selectedTitle}, issueBody: ${params.issueBody}, issueNumber: ${issueNumber} }`));
+  const timestamp = new Date().toISOString();
+  console.log(chalk.green(`Simulated issue creation at ${timestamp}: { issueTitle: ${selectedTitle}, issueBody: ${params.issueBody}, issueNumber: ${issueNumber} }`));
   return { issueTitle: selectedTitle, issueBody: params.issueBody, issueNumber };
 }
 
