@@ -233,15 +233,11 @@ Re-usable GitHub Actions Workflows:
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
 - [ ] Pre-request with file and a some context in a completions request for which files should be sent.
 
-Marketplace GitHub Actions:
-- [ ] Consolidate reusable workflows jobs into a single GitHub Action GitHub Script step.
-- [ ] Move GitHub Script to a GitHub Action.
-- [ ] Build GitHub Action with the release process.
-- [ ] Switch example workflows to use the GitHub Actions.
-- [ ] Convert the actions library JS to an SDK.
-
 Supervisor:
-- [ ] Publish GitHub telemetry data to Kafka.
+- [ ] Deploy a s3-sqs-bridge Stack from the agentic-lib project.
+- [ ] Reintegrate the s3-sqs-bridge workflows with agentic-lib.
+- [ ] Reinstate the agentic workflows in s3-sqs-bridge with maintenance focused tasks.
+- [ ] Publish GitHub telemetry data to S3.
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix).
 - [ ] Reduce schedule and workflow completed triggers (instead leaving the supervisor to invoke workflows).
 - [ ] Dashboard metrics from kafka (e.g. GitHub Insights? commits by agents).
@@ -249,6 +245,13 @@ Supervisor:
 - [ ] Create a leaderboard project with a public test endpoint to see who can get the most throughput via tansu-sqs-bridge or an HTTP rest endpoint.
 - [ ] Shutdown fargate when not in use by periodically checking the consumer group offset, whether it's behind and the last time it was behind.
 - [ ] Start fargate when the s3 bucket is written to.
+
+Marketplace GitHub Actions:
+- [ ] Consolidate reusable workflows jobs into a single GitHub Action GitHub Script step.
+- [ ] Move GitHub Script to a GitHub Action.
+- [ ] Build GitHub Action with the release process.
+- [ ] Switch example workflows to use the GitHub Actions.
+- [ ] Convert the actions library JS to an SDK.
 
 ---
 
