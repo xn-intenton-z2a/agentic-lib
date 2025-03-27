@@ -14,6 +14,8 @@
 // - EXT: Added gatherCIWorkflowMetrics to extend telemetry data collection from GitHub Actions workflows.
 // - NEW: Added gatherSystemMetrics to capture additional system telemetry such as load average and user info.
 // - NEW: Added simulateRemoteServiceWrapper to simulate interactions with remote services useful in agentic workflows (e.g., logging, monitoring).
+// - NEW: Added simulateKafkaConsumer to simulate Kafka consumer behavior for consumer group messaging.
+// - NEW: Added simulateKafkaRebroadcast to simulate rebroadcasting messages to multiple topics repeatedly.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -341,6 +343,25 @@ export function simulateKafkaMulticast(topics, message, multicastOptions = {}) {
   return results;
 }
 
+// NEW: Simulate Kafka Consumer to be used in consumer groups.
+export function simulateKafkaConsumer(topic, count = 3) {
+  return simulateKafkaStream(topic, count);
+}
+
+// NEW: Simulate Kafka Rebroadcast: repeatedly send a message and collect responses per topic.
+export function simulateKafkaRebroadcast(topics, message, repeat = 1) {
+  const result = {};
+  topics.forEach((topic) => {
+    result[topic] = [];
+    for (let i = 0; i < repeat; i++) {
+      const sent = sendMessageToKafka(topic, message);
+      const received = receiveMessageFromKafka(topic);
+      result[topic].push({ sent, received });
+    }
+  });
+  return result;
+}
+
 // Simulate file system call
 export async function simulateFileSystemCall(filePath) {
   try {
@@ -370,7 +391,7 @@ export async function callRepositoryService(serviceUrl) {
 // LLM and issue review functions
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
