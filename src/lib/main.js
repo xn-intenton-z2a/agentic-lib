@@ -9,10 +9,13 @@
 // - NEW: Added parseVitestDefaultOutput to parse Vitest default output.
 // - NEW: Added parseEslintSarifOutput to parse ESLint SARIF output format.
 // - NEW: Added parseEslintDefaultOutput to parse ESLint default output format.
+// - NEW: Added parseVitestFailureOutput to parse Vitest failure output (new).
+// - NEW: Added parseEslintCompactOutput to parse ESLint compact output (new).
 // - EXT: Added gatherCIWorkflowMetrics to extend telemetry data collection from GitHub Actions workflows.
 // - NEW: Added gatherSystemMetrics to capture additional system telemetry such as load average and user info.
 // - NEW: Added simulateRemoteServiceWrapper to simulate interactions with remote services useful in agentic workflows (e.g., logging, monitoring).
-// - EXT: Enhanced simulateIssueCreation to better mimic GitHub issue creation workflow by logging a timestamp and additional details.
+// - NEW: Added simulateKafkaConsumer to simulate Kafka consumer behavior for consumer group messaging.
+// - NEW: Added simulateKafkaRebroadcast to simulate rebroadcasting messages to multiple topics repeatedly.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -74,9 +77,8 @@ function generateUsage() {
   return "Usage: agentic-lib [options]";
 }
 
-/**
- * Gather basic telemetry data from GitHub Actions environment if available.
- */
+/** Telemetry Functions **/
+
 export function gatherTelemetryData() {
   return {
     githubWorkflow: process.env.GITHUB_WORKFLOW || "N/A",
@@ -88,9 +90,6 @@ export function gatherTelemetryData() {
   };
 }
 
-/**
- * Gather extended telemetry data including additional GitHub environment variables.
- */
 export function gatherExtendedTelemetryData() {
   return {
     ...gatherTelemetryData(),
@@ -101,9 +100,6 @@ export function gatherExtendedTelemetryData() {
   };
 }
 
-/**
- * Gather full telemetry data including additional ref variables.
- */
 export function gatherFullTelemetryData() {
   return {
     ...gatherExtendedTelemetryData(),
@@ -114,9 +110,6 @@ export function gatherFullTelemetryData() {
   };
 }
 
-/**
- * Gather advanced telemetry data including runtime and process details.
- */
 export function gatherAdvancedTelemetryData() {
   return {
     nodeVersion: process.version,
@@ -127,9 +120,6 @@ export function gatherAdvancedTelemetryData() {
   };
 }
 
-/**
- * NEW telemetry function to capture additional CI environment metrics.
- */
 export function gatherCIEnvironmentMetrics() {
   return {
     githubWorkspace: process.env.GITHUB_WORKSPACE || "N/A",
@@ -138,9 +128,6 @@ export function gatherCIEnvironmentMetrics() {
   };
 }
 
-/**
- * NEW telemetry function to collect extra telemetry data.
- */
 export function gatherExtraTelemetryData() {
   return {
     npmPackageVersion: process.env.npm_package_version || "unknown",
@@ -150,9 +137,6 @@ export function gatherExtraTelemetryData() {
   };
 }
 
-/**
- * NEW telemetry function to capture all GitHub Actions environment variables.
- */
 export function gatherGithubEnvTelemetry() {
   const githubEnv = {};
   for (const key in process.env) {
@@ -164,9 +148,6 @@ export function gatherGithubEnvTelemetry() {
   return githubEnv;
 }
 
-/**
- * New function to aggregate all telemetry data.
- */
 export function gatherTotalTelemetry() {
   return {
     ...gatherTelemetryData(),
@@ -179,9 +160,6 @@ export function gatherTotalTelemetry() {
   };
 }
 
-/**
- * Enhanced telemetry function to gather additional workflow-specific metrics from GitHub Actions.
- */
 export function gatherWorkflowTelemetry() {
   return {
     ...gatherTotalTelemetry(),
@@ -191,9 +169,6 @@ export function gatherWorkflowTelemetry() {
   };
 }
 
-/**
- * NEW: Extended telemetry function to capture additional CI workflow metrics.
- */
 export function gatherCIWorkflowMetrics() {
   const metrics = {
     uptime: process.uptime(),
@@ -208,9 +183,6 @@ export function gatherCIWorkflowMetrics() {
   return metrics;
 }
 
-/**
- * NEW: Gather additional system-level telemetry such as load averages and user information.
- */
 export function gatherSystemMetrics() {
   return {
     loadAverage: os.loadavg(),
@@ -219,9 +191,8 @@ export function gatherSystemMetrics() {
   };
 }
 
-/**
- * Simulate a CI Workflow Lifecycle.
- */
+/** Kafka and Messaging Simulation Functions **/
+
 export function simulateCIWorkflowLifecycle() {
   console.log(chalk.blue("Starting CI Workflow Lifecycle Simulation."));
   const telemetry = gatherTotalTelemetry();
@@ -230,27 +201,18 @@ export function simulateCIWorkflowLifecycle() {
   return { telemetry, kafkaBroadcast };
 }
 
-/**
- * Simulate sending a message to a Kafka topic.
- */
 export function sendMessageToKafka(topic, message) {
   const result = `Message sent to topic '${topic}': ${message}`;
   console.log(`Simulating sending message to topic '${topic}': ${message}`);
   return result;
 }
 
-/**
- * Simulate receiving a message from a Kafka topic.
- */
 export function receiveMessageFromKafka(topic) {
   const simulatedMessage = `Simulated message from topic '${topic}'`;
   console.log(simulatedMessage);
   return simulatedMessage;
 }
 
-/**
- * Log Kafka operations by sending and receiving messages.
- */
 export function logKafkaOperations(topic, message) {
   const sendResult = sendMessageToKafka(topic, message);
   const receiveResult = receiveMessageFromKafka(topic);
@@ -258,9 +220,6 @@ export function logKafkaOperations(topic, message) {
   return { sendResult, receiveResult };
 }
 
-/**
- * Simulate streaming Kafka messages.
- */
 export function simulateKafkaStream(topic, count = 3) {
   const messages = [];
   for (let i = 0; i < count; i++) {
@@ -271,9 +230,6 @@ export function simulateKafkaStream(topic, count = 3) {
   return messages;
 }
 
-/**
- * Extended Kafka stream simulation with detailed logging.
- */
 export function simulateKafkaDetailedStream(topic, count = 3) {
   const baseMessages = simulateKafkaStream(topic, count);
   const timestamp = new Date().toISOString();
@@ -282,9 +238,6 @@ export function simulateKafkaDetailedStream(topic, count = 3) {
   return messages;
 }
 
-/**
- * Simulate sending a bulk stream of Kafka messages.
- */
 export function simulateKafkaBulkStream(topic, count = 5) {
   const messages = [];
   for (let i = 0; i < count; i++) {
@@ -295,9 +248,6 @@ export function simulateKafkaBulkStream(topic, count = 5) {
   return messages;
 }
 
-/**
- * Simulate inter-workflow Kafka communication.
- */
 export function simulateKafkaBroadcast(topics, message) {
   const responses = {};
   topics.forEach((topic) => {
@@ -309,9 +259,6 @@ export function simulateKafkaBroadcast(topics, message) {
   return responses;
 }
 
-/**
- * Simulate dynamic routing of Kafka messages.
- */
 export function simulateKafkaTopicRouting(topics, routingKey, message) {
   const routed = {};
   topics.forEach((topic) => {
@@ -324,9 +271,6 @@ export function simulateKafkaTopicRouting(topics, routingKey, message) {
   return routed;
 }
 
-/**
- * Simulate a Kafka consumer group consuming messages.
- */
 export function simulateKafkaConsumerGroup(topics, consumerGroup) {
   const groupMessages = {};
   topics.forEach((topic) => {
@@ -336,9 +280,6 @@ export function simulateKafkaConsumerGroup(topics, consumerGroup) {
   return { consumerGroup, messages: groupMessages };
 }
 
-/**
- * Simulate full Kafka workflow messaging.
- */
 export function simulateKafkaWorkflowMessaging(topics, routingKey, message, consumerGroup) {
   const routedMessages = {};
   topics.forEach((topic) => {
@@ -352,9 +293,6 @@ export function simulateKafkaWorkflowMessaging(topics, routingKey, message, cons
   return { routedMessages, consumerGroupResults };
 }
 
-/**
- * Simulate direct Kafka messaging.
- */
 export function simulateKafkaDirectMessage(topic, message) {
   const sent = sendMessageToKafka(topic, message);
   const receipt = receiveMessageFromKafka(topic);
@@ -362,41 +300,11 @@ export function simulateKafkaDirectMessage(topic, message) {
   return { topic, sent, receipt };
 }
 
-/**
- * Simulate rebroadcasting a Kafka message.
- */
-export function simulateKafkaRebroadcast(topics, message, repeat = 2) {
-  const results = {};
-  topics.forEach((topic) => {
-    results[topic] = [];
-    for (let i = 0; i < repeat; i++) {
-      const sent = sendMessageToKafka(topic, message);
-      const received = receiveMessageFromKafka(topic);
-      results[topic].push({ sent, received });
-      console.log(chalk.blue(`Rebroadcast ${i + 1} to '${topic}': Sent -> ${sent}, Received -> ${received}`));
-    }
-  });
-  return results;
-}
-
-// --- Consolidated single declarations below (duplicates removed) ---
-
-// Simulate a Kafka consumer
-export function simulateKafkaConsumer(topic, count = 3) {
-  const messages = [];
-  for (let i = 0; i < count; i++) {
-    messages.push(`Consumer message ${i + 1} from topic '${topic}'`);
-  }
-  return messages;
-}
-
-// Simulate a delayed Kafka message
 export async function simulateKafkaDelayedMessage(topic, message, delayMs) {
-  await new Promise((resolve) => setTimeout(resolve, delayMs));
+  await new Promise(resolve => setTimeout(resolve, delayMs));
   return { delayed: true, topic, message };
 }
 
-// Simulate a Kafka transaction
 export function simulateKafkaTransaction(messagesArray) {
   const transaction = {};
   messagesArray.forEach((item) => {
@@ -405,7 +313,6 @@ export function simulateKafkaTransaction(messagesArray) {
   return { success: true, transaction };
 }
 
-// Simulate a Kafka priority queue
 export function simulateKafkaPriorityQueue(topic, messages) {
   return messages.sort((a, b) => b.priority - a.priority).map((item) => item.message);
 }
@@ -413,7 +320,6 @@ export function simulateKafkaPriorityQueue(topic, messages) {
 // Global store for message persistence
 let persistenceStore = {};
 
-// Simulate Kafka message persistence
 export function simulateKafkaMessagePersistence(topic, message) {
   if (!persistenceStore[topic]) {
     persistenceStore[topic] = [];
@@ -435,6 +341,25 @@ export function simulateKafkaMulticast(topics, message, multicastOptions = {}) {
     console.log(chalk.blue(`Multicast to '${topic}': ${finalMessage}`));
   });
   return results;
+}
+
+// NEW: Simulate Kafka Consumer to be used in consumer groups.
+export function simulateKafkaConsumer(topic, count = 3) {
+  return simulateKafkaStream(topic, count);
+}
+
+// NEW: Simulate Kafka Rebroadcast: repeatedly send a message and collect responses per topic.
+export function simulateKafkaRebroadcast(topics, message, repeat = 1) {
+  const result = {};
+  topics.forEach((topic) => {
+    result[topic] = [];
+    for (let i = 0; i < repeat; i++) {
+      const sent = sendMessageToKafka(topic, message);
+      const received = receiveMessageFromKafka(topic);
+      result[topic].push({ sent, received });
+    }
+  });
+  return result;
 }
 
 // Simulate file system call
@@ -558,7 +483,6 @@ export async function delegateDecisionToLLMChatOptimized(prompt, options = {}) {
   }
 }
 
-// Existing LLM Chat Delegation
 export async function delegateDecisionToLLMChat(prompt, options = {}) {
   if (!prompt || prompt.trim() === "") {
     return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
@@ -605,7 +529,6 @@ export async function delegateDecisionToLLMChatVerbose(prompt, options = {}) {
   return result;
 }
 
-// NEW: Function calling wrapper
 export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "gpt-3.5-turbo", options = {}) {
   if (!prompt || prompt.trim() === "") {
     return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
@@ -683,7 +606,6 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
   }
 }
 
-// NEW: Advanced delegation with extra context.
 export async function delegateDecisionToLLMChatAdvanced(prompt, extraContext = "", options = {}) {
   if (!prompt || prompt.trim() === "") {
     return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
@@ -696,7 +618,6 @@ export async function delegateDecisionToLLMChatAdvanced(prompt, extraContext = "
   return result;
 }
 
-// NEW: Premium OpenAI delegation.
 export async function delegateDecisionToLLMChatPremium(prompt, options = {}) {
   if (!prompt || prompt.trim() === "") {
     return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
@@ -793,6 +714,22 @@ export function parseEslintDefaultOutput(eslintStr) {
   return match
     ? { numProblems: parseInt(match[1], 10), numErrors: parseInt(match[2], 10), numWarnings: parseInt(match[3], 10) }
     : { numProblems: 0, numErrors: 0, numWarnings: 0 };
+}
+
+// NEW: Parse Vitest failure output (additional)
+export function parseVitestFailureOutput(vitestStr) {
+  const match = vitestStr.match(/(\d+)\s+tests? failed/);
+  const testsFailed = match ? parseInt(match[1], 10) : 0;
+  return { testsFailed };
+}
+
+// NEW: Parse ESLint compact output (additional)
+export function parseEslintCompactOutput(eslintStr) {
+  const match = eslintStr.match(/Found\s+(\d+)\s+problems\s+\((\d+)\s+errors?,\s+(\d+)\s+warnings\)/);
+  if (match) {
+    return { numProblems: parseInt(match[1], 10), numErrors: parseInt(match[2], 10), numWarnings: parseInt(match[3], 10) };
+  }
+  return { numProblems: 0, numErrors: 0, numWarnings: 0 };
 }
 
 // NEW: Simulate Issue Creation Workflow similar to wfr-create-issue.yml
