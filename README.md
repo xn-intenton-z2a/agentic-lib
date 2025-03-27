@@ -21,6 +21,7 @@ Mixed licensing:
 **EXT:** Implemented simulateIssueCreation to simulate a GitHub Actions workflow for issue creation similar to wfr-create-issue.yml, and enhanced it to log a creation timestamp and additional details. Extended simulateIssueCreation to support houseChoiceOptions provided as a string delimited by "||", as well as an array.
 **NEW:** Added OpenAI delegation wrappers: delegateDecisionToLLMFunctionCallWrapper, delegateDecisionToLLMChatOptimized, delegateDecisionToLLMChatAdvanced, and delegateDecisionToLLMChatPremium.
 **NEW:** Added remote service wrapper simulateRemoteServiceWrapper for simulating interactions with remote logging or monitoring services.
+**NEW:** Added additional parsing utilities: parseVitestFailureOutput to parse Vitest failure output and parseEslintCompactOutput to parse ESLint compact output.
 
 ---
 
@@ -42,7 +43,9 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
   - **NEW:** `delegateDecisionToLLMChatPremium` extends OpenAI function delegation with additional logging and configurable base URL support.
 - **Kafka Operations:** Simulated messaging functions for inter‑workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, multicast, rebroadcast, and consumer group messaging.
 - **Parsing Utilities:** Functions such as:
-  - `parseCombinedDefaultOutput` and **NEW:** `parseVitestDefaultOutput`, `parseEslintSarifOutput`, and **parseEslintDefaultOutput** to parse outputs from Vitest and ESLint in different formats.
+  - `parseCombinedDefaultOutput`, **NEW:** `parseVitestDefaultOutput`, `parseEslintSarifOutput`, and **`parseEslintDefaultOutput`** to parse outputs from Vitest and ESLint in different formats.
+  - **NEW:** `parseVitestFailureOutput` to extract the number of failed tests from Vitest output.
+  - **NEW:** `parseEslintCompactOutput` to parse ESLint compact output formats.
 - **File System Simulation:** `simulateFileSystemCall()` enables safe file interactions for testing purposes.
 - **CI Workflow Simulation:** `simulateCIWorkflowLifecycle` aggregates telemetry data and simulates Kafka messaging to emulate a complete workflow lifecycle.
 - **Issue Creation Simulation:** **NEW:** `simulateIssueCreation` mimics a GitHub Actions workflow for issue creation, now enhanced to include a timestamp and additional detail logging.
@@ -58,7 +61,8 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - Enhanced telemetry and simulation utilities, including **NEW:** `gatherSystemMetrics` function.
 - **FIX:** Corrected getIssueNumberFromBranch function (now using the correct regex) and added `parseCombinedDefaultOutput` for parsing test outputs.
 - **EXT:** Implemented and enhanced simulateIssueCreation to mimic GitHub issue creation workflow behavior, including randomized title selection and timestamp logging.
-- **NEW:** Added parsing functions `parseVitestDefaultOutput`, `parseEslintSarifOutput`, and **parseEslintDefaultOutput** to process Vitest and ESLint outputs in different formats.
+- **NEW:** Added parsing functions `parseVitestDefaultOutput`, `parseEslintSarifOutput`, and `parseEslintDefaultOutput` to process Vitest and ESLint outputs in different formats.
+- **NEW:** Added parsing functions `parseVitestFailureOutput` and `parseEslintCompactOutput` to further support varied output formats.
 - **NEW:** Added remote service wrapper **simulateRemoteServiceWrapper** for simulating remote logging or monitoring service interactions.
 
 ---
@@ -69,25 +73,37 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 
 ## Component Breakdown
 
-This repository is organized into three distinct areas:
+This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:
 
 ### 1. Re‑usable Workflows (Core Functionality)
-- **Purpose:** These workflows form the backbone of the agentic‑lib system, enabling automated processes such as testing, publishing, and issue management.
-- **Stability:** They are stable and well‑tested, designed for seamless integration into CI/CD pipelines.
-- **Licensing:** Released under GPL‑3 with an attribution requirement for any derived work.
-- **Location:** Found in the `.github/workflows/` directory.
+- **Purpose:**  
+  These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.
+- **Stability:**  
+  They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.
+- **Licensing:**  
+  The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.
+- **Location:**  
+  Find these in the `.github/workflows/` directory.
 
 ### 2. Example Workflows (Demonstrative Content)
-- **Purpose:** These files provide practical examples of using the core workflows, serving as learning tools and reference implementations.
-- **Stability:** Intended primarily for demonstration and experimentation.
-- **Licensing:** Covered by the MIT license to allow broader use and modification.
-- **Location:** See the `examples/` directory for sample implementations.
+- **Purpose:**  
+  These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
+- **Stability:**  
+  While functional, they are intended primarily for demonstration and experimentation.
+- **Licensing:**  
+  The example workflows are covered by the MIT license to allow for broader use and modification.
+- **Location:**  
+  Look in the `examples/` directory for sample implementations.
 
-### 3. The Evolving main.js (JavaScript Implementation of Re‑usable Workflows)
-- **Purpose:** Implements the re‑usable workflows as a JavaScript module for programmatic access to core functionality.
-- **Stability:** Under active development and may change frequently, representing bleeding‑edge functionality.
-- **Licensing:** Part of the core project, licensed under GPL‑3 with attribution.
-- **Location:** The code is located in `src/lib/main.js`.
+### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
+- **Purpose:**  
+  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
+- **Stability:**  
+  It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
+- **Licensing:**  
+  As part of the core project, it is under GPL‑3 with the attribution clause.
+- **Location:**  
+  The code is located in `src/lib/main.js`.
 
 ---
 

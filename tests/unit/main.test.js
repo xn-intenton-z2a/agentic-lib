@@ -273,6 +273,14 @@ describe("parseVitestDefaultOutput", () => {
   });
 });
 
+describe("parseVitestFailureOutput", () => {
+  test("should correctly parse Vitest failure output", () => {
+    const vitestStr = "5 tests failed";
+    const result = agenticLib.parseVitestFailureOutput(vitestStr);
+    expect(result.testsFailed).toBe(5);
+  });
+});
+
 describe("parseEslintSarifOutput", () => {
   test("should correctly parse ESLint SARIF output", () => {
     const sarif = {
@@ -294,6 +302,16 @@ describe("parseEslintDefaultOutput", () => {
     expect(result.numProblems).toBe(12);
     expect(result.numErrors).toBe(4);
     expect(result.numWarnings).toBe(8);
+  });
+});
+
+describe("parseEslintCompactOutput", () => {
+  test("should correctly parse ESLint compact output", () => {
+    const eslintStr = "Found 15 problems (5 errors, 10 warnings)";
+    const result = agenticLib.parseEslintCompactOutput(eslintStr);
+    expect(result.numProblems).toBe(15);
+    expect(result.numErrors).toBe(5);
+    expect(result.numWarnings).toBe(10);
   });
 });
 
