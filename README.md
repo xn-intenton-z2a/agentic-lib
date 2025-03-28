@@ -22,7 +22,7 @@ Mixed licensing:
 **NEW:** Added OpenAI delegation wrappers: delegateDecisionToLLMChat, delegateDecisionToLLMChatVerbose, delegateDecisionToLLMChatOptimized for enhanced prompt validation, delegateDecisionToLLMChatAdvanced for advanced delegation with extra context support, and delegateDecisionToLLMChatPremium with additional logging and configurable base URL support. **Extended delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling.**
 **NEW:** Added remote service wrapper simulateRemoteServiceWrapper for simulating interactions with remote logging or monitoring services.
 **NEW:** Added parsing functions parseVitestFailureOutput to extract the number of failed tests from Vitest output and parseEslintCompactOutput to handle ESLint compact output formats.
-**NEW:** Exported the main() function for CLI testing and added tests for the CLI help output.
+**NEW:** Exported the main() function for CLI testing and added tests for CLI help output.
 
 ---
 
@@ -134,3 +134,5 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
+
+---

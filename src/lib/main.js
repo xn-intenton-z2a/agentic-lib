@@ -13,7 +13,7 @@
 // - NEW: Added parseEslintCompactOutput to parse ESLint compact output (new).
 // - EXT: Added gatherCIWorkflowMetrics to extend telemetry data collection from GitHub Actions workflows.
 // - NEW: Added gatherSystemMetrics to capture additional system telemetry such as load average and user info.
-// - NEW: Added simulateRemoteServiceWrapper to simulate interactions with remote services useful in agentic workflows (e.g., logging, monitoring).
+// - NEW: Added simulateRemoteServiceWrapper to simulate remote service interactions useful in agentic workflows.
 // - NEW: Exported main function for CLI testing purposes.
 // - NEW: Enhanced delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling.
 
@@ -775,3 +775,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 
 // Export main for testing purposes
 export { main };
+
+// NEW: Added simulateRemoteServiceWrapper for simulating remote service interactions
+export async function simulateRemoteServiceWrapper(serviceUrl, payload) {
+  // Simulating a delay to represent network call
+  await new Promise(resolve => setTimeout(resolve, 50));
+  return { status: "success", serviceUrl, receivedPayload: payload };
+}
