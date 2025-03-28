@@ -18,7 +18,7 @@ Mixed licensing:
 *Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained.
 **NEW:** Added and enhanced telemetry functions including gatherWorkflowTelemetry, gatherCIWorkflowMetrics, gatherSystemMetrics and parsing functions parseCombinedDefaultOutput, parseVitestDefaultOutput, parseEslintSarifOutput, and parseEslintDefaultOutput to process output formats.
 **FIX:** Corrected getIssueNumberFromBranch function (fixed regex pattern) and added parseCombinedDefaultOutput for parsing test outputs.
-**EXT:** Implemented simulateIssueCreation to simulate a GitHub Actions workflow for issue creation similar to wfr-create-issue.yml, and enhanced it to log a creation timestamp and additional details. Extended simulateIssueCreation to support houseChoiceOptions provided as a string delimited by "||", as well as an array.
+**EXT:** Implemented simulateIssueCreation to simulate a GitHub Actions workflow for issue creation similar to wfr-create-issue.yml, and enhanced it to log a creation timestamp and additional details. Extended simulateIssueCreation to support houseChoiceOptions provided as a string delimited by "||", as well as an array. (Updated to robustly handle empty options and provide a fallback title.)
 **NEW:** Added OpenAI delegation wrappers: delegateDecisionToLLMChat, delegateDecisionToLLMChatVerbose, delegateDecisionToLLMChatOptimized, delegateDecisionToLLMChatAdvanced, delegateDecisionToLLMChatPremium, and **extended delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling** to align with the supplied OpenAI function example.
 **NEW:** Added remote service wrapper simulateRemoteServiceWrapper for simulating interactions with remote logging or monitoring services.
 **NEW:** Added additional parsing utilities: parseVitestFailureOutput to parse Vitest failure output and parseEslintCompactOutput to parse ESLint compact output.
@@ -48,7 +48,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
   - **NEW:** `parseEslintCompactOutput` to parse ESLint compact output formats.
 - **File System Simulation:** `simulateFileSystemCall()` enables safe file interactions for testing purposes.
 - **CI Workflow Simulation:** `simulateCIWorkflowLifecycle` aggregates telemetry data and simulates Kafka messaging to emulate a complete workflow lifecycle.
-- **Issue Creation Simulation:** **NEW:** `simulateIssueCreation` mimics a GitHub Actions workflow for issue creation, now enhanced to include a timestamp and additional detail logging.
+- **Issue Creation Simulation:** **NEW:** `simulateIssueCreation` mimics a GitHub Actions workflow for issue creation, now enhanced to include a timestamp and additional detail logging. This function has been extended to handle both string and array inputs for houseChoiceOptions, offering a more robust simulation of the issue creation process as defined in wfr-create-issue.yml.
 
 ---
 
@@ -60,7 +60,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **NEW:** Extended the OpenAI delegation wrapper delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling to improve debugging and match the supplied OpenAI function example.
 - Enhanced telemetry and simulation utilities, including **NEW:** `gatherSystemMetrics` function.
 - **FIX:** Corrected getIssueNumberFromBranch function (now using the correct regex) and added `parseCombinedDefaultOutput` for parsing test outputs.
-- **EXT:** Implemented and enhanced simulateIssueCreation to mimic GitHub issue creation workflow behavior, including randomized title selection and timestamp logging.
+- **EXT:** Implemented and enhanced simulateIssueCreation to mimic GitHub issue creation workflow behavior, including randomized title selection, timestamp logging, and robust handling of houseChoiceOptions.
 - **NEW:** Added parsing functions `parseVitestDefaultOutput`, `parseEslintSarifOutput`, and `parseEslintDefaultOutput` to process Vitest and ESLint outputs in different formats.
 - **NEW:** Added parsing functions `parseVitestFailureOutput` and `parseEslintCompactOutput` to further support varied output formats.
 - **NEW:** Added remote service wrapper **simulateRemoteServiceWrapper** for simulating remote logging or monitoring service interactions.
@@ -132,5 +132,3 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
-
----

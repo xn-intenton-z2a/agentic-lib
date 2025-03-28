@@ -17,6 +17,7 @@
 // - NEW: Added simulateKafkaConsumer to simulate Kafka consumer behavior for consumer group messaging.
 // - NEW: Added simulateKafkaRebroadcast to simulate rebroadcasting messages to multiple topics repeatedly.
 // - MOD: Extended delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling for improved debugging and alignment with the provided OpenAI function example.
+// - EXT: Extended simulateIssueCreation to better simulate GitHub issue creation workflow behavior as seen in wfr-create-issue.yml by robustly handling both string and array inputs for houseChoiceOptions.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -392,7 +393,7 @@ export async function callRepositoryService(serviceUrl) {
 // LLM and issue review functions
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -741,12 +742,16 @@ export function parseEslintCompactOutput(eslintStr) {
 export function simulateIssueCreation(params) {
   let selectedTitle = params.issueTitle;
   if (selectedTitle === "house choice") {
-    if (typeof params.houseChoiceOptions === "string") {
-      params.houseChoiceOptions = params.houseChoiceOptions.split("||").map(option => option.trim());
+    let options = [];
+    if (Array.isArray(params.houseChoiceOptions)) {
+      options = params.houseChoiceOptions;
+    } else if (typeof params.houseChoiceOptions === "string") {
+      options = params.houseChoiceOptions.split("||").map(option => option.trim()).filter(option => option);
     }
-    if (Array.isArray(params.houseChoiceOptions) && params.houseChoiceOptions.length > 0) {
-      const randomIndex = randomInt(0, params.houseChoiceOptions.length);
-      selectedTitle = params.houseChoiceOptions[randomIndex];
+    if (options.length === 0) {
+      selectedTitle = "Default Issue Title";
+    } else {
+      selectedTitle = options[Math.floor(Math.random() * options.length)];
     }
   }
   const issueNumber = randomInt(100, 1000);
