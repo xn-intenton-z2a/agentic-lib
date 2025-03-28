@@ -38,7 +38,7 @@
 <strong class="md-github">NEW:</strong> Added and enhanced telemetry functions including gatherWorkflowTelemetry, gatherCIWorkflowMetrics, gatherSystemMetrics and parsing functions parseCombinedDefaultOutput, parseVitestDefaultOutput, parseEslintSarifOutput, and parseEslintDefaultOutput to process output formats.
 <strong class="md-github">FIX:</strong> Corrected getIssueNumberFromBranch function (fixed regex pattern) and added parseCombinedDefaultOutput for parsing test outputs.
 <strong class="md-github">EXT:</strong> Implemented simulateIssueCreation to simulate a GitHub Actions workflow for issue creation similar to wfr-create-issue.yml, and enhanced it to log a creation timestamp and additional details. Extended simulateIssueCreation to support houseChoiceOptions provided as a string delimited by &quot;||&quot;, as well as an array.
-<strong class="md-github">NEW:</strong> Added OpenAI delegation wrappers: delegateDecisionToLLMFunctionCallWrapper, delegateDecisionToLLMChatOptimized, delegateDecisionToLLMChatAdvanced, and delegateDecisionToLLMChatPremium.
+<strong class="md-github">NEW:</strong> Added OpenAI delegation wrappers: delegateDecisionToLLMChat, delegateDecisionToLLMChatVerbose, delegateDecisionToLLMChatOptimized, delegateDecisionToLLMChatAdvanced, delegateDecisionToLLMChatPremium, and <strong class="md-github">extended delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling</strong> to align with the supplied OpenAI function example.
 <strong class="md-github">NEW:</strong> Added remote service wrapper simulateRemoteServiceWrapper for simulating interactions with remote logging or monitoring services.
 <strong class="md-github">NEW:</strong> Added additional parsing utilities: parseVitestFailureOutput to parse Vitest failure output and parseEslintCompactOutput to parse ESLint compact output.</p>
 <hr class="md-github">
@@ -57,8 +57,8 @@
 <li class="md-github"><strong class="md-github">Remote Service Wrappers:</strong> Simplified API interactions for multiple services, including a new <strong class="md-github">simulateRemoteServiceWrapper</strong> to simulate remote interactions, such as logging or monitoring services.</li>
 <li class="md-github"><strong class="md-github">LLM Delegation:</strong> Functions to support decision delegation with advanced OpenAI capabilities:
 <ul class="md-github">
-<li class="md-github"><code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, and <code class="md-github">delegateDecisionToLLMChatOptimized</code> for enhanced prompt validation.</li>
-<li class="md-github"><strong class="md-github">NEW:</strong> <code class="md-github">delegateDecisionToLLMFunctionCallWrapper</code> extends our OpenAI function delegation capabilities.</li>
+<li class="md-github"><code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, <code class="md-github">delegateDecisionToLLMChatOptimized</code> for enhanced prompt validation.</li>
+<li class="md-github"><strong class="md-github">NEW:</strong> <code class="md-github">delegateDecisionToLLMFunctionCallWrapper</code> extended with additional logging and error handling.</li>
 <li class="md-github"><strong class="md-github">NEW:</strong> <code class="md-github">delegateDecisionToLLMChatAdvanced</code> for advanced delegation with extra context support.</li>
 <li class="md-github"><strong class="md-github">NEW:</strong> <code class="md-github">delegateDecisionToLLMChatPremium</code> extends OpenAI function delegation with additional logging and configurable base URL support.</li>
 </ul>
@@ -81,7 +81,7 @@
 <li class="md-github">README refreshed to align with the CONTRIBUTING guidelines. Outdated content has been pruned and core information retained.</li>
 <li class="md-github"><strong class="md-github">Drift Pruning:</strong> Legacy and deprecated code has been removed from the source file, ensuring strict alignment with the agentic‑lib mission statement.</li>
 <li class="md-github">Extended Kafka Messaging Simulations including multicast and rebroadcast features.</li>
-<li class="md-github">New OpenAI Function Wrappers: <code class="md-github">delegateDecisionToLLMFunctionCallWrapper</code>, <code class="md-github">delegateDecisionToLLMChatOptimized</code>, <code class="md-github">delegateDecisionToLLMChatAdvanced</code>, and <code class="md-github">delegateDecisionToLLMChatPremium</code>.</li>
+<li class="md-github"><strong class="md-github">NEW:</strong> Extended the OpenAI delegation wrapper delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling to improve debugging and match the supplied OpenAI function example.</li>
 <li class="md-github">Enhanced telemetry and simulation utilities, including <strong class="md-github">NEW:</strong> <code class="md-github">gatherSystemMetrics</code> function.</li>
 <li class="md-github"><strong class="md-github">FIX:</strong> Corrected getIssueNumberFromBranch function (now using the correct regex) and added <code class="md-github">parseCombinedDefaultOutput</code> for parsing test outputs.</li>
 <li class="md-github"><strong class="md-github">EXT:</strong> Implemented and enhanced simulateIssueCreation to mimic GitHub issue creation workflow behavior, including randomized title selection and timestamp logging.</li>
@@ -130,6 +130,7 @@ The code is located in <code class="md-github">src/lib/main.js</code>.</li>
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="license" href="#license"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>License</h2>
 <p class="md-github">This project is licensed under the GNU General Public License (GPL). See <a href="LICENSE" class="md-github">LICENSE</a> for details.</p>
+<p class="md-github">License notice:</p>
 <pre class="md-github"><code class="md-github">agentic-lib
 Copyright (C) 2025 Polycode Limited
 
@@ -149,10 +150,11 @@ along with this program. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 IMPORTANT: Any derived work must include the following attribution:
 &quot;This work is derived from https://github.com/xn-intenton-z2a/agentic-lib&quot;
 </code></pre>
+<hr class="md-github">
 
   </section>
   <footer>
-    <p>Generated on 2025-03-28T04:07:23.961Z</p>
+    <p>Generated on 2025-03-28T06:09:21.676Z</p>
   </footer>
 </body>
 </html>
