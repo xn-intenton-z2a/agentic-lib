@@ -43,6 +43,16 @@ on:
         type: string
         required: false
         default: 'Make code changes that extend or improve the features or resolve issues shown in the included context.'
+      s3BucketUrl:
+        description: 'The S3 bucket URL with prefix to use. e.g. "s3://my-bucket/prefix"'
+        type: string
+        required: false
+        default: ''
+      iamRoleArn:
+        description: 'The ARN of the IAM role to assume. e.g. "arn:aws:iam::123456789012:role/my-role"'
+        type: string
+        required: false
+        default: ''
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -104,3 +114,4 @@ jobs:
       issueTitle: ${{ steps.create-issue.outputs.issueTitle }}
       issueBody: ${{ steps.create-issue.outputs.issueBody }}
       issueNumber: ${{ steps.create-issue.outputs.issueNumber }}
+

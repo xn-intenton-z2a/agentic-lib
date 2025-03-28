@@ -27,6 +27,17 @@ name: ∞ Get Pull Request from Check Suite
 
 on:
   workflow_call:
+    inputs:
+      s3BucketUrl:
+        description: 'The S3 bucket URL with prefix to use. e.g. "s3://my-bucket/prefix"'
+        type: string
+        required: false
+        default: ''
+      iamRoleArn:
+        description: 'The ARN of the IAM role to assume. e.g. "arn:aws:iam::123456789012:role/my-role"'
+        type: string
+        required: false
+        default: ''
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -104,3 +115,4 @@ jobs:
       pullNumber: ${{ steps.find-pr.outputs.pullNumber }}
       shouldSkipMerge: ${{ steps.find-pr.outputs.shouldSkipMerge }}
       prMerged: ${{ steps.find-pr.outputs.prMerged }}
+

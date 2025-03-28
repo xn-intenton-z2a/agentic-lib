@@ -41,6 +41,16 @@ on:
         type: string
         required: false
         default: 'The feature branch has been merged: '
+      s3BucketUrl:
+        description: 'The S3 bucket URL with prefix to use. e.g. "s3://my-bucket/prefix"'
+        type: string
+        required: false
+        default: ''
+      iamRoleArn:
+        description: 'The ARN of the IAM role to assume. e.g. "arn:aws:iam::123456789012:role/my-role"'
+        type: string
+        required: false
+        default: ''
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -116,3 +126,4 @@ jobs:
             });
     outputs:
       issueNumber: ${{ steps.extract-issue-number.outputs.issueNumber }}
+

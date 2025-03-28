@@ -101,6 +101,16 @@ on:
         type: string
         required: false
         default: 'GitHub Actions[bot]'
+      s3BucketUrl:
+        description: 'The S3 bucket URL with prefix to use. e.g. "s3://my-bucket/prefix"'
+        type: string
+        required: false
+        default: ''
+      iamRoleArn:
+        description: 'The ARN of the IAM role to assume. e.g. "arn:aws:iam::123456789012:role/my-role"'
+        type: string
+        required: false
+        default: ''
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -635,3 +645,4 @@ jobs:
       commitOutcome: ${{ steps.results.outputs.commitOutcome }}
       postResolutionCommentOutcome: ${{ steps.results.outputs.postResolutionCommentOutcome }}
       allValidationStepsSuccessful: ${{ steps.results.outputs.allValidationStepsSuccessful }}
+
