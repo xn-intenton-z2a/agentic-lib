@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeAll, afterAll } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 import * as agenticLib from "../../src/lib/main.js";
 import { promises as fs } from "fs";
 
@@ -453,5 +453,23 @@ describe("simulateRemoteServiceWrapper", () => {
     expect(response.status).toBe("success");
     expect(response.serviceUrl).toBe(serviceUrl);
     expect(response.receivedPayload).toEqual(payload);
+  });
+});
+
+// New test suite for main CLI function
+describe("CLI main function", () => {
+  test("prints usage and demo if --help flag provided", () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    agenticLib.main(["--help", "extraArg"]);
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("Usage:"));
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("Non-flag arguments:"));
+    logSpy.mockRestore();
+  });
+
+  test("prints enhanced demo if no --help flag", () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    agenticLib.main([]);
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("Enhanced Demo: Agentic‑lib now supports additional argument processing."));
+    logSpy.mockRestore();
   });
 });

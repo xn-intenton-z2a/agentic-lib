@@ -3,7 +3,7 @@
 // Change Log:
 // - Pruned drift and removed deprecated duplicate function definitions.
 // - Consolidated duplicate exports.
-// - Added a main() function to enable CLI execution.
+// - Added a main() function to enable CLI execution and exported it for testing purposes.
 // - Fixed regex in getIssueNumberFromBranch to correctly extract issue numbers.
 // - Added parseCombinedDefaultOutput to parse both Vitest and ESLint default outputs.
 // - NEW: Added parseVitestDefaultOutput to parse Vitest default output.
@@ -14,10 +14,8 @@
 // - EXT: Added gatherCIWorkflowMetrics to extend telemetry data collection from GitHub Actions workflows.
 // - NEW: Added gatherSystemMetrics to capture additional system telemetry such as load average and user info.
 // - NEW: Added simulateRemoteServiceWrapper to simulate interactions with remote services useful in agentic workflows (e.g., logging, monitoring).
-// - NEW: Added simulateKafkaConsumer to simulate Kafka consumer behavior for consumer group messaging.
-// - NEW: Added simulateKafkaRebroadcast to simulate rebroadcasting messages to multiple topics repeatedly.
-// - MOD: Extended delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling for improved debugging and alignment with the provided OpenAI function example.
-// - EXT: Extended simulateIssueCreation to better simulate GitHub issue creation workflow behavior as seen in wfr-create-issue.yml by robustly handling both string and array inputs for houseChoiceOptions.
+// - NEW: Exported main function for CLI testing purposes.
+// - NEW: Enhanced delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -393,7 +391,7 @@ export async function callRepositoryService(serviceUrl) {
 // LLM and issue review functions
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -775,16 +773,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main(args);
 }
 
-// NEW: Simulate Remote Service Wrapper
-export async function simulateRemoteServiceWrapper(serviceUrl, payload) {
-  console.log(chalk.blue(`Simulating remote service call to ${serviceUrl} with payload:`), payload);
-  try {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    const simulatedResponse = { status: "success", serviceUrl, receivedPayload: payload };
-    console.log(chalk.green("Remote Service Response:"), simulatedResponse);
-    return simulatedResponse;
-  } catch (error) {
-    console.error(chalk.red("Remote Service Error:"), error);
-    return { status: "error", error: error.message };
-  }
-}
+// Export main for testing purposes
+export { main };

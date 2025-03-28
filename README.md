@@ -21,7 +21,8 @@ Mixed licensing:
 **EXT:** Implemented simulateIssueCreation to simulate a GitHub Actions workflow for issue creation similar to wfr-create-issue.yml, and enhanced it to log a creation timestamp and additional details. Extended simulateIssueCreation to support houseChoiceOptions provided as a string delimited by "||", as well as an array. (Updated to robustly handle empty options and provide a fallback title.)
 **NEW:** Added OpenAI delegation wrappers: delegateDecisionToLLMChat, delegateDecisionToLLMChatVerbose, delegateDecisionToLLMChatOptimized for enhanced prompt validation, delegateDecisionToLLMChatAdvanced for advanced delegation with extra context support, and delegateDecisionToLLMChatPremium with additional logging and configurable base URL support. **Extended delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling.**
 **NEW:** Added remote service wrapper simulateRemoteServiceWrapper for simulating interactions with remote logging or monitoring services.
-**NEW:** Added parsing functions parseVitestFailureOutput to extract number of failed tests from Vitest output and parseEslintCompactOutput to handle ESLint compact output formats.
+**NEW:** Added parsing functions parseVitestFailureOutput to extract the number of failed tests from Vitest output and parseEslintCompactOutput to handle ESLint compact output formats.
+**NEW:** Exported the main() function for CLI testing and added tests for the CLI help output.
 
 ---
 
@@ -64,6 +65,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **NEW:** Added parsing functions `parseVitestDefaultOutput`, `parseEslintSarifOutput`, and `parseEslintDefaultOutput` to process Vitest and ESLint outputs.
 - **NEW:** Added additional parsing functions `parseVitestFailureOutput` and `parseEslintCompactOutput` to support varied output formats.
 - **NEW:** Added remote service wrapper **simulateRemoteServiceWrapper** for simulating remote logging or monitoring service interactions.
+- **NEW:** Exported the main() function to facilitate CLI testing and added tests for CLI help output.
 
 ---
 
@@ -97,7 +99,7 @@ This repository is organized into three distinct areas to help you understand th
 
 ### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
 - **Purpose:**  
-  This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to the core functionality.
+  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
@@ -132,5 +134,3 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
-
----
