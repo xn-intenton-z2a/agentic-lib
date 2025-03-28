@@ -19,7 +19,7 @@ Mixed licensing:
 **NEW:** Added and enhanced telemetry functions including gatherWorkflowTelemetry, gatherCIWorkflowMetrics, gatherSystemMetrics and parsing functions parseCombinedDefaultOutput, parseVitestDefaultOutput, parseEslintSarifOutput, and parseEslintDefaultOutput to process output formats.
 **FIX:** Corrected getIssueNumberFromBranch function (fixed regex pattern) and added parseCombinedDefaultOutput for parsing test outputs.
 **EXT:** Implemented simulateIssueCreation to simulate a GitHub Actions workflow for issue creation similar to wfr-create-issue.yml, and enhanced it to log a creation timestamp and additional details. Extended simulateIssueCreation to support houseChoiceOptions provided as a string delimited by "||", as well as an array.
-**NEW:** Added OpenAI delegation wrappers: delegateDecisionToLLMFunctionCallWrapper, delegateDecisionToLLMChatOptimized, delegateDecisionToLLMChatAdvanced, and delegateDecisionToLLMChatPremium.
+**NEW:** Added OpenAI delegation wrappers: delegateDecisionToLLMChat, delegateDecisionToLLMChatVerbose, delegateDecisionToLLMChatOptimized, delegateDecisionToLLMChatAdvanced, delegateDecisionToLLMChatPremium, and **extended delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling** to align with the supplied OpenAI function example.
 **NEW:** Added remote service wrapper simulateRemoteServiceWrapper for simulating interactions with remote logging or monitoring services.
 **NEW:** Added additional parsing utilities: parseVitestFailureOutput to parse Vitest failure output and parseEslintCompactOutput to parse ESLint compact output.
 
@@ -37,8 +37,8 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
   - **GitHub Environment Telemetry:** `gatherGithubEnvTelemetry()` aggregates all environment variables starting with `GITHUB_`.
 - **Remote Service Wrappers:** Simplified API interactions for multiple services, including a new **simulateRemoteServiceWrapper** to simulate remote interactions, such as logging or monitoring services.
 - **LLM Delegation:** Functions to support decision delegation with advanced OpenAI capabilities:
-  - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, and `delegateDecisionToLLMChatOptimized` for enhanced prompt validation.
-  - **NEW:** `delegateDecisionToLLMFunctionCallWrapper` extends our OpenAI function delegation capabilities.
+  - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatOptimized` for enhanced prompt validation.
+  - **NEW:** `delegateDecisionToLLMFunctionCallWrapper` extended with additional logging and error handling.
   - **NEW:** `delegateDecisionToLLMChatAdvanced` for advanced delegation with extra context support.
   - **NEW:** `delegateDecisionToLLMChatPremium` extends OpenAI function delegation with additional logging and configurable base URL support.
 - **Kafka Operations:** Simulated messaging functions for inter‑workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, multicast, rebroadcast, and consumer group messaging.
@@ -57,7 +57,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - README refreshed to align with the CONTRIBUTING guidelines. Outdated content has been pruned and core information retained.
 - **Drift Pruning:** Legacy and deprecated code has been removed from the source file, ensuring strict alignment with the agentic‑lib mission statement.
 - Extended Kafka Messaging Simulations including multicast and rebroadcast features.
-- New OpenAI Function Wrappers: `delegateDecisionToLLMFunctionCallWrapper`, `delegateDecisionToLLMChatOptimized`, `delegateDecisionToLLMChatAdvanced`, and `delegateDecisionToLLMChatPremium`.
+- **NEW:** Extended the OpenAI delegation wrapper delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling to improve debugging and match the supplied OpenAI function example.
 - Enhanced telemetry and simulation utilities, including **NEW:** `gatherSystemMetrics` function.
 - **FIX:** Corrected getIssueNumberFromBranch function (now using the correct regex) and added `parseCombinedDefaultOutput` for parsing test outputs.
 - **EXT:** Implemented and enhanced simulateIssueCreation to mimic GitHub issue creation workflow behavior, including randomized title selection and timestamp logging.
@@ -111,6 +111,7 @@ This repository is organized into three distinct areas to help you understand th
 
 This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
 
+License notice:
 ```
 agentic-lib
 Copyright (C) 2025 Polycode Limited

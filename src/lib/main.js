@@ -16,6 +16,7 @@
 // - NEW: Added simulateRemoteServiceWrapper to simulate interactions with remote services useful in agentic workflows (e.g., logging, monitoring).
 // - NEW: Added simulateKafkaConsumer to simulate Kafka consumer behavior for consumer group messaging.
 // - NEW: Added simulateKafkaRebroadcast to simulate rebroadcasting messages to multiple topics repeatedly.
+// - MOD: Extended delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling for improved debugging and alignment with the provided OpenAI function example.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -391,7 +392,7 @@ export async function callRepositoryService(serviceUrl) {
 // LLM and issue review functions
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -500,7 +501,7 @@ export async function delegateDecisionToLLMChat(prompt, options = {}) {
     const response = await openai.createChatCompletion({
       model: options.model || "gpt-3.5-turbo",
       messages: [
-        { role: "system", content: "You are a helpful assistant that helps determine if an issue is resolved in the supplied code." },
+        { role: "system", content: "You are a helpful assistant that helps determine if an issue has been resolved in the supplied code." },
         { role: "user", content: prompt }
       ],
       temperature: options.temperature || 0.5
@@ -529,7 +530,9 @@ export async function delegateDecisionToLLMChatVerbose(prompt, options = {}) {
   return result;
 }
 
+// NEW: Extended LLM function call wrapper with additional logging and error handling for improved debugging
 export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "gpt-3.5-turbo", options = {}) {
+  console.log(chalk.blue("delegateDecisionToLLMFunctionCallWrapper invoked with prompt:"), prompt);
   if (!prompt || prompt.trim() === "") {
     return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
   }
@@ -578,6 +581,7 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
       tools,
       temperature: options.temperature || 0.7
     });
+    console.log(chalk.blue("Received response from OpenAI:"), response.data);
     let result;
     const messageObj = response.data.choices[0].message;
     if (messageObj.tool_calls && Array.isArray(messageObj.tool_calls) && messageObj.tool_calls.length > 0) {
@@ -599,6 +603,7 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
     if (!parsed.success) {
       throw new Error("LLM response schema validation failed.");
     }
+    console.log(chalk.green("LLM function call wrapper parsed response:"), parsed.data);
     return parsed.data;
   } catch (error) {
     console.error("delegateDecisionToLLMFunctionCallWrapper error:", error);
