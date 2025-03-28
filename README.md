@@ -19,9 +19,9 @@ Mixed licensing:
 **NEW:** Added and enhanced telemetry functions including gatherWorkflowTelemetry, gatherCIWorkflowMetrics, gatherSystemMetrics and parsing functions parseCombinedDefaultOutput, parseVitestDefaultOutput, parseEslintSarifOutput, and parseEslintDefaultOutput to process output formats.
 **FIX:** Corrected getIssueNumberFromBranch function (fixed regex pattern) and added parseCombinedDefaultOutput for parsing test outputs.
 **EXT:** Implemented simulateIssueCreation to simulate a GitHub Actions workflow for issue creation similar to wfr-create-issue.yml, and enhanced it to log a creation timestamp and additional details. Extended simulateIssueCreation to support houseChoiceOptions provided as a string delimited by "||", as well as an array. (Updated to robustly handle empty options and provide a fallback title.)
-**NEW:** Added OpenAI delegation wrappers: delegateDecisionToLLMChat, delegateDecisionToLLMChatVerbose, delegateDecisionToLLMChatOptimized, delegateDecisionToLLMChatAdvanced, delegateDecisionToLLMChatPremium, and **extended delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling** to align with the supplied OpenAI function example.
+**NEW:** Added OpenAI delegation wrappers: delegateDecisionToLLMChat, delegateDecisionToLLMChatVerbose, delegateDecisionToLLMChatOptimized for enhanced prompt validation, delegateDecisionToLLMChatAdvanced for advanced delegation with extra context support, and delegateDecisionToLLMChatPremium with additional logging and configurable base URL support. **Extended delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling.**
 **NEW:** Added remote service wrapper simulateRemoteServiceWrapper for simulating interactions with remote logging or monitoring services.
-**NEW:** Added additional parsing utilities: parseVitestFailureOutput to parse Vitest failure output and parseEslintCompactOutput to parse ESLint compact output.
+**NEW:** Added parsing functions parseVitestFailureOutput to extract number of failed tests from Vitest output and parseEslintCompactOutput to handle ESLint compact output formats.
 
 ---
 
@@ -42,27 +42,27 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
   - **NEW:** `delegateDecisionToLLMChatAdvanced` for advanced delegation with extra context support.
   - **NEW:** `delegateDecisionToLLMChatPremium` extends OpenAI function delegation with additional logging and configurable base URL support.
 - **Kafka Operations:** Simulated messaging functions for inter‑workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, multicast, rebroadcast, and consumer group messaging.
-- **Parsing Utilities:** Functions such as:
+- **Parsing Utilities:** Functions including:
   - `parseCombinedDefaultOutput`, **NEW:** `parseVitestDefaultOutput`, `parseEslintSarifOutput`, and **`parseEslintDefaultOutput`** to parse outputs from Vitest and ESLint in different formats.
   - **NEW:** `parseVitestFailureOutput` to extract the number of failed tests from Vitest output.
   - **NEW:** `parseEslintCompactOutput` to parse ESLint compact output formats.
-- **File System Simulation:** `simulateFileSystemCall()` enables safe file interactions for testing purposes.
+- **File System Simulation:** `simulateFileSystemCall()` for safe file interactions.
 - **CI Workflow Simulation:** `simulateCIWorkflowLifecycle` aggregates telemetry data and simulates Kafka messaging to emulate a complete workflow lifecycle.
-- **Issue Creation Simulation:** **NEW:** `simulateIssueCreation` mimics a GitHub Actions workflow for issue creation, now enhanced to include a timestamp and additional detail logging. This function has been extended to handle both string and array inputs for houseChoiceOptions, offering a more robust simulation of the issue creation process as defined in wfr-create-issue.yml.
+- **Issue Creation Simulation:** **NEW:** `simulateIssueCreation` mimics a GitHub Actions workflow for issue creation with randomized title selection, timestamp logging, and robust handling of houseChoiceOptions.
 
 ---
 
 ## Recent Improvements
 
-- README refreshed to align with the CONTRIBUTING guidelines. Outdated content has been pruned and core information retained.
+- README refreshed to align with CONTRIBUTING guidelines. Outdated content has been pruned and core information retained.
 - **Drift Pruning:** Legacy and deprecated code has been removed from the source file, ensuring strict alignment with the agentic‑lib mission statement.
 - Extended Kafka Messaging Simulations including multicast and rebroadcast features.
-- **NEW:** Extended the OpenAI delegation wrapper delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling to improve debugging and match the supplied OpenAI function example.
+- **NEW:** Extended the OpenAI delegation wrapper delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling.
 - Enhanced telemetry and simulation utilities, including **NEW:** `gatherSystemMetrics` function.
 - **FIX:** Corrected getIssueNumberFromBranch function (now using the correct regex) and added `parseCombinedDefaultOutput` for parsing test outputs.
 - **EXT:** Implemented and enhanced simulateIssueCreation to mimic GitHub issue creation workflow behavior, including randomized title selection, timestamp logging, and robust handling of houseChoiceOptions.
-- **NEW:** Added parsing functions `parseVitestDefaultOutput`, `parseEslintSarifOutput`, and `parseEslintDefaultOutput` to process Vitest and ESLint outputs in different formats.
-- **NEW:** Added parsing functions `parseVitestFailureOutput` and `parseEslintCompactOutput` to further support varied output formats.
+- **NEW:** Added parsing functions `parseVitestDefaultOutput`, `parseEslintSarifOutput`, and `parseEslintDefaultOutput` to process Vitest and ESLint outputs.
+- **NEW:** Added additional parsing functions `parseVitestFailureOutput` and `parseEslintCompactOutput` to support varied output formats.
 - **NEW:** Added remote service wrapper **simulateRemoteServiceWrapper** for simulating remote logging or monitoring service interactions.
 
 ---
@@ -97,7 +97,7 @@ This repository is organized into three distinct areas to help you understand th
 
 ### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
 - **Purpose:**  
-  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
+  This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
@@ -132,3 +132,5 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
+
+---
