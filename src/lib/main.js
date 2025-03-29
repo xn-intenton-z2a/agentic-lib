@@ -15,8 +15,8 @@
 // - EXT: Added gatherCIWorkflowMetrics to extend telemetry data collection from GitHub Actions workflows.
 // - NEW: Added gatherSystemMetrics to capture additional system telemetry such as load average and user info.
 // - NEW: Added simulateRemoteServiceWrapper to simulate remote service interactions useful in agentic workflows.
-// - NEW: Exported main function for CLI testing purposes.
-// - NEW: Enhanced delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling for improved debugging.
+// - NEW: Exported main function for CLI execution and improved CLI argument handling.
+// - Enhanced delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling for improved debugging.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -29,7 +29,7 @@ import { promises as fs } from "fs";
 
 // Helper function to escape regex special characters
 function escapeRegExp(string) {
-  return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+  return string.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
 }
 
 // Common helper for error handling in remote service wrappers
@@ -389,7 +389,7 @@ export async function callRepositoryService(serviceUrl) {
 // LLM and issue review functions
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
+  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
@@ -503,7 +503,7 @@ export async function delegateDecisionToLLMChat(prompt, options = {}) {
         {
           role: "system",
           content:
-            "You are a helpful assistant that helps determine if an issue has been resolved in the supplied code.",
+            "You are a helpful assistant that helps determine if an issue has been resolved in the supplied source code.",
         },
         { role: "user", content: prompt },
       ],
