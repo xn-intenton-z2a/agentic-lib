@@ -18,8 +18,8 @@ echo "repository0-plot-code-lib..."
 cd repository0-plot-code-lib
 ./scripts/accept-release.sh
 cd ..
-echo "tansu-sqs-bridge..."
-cd tansu-sqs-bridge
+echo "s3-sqs-bridge..."
+cd s3-sqs-bridge
 ./scripts/accept-release.sh
 cd ..
 cd agentic-lib

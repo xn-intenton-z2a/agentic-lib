@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # scripts/release-version-to-repository.sh
 # Usage: ./scripts/release-version-to-repository <tag-version> <repository>
-# Example: ./scripts/release-version-to-repository.sh 1.0.0 tansu-sqs-bridge
+# Example: ./scripts/release-version-to-repository.sh 1.0.0 s3-sqs-bridge
 #
 # This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT

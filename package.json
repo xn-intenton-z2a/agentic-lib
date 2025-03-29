@@ -23,6 +23,7 @@
   "author": "https://github.com/xn-intenton-z2a",
   "license": "GPL-3.0, MIT",
   "dependencies": {
+    "@aws-sdk/client-lambda": "^3.307.0",
     "chalk": "^5.4.1",
     "change-case": "^5.4.4",
     "dayjs": "^1.11.13",
@@ -36,6 +37,7 @@
   "devDependencies": {
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "@vitest/coverage-v8": "^3.0.9",
+    "aws-cdk": "^2.1005.0",
     "eslint": "^9.23.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^8.6.0",

@@ -1,0 +1,20 @@
+{
+  "app": "mvn exec:java -Dexec.mainClass=com.intentïon.AgenticLib.AgenticLibApp",
+  "context": {
+    "s3WriterArnPrinciple": "arn:aws:iam::541134664601:user/polycode-deploy",
+    "s3WriterRoleName": "agentic-lib-bucket-writer-role",
+    "s3BucketName": "agentic-lib-bucket",
+    "s3ObjectPrefix": "events/",
+    "s3UseExistingBucket": "false",
+    "s3RetainBucket": "false",
+    "sqsSourceQueueName": "agentic-lib-source-queue",
+    "sqsReplayQueueName": "agentic-lib-replay-queue",
+    "sqsDigestQueueName": "agentic-lib-digest-queue",
+    "sqsDigestQueueArn": "arn:aws:sqs:eu-west-2:541134664601:agentic-lib-digest-queue",
+    "sqsUseExistingDigestQueue": "false",
+    "sqsRetainDigestQueue": "false",
+    "lambdaEntry": "src/lib/main.",
+    "digestProcessorLambdaFunctionName": "agentic-lib-digest-processor-function",
+    "digestProcessorLambdaHandlerFunctionName": "digestProcessorLambdaHandler",
+  }
+}

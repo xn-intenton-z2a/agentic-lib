@@ -197,6 +197,392 @@ This repository is organized into three distinct areas to help you understand th
 
 Each of these components is documented separately to ensure you can quickly determine which parts are ready for use and which are intended as examples or experimental features.
 
+---
+
+## Project Structure
+
+The key components of the project are organized as follows:
+
+```text
+.
+├── Dockerfile
+├── package.json
+├── cdk.json
+├── pom.xml
+├── compose.yml
+├── src/lib/main.js
+├── aws/main/java/com/intention/AgenticLib/AgenticLibApp.java
+├── aws/main/java/com/intention/AgenticLib/AgenticLibStack.java
+├── aws/test/java/com/intentïon/AgenticLib/AgenticLibStackTest.java
+└── tests/unit/main.test.js
+```
+
+Additional files include GitHub workflows (for CI/CD and maintenance scripts) and various helper scripts under the `scripts/` directory.
+
+---
+
+## Getting Started with local development
+
+### Prerequisites
+
+- [Node.js v20+](https://nodejs.org/)
+- [AWS CLI](https://aws.amazon.com/cli/) (configured with sufficient permissions)
+- [Java JDK 11+](https://openjdk.java.net/)
+- [Apache Maven](https://maven.apache.org/)
+- [AWS CDK 2.x](https://docs.aws.amazon.com/cdk/v2/guide/home.html) (your account should be CDK bootstrapped)
+- [Docker](https://www.docker.com/get-started)
+- [Docker Compose](https://docs.docker.com/compose/)
+
+---
+
+## Local Development Environment
+
+### Clone the Repository
+
+```bash
+
+git clone https://github.com/xn-intenton-z2a/agentic-lib.git
+cd agentic-lib
+```
+
+### Install Node.js dependencies and test
+
+```bash
+
+npm install
+npm test
+```
+
+### Build and test the Java Application
+
+```bash
+./mvnw clean package
+```
+
+## Setup for AWS CDK
+
+You'll need to have run `cdk bootstrap` to set up the environment for the CDK. This is a one-time setup per AWS account and region.
+General administrative permissions are required to run this command. (NPM installed the CDK.)
+
+In this example for user `antony-local-user` and `agentic-lib-github-actions-role` we would add the following
+trust policy so that they can assume the role: `agentic-lib-deployment-role`:
+```json
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "Statement1",
+			"Effect": "Allow",
+			"Action": ["sts:AssumeRole", "sts:TagSession"],
+			"Resource": ["arn:aws:iam::541134664601:role/agentic-lib-deployment-role"]
+		}
+	]
+}
+```
+
+The `agentic-lib-github-actions-role` also needs the following trust entity to allow GitHub Actions to assume the role:
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Federated": "arn:aws:iam::541134664601:oidc-provider/token.actions.githubusercontent.com"
+            },
+            "Action": "sts:AssumeRoleWithWebIdentity",
+            "Condition": {
+                "StringEquals": {
+                    "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                },
+                "StringLike": {
+                    "token.actions.githubusercontent.com:sub": "repo:xn-intenton-z2a/agentic-lib:*"
+                }
+            }
+        }
+    ]
+}
+```
+
+Create the IAM role with the necessary permissions to assume role from your authenticated user:
+```bash
+
+cat <<'EOF' > agentic-lib-deployment-trust-policy.json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "arn:aws:iam::541134664601:user/antony-local-user",
+          "arn:aws:iam::541134664601:role/agentic-lib-github-actions-role"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+aws iam create-role \
+  --role-name agentic-lib-deployment-role \
+  --assume-role-policy-document file://agentic-lib-deployment-trust-policy.json
+```
+
+Add the necessary permissions to deploy `agentic-lib`:
+```bash
+
+cat <<'EOF' > agentic-lib-deployment-permissions-policy.json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:*",
+        "iam:*",
+        "s3:*",
+        "cloudtrail:*",
+        "logs:*",
+        "events:*",
+        "lambda:*",
+        "dynamodb:*",
+        "sqs:*",
+        "sts:AssumeRole"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+aws iam put-role-policy \
+  --role-name agentic-lib-deployment-role \
+  --policy-name agentic-lib-deployment-permissions-policy \
+  --policy-document file://agentic-lib-deployment-permissions-policy.json
+```
+
+Assume the deployment role:
+```bash
+
+ROLE_ARN="arn:aws:iam::541134664601:role/agentic-lib-deployment-role"
+SESSION_NAME="agentic-lib-deployment-session-local"
+ASSUME_ROLE_OUTPUT=$(aws sts assume-role --role-arn "$ROLE_ARN" --role-session-name "$SESSION_NAME" --output json)
+if [ $? -ne 0 ]; then
+  echo "Error: Failed to assume role."
+  exit 1
+fi
+export AWS_ACCESS_KEY_ID=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.AccessKeyId')
+export AWS_SECRET_ACCESS_KEY=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.SecretAccessKey')
+export AWS_SESSION_TOKEN=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.SessionToken')
+EXPIRATION=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.Expiration')
+echo "Assumed role successfully. Credentials valid until: $EXPIRATION"
+```
+Output:
+```log
+Assumed role successfully. Credentials valid until: 2025-03-25T02:27:18+00:00
+```
+
+Check the session:
+```bash
+
+aws sts get-caller-identity
+```
+
+Output:
+```json
+{
+  "UserId": "AROAX37RDWOM7ZHORNHKD:3-sqs-bridge-deployment-session",
+  "Account": "541134664601",
+  "Arn": "arn:aws:sts::541134664601:assumed-role/agentic-lib-deployment-role/3-sqs-bridge-deployment-session"
+}
+```
+
+Check the permissions of the role:
+```bash
+
+aws iam list-role-policies \
+  --role-name agentic-lib-deployment-role
+```
+Output (the policy we created above):
+```json
+{
+  "PolicyNames": [
+    "agentic-lib-deployment-permissions-policy"
+  ]
+}
+```
+
+An example of the GitHub Actions role being assumed in a GitHub Actions Workflow:
+```yaml
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::541134664601:role/agentic-lib-deployment-role
+          aws-region: eu-west-2
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - run: npm install -g aws-cdk
+      - run: aws s3 ls --region eu-west-2
+```
+
+## Deployment to AWS
+
+See also:
+* local running using [Localstack](LOCALSTACK.md).
+* Debugging notes for the AWS deployment here [DEBUGGING](DEBUGGING.md).
+
+Package the CDK, deploy the CDK stack which rebuilds the Docker image, and deploy the AWS infrastructure:
+```bash
+
+./mvnw clean package
+```
+
+Maven build output:
+```log
+...truncated...
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ agentic-lib ---
+[INFO] Building jar: /Users/antony/projects/agentic-lib/target/agentic-lib-0.0.1.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  13.743 s
+[INFO] Finished at: 2025-03-18T22:19:37Z
+[INFO] ------------------------------------------------------------------------
+Unexpected error in background thread "software.amazon.jsii.JsiiRuntime.ErrorStreamSink": java.lang.NullPointerException: Cannot read field "stderr" because "consoleOutput" is null
+```
+(Yes... the last line, the error "is a bug in the CDK, but it doesn't affect the deployment", according to Copilot.)
+
+Destroy a previous stack and delete related log groups:
+```bash
+
+npx cdk destroy
+```
+(The commands go in separately because the CDK can be interactive.)
+```bash
+
+aws logs delete-log-group \
+  --log-group-name "/aws/lambda/agentic-lib-digest-function"
+```
+
+Deploys the AWS infrastructure including an App Runner service, an SQS queue, Lambda functions, and a PostgreSQL table.
+```bash
+
+npx cdk deploy
+```
+
+Example output:
+```log
+...truncated...
+AgenticLibStack: success: Published f23b4641b15bfe521c575e572ebe41ca2c4613e3e1ea8a9c8ef816c73832cddf:current_account-current_region
+AgenticLibStack: deploying... [1/1]
+AgenticLibStack: creating CloudFormation changeset...
+
+ ✅  AgenticLibStack
+
+✨  Deployment time: 105.48s
+
+Outputs:
+AgenticLibStack.BucketArn = arn:aws:s3:::agentic-lib-bucket
+AgenticLibStack.OffsetsTableArn = arn:aws:dynamodb:eu-west-2:541134664601:table/offsets
+AgenticLibStack.OneOffJobLambdaArn = arn:aws:lambda:eu-west-2:541134664601:function:replayBatchLambdaHandler
+AgenticLibStack.ReplayQueueUrl = https://sqs.eu-west-2.amazonaws.com/541134664601/agentic-lib-replay-queue
+...truncated...
+AgenticLibStack.s3BucketName = agentic-lib-bucket (Source: CDK context.)
+AgenticLibStack.s3ObjectPrefix = events/ (Source: CDK context.)
+AgenticLibStack.s3RetainBucket = false (Source: CDK context.)
+AgenticLibStack.s3UseExistingBucket = false (Source: CDK context.)
+Stack ARN:
+arn:aws:cloudformation:eu-west-2:541134664601:stack/AgenticLibStack/30cf37a0-0504-11f0-b142-06193d47b789
+
+✨  Total time: 118.12s
+
+```
+
+Write to S3 (2 keys, 2 times each, interleaved):
+```bash
+
+aws s3 ls agentic-lib-bucket/events/
+for value in $(seq 1 2); do
+  for id in $(seq 1 2); do
+    echo "{\"id\": \"${id?}\", \"value\": \"$(printf "%010d" "${value?}")\"}" > "${id?}.json"
+    aws s3 cp "${id?}.json" s3://agentic-lib-bucket/events/"${id?}.json"
+  done
+done
+aws s3 ls agentic-lib-bucket/events/
+```
+
+Output:
+```
+upload: ./1.json to s3://agentic-lib-bucket/events/1.json    
+upload: ./1.json to s3://agentic-lib-bucket/events/1.json   
+...
+upload: ./2.json to s3://agentic-lib-bucket/events/2.json   
+2025-03-19 23:47:07         31 1.json
+2025-03-19 23:52:12         31 2.json
+```
+
+List the versions of all s3 objects:
+```bash
+
+aws s3api list-object-versions \
+  --bucket agentic-lib-bucket \
+  --prefix events/ \
+  | jq -r '.Versions[] | "\(.LastModified) \(.Key) \(.VersionId) \(.IsLatest)"' \
+  | head -5 \
+  | tail -r
+```
+
+Output (note grouping by key, requiring a merge by LastModified to get the Put Event order):
+```log
+2025-03-23T02:37:10+00:00 events/2.json NGxS.PCWdSlxMPVIRreb_ra_WsTjc4L5 false
+2025-03-23T02:37:12+00:00 events/2.json 7SDSiqco1dgFGKZmRk8bjSoyi5eD5ZLW true
+2025-03-23T02:37:09+00:00 events/1.json cxY1weJ62JNq4DvqrgfvIWKJEYDQinly false
+2025-03-23T02:37:11+00:00 events/1.json wHEhP8RdXTD8JUsrrUlMfSANzm7ahDlv true
+```
+
+Check the projections table:
+```bash
+
+aws dynamodb scan \
+  --table-name agentic-lib-projections-table \
+  --output json \
+  | jq --compact-output '.Items[] | with_entries(if (.value | has("S")) then .value = .value.S else . end)' \
+  | tail --lines=5
+```
+
+Output:
+```json lines
+{"id":"events/1.json","value":"{\"id\": \"1\", \"value\": \"0000000002\"}\n"}
+{"id":"events/2.json","value":"{\"id\": \"2\", \"value\": \"0000000002\"}\n"}
+```
+
+Count the attributes on the digest queue:
+```bash
+
+aws sqs get-queue-attributes \
+  --queue-url https://sqs.eu-west-2.amazonaws.com/541134664601/agentic-lib-digest-queue \
+  --attribute-names ApproximateNumberOfMessages
+```
+
+Output:
+```json
+{
+  "Attributes": {
+    "ApproximateNumberOfMessages": "4"
+  }
+}
+```
+
+---
+
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
@@ -234,15 +620,15 @@ Re-usable GitHub Actions Workflows:
 - [ ] Pre-request with file and a some context in a completions request for which files should be sent.
 
 Supervisor:
-- [ ] Deploy a s3-sqs-bridge Stack from the agentic-lib project.
-- [ ] Reintegrate the s3-sqs-bridge workflows with agentic-lib.
+- [~] Deploy a s3-sqs-bridge Stack from the agentic-lib project.
+- [~] Reintegrate the s3-sqs-bridge workflows with agentic-lib.
 - [ ] Reinstate the agentic workflows in s3-sqs-bridge with maintenance focused tasks.
 - [ ] Publish GitHub telemetry data to S3.
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix).
 - [ ] Reduce schedule and workflow completed triggers (instead leaving the supervisor to invoke workflows).
 - [ ] Dashboard metrics from kafka (e.g. GitHub Insights? commits by agents).
 - [ ] Publish a demo to GitHub sites that animates issue workflow, git logs applying changes to files and raising PRs with live links to the repository and a draggable timeline.
-- [ ] Create a leaderboard project with a public test endpoint to see who can get the most throughput via tansu-sqs-bridge or an HTTP rest endpoint.
+- [ ] Create a leaderboard project with a public test endpoint to see who can get the most throughput via s3-sqs-bridge or an HTTP rest endpoint.
 - [ ] Shutdown fargate when not in use by periodically checking the consumer group offset, whether it's behind and the last time it was behind.
 - [ ] Start fargate when the s3 bucket is written to.
 

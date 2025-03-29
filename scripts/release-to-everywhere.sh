@@ -16,7 +16,7 @@ fi
 ./scripts/deactivate-schedule.sh 1
 ./scripts/deactivate-schedule.sh 2
 ./scripts/deactivate-schedule.sh 3
-./scripts/release-to-tansu-sqs-bridge.sh "${1?}"
+./scripts/release-to-s3-sqs-bridge.sh "${1?}"
 ./scripts/release-to-repository0.sh "${1?}"
 ./scripts/release-to-repository0-crucible.sh "${1?}"
 ./scripts/release-to-repository0-plot-code-lib.sh "${1?}"
