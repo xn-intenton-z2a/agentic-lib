@@ -461,7 +461,7 @@ describe("CLI main function", () => {
   test("prints usage and demo if --help flag provided", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     agenticLib.main(["--help", "extraArg"]);
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("Usage:"));
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: agentic-lib [options]"));
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("Non-flag arguments:"));
     logSpy.mockRestore();
   });
