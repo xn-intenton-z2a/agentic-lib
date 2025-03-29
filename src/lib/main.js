@@ -389,7 +389,6 @@ export async function callRepositoryService(serviceUrl) {
 // LLM and issue review functions
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  // Fixed by escaping backslashes in the regex pattern
   const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
@@ -768,10 +767,7 @@ export function simulateIssueCreation(params) {
     if (Array.isArray(params.houseChoiceOptions)) {
       options = params.houseChoiceOptions;
     } else if (typeof params.houseChoiceOptions === "string") {
-      options = params.houseChoiceOptions
-        .split("||")
-        .map((option) => option.trim())
-        .filter((option) => option);
+      options = params.houseChoiceOptions.split("||").map(option => option.trim()).filter(option => option);
     }
     if (options.length === 0) {
       selectedTitle = "Default Issue Title";
@@ -781,15 +777,12 @@ export function simulateIssueCreation(params) {
   }
   const issueNumber = randomInt(100, 1000);
   const timestamp = new Date().toISOString();
-  console.log(
-    chalk.green(
-      `Simulated issue creation at ${timestamp}: { issueTitle: ${selectedTitle}, issueBody: ${params.issueBody}, issueNumber: ${issueNumber} }`,
-    ),
-  );
-  return { issueTitle: selectedTitle, issueBody: params.issueBody, issueNumber };
+  const labels = params.issueLabels || ["automated"];
+  console.log(chalk.green(`Simulated issue creation at ${timestamp}: { issueTitle: ${selectedTitle}, issueBody: ${params.issueBody}, issueNumber: ${issueNumber}, labels: ${JSON.stringify(labels)} }`));
+  return { issueTitle: selectedTitle, issueBody: params.issueBody, issueNumber, labels };
 }
 
-// NEW: Added main() function for CLI execution
+// NEW: Exported main() function for CLI execution
 function main(args) {
   const { flagArgs, nonFlagArgs } = splitArguments(args);
   if (flagArgs.includes("--help")) {

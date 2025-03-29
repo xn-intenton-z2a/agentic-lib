@@ -410,7 +410,7 @@ describe("simulateIssueCreation", () => {
     const params = {
       issueTitle: "house choice",
       issueBody: "Please resolve the issue.",
-      houseChoiceOptions: ["Option A", "Option B", "Option C"],
+      houseChoiceOptions: ["Option A", "Option B", "Option C"]
     };
     const result = agenticLib.simulateIssueCreation(params);
     expect(params.houseChoiceOptions).toContain(result.issueTitle);
@@ -423,7 +423,7 @@ describe("simulateIssueCreation", () => {
     const params = {
       issueTitle: "Explicit Title",
       issueBody: "Detailed issue body.",
-      houseChoiceOptions: "Option A || Option B",
+      houseChoiceOptions: "Option A || Option B"
     };
     const result = agenticLib.simulateIssueCreation(params);
     expect(result.issueTitle).toBe("Explicit Title");
@@ -434,12 +434,34 @@ describe("simulateIssueCreation", () => {
     const params = {
       issueTitle: "house choice",
       issueBody: "Issue body for string test.",
-      houseChoiceOptions: "Option X || Option Y || Option Z",
+      houseChoiceOptions: "Option X || Option Y || Option Z"
     };
     const result = agenticLib.simulateIssueCreation(params);
     const choices = ["Option X", "Option Y", "Option Z"];
     expect(choices).toContain(result.issueTitle);
     expect(result.issueBody).toBe(params.issueBody);
+  });
+
+  test("should include default labels when issueLabels not provided", () => {
+    const params = {
+      issueTitle: "house choice",
+      issueBody: "Test issue body",
+      houseChoiceOptions: ["Option A", "Option B"]
+    };
+    const result = agenticLib.simulateIssueCreation(params);
+    expect(result).toHaveProperty("labels");
+    expect(result.labels).toContain("automated");
+  });
+
+  test("should use provided issueLabels when given", () => {
+    const params = {
+      issueTitle: "house choice",
+      issueBody: "Test issue body",
+      houseChoiceOptions: ["Option A", "Option B"],
+      issueLabels: ["custom-label"]
+    };
+    const result = agenticLib.simulateIssueCreation(params);
+    expect(result.labels).toEqual(["custom-label"]);
   });
 });
 
@@ -468,7 +490,7 @@ describe("CLI main function", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     agenticLib.main([]);
     expect(logSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Enhanced Demo: Agentic‑lib now supports additional argument processing."),
+      expect.stringContaining("Enhanced Demo: Agentic‑lib now supports additional argument processing.")
     );
     logSpy.mockRestore();
   });
