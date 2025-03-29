@@ -15,7 +15,6 @@
 // - EXT: Added gatherCIWorkflowMetrics to extend telemetry data collection from GitHub Actions workflows.
 // - NEW: Added gatherSystemMetrics to capture additional system telemetry such as load average and user info.
 // - NEW: Added simulateRemoteServiceWrapper to simulate remote service interactions useful in agentic workflows.
-// - NEW: Extended simulateIssueCreation to include an optional issueLabels parameter to mimic GitHub Actions issue creation behavior.
 // - NEW: Exported main function for CLI testing purposes.
 // - NEW: Enhanced delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling for improved debugging.
 
@@ -390,8 +389,7 @@ export async function callRepositoryService(serviceUrl) {
 // LLM and issue review functions
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
-  // Fixed by escaping backslashes in the regex pattern
-  const regex = new RegExp(safePrefix + "(\d{1,10})(?!\d)");
+  const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
 }
