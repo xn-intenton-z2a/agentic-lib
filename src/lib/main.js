@@ -87,7 +87,7 @@ export function gatherTelemetryData() {
     githubRunNumber: process.env.GITHUB_RUN_NUMBER || "N/A",
     githubJob: process.env.GITHUB_JOB || "N/A",
     githubAction: process.env.GITHUB_ACTION || "N/A",
-    nodeEnv: process.env.NODE_ENV || "undefined"
+    nodeEnv: process.env.NODE_ENV || "undefined",
   };
 }
 
@@ -97,7 +97,7 @@ export function gatherExtendedTelemetryData() {
     githubActor: process.env.GITHUB_ACTOR || "N/A",
     githubRepository: process.env.GITHUB_REPOSITORY || "N/A",
     githubEventName: process.env.GITHUB_EVENT_NAME || "N/A",
-    ci: process.env.CI || "N/A"
+    ci: process.env.CI || "N/A",
   };
 }
 
@@ -107,7 +107,7 @@ export function gatherFullTelemetryData() {
     githubRef: process.env.GITHUB_REF || "N/A",
     githubSha: process.env.GITHUB_SHA || "N/A",
     githubHeadRef: process.env.GITHUB_HEAD_REF || "N/A",
-    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A"
+    githubBaseRef: process.env.GITHUB_BASE_REF || "N/A",
   };
 }
 
@@ -117,7 +117,7 @@ export function gatherAdvancedTelemetryData() {
     processPID: process.pid,
     currentWorkingDirectory: process.cwd(),
     platform: process.platform,
-    memoryUsage: process.memoryUsage()
+    memoryUsage: process.memoryUsage(),
   };
 }
 
@@ -125,7 +125,7 @@ export function gatherCIEnvironmentMetrics() {
   return {
     githubWorkspace: process.env.GITHUB_WORKSPACE || "N/A",
     githubEventPath: process.env.GITHUB_EVENT_PATH || "N/A",
-    githubPath: process.env.GITHUB_PATH || "N/A"
+    githubPath: process.env.GITHUB_PATH || "N/A",
   };
 }
 
@@ -134,7 +134,7 @@ export function gatherExtraTelemetryData() {
     npmPackageVersion: process.env.npm_package_version || "unknown",
     currentTimestamp: new Date().toISOString(),
     cpuUsage: process.cpuUsage(),
-    freeMemory: os.freemem()
+    freeMemory: os.freemem(),
   };
 }
 
@@ -157,7 +157,7 @@ export function gatherTotalTelemetry() {
     ...gatherAdvancedTelemetryData(),
     ...gatherCIEnvironmentMetrics(),
     ...gatherExtraTelemetryData(),
-    githubEnv: gatherGithubEnvTelemetry()
+    githubEnv: gatherGithubEnvTelemetry(),
   };
 }
 
@@ -165,8 +165,8 @@ export function gatherWorkflowTelemetry() {
   return {
     ...gatherTotalTelemetry(),
     buildTimestamp: new Date().toISOString(),
-    runnerOs: process.env.RUNNER_OS || 'unknown',
-    repository: process.env.GITHUB_REPOSITORY || 'N/A'
+    runnerOs: process.env.RUNNER_OS || "unknown",
+    repository: process.env.GITHUB_REPOSITORY || "N/A",
   };
 }
 
@@ -178,7 +178,7 @@ export function gatherCIWorkflowMetrics() {
     buildTime: new Date().toISOString(),
     workflow: process.env.GITHUB_WORKFLOW || "N/A",
     repository: process.env.GITHUB_REPOSITORY || "N/A",
-    actor: process.env.GITHUB_ACTOR || "N/A"
+    actor: process.env.GITHUB_ACTOR || "N/A",
   };
   console.log(chalk.green("CI Workflow Metrics:"), metrics);
   return metrics;
@@ -188,7 +188,7 @@ export function gatherSystemMetrics() {
   return {
     loadAverage: os.loadavg(),
     systemUptime: os.uptime(),
-    userInfo: os.userInfo()
+    userInfo: os.userInfo(),
   };
 }
 
@@ -302,7 +302,7 @@ export function simulateKafkaDirectMessage(topic, message) {
 }
 
 export async function simulateKafkaDelayedMessage(topic, message, delayMs) {
-  await new Promise(resolve => setTimeout(resolve, delayMs));
+  await new Promise((resolve) => setTimeout(resolve, delayMs));
   return { delayed: true, topic, message };
 }
 
@@ -459,10 +459,13 @@ export async function delegateDecisionToLLMChatOptimized(prompt, options = {}) {
     const response = await openai.createChatCompletion({
       model: options.model || "gpt-3.5-turbo",
       messages: [
-        { role: "system", content: "You are a helpful assistant that helps determine if an issue is resolved in the supplied code." },
-        { role: "user", content: prompt }
+        {
+          role: "system",
+          content: "You are a helpful assistant that helps determine if an issue is resolved in the supplied code.",
+        },
+        { role: "user", content: prompt },
       ],
-      temperature: options.temperature || 0.5
+      temperature: options.temperature || 0.5,
     });
     let result;
     if (response.data.choices && response.data.choices.length > 0) {
@@ -498,10 +501,14 @@ export async function delegateDecisionToLLMChat(prompt, options = {}) {
     const response = await openai.createChatCompletion({
       model: options.model || "gpt-3.5-turbo",
       messages: [
-        { role: "system", content: "You are a helpful assistant that helps determine if an issue has been resolved in the supplied code." },
-        { role: "user", content: prompt }
+        {
+          role: "system",
+          content:
+            "You are a helpful assistant that helps determine if an issue has been resolved in the supplied code.",
+        },
+        { role: "user", content: prompt },
       ],
-      temperature: options.temperature || 0.5
+      temperature: options.temperature || 0.5,
     });
     let result;
     if (response.data.choices && response.data.choices.length > 0) {
@@ -546,36 +553,41 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
     const ResponseSchema = z.object({
       fixed: z.string(),
       message: z.string(),
-      refinement: z.string()
+      refinement: z.string(),
     });
     const tools = [
       {
         type: "function",
         function: {
           name: "review_issue",
-          description: "Evaluate whether the supplied source file content resolves the issue. Return an object with fixed (string: 'true' or 'false'), message (explanation), and refinement (suggested refinement).",
+          description:
+            "Evaluate whether the supplied source file content resolves the issue. Return an object with fixed (string: 'true' or 'false'), message (explanation), and refinement (suggested refinement).",
           parameters: {
             type: "object",
             properties: {
               fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
               message: { type: "string", description: "A message explaining the result" },
-              refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
+              refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" },
             },
             required: ["fixed", "message", "refinement"],
-            additionalProperties: false
+            additionalProperties: false,
           },
-          strict: true
-        }
-      }
+          strict: true,
+        },
+      },
     ];
     const response = await openai.createChatCompletion({
       model,
       messages: [
-        { role: "system", content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema." },
-        { role: "user", content: prompt }
+        {
+          role: "system",
+          content:
+            "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema.",
+        },
+        { role: "user", content: prompt },
       ],
       tools,
-      temperature: options.temperature || 0.7
+      temperature: options.temperature || 0.7,
     });
     console.log(chalk.blue("Received response from OpenAI:"), response.data);
     let result;
@@ -633,16 +645,20 @@ export async function delegateDecisionToLLMChatPremium(prompt, options = {}) {
     const Api = openaiModule.OpenAIApi;
     const configuration = new Config({
       apiKey: process.env.OPENAI_API_KEY,
-      basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1"
+      basePath: process.env.OPENAI_API_BASE || "https://api.openai.com/v1",
     });
     const openai = new Api(configuration);
     const response = await openai.createChatCompletion({
       model: options.model || "gpt-3.5-turbo",
       messages: [
-        { role: "system", content: "You are an advanced assistant evaluating if an issue is resolved in the source code. Respond strictly with a JSON following the function schema." },
-        { role: "user", content: prompt }
+        {
+          role: "system",
+          content:
+            "You are an advanced assistant evaluating if an issue is resolved in the source code. Respond strictly with a JSON following the function schema.",
+        },
+        { role: "user", content: prompt },
       ],
-      temperature: options.temperature || 0.5
+      temperature: options.temperature || 0.5,
     });
     let result;
     if (response.data.choices && response.data.choices.length > 0) {
@@ -650,7 +666,11 @@ export async function delegateDecisionToLLMChatPremium(prompt, options = {}) {
       try {
         result = JSON.parse(message.content);
       } catch (e) {
-        result = { fixed: "false", message: "Failed to parse response content in premium version.", refinement: e.message };
+        result = {
+          fixed: "false",
+          message: "Failed to parse response content in premium version.",
+          refinement: e.message,
+        };
       }
     } else {
       result = { fixed: "false", message: "No response from OpenAI in premium variant.", refinement: "Retry" };
@@ -687,18 +707,21 @@ export function parseVitestDefaultOutput(vitestStr) {
 // NEW: Parse ESLint SARIF output
 export function parseEslintSarifOutput(sarifContent) {
   try {
-    const sarifJson = typeof sarifContent === 'string' ? JSON.parse(sarifContent) : sarifContent;
-    let numProblems = 0, numErrors = 0, numWarnings = 0;
+    const sarifJson = typeof sarifContent === "string" ? JSON.parse(sarifContent) : sarifContent;
+    let numProblems = 0,
+      numErrors = 0,
+      numWarnings = 0;
     if (sarifJson.runs && sarifJson.runs.length > 0) {
-      sarifJson.runs.forEach(run => {
-        run.results && run.results.forEach(result => {
-          if (result.level === "error") {
-            numErrors++;
-          } else if (result.level === "warning") {
-            numWarnings++;
-          }
-          numProblems++;
-        });
+      sarifJson.runs.forEach((run) => {
+        run.results &&
+          run.results.forEach((result) => {
+            if (result.level === "error") {
+              numErrors++;
+            } else if (result.level === "warning") {
+              numWarnings++;
+            }
+            numProblems++;
+          });
       });
     }
     return { numProblems, numErrors, numWarnings };
@@ -728,7 +751,11 @@ export function parseVitestFailureOutput(vitestStr) {
 export function parseEslintCompactOutput(eslintStr) {
   const match = eslintStr.match(/Found\s+(\d+)\s+problems\s+\((\d+)\s+errors?,\s+(\d+)\s+warnings\)/);
   if (match) {
-    return { numProblems: parseInt(match[1], 10), numErrors: parseInt(match[2], 10), numWarnings: parseInt(match[3], 10) };
+    return {
+      numProblems: parseInt(match[1], 10),
+      numErrors: parseInt(match[2], 10),
+      numWarnings: parseInt(match[3], 10),
+    };
   }
   return { numProblems: 0, numErrors: 0, numWarnings: 0 };
 }
@@ -741,7 +768,10 @@ export function simulateIssueCreation(params) {
     if (Array.isArray(params.houseChoiceOptions)) {
       options = params.houseChoiceOptions;
     } else if (typeof params.houseChoiceOptions === "string") {
-      options = params.houseChoiceOptions.split("||").map(option => option.trim()).filter(option => option);
+      options = params.houseChoiceOptions
+        .split("||")
+        .map((option) => option.trim())
+        .filter((option) => option);
     }
     if (options.length === 0) {
       selectedTitle = "Default Issue Title";
@@ -751,7 +781,11 @@ export function simulateIssueCreation(params) {
   }
   const issueNumber = randomInt(100, 1000);
   const timestamp = new Date().toISOString();
-  console.log(chalk.green(`Simulated issue creation at ${timestamp}: { issueTitle: ${selectedTitle}, issueBody: ${params.issueBody}, issueNumber: ${issueNumber} }`));
+  console.log(
+    chalk.green(
+      `Simulated issue creation at ${timestamp}: { issueTitle: ${selectedTitle}, issueBody: ${params.issueBody}, issueNumber: ${issueNumber} }`,
+    ),
+  );
   return { issueTitle: selectedTitle, issueBody: params.issueBody, issueNumber };
 }
 
@@ -776,6 +810,6 @@ export { main };
 // NEW: Added simulateRemoteServiceWrapper for simulating remote service interactions
 export async function simulateRemoteServiceWrapper(serviceUrl, payload) {
   // Simulating a delay to represent network call
-  await new Promise(resolve => setTimeout(resolve, 50));
+  await new Promise((resolve) => setTimeout(resolve, 50));
   return { status: "success", serviceUrl, receivedPayload: payload };
 }
