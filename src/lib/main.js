@@ -3,8 +3,9 @@
 // Change Log:
 // - Pruned drift and removed deprecated duplicate function definitions.
 // - Consolidated duplicate exports.
-// - Added a main() function to enable CLI execution.
-// - Fixed regex in getIssueNumberFromBranch to correctly extract issue numbers.
+// - Added a main() function to enable CLI execution and exported it for testing purposes.
+// - Fixed regex in getIssueNumberFromBranch to correctly extract issue numbers (escaped backslashes).
+// - Updated printUsageAndDemo to output non-flag arguments as a single string to match test expectations.
 // - Added parseCombinedDefaultOutput to parse both Vitest and ESLint default outputs.
 // - NEW: Added parseVitestDefaultOutput to parse Vitest default output.
 // - NEW: Added parseEslintSarifOutput to parse ESLint SARIF output format.
@@ -13,11 +14,9 @@
 // - NEW: Added parseEslintCompactOutput to parse ESLint compact output (new).
 // - EXT: Added gatherCIWorkflowMetrics to extend telemetry data collection from GitHub Actions workflows.
 // - NEW: Added gatherSystemMetrics to capture additional system telemetry such as load average and user info.
-// - NEW: Added simulateRemoteServiceWrapper to simulate interactions with remote services useful in agentic workflows (e.g., logging, monitoring).
-// - NEW: Added simulateKafkaConsumer to simulate Kafka consumer behavior for consumer group messaging.
-// - NEW: Added simulateKafkaRebroadcast to simulate rebroadcasting messages to multiple topics repeatedly.
-// - MOD: Extended delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling for improved debugging and alignment with the provided OpenAI function example.
-// - EXT: Extended simulateIssueCreation to better simulate GitHub issue creation workflow behavior as seen in wfr-create-issue.yml by robustly handling both string and array inputs for houseChoiceOptions.
+// - NEW: Added simulateRemoteServiceWrapper to simulate remote service interactions useful in agentic workflows.
+// - NEW: Exported main function for CLI testing purposes.
+// - NEW: Enhanced delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling for improved debugging.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -68,7 +67,7 @@ function printConfiguration() {
 function printUsageAndDemo(flagArgs, nonFlagArgs) {
   console.log(generateUsage());
   if (nonFlagArgs.length > 0) {
-    console.log("Non-flag arguments:", nonFlagArgs.join(", "));
+    console.log("Non-flag arguments: " + nonFlagArgs.join(", "));
   }
 }
 
@@ -330,7 +329,6 @@ export function simulateKafkaMessagePersistence(topic, message) {
   return { topic, persistedMessages: persistenceStore[topic] };
 }
 
-// NEW: Simulate multicast messaging.
 export function simulateKafkaMulticast(topics, message, multicastOptions = {}) {
   const results = {};
   const delay = multicastOptions.delay || 0;
@@ -345,12 +343,10 @@ export function simulateKafkaMulticast(topics, message, multicastOptions = {}) {
   return results;
 }
 
-// NEW: Simulate Kafka Consumer to be used in consumer groups.
 export function simulateKafkaConsumer(topic, count = 3) {
   return simulateKafkaStream(topic, count);
 }
 
-// NEW: Simulate Kafka Rebroadcast: repeatedly send a message and collect responses per topic.
 export function simulateKafkaRebroadcast(topics, message, repeat = 1) {
   const result = {};
   topics.forEach((topic) => {
@@ -393,6 +389,7 @@ export async function callRepositoryService(serviceUrl) {
 // LLM and issue review functions
 export function getIssueNumberFromBranch(branch = "", prefix = "agentic-lib-issue-") {
   const safePrefix = escapeRegExp(prefix);
+  // Fixed by escaping backslashes in the regex pattern
   const regex = new RegExp(safePrefix + "(\\d{1,10})(?!\\d)");
   const match = branch.match(regex);
   return match ? parseInt(match[1], 10) : null;
@@ -445,7 +442,6 @@ export function showVersion() {
   return `Version: ${version}`;
 }
 
-// NEW: Optimized LLM Chat Delegation
 export async function delegateDecisionToLLMChatOptimized(prompt, options = {}) {
   if (!prompt || prompt.trim() === "") {
     return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
@@ -531,7 +527,6 @@ export async function delegateDecisionToLLMChatVerbose(prompt, options = {}) {
   return result;
 }
 
-// NEW: Extended LLM function call wrapper with additional logging and error handling for improved debugging
 export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "gpt-3.5-turbo", options = {}) {
   console.log(chalk.blue("delegateDecisionToLLMFunctionCallWrapper invoked with prompt:"), prompt);
   if (!prompt || prompt.trim() === "") {
@@ -671,7 +666,7 @@ export function reviewIssue(params) {
   return { fixed: "true", message: "The issue has been resolved.", refinement: "None" };
 }
 
-// NEW: Added parseCombinedDefaultOutput to parse vitest and eslint default outputs
+// NEW: Added parseCombinedDefaultOutput to parse vitest and eslint outputs
 export function parseCombinedDefaultOutput(vitestStr, eslintStr) {
   const vitestMatch = vitestStr.match(/(\d+)/);
   const testsPassed = vitestMatch ? parseInt(vitestMatch[1], 10) : 0;
@@ -775,16 +770,12 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main(args);
 }
 
-// NEW: Simulate Remote Service Wrapper
+// Export main for testing purposes
+export { main };
+
+// NEW: Added simulateRemoteServiceWrapper for simulating remote service interactions
 export async function simulateRemoteServiceWrapper(serviceUrl, payload) {
-  console.log(chalk.blue(`Simulating remote service call to ${serviceUrl} with payload:`), payload);
-  try {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    const simulatedResponse = { status: "success", serviceUrl, receivedPayload: payload };
-    console.log(chalk.green("Remote Service Response:"), simulatedResponse);
-    return simulatedResponse;
-  } catch (error) {
-    console.error(chalk.red("Remote Service Error:"), error);
-    return { status: "error", error: error.message };
-  }
+  // Simulating a delay to represent network call
+  await new Promise(resolve => setTimeout(resolve, 50));
+  return { status: "success", serviceUrl, receivedPayload: payload };
 }
