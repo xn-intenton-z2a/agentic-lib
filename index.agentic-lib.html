@@ -40,7 +40,8 @@
 <strong class="md-github">EXT:</strong> Implemented simulateIssueCreation to simulate a GitHub Actions workflow for issue creation similar to wfr-create-issue.yml, and enhanced it to log a creation timestamp and additional details. Extended simulateIssueCreation to support houseChoiceOptions provided as a string delimited by &quot;||&quot;, as well as an array. (Updated to robustly handle empty options and provide a fallback title.)
 <strong class="md-github">NEW:</strong> Added OpenAI delegation wrappers: delegateDecisionToLLMChat, delegateDecisionToLLMChatVerbose, delegateDecisionToLLMChatOptimized for enhanced prompt validation, delegateDecisionToLLMChatAdvanced for advanced delegation with extra context support, and delegateDecisionToLLMChatPremium with additional logging and configurable base URL support. <strong class="md-github">Extended delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling.</strong>
 <strong class="md-github">NEW:</strong> Added remote service wrapper simulateRemoteServiceWrapper for simulating interactions with remote logging or monitoring services.
-<strong class="md-github">NEW:</strong> Added parsing functions parseVitestFailureOutput to extract number of failed tests from Vitest output and parseEslintCompactOutput to handle ESLint compact output formats.</p>
+<strong class="md-github">NEW:</strong> Added parsing functions parseVitestFailureOutput to extract the number of failed tests from Vitest output and parseEslintCompactOutput to handle ESLint compact output formats.
+<strong class="md-github">NEW:</strong> Exported the main() function for CLI testing and added tests for CLI help output.</p>
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
 <p class="md-github">agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Actions workflows. Key features include:</p>
@@ -88,6 +89,7 @@
 <li class="md-github"><strong class="md-github">NEW:</strong> Added parsing functions <code class="md-github">parseVitestDefaultOutput</code>, <code class="md-github">parseEslintSarifOutput</code>, and <code class="md-github">parseEslintDefaultOutput</code> to process Vitest and ESLint outputs.</li>
 <li class="md-github"><strong class="md-github">NEW:</strong> Added additional parsing functions <code class="md-github">parseVitestFailureOutput</code> and <code class="md-github">parseEslintCompactOutput</code> to support varied output formats.</li>
 <li class="md-github"><strong class="md-github">NEW:</strong> Added remote service wrapper <strong class="md-github">simulateRemoteServiceWrapper</strong> for simulating remote logging or monitoring service interactions.</li>
+<li class="md-github"><strong class="md-github">NEW:</strong> Exported the main() function to facilitate CLI testing and added tests for CLI help output.</li>
 </ul>
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="contributing" href="#contributing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Contributing</h2>
@@ -119,7 +121,7 @@ Look in the <code class="md-github">examples/</code> directory for sample implem
 <h3 class="md-github"><a class="md-github__anchor" name="3-the-evolving-mainjs-javascript-re-implementation-of-reusable-workflows" href="#3-the-evolving-mainjs-javascript-re-implementation-of-reusable-workflows"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)</h3>
 <ul class="md-github">
 <li class="md-github"><strong class="md-github">Purpose:</strong><br>
-This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to the core functionality.</li>
+This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.</li>
 <li class="md-github"><strong class="md-github">Stability:</strong><br>
 It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.</li>
 <li class="md-github"><strong class="md-github">Licensing:</strong><br>
@@ -154,7 +156,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-03-29T00:26:09.578Z</p>
+    <p>Generated on 2025-03-29T02:31:13.296Z</p>
   </footer>
 </body>
 </html>
