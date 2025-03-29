@@ -15,8 +15,7 @@
 // - EXT: Added gatherCIWorkflowMetrics to extend telemetry data collection from GitHub Actions workflows.
 // - NEW: Added gatherSystemMetrics to capture additional system telemetry such as load average and user info.
 // - NEW: Added simulateRemoteServiceWrapper to simulate remote service interactions useful in agentic workflows.
-// - NEW: Exported main function for CLI testing purposes.
-// - NEW: Enhanced delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling for improved debugging.
+// - Enhanced delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling for improved debugging.
 
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -29,7 +28,7 @@ import { promises as fs } from "fs";
 
 // Helper function to escape regex special characters
 function escapeRegExp(string) {
-  return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+  return string.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
 }
 
 // Common helper for error handling in remote service wrappers
@@ -502,8 +501,7 @@ export async function delegateDecisionToLLMChat(prompt, options = {}) {
       messages: [
         {
           role: "system",
-          content:
-            "You are a helpful assistant that helps determine if an issue has been resolved in the supplied code.",
+          content: "You are a helpful assistant that helps determine if an issue has been resolved in the supplied source code.",
         },
         { role: "user", content: prompt },
       ],
