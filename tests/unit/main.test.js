@@ -23,7 +23,7 @@ describe("reviewIssue", () => {
   test("returns correct resolution when conditions met", () => {
     const params = {
       sourceFileContent:
-        "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [args...]"
+        "Usage: npm run start [--usage | --help] [--version] [--env] [--telemetry] [--telemetry-extended] [--reverse] [args...]",
     };
     const result = agenticLib.reviewIssue(params);
     expect(result.fixed).toBe("true");
@@ -53,7 +53,7 @@ describe("Telemetry Functions", () => {
   test("gatherSystemMetrics returns loadAverage and userInfo", () => {
     const sysMetrics = agenticLib.gatherSystemMetrics();
     expect(Array.isArray(sysMetrics.loadAverage)).toBe(true);
-    expect(sysMetrics).toHaveProperty('userInfo');
+    expect(sysMetrics).toHaveProperty("userInfo");
   });
 });
 
@@ -148,7 +148,7 @@ describe("delegateDecisionToLLMChatPremium", () => {
     expect(result.fixed).toBe("false");
     expect(result.message).toContain("Prompt is required");
   });
-  
+
   test("returns error if API key is missing", async () => {
     const originalApiKey = process.env.OPENAI_API_KEY;
     delete process.env.OPENAI_API_KEY;
@@ -198,7 +198,7 @@ describe("simulateKafkaTransaction", () => {
   test("should simulate a Kafka transaction", () => {
     const messagesArray = [
       { topic: "txn-topic1", message: "Message 1" },
-      { topic: "txn-topic2", message: "Message 2" }
+      { topic: "txn-topic2", message: "Message 2" },
     ];
     const result = agenticLib.simulateKafkaTransaction(messagesArray);
     expect(result).toHaveProperty("success", true);
@@ -213,7 +213,7 @@ describe("simulateKafkaPriorityQueue", () => {
     const messages = [
       { message: "Low priority", priority: 1 },
       { message: "High priority", priority: 10 },
-      { message: "Medium priority", priority: 5 }
+      { message: "Medium priority", priority: 5 },
     ];
     const sorted = agenticLib.simulateKafkaPriorityQueue(topic, messages);
     expect(sorted[0]).toContain("High priority");
@@ -284,9 +284,7 @@ describe("parseVitestFailureOutput", () => {
 describe("parseEslintSarifOutput", () => {
   test("should correctly parse ESLint SARIF output", () => {
     const sarif = {
-      runs: [
-        { results: [ { level: "error" }, { level: "warning" }, { level: "error" } ] }
-      ]
+      runs: [{ results: [{ level: "error" }, { level: "warning" }, { level: "error" }] }],
     };
     const result = agenticLib.parseEslintSarifOutput(sarif);
     expect(result.numProblems).toBe(3);
@@ -351,7 +349,7 @@ describe("callRepositoryService", () => {
     const dummyData = { success: true };
     const fetchMock = vi.spyOn(global, "fetch").mockResolvedValue({
       ok: true,
-      json: async () => dummyData
+      json: async () => dummyData,
     });
     const result = await agenticLib.callRepositoryService("https://example.com");
     expect(result).toEqual(dummyData);
@@ -412,7 +410,7 @@ describe("simulateIssueCreation", () => {
     const params = {
       issueTitle: "house choice",
       issueBody: "Please resolve the issue.",
-      houseChoiceOptions: ["Option A", "Option B", "Option C"]
+      houseChoiceOptions: ["Option A", "Option B", "Option C"],
     };
     const result = agenticLib.simulateIssueCreation(params);
     expect(params.houseChoiceOptions).toContain(result.issueTitle);
@@ -420,12 +418,12 @@ describe("simulateIssueCreation", () => {
     expect(result.issueNumber).toBeGreaterThanOrEqual(100);
     expect(result.issueNumber).toBeLessThan(1000);
   });
-  
+
   test("should use the provided issue title if not 'house choice'", () => {
     const params = {
       issueTitle: "Explicit Title",
       issueBody: "Detailed issue body.",
-      houseChoiceOptions: "Option A || Option B"
+      houseChoiceOptions: "Option A || Option B",
     };
     const result = agenticLib.simulateIssueCreation(params);
     expect(result.issueTitle).toBe("Explicit Title");
@@ -436,7 +434,7 @@ describe("simulateIssueCreation", () => {
     const params = {
       issueTitle: "house choice",
       issueBody: "Issue body for string test.",
-      houseChoiceOptions: "Option X || Option Y || Option Z"
+      houseChoiceOptions: "Option X || Option Y || Option Z",
     };
     const result = agenticLib.simulateIssueCreation(params);
     const choices = ["Option X", "Option Y", "Option Z"];
@@ -469,7 +467,9 @@ describe("CLI main function", () => {
   test("prints enhanced demo if no --help flag", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     agenticLib.main([]);
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("Enhanced Demo: Agentic‑lib now supports additional argument processing."));
+    expect(logSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Enhanced Demo: Agentic‑lib now supports additional argument processing."),
+    );
     logSpy.mockRestore();
   });
 });
