@@ -94,11 +94,28 @@ jobs:
       gitUserName: 'GitHub Actions[bot]'
       gitCommitMessage: 'chore: dependency updates'
 
-  create-pr:
+  create-pr-npm:
     needs:
       - update-npm
+    if: ${{ needs.update-npm.outputs.updatedFiles == 'true' }}
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+      checks: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@main'
+    with:
+      branch: 'agentic-lib-update'
+      baseBranch: 'main'
+      gitCommitMessage: 'chore: dependency updates'
+      label: 'automerge'
+
+  create-pr-mvn:
+    needs:
       - update-mvn
-    if: ${{ always() && ( needs.update-npm.outputs.updatedFiles == 'true' || needs.update-mvn.outputs.updatedFiles == 'true' ) }}
+    if: ${{ needs.update-mvn.outputs.updatedFiles == 'true' }}
     permissions:
       contents: write
       packages: write
