@@ -112,7 +112,7 @@ jobs:
         id: build
         shell: bash
         run: |
-          output=$(${env.buildScript} 2>&1)
+          output=$(${{env.buildScript}} 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -122,7 +122,7 @@ jobs:
         id: test
         shell: bash
         run: |
-          output=$(${env.testScript} 2>&1)
+          output=$(${{env.testScript}} 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -165,11 +165,11 @@ jobs:
 
       - name: Build project after update
         shell: bash
-        run: ${env.buildScript}
+        run: ${{env.buildScript}}
 
       - name: Run tests after update
         shell: bash
-        run: ${env.testScript}
+        run: ${{env.testScript}}
 
     outputs:
       updatedFiles: ${{ steps.git-diff.outputs.updated || '' }}
