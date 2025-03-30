@@ -13,8 +13,16 @@
     "sqsDigestQueueArn": "arn:aws:sqs:eu-west-2:541134664601:agentic-lib-digest-queue",
     "sqsUseExistingDigestQueue": "false",
     "sqsRetainDigestQueue": "false",
+    "offsetsTableName": "agentic-lib-offsets-table",
+    "projectionsTableName": "agentic-lib-projections-table",
     "lambdaEntry": "src/lib/main.",
+    "replayBatchLambdaFunctionName": "agentic-lib-replay-batch-function",
+    "sourceLambdaFunctionName": "agentic-lib-source-function",
+    "replayLambdaFunctionName": "agentic-lib-replay-function",
+    "replayBatchLambdaHandlerFunctionName": "replayBatchLambdaHandler",
+    "sourceLambdaHandlerFunctionName": "sourceLambdaHandler",
+    "replayLambdaHandlerFunctionName": "replayLambdaHandler",
     "digestProcessorLambdaFunctionName": "agentic-lib-digest-processor-function",
-    "digestProcessorLambdaHandlerFunctionName": "digestProcessorLambdaHandler",
+    "digestProcessorLambdaHandlerFunctionName": "digestProcessorLambdaHandler"
   }
 }
