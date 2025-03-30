@@ -4,30 +4,30 @@
   "issuesClosedLastDay": 16,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 119,
-  "diffMinutesMain": 130,
-  "commitsLastHour": 0,
-  "commitsLastDay": 8,
+  "diffMinutes": 11,
+  "diffMinutesMain": 11,
+  "commitsLastHour": 7,
+  "commitsLastDay": 15,
   "lastFiveCommitMessages": [
     {
-      "time": "19:55",
-      "message": "Add initial AWS CDK Java app and stack implementation\n\nThis comm..."
+      "time": "00:17",
+      "message": "2.8.1-0"
     },
     {
-      "time": "10:29",
-      "message": "Add JSON statistics file generation to workflow\n\nThis update int..."
+      "time": "00:15",
+      "message": "2.8.1-0"
     },
     {
-      "time": "01:38",
-      "message": "Add optional inputs for S3 bucket URL and IAM role ARN\n\nIntroduc..."
+      "time": "00:15",
+      "message": "2.8.0"
     },
     {
-      "time": "04:12",
-      "message": "Reorganize and prioritize tasks in WORKFLOWS-README.md\n\nMoved Ma..."
+      "time": "00:14",
+      "message": "Update workflow to use main branch for reusable workflows\n\nSwitc..."
     },
     {
-      "time": "16:22",
-      "message": "Fixed regex in getIssueNumberFromBranch to properly extract issu..."
+      "time": "00:12",
+      "message": "Update CI triggers to include Java and Maven files\n\nAdded `.java..."
     }
   ],
   "branches": {
@@ -37,5 +37,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-03-29T22:05:29.791Z"
+  "generatedAt": "2025-03-30T00:29:13.727Z"
 }
