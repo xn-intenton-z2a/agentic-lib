@@ -77,6 +77,8 @@ jobs:
   update-mvn:
     needs:
       - check-branch
+      - update-npm
+    if: ${{ needs.update-npm.outputs.updatedFiles != 'true' }}
     permissions:
       contents: write
       pull-requests: write
@@ -96,7 +98,7 @@ jobs:
     needs:
       - update-npm
       - update-mvn
-    if: ${{ needs.update.outputs.updatedFiles == 'true' }}
+    if: ${{ always() && ( needs.update-npm.outputs.updatedFiles == 'true' || needs.update-mvn.outputs.updatedFiles == 'true' ) }}
     permissions:
       contents: write
       packages: write
