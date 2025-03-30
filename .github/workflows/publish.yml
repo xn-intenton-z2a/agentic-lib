@@ -95,7 +95,7 @@ jobs:
     permissions:
       contents: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish-npm.yml@2.6.6'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish-npm.yml@main'
     with:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
       #githubRelease: true
@@ -113,9 +113,7 @@ jobs:
     permissions:
       contents: write
       packages: write
-    #uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish-mvn.yml@main'
-    #uses: '.github/workflows/wfr-publish-mvn.yml@main'
-    uses: ./.github/workflows/wfr-publish-mvn.yml
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish-mvn.yml@main'
     with:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
       releaseVersionOverride: ${{ needs.publish.outputs.releasedVersion }}
