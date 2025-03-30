@@ -135,21 +135,6 @@ jobs:
           mvn versions:use-latest-releases -DallowSnapshots=false
           # Optionally, run: mvn versions:commit to finalize changes
 
-      - name: Commit changes
-        if: ${{ steps.git-diff.outputs.updated == 'true' || env.git-force == 'true' }}
-        shell: bash
-        run: |
-          git config --local user.email "${{ env.gitUserEmail }}"
-          git config --local user.name "${{ env.gitUserName }}"
-          git status -v
-          git switch -c "${{ env.branch }}"
-          git add -v --all
-          git commit -v -m "${{ env.gitCommitMessage }}"
-          git pull --rebase origin main
-          git push --set-upstream origin "${{ env.branch }}"
-          git push -v
-          git status -v
-
       - name: Get git diff status
         id: git-diff
         shell: bash
@@ -170,6 +155,21 @@ jobs:
       - name: Run tests after update
         shell: bash
         run: ${{env.testScript}}
+
+      - name: Commit changes
+        if: ${{ steps.git-diff.outputs.updated == 'true' || env.git-force == 'true' }}
+        shell: bash
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git status -v
+          git switch -c "${{ env.branch }}"
+          git add -v --all
+          git commit -v -m "${{ env.gitCommitMessage }}"
+          git pull --rebase origin main
+          git push --set-upstream origin "${{ env.branch }}"
+          git push -v
+          git status -v
 
     outputs:
       updatedFiles: ${{ steps.git-diff.outputs.updated || '' }}
