@@ -17,26 +17,17 @@ public class AgenticLibStackTest {
                 .s3ObjectPrefix("test/")
                 .s3UseExistingBucket(false)
                 .s3RetainBucket(false)
-                .sqsSourceQueueName("agentic-lib-source-queue-test")
-                .sqsReplayQueueName("agentic-lib-replay-queue-test")
                 .sqsDigestQueueName("agentic-lib-digest-queue-test")
-                // TODO: The digest queue ARN should be optional and omitted in this test.
                 .sqsDigestQueueArn("arn:aws:sqs:eu-west-2:123456789012:agentic-lib-digest-queue-test")
                 .sqsUseExistingDigestQueue(false)
                 .sqsRetainDigestQueue(false)
-                .offsetsTableName("agentic-lib-offsets-table-test")
-                .projectionsTableName("agentic-lib-projections-table-test")
                 .lambdaEntry("src/lib/main.")
-                .replayBatchLambdaFunctionName("agentic-lib-replay-batch-function")
-                .replayBatchLambdaHandlerFunctionName("replayBatchLambdaHandler")
-                .sourceLambdaFunctionName("agentic-lib-source-function")
-                .sourceLambdaHandlerFunctionName("sourceLambdaHandler")
-                .replayLambdaFunctionName("agentic-lib-replay-function")
-                .replayLambdaHandlerFunctionName("replayLambdaHandler")
+                .digestLambdaFunctionName("agentic-lib-digest-function-test")
+                .digestLambdaHandlerFunctionName("digestLambdaHandler")
                 .build();
 
         Template template = Template.fromStack(stack);
-        template.resourceCountIs("AWS::SQS::Queue", 6);
-        template.resourceCountIs("AWS::Lambda::Function", 6);
+        template.resourceCountIs("AWS::SQS::Queue", 2);
+        template.resourceCountIs("AWS::Lambda::Function", 2);
     }
 }

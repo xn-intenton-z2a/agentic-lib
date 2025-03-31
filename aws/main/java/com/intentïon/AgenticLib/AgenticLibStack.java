@@ -1,17 +1,12 @@
 package com.intentïon.AgenticLib;
 
 import software.amazon.awscdk.CfnOutput;
-import software.amazon.awscdk.CustomResource;
 import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
-import software.amazon.awscdk.customresources.Provider;
 import software.amazon.awscdk.services.cloudtrail.S3EventSelector;
 import software.amazon.awscdk.services.cloudtrail.Trail;
-import software.amazon.awscdk.services.dynamodb.Attribute;
-import software.amazon.awscdk.services.dynamodb.AttributeType;
-import software.amazon.awscdk.services.dynamodb.Table;
 import software.amazon.awscdk.services.iam.ArnPrincipal;
 import software.amazon.awscdk.services.iam.Effect;
 import software.amazon.awscdk.services.iam.PolicyDocument;
@@ -26,9 +21,7 @@ import software.amazon.awscdk.services.logs.LogGroup;
 import software.amazon.awscdk.services.logs.LogGroupProps;
 import software.amazon.awscdk.services.logs.RetentionDays;
 import software.amazon.awscdk.services.s3.Bucket;
-import software.amazon.awscdk.services.s3.EventType;
 import software.amazon.awscdk.services.s3.IBucket;
-import software.amazon.awscdk.services.s3.notifications.SqsDestination;
 import software.amazon.awscdk.services.sqs.DeadLetterQueue;
 import software.amazon.awscdk.services.sqs.IQueue;
 import software.amazon.awscdk.services.sqs.Queue;
@@ -44,24 +37,12 @@ public class AgenticLibStack extends Stack {
     public LogGroup eventsBucketLogGroup;
     public Trail eventsBucketTrail;
     public Role s3AccessRole;
-    public Queue sourceDLQ;
-    public Queue sourceQueue;
-    public Queue replayQueueDLQ;
-    public Queue replayQueue;
     public IQueue digestQueue;
     public Queue digestQueueDLQ;
-    public Table offsetsTable;
-    public Table projectionsTable;
-    public DockerImageFunction replayBatchLambda;
-    public LogGroup replayBatchLambdaLogGroup;
-    public CustomResource replayBatchOneOffJobResource;
-    public DockerImageFunction sourceLambda;
-    public LogGroup sourceLambdaLogGroup;
-    public DockerImageFunction replayLambda;
-    public LogGroup replayLambdaLogGroup;
+    public DockerImageFunction digestLambda;
+    public LogGroup digestLambdaLogGroup;
 
     public static class Builder {
-        // TODO: Add default values for the builder properties
         public Construct scope;
         public String id;
         public StackProps props;
@@ -71,21 +52,14 @@ public class AgenticLibStack extends Stack {
         public String s3ObjectPrefix;
         public boolean s3UseExistingBucket;
         public boolean s3RetainBucket;
-        public String sqsSourceQueueName;
-        public String sqsReplayQueueName;
         public String sqsDigestQueueName;
         public String sqsDigestQueueArn;
         public boolean sqsUseExistingDigestQueue;
         public boolean sqsRetainDigestQueue;
-        public String offsetsTableName;
-        public String projectionsTableName;
         public String lambdaEntry;
-        public String replayBatchLambdaFunctionName;
-        public String replayBatchLambdaHandlerFunctionName;
-        public String sourceLambdaFunctionName;
-        public String sourceLambdaHandlerFunctionName;
-        public String replayLambdaFunctionName;
-        public String replayLambdaHandlerFunctionName;
+        public String digestLambdaFunctionName;
+        public String digestLambdaHandlerFunctionName;
+        public String githubAPIBaseUrl;
 
         public Builder(Construct scope, String id, StackProps props) {
             this.scope = scope;
@@ -133,16 +107,6 @@ public class AgenticLibStack extends Stack {
             return this;
         }
 
-        public Builder sqsSourceQueueName(String sqsSourceQueueName) {
-            this.sqsSourceQueueName = sqsSourceQueueName;
-            return this;
-        }
-
-        public Builder sqsReplayQueueName(String sqsReplayQueueName) {
-            this.sqsReplayQueueName = sqsReplayQueueName;
-            return this;
-        }
-
         public Builder sqsDigestQueueName(String sqsDigestQueueName) {
             this.sqsDigestQueueName = sqsDigestQueueName;
             return this;
@@ -163,48 +127,23 @@ public class AgenticLibStack extends Stack {
             return this;
         }
 
-        public Builder offsetsTableName(String offsetsTableName) {
-            this.offsetsTableName = offsetsTableName;
-            return this;
-        }
-
-        public Builder projectionsTableName(String projectionsTableName) {
-            this.projectionsTableName = projectionsTableName;
-            return this;
-        }
-
         public Builder lambdaEntry(String lambdaEntry) {
             this.lambdaEntry = lambdaEntry;
             return this;
         }
 
-        public Builder replayBatchLambdaFunctionName(String replayBatchLambdaFunctionName) {
-            this.replayBatchLambdaFunctionName = replayBatchLambdaFunctionName;
+        public Builder digestLambdaFunctionName(String digestLambdaFunctionName) {
+            this.digestLambdaFunctionName = digestLambdaFunctionName;
             return this;
         }
 
-        public Builder replayBatchLambdaHandlerFunctionName(String replayBatchLambdaHandlerFunctionName) {
-            this.replayBatchLambdaHandlerFunctionName = replayBatchLambdaHandlerFunctionName;
+        public Builder digestLambdaHandlerFunctionName(String digestLambdaHandlerFunctionName) {
+            this.digestLambdaHandlerFunctionName = digestLambdaHandlerFunctionName;
             return this;
         }
 
-        public Builder sourceLambdaFunctionName(String sourceLambdaFunctionName) {
-            this.sourceLambdaFunctionName = sourceLambdaFunctionName;
-            return this;
-        }
-
-        public Builder sourceLambdaHandlerFunctionName(String sourceLambdaHandlerFunctionName) {
-            this.sourceLambdaHandlerFunctionName = sourceLambdaHandlerFunctionName;
-            return this;
-        }
-
-        public Builder replayLambdaFunctionName(String replayLambdaFunctionName) {
-            this.replayLambdaFunctionName = replayLambdaFunctionName;
-            return this;
-        }
-
-        public Builder replayLambdaHandlerFunctionName(String replayLambdaHandlerFunctionName) {
-            this.replayLambdaHandlerFunctionName = replayLambdaHandlerFunctionName;
+        public Builder githubAPIBaseUrl(String githubAPIBaseUrl) {
+            this.githubAPIBaseUrl = githubAPIBaseUrl;
             return this;
         }
 
@@ -215,6 +154,16 @@ public class AgenticLibStack extends Stack {
 
     }
 
+    public String s3BucketName;
+    public String s3ObjectPrefix;
+    public boolean s3UseExistingBucket;
+    public boolean s3RetainBucket;
+    public String sqsDigestQueueArn;
+    public boolean sqsUseExistingDigestQueue;
+    public boolean sqsRetainDigestQueue;
+    public String digestLambdaFunctionName;
+    public String digestLambdaHandlerFunctionName;
+
     public AgenticLibStack(Construct scope, String id, AgenticLibStack.Builder builder) {
         this(scope, id, null, builder);
     }
@@ -222,27 +171,20 @@ public class AgenticLibStack extends Stack {
     public AgenticLibStack(Construct scope, String id, StackProps props, AgenticLibStack.Builder builder) {
         super(scope, id, props);
 
-        String s3BucketName = this.getConfigValue(builder.s3BucketName, "s3BucketName");
-        String s3ObjectPrefix = this.getConfigValue(builder.s3ObjectPrefix, "s3ObjectPrefix");
-        boolean s3UseExistingBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3UseExistingBucket), "s3UseExistingBucket"));
-        boolean s3RetainBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3RetainBucket), "s3RetainBucket"));
+        this.s3BucketName = this.getConfigValue(builder.s3BucketName, "s3BucketName");
+        this.s3ObjectPrefix = this.getConfigValue(builder.s3ObjectPrefix, "s3ObjectPrefix");
+        this.s3UseExistingBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3UseExistingBucket), "s3UseExistingBucket"));
+        this.s3RetainBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3RetainBucket), "s3RetainBucket"));
         String s3WriterRoleName = this.getConfigValue(builder.s3WriterRoleName, "s3WriterRoleName");
         String s3WriterArnPrinciple = this.getConfigValue(builder.s3WriterArnPrinciple, "s3WriterArnPrinciple");
-        String sqsSourceQueueName = this.getConfigValue(builder.sqsSourceQueueName, "sqsSourceQueueName");
-        String sqsReplayQueueName = this.getConfigValue(builder.sqsReplayQueueName, "sqsReplayQueueName");
         String sqsDigestQueueName = this.getConfigValue(builder.sqsDigestQueueName, "sqsDigestQueueName");
-        String sqsDigestQueueArn = this.getConfigValue(builder.sqsDigestQueueArn, "sqsDigestQueueArn");
-        boolean sqsUseExistingDigestQueue = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.sqsUseExistingDigestQueue), "sqsUseExistingDigestQueue"));
-        boolean sqsRetainDigestQueue = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.sqsRetainDigestQueue), "sqsRetainDigestQueue"));
-        String offsetsTableName = this.getConfigValue(builder.offsetsTableName, "offsetsTableName");
-        String projectionsTableName = this.getConfigValue(builder.projectionsTableName, "projectionsTableName");
+        this.sqsDigestQueueArn = this.getConfigValue(builder.sqsDigestQueueArn, "sqsDigestQueueArn");
+        this.sqsUseExistingDigestQueue = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.sqsUseExistingDigestQueue), "sqsUseExistingDigestQueue"));
+        this.sqsRetainDigestQueue = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.sqsRetainDigestQueue), "sqsRetainDigestQueue"));
         String lambdaEntry = this.getConfigValue(builder.lambdaEntry, "lambdaEntry");
-        String sourceLambdaHandlerFunctionName = this.getConfigValue(builder.sourceLambdaHandlerFunctionName, "sourceLambdaHandlerFunctionName");
-        String sourceLambdaFunctionName = this.getConfigValue(builder.sourceLambdaFunctionName, "sourceLambdaFunctionName");
-        String replayBatchLambdaHandlerFunctionName = this.getConfigValue(builder.replayBatchLambdaHandlerFunctionName, "replayBatchLambdaHandlerFunctionName");
-        String replayBatchLambdaFunctionName = this.getConfigValue(builder.replayBatchLambdaFunctionName, "replayBatchLambdaFunctionName");
-        String replayLambdaHandlerFunctionName = this.getConfigValue(builder.replayLambdaHandlerFunctionName, "replayLambdaHandlerFunctionName");
-        String replayLambdaFunctionName = this.getConfigValue(builder.replayLambdaFunctionName, "replayLambdaFunctionName");
+        this.digestLambdaHandlerFunctionName = this.getConfigValue(builder.digestLambdaHandlerFunctionName, "digestLambdaHandlerFunctionName");
+        this.digestLambdaFunctionName = this.getConfigValue(builder.digestLambdaFunctionName, "digestLambdaFunctionName");
+        String githubAPIBaseUrl = this.getConfigValue(builder.githubAPIBaseUrl, "githubAPIBaseUrl");
 
         if (s3UseExistingBucket) {
             this.eventsBucket = Bucket.fromBucketName(this, "EventsBucket", s3BucketName);
@@ -265,7 +207,6 @@ public class AgenticLibStack extends Stack {
                     .includeGlobalServiceEvents(false)
                     .isMultiRegionTrail(false)
                     .build();
-
             this.eventsBucketTrail.addS3EventSelector(Arrays.asList(S3EventSelector.builder()
                     .bucket(this.eventsBucket)
                     .objectPrefix(s3ObjectPrefix)
@@ -294,46 +235,11 @@ public class AgenticLibStack extends Stack {
                         .build()))
                 .build();
 
-        Duration sourceLambdaDuration = Duration.seconds(5);
-        Duration sourceQueueDuration = Duration.seconds(sourceLambdaDuration.toSeconds().intValue() * 2);
-        this.sourceDLQ = Queue.Builder.create(this, "SourceDLQ")
-                .queueName(sqsSourceQueueName + "-dlq")
-                .retentionPeriod(Duration.days(3))
-                .build();
-        this.sourceQueue = Queue.Builder.create(this, "SourceQueue")
-                .queueName(sqsSourceQueueName)
-                .visibilityTimeout(sourceQueueDuration)
-                .retentionPeriod(Duration.hours(24))
-                .deadLetterQueue(DeadLetterQueue.builder()
-                        .queue(this.sourceDLQ)
-                        .maxReceiveCount(5)
-                        .build())
-                .build();
-        this.eventsBucket.addEventNotification(
-                EventType.OBJECT_CREATED_PUT,
-                new SqsDestination(this.sourceQueue)
-        );
-
-        Duration replayLambdaDuration = Duration.seconds(3);
-        Duration replayQueueDuration = Duration.seconds(replayLambdaDuration.toSeconds().intValue() * 2);
-        this.replayQueueDLQ = Queue.Builder.create(this, "ReplayQueueDLQ")
-                .queueName(sqsReplayQueueName + "-dlq")
-                .retentionPeriod(Duration.days(3))
-                .build();
-        this.replayQueue = Queue.Builder.create(this, "ReplayQueue")
-                .queueName(sqsReplayQueueName)
-                .visibilityTimeout(replayQueueDuration)
-                .retentionPeriod(Duration.hours(24))
-                .deadLetterQueue(DeadLetterQueue.builder()
-                        .queue(this.replayQueueDLQ)
-                        .maxReceiveCount(5)
-                        .build())
-                .build();
-
+        Duration digestLambdaDuration = Duration.seconds(5);
+        Duration digestQueueDuration = Duration.seconds(digestLambdaDuration.toSeconds().intValue() * 2);
         if (sqsUseExistingDigestQueue) {
             this.digestQueue = Queue.fromQueueArn(this, "DigestQueue", sqsDigestQueueArn);
         } else {
-            Duration digestQueueDuration = Duration.seconds(30);
             this.digestQueueDLQ = Queue.Builder.create(this, "DigestQueueDLQ")
                     .queueName(sqsDigestQueueName + "-dlq")
                     .retentionPeriod(Duration.days(3))
@@ -350,148 +256,23 @@ public class AgenticLibStack extends Stack {
                     .build();
         }
 
-        this.offsetsTable = Table.Builder.create(this, "OffsetsTable")
-                .tableName(offsetsTableName)
-                .partitionKey(Attribute.builder()
-                        .name("id") // bucketName/objectPrefix | projectionsTableName
-                        .type(AttributeType.STRING)
-                        .build())
-                .removalPolicy(RemovalPolicy.DESTROY)
-                .build();
-
-        // Incoming object:  events/branches/main.json  (id=events/branches/main, resourceName=main)
-        this.projectionsTable = Table.Builder.create(this, "ProjectionsTable")
-                .tableName(projectionsTableName)
-                .partitionKey(Attribute.builder()
-                        .name("id")
-                        .type(AttributeType.STRING)
-                        .build())
-                .removalPolicy(RemovalPolicy.DESTROY)
-                .build();
-
-        PolicyStatement listBucketPolicy = PolicyStatement.Builder.create()
-                .actions(Arrays.asList("s3:ListBucket","s3:ListBucketVersions"))
-                .resources(Arrays.asList(this.eventsBucket.getBucketArn()))
-                .build();
-
-        PolicyStatement getObjectPolicy = PolicyStatement.Builder.create()
-                .actions(Arrays.asList(
-                        "s3:GetObject",
-                        "s3:GetObjectVersion",
-                        "s3:GetObjectTagging"
-                ))
-                .resources(Arrays.asList(this.eventsBucket.getBucketArn() + "/" + s3ObjectPrefix + "*"))
-                .build();
-
-        PolicyStatement sqsSendMessageToReplayQueuePolicy = PolicyStatement.Builder.create()
-                .actions(List.of("sqs:SendMessage"))
-                .resources(List.of(this.replayQueue.getQueueArn()))
-                .build();
-
-        PolicyStatement sqsSendMessageToDigestQueuePolicy = PolicyStatement.Builder.create()
-                .actions(List.of("sqs:SendMessage"))
-                .resources(List.of(this.digestQueue.getQueueArn()))
-                .build();
-
-        PolicyStatement listMappingPolicy = PolicyStatement.Builder.create()
-                .actions(Arrays.asList("lambda:ListEventSourceMappings"))
-                .resources(Arrays.asList("*"))
-                .build();
-
-        PolicyStatement updateMappingPolicy = PolicyStatement.Builder.create()
-                .actions(Arrays.asList("lambda:UpdateEventSourceMapping"))
-                .resources(Arrays.asList("*"))
-                //.resources(Arrays.asList("arn:aws:lambda:" + this.getRegion() + ":" + this.getRegion() + ":event-source-mapping:*"))
-                .build();
-
-        this.sourceLambda = DockerImageFunction.Builder.create(this, "SourceLambda")
+        this.digestLambda = DockerImageFunction.Builder.create(this, "DigestLambda")
                 .code(DockerImageCode.fromImageAsset(".", AssetImageCodeProps.builder()
-                        .buildArgs(Map.of("HANDLER", lambdaEntry + sourceLambdaHandlerFunctionName))
+                        .buildArgs(Map.of("HANDLER", lambdaEntry + digestLambdaHandlerFunctionName))
                         .build()))
                 .environment(Map.of(
-                        "BUCKET_NAME", eventsBucket.getBucketName(),
-                        "OBJECT_PREFIX", s3ObjectPrefix,
-                        "REPLAY_QUEUE_URL", this.replayQueue.getQueueUrl(),
-                        "OFFSETS_TABLE_NAME", this.offsetsTable.getTableName(),
-                        "PROJECTIONS_TABLE_NAME", this.projectionsTable.getTableName(),
-                        "DIGEST_QUEUE_URL", this.digestQueue.getQueueUrl()
+                        "GITHUB_API_BASE_URL", githubAPIBaseUrl
                 ))
-                .functionName(sourceLambdaFunctionName)
+                .functionName(digestLambdaFunctionName)
                 .reservedConcurrentExecutions(1)
-                .timeout(sourceLambdaDuration)
+                .timeout(digestLambdaDuration)
                 .build();
-        this.sourceLambdaLogGroup = new LogGroup(this, "SourceLambdaLogGroup", LogGroupProps.builder()
-                .logGroupName("/aws/lambda/" + this.sourceLambda.getFunctionName())
+        this.digestLambdaLogGroup = new LogGroup(this, "DigestLambdaLogGroup", LogGroupProps.builder()
+                .logGroupName("/aws/lambda/" + this.digestLambda.getFunctionName())
                 .retention(RetentionDays.THREE_DAYS)
                 .removalPolicy(RemovalPolicy.DESTROY)
                 .build());
-        this.sourceLambda.addToRolePolicy(getObjectPolicy);
-        this.sourceLambda.addToRolePolicy(sqsSendMessageToDigestQueuePolicy);
-        this.offsetsTable.grantReadWriteData(this.sourceLambda);
-        this.projectionsTable.grantReadWriteData(this.sourceLambda);
-        this.sourceLambda.addEventSource(new SqsEventSource(this.sourceQueue, SqsEventSourceProps.builder()
-                .batchSize(1)
-                .maxBatchingWindow(Duration.seconds(0))
-                .build()));
-
-        Duration replayBatchLambdaDuration = Duration.seconds(900);
-        this.replayBatchLambda = DockerImageFunction.Builder.create(this, "ReplayBatchLambda")
-                .code(DockerImageCode.fromImageAsset(".", AssetImageCodeProps.builder()
-                        .buildArgs(Map.of("HANDLER", lambdaEntry + replayBatchLambdaHandlerFunctionName))
-                        .build()))
-                .environment(Map.of(
-                        "BUCKET_NAME", this.eventsBucket.getBucketName(),
-                        "OBJECT_PREFIX", s3ObjectPrefix,
-                        "REPLAY_QUEUE_URL", this.replayQueue.getQueueUrl(),
-                        "OFFSETS_TABLE_NAME", this.offsetsTable.getTableName(),
-                        "SOURCE_LAMBDA_FUNCTION_NAME", this.sourceLambda.getFunctionName()
-                ))
-                .functionName(replayBatchLambdaFunctionName)
-                .reservedConcurrentExecutions(1)
-                .timeout(replayBatchLambdaDuration)
-                .build();
-        this.replayBatchLambdaLogGroup = new LogGroup(this, "ReplayBatchLambdaLogGroup", LogGroupProps.builder()
-                .logGroupName("/aws/lambda/" + this.replayBatchLambda.getFunctionName())
-                .retention(RetentionDays.THREE_DAYS)
-                .removalPolicy(RemovalPolicy.DESTROY)
-                .build());
-        this.replayBatchLambda.addToRolePolicy(listBucketPolicy);
-        this.replayBatchLambda.addToRolePolicy(getObjectPolicy);
-        this.replayBatchLambda.addToRolePolicy(sqsSendMessageToReplayQueuePolicy);
-        this.replayBatchLambda.addToRolePolicy(listMappingPolicy);
-        this.replayBatchLambda.addToRolePolicy(updateMappingPolicy);
-        this.offsetsTable.grantReadWriteData(this.replayBatchLambda);
-        Provider replayBatchOneOffJobProvider = Provider.Builder.create(this, "ReplayBatchOneOffJobProvider")
-                .onEventHandler(this.replayBatchLambda)
-                .build();
-
-        this.replayBatchOneOffJobResource = CustomResource.Builder.create(this, "ReplayBatchOneOffJobResource")
-                .serviceToken(replayBatchOneOffJobProvider.getServiceToken())
-                .build();
-
-        this.replayLambda = DockerImageFunction.Builder.create(this, "ReplayLambda")
-                .code(DockerImageCode.fromImageAsset(".", AssetImageCodeProps.builder()
-                        .buildArgs(Map.of("HANDLER", lambdaEntry + replayLambdaHandlerFunctionName))
-                        .build()))
-                .environment(Map.of(
-                        "BUCKET_NAME", s3BucketName,
-                        "OBJECT_PREFIX", s3ObjectPrefix,
-                        "OFFSETS_TABLE_NAME", this.offsetsTable.getTableName(),
-                        "PROJECTIONS_TABLE_NAME", this.projectionsTable.getTableName()
-                ))
-                .functionName(replayLambdaFunctionName)
-                .reservedConcurrentExecutions(1)
-                .timeout(replayLambdaDuration)
-                .build();
-        this.replayLambdaLogGroup = new LogGroup(this, "ReplayLambdaLogGroup", LogGroupProps.builder()
-                .logGroupName("/aws/lambda/" + this.replayLambda.getFunctionName())
-                .retention(RetentionDays.THREE_DAYS)
-                .removalPolicy(RemovalPolicy.DESTROY)
-                .build());
-        this.replayLambda.addToRolePolicy(getObjectPolicy);
-        this.offsetsTable.grantReadWriteData(this.replayLambda);
-        this.projectionsTable.grantReadWriteData(this.replayLambda);
-        this.replayLambda.addEventSource(new SqsEventSource(this.replayQueue, SqsEventSourceProps.builder()
+        this.digestLambda.addEventSource(new SqsEventSource(this.digestQueue, SqsEventSourceProps.builder()
                 .batchSize(1)
                 .maxBatchingWindow(Duration.seconds(0))
                 .build()));

@@ -25,6 +25,12 @@
             <artifactId>constructs</artifactId>
             <version>10.4.2</version>
         </dependency>
+        <!-- AWS CDK Stack to event-source from s3 -->
+        <dependency>
+            <groupId>com.xn-intenton-z2a</groupId>
+            <artifactId>s3-sqs-bridge</artifactId>
+            <version>0.21.0</version>
+        </dependency>
         <!-- JUnit 5 for testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -45,6 +51,14 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/xn-intenton-z2a/s3-sqs-bridge</url>
+        </repository>
+    </repositories>
 
     <distributionManagement>
         <repository>
