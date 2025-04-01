@@ -622,8 +622,8 @@ Re-usable GitHub Actions Workflows:
 Supervisor:
 - [~] Deploy a s3-sqs-bridge Stack from the agentic-lib project.
 - [~] Reintegrate the s3-sqs-bridge workflows with agentic-lib.
-- [ ] Reinstate the agentic workflows in s3-sqs-bridge with maintenance focused tasks.
 - [ ] Publish GitHub telemetry data to S3.
+- [ ] Reinstate the agentic workflows in s3-sqs-bridge with maintenance focused tasks.
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix).
 - [ ] Reduce schedule and workflow completed triggers (instead leaving the supervisor to invoke workflows).
 - [ ] Dashboard metrics from kafka (e.g. GitHub Insights? commits by agents).
