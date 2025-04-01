@@ -264,8 +264,8 @@ npm test
 You'll need to have run `cdk bootstrap` to set up the environment for the CDK. This is a one-time setup per AWS account and region.
 General administrative permissions are required to run this command. (NPM installed the CDK.)
 
-In this example for user `antony-local-user` and `agentic-lib-github-actions-role` we would add the following
-trust policy so that they can assume the role: `agentic-lib-deployment-role`:
+In this example for a user `antony-local-user` and a role `agentic-lib-github-actions-role` (create them if you need to)
+we would add the following trust policy so that they can assume the role: `agentic-lib-deployment-role`:
 ```json
 {
 	"Version": "2012-10-17",
