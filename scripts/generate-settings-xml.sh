@@ -7,7 +7,7 @@ echo "<settings>" > ~/.m2/settings.xml
 echo "  <servers>" >> ~/.m2/settings.xml
 echo "    <server>" >> ~/.m2/settings.xml
 echo "      <id>github</id>" >> ~/.m2/settings.xml
-echo "      <username>YOUR_GITHUB_USERNAME</username>" >> ~/.m2/settings.xml
+echo "      <username>Antony-at-Polycode</username>" >> ~/.m2/settings.xml
 echo "      <password>${PERSONAL_ACCESS_TOKEN?}</password>" >> ~/.m2/settings.xml
 echo "    </server>" >> ~/.m2/settings.xml
 echo "  </servers>" >> ~/.m2/settings.xml
