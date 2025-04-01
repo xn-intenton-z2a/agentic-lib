@@ -140,8 +140,7 @@ jobs:
           distribution: 'corretto'
           java-version: 21
           cache: 'maven'
-          server-username: ${{ github.actor }}
-          server-password: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          server-password: PERSONAL_ACCESS_TOKEN
 
       - run: cat ~/.m2/settings.xml
 
