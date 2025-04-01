@@ -35,7 +35,8 @@ jobs:
     name: 'npm test'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
+      packages: read
       id-token: write
     steps:
       - uses: actions/checkout@v4
