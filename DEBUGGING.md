@@ -58,7 +58,7 @@ npx cdk
 ```bash
 
 aws logs delete-log-group \
-  --log-group-name "/aws/lambda/agentic-lib-digest-processor-function"
+  --log-group-name "/aws/lambda/agentic-lib-digest-function"
 ```
 
 Deploys the AWS infrastructure:
@@ -236,7 +236,7 @@ Delete log groups:
 ```bash
 
 aws logs delete-log-group \
-  --log-group-name "/aws/lambda/agentic-lib-digest-processor-function"
+  --log-group-name "/aws/lambda/agentic-lib-digest-function"
 ```
 
 Handy cleanup, CDK:

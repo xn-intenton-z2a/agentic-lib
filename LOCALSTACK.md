@@ -119,13 +119,13 @@ Message on digest queue:
 Launch the digest processor in a Container (the same Docker file is used for the lambda):
 ```bash
 
-docker compose up --detach digest-processor
+docker compose up --detach digest
 ```
 
-docker compose logs digest-processor
+docker compose logs digest
 ```bash
 
-docker compose logs digest-processor
+docker compose logs digest
 ```
 
 Check the Docker logs for a message consumed from the digest queue:

@@ -22,8 +22,8 @@
     "replayBatchLambdaHandlerFunctionName": "replayBatchLambdaHandler",
     "sourceLambdaHandlerFunctionName": "sourceLambdaHandler",
     "replayLambdaHandlerFunctionName": "replayLambdaHandler",
-    "digestProcessorLambdaFunctionName": "agentic-lib-digest-processor-function",
-    "digestProcessorLambdaHandlerFunctionName": "digestProcessorLambdaHandler",
+    "digestLambdaFunctionName": "agentic-lib-digest-function",
+    "digestLambdaHandlerFunctionName": "digestLambdaHandler",
     "githubAPIBaseUrl": "https://api.github.com"
   }
 }

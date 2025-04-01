@@ -6,7 +6,7 @@ COPY package.json package-lock.json ./
 RUN npm install --production
 COPY src/ src/
 
-ARG HANDLER=src/lib/main.digestProcessorBatchLambdaHandler
+ARG HANDLER=src/lib/main.digestLambdaHandler
 ENV HANDLER=$HANDLER
 
 # Use shell form so the environment variable gets expanded.
