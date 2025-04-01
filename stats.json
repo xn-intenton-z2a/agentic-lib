@@ -4,38 +4,43 @@
   "issuesClosedLastDay": 0,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 118,
-  "diffMinutesMain": 2460,
-  "commitsLastHour": 0,
-  "commitsLastDay": 0,
+  "diffMinutes": 3,
+  "diffMinutesMain": 3,
+  "commitsLastHour": 5,
+  "commitsLastDay": 11,
   "lastFiveCommitMessages": [
     {
-      "time": "03:06",
-      "message": "chore: dependency updates (#899)\n\nCo-authored-by: GitHub Actions..."
+      "time": "22:03",
+      "message": "Add environment variables to GitHub Actions steps\n\nInclude `GITH..."
     },
     {
-      "time": "02:56",
-      "message": "Refactor PR creation into separate workflows for npm and Maven\n\n..."
+      "time": "21:58",
+      "message": "Add environment variables to GitHub Actions workflow\n\nSet `GITHU..."
     },
     {
-      "time": "01:47",
-      "message": "Update workflow dependencies and conditional checks\n\nEnsure `upd..."
+      "time": "21:44",
+      "message": "Simplify server-password configuration in CI workflow.\n\nReplaced..."
     },
     {
-      "time": "01:37",
-      "message": "Refactor workflow to reorder commit changes step.\n\nMoved the \"Co..."
+      "time": "21:38",
+      "message": "Update settings generation and add GitHub API base config\n\nUpdat..."
     },
     {
-      "time": "01:33",
-      "message": "Fix syntax for environment variable usage in workflow\n\nUpdated e..."
+      "time": "21:24",
+      "message": "Replace GITHUB_TOKEN with PERSONAL_ACCESS_TOKEN in workflows\n\nUp..."
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-fix-main",
+        "minutesSinceLastCommit": 1519
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-03-31T20:07:19.239Z"
+  "generatedAt": "2025-04-01T22:06:20.675Z"
 }
