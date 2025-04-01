@@ -180,7 +180,7 @@ jobs:
       - name: synth
         id: synth
         shell: bash
-        run: npx cdk synth --strict --validation
+        run: npx cdk synth --strict --validation AgenticLibStack S3SqsBridgeStack
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
