@@ -49,6 +49,13 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+
+      - name: Set up ~/.npmrc
+        run: |
+          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
       - run: npm ci
 
       - name: test
@@ -63,6 +70,9 @@ jobs:
 
   mvn-package-cdk-synth:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
@@ -71,6 +81,12 @@ jobs:
           node-version: 20
           cache: 'npm'
 
+      - name: Set up ~/.npmrc
+        run: |
+          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
       - run: npm ci
 
       - uses: actions/setup-java@v4
@@ -78,6 +94,10 @@ jobs:
           distribution: 'corretto'
           java-version: 21
           cache: 'maven'
+          server-password: PERSONAL_ACCESS_TOKEN
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: package
         id: package
@@ -88,6 +108,9 @@ jobs:
         id: synth
         shell: bash
         run: npx cdk synth --strict --validation --no-staging
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   publish-npm:
     needs:
