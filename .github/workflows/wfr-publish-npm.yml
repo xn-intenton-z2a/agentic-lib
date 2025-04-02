@@ -144,6 +144,8 @@ jobs:
           releasedVersion=$(node -p "require('./package.json').version")
           echo "releasedVersion=${releasedVersion}" >> $GITHUB_OUTPUT
           echo "releasedVersion=${releasedVersion}"
+        env:
+          PERSONAL_ACCESS_TOKEN: ""
 
       - name: Create GitHub Release
         if: ${{ inputs.githubRelease == 'true' || env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
