@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # scripts/aws-assume-agentic-lib-deployment-role.sh
-# Usage: ./scripts/aws-assume-agentic-lib-deployment-role.sh
+# Usage: . ./scripts/aws-assume-agentic-lib-deployment-role.sh
 unset AWS_ACCESS_KEY_ID
 unset AWS_SECRET_ACCESS_KEY
 unset AWS_SESSION_TOKEN

@@ -52,7 +52,7 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 
-      - run: npm install
+      - run: npm ci
 
       - run: npm test
 
@@ -76,7 +76,7 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 
-      - run: npm install
+      - run: npm ci
 
       - run: npm run test:unit
 
@@ -99,7 +99,7 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 
-      - run: npm install
+      - run: npm ci
 
       - name: build
         id: build

@@ -74,7 +74,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-      - run: npm install
+      - run: npm ci
       - run: npm run test:unit
 
   npm-build:
@@ -193,7 +193,7 @@ jobs:
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
-      - run: npm install
+      - run: npm ci
       - run: npm run test:unit
 
   npm-build-after-issue-resolution:

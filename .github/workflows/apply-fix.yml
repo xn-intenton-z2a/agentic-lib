@@ -150,7 +150,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-      - run: npm install
+      - run: npm ci
       - run: npm run test:unit
 
   npm-build:
@@ -306,7 +306,7 @@ jobs:
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git pull --ff-only origin ${{ needs.branch-for-fix.outputs.branch }}
-      - run: npm install
+      - run: npm ci
       - run: npm run test:unit
 
   npm-build-after-fix:

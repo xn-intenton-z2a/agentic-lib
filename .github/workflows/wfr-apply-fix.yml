@@ -515,7 +515,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          npm install
+          npm ci
           exit 0
 
       - name: Test after update
