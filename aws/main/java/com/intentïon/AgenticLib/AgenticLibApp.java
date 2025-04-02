@@ -26,6 +26,7 @@ public class AgenticLibApp {
                 .digestLambdaFunctionName(System.getenv("DIGEST_LAMBDA_FUNCTION_NAME"))
                 .digestLambdaHandlerFunctionName(System.getenv("DIGEST_LAMBDA_HANDLER_FUNCTION_NAME"))
                 .githubAPIBaseUrl(System.getenv("GITHUB_API_BASE_URL"))
+                .personalAccessToken(System.getenv("PERSONAL_ACCESS_TOKEN"))
                 .build();
 
         CfnOutput.Builder.create(agenticLibStack, "EventsBucketArn")

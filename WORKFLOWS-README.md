@@ -364,6 +364,9 @@ aws iam put-role-policy \
 Assume the deployment role:
 ```bash
 
+unset AWS_ACCESS_KEY_ID
+unset AWS_SECRET_ACCESS_KEY
+unset AWS_SESSION_TOKEN
 ROLE_ARN="arn:aws:iam::541134664601:role/agentic-lib-deployment-role"
 SESSION_NAME="agentic-lib-deployment-session-local"
 ASSUME_ROLE_OUTPUT=$(aws sts assume-role --role-arn "$ROLE_ARN" --role-session-name "$SESSION_NAME" --output json)
@@ -445,16 +448,16 @@ Maven build output:
 [INFO] 
 [INFO] Results:
 [INFO] 
-[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
 [INFO] 
 [INFO] 
-[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ agentic-lib ---
-[INFO] Building jar: /Users/antony/projects/agentic-lib/target/agentic-lib-0.0.1.jar
+[INFO] --- jar:3.4.1:jar (default-jar) @ agentic-lib ---
+[INFO] Building jar: /Users/antony/projects/agentic-lib/target/agentic-lib-2.8.1-0.jar
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  13.743 s
-[INFO] Finished at: 2025-03-18T22:19:37Z
+[INFO] Total time:  18.775 s
+[INFO] Finished at: 2025-04-02T00:59:55+01:00
 [INFO] ------------------------------------------------------------------------
 Unexpected error in background thread "software.amazon.jsii.JsiiRuntime.ErrorStreamSink": java.lang.NullPointerException: Cannot read field "stderr" because "consoleOutput" is null
 ```
@@ -469,40 +472,48 @@ npx cdk destroy
 ```bash
 
 aws logs delete-log-group \
+  --log-group-name "/aws/s3/agentic-lib-bucket"
+aws logs delete-log-group \
   --log-group-name "/aws/lambda/agentic-lib-digest-function"
+```
+
+Create a file `secrets.env` with the following content:
+```bash
+
+export PERSONAL_ACCESS_TOKEN=Your Personal Access Token with packages:read
 ```
 
 Deploys the AWS infrastructure including an App Runner service, an SQS queue, Lambda functions, and a PostgreSQL table.
 ```bash
 
+. ./secrets.env
 npx cdk deploy
 ```
 
 Example output:
 ```log
 ...truncated...
-AgenticLibStack: success: Published f23b4641b15bfe521c575e572ebe41ca2c4613e3e1ea8a9c8ef816c73832cddf:current_account-current_region
 AgenticLibStack: deploying... [1/1]
 AgenticLibStack: creating CloudFormation changeset...
 
  ✅  AgenticLibStack
 
-✨  Deployment time: 105.48s
+✨  Deployment time: 78.98s
 
 Outputs:
-AgenticLibStack.BucketArn = arn:aws:s3:::agentic-lib-bucket
-AgenticLibStack.OffsetsTableArn = arn:aws:dynamodb:eu-west-2:541134664601:table/offsets
-AgenticLibStack.OneOffJobLambdaArn = arn:aws:lambda:eu-west-2:541134664601:function:replayBatchLambdaHandler
-AgenticLibStack.ReplayQueueUrl = https://sqs.eu-west-2.amazonaws.com/541134664601/agentic-lib-replay-queue
+AgenticLibStack.DigestLambdaArn = arn:aws:lambda:eu-west-2:541134664601:function:agentic-lib-digest-function
+AgenticLibStack.DigestQueueUrl = https://sqs.eu-west-2.amazonaws.com/541134664601/agentic-lib-digest-queue
+AgenticLibStack.EventsBucketArn = arn:aws:s3:::agentic-lib-bucket
+AgenticLibStack.EventsS3AccessRoleArn = arn:aws:iam::541134664601:role/agentic-lib-bucket-writer-role
+AgenticLibStack.digestLambdaFunctionName = agentic-lib-digest-function (Source: CDK context.)
+AgenticLibStack.digestLambdaHandlerFunctionName = digestLambdaHandler (Source: CDK context.)
 ...truncated...
-AgenticLibStack.s3BucketName = agentic-lib-bucket (Source: CDK context.)
-AgenticLibStack.s3ObjectPrefix = events/ (Source: CDK context.)
-AgenticLibStack.s3RetainBucket = false (Source: CDK context.)
-AgenticLibStack.s3UseExistingBucket = false (Source: CDK context.)
+AgenticLibStack.sqsDigestQueueArn = arn:aws:sqs:eu-west-2:541134664601:agentic-lib-digest-queue (Source: CDK context.)
+AgenticLibStack.sqsDigestQueueName = agentic-lib-digest-queue (Source: CDK context.)
 Stack ARN:
-arn:aws:cloudformation:eu-west-2:541134664601:stack/AgenticLibStack/30cf37a0-0504-11f0-b142-06193d47b789
+arn:aws:cloudformation:eu-west-2:541134664601:stack/AgenticLibStack/62d89c60-0f62-11f0-852e-02fc4561559f
 
-✨  Total time: 118.12s
+✨  Total time: 116.49s
 
 ```
 

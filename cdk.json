@@ -1,7 +1,7 @@
 {
   "app": "mvn exec:java -Dexec.mainClass=com.intentïon.AgenticLib.AgenticLibApp",
   "context": {
-    "s3WriterArnPrinciple": "arn:aws:iam::541134664601:user/polycode-deploy",
+    "s3WriterArnPrinciple": "arn:aws:iam::541134664601:role/agentic-lib-github-actions-role",
     "s3WriterRoleName": "agentic-lib-bucket-writer-role",
     "s3BucketName": "agentic-lib-bucket",
     "s3ObjectPrefix": "events/",
@@ -24,6 +24,7 @@
     "replayLambdaHandlerFunctionName": "replayLambdaHandler",
     "digestLambdaFunctionName": "agentic-lib-digest-function",
     "digestLambdaHandlerFunctionName": "digestLambdaHandler",
-    "githubAPIBaseUrl": "https://api.github.com"
+    "githubAPIBaseUrl": "https://api.github.com",
+    "personalAccessToken": ""
   }
 }

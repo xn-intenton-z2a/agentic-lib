@@ -236,6 +236,8 @@ Delete log groups:
 ```bash
 
 aws logs delete-log-group \
+  --log-group-name "/aws/s3/agentic-lib-bucket"
+aws logs delete-log-group \
   --log-group-name "/aws/lambda/agentic-lib-digest-function"
 ```
 

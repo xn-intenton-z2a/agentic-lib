@@ -60,6 +60,7 @@ public class AgenticLibStack extends Stack {
         public String digestLambdaFunctionName;
         public String digestLambdaHandlerFunctionName;
         public String githubAPIBaseUrl;
+        public String personalAccessToken;
 
         public Builder(Construct scope, String id, StackProps props) {
             this.scope = scope;
@@ -147,6 +148,11 @@ public class AgenticLibStack extends Stack {
             return this;
         }
 
+        public Builder personalAccessToken(String personalAccessToken) {
+            this.personalAccessToken = personalAccessToken;
+            return this;
+        }
+
         public AgenticLibStack build() {
             AgenticLibStack stack = new AgenticLibStack(this.scope, this.id, this.props, this);
             return stack;
@@ -185,6 +191,7 @@ public class AgenticLibStack extends Stack {
         this.digestLambdaHandlerFunctionName = this.getConfigValue(builder.digestLambdaHandlerFunctionName, "digestLambdaHandlerFunctionName");
         this.digestLambdaFunctionName = this.getConfigValue(builder.digestLambdaFunctionName, "digestLambdaFunctionName");
         String githubAPIBaseUrl = this.getConfigValue(builder.githubAPIBaseUrl, "githubAPIBaseUrl");
+        String personalAccessToken = this.getConfigValue(builder.personalAccessToken, "personalAccessToken");
 
         if (s3UseExistingBucket) {
             this.eventsBucket = Bucket.fromBucketName(this, "EventsBucket", s3BucketName);
@@ -259,6 +266,7 @@ public class AgenticLibStack extends Stack {
         this.digestLambda = DockerImageFunction.Builder.create(this, "DigestLambda")
                 .code(DockerImageCode.fromImageAsset(".", AssetImageCodeProps.builder()
                         .buildArgs(Map.of("HANDLER", lambdaEntry + digestLambdaHandlerFunctionName))
+                        .buildArgs(Map.of("PERSONAL_ACCESS_TOKEN", personalAccessToken))
                         .build()))
                 .environment(Map.of(
                         "GITHUB_API_BASE_URL", githubAPIBaseUrl

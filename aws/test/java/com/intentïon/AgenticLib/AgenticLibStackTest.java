@@ -25,6 +25,7 @@ public class AgenticLibStackTest {
                 .digestLambdaFunctionName("agentic-lib-digest-function-test")
                 .digestLambdaHandlerFunctionName("digestLambdaHandler")
                 .githubAPIBaseUrl("https://api.github.com.test/")
+                .personalAccessToken("ghp_test")
                 .build();
 
         Template template = Template.fromStack(stack);
