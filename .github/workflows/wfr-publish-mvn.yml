@@ -114,11 +114,18 @@ jobs:
           distribution: 'corretto'
           java-version: 21
           cache: 'maven'
+          server-password: PERSONAL_ACCESS_TOKEN
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Build project before publishing begins
         id: build
         shell: bash
         run: ${{ env.mavenBuildScript }}
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       #- name: Run deploy without deploying
       #  shell: bash
@@ -127,6 +134,9 @@ jobs:
       - name: Validate settings.xml
         shell: bash
         run: mvn help:effective-settings
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Examine the git working copy (pre-release)
         shell: bash
@@ -166,6 +176,8 @@ jobs:
           echo "releasedVersion=${newVersion}"
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Create GitHub Release
         if: ${{ inputs.githubRelease == true && ( env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' ) }}
@@ -174,6 +186,9 @@ jobs:
           tag: ${{ steps.released.outputs.releasedVersion }}
           name: Release ${{ steps.released.outputs.releasedVersion }}
           body: ${{ env.releaseNotes }}
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Rotate to next snapshot version (from a released version)
         if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
@@ -192,6 +207,9 @@ jobs:
             fi
             echo "Using incremented version: $newVersion"
           fi
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Rotate to next pre-release version
         if: ${{ env.versionIncrement == 'premajor' || env.versionIncrement == 'preminor' || env.versionIncrement == 'prepatch' || env.versionIncrement == 'prerelease' }}
@@ -208,6 +226,9 @@ jobs:
             mvn versions:set -DnewVersion=$newVersion
             echo "Using incremented version: $newVersion"
           fi
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: rotated
         id: rotated
@@ -216,6 +237,9 @@ jobs:
           newVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "newVersion=${newVersion}" >> $GITHUB_OUTPUT
           echo "newVersion=${newVersion}"
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Examine the git working copy (post-rotation)
         shell: bash
@@ -226,6 +250,9 @@ jobs:
 
       - name: Run build after version bump
         run: ${{ env.mavenBuildScript }}
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Examine the git working copy (pre-push)
         shell: bash
@@ -247,6 +274,9 @@ jobs:
             git commit -m "${newVersion?}"
             git push origin HEAD
           fi
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Upload pom.xml artifact
         uses: actions/upload-artifact@v4
