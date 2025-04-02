@@ -180,16 +180,20 @@ jobs:
       - name: synth
         id: synth
         shell: bash
-        run: npx cdk synth --strict --validation AgenticLibStack S3SqsBridgeStack
+        run: npx cdk synth AgenticLibStack S3SqsBridgeStack --ci true --strict --validation
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  # TODO Resolve the issue with --require-approval
+  #2025-04-02T08:21:13.1741101Z "--require-approval" is enabled and stack includes security-sensitive updates, but terminal (TTY) is not attached so we are unable to get a confirmation from the user
+  #2025-04-02T08:21:13.2019011Z ##[error]Process completed with exit code 1.
 
       - name: deploy
         id: deploy
         shell: bash
         #run: npx cdk deploy AgenticLibStack S3SqsBridgeStack
-        run: npx cdk deploy AgenticLibStack
+        run: npx cdk deploy AgenticLibStack --require-approval never --ci true --verbose --strict --validation
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
