@@ -157,6 +157,12 @@ jobs:
               s3://agentic-lib-bucket/events/${{ github.event.repository.name }}-stats.json \
           ;
 
+      - name: Upload JSON stats artifact to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: stats-json
+          path: ${{ steps.generate-json.outputs.jsonStatsPath }}
+
       - name: Generate statistics page
         uses: actions/github-script@v7
         with:
@@ -371,12 +377,6 @@ jobs:
           echo "uniqueFile=${unique}" >> $GITHUB_OUTPUT
           echo "[INFO] Unique file created: public/${unique}"
 
-      - name: Upload generated site as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: site
-          path: 'public'
-
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
@@ -385,6 +385,12 @@ jobs:
           publish_branch: github-pages
           keep_files: true
           enable_jekyll: 'true'
+
+      - name: Upload generated site as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: 'public'
 
       - name: Output published URLs
         run: |
@@ -408,8 +414,3 @@ jobs:
           echo "latestUrl=${latestUrl}" >> $GITHUB_OUTPUT
           echo "uniqueUrl=${uniqueUrl}" >> $GITHUB_OUTPUT
 
-      - name: Upload JSON stats artifact to GitHub
-        uses: actions/upload-artifact@v4
-        with:
-          name: stats-json
-          path: ${{ steps.generate-json.outputs.jsonStatsPath }}
