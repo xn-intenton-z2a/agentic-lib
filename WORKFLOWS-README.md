@@ -631,17 +631,16 @@ Re-usable GitHub Actions Workflows:
 - [ ] Pre-request with file and a some context in a completions request for which files should be sent.
 
 Supervisor:
-- [~] Deploy a s3-sqs-bridge Stack from the agentic-lib project.
+- [x] Deploy a s3-sqs-bridge Stack from the agentic-lib project.
+- [x] Publish GitHub telemetry data to S3.
 - [~] Reintegrate the s3-sqs-bridge workflows with agentic-lib.
-- [ ] Publish GitHub telemetry data to S3.
 - [ ] Reinstate the agentic workflows in s3-sqs-bridge with maintenance focused tasks.
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix).
 - [ ] Reduce schedule and workflow completed triggers (instead leaving the supervisor to invoke workflows).
-- [ ] Dashboard metrics from kafka (e.g. GitHub Insights? commits by agents).
+- [ ] Dashboard metrics from s3 into the existing all stats dashboard.
+
+Supervisor launch:
 - [ ] Publish a demo to GitHub sites that animates issue workflow, git logs applying changes to files and raising PRs with live links to the repository and a draggable timeline.
-- [ ] Create a leaderboard project with a public test endpoint to see who can get the most throughput via s3-sqs-bridge or an HTTP rest endpoint.
-- [ ] Shutdown fargate when not in use by periodically checking the consumer group offset, whether it's behind and the last time it was behind.
-- [ ] Start fargate when the s3 bucket is written to.
 
 Marketplace GitHub Actions:
 - [ ] Consolidate reusable workflows jobs into a single GitHub Action GitHub Script step.

@@ -16,8 +16,10 @@ jobs:
   generate-site:
     runs-on: ubuntu-latest
     permissions:
+      contents: write
+      #packages: write
       id-token: write
-      contents: read
+      pages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
