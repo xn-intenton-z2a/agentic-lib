@@ -114,6 +114,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Set up .npmrc with only the GitHub token
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
       - name: Build project before publishing begins
         id: build
         shell: bash
@@ -145,8 +153,8 @@ jobs:
           releasedVersion=$(node -p "require('./package.json').version")
           echo "releasedVersion=${releasedVersion}" >> $GITHUB_OUTPUT
           echo "releasedVersion=${releasedVersion}"
-        env:
-          PERSONAL_ACCESS_TOKEN: ""
+        #env:
+        #  PERSONAL_ACCESS_TOKEN: ""
 
       - name: Create GitHub Release
         if: ${{ inputs.githubRelease == 'true' || env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
