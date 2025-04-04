@@ -144,8 +144,8 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish-mvn.yml@main'
     with:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
-      releaseVersionOverride: ${{ needs.publish.outputs.releasedVersion }}
-      newVersionOverride: ${{ needs.publish.outputs.newVersion }}
+      releaseVersionOverride: ${{ needs.publish-npm.outputs.releasedVersion }}
+      newVersionOverride: ${{ needs.publish-npm.outputs.newVersion }}
       githubRelease: false
       mavenBuildScript: './mvnw --batch-mode clean install'
       mavenDeployScript: './mvnw --batch-mode deploy'
