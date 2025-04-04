@@ -29,6 +29,9 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/apply-fix.yml"
 cp -v .github/workflows/automerge.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/automerge.yml"
 
+cp -v .github/workflows/deploy.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/deploy.yml"
+
 cp -v .github/workflows/formating.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/formating.yml"
 
@@ -47,25 +50,29 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-worker.yml"
 cp -v .github/workflows/publish.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish.yml"
 
-cp -v .github/workflows/test.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/test.yml"
-
 cp -v .github/workflows/stats.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/stats.yml"
 
-cp -v .github/workflows/update.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/update.yml"
+cp -v .github/workflows/test.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/test.yml"
 
 cp -v .github/workflows/truncate-workflow-history.yml "${DEST_DIR}/."
+
+cp -v .github/workflows/update.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/update.yml"
 
 mkdir -p "${DEST_DIR}/../../scripts"
 
 cp -v scripts/accept-release.sh "${DEST_DIR}/../../scripts/."
 cp -v scripts/activate-schedule.sh "${DEST_DIR}/../../scripts/."
 cp -v scripts/archive.sh "${DEST_DIR}/../../scripts/."
+cp -v scripts/aws-assume-agentic-lib-deployment-role.sh "${DEST_DIR}/../../scripts/."
+cp -v scripts/aws-unset-iam-session.sh "${DEST_DIR}/../../scripts/."
 cp -v scripts/clean.sh "${DEST_DIR}/../../scripts/."
 cp -v scripts/deactivate-schedule.sh "${DEST_DIR}/../../scripts/."
 cp -v scripts/export-source.sh "${DEST_DIR}/../../scripts/."
+cp -v scripts/generate-npmrc.sh "${DEST_DIR}/../../scripts/."
+cp -v scripts/generate-settings-xml.sh "${DEST_DIR}/../../scripts/."
 cp -v scripts/initialise.sh "${DEST_DIR}/../../scripts/."
 cp -v scripts/md-to-html.js "${DEST_DIR}/../../scripts/."
 cp -v scripts/truncate-git-history.sh "${DEST_DIR}/../../scripts/."
