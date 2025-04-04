@@ -33,7 +33,7 @@ jobs:
       houseChoiceOptions: ${{ steps.extract.outputs.houseChoiceOptions }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Parse Issue House Choice Options from CONTRIBUTING.md
         id: extract
