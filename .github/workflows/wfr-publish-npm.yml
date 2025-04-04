@@ -137,6 +137,7 @@ jobs:
         if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
         shell: bash
         run: |
+          unset PERSONAL_ACCESS_TOKEN
           npm version ${{ env.versionIncrement }}
           ${{ env.buildScript }}
           npm publish --tag latest --access restricted
