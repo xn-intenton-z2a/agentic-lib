@@ -103,6 +103,9 @@ jobs:
         id: package
         shell: bash
         run: ./mvnw clean package
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: synth
         id: synth
