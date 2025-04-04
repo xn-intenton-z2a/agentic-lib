@@ -1,7 +1,7 @@
 {
   "app": "mvn exec:java -Dexec.mainClass=com.intentïon.AgenticLib.AgenticLibApp",
-  "synthStacks": "AgenticLibStack S3SqsBridgeStack",
-  "deployStacks": "AgenticLibStack",
+  "synthStacks": "npx cdk synth AgenticLibStack S3SqsBridgeStack --ci true --strict --validation",
+  "deployStacks": "npx cdk deploy AgenticLibStack --require-approval never --ci true --verbose --strict --validation",
   "context": {
     "s3WriterArnPrinciple": "arn:aws:iam::541134664601:role/agentic-lib-github-actions-role",
     "s3WriterRoleName": "agentic-lib-bucket-writer-role",

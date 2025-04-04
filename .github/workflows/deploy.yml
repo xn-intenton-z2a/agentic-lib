@@ -189,7 +189,7 @@ jobs:
       - name: synth
         id: synth
         shell: bash
-        run: npx cdk synth ${{ steps.stacks.outputs.synth }} --ci true --strict --validation
+        run: ${{ steps.stacks.outputs.synth }}
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -197,7 +197,7 @@ jobs:
       - name: deploy
         id: deploy
         shell: bash
-        run: npx cdk deploy ${{ steps.stacks.outputs.deploy }} --require-approval never --ci true --verbose --strict --validation
+        run: ${{ steps.stacks.outputs.deploy }}
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
