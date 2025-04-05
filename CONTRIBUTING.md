@@ -46,16 +46,6 @@ Contributions come in many forms—whether you’re a developer, tester, or an a
 - **Feedback & Collaboration:**  
   We welcome constructive feedback. Engage with maintainers and peers through GitHub issues and pull request discussions to improve our collective workflow.
 
-## Agentic contribution house choice options (programmatically parsed): START
-
-Workflow schedule: schedule-1
-
-TODO: Move the schedule config to .github/workflows/schedule.yml
-
----
----
----
-
 # Ensure README.md begins like this:
 
 # intentïon agentic-lib
