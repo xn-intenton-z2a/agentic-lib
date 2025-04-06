@@ -163,7 +163,7 @@ jobs:
       mainScriptTimeout: '5m'
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-      npmAuthOrganisation: ''
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       branch: ${{ inputs.branch || github.ref }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}

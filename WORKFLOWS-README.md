@@ -634,7 +634,7 @@ Supervisor:
 - [x] Deploy a s3-sqs-bridge Stack from the agentic-lib project.
 - [x] Publish GitHub telemetry data to S3.
 - [x] Reintegrate the s3-sqs-bridge workflows with agentic-lib.
-- [~] Switch to generating issues base on the prompts.
+- [x] Switch to generating issues based on the prompts.
 - [ ] Create a feature worker which creates issues based on the features.
 - [ ] Reinstate the agentic workflows in s3-sqs-bridge with maintenance focused tasks.
 - [ ] Dashboard metrics from s3 into the existing all stats dashboard.
