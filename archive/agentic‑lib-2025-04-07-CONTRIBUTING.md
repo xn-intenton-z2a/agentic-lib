@@ -1,6 +1,6 @@
 # agentic‑lib
 
-This document outlines our guidelines for human and automated contributions, ensuring that our core library remains
+This document outlines our guidelines for human and automated contributions, ensuring that our core library remains 
 robust, testable, and efficient in powering our reusable GitHub Workflows.
 
 ## How to Contribute

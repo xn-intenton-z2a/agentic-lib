@@ -1,3 +1,12 @@
+src/index.js
+==== Content of src/index.js ====
+// src/index.js
+// This file is intentionally left empty.
+//
+// This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+// This file is licensed under the MIT License. For details, see LICENSE-MIT
+//src/lib/main.js
+==== Content of src/lib/main.js ====
 #!/usr/bin/env node
 // src/lib/main.js
 

@@ -1,0 +1,249 @@
+commit e0cec5dad7cc730103be65179758c5e71c9e55de
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Sun Apr 6 17:38:42 2025 +0000
+
+    Enhanced error messages in delegateDecisionToLLMFunctionCallWrapper to guide users on proper prompt input. (fixes #930) (#931)
+    
+    Co-authored-by: GitHub Actions[bot] <action@github.com>
+
+diff --git a/src/lib/main.js b/src/lib/main.js
+index aa0d063..3d33d56 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -117,12 +117,12 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
+ 
+   // Enhanced input validation: ensure prompt is a non-empty string and of type string
+   if (typeof prompt !== 'string' || prompt.trim() === "") {
+-    const errorMsg = `Invalid prompt provided; received value: ${prompt} (type: ${typeof prompt}). A non-empty string is required.`;
++    const errorMsg = `Invalid prompt provided; received value: ${prompt} (type: ${typeof prompt}). A non-empty string is required. If you passed a numeric value, please convert it to a string.`;
+     console.error(chalk.red(errorMsg));
+-    return { 
+-      fixed: "false", 
+-      message: errorMsg, 
+-      refinement: "Please provide a valid prompt as a non-empty string." 
++    return {
++      fixed: "false",
++      message: errorMsg,
++      refinement: "Please provide a valid prompt as a non-empty string. If passing a number, convert it to a string."
+     };
+   }
+ 
+
+commit 5850c7c608216caf1dce24b5183d69b5ce40c121
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Sun Apr 6 17:07:54 2025 +0000
+
+    Refined prompt validation error messaging in delegateDecisionToLLMFunctionCallWrapper. (fixes #926) (#927)
+    
+    Co-authored-by: GitHub Actions[bot] <action@github.com>
+
+diff --git a/src/lib/main.js b/src/lib/main.js
+index fc5787e..aa0d063 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -117,10 +117,11 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
+ 
+   // Enhanced input validation: ensure prompt is a non-empty string and of type string
+   if (typeof prompt !== 'string' || prompt.trim() === "") {
+-    console.error(chalk.red("Invalid prompt provided; prompt must be a non-empty string."));
++    const errorMsg = `Invalid prompt provided; received value: ${prompt} (type: ${typeof prompt}). A non-empty string is required.`;
++    console.error(chalk.red(errorMsg));
+     return { 
+       fixed: "false", 
+-      message: "Invalid prompt: a non-empty string is required.", 
++      message: errorMsg, 
+       refinement: "Please provide a valid prompt as a non-empty string." 
+     };
+   }
+
+commit 805d008dfb7b306f469dd9d4ad0a6273b9608ccf
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Sun Apr 6 16:52:34 2025 +0000
+
+    Enhanced error logging in digestLambdaHandler to include record index and detailed context for JSON parsing errors. (fixes #924) (#925)
+    
+    Co-authored-by: GitHub Actions[bot] <action@github.com>
+
+diff --git a/src/lib/main.js b/src/lib/main.js
+index aa32ac1..fc5787e 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -89,15 +89,14 @@ export async function digestLambdaHandler(sqsEvent) {
+   // Array to collect the identifiers of the failed records
+   const batchItemFailures = [];
+ 
+-  for (const sqsEventRecord of sqsEventRecords) {
++  for (const [index, sqsEventRecord] of sqsEventRecords.entries()) {
+     try {
+       const digest = JSON.parse(sqsEventRecord.body);
+-      logInfo(`Received digest: ${JSON.stringify(digest)}`);
++      logInfo(`Record ${index}: Received digest: ${JSON.stringify(digest)}`);
+     } catch (error) {
+-      // If messageId is missing, generate a fallback identifier
+-      const recordId = sqsEventRecord.messageId || `fallback-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+-      logError(`Error processing record ${recordId}: ${error.message}`, error);
+-      logError(`Raw message body was: ${sqsEventRecord.body}`, error);
++      // If messageId is missing, generate a fallback identifier including record index
++      const recordId = sqsEventRecord.messageId || `fallback-${index}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
++      logError(`Error processing record ${recordId} at index ${index}: Invalid JSON payload. Error: ${error.message}. Raw message: ${sqsEventRecord.body}`, error);
+       batchItemFailures.push({ itemIdentifier: recordId });
+     }
+   }
+
+commit a5a76975e5b9bd97abd495a54d94c326686d628a
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Sun Apr 6 16:41:22 2025 +0000
+
+    Enhanced digestLambdaHandler to handle missing messageId with fallback unique identifier and added corresponding tests. (fixes #922) (#923)
+    
+    Co-authored-by: GitHub Actions[bot] <action@github.com>
+
+diff --git a/src/lib/main.js b/src/lib/main.js
+index cd5393e..aa32ac1 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -94,10 +94,11 @@ export async function digestLambdaHandler(sqsEvent) {
+       const digest = JSON.parse(sqsEventRecord.body);
+       logInfo(`Received digest: ${JSON.stringify(digest)}`);
+     } catch (error) {
+-      // Log the error and add the record's messageId to the partial batch response
+-      logError(`Error processing record ${sqsEventRecord.messageId}: ${error.message}`, error);
++      // If messageId is missing, generate a fallback identifier
++      const recordId = sqsEventRecord.messageId || `fallback-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
++      logError(`Error processing record ${recordId}: ${error.message}`, error);
+       logError(`Raw message body was: ${sqsEventRecord.body}`, error);
+-      batchItemFailures.push({ itemIdentifier: sqsEventRecord.messageId });
++      batchItemFailures.push({ itemIdentifier: recordId });
+     }
+   }
+ 
+
+commit 1c782ee21a7b5b01d5f12745f01296f02b682499
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Sun Apr 6 16:34:29 2025 +0000
+
+    Fixed erroneous import statement in srclibmain.js by replacing imp fix-me ort dotenv with import dotenv from dotenv. (#921)
+    
+    Co-authored-by: GitHub Actions[bot] <action@github.com>
+
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 168efaf..cd5393e 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -4,7 +4,7 @@
+ import { fileURLToPath } from "url";
+ import chalk from "chalk";
+ import { z } from "zod";
+-imp fix-me ort dotenv from "dotenv";
++import dotenv from "dotenv";
+ 
+ // ---------------------------------------------------------------------------------------------------------------------
+ // Environment configuration from .env file or environment variables or test values.
+
+commit 1264c897da0d9dbf7c44e6d8889d89a3b5df97dc
+Author: Antony @ Polycode <112443706+Antony-at-Polycode@users.noreply.github.com>
+Date:   Sun Apr 6 16:35:24 2025 +0100
+
+    Update main.js
+
+diff --git a/src/lib/main.js b/src/lib/main.js
+index cd5393e..168efaf 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -4,7 +4,7 @@
+ import { fileURLToPath } from "url";
+ import chalk from "chalk";
+ import { z } from "zod";
+-import dotenv from "dotenv";
++imp fix-me ort dotenv from "dotenv";
+ 
+ // ---------------------------------------------------------------------------------------------------------------------
+ // Environment configuration from .env file or environment variables or test values.
+
+commit e55b923d1fac60c0a533a0937c2aad60513001be
+Author: GitHub Actions[bot] <action@github.com>
+Date:   Sun Apr 6 13:59:57 2025 +0000
+
+    Standardized error handling for invalid prompt inputs in delegateDecisionToLLMFunctionCallWrapper. (fixes #910)
+
+diff --git a/src/lib/main.js b/src/lib/main.js
+index b291d1a..cd5393e 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -115,9 +115,14 @@ export async function digestLambdaHandler(sqsEvent) {
+ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "gpt-3.5-turbo", options = {}) {
+   console.log(chalk.blue("delegateDecisionToLLMFunctionCallWrapper invoked with prompt:"), prompt);
+ 
+-  // Enhanced input validation: ensure prompt is a non-empty string
++  // Enhanced input validation: ensure prompt is a non-empty string and of type string
+   if (typeof prompt !== 'string' || prompt.trim() === "") {
+-    return { fixed: "false", message: "Prompt must be a non-empty string.", refinement: "Provide a valid prompt." };
++    console.error(chalk.red("Invalid prompt provided; prompt must be a non-empty string."));
++    return { 
++      fixed: "false", 
++      message: "Invalid prompt: a non-empty string is required.", 
++      refinement: "Please provide a valid prompt as a non-empty string." 
++    };
+   }
+ 
+   if (!process.env.OPENAI_API_KEY) {
+
+commit d3ecdb2cd04ec2de78debae8fa64bbc4d71e9813
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Sun Apr 6 13:46:49 2025 +0000
+
+    Enhanced input validation in delegateDecisionToLLMFunctionCallWrapper to check for non-string prompts. (fixes #906) (#907)
+    
+    Co-authored-by: GitHub Actions[bot] <action@github.com>
+
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 5f656f3..b291d1a 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -34,12 +34,11 @@ export function logConfig() {
+         GITHUB_API_BASE_URL: config.GITHUB_API_BASE_URL,
+         OPENAI_API_KEY: config.OPENAI_API_KEY,
+       },
+-    }),
++    })
+   );
+ }
+ logConfig();
+ 
+-
+ // ---------------------------------------------------------------------------------------------------------------------
+ // Utility functions
+ // ---------------------------------------------------------------------------------------------------------------------
+@@ -55,7 +54,7 @@ export function logError(message, error) {
+       timestamp: new Date().toISOString(),
+       message,
+       error: error ? error.toString() : undefined,
+-    }),
++    })
+   );
+ }
+ 
+@@ -69,7 +68,7 @@ export function createSQSEventFromDigest(digest) {
+       {
+         eventVersion: "2.0",
+         eventSource: "aws:sqs",
+-        eventTime: Date.now().toISOString(),
++        eventTime: new Date().toISOString(),
+         eventName: "SendMessage",
+         body: JSON.stringify(digest),
+       },
+@@ -115,9 +114,12 @@ export async function digestLambdaHandler(sqsEvent) {
+ 
+ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "gpt-3.5-turbo", options = {}) {
+   console.log(chalk.blue("delegateDecisionToLLMFunctionCallWrapper invoked with prompt:"), prompt);
+-  if (!prompt || prompt.trim() === "") {
+-    return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
++
++  // Enhanced input validation: ensure prompt is a non-empty string
++  if (typeof prompt !== 'string' || prompt.trim() === "") {
++    return { fixed: "false", message: "Prompt must be a non-empty string.", refinement: "Provide a valid prompt." };
+   }
++
+   if (!process.env.OPENAI_API_KEY) {
+     console.error(chalk.red("OpenAI API key is missing."));
+     return { fixed: "false", message: "Missing API key.", refinement: "Set the OPENAI_API_KEY environment variable." };
