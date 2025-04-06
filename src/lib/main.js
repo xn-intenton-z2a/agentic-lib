@@ -4,7 +4,7 @@
 import { fileURLToPath } from "url";
 import chalk from "chalk";
 import { z } from "zod";
-import dotenv from "dotenv";
+imp fix-me ort dotenv from "dotenv";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Environment configuration from .env file or environment variables or test values.
@@ -115,9 +115,14 @@ export async function digestLambdaHandler(sqsEvent) {
 export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "gpt-3.5-turbo", options = {}) {
   console.log(chalk.blue("delegateDecisionToLLMFunctionCallWrapper invoked with prompt:"), prompt);
 
-  // Enhanced input validation: ensure prompt is a non-empty string
+  // Enhanced input validation: ensure prompt is a non-empty string and of type string
   if (typeof prompt !== 'string' || prompt.trim() === "") {
-    return { fixed: "false", message: "Prompt must be a non-empty string.", refinement: "Provide a valid prompt." };
+    console.error(chalk.red("Invalid prompt provided; prompt must be a non-empty string."));
+    return { 
+      fixed: "false", 
+      message: "Invalid prompt: a non-empty string is required.", 
+      refinement: "Please provide a valid prompt as a non-empty string." 
+    };
   }
 
   if (!process.env.OPENAI_API_KEY) {
