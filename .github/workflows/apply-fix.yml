@@ -267,6 +267,7 @@ jobs:
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: 'README.md'
+      missionFile: 'MISSION.md'
       contributingFile: 'CONTRIBUTING.md'
       dependenciesFile: 'package.json'
       formattingFile: '.prettierrc'

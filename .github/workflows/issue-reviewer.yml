@@ -64,6 +64,7 @@ jobs:
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
+      missionFile: 'MISSION.md'
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: 'README.md'
       contributingFile: 'CONTRIBUTING.md'

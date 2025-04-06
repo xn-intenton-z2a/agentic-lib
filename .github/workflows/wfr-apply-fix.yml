@@ -43,6 +43,11 @@ on:
         type: string
         required: false
         default: 'README.md'
+      missionFile:
+        description: 'The MISSION statement file. e.g. "MISSION.md"'
+        type: string
+        required: false
+        default: 'MISSION.md'
       contributingFile:
         description: 'The CONTRIBUTING file to review. e.g. "CONTRIBUTING.md"'
         type: string
@@ -142,6 +147,7 @@ jobs:
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
+      missionFile: ${{ inputs.missionFile || 'MISSION.md' }}
       contributingFile: ${{ inputs.contributingFile || 'CONTRIBUTING.md' }}
       dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
       formattingFile: ${{ inputs.formattingFile || '.prettierrc' }}
@@ -249,6 +255,7 @@ jobs:
             const target = process.env.target;
             const testFile = process.env.testFile;
             const readmeFile = process.env.readmeFile;
+            const missionFile = process.env.missionFile;
             const contributingFile = process.env.contributingFile;
             const dependenciesFile = process.env.dependenciesFile;
             const formattingFile = process.env.formattingFile;
@@ -277,6 +284,7 @@ jobs:
             core.info(`target: "${target}"`);
             core.info(`testFile: "${testFile}"`);
             core.info(`readmeFile: "${readmeFile}"`);
+            core.info(`missionFile: "${missionFile}"`);
             core.info(`contributingFile: "${contributingFile}"`);
             core.info(`dependenciesFile: "${dependenciesFile}"`);
             core.info(`formattingFile: "${formattingFile}"`);
@@ -284,6 +292,7 @@ jobs:
             const sourceFileContent = fs.readFileSync(target, 'utf8');
             const testFileContent = fs.readFileSync(testFile, 'utf8');
             const readmeFileContent = fs.readFileSync(readmeFile, 'utf8');
+            const missionFileContent = fs.readFileSync(missionFile, 'utf8');
             const contributingFileContent = fs.readFileSync(contributingFile, 'utf8');
             const dependenciesFileContent = fs.readFileSync(dependenciesFile, 'utf8');
             const formattingFileContent = fs.readFileSync(formattingFile, 'utf8');
@@ -301,6 +310,7 @@ jobs:
             * Source file content
             * Test file content
             * README file content issue
+            * MISSION file content
             * Contributing file content
             * Dependencies file content
             * Formatting file content
@@ -326,6 +336,11 @@ jobs:
             README_FILE_START
             ${readmeFileContent}
             README_FILE_END
+            
+            MISSION file: ${missionFile}
+            MISSION_FILE_START
+            ${missionFileContent}
+            MISSION_FILE_END
 
             Contributing file: ${contributingFile}
             CONTRIBUTING_FILE_START

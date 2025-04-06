@@ -1,8 +1,7 @@
 # agentic‑lib
 
-Thank you for your interest in contributing to **agentic‑lib**! This document outlines our guidelines for human and 
-automated contributions, ensuring that our core library remains robust, testable, and efficient in powering our 
-reusable GitHub Workflows.
+This document outlines our guidelines for human and automated contributions, ensuring that our core library remains 
+robust, testable, and efficient in powering our reusable GitHub Workflows.
 
 ## How to Contribute
 
@@ -13,32 +12,18 @@ Contributions come in many forms—whether you’re a developer, tester, or an a
 
 2. **Submit Pull Requests:**
     - Fork the repository and create a feature branch.
-    - Implement your changes, ensuring you follow our coding style and standards.
+    - Implement your changes, ensuring you follow the existing coding style and standards.
     - Add tests to cover any new functionality.
     - Update documentation if your changes affect usage or workflow behavior.
     - Submit your pull request for review.
 
-3. **Enhance Automated Workflows:**  
-   Contributions might include adjustments to:
-    - The AI-based fix verification logic.
-    - File update routines responding to build, test, or main output.
-    - Logic for extracting issue numbers from branch names.
-    - Automated pull request merging or listing mechanisms.
-
-4. **Run and Test the Library:**  
-   To explore the capabilities of **agentic‑lib**, run the demo function with:
-   ```bash
-   npm run start [--help]
-   ```
-   This command prints a detailed help message, including available functions and parameters.
-
 ## Guidelines
 
 - **Code Quality:**  
-  Write modular, clean, and fully testable code. Our design intentionally decouples functionality from GitHub Actions globals to enhance testability and reuse.
+  Ensure there are tests that cover your changes and any likely new cases they introduce.
 
 - **Documentation:**  
-  Keep inline comments and this Contributing.md up-to-date as you introduce changes. Clear documentation ensures the project stays accessible to both human and AI collaborators.
+  Keep the README.md and other documentation up to date with your changes. This includes usage examples, API references, and any new workflows you introduce.
 
 - **Compatibility:**  
   Ensure your code runs on Node 20 and adheres to ECMAScript Module (ESM) standards.
@@ -47,6 +32,8 @@ Contributions come in many forms—whether you’re a developer, tester, or an a
   We welcome constructive feedback. Engage with maintainers and peers through GitHub issues and pull request discussions to improve our collective workflow.
 
 # Ensure README.md begins like this:
+
+START_OF_README_BEGINNING
 
 # intentïon agentic-lib
 
@@ -70,15 +57,15 @@ Mixed licensing:
 
 This README file will evolve as the test experiment within this repository evolves.
 
+END_OF_README_BEGINNING
+
 ---
 ---
 ---
 
 # Ensure README.md ends like this:
 
-## Contributing
-
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+START_OF_README_ENDING
 
 ## Component Breakdown
 
@@ -139,6 +126,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
+
+END_OF_README_ENDING
 
 ---
 ---

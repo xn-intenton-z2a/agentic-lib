@@ -633,12 +633,14 @@ Re-usable GitHub Actions Workflows:
 Supervisor:
 - [x] Deploy a s3-sqs-bridge Stack from the agentic-lib project.
 - [x] Publish GitHub telemetry data to S3.
-- [~] Reintegrate the s3-sqs-bridge workflows with agentic-lib.
-- [ ] Do this everywhere:  echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+- [x] Reintegrate the s3-sqs-bridge workflows with agentic-lib.
+- [~] Switch to generating issues base on the prompts.
+- [ ] Create a feature worker which creates issues based on the features.
 - [ ] Reinstate the agentic workflows in s3-sqs-bridge with maintenance focused tasks.
 - [ ] Dashboard metrics from s3 into the existing all stats dashboard.
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix).
 - [ ] Create a "supervisor" engine schedule with reduced schedule triggers (leaving the supervisor to invoke workflows).
+- [ ] Do this everywhere:  echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
 
 Supervisor launch:
 - [ ] Publish a demo to GitHub sites that animates issue workflow, git logs applying changes to files and raising PRs with live links to the repository and a draggable timeline.

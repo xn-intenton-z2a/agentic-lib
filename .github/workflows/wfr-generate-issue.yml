@@ -1,4 +1,4 @@
-# .github/workflows/wfr-review-issue.yml
+# .github/workflows/wfr-generate-issue.yml
 
 #
 # agentic-lib
@@ -23,27 +23,27 @@
 # "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 #
 
-name: ∞ Review issue
+name: ∞ Generate issue
 
 on:
   workflow_call:
     inputs:
-      issueNumber:
-        description: 'The issue number to review. e.g. "123"'
+      prompt:
+        description: 'The prompt to guide the issue creation. e.g. "Make an improvement to tests."'
         type: string
         required: true
       target:
-        description: 'The target file to review. e.g. "src/lib/main.js"'
+        description: 'The target file to create the issue to change. e.g. "src/lib/main.js"'
         type: string
         required: false
         default: 'src/lib/main.js'
       testFile:
-        description: 'The test file to review. e.g. "tests/unit/main.test.js"'
+        description: 'The test file. e.g. "tests/unit/main.test.js"'
         type: string
         required: false
         default: 'tests/unit/main.test.js'
       readmeFile:
-        description: 'The README file to review. e.g. "README.md"'
+        description: 'The README file. e.g. "README.md"'
         type: string
         required: false
         default: 'README.md'
@@ -53,12 +53,12 @@ on:
         required: false
         default: 'MISSION.md'
       contributingFile:
-        description: 'The CONTRIBUTING file to review. e.g. "CONTRIBUTING.md"'
+        description: 'The CONTRIBUTING file. e.g. "CONTRIBUTING.md"'
         type: string
         required: false
         default: 'CONTRIBUTING.md'
       dependenciesFile:
-        description: 'The dependencies file to review. e.g. "package.json"'
+        description: 'The dependencies file. e.g. "package.json"'
         type: string
         required: false
         default: 'package.json'
@@ -88,15 +88,17 @@ on:
       CHATGPT_API_SECRET_KEY:
         required: true
     outputs:
-      fixed:
-        value: ${{ jobs.review-issue.outputs.fixed }}
+      issueTitle:
+        value: ${{ jobs.generate-issue.outputs.issueTitle }}
+      issueDescription:
+        value: ${{ jobs.generate-issue.outputs.issueDescription }}
 
 jobs:
-  review-issue:
+  generate-issue:
     runs-on: ubuntu-latest
 
     env:
-      issueNumber: ${{ inputs.issueNumber }}
+      prompt: ${{ inputs.prompt || '' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
@@ -198,7 +200,7 @@ jobs:
             const dependenciesFile = process.env.dependenciesFile;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
-            const issueNumber = parseInt(process.env.issueNumber);
+            const prompt = parseInt(process.env.prompt);
             const dependenciesListOutput = process.env.dependenciesListOutput;
             const buildScript = process.env.buildScript;
             const buildOutput = process.env.buildOutput;
@@ -234,32 +236,16 @@ jobs:
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
             
-            const issue = await github.rest.issues.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber
-            });
-            const issueTitle = issue.data.title;
-            const issueDescription = issue.data.body;
-            const issueComments = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber
-            });
-            const issueCommentsText = issueComments.data
-              .map(comment => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
-              .join('\n');
-            
             const prompt = `
-            Does the combination source file, test file, README file and dependencies file show a solution with a reasonable likelihood of including a resolution to the following issue?
+            Please generate the title and description of a GitHub issue to which will be used to action the supplied prompt.
             Consider the following when refining your response:
+            * Prompt details
             * Source file content
             * Test file content
             * README file content issue
             * MISSION file content
             * Contributing file content
             * Dependencies file content
-            * Issue details
             * Dependency list
             * Build output
             * Test output
@@ -295,14 +281,10 @@ jobs:
             ${dependenciesFileContent}
             DEPENDENCIES_FILE_END
             
-            Issue:
-            ISSUE_START
-            title: ${issueTitle}
-            description:
-            ${issueDescription}
-            comments:
-            ${issueCommentsText}
-            ISSUE_END            
+            Prompt:
+            PROMPT_START
+            ${prompt}
+            PROMPT_END            
 
             Dependencies list from command: npm list
             DEPENDENCIES_LIST_START
@@ -326,9 +308,8 @@ jobs:
             
             Answer strictly with a JSON object following this schema:
             {
-              "fixed": "true", // if the fix is present, or "false" otherwise.
-              "message": "The issue has been resolved.", // if the fix is present, or an explanation otherwise.
-              "refinement": "None" // if the fix is present, or a suggested refinement to resolve the issue otherwise.
+              "issueTitle": "The Title", // A summary of the change to make as a title.
+              "issueDescription": "The description.", // Detail about the change, how to apply and verify it.
             }
             Ensure valid JSON.
             `;
@@ -339,16 +320,15 @@ jobs:
             const tools = [{
               type: "function",
               function: {
-                name: "review_issue",
-                description: "Evaluate whether the supplied source file content resolves the issue. Return an object with fixed (string: 'true' or 'false'), message (explanation), and refinement (suggested refinement).",
+                name: "generate_issue",
+                description: "Elaborate on the supplied prompt and project files to create the issueTitle and issueDescription of a GitHub Issue. Return an object with issueTitle (string), and issueDescription (string).",
                 parameters: {
                   type: "object",
                   properties: {
-                    fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
-                    message: { type: "string", description: "A message explaining the result" },
-                    refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
+                    issueTitle: { type: "string", description: "A summary of the change to make as a title." },
+                    issueDescription: { type: "string", description: "Detail about the change, how to apply and verify it." }
                   },
-                  required: ["fixed", "message", "refinement"],
+                  required: ["issueTitle", "issueDescription"],
                   additionalProperties: false
                 },
                 strict: true
@@ -384,26 +364,11 @@ jobs:
             
             try {
               const parsed = ResponseSchema.parse(result);
-              core.setOutput("fixed", parsed.fixed);
-              core.setOutput("message", parsed.message);
-              core.setOutput("refinement", parsed.refinement);
-              core.info(`fixed: "${parsed.fixed}"`);
-              core.info(`message: "${parsed.message}"`);
-              core.info(`refinement: "${parsed.refinement}"`);
+              core.setOutput("issueTitle", parsed.issueTitle);
+              core.setOutput("issueDescription", parsed.issueDescription);
+              core.info(`issueTitle: "${parsed.issueTitle}"`);
+              core.info(`issueDescription: "${parsed.issueDescription}"`);
             
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                body: parsed.message
-              });
-            
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                body: parsed.refinement
-              });
             } catch (e) {
               core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
             }
@@ -412,27 +377,6 @@ jobs:
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`response: "${JSON.stringify(response)}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
-      - name: Close fixed issues
-        if: steps.verify.outputs.fixed == 'true'
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
-          script: |
-            const issueNumber = parseInt("${{ env.issueNumber }}");
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              body: "The issue has been automatically resolved and the fix has been merged."
-            });
-            await github.rest.issues.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              state: "closed"
-            });
-
     outputs:
-      fixed: ${{ steps.verify.outputs.fixed }}
-      message: ${{ steps.verify.outputs.message }}
-      refinement: ${{ steps.verify.outputs.refinement }}
+      issueTitle: ${{ steps.verify.outputs.issueTitle }}
+      issueDescription: ${{ steps.verify.outputs.issueDescription }}
