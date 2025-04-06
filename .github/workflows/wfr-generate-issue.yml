@@ -221,7 +221,7 @@ jobs:
             require('dotenv').config();
 
             // Gather the titles of all open issues
-            const openIssueTitles = await github.issues.listForRepo({
+            const openIssueTitles = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open'
