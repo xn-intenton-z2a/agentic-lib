@@ -244,6 +244,8 @@ jobs:
             
             const chatGptPrompt = `
             Please generate the title and description of a GitHub issue to which will be used to action the supplied prompt.
+            The issue will be resolved by an LLM which can process over 100,000 tokens of context and it will provide completed source files in the response.
+            Do not include steps that would need to be taken manually by a human and expect to "dry-run" without an execution environment.
             Consider the following when refining your response:
             * Prompt details
             * Source file content
