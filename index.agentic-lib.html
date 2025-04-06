@@ -34,66 +34,10 @@
 <li class="md-github">This file is part of the example suite for <code class="md-github">agentic-lib</code> (see: https://github.com/xn-intenton-z2a/agentic-lib).</li>
 <li class="md-github">This file is licensed under the MIT License. For details, see LICENSE-MIT.</li>
 </ul>
-<p class="md-github">*Change Log: README refreshed following CONTRIBUTING guidelines. Outdated and irrelevant content pruned while core information is retained.
-<strong class="md-github">NEW:</strong> Added and enhanced telemetry functions including gatherWorkflowTelemetry, gatherCIWorkflowMetrics, gatherSystemMetrics and parsing functions parseCombinedDefaultOutput, parseVitestDefaultOutput, parseEslintSarifOutput, and parseEslintDefaultOutput to process output formats.
-<strong class="md-github">FIX:</strong> Corrected getIssueNumberFromBranch function (fixed regex pattern) and added parseCombinedDefaultOutput for parsing test outputs.
-<strong class="md-github">EXT:</strong> Implemented simulateIssueCreation to simulate a GitHub Actions workflow for issue creation similar to wfr-create-issue.yml with enhanced behavior including randomized title selection, timestamp logging, and optional issue labels for improved mimicry of real workflow outputs. (Updated to robustly handle empty options and provide a fallback title.)
-<strong class="md-github">NEW:</strong> Added OpenAI delegation wrappers: delegateDecisionToLLMChat, delegateDecisionToLLMChatVerbose, delegateDecisionToLLMChatOptimized for enhanced prompt validation, delegateDecisionToLLMChatAdvanced for advanced delegation with extra context support, and delegateDecisionToLLMChatPremium with additional logging and configurable base URL support. <strong class="md-github">Extended delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling.</strong>
-<strong class="md-github">NEW:</strong> Added remote service wrapper simulateRemoteServiceWrapper for simulating interactions with remote logging or monitoring services.
-<strong class="md-github">NEW:</strong> Added parsing functions parseVitestFailureOutput to extract the number of failed tests from Vitest output and parseEslintCompactOutput to handle ESLint compact output formats.
-<strong class="md-github">NEW:</strong> Exported the main() function for CLI testing and added tests for CLI help output.</p>
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
-<p class="md-github">agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Actions workflows. Key features include:</p>
-<ul class="md-github">
-<li class="md-github"><strong class="md-github">Usage Information:</strong> Use <code class="md-github">generateUsage()</code> to display available command‑line options.</li>
-<li class="md-github"><strong class="md-github">Telemetry:</strong> Comprehensive diagnostics via functions such as:
-<ul class="md-github">
-<li class="md-github"><code class="md-github">gatherTelemetryData()</code>, <code class="md-github">gatherExtendedTelemetryData()</code>, <code class="md-github">gatherAdvancedTelemetryData()</code>, <code class="md-github">gatherFullTelemetryData()</code>, <code class="md-github">gatherTotalTelemetry()</code>, <code class="md-github">gatherWorkflowTelemetry()</code>, <code class="md-github">gatherCIWorkflowMetrics()</code>, and <strong class="md-github"><code class="md-github">gatherSystemMetrics()</code></strong> for system-level telemetry.</li>
-<li class="md-github"><strong class="md-github">CI Metrics:</strong> <code class="md-github">gatherCIEnvironmentMetrics()</code> captures additional GitHub Actions metrics.</li>
-<li class="md-github"><strong class="md-github">Extra Telemetry:</strong> <code class="md-github">gatherExtraTelemetryData()</code> provides metrics like timestamps, CPU usage, and free memory.</li>
-<li class="md-github"><strong class="md-github">GitHub Environment Telemetry:</strong> <code class="md-github">gatherGithubEnvTelemetry()</code> aggregates all environment variables starting with <code class="md-github">GITHUB_</code>.</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">Remote Service Wrappers:</strong> Simplified API interactions for multiple services, including a new <strong class="md-github">simulateRemoteServiceWrapper</strong> to simulate remote interactions, such as logging or monitoring services.</li>
-<li class="md-github"><strong class="md-github">LLM Delegation:</strong> Functions to support decision delegation with advanced OpenAI capabilities:
-<ul class="md-github">
-<li class="md-github"><code class="md-github">delegateDecisionToLLMChat</code>, <code class="md-github">delegateDecisionToLLMChatVerbose</code>, <code class="md-github">delegateDecisionToLLMChatOptimized</code> for enhanced prompt validation.</li>
-<li class="md-github"><strong class="md-github">NEW:</strong> <code class="md-github">delegateDecisionToLLMFunctionCallWrapper</code> extended with additional logging and error handling.</li>
-<li class="md-github"><strong class="md-github">NEW:</strong> <code class="md-github">delegateDecisionToLLMChatAdvanced</code> for advanced delegation with extra context support.</li>
-<li class="md-github"><strong class="md-github">NEW:</strong> <code class="md-github">delegateDecisionToLLMChatPremium</code> extends OpenAI function delegation with additional logging and configurable base URL support.</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">Kafka Operations:</strong> Simulated messaging functions for inter‑workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, multicast, rebroadcast, and consumer group messaging.</li>
-<li class="md-github"><strong class="md-github">Parsing Utilities:</strong> Functions including:
-<ul class="md-github">
-<li class="md-github"><code class="md-github">parseCombinedDefaultOutput</code>, <strong class="md-github">NEW:</strong> <code class="md-github">parseVitestDefaultOutput</code>, <code class="md-github">parseEslintSarifOutput</code>, and <strong class="md-github"><code class="md-github">parseEslintDefaultOutput</code></strong> to parse outputs from Vitest and ESLint in different formats.</li>
-<li class="md-github"><strong class="md-github">NEW:</strong> <code class="md-github">parseVitestFailureOutput</code> to extract the number of failed tests from Vitest output.</li>
-<li class="md-github"><strong class="md-github">NEW:</strong> <code class="md-github">parseEslintCompactOutput</code> to parse ESLint compact output formats.</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">File System Simulation:</strong> <code class="md-github">simulateFileSystemCall()</code> for safe file interactions.</li>
-<li class="md-github"><strong class="md-github">CI Workflow Simulation:</strong> <code class="md-github">simulateCIWorkflowLifecycle</code> aggregates telemetry data and simulates Kafka messaging to emulate a complete workflow lifecycle.</li>
-<li class="md-github"><strong class="md-github">Issue Creation Simulation:</strong> <strong class="md-github">NEW:</strong> <code class="md-github">simulateIssueCreation</code> mimics a GitHub Actions workflow for issue creation with randomized title selection, timestamp logging, and support for optional issue labels, closely emulating the behavior defined in wfr-create-issue.yml.</li>
-</ul>
+<p class="md-github">The <strong class="md-github">intentïon <code class="md-github">agentic-lib</code></strong> is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner.</p>
 <hr class="md-github">
-<h2 class="md-github"><a class="md-github__anchor" name="recent-improvements" href="#recent-improvements"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Recent Improvements</h2>
-<ul class="md-github">
-<li class="md-github">README refreshed to align with CONTRIBUTING guidelines. Outdated content has been pruned and core information retained.</li>
-<li class="md-github"><strong class="md-github">Drift Pruning:</strong> Legacy and deprecated code has been removed from the source file, ensuring strict alignment with the agentic‑lib mission statement.</li>
-<li class="md-github">Extended Kafka Messaging Simulations including multicast and rebroadcast features.</li>
-<li class="md-github"><strong class="md-github">NEW:</strong> Extended the OpenAI delegation wrapper delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling.</li>
-<li class="md-github">Enhanced telemetry and simulation utilities, including <strong class="md-github">NEW:</strong> <code class="md-github">gatherSystemMetrics</code> function.</li>
-<li class="md-github"><strong class="md-github">FIX:</strong> Corrected getIssueNumberFromBranch function (now using the correct regex) and added <code class="md-github">parseCombinedDefaultOutput</code> for parsing test outputs.</li>
-<li class="md-github"><strong class="md-github">EXT:</strong> Implemented and enhanced simulateIssueCreation to mimic GitHub issue creation workflow behavior, including randomized title selection, timestamp logging, and optional issue labels, mirroring the logic from wfr-create-issue.yml.</li>
-<li class="md-github"><strong class="md-github">NEW:</strong> Added parsing functions <code class="md-github">parseVitestDefaultOutput</code>, <code class="md-github">parseEslintSarifOutput</code>, and <code class="md-github">parseEslintDefaultOutput</code> to process Vitest and ESLint outputs.</li>
-<li class="md-github"><strong class="md-github">NEW:</strong> Added additional parsing functions <code class="md-github">parseVitestFailureOutput</code> and <code class="md-github">parseEslintCompactOutput</code> to support varied output formats.</li>
-<li class="md-github"><strong class="md-github">NEW:</strong> Added remote service wrapper <strong class="md-github">simulateRemoteServiceWrapper</strong> for simulating remote logging or monitoring service interactions.</li>
-<li class="md-github"><strong class="md-github">NEW:</strong> Exported the main() function to facilitate CLI testing and added tests for CLI help output.</li>
-</ul>
-<hr class="md-github">
-<h2 class="md-github"><a class="md-github__anchor" name="contributing" href="#contributing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Contributing</h2>
-<p class="md-github">Contributions are welcome! Please see <a href="CONTRIBUTING.md" class="md-github">CONTRIBUTING.md</a> for guidelines.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="component-breakdown" href="#component-breakdown"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Component Breakdown</h2>
 <p class="md-github">This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:</p>
 <h3 class="md-github"><a class="md-github__anchor" name="1-reusable-workflows-core-functionality" href="#1-reusable-workflows-core-functionality"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>1. Re‑usable Workflows (Core Functionality)</h3>
@@ -152,10 +96,11 @@ along with this program. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 IMPORTANT: Any derived work must include the following attribution:
 &quot;This work is derived from https://github.com/xn-intenton-z2a/agentic-lib&quot;
 </code></pre>
+<p class="md-github">START_OF_README_ENDING</p>
 
   </section>
   <footer>
-    <p>Generated on 2025-04-06T12:09:07.796Z</p>
+    <p>Generated on 2025-04-06T14:05:40.348Z</p>
   </footer>
 </body>
 </html>

@@ -1,41 +1,51 @@
 {
-  "openIssues": 1,
-  "issuesClosedLastHour": 1,
-  "issuesClosedLastDay": 1,
-  "openPRs": 0,
-  "prDetails": [],
-  "diffMinutes": 13,
-  "diffMinutesMain": 13,
-  "commitsLastHour": 1,
-  "commitsLastDay": 13,
+  "openIssues": 2,
+  "issuesClosedLastHour": 8,
+  "issuesClosedLastDay": 9,
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Standardized error handling for invalid prompt inputs in delegateDecisionToLLMFunctionCallWrapper. (fixes #910)",
+      "ageMinutes": 4
+    }
+  ],
+  "diffMinutes": 5,
+  "diffMinutesMain": 5,
+  "commitsLastHour": 13,
+  "commitsLastDay": 28,
   "lastFiveCommitMessages": [
     {
-      "time": "11:55",
-      "message": "Update schema fields in workflow validation\n\nReplace `fixed`, `m..."
+      "time": "14:00",
+      "message": "Merge remote-tracking branch 'origin/main'\n\n# Conflicts:\n#\tREADM..."
     },
     {
-      "time": "01:46",
-      "message": "Add 'path' module import to issue-creator workflow script\n\nThe '..."
+      "time": "13:59",
+      "message": "Refactor README to streamline and align with lib purpose.\n\nRemov..."
     },
     {
-      "time": "01:44",
-      "message": "Update issue-creator to handle empty prompts directory\n\nRefactor..."
+      "time": "13:57",
+      "message": "Expanded unit tests to cover additional invalid prompt input typ..."
     },
     {
-      "time": "01:11",
-      "message": "Refactor workflow step and variable naming for clarity\n\nRenamed ..."
+      "time": "13:56",
+      "message": "Update issue creator workflow schedule\n\nCommented out unused cro..."
     },
     {
-      "time": "00:54",
-      "message": "Add npmAuthOrganisation input to workflow configuration\n\nThis ch..."
+      "time": "13:52",
+      "message": "Fix issue titles mapping in GitHub Actions workflow\n\nPreviously,..."
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-910",
+        "minutesSinceLastCommit": 5
+      }
+    ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 4,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-06T12:08:59.933Z"
+  "generatedAt": "2025-04-06T14:05:27.876Z"
 }
