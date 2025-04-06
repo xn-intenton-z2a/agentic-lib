@@ -27,7 +27,7 @@ This README file will evolve as the test experiment within this repository evolv
 # Updates
 
 - Enhanced digestLambdaHandler to generate a fallback unique identifier that includes the record index and provide detailed error logging for invalid JSON payloads.
-- Expanded input validation in delegateDecisionToLLMFunctionCallWrapper with an optional auto-conversion feature. When the autoConvertPrompt flag is set, numeric and boolean prompt values are automatically converted to strings.
+- Expanded and fixed input validation in delegateDecisionToLLMFunctionCallWrapper by improving auto conversion for numeric and boolean prompts when autoConvertPrompt is enabled.
 
 START_OF_README_BEGINNING
 

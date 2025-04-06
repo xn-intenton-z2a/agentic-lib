@@ -115,9 +115,12 @@ export async function digestLambdaHandler(sqsEvent) {
 export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "gpt-3.5-turbo", options = {}) {
   console.log(chalk.blue("delegateDecisionToLLMFunctionCallWrapper invoked with prompt:"), prompt);
 
-  // Auto-conversion: if autoConvertPrompt flag is true and prompt is a number or boolean, convert it to a string
-  if (options.autoConvertPrompt && (typeof prompt === 'number' || typeof prompt === 'boolean')) {
-    prompt = String(prompt).trim();
+  // Auto-conversion: if autoConvertPrompt flag is true and prompt is not a string, convert it to a string
+  if (options && options.autoConvertPrompt) {
+    if (typeof prompt !== 'string') {
+      prompt = String(prompt);
+    }
+    prompt = prompt.trim();
   }
 
   // Enhanced input validation: ensure prompt is a non-empty string
