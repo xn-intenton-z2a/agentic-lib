@@ -117,12 +117,12 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
 
   // Enhanced input validation: ensure prompt is a non-empty string and of type string
   if (typeof prompt !== 'string' || prompt.trim() === "") {
-    const errorMsg = `Invalid prompt provided; received value: ${prompt} (type: ${typeof prompt}). A non-empty string is required.`;
+    const errorMsg = `Invalid prompt provided; received value: ${prompt} (type: ${typeof prompt}). A non-empty string is required. If you passed a numeric value, please convert it to a string.`;
     console.error(chalk.red(errorMsg));
-    return { 
-      fixed: "false", 
-      message: errorMsg, 
-      refinement: "Please provide a valid prompt as a non-empty string." 
+    return {
+      fixed: "false",
+      message: errorMsg,
+      refinement: "Please provide a valid prompt as a non-empty string. If passing a number, convert it to a string."
     };
   }
 
