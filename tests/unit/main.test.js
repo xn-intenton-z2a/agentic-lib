@@ -87,3 +87,16 @@ describe("CLI main function", () => {
     logSpy.mockRestore();
   });
 });
+
+// Added tests for digestLambdaHandler missing messageId
+
+describe("digestLambdaHandler", () => {
+  test("handles missing messageId by using a fallback identifier", async () => {
+    const recordWithoutMessageId = {
+      body: "{ invalid json",
+    };
+    const result = await agenticLib.digestLambdaHandler({ Records: [recordWithoutMessageId] });
+    expect(result.batchItemFailures.length).toBe(1);
+    expect(result.batchItemFailures[0].itemIdentifier).toMatch(/^fallback-/);
+  });
+});

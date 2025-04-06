@@ -94,10 +94,11 @@ export async function digestLambdaHandler(sqsEvent) {
       const digest = JSON.parse(sqsEventRecord.body);
       logInfo(`Received digest: ${JSON.stringify(digest)}`);
     } catch (error) {
-      // Log the error and add the record's messageId to the partial batch response
-      logError(`Error processing record ${sqsEventRecord.messageId}: ${error.message}`, error);
+      // If messageId is missing, generate a fallback identifier
+      const recordId = sqsEventRecord.messageId || `fallback-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      logError(`Error processing record ${recordId}: ${error.message}`, error);
       logError(`Raw message body was: ${sqsEventRecord.body}`, error);
-      batchItemFailures.push({ itemIdentifier: sqsEventRecord.messageId });
+      batchItemFailures.push({ itemIdentifier: recordId });
     }
   }
 
