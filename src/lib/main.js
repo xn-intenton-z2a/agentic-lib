@@ -34,11 +34,10 @@ export function logConfig() {
         GITHUB_API_BASE_URL: config.GITHUB_API_BASE_URL,
         OPENAI_API_KEY: config.OPENAI_API_KEY,
       },
-    }),
+    })
   );
 }
 logConfig();
-
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Utility functions
@@ -55,7 +54,7 @@ export function logError(message, error) {
       timestamp: new Date().toISOString(),
       message,
       error: error ? error.toString() : undefined,
-    }),
+    })
   );
 }
 
@@ -69,7 +68,7 @@ export function createSQSEventFromDigest(digest) {
       {
         eventVersion: "2.0",
         eventSource: "aws:sqs",
-        eventTime: Date.now().toISOString(),
+        eventTime: new Date().toISOString(),
         eventName: "SendMessage",
         body: JSON.stringify(digest),
       },
@@ -115,9 +114,12 @@ export async function digestLambdaHandler(sqsEvent) {
 
 export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "gpt-3.5-turbo", options = {}) {
   console.log(chalk.blue("delegateDecisionToLLMFunctionCallWrapper invoked with prompt:"), prompt);
-  if (!prompt || prompt.trim() === "") {
-    return { fixed: "false", message: "Prompt is required.", refinement: "Provide a valid prompt." };
+
+  // Enhanced input validation: ensure prompt is a non-empty string
+  if (typeof prompt !== 'string' || prompt.trim() === "") {
+    return { fixed: "false", message: "Prompt must be a non-empty string.", refinement: "Provide a valid prompt." };
   }
+
   if (!process.env.OPENAI_API_KEY) {
     console.error(chalk.red("OpenAI API key is missing."));
     return { fixed: "false", message: "Missing API key.", refinement: "Set the OPENAI_API_KEY environment variable." };
