@@ -320,7 +320,7 @@ jobs:
             Ensure valid JSON.
             `;
             
-            const ResponseSchema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
+            const ResponseSchema = z.object({ issueTitle: z.string(), issueDescription: z.string() });
             
             // Define the function schema for function calling
             const tools = [{
