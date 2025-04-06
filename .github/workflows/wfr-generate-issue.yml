@@ -221,11 +221,13 @@ jobs:
             require('dotenv').config();
 
             // Gather the titles of all open issues
-            const openIssueTitles = await github.rest.issues.listForRepo({
+            const openIssues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open'
-            }).data.map(issue => issue.title).join(', ');
+            });
+            core.info(`Open issues: ${JSON.stringify(openIssues)}`);
+            const openIssueTitles = openIssueTitles.map(issue => issue.title).join(', ');
             core.info(`Open issue titles: ${openIssueTitles}`);
   
             if (!apiKey) { 
