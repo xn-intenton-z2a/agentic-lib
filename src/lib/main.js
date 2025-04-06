@@ -117,10 +117,11 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
 
   // Enhanced input validation: ensure prompt is a non-empty string and of type string
   if (typeof prompt !== 'string' || prompt.trim() === "") {
-    console.error(chalk.red("Invalid prompt provided; prompt must be a non-empty string."));
+    const errorMsg = `Invalid prompt provided; received value: ${prompt} (type: ${typeof prompt}). A non-empty string is required.`;
+    console.error(chalk.red(errorMsg));
     return { 
       fixed: "false", 
-      message: "Invalid prompt: a non-empty string is required.", 
+      message: errorMsg, 
       refinement: "Please provide a valid prompt as a non-empty string." 
     };
   }
