@@ -4,7 +4,7 @@
 import { fileURLToPath } from "url";
 import chalk from "chalk";
 import { z } from "zod";
-imp fix-me ort dotenv from "dotenv";
+import dotenv from "dotenv";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Environment configuration from .env file or environment variables or test values.
