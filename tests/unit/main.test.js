@@ -73,7 +73,6 @@ describe("delegateDecisionToLLMFunctionCallWrapper", () => {
       const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper({ key: 'value' }, {});
       expect(result.fixed).toBe("false");
       expect(result.message).toContain("non-empty string");
-      // Object coerces to [object Object] in the message
       expect(result.message).toMatch(/\[object Object\].*\(type: object\)/);
     });
 
@@ -82,7 +81,6 @@ describe("delegateDecisionToLLMFunctionCallWrapper", () => {
       const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(["invalid"], {});
       expect(result.fixed).toBe("false");
       expect(result.message).toContain("non-empty string");
-      // Array becomes string representation and type is object
       expect(result.message).toMatch(/invalid.*\(type: object\)/);
     });
   });
