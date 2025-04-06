@@ -25,8 +25,7 @@ describe("delegateDecisionToLLMFunctionCallWrapper", () => {
     expect(result.message).toContain("non-empty string");
   });
 
-  test("returns error if prompt is non-string", async () => {
-    // Using a non-string value like NaN
+  test("returns error if prompt is non-string (NaN)", async () => {
     const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(NaN, {});
     expect(result.fixed).toBe("false");
     expect(result.message).toContain("non-empty string");
@@ -40,9 +39,46 @@ describe("delegateDecisionToLLMFunctionCallWrapper", () => {
     expect(result.message).toContain("Missing API key");
     process.env.OPENAI_API_KEY = originalApiKey;
   });
+
+  // New additional test cases for invalid prompt input types
+  describe("Input validation edge cases", () => {
+    test("returns error if prompt is null", async () => {
+      // @ts-ignore
+      const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(null, {});
+      expect(result.fixed).toBe("false");
+      expect(result.message).toContain("non-empty string");
+    });
+
+    test("returns error if prompt is undefined", async () => {
+      // @ts-ignore
+      const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(undefined, {});
+      expect(result.fixed).toBe("false");
+      expect(result.message).toContain("non-empty string");
+    });
+
+    test("returns error if prompt is a boolean (false)", async () => {
+      // @ts-ignore
+      const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(false, {});
+      expect(result.fixed).toBe("false");
+      expect(result.message).toContain("non-empty string");
+    });
+
+    test("returns error if prompt is an object", async () => {
+      // @ts-ignore
+      const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper({ key: 'value' }, {});
+      expect(result.fixed).toBe("false");
+      expect(result.message).toContain("non-empty string");
+    });
+
+    test("returns error if prompt is an array", async () => {
+      // @ts-ignore
+      const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(["invalid"], {});
+      expect(result.fixed).toBe("false");
+      expect(result.message).toContain("non-empty string");
+    });
+  });
 });
 
-// New test suite for main CLI function
 describe("CLI main function", () => {
   test("prints usage and demo if --help flag provided", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
