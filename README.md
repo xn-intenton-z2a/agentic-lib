@@ -52,7 +52,8 @@ END_OF_README_BEGINNING
 
 # Updates
 
-- Enhanced digestLambdaHandler to generate a fallback unique identifier that includes the record index and provide detailed error logging for invalid JSON payloads, including the raw message and error context.
+- Enhanced digestLambdaHandler to generate a fallback unique identifier that includes the record index and provide detailed error logging for invalid JSON payloads.
+- Expanded input validation test cases in delegateDecisionToLLMFunctionCallWrapper to ensure error responses include both the received value and its type.
 
 START_OF_README_ENDING
 
@@ -82,7 +83,7 @@ This repository is organized into three distinct areas to help you understand th
 
 ### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
 - **Purpose:**  
-  This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to core functionality. It now includes improved error handling where digestLambdaHandler assigns a fallback identifier with additional context when a messageId is missing or the JSON payload is invalid.
+  This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to core functionality. It now includes improved error handling where digestLambdaHandler assigns a fallback identifier with additional context when a messageId is missing or the JSON payload is invalid, and delegateDecisionToLLMFunctionCallWrapper provides detailed error messages including the input value and type.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
