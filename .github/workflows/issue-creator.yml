@@ -81,4 +81,4 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@main'
     with:
       issueTitle: ${{ needs.generate-issue.outputs.issueTitle }}
-      issueDescription: ${{ needs.generate-issue.outputs.issueDescription }}
+      issueBody: ${{ needs.generate-issue.outputs.issueDescription }}
