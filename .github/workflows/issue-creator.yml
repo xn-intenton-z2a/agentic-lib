@@ -40,11 +40,24 @@ jobs:
             let prompt = '${{ github.event.inputs.prompt }}';
             if (prompt === 'house choice') {
               const promptsDir = './prompts';
-              const files = fs.readdirSync(promptsDir);
-              const randomFile = files[Math.floor(Math.random() * files.length)];
-              const filePath = `${promptsDir}/${randomFile}`;
-              prompt = fs.readFileSync(filePath, 'utf8');
+              // Get all items in the directory
+              const items = fs.readdirSync(promptsDir);
+              // Filter only the files (exclude directories)
+              const files = items.filter(item => {
+                const filePath = path.join(promptsDir, item);
+                return fs.lstatSync(filePath).isFile();
+              });
+            
+              if (files.length === 0) {
+                core.setFailed('No prompt files found in the prompts directory.');
+              } else {
+                // Select a random file
+                const randomFile = files[Math.floor(Math.random() * files.length)];
+                const filePath = path.join(promptsDir, randomFile);
+                prompt = fs.readFileSync(filePath, 'utf8');
+              }
             }
+              
             core.setOutput('prompt', prompt);
             core.info(`prompt: ${prompt}`);
 
