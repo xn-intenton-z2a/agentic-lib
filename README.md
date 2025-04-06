@@ -20,6 +20,42 @@ Mixed licensing:
 
 ---
 
+START_OF_README_BEGINNING
+
+# intentïon agentic-lib
+
+You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/WORKFLOWS-README.md)
+
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
+repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
+issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
+GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+
+[Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
+
+[Also on GitHub Pages](https://xn-intenton-z2a.github.io/agentic-lib/index.html)
+
+[See the latest repository stats](https://xn-intenton-z2a.github.io/agentic-lib/latest.html)
+
+Mixed licensing:
+* This project is licensed under the GNU General Public License (GPL).
+* This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+* This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+This README file will evolve as the test experiment within this repository evolves.
+
+END_OF_README_BEGINNING
+
+---
+---
+---
+
+# Updates
+
+- Enhanced digestLambdaHandler to generate a fallback unique identifier when messageId is missing in SQS event records.
+
+START_OF_README_ENDING
+
 ## Component Breakdown
 
 This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:
@@ -46,15 +82,13 @@ This repository is organized into three distinct areas to help you understand th
 
 ### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
 - **Purpose:**  
-  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
+  This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to core functionality. It now includes improved error handling where digestLambdaHandler assigns a fallback identifier if the messageId is missing.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
   As part of the core project, it is under GPL‑3 with the attribution clause.
 - **Location:**  
   The code is located in `src/lib/main.js`.
-
----
 
 ## License
 
@@ -81,3 +115,5 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
+
+END_OF_README_ENDING
