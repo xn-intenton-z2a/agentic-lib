@@ -227,7 +227,7 @@ jobs:
               state: 'open'
             });
             core.info(`Open issues: ${JSON.stringify(openIssues)}`);
-            const openIssueTitles = openIssues.map(issue => issue.title).join(', ');
+            const openIssueTitles = openIssues.data.map(issue => issue.title).join(', ');
             core.info(`Open issue titles: ${openIssueTitles}`);
   
             if (!apiKey) { 
