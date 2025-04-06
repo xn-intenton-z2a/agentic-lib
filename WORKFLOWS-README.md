@@ -635,8 +635,8 @@ Supervisor:
 - [x] Publish GitHub telemetry data to S3.
 - [x] Reintegrate the s3-sqs-bridge workflows with agentic-lib.
 - [x] Switch to generating issues based on the prompts.
+- [x] Reinstate the agentic workflows in s3-sqs-bridge with maintenance focused tasks.
 - [ ] Create a feature worker which creates issues based on the features.
-- [ ] Reinstate the agentic workflows in s3-sqs-bridge with maintenance focused tasks.
 - [ ] Dashboard metrics from s3 into the existing all stats dashboard.
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix).
 - [ ] Create a "supervisor" engine schedule with reduced schedule triggers (leaving the supervisor to invoke workflows).
