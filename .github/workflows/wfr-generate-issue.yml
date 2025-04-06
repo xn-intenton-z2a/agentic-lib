@@ -220,6 +220,14 @@ jobs:
             const { z } = require('zod');
             require('dotenv').config();
 
+            // Gather the titles of all open issues
+            const openIssueTitles = await github.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open'
+            }).data.map(issue => issue.title).join(', ');
+            core.info(`Open issue titles: ${openIssueTitles}`);
+  
             if (!apiKey) { 
               core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
             }
@@ -246,6 +254,7 @@ jobs:
             Please generate the title and description of a GitHub issue to which will be used to action the supplied prompt.
             The issue will be resolved by an LLM which can process over 100,000 tokens of context and it will provide completed source files in the response.
             Do not include steps that would need to be taken manually by a human and expect to "dry-run" without an execution environment.
+            Ensure that the issue is distinct from any existing open issues in the repository so tha the new issue remains valid when the other open issues are closed.
             Consider the following when refining your response:
             * Prompt details
             * Source file content
@@ -258,6 +267,7 @@ jobs:
             * Build output
             * Test output
             * Main execution output
+            * Open issue titles
             
             Source file: ${target}
             SOURCE_FILE_START
@@ -313,6 +323,11 @@ jobs:
             MAIN_OUTPUT_START
             ${mainOutput}
             MAIN_OUTPUT_END    
+            
+            Open issue titles:
+            OPEN_ISSUE_TITLES_START
+            ${openIssueTitles}
+            OPEN_ISSUE_TITLES_END
             
             Answer strictly with a JSON object following this schema:
             {
