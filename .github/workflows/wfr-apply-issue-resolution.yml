@@ -128,28 +128,28 @@ on:
         required: true
     outputs:
       fixApplied:
-        value: ${{ jobs.start-issue.outputs.fixApplied }}
+        value: ${{ jobs.apply-issue-resolution.outputs.fixApplied }}
       message:
-        value: ${{ jobs.start-issue.outputs.message }}
+        value: ${{ jobs.apply-issue-resolution.outputs.message }}
       installAfterUpdateOutcome:
-        value: ${{ jobs.start-issue.outputs.installAfterUpdateOutcome }}
+        value: ${{ jobs.apply-issue-resolution.outputs.installAfterUpdateOutcome }}
       ciAfterUpdateOutcome:
-        value: ${{ jobs.start-issue.outputs.ciAfterUpdateOutcome }}
+        value: ${{ jobs.apply-issue-resolution.outputs.ciAfterUpdateOutcome }}
       testAfterUpdateOutcome:
-        value: ${{ jobs.start-issue.outputs.testAfterUpdateOutcome }}
+        value: ${{ jobs.apply-issue-resolution.outputs.testAfterUpdateOutcome }}
       mainAfterUpdateOutcome:
-        value: ${{ jobs.start-issue.outputs.mainAfterUpdateOutcome }}
+        value: ${{ jobs.apply-issue-resolution.outputs.mainAfterUpdateOutcome }}
       commitOutcome:
-        value: ${{ jobs.start-issue.outputs.commitOutcome }}
+        value: ${{ jobs.apply-issue-resolution.outputs.commitOutcome }}
       postResolutionCommentOutcome:
-        value: ${{ jobs.start-issue.outputs.postResolutionCommentOutcome }}
+        value: ${{ jobs.apply-issue-resolution.outputs.postResolutionCommentOutcome }}
       allValidationStepsSuccessful:
-        value: ${{ jobs.start-issue.outputs.allValidationStepsSuccessful }}
+        value: ${{ jobs.apply-issue-resolution.outputs.allValidationStepsSuccessful }}
       branch:
         value: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}${{ inputs.issueNumber }}
 
 jobs:
-  start-issue:
+  apply-issue-resolution:
     runs-on: ubuntu-latest
 
     env:
@@ -255,7 +255,7 @@ jobs:
           testOutput: ${{ steps.test.outputs.output }}
           mainOutput: ${{ steps.main.outputs.output }}
         with:
-          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const target = process.env.target;
             const testFile = process.env.testFile;
