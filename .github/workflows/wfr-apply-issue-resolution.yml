@@ -602,7 +602,7 @@ jobs:
         id: post-resolution-comment
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const issueNumber = parseInt("${{ env.issueNumber }}");
             const branchName = `${{ env.branch }}`;
