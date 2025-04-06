@@ -22,7 +22,14 @@ describe("delegateDecisionToLLMFunctionCallWrapper", () => {
   test("returns error if prompt is empty", async () => {
     const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper("", {});
     expect(result.fixed).toBe("false");
-    expect(result.message).toContain("Prompt is required");
+    expect(result.message).toContain("non-empty string");
+  });
+
+  test("returns error if prompt is non-string", async () => {
+    // Using a non-string value like NaN
+    const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(NaN, {});
+    expect(result.fixed).toBe("false");
+    expect(result.message).toContain("non-empty string");
   });
 
   test("returns error if API key is missing", async () => {

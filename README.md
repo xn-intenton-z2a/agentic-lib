@@ -19,7 +19,7 @@ Mixed licensing:
 **NEW:** Added and enhanced telemetry functions including gatherWorkflowTelemetry, gatherCIWorkflowMetrics, gatherSystemMetrics and parsing functions parseCombinedDefaultOutput, parseVitestDefaultOutput, parseEslintSarifOutput, and parseEslintDefaultOutput to process output formats.
 **FIX:** Corrected getIssueNumberFromBranch function (fixed regex pattern) and added parseCombinedDefaultOutput for parsing test outputs.
 **EXT:** Implemented simulateIssueCreation to simulate a GitHub Actions workflow for issue creation similar to wfr-create-issue.yml with enhanced behavior including randomized title selection, timestamp logging, and optional issue labels for improved mimicry of real workflow outputs. (Updated to robustly handle empty options and provide a fallback title.)
-**NEW:** Added OpenAI delegation wrappers: delegateDecisionToLLMChat, delegateDecisionToLLMChatVerbose, delegateDecisionToLLMChatOptimized for enhanced prompt validation, delegateDecisionToLLMChatAdvanced for advanced delegation with extra context support, and delegateDecisionToLLMChatPremium with additional logging and configurable base URL support. **Extended delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling.**
+**NEW:** Added OpenAI delegation wrappers: delegateDecisionToLLMChat, delegateDecisionToLLMChatVerbose, delegateDecisionToLLMChatOptimized for enhanced prompt validation, delegateDecisionToLLMChatAdvanced for advanced delegation with extra context support, and delegateDecisionToLLMChatPremium with additional logging and configurable base URL support. **Extended delegateDecisionToLLMFunctionCallWrapper with additional logging, error handling, and improved input validation to reject non-string or empty prompts.**
 **NEW:** Added remote service wrapper simulateRemoteServiceWrapper for simulating interactions with remote logging or monitoring services.
 **NEW:** Added parsing functions parseVitestFailureOutput to extract the number of failed tests from Vitest output and parseEslintCompactOutput to handle ESLint compact output formats.
 **NEW:** Exported the main() function for CLI testing and added tests for CLI help output.
@@ -39,7 +39,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - **Remote Service Wrappers:** Simplified API interactions for multiple services, including a new **simulateRemoteServiceWrapper** to simulate remote interactions, such as logging or monitoring services.
 - **LLM Delegation:** Functions to support decision delegation with advanced OpenAI capabilities:
   - `delegateDecisionToLLMChat`, `delegateDecisionToLLMChatVerbose`, `delegateDecisionToLLMChatOptimized` for enhanced prompt validation.
-  - **NEW:** `delegateDecisionToLLMFunctionCallWrapper` extended with additional logging and error handling.
+  - **NEW:** `delegateDecisionToLLMFunctionCallWrapper` extended with additional logging, error handling, and improved input validation to ensure the prompt is a valid non-empty string.
   - **NEW:** `delegateDecisionToLLMChatAdvanced` for advanced delegation with extra context support.
   - **NEW:** `delegateDecisionToLLMChatPremium` extends OpenAI function delegation with additional logging and configurable base URL support.
 - **Kafka Operations:** Simulated messaging functions for inter‑workflow communication, including direct messaging, dynamic topic routing, detailed streaming, bulk messaging, multicast, rebroadcast, and consumer group messaging.
@@ -58,7 +58,7 @@ agentic‑lib provides a wide array of JavaScript functions mirroring GitHub Act
 - README refreshed to align with CONTRIBUTING guidelines. Outdated content has been pruned and core information retained.
 - **Drift Pruning:** Legacy and deprecated code has been removed from the source file, ensuring strict alignment with the agentic‑lib mission statement.
 - Extended Kafka Messaging Simulations including multicast and rebroadcast features.
-- **NEW:** Extended the OpenAI delegation wrapper delegateDecisionToLLMFunctionCallWrapper with additional logging and error handling.
+- **NEW:** Extended the OpenAI delegation wrapper delegateDecisionToLLMFunctionCallWrapper with additional logging, error handling, and improved input validation to reject non-string or empty prompts.
 - Enhanced telemetry and simulation utilities, including **NEW:** `gatherSystemMetrics` function.
 - **FIX:** Corrected getIssueNumberFromBranch function (now using the correct regex) and added `parseCombinedDefaultOutput` for parsing test outputs.
 - **EXT:** Implemented and enhanced simulateIssueCreation to mimic GitHub issue creation workflow behavior, including randomized title selection, timestamp logging, and optional issue labels, mirroring the logic from wfr-create-issue.yml.
@@ -134,3 +134,5 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
+
+START_OF_README_ENDING
