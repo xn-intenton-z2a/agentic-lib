@@ -144,7 +144,7 @@ jobs:
       #githubRelease: true
       buildScript: 'npm run build'
       releaseNotes: 'Release increment: ${{ inputs.versionIncrement }}.'
-      npmAuthOrganisation: 'xn-intenton-z2a'
+      npmAuthOrganisation: '@xn-intenton-z2a'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
     secrets:

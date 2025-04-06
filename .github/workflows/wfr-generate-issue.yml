@@ -82,6 +82,11 @@ on:
         type: string
         required: false
         default: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      npmAuthOrganisation:
+        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
+        type: string
+        required: false
+        default: ''
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
