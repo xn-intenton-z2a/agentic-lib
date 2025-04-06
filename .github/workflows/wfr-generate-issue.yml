@@ -187,8 +187,8 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
 
-      - name: verify
-        id: verify
+      - name: generate-issue
+        id: generate-issue
         uses: actions/github-script@v7
         env:
           dependenciesListOutput: ${{ steps.list.outputs.output }}
@@ -242,7 +242,7 @@ jobs:
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
             
-            const prompt = `
+            const chatGptPrompt = `
             Please generate the title and description of a GitHub issue to which will be used to action the supplied prompt.
             Consider the following when refining your response:
             * Prompt details
@@ -346,7 +346,7 @@ jobs:
               model,
               messages: [
                 { role: "system", content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema." },
-                { role: "user", content: prompt }
+                { role: "user", content: chatGptPrompt }
               ],
               tools: tools
             });
@@ -384,5 +384,5 @@ jobs:
             core.info(`response: "${JSON.stringify(response)}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
     outputs:
-      issueTitle: ${{ steps.verify.outputs.issueTitle }}
-      issueDescription: ${{ steps.verify.outputs.issueDescription }}
+      issueTitle: ${{ steps.generate-issue.outputs.issueTitle }}
+      issueDescription: ${{ steps.generate-issue.outputs.issueDescription }}
