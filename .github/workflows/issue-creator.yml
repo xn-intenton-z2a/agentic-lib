@@ -70,6 +70,7 @@ jobs:
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   create-issue:
     needs:
