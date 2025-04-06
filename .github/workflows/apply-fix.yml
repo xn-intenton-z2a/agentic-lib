@@ -150,6 +150,14 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+      - name: Set up .npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+        env:
+          npmAuthOrganisation: '@xn-intenton-z2a'
       - run: npm ci
       - run: npm run test:unit
 
@@ -166,6 +174,14 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+      - name: Set up .npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+        env:
+          npmAuthOrganisation: '@xn-intenton-z2a'
       - run: npm ci
       - run: npm run build
 
@@ -182,6 +198,14 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+      - name: Set up .npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+        env:
+          npmAuthOrganisation: '@xn-intenton-z2a'
       - run: npm ci
       - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
@@ -281,6 +305,7 @@ jobs:
       gitUserName: 'GitHub Actions[bot]'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   npm-test-after-fix:
     needs:
@@ -363,6 +388,14 @@ jobs:
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git pull --ff-only origin ${{ needs.branch-for-fix.outputs.branch }}
+      - name: Set up .npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+        env:
+          npmAuthOrganisation: '@xn-intenton-z2a'
       - run: npm ci
       - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
