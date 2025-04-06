@@ -23,7 +23,7 @@
 # "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 #
 
-name: ∞ Apply fix
+name: ∞ wfr-apply-fix
 
 on:
   workflow_call:
@@ -93,6 +93,11 @@ on:
         type: string
         required: false
         default: ${{ github.ref }}
+      npmAuthOrganisation:
+        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
+        type: string
+        required: false
+        default: ''
       gitUserEmail:
         description: 'The email to use for git commits. e.g. "action@github.com"'
         type: string
@@ -158,7 +163,7 @@ jobs:
       mainScriptTimeout: '5m'
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-      npmAuthOrganisation: '@xn-intenton-z2a'
+      npmAuthOrganisation: ''
       branch: ${{ inputs.branch || github.ref }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}

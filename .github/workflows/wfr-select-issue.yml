@@ -23,7 +23,7 @@
 # "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 #
 
-name: ∞ Select issue
+name: ∞ select-issue
 
 on:
   workflow_call:
