@@ -26,7 +26,7 @@ describe("delegateDecisionToLLMFunctionCallWrapper", () => {
     expect(result.message).toMatch(/\(type: string\)/);
   });
 
-  test("returns error if prompt is non-string (NaN)", async () => {
+  test("returns error if prompt is non-string (NaN) without auto conversion", async () => {
     const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(NaN, {});
     expect(result.fixed).toBe("false");
     expect(result.message).toContain("non-empty string");
@@ -60,7 +60,7 @@ describe("delegateDecisionToLLMFunctionCallWrapper", () => {
       expect(result.message).toMatch(/undefined.*\(type: undefined\)/);
     });
 
-    test("returns error if prompt is a boolean (false)", async () => {
+    test("returns error if prompt is a boolean (false) without auto conversion", async () => {
       // @ts-ignore
       const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(false, {});
       expect(result.fixed).toBe("false");
@@ -83,6 +83,21 @@ describe("delegateDecisionToLLMFunctionCallWrapper", () => {
       expect(result.message).toContain("non-empty string");
       expect(result.message).toMatch(/invalid.*\(type: object\)/);
     });
+  });
+});
+
+describe("Auto Conversion of Prompt", () => {
+  test("auto converts number prompt when autoConvertPrompt is true", async () => {
+    process.env.OPENAI_API_KEY = "dummy-api-key";
+    const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(123, { autoConvertPrompt: true });
+    // The conversion should prevent the prompt error, so the error message should not mention invalid prompt
+    expect(result.message).not.toContain("Invalid prompt provided");
+  });
+
+  test("auto converts boolean prompt when autoConvertPrompt is true", async () => {
+    process.env.OPENAI_API_KEY = "dummy-api-key";
+    const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(false, { autoConvertPrompt: true });
+    expect(result.message).not.toContain("Invalid prompt provided");
   });
 });
 
