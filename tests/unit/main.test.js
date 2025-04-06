@@ -23,12 +23,14 @@ describe("delegateDecisionToLLMFunctionCallWrapper", () => {
     const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper("", {});
     expect(result.fixed).toBe("false");
     expect(result.message).toContain("non-empty string");
+    expect(result.message).toMatch(/\(type: string\)/);
   });
 
   test("returns error if prompt is non-string (NaN)", async () => {
     const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(NaN, {});
     expect(result.fixed).toBe("false");
     expect(result.message).toContain("non-empty string");
+    expect(result.message).toMatch(/\(type: number\)/);
   });
 
   test("returns error if API key is missing", async () => {
@@ -47,6 +49,7 @@ describe("delegateDecisionToLLMFunctionCallWrapper", () => {
       const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(null, {});
       expect(result.fixed).toBe("false");
       expect(result.message).toContain("non-empty string");
+      expect(result.message).toMatch(/null.*\(type: object\)/);
     });
 
     test("returns error if prompt is undefined", async () => {
@@ -54,6 +57,7 @@ describe("delegateDecisionToLLMFunctionCallWrapper", () => {
       const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(undefined, {});
       expect(result.fixed).toBe("false");
       expect(result.message).toContain("non-empty string");
+      expect(result.message).toMatch(/undefined.*\(type: undefined\)/);
     });
 
     test("returns error if prompt is a boolean (false)", async () => {
@@ -61,6 +65,7 @@ describe("delegateDecisionToLLMFunctionCallWrapper", () => {
       const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(false, {});
       expect(result.fixed).toBe("false");
       expect(result.message).toContain("non-empty string");
+      expect(result.message).toMatch(/false.*\(type: boolean\)/);
     });
 
     test("returns error if prompt is an object", async () => {
@@ -68,6 +73,8 @@ describe("delegateDecisionToLLMFunctionCallWrapper", () => {
       const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper({ key: 'value' }, {});
       expect(result.fixed).toBe("false");
       expect(result.message).toContain("non-empty string");
+      // Object coerces to [object Object] in the message
+      expect(result.message).toMatch(/\[object Object\].*\(type: object\)/);
     });
 
     test("returns error if prompt is an array", async () => {
@@ -75,6 +82,8 @@ describe("delegateDecisionToLLMFunctionCallWrapper", () => {
       const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(["invalid"], {});
       expect(result.fixed).toBe("false");
       expect(result.message).toContain("non-empty string");
+      // Array becomes string representation and type is object
+      expect(result.message).toMatch(/invalid.*\(type: object\)/);
     });
   });
 });
