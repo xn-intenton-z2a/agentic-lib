@@ -37,6 +37,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
+            const path = require('path');
             let prompt = '${{ github.event.inputs.prompt }}';
             if (prompt === 'house choice') {
               const promptsDir = './prompts';
