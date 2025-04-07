@@ -1,11 +1,11 @@
-# .github/workflows/feature-creator.yml
+# .github/workflows/feature-worker.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: Feature Creator
-concurrency: feature-creator
-run-name: "feature-creator"
+name: Feature Worker
+concurrency: feature-worker
+run-name: "feature-worker"
 
 on:
   workflow_dispatch:
@@ -16,9 +16,9 @@ on:
         type: string
         default: 'house choice'
   schedule:
-    #- cron: '0 4 * * *' # schedule-1
+    - cron: '0 4 * * *' # schedule-1
     #- cron: '0 */2 * * *' # schedule-2
-    - cron: '*/5 * * * *' # schedule-3
+    #- cron: '*/5 * * * *' # schedule-3
 
 jobs:
 
