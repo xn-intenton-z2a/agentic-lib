@@ -1,0 +1,48 @@
+# .github/workflows/feature-creator.yml
+#
+# This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+name: Feature Creator
+concurrency: feature-creator
+run-name: "feature-creator"
+
+on:
+  workflow_dispatch:
+    inputs:
+      feature:
+        description: 'Text to drive the feature creation (if "house choice", the repository will be assessed an action chosen). e.g. "Support output to PDF."'
+        required: false
+        type: string
+        default: 'house choice'
+  schedule:
+    #- cron: '0 4 * * *' # schedule-1
+    #- cron: '0 */2 * * *' # schedule-2
+    - cron: '*/5 * * * *' # schedule-3
+
+jobs:
+
+  # If the feature is "house choice", the repository will be assessed an action chosen otherwise the supplied text will be used to generate a new feature.
+  maintain-features:
+    permissions:
+      contents: write
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-maintain-features.yml@main'
+    with:
+      feature: ${{ inputs.feature }}
+      featuresDir: 'features/'
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
+      readmeFile: 'README.md'
+      missionFile: 'MISSION.md'
+      contributingFile: 'CONTRIBUTING.md'
+      dependenciesFile: 'package.json'
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+      model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      npmAuthOrganisation: '@xn-intenton-z2a'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

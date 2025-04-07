@@ -20,6 +20,15 @@ The guidelines below apply to human or automated contributions:
 
 ## Guidelines
 
+- **Features:**
+    - Clear Objective & Scope: Define the feature with a concise description outlining its purpose, scope, and the specific problem it solves for the end user.
+    - Value Proposition: Articulate the tangible benefits of the feature, including improved functionality, performance, or user experience.
+    - Success Criteria & Requirements: List measurable success criteria and requirements, including performance benchmarks, usability standards, and stability expectations, to guide development and testing.
+    - Testability & Stability: Ensure the feature can be verified through both automated tests and user acceptance criteria. Specify any necessary rollback or fail-safe mechanisms to maintain system stability.
+    - Dependencies & Constraints: Identify any dependencies (external libraries, APIs, etc.), assumptions, and limitations that could impact feature delivery or future enhancements.
+    - User Scenarios & Examples: Provide illustrative use cases or scenarios that demonstrate how the feature will be used in real-world situations, making it easier for both developers and stakeholders to understand its impact.
+    - Verification & Acceptance: Define clear verification steps and acceptance criteria to ensure the feature meets its intended requirements. This should include detailed plans for unit tests, integration tests, manual user acceptance tests, and code reviews. Specify measurable outcomes that must be achieved for the feature to be considered successfully delivered and stable.
+
 - **Code Quality:**
     - Ensure there are tests that cover your changes and any likely new cases they introduce.
     - When making a change remain consistent with the existing code style and structure.
