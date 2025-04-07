@@ -35,7 +35,7 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/deploy.yml"
 cp -v .github/workflows/formating.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/formating.yml"
 
-cp -v .github/workflows/issue-creator.yml "${DEST_DIR}/."
+cp -v .github/workflows/maintenance-issue-creator.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-creator.yml"
 
 cp -v .github/workflows/issue-for-linting.yml "${DEST_DIR}/."

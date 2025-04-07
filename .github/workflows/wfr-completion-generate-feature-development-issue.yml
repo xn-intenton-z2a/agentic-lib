@@ -1,4 +1,4 @@
-# .github/workflows/wfr-generate-issue.yml
+# .github/workflows/wfr-completion-generate-feature-development-issue.yml
 
 #
 # agentic-lib
@@ -23,15 +23,20 @@
 # "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 #
 
-name: ∞ generate-issue
+name: ∞ generate-feature-development-issue
 
 on:
   workflow_call:
     inputs:
-      prompt:
-        description: 'The prompt to guide the issue creation. e.g. "Make an improvement to tests."'
+      featureName:
+        description: 'name of the feature to create an issue for. e.g. "WEBSITE"'
         type: string
         required: true
+      featuresDir:
+        description: 'The directory to create/update the features in. e.g. "features/"'
+        type: string
+        required: false
+        default: 'features/'
       target:
         description: 'The target file to create the issue to change. e.g. "src/lib/main.js"'
         type: string
@@ -94,16 +99,17 @@ on:
         required: true
     outputs:
       issueTitle:
-        value: ${{ jobs.generate-issue.outputs.issueTitle }}
+        value: ${{ jobs.generate-feature-development-issue.outputs.issueTitle }}
       issueDescription:
-        value: ${{ jobs.generate-issue.outputs.issueDescription }}
+        value: ${{ jobs.generate-feature-development-issue.outputs.issueDescription }}
 
 jobs:
-  generate-issue:
+  generate-feature-development-issue:
     runs-on: ubuntu-latest
 
     env:
-      prompt: ${{ inputs.prompt || '' }}
+      featureName: ${{ inputs.featureName || '' }}
+      featuresDir: ${{ inputs.featuresDir || 'features/' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
@@ -141,6 +147,16 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - run: npm ci
+
+      - name: List current features
+        id: features
+        shell: bash
+        run: |
+          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
 
       - name: List dependencies
         id: list
@@ -187,8 +203,8 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
 
-      - name: generate-issue
-        id: generate-issue
+      - name: generate-feature-development-issue
+        id: generate-feature-development-issue
         uses: actions/github-script@v7
         env:
           dependenciesListOutput: ${{ steps.list.outputs.output }}
@@ -198,6 +214,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const featureName = process.env.featureName;
+            const currentFeatures = process.env.currentFeatures;
             const target = process.env.target;
             const testFile = process.env.testFile;
             const readmeFile = process.env.readmeFile;
@@ -206,7 +224,6 @@ jobs:
             const dependenciesFile = process.env.dependenciesFile;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
-            const prompt = parseInt(process.env.prompt);
             const dependenciesListOutput = process.env.dependenciesListOutput;
             const buildScript = process.env.buildScript;
             const buildOutput = process.env.buildOutput;
@@ -235,6 +252,8 @@ jobs:
             }
             const openai = new OpenAI({ apiKey });
 
+            core.info(`featureName: "${featureName}"`); 
+            core.info(`currentFeatures: "${currentFeatures}"`);
             core.info(`target: "${target}"`);
             core.info(`testFile: "${testFile}"`);
             core.info(`readmeFile: "${readmeFile}"`);
@@ -253,12 +272,14 @@ jobs:
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
             
             const chatGptPrompt = `
-            Please generate the title and description of a GitHub issue to which will be used to action the supplied prompt.
-            The issue will be resolved by an LLM which can process over 100,000 tokens of context and it will provide completed source files in the response.
+            Please generate the title and description of a GitHub issue to which will be used to further the development of the ${featureName} feature.
+            Examine the details named feature ${featureName} in the current feature names and specifications, and evaluate the current state of the repository to determine which changes will implement the feature and allow it's value to be realised.
+            The issue will be resolved by an LLM which can process over 200,000 tokens of context and it will provide completed source files in the response.
             Do not include steps that would need to be taken manually by a human and expect to "dry-run" without an execution environment.
-            Ensure that the issue is distinct from any existing open issues in the repository so tha the new issue remains valid when the other open issues are closed.
+            Ensure that the issue is distinct from any existing open issues in the repository so that the new issue remains valid when the other open issues are closed.
             Consider the following when refining your response:
             * Prompt details
+            * Current feature names and specifications in the repository
             * Source file content
             * Test file content
             * README file content issue
@@ -270,6 +291,11 @@ jobs:
             * Test output
             * Main execution output
             * Open issue titles
+            
+            Current feature names and specifications:
+            CURRENT_FEATURES_START
+            ${currentFeatures}
+            CURRENT_FEATURES_END
             
             Source file: ${target}
             SOURCE_FILE_START
@@ -299,12 +325,7 @@ jobs:
             Dependencies file: ${dependenciesFile}
             DEPENDENCIES_FILE_START
             ${dependenciesFileContent}
-            DEPENDENCIES_FILE_END
-            
-            Prompt:
-            PROMPT_START
-            ${prompt}
-            PROMPT_END            
+            DEPENDENCIES_FILE_END          
 
             Dependencies list from command: npm list
             DEPENDENCIES_LIST_START
@@ -333,8 +354,8 @@ jobs:
             
             Answer strictly with a JSON object following this schema:
             {
-              "issueTitle": "The Title", // A summary of the change to make as a title.
-              "issueDescription": "The description.", // Detail about the change, how to apply and verify it.
+              "issueTitle": "The title of the GitHub issue summarising the change",
+              "issueDescription": "The description of the GitHub issue detailing the change and how to apply and verify it.",
             }
             Ensure valid JSON.
             `;
@@ -346,7 +367,7 @@ jobs:
               type: "function",
               function: {
                 name: "generate_issue",
-                description: "Elaborate on the supplied prompt and project files to create the issueTitle and issueDescription of a GitHub Issue. Return an object with issueTitle (string), and issueDescription (string).",
+                description: "Further development of the feature through changes to the project files captured in the issueTitle and issueDescription of a GitHub Issue. Return an object with issueTitle (string), and issueDescription (string).",
                 parameters: {
                   type: "object",
                   properties: {
@@ -364,7 +385,7 @@ jobs:
             const response = await openai.chat.completions.create({
               model,
               messages: [
-                { role: "system", content: "You are responding to a prompt for action by raising a GitHub issue that will be processed by an LLM with a token limit of 200,000 tokens in order tio manifest the prompt action as code, tests or documentation. You will respond to the intention of the prompt using a detailed assessment of the current state of the repository, the current feature set and the mission statement. Answer strictly with a JSON object following the provided function schema." },
+                { role: "system", content: "You are raising a GitHub issue which will be processed by an LLM with a token limit of 200,000 tokens in order to manifest a specific named feature as code, tests or documentation. You will respond to the intention of the prompt using a detailed assessment of the current state of the repository, the current feature set and the mission statement. Answer strictly with a JSON object following the provided function schema." },
                 { role: "user", content: chatGptPrompt }
               ],
               tools: tools
@@ -403,5 +424,5 @@ jobs:
             core.info(`response: "${JSON.stringify(response)}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
     outputs:
-      issueTitle: ${{ steps.generate-issue.outputs.issueTitle }}
-      issueDescription: ${{ steps.generate-issue.outputs.issueDescription }}
+      issueTitle: ${{ steps.generate-feature-development-issue.outputs.issueTitle }}
+      issueDescription: ${{ steps.generate-feature-development-issue.outputs.issueDescription }}

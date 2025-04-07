@@ -637,8 +637,9 @@ Supervisor:
 - [x] Switch to generating issues based on the prompts.
 - [x] Reinstate the agentic workflows in s3-sqs-bridge with maintenance focused tasks.
 - [~] Create a feature refiner.
-- [ ] Provide the feature set to all LLM submissions.
-- [ ] Create a feature issue creator that creates issues for a feature (like the mission prompt) for a feature picked from 'features/build'.
+- [~] Provide the feature set to all LLM submissions.
+- [~] Create a feature issue creator that creates issues for a feature (like the mission prompt) for a feature picked from 'features/build'.
+- [ ] Distribute the issue maintenance agentic-lib workflows to the other repositories and remove the renamed ones.
 - [ ] Dashboard metrics from s3 into the existing all stats dashboard.
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix).
 - [ ] Create a "supervisor" engine schedule with reduced schedule triggers (leaving the supervisor to invoke workflows).

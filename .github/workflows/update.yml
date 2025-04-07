@@ -63,7 +63,7 @@ jobs:
       pull-requests: write
       id-token: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-update-npm.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-update.yml@main'
     with:
       buildScript: 'npm run build'
       testScript: 'npm test'
@@ -87,7 +87,7 @@ jobs:
       pull-requests: write
       id-token: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-update-mvn.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-update.yml@main'
     with:
       buildScript: './mvnw clean install'
       testScript: './mvnw test'

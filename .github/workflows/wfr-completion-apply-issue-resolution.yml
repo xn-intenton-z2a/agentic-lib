@@ -1,4 +1,4 @@
-# .github/workflows/wfr-apply-issue-resolution.yml
+# .github/workflows/wfr-completion-apply-issue-resolution.yml
 
 #
 # agentic-lib
@@ -32,6 +32,11 @@ on:
         description: 'The issue number to review. e.g. "123"'
         type: string
         required: true
+      featuresDir:
+        description: 'The directory to create/update the features in. e.g. "features/"'
+        type: string
+        required: false
+        default: 'features/'
       target:
         description: 'The target file to review. e.g. "src/lib/main.js"'
         type: string
@@ -154,6 +159,7 @@ jobs:
 
     env:
       issueNumber: ${{ inputs.issueNumber }}
+      featuresDir: ${{ inputs.featuresDir || 'features/' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
@@ -206,6 +212,16 @@ jobs:
 
       - run: npm ci
 
+      - name: List current features
+        id: features
+        shell: bash
+        run: |
+          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
       - name: List dependencies
         id: list
         shell: bash
@@ -257,6 +273,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const currentFeatures = process.env.currentFeatures;
             const target = process.env.target;
             const testFile = process.env.testFile;
             const readmeFile = process.env.readmeFile;
@@ -286,6 +303,7 @@ jobs:
             }
             const openai = new OpenAI({ apiKey });
             
+            core.info(`currentFeatures: "${currentFeatures}"`);
             core.info(`target: "${target}"`);
             core.info(`testFile: "${testFile}"`);
             core.info(`readmeFile: "${readmeFile}"`);
@@ -328,6 +346,7 @@ jobs:
             const prompt = `
             You are providing the entire new content of the source file, test file and README file with all necessary changes applied to resolve an issue.
             Consider the following when refining your response:
+            * Current feature names and specifications in the repository
             * Source file content
             * Test file content
             * README file content issue
@@ -343,6 +362,11 @@ jobs:
             * Main execution output
             
             Apply the contributing guidelines to your response and when suggesting enhancements consider the tone and direction of the contributing guidelines.
+            
+            Current feature names and specifications:
+            CURRENT_FEATURES_START
+            ${currentFeatures}
+            CURRENT_FEATURES_END
             
             Source file: ${target}
             SOURCE_FILE_START

@@ -1,4 +1,4 @@
-# .github/workflows/wfr-maintain-features.yml
+# .github/workflows/wfr-completion-review-issue.yml
 
 #
 # agentic-lib
@@ -23,33 +23,32 @@
 # "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 #
 
-name: ∞ maintain-features
+name: ∞ review-issue
 
 on:
   workflow_call:
     inputs:
-      feature:
-        description: 'Text to drive the feature creation (if "house choice", the repository will be assessed an action chosen). e.g. "Support output to PDF."'
+      issueNumber:
+        description: 'The issue number to review. e.g. "123"'
         type: string
-        required: false
-        default: 'house choice'
+        required: true
       featuresDir:
         description: 'The directory to create/update the features in. e.g. "features/"'
         type: string
         required: false
         default: 'features/'
       target:
-        description: 'The target file to create the issue to change. e.g. "src/lib/main.js"'
+        description: 'The target file to review. e.g. "src/lib/main.js"'
         type: string
         required: false
         default: 'src/lib/main.js'
       testFile:
-        description: 'The test file. e.g. "tests/unit/main.test.js"'
+        description: 'The test file to review. e.g. "tests/unit/main.test.js"'
         type: string
         required: false
         default: 'tests/unit/main.test.js'
       readmeFile:
-        description: 'The README file. e.g. "README.md"'
+        description: 'The README file to review. e.g. "README.md"'
         type: string
         required: false
         default: 'README.md'
@@ -59,12 +58,12 @@ on:
         required: false
         default: 'MISSION.md'
       contributingFile:
-        description: 'The CONTRIBUTING file. e.g. "CONTRIBUTING.md"'
+        description: 'The CONTRIBUTING file to review. e.g. "CONTRIBUTING.md"'
         type: string
         required: false
         default: 'CONTRIBUTING.md'
       dependenciesFile:
-        description: 'The dependencies file. e.g. "package.json"'
+        description: 'The dependencies file to review. e.g. "package.json"'
         type: string
         required: false
         default: 'package.json'
@@ -88,28 +87,21 @@ on:
         type: string
         required: false
         default: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
-      npmAuthOrganisation:
-        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
-        type: string
-        required: false
-        default: ''
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
       CHATGPT_API_SECRET_KEY:
         required: true
     outputs:
-      featureName:
-        value: ${{ jobs.maintain-features.outputs.featureName }}
-      featureSpec:
-        value: ${{ jobs.maintain-features.outputs.featureSpec }}
+      fixed:
+        value: ${{ jobs.review-issue.outputs.fixed }}
 
 jobs:
-  maintain-features:
+  review-issue:
     runs-on: ubuntu-latest
 
     env:
-      feature: ${{ inputs.feature || '' }}
+      issueNumber: ${{ inputs.issueNumber }}
       featuresDir: ${{ inputs.featuresDir || 'features/' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
@@ -122,21 +114,10 @@ jobs:
       mainScript: ${{ inputs.mainScript || 'npm run start' }}
       mainScriptTimeout: '5m'
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
-      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: List current features
-        id: features
-        shell: bash
-        run: |
-          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1)
-          echo "output<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$output" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "output=${output}"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -158,6 +139,16 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - run: npm ci
+
+      - name: List current features
+        id: features
+        shell: bash
+        run: |
+          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
 
       - name: List dependencies
         id: list
@@ -204,20 +195,17 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
 
-      - name: maintain-features
-        id: maintain-features
+      - name: verify
+        id: verify
         uses: actions/github-script@v7
         env:
-          currentFeatures: ${{ steps.features.outputs.output }}
           dependenciesListOutput: ${{ steps.list.outputs.output }}
           buildOutput: ${{ steps.build.outputs.output }}
           testOutput: ${{ steps.test.outputs.output }}
           mainOutput: ${{ steps.main.outputs.output }}
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
-            const feature = process.env.feature;
-            const featuresDir = process.env.featuresDir;
             const currentFeatures = process.env.currentFeatures;
             const target = process.env.target;
             const testFile = process.env.testFile;
@@ -227,6 +215,7 @@ jobs:
             const dependenciesFile = process.env.dependenciesFile;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
+            const issueNumber = parseInt(process.env.issueNumber);
             const dependenciesListOutput = process.env.dependenciesListOutput;
             const buildScript = process.env.buildScript;
             const buildOutput = process.env.buildOutput;
@@ -236,18 +225,15 @@ jobs:
             const mainOutput = process.env.mainOutput;
 
             const fs = require('fs');
-            const path = require('path');
             const OpenAI = require('openai').default;
             const { z } = require('zod');
             require('dotenv').config();
-  
+
             if (!apiKey) { 
               core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
             }
             const openai = new OpenAI({ apiKey });
 
-            core.info(`feature: "${feature}"`);
-            core.info(`featuresDir: "${featuresDir}"`);
             core.info(`currentFeatures: "${currentFeatures}"`);
             core.info(`target: "${target}"`);
             core.info(`testFile: "${testFile}"`);
@@ -266,47 +252,37 @@ jobs:
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
             
-            // generate the feature prompt either by using the supplied feature or by reviewing the current features and full context
-            let prompt = feature;
-            if (feature === 'house choice') {
-              prompt = `Please review the current features in the repository and either;
-                * add a new feature to the repository, or
-                * extend an existing feature to add a new aspect to it, or
-                * update an existing feature to bring it to a high standard matching other features in the repository.
-                The feature name should either be a current feature name or be supplied with a feature specification which is distinct from any other feature in the repository.
-              `;
-            }
+            const issue = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            const issueTitle = issue.data.title;
+            const issueDescription = issue.data.body;
+            const issueComments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            const issueCommentsText = issueComments.data
+              .map(comment => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
+              .join('\n');
             
-            const chatGptPrompt = `
-            Please generate the name and specification for a software feature which will be added or updated to action the supplied feature prompt.
-            The feature will be used to submit to a Chat Completions API (yourself) to generate a series of GitHub issues to implement and iterate upon the feature.
-            Before adding a new feature ensure that this feature is distinct from any other feature in the repository, otherwise update an existing feature.
-            When updating an existing feature, ensure that the existing aspects are not omitted in the response, provide the full feature spec.
-            The feature name should be one or two words in SCREAMING_SNAKECASE.
-            The feature spec should be a detailed description of the feature, compatible with the guidelines in CONTRIBUTING.md.
-            You may also just update a feature spec to bring it to a high standard matching other features in the repository.
-            A feature can be added based on a behaviour already present in the repository described within the guidelines in CONTRIBUTING.md.
-            The feature spec should be a multiline markdown with a few level 1 headings.
-            The feature must be compatible with the mission statement in MISSION.md and ideally realise part of the value in the mission.
+            const prompt = `
+            Does the combination source file, test file, README file and dependencies file show a solution with a reasonable likelihood of including a resolution to the following issue?
             Consider the following when refining your response:
-            * Feature prompt details
-            * Current names and specifications in the repository
+            * Current feature names and specifications in the repository
             * Source file content
             * Test file content
             * README file content issue
             * MISSION file content
             * Contributing file content
             * Dependencies file content
+            * Issue details
             * Dependency list
             * Build output
             * Test output
             * Main execution output
-            * Open issue titles
-            
-            Feature prompt:
-            FEATURE_PROMPT_START
-            ${prompt}
-            FEATURE_PROMPT_END            
             
             Current feature names and specifications:
             CURRENT_FEATURES_START
@@ -343,6 +319,15 @@ jobs:
             ${dependenciesFileContent}
             DEPENDENCIES_FILE_END
             
+            Issue:
+            ISSUE_START
+            title: ${issueTitle}
+            description:
+            ${issueDescription}
+            comments:
+            ${issueCommentsText}
+            ISSUE_END            
+
             Dependencies list from command: npm list
             DEPENDENCIES_LIST_START
             ${dependenciesListOutput}
@@ -361,31 +346,33 @@ jobs:
             Main output from command: ${mainScript}
             MAIN_OUTPUT_START
             ${mainOutput}
-            MAIN_OUTPUT_END
+            MAIN_OUTPUT_END    
             
             Answer strictly with a JSON object following this schema:
             {
-              "featureName": "The feature name as one or two words in SCREAMING_SNAKECASE.",
-              "featureSpec": "The feature specification as multiline markdown with a few level 1 headings."
+              "fixed": "true", // if the fix is present, or "false" otherwise.
+              "message": "The issue has been resolved.", // if the fix is present, or an explanation otherwise.
+              "refinement": "None" // if the fix is present, or a suggested refinement to resolve the issue otherwise.
             }
             Ensure valid JSON.
             `;
             
-            const ResponseSchema = z.object({ featureName: z.string(), featureSpec: z.string() });
+            const ResponseSchema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
             
             // Define the function schema for function calling
             const tools = [{
               type: "function",
               function: {
-                name: "generate_issue",
-                description: "Elaborate on the supplied prompt and project files to create the featureName and featureSpec of a repository feature. Return an object with featureName (string), and featureSpec (string).",
+                name: "review_issue",
+                description: "Evaluate whether the supplied source file content resolves the issue. Return an object with fixed (string: 'true' or 'false'), message (explanation), and refinement (suggested refinement).",
                 parameters: {
                   type: "object",
                   properties: {
-                    featureName: { type: "string", description: "The feature name as one or two words in SCREAMING_SNAKECASE." },
-                    featureSpec: { type: "string", description: "The feature specification as multiline markdown with a few level 1 headings." }
+                    fixed: { type: "string", description: "true if the issue is resolved, false otherwise" },
+                    message: { type: "string", description: "A message explaining the result" },
+                    refinement: { type: "string", description: "A suggested refinement if the issue is not resolved" }
                   },
-                  required: ["featureName", "featureSpec"],
+                  required: ["fixed", "message", "refinement"],
                   additionalProperties: false
                 },
                 strict: true
@@ -396,8 +383,8 @@ jobs:
             const response = await openai.chat.completions.create({
               model,
               messages: [
-                { role: "system", content: "You are maintaining a feature set by providing expert contemporary insight into both the product market and you will perform a detailed analysis of the current state of the repository and current feature set in search of value opportunities and unique selling points. Answer strictly with a JSON object following the provided function schema." },
-                { role: "user", content: chatGptPrompt }
+                { role: "system", content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema." },
+                { role: "user", content: prompt }
               ],
               tools: tools
             });
@@ -421,47 +408,55 @@ jobs:
             
             try {
               const parsed = ResponseSchema.parse(result);
-              core.setOutput("featureName", parsed.featureName);
-              core.setOutput("featureSpec", parsed.featureSpec);
-              core.info(`featureName: "${parsed.featureName}"`);
-              core.info(`featureSpec: "${parsed.featureSpec}"`);
+              core.setOutput("fixed", parsed.fixed);
+              core.setOutput("message", parsed.message);
+              core.setOutput("refinement", parsed.refinement);
+              core.info(`fixed: "${parsed.fixed}"`);
+              core.info(`message: "${parsed.message}"`);
+              core.info(`refinement: "${parsed.refinement}"`);
             
-              // Save the feature spec to a file using the convention of <featuresDir> plus path SCREAMING_SNAKE_CASE(<feature name>).md
-              const featureName = parsed.featureName.replace(/ /g, "_").toUpperCase();
-              const featureSpec = parsed.featureSpec;
-              const featuresDir = process.env.featuresDir || 'features/';
-              
-              const featureFilePath = path.join(featuresDir, `${featureName}.md`);
-              try {
-                fs.mkdirSync(featuresDir, { recursive: true });
-                fs.writeFileSync(featureFilePath, featureSpec);
-                core.info(`Feature spec saved to ${featureFilePath}`);
-              } catch (e) {
-                core.setFailed(`Failed to save feature spec: ${e.message}`);
-              }
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: parsed.message
+              });
             
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: parsed.refinement
+              });
             } catch (e) {
               core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
             }
-              
+            
             core.setOutput("response", JSON.stringify(response));
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`response: "${JSON.stringify(response)}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
-
-      - name: Commit changes
-        id: commit
-        continue-on-error: true
-        run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git status -v
-          git add -v --all '${{ env.featuresDir }}'
-          git commit -m 'Maintain ${{ steps.maintain-features.outputs.featureName }}'
-          git status -v
-          git push -v origin ${{ github.ref }}
-          git status -v
+      - name: Close fixed issues
+        if: steps.verify.outputs.fixed == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const issueNumber = parseInt("${{ env.issueNumber }}");
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: "The issue has been automatically resolved and the fix has been merged."
+            });
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              state: "closed"
+            });
 
     outputs:
-      featureName: ${{ steps.maintain-features.outputs.featureName }}
-      featureSpec: ${{ steps.maintain-features.outputs.featureSpec }}
+      fixed: ${{ steps.verify.outputs.fixed }}
+      message: ${{ steps.verify.outputs.message }}
+      refinement: ${{ steps.verify.outputs.refinement }}

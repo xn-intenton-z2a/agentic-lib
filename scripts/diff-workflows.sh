@@ -13,7 +13,7 @@ diff .github/workflows/automerge.yml ../repository0/.github/workflows/automerge.
 echo ".github/workflows/formating.yml"
 diff .github/workflows/formating.yml ../repository0/.github/workflows/formating.yml
 echo ".github/workflows/issue-creator.yml"
-diff .github/workflows/issue-creator.yml ../repository0/.github/workflows/issue-creator.yml
+diff .github/workflows/maintenance-issue-creator.yml ../repository0/.github/workflows/maintenance-issue-creator.yml
 echo ".github/workflows/issue-for-linting.yml"
 diff .github/workflows/issue-for-linting.yml ../repository0/.github/workflows/issue-for-linting.yml
 echo ".github/workflows/issue-reviewer.yml"

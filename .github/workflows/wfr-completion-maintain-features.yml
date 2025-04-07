@@ -1,0 +1,467 @@
+# .github/workflows/wfr-completion-maintain-features.yml
+
+#
+# agentic-lib
+# Copyright (C) 2025 Polycode Limited
+#
+# This file is part of agentic-lib.
+#
+# agentic-lib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# IMPORTANT: Any derived work must include the following attribution:
+# "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+#
+
+name: ∞ maintain-features
+
+on:
+  workflow_call:
+    inputs:
+      feature:
+        description: 'Text to drive the feature creation (if "house choice", the repository will be assessed an action chosen). e.g. "Support output to PDF."'
+        type: string
+        required: false
+        default: 'house choice'
+      featuresDir:
+        description: 'The directory to create/update the features in. e.g. "features/"'
+        type: string
+        required: false
+        default: 'features/'
+      target:
+        description: 'The target file to create the issue to change. e.g. "src/lib/main.js"'
+        type: string
+        required: false
+        default: 'src/lib/main.js'
+      testFile:
+        description: 'The test file. e.g. "tests/unit/main.test.js"'
+        type: string
+        required: false
+        default: 'tests/unit/main.test.js'
+      readmeFile:
+        description: 'The README file. e.g. "README.md"'
+        type: string
+        required: false
+        default: 'README.md'
+      missionFile:
+        description: 'The MISSION statement file. e.g. "MISSION.md"'
+        type: string
+        required: false
+        default: 'MISSION.md'
+      contributingFile:
+        description: 'The CONTRIBUTING file. e.g. "CONTRIBUTING.md"'
+        type: string
+        required: false
+        default: 'CONTRIBUTING.md'
+      dependenciesFile:
+        description: 'The dependencies file. e.g. "package.json"'
+        type: string
+        required: false
+        default: 'package.json'
+      buildScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
+        type: string
+        required: false
+        default: 'echo "No build script specified."'
+      testScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
+        type: string
+        required: false
+        default: 'npm test'
+      mainScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run start`'
+        type: string
+        required: false
+        default: 'npm run start'
+      model:
+        description: 'The OpenAI model to use. e.g. "o3-mini"'
+        type: string
+        required: false
+        default: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      npmAuthOrganisation:
+        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
+        type: string
+        required: false
+        default: ''
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
+    outputs:
+      featureName:
+        value: ${{ jobs.maintain-features.outputs.featureName }}
+      featureSpec:
+        value: ${{ jobs.maintain-features.outputs.featureSpec }}
+
+jobs:
+  maintain-features:
+    runs-on: ubuntu-latest
+
+    env:
+      feature: ${{ inputs.feature || '' }}
+      featuresDir: ${{ inputs.featuresDir || 'features/' }}
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
+      readmeFile: ${{ inputs.readmeFile || 'README.md' }}
+      missionFile: ${{ inputs.missionFile || 'MISSION.md' }}
+      contributingFile: ${{ inputs.contributingFile || 'CONTRIBUTING.md' }}
+      dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
+      buildScript: ${{ inputs.buildScript || 'npm run build' }}
+      testScript: ${{ inputs.testScript || 'npm test' }}
+      mainScript: ${{ inputs.mainScript || 'npm run start' }}
+      mainScriptTimeout: '5m'
+      model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
+      chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check GitHub authentication
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - run: npm ci
+
+      - name: List current features
+        id: features
+        shell: bash
+        run: |
+          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: List dependencies
+        id: list
+        shell: bash
+        run: |
+          output=$(npm list 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Build project
+        id: build
+        shell: bash
+        run: |
+          output=$(${{ env.buildScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: rm -f .npmrc
+
+      - name: Run tests
+        id: test
+        shell: bash
+        run: |
+          output=$(${{ env.testScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Run main
+        id: main
+        shell: bash
+        run: |
+          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: maintain-features
+        id: maintain-features
+        uses: actions/github-script@v7
+        env:
+          currentFeatures: ${{ steps.features.outputs.output }}
+          dependenciesListOutput: ${{ steps.list.outputs.output }}
+          buildOutput: ${{ steps.build.outputs.output }}
+          testOutput: ${{ steps.test.outputs.output }}
+          mainOutput: ${{ steps.main.outputs.output }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const feature = process.env.feature;
+            const featuresDir = process.env.featuresDir;
+            const currentFeatures = process.env.currentFeatures;
+            const target = process.env.target;
+            const testFile = process.env.testFile;
+            const readmeFile = process.env.readmeFile;
+            const missionFile = process.env.missionFile;
+            const contributingFile = process.env.contributingFile;
+            const dependenciesFile = process.env.dependenciesFile;
+            const model = process.env.model;
+            const apiKey = process.env.chatgptApiSecretKey;
+            const dependenciesListOutput = process.env.dependenciesListOutput;
+            const buildScript = process.env.buildScript;
+            const buildOutput = process.env.buildOutput;
+            const testScript = process.env.testScript;
+            const testOutput = process.env.testOutput;
+            const mainScript = process.env.mainScript;
+            const mainOutput = process.env.mainOutput;
+
+            const fs = require('fs');
+            const path = require('path');
+            const OpenAI = require('openai').default;
+            const { z } = require('zod');
+            require('dotenv').config();
+  
+            if (!apiKey) { 
+              core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
+            }
+            const openai = new OpenAI({ apiKey });
+
+            core.info(`feature: "${feature}"`);
+            core.info(`featuresDir: "${featuresDir}"`);
+            core.info(`currentFeatures: "${currentFeatures}"`);
+            core.info(`target: "${target}"`);
+            core.info(`testFile: "${testFile}"`);
+            core.info(`readmeFile: "${readmeFile}"`);
+            core.info(`missionFile: "${missionFile}"`);
+            core.info(`contributingFile: "${contributingFile}"`);
+            core.info(`dependenciesFile: "${dependenciesFile}"`);
+            const sourceFileContent = fs.readFileSync(target, 'utf8');
+            const testFileContent = fs.readFileSync(testFile, 'utf8');
+            const readmeFileContent = fs.readFileSync(readmeFile, 'utf8');
+            const missionFileContent = fs.readFileSync(missionFile, 'utf8');
+            const contributingFileContent = fs.readFileSync(contributingFile, 'utf8');
+            const dependenciesFileContent = fs.readFileSync(dependenciesFile, 'utf8');
+            core.info(`Target file '${target}' has been loaded (length ${sourceFileContent.length}).`);
+            core.info(`Test file '${testFile}' has been loaded (length ${testFileContent.length}).`);
+            core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
+            core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
+            
+            // generate the feature prompt either by using the supplied feature or by reviewing the current features and full context
+            let prompt = feature;
+            if (feature === 'house choice') {
+              prompt = `Please review the current features in the repository and either;
+                * add a new feature to the repository, or
+                * extend an existing feature to add a new aspect to it, or
+                * update an existing feature to bring it to a high standard matching other features in the repository.
+                The feature name should either be a current feature name or be supplied with a feature specification which is distinct from any other feature in the repository.
+              `;
+            }
+            
+            const chatGptPrompt = `
+            Please generate the name and specification for a software feature which will be added or updated to action the supplied feature prompt.
+            The feature will be used to submit to a Chat Completions API (yourself) to generate a series of GitHub issues to implement and iterate upon the feature.
+            Before adding a new feature ensure that this feature is distinct from any other feature in the repository, otherwise update an existing feature.
+            When updating an existing feature, ensure that the existing aspects are not omitted in the response, provide the full feature spec.
+            The feature name should be one or two words in SCREAMING_SNAKECASE.
+            The feature spec should be a detailed description of the feature, compatible with the guidelines in CONTRIBUTING.md.
+            You may also just update a feature spec to bring it to a high standard matching other features in the repository.
+            A feature can be added based on a behaviour already present in the repository described within the guidelines in CONTRIBUTING.md.
+            The feature spec should be a multiline markdown with a few level 1 headings.
+            The feature must be compatible with the mission statement in MISSION.md and ideally realise part of the value in the mission.
+            Consider the following when refining your response:
+            * Feature prompt details
+            * Current feature names and specifications in the repository
+            * Source file content
+            * Test file content
+            * README file content issue
+            * MISSION file content
+            * Contributing file content
+            * Dependencies file content
+            * Dependency list
+            * Build output
+            * Test output
+            * Main execution output
+            * Open issue titles
+            
+            Feature prompt:
+            FEATURE_PROMPT_START
+            ${prompt}
+            FEATURE_PROMPT_END            
+            
+            Current feature names and specifications:
+            CURRENT_FEATURES_START
+            ${currentFeatures}
+            CURRENT_FEATURES_END
+            
+            Source file: ${target}
+            SOURCE_FILE_START
+            ${sourceFileContent}
+            SOURCE_FILE_END
+            
+            Test file: ${testFile}
+            TEST_FILE_START
+            ${testFileContent}
+            TEST_FILE_END
+
+            README file: ${readmeFile}
+            README_FILE_START
+            ${readmeFileContent}
+            README_FILE_END
+            
+            MISSION file: ${missionFile}
+            MISSION_FILE_START
+            ${missionFileContent}
+            MISSION_FILE_END
+
+            Contributing file: ${contributingFile}
+            CONTRIBUTING_FILE_START
+            ${contributingFileContent}
+            CONTRIBUTING_FILE_END
+            
+            Dependencies file: ${dependenciesFile}
+            DEPENDENCIES_FILE_START
+            ${dependenciesFileContent}
+            DEPENDENCIES_FILE_END
+            
+            Dependencies list from command: npm list
+            DEPENDENCIES_LIST_START
+            ${dependenciesListOutput}
+            DEPENDENCIES_LIST_END    
+            
+            Build output from command: ${buildScript}
+            TEST_OUTPUT_START
+            ${buildOutput}
+            TEST_OUTPUT_END      
+            
+            Test output from command: ${testScript}
+            TEST_OUTPUT_START
+            ${testOutput}
+            TEST_OUTPUT_END            
+
+            Main output from command: ${mainScript}
+            MAIN_OUTPUT_START
+            ${mainOutput}
+            MAIN_OUTPUT_END
+            
+            Answer strictly with a JSON object following this schema:
+            {
+              "featureName": "The feature name as one or two words in SCREAMING_SNAKECASE.",
+              "featureSpec": "The feature specification as multiline markdown with a few level 1 headings."
+            }
+            Ensure valid JSON.
+            `;
+            
+            const ResponseSchema = z.object({ featureName: z.string(), featureSpec: z.string() });
+            
+            // Define the function schema for function calling
+            const tools = [{
+              type: "function",
+              function: {
+                name: "generate_issue",
+                description: "Elaborate on the supplied prompt and project files to create the featureName and featureSpec of a repository feature. Return an object with featureName (string), and featureSpec (string).",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    featureName: { type: "string", description: "The feature name as one or two words in SCREAMING_SNAKECASE." },
+                    featureSpec: { type: "string", description: "The feature specification as multiline markdown with a few level 1 headings." }
+                  },
+                  required: ["featureName", "featureSpec"],
+                  additionalProperties: false
+                },
+                strict: true
+              }
+            }];
+
+            // Call OpenAI using function calling format
+            const response = await openai.chat.completions.create({
+              model,
+              messages: [
+                { role: "system", content: "You are maintaining a feature set by providing expert contemporary insight into both the product market and you will perform a detailed analysis of the current state of the repository and current feature set in search of value opportunities and unique selling points. Answer strictly with a JSON object following the provided function schema." },
+                { role: "user", content: chatGptPrompt }
+              ],
+              tools: tools
+            });
+            
+            let result;
+            if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
+              try {
+                result = JSON.parse(response.choices[0].message.tool_calls[0].function.arguments);
+              } catch (e) {
+                core.setFailed(`Failed to parse function call arguments: ${e.message}`);
+              }
+            } else if (response.choices[0].message.content) {
+              try {
+                result = JSON.parse(response.choices[0].message.content);
+              } catch (e) {
+                core.setFailed(`Failed to parse response content: ${e.message}`);
+              }
+            } else {
+              core.setFailed("No valid response received from OpenAI.");
+            }
+            
+            try {
+              const parsed = ResponseSchema.parse(result);
+              core.setOutput("featureName", parsed.featureName);
+              core.setOutput("featureSpec", parsed.featureSpec);
+              core.info(`featureName: "${parsed.featureName}"`);
+              core.info(`featureSpec: "${parsed.featureSpec}"`);
+            
+              // Save the feature spec to a file using the convention of <featuresDir> plus path SCREAMING_SNAKE_CASE(<feature name>).md
+              const featureName = parsed.featureName.replace(/ /g, "_").toUpperCase();
+              const featureSpec = parsed.featureSpec;
+              const featuresDir = process.env.featuresDir || 'features/';
+              
+              const featureFilePath = path.join(featuresDir, `${featureName}.md`);
+              try {
+                fs.mkdirSync(featuresDir, { recursive: true });
+                fs.writeFileSync(featureFilePath, featureSpec);
+                core.info(`Feature spec saved to ${featureFilePath}`);
+              } catch (e) {
+                core.setFailed(`Failed to save feature spec: ${e.message}`);
+              }
+            
+            } catch (e) {
+              core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
+            }
+              
+            core.setOutput("response", JSON.stringify(response));
+            core.setOutput("usage", JSON.stringify(response.usage));
+            core.info(`response: "${JSON.stringify(response)}"`);
+            core.info(`usage: "${JSON.stringify(response.usage)}"`);
+
+      - name: Commit changes
+        id: commit
+        continue-on-error: true
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git add -v --all '${{ env.featuresDir }}'
+          git commit -m 'Maintain ${{ steps.maintain-features.outputs.featureName }}'
+          git status -v
+          git push -v origin ${{ github.ref }}
+          git status -v
+
+    outputs:
+      featureName: ${{ steps.maintain-features.outputs.featureName }}
+      featureSpec: ${{ steps.maintain-features.outputs.featureSpec }}

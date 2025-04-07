@@ -28,7 +28,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-maintain-features.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@main'
     with:
       feature: ${{ inputs.feature }}
       featuresDir: 'features/'
