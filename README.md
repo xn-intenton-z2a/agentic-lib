@@ -58,8 +58,9 @@ This repository is organized into three distinct areas to help you understand th
 - **Location:**  
   The code is located in `src/lib/main.js`.
 
-**New Feature:**
+**New Features:**
 - Added an in-memory caching mechanism to the delegateDecisionToLLMFunctionCallWrapper function. When the option `{ cache: true }` is passed, identical prompts and configurations will return cached responses, reducing redundant OpenAI API calls.
+- Added a new CLI flag `--verbose` that, when used, enables detailed verbose logging output. Logging functions will output extra diagnostic details such as additional context and error stacks when verbose mode is activated.
 
 ## License
 

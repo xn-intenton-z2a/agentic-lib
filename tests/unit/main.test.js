@@ -90,7 +90,6 @@ describe("Auto Conversion of Prompt", () => {
   test("auto converts number prompt when autoConvertPrompt is true", async () => {
     process.env.OPENAI_API_KEY = "dummy-api-key";
     const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(123, { autoConvertPrompt: true, cache: false });
-    // Since the API call may error due to OpenAI configuration, we only check that conversion occurred (no invalid prompt error)
     expect(result.message).not.toContain("Invalid prompt provided");
   });
 
@@ -153,6 +152,22 @@ describe("CLI main function", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     agenticLib.main(["--help", "extraArg"]);
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("--help"));
+    logSpy.mockRestore();
+  });
+
+  test("activates verbose mode when --verbose flag is provided", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await agenticLib.main(["--verbose", "--help"]);
+    let verboseLogFound = false;
+    logSpy.mock.calls.forEach(call => {
+      try {
+        const logObj = JSON.parse(call[0]);
+        if (logObj.verbose === true) {
+          verboseLogFound = true;
+        }
+      } catch (e) {}
+    });
+    expect(verboseLogFound).toBe(true);
     logSpy.mockRestore();
   });
 });
