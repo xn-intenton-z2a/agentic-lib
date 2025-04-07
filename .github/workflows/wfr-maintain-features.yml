@@ -448,6 +448,20 @@ jobs:
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`response: "${JSON.stringify(response)}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
+
+      - name: Commit changes
+        id: commit
+        continue-on-error: true
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git add -v --all '${{ env.featuresDir }}'
+          git commit -m 'Maintain ${{ steps.maintain-features.outputs.featureName }}'
+          git status -v
+          git push -v origin ${{ github.ref }}
+          git status -v
+
     outputs:
       featureName: ${{ steps.maintain-features.outputs.featureName }}
       featureSpec: ${{ steps.maintain-features.outputs.featureSpec }}
