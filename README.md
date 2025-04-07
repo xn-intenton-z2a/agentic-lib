@@ -26,8 +26,8 @@ This README file will evolve as the test experiment within this repository evolv
 
 # Updates
 
-- Enhanced digestLambdaHandler to generate a fallback unique identifier that includes the record index and provide detailed error logging for invalid JSON payloads.
-- Expanded and fixed input validation in delegateDecisionToLLMFunctionCallWrapper by correcting the auto conversion logic for numeric and boolean prompts when autoConvertPrompt is enabled.
+- Fixed auto conversion in delegateDecisionToLLMFunctionCallWrapper to properly convert non-string prompt values when autoConvertPrompt is enabled.
+- Expanded and fixed input validation in delegateDecisionToLLMFunctionCallWrapper by ensuring proper type conversion.
 
 START_OF_README_BEGINNING
 
@@ -85,7 +85,7 @@ This repository is organized into three distinct areas to help you understand th
 
 ### 3. The Evolving main.js (JavaScript re‑implementation of Re‑usable Workflows)
 - **Purpose:**  
-  This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to core functionality. It now includes improved error handling and an optional auto-conversion feature in delegateDecisionToLLMFunctionCallWrapper, which automatically converts numeric and boolean inputs to strings when enabled.
+  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
@@ -181,4 +181,4 @@ IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
 
-START_OF_README_ENDING
+END_OF_README_ENDING

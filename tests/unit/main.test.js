@@ -90,7 +90,6 @@ describe("Auto Conversion of Prompt", () => {
   test("auto converts number prompt when autoConvertPrompt is true", async () => {
     process.env.OPENAI_API_KEY = "dummy-api-key";
     const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(123, { autoConvertPrompt: true });
-    // The conversion should prevent the prompt error, so the error message should not mention invalid prompt
     expect(result.message).not.toContain("Invalid prompt provided");
   });
 
