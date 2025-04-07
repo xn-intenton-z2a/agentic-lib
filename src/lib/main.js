@@ -116,15 +116,15 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
   console.log(chalk.blue("delegateDecisionToLLMFunctionCallWrapper invoked with prompt:"), prompt);
 
   // Auto-conversion: if autoConvertPrompt flag is true and prompt is not a string, convert it to a string
-  if (options && options.autoConvertPrompt) {
-    if (typeof prompt !== 'string') {
-      prompt = String(prompt);
-    }
+  if (options && options.autoConvertPrompt && typeof prompt !== 'string') {
+    prompt = String(prompt);
+  }
+  if (typeof prompt === 'string') {
     prompt = prompt.trim();
   }
 
   // Enhanced input validation: ensure prompt is a non-empty string
-  if (typeof prompt !== 'string' || prompt.trim() === "") {
+  if (typeof prompt !== 'string' || prompt === "") {
     const errorMsg = `Invalid prompt provided; received value: ${prompt} (type: ${typeof prompt}). A non-empty string is required. If you passed a numeric value, please convert it to a string.`;
     console.error(chalk.red(errorMsg));
     return {
