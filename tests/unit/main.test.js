@@ -102,10 +102,6 @@ describe("Auto Conversion of Prompt", () => {
 });
 
 describe("Caching Mechanism", () => {
-  // Mock the openai module to avoid real API calls
-  const dummyResponse = { fixed: "true", message: "cached test", refinement: "none" };
-  let createChatCompletionMock;
-
   beforeAll(() => {
     vi.resetModules();
     vi.mock('openai', () => {
@@ -113,6 +109,7 @@ describe("Caching Mechanism", () => {
         Configuration: function(config) { return config; },
         OpenAIApi: class {
           async createChatCompletion() {
+            const dummyResponse = { fixed: "true", message: "cached test", refinement: "none" };
             return {
               data: {
                 choices: [{ message: { content: JSON.stringify(dummyResponse) } }]
@@ -132,21 +129,22 @@ describe("Caching Mechanism", () => {
     process.env.OPENAI_API_KEY = "dummy-api-key";
     const prompt = "Test caching prompt";
     const options = { autoConvertPrompt: true, cache: true };
+    const expectedResponse = { fixed: "true", message: "cached test", refinement: "none" };
     const firstCall = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(prompt, options);
     const secondCall = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(prompt, options);
-    expect(firstCall).toEqual(dummyResponse);
-    expect(secondCall).toEqual(dummyResponse);
+    expect(firstCall).toEqual(expectedResponse);
+    expect(secondCall).toEqual(expectedResponse);
   });
 
   test("should not use cache when caching is disabled", async () => {
     process.env.OPENAI_API_KEY = "dummy-api-key";
     const prompt = "Test no cache prompt";
     const options = { autoConvertPrompt: true, cache: false };
+    const expectedResponse = { fixed: "true", message: "cached test", refinement: "none" };
     const firstCall = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(prompt, options);
     const secondCall = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(prompt, options);
-    // Even though responses might be equal, we expect that the caching log is not printed (can’t fully test internal state but ensuring no errors)
-    expect(firstCall).toEqual(dummyResponse);
-    expect(secondCall).toEqual(dummyResponse);
+    expect(firstCall).toEqual(expectedResponse);
+    expect(secondCall).toEqual(expectedResponse);
   });
 });
 
