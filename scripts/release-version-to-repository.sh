@@ -32,11 +32,14 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/automerge.yml"
 cp -v .github/workflows/deploy.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/deploy.yml"
 
+cp -v .github/workflows/feature-development-issue-creator.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/feature-development-issue-creator.yml"
+
+cp -v .github/workflows/feature-worker.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/feature-worker.yml"
+
 cp -v .github/workflows/formating.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/formating.yml"
-
-cp -v .github/workflows/maintenance-issue-creator.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-creator.yml"
 
 cp -v .github/workflows/issue-for-linting.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-for-linting.yml"
@@ -46,6 +49,10 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-reviewer.yml"
 
 cp -v .github/workflows/issue-worker.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-worker.yml"
+
+rm -f "${DEST_DIR}/.github/workflows/issue-creator.yml"
+cp -v .github/workflows/maintenance-issue-creator.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/maintenance-issue-creator.yml"
 
 cp -v .github/workflows/publish.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish.yml"
