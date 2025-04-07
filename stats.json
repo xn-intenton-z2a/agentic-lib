@@ -1,33 +1,38 @@
 {
-  "openIssues": 2,
-  "issuesClosedLastHour": 3,
-  "issuesClosedLastDay": 22,
-  "openPRs": 0,
-  "prDetails": [],
+  "openIssues": 5,
+  "issuesClosedLastHour": 5,
+  "issuesClosedLastDay": 24,
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Fixed caching mechanism tests updated the OpenAI module mock in the caching tests to define the dummyResponse inline and adjusted expected responses accordingly. (fixes #948)",
+      "ageMinutes": 3
+    }
+  ],
   "diffMinutes": 0,
   "diffMinutesMain": 0,
-  "commitsLastHour": 10,
-  "commitsLastDay": 22,
+  "commitsLastHour": 15,
+  "commitsLastDay": 27,
   "lastFiveCommitMessages": [
     {
-      "time": "21:28",
-      "message": "Update engine extraction logic in stats workflow\n\nReplaced the g..."
+      "time": "21:36",
+      "message": "Merge remote-tracking branch 'origin/main'"
     },
     {
-      "time": "21:25",
-      "message": "Maintain ISSUE_COMPOSER"
+      "time": "21:36",
+      "message": "Set consistent casing for run-name in workflow\n\nUpdated the `run..."
     },
     {
-      "time": "21:23",
-      "message": "2.16.1-0"
+      "time": "21:35",
+      "message": "Maintain ACTION_PUBLISHER"
     },
     {
-      "time": "21:19",
-      "message": "2.16.1-0"
+      "time": "21:34",
+      "message": "Maintain ISSUE_BATCHER"
     },
     {
-      "time": "21:19",
-      "message": "2.16.0"
+      "time": "21:32",
+      "message": "Add UNCLEBOB prompt and reorganize MISSION.md location\n\nIntroduc..."
     }
   ],
   "branches": {
@@ -35,12 +40,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-948",
-        "minutesSinceLastCommit": 2
+        "minutesSinceLastCommit": 4
       }
     ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 3,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-07T21:29:35.469Z"
+  "generatedAt": "2025-04-07T21:37:37.746Z"
 }
