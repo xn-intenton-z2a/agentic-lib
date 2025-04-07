@@ -26,7 +26,7 @@ This README file will evolve as the test experiment within this repository evolv
 
 # Updates
 
-- Fixed auto conversion in delegateDecisionToLLMFunctionCallWrapper to properly convert non-string prompt values when autoConvertPrompt is enabled.
+- Fixed parameter ordering in delegateDecisionToLLMFunctionCallWrapper to correctly auto convert non-string prompts.
 - Expanded and fixed input validation in delegateDecisionToLLMFunctionCallWrapper by ensuring proper type conversion.
 
 START_OF_README_BEGINNING
