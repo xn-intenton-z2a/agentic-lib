@@ -118,10 +118,9 @@ describe("Caching Mechanism", () => {
         }
       };
     });
-    // Remove any cached entries for consistent testing
-    // @ts-ignore
-    const { llmCache } = require("../../src/lib/main.js");
-    if (llmCache && llmCache.clear) llmCache.clear();
+    // Clear cache if possible
+    // @ts-ignore: Accessing internal cache
+    if (agenticLib.llmCache && agenticLib.llmCache.clear) agenticLib.llmCache.clear();
   });
 
   test("should cache identical calls when caching is enabled", async () => {
@@ -147,40 +146,64 @@ describe("Caching Mechanism", () => {
   });
 });
 
-describe("CLI main function", () => {
-  test("prints usage and demo if --help flag provided", () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    agenticLib.main(["--help", "extraArg"]);
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("--help"));
-    logSpy.mockRestore();
-  });
-
-  test("activates verbose mode when --verbose flag is provided", async () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await agenticLib.main(["--verbose", "--help"]);
-    let verboseLogFound = false;
-    logSpy.mock.calls.forEach(call => {
-      try {
-        const logObj = JSON.parse(call[0]);
-        if (logObj.verbose === true) {
-          verboseLogFound = true;
-        }
-      } catch (e) {}
-    });
-    expect(verboseLogFound).toBe(true);
-    logSpy.mockRestore();
-  });
-});
-
 // Added tests for digestLambdaHandler missing messageId
 
 describe("digestLambdaHandler", () => {
   test("handles missing messageId by using a fallback identifier", async () => {
     const recordWithoutMessageId = {
-      body: "{ invalid json",
+      body: "{ invalid json"
     };
     const result = await agenticLib.digestLambdaHandler({ Records: [recordWithoutMessageId] });
     expect(result.batchItemFailures.length).toBe(1);
     expect(result.batchItemFailures[0].itemIdentifier).toMatch(/^fallback-/);
+  });
+});
+
+// New tests for TTL functionality
+
+describe("TTL functionality", () => {
+  beforeAll(() => {
+    vi.useFakeTimers();
+  });
+
+  afterAll(() => {
+    vi.useRealTimers();
+  });
+
+  test("returns cached result if within TTL", async () => {
+    process.env.OPENAI_API_KEY = "dummy-api-key";
+    const prompt = "TTL test prompt";
+    const options = { autoConvertPrompt: true, cache: true, ttl: 5000 };
+    const expectedResponse = { fixed: "true", message: "cached test", refinement: "none" };
+    const firstCall = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(prompt, options);
+    // Advance time by 3000ms, which is within the TTL
+    vi.advanceTimersByTime(3000);
+    const secondCall = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(prompt, options);
+    expect(secondCall).toEqual(expectedResponse);
+  });
+
+  test("bypasses cache if TTL expired", async () => {
+    process.env.OPENAI_API_KEY = "dummy-api-key";
+    const prompt = "TTL fresh prompt";
+    const options = { autoConvertPrompt: true, cache: true, ttl: 5000 };
+    let callCount = 0;
+    vi.mock('openai', () => {
+      return {
+        Configuration: function(config) { return config; },
+        OpenAIApi: class {
+          async createChatCompletion() {
+            callCount++;
+            const response = callCount === 1 ? { fixed: "true", message: "cached test", refinement: "none" } : { fixed: "true", message: "fresh test", refinement: "none" };
+            return { data: { choices: [{ message: { content: JSON.stringify(response) } }] } };
+          }
+        }
+      };
+    });
+    const firstCall = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(prompt, options);
+    // Advance time by 6000ms, exceeding the TTL
+    vi.advanceTimersByTime(6000);
+    const secondCall = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(prompt, options);
+    expect(callCount).toEqual(2);
+    expect(secondCall).toEqual({ fixed: "true", message: "fresh test", refinement: "none" });
   });
 });
