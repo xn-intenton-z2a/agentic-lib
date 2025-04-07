@@ -117,9 +117,8 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
 
   // Auto-conversion: if autoConvertPrompt flag is true, convert prompt to a string regardless of its current type
   if (options?.autoConvertPrompt === true) {
-    prompt = String(prompt);
-  }
-  if (typeof prompt === 'string') {
+    prompt = String(prompt).trim();
+  } else if (typeof prompt === 'string') {
     prompt = prompt.trim();
   }
 
