@@ -5,7 +5,7 @@
 
 name: Feature Worker
 concurrency: feature-worker
-run-name: "feature-worker"
+run-name: "Feature Worker"
 
 on:
   workflow_dispatch:
