@@ -636,7 +636,7 @@ Supervisor:
 - [x] Reintegrate the s3-sqs-bridge workflows with agentic-lib.
 - [x] Switch to generating issues based on the prompts.
 - [x] Reinstate the agentic workflows in s3-sqs-bridge with maintenance focused tasks.
-- [ ] Create a feature refiner that either; 
+- [~] Create a feature refiner that either; 
   - creates a new feature in 'features/',
   - or updates a feature in 'features/',
   - or merges two features into one in 'features/'.
