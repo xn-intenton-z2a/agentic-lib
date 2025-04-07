@@ -24,41 +24,6 @@ This README file will evolve as the test experiment within this repository evolv
 ---
 ---
 
-# Updates
-
-- Fixed parameter ordering in delegateDecisionToLLMFunctionCallWrapper to correctly auto convert non-string prompts.
-- Expanded and fixed input validation in delegateDecisionToLLMFunctionCallWrapper by ensuring proper type conversion.
-
-START_OF_README_BEGINNING
-
-# intentïon agentic-lib
-
-You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/WORKFLOWS-README.md)
-
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
-repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
-issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
-GitHub’s `workflow_call` event, so they can be composed together like an SDK.
-
-[Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
-
-[Also on GitHub Pages](https://xn-intenton-z2a.github.io/agentic-lib/index.html)
-
-[See the latest repository stats](https://xn-intenton-z2a.github.io/agentic-lib/latest.html)
-
-Mixed licensing:
-* This project is licensed under the GNU General Public License (GPL).
-* This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
-* This file is licensed under the MIT License. For details, see LICENSE-MIT
-
-This README file will evolve as the test experiment within this repository evolves.
-
-END_OF_README_BEGINNING
-
----
----
----
-
 ## Component Breakdown
 
 This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:
@@ -93,6 +58,9 @@ This repository is organized into three distinct areas to help you understand th
 - **Location:**  
   The code is located in `src/lib/main.js`.
 
+**New Feature:**
+- Added an in-memory caching mechanism to the delegateDecisionToLLMFunctionCallWrapper function. When the option `{ cache: true }` is passed, identical prompts and configurations will return cached responses, reducing redundant OpenAI API calls.
+
 ## License
 
 This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
@@ -118,5 +86,3 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 ```
-
-END_OF_README_ENDING

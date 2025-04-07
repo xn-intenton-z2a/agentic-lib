@@ -112,14 +112,15 @@ export async function digestLambdaHandler(sqsEvent) {
 // Agentic library functions
 // ---------------------------------------------------------------------------------------------------------------------
 
+// Module-level in-memory cache for delegateDecisionToLLMFunctionCallWrapper
+const llmCache = new Map();
+
 export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "gpt-3.5-turbo", options = {}) {
   // Fix parameter order: if the second argument is an object with autoConvertPrompt flag, treat it as options.
   if (typeof model === 'object' && model !== null && model.hasOwnProperty('autoConvertPrompt')) {
     options = model;
     model = "gpt-3.5-turbo";
   }
-
-  console.log(chalk.blue("delegateDecisionToLLMFunctionCallWrapper invoked with prompt:"), prompt);
 
   // Auto-conversion: if autoConvertPrompt flag is truthy, convert prompt to a string regardless of its current type
   if (options?.autoConvertPrompt) {
@@ -139,6 +140,15 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
     };
   }
 
+  // Check for in-memory caching if enabled
+  if (options.cache === true) {
+    const cacheKey = JSON.stringify({ prompt, model, autoConvertPrompt: options.autoConvertPrompt });
+    if (llmCache.has(cacheKey)) {
+      console.log(chalk.blue("Returning cached result for prompt:"), prompt);
+      return llmCache.get(cacheKey);
+    }
+  }
+
   if (!process.env.OPENAI_API_KEY) {
     console.error(chalk.red("OpenAI API key is missing."));
     return { fixed: "false", message: "Missing API key.", refinement: "Set the OPENAI_API_KEY environment variable." };
@@ -150,6 +160,8 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
     const Api = openaiModule.OpenAIApi;
     const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY });
     const openai = new Api(configuration);
+    console.log(chalk.blue("delegateDecisionToLLMFunctionCallWrapper invoked with prompt:"), prompt);
+
     const ResponseSchema = z.object({
       fixed: z.string(),
       message: z.string(),
@@ -212,6 +224,13 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
       throw new Error("LLM response schema validation failed.");
     }
     console.log(chalk.green("LLM function call wrapper parsed response:"), parsed.data);
+    
+    // Store in cache if caching is enabled
+    if (options.cache === true) {
+      const cacheKey = JSON.stringify({ prompt, model, autoConvertPrompt: options.autoConvertPrompt });
+      llmCache.set(cacheKey, parsed.data);
+    }
+    
     return parsed.data;
   } catch (error) {
     console.error("delegateDecisionToLLMFunctionCallWrapper error:", error);
