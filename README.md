@@ -15,10 +15,19 @@ GitHub’s `workflow_call` event, so they can be composed together like an SDK.
 
 Mixed licensing:
 * This project is licensed under the GNU General Public License (GPL).
-* This file is part of the example suite for `agentic-lib` (see: https://github.com/xn-intenton-z2a/agentic-lib).
-* This file is licensed under the MIT License. For details, see LICENSE-MIT.
+* This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+* This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+This README file will evolve as the test experiment within this repository evolves.
 
 ---
+---
+---
+
+# Updates
+
+- Fixed parameter ordering in delegateDecisionToLLMFunctionCallWrapper to correctly auto convert non-string prompts.
+- Expanded and fixed input validation in delegateDecisionToLLMFunctionCallWrapper by ensuring proper type conversion.
 
 START_OF_README_BEGINNING
 
@@ -50,13 +59,6 @@ END_OF_README_BEGINNING
 ---
 ---
 
-# Updates
-
-- Enhanced digestLambdaHandler to generate a fallback unique identifier that includes the record index and provide detailed error logging for invalid JSON payloads.
-- Expanded input validation in delegateDecisionToLLMFunctionCallWrapper to include clearer error messages. The error now advises users to convert numeric input values to strings if necessary.
-
-START_OF_README_ENDING
-
 ## Component Breakdown
 
 This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:
@@ -81,9 +83,9 @@ This repository is organized into three distinct areas to help you understand th
 - **Location:**  
   Look in the `examples/` directory for sample implementations.
 
-### 3. The Evolving main.js (JavaScript re-implementation of Re‑usable Workflows)
+### 3. The Evolving main.js (JavaScript re‑implementation of Re‑usable Workflows)
 - **Purpose:**  
-  This file implements the Re‑usable Workflows as a JavaScript module, enabling programmatic access to core functionality. It now includes improved error handling where delegateDecisionToLLMFunctionCallWrapper provides detailed error messages that advise users to convert numeric inputs to strings if needed.
+  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  

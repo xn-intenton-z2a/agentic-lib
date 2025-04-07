@@ -113,10 +113,23 @@ export async function digestLambdaHandler(sqsEvent) {
 // ---------------------------------------------------------------------------------------------------------------------
 
 export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "gpt-3.5-turbo", options = {}) {
+  // Fix parameter order: if the second argument is an object with autoConvertPrompt flag, treat it as options.
+  if (typeof model === 'object' && model !== null && model.hasOwnProperty('autoConvertPrompt')) {
+    options = model;
+    model = "gpt-3.5-turbo";
+  }
+
   console.log(chalk.blue("delegateDecisionToLLMFunctionCallWrapper invoked with prompt:"), prompt);
 
-  // Enhanced input validation: ensure prompt is a non-empty string and of type string
-  if (typeof prompt !== 'string' || prompt.trim() === "") {
+  // Auto-conversion: if autoConvertPrompt flag is truthy, convert prompt to a string regardless of its current type
+  if (options?.autoConvertPrompt) {
+    prompt = String(prompt).trim();
+  } else if (typeof prompt === 'string') {
+    prompt = prompt.trim();
+  }
+
+  // Enhanced input validation: ensure prompt is a non-empty string
+  if (typeof prompt !== 'string' || prompt === "") {
     const errorMsg = `Invalid prompt provided; received value: ${prompt} (type: ${typeof prompt}). A non-empty string is required. If you passed a numeric value, please convert it to a string.`;
     console.error(chalk.red(errorMsg));
     return {
