@@ -24,18 +24,20 @@ const configSchema = z.object({
 
 export const config = configSchema.parse(process.env);
 
+// Global verbose mode flag
+let VERBOSE_MODE = false;
+
 export function logConfig() {
-  console.log(
-    JSON.stringify({
-      level: "info",
-      timestamp: new Date().toISOString(),
-      message: "Configuration loaded",
-      config: {
-        GITHUB_API_BASE_URL: config.GITHUB_API_BASE_URL,
-        OPENAI_API_KEY: config.OPENAI_API_KEY,
-      },
-    })
-  );
+  const logObj = {
+    level: "info",
+    timestamp: new Date().toISOString(),
+    message: "Configuration loaded",
+    config: {
+      GITHUB_API_BASE_URL: config.GITHUB_API_BASE_URL,
+      OPENAI_API_KEY: config.OPENAI_API_KEY,
+    }
+  };
+  console.log(JSON.stringify(logObj));
 }
 logConfig();
 
@@ -44,18 +46,28 @@ logConfig();
 // ---------------------------------------------------------------------------------------------------------------------
 
 export function logInfo(message) {
-  console.log(JSON.stringify({ level: "info", timestamp: new Date().toISOString(), message }));
+  const logObj = {
+    level: "info",
+    timestamp: new Date().toISOString(),
+    message,
+  };
+  if (VERBOSE_MODE) {
+    logObj.verbose = true;
+  }
+  console.log(JSON.stringify(logObj));
 }
 
 export function logError(message, error) {
-  console.error(
-    JSON.stringify({
-      level: "error",
-      timestamp: new Date().toISOString(),
-      message,
-      error: error ? error.toString() : undefined,
-    })
-  );
+  const logObj = {
+    level: "error",
+    timestamp: new Date().toISOString(),
+    message,
+    error: error ? error.toString() : undefined,
+  };
+  if (VERBOSE_MODE && error && error.stack) {
+    logObj.stack = error.stack;
+  }
+  console.error(JSON.stringify(logObj));
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -247,21 +259,28 @@ function generateUsage() {
       Usage:
       --help                     Show this help message (default)
       --digest                   Run full bucket replay
+      --verbose                  Enable verbose logging
     `;
 }
 
 export async function main(args = process.argv.slice(2)) {
-  const exampleDigest = {
-    key: "events/1.json",
-    value: "12345",
-    lastModified: new Date().toISOString(),
-  };
+  // Enable verbose mode if --verbose flag is provided
+  if (args.includes("--verbose")) {
+    VERBOSE_MODE = true;
+    logInfo("Verbose mode activated.");
+  }
+
   if (args.includes("--help")) {
     console.log(generateUsage());
     return;
   }
 
   if (args.includes("--digest")) {
+    const exampleDigest = {
+      key: "events/1.json",
+      value: "12345",
+      lastModified: new Date().toISOString(),
+    };
     const sqsEvent = createSQSEventFromDigest(exampleDigest);
     await digestLambdaHandler(sqsEvent);
   } else {
