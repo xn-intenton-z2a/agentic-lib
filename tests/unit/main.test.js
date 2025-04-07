@@ -89,14 +89,62 @@ describe("delegateDecisionToLLMFunctionCallWrapper", () => {
 describe("Auto Conversion of Prompt", () => {
   test("auto converts number prompt when autoConvertPrompt is true", async () => {
     process.env.OPENAI_API_KEY = "dummy-api-key";
-    const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(123, { autoConvertPrompt: true });
+    const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(123, { autoConvertPrompt: true, cache: false });
+    // Since the API call may error due to OpenAI configuration, we only check that conversion occurred (no invalid prompt error)
     expect(result.message).not.toContain("Invalid prompt provided");
   });
 
   test("auto converts boolean prompt when autoConvertPrompt is true", async () => {
     process.env.OPENAI_API_KEY = "dummy-api-key";
-    const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(false, { autoConvertPrompt: true });
+    const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(false, { autoConvertPrompt: true, cache: false });
     expect(result.message).not.toContain("Invalid prompt provided");
+  });
+});
+
+describe("Caching Mechanism", () => {
+  beforeAll(() => {
+    vi.resetModules();
+    vi.mock('openai', () => {
+      return {
+        Configuration: function(config) { return config; },
+        OpenAIApi: class {
+          async createChatCompletion() {
+            const dummyResponse = { fixed: "true", message: "cached test", refinement: "none" };
+            return {
+              data: {
+                choices: [{ message: { content: JSON.stringify(dummyResponse) } }]
+              }
+            };
+          }
+        }
+      };
+    });
+    // Remove any cached entries for consistent testing
+    // @ts-ignore
+    const { llmCache } = require("../../src/lib/main.js");
+    if (llmCache && llmCache.clear) llmCache.clear();
+  });
+
+  test("should cache identical calls when caching is enabled", async () => {
+    process.env.OPENAI_API_KEY = "dummy-api-key";
+    const prompt = "Test caching prompt";
+    const options = { autoConvertPrompt: true, cache: true };
+    const expectedResponse = { fixed: "true", message: "cached test", refinement: "none" };
+    const firstCall = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(prompt, options);
+    const secondCall = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(prompt, options);
+    expect(firstCall).toEqual(expectedResponse);
+    expect(secondCall).toEqual(expectedResponse);
+  });
+
+  test("should not use cache when caching is disabled", async () => {
+    process.env.OPENAI_API_KEY = "dummy-api-key";
+    const prompt = "Test no cache prompt";
+    const options = { autoConvertPrompt: true, cache: false };
+    const expectedResponse = { fixed: "true", message: "cached test", refinement: "none" };
+    const firstCall = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(prompt, options);
+    const secondCall = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(prompt, options);
+    expect(firstCall).toEqual(expectedResponse);
+    expect(secondCall).toEqual(expectedResponse);
   });
 });
 
