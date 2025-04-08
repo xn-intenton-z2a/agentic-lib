@@ -110,7 +110,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@main'
     with:
       branch: 'agentic-lib-update'
       baseBranch: 'main'
@@ -128,7 +128,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@main'
     with:
       branch: 'agentic-lib-update'
       baseBranch: 'main'
