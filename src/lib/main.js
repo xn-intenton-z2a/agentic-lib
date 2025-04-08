@@ -134,6 +134,17 @@ export async function digestLambdaHandler(sqsEvent) {
 const llmCache = new Map();
 
 export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "gpt-3.5-turbo", options = {}) {
+  // Specific check for NaN prompt regardless of auto conversion
+  if (typeof prompt === 'number' && Number.isNaN(prompt)) {
+    const errorMsg = "Invalid prompt provided; received value: NaN (type: number). Provided prompt is NaN; please convert it to a valid non-empty string.";
+    console.error(chalk.red(errorMsg));
+    return {
+      fixed: "false",
+      message: errorMsg,
+      refinement: "Please provide a valid prompt as a non-empty string, or enable auto conversion."
+    };
+  }
+
   // Fix parameter order: if the second argument is an object with autoConvertPrompt flag, treat it as options.
   if (typeof model === 'object' && model !== null && model.hasOwnProperty('autoConvertPrompt')) {
     options = model;
