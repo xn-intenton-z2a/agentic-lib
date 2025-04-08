@@ -21,7 +21,6 @@ Mixed licensing:
 This README file will evolve as the test experiment within this repository evolves.
 
 ---
----
 
 ## Component Breakdown
 

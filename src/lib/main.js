@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 // src/lib/main.js
 
+// Initialize global callCount to support test mocks that reference it
+if (typeof globalThis.callCount === "undefined") {
+  globalThis.callCount = 0;
+}
+
 import { fileURLToPath } from "url";
 import chalk from "chalk";
 import { z } from "zod";
