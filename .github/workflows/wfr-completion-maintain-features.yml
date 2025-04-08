@@ -477,7 +477,7 @@ jobs:
                 try {
                   fs.unlinkSync(filepath);
                 } catch (e) {
-                  core.warn(`Could not delete ${filepath}: ${e.message}`);
+                  core.info(`Could not delete ${filepath}: ${e.message}`);
                 }
               }
             
