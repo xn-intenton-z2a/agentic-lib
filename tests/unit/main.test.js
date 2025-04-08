@@ -201,11 +201,9 @@ describe("TTL functionality", () => {
     process.env.OPENAI_API_KEY = "dummy-api-key";
     const prompt = "TTL test prompt";
     const options = { autoConvertPrompt: true, cache: true, ttl: 5000 };
-    // Reset global callCount
     globalThis.callCount = 0;
     const expectedResponse = { fixed: "true", message: "cached test", refinement: "none" };
     const firstCall = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(prompt, options);
-    // Advance time by 3000ms, which is within the TTL
     vi.advanceTimersByTime(3000);
     const secondCall = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(prompt, options);
     expect(secondCall).toEqual(expectedResponse);
@@ -229,13 +227,29 @@ describe("TTL functionality", () => {
         }
       };
     });
-    // Re-import after remocking
     await import("../../src/lib/main.js").then(mod => { agenticLib = mod; });
     const firstCall = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(prompt, options);
-    // Advance time by 6000ms, exceeding the TTL
     vi.advanceTimersByTime(6000);
     const secondCall = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(prompt, options);
     expect(globalThis.callCount).toEqual(2);
     expect(secondCall).toEqual({ fixed: "true", message: "fresh test", refinement: "none" });
+  });
+});
+
+
+describe("CLI Diagnostics Mode", () => {
+  test("prints diagnostics information and exits immediately when --diagnostics flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await agenticLib.main(["--diagnostics"]);
+    const calls = consoleSpy.mock.calls;
+    let found = false;
+    for (const call of calls) {
+      if (typeof call[0] === "string" && call[0].includes("Diagnostics Mode:")) {
+        found = true;
+        break;
+      }
+    }
+    expect(found).toBe(true);
+    consoleSpy.mockRestore();
   });
 });
