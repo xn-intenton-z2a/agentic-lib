@@ -59,7 +59,7 @@ This repository is organized into three distinct areas to help you understand th
 **New Features:**
 - Added an in-memory caching mechanism to the delegateDecisionToLLMFunctionCallWrapper function with support for TTL (Time-To-Live).
 - Added a new CLI flag `--verbose` that enables detailed logging.
-- Improved instantiation of the OpenAI API client to support both constructor and functional patterns, ensuring robust auto-conversion and compatibility across different versions of the openai package.
+- Improved instantiation of the OpenAI API client to robustly handle both constructor and functional patterns, ensuring compatibility with mocked and production environments.
 
 ## License
 

@@ -187,10 +187,12 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
     if (!ConfigClass) throw new Error("OpenAI configuration missing");
 
     let configuration;
-    // Attempt to instantiate using 'new', fallback to direct call if necessary
-    try {
+    // Determine if ConfigClass is constructible by checking its prototype property.
+    if (typeof ConfigClass === 'function' && ConfigClass.prototype && Object.keys(ConfigClass.prototype).length > 0) {
+      // Using constructor invocation
       configuration = new ConfigClass({ apiKey: process.env.OPENAI_API_KEY });
-    } catch (e) {
+    } else {
+      // Fallback: call as a normal function (useful for mocked environments)
       configuration = ConfigClass({ apiKey: process.env.OPENAI_API_KEY });
     }
 
