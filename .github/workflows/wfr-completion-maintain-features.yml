@@ -38,6 +38,11 @@ on:
         type: string
         required: false
         default: 'features/'
+      featuresMaximum:
+        description: 'The maximum number of features to create. e.g. "3"'
+        type: number
+        required: false
+        default: 3
       target:
         description: 'The target file to create the issue to change. e.g. "src/lib/main.js"'
         type: string
@@ -121,6 +126,7 @@ jobs:
     env:
       feature: ${{ inputs.feature || '' }}
       featuresDir: ${{ inputs.featuresDir || 'features/' }}
+      featuresMaximum: ${{ inputs.featuresMaximum || 3 }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
@@ -230,6 +236,7 @@ jobs:
           script: |
             const feature = process.env.feature;
             const featuresDir = process.env.featuresDir;
+            const featuresMaximum = process.env.featuresMaximum;
             const currentFeatures = process.env.currentFeatures;
             const target = process.env.target;
             const testFile = process.env.testFile;
@@ -291,15 +298,21 @@ jobs:
             
             const chatGptPrompt = `
             Please generate the name and specification for a software feature which will be added or updated to action the supplied feature prompt.
+            Prefer to refine a feature focusing on achievable value with a single repository, not a grandiose vision, or bloated feature set.
+            If there are more than the maximum number of ${featuresMaximum} features in the repository, you must merge similar features into a single feature and name the features to be deleted.
             The feature will be used to submit to a Chat Completions API (yourself) to generate a series of GitHub issues to implement and iterate upon the feature.
+            If a significant feature of the repository is not present in the current feature set, please add it either to a new feature or an existing feature.
+            All significant features of the repository should be present in the feature set before new features are added and features can be consolidated to make room below the maximum of ${featuresMaximum} features.
             Before adding a new feature ensure that this feature is distinct from any other feature in the repository, otherwise update an existing feature.
             When updating an existing feature, ensure that the existing aspects are not omitted in the response, provide the full feature spec.
             The feature name should be one or two words in SCREAMING_SNAKECASE.
             The feature spec should be a detailed description of the feature, compatible with the guidelines in CONTRIBUTING.md.
             You may also just update a feature spec to bring it to a high standard matching other features in the repository.
             A feature can be added based on a behaviour already present in the repository described within the guidelines in CONTRIBUTING.md.
+            Features must be achievable in a single software repository not part of a corporate initiative.
             The feature spec should be a multiline markdown with a few level 1 headings.
             The feature must be compatible with the mission statement in MISSION.md and ideally realise part of the value in the mission.
+            The feature must be something than can be realised in a single source file (as below), ideally just as a library, CLI tool or possibly an HTTP API in combination with infrastructure as code deployment.
             Consider the following when refining your response:
             * Feature prompt details
             * Current feature names and specifications in the repository
@@ -378,26 +391,28 @@ jobs:
             Answer strictly with a JSON object following this schema:
             {
               "featureName": "The feature name as one or two words in SCREAMING_SNAKECASE.",
-              "featureSpec": "The feature specification as multiline markdown with a few level 1 headings."
+              "featureSpec": "The feature specification as multiline markdown with a few level 1 headings.",
+              "featureNamesToBeDeleted": "The comma separated list of feature names to be deleted or 'none' if no feature is to be deleted."
             }
             Ensure valid JSON.
             `;
             
-            const ResponseSchema = z.object({ featureName: z.string(), featureSpec: z.string() });
+            const ResponseSchema = z.object({ featureName: z.string(), featureSpec: z.string(), featureNamesToBeDeleted: z.string() });
             
             // Define the function schema for function calling
             const tools = [{
               type: "function",
               function: {
                 name: "generate_issue",
-                description: "Elaborate on the supplied prompt and project files to create the featureName and featureSpec of a repository feature. Return an object with featureName (string), and featureSpec (string).",
+                description: "Elaborate on the supplied prompt and project files to create the featureName and featureSpec of a repository feature, and the feature names to be deleted. Return an object with featureName (string), featureSpec (string), and featureNamesToBeDeleted (string).",
                 parameters: {
                   type: "object",
                   properties: {
                     featureName: { type: "string", description: "The feature name as one or two words in SCREAMING_SNAKECASE." },
-                    featureSpec: { type: "string", description: "The feature specification as multiline markdown with a few level 1 headings." }
+                    featureSpec: { type: "string", description: "The feature specification as multiline markdown with a few level 1 headings." },
+                    featureNamesToBeDeleted: { type: "string", description: "The comma separated list of feature names to be deleted or 'none' if no feature is to be deleted." }
                   },
-                  required: ["featureName", "featureSpec"],
+                  required: ["featureName", "featureSpec", "featureNamesToBeDeleted"],
                   additionalProperties: false
                 },
                 strict: true
@@ -435,8 +450,10 @@ jobs:
               const parsed = ResponseSchema.parse(result);
               core.setOutput("featureName", parsed.featureName);
               core.setOutput("featureSpec", parsed.featureSpec);
+              core.setOutput("featureNamesToBeDeleted", parsed.featureNamesToBeDeleted);
               core.info(`featureName: "${parsed.featureName}"`);
               core.info(`featureSpec: "${parsed.featureSpec}"`);
+              core.info(`featureNamesToBeDeleted: "${parsed.featureNamesToBeDeleted}"`);
             
               // Save the feature spec to a file using the convention of <featuresDir> plus path SCREAMING_SNAKE_CASE(<feature name>).md
               const featureName = parsed.featureName.replace(/ /g, "_").toUpperCase();
@@ -450,6 +467,14 @@ jobs:
                 core.info(`Feature spec saved to ${featureFilePath}`);
               } catch (e) {
                 core.setFailed(`Failed to save feature spec: ${e.message}`);
+              }
+            
+              const featureFilepathsToBeDeleted = parsed.featureNamesToBeDeleted
+                .split(',')
+                .map(name => path.join(featuresDir, `${name.trim().replace(/.md^/, "").toUpperCase()}.md`));
+              for (const filepath of featureFilepathsToBeDeleted) {
+                core.info(`Deleting feature file: ${filepath}`);
+                fs.unlinkSync(filepath);
               }
             
             } catch (e) {
