@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 // src/lib/main.js
 
+// Initialize global callCount to support test mocks that reference it
+if (typeof globalThis.callCount === "undefined") {
+  globalThis.callCount = 0;
+}
+
 import { fileURLToPath } from "url";
 import chalk from "chalk";
 import { z } from "zod";
@@ -125,6 +130,7 @@ export async function digestLambdaHandler(sqsEvent) {
 // ---------------------------------------------------------------------------------------------------------------------
 
 // Module-level in-memory cache for delegateDecisionToLLMFunctionCallWrapper
+// Now each cache entry is stored as { data, timestamp }
 const llmCache = new Map();
 
 export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "gpt-3.5-turbo", options = {}) {
@@ -155,9 +161,16 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
   // Check for in-memory caching if enabled
   if (options.cache === true) {
     const cacheKey = JSON.stringify({ prompt, model, autoConvertPrompt: options.autoConvertPrompt });
-    if (llmCache.has(cacheKey)) {
-      console.log(chalk.blue("Returning cached result for prompt:"), prompt);
-      return llmCache.get(cacheKey);
+    const currentTimestamp = Date.now();
+    const effectiveTTL = options.ttl !== undefined ? options.ttl : 300000; // default TTL 5 minutes
+    const cachedEntry = llmCache.get(cacheKey);
+    if (cachedEntry) {
+      if (currentTimestamp - cachedEntry.timestamp < effectiveTTL) {
+        console.log(chalk.blue("Returning cached result for prompt:"), prompt);
+        return cachedEntry.data;
+      } else {
+        llmCache.delete(cacheKey);
+      }
     }
   }
 
@@ -240,7 +253,7 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
     // Store in cache if caching is enabled
     if (options.cache === true) {
       const cacheKey = JSON.stringify({ prompt, model, autoConvertPrompt: options.autoConvertPrompt });
-      llmCache.set(cacheKey, parsed.data);
+      llmCache.set(cacheKey, { data: parsed.data, timestamp: Date.now() });
     }
     
     return parsed.data;
