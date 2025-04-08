@@ -474,7 +474,11 @@ jobs:
                 .map(name => path.join(featuresDir, `${name.trim().replace(/.md^/, "").toUpperCase()}.md`));
               for (const filepath of featureFilepathsToBeDeleted) {
                 core.info(`Deleting feature file: ${filepath}`);
-                fs.unlinkSync(filepath);
+                try {
+                  fs.unlinkSync(filepath);
+                } catch (e) {
+                  core.warn(`Could not delete ${filepath}: ${e.message}`);
+                }
               }
             
             } catch (e) {
