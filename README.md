@@ -57,8 +57,9 @@ This repository is organized into three distinct areas to help you understand th
   The code is located in `src/lib/main.js`.
 
 **New Features:**
-- Added an in-memory caching mechanism to the delegateDecisionToLLMFunctionCallWrapper function with support for TTL (Time-To-Live). Cached responses are automatically invalidated after a configurable duration (default is 5 minutes) to ensure fresher results.
-- Added a new CLI flag `--verbose` that, when used, enables detailed verbose logging output. Logging functions output extra diagnostic details when verbose mode is activated.
+- Added an in-memory caching mechanism to the delegateDecisionToLLMFunctionCallWrapper function with support for TTL (Time-To-Live).
+- Added a new CLI flag `--verbose` that enables detailed logging.
+- Improved instantiation of the OpenAI API client to support both constructor and functional patterns, ensuring robust auto-conversion and compatibility across different versions of the openai package.
 
 ## License
 

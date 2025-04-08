@@ -180,10 +180,21 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
   }
   try {
     const openaiModule = await import("openai");
-    const Config = openaiModule.Configuration ? openaiModule.Configuration.default || openaiModule.Configuration : null;
-    if (!Config) throw new Error("OpenAI configuration missing");
+    let ConfigClass = openaiModule.Configuration;
+    if (ConfigClass && ConfigClass.default) {
+      ConfigClass = ConfigClass.default;
+    }
+    if (!ConfigClass) throw new Error("OpenAI configuration missing");
+
+    let configuration;
+    // Attempt to instantiate using 'new', fallback to direct call if necessary
+    try {
+      configuration = new ConfigClass({ apiKey: process.env.OPENAI_API_KEY });
+    } catch (e) {
+      configuration = ConfigClass({ apiKey: process.env.OPENAI_API_KEY });
+    }
+
     const Api = openaiModule.OpenAIApi;
-    const configuration = new Config({ apiKey: process.env.OPENAI_API_KEY });
     const openai = new Api(configuration);
     console.log(chalk.blue("delegateDecisionToLLMFunctionCallWrapper invoked with prompt:"), prompt);
 
