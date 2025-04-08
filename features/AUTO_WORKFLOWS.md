@@ -1,29 +1,30 @@
 # AUTO_WORKFLOWS
 
 ## Overview
-The AUTO_WORKFLOWS feature consolidates autonomous workflow management, issue lifecycle handling, and LLM delegation into one unified module. This feature brings together functionalities from the previous ISSUE_MANAGER, ISSUE_CREATOR, and FLOW_ORCHESTRATOR, streamlining GitHub issue creation, review processes, and real-time workflow monitoring. The feature supports robust error handling, caching, and telemetry, thereby enhancing continuous code evolution with minimal manual intervention.
+The AUTO_WORKFLOWS feature consolidates the complete lifecycle management of GitHub issues along with autonomous workflow orchestration. In this updated specification, existing functionalities from ISSUE_CREATOR (including issue generation and integration) have been merged into this unified module. The feature supports automated issue batching, real-time monitoring, logging, caching with TTL support, and LLM delegation for decision making. This consolidation simplifies the repository by reducing fragmentation and aligns with the mission of enabling autonomous and resilient code evolution.
 
 ## Objectives
-- **Unified Issue Lifecycle:** Merge issue batching, composition, review, and creation into a cohesive process for managing and automating GitHub issue flows.
-- **Autonomous Workflow Orchestration:** Integrate LLM delegation, real-time monitoring of workflows, and automated action publishing to ensure autonomous operations across the repository.
-- **Robust Validation and Caching:** Implement enhanced input validation, in-memory caching with TTL support, and detailed logging to improve performance and traceability.
-- **Enhanced Integration:** Seamlessly interface with existing CI/CD pipelines and GitHub Actions workflows to trigger automated reviews and updates aligned with the repository’s mission.
+- **Unified Issue Lifecycle:** Merge issue batching, composition, review, and creation processes. Incorporate the functionalities previously in ISSUE_CREATOR to automatically generate GitHub issues with contextual details.
+- **Autonomous Workflow Orchestration:** Enable integration with CI/CD pipelines and GitHub Actions to trigger automated reviews, real-time issue monitoring, and dynamic workflow adjustments via LLM delegation.
+- **Robust Caching and Diagnostics:** Enhance performance with an in-memory caching mechanism supporting TTL, detailed logging, and a CLI-driven diagnostics mode for real-time insights into the system’s configuration and operations.
+- **Enhanced Integration:** Provide configurable options for scan frequency, error handling, and environment-specific adjustments while ensuring smooth interoperability with security scans and other repository modules.
 
 ## Implementation Strategy
-1. **Consolidation of Components:**
-   - Integrate existing logic from ISSUE_MANAGER and ISSUE_CREATOR to handle the entire lifecycle of GitHub issues.
-   - Merge FLOW_ORCHESTRATOR functionalities to manage LLM delegation, including prompt validation, auto-conversion, and caching.
+1. **Component Integration:**
+   - Consolidate existing logic from ISSUE_CREATOR into AUTO_WORKFLOWS.
+   - Ensure all workflows (issue creation, orchestration, and trace logging) share a unified configuration and logging system.
+   
+2. **Workflow and API Integration:**
+   - Leverage GitHub Actions’ workflow_call event to trigger issue creation using consolidated prompts.
+   - Integrate the delegateDecisionToLLMFunctionCallWrapper for LLM-powered decision processes, ensuring caching and input validation.
 
-2. **Workflow Integration:**
-   - Combine the orchestration of issue creation with real-time monitoring and telemetry collection.
-   - Update configuration options for scheduling, caching TTL, and error handling to match performance benchmarks.
-
-3. **Testing and Validation:**
-   - Develop comprehensive unit and integration tests covering input edge cases, caching behavior, telemetry data, and API failure scenarios.
-   - Ensure that the consolidated workflow meets detailed acceptance criteria and aligns with agentic-lib's mission of continuous, autonomous repository evolution.
+3. **Testability and Stability:**
+   - Extend unit and integration tests to cover edge cases, caching behavior (with TTL), and diagnostics output.
+   - Ensure backwards compatibility by preserving existing functionalities while streamlining the issue lifecycle management.
 
 ## Acceptance Criteria
-- Successful integration of issue lifecycle management and autonomous workflow orchestration within a single, unified feature.
-- Fully functional in-memory caching with configurable TTL and robust error logging.
-- Automated and structured generation of GitHub issues based on composite prompts from the LLM delegation mechanism.
-- Seamless integration with existing GitHub Actions workflows and CI/CD pipelines, ensuring continuous monitoring and self-healing capabilities.
+- The updated AUTO_WORKFLOWS feature must automatically generate and manage GitHub issues formerly handled by ISSUE_CREATOR.
+- All functionalities from the previous ISSUE_CREATOR and workflow orchestration must be intact and validated through comprehensive tests.
+- Detailed reports, logs, and diagnostics information must be available via CLI flags (e.g., --diagnostics and --verbose).
+- The caching mechanism should properly manage repeated LLM invocations based on TTL, ensuring a single call for identical prompts within the configured timeframe.
+- The updated feature must align with the autonomous mission of the repository and enhance overall workflow resilience.
