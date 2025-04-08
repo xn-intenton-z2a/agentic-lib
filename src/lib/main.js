@@ -140,22 +140,38 @@ export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "
     model = "gpt-3.5-turbo";
   }
 
-  // Auto-conversion: if autoConvertPrompt flag is truthy, convert prompt to a string regardless of its current type
+  // Consolidated Input Validation and Auto-Conversion
   if (options?.autoConvertPrompt) {
     prompt = String(prompt).trim();
-  } else if (typeof prompt === 'string') {
+    if (prompt === "") {
+      const errorMsg = `Invalid prompt provided; received an empty string (type: string). A non-empty string is required. Auto-conversion resulted in an empty string.`;
+      console.error(chalk.red(errorMsg));
+      return {
+        fixed: "false",
+        message: errorMsg,
+        refinement: "Please provide a valid prompt as a non-empty string."
+      };
+    }
+  } else {
+    if (typeof prompt !== 'string') {
+      const errorMsg = `Invalid prompt provided; received value: ${prompt} (type: ${typeof prompt}). A non-empty string is required. If you passed a numeric value, please convert it to a string by enabling autoConvertPrompt.`;
+      console.error(chalk.red(errorMsg));
+      return {
+        fixed: "false",
+        message: errorMsg,
+        refinement: "Please provide a valid prompt as a non-empty string, or enable auto conversion."
+      };
+    }
     prompt = prompt.trim();
-  }
-
-  // Enhanced input validation: ensure prompt is a non-empty string
-  if (typeof prompt !== 'string' || prompt === "") {
-    const errorMsg = `Invalid prompt provided; received value: ${prompt} (type: ${typeof prompt}). A non-empty string is required. If you passed a numeric value, please convert it to a string.`;
-    console.error(chalk.red(errorMsg));
-    return {
-      fixed: "false",
-      message: errorMsg,
-      refinement: "Please provide a valid prompt as a non-empty string. If passing a number, convert it to a string."
-    };
+    if (prompt === "") {
+      const errorMsg = `Invalid prompt provided; received an empty string (type: string). A non-empty string is required.`;
+      console.error(chalk.red(errorMsg));
+      return {
+        fixed: "false",
+        message: errorMsg,
+        refinement: "Please provide a valid prompt as a non-empty string."
+      };
+    }
   }
 
   // Check for in-memory caching if enabled
