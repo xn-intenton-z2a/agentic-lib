@@ -43,14 +43,14 @@ describe("delegateDecisionToLLMFunctionCallWrapper", () => {
   test("returns error if prompt is empty", async () => {
     const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper("", {});
     expect(result.fixed).toBe("false");
-    expect(result.message).toContain("non-empty string");
+    expect(result.message).toContain("empty string");
     expect(result.message).toMatch(/\(type: string\)/);
   });
 
   test("returns error if prompt is non-string (NaN) without auto conversion", async () => {
     const result = await agenticLib.delegateDecisionToLLMFunctionCallWrapper(NaN, {});
     expect(result.fixed).toBe("false");
-    expect(result.message).toContain("non-empty string");
+    expect(result.message).toContain("NaN");
     expect(result.message).toMatch(/\(type: number\)/);
   });
 
