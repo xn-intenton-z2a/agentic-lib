@@ -131,7 +131,7 @@ describe("Caching Mechanism", () => {
     vi.resetModules();
     vi.doMock("openai", () => {
       return {
-        Configuration: function(config) { return config; },
+        Configuration: (config) => config,
         OpenAIApi: class {
           async createChatCompletion() {
             // Use global callCount
@@ -219,7 +219,7 @@ describe("TTL functionality", () => {
     globalThis.callCount = 0;
     vi.doMock("openai", () => {
       return {
-        Configuration: function(config) { return config; },
+        Configuration: (config) => config,
         OpenAIApi: class {
           async createChatCompletion() {
             globalThis.callCount++;
