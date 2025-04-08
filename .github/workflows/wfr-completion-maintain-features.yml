@@ -40,9 +40,9 @@ on:
         default: 'features/'
       featuresMaximum:
         description: 'The maximum number of features to create. e.g. "3"'
-        type: number
+        type: string
         required: false
-        default: 3
+        default: '3'
       target:
         description: 'The target file to create the issue to change. e.g. "src/lib/main.js"'
         type: string
@@ -126,7 +126,7 @@ jobs:
     env:
       feature: ${{ inputs.feature || '' }}
       featuresDir: ${{ inputs.featuresDir || 'features/' }}
-      featuresMaximum: ${{ inputs.featuresMaximum || 3 }}
+      featuresMaximum: ${{ inputs.featuresMaximum || '3' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}

@@ -50,7 +50,7 @@ jobs:
     with:
       feature: ${{ inputs.feature }}
       featuresDir: 'features/'
-      featuresMaximum: ${{ needs.agentic-lib.outputs.featuresMaximum }}
+      featuresMaximum: '${{ needs.agentic-lib.outputs.featuresMaximum }}'
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: 'README.md'
