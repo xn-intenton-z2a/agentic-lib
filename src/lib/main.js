@@ -313,6 +313,7 @@ function generateUsage() {
       --help                     Show this help message (default)
       --digest                   Run full bucket replay
       --verbose                  Enable verbose logging
+      --diagnostics              Output detailed diagnostic information
     `;
 }
 
@@ -321,6 +322,22 @@ export async function main(args = process.argv.slice(2)) {
   if (args.includes("--verbose")) {
     VERBOSE_MODE = true;
     logInfo("Verbose mode activated.");
+  }
+
+  if (args.includes("--diagnostics")) {
+    const diagnostics = {
+      config: config,
+      nodeVersion: process.version,
+      env: {
+        GITHUB_API_BASE_URL: process.env.GITHUB_API_BASE_URL,
+        OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+        NODE_ENV: process.env.NODE_ENV,
+        VITEST: process.env.VITEST || null
+      },
+      timestamp: new Date().toISOString()
+    };
+    logInfo("Diagnostics Mode: " + JSON.stringify(diagnostics));
+    return;
   }
 
   if (args.includes("--help")) {

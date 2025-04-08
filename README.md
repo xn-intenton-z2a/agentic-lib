@@ -59,6 +59,7 @@ This repository is organized into three distinct areas to help you understand th
 **New Features:**
 - Added an in-memory caching mechanism to the delegateDecisionToLLMFunctionCallWrapper function with support for TTL (Time-To-Live).
 - Added a new CLI flag `--verbose` that enables detailed logging.
+- Introduced diagnostics mode via the CLI flag `--diagnostics` to output detailed diagnostic information including environment configuration and Node.js version.
 - Improved instantiation of the OpenAI API client to robustly handle both constructor and functional patterns, ensuring compatibility with mocked and production environments.
 - Refactored input validation and auto-conversion in delegateDecisionToLLMFunctionCallWrapper, including enhanced error handling for NaN prompts to provide clearer guidance.
 
