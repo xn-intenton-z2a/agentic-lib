@@ -35,7 +35,7 @@ jobs:
           featuresMaximum=$(grep '^featuresMaximum:' .github/agentic-lib.yml | awk '{print $2}')
           echo "featuresMaximum=${featuresMaximum}"
           echo "featuresMaximum=${featuresMaximum}" >> $GITHUB_OUTPUT
-    output:
+    outputs:
       featuresMaximum: ${{ steps.agentic-lib.outputs.featuresMaximum }}
 
   # If the feature is "house choice", the repository will be assessed an action chosen otherwise the supplied text will be used to generate a new feature.
