@@ -117,7 +117,7 @@ jobs:
                 core.info('No additions detected in ${{ env.branch }} compared to ${{ env.baseBranch }}. Deleting branch: ${{ env.branch }}');
                 await github.rest.git.deleteRef({
                   owner: context.repo.owner,
-                  repo: context.repo.repo'
+                  repo: context.repo.repo,
                   ref: 'heads/${{ env.branch }}',
                 });
               } else {
