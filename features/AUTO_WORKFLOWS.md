@@ -1,30 +1,32 @@
 # AUTO_WORKFLOWS
 
 ## Overview
-The AUTO_WORKFLOWS feature consolidates the complete lifecycle management of GitHub issues along with autonomous workflow orchestration. In this updated specification, existing functionalities from ISSUE_CREATOR (including issue generation and integration) have been merged into this unified module. The feature supports automated issue batching, real-time monitoring, logging, caching with TTL support, and LLM delegation for decision making. This consolidation simplifies the repository by reducing fragmentation and aligns with the mission of enabling autonomous and resilient code evolution.
+This feature consolidates all aspects of autonomous workflow orchestration, including GitHub issue lifecycle management, CI/CD integrations, and enhanced interaction with large language models (LLMs). In this update, we have refined the LLM delegation process to include robust input validation, auto-conversion of non-string inputs, and a configurable in-memory caching mechanism with TTL support. The updated specification maintains backward compatibility with legacy ISSUE_CREATOR functionalities while enhancing diagnostics and operational resilience.
 
 ## Objectives
-- **Unified Issue Lifecycle:** Merge issue batching, composition, review, and creation processes. Incorporate the functionalities previously in ISSUE_CREATOR to automatically generate GitHub issues with contextual details.
-- **Autonomous Workflow Orchestration:** Enable integration with CI/CD pipelines and GitHub Actions to trigger automated reviews, real-time issue monitoring, and dynamic workflow adjustments via LLM delegation.
-- **Robust Caching and Diagnostics:** Enhance performance with an in-memory caching mechanism supporting TTL, detailed logging, and a CLI-driven diagnostics mode for real-time insights into the system’s configuration and operations.
-- **Enhanced Integration:** Provide configurable options for scan frequency, error handling, and environment-specific adjustments while ensuring smooth interoperability with security scans and other repository modules.
+- **Unified Issue Lifecycle:** Integrate issue batching, composition, review, and creation with a single configuration across workflows.
+- **Enhanced LLM Delegation:** Improve the `delegateDecisionToLLMFunctionCallWrapper` to enforce strict input validation, support auto-conversion of numeric, boolean, and other non-string prompt types, and reduce redundant LLM calls via an in-memory cache with configurable TTL.
+- **Robust Diagnostics and Logging:** Expand CLI options (`--verbose`, `--diagnostics`) to offer detailed configuration reporting and real-time insights, ensuring smoother debugging and observability during automated and manual reviews.
+- **Seamless CI/CD Integration:** Maintain compatibility with GitHub Actions by leveraging workflow_call events and ensuring the feature supports dynamic updates and LLM-enhanced decision making.
 
 ## Implementation Strategy
-1. **Component Integration:**
-   - Consolidate existing logic from ISSUE_CREATOR into AUTO_WORKFLOWS.
-   - Ensure all workflows (issue creation, orchestration, and trace logging) share a unified configuration and logging system.
-   
-2. **Workflow and API Integration:**
-   - Leverage GitHub Actions’ workflow_call event to trigger issue creation using consolidated prompts.
-   - Integrate the delegateDecisionToLLMFunctionCallWrapper for LLM-powered decision processes, ensuring caching and input validation.
+1. **LLM Delegation Refinements:**
+   - Enhance input validation to cover edge cases such as null, undefined, booleans, objects, and arrays.
+   - Implement auto-conversion logic (when enabled) to transform non-string prompts into valid non-empty strings.
+   - Integrate a caching mechanism with configurable TTL to store LLM responses, reducing external API call frequency and improving performance.
 
-3. **Testability and Stability:**
-   - Extend unit and integration tests to cover edge cases, caching behavior (with TTL), and diagnostics output.
-   - Ensure backwards compatibility by preserving existing functionalities while streamlining the issue lifecycle management.
+2. **Workflow Consolidation:**
+   - Merge legacy ISSUE_CREATOR functionalities cleanly into the AUTO_WORKFLOWS module while preserving existing test coverage.
+   - Ensure that all autogenous issue generation and review processes are tied into the updated LLM delegation function.
+
+3. **Diagnostics and Observability:**
+   - Update CLI command handling to provide clear guidance on available flags and output comprehensive diagnostic information (config settings, environment details, Node.js version, etc.).
+   - Enhance verbose logging to include detailed LLM invocation traces and caching behaviors.
 
 ## Acceptance Criteria
-- The updated AUTO_WORKFLOWS feature must automatically generate and manage GitHub issues formerly handled by ISSUE_CREATOR.
-- All functionalities from the previous ISSUE_CREATOR and workflow orchestration must be intact and validated through comprehensive tests.
-- Detailed reports, logs, and diagnostics information must be available via CLI flags (e.g., --diagnostics and --verbose).
-- The caching mechanism should properly manage repeated LLM invocations based on TTL, ensuring a single call for identical prompts within the configured timeframe.
-- The updated feature must align with the autonomous mission of the repository and enhance overall workflow resilience.
+- All issue lifecycle and workflow orchestration functionalities from the legacy ISSUE_CREATOR are operational within AUTO_WORKFLOWS.
+- The `delegateDecisionToLLMFunctionCallWrapper` successfully validates input, auto-converts prompts when requested, and employs a caching mechanism that adheres to the specified TTL.
+- Extensive unit and integration tests cover all edge cases for input handling, caching logic, and diagnostic outputs.
+- CLI flags (`--help`, `--verbose`, `--diagnostics`, `--digest`) function as expected, and output logs match the defined specifications.
+
+
