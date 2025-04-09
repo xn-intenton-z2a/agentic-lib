@@ -100,40 +100,56 @@ jobs:
               state: 'open',
             });
             if (existingPulls.length === 0) {
-              const { data: pr } = await github.rest.pulls.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: '${{ env.gitCommitMessage }}',
-                head: '${{ env.branch }}',
-                base: '${{ env.baseBranch }}',
-                body: '${{ env.gitCommitMessage }}',
-                maintainer_can_modify: true,
+              const comparison = await github.rest.repos.compareCommits({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  base: '${{ env.baseBranch }}',
+                  head: '${{ env.branch }}',
               });
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pr.number,
-                labels: ['${{ env.label }}'],
-              });
-              core.info(`Pull request created: ${pr.html_url}`);
-            
-              // Initiate Check Suites
-              const { data: checkSuites } = await github.rest.checks.listForRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: pr.head.sha,
-              });
-              if (checkSuites.check_suites && checkSuites.check_suites.length > 0) {
-                for (const suite of checkSuites.check_suites) {
-                  await github.rest.checks.rerequestSuite({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    check_suite_id: suite.id,
-                  });
-                  core.info(`Re-ran check suite ${suite.id} for commit ${pr.head.sha}`);
-                }
+              // Delete the branch if there is no addition to the base branch (and this branch isn't main)
+              if('${{ env.branch }}' != 'main' && comparison.data.ahead_by === 0){
+                core.info('No additions detected in ${{ env.branch }} compared to ${{ env.baseBranch }}. Deleting branch: ${{ env.branch }}');
+                await github.rest.git.deleteRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo'
+                  ref: 'heads/${{ env.branch }}',
+                });
               } else {
-                core.info('No check suites found for the new commit.');
+                const { data: pr } = await github.rest.pulls.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: '${{ env.gitCommitMessage }}',
+                  head: '${{ env.branch }}',
+                  base: '${{ env.baseBranch }}',
+                  body: '${{ env.gitCommitMessage }}',
+                  maintainer_can_modify: true,
+                });
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  labels: ['${{ env.label }}'],
+                });
+                core.info(`Pull request created: ${pr.html_url}`);
+              
+                // Initiate Check Suites
+                const { data: checkSuites } = await github.rest.checks.listForRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: pr.head.sha,
+                });
+                if (checkSuites.check_suites && checkSuites.check_suites.length > 0) {
+                  for (const suite of checkSuites.check_suites) {
+                    await github.rest.checks.rerequestSuite({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      check_suite_id: suite.id,
+                    });
+                    core.info(`Re-ran check suite ${suite.id} for commit ${pr.head.sha}`);
+                  }
+                } else {
+                  core.info('No check suites found for the new commit.');
+                }
               }
             } else {
               core.info('Pull request already exists for this branch.');
