@@ -177,6 +177,16 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
 
+      - name: List rejected feature named
+        id: rejectedFeatures
+        shell: bash
+        run: |
+          output=$(ls -1 "${{ env.featuresDir }}/rejects" | sed 's/\.md//' | xargs echo )
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
       - name: List dependencies
         id: list
         shell: bash
@@ -227,6 +237,7 @@ jobs:
         uses: actions/github-script@v7
         env:
           currentFeatures: ${{ steps.features.outputs.output }}
+          rejectedFeatures: ${{ steps.rejectedFeatures.outputs.output }}
           dependenciesListOutput: ${{ steps.list.outputs.output }}
           buildOutput: ${{ steps.build.outputs.output }}
           testOutput: ${{ steps.test.outputs.output }}
@@ -238,6 +249,7 @@ jobs:
             const featuresDir = process.env.featuresDir;
             const featuresMaximum = process.env.featuresMaximum;
             const currentFeatures = process.env.currentFeatures;
+            const rejectedFeatures = process.env.rejectedFeatures;
             const target = process.env.target;
             const testFile = process.env.testFile;
             const readmeFile = process.env.readmeFile;
@@ -306,6 +318,7 @@ jobs:
             Before adding a new feature ensure that this feature is distinct from any other feature in the repository, otherwise update an existing feature.
             When updating an existing feature, ensure that the existing aspects are not omitted in the response, provide the full feature spec.
             The feature name should be one or two words in SCREAMING_SNAKECASE.
+            Any new feature should not be similar to any of the rejected features and steer existing features away from the rejected features.
             The feature spec should be a detailed description of the feature, compatible with the guidelines in CONTRIBUTING.md.
             You may also just update a feature spec to bring it to a high standard matching other features in the repository.
             A feature can be added based on a behaviour already present in the repository described within the guidelines in CONTRIBUTING.md.
@@ -316,6 +329,7 @@ jobs:
             Consider the following when refining your response:
             * Feature prompt details
             * Current feature names and specifications in the repository
+            * Rejected feature names
             * Source file content
             * Test file content
             * README file content issue
@@ -337,6 +351,11 @@ jobs:
             CURRENT_FEATURES_START
             ${currentFeatures}
             CURRENT_FEATURES_END
+            
+            Rejected feature names:
+            REJECTED_FEATURES_START
+            ${rejectedFeatures}
+            REJECTED_FEATURES_END
             
             Source file: ${target}
             SOURCE_FILE_START
