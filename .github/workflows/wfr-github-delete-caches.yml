@@ -53,6 +53,8 @@ jobs:
 
     env:
       deleteAllCaches: ${{ inputs.deleteAllCaches || 'false' }}
+      s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
+      iamRoleArn: ${{ inputs.iamRoleArn || '' }}
 
     steps:
       - name: Delete all GitHub Actions caches by iterating through each one to delete it

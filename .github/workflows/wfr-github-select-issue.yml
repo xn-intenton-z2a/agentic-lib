@@ -37,6 +37,11 @@ on:
         required: false
         type: string
         default: 'merged'
+      cache:
+        description: 'The cache to use for npm. e.g. "npm"'
+        type: string
+        required: false
+        default: 'npm'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -57,11 +62,13 @@ jobs:
     env:
       issueNumber: ${{ inputs.issueNumber }}
       selectionLabel: ${{ inputs.selectionLabel || 'merged' }}
+      cache: ${{ inputs.cache || 'npm' }}
 
     steps:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: ${{ env.cache }}
 
       - name: select-issue
         id: select-issue

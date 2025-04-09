@@ -411,15 +411,6 @@ jobs:
       - npm-test-after-fix
       - npm-build-after-fix
       - npm-run-after-fix
-    if: >
-      ${{ always() &&
-         (
-           needs.npm-test-after-fix.result != 'success' ||
-           needs.npm-build-after-fix.result != 'success' ||
-           needs.npm-run-after-fix.result != 'success' ||
-           inputs.applyFixEvenIfTestsPass == true
-         )
-      }}
     runs-on: ubuntu-latest
     steps:
       - name: set-needs-fix

@@ -68,6 +68,11 @@ on:
         type: string
         required: false
         default: 'GitHub Actions[bot]'
+      cache:
+        description: 'The cache to use for npm. e.g. "npm"'
+        type: string
+        required: false
+        default: 'npm'
       gitCommitMessage:
         description: 'The message to use for git commits. e.g. "chore: dependency updates"'
         type: string
@@ -95,6 +100,7 @@ jobs:
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
+      cache: ${{ inputs.cache || 'npm' }}
       gitCommitMessage: |
         ${{ inputs.gitCommitMessage || 'chore: dependency updates' }}
 
@@ -113,6 +119,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: ${{ env.cache }}
 
       - name: Check GitHub authentication
         if: ${{ env.npmAuthOrganisation != '' }}

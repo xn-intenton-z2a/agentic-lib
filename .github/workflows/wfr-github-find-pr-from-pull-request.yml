@@ -28,6 +28,11 @@ name: ∞ automerge-find-pr-from-pull-request
 on:
   workflow_call:
     inputs:
+      cache:
+          description: 'The cache to use for npm. e.g. "npm"'
+          type: string
+          required: false
+          default: 'npm'
       s3BucketUrl:
         description: 'The S3 bucket URL with prefix to use. e.g. "s3://my-bucket/prefix"'
         type: string
@@ -56,6 +61,11 @@ jobs:
   check-pr:
     runs-on: ubuntu-latest
 
+    env:
+      cache: ${{ inputs.cache || 'npm' }}
+      s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
+      iamRoleArn: ${{ inputs.iamRoleArn || '' }}
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -64,6 +74,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: ${{ env.cache }}
 
       - name: check-pr
         id: check-pr

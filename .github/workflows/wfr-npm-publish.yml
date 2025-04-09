@@ -43,6 +43,11 @@ on:
         type: string
         required: false
         default: 'echo "No build script specified."'
+      cache:
+        description: 'The cache to use for npm. e.g. "npm"'
+        type: string
+        required: false
+        default: 'npm'
       releaseNotes:
         description: 'The release notes to use for the GitHub release. e.g. "Feature release."'
         type: string
@@ -81,6 +86,7 @@ jobs:
     env:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
+      cache: ${{ inputs.cache || 'npm' }}
       releaseNotes: ${{ inputs.releaseNotes || 'Feature release.' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
@@ -96,6 +102,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: ${{ env.cache }}
 
       - name: Check GitHub authentication
         if: ${{ env.npmAuthOrganisation != '' }}

@@ -72,6 +72,8 @@ jobs:
       issueTitle: ${{ inputs.issueTitle || 'house choice' }}
       issueBody: ${{ inputs.issueBody || 'Please resolve the issue.' }}
       houseChoiceOptions: ${{ inputs.houseChoiceOptions || 'Make code changes that extend or improve the features or resolve issues shown in the included context.'}}
+      s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
+      iamRoleArn: ${{ inputs.iamRoleArn || '' }}
 
     steps:
       - uses: actions/setup-node@v4

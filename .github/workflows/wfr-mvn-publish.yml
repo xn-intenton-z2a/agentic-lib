@@ -58,6 +58,11 @@ on:
         type: string
         required: false
         default: './mvnw deploy -P release'
+      cache:
+        description: 'The cache to use for Maven. e.g. "maven"'
+        type: string
+        required: false
+        default: 'maven'
       releaseNotes:
         description: 'The release notes for the GitHub release.'
         type: string
@@ -99,6 +104,7 @@ jobs:
       newVersionOverride: ${{ inputs.newVersionOverride }}
       mavenBuildScript: ${{ inputs.mavenBuildScript }}
       mavenDeployScript: ${{ inputs.mavenDeployScript }}
+      cache: ${{ inputs.cache }}
       releaseNotes: ${{ inputs.releaseNotes }}
       gitUserEmail: ${{ inputs.gitUserEmail }}
       gitUserName: ${{ inputs.gitUserName }}
@@ -113,7 +119,7 @@ jobs:
         with:
           distribution: 'corretto'
           java-version: 21
-          cache: 'maven'
+          cache: ${{ env.cache }}
           server-password: PERSONAL_ACCESS_TOKEN
         env:
           GITHUB_ACTOR: ${{ github.actor }}
@@ -145,7 +151,7 @@ jobs:
         with:
           distribution: 'corretto'
           java-version: 21
-          cache: 'maven'
+          cache: ${{ env.cache }}
           #server-password: PERSONAL_ACCESS_TOKEN
           #env:
           #GITHUB_ACTOR: ${{ github.actor }}

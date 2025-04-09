@@ -41,6 +41,11 @@ on:
         type: string
         required: false
         default: 'The feature branch has been merged: '
+      cache:
+        description: 'The cache to use for npm. e.g. "npm"'
+        type: string
+        required: false
+        default: 'npm'
       s3BucketUrl:
         description: 'The S3 bucket URL with prefix to use. e.g. "s3://my-bucket/prefix"'
         type: string
@@ -62,10 +67,16 @@ jobs:
   label-issue:
     runs-on: ubuntu-latest
 
+    env:
+      cache: ${{ inputs.cache || 'npm' }}
+      s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
+      iamRoleArn: ${{ inputs.iamRoleArn || '' }}
+
     steps:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: ${{ env.cache }}
 
       - name: extract-issueNumber
         id: extract-issue-number

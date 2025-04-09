@@ -47,6 +47,11 @@ on:
         type: string
         required: false
         default: 'Ready for pull'
+      cache:
+        description: 'The cache to use for npm. e.g. "npm"'
+        type: string
+        required: false
+        default: 'npm'
       label:
         description: 'The labels to apply to the PR. e.g. "automerge"'
         type: string
@@ -86,6 +91,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: ${{ env.cache }}
 
       - name: Create pull request, if fixed after re-checking linting
         uses: actions/github-script@v7

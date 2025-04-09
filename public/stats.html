@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${repo} stats</title>
+  <style>
+      body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+      h1 { font-size: 1.5em; font-family: monospace; }
+      section { margin-bottom: 1em; }
+      ul { list-style: none; padding: 0; }
+      li { margin: 0.5em 0; }
+      .label { font-weight: bold; }
+      footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>${repo}</h1>
+</header>
+<section>
+  <p><span class="label">Open Pull Requests (${openPRs}):</span> ${prDetails.join('; ') || 'None'}</p>
+</section>
+<section>
+  <p><span class="label">Branches (${branchCount}):</span> ${branchDetails.join(', ') || 'None'}</p>
+</section>
+<section>
+  <p><span class="label">Open Issues:</span> ${openIssues}</p>
+  <p><span class="label">Issues closed in last hour:</span> ${issuesClosedLastHour}</p>
+  <p><span class="label">Issues closed in last 24 hours:</span> ${issuesClosedLastDay}</p>
+</section>
+<section>
+  <p><span class="label">Engine:</span> ${{ steps.engine.outputs.engine }}</p>
+</section>
+<section>
+  <p><span class="label">Minutes since push anywhere:</span> ${diffMinutes}</p>
+  <p><span class="label">Minutes since push to main:</span> ${diffMinutesMain}</p>
+</section>
+<section>
+  <p><span class="label">Commits to main last hour:</span> ${commitsLastHour}</p>
+  <p><span class="label">Commits to main last day:</span> ${commitsLastDay}</p>
+</section>
+<section>
+  <p><span class="label">Last 5 commit messages from main:</span></p>
+  <ul>
+    ${lastFiveCommitMessages.map(msg => `<li>${msg}</li>`).join('')}
+  </ul>
+</section>
+<section>
+  <p>
+    <a href="https://github.com/${owner}/${repo}" target="_blank">repository 🔗</a> -
+    <a href="https://${owner}.github.io/${repo}/index.html" target="_blank">site 🔗</a> -
+    <a href="https://${owner}.github.io/${repo}/latest.html" target="_blank">stats 🔗</a> -
+    <a href="https://${owner}.github.io/${repo}/all.html" target="_blank">all stats 🔗</a>
+  </p>
+</section>
+<footer>
+  <p>Generated on ${now.toISOString()}</p>
+</footer>
+</body>
+</html>

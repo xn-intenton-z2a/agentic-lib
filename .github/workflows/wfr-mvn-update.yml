@@ -63,6 +63,11 @@ on:
         type: string
         required: false
         default: 'GitHub Actions[bot]'
+      cache:
+        description: 'The cache to use for npm. e.g. "maven"'
+        type: string
+        required: false
+        default: 'maven'
       gitCommitMessage:
         description: 'The message to use for git commits. e.g. "chore: dependency updates"'
         type: string
@@ -87,6 +92,7 @@ jobs:
       branch: ${{ inputs.branch || 'agentic-lib-update' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
+      cache: ${{ inputs.cache || 'maven' }}
       gitCommitMessage: |
         ${{ inputs.gitCommitMessage || 'chore: dependency updates' }}
 
@@ -101,6 +107,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: ${{ env.cache }}
 
       - name: Get latest from remote
         run: |
