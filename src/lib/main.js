@@ -136,12 +136,12 @@ const llmCache = new Map();
 export async function delegateDecisionToLLMFunctionCallWrapper(prompt, model = "gpt-3.5-turbo", options = {}) {
   // Specific check for NaN prompt regardless of auto conversion
   if (typeof prompt === 'number' && Number.isNaN(prompt)) {
-    const errorMsg = "Invalid prompt provided; received value: NaN (type: number). Provided prompt is NaN; please convert it to a valid non-empty string.";
+    const errorMsg = "Invalid prompt provided; received value: NaN (type: number). Provided prompt is NaN; please manually convert this value to a valid non-empty string or enable autoConvertPrompt in your options.";
     console.error(chalk.red(errorMsg));
     return {
       fixed: "false",
       message: errorMsg,
-      refinement: "Please provide a valid prompt as a non-empty string, or enable auto conversion."
+      refinement: "Ensure your prompt is a valid non-empty string, or pass autoConvertPrompt as true to automatically convert non-string values."
     };
   }
 
