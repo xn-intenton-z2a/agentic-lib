@@ -18,6 +18,9 @@ public class AgenticLibApp {
                 .s3ObjectPrefix(System.getenv("OBJECT_PREFIX"))
                 .s3UseExistingBucket(Boolean.parseBoolean(System.getenv("USE_EXISTING_BUCKET")))
                 .s3RetainBucket(Boolean.parseBoolean(System.getenv("RETAIN_BUCKET")))
+                .s3WebsiteBucketName(System.getenv("WEBSITE_BUCKET_NAME"))
+                .s3UseExistingWebsiteBucket(Boolean.parseBoolean(System.getenv("USE_EXISTING_WEBSITE_BUCKET")))
+                .s3RetainWebsiteBucket(Boolean.parseBoolean(System.getenv("RETAIN_WEBSITE_BUCKET")))
                 .sqsDigestQueueName(System.getenv("SQS_DIGEST_QUEUE_NAME"))
                 .sqsDigestQueueArn(System.getenv("SQS_DIGEST_QUEUE_ARN"))
                 .sqsUseExistingDigestQueue(Boolean.parseBoolean(System.getenv("USE_EXISTING_DIGEST_QUEUE")))
@@ -34,7 +37,15 @@ public class AgenticLibApp {
                 .build();
 
         CfnOutput.Builder.create(agenticLibStack, "EventsS3AccessRoleArn")
-                .value(agenticLibStack.s3AccessRole.getRoleArn())
+                .value(agenticLibStack.s3EventsAccessRole.getRoleArn())
+                .build();
+
+        CfnOutput.Builder.create(agenticLibStack, "WebsiteBucketArn")
+                .value(agenticLibStack.websiteBucket.getBucketArn())
+                .build();
+
+        CfnOutput.Builder.create(agenticLibStack, "S3WebsiteAccessRoleArn")
+                .value(agenticLibStack.s3WebsiteAccessRole.getRoleArn())
                 .build();
 
         CfnOutput.Builder.create(agenticLibStack, "DigestQueueUrl")

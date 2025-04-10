@@ -36,7 +36,11 @@ public class AgenticLibStack extends Stack {
     public IBucket eventsBucket;
     public LogGroup eventsBucketLogGroup;
     public Trail eventsBucketTrail;
-    public Role s3AccessRole;
+    public Role s3EventsAccessRole;
+    public IBucket websiteBucket;
+    public  LogGroup websiteBucketLogGroup;
+    public Trail websiteBucketTrail;
+    public Role s3WebsiteAccessRole;
     public IQueue digestQueue;
     public Queue digestQueueDLQ;
     public DockerImageFunction digestLambda;
@@ -52,6 +56,9 @@ public class AgenticLibStack extends Stack {
         public String s3ObjectPrefix;
         public boolean s3UseExistingBucket;
         public boolean s3RetainBucket;
+        public String s3WebsiteBucketName;
+        public boolean s3UseExistingWebsiteBucket;
+        public boolean s3RetainWebsiteBucket;
         public String sqsDigestQueueName;
         public String sqsDigestQueueArn;
         public boolean sqsUseExistingDigestQueue;
@@ -105,6 +112,21 @@ public class AgenticLibStack extends Stack {
 
         public Builder s3RetainBucket(boolean s3RetainBucket) {
             this.s3RetainBucket = s3RetainBucket;
+            return this;
+        }
+
+        public Builder s3WebsiteBucketName(String s3WebsiteBucketName) {
+            this.s3WebsiteBucketName = s3WebsiteBucketName;
+            return this;
+        }
+
+        public Builder s3UseExistingWebsiteBucket(boolean s3UseExistingWebsiteBucket) {
+            this.s3UseExistingWebsiteBucket = s3UseExistingWebsiteBucket;
+            return this;
+        }
+
+        public Builder s3RetainWebsiteBucket(boolean s3RetainWebsiteBucket) {
+            this.s3RetainWebsiteBucket = s3RetainWebsiteBucket;
             return this;
         }
 
@@ -164,6 +186,9 @@ public class AgenticLibStack extends Stack {
     public String s3ObjectPrefix;
     public boolean s3UseExistingBucket;
     public boolean s3RetainBucket;
+    public String s3WebsiteBucketName;
+    public boolean s3UseExistingWebsiteBucket;
+    public boolean s3RetainWebsiteBucket;
     public String sqsDigestQueueArn;
     public boolean sqsUseExistingDigestQueue;
     public boolean sqsRetainDigestQueue;
@@ -181,6 +206,9 @@ public class AgenticLibStack extends Stack {
         this.s3ObjectPrefix = this.getConfigValue(builder.s3ObjectPrefix, "s3ObjectPrefix");
         this.s3UseExistingBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3UseExistingBucket), "s3UseExistingBucket"));
         this.s3RetainBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3RetainBucket), "s3RetainBucket"));
+        this.s3WebsiteBucketName = this.getConfigValue(builder.s3WebsiteBucketName, "s3WebsiteBucketName");
+        this.s3UseExistingWebsiteBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3UseExistingWebsiteBucket), "s3UseExistingWebsiteBucket"));
+        this.s3RetainWebsiteBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3RetainWebsiteBucket), "s3RetainWebsiteBucket"));
         String s3WriterRoleName = this.getConfigValue(builder.s3WriterRoleName, "s3WriterRoleName");
         String s3WriterArnPrinciple = this.getConfigValue(builder.s3WriterArnPrinciple, "s3WriterArnPrinciple");
         String sqsDigestQueueName = this.getConfigValue(builder.sqsDigestQueueName, "sqsDigestQueueName");
@@ -234,11 +262,60 @@ public class AgenticLibStack extends Stack {
                         this.eventsBucket.getBucketArn() + "/" + s3ObjectPrefix + "*"
                 ))
                 .build();
-        this.s3AccessRole = Role.Builder.create(this, "EventsS3AccessRole")
+        this.s3EventsAccessRole = Role.Builder.create(this, "EventsS3AccessRole")
                 .roleName(s3WriterRoleName)
                 .assumedBy(new ArnPrincipal(s3WriterArnPrinciple))
                 .inlinePolicies(java.util.Collections.singletonMap("S3AccessPolicy", PolicyDocument.Builder.create()
                         .statements(List.of(eventsObjectCrudPolicyStatement))
+                        .build()))
+                .build();
+
+        if (s3UseExistingWebsiteBucket) {
+            this.websiteBucket = Bucket.fromBucketName(this, "WebsiteBucket", s3WebsiteBucketName);
+        } else {
+            this.websiteBucket = Bucket.Builder.create(this, "WebsiteBucket")
+                    .bucketName(s3WebsiteBucketName)
+                    .websiteIndexDocument("index.html")
+                    //.websiteErrorDocument("error.html")
+                    .removalPolicy(s3RetainWebsiteBucket ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY)
+                    .autoDeleteObjects(!s3RetainWebsiteBucket)
+                    .build();
+            this.websiteBucketLogGroup = LogGroup.Builder.create(this, "WebsiteBucketLogGroup")
+                    .logGroupName("/aws/s3/" + this.websiteBucket.getBucketName())
+                    .retention(RetentionDays.THREE_DAYS)
+                    .build();
+            this.websiteBucketTrail = Trail.Builder.create(this, "WebsiteucketAccessTrail")
+                    .trailName(this.websiteBucket.getBucketName() + "-access-trail")
+                    .cloudWatchLogGroup(this.websiteBucketLogGroup)
+                    .sendToCloudWatchLogs(true)
+                    .cloudWatchLogsRetention(RetentionDays.THREE_DAYS)
+                    .includeGlobalServiceEvents(false)
+                    .isMultiRegionTrail(false)
+                    .build();
+            this.websiteBucketTrail.addS3EventSelector(Arrays.asList(S3EventSelector.builder()
+                    .bucket(this.websiteBucket)
+                    .build()
+            ));
+        }
+
+        PolicyStatement websiteObjectCrudPolicyStatement = PolicyStatement.Builder.create()
+                .effect(Effect.ALLOW)
+                .actions(List.of(
+                        "s3:PutObject",
+                        "s3:GetObject",
+                        "s3:ListBucket",
+                        "s3:DeleteObject"
+                ))
+                .resources(List.of(
+                        this.websiteBucket.getBucketArn(),
+                        this.websiteBucket.getBucketArn() + "/*"
+                ))
+                .build();
+        this.s3WebsiteAccessRole = Role.Builder.create(this, "S3WebsiteAccessRole")
+                .roleName(s3WriterRoleName)
+                .assumedBy(new ArnPrincipal(s3WriterArnPrinciple))
+                .inlinePolicies(java.util.Collections.singletonMap("S3AccessPolicy", PolicyDocument.Builder.create()
+                        .statements(List.of(websiteObjectCrudPolicyStatement))
                         .build()))
                 .build();
 
