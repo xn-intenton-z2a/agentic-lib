@@ -59,7 +59,7 @@ jobs:
             const path = require('path');
             const now = new Date();
             const { owner, repo } = context.repo;
-            const jsonData = {};
+            const jsonData = { owner, repo };
             // Open issues count
             const issuesResp = await github.rest.issues.listForRepo({ owner, repo, state: "open", per_page: 256 });
             jsonData.openIssues = issuesResp.data.length;

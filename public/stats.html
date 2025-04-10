@@ -21,7 +21,7 @@
     <p><span class="label">Open Pull Requests (<%= openPRs %>):</span> <%= prDetails && prDetails.join('; ') || 'None' %></p>
   </section>
   <section>
-    <p><span class="label">Branches (<%= branchCount %>):</span> <%= branchDetails && branchDetails.join(', ') || 'None' %></p>
+    <p><span class="label">Branches (<%= branches.count %>):</span> <%= branches.details && branches.details.join(', ') || 'None' %></p>
   </section>
   <section>
     <p><span class="label">Open Issues:</span> <%= openIssues %></p>
@@ -56,7 +56,7 @@
     </p>
   </section>
   <footer>
-    <p>Generated on <%= now.toISOString() %></p>
+    <p>Generated on <%= generatedAt %></p>
   </footer>
 </body>
 </html>
