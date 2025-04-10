@@ -276,7 +276,7 @@ public class AgenticLibStack extends Stack {
             this.websiteBucket = Bucket.Builder.create(this, "WebsiteBucket")
                     .bucketName(s3WebsiteBucketName)
                     .websiteIndexDocument("index.html")
-                    //.websiteErrorDocument("error.html")
+                    .publicReadAccess(true)
                     .removalPolicy(s3RetainWebsiteBucket ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY)
                     .autoDeleteObjects(!s3RetainWebsiteBucket)
                     .build();
@@ -383,3 +383,4 @@ public class AgenticLibStack extends Stack {
         return customValue;
     }
 }
+
