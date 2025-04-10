@@ -1,14 +1,21 @@
 {
+  "owner": "xn-intenton-z2a",
+  "repo": "repository0-crucible",
+  "engine": "schedule-3",
   "openIssues": 61,
   "issuesClosedLastHour": 6,
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 0,
-  "commitsLastHour": 3,
+  "diffMinutesMain": 1,
+  "commitsLastHour": 4,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "18:46",
+      "message": "Update from agentic-lib"
+    },
     {
       "time": "18:45",
       "message": "Changed const convertedArgs to let convertedArgs in main to allo..."
@@ -24,10 +31,6 @@
     {
       "time": "17:43",
       "message": "Extended JSON replacer to serialize Infinity and -Infinity along..."
-    },
-    {
-      "time": "17:36",
-      "message": "Refactored convertArg to always use custom NaN handler if regist..."
     }
   ],
   "branches": {
@@ -37,5 +40,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T18:45:56.294Z"
+  "generatedAt": "2025-04-10T18:47:59.776Z"
 }
