@@ -642,7 +642,7 @@ Supervisor:
 - [x] Distribute the issue maintenance agentic-lib workflows to the other repositories and remove the renamed ones.
 - [x] Prune the features.
 - [x] Scan the rejects (names) and avoid adding similar features.
-- [~] Dashboard metrics from s3 into the existing all stats dashboard.
+- [x] Dashboard metrics from s3 into the existing all stats dashboard.
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix).
 - [ ] Create a "supervisor" engine schedule with reduced schedule triggers (leaving the supervisor to invoke workflows).
 - [ ] Do this everywhere:  echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc

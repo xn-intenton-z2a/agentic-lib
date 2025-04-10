@@ -21,6 +21,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@main'
     with:
       cache: 'npm'
+      npmAuthOrganisation: '@xn-intenton-z2a'
       public: 'public'
       s3BucketUrl: 's3://agentic-lib-bucket/events/'
       iamActionsRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role'
