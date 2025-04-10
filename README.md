@@ -56,12 +56,34 @@ This repository is organized into three distinct areas to help you understand th
 - **Location:**  
   The code is located in `src/lib/main.js`.
 
-**New Features:**
-- Added an in-memory caching mechanism to the delegateDecisionToLLMFunctionCallWrapper function with support for TTL (Time-To-Live).
-- Added a new CLI flag `--verbose` that enables detailed logging.
-- Introduced diagnostics mode via the CLI flag `--diagnostics` to output detailed diagnostic information including environment configuration and Node.js version.
-- Improved instantiation of the OpenAI API client to robustly handle both constructor and functional patterns, ensuring compatibility with mocked and production environments.
-- Refactored input validation and auto-conversion in delegateDecisionToLLMFunctionCallWrapper, including enhanced error handling for NaN prompts to provide clearer guidance on converting non-string values to valid prompts or enabling auto conversion.
+---
+
+## AWS Integrations
+
+The agentic‑lib library leverages AWS services to enhance automation and reliability:
+
+- **SQS Integration:**
+  - The function `createSQSEventFromDigest` constructs a mock AWS SQS event from a given digest, formatting the payload to resemble a typical SQS message.
+  - The `digestLambdaHandler` function processes incoming SQS events, gracefully handling JSON parsing errors and accumulating failed records. If a messageId is omitted, a fallback identifier is generated.
+  - These integrations ensure that messages can be retried by AWS SQS in case of processing errors, thereby enhancing fault tolerance.
+
+- **Logging:**
+  - Detailed logging via `logInfo` and `logError` functions provides insight into the operations, including configurations and error stacks when verbose mode is enabled.
+
+## CLI Behavior
+
+The CLI provides several flags to manage the library's operation:
+
+- **--help:**
+  - Displays usage instructions and available command line flags.
+- **--digest:**
+  - Initiates the processing of a sample digest by creating a simulated SQS event and handling it through the AWS-integrated lambda handler.
+- **--verbose:**
+  - Activates detailed logging for debugging purposes.
+- **--diagnostics:**
+  - Outputs an in-depth diagnostic report, including the current configuration, Node.js version, and relevant environment variables.
+
+---
 
 ## License
 
