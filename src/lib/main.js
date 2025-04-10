@@ -6,7 +6,7 @@ if (typeof globalThis.callCount === "undefined") {
   globalThis.callCount = 0;
 }
 
-imp bug ort { fileURLToPath } from "url";
+import { fileURLToPath } from "url";
 import { z } from "zod";
 import dotenv from "dotenv";
 
