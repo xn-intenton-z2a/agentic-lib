@@ -1,14 +1,22 @@
 {
-  "openIssues": 61,
-  "issuesClosedLastHour": 8,
+  "openIssues": 60,
+  "issuesClosedLastHour": 10,
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 4,
-  "diffMinutesMain": 4,
-  "commitsLastHour": 4,
+  "diffMinutes": 0,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 5,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "17:28",
+      "message": "Extend .repositoryConfig.json to support strictNan configuration..."
+    },
+    {
+      "time": "17:21",
+      "message": "Added --debug-nan flag to output detailed NaN conversion logging..."
+    },
     {
       "time": "17:12",
       "message": "Implemented --strict-nan flag that enforces strict NaN validatio..."
@@ -20,14 +28,6 @@
     {
       "time": "16:30",
       "message": "Add custom NaN handler hook and corresponding tests and document..."
-    },
-    {
-      "time": "16:24",
-      "message": "Implemented configurable NaN handling via CLI flag environment v..."
-    },
-    {
-      "time": "16:11",
-      "message": "Enhance CLI argument conversion to support JSON objects and arra..."
     }
   ],
   "branches": {
@@ -37,5 +37,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T17:17:01.260Z"
+  "generatedAt": "2025-04-10T17:29:20.468Z"
 }
