@@ -83,6 +83,61 @@ The CLI provides several flags to manage the library's operation:
 - **--diagnostics:**
   - Outputs an in-depth diagnostic report, including the current configuration, Node.js version, and relevant environment variables.
 
+### CLI Sample Outputs
+
+Below are sample outputs obtained from dry runs of the CLI commands:
+
+1. Running with no arguments:
+
+```
+{"level":"info","timestamp":"2025-04-10T12:26:52.533Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+      Usage:
+      --help                     Show this help message (default)
+      --digest                   Run full bucket replay
+      --verbose                  Enable verbose logging
+      --diagnostics              Output detailed diagnostic information
+```
+
+2. Running with the `--help` flag:
+
+```
+      Usage:
+      --help                     Show this help message (default)
+      --digest                   Run full bucket replay
+      --verbose                  Enable verbose logging
+      --diagnostics              Output detailed diagnostic information
+```
+
+3. Running with the `--verbose` flag (sample output includes verbose activation message):
+
+```
+{"level":"info","timestamp":"2025-04-10T12:26:52.533Z","message":"Configuration loaded","config":{}}
+{"level":"info","timestamp":"2025-04-10T12:26:52.540Z","message":"Verbose mode activated.","verbose":true}
+No command argument supplied.
+
+      Usage:
+      --help                     Show this help message (default)
+      --digest                   Run full bucket replay
+      --verbose                  Enable verbose logging
+      --diagnostics              Output detailed diagnostic information
+```
+
+4. Running with the `--digest` flag:
+
+```
+{"level":"info","timestamp":"2025-04-10T12:26:52.533Z","message":"Configuration loaded","config":{}}
+{"level":"info","timestamp":"2025-04-10T12:26:52.540Z","message":"Digest Lambda received event: {\"Records\":[{\"eventVersion\":\"2.0\",\"eventSource\":\"aws:sqs\",\"eventTime\":\"2025-04-10T12:26:52.540Z\",\"eventName\":\"SendMessage\",\"body\":\"{\\\"key\\\":\\\"events/1.json\\\",\\\"value\\\":\\\"12345\\\",\\\"lastModified\\\":\\\"2025-04-10T12:26:52.540Z\\\"}\"}]}"
+```
+
+5. Running with the `--diagnostics` flag:
+
+```
+{"level":"info","timestamp":"2025-04-10T12:26:52.533Z","message":"Configuration loaded","config":{}}
+{"level":"info","timestamp":"2025-04-10T12:26:52.545Z","message":"Diagnostics Mode: {\"config\":{},\"nodeVersion\":\"v20.x.x\",\"env\":{\"GITHUB_API_BASE_URL\":\"https://api.github.com.test/\",\"OPENAI_API_KEY\":\"key-test\",\"NODE_ENV\":null,\"VITEST\":null},\"timestamp\":\"2025-04-10T12:26:52.545Z\"}"
+```
+
 ---
 
 ## License
