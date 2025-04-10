@@ -166,6 +166,19 @@ jobs:
           name: stats-json
           path: ${{ steps.generate-json.outputs.jsonStatsPath }}
 
+      - name: Copy any S3 objects named "s3://agentic-lib-bucket/events/*-stats.json" to ${{ env.public }}
+        shell: bash
+        run: |
+            echo "[INFO] Copying S3 objects to ${{ env.public }}"
+            aws s3 cp \
+                s3://agentic-lib-bucket/events/ \
+                ${{ env.public }} \
+                --recursive \
+                --exclude "*" \
+                --include "*-stats.json" \
+            ;
+            echo "[INFO] S3 objects copied to ${{ env.public }}"
+
       - name: Generate unique filename for this version of stats JSON
         id: uniqueFile
         run: |
