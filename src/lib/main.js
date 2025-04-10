@@ -128,7 +128,27 @@ export async function digestLambdaHandler(sqsEvent) {
 // Agentic library functions
 // ---------------------------------------------------------------------------------------------------------------------
 
-// TODO: Add agentic library functions here
+export async function agenticHandler(payload) {
+  try {
+    if (!payload || typeof payload !== "object") {
+      throw new Error("Invalid payload: must be an object");
+    }
+    if (!payload.command) {
+      throw new Error("Payload must have a 'command' property");
+    }
+    logInfo(`Agentic Handler: processing command ${payload.command}`);
+    // Stub processing logic
+    const response = {
+      status: "success",
+      processedCommand: payload.command,
+      timestamp: new Date().toISOString()
+    };
+    return response;
+  } catch (error) {
+    logError("Agentic Handler Error", error);
+    throw error;
+  }
+}
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Main CLI
@@ -139,6 +159,7 @@ function generateUsage() {
       Usage:
       --help                     Show this help message (default)
       --digest                   Run full bucket replay
+      --agentic <jsonPayload>    Process an agentic command with a JSON payload
       --verbose                  Enable verbose logging
       --diagnostics              Output detailed diagnostic information
     `;
@@ -180,10 +201,28 @@ export async function main(args = process.argv.slice(2)) {
     };
     const sqsEvent = createSQSEventFromDigest(exampleDigest);
     await digestLambdaHandler(sqsEvent);
-  } else {
-    console.log("No command argument supplied.");
-    console.log(generateUsage());
+    return;
   }
+
+  if (args.includes("--agentic")) {
+    const index = args.indexOf("--agentic");
+    const payloadArg = args[index + 1];
+    if (!payloadArg) {
+      console.log("No payload provided for --agentic flag.");
+      return;
+    }
+    try {
+      const payload = JSON.parse(payloadArg);
+      const result = await agenticHandler(payload);
+      console.log(JSON.stringify(result));
+    } catch (error) {
+      logError("Failed to process agentic command", error);
+    }
+    return;
+  }
+
+  console.log("No command argument supplied.");
+  console.log(generateUsage());
 }
 
 // if (import.meta.url.endsWith(process.argv[1])) {
