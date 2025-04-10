@@ -119,7 +119,7 @@ jobs:
             // Write JSON file
             const outputDir = "${{ env.public }}";
             if (!fs.existsSync(outputDir)) { fs.mkdirSync(outputDir); }
-            const outputPath = path.join(outputDir, "${{ github.repository }}-stats.json");
+            const outputPath = path.join(outputDir, "${{ github.event.repository.name }}-stats.json");
             fs.writeFileSync(outputPath, JSON.stringify(jsonData, null, 2), "utf8");
             core.info(`JSON stats generated at ${outputPath}.`);
             core.setOutput("jsonStatsPath", outputPath);
@@ -157,7 +157,7 @@ jobs:
         run: |
           aws s3 cp \
               ${{ steps.generate-json.outputs.jsonStatsPath }} \
-              s3://agentic-lib-bucket/events/${{ github.repository }}-stats.json \
+              s3://agentic-lib-bucket/events/${{ github.event.repository.name }}-stats.json \
           ;
 
       - name: Upload JSON stats artifact to GitHub
