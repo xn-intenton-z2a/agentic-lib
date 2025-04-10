@@ -1,14 +1,18 @@
 {
   "openIssues": 100,
-  "issuesClosedLastHour": 6,
+  "issuesClosedLastHour": 8,
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 8,
-  "diffMinutesMain": 8,
-  "commitsLastHour": 3,
+  "diffMinutes": 7,
+  "diffMinutesMain": 7,
+  "commitsLastHour": 4,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "18:27",
+      "message": "Improve CLI numeric argument error messaging for empty and NaN v..."
+    },
     {
       "time": "18:13",
       "message": "Standardize numeric argument error output and ensure consistent ..."
@@ -24,10 +28,6 @@
     {
       "time": "17:06",
       "message": "Removed invalid expectation from non-verbose error handling test..."
-    },
-    {
-      "time": "16:43",
-      "message": "Refactored main error handling to throw errors instead of callin..."
     }
   ],
   "branches": {
@@ -37,5 +37,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T18:21:38.609Z"
+  "generatedAt": "2025-04-10T18:34:24.474Z"
 }
