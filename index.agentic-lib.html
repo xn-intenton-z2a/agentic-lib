@@ -74,14 +74,98 @@ As part of the core project, it is under GPL‑3 with the attribution clause.</l
 <li class="md-github"><strong class="md-github">Location:</strong><br>
 The code is located in <code class="md-github">src/lib/main.js</code>.</li>
 </ul>
-<p class="md-github"><strong class="md-github">New Features:</strong></p>
+<hr class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="aws-integrations" href="#aws-integrations"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>AWS Integrations</h2>
+<p class="md-github">The agentic‑lib library leverages AWS services to enhance automation and reliability:</p>
 <ul class="md-github">
-<li class="md-github">Added an in-memory caching mechanism to the delegateDecisionToLLMFunctionCallWrapper function with support for TTL (Time-To-Live).</li>
-<li class="md-github">Added a new CLI flag <code class="md-github">--verbose</code> that enables detailed logging.</li>
-<li class="md-github">Introduced diagnostics mode via the CLI flag <code class="md-github">--diagnostics</code> to output detailed diagnostic information including environment configuration and Node.js version.</li>
-<li class="md-github">Improved instantiation of the OpenAI API client to robustly handle both constructor and functional patterns, ensuring compatibility with mocked and production environments.</li>
-<li class="md-github">Refactored input validation and auto-conversion in delegateDecisionToLLMFunctionCallWrapper, including enhanced error handling for NaN prompts to provide clearer guidance on converting non-string values to valid prompts or enabling auto conversion.</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">SQS Integration:</strong></p>
+<ul class="md-github">
+<li class="md-github">The function <code class="md-github">createSQSEventFromDigest</code> constructs a mock AWS SQS event from a given digest, formatting the payload to resemble a typical SQS message.</li>
+<li class="md-github">The <code class="md-github">digestLambdaHandler</code> function processes incoming SQS events, gracefully handling JSON parsing errors and accumulating failed records. If a messageId is omitted, a fallback identifier is generated.</li>
+<li class="md-github">These integrations ensure that messages can be retried by AWS SQS in case of processing errors, thereby enhancing fault tolerance.</li>
 </ul>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Logging:</strong></p>
+<ul class="md-github">
+<li class="md-github">Detailed logging via <code class="md-github">logInfo</code> and <code class="md-github">logError</code> functions provides insight into the operations, including configurations and error stacks when verbose mode is enabled.</li>
+</ul>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="cli-behavior" href="#cli-behavior"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>CLI Behavior</h2>
+<p class="md-github">The CLI provides several flags to manage the library's operation:</p>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">--help:</strong>
+<ul class="md-github">
+<li class="md-github">Displays usage instructions and available command line flags.</li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">--digest:</strong>
+<ul class="md-github">
+<li class="md-github">Initiates the processing of a sample digest by creating a simulated SQS event and handling it through the AWS-integrated lambda handler.</li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">--verbose:</strong>
+<ul class="md-github">
+<li class="md-github">Activates detailed logging for debugging purposes.</li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">--diagnostics:</strong>
+<ul class="md-github">
+<li class="md-github">Outputs an in-depth diagnostic report, including the current configuration, Node.js version, and relevant environment variables.</li>
+</ul>
+</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="cli-sample-outputs" href="#cli-sample-outputs"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>CLI Sample Outputs</h3>
+<p class="md-github">Below are sample outputs obtained from dry runs of the CLI commands:</p>
+<ol class="md-github">
+<li class="md-github">Running with no arguments:</li>
+</ol>
+<pre class="md-github"><code class="md-github">{&quot;level&quot;:&quot;info&quot;,&quot;timestamp&quot;:&quot;2025-04-10T12:26:52.533Z&quot;,&quot;message&quot;:&quot;Configuration loaded&quot;,&quot;config&quot;:{}}
+No command argument supplied.
+
+      Usage:
+      --help                     Show this help message (default)
+      --digest                   Run full bucket replay
+      --verbose                  Enable verbose logging
+      --diagnostics              Output detailed diagnostic information
+</code></pre>
+<ol start="2" class="md-github">
+<li class="md-github">Running with the <code class="md-github">--help</code> flag:</li>
+</ol>
+<pre class="md-github"><code class="md-github">      Usage:
+      --help                     Show this help message (default)
+      --digest                   Run full bucket replay
+      --verbose                  Enable verbose logging
+      --diagnostics              Output detailed diagnostic information
+</code></pre>
+<ol start="3" class="md-github">
+<li class="md-github">Running with the <code class="md-github">--verbose</code> flag (sample output includes verbose activation message):</li>
+</ol>
+<pre class="md-github"><code class="md-github">{&quot;level&quot;:&quot;info&quot;,&quot;timestamp&quot;:&quot;2025-04-10T12:26:52.533Z&quot;,&quot;message&quot;:&quot;Configuration loaded&quot;,&quot;config&quot;:{}}
+{&quot;level&quot;:&quot;info&quot;,&quot;timestamp&quot;:&quot;2025-04-10T12:26:52.540Z&quot;,&quot;message&quot;:&quot;Verbose mode activated.&quot;,&quot;verbose&quot;:true}
+No command argument supplied.
+
+      Usage:
+      --help                     Show this help message (default)
+      --digest                   Run full bucket replay
+      --verbose                  Enable verbose logging
+      --diagnostics              Output detailed diagnostic information
+</code></pre>
+<ol start="4" class="md-github">
+<li class="md-github">Running with the <code class="md-github">--digest</code> flag:</li>
+</ol>
+<pre class="md-github"><code class="md-github">{&quot;level&quot;:&quot;info&quot;,&quot;timestamp&quot;:&quot;2025-04-10T12:26:52.533Z&quot;,&quot;message&quot;:&quot;Configuration loaded&quot;,&quot;config&quot;:{}}
+{&quot;level&quot;:&quot;info&quot;,&quot;timestamp&quot;:&quot;2025-04-10T12:26:52.540Z&quot;,&quot;message&quot;:&quot;Digest Lambda received event: {\&quot;Records\&quot;:[{\&quot;eventVersion\&quot;:\&quot;2.0\&quot;,\&quot;eventSource\&quot;:\&quot;aws:sqs\&quot;,\&quot;eventTime\&quot;:\&quot;2025-04-10T12:26:52.540Z\&quot;,\&quot;eventName\&quot;:\&quot;SendMessage\&quot;,\&quot;body\&quot;:\&quot;{\\\&quot;key\\\&quot;:\\\&quot;events/1.json\\\&quot;,\\\&quot;value\\\&quot;:\\\&quot;12345\\\&quot;,\\\&quot;lastModified\\\&quot;:\\\&quot;2025-04-10T12:26:52.540Z\\\&quot;}\&quot;}]}&quot;
+</code></pre>
+<ol start="5" class="md-github">
+<li class="md-github">Running with the <code class="md-github">--diagnostics</code> flag:</li>
+</ol>
+<pre class="md-github"><code class="md-github">{&quot;level&quot;:&quot;info&quot;,&quot;timestamp&quot;:&quot;2025-04-10T12:26:52.533Z&quot;,&quot;message&quot;:&quot;Configuration loaded&quot;,&quot;config&quot;:{}}
+{&quot;level&quot;:&quot;info&quot;,&quot;timestamp&quot;:&quot;2025-04-10T12:26:52.545Z&quot;,&quot;message&quot;:&quot;Diagnostics Mode: {\&quot;config\&quot;:{},\&quot;nodeVersion\&quot;:\&quot;v20.x.x\&quot;,\&quot;env\&quot;:{\&quot;GITHUB_API_BASE_URL\&quot;:\&quot;https://api.github.com.test/\&quot;,\&quot;OPENAI_API_KEY\&quot;:\&quot;key-test\&quot;,\&quot;NODE_ENV\&quot;:null,\&quot;VITEST\&quot;:null},\&quot;timestamp\&quot;:\&quot;2025-04-10T12:26:52.545Z\&quot;}&quot;
+</code></pre>
+<hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="license" href="#license"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>License</h2>
 <p class="md-github">This project is licensed under the GNU General Public License (GPL). See <a href="LICENSE" class="md-github">LICENSE</a> for details.</p>
 <p class="md-github">License notice:</p>
@@ -107,7 +191,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-04-10T12:05:16.228Z</p>
+    <p>Generated on 2025-04-10T14:03:41.354Z</p>
   </footer>
 </body>
 </html>
