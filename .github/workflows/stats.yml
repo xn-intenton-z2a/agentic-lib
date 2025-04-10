@@ -25,3 +25,5 @@ jobs:
       s3BucketUrl: 's3://agentic-lib-bucket/events/'
       iamActionsRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role'
       iamDeploymentRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
