@@ -15,6 +15,8 @@ on:
 jobs:
   generate-site:
     runs-on: ubuntu-latest
+    env:
+      public: 'public'
     permissions:
       contents: write
       id-token: write
@@ -115,9 +117,9 @@ jobs:
             jsonData.testsLastPassedMinutes = 15;
             jsonData.generatedAt = now.toISOString();
             // Write JSON file
-            const outputDir = "public";
+            const outputDir = "${{ env.public }}";
             if (!fs.existsSync(outputDir)) { fs.mkdirSync(outputDir); }
-            const outputPath = path.join(outputDir, "stats.json");
+            const outputPath = path.join(outputDir, "${{ github.repository }}-stats.json");
             fs.writeFileSync(outputPath, JSON.stringify(jsonData, null, 2), "utf8");
             core.info(`JSON stats generated at ${outputPath}.`);
             core.setOutput("jsonStatsPath", outputPath);
@@ -155,7 +157,7 @@ jobs:
         run: |
           aws s3 cp \
               ${{ steps.generate-json.outputs.jsonStatsPath }} \
-              s3://agentic-lib-bucket/events/${{ github.event.repository.name }}-stats.json \
+              s3://agentic-lib-bucket/events/${{ github.repository }}-stats.json \
           ;
 
       - name: Upload JSON stats artifact to GitHub
@@ -164,7 +166,14 @@ jobs:
           name: stats-json
           path: ${{ steps.generate-json.outputs.jsonStatsPath }}
 
-        # TODO: Generate a pre-signed URL for the all the stats.json files and inject this into public/all.html
+      - name: Generate unique filename for this version of stats JSON
+        id: uniqueFile
+        run: |
+          echo "[INFO] Generating a unique filename..."
+          unique=$(date +%Y%m%d%H%M%S)-$(uuidgen)-${{ github.event.repository.name }}-stats.json
+          cp '${{ steps.generate-json.outputs.jsonStatsPath }}' "${{ env.public }}/${unique}"
+          echo "uniqueFile=${unique}" >> $GITHUB_OUTPUT
+          echo "[INFO] Unique file created: ${{ env.public }}/${unique}"
 
         # TODO: Remove latest.html publication steps.
       - name: Generate statistics page
@@ -357,7 +366,7 @@ jobs:
             `;
             
             // Ensure the output directory exists.
-            const outputDir = "public";
+            const outputDir = "${{ env.public }}";
             if (!fs.existsSync(outputDir)) {
               fs.mkdirSync(outputDir);
             }
@@ -369,24 +378,24 @@ jobs:
       - name: Generate index page
         shell: bash
         run: |
-          ./scripts/md-to-html.js < README.md > public/index.agentic-lib.html
-          cat public/index.agentic-lib.html | sed 's/agentic-lib/${{ github.event.repository.name }}/g' > public/index.html
+          ./scripts/md-to-html.js < README.md > ${{ env.public }}/index.agentic-lib.html
+          cat ${{ env.public }}/index.agentic-lib.html | sed 's/agentic-lib/${{ github.event.repository.name }}/g' > ${{ env.public }}/index.html
 
         # TODO: Remove latest.html publication steps.
-      - name: Generate unique filename for this version
-        id: uniqueFile
+      - name: Generate unique filename for this version of HTML
+        id: uniqueFileHtml
         run: |
           echo "[INFO] Generating a unique filename..."
           unique=$(date +%Y%m%d%H%M%S)-$(uuidgen).html
-          cp public/latest.html "public/${unique}"
+          cp ${{ env.public }}/latest.html "${{ env.public }}/${unique}"
           echo "uniqueFile=${unique}" >> $GITHUB_OUTPUT
-          echo "[INFO] Unique file created: public/${unique}"
+          echo "[INFO] Unique file created: ${{ env.public }}/${unique}"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: 'public'
+          publish_dir: ${{ env.public }}
           publish_branch: github-pages
           keep_files: true
           enable_jekyll: 'true'
@@ -395,7 +404,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: site
-          path: 'public'
+          path: ${{ env.public }}
 
         # TODO: Remove latest.html publication steps.
       - name: Output published URLs
@@ -409,14 +418,13 @@ jobs:
           uniqueFile=$(echo "${{ steps.uniqueFile.outputs.uniqueFile }}" | tr -d '\n')
           uniqueUrl="${baseUrl}/${uniqueFile}"
           pwd
-          echo "public:"
-          ls -larth "public"
-          echo "public/latest.html:"
-          ls -larth "public/latest.html"
-          echo "public/${uniqueFile}:"
-          ls -larth "public/${uniqueFile}"
+          echo "${{ env.public }}:"
+          ls -larth "${{ env.public }}"
+          echo "${{ env.public }}/latest.html:"
+          ls -larth "${{ env.public }}/latest.html"
+          echo "${{ env.public }}/${uniqueFile}:"
+          ls -larth "${{ env.public }}/${uniqueFile}"
           echo "::notice:: latestUrl: ${latestUrl}"
           echo "::notice:: uniqueUrl: ${uniqueUrl}"
           echo "latestUrl=${latestUrl}" >> $GITHUB_OUTPUT
           echo "uniqueUrl=${uniqueUrl}" >> $GITHUB_OUTPUT
-
