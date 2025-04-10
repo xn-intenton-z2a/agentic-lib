@@ -9,7 +9,7 @@
   "prDetails": [
     {
       "title": "Fixed missing afterEach import in the test file to resolve the ReferenceError. (fixes #1686)",
-      "ageMinutes": 0
+      "ageMinutes": 1
     }
   ],
   "diffMinutes": 0,
@@ -43,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1686",
-        "minutesSinceLastCommit": 1
+        "minutesSinceLastCommit": 2
       }
     ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T19:37:21.700Z"
+  "generatedAt": "2025-04-10T19:38:11.836Z"
 }
