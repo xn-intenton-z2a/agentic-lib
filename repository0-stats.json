@@ -1,0 +1,51 @@
+{
+  "openIssues": 14,
+  "issuesClosedLastHour": 10,
+  "issuesClosedLastDay": 100,
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Enhanced inline and README documentation to clarify that all NaN directives are intentionally non-operative per project guidelines. (fixes #1203)",
+      "ageMinutes": 0
+    }
+  ],
+  "diffMinutes": 0,
+  "diffMinutesMain": 22,
+  "commitsLastHour": 5,
+  "commitsLastDay": 100,
+  "lastFiveCommitMessages": [
+    {
+      "time": "16:56",
+      "message": "Clarify NaN directives as intentionally non-operative in CLI hel..."
+    },
+    {
+      "time": "16:46",
+      "message": "Fixed test parentheses and error handling in tests for --pkg-ver..."
+    },
+    {
+      "time": "16:34",
+      "message": "Add --diagnose-nan flag with associated tests and documentation ..."
+    },
+    {
+      "time": "16:26",
+      "message": "Refactor CLI version flag to use --pkg-version instead of reserv..."
+    },
+    {
+      "time": "16:20",
+      "message": "Refactored CLI argument parsing to use yargs for more robust and..."
+    }
+  ],
+  "branches": {
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1203",
+        "minutesSinceLastCommit": 0
+      }
+    ]
+  },
+  "averagePRAge": 0,
+  "testStatus": "PASS",
+  "testsLastPassedMinutes": 15,
+  "generatedAt": "2025-04-10T17:18:51.258Z"
+}
