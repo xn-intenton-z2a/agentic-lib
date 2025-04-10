@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.xn-intenton-z2a</groupId>
     <artifactId>agentic-lib</artifactId>
-    <version>3.3.2-0</version>
+    <version>3.4.1-0</version>
     <packaging>jar</packaging>
 
     <properties>
