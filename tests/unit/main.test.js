@@ -30,7 +30,6 @@ beforeAll(async () => {
   agenticLib = await import("../../src/lib/main.js");
 });
 
-
 describe("Main Module Import", () => {
   test("should be non-null", async () => {
     const mainModule = await import("../../src/lib/main.js");
@@ -63,5 +62,23 @@ describe("CLI Diagnostics Mode", () => {
     }
     expect(found).toBe(true);
     consoleSpy.mockRestore();
+  });
+});
+
+describe("agenticHandler", () => {
+  test("processes a valid agentic command correctly", async () => {
+    const payload = { command: "doSomething" };
+    const response = await agenticLib.agenticHandler(payload);
+    expect(response.status).toBe("success");
+    expect(response.processedCommand).toBe("doSomething");
+    expect(response.timestamp).toBeDefined();
+  });
+
+  test("throws an error when payload is not an object", async () => {
+    await expect(agenticLib.agenticHandler(null)).rejects.toThrow("Invalid payload: must be an object");
+  });
+
+  test("throws an error when payload is missing command property", async () => {
+    await expect(agenticLib.agenticHandler({})).rejects.toThrow("Payload must have a 'command' property");
   });
 });
