@@ -254,10 +254,6 @@ jobs:
         with:
           ref: ${{ needs.select-branch.outputs.branch }}
           fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
       - name: create-branch-if-required
         id: create-branch-if-required
         run: |
@@ -333,6 +329,14 @@ jobs:
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git pull --ff-only origin ${{ needs.branch-for-fix.outputs.branch }}
+      - name: Set up .npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+        env:
+          npmAuthOrganisation: '@xn-intenton-z2a'
       - run: npm ci
       - run: npm run test:unit
 
@@ -361,6 +365,14 @@ jobs:
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git pull --ff-only origin ${{ needs.branch-for-fix.outputs.branch }}
+      - name: Set up .npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+        env:
+          npmAuthOrganisation: '@xn-intenton-z2a'
       - run: npm ci
       - run: npm run build
 
