@@ -424,6 +424,7 @@ jobs:
       - npm-build-after-fix
       - npm-run-after-fix
     runs-on: ubuntu-latest
+    if: ${{ always() }}
     steps:
       - name: set-needs-fix
         id: set-needs-fix
