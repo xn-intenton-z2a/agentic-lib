@@ -9,11 +9,11 @@
   "prDetails": [
     {
       "title": "Incremented global invocation counter in agenticHandler and added a test to verify its behavior. (fixes #986)",
-      "ageMinutes": 7
+      "ageMinutes": 8
     }
   ],
-  "diffMinutes": 0,
-  "diffMinutesMain": 1,
+  "diffMinutes": 1,
+  "diffMinutesMain": 2,
   "commitsLastHour": 7,
   "commitsLastDay": 23,
   "lastFiveCommitMessages": [
@@ -43,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-986",
-        "minutesSinceLastCommit": 7
+        "minutesSinceLastCommit": 9
       }
     ]
   },
-  "averagePRAge": 7,
+  "averagePRAge": 8,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T23:29:56.189Z"
+  "generatedAt": "2025-04-11T23:31:21.110Z"
 }
