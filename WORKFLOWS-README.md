@@ -643,13 +643,13 @@ Supervisor:
 - [x] Prune the features.
 - [x] Scan the rejects (names) and avoid adding similar features.
 - [x] Dashboard metrics from s3 into the existing all stats dashboard.
+- [x] remove urls from the bottom of the stats pages
 - [~] fix deployment
+- [~] change stats assume role to agentic-lib-bucket-writer-role
+- [~] copy website and stats json files to the bucket agentic-lib-public-website-stats-bucket
+- [~] rename agentic-lib-bucket to agentic-lib-telemetry-bucket
 - [ ] Add a NaN filter to stop any NaN issues from being created.
 - [ ] create an issue WIP limit in agentic-lib.yml
-- [ ] remove urls from the bottom of the stats pages
-- [ ] change stats assume role to agentic-lib-bucket-writer-role
-- [ ] copy website and stats json files to the bucket agentic-lib-public-website-stats-bucket
-- [ ] rename agentic-lib-bucket to agentic-lib-telemetry-bucket
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix).
 - [ ] Create a "supervisor" engine schedule with reduced schedule triggers (leaving the supervisor to invoke workflows).
 - [ ] Do this everywhere:  echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc

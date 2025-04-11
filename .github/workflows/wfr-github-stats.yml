@@ -47,13 +47,23 @@ on:
         type: string
         required: false
         default: ''
+      s3WebsiteBucketUrl:
+        description: 'The S3 website bucket URL with prefix to use. e.g. "s3://my-website-bucket/"'
+        type: string
+        required: false
+        default: ''
       iamActionsRoleArn:
         description: 'The ARN of the IAM role to assume. e.g. "arn:aws:iam::123456789012:role/my-role"'
         type: string
         required: false
         default: ''
-      iamDeploymentRoleArn:
-        description: 'The ARN of the IAM role to assume. e.g. "arn:aws:iam::123456789012:role/my-role"'
+      iamStatsBucketWriterRoleArn:
+        description: 'The ARN of the IAM role to assume when writing to the stats bucket. e.g. "arn:aws:iam::123456789012:role/my-role"'
+        type: string
+        required: false
+        default: ''
+      iamPublicWebsiteStatsBucketWriterRoleArn:
+        description: 'The ARN of the IAM role to assume when writing to the public website stats bucket. e.g. "arn:aws:iam::123456789012:role/my-role"'
         type: string
         required: false
         default: ''
@@ -73,8 +83,10 @@ jobs:
       public: ${{ inputs.public || 'public' }}
       cache: ${{ inputs.cache || 'npm' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
+      s3WebsiteBucketUrl: ${{ inputs.s3WebsiteBucketUrl || '' }}
       iamActionsRoleArn: ${{ inputs.iamActionsRoleArn || '' }}
-      iamDeploymentRoleArn: ${{ inputs.iamDeploymentRoleArn || '' }}
+      iamStatsBucketWriterRoleArn: ${{ inputs.iamStatsBucketWriterRoleArn || '' }}
+      iamPublicWebsiteStatsBucketWriterRoleArn: ${{ inputs.iamPublicWebsiteStatsBucketWriterRoleArn || '' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
 
     steps:
@@ -197,15 +209,13 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ env.iamDeploymentRoleArn }}
+          role-to-assume: ${{ env.iamStatsBucketWriterRoleArn }}
           role-chaining: true
           aws-region: eu-west-2
           audience: sts.amazonaws.com
           role-skip-session-tagging: true
           output-credentials: true
           retry-max-attempts: 3
-
-      - run: aws s3 ls ${{ env.s3BucketUrl }} --summarize
 
       - name: Upload JSON stats artifact to S3
         shell: bash
@@ -215,24 +225,71 @@ jobs:
               ${{ env.s3BucketUrl }}${{ github.event.repository.name }}-stats.json \
           ;
 
+      - run: aws s3 ls ${{ env.s3BucketUrl }} --summarize
+
+      - name: Configure AWS Credentials (resetting back from the stats bucket writer role)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.iamActionsRoleArn }}
+          role-chaining: false
+          aws-region: eu-west-2
+          audience: sts.amazonaws.com
+          role-skip-session-tagging: true
+          output-credentials: true
+          retry-max-attempts: 3
+
+      - run: aws sts get-caller-identity
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.iamPublicWebsiteStatsBucketWriterRoleArn }}
+          role-chaining: true
+          aws-region: eu-west-2
+          audience: sts.amazonaws.com
+          role-skip-session-tagging: true
+          output-credentials: true
+          retry-max-attempts: 3
+
+      - name: Upload JSON stats artifact to S3 website bucket
+        shell: bash
+        run: |
+          aws s3 cp \
+              ${{ steps.generate-json.outputs.jsonStatsPath }} \
+              ${{ env.s3WebsteBucketUrl }}${{ github.event.repository.name }}-stats.json \
+          ;
+
+      - name: Upload website artefacts to S3 website bucket
+        shell: bash
+        run: |
+          aws s3 cp \
+              ${{ env.public }}/all.html \
+              ${{ env.s3WebsteBucketUrl }}all.html \
+          ;
+          aws s3 cp \
+              ${{ env.public }}/stats.html \
+              ${{ env.s3WebsteBucketUrl }}stats.html \
+          ;
+
+      - run: aws s3 ls ${{ env.s3WebsiteBucketUrl }} --summarize
+
+      - name: Output published website bucket pages URLs
+        id: output-website-bucket-urls
+        shell: bash
+        run: |
+          s3WebsiteBucketUrl='${{ env.s3WebsiteBucketUrl }}'
+          bucket=$(echo "$s3WebsiteBucketUrl" | sed -e 's|s3://||' -e 's|/$||')
+          websiteUrl="http://${bucket}.s3-website.amazonaws.com/"
+          allStatsUrl="${s3WebsiteBucketUrl?}/all.html"
+          echo "${allStatsUrl?}"
+          echo "::notice:: allStatsUrl: ${allStatsUrl?}"
+          echo "allStatsUrl=${allStatsUrl?}" >> $GITHUB_OUTPUT
+
       - name: Upload JSON stats artifact to GitHub
         uses: actions/upload-artifact@v4
         with:
           name: stats-json
           path: ${{ steps.generate-json.outputs.jsonStatsPath }}
-
-      - name: Copy any S3 objects named "${{ env.s3BucketUrl }}*-stats.json" to ${{ env.public }}
-        shell: bash
-        run: |
-          echo "[INFO] Copying S3 objects to ${{ env.public }}"
-          aws s3 cp \
-              ${{ env.s3BucketUrl }} \
-              ${{ env.public }} \
-              --recursive \
-              --exclude "*" \
-              --include "*-stats.json" \
-          ;
-          echo "[INFO] S3 objects copied to ${{ env.public }}"
 
       - name: Generate statistics page
         uses: actions/github-script@v7
@@ -454,8 +511,8 @@ jobs:
           name: site
           path: ${{ env.public }}
 
-      - name: Output published URLs
-        id: output-urls
+      - name: Output published github pages URLs
+        id: output-pages-urls
         run: |
           echo "[INFO] Determining GitHub Pages URL..."
           # GitHub Pages URL typically: https://<owner>.github.io/<repo>/
@@ -472,5 +529,6 @@ jobs:
           echo "latestUrl=${latestUrl}" >> $GITHUB_OUTPUT
 
     outputs:
-      latestUrl: ${{ steps.output-urls.outputs.latestUrl }}
+      latestUrl: ${{ steps.output-pages-urls.outputs.latestUrl }}
+      websiteBucketUrl: ${{ steps.output-website-bucket-urls.outputs.allStatsUrl }}
 

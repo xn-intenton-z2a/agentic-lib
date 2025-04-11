@@ -12,15 +12,16 @@ public class AgenticLibApp {
 
         // Create the AgenticLibStack with the s3 bucket name and the digest SQS queue
         AgenticLibStack agenticLibStack = AgenticLibStack.Builder.create(app, "AgenticLibStack")
-                .s3WriterArnPrinciple(System.getenv("S3_WRITER_ARN_PRINCIPLE"))
-                .s3WriterRoleName(System.getenv("S3_WRITER_ROLE_NAME"))
+                .githubActionsArnPrinciple(System.getenv("S3_GITHUB_ACTIONS_ARN_PRINCIPLE"))
                 .s3BucketName(System.getenv("BUCKET_NAME"))
                 .s3ObjectPrefix(System.getenv("OBJECT_PREFIX"))
                 .s3UseExistingBucket(Boolean.parseBoolean(System.getenv("USE_EXISTING_BUCKET")))
                 .s3RetainBucket(Boolean.parseBoolean(System.getenv("RETAIN_BUCKET")))
+                .s3BucketWriterRoleName(System.getenv("S3_BUCKET_WRITER_ROLE_NAME"))
                 .s3WebsiteBucketName(System.getenv("WEBSITE_BUCKET_NAME"))
                 .s3UseExistingWebsiteBucket(Boolean.parseBoolean(System.getenv("USE_EXISTING_WEBSITE_BUCKET")))
                 .s3RetainWebsiteBucket(Boolean.parseBoolean(System.getenv("RETAIN_WEBSITE_BUCKET")))
+                .s3WebsiteBucketWriterRoleName(System.getenv("S3_WEBSITE_BUCKET_WRITER_ROLE_NAME"))
                 .sqsDigestQueueName(System.getenv("SQS_DIGEST_QUEUE_NAME"))
                 .sqsDigestQueueArn(System.getenv("SQS_DIGEST_QUEUE_ARN"))
                 .sqsUseExistingDigestQueue(Boolean.parseBoolean(System.getenv("USE_EXISTING_DIGEST_QUEUE")))

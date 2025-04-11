@@ -51,15 +51,16 @@ public class AgenticLibStack extends Stack {
         public Construct scope;
         public String id;
         public StackProps props;
-        public String s3WriterArnPrinciple;
-        public String s3WriterRoleName;
+        public String githubActionsArnPrinciple;
         public String s3BucketName;
         public String s3ObjectPrefix;
         public boolean s3UseExistingBucket;
         public boolean s3RetainBucket;
+        public String s3BucketWriterRoleName;
         public String s3WebsiteBucketName;
         public boolean s3UseExistingWebsiteBucket;
         public boolean s3RetainWebsiteBucket;
+        public String s3WebsiteBucketWriterRoleName;
         public String sqsDigestQueueName;
         public String sqsDigestQueueArn;
         public boolean sqsUseExistingDigestQueue;
@@ -86,13 +87,8 @@ public class AgenticLibStack extends Stack {
             return builder;
         }
 
-        public Builder s3WriterArnPrinciple(String s3WriterArnPrinciple) {
-            this.s3WriterArnPrinciple = s3WriterArnPrinciple;
-            return this;
-        }
-
-        public Builder s3WriterRoleName(String s3WriterRoleName) {
-            this.s3WriterRoleName = s3WriterRoleName;
+        public Builder githubActionsArnPrinciple(String githubActionsArnPrinciple) {
+            this.githubActionsArnPrinciple = githubActionsArnPrinciple;
             return this;
         }
 
@@ -116,6 +112,11 @@ public class AgenticLibStack extends Stack {
             return this;
         }
 
+        public Builder s3BucketWriterRoleName(String s3BucketWriterRoleName) {
+            this.s3BucketWriterRoleName = s3BucketWriterRoleName;
+            return this;
+        }
+
         public Builder s3WebsiteBucketName(String s3WebsiteBucketName) {
             this.s3WebsiteBucketName = s3WebsiteBucketName;
             return this;
@@ -128,6 +129,11 @@ public class AgenticLibStack extends Stack {
 
         public Builder s3RetainWebsiteBucket(boolean s3RetainWebsiteBucket) {
             this.s3RetainWebsiteBucket = s3RetainWebsiteBucket;
+            return this;
+        }
+
+        public Builder s3WebsiteBucketWriterRoleName(String s3WebsiteBucketWriterRoleName) {
+            this.s3WebsiteBucketWriterRoleName = s3WebsiteBucketWriterRoleName;
             return this;
         }
 
@@ -203,15 +209,16 @@ public class AgenticLibStack extends Stack {
     public AgenticLibStack(Construct scope, String id, StackProps props, AgenticLibStack.Builder builder) {
         super(scope, id, props);
 
+        String githubActionsArnPrinciple = this.getConfigValue(builder.githubActionsArnPrinciple, "githubActionsArnPrinciple");
         this.s3BucketName = this.getConfigValue(builder.s3BucketName, "s3BucketName");
         this.s3ObjectPrefix = this.getConfigValue(builder.s3ObjectPrefix, "s3ObjectPrefix");
         this.s3UseExistingBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3UseExistingBucket), "s3UseExistingBucket"));
         this.s3RetainBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3RetainBucket), "s3RetainBucket"));
+        String s3BucketWriterRoleName = this.getConfigValue(builder.s3BucketWriterRoleName, "s3BucketWriterRoleName");
         this.s3WebsiteBucketName = this.getConfigValue(builder.s3WebsiteBucketName, "s3WebsiteBucketName");
         this.s3UseExistingWebsiteBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3UseExistingWebsiteBucket), "s3UseExistingWebsiteBucket"));
         this.s3RetainWebsiteBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3RetainWebsiteBucket), "s3RetainWebsiteBucket"));
-        String s3WriterRoleName = this.getConfigValue(builder.s3WriterRoleName, "s3WriterRoleName");
-        String s3WriterArnPrinciple = this.getConfigValue(builder.s3WriterArnPrinciple, "s3WriterArnPrinciple");
+        String s3WebsiteBucketWriterRoleName = this.getConfigValue(builder.s3WebsiteBucketWriterRoleName, "s3WebsiteBucketWriterRoleName");
         String sqsDigestQueueName = this.getConfigValue(builder.sqsDigestQueueName, "sqsDigestQueueName");
         this.sqsDigestQueueArn = this.getConfigValue(builder.sqsDigestQueueArn, "sqsDigestQueueArn");
         this.sqsUseExistingDigestQueue = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.sqsUseExistingDigestQueue), "sqsUseExistingDigestQueue"));
@@ -264,8 +271,8 @@ public class AgenticLibStack extends Stack {
                 ))
                 .build();
         this.s3EventsAccessRole = Role.Builder.create(this, "EventsS3AccessRole")
-                .roleName(s3WriterRoleName)
-                .assumedBy(new ArnPrincipal(s3WriterArnPrinciple))
+                .roleName(s3BucketWriterRoleName)
+                .assumedBy(new ArnPrincipal(githubActionsArnPrinciple))
                 .inlinePolicies(java.util.Collections.singletonMap("S3AccessPolicy", PolicyDocument.Builder.create()
                         .statements(List.of(eventsObjectCrudPolicyStatement))
                         .build()))
@@ -319,8 +326,8 @@ public class AgenticLibStack extends Stack {
                 ))
                 .build();
         this.s3WebsiteAccessRole = Role.Builder.create(this, "S3WebsiteAccessRole")
-                .roleName(s3WriterRoleName)
-                .assumedBy(new ArnPrincipal(s3WriterArnPrinciple))
+                .roleName(s3WebsiteBucketWriterRoleName)
+                .assumedBy(new ArnPrincipal(githubActionsArnPrinciple))
                 .inlinePolicies(java.util.Collections.singletonMap("S3AccessPolicy", PolicyDocument.Builder.create()
                         .statements(List.of(websiteObjectCrudPolicyStatement))
                         .build()))

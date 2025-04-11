@@ -11,15 +11,16 @@ public class AgenticLibStackTest {
         App app = new App();
 
         AgenticLibStack stack = AgenticLibStack.Builder.create(app, "S3SqsBridgeConfigureAndBuildStack")
-                .s3WriterArnPrinciple("arn:aws:iam::123456789012:user/test")
-                .s3WriterRoleName("agentic-lib-bucket-writer-role-test")
+                .githubActionsArnPrinciple("arn:aws:iam::123456789012:user/test")
                 .s3BucketName("agentic-lib-bucket-test")
                 .s3ObjectPrefix("test/")
                 .s3UseExistingBucket(false)
                 .s3RetainBucket(false)
+                .s3BucketWriterRoleName("agentic-lib-telemetry-bucket-writer-role")
                 .s3WebsiteBucketName("agentic-lib-website-bucket-test")
                 .s3UseExistingWebsiteBucket(false)
                 .s3RetainWebsiteBucket(false)
+                .s3WebsiteBucketWriterRoleName("agentic-lib-public-website-stats-bucket-writer-role-test")
                 .sqsDigestQueueName("agentic-lib-digest-queue-test")
                 .sqsDigestQueueArn("arn:aws:sqs:eu-west-2:123456789012:agentic-lib-digest-queue-test")
                 .sqsUseExistingDigestQueue(false)
