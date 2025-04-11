@@ -12,7 +12,7 @@
     "s3WebsiteBucketName": "agentic-lib-public-website-stats-bucket",
     "s3UseExistingWebsiteBucket": "false",
     "s3RetainWebsiteBucket": "false",
-    "s3BucketWebsiteWriterRoleName": "agentic-lib-public-website-stats-bucket-writer-role",
+    "s3WebsiteBucketWriterRoleName": "agentic-lib-public-website-stats-bucket-writer-role",
     "sqsSourceQueueName": "agentic-lib-source-queue",
     "sqsReplayQueueName": "agentic-lib-replay-queue",
     "sqsDigestQueueName": "agentic-lib-digest-queue",
