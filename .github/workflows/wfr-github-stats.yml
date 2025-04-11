@@ -280,7 +280,7 @@ jobs:
           s3WebsiteBucketUrl='${{ env.s3WebsiteBucketUrl }}'
           bucket=$(echo "$s3WebsiteBucketUrl" | sed -e 's|s3://||' -e 's|/$||')
           baseUrl="http://${bucket}.s3-website.amazonaws.com/"
-          allStatsUrl="${baseUrl?}/all.html"
+          allStatsUrl="${baseUrl?}all.html"
           echo "${allStatsUrl?}"
           echo "::notice:: allStatsUrl: ${allStatsUrl?}"
           echo "allStatsUrl=${allStatsUrl?}" >> $GITHUB_OUTPUT
