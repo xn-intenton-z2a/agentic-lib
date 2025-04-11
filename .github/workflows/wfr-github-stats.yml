@@ -263,12 +263,16 @@ jobs:
         shell: bash
         run: |
           aws s3 cp \
-              ${{ env.public }}/all.html \
-              ${{ env.s3WebsiteBucketUrl }}all.html \
+              ${{ steps.generate-json.outputs.jsonStatsPath }}  \
+              ${{ env.s3WebsiteBucketUrl }}}${{ github.event.repository.name }}-stats.json \
           ;
           aws s3 cp \
               ${{ env.public }}/stats.html \
               ${{ env.s3WebsiteBucketUrl }}stats.html \
+          ;
+          aws s3 cp \
+              ${{ env.public }}/all.html \
+              ${{ env.s3WebsiteBucketUrl }}index.html \
           ;
 
       - run: aws s3 ls ${{ env.s3WebsiteBucketUrl }} --summarize
