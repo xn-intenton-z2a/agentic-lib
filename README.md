@@ -48,7 +48,7 @@ This repository is organized into three distinct areas to help you understand th
 
 ### 3. The Evolving main.js (JavaScript re‑implementation of Re‑usable Workflows)
 - **Purpose:**  
-  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality.
+  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality. It now also tracks each successful invocation of the agentic command using an internal counter for improved observability.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
@@ -60,7 +60,9 @@ This repository is organized into three distinct areas to help you understand th
 
 ## Agentic Library Functions
 
-A new set of agentic library functions have been implemented to enable autonomous workflow invocation. The primary function, `agenticHandler`, processes a JSON payload containing a command. It validates the input, logs the command using the existing logging mechanisms, and returns a processed response. This function can be invoked directly via the CLI using the `--agentic` flag followed by a JSON payload, e.g.,
+A new set of agentic library functions have been implemented to enable autonomous workflow invocation. The primary function, `agenticHandler`, processes a JSON payload containing a command, validates the input, logs the command using the existing logging mechanisms, and returns a processed response. Importantly, each successful invocation of `agenticHandler` increments an internal counter (globalThis.callCount) which can be used to monitor usage and assist in debugging.
+
+It can be invoked directly via the CLI using the `--agentic` flag followed by a JSON payload, e.g.,
 
 ```
 node src/lib/main.js --agentic '{"command": "doSomething"}'
@@ -93,7 +95,7 @@ The CLI provides several flags to manage the library's operation:
 - **--digest:**
   - Initiates the processing of a sample digest by creating a simulated SQS event and handling it through the AWS-integrated lambda handler.
 - **--agentic:**
-  - Processes an agentic command by passing a JSON payload to `agenticHandler`.
+  - Processes an agentic command by passing a JSON payload to `agenticHandler` (and increments the internal invocation counter).
 - **--verbose:**
   - Activates detailed logging for debugging purposes.
 - **--diagnostics:**
@@ -147,7 +149,7 @@ No command argument supplied.
 
 ```
 {"level":"info","timestamp":"2025-04-10T12:26:52.533Z","message":"Configuration loaded","config":{}}
-{"level":"info","timestamp":"2025-04-10T12:26:52.540Z","message":"Digest Lambda received event: {\"Records\":[{\"eventVersion\":\"2.0\",\"eventSource\":\"aws:sqs\",\"eventTime\":\"2025-04-10T12:26:52.540Z\",\"eventName\":\"SendMessage\",\"body\":\"{\\\"key\\\":\\\"events/1.json\\\",\\\"value\\\":\\\"12345\\\",\\\"lastModified\\\":\\\"2025-04-10T12:26:52.540Z\\\"}\"}]}
+{"level":"info","timestamp":"2025-04-10T12:26:52.540Z","message":"Digest Lambda received event: {\"Records\":[{\"eventVersion\":\"2.0\",\"eventSource\":\"aws:sqs\",\"eventTime\":\"2025-04-10T12:26:52.540Z\",\"eventName\":\"SendMessage\",\"body\":\"{\\\"key\\\":\\\"events/1.json\\\",\\\"value\\\":\\\"12345\\\",\\\"lastModified\\\":\\\"2025-04-10T12:26:52.540Z\\\"}\"}]}"
 ```
 
 5. Running with the `--agentic` flag:

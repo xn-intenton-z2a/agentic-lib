@@ -143,6 +143,8 @@ export async function agenticHandler(payload) {
       processedCommand: payload.command,
       timestamp: new Date().toISOString()
     };
+    // Increment global invocation counter
+    globalThis.callCount++;
     return response;
   } catch (error) {
     logError("Agentic Handler Error", error);

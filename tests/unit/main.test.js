@@ -1,7 +1,12 @@
-import { describe, test, expect, vi, beforeAll } from "vitest";
+import { describe, test, expect, vi, beforeAll, beforeEach } from "vitest";
 
 // Ensure that the global callCount is reset before tests that rely on it
 beforeAll(() => {
+  globalThis.callCount = 0;
+});
+
+// Reset callCount before each test in agenticHandler tests
+beforeEach(() => {
   globalThis.callCount = 0;
 });
 
@@ -80,5 +85,12 @@ describe("agenticHandler", () => {
 
   test("throws an error when payload is missing command property", async () => {
     await expect(agenticLib.agenticHandler({})).rejects.toThrow("Payload must have a 'command' property");
+  });
+
+  test("increments global invocation counter on successful command processing", async () => {
+    const initialCount = globalThis.callCount;
+    const payload = { command: "incrementTest" };
+    await agenticLib.agenticHandler(payload);
+    expect(globalThis.callCount).toBe(initialCount + 1);
   });
 });
