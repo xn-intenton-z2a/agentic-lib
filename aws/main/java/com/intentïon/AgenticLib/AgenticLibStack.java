@@ -20,6 +20,7 @@ import software.amazon.awscdk.services.lambda.eventsources.SqsEventSourceProps;
 import software.amazon.awscdk.services.logs.LogGroup;
 import software.amazon.awscdk.services.logs.LogGroupProps;
 import software.amazon.awscdk.services.logs.RetentionDays;
+import software.amazon.awscdk.services.s3.BlockPublicAccess;
 import software.amazon.awscdk.services.s3.Bucket;
 import software.amazon.awscdk.services.s3.IBucket;
 import software.amazon.awscdk.services.sqs.DeadLetterQueue;
@@ -273,9 +274,15 @@ public class AgenticLibStack extends Stack {
         if (s3UseExistingWebsiteBucket) {
             this.websiteBucket = Bucket.fromBucketName(this, "WebsiteBucket", s3WebsiteBucketName);
         } else {
+            BlockPublicAccess blockPublicAccess = BlockPublicAccess.Builder.create()
+                    .blockPublicAcls(false)
+                    .ignorePublicAcls(false)
+                    .blockPublicPolicy(false)
+                    .build();
             this.websiteBucket = Bucket.Builder.create(this, "WebsiteBucket")
                     .bucketName(s3WebsiteBucketName)
                     .websiteIndexDocument("index.html")
+                    .blockPublicAccess(blockPublicAccess)
                     .publicReadAccess(true)
                     .removalPolicy(s3RetainWebsiteBucket ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY)
                     .autoDeleteObjects(!s3RetainWebsiteBucket)
