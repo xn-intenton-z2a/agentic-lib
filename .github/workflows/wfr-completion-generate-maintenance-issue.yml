@@ -37,6 +37,11 @@ on:
         type: string
         required: false
         default: 'features/'
+      maintenanceIssuesWipLimit:
+        description: 'The WIP limit for maintenance issues. e.g. "5"'
+        type: string
+        required: false
+        default: '5'
       target:
         description: 'The target file to create the issue to change. e.g. "src/lib/main.js"'
         type: string
@@ -82,6 +87,11 @@ on:
         type: string
         required: false
         default: 'npm run start'
+      issueSelectionLabel:
+        description: 'Label used to filter issues for review. e.g. "maintenance"'
+        required: false
+        type: string
+        default: 'maintenance'
       model:
         description: 'The OpenAI model to use. e.g. "o3-mini"'
         type: string
@@ -120,6 +130,7 @@ jobs:
     env:
       prompt: ${{ inputs.prompt || '' }}
       featuresDir: ${{ inputs.featuresDir || 'features/' }}
+      maintenanceIssuesWipLimit: ${{ inputs.maintenanceIssuesWipLimit || '5' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
@@ -128,6 +139,7 @@ jobs:
       dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
+      issueSelectionLabel: ${{ inputs.issueSelectionLabel || 'maintenance' }}
       mainScript: ${{ inputs.mainScript || 'npm run start' }}
       mainScriptTimeout: '5m'
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
@@ -229,6 +241,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const currentFeatures = process.env.currentFeatures;
+            const maintenanceIssuesWipLimit = process.env.maintenanceIssuesWipLimit;
             const target = process.env.target;
             const testFile = process.env.testFile;
             const readmeFile = process.env.readmeFile;
@@ -245,7 +258,8 @@ jobs:
             const testOutput = process.env.testOutput;
             const mainScript = process.env.mainScript;
             const mainOutput = process.env.mainOutput;
-
+            const issueSelectionLabel = process.env.issueSelectionLabel;
+            
             const fs = require('fs');
             const OpenAI = require('openai').default;
             const { z } = require('zod');
@@ -255,11 +269,15 @@ jobs:
             const openIssues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              state: 'open'
+              state: 'open',
+              labels: issueSelectionLabel
             });
             core.info(`Open issues: ${JSON.stringify(openIssues)}`);
             const openIssueTitles = openIssues.data.map(issue => issue.title).join(', ');
             core.info(`Open issue titles: ${openIssueTitles}`);
+            if (openIssues.data.length >= maintenanceIssuesWipLimit) {
+              core.setFailed(`There are already ${maintenanceIssuesWipLimit} open issues with the label '${issueSelectionLabel}'.`);
+            }
   
             if (!apiKey) { 
               core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
@@ -267,6 +285,7 @@ jobs:
             const openai = new OpenAI({ apiKey });
 
             core.info(`currentFeatures: "${currentFeatures}"`);
+            core.info(`maintenanceIssuesWipLimit: "${maintenanceIssuesWipLimit}"`);
             core.info(`target: "${target}"`);
             core.info(`testFile: "${testFile}"`);
             core.info(`readmeFile: "${readmeFile}"`);
@@ -288,6 +307,8 @@ jobs:
             Please generate the title and description of a GitHub issue to which will be used to action the supplied prompt.
             The issue will be resolved by an LLM which can process over 200,000 tokens of context and it will provide completed source files in the response.
             Do not include steps that would need to be taken manually by a human and expect to "dry-run" without an execution environment.
+            The maximum number of maintenance issues that should be open at any one time is ${maintenanceIssuesWipLimit}, if there are already ${maintenanceIssuesWipLimit} open issues fail this request.
+            Do not add valueless layers of validation, configuration, and abstraction. In particular do not create issues related to NaNs.
             Ensure that the issue is distinct from any existing open issues in the repository so that the new issue remains valid when the other open issues are closed.
             Consider the following when refining your response:
             * Prompt details

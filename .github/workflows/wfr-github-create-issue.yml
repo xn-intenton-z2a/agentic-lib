@@ -38,6 +38,11 @@ on:
         required: false
         type: string
         default: 'Please resolve the issue.'
+      issueLabels:
+        description: 'Labels to apply to the issue, separated by commas. e.g. "automated,feature"'
+        required: false
+        type: string
+        default: 'automated'
       houseChoiceOptions:
         description: 'Options for house choice, separated by double pipes "||".'
         type: string
@@ -71,6 +76,7 @@ jobs:
     env:
       issueTitle: ${{ inputs.issueTitle || 'house choice' }}
       issueBody: ${{ inputs.issueBody || 'Please resolve the issue.' }}
+      issueLabels: ${{ inputs.issueLabels || 'automated' }}
       houseChoiceOptions: ${{ inputs.houseChoiceOptions || 'Make code changes that extend or improve the features or resolve issues shown in the included context.'}}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
@@ -92,6 +98,7 @@ jobs:
           script: |
             const issueTitle = process.env.issueTitle;
             const issueBody = process.env.issueBody;
+            const issueLabels = process.env.issueLabels.split(',').map(label => label.trim());
             const houseChoiceOptions = process.env.houseChoiceOptions.split('||');
 
             let selectedIssueTitle;
@@ -106,7 +113,7 @@ jobs:
               repo: context.repo.repo,
               title: selectedIssueTitle,
               body: issueBody,
-              labels: ['automated']
+              labels: issueLabels
             });
 
             core.setOutput("issueTitle", selectedIssueTitle);

@@ -1,3 +1,8 @@
 # Which agentic-lib workflow schedule should be used?
 schedule: schedule-1
-featuresMaximum: 2
+# How many features should exist concurrently open for issue creation.
+featuresWipLimit: 2
+# TODO: Separate the concept of features in development and features in maintenance.
+# How many issues should be open to be picked up?
+featureDevelopmentIssuesWipLimit: 5
+maintenanceIssuesWipLimit: 5

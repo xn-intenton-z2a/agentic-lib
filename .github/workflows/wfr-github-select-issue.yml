@@ -33,10 +33,10 @@ on:
         type: string
         required: true
       selectionLabel:
-        description: 'Label used to filter issues for review. e.g. "merged"'
+        description: 'Label used to filter issues for review. e.g. "automated"'
         required: false
         type: string
-        default: 'merged'
+        default: 'automated'
       cache:
         description: 'The cache to use for npm. e.g. "npm"'
         type: string
@@ -61,7 +61,7 @@ jobs:
 
     env:
       issueNumber: ${{ inputs.issueNumber }}
-      selectionLabel: ${{ inputs.selectionLabel || 'merged' }}
+      selectionLabel: ${{ inputs.selectionLabel || 'automated' }}
       cache: ${{ inputs.cache || 'npm' }}
 
     steps:

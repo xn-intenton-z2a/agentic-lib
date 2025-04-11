@@ -71,9 +71,9 @@ on:
       PERSONAL_ACCESS_TOKEN:
         required: false
     outputs:
-      latestUrl:
+      thisRespositoryStatsUrl:
         description: 'The URL of the latest stats page. e.g. "https://xn-intenton-z2a.github.io/agentic-lib/latest.html"'
-        value: ${{ jobs.stats.outputs.latestUrl }}
+        value: ${{ jobs.stats.outputs.thisRespositoryStatsUrl }}
 
 jobs:
   stats:
@@ -106,8 +106,6 @@ jobs:
           echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
           echo "always-auth=true" >> .npmrc
-
-      - run: npm ci
 
       - name: engine
         id: engine
@@ -283,11 +281,11 @@ jobs:
         run: |
           s3WebsiteBucketUrl='${{ env.s3WebsiteBucketUrl }}'
           bucket=$(echo "$s3WebsiteBucketUrl" | sed -e 's|s3://||' -e 's|/$||')
-          baseUrl="http://${bucket}.s3-website.amazonaws.com/"
-          allStatsUrl="${baseUrl?}all.html"
-          echo "${allStatsUrl?}"
-          echo "::notice:: allStatsUrl: ${allStatsUrl?}"
-          echo "allStatsUrl=${allStatsUrl?}" >> $GITHUB_OUTPUT
+          baseUrl="http://${bucket}.s3-website.eu-west-2.amazonaws.com/"
+          allIntentïonRespositoryStatsUrl="${baseUrl?}"
+          echo "${allIntentïonRespositoryStatsUrl?}"
+          echo "::notice:: allIntentïonRespositoryStatsUrl: ${allIntentïonRespositoryStatsUrl?}"
+          echo "allIntentïonRespositoryStatsUrl=${allIntentïonRespositoryStatsUrl?}" >> $GITHUB_OUTPUT
 
       - name: Upload JSON stats artifact to GitHub
         uses: actions/upload-artifact@v4
@@ -473,8 +471,6 @@ jobs:
                   <p>
                     <a href="https://github.com/${owner}/${repo}" target="_blank">repository 🔗</a> - 
                     <a href="https://${owner}.github.io/${repo}/index.html" target="_blank">site 🔗</a> - 
-                    <a href="https://${owner}.github.io/${repo}/latest.html" target="_blank">stats 🔗</a> - 
-                    <a href="https://${owner}.github.io/${repo}/all.html" target="_blank">all stats 🔗</a>
                   </p>
                 </section>
                 <footer>
@@ -523,16 +519,16 @@ jobs:
           repoName=${{ github.event.repository.name }}
           owner=${{ github.repository_owner }}
           baseUrl="https://${owner}.github.io/${repoName}"
-          latestUrl="${baseUrl}/latest.html"
+          thisRespositoryStatsUrl="${baseUrl}/latest.html"
           pwd
           echo "${{ env.public }}:"
           ls -larth "${{ env.public }}"
           echo "${{ env.public }}/latest.html:"
           ls -larth "${{ env.public }}/latest.html"
-          echo "::notice:: latestUrl: ${latestUrl}"
-          echo "latestUrl=${latestUrl}" >> $GITHUB_OUTPUT
+          echo "::notice:: thisRespositoryStatsUrl: ${thisRespositoryStatsUrl}"
+          echo "thisRespositoryStatsUrl=${thisRespositoryStatsUrl}" >> $GITHUB_OUTPUT
 
     outputs:
-      latestUrl: ${{ steps.output-pages-urls.outputs.latestUrl }}
+      thisRespositoryStatsUrl: ${{ steps.output-pages-urls.outputs.thisRespositoryStatsUrl }}
       websiteBucketUrl: ${{ steps.output-website-bucket-urls.outputs.allStatsUrl }}
 

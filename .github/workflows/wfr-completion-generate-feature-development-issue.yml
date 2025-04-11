@@ -37,6 +37,11 @@ on:
         type: string
         required: false
         default: 'features/'
+      featureDevelopmentIssuesWipLimit:
+        description: 'The WIP limit for the feature development issues. e.g. "5"'
+        type: string
+        required: false
+        default: '5'
       target:
         description: 'The target file to create the issue to change. e.g. "src/lib/main.js"'
         type: string
@@ -77,6 +82,11 @@ on:
         type: string
         required: false
         default: 'npm test'
+      issueSelectionLabel:
+        description: 'Label used to filter issues for review. e.g. "feature"'
+        required: false
+        type: string
+        default: 'feature'
       mainScript:
         description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run start`'
         type: string
@@ -120,6 +130,7 @@ jobs:
     env:
       featureName: ${{ inputs.featureName || '' }}
       featuresDir: ${{ inputs.featuresDir || 'features/' }}
+      featureDevelopmentIssuesWipLimit: ${{ inputs.featureDevelopmentIssuesWipLimit || '5' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
@@ -129,6 +140,7 @@ jobs:
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
       mainScript: ${{ inputs.mainScript || 'npm run start' }}
+      issueSelectionLabel: ${{ inputs.issueSelectionLabel || 'feature' }}
       mainScriptTimeout: '5m'
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
@@ -230,6 +242,7 @@ jobs:
           script: |
             const featureName = process.env.featureName;
             const currentFeatures = process.env.currentFeatures;
+            const featureDevelopmentIssuesWipLimit = process.env.featureDevelopmentIssuesWipLimit;
             const target = process.env.target;
             const testFile = process.env.testFile;
             const readmeFile = process.env.readmeFile;
@@ -245,6 +258,7 @@ jobs:
             const testOutput = process.env.testOutput;
             const mainScript = process.env.mainScript;
             const mainOutput = process.env.mainOutput;
+            const issueSelectionLabel = process.env.issueSelectionLabel;
 
             const fs = require('fs');
             const OpenAI = require('openai').default;
@@ -255,12 +269,16 @@ jobs:
             const openIssues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              state: 'open'
+              state: 'open',
+              labels: issueSelectionLabel
             });
             core.info(`Open issues: ${JSON.stringify(openIssues)}`);
             const openIssueTitles = openIssues.data.map(issue => issue.title).join(', ');
             core.info(`Open issue titles: ${openIssueTitles}`);
-  
+            if (openIssues.data.length >= maintenanceIssuesWipLimit) {
+              core.setFailed(`There are already ${maintenanceIssuesWipLimit} open issues with the label '${issueSelectionLabel}'.`);
+            }
+            
             if (!apiKey) { 
               core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
             }
@@ -268,6 +286,7 @@ jobs:
 
             core.info(`featureName: "${featureName}"`); 
             core.info(`currentFeatures: "${currentFeatures}"`);
+            core.info(`featureDevelopmentIssuesWipLimit: "${featureDevelopmentIssuesWipLimit}"`);
             core.info(`target: "${target}"`);
             core.info(`testFile: "${testFile}"`);
             core.info(`readmeFile: "${readmeFile}"`);
@@ -290,6 +309,8 @@ jobs:
             Examine the details named feature ${featureName} in the current feature names and specifications, and evaluate the current state of the repository to determine which changes will implement the feature and allow it's value to be realised.
             The issue will be resolved by an LLM which can process over 200,000 tokens of context and it will provide completed source files in the response.
             Do not include steps that would need to be taken manually by a human and expect to "dry-run" without an execution environment.
+            The maximum number of feature development issues that should be open at any one time is ${featureDevelopmentIssuesWipLimit}, if there are already ${featureDevelopmentIssuesWipLimit} open issues fail this request.
+            Do not add valueless layers of validation, configuration, and abstraction. In particular do not create issues related to NaNs.
             Ensure that the issue is distinct from any existing open issues in the repository so that the new issue remains valid when the other open issues are closed.
             Consider the following when refining your response:
             * Prompt details

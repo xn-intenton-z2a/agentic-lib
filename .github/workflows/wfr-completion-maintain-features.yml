@@ -38,7 +38,7 @@ on:
         type: string
         required: false
         default: 'features/'
-      featuresMaximum:
+      featuresWipLimit:
         description: 'The maximum number of features to create. e.g. "3"'
         type: string
         required: false
@@ -136,7 +136,7 @@ jobs:
     env:
       feature: ${{ inputs.feature || '' }}
       featuresDir: ${{ inputs.featuresDir || 'features/' }}
-      featuresMaximum: ${{ inputs.featuresMaximum || '3' }}
+      featuresWipLimit: ${{ inputs.featuresWipLimit || '3' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
@@ -261,7 +261,7 @@ jobs:
           script: |
             const feature = process.env.feature;
             const featuresDir = process.env.featuresDir;
-            const featuresMaximum = process.env.featuresMaximum;
+            const featuresWipLimit = process.env.featuresWipLimit;
             const currentFeatures = process.env.currentFeatures;
             const rejectedFeatures = process.env.rejectedFeatures;
             const target = process.env.target;
@@ -325,10 +325,10 @@ jobs:
             const chatGptPrompt = `
             Please generate the name and specification for a software feature which will be added or updated to action the supplied feature prompt.
             Prefer to refine a feature focusing on achievable value with a single repository, not a grandiose vision, or bloated feature set.
-            If there are more than the maximum number of ${featuresMaximum} features in the repository, you must merge similar features into a single feature and name the features to be deleted.
+            If there are more than the maximum number of ${featuresWipLimit} features in the repository, you must merge similar features into a single feature and name the features to be deleted.
             The feature will be used to submit to a Chat Completions API (yourself) to generate a series of GitHub issues to implement and iterate upon the feature.
             If a significant feature of the repository is not present in the current feature set, please add it either to a new feature or an existing feature.
-            All significant features of the repository should be present in the feature set before new features are added and features can be consolidated to make room below the maximum of ${featuresMaximum} features.
+            All significant features of the repository should be present in the feature set before new features are added and features can be consolidated to make room below the maximum of ${featuresWipLimit} features.
             Before adding a new feature ensure that this feature is distinct from any other feature in the repository, otherwise update an existing feature.
             When updating an existing feature, ensure that the existing aspects are not omitted in the response, provide the full feature spec.
             The feature name should be one or two words in SCREAMING_SNAKECASE.
