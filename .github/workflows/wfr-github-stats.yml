@@ -256,7 +256,7 @@ jobs:
         run: |
           aws s3 cp \
               ${{ steps.generate-json.outputs.jsonStatsPath }} \
-              ${{ env.s3WebsteBucketUrl }}${{ github.event.repository.name }}-stats.json \
+              ${{ env.s3WebsiteBucketUrl }}${{ github.event.repository.name }}-stats.json \
           ;
 
       - name: Upload website artefacts to S3 website bucket
@@ -264,11 +264,11 @@ jobs:
         run: |
           aws s3 cp \
               ${{ env.public }}/all.html \
-              ${{ env.s3WebsteBucketUrl }}all.html \
+              ${{ env.s3WebsiteBucketUrl }}all.html \
           ;
           aws s3 cp \
               ${{ env.public }}/stats.html \
-              ${{ env.s3WebsteBucketUrl }}stats.html \
+              ${{ env.s3WebsiteBucketUrl }}stats.html \
           ;
 
       - run: aws s3 ls ${{ env.s3WebsiteBucketUrl }} --summarize
