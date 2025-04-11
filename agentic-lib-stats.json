@@ -9,11 +9,11 @@
   "prDetails": [
     {
       "title": "Incremented global invocation counter in agenticHandler and added a test to verify its behavior. (fixes #986)",
-      "ageMinutes": 6
+      "ageMinutes": 7
     }
   ],
   "diffMinutes": 0,
-  "diffMinutesMain": 0,
+  "diffMinutesMain": 1,
   "commitsLastHour": 7,
   "commitsLastDay": 23,
   "lastFiveCommitMessages": [
@@ -47,8 +47,8 @@
       }
     ]
   },
-  "averagePRAge": 6,
+  "averagePRAge": 7,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T23:29:07.330Z"
+  "generatedAt": "2025-04-11T23:29:55.083Z"
 }
