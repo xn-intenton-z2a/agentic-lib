@@ -88,3 +88,4 @@ cp -v scripts/update.sh "${DEST_DIR}/../../scripts/."
 mkdir -p "${DEST_DIR}/../../public"
 
 cp -v public/all.html "${DEST_DIR}/../../public/."
+cp -v public/stats.html "${DEST_DIR}/../../public/."
