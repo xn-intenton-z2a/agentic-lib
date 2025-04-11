@@ -7,30 +7,30 @@
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 4,
-  "diffMinutesMain": 9,
+  "diffMinutes": 1,
+  "diffMinutesMain": 2,
   "commitsLastHour": 6,
-  "commitsLastDay": 100,
+  "commitsLastDay": 97,
   "lastFiveCommitMessages": [
     {
-      "time": "08:28",
-      "message": "Refactored CSV importer to trim cell values for consistent NaN h..."
+      "time": "12:08",
+      "message": "Refactored NaN variant detection using regex for consistent fall..."
     },
     {
-      "time": "08:13",
-      "message": "Enhance CSV importer with auto-detection of delimiters and updat..."
+      "time": "11:59",
+      "message": "Refactored numeric input parsing for clearer error messages and ..."
     },
     {
-      "time": "08:07",
-      "message": "Unified NaN parsing and fallback mechanisms across CLI and CSV i..."
+      "time": "11:49",
+      "message": "Enhanced unified NaN fallback and error messaging for CLI and CS..."
     },
     {
-      "time": "07:58",
-      "message": "Enhanced numeric parsing to recognize signed NaN variants and ad..."
+      "time": "11:39",
+      "message": "Standardize NaN input handling improving fallback consistency an..."
     },
     {
-      "time": "07:48",
-      "message": "Refined error messaging for --numberNaN inputs with detailed gui..."
+      "time": "11:26",
+      "message": "Standardize NaN variant handling across CLI and CSV imports with..."
     }
   ],
   "branches": {
@@ -40,5 +40,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T08:37:48.377Z"
+  "generatedAt": "2025-04-11T12:11:42.377Z"
 }
