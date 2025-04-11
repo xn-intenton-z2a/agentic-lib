@@ -275,8 +275,8 @@ jobs:
             core.info(`Open issues: ${JSON.stringify(openIssues)}`);
             const openIssueTitles = openIssues.data.map(issue => issue.title).join(', ');
             core.info(`Open issue titles: ${openIssueTitles}`);
-            if (openIssues.data.length >= maintenanceIssuesWipLimit) {
-              core.setFailed(`There are already ${maintenanceIssuesWipLimit} open issues with the label '${issueSelectionLabel}'.`);
+            if (openIssues.data.length >= featureDevelopmentIssuesWipLimit) {
+              core.setFailed(`There are already ${featureDevelopmentIssuesWipLimit} open issues with the label '${issueSelectionLabel}'.`);
             }
             
             if (!apiKey) { 
