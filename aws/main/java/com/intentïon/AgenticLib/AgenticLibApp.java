@@ -61,6 +61,7 @@ public class AgenticLibApp {
         S3SqsBridgeStack s3SqsBridgeStack = S3SqsBridgeStack.Builder.create(app, "S3SqsBridgeStack")
                 // TODO: LogGroup retention periods
                 .s3BucketName(agenticLibStack.s3BucketName)
+                .s3WriterRoleName(agenticLibStack.s3BucketWriterRoleName)
                 // TODO: S3 LogGroup prefix
                 // TODO: S3 bucket enable/disable cloudtrail
                 .s3ObjectPrefix(System.getenv("OBJECT_PREFIX"))

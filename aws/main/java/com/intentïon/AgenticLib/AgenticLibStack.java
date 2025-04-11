@@ -35,6 +35,7 @@ import java.util.Map;
 public class AgenticLibStack extends Stack {
 
     public IBucket eventsBucket;
+    public String s3BucketWriterRoleName;
     public LogGroup eventsBucketLogGroup;
     public Trail eventsBucketTrail;
     public Role s3EventsAccessRole;
@@ -214,7 +215,7 @@ public class AgenticLibStack extends Stack {
         this.s3ObjectPrefix = this.getConfigValue(builder.s3ObjectPrefix, "s3ObjectPrefix");
         this.s3UseExistingBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3UseExistingBucket), "s3UseExistingBucket"));
         this.s3RetainBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3RetainBucket), "s3RetainBucket"));
-        String s3BucketWriterRoleName = this.getConfigValue(builder.s3BucketWriterRoleName, "s3BucketWriterRoleName");
+        this.s3BucketWriterRoleName = this.getConfigValue(builder.s3BucketWriterRoleName, "s3BucketWriterRoleName");
         this.s3WebsiteBucketName = this.getConfigValue(builder.s3WebsiteBucketName, "s3WebsiteBucketName");
         this.s3UseExistingWebsiteBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3UseExistingWebsiteBucket), "s3UseExistingWebsiteBucket"));
         this.s3RetainWebsiteBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3RetainWebsiteBucket), "s3RetainWebsiteBucket"));
