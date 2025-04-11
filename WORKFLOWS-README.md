@@ -472,7 +472,7 @@ npx cdk destroy
 ```bash
 
 aws logs delete-log-group \
-  --log-group-name "/aws/s3/agentic-lib-bucket"
+  --log-group-name "/aws/s3/agentic-lib-telemetry-bucket"
 aws logs delete-log-group \
   --log-group-name "/aws/lambda/agentic-lib-digest-function"
 ```
@@ -503,8 +503,8 @@ AgenticLibStack: creating CloudFormation changeset...
 Outputs:
 AgenticLibStack.DigestLambdaArn = arn:aws:lambda:eu-west-2:541134664601:function:agentic-lib-digest-function
 AgenticLibStack.DigestQueueUrl = https://sqs.eu-west-2.amazonaws.com/541134664601/agentic-lib-digest-queue
-AgenticLibStack.EventsBucketArn = arn:aws:s3:::agentic-lib-bucket
-AgenticLibStack.EventsS3AccessRoleArn = arn:aws:iam::541134664601:role/agentic-lib-bucket-writer-role
+AgenticLibStack.EventsBucketArn = arn:aws:s3:::agentic-lib-telemetry-bucket
+AgenticLibStack.EventsS3AccessRoleArn = arn:aws:iam::541134664601:role/agentic-lib-telemetry-bucket-writer-role
 AgenticLibStack.digestLambdaFunctionName = agentic-lib-digest-function (Source: CDK context.)
 AgenticLibStack.digestLambdaHandlerFunctionName = digestLambdaHandler (Source: CDK context.)
 ...truncated...
@@ -520,22 +520,22 @@ arn:aws:cloudformation:eu-west-2:541134664601:stack/AgenticLibStack/62d89c60-0f6
 Write to S3 (2 keys, 2 times each, interleaved):
 ```bash
 
-aws s3 ls agentic-lib-bucket/events/
+aws s3 ls agentic-lib-telemetry-bucket/events/
 for value in $(seq 1 2); do
   for id in $(seq 1 2); do
     echo "{\"id\": \"${id?}\", \"value\": \"$(printf "%010d" "${value?}")\"}" > "${id?}.json"
-    aws s3 cp "${id?}.json" s3://agentic-lib-bucket/events/"${id?}.json"
+    aws s3 cp "${id?}.json" s3://agentic-lib-telemetry-bucket/events/"${id?}.json"
   done
 done
-aws s3 ls agentic-lib-bucket/events/
+aws s3 ls agentic-lib-telemetry-bucket/events/
 ```
 
 Output:
 ```
-upload: ./1.json to s3://agentic-lib-bucket/events/1.json    
-upload: ./1.json to s3://agentic-lib-bucket/events/1.json   
+upload: ./1.json to s3://agentic-lib-telemetry-bucket/events/1.json    
+upload: ./1.json to s3://agentic-lib-telemetry-bucket/events/1.json   
 ...
-upload: ./2.json to s3://agentic-lib-bucket/events/2.json   
+upload: ./2.json to s3://agentic-lib-telemetry-bucket/events/2.json   
 2025-03-19 23:47:07         31 1.json
 2025-03-19 23:52:12         31 2.json
 ```
@@ -544,7 +544,7 @@ List the versions of all s3 objects:
 ```bash
 
 aws s3api list-object-versions \
-  --bucket agentic-lib-bucket \
+  --bucket agentic-lib-telemetry-bucket \
   --prefix events/ \
   | jq -r '.Versions[] | "\(.LastModified) \(.Key) \(.VersionId) \(.IsLatest)"' \
   | head -5 \
@@ -644,10 +644,10 @@ Supervisor:
 - [x] Scan the rejects (names) and avoid adding similar features.
 - [x] Dashboard metrics from s3 into the existing all stats dashboard.
 - [x] remove urls from the bottom of the stats pages
-- [~] fix deployment
-- [~] change stats assume role to agentic-lib-bucket-writer-role
-- [~] copy website and stats json files to the bucket agentic-lib-public-website-stats-bucket
-- [~] rename agentic-lib-bucket to agentic-lib-telemetry-bucket
+- [x] fix deployment
+- [x] change stats assume role to agentic-lib-bucket-writer-role
+- [x] copy website and stats json files to the bucket agentic-lib-public-website-stats-bucket
+- [x] rename agentic-lib-bucket to agentic-lib-telemetry-bucket
 - [ ] Add a NaN filter to stop any NaN issues from being created.
 - [ ] create an issue WIP limit in agentic-lib.yml
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix).

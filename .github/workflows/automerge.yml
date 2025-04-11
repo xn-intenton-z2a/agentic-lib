@@ -212,7 +212,7 @@ jobs:
       cache: 'npm'
       npmAuthOrganisation: '@xn-intenton-z2a'
       public: 'public'
-      s3BucketUrl: 's3://agentic-lib-bucket/events/'
+      s3BucketUrl: 's3://agentic-lib-telemetry-bucket/events/'
       s3WebsiteBucketUrl: 's3://agentic-lib-public-website-stats-bucket/'
       iamActionsRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role'
       iamStatsBucketWriterRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role'

@@ -154,7 +154,7 @@ Run the Docker container with a shell instead of the default entrypoint:
 
 docker build -t agentic-lib .
 docker run -it \
-  --env BUCKET_NAME='agentic-lib-bucket-local' \
+  --env BUCKET_NAME='agentic-lib-telemetry-bucket-local' \
   --env OBJECT_PREFIX='events/' \
   --env REPLAY_QUEUE_URL='http://sqs.eu-west-2.localhost.localstack.cloud:4566/000000000000/agentic-lib-replay-queue-local' \
   --env AWS_ENDPOINT='http://localhost:4566' \

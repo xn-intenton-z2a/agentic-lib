@@ -14,7 +14,7 @@ services:
     container_name: agentic-lib
     entrypoint: ["npm", "run", "replay"]
     environment:
-      BUCKET_NAME: agentic-lib-bucket-local
+      BUCKET_NAME: agentic-lib-telemetry-bucket-local
       OBJECT_PREFIX: events/
       REPLAY_QUEUE_URL: http://sqs.eu-west-2.localhost.localstack.cloud:4566/000000000000/agentic-lib-replay-queue-local
       AWS_REGION: eu-west-2

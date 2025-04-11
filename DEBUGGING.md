@@ -79,12 +79,12 @@ S3SqsBridgeStack: creating CloudFormation changeset...
 ✨  Deployment time: 105.48s
 
 Outputs:
-S3SqsBridgeStack.BucketArn = arn:aws:s3:::agentic-lib-bucket
+S3SqsBridgeStack.BucketArn = arn:aws:s3:::agentic-lib-telemetry-bucket
 S3SqsBridgeStack.OffsetsTableArn = arn:aws:dynamodb:eu-west-2:541134664601:table/offsets
 S3SqsBridgeStack.OneOffJobLambdaArn = arn:aws:lambda:eu-west-2:541134664601:function:replayBatchLambdaHandler
 S3SqsBridgeStack.ReplayQueueUrl = https://sqs.eu-west-2.amazonaws.com/541134664601/agentic-lib-replay-queue
 ...truncated...
-S3SqsBridgeStack.s3BucketName = agentic-lib-bucket (Source: CDK context.)
+S3SqsBridgeStack.s3BucketName = agentic-lib-telemetry-bucket (Source: CDK context.)
 S3SqsBridgeStack.s3ObjectPrefix = events/ (Source: CDK context.)
 S3SqsBridgeStack.s3RetainBucket = false (Source: CDK context.)
 S3SqsBridgeStack.s3UseExistingBucket = false (Source: CDK context.)
@@ -98,22 +98,22 @@ arn:aws:cloudformation:eu-west-2:541134664601:stack/S3SqsBridgeStack/30cf37a0-05
 Write to S3 (2 keys, 2 times each, interleaved):
 ```bash
 
-aws s3 ls agentic-lib-bucket/events/
+aws s3 ls agentic-lib-telemetry-bucket/events/
 for value in $(seq 1 2); do
   for id in $(seq 1 2); do
     echo "{\"id\": \"${id?}\", \"value\": \"$(printf "%010d" "${value?}")\"}" > "${id?}.json"
-    aws s3 cp "${id?}.json" s3://agentic-lib-bucket/events/"${id?}.json"
+    aws s3 cp "${id?}.json" s3://agentic-lib-telemetry-bucket/events/"${id?}.json"
   done
 done
-aws s3 ls agentic-lib-bucket/events/
+aws s3 ls agentic-lib-telemetry-bucket/events/
 ```
 
 Output:
 ```
-upload: ./1.json to s3://agentic-lib-bucket/events/1.json    
-upload: ./1.json to s3://agentic-lib-bucket/events/1.json   
+upload: ./1.json to s3://agentic-lib-telemetry-bucket/events/1.json    
+upload: ./1.json to s3://agentic-lib-telemetry-bucket/events/1.json   
 ...
-upload: ./2.json to s3://agentic-lib-bucket/events/2.json   
+upload: ./2.json to s3://agentic-lib-telemetry-bucket/events/2.json   
 2025-03-19 23:47:07         31 1.json
 2025-03-19 23:52:12         31 2.json
 ```
@@ -122,7 +122,7 @@ List the versions of all s3 objects:
 ```bash
 
 aws s3api list-object-versions \
-  --bucket agentic-lib-bucket \
+  --bucket agentic-lib-telemetry-bucket \
   --prefix events/ \
   | jq -r '.Versions[] | "\(.LastModified) \(.Key) \(.VersionId) \(.IsLatest)"' \
   | head -5 \
@@ -178,7 +178,7 @@ List the versions of one s3 object:
 ```bash
 
 aws s3api list-object-versions \
-  --bucket agentic-lib-bucket \
+  --bucket agentic-lib-telemetry-bucket \
   --prefix events/1.json \
   | jq -r '.Versions[] | "\(.LastModified) \(.VersionId)"' \
   | head -5 \
@@ -236,7 +236,7 @@ Delete log groups:
 ```bash
 
 aws logs delete-log-group \
-  --log-group-name "/aws/s3/agentic-lib-bucket"
+  --log-group-name "/aws/s3/agentic-lib-telemetry-bucket"
 aws logs delete-log-group \
   --log-group-name "/aws/lambda/agentic-lib-digest-function"
 ```
