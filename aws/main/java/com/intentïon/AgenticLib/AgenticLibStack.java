@@ -35,6 +35,7 @@ import java.util.Map;
 public class AgenticLibStack extends Stack {
 
     public IBucket eventsBucket;
+    public String githubActionsArnPrinciple;
     public String s3BucketWriterRoleName;
     public LogGroup eventsBucketLogGroup;
     public Trail eventsBucketTrail;
@@ -210,7 +211,7 @@ public class AgenticLibStack extends Stack {
     public AgenticLibStack(Construct scope, String id, StackProps props, AgenticLibStack.Builder builder) {
         super(scope, id, props);
 
-        String githubActionsArnPrinciple = this.getConfigValue(builder.githubActionsArnPrinciple, "githubActionsArnPrinciple");
+        this.githubActionsArnPrinciple = this.getConfigValue(builder.githubActionsArnPrinciple, "githubActionsArnPrinciple");
         this.s3BucketName = this.getConfigValue(builder.s3BucketName, "s3BucketName");
         this.s3ObjectPrefix = this.getConfigValue(builder.s3ObjectPrefix, "s3ObjectPrefix");
         this.s3UseExistingBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3UseExistingBucket), "s3UseExistingBucket"));

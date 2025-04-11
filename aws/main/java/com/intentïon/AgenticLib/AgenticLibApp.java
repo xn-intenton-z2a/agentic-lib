@@ -62,6 +62,7 @@ public class AgenticLibApp {
                 // TODO: LogGroup retention periods
                 .s3BucketName(agenticLibStack.s3BucketName)
                 .s3WriterRoleName(agenticLibStack.s3BucketWriterRoleName)
+                .s3WriterArnPrinciple(agenticLibStack.githubActionsArnPrinciple)
                 // TODO: S3 LogGroup prefix
                 // TODO: S3 bucket enable/disable cloudtrail
                 .s3ObjectPrefix(System.getenv("OBJECT_PREFIX"))
