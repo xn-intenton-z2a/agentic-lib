@@ -270,6 +270,8 @@ public class AgenticLibStack extends Stack {
                         this.eventsBucket.getBucketArn() + "/" + s3ObjectPrefix + "*"
                 ))
                 .build();
+        // Add a trust policy to the role to allow the GitHub Actions ARN principle to assume the role
+
         this.s3EventsAccessRole = Role.Builder.create(this, "EventsS3AccessRole")
                 .roleName(s3BucketWriterRoleName)
                 .assumedBy(new ArnPrincipal(githubActionsArnPrinciple))
@@ -325,6 +327,7 @@ public class AgenticLibStack extends Stack {
                         this.websiteBucket.getBucketArn() + "/*"
                 ))
                 .build();
+        // Add a trust policy to the role to allow the GitHub Actions ARN principle to assume the role
         this.s3WebsiteAccessRole = Role.Builder.create(this, "S3WebsiteAccessRole")
                 .roleName(s3WebsiteBucketWriterRoleName)
                 .assumedBy(new ArnPrincipal(githubActionsArnPrinciple))
