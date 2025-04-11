@@ -280,12 +280,12 @@ jobs:
         shell: bash
         run: |
           s3WebsiteBucketUrl='${{ env.s3WebsiteBucketUrl }}'
-          bucket=$(echo "$s3WebsiteBucketUrl" | sed -e 's|s3://||' -e 's|/$||')
-          baseUrl="http://${bucket}.s3-website.eu-west-2.amazonaws.com/"
-          allIntentïonRespositoryStatsUrl="${baseUrl?}"
-          echo "${allIntentïonRespositoryStatsUrl?}"
-          echo "::notice:: allIntentïonRespositoryStatsUrl: ${allIntentïonRespositoryStatsUrl?}"
-          echo "allIntentïonRespositoryStatsUrl=${allIntentïonRespositoryStatsUrl?}" >> $GITHUB_OUTPUT
+          bucket=$(echo "${s3WebsiteBucketUrl?}" | sed -e 's|s3://||' -e 's|/$||')
+          baseUrl="http://${bucket?}.s3-website.eu-west-2.amazonaws.com/"
+          allRespositoryStatsUrl="${baseUrl?}"
+          echo "${allRespositoryStatsUrl?}"
+          echo "::notice:: allRespositoryStatsUrl: ${allRespositoryStatsUrl?}"
+          echo "allRespositoryStatsUrl=${allRespositoryStatsUrl?}" >> $GITHUB_OUTPUT
 
       - name: Upload JSON stats artifact to GitHub
         uses: actions/upload-artifact@v4
