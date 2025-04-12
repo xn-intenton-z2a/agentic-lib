@@ -4,7 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: Automerge
-concurrency: agentic-lib
+concurrency: agentic-lib-commit
 run-name: "Automerge [${{ github.ref_name }}]"
 
 on:
@@ -18,9 +18,9 @@ on:
     types:
       - completed
   schedule:
-    - cron: '30 */4 * * *' # schedule-1
+    #- cron: '30 */4 * * *' # schedule-1
     #- cron: '*/30 * * * *' # schedule-2
-    #- cron: '*/10 * * * *' # schedule-3
+    - cron: '*/10 * * * *' # schedule-3
 
 env:
   pullRequestLabel: 'automerge'
@@ -200,6 +200,7 @@ jobs:
     with:
       pullNumber: ${{ needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber || '' }}
       branchPrefix: 'agentic-lib-issue-'
+      removeAllLabels: 'true'
 
   stats:
     needs:

@@ -29,15 +29,15 @@ on:
         required: false
         type: string
         default: 'tests/unit/main.test.js'
-  workflow_run:
-    workflows:
-      - "Automerge"
-    types:
-      - completed
+  #workflow_run:
+  #  workflows:
+  #    - "Automerge"
+  #  types:
+  #    - completed
   schedule:
-    - cron: '45 */6 * * *' # schedule-1
+    #- cron: '45 */6 * * *' # schedule-1
     #- cron: '0 * * * *' # schedule-2
-    #- cron: '*/30 * * * *' # schedule-3
+    - cron: '*/30 * * * *' # schedule-3
 
 jobs:
 

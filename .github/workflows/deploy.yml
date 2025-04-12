@@ -5,7 +5,7 @@
 
 name: Deploy
 run-name: 'Deploy to AWS [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
-concurrency: agentic-lib
+concurrency: agentic-lib-deploy
 
 on:
   #push:

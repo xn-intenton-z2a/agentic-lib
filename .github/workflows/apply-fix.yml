@@ -4,7 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: Apply Fix on Fail
-concurrency: agentic-lib
+concurrency: agentic-lib-commit
 run-name: "Apply Fix on Fail [${{ github.ref_name }}]"
 
 on:
@@ -30,18 +30,18 @@ on:
         required: false
         type: boolean
         default: false
-  workflow_run:
-    workflows:
-      - 'Tests'
-      - 'Issue Worker'
-    types:
-      - completed
-    branches:
-      - agentic-lib-*
+  #workflow_run:
+  #  workflows:
+  #    - 'Tests'
+  #    - 'Issue Worker'
+  #  types:
+  #    - completed
+  #  branches:
+  #    - agentic-lib-*
   schedule:
-    - cron: '0 */4 * * *' # schedule-1
+    #- cron: '0 */4 * * *' # schedule-1
     #- cron: '*/30 * * * *' # schedule-2
-    #- cron: '*/10 * * * *' # schedule-3
+    - cron: '*/10 * * * *' # schedule-3
 
 jobs:
 
