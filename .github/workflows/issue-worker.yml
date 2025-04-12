@@ -32,7 +32,8 @@ on:
         default: 'automated'
   workflow_run:
     workflows:
-      - "Create Issue"
+      - "Create Feature Development Issue"
+      - "Create Maintenance Issue"
       - "Linting"
     types:
       - completed

@@ -83,9 +83,9 @@ on:
       PERSONAL_ACCESS_TOKEN:
         required: false
     outputs:
-      thisRespositoryStatsUrl:
+      thisRepositoryStatsUrl:
         description: 'The URL of the latest stats page. e.g. "https://xn-intenton-z2a.github.io/agentic-lib/latest.html"'
-        value: ${{ jobs.stats.outputs.thisRespositoryStatsUrl }}
+        value: ${{ jobs.stats.outputs.thisRepositoryStatsUrl }}
 
 jobs:
   stats:
@@ -100,6 +100,9 @@ jobs:
       iamStatsBucketWriterRoleArn: ${{ inputs.iamStatsBucketWriterRoleArn || '' }}
       iamPublicWebsiteStatsBucketWriterRoleArn: ${{ inputs.iamPublicWebsiteStatsBucketWriterRoleArn || '' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
+      lastActivityName: ${{ inputs.lastActivityName || github.workflow }}
+      lastActivityBranchName: ${{ inputs.lastActivityBranchName || github.ref_name }}
+      lastActivityTimestamp: ${{ inputs.lastActivityTimestamp || github.run_started_at }}
 
     steps:
       - uses: actions/checkout@v4
@@ -559,16 +562,16 @@ jobs:
           repoName=${{ github.event.repository.name }}
           owner=${{ github.repository_owner }}
           baseUrl="https://${owner}.github.io/${repoName}"
-          thisRespositoryStatsUrl="${baseUrl}/latest.html"
+          thisRepositoryStatsUrl="${baseUrl}/latest.html"
           pwd
           echo "${{ env.public }}:"
           ls -larth "${{ env.public }}"
           echo "${{ env.public }}/latest.html:"
           ls -larth "${{ env.public }}/latest.html"
-          echo "::notice:: thisRespositoryStatsUrl: ${thisRespositoryStatsUrl}"
-          echo "thisRespositoryStatsUrl=${thisRespositoryStatsUrl}" >> $GITHUB_OUTPUT
+          echo "::notice:: thisRepositoryStatsUrl: ${thisRepositoryStatsUrl}"
+          echo "thisRepositoryStatsUrl=${thisRepositoryStatsUrl}" >> $GITHUB_OUTPUT
 
     outputs:
-      thisRespositoryStatsUrl: ${{ steps.output-pages-urls.outputs.thisRespositoryStatsUrl }}
+      thisRepositoryStatsUrl: ${{ steps.output-pages-urls.outputs.thisRepositoryStatsUrl }}
       websiteBucketUrl: ${{ steps.output-website-bucket-urls.outputs.allStatsUrl }}
 
