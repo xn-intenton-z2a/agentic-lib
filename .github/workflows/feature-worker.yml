@@ -16,10 +16,9 @@ on:
         type: string
         default: 'house choice'
   schedule:
-    - cron: '0 0 1 */6 *' # schedule-1
-    #- cron: '0 0 */28 * *' # schedule-2
+    #- cron: '0 0 */28 * *' # schedule-1
     #- cron: '0 0 */7 * *' # schedule-3
-    #- cron: '*/5 * * * *'
+    - cron: '0 4 * * *' # schedule-3
 
 jobs:
 
@@ -47,7 +46,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@3.6.0'
     with:
       feature: ${{ inputs.feature }}
       featuresDir: 'features/'
@@ -77,7 +76,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.6.0'
     with:
       cache: 'npm'
       npmAuthOrganisation: '@xn-intenton-z2a'
