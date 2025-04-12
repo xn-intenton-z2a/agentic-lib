@@ -49,8 +49,10 @@ This repository is organized into three distinct areas to help you understand th
 ### 3. The Evolving main.js (JavaScript re‑implementation of Re‑usable Workflows)
 - **Purpose:**  
   This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality. It now also tracks each successful invocation of the agentic command using an internal counter for improved observability.
+- **Batch Processing:**
+  The `agenticHandler` function now supports batch processing. You can pass a payload with a `commands` property containing an array of command strings. Each command is validated and processed sequentially. On success, each command is individually logged and the global invocation counter (`globalThis.callCount`) is incremented accordingly. The aggregated response contains a list of individual results.
 - **Note on Prompt Validity:**
-  The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. Please ensure your JSON payload includes a valid, non-empty string in the 'command' field.
+  The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. Please ensure your JSON payload includes a valid, non-empty string in the 'command' field or a valid array in the 'commands' field.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
@@ -62,7 +64,7 @@ This repository is organized into three distinct areas to help you understand th
 
 ## Agentic Library Functions
 
-A new set of agentic library functions have been implemented to enable autonomous workflow invocation. The primary function, `agenticHandler`, processes a JSON payload containing a command, validates the input, logs the command using the existing logging mechanisms, and returns a processed response. Importantly, each successful invocation of `agenticHandler` increments an internal counter (globalThis.callCount) which can be used to monitor usage and assist in debugging.
+A new set of agentic library functions have been implemented to enable autonomous workflow invocation. The primary function, `agenticHandler`, processes a JSON payload containing either a single command or a batch of commands. When using batch processing, supply a JSON payload with a `commands` array property. Each command is validated and processed, and an aggregated response with individual results is returned.
 
 It can be invoked directly via the CLI using the `--agentic` flag followed by a JSON payload, e.g.,
 
@@ -70,11 +72,17 @@ It can be invoked directly via the CLI using the `--agentic` flag followed by a 
 node src/lib/main.js --agentic '{"command": "doSomething"}'
 ```
 
+Or for batch processing:
+
+```
+node src/lib/main.js --agentic '{"commands": ["cmd1", "cmd2"]}'
+```
+
 Additionally, the CLI now supports additional commands:
 
 - `--version`: Displays version information from package.json along with a timestamp.
 - `--diagnostics`: Outputs detailed diagnostic information including configuration and Node.js environment details.
-- `--status`: Outputs a JSON-formatted runtime health summary, including the current configuration, Node.js version, global invocation counter (callCount), uptime, and key environment variables.
+- `--status`: Outputs a JSON-formatted runtime health summary, including the current configuration, Node.js version, global invocation counter (`callCount`), uptime, and key environment variables.
 
 ---
 
@@ -101,7 +109,7 @@ The CLI provides several flags to manage the library's operation:
 - **--digest:**
   - Initiates the processing of a sample digest by creating a simulated SQS event and handling it through the AWS-integrated lambda handler.
 - **--agentic:**
-  - Processes an agentic command by passing a JSON payload to `agenticHandler` (and increments the internal invocation counter). **Note:** Only actionable prompts are processed; non-actionable inputs are logged as errors and no further processing occurs.
+  - Processes an agentic command. Supply a payload with either a single `command` property or a `commands` array for batch processing. Each valid command increments the internal invocation counter.
 - **--version:**
   - Displays version information from package.json along with a timestamp in JSON format.
 - **--verbose:**
