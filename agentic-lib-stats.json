@@ -13,13 +13,13 @@
   "diffMinutes": 0,
   "diffMinutesMain": 0,
   "commitsLastHour": 15,
-  "commitsLastDay": 75,
+  "commitsLastDay": 76,
   "lastFiveCommitMessages": [
+    "[17:28] - Update PR details handling and repository stats\n\nSimplified open...",
     "[17:22] - Update PR details handling and repository stats\n\nSimplified open...",
     "[17:01] - 3.7.1-0",
     "[16:55] - 3.7.1-0",
-    "[16:55] - 3.7.0",
-    "[16:54] - Update version to 3.6.8-0 in package.json and pom.xml\n\nBump the ..."
+    "[16:55] - 3.7.0"
   ],
   "branches": {
     "count": 0,
@@ -28,5 +28,5 @@
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-12T17:22:46.023Z"
+  "statsGeneratedAt": "2025-04-12T17:29:20.374Z"
 }
