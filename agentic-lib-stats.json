@@ -8,10 +8,18 @@
   "openPRs": 0,
   "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 0,
-  "commitsLastHour": 5,
-  "commitsLastDay": 35,
+  "diffMinutesMain": 4,
+  "commitsLastHour": 7,
+  "commitsLastDay": 37,
   "lastFiveCommitMessages": [
+    {
+      "time": "11:13",
+      "message": "Update PR display to include title and age in stats\n\nModified th..."
+    },
+    {
+      "time": "11:07",
+      "message": "Update PR display to include title and age in stats\n\nModified th..."
+    },
     {
       "time": "11:03",
       "message": "3.6.2-0"
@@ -23,22 +31,19 @@
     {
       "time": "10:58",
       "message": "3.6.2-0"
-    },
-    {
-      "time": "10:58",
-      "message": "3.6.1"
-    },
-    {
-      "time": "10:57",
-      "message": "Update workflow schedules and standardize dependency versions\n\nR..."
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1000",
+        "minutesSinceLastCommit": 0
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T11:04:02.796Z"
+  "generatedAt": "2025-04-12T11:17:19.545Z"
 }
