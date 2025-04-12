@@ -215,7 +215,7 @@ jobs:
               },
               testStatusOnBranch: "PASS", // Placeholder
               testsLastPassedMinutes: 15, // Placeholder
-              generatedAt: now.toISOString()
+              statsGeneratedAt: now.toISOString()
             };
 
             // Write JSON file
