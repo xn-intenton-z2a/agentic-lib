@@ -95,9 +95,9 @@ jobs:
       public: ${{ inputs.public || 'public' }}
       cache: ${{ inputs.cache || 'npm' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
-      lastActivityName: ${{ inputs.lastActivityName || github.workflow }}
-      lastActivityBranchName: ${{ inputs.lastActivityBranchName || github.ref_name }}
-      lastActivityTimestamp: ${{ inputs.lastActivityTimestamp || github.run_started_at }}
+      lastActivityName: ${{ inputs.lastActivityName || '' }}
+      lastActivityBranchName: ${{ inputs.lastActivityBranchName || '' }}
+      lastActivityTimestamp: ${{ inputs.lastActivityTimestamp || '' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       s3WebsiteBucketUrl: ${{ inputs.s3WebsiteBucketUrl || '' }}
       iamActionsRoleArn: ${{ inputs.iamActionsRoleArn || '' }}
