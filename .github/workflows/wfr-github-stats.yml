@@ -328,7 +328,7 @@ jobs:
         run: |
           aws s3 cp \
               ${{ steps.generate-json.outputs.jsonStatsPath }}  \
-              ${{ env.s3WebsiteBucketUrl }}}${{ github.event.repository.name }}-stats.json \
+              ${{ env.s3WebsiteBucketUrl }}${{ github.event.repository.name }}-stats.json \
           ;
           aws s3 cp \
               ${{ env.public }}/stats.html \
