@@ -2,31 +2,33 @@
   "owner": "xn-intenton-z2a",
   "repo": "agentic-lib",
   "engine": "schedule-1",
-  "lastActivityName": "Stats",
+  "lastActivityName": "Tests",
   "lastActivityBranchName": "main",
+  "nextIssue": "",
   "openIssues": 0,
   "issuesClosedLastHour": 0,
   "issuesClosedLastDay": 21,
   "openPRs": 0,
   "averagePRAge": 0,
   "prDetails": [],
-  "diffMinutes": 14,
-  "diffMinutesMain": 20,
-  "commitsLastHour": 5,
-  "commitsLastDay": 70,
+  "diffMinutes": 0,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 11,
+  "commitsLastDay": 76,
   "lastFiveCommitMessages": [
-    "[18:44] - 3.7.2-0",
-    "[18:40] - Enable primary cron schedules and comment out unused ones\n\nRevis...",
-    "[18:40] - 3.7.2-0",
-    "[18:40] - 3.7.1",
-    "[18:39] - Update workflows: adjust concurrency keys and modify schedules\n\n..."
+    "[19:24] - Fix missing return statement in GitHub stats workflow\n\nA return ...",
+    "[19:21] - Fix typo in S3 upload URL in GitHub Actions workflow\n\nCorrected ...",
+    "[19:19] - Fix issueLabels output reference in workflow file\n\nCorrected the...",
+    "[19:12] - Fix issueLabels output reference in workflow file\n\nCorrected the...",
+    "[19:11] - Update stats workflow to use `needs` context for `nextIssue`\n\nRe..."
   ],
   "branches": {
     "count": 0,
     "details": [],
+    "branchIssueDetails": [],
     "averageBranchAge": 0
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-12T19:05:16.915Z"
+  "statsGeneratedAt": "2025-04-12T19:24:38.282Z"
 }
