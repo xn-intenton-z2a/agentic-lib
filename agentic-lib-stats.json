@@ -11,8 +11,8 @@
   "averagePRAge": 0,
   "prDetails": [],
   "diffMinutes": 9,
-  "diffMinutesMain": 10,
-  "commitsLastHour": 12,
+  "diffMinutesMain": 20,
+  "commitsLastHour": 8,
   "commitsLastDay": 76,
   "lastFiveCommitMessages": [
     "[17:28] - Update PR details handling and repository stats\n\nSimplified open...",
@@ -28,5 +28,5 @@
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-12T17:39:22.307Z"
+  "statsGeneratedAt": "2025-04-12T17:49:13.119Z"
 }
