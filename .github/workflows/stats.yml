@@ -22,7 +22,7 @@ jobs:
     with:
       cache: 'npm'
       npmAuthOrganisation: '@xn-intenton-z2a'
-      lastActivityName: ${{ github.workflow }}-${{ github.event_name }}-${{ github.run_id }}
+      lastActivityName: ${{ github.workflow }}
       lastActivityBranchName: ${{ github.ref_name }}
       lastActivityTimestamp: ${{ github.run_started_at }}
       public: 'public'
