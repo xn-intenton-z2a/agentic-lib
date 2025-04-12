@@ -43,6 +43,7 @@ describe("Main Module Import", () => {
   });
 });
 
+
 describe("digestLambdaHandler", () => {
   test("handles missing messageId by using a fallback identifier", async () => {
     const recordWithoutMessageId = {
@@ -53,6 +54,7 @@ describe("digestLambdaHandler", () => {
     expect(result.batchItemFailures[0].itemIdentifier).toMatch(/^fallback-/);
   });
 });
+
 
 describe("CLI Diagnostics Mode", () => {
   test("prints diagnostics information and exits immediately when --diagnostics flag is provided", async () => {
@@ -70,6 +72,7 @@ describe("CLI Diagnostics Mode", () => {
     consoleSpy.mockRestore();
   });
 });
+
 
 describe("CLI Version Flag", () => {
   test("outputs version information and timestamp", async () => {
@@ -89,6 +92,7 @@ describe("CLI Version Flag", () => {
     consoleSpy.mockRestore();
   });
 });
+
 
 describe("agenticHandler", () => {
   test("processes a valid agentic command correctly", async () => {
@@ -112,5 +116,13 @@ describe("agenticHandler", () => {
     const payload = { command: "incrementTest" };
     await agenticLib.agenticHandler(payload);
     expect(globalThis.callCount).toBe(initialCount + 1);
+  });
+
+  test("throws an error and logs when command is non-actionable (NaN)", async () => {
+    await expect(agenticLib.agenticHandler({ command: "NaN" })).rejects.toThrow(/Invalid prompt input/);
+  });
+
+  test("throws an error and logs when command is an empty string", async () => {
+    await expect(agenticLib.agenticHandler({ command: "" })).rejects.toThrow(/Invalid prompt input/);
   });
 });

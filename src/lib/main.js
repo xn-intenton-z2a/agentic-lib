@@ -133,9 +133,17 @@ export async function agenticHandler(payload) {
     if (!payload || typeof payload !== "object") {
       throw new Error("Invalid payload: must be an object");
     }
-    if (!payload.command) {
+    if (!('command' in payload)) {
       throw new Error("Payload must have a 'command' property");
     }
+    
+    // Validate that the command is actionable. It must be a non-empty string and not 'NaN'.
+    if (typeof payload.command !== "string" || payload.command.trim() === "" || payload.command === "NaN") {
+      const errorMsg = "Invalid prompt input: command is non-actionable. Please provide a valid, non-empty string command.";
+      logError(errorMsg);
+      throw new Error(errorMsg);
+    }
+    
     logInfo(`Agentic Handler: processing command ${payload.command}`);
     // Stub processing logic
     const response = {
@@ -172,7 +180,7 @@ export async function main(args = process.argv.slice(2)) {
   // Enable verbose mode if --verbose flag is provided
   if (args.includes("--verbose")) {
     VERBOSE_MODE = true;
-    logInfo("Verbose mode activated.");
+    logInfo("Verbose mode activated.", { verbose: true });
   }
 
   if (args.includes("--diagnostics")) {
