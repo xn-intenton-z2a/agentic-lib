@@ -67,8 +67,10 @@ Look in the <code class="md-github">examples/</code> directory for sample implem
 <ul class="md-github">
 <li class="md-github"><strong class="md-github">Purpose:</strong><br>
 This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality. It now also tracks each successful invocation of the agentic command using an internal counter for improved observability.</li>
+<li class="md-github"><strong class="md-github">Batch Processing:</strong>
+The <code class="md-github">agenticHandler</code> function now supports batch processing. You can pass a payload with a <code class="md-github">commands</code> property containing an array of command strings. Each command is validated and processed sequentially. On success, each command is individually logged and the global invocation counter (<code class="md-github">globalThis.callCount</code>) is incremented accordingly. The aggregated response contains a list of individual results.</li>
 <li class="md-github"><strong class="md-github">Note on Prompt Validity:</strong>
-The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. Please ensure your JSON payload includes a valid, non-empty string in the 'command' field.</li>
+The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. Please ensure your JSON payload includes a valid, non-empty string in the 'command' field or a valid array in the 'commands' field.</li>
 <li class="md-github"><strong class="md-github">Stability:</strong><br>
 It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.</li>
 <li class="md-github"><strong class="md-github">Licensing:</strong><br>
@@ -78,15 +80,18 @@ The code is located in <code class="md-github">src/lib/main.js</code>.</li>
 </ul>
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="agentic-library-functions" href="#agentic-library-functions"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Agentic Library Functions</h2>
-<p class="md-github">A new set of agentic library functions have been implemented to enable autonomous workflow invocation. The primary function, <code class="md-github">agenticHandler</code>, processes a JSON payload containing a command, validates the input, logs the command using the existing logging mechanisms, and returns a processed response. Importantly, each successful invocation of <code class="md-github">agenticHandler</code> increments an internal counter (globalThis.callCount) which can be used to monitor usage and assist in debugging.</p>
+<p class="md-github">A new set of agentic library functions have been implemented to enable autonomous workflow invocation. The primary function, <code class="md-github">agenticHandler</code>, processes a JSON payload containing either a single command or a batch of commands. When using batch processing, supply a JSON payload with a <code class="md-github">commands</code> array property. Each command is validated and processed, and an aggregated response with individual results is returned.</p>
 <p class="md-github">It can be invoked directly via the CLI using the <code class="md-github">--agentic</code> flag followed by a JSON payload, e.g.,</p>
 <pre class="md-github"><code class="md-github">node src/lib/main.js --agentic '{&quot;command&quot;: &quot;doSomething&quot;}'
+</code></pre>
+<p class="md-github">Or for batch processing:</p>
+<pre class="md-github"><code class="md-github">node src/lib/main.js --agentic '{&quot;commands&quot;: [&quot;cmd1&quot;, &quot;cmd2&quot;]}'
 </code></pre>
 <p class="md-github">Additionally, the CLI now supports additional commands:</p>
 <ul class="md-github">
 <li class="md-github"><code class="md-github">--version</code>: Displays version information from package.json along with a timestamp.</li>
 <li class="md-github"><code class="md-github">--diagnostics</code>: Outputs detailed diagnostic information including configuration and Node.js environment details.</li>
-<li class="md-github"><code class="md-github">--status</code>: Outputs a JSON-formatted runtime health summary, including the current configuration, Node.js version, global invocation counter (callCount), uptime, and key environment variables.</li>
+<li class="md-github"><code class="md-github">--status</code>: Outputs a JSON-formatted runtime health summary, including the current configuration, Node.js version, global invocation counter (<code class="md-github">callCount</code>), uptime, and key environment variables.</li>
 </ul>
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="aws-integrations" href="#aws-integrations"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>AWS Integrations</h2>
@@ -123,7 +128,7 @@ The code is located in <code class="md-github">src/lib/main.js</code>.</li>
 </li>
 <li class="md-github"><strong class="md-github">--agentic:</strong>
 <ul class="md-github">
-<li class="md-github">Processes an agentic command by passing a JSON payload to <code class="md-github">agenticHandler</code> (and increments the internal invocation counter). <strong class="md-github">Note:</strong> Only actionable prompts are processed; non-actionable inputs are logged as errors and no further processing occurs.</li>
+<li class="md-github">Processes an agentic command. Supply a payload with either a single <code class="md-github">command</code> property or a <code class="md-github">commands</code> array for batch processing. Each valid command increments the internal invocation counter.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">--version:</strong>
@@ -173,7 +178,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-04-12T11:17:35.213Z</p>
+    <p>Generated on 2025-04-12T11:19:20.771Z</p>
   </footer>
 </body>
 </html>
