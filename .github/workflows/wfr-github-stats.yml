@@ -347,8 +347,8 @@ jobs:
             const ejs = require('ejs');
 
             // Generate HTML contents from ${{ env.public }}/stats.html and the JSON file at ${{ steps.generate-json.outputs.jsonStatsPath }}
-            const jsonFilePath = "${{ steps.generate-json.outputs.jsonStatsPath }}";
-            const jsonData = JSON.parse(fs.readFileSync(jsonFilePath, "utf8"));
+            const statsDataFilePath = "${{ steps.generate-json.outputs.jsonStatsPath }}";
+            const statsData = JSON.parse(fs.readFileSync(statsDataFilePath, "utf8"));
             const htmlEJSTemlatePath = "${{ env.public }}/stats.html";
             const template = fs.readFileSync(htmlEJSTemlatePath, "utf8");
             const html = ejs.render(template, statsData);
