@@ -215,6 +215,7 @@ jobs:
                   issueTitle = issue.title;
                   issueLabels = issue.labels.map(label => label.name).join(', ');
                 }
+              }  
               return { branch: branch.name, issueNumber, issueTitle, issueLabels, minutesSinceLastCommit };
             }));
             const averageBranchAge = branchDetails.length > 0 ? Math.floor(branchDetails.reduce((sum, branch) => sum + branch.minutesSinceLastCommit, 0) / branchDetails.length) : 0;
