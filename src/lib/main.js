@@ -133,27 +133,47 @@ export async function agenticHandler(payload) {
     if (!payload || typeof payload !== "object") {
       throw new Error("Invalid payload: must be an object");
     }
-    if (!('command' in payload)) {
+    
+    // Batch processing if 'commands' property exists
+    if ('commands' in payload) {
+      if (!Array.isArray(payload.commands)) {
+        throw new Error("Payload 'commands' must be an array");
+      }
+      const responses = [];
+      for (const cmd of payload.commands) {
+        if (typeof cmd !== "string" || cmd.trim() === "" || cmd === "NaN") {
+          const errorMsg = "Invalid prompt input in commands: each command must be a valid non-empty string and not 'NaN'";
+          logError(errorMsg);
+          throw new Error(errorMsg);
+        }
+        logInfo(`Agentic Handler: processing command ${cmd}`);
+        responses.push({
+          status: "success",
+          processedCommand: cmd,
+          timestamp: new Date().toISOString()
+        });
+        globalThis.callCount++;
+      }
+      return { status: "success", results: responses };
+    } else if (!('command' in payload)) {
       throw new Error("Payload must have a 'command' property");
+    } else {
+      // Single command processing
+      if (typeof payload.command !== "string" || payload.command.trim() === "" || payload.command === "NaN") {
+        const errorMsg = "Invalid prompt input: command is non-actionable. Please provide a valid, non-empty string command.";
+        logError(errorMsg);
+        throw new Error(errorMsg);
+      }
+      
+      logInfo(`Agentic Handler: processing command ${payload.command}`);
+      const response = {
+        status: "success",
+        processedCommand: payload.command,
+        timestamp: new Date().toISOString()
+      };
+      globalThis.callCount++;
+      return response;
     }
-    
-    // Validate that the command is actionable. It must be a non-empty string and not 'NaN'.
-    if (typeof payload.command !== "string" || payload.command.trim() === "" || payload.command === "NaN") {
-      const errorMsg = "Invalid prompt input: command is non-actionable. Please provide a valid, non-empty string command.";
-      logError(errorMsg);
-      throw new Error(errorMsg);
-    }
-    
-    logInfo(`Agentic Handler: processing command ${payload.command}`);
-    // Stub processing logic
-    const response = {
-      status: "success",
-      processedCommand: payload.command,
-      timestamp: new Date().toISOString()
-    };
-    // Increment global invocation counter
-    globalThis.callCount++;
-    return response;
   } catch (error) {
     logError("Agentic Handler Error", error);
     throw error;

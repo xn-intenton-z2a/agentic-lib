@@ -112,7 +112,7 @@ describe("CLI Status Flag", () => {
   });
 });
 
-describe("agenticHandler", () => {
+describe("agenticHandler Single Command Processing", () => {
   test("processes a valid agentic command correctly", async () => {
     const payload = { command: "doSomething" };
     const response = await agenticLib.agenticHandler(payload);
@@ -142,5 +142,30 @@ describe("agenticHandler", () => {
 
   test("throws an error and logs when command is an empty string", async () => {
     await expect(agenticLib.agenticHandler({ command: "" })).rejects.toThrow(/Invalid prompt input/);
+  });
+});
+
+describe("agenticHandler Batch Processing", () => {
+  test("processes a valid batch of commands correctly", async () => {
+    const payload = { commands: ["command1", "command2", "command3"] };
+    const response = await agenticLib.agenticHandler(payload);
+    expect(response.status).toBe("success");
+    expect(response.results).toHaveLength(3);
+    response.results.forEach((res, i) => {
+      expect(res.status).toBe("success");
+      expect(res.processedCommand).toBe(`command${i+1}`);
+      expect(res.timestamp).toBeDefined();
+    });
+    expect(globalThis.callCount).toBe(3);
+  });
+
+  test("throws an error when commands is not an array", async () => {
+    const payload = { commands: "not-an-array" };
+    await expect(agenticLib.agenticHandler(payload)).rejects.toThrow("Payload 'commands' must be an array");
+  });
+
+  test("throws an error when one of the commands is invalid", async () => {
+    const payload = { commands: ["validCommand", "", "anotherValid"] };
+    await expect(agenticLib.agenticHandler(payload)).rejects.toThrow(/Invalid prompt input in commands/);
   });
 });
