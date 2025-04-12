@@ -2,16 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "agentic-lib",
   "engine": "schedule-1",
-  "openIssues": 2,
-  "issuesClosedLastHour": 0,
-  "issuesClosedLastDay": 15,
+  "openIssues": 1,
+  "issuesClosedLastHour": 2,
+  "issuesClosedLastDay": 17,
   "openPRs": 0,
   "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 204,
-  "commitsLastHour": 0,
-  "commitsLastDay": 28,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 1,
+  "commitsLastDay": 29,
   "lastFiveCommitMessages": [
+    {
+      "time": "04:27",
+      "message": "Clarify handling of non-actionable prompts agenticHandler now lo..."
+    },
     {
       "time": "01:02",
       "message": "Add 'needs' dependencies to 'stats' job in workflows\n\nUpdated va..."
@@ -27,23 +31,14 @@
     {
       "time": "23:44",
       "message": "Merge pull request #992 from xn-intenton-z2a/agentic-lib-issue-9..."
-    },
-    {
-      "time": "23:28",
-      "message": "3.6.1-0"
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-983",
-        "minutesSinceLastCommit": 0
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T04:26:20.287Z"
+  "generatedAt": "2025-04-12T04:27:49.045Z"
 }
