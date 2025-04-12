@@ -336,7 +336,6 @@ jobs:
           name: stats-json
           path: ${{ steps.generate-json.outputs.jsonStatsPath }}
 
-      # TODO: Generate HTML page from JSON stats instead of including the inline HTML.
       - name: Generate HTML page for statistics
         uses: actions/github-script@v7
         with:
