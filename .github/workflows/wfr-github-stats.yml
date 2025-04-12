@@ -350,7 +350,7 @@ jobs:
             const jsonFilePath = "${{ steps.generate-json.outputs.jsonStatsPath }}";
             const jsonData = JSON.parse(fs.readFileSync(jsonFilePath, "utf8"));
             const htmlEJSTemlatePath = "${{ env.public }}/stats.html";
-            const htmlTemplate = fs.readFileSync(htmlEJSTemlatePath, "utf8");
+            const template = fs.readFileSync(htmlEJSTemlatePath, "utf8");
             const html = ejs.render(template, statsData);
               
             // Ensure the output directory exists.
