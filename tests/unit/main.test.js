@@ -35,6 +35,7 @@ beforeAll(async () => {
   agenticLib = await import("../../src/lib/main.js");
 });
 
+
 describe("Main Module Import", () => {
   test("should be non-null", async () => {
     const mainModule = await import("../../src/lib/main.js");
@@ -66,6 +67,25 @@ describe("CLI Diagnostics Mode", () => {
       }
     }
     expect(found).toBe(true);
+    consoleSpy.mockRestore();
+  });
+});
+
+describe("CLI Version Flag", () => {
+  test("outputs version information and timestamp", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await agenticLib.main(["--version"]);
+    expect(consoleSpy).toHaveBeenCalled();
+    const lastCall = consoleSpy.mock.calls[consoleSpy.mock.calls.length - 1][0];
+    let output;
+    try {
+      output = JSON.parse(lastCall);
+    } catch (e) {
+      output = {};
+    }
+    expect(output).toHaveProperty("version");
+    expect(output).toHaveProperty("timestamp");
+    expect(typeof output.version).toBe("string");
     consoleSpy.mockRestore();
   });
 });

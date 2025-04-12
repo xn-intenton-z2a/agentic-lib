@@ -68,6 +68,8 @@ It can be invoked directly via the CLI using the `--agentic` flag followed by a 
 node src/lib/main.js --agentic '{"command": "doSomething"}'
 ```
 
+Additionally, the CLI now supports a `--version` flag which outputs the current package version and a timestamp in JSON format.
+
 The `agenticHandler` function is designed to seamlessly integrate with our AWS SQS, OpenAI, and logging infrastructure, and provides a foundation for future autonomous workflow interactions.
 
 ---
@@ -96,6 +98,8 @@ The CLI provides several flags to manage the library's operation:
   - Initiates the processing of a sample digest by creating a simulated SQS event and handling it through the AWS-integrated lambda handler.
 - **--agentic:**
   - Processes an agentic command by passing a JSON payload to `agenticHandler` (and increments the internal invocation counter).
+- **--version:**
+  - Displays version information from package.json along with a timestamp in JSON format.
 - **--verbose:**
   - Activates detailed logging for debugging purposes.
 - **--diagnostics:**
@@ -115,6 +119,7 @@ No command argument supplied.
       --help                     Show this help message (default)
       --digest                   Run full bucket replay
       --agentic <jsonPayload>    Process an agentic command with a JSON payload
+      --version                  Show version information
       --verbose                  Enable verbose logging
       --diagnostics              Output detailed diagnostic information
 ```
@@ -126,6 +131,7 @@ No command argument supplied.
       --help                     Show this help message (default)
       --digest                   Run full bucket replay
       --agentic <jsonPayload>    Process an agentic command with a JSON payload
+      --version                  Show version information
       --verbose                  Enable verbose logging
       --diagnostics              Output detailed diagnostic information
 ```
@@ -141,6 +147,7 @@ No command argument supplied.
       --help                     Show this help message (default)
       --digest                   Run full bucket replay
       --agentic <jsonPayload>    Process an agentic command with a JSON payload
+      --version                  Show version information
       --verbose                  Enable verbose logging
       --diagnostics              Output detailed diagnostic information
 ```
@@ -149,7 +156,7 @@ No command argument supplied.
 
 ```
 {"level":"info","timestamp":"2025-04-10T12:26:52.533Z","message":"Configuration loaded","config":{}}
-{"level":"info","timestamp":"2025-04-10T12:26:52.540Z","message":"Digest Lambda received event: {\"Records\":[{\"eventVersion\":\"2.0\",\"eventSource\":\"aws:sqs\",\"eventTime\":\"2025-04-10T12:26:52.540Z\",\"eventName\":\"SendMessage\",\"body\":\"{\\\"key\\\":\\\"events/1.json\\\",\\\"value\\\":\\\"12345\\\",\\\"lastModified\\\":\\\"2025-04-10T12:26:52.540Z\\\"}\"}]}"
+{"level":"info","timestamp":"2025-04-10T12:26:52.540Z","message":"Digest Lambda received event: {\"Records\":[{\"eventVersion\":\"2.0\",\"eventSource\":\"aws:sqs\",\"eventTime\":\"2025-04-10T12:26:52.540Z\",\"eventName\":\"SendMessage\",\"body\":\"{\\\"key\\\":\\\"events/1.json\\\",\\\"value\\\":\\\"12345\\\",\\\"lastModified\\\":\\\"2025-04-10T12:26:52.540Z\\\"}\"}]}
 ```
 
 5. Running with the `--agentic` flag:
@@ -160,7 +167,13 @@ No command argument supplied.
 {"status":"success","processedCommand":"doSomething","timestamp":"2025-04-10T12:26:52.600Z"}
 ```
 
-6. Running with the `--diagnostics` flag:
+6. Running with the `--version` flag:
+
+```
+{"version":"3.6.1-0","timestamp":"2025-04-10T12:26:52.600Z"}
+```
+
+7. Running with the `--diagnostics` flag:
 
 ```
 {"level":"info","timestamp":"2025-04-10T12:26:52.533Z","message":"Configuration loaded","config":{}}

@@ -162,6 +162,7 @@ function generateUsage() {
       --help                     Show this help message (default)
       --digest                   Run full bucket replay
       --agentic <jsonPayload>    Process an agentic command with a JSON payload
+      --version                  Show version information
       --verbose                  Enable verbose logging
       --diagnostics              Output detailed diagnostic information
     `;
@@ -192,6 +193,22 @@ export async function main(args = process.argv.slice(2)) {
 
   if (args.includes("--help")) {
     console.log(generateUsage());
+    return;
+  }
+
+  if (args.includes("--version")) {
+    try {
+      const { readFileSync } = await import("fs");
+      const packageJsonPath = new URL("../../package.json", import.meta.url);
+      const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+      const versionInfo = {
+        version: packageJson.version,
+        timestamp: new Date().toISOString()
+      };
+      console.log(JSON.stringify(versionInfo));
+    } catch (error) {
+      logError("Failed to retrieve version", error);
+    }
     return;
   }
 
