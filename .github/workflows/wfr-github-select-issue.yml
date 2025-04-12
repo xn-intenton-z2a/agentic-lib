@@ -59,7 +59,7 @@ on:
         value: ${{ jobs.select-issue.outputs.issueDescription }}
       issueLabels:
         description: 'The issue labels found. e.g. "automated"'
-        value: ${{ steps.select-issue.outputs.issueLabels }}
+        value: ${{ jobs.select-issue.outputs.issueLabels }}
       merged:
         description: 'Set to "true", if the issue has been merged either already or by this process.'
         value: ${{ jobs.select-issue.outputs.merged }}
