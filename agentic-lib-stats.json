@@ -12,14 +12,14 @@
   "prDetails": [],
   "diffMinutes": 0,
   "diffMinutesMain": 0,
-  "commitsLastHour": 5,
-  "commitsLastDay": 78,
+  "commitsLastHour": 4,
+  "commitsLastDay": 75,
   "lastFiveCommitMessages": [
+    "[18:39] - Update workflows: adjust concurrency keys and modify schedules\n\n...",
     "[18:03] - Update GitHub workflows schedules and trigger settings\n\nAdded 'I...",
     "[18:00] - Disable unused cron schedules in GitHub workflows\n\nCommented out...",
     "[17:59] - Update schedule configurations in GitHub workflows\n\nAdjusted cro...",
-    "[17:28] - Update PR details handling and repository stats\n\nSimplified open...",
-    "[17:22] - Update PR details handling and repository stats\n\nSimplified open..."
+    "[17:28] - Update PR details handling and repository stats\n\nSimplified open..."
   ],
   "branches": {
     "count": 0,
@@ -28,5 +28,5 @@
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-12T18:03:48.481Z"
+  "statsGeneratedAt": "2025-04-12T18:39:45.665Z"
 }
