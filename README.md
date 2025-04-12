@@ -49,6 +49,8 @@ This repository is organized into three distinct areas to help you understand th
 ### 3. The Evolving main.js (JavaScript re‑implementation of Re‑usable Workflows)
 - **Purpose:**  
   This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality. It now also tracks each successful invocation of the agentic command using an internal counter for improved observability.
+- **Note on Prompt Validity:**
+  The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. Please ensure your JSON payload includes a valid, non-empty string in the 'command' field.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
@@ -69,8 +71,6 @@ node src/lib/main.js --agentic '{"command": "doSomething"}'
 ```
 
 Additionally, the CLI now supports a `--version` flag which outputs the current package version and a timestamp in JSON format.
-
-The `agenticHandler` function is designed to seamlessly integrate with our AWS SQS, OpenAI, and logging infrastructure, and provides a foundation for future autonomous workflow interactions.
 
 ---
 
@@ -97,88 +97,13 @@ The CLI provides several flags to manage the library's operation:
 - **--digest:**
   - Initiates the processing of a sample digest by creating a simulated SQS event and handling it through the AWS-integrated lambda handler.
 - **--agentic:**
-  - Processes an agentic command by passing a JSON payload to `agenticHandler` (and increments the internal invocation counter).
+  - Processes an agentic command by passing a JSON payload to `agenticHandler` (and increments the internal invocation counter). **Note:** Only actionable prompts are processed; non-actionable inputs are logged as errors and no further processing occurs.
 - **--version:**
   - Displays version information from package.json along with a timestamp in JSON format.
 - **--verbose:**
   - Activates detailed logging for debugging purposes.
 - **--diagnostics:**
   - Outputs an in-depth diagnostic report, including the current configuration, Node.js version, and relevant environment variables.
-
-### CLI Sample Outputs
-
-Below are sample outputs obtained from dry runs of the CLI commands:
-
-1. Running with no arguments:
-
-```
-{"level":"info","timestamp":"2025-04-10T12:26:52.533Z","message":"Configuration loaded","config":{}}
-No command argument supplied.
-
-      Usage:
-      --help                     Show this help message (default)
-      --digest                   Run full bucket replay
-      --agentic <jsonPayload>    Process an agentic command with a JSON payload
-      --version                  Show version information
-      --verbose                  Enable verbose logging
-      --diagnostics              Output detailed diagnostic information
-```
-
-2. Running with the `--help` flag:
-
-```
-      Usage:
-      --help                     Show this help message (default)
-      --digest                   Run full bucket replay
-      --agentic <jsonPayload>    Process an agentic command with a JSON payload
-      --version                  Show version information
-      --verbose                  Enable verbose logging
-      --diagnostics              Output detailed diagnostic information
-```
-
-3. Running with the `--verbose` flag (sample output includes verbose activation message):
-
-```
-{"level":"info","timestamp":"2025-04-10T12:26:52.533Z","message":"Configuration loaded","config":{}}
-{"level":"info","timestamp":"2025-04-10T12:26:52.540Z","message":"Verbose mode activated.","verbose":true}
-No command argument supplied.
-
-      Usage:
-      --help                     Show this help message (default)
-      --digest                   Run full bucket replay
-      --agentic <jsonPayload>    Process an agentic command with a JSON payload
-      --version                  Show version information
-      --verbose                  Enable verbose logging
-      --diagnostics              Output detailed diagnostic information
-```
-
-4. Running with the `--digest` flag:
-
-```
-{"level":"info","timestamp":"2025-04-10T12:26:52.533Z","message":"Configuration loaded","config":{}}
-{"level":"info","timestamp":"2025-04-10T12:26:52.540Z","message":"Digest Lambda received event: {\"Records\":[{\"eventVersion\":\"2.0\",\"eventSource\":\"aws:sqs\",\"eventTime\":\"2025-04-10T12:26:52.540Z\",\"eventName\":\"SendMessage\",\"body\":\"{\\\"key\\\":\\\"events/1.json\\\",\\\"value\\\":\\\"12345\\\",\\\"lastModified\\\":\\\"2025-04-10T12:26:52.540Z\\\"}\"}]}
-```
-
-5. Running with the `--agentic` flag:
-
-```
-{"level":"info","timestamp":"2025-04-10T12:26:52.533Z","message":"Configuration loaded","config":{}}
-{"level":"info","timestamp":"2025-04-10T12:26:52.600Z","message":"Agentic Handler: processing command doSomething"}
-{"status":"success","processedCommand":"doSomething","timestamp":"2025-04-10T12:26:52.600Z"}
-```
-
-6. Running with the `--version` flag:
-
-```
-{"version":"3.6.1-0","timestamp":"2025-04-10T12:26:52.600Z"}
-```
-
-7. Running with the `--diagnostics` flag:
-
-```
-{"level":"info","timestamp":"2025-04-10T12:26:52.533Z","message":"Configuration loaded","config":{}}
-{"level":"info","timestamp":"2025-04-10T12:26:52.545Z","message":"Diagnostics Mode: {\"config\":{},\"nodeVersion\":\"v20.x.x\",\"env\":{\"GITHUB_API_BASE_URL\":\"https://api.github.com.test/\",\"OPENAI_API_KEY\":\"key-test\",\"NODE_ENV\":null,\"VITEST\":null},\"timestamp\":\"2025-04-10T12:26:52.545Z\"}"
-```
 
 ---
 
