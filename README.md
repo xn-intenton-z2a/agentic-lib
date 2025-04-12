@@ -70,7 +70,11 @@ It can be invoked directly via the CLI using the `--agentic` flag followed by a 
 node src/lib/main.js --agentic '{"command": "doSomething"}'
 ```
 
-Additionally, the CLI now supports a `--version` flag which outputs the current package version and a timestamp in JSON format.
+Additionally, the CLI now supports additional commands:
+
+- `--version`: Displays version information from package.json along with a timestamp.
+- `--diagnostics`: Outputs detailed diagnostic information including configuration and Node.js environment details.
+- `--status`: Outputs a JSON-formatted runtime health summary, including the current configuration, Node.js version, global invocation counter (callCount), uptime, and key environment variables.
 
 ---
 
@@ -103,7 +107,9 @@ The CLI provides several flags to manage the library's operation:
 - **--verbose:**
   - Activates detailed logging for debugging purposes.
 - **--diagnostics:**
-  - Outputs an in-depth diagnostic report, including the current configuration, Node.js version, and relevant environment variables.
+  - Outputs an in‑depth diagnostic report, including the current configuration, Node.js version, and relevant environment variables.
+- **--status:**
+  - Outputs a runtime health summary in JSON format including configuration, Node.js version, callCount, uptime, and select environment variables.
 
 ---
 

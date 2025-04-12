@@ -35,14 +35,12 @@ beforeAll(async () => {
   agenticLib = await import("../../src/lib/main.js");
 });
 
-
 describe("Main Module Import", () => {
   test("should be non-null", async () => {
     const mainModule = await import("../../src/lib/main.js");
     expect(mainModule).not.toBeNull();
   });
 });
-
 
 describe("digestLambdaHandler", () => {
   test("handles missing messageId by using a fallback identifier", async () => {
@@ -54,7 +52,6 @@ describe("digestLambdaHandler", () => {
     expect(result.batchItemFailures[0].itemIdentifier).toMatch(/^fallback-/);
   });
 });
-
 
 describe("CLI Diagnostics Mode", () => {
   test("prints diagnostics information and exits immediately when --diagnostics flag is provided", async () => {
@@ -72,7 +69,6 @@ describe("CLI Diagnostics Mode", () => {
     consoleSpy.mockRestore();
   });
 });
-
 
 describe("CLI Version Flag", () => {
   test("outputs version information and timestamp", async () => {
@@ -93,6 +89,28 @@ describe("CLI Version Flag", () => {
   });
 });
 
+describe("CLI Status Flag", () => {
+  test("outputs runtime health summary on --status", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await agenticLib.main(["--status"]);
+    // Find a call that outputs a JSON with expected fields
+    const callArg = consoleSpy.mock.calls.find(c => {
+      try {
+        const parsed = JSON.parse(c[0]);
+        return parsed && parsed.config && parsed.nodeVersion && typeof parsed.callCount !== 'undefined' && typeof parsed.uptime !== 'undefined';
+      } catch (e) {
+        return false;
+      }
+    });
+    expect(callArg).toBeDefined();
+    const output = JSON.parse(callArg[0]);
+    expect(output).toHaveProperty("config");
+    expect(output).toHaveProperty("nodeVersion");
+    expect(output).toHaveProperty("callCount");
+    expect(output).toHaveProperty("uptime");
+    consoleSpy.mockRestore();
+  });
+});
 
 describe("agenticHandler", () => {
   test("processes a valid agentic command correctly", async () => {

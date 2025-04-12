@@ -161,6 +161,26 @@ export async function agenticHandler(payload) {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
+// Status Handler
+// ---------------------------------------------------------------------------------------------------------------------
+
+export function statusHandler() {
+  const status = {
+    config: config,
+    nodeVersion: process.version,
+    callCount: globalThis.callCount,
+    uptime: process.uptime(),
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      VITEST: process.env.VITEST || null,
+      GITHUB_API_BASE_URL: process.env.GITHUB_API_BASE_URL,
+      OPENAI_API_KEY: process.env.OPENAI_API_KEY
+    }
+  };
+  return status;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
 // Main CLI
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -173,6 +193,7 @@ function generateUsage() {
       --version                  Show version information
       --verbose                  Enable verbose logging
       --diagnostics              Output detailed diagnostic information
+      --status                 Output runtime health summary in JSON format
     `;
 }
 
@@ -196,6 +217,12 @@ export async function main(args = process.argv.slice(2)) {
       timestamp: new Date().toISOString()
     };
     logInfo("Diagnostics Mode: " + JSON.stringify(diagnostics));
+    return;
+  }
+
+  if (args.includes("--status")) {
+    const status = statusHandler();
+    console.log(JSON.stringify(status));
     return;
   }
 
