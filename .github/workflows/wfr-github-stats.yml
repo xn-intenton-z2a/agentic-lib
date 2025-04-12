@@ -203,7 +203,7 @@ jobs:
               let issueNumber = '';
               let issueTitle = "";
               let issueLabels = "";
-              const issueNumberMatch = branchName.match(new RegExp(branchPrefix + "(\\d+)"));
+              const issueNumberMatch = branch.name.match(new RegExp(branchPrefix + "(\\d+)"));
               if (issueNumberMatch) {
                 issueNumber = issueNumberMatch[1];
                 const { data: issue } = await github.rest.issues.get({
