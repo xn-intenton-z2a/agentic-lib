@@ -4,6 +4,7 @@
   "engine": "schedule-3",
   "lastActivityName": "Review Issue",
   "lastActivityBranchName": "main",
+  "nextIssue": "[2019] Add missing afterEach import in tests automated",
   "openIssues": 8,
   "issuesClosedLastHour": 0,
   "issuesClosedLastDay": 100,
@@ -27,6 +28,9 @@
     "count": 1,
     "details": [
       "[7m] agentic-lib-issue-2019"
+    ],
+    "branchIssueDetails": [
+      "[2019] Add missing afterEach import in tests automated"
     ],
     "averageBranchAge": 7
   },
