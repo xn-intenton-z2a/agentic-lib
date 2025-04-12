@@ -2,43 +2,32 @@
   "owner": "xn-intenton-z2a",
   "repo": "agentic-lib",
   "engine": "schedule-1",
+  "lastActivityName": "",
+  "lastActivityBranchName": "",
+  "lastActivityTimestamp": "",
   "openIssues": 0,
   "issuesClosedLastHour": 0,
   "issuesClosedLastDay": 21,
   "openPRs": 0,
+  "averagePRAge": 0,
   "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 66,
-  "commitsLastHour": 0,
-  "commitsLastDay": 42,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 1,
+  "commitsLastDay": 43,
   "lastFiveCommitMessages": [
-    {
-      "time": "11:48",
-      "message": "3.6.3-0"
-    },
-    {
-      "time": "11:43",
-      "message": "3.6.3-0"
-    },
-    {
-      "time": "11:43",
-      "message": "3.6.2"
-    },
-    {
-      "time": "11:42",
-      "message": "Update PR display to include title and age in stats\n\nModified th..."
-    },
-    {
-      "time": "11:18",
-      "message": "Added batch processing support to agenticHandler and updated tes..."
-    }
+    "[15:40] - Add last activity metadata and improve stats tracking\n\nIntegrate...",
+    "[11:48] - 3.6.3-0",
+    "[11:43] - 3.6.3-0",
+    "[11:43] - 3.6.2",
+    "[11:42] - Update PR display to include title and age in stats\n\nModified th..."
   ],
   "branches": {
     "count": 0,
-    "details": []
+    "details": [],
+    "averageBranchAge": 0
   },
-  "averagePRAge": 0,
-  "testStatus": "PASS",
+  "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T12:55:15.109Z"
+  "generatedAt": "2025-04-12T15:41:06.457Z"
 }
