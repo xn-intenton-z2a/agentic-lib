@@ -50,6 +50,15 @@ on:
         description: 'The name of the last activity branch. e.g. "main"'
         type: string
         required: false
+      branchPrefix:
+        description: 'The prefix for the issue branch. e.g. "agentic-lib-issue-"'
+        type: string
+        required: false
+        default: 'agentic-lib-issue-'
+      nextIssue:
+        description: 'The next issue to review. e.g. "123 My issue automated"'
+        type: string
+        required: false
       s3BucketUrl:
         description: 'The S3 bucket URL with prefix to use. e.g. "s3://my-bucket/prefix"'
         type: string
@@ -93,6 +102,8 @@ jobs:
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       lastActivityName: ${{ inputs.lastActivityName || '' }}
       lastActivityBranchName: ${{ inputs.lastActivityBranchName || '' }}
+      branchPrefix: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}
+      nextIssue: ${{ inputs.nextIssue || '' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       s3WebsiteBucketUrl: ${{ inputs.s3WebsiteBucketUrl || '' }}
       iamActionsRoleArn: ${{ inputs.iamActionsRoleArn || '' }}
@@ -141,6 +152,8 @@ jobs:
             const engine = "${{ steps.engine.outputs.engine }}";
             const lastActivityName = "${{ env.lastActivityName }}";
             const lastActivityBranchName = "${{ env.lastActivityBranchName }}";
+            const nextIssue = "${{ env.nextIssue }}";
+            const branchPrefix = "${{ env.branchPrefix }}";
             
             // Open issues count
             const issuesResp = await github.rest.issues.listForRepo({ owner, repo, state: "open", per_page: 256 });
@@ -187,7 +200,22 @@ jobs:
               const branchResp = await github.rest.repos.getBranch({ owner, repo, branch: branch.name });
               const lastCommitDate = new Date(branchResp.data.commit.commit.author.date);
               const minutesSinceLastCommit = Math.floor((now - lastCommitDate) / (1000 * 60));
-              return { branch: branch.name, minutesSinceLastCommit };
+              let issueNumber = '';
+              let issueTitle = "";
+              let issueLabels = "";
+              const issueNumberMatch = branchName.match(/branchPrefix(\d+)/);
+              if (issueNumberMatch) {
+                issueNumber = issueNumberMatch[1];
+                const { data: issue } = await github.rest.issues.get({
+                  owner,
+                  repo,
+                  issue_number: parseInt(issueNumber)
+                });
+                if (issue) {
+                  issueTitle = issue.title;
+                  issueLabels = issue.labels.map(label => label.name).join(', ');
+                }
+              return { branch: branch.name, issueNumber, issueTitle, issueLabels, minutesSinceLastCommit };
             }));
             const averageBranchAge = branchDetails.length > 0 ? Math.floor(branchDetails.reduce((sum, branch) => sum + branch.minutesSinceLastCommit, 0) / branchDetails.length) : 0;
 
@@ -197,6 +225,7 @@ jobs:
               engine,
               lastActivityName,
               lastActivityBranchName,
+              nextIssue,
               openIssues: issuesResp.data.length,
               issuesClosedLastHour: closedHourResp.data.length,
               issuesClosedLastDay: closedDayResp.data.length,
@@ -211,6 +240,7 @@ jobs:
               branches: { 
                 count: branchDetails.length, 
                 details: branchDetails.map(branch => `[${branch.minutesSinceLastCommit}m] ${branch.branch}`),
+                branchIssueDetails: branchDetails.map(branch => `[${branch.issueNumber}] ${branch.issueTitle} ${branch.issueLabels}`),
                 averageBranchAge
               },
               testStatusOnBranch: "PASS", // Placeholder

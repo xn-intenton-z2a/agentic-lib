@@ -51,6 +51,15 @@ on:
       issueNumber:
         description: 'The issue number to review. e.g. "123"'
         value: ${{ jobs.select-issue.outputs.issueNumber }}
+      issueTitle:
+        description: 'The issue title found. e.g. "My issue"'
+        value: ${{ jobs.select-issue.outputs.issueTitle }}
+      issueDescription:
+        description: 'The issue description found. e.g. "My issue description"'
+        value: ${{ jobs.select-issue.outputs.issueDescription }}
+      issueLabels:
+        description: 'The issue labels found. e.g. "automated"'
+        value: ${{ steps.select-issue.outputs.issueLabels }}
       merged:
         description: 'Set to "true", if the issue has been merged either already or by this process.'
         value: ${{ jobs.select-issue.outputs.merged }}
@@ -83,6 +92,9 @@ jobs:
             const issueNumberInput = process.env.issueNumber;
             const selectionLabel = process.env.selectionLabel;
             let issueNumberOutput;
+            let issueTitleOutput;
+            let issueDescriptionOutput;
+            let issueLabelsOutput;
             
             let issue;
             if (issueNumberInput) {
@@ -110,15 +122,27 @@ jobs:
             
               if (issues.length === 0) {
                 issueNumberOutput = '';
+                issueTitleOutput = '';
+                issueDescriptionOutput = '';
+                issueLabelsOutput = '';
                 core.info(`No open issues found with label: "${selectionLabel}"`);
               } else {
                 issueNumberOutput = issues[0].number;
+                issueTitleOutput = issues[0].title; 
+                issueDescriptionOutput = issues[0].body;
+                issueLabelsOutput = issues[0].labels.map(label => label.name).join(', ');
                 core.info(`Open issue '${issueNumberOutput}' found with label: '${selectionLabel}'`);
               }
             }
             
             core.setOutput("issueNumber", issueNumberOutput);
+            core.setOutput("issueTitle", issueTitleOutput);
+            core.setOutput("issueDescription", issueDescriptionOutput);
+            core.setOutput("issueLabels", issueLabelsOutput);
             core.info(`issueNumber '${issueNumberOutput}'`);
+            core.info(`issueTitle '${issueTitleOutput}'`);
+            core.info(`issueDescription '${issueDescriptionOutput}'`);
+            core.info(`issueLabels '${issueLabelsOutput}'`);
 
       - name: has-merged-label
         id: has-merged-label
@@ -141,4 +165,7 @@ jobs:
 
     outputs:
       issueNumber: ${{ steps.select-issue.outputs.issueNumber }}
+      issueTitle: ${{ steps.select-issue.outputs.issueTitle }}
+      issueDescription: ${{ steps.select-issue.outputs.issueDescription }}
+      issueLabels: ${{ steps.select-issue.outputs.issueLabels }}
       merged: ${{ steps.has-merged-label.outputs.merged }}

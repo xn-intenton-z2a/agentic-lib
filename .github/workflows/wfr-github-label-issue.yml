@@ -32,20 +32,25 @@ on:
         description: 'The pull request number. e.g. "123"'
         type: string
         required: true
+      branchPrefix:
+        description: 'The prefix for the issue branch. e.g. "agentic-lib-issue-".'
+        type: string
+        required: true
       removeAllLabels:
         description: 'Whether to remove all labels from the issue. e.g. "true"'
         type: string
         required: false
         default: 'false'
-      branchPrefix:
-        description: 'The prefix for the issue branch. e.g. "agentic-lib-issue-".'
-        type: string
-        required: true
       commentPrefix:
         description: 'The prefix for the comment. e.g. "The feature branch ".'
         type: string
         required: false
         default: 'The feature branch has been merged: '
+      npmAuthOrganisation:
+        description: 'The organisation for npm authentication. e.g. "@xn-intenton-z2a"'
+        type: string
+        required: false
+        default: '@xn-intenton-z2a'
       cache:
         description: 'The cache to use for npm. e.g. "npm"'
         type: string
@@ -73,6 +78,10 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      pullNumber: ${{ inputs.pullNumber || ''}}
+      branchPrefix: ${{ inputs.branchPrefix || '' }}
+      commentPrefix: ${{ inputs.commentPrefix || '' }}
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '@xn-intenton-z2a' }}
       cache: ${{ inputs.cache || 'npm' }}
       removeAllLabels: ${{ inputs.removeAllLabels || 'false' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
@@ -102,7 +111,7 @@ jobs:
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
-            const pullNumber = parseInt('${{ inputs.pullNumber }}', 10);
+            const pullNumber = parseInt('${{ env.pullNumber }}', 10);
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             
@@ -112,7 +121,7 @@ jobs:
               pull_number: pullNumber,
             });
             const branchName = pullRequest.head.ref;
-            const issueNumberMatch = branchName.match(/${{ inputs.branchPrefix }}(\d+)/);
+            const issueNumberMatch = branchName.match(/${{ env.branchPrefix }}(\d+)/);
             let issueNumber;
             if (issueNumberMatch) {
               issueNumber = issueNumberMatch[1];
@@ -129,7 +138,7 @@ jobs:
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
-            const pullNumber = parseInt('${{ inputs.pullNumber }}', 10);
+            const pullNumber = parseInt('${{ env.pullNumber }}', 10);
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const removeAllLabels = process.env.removeAllLabels === 'true';
@@ -141,7 +150,7 @@ jobs:
             });
             const issueNumber = '${{ steps.extract-issue-number.outputs.issueNumber }}';
             const branchName = pullRequest.head.ref;
-            const commentBody = `${{ inputs.branchPrefix || 'The feature branch has been merged: ' }}${branchName}`;
+            const commentBody = `${{ env.branchPrefix || 'The feature branch has been merged: ' }}${branchName}`;
             if(removeAllLabels){
               core.info(`Removing all labels from issue #${issueNumber}`);
               await github.rest.issues.removeAllLabels({
