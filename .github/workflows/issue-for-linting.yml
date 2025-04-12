@@ -39,6 +39,7 @@ jobs:
     with:
       issueTitle: 'Resolve issues in output from running: npm run linting-fix "." -- --max-warnings=10'
       issueBody: ${{ needs.linting.outputs.scriptOutput }}
+      issueLabels: 'maintenance, automated'
 
   stats:
     if: ${{ always() }}

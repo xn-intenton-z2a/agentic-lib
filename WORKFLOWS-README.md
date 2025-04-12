@@ -648,8 +648,8 @@ Supervisor:
 - [x] change stats assume role to agentic-lib-bucket-writer-role
 - [x] copy website and stats json files to the bucket agentic-lib-public-website-stats-bucket
 - [x] rename agentic-lib-bucket to agentic-lib-telemetry-bucket
-- [~] create an issue WIP limit in agentic-lib.yml
-- [~] Add a NaN filter to stop any NaN issues from being created.
+- [x] create an issue WIP limit in agentic-lib.yml
+- [x] Add a NaN filter to stop any NaN issues from being created.
 - [ ] Add an issue refiner that applies a filter to the issues and removes any that are not relevant before setting the issue 'ready'.
 - [ ] Add an extract label so that issues are only worked on if they are 'automated' and 'ready'.
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix).
