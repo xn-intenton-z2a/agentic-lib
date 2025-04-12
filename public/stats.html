@@ -33,7 +33,7 @@
   <section>
     <p>
       <span class="label">Branches (<%= branches.count %> of average age <%= branches.averageBranchAge %> minutes):</span><br/>
-      <%= branches.details && branches.details.map(b => `${b.branch} (${b.minutesSinceLastCommit} minutes since commit)`).join(', ') || 'None' %>
+      <%= branches.details && branches.details.join(', ') || 'None' %>
     </p>
   </section>
   <section>
