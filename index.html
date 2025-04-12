@@ -80,6 +80,7 @@ The code is located in <code class="md-github">src/lib/main.js</code>.</li>
 <p class="md-github">It can be invoked directly via the CLI using the <code class="md-github">--agentic</code> flag followed by a JSON payload, e.g.,</p>
 <pre class="md-github"><code class="md-github">node src/lib/main.js --agentic '{&quot;command&quot;: &quot;doSomething&quot;}'
 </code></pre>
+<p class="md-github">Additionally, the CLI now supports a <code class="md-github">--version</code> flag which outputs the current package version and a timestamp in JSON format.</p>
 <p class="md-github">The <code class="md-github">agenticHandler</code> function is designed to seamlessly integrate with our AWS SQS, OpenAI, and logging infrastructure, and provides a foundation for future autonomous workflow interactions.</p>
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="aws-integrations" href="#aws-integrations"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>AWS Integrations</h2>
@@ -119,6 +120,11 @@ The code is located in <code class="md-github">src/lib/main.js</code>.</li>
 <li class="md-github">Processes an agentic command by passing a JSON payload to <code class="md-github">agenticHandler</code> (and increments the internal invocation counter).</li>
 </ul>
 </li>
+<li class="md-github"><strong class="md-github">--version:</strong>
+<ul class="md-github">
+<li class="md-github">Displays version information from package.json along with a timestamp in JSON format.</li>
+</ul>
+</li>
 <li class="md-github"><strong class="md-github">--verbose:</strong>
 <ul class="md-github">
 <li class="md-github">Activates detailed logging for debugging purposes.</li>
@@ -142,6 +148,7 @@ No command argument supplied.
       --help                     Show this help message (default)
       --digest                   Run full bucket replay
       --agentic &lt;jsonPayload&gt;    Process an agentic command with a JSON payload
+      --version                  Show version information
       --verbose                  Enable verbose logging
       --diagnostics              Output detailed diagnostic information
 </code></pre>
@@ -152,6 +159,7 @@ No command argument supplied.
       --help                     Show this help message (default)
       --digest                   Run full bucket replay
       --agentic &lt;jsonPayload&gt;    Process an agentic command with a JSON payload
+      --version                  Show version information
       --verbose                  Enable verbose logging
       --diagnostics              Output detailed diagnostic information
 </code></pre>
@@ -166,6 +174,7 @@ No command argument supplied.
       --help                     Show this help message (default)
       --digest                   Run full bucket replay
       --agentic &lt;jsonPayload&gt;    Process an agentic command with a JSON payload
+      --version                  Show version information
       --verbose                  Enable verbose logging
       --diagnostics              Output detailed diagnostic information
 </code></pre>
@@ -173,7 +182,7 @@ No command argument supplied.
 <li class="md-github">Running with the <code class="md-github">--digest</code> flag:</li>
 </ol>
 <pre class="md-github"><code class="md-github">{&quot;level&quot;:&quot;info&quot;,&quot;timestamp&quot;:&quot;2025-04-10T12:26:52.533Z&quot;,&quot;message&quot;:&quot;Configuration loaded&quot;,&quot;config&quot;:{}}
-{&quot;level&quot;:&quot;info&quot;,&quot;timestamp&quot;:&quot;2025-04-10T12:26:52.540Z&quot;,&quot;message&quot;:&quot;Digest Lambda received event: {\&quot;Records\&quot;:[{\&quot;eventVersion\&quot;:\&quot;2.0\&quot;,\&quot;eventSource\&quot;:\&quot;aws:sqs\&quot;,\&quot;eventTime\&quot;:\&quot;2025-04-10T12:26:52.540Z\&quot;,\&quot;eventName\&quot;:\&quot;SendMessage\&quot;,\&quot;body\&quot;:\&quot;{\\\&quot;key\\\&quot;:\\\&quot;events/1.json\\\&quot;,\\\&quot;value\\\&quot;:\\\&quot;12345\\\&quot;,\\\&quot;lastModified\\\&quot;:\\\&quot;2025-04-10T12:26:52.540Z\\\&quot;}\&quot;}]}&quot;
+{&quot;level&quot;:&quot;info&quot;,&quot;timestamp&quot;:&quot;2025-04-10T12:26:52.540Z&quot;,&quot;message&quot;:&quot;Digest Lambda received event: {\&quot;Records\&quot;:[{\&quot;eventVersion\&quot;:\&quot;2.0\&quot;,\&quot;eventSource\&quot;:\&quot;aws:sqs\&quot;,\&quot;eventTime\&quot;:\&quot;2025-04-10T12:26:52.540Z\&quot;,\&quot;eventName\&quot;:\&quot;SendMessage\&quot;,\&quot;body\&quot;:\&quot;{\\\&quot;key\\\&quot;:\\\&quot;events/1.json\\\&quot;,\\\&quot;value\\\&quot;:\\\&quot;12345\\\&quot;,\\\&quot;lastModified\\\&quot;:\\\&quot;2025-04-10T12:26:52.540Z\\\&quot;}\&quot;}]}
 </code></pre>
 <ol start="5" class="md-github">
 <li class="md-github">Running with the <code class="md-github">--agentic</code> flag:</li>
@@ -183,6 +192,11 @@ No command argument supplied.
 {&quot;status&quot;:&quot;success&quot;,&quot;processedCommand&quot;:&quot;doSomething&quot;,&quot;timestamp&quot;:&quot;2025-04-10T12:26:52.600Z&quot;}
 </code></pre>
 <ol start="6" class="md-github">
+<li class="md-github">Running with the <code class="md-github">--version</code> flag:</li>
+</ol>
+<pre class="md-github"><code class="md-github">{&quot;version&quot;:&quot;3.6.1-0&quot;,&quot;timestamp&quot;:&quot;2025-04-10T12:26:52.600Z&quot;}
+</code></pre>
+<ol start="7" class="md-github">
 <li class="md-github">Running with the <code class="md-github">--diagnostics</code> flag:</li>
 </ol>
 <pre class="md-github"><code class="md-github">{&quot;level&quot;:&quot;info&quot;,&quot;timestamp&quot;:&quot;2025-04-10T12:26:52.533Z&quot;,&quot;message&quot;:&quot;Configuration loaded&quot;,&quot;config&quot;:{}}
@@ -214,7 +228,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-04-12T00:39:11.252Z</p>
+    <p>Generated on 2025-04-12T00:40:09.454Z</p>
   </footer>
 </body>
 </html>
