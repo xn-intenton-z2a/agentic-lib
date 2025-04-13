@@ -86,6 +86,10 @@ jobs:
       - agentic-lib
       - select-issue
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: write
+      id-token: write
     env:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       attemptsPerIssue: ${{ needs.agentic-lib.outputs.attemptsPerIssue }}
