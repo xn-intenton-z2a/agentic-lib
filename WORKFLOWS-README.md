@@ -650,8 +650,8 @@ Supervisor:
 - [x] rename agentic-lib-bucket to agentic-lib-telemetry-bucket
 - [x] create an issue WIP limit in agentic-lib.yml
 - [x] Add a NaN filter to stop any NaN issues from being created.
-- [~] In Apply Fix, limit the number if attempts to [work++fix] a branch on an issue to 3 (as per agentic-lib.yml), then comment the issue and delete the branch.
-- [~] In Issue Worker, limit the number if attempts to [work] an issue on an issue to 2 (as per agentic-lib.yml), then comment and close the issue.
+- [x] In Apply Fix, limit the number if attempts to [work++fix] a branch on an issue to 3 (as per agentic-lib.yml), then comment the issue and delete the branch.
+- [x] In Issue Worker, limit the number if attempts to [work] an issue on an issue to 2 (as per agentic-lib.yml), then comment and close the issue. 
 - [ ] Add an issue refiner that applies a filter to the issues and removes any that are not relevant before setting the issue 'ready'.
 - [ ] Add an extract label so that issues are only worked on if they are 'automated' and 'ready'.
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix).
