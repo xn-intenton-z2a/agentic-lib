@@ -195,6 +195,7 @@ jobs:
         id: rejectedFeatures
         shell: bash
         run: |
+          mkdir -p "${{ env.featuresDir }}/rejects"
           output=$(ls -1 "${{ env.featuresDir }}/rejects" | sed 's/\.md//' | xargs echo )
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
