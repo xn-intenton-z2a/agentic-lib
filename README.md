@@ -78,6 +78,12 @@ Or for batch processing:
 node src/lib/main.js --agentic '{"commands": ["cmd1", "cmd2"]}'
 ```
 
+A new CLI flag has been added for dry runs:
+
+```
+node src/lib/main.js --dry-run
+```
+
 Additionally, the CLI now supports additional commands:
 
 - `--version`: Displays version information from package.json along with a timestamp.
@@ -118,6 +124,8 @@ The CLI provides several flags to manage the library's operation:
   - Outputs an in‑depth diagnostic report, including the current configuration, Node.js version, and relevant environment variables.
 - **--status:**
   - Outputs a runtime health summary in JSON format including configuration, Node.js version, callCount, uptime, and select environment variables.
+- **--dry-run:**
+  - Executes a dry run that simulates the command execution without performing any actions.
 
 ---
 

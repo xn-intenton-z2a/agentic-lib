@@ -112,6 +112,15 @@ describe("CLI Status Flag", () => {
   });
 });
 
+describe("CLI Dry Run Flag", () => {
+  test("prints dry-run message and exits immediately when --dry-run flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await agenticLib.main(["--dry-run"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Dry-run: No action taken.");
+    consoleSpy.mockRestore();
+  });
+});
+
 describe("agenticHandler Single Command Processing", () => {
   test("processes a valid agentic command correctly", async () => {
     const payload = { command: "doSomething" };

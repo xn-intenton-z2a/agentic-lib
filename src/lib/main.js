@@ -214,6 +214,7 @@ function generateUsage() {
       --verbose                  Enable verbose logging
       --diagnostics              Output detailed diagnostic information
       --status                 Output runtime health summary in JSON format
+      --dry-run                Execute a dry run with no side effects
     `;
 }
 
@@ -222,6 +223,16 @@ export async function main(args = process.argv.slice(2)) {
   if (args.includes("--verbose")) {
     VERBOSE_MODE = true;
     logInfo("Verbose mode activated.");
+  }
+
+  if (args.includes("--help")) {
+    console.log(generateUsage());
+    return;
+  }
+
+  if (args.includes("--dry-run")) {
+    console.log("Dry-run: No action taken.");
+    return;
   }
 
   if (args.includes("--diagnostics")) {
@@ -243,11 +254,6 @@ export async function main(args = process.argv.slice(2)) {
   if (args.includes("--status")) {
     const status = statusHandler();
     console.log(JSON.stringify(status));
-    return;
-  }
-
-  if (args.includes("--help")) {
-    console.log(generateUsage());
     return;
   }
 
