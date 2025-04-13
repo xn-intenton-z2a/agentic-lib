@@ -168,16 +168,21 @@ jobs:
     runs-on: ubuntu-latest
     env:
       issueNumber: ${{ needs.select-branch.outputs.issueNumber }}
+      branch: ${{ needs.select-branch.outputs.branch }}
       attemptsPerBranch: ${{ needs.agentic-lib.outputs.attemptsPerBranch }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: check
         id: check
         uses: actions/github-script@v7
         with:
           script: |
-            const issueNumber = "${{ needs.select-branch.outputs.issueNumber }}";
+            const issueNumber = "${{ env.issueNumber }}";
             const attemptsPerBranch = parseInt("${{ env.attemptsPerBranch }}");
-            const branch = "${{ needs.select-branch.outputs.branch }}";
+            const branch = "${{ env.branch }}";
             
             // If attempts to [work++fix] a branch exceed the limit as per agentic-lib.yml, then comment the issue and delete the branch.       
             const { data: issue } = await github.rest.issues.get({
