@@ -7,5 +7,5 @@ featuresWipLimit: 2
 featureDevelopmentIssuesWipLimit: 5
 maintenanceIssuesWipLimit: 5
 # How many attempts should be made to work on an issue?
-attemptsPerBranch: 4
+attemptsPerBranch: 2
 attemptsPerIssue: 2
