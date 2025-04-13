@@ -64,7 +64,7 @@ This repository is organized into three distinct areas to help you understand th
 
 ## Agentic Library Functions
 
-A new set of agentic library functions have been implemented to enable autonomous workflow invocation. The primary function, `agenticHandler`, processes a JSON payload containing either a single command or a batch of commands. When using batch processing, supply a JSON payload with a `commands` array property. Each command is validated and processed, and an aggregated response with individual results is returned.
+A new set of agentic library functions have been implemented to enable autonomous workflow invocation. The primary function, `agenticHandler`, processes a JSON payload containing either a single command or a batch of commands. When using batch processing, supply a JSON payload with a `commands` array property. Each valid command increments the internal invocation counter.
 
 It can be invoked directly via the CLI using the `--agentic` flag followed by a JSON payload, e.g.,
 

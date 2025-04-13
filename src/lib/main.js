@@ -221,7 +221,7 @@ export async function main(args = process.argv.slice(2)) {
   // Enable verbose mode if --verbose flag is provided
   if (args.includes("--verbose")) {
     VERBOSE_MODE = true;
-    logInfo("Verbose mode activated.", { verbose: true });
+    logInfo("Verbose mode activated.");
   }
 
   if (args.includes("--diagnostics")) {
