@@ -7,14 +7,14 @@
   "nextIssue": "[]  ",
   "openIssues": 0,
   "issuesClosedLastHour": 0,
-  "issuesClosedLastDay": 6,
+  "issuesClosedLastDay": 4,
   "openPRs": 0,
   "averagePRAge": 0,
   "prDetails": [],
-  "diffMinutes": 70,
-  "diffMinutesMain": 276,
+  "diffMinutes": 88,
+  "diffMinutesMain": 365,
   "commitsLastHour": 0,
-  "commitsLastDay": 91,
+  "commitsLastDay": 90,
   "lastFiveCommitMessages": [
     "[22:27] - 3.8.3-0",
     "[22:23] - 3.8.3-0",
@@ -30,5 +30,5 @@
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-13T03:03:30.297Z"
+  "statsGeneratedAt": "2025-04-13T04:32:25.175Z"
 }
