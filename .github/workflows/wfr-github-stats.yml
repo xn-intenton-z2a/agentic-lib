@@ -276,17 +276,19 @@ jobs:
               openIssues: issuesResp.length,
               issuesClosedLastHour: closedHourResp.length,
               issuesClosedLastDay: closedDayResp.length,
-              openIssues: {
-                count: issuesResp.length, 
-                details: issuesResp,
+              issues: {
+                open: {
+                  count: issuesResp.length, 
+                  details: issuesResp,
+                },
+                closed: {
+                  count: closedDayResp.length, 
+                  details: closedDayResp
+                },
                 nextIssue,
                 openIssues: issuesResp.length,
                 issuesClosedLastHour: closedHourResp.length,
                 issuesClosedLastDay: closedDayResp.length
-              },
-              closedIssues: {
-                count: closedDayResp.length, 
-                details: closedDayResp
               },
               openPRs: prDetails.length,
               averagePRAge: averagePRAge,
