@@ -658,9 +658,9 @@ Supervisor:
 - [ ] Do this everywhere:  echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
 - [ ] Place all AWS config in repository variables and handle blank by skipping the steps.
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix) and relabel "engine" to "schedule".
-- [ ] Expose the stats generate-stats step as a GitHub Action.
 
 Schedule based workflow refinement:
+- [ ] Expose the stats generate-stats step as a GitHub Action.
 - [ ] Add an issue refiner that picks and issues either sets 'ready', improves the issue, or closes it if irrelevant. (Then change the issue worker to look for 'ready' issues.)
 - [ ] Mark in-progress issues as such, (Then change the issue worker to ignore 'in-progress' issues.)
 - [ ] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issues is not resolved.
