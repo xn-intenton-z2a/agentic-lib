@@ -656,7 +656,9 @@ Supervisor:
 - [x] In auto-merge, close PRs and delete branches which have conflicts.
 - [x] Expose check states in the stats.
 - [ ] Do this everywhere:  echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-- [ ] Place all AWS config in repository variables and handle blank by skipping the steps.
+- [ ] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
+- [ ] Set repository0 to skip github pages and s3 by default
+- [ ] Set s3-sqs-bridge to be github pages only
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix) and relabel "engine" to "schedule".
 
 Schedule based workflow refinement:
