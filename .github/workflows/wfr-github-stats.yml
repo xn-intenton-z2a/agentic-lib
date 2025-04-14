@@ -222,10 +222,12 @@ jobs:
 
             let checks = [];
             for (const branch of branchesResp) {
+              const { data: branchResp } = await github.rest.repos.getBranch({ owner, repo, branch: branch.name });
+              const commitSha = branchResp.commit.sha;
               const { data: branchChecks } = await github.rest.checks.listForRef({
                 owner,
                 repo,
-                ref: branch.commit.sha,
+                ref: commitSha,
               });
               checks.push(...branchChecks.check_runs);
             }
