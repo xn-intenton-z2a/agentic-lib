@@ -242,7 +242,14 @@ jobs:
                   ref: commitSha,
                 });
                 //checks.push(...branchChecks.check_runs.map(check => {...check, branchName: branch.name, branch }));
-                checks.push(...branchChecks.check_runs);
+                const checkRuns = branchChecks.check_runs.map(check => {
+                  return {
+                    ...check,
+                    branchName: branch.name,
+                    branch
+                  };
+                });
+                checks.push(...checkRuns);
               } else {
                 core.info(`Branch ${branch.name} not found.`);
               }
