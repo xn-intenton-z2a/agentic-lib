@@ -2,19 +2,19 @@
   "owner": "xn-intenton-z2a",
   "repo": "agentic-lib",
   "engine": "schedule-2",
-  "lastActivityName": "Stats",
+  "lastActivityName": "∞ Truncate Workflow Runs",
   "lastActivityBranchName": "main",
   "nextIssue": "[1009] Add Optional Batch Command Throttling to agenticHandler automated, feature",
   "openIssues": 2,
   "issuesClosedLastHour": 0,
   "issuesClosedLastDay": 7,
   "openPRs": 1,
-  "averagePRAge": 182,
+  "averagePRAge": 184,
   "prDetails": [
-    "[182m] Add support for optional MAX_BATCH_COMMANDS throttling in agenticHandler and update tests and documentation accordingly. (fixes #1009)"
+    "[184m] Add support for optional MAX_BATCH_COMMANDS throttling in agenticHandler and update tests and documentation accordingly. (fixes #1009)"
   ],
-  "diffMinutes": 60,
-  "diffMinutesMain": 185,
+  "diffMinutes": 1,
+  "diffMinutesMain": 187,
   "commitsLastHour": 0,
   "commitsLastDay": 31,
   "lastFiveCommitMessages": [
@@ -27,14 +27,14 @@
   "branches": {
     "count": 1,
     "details": [
-      "[183m] agentic-lib-issue-1009"
+      "[184m] agentic-lib-issue-1009"
     ],
     "branchIssueDetails": [
       "[1009] Add Optional Batch Command Throttling to agenticHandler automated, feature"
     ],
-    "averageBranchAge": 183
+    "averageBranchAge": 184
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-14T07:59:34.782Z"
+  "statsGeneratedAt": "2025-04-14T08:01:22.279Z"
 }
