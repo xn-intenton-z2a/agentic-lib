@@ -196,25 +196,26 @@ jobs:
             const branchData = branchesResp.filter(branch => branch.name !== "main" && branch.name !== "github-pages");
             const branchDetails = await Promise.all(branchData.map(async branch => {
               const branchResp = await github.rest.repos.getBranch({ owner, repo, branch: branch.name });
-              const lastCommitDate = new Date(branchResp.commit.commit.author.date);
-              const minutesSinceLastCommit = Math.floor((now - lastCommitDate) / (1000 * 60));
+              //const lastCommitDate = new Date(branchResp.commit.commit.author.date);
+              //const minutesSinceLastCommit = Math.floor((now - lastCommitDate) / (1000 * 60));
               let issueNumber = '';
               let issueTitle = "";
               let issueLabels = "";
-              const issueNumberMatch = branch.name.match(new RegExp(branchPrefix + "(\\d+)"));
-              if (issueNumberMatch) {
-                issueNumber = issueNumberMatch[1];
-                const { data: issue } = await github.rest.issues.get({
-                  owner,
-                  repo,
-                  issue_number: parseInt(issueNumber)
-                });
-                if (issue) {
-                  issueTitle = issue.title;
-                  issueLabels = issue.labels.map(label => label.name).join(', ');
-                }
-              }  
-              return { branch: branch.name, issueNumber, issueTitle, issueLabels, minutesSinceLastCommit };
+              //const issueNumberMatch = branch.name.match(new RegExp(branchPrefix + "(\\d+)"));
+              //if (issueNumberMatch) {
+              //  issueNumber = issueNumberMatch[1];
+              //  const { data: issue } = await github.rest.issues.get({
+              //    owner,
+              //    repo,
+              //    issue_number: parseInt(issueNumber)
+              //  });
+              //  if (issue) {
+              //    issueTitle = issue.title;
+              //    issueLabels = issue.labels.map(label => label.name).join(', ');
+              //  }
+              //}  
+              //return { branch: branch.name, issueNumber, issueTitle, issueLabels, minutesSinceLastCommit };
+              return {};  
             }));
             const averageBranchAge = branchDetails.length > 0 ? Math.floor(branchDetails.reduce((sum, branch) => sum + branch.minutesSinceLastCommit, 0) / branchDetails.length) : 0;
 
