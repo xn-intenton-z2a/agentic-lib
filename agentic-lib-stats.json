@@ -9,12 +9,12 @@
   "issuesClosedLastHour": 0,
   "issuesClosedLastDay": 7,
   "openPRs": 1,
-  "averagePRAge": 62,
+  "averagePRAge": 121,
   "prDetails": [
-    "[62m] Add support for optional MAX_BATCH_COMMANDS throttling in agenticHandler and update tests and documentation accordingly. (fixes #1009)"
+    "[121m] Add support for optional MAX_BATCH_COMMANDS throttling in agenticHandler and update tests and documentation accordingly. (fixes #1009)"
   ],
   "diffMinutes": 59,
-  "diffMinutesMain": 65,
+  "diffMinutesMain": 125,
   "commitsLastHour": 0,
   "commitsLastDay": 31,
   "lastFiveCommitMessages": [
@@ -27,14 +27,14 @@
   "branches": {
     "count": 1,
     "details": [
-      "[62m] agentic-lib-issue-1009"
+      "[122m] agentic-lib-issue-1009"
     ],
     "branchIssueDetails": [
       "[1009] Add Optional Batch Command Throttling to agenticHandler automated, feature"
     ],
-    "averageBranchAge": 62
+    "averageBranchAge": 122
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-14T05:59:23.406Z"
+  "statsGeneratedAt": "2025-04-14T06:59:13.383Z"
 }
