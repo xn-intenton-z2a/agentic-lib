@@ -222,14 +222,19 @@ jobs:
 
             let checks = [];
             for (const branch of branchesResp) {
+              core.info(`Checking branch: ${branch.name}`);
               const { data: branchResp } = await github.rest.repos.getBranch({ owner, repo, branch: branch.name });
-              const commitSha = branchResp.commit.sha;
-              const { data: branchChecks } = await github.rest.checks.listForRef({
-                owner,
-                repo,
-                ref: commitSha,
-              });
-              checks.push(...branchChecks.check_runs);
+              if( branchResp ) {
+                const commitSha = branchResp.commit.sha;
+                const { data: branchChecks } = await github.rest.checks.listForRef({
+                  owner,
+                  repo,
+                  ref: commitSha,
+                });
+                checks.push(...branchChecks.check_runs);
+              } else {
+                core.info(`Branch ${branch.name} not found.`);
+              }
             }
 
             const jsonData = { 
