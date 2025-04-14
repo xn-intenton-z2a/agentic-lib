@@ -652,16 +652,14 @@ Supervisor:
 - [x] Add a NaN filter to stop any NaN issues from being created.
 - [x] In Apply Fix, limit the number if attempts to [work++fix] a branch on an issue to 3 (as per agentic-lib.yml), then comment the issue and delete the branch.
 - [x] In Issue Worker, limit the number if attempts to [work] an issue on an issue to 2 (as per agentic-lib.yml), then comment and close the issue. 
-- [ ] Before deleting a make sure there isn't an open PR.
+- [~] Before trying to apply fix a make sure there isn't an open PR.
+- [ ] In auto-merge, close PRs and delete branches which have conflicts.
 - [ ] Add an issue refiner that picks and issues either sets 'ready', improves the issue, or closes it if irrelevant. (Then change the issue worker to look for 'ready' issues.)
-- [ ] Mark in-progress issues as such, (Then change the issue worker to ignore 'in-progress' issues.)
-- [ ] Close PRs where the branch has been deleted.
-- [ ] Close PRs and delete branches which have conflicts.
-- [ ] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issues is not resolved.
-- [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix).
-- [ ] Create a "supervisor" engine schedule with reduced schedule triggers (leaving the supervisor to invoke workflows).
 - [ ] Do this everywhere:  echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
 - [ ] Place all AWS config in repository variables and handle blank by skipping the steps.
+- [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix) and relabel "engine" to "schedule".
+- [ ] Mark in-progress issues as such, (Then change the issue worker to ignore 'in-progress' issues.)
+- [ ] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issues is not resolved.
 
 Supervisor launch:
 - [ ] Publish a demo to GitHub sites that animates issue workflow, git logs applying changes to files and raising PRs with live links to the repository and a draggable timeline.
