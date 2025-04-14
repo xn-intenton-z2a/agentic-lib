@@ -183,13 +183,13 @@ jobs:
             
             // Last 5 commits on main
             const { data: lastFiveCommitsResp } = await github.rest.repos.listCommits({ owner, repo, sha: "main", per_page: 5 });
-            //const lastFiveCommitMessages = lastFiveCommitsResp.map(commit => {
-              //const commitDate = new Date(commit.commit.author.date);
-              //const hh = commitDate.getHours().toString().padStart(2, '0');
-              //const mm = commitDate.getMinutes().toString().padStart(2, '0');
-              //const message = commit.commit.message.length > 64 ? commit.commit.message.substring(0, 64) + "..." : commit.commit.message;
-              //return { time: `${hh}:${mm}`, message };
-            //});
+            const lastFiveCommitMessages = lastFiveCommitsResp.map(commit => {
+              const commitDate = new Date(commit.commit.author.date);
+              const hh = commitDate.getHours().toString().padStart(2, '0');
+              const mm = commitDate.getMinutes().toString().padStart(2, '0');
+              const message = commit.commit.message.length > 64 ? commit.commit.message.substring(0, 64) + "..." : commit.commit.message;
+              return { time: `${hh}:${mm}`, message };
+            });
 
             // Branches excluding "main" and "github-pages"
             const { data: branchesResp } = await github.rest.repos.listBranches({ owner, repo, per_page: 256 });
@@ -260,7 +260,7 @@ jobs:
                 count: issuesResp.length, 
                 details: issuesResp,
                 nextIssue,
-                openIssues: issuesResplength,
+                openIssues: issuesResp.length,
                 issuesClosedLastHour: closedHourResp.length,
                 issuesClosedLastDay: closedDayResp.length
               },
