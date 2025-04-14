@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeAll, beforeEach } from "vitest";
+import { describe, test, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
 
 // Ensure that the global callCount is reset before tests that rely on it
 beforeAll(() => {
@@ -93,7 +93,6 @@ describe("CLI Status Flag", () => {
   test("outputs runtime health summary on --status", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await agenticLib.main(["--status"]);
-    // Find a call that outputs a JSON with expected fields
     const callArg = consoleSpy.mock.calls.find(c => {
       try {
         const parsed = JSON.parse(c[0]);
@@ -185,5 +184,21 @@ describe("agenticHandler Batch Processing", () => {
   test("throws an error when one of the batch commands is ' NAn ' with spaces", async () => {
     const payload = { commands: ["command1", " NAn "] };
     await expect(agenticLib.agenticHandler(payload)).rejects.toThrow(/Invalid prompt input in commands/);
+  });
+
+  test("processes batch within MAX_BATCH_COMMANDS limit", async () => {
+    process.env.MAX_BATCH_COMMANDS = "5";
+    const payload = { commands: ["cmd1", "cmd2", "cmd3"] };
+    const response = await agenticLib.agenticHandler(payload);
+    expect(response.status).toBe("success");
+    expect(response.results).toHaveLength(3);
+    delete process.env.MAX_BATCH_COMMANDS;
+  });
+
+  test("throws error when batch size exceeds MAX_BATCH_COMMANDS limit", async () => {
+    process.env.MAX_BATCH_COMMANDS = "2";
+    const payload = { commands: ["cmd1", "cmd2", "cmd3"] };
+    await expect(agenticLib.agenticHandler(payload)).rejects.toThrow(/Batch size exceeds maximum allowed/);
+    delete process.env.MAX_BATCH_COMMANDS;
   });
 });
