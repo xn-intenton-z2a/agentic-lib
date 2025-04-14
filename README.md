@@ -51,13 +51,16 @@ This repository is organized into three distinct areas to help you understand th
   This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality. It now also tracks each successful invocation of the agentic command using an internal counter for improved observability.
 - **Batch Processing:**
   The `agenticHandler` function supports batch processing by accepting a payload with a `commands` array. Each command is validated and processed sequentially. On success, each command is individually logged and the global invocation counter (`globalThis.callCount`) is incremented accordingly. The aggregated response contains a list of individual results.
-  
+
   **Optional Batch Throttling:**
   You can limit the maximum number of commands processed in a batch by setting the environment variable `MAX_BATCH_COMMANDS`. When set, if the number of commands exceeds this limit, the batch will be rejected with an error message.
 
+- **Execution Timing:**
+  For enhanced performance insights, the response of `agenticHandler` now includes an `executionTimeMS` field for each command, indicating the processing time in milliseconds.
+
 - **Note on Prompt Validity:**
   The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. <br/>
-  <strong>Important:</strong> Inputs that, when trimmed and lowercased, equal to 'nan' (for example, 'NaN', 'nan', or 'NAN') are explicitly considered non-actionable and will result in an error.
+  **Important:** Inputs that, when trimmed and lowercased, equal to 'nan' (for example, 'NaN', 'nan', or 'NAN') are explicitly considered non-actionable and will result in an error.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
@@ -69,7 +72,7 @@ This repository is organized into three distinct areas to help you understand th
 
 ## Agentic Library Functions
 
-A new set of agentic library functions have been implemented to enable autonomous workflow invocation. The primary function, `agenticHandler`, processes a JSON payload containing either a single command or a batch of commands. When using batch processing, supply a JSON payload with a `commands` array property. Each valid command increments the internal invocation counter.
+A new set of agentic library functions have been implemented to enable autonomous workflow invocation. The primary function, `agenticHandler`, processes a JSON payload containing either a single command or a batch of commands. When using batch processing, supply a JSON payload with a `commands` array property. Each valid command increments the internal invocation counter. In addition, each processed command returns an `executionTimeMS` property that reflects the time taken to process that command (in milliseconds).
 
 It can be invoked directly via the CLI using the `--agentic` flag followed by a JSON payload, e.g.,
 
@@ -122,7 +125,7 @@ The CLI provides several flags to manage the library's operation:
 - **--digest:**
   - Initiates the processing of a sample digest by creating a simulated SQS event and handling it through the AWS-integrated lambda handler.
 - **--agentic:**
-  - Processes an agentic command. Supply a payload with either a single `command` property or a `commands` array for batch processing. Each valid command increments the internal invocation counter.
+  - Processes an agentic command. Supply a payload with either a single `command` property or a `commands` array for batch processing. Each valid command increments the internal invocation counter and returns an `executionTimeMS` property indicating its processing time.
 - **--version:**
   - Displays version information from package.json along with a timestamp in JSON format.
 - **--verbose:**

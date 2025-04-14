@@ -127,6 +127,9 @@ describe("agenticHandler Single Command Processing", () => {
     expect(response.status).toBe("success");
     expect(response.processedCommand).toBe("doSomething");
     expect(response.timestamp).toBeDefined();
+    expect(response).toHaveProperty('executionTimeMS');
+    expect(typeof response.executionTimeMS).toBe('number');
+    expect(response.executionTimeMS).toBeGreaterThanOrEqual(0);
   });
 
   test("throws an error when payload is not an object", async () => {
@@ -167,6 +170,9 @@ describe("agenticHandler Batch Processing", () => {
       expect(res.status).toBe("success");
       expect(res.processedCommand).toBe(`command${i+1}`);
       expect(res.timestamp).toBeDefined();
+      expect(res).toHaveProperty('executionTimeMS');
+      expect(typeof res.executionTimeMS).toBe('number');
+      expect(res.executionTimeMS).toBeGreaterThanOrEqual(0);
     });
     expect(globalThis.callCount).toBe(3);
   });
