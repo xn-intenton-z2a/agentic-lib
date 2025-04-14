@@ -223,13 +223,13 @@ jobs:
               core.info(`Checking branch: ${branch.name}`);
               const { data: branchResp } = await github.rest.repos.getBranch({ owner, repo, branch: branch.name });
               if( branchResp ) {
-                //const commitSha = branchResp.commit.sha;
-                //const { data: branchChecks } = await github.rest.checks.listForRef({
-                //  owner,
-                //  repo,
-                //  ref: commitSha,
-                //});
-                //checks.push(...branchChecks.check_runs);
+                const commitSha = branchResp.commit.sha;
+                const { data: branchChecks } = await github.rest.checks.listForRef({
+                  owner,
+                  repo,
+                  ref: commitSha,
+                });
+                checks.push(...branchChecks.check_runs);
               } else {
                 core.info(`Branch ${branch.name} not found.`);
               }
@@ -274,7 +274,7 @@ jobs:
               diffMinutes: Math.floor((now - pushedAt) / (1000 * 60)),
               diffMinutesMain: Math.floor((now - mainPushedAt) / (1000 * 60)),
               prs: {
-                count: pullsResplength, 
+                count: pullsResp.length, 
                 details: pullsResp,
                 openPRs: prDetails.length,
                 averagePRAge: averagePRAge,
