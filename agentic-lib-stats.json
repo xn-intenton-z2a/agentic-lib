@@ -2,39 +2,33 @@
   "owner": "xn-intenton-z2a",
   "repo": "agentic-lib",
   "engine": "schedule-2",
-  "lastActivityName": "Issue Worker",
+  "lastActivityName": "Automerge",
   "lastActivityBranchName": "main",
   "nextIssue": "[1009] Add Optional Batch Command Throttling to agenticHandler automated, feature",
-  "openIssues": 3,
-  "issuesClosedLastHour": 0,
-  "issuesClosedLastDay": 5,
-  "openPRs": 1,
-  "averagePRAge": 4,
-  "prDetails": [
-    "[4m] Refined agenticHandler validation to reject NaN inputs case-insensitively added additional tests and updated documentation. (fixes #1007)"
-  ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 174,
-  "commitsLastHour": 0,
-  "commitsLastDay": 29,
+  "openIssues": 1,
+  "issuesClosedLastHour": 2,
+  "issuesClosedLastDay": 7,
+  "openPRs": 0,
+  "averagePRAge": 0,
+  "prDetails": [],
+  "diffMinutes": 0,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 1,
+  "commitsLastDay": 30,
   "lastFiveCommitMessages": [
+    "[04:14] - Refined agenticHandler validation to reject NaN inputs case-inse...",
     "[01:17] - Maintain CHAT_AGENT",
     "[20:52] - Maintain CHAT_AGENT",
     "[19:42] - 3.9.1-0",
-    "[19:36] - Add directory creation step for rejected features in workflow\n\nE...",
-    "[19:36] - 3.9.1-0"
+    "[19:36] - Add directory creation step for rejected features in workflow\n\nE..."
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      "[5m] agentic-lib-issue-1007"
-    ],
-    "branchIssueDetails": [
-      "[1007] Refine agenticHandler Validation: Reject 'NaN' as Command Input automated, maintenance"
-    ],
-    "averageBranchAge": 5
+    "count": 0,
+    "details": [],
+    "branchIssueDetails": [],
+    "averageBranchAge": 0
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-14T04:11:55.248Z"
+  "statsGeneratedAt": "2025-04-14T04:15:20.138Z"
 }
