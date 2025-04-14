@@ -328,7 +328,7 @@ jobs:
             Prefer to refine a feature focusing on achievable value with a single repository, not a grandiose vision, or bloated feature set.
             You may only create features to only change the source file, test file, README file and dependencies file content. You may not create features that request new files, delete existing files, or change the other files provided in the prompt context.
             If there are more than the maximum number of ${featuresWipLimit} features in the repository, you must merge similar features into a single feature and name the features to be deleted.
-            The feature will be used to submit to a Chat Completions API (yourself) to generate a series of GitHub issues to implement and iterate upon the feature.
+            The feature will be iterated upon to deliver the feature. New features should be thematically distinct from other features.
             If a significant feature of the repository is not present in the current feature set, please add it either to a new feature or an existing feature.
             All significant features of the repository should be present in the feature set before new features are added and features can be consolidated to make room below the maximum of ${featuresWipLimit} features.
             Before adding a new feature ensure that this feature is distinct from any other feature in the repository, otherwise update an existing feature.
@@ -348,7 +348,7 @@ jobs:
             * Rejected feature names
             * Source file content
             * Test file content
-            * README file content issue
+            * README file content
             * MISSION file content
             * Contributing file content
             * Dependencies file content
@@ -356,7 +356,6 @@ jobs:
             * Build output
             * Test output
             * Main execution output
-            * Open issue titles
             
             Feature prompt:
             FEATURE_PROMPT_START
@@ -438,7 +437,7 @@ jobs:
             const tools = [{
               type: "function",
               function: {
-                name: "generate_issue",
+                name: "generate_feature",
                 description: "Elaborate on the supplied prompt and project files to create the featureName and featureSpec of a repository feature, and the feature names to be deleted. Return an object with featureName (string), featureSpec (string), and featureNamesToBeDeleted (string).",
                 parameters: {
                   type: "object",
