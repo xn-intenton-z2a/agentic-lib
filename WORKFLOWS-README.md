@@ -652,9 +652,9 @@ Supervisor:
 - [x] Add a NaN filter to stop any NaN issues from being created.
 - [x] In Apply Fix, limit the number if attempts to [work++fix] a branch on an issue to 3 (as per agentic-lib.yml), then comment the issue and delete the branch.
 - [x] In Issue Worker, limit the number if attempts to [work] an issue on an issue to 2 (as per agentic-lib.yml), then comment and close the issue. 
-- [~] Before trying to apply fix a make sure there isn't an open PR.
-- [~] In auto-merge, close PRs and delete branches which have conflicts.
-- [~] Expose check states in the stats.
+- [x] Before trying to apply fix a make sure there isn't an open PR.
+- [x] In auto-merge, close PRs and delete branches which have conflicts.
+- [x] Expose check states in the stats.
 - [ ] Do this everywhere:  echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
 - [ ] Place all AWS config in repository variables and handle blank by skipping the steps.
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix) and relabel "engine" to "schedule".
