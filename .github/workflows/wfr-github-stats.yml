@@ -264,7 +264,7 @@ jobs:
               },
               lastActivityName,
               lastActivityBranchName,
-              repo: {
+              repository: {
                 count: repoResp.length,
                 details: repoResp,
                 owner, 
