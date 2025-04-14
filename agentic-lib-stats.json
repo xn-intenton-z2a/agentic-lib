@@ -2,39 +2,33 @@
   "owner": "xn-intenton-z2a",
   "repo": "agentic-lib",
   "engine": "schedule-2",
-  "lastActivityName": "∞ Truncate Workflow Runs",
+  "lastActivityName": "Automerge",
   "lastActivityBranchName": "main",
   "nextIssue": "[1009] Add Optional Batch Command Throttling to agenticHandler automated, feature",
-  "openIssues": 2,
-  "issuesClosedLastHour": 0,
-  "issuesClosedLastDay": 7,
-  "openPRs": 1,
-  "averagePRAge": 184,
-  "prDetails": [
-    "[184m] Add support for optional MAX_BATCH_COMMANDS throttling in agenticHandler and update tests and documentation accordingly. (fixes #1009)"
-  ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 187,
-  "commitsLastHour": 0,
-  "commitsLastDay": 31,
+  "openIssues": 0,
+  "issuesClosedLastHour": 2,
+  "issuesClosedLastDay": 9,
+  "openPRs": 0,
+  "averagePRAge": 0,
+  "prDetails": [],
+  "diffMinutes": 0,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 1,
+  "commitsLastDay": 32,
   "lastFiveCommitMessages": [
+    "[08:15] - Add support for optional MAX_BATCH_COMMANDS throttling in agenti...",
     "[04:53] - Maintain CHAT_AGENT",
     "[04:14] - Refined agenticHandler validation to reject NaN inputs case-inse...",
     "[01:17] - Maintain CHAT_AGENT",
-    "[20:52] - Maintain CHAT_AGENT",
-    "[19:42] - 3.9.1-0"
+    "[20:52] - Maintain CHAT_AGENT"
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      "[184m] agentic-lib-issue-1009"
-    ],
-    "branchIssueDetails": [
-      "[1009] Add Optional Batch Command Throttling to agenticHandler automated, feature"
-    ],
-    "averageBranchAge": 184
+    "count": 0,
+    "details": [],
+    "branchIssueDetails": [],
+    "averageBranchAge": 0
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-14T08:01:22.279Z"
+  "statsGeneratedAt": "2025-04-14T08:16:06.964Z"
 }

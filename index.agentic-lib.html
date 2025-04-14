@@ -65,19 +65,33 @@ Look in the <code class="md-github">examples/</code> directory for sample implem
 </ul>
 <h3 class="md-github"><a class="md-github__anchor" name="3-the-evolving-mainjs-javascript-reimplementation-of-reusable-workflows" href="#3-the-evolving-mainjs-javascript-reimplementation-of-reusable-workflows"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>3. The Evolving main.js (JavaScript re‑implementation of Re‑usable Workflows)</h3>
 <ul class="md-github">
-<li class="md-github"><strong class="md-github">Purpose:</strong><br>
-This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality. It now also tracks each successful invocation of the agentic command using an internal counter for improved observability.</li>
-<li class="md-github"><strong class="md-github">Batch Processing:</strong>
-The <code class="md-github">agenticHandler</code> function now supports batch processing. You can pass a payload with a <code class="md-github">commands</code> property containing an array of command strings. Each command is validated and processed sequentially. On success, each command is individually logged and the global invocation counter (<code class="md-github">globalThis.callCount</code>) is incremented accordingly. The aggregated response contains a list of individual results.</li>
-<li class="md-github"><strong class="md-github">Note on Prompt Validity:</strong>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Purpose:</strong><br>
+This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality. It now also tracks each successful invocation of the agentic command using an internal counter for improved observability.</p>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Batch Processing:</strong>
+The <code class="md-github">agenticHandler</code> function supports batch processing by accepting a payload with a <code class="md-github">commands</code> array. Each command is validated and processed sequentially. On success, each command is individually logged and the global invocation counter (<code class="md-github">globalThis.callCount</code>) is incremented accordingly. The aggregated response contains a list of individual results.</p>
+<p class="md-github"><strong class="md-github">Optional Batch Throttling:</strong>
+You can limit the maximum number of commands processed in a batch by setting the environment variable <code class="md-github">MAX_BATCH_COMMANDS</code>. When set, if the number of commands exceeds this limit, the batch will be rejected with an error message.</p>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Note on Prompt Validity:</strong>
 The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. <br/>
-<strong>Important:</strong> Inputs that, when trimmed and lowercased, equal to 'nan' (for example, 'NaN', 'nan', or 'NAN') are explicitly considered non-actionable and will result in an error.</li>
-<li class="md-github"><strong class="md-github">Stability:</strong><br>
-It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.</li>
-<li class="md-github"><strong class="md-github">Licensing:</strong><br>
-As part of the core project, it is under GPL‑3 with the attribution clause.</li>
-<li class="md-github"><strong class="md-github">Location:</strong><br>
-The code is located in <code class="md-github">src/lib/main.js</code>.</li>
+<strong>Important:</strong> Inputs that, when trimmed and lowercased, equal to 'nan' (for example, 'NaN', 'nan', or 'NAN') are explicitly considered non-actionable and will result in an error.</p>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Stability:</strong><br>
+It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.</p>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Licensing:</strong><br>
+As part of the core project, it is under GPL‑3 with the attribution clause.</p>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Location:</strong><br>
+The code is located in <code class="md-github">src/lib/main.js</code>.</p>
+</li>
 </ul>
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="agentic-library-functions" href="#agentic-library-functions"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Agentic Library Functions</h2>
@@ -189,7 +203,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-04-14T08:01:49.368Z</p>
+    <p>Generated on 2025-04-14T08:16:25.078Z</p>
   </footer>
 </body>
 </html>
