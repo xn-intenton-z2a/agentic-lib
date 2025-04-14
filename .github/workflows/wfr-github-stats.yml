@@ -220,33 +220,86 @@ jobs:
             }));
             const averageBranchAge = branchDetails.length > 0 ? Math.floor(branchDetails.reduce((sum, branch) => sum + branch.minutesSinceLastCommit, 0) / branchDetails.length) : 0;
 
+            const { data: checksResp } = await github.rest.checks.listForRef({
+              owner,
+              repo,
+              ref: pullRequest.head.sha,
+            });
+
             const jsonData = { 
               owner, 
               repo,
               engine,
+              agenticLib: {
+                schedule: engine
+              },
               lastActivityName,
               lastActivityBranchName,
+              repo: {
+                count: repoResp.data.length,
+                details: repoResp.data,
+                owner, 
+                repo,
+                lastActivityName,
+                lastActivityBranchName
+              },
               nextIssue,
               openIssues: issuesResp.data.length,
               issuesClosedLastHour: closedHourResp.data.length,
               issuesClosedLastDay: closedDayResp.data.length,
+              openIssues: {
+                count: issuesResp.data.length, 
+                details: issuesResp.data,
+                nextIssue,
+                openIssues: issuesResp.data.length,
+                issuesClosedLastHour: closedHourResp.data.length,
+                issuesClosedLastDay: closedDayResp.data.length
+              },
+              closedIssues: {
+                count: closedDayResp.data.length, 
+                details: closedDayResp.data
+              },
               openPRs: prDetails.length,
               averagePRAge: averagePRAge,
               prDetails: prDetails.map(pr => `[${pr.ageMinutes}m] ${pr.title}`),
               diffMinutes: Math.floor((now - pushedAt) / (1000 * 60)),
               diffMinutesMain: Math.floor((now - mainPushedAt) / (1000 * 60)),
+              prs: {
+                count: pullsResp.data.length, 
+                details: pullsResp.data,
+                openPRs: prDetails.length,
+                averagePRAge: averagePRAge,
+                prDetails: prDetails.map(pr => `[${pr.ageMinutes}m] ${pr.title}`),
+                diffMinutes: Math.floor((now - pushedAt) / (1000 * 60)),
+                diffMinutesMain: Math.floor((now - mainPushedAt) / (1000 * 60))
+              },
               commitsLastHour: commitsLastHourResp.data.length,
               commitsLastDay: commitsLastDayResp.data.length,
               lastFiveCommitMessages: lastFiveCommitMessages.map(commit => `[${commit.time}] - ${commit.message}`),
+              commits: {
+                count: lastFiveCommitsResp.data.length, 
+                details: lastFiveCommitsResp.data,
+                commitsLastHour: commitsLastHourResp.data.length,
+                commitsLastDay: commitsLastDayResp.data.length,
+                lastFiveCommitMessages: lastFiveCommitMessages.map(commit => `[${commit.time}] - ${commit.message}`)
+              },
               branches: { 
                 count: branchDetails.length, 
                 details: branchDetails.map(branch => `[${branch.minutesSinceLastCommit}m] ${branch.branch}`),
+                countRaw: branchesResp.data.length, 
+                detailsRaw: branchesResp.data,
                 branchIssueDetails: branchDetails.map(branch => `[${branch.issueNumber}] ${branch.issueTitle} ${branch.issueLabels}`),
                 averageBranchAge
               },
-              testStatusOnBranch: "PASS", // Placeholder
-              testsLastPassedMinutes: 15, // Placeholder
-              statsGeneratedAt: now.toISOString()
+              checks: {
+                count: checksResp.data.length,
+                checks: checksResp.data,
+                testStatusOnBranch: "PASS - placeholder",
+                testsLastPassedMinutes: "15 - placeholder"
+              },
+              statsGeneratedAt: now.toISOString(),
+              context,
+              github
             };
 
             // Write JSON file

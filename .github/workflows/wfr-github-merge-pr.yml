@@ -91,50 +91,34 @@ jobs:
             const pullNumber = parseInt('${{ inputs.pullNumber }}', 10);
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            let pullRequest;
             let prMerged;
-            
-            const { data: pullRequests } = await github.rest.pulls.list({
-              owner: owner,
-              repo: repo,
+          
+            // Get the latest PR information
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: pullNumber,
             });
-            if (pullRequests.length > 0) {
-              const filteredPRs = pullRequests.filter(pr => pr.number === pullNumber);
-              if (filteredPRs.length > 0) {
-                pullRequest = filteredPRs[0];
-                core.info(`Found pull request #${pullRequest.number}.`);
-                const { data: pullRequestFromGet } = await github.rest.pulls.get({
-                  owner,
-                  repo,
-                  pull_number: pullNumber,
-                });
-                pullRequest = pullRequestFromGet;
-                core.info(JSON.stringify(pullRequest));
-              } else {
-                core.info(`No pull request found with number #${pullNumber}.`);
-                pullRequest = null;
-              }
-            } else {
-              pullRequest = null;
-              core.info('No pull requests found.');
-            }
-
-            if (pullRequest.state === "closed") {
+            core.info(`Found pull request #${pullRequest.number} with state: ${pullRequest.state} and mergeable state: ${pullRequest.mergeable_state}`);
+          
+            if (pullRequest.state === "closed") { 
               core.info(`PR #${pullNumber} is already closed.`);
-              prMerged = 'true';
-            } else if (pullRequest.state !== 'open') {
-              core.info(`PR #${pullNumber} is not open it is ${pullRequest.state}.`);
-              prMerged = 'false';
+              if (pullRequest.merged) {
+                core.info(`PR #${pullNumber} is closed and merged.`);
+                prMerged = 'true';
+              } else {
+                core.info(`PR #${pullNumber} is closed but not merged.`);
+                prMerged = 'false';
+              }
             } else if (pullRequest.mergeable && pullRequest.mergeable_state === 'clean') {
-            
+              // If the PR is mergeable (clean), proceed with merging
               await github.rest.pulls.merge({
                 owner,
                 repo,
                 pull_number: pullNumber,
                 merge_method: 'squash',
               });
-              core.info(`PR #${pullNumber} merged.`);
-            
+              core.info(`PR #${pullNumber} merged successfully.`);
               const branchRef = `heads/${pullRequest.head.ref}`;
               await github.rest.git.deleteRef({
                 owner,
@@ -143,18 +127,41 @@ jobs:
               });
               core.info(`Branch '${pullRequest.head.ref}' deleted.`);
               prMerged = 'true';
-            
-            } else if (pullRequest.mergeable === false) {
-              core.info(`PR #${pullNumber} is not mergeable.`);
+            } else if (pullRequest.mergeable_state === 'dirty' || pullRequest.mergeable === false) {
+              // PR has conflicts or failing tests – close the PR and delete the branch
+              core.info(`PR #${pullNumber} has conflicts. Commenting on the PR and closing it.`);
+              await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: pullNumber,
+                  body: `This pull request is being closed due to conflicts (mergeable_state: ${pullRequest.mergeable_state}, mergeable: ${pullRequest.mergeable}).`,
+                });
+              await github.rest.pulls.update({
+                owner,
+                repo,
+                pull_number: pullNumber,
+                state: "closed",
+              });
+              const branchRef = `heads/${pullRequest.head.ref}`;
+              try {
+                await github.rest.git.deleteRef({
+                  owner,
+                  repo,
+                  ref: branchRef,
+                });
+                core.info(`Branch '${pullRequest.head.ref}' deleted.`);
+              } catch (error) {
+                core.warning(`Failed to delete branch '${pullRequest.head.ref}': ${error.message}`);
+              }
               prMerged = 'false';
             } else if (pullRequest.mergeable === null) {
               core.info(`PR #${pullNumber} does not yet have a value for mergeability.`);
               prMerged = 'false';
             } else {
-              core.info(`PR #${pullNumber} is not known.`);
+              core.info(`PR #${pullNumber} is in an unexpected state.`);
               prMerged = 'false';
             }
-            
+          
             core.setOutput('prMerged', prMerged);
             core.info(`prMerged: '${prMerged}'`);
 
