@@ -141,7 +141,7 @@ export async function agenticHandler(payload) {
       }
       const responses = [];
       for (const cmd of payload.commands) {
-        if (typeof cmd !== "string" || cmd.trim() === "" || cmd === "NaN") {
+        if (typeof cmd !== "string" || cmd.trim() === "" || cmd.trim().toLowerCase() === "nan") {
           const errorMsg = "Invalid prompt input in commands: each command must be a valid non-empty string and not 'NaN'";
           logError(errorMsg);
           throw new Error(errorMsg);
@@ -159,7 +159,7 @@ export async function agenticHandler(payload) {
       throw new Error("Payload must have a 'command' property");
     } else {
       // Single command processing
-      if (typeof payload.command !== "string" || payload.command.trim() === "" || payload.command === "NaN") {
+      if (typeof payload.command !== "string" || payload.command.trim() === "" || payload.command.trim().toLowerCase() === "nan") {
         const errorMsg = "Invalid prompt input: command is non-actionable. Please provide a valid, non-empty string command.";
         logError(errorMsg);
         throw new Error(errorMsg);

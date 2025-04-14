@@ -52,7 +52,8 @@ This repository is organized into three distinct areas to help you understand th
 - **Batch Processing:**
   The `agenticHandler` function now supports batch processing. You can pass a payload with a `commands` property containing an array of command strings. Each command is validated and processed sequentially. On success, each command is individually logged and the global invocation counter (`globalThis.callCount`) is incremented accordingly. The aggregated response contains a list of individual results.
 - **Note on Prompt Validity:**
-  The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. Please ensure your JSON payload includes a valid, non-empty string in the 'command' field or a valid array in the 'commands' field.
+  The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. <br/>
+  <strong>Important:</strong> Inputs that, when trimmed and lowercased, equal to 'nan' (for example, 'NaN', 'nan', or 'NAN') are explicitly considered non-actionable and will result in an error.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
@@ -87,8 +88,10 @@ node src/lib/main.js --dry-run
 Additionally, the CLI now supports additional commands:
 
 - `--version`: Displays version information from package.json along with a timestamp.
-- `--diagnostics`: Outputs detailed diagnostic information including configuration and Node.js environment details.
-- `--status`: Outputs a JSON-formatted runtime health summary, including the current configuration, Node.js version, global invocation counter (`callCount`), uptime, and key environment variables.
+- `--verbose`: Activates detailed logging for debugging purposes.
+- `--diagnostics`: Outputs an in‑depth diagnostic report, including the current configuration, Node.js version, and relevant environment variables.
+- `--status`: Outputs a runtime health summary in JSON format including configuration, Node.js version, callCount, uptime, and select environment variables.
+- `--digest`: Initiates processing of a sample digest event.
 
 ---
 

@@ -152,6 +152,10 @@ describe("agenticHandler Single Command Processing", () => {
   test("throws an error and logs when command is an empty string", async () => {
     await expect(agenticLib.agenticHandler({ command: "" })).rejects.toThrow(/Invalid prompt input/);
   });
+
+  test("throws an error when command is 'nan' in lowercase", async () => {
+    await expect(agenticLib.agenticHandler({ command: "nan" })).rejects.toThrow(/Invalid prompt input/);
+  });
 });
 
 describe("agenticHandler Batch Processing", () => {
@@ -175,6 +179,11 @@ describe("agenticHandler Batch Processing", () => {
 
   test("throws an error when one of the commands is invalid", async () => {
     const payload = { commands: ["validCommand", "", "anotherValid"] };
+    await expect(agenticLib.agenticHandler(payload)).rejects.toThrow(/Invalid prompt input in commands/);
+  });
+
+  test("throws an error when one of the batch commands is ' NAn ' with spaces", async () => {
+    const payload = { commands: ["command1", " NAn "] };
     await expect(agenticLib.agenticHandler(payload)).rejects.toThrow(/Invalid prompt input in commands/);
   });
 });
