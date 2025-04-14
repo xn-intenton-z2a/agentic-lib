@@ -59,6 +59,16 @@ on:
         description: 'The next issue to review. e.g. "123 My issue automated"'
         type: string
         required: false
+      publishToAWS:
+        description: 'Whether to publish to AWS. e.g. "true"'
+        type: string
+        required: false
+        default: 'true'
+      publishToGitHubPages:
+        description: 'Whether to publish to GitHub Pages. e.g. "true"'
+        type: string
+        required: false
+        default: 'false'
       s3BucketUrl:
         description: 'The S3 bucket URL with prefix to use. e.g. "s3://my-bucket/prefix"'
         type: string
@@ -104,6 +114,8 @@ jobs:
       lastActivityBranchName: ${{ inputs.lastActivityBranchName || '' }}
       branchPrefix: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}
       nextIssue: ${{ inputs.nextIssue || '' }}
+      publishToAWS: ${{ inputs.publishToAWS || 'true' }}
+      publishToGitHubPages: ${{ inputs.publishToGitHubPages || 'false' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       s3WebsiteBucketUrl: ${{ inputs.s3WebsiteBucketUrl || '' }}
       iamActionsRoleArn: ${{ inputs.iamActionsRoleArn || '' }}
@@ -321,6 +333,7 @@ jobs:
             core.setOutput("jsonStatsPath", outputPath);
 
       - name: Configure AWS Credentials
+        if: ${{ env.publishToAWS == 'true' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.iamActionsRoleArn }}
@@ -332,8 +345,10 @@ jobs:
           retry-max-attempts: 3
 
       - run: aws sts get-caller-identity
+        if: ${{ env.publishToAWS == 'true' }}
 
       - name: Configure AWS Credentials
+        if: ${{ env.publishToAWS == 'true' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.iamStatsBucketWriterRoleArn }}
@@ -345,6 +360,7 @@ jobs:
           retry-max-attempts: 3
 
       - name: Upload JSON stats artifact to S3
+        if: ${{ env.publishToAWS == 'true' }}
         shell: bash
         run: |
           aws s3 cp \
@@ -353,8 +369,10 @@ jobs:
           ;
 
       - run: aws s3 ls ${{ env.s3BucketUrl }} --summarize
+        if: ${{ env.publishToAWS == 'true' }}
 
       - name: Configure AWS Credentials (resetting back from the stats bucket writer role)
+        if: ${{ env.publishToAWS == 'true' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.iamActionsRoleArn }}
@@ -366,8 +384,10 @@ jobs:
           retry-max-attempts: 3
 
       - run: aws sts get-caller-identity
+        if: ${{ env.publishToAWS == 'true' }}
 
       - name: Configure AWS Credentials
+        if: ${{ env.publishToAWS == 'true' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.iamPublicWebsiteStatsBucketWriterRoleArn }}
@@ -379,6 +399,7 @@ jobs:
           retry-max-attempts: 3
 
       - name: Upload JSON stats artifact to S3 website bucket
+        if: ${{ env.publishToAWS == 'true' }}
         shell: bash
         run: |
           aws s3 cp \
@@ -387,6 +408,7 @@ jobs:
           ;
 
       - name: Upload website artefacts to S3 website bucket
+        if: ${{ env.publishToAWS == 'true' }}
         shell: bash
         run: |
           aws s3 cp \
@@ -403,9 +425,11 @@ jobs:
           ;
 
       - run: aws s3 ls ${{ env.s3WebsiteBucketUrl }} --summarize
+        if: ${{ env.publishToAWS == 'true' }}
 
       - name: Output published website bucket pages URLs
         id: output-website-bucket-urls
+        if: ${{ env.publishToAWS == 'true' }}
         shell: bash
         run: |
           s3WebsiteBucketUrl='${{ env.s3WebsiteBucketUrl }}'
@@ -422,7 +446,12 @@ jobs:
           name: stats-json
           path: ${{ steps.generate-json.outputs.jsonStatsPath }}
 
+      - run: npm install
+        if: ${{ env.publishToGitHubPages == 'true' }}
+
       - name: Generate HTML page for statistics
+        id: generate-html
+        if: ${{ env.publishToGitHubPages == 'true' }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -448,15 +477,15 @@ jobs:
             core.info(`Static site generated at ${outputPath}.`);
             core.setOutput("sitePath", outputPath);
 
-      - run: npm install
-
       - name: Generate index page
+        if: ${{ env.publishToGitHubPages == 'true' }}
         shell: bash
         run: |
           ./scripts/md-to-html.js < README.md > ${{ env.public }}/index.agentic-lib.html
           cat ${{ env.public }}/index.agentic-lib.html | sed 's/agentic-lib/${{ github.event.repository.name }}/g' > ${{ env.public }}/index.html
 
       - name: Deploy to GitHub Pages
+        if: ${{ env.publishToGitHubPages == 'true' }}
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -466,12 +495,14 @@ jobs:
           enable_jekyll: 'true'
 
       - name: Upload generated site as artifact
+        if: ${{ env.publishToGitHubPages == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: site
           path: ${{ env.public }}
 
       - name: Output published github pages URLs
+        if: ${{ env.publishToGitHubPages == 'true' }}
         id: output-pages-urls
         run: |
           echo "[INFO] Determining GitHub Pages URL..."
