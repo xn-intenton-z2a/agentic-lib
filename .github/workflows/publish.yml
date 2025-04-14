@@ -145,6 +145,7 @@ jobs:
   publish-npm:
     needs:
       - npm-test-and-run-main
+      - mvn-package-cdk-synth
     permissions:
       contents: write
       packages: write
