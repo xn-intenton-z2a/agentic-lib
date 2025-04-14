@@ -50,7 +50,11 @@ This repository is organized into three distinct areas to help you understand th
 - **Purpose:**  
   This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality. It now also tracks each successful invocation of the agentic command using an internal counter for improved observability.
 - **Batch Processing:**
-  The `agenticHandler` function now supports batch processing. You can pass a payload with a `commands` property containing an array of command strings. Each command is validated and processed sequentially. On success, each command is individually logged and the global invocation counter (`globalThis.callCount`) is incremented accordingly. The aggregated response contains a list of individual results.
+  The `agenticHandler` function supports batch processing by accepting a payload with a `commands` array. Each command is validated and processed sequentially. On success, each command is individually logged and the global invocation counter (`globalThis.callCount`) is incremented accordingly. The aggregated response contains a list of individual results.
+  
+  **Optional Batch Throttling:**
+  You can limit the maximum number of commands processed in a batch by setting the environment variable `MAX_BATCH_COMMANDS`. When set, if the number of commands exceeds this limit, the batch will be rejected with an error message.
+
 - **Note on Prompt Validity:**
   The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. <br/>
   <strong>Important:</strong> Inputs that, when trimmed and lowercased, equal to 'nan' (for example, 'NaN', 'nan', or 'NAN') are explicitly considered non-actionable and will result in an error.

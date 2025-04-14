@@ -139,6 +139,18 @@ export async function agenticHandler(payload) {
       if (!Array.isArray(payload.commands)) {
         throw new Error("Payload 'commands' must be an array");
       }
+
+      // Optional throttling: enforce max batch commands if environment variable is set
+      const maxBatchCommandsEnv = process.env.MAX_BATCH_COMMANDS;
+      if (maxBatchCommandsEnv !== undefined) {
+        const maxBatchCommands = parseInt(maxBatchCommandsEnv, 10);
+        if (!isNaN(maxBatchCommands) && payload.commands.length > maxBatchCommands) {
+          const errorMsg = `Error: Batch size exceeds maximum allowed of ${maxBatchCommands}`;
+          logError(errorMsg);
+          throw new Error(errorMsg);
+        }
+      }
+
       const responses = [];
       for (const cmd of payload.commands) {
         if (typeof cmd !== "string" || cmd.trim() === "" || cmd.trim().toLowerCase() === "nan") {
