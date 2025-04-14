@@ -241,7 +241,8 @@ jobs:
                   repo,
                   ref: commitSha,
                 });
-                checks.push(...branchChecks.check_runs.map(check => {...check, branchName: branch.name, branch }));
+                //checks.push(...branchChecks.check_runs.map(check => {...check, branchName: branch.name, branch }));
+                checks.push(...branchChecks.check_runs);
               } else {
                 core.info(`Branch ${branch.name} not found.`);
               }
