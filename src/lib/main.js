@@ -176,7 +176,7 @@ export async function agenticHandler(payload) {
       // Single command processing
       const startTime = Date.now();
       if (typeof payload.command !== "string" || payload.command.trim() === "" || payload.command.trim().toLowerCase() === "nan") {
-        const errorMsg = "Invalid prompt input: command is non-actionable. Please provide a valid, non-empty string command.";
+        const errorMsg = "Invalid prompt input: command is non-actionable because it is equivalent to 'NaN'. Please provide a valid, non-empty string command.";
         logError(errorMsg);
         throw new Error(errorMsg);
       }

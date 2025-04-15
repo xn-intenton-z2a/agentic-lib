@@ -59,8 +59,7 @@ This repository is organized into three distinct areas to help you understand th
   For enhanced performance insights, the response of `agenticHandler` now includes an `executionTimeMS` field for each command, indicating the processing time in milliseconds.
 
 - **Note on Prompt Validity:**
-  The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. <br/>
-  **Important:** Inputs that, when trimmed and lowercased, equal to 'nan' (for example, 'NaN', 'nan', or 'NAN') are explicitly considered non-actionable and will result in an error.
+  The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. Inputs are processed by trimming whitespace and converting to lowercase. Therefore, even if the input appears in a different case or with extra spaces (e.g., ' NaN ', 'nan'), it will be considered non-actionable and will result in an error message explicitly stating that the input is non-actionable because it is equivalent to 'NaN'.
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
@@ -99,7 +98,7 @@ Additionally, the CLI now supports additional commands:
 - `--diagnostics`: Outputs an in‑depth diagnostic report, including the current configuration, Node.js version, and relevant environment variables.
 - `--status`: Outputs a runtime health summary in JSON format including configuration, Node.js version, callCount, uptime, and select environment variables.
 - `--digest`: Initiates processing of a sample digest event.
-- `--simulate-error`: Simulates an error scenario by logging a simulated error and exiting with a non-zero status code. This is intended for testing error handling paths.
+- `--simulate-error`: Simulates an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.
 
 ---
 

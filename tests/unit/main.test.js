@@ -163,15 +163,15 @@ describe("agenticHandler Single Command Processing", () => {
   });
 
   test("throws an error and logs when command is non-actionable (NaN)", async () => {
-    await expect(agenticLib.agenticHandler({ command: "NaN" })).rejects.toThrow(/Invalid prompt input/);
+    await expect(agenticLib.agenticHandler({ command: "NaN" })).rejects.toThrow(/Invalid prompt input: command is non-actionable because it is equivalent to 'NaN'/);
   });
 
   test("throws an error and logs when command is an empty string", async () => {
-    await expect(agenticLib.agenticHandler({ command: "" })).rejects.toThrow(/Invalid prompt input/);
+    await expect(agenticLib.agenticHandler({ command: "" })).rejects.toThrow(/Invalid prompt input: command is non-actionable because it is equivalent to 'NaN'/);
   });
 
   test("throws an error when command is 'nan' in lowercase", async () => {
-    await expect(agenticLib.agenticHandler({ command: "nan" })).rejects.toThrow(/Invalid prompt input/);
+    await expect(agenticLib.agenticHandler({ command: "nan" })).rejects.toThrow(/Invalid prompt input: command is non-actionable because it is equivalent to 'NaN'/);
   });
 });
 
@@ -199,12 +199,12 @@ describe("agenticHandler Batch Processing", () => {
 
   test("throws an error when one of the commands is invalid", async () => {
     const payload = { commands: ["validCommand", "", "anotherValid"] };
-    await expect(agenticLib.agenticHandler(payload)).rejects.toThrow(/Invalid prompt input in commands/);
+    await expect(agenticLib.agenticHandler(payload)).rejects.toThrow(/Invalid prompt input in commands: each command must be a valid non-empty string and not 'NaN'/);
   });
 
   test("throws an error when one of the batch commands is ' NAn ' with spaces", async () => {
     const payload = { commands: ["command1", " NAn "] };
-    await expect(agenticLib.agenticHandler(payload)).rejects.toThrow(/Invalid prompt input in commands/);
+    await expect(agenticLib.agenticHandler(payload)).rejects.toThrow(/Invalid prompt input in commands: each command must be a valid non-empty string and not 'NaN'/);
   });
 
   test("processes batch within MAX_BATCH_COMMANDS limit", async () => {
@@ -219,7 +219,7 @@ describe("agenticHandler Batch Processing", () => {
   test("throws error when batch size exceeds MAX_BATCH_COMMANDS limit", async () => {
     process.env.MAX_BATCH_COMMANDS = "2";
     const payload = { commands: ["cmd1", "cmd2", "cmd3"] };
-    await expect(agenticLib.agenticHandler(payload)).rejects.toThrow(/Batch size exceeds maximum allowed/);
+    await expect(agenticLib.agenticHandler(payload)).rejects.toThrow(/Batch size exceeds maximum allowed of 2/);
     delete process.env.MAX_BATCH_COMMANDS;
   });
 });
