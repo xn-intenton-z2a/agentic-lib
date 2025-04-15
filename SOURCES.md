@@ -1,24 +1,14 @@
-# GitHub Actions Documentation
-## https://docs.github.com/en/actions
-Official documentation for GitHub Actions covering workflow syntax, YAML configuration, and CI/CD integration. Essential for understanding automation and self-managed workflows, which is highly relevant for agentic systems.
-## Public Domain
+# GitHub REST API Documentation
+## https://docs.github.com/en/rest
+Official documentation for GitHub's REST API. This resource covers endpoints, authentication, rate limiting, and integrations that can be used to interact with GitHub programmatically. It is valuable for projects that integrate CI/CD pipelines with GitHub features and repository management.
+## Public Documentation
 
-# OpenAI API Documentation
-## https://platform.openai.com/docs/api-reference
-Comprehensive API reference for OpenAI models and endpoints. This source is valuable for integrating AI features and understanding how to use OpenAI’s API within a dynamic coding environment.
-## Proprietary
+# AWS SDK for JavaScript v3 Documentation
+## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/index.html
+Comprehensive documentation for the AWS SDK for JavaScript v3. This source is essential for developers building applications that interact with AWS services, including Lambda, SQS, and other compute and storage solutions using modern JavaScript practices.
+## Apache-2.0
 
-# AWS Lambda Node.js Documentation
-## https://docs.aws.amazon.com/lambda/latest/dg/nodejs-handler.html
-Detailed documentation for AWS Lambda's Node.js runtime. Provides guidance on writing function handlers, deployment patterns, and best practices for serverless architecture.
-## AWS Service Terms
-
-# Amazon SQS Documentation
-## https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html
-Amazon SQS documentation offering insights on queue management, message processing, and integration with AWS Lambda. Crucial for designing robust event-driven systems.
-## AWS Service Terms
-
-# AWS CDK Documentation
-## https://docs.aws.amazon.com/cdk/api/latest/index.html
-Documentation for the AWS Cloud Development Kit (CDK), a framework for defining cloud infrastructure in code and provisioning it through AWS CloudFormation, useful for infrastructure automation in modern development workflows.
-## AWS Service Terms
+# Serverless Framework Documentation
+## https://www.serverless.com/framework/docs/
+Official documentation for the Serverless Framework, which simplifies the deployment and management of serverless applications. It provides guidelines, tutorials, and API references that are useful for understanding infrastructure as code, event-driven architectures, and CI/CD automation in cloud environments.
+## MIT
