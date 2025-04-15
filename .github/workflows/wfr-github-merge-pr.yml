@@ -114,11 +114,16 @@ jobs:
               });
               core.info(`PR check suites: ${JSON.stringify(checkSuites)}`);
               for (const suite of checkSuites.check_suites) {
-                await github.rest.checks.rerequestSuite({
-                  owner,
-                  repo,
-                  check_suite_id: suite.id
-                });
+                try{ 
+                  await github.rest.checks.rerequestSuite({
+                    owner,
+                    repo,
+                    check_suite_id: suite.id
+                  });
+                } catch (error) {
+                  core.info(`Failed to trigger check suite for PR #${pullNumber}: ${error.message}`);
+                  core.info(`${JSON.stringify(error)}`);
+                }
               }
             } else {
               core.info(`PR #${pullNumber} is in mergeable state ${mergeable}.`);
