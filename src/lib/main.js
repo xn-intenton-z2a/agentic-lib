@@ -218,6 +218,16 @@ export function statusHandler() {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
+// New function to simulate an error and exit
+// ---------------------------------------------------------------------------------------------------------------------
+
+export function simulateError() {
+  const error = new Error("Simulated Error");
+  logError("Simulated error triggered by '--simulate-error' flag", error);
+  process.exit(1);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
 // Main CLI
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -232,6 +242,7 @@ function generateUsage() {
       --diagnostics              Output detailed diagnostic information
       --status                 Output runtime health summary in JSON format
       --dry-run                Execute a dry run with no side effects
+      --simulate-error         Simulate an error for testing purposes
     `;
 }
 
@@ -240,6 +251,11 @@ export async function main(args = process.argv.slice(2)) {
   if (args.includes("--verbose")) {
     VERBOSE_MODE = true;
     logInfo("Verbose mode activated.");
+  }
+
+  // Check for simulate error flag first
+  if (args.includes("--simulate-error")) {
+    simulateError();
   }
 
   if (args.includes("--help")) {
