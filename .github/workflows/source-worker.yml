@@ -37,7 +37,7 @@ jobs:
           echo "sourcesLimit=${sourcesLimit}"
           echo "sourcesLimit=${sourcesLimit}" >> $GITHUB_OUTPUT
     outputs:
-      featuresWipLimit: ${{ steps.agentic-lib.outputs.featuresWipLimit }}
+      sourcesLimit: ${{ steps.agentic-lib.outputs.sourcesLimit }}
 
   # If the feature is "house choice", the repository will be assessed an action chosen otherwise the supplied text will be used to generate a new feature.
   maintain-sources:
