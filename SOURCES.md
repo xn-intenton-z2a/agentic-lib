@@ -1,29 +1,29 @@
-# GitHub REST API Documentation
-## https://docs.github.com/en/rest
-A comprehensive guide to GitHub's REST API, providing detailed information on endpoints, authentication, rate limiting, and examples for integrating GitHub features into applications and workflows. This official documentation is frequently updated and maintained by GitHub, ensuring reliable and up-to-date information for developers.
+# GitHub Actions Documentation
+## https://docs.github.com/en/actions
+This documentation covers GitHub Actions, including workflow syntax, triggers, best practices, and examples for automating your software development life cycle. It is maintained by GitHub and provides detailed guidance for creating CI/CD pipelines. Last major updates are frequent with GitHub Actions improvements.
 ## Unknown License
 
-# GitHub GraphQL API Documentation
-## https://docs.github.com/en/graphql
-This documentation explains GitHub's GraphQL API, covering query construction, schema exploration, mutations, and best practices for efficient data retrieval. It is an essential resource for developers looking to harness the power of GraphQL in managing GitHub data in automated workflows.
+# Vitest Documentation
+## https://vitest.dev
+Vitest is a modern testing framework designed to work seamlessly with Vite. The documentation provides comprehensive guides on setting up tests, configuration options, mocking strategies, and integration tips for both unit and integration tests, making it essential for developers using modern JavaScript toolchains.
 ## Unknown License
 
-# OpenAI API Documentation
-## https://platform.openai.com/docs
-The official OpenAI API Documentation offers robust guidance on integrating OpenAI models into applications. It covers authentication, available endpoints, usage patterns, and example implementations, making it a trusted source for developers working with AI-driven functionalities.
+# AWS Lambda Developer Guide
+## https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
+The AWS Lambda Developer Guide offers detailed instructions for deploying and managing serverless functions. It covers best practices, pricing, security considerations, and integration with other AWS services. This resource is a key reference for developers building scalable, event-driven applications.
 ## Unknown License
 
-# AWS SQS Developer Guide
-## https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html
-The AWS SQS Developer Guide provides an in-depth look at Amazon's Simple Queue Service. It outlines configuration, best practices for message queuing, error handling, and scalability techniques, all of which are essential for building robust, serverless, and asynchronous communication systems.
-## Unknown License
-
-# Vite Documentation
-## https://vitejs.dev/guide/
-Vite is a modern build tool that offers fast development and efficient production builds through native ES modules and hot module replacement. The documentation covers setup, configuration, plugin integration, and optimization practices, serving as a vital resource for developers aiming to streamline their development workflow.
+# Dotenv Documentation
+## https://github.com/motdotla/dotenv#readme
+This resource provides complete documentation for dotenv, a zero-dependency module that loads environment variables from a .env file into process.env. It includes usage examples, configuration options, and common troubleshooting tips, helping developers manage configuration for different environments.
 ## MIT License
 
-# ES Modules in Node.js Documentation
-## https://nodejs.org/api/esm.html
-This official guide explains ECMAScript Modules (ESM) in Node.js, including import/export syntax, configuration options, and migration strategies from CommonJS. It is an essential resource for modern Node.js development using native module support.
+# Zod Documentation
+## https://zod.dev/
+Zod is a TypeScript-first schema declaration and validation library. Its documentation offers thorough insights into API usage, schema composition best practices, error handling, and integration examples, making it a critical resource for validating and parsing data in modern JavaScript and TypeScript projects.
+## MIT License
+
+# ESLint Documentation
+## https://eslint.org/docs/latest/user-guide/getting-started
+The official ESLint documentation provides comprehensive guidance on configuring and using ESLint to enforce coding standards and detect potential errors in JavaScript code. It covers installation, rule configuration, integration with modern development tools, and best practices for maintaining code quality.
 ## Unknown License
