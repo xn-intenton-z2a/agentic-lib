@@ -1,24 +1,34 @@
-# GitHub Workflow Call Documentation
-## https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call
-This documentation covers the use of the workflow_call event in GitHub Actions, which enables one workflow to invoke another. It details the syntax, configuration, and best practices for creating callable workflows. The material is maintained by GitHub, regularly updated, and is instrumental in designing composite workflows. Last reviewed in 2023. 
+# GitHub Actions Workflow Syntax Documentation
+## https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+This official documentation details the syntax and configuration for GitHub Actions workflows. It covers how to define triggers, jobs, steps, and more, enabling developers to customize their CI/CD pipelines. The content is maintained by GitHub and is updated regularly. Last reviewed in 2023.
 ## Unknown License
 
-# GitHub Actions Toolkit Documentation
-## https://github.com/actions/toolkit
-The GitHub Actions Toolkit provides a suite of packages designed to simplify the creation of GitHub Actions. It includes libraries for logging, input parsing, and workflow management, making it a valuable resource for developers building custom actions and workflows. The repository is actively maintained and widely recognized in the GitHub Actions community.
+# AWS Lambda Developer Guide
+## https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
+The AWS Lambda Developer Guide provides a comprehensive overview of AWS Lambda’s features including deployment, scaling, security, and operational best practices. It is an authoritative source for building serverless applications on AWS and is maintained by Amazon Web Services.
+## Unknown License
+
+# AWS SQS Developer Guide
+## https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html
+This guide offers detailed instructions on using AWS Simple Queue Service (SQS) for building reliable and scalable messaging systems. It covers configuration, integration with other AWS services, and best practices in message handling, essential for systems integrating AWS Lambda with SQS.
+## Unknown License
+
+# Dotenv Documentation
+## https://github.com/motdotla/dotenv
+Dotenv is a popular Node.js module that loads environment variables from a .env file into process.env. It simplifies configuration management during development and production. The documentation provides installation instructions, usage examples, and troubleshooting tips.
 ## MIT License
 
-# Release-it Documentation
-## https://github.com/release-it/release-it#readme
-Release-it is an automation tool for versioning and releasing projects. Its documentation covers setup, configuration options, and integration with CI/CD pipelines. It serves as an alternative to automated release tools like semantic-release and is popular among open-source projects for its ease of use and flexibility. Last updated in 2023.
+# Zod Documentation
+## https://github.com/colinhacks/zod
+Zod is a TypeScript-first schema declaration and validation library. It is widely used for input validation, including parsing environment variables and API requests. The documentation covers API reference, examples, and advanced type inference features.
 ## MIT License
 
-# Lodash Documentation
-## https://lodash.com/docs/
-Lodash is a modern JavaScript utility library delivering consistency, customization, and performance. The documentation offers comprehensive guides, API references, and examples that can assist developers in integrating its powerful functions into their applications. It is a widely-used and authoritative resource in the JavaScript ecosystem.
-## MIT License
+# OpenAI API Documentation
+## https://platform.openai.com/docs/api-reference/introduction
+The OpenAI API Documentation offers a detailed introduction to interacting with OpenAI's models via API endpoints. It includes guides, examples, and reference materials for making prompt completion requests, handling responses, and integrating AI capabilities into applications.
+## Unknown License
 
-# Markdown-it Documentation
-## https://github.com/markdown-it/markdown-it
-Markdown-it is a flexible and fast Markdown parser with extensive plugin support. Its documentation includes installation instructions, configuration options, and examples of extending its functionality, making it an essential resource for developers needing robust markdown processing capabilities.
+# Chalk Documentation
+## https://github.com/chalk/chalk
+Chalk is a widely used library for styling terminal strings using colors and other formatting options in Node.js. Its documentation covers installation, usage examples, and advanced customization for producing visually enriched CLI outputs.
 ## MIT License
