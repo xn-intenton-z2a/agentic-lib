@@ -115,7 +115,7 @@ jobs:
                 await github.rest.checks.rerequestSuite({
                   owner,
                   repo,
-                  checkSuites.id    // check_suite_id: suite.id
+                  check_suite_id: checkSuites.id    // suite.id
                 });
               //}
             } else {
