@@ -1,29 +1,24 @@
-# Node.js Documentation
-## https://nodejs.org/api/index.html
-This documentation provides comprehensive insights into Node.js built-in modules for building CLI tools and server applications. It is authoritative and maintained by the Node.js Foundation, with regular updates aligned to new Node.js releases.
+# GitHub Actions Documentation
+## https://docs.github.com/en/actions
+This official documentation provides a complete guide to GitHub Actions including workflows, runners, event triggers, and best practices for CI/CD. It is maintained by GitHub and regularly updated with new features and improvements. Last known update: regularly maintained; authoritative source provided by GitHub.
 ## Unknown License
 
-# ES Modules in Node.js
-## https://nodejs.org/api/esm.html
-This guide explains the ES Modules system in Node.js, detailing import/export syntax, module resolution, and best practices for modern JavaScript application development. It is maintained by the Node.js team and reflects ongoing improvements.
+# AWS Lambda Developer Guide
+## https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
+This guide offers comprehensive information on AWS Lambda including function creation, deployment, integration with other AWS services, and runtime management. Authored and maintained by AWS, it serves as a highly authoritative resource for serverless application development. Last updated frequently by AWS.
 ## Unknown License
 
-# Vitest Documentation
-## https://vitest.dev/
-Vitest is a Vite-native unit testing framework optimized for speed and efficiency. The documentation provides detailed instructions for writing tests, configuring environments, and integrating with modern build tools. It is highly authoritative in the context of modern JavaScript testing.
+# Amazon SQS Developer Guide
+## https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html
+The Amazon SQS Developer Guide details the features, configuration, and best practices for using Amazon Simple Queue Service. It covers message queuing, long polling, and error handling strategies. This guide is published by AWS and is a trusted source for managing asynchronous workflows.
+## Unknown License
+
+# OpenAI API Documentation
+## https://platform.openai.com/docs/api-reference
+This documentation provides detailed information on the OpenAI API endpoints including authentication, request parameters, and response formats. It is maintained by OpenAI and is frequently updated to reflect the latest features and changes to the API, making it an authoritative resource for integrating AI services.
+## Unknown License
+
+# ESLint Documentation
+## https://eslint.org/docs/latest/
+The ESLint documentation offers comprehensive guidance on setting up and using ESLint for JavaScript and Node.js projects. It includes configuration options, plugin development, and troubleshooting techniques. Maintained by the ESLint team, it is recognized as an authoritative resource for linting and code quality improvement.
 ## MIT License
-
-# Zod Documentation
-## https://zod.dev/?id=quick-start
-Zod is a TypeScript-first schema declaration and validation library that promotes runtime validation of data. Its documentation offers quick-start guides, comprehensive API references, and best practices for ensuring data integrity in JavaScript and TypeScript projects.
-## MIT License
-
-# dotenv Documentation
-## https://github.com/motdotla/dotenv
-The dotenv documentation explains how to load environment variables from a .env file into Node.js, enhancing the management of configuration and secrets. It includes installation, setup, and usage examples, establishing best practices for secure application configuration.
-## BSD 2-Clause License
-
-# GitHub REST API Documentation
-## https://docs.github.com/en/rest
-GitHub's REST API documentation details endpoints, authentication, rate limits, and usage examples for interacting with GitHub programmatically. It is an essential resource for developers integrating with GitHub's services and is maintained directly by GitHub.
-## Unknown License
