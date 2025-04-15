@@ -350,6 +350,9 @@ jobs:
             
             const chatGptPrompt = `
             Please create, extend or update the document sources in the sourcesFile based the supplied source prompt.
+            Add or update as many as you can, review and refine the summaries to match the latest information you have.
+            If there is nothing to add consider pruning some overlapping topics.
+            If you can request some content from the URL do so and summarise it.
             The sources should be URLs which can be accessed without authentication for content which is publicly available.
             The URLs should be public URLS on the internet external to this repository. e.g. https://docs.github.com/en/rest
             Pick subjects which are relevant to the repository and which are not already covered by the current sources.
