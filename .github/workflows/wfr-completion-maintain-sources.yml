@@ -34,10 +34,10 @@ on:
         required: false
         default: 'house choice'
       sourcesFile:
-        description: 'The file to create/update the sources in. e.g. "sources/"'
+        description: 'The file to create/update the sources in. e.g. "SOURCES.md"'
         type: string
         required: false
-        default: 'sources/'
+        default: 'SOURCES.md'
       sourcesLimit:
         description: 'The maximum number of sources to create. e.g. "3"'
         type: string
@@ -135,7 +135,7 @@ jobs:
 
     env:
       source: ${{ inputs.source || '' }}
-      sourcesFile: ${{ inputs.sourcesFile || 'sources/' }}
+      sourcesFile: ${{ inputs.sourcesFile || 'SOURCES.md' }}
       sourcesLimit: ${{ inputs.sourcesLimit || '3' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
