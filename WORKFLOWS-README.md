@@ -658,7 +658,6 @@ Supervisor:
 - [ ] Do this everywhere:  echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
 - [ ] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
 - [ ] Set repository0 to skip github pages and s3 by default
-- [ ] Set s3-sqs-bridge to be github pages only
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix) and relabel "engine" to "schedule".
 - [ ] Expose the stats generate-stats step as a GitHub Action.
 
@@ -668,9 +667,11 @@ Schedule based workflow refinement:
 - [ ] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issues is not resolved.
 
 Knowledge based refinement:
-- [ ] Maintain a list of data sources suitable for crawling and querying in relation to software, science and business.
-- [ ] Build a library of documents useful to the project mission statement of current tech or features, sanitise, normalise to a common word limit, and store them the repository.
+- [x] Maintain a list of data sources suitable for crawling and querying in relation to software, science and business.
+- [~] Build a library of documents useful to the project mission statement of current tech or features, sanitise, normalise to a common word limit, and store them the repository.
 - [ ] Use the documents to generate new features or refine existing ones and add to a library wishlist.
+- [ ] Support local docs added directly to the repository and have summaries created from these, they should be scanned for addition as sources.
+- [ ] Publish documents using markdown to html to github pages and create a dedicated demo repository which just builds a website.
 - [ ] Supply a subset of relevant documents to the LLM when working on issues or bugs.
 - [ ] Add to the library wishlist when a bug is observed or when a library or pattern is used.
 
