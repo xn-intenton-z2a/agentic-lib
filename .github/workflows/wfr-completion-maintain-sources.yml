@@ -311,15 +311,15 @@ jobs:
             core.info(`missionFile: "${missionFile}"`);
             core.info(`contributingFile: "${contributingFile}"`);
             core.info(`dependenciesFile: "${dependenciesFile}"`);
-            const sourcesFileContent = fs.readFileSync(readmeFile, 'utf8'); // fs.readFileSync(sourcesFile, 'utf8');
-            const sourceFileContent = fs.readFileSync(readmeFile, 'utf8'); // fs.readFileSync(target, 'utf8');
-            const testFileContent = fs.readFileSync(readmeFile, 'utf8'); // fs.readFileSync(testFile, 'utf8');
+            const sourcesFileContent = fs.readFileSync(sourcesFile, 'utf8');
+            const targetFileContent = fs.readFileSync(target, 'utf8');
+            const testFileContent = fs.readFileSync(testFile, 'utf8');
             const readmeFileContent = fs.readFileSync(readmeFile, 'utf8');
             const missionFileContent = fs.readFileSync(missionFile, 'utf8');
             const contributingFileContent = fs.readFileSync(contributingFile, 'utf8');
             const dependenciesFileContent = fs.readFileSync(dependenciesFile, 'utf8');
             core.info(`Sources directory file '${sourcesFile}' has been loaded (length ${sourcesFileContent.length}).`);
-            core.info(`Target file '${target}' has been loaded (length ${sourceFileContent.length}).`);
+            core.info(`Target file '${target}' has been loaded (length ${targetFileContent.length}).`);
             core.info(`Test file '${testFile}' has been loaded (length ${testFileContent.length}).`);
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
@@ -337,21 +337,24 @@ jobs:
             
             const chatGptPrompt = `
             Please create, extend or update the document sources in the sourcesFile based the supplied source prompt.
-            You are maintaining a file which should contain name, descriptions and URLS of document sources to be used in the repository.
+            The sources should be URLs which can be accessed without authentication for content which is publicly available.
+            You are maintaining a file which should contain name, descriptions, licenses and URLS of document sources to be used in the repository.
             The file is in markdown format and should be a list of sources with repeated sections of the following format:
             START_OF_FORMAT
             # Source Name
             ## https://source.url/path
             Source description.
+            ## License, e.g. MIT
             END_OF_FORMAT
             If there are more than the maximum number of ${sourcesLimit} sources in the repository, you must merge similar sources into a single source.
-            The source directory should be a multiline markdown with a few level 1 (#) headings a source name preceding level 2 (##) with the url of a document source.
+            The source directory should be a multiline markdown with a few level 1 (#) headings for a source name then level 2 (##) with the url of a document source 
+            followed by a description and license.
             Consider the following when refining your response:
             * Source prompt details
             * Current sources file content
             * Current feature names and specifications in the repository
             * Rejected feature names
-            * Source file content
+            * Target file content
             * Test file content
             * README file content
             * MISSION file content
@@ -382,10 +385,10 @@ jobs:
             ${rejectedFeatures}
             REJECTED_FEATURES_END
             
-            Source file: ${target}
-            SOURCE_FILE_START
-            ${sourceFileContent}
-            SOURCE_FILE_END
+            Target file: ${target}
+            TARGET_FILE_START
+            ${targetFileContent}
+            TARGET_FILE_END
             
             Test file: ${testFile}
             TEST_FILE_START
@@ -495,7 +498,6 @@ jobs:
               const sourcesDirectoryFilePath = process.env.sourcesFile || 'SOURCES.md';
               
               try {
-                fs.mkdirSync(sourcesFile, { recursive: true });
                 fs.writeFileSync(sourcesDirectoryFilePath, sourcesDirectoryFileContent);
                 core.info(`source directory saved to ${sourcesDirectoryFilePath}`);
               } catch (e) {
