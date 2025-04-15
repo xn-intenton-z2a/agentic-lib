@@ -1,4 +1,4 @@
-# .github/workflows/wfr-completion-maintain-features.yml
+# .github/workflows/wfr-completion-maintain-sources.yml
 
 #
 # agentic-lib
@@ -23,23 +23,23 @@
 # "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 #
 
-name: ∞ maintain-features
+name: ∞ maintain-sources
 
 on:
   workflow_call:
     inputs:
-      feature:
-        description: 'Text to drive the feature creation (if "house choice", the repository will be assessed an action chosen). e.g. "Support output to PDF."'
+      source:
+        description: 'Text to drive the source creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Add a source about agents."'
         type: string
         required: false
         default: 'house choice'
-      featuresDir:
-        description: 'The directory to create/update the features in. e.g. "features/"'
+      sourcesFile:
+        description: 'The file to create/update the sources in. e.g. "sources/"'
         type: string
         required: false
-        default: 'features/'
-      featuresWipLimit:
-        description: 'The maximum number of features to create. e.g. "3"'
+        default: 'sources/'
+      sourcesLimit:
+        description: 'The maximum number of sources to create. e.g. "3"'
         type: string
         required: false
         default: '3'
@@ -124,19 +124,19 @@ on:
       CHATGPT_API_SECRET_KEY:
         required: true
     outputs:
-      featureName:
-        value: ${{ jobs.maintain-features.outputs.featureName }}
-      featureSpec:
-        value: ${{ jobs.maintain-features.outputs.featureSpec }}
+      sourceName:
+        value: ${{ jobs.maintain-sources.outputs.sourceName }}
+      sourceSummary:
+        value: ${{ jobs.maintain-sources.outputs.sourceSummary }}
 
 jobs:
-  maintain-features:
+  maintain-sources:
     runs-on: ubuntu-latest
 
     env:
-      feature: ${{ inputs.feature || '' }}
-      featuresDir: ${{ inputs.featuresDir || 'features/' }}
-      featuresWipLimit: ${{ inputs.featuresWipLimit || '3' }}
+      source: ${{ inputs.source || '' }}
+      sourcesFile: ${{ inputs.sourcesFile || 'sources/' }}
+      sourcesLimit: ${{ inputs.sourcesLimit || '3' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
@@ -185,7 +185,7 @@ jobs:
         id: features
         shell: bash
         run: |
-          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
+          output=$(find "${{ env.sourcesFile }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -195,8 +195,8 @@ jobs:
         id: rejectedFeatures
         shell: bash
         run: |
-          mkdir -p "${{ env.featuresDir }}/rejects"
-          output=$(ls -1 "${{ env.featuresDir }}/rejects" | sed 's/\.md//' | xargs echo )
+          mkdir -p "${{ env.sourcesFile }}/rejects"
+          output=$(ls -1 "${{ env.sourcesFile }}/rejects" | sed 's/\.md//' | xargs echo )
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -247,8 +247,8 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
 
-      - name: maintain-features
-        id: maintain-features
+      - name: maintain-sources
+        id: maintain-sources
         uses: actions/github-script@v7
         env:
           currentFeatures: ${{ steps.features.outputs.output }}
@@ -260,9 +260,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const feature = process.env.feature;
-            const featuresDir = process.env.featuresDir;
-            const featuresWipLimit = process.env.featuresWipLimit;
+            const source = process.env.source;
+            const sourcesFile = process.env.sourcesFile;
+            const sourcesLimit = process.env.sourcesLimit;
             const currentFeatures = process.env.currentFeatures;
             const rejectedFeatures = process.env.rejectedFeatures;
             const target = process.env.target;
@@ -292,8 +292,8 @@ jobs:
             }
             const openai = new OpenAI({ apiKey });
 
-            core.info(`feature: "${feature}"`);
-            core.info(`featuresDir: "${featuresDir}"`);
+            core.info(`source: "${source}"`);
+            core.info(`sourcesFile: "${sourcesFile}"`);
             core.info(`currentFeatures: "${currentFeatures}"`);
             core.info(`target: "${target}"`);
             core.info(`testFile: "${testFile}"`);
@@ -301,6 +301,7 @@ jobs:
             core.info(`missionFile: "${missionFile}"`);
             core.info(`contributingFile: "${contributingFile}"`);
             core.info(`dependenciesFile: "${dependenciesFile}"`);
+            const sourcesFileContent = fs.readFileSync(sourcesFile, 'utf8');
             const sourceFileContent = fs.readFileSync(target, 'utf8');
             const testFileContent = fs.readFileSync(testFile, 'utf8');
             const readmeFileContent = fs.readFileSync(readmeFile, 'utf8');
@@ -312,38 +313,31 @@ jobs:
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
             
-            // generate the feature prompt either by using the supplied feature or by reviewing the current features and full context
-            let prompt = feature;
-            if (feature === 'house choice') {
-              prompt = `Please review the current features in the repository and either;
-                * add a new feature to the repository, or
-                * extend an existing feature to add a new aspect to it, or
-                * update an existing feature to bring it to a high standard matching other features in the repository.
-                The feature name should either be a current feature name or be supplied with a feature specification which is distinct from any other feature in the repository.
+            // generate the source prompt either by using the supplied source prompt or by reviewing the current sources and full context
+            let prompt = source;
+            if (source === 'house choice') {
+              prompt = `Please review the current sources in the repository and either;
+                * add a new source to the repository, or
+                * extend an existing source to add a new aspect to it, or
+                * update an existing source to bring it to a high standard matching other sources in the repository.
+                The source name should either be a current source name or be supplied with a source specification which is distinct from any other feature in the repository.
               `;
             }
             
             const chatGptPrompt = `
-            Please generate the name and specification for a software feature which will be added or updated to action the supplied feature prompt.
-            Prefer to refine a feature focusing on achievable value with a single repository, not a grandiose vision, or bloated feature set.
-            You may only create features to only change the source file, test file, README file and dependencies file content. You may not create features that request new files, delete existing files, or change the other files provided in the prompt context.
-            If there are more than the maximum number of ${featuresWipLimit} features in the repository, you must merge similar features into a single feature and name the features to be deleted.
-            The feature will be iterated upon to deliver the feature. New features should be thematically distinct from other features.
-            If a significant feature of the repository is not present in the current feature set, please add it either to a new feature or an existing feature.
-            All significant features of the repository should be present in the feature set before new features are added and features can be consolidated to make room below the maximum of ${featuresWipLimit} features.
-            Before adding a new feature ensure that this feature is distinct from any other feature in the repository, otherwise update an existing feature.
-            When updating an existing feature, ensure that the existing aspects are not omitted in the response, provide the full feature spec.
-            The feature name should be one or two words in SCREAMING_SNAKECASE.
-            Any new feature should not be similar to any of the rejected features and steer existing features away from the rejected features.
-            The feature spec should be a detailed description of the feature, compatible with the guidelines in CONTRIBUTING.md.
-            You may also just update a feature spec to bring it to a high standard matching other features in the repository.
-            A feature can be added based on a behaviour already present in the repository described within the guidelines in CONTRIBUTING.md.
-            Features must be achievable in a single software repository not part of a corporate initiative.
-            The feature spec should be a multiline markdown with a few level 1 headings.
-            The feature must be compatible with the mission statement in MISSION.md and ideally realise part of the value in the mission.
-            The feature must be something than can be realised in a single source file (as below), ideally just as a library, CLI tool or possibly an HTTP API in combination with infrastructure as code deployment.
+            Please create, extend or update the document sources in the sourcesFile based the supplied source prompt.
+            You are maintaining a file which should contain name, descriptions and URLS of document sources to be used in the repository.
+            The file is in markdown format and should be a list of sources with repeated sections of the following format:
+            START_OF_FORMAT
+            # Source Name
+            ## https://source.url/path
+            Source description.
+            END_OF_FORMAT
+            If there are more than the maximum number of ${sourcesLimit} sources in the repository, you must merge similar sources into a single source.
+            The source spec should be a multiline markdown with a few level 1 (#) headings a source name preceding level 2 (##) with the url of a document source.
             Consider the following when refining your response:
-            * Feature prompt details
+            * Source prompt details
+            * Current sources file content
             * Current feature names and specifications in the repository
             * Rejected feature names
             * Source file content
@@ -357,10 +351,15 @@ jobs:
             * Test output
             * Main execution output
             
-            Feature prompt:
-            FEATURE_PROMPT_START
+            Source prompt:
+            SOURCE_PROMPT_START
             ${prompt}
-            FEATURE_PROMPT_END            
+            SOURCE_PROMPT_END            
+            
+            Current sources file content:
+            SOURCES_FILE_START
+            ${sourcesFileContent}
+            SOURCES_FILE_END
             
             Current feature names and specifications:
             CURRENT_FEATURES_START
@@ -424,29 +423,27 @@ jobs:
             
             Answer strictly with a JSON object following this schema:
             {
-              "featureName": "The feature name as one or two words in SCREAMING_SNAKECASE.",
-              "featureSpec": "The feature specification as multiline markdown with a few level 1 headings.",
-              "featureNamesToBeDeleted": "The comma separated list of feature names to be deleted or 'none' if no feature is to be deleted."
+              "sourceName": "The source name as one or two words title case.",
+              "sourceSummary": "The source spec should be a multiline markdown with a few level 1 (#) headings a source name preceding level 2 (##) with the url of a document source."
             }
             Ensure valid JSON.
             `;
             
-            const ResponseSchema = z.object({ featureName: z.string(), featureSpec: z.string(), featureNamesToBeDeleted: z.string() });
+            const ResponseSchema = z.object({ sourceName: z.string(), sourceSummary: z.string() });
             
             // Define the function schema for function calling
             const tools = [{
               type: "function",
               function: {
-                name: "generate_feature",
-                description: "Elaborate on the supplied prompt and project files to create the featureName and featureSpec of a repository feature, and the feature names to be deleted. Return an object with featureName (string), featureSpec (string), and featureNamesToBeDeleted (string).",
+                name: "generate_sources",
+                description: "Elaborate on the supplied prompt and project files to create the sourceName and sourceSummary of a repository source. Return an object with sourceName (string), sourceSummary (string).",
                 parameters: {
                   type: "object",
                   properties: {
-                    featureName: { type: "string", description: "The feature name as one or two words in SCREAMING_SNAKECASE." },
-                    featureSpec: { type: "string", description: "The feature specification as multiline markdown with a few level 1 headings." },
-                    featureNamesToBeDeleted: { type: "string", description: "The comma separated list of feature names to be deleted or 'none' if no feature is to be deleted." }
+                    sourceName: { type: "string", description: "The source name as one or two words in SCREAMING_SNAKECASE." },
+                    sourceSummary: { type: "string", description: "The source spec should be a multiline markdown with a few level 1 (#) headings a source name preceding level 2 (##) with the url of a document source." }
                   },
-                  required: ["featureName", "featureSpec", "featureNamesToBeDeleted"],
+                  required: ["sourceName", "sourceSummary", "sourceNamesToBeDeleted"],
                   additionalProperties: false
                 },
                 strict: true
@@ -457,7 +454,7 @@ jobs:
             const response = await openai.chat.completions.create({
               model,
               messages: [
-                { role: "system", content: "You are maintaining a feature set by providing expert contemporary insight into both the product market and you will perform a detailed analysis of the current state of the repository and current feature set in search of value opportunities and unique selling points. Answer strictly with a JSON object following the provided function schema." },
+                { role: "system", content: "You are maintaining a library of repository context providing expert contemporary insight into both the product market and you will perform a detailed analysis of the current state of the repository and current feature set in search of ideas for find useful information sources. Answer strictly with a JSON object following the provided function schema." },
                 { role: "user", content: chatGptPrompt }
               ],
               tools: tools
@@ -482,39 +479,22 @@ jobs:
             
             try {
               const parsed = ResponseSchema.parse(result);
-              core.setOutput("featureName", parsed.featureName);
-              core.setOutput("featureSpec", parsed.featureSpec);
-              core.setOutput("featureNamesToBeDeleted", parsed.featureNamesToBeDeleted);
-              core.info(`featureName: "${parsed.featureName}"`);
-              core.info(`featureSpec: "${parsed.featureSpec}"`);
-              core.info(`featureNamesToBeDeleted: "${parsed.featureNamesToBeDeleted}"`);
+              core.setOutput("sourceName", parsed.sourceName);
+              core.setOutput("sourceSummary", parsed.sourceSummary);
+              core.info(`sourceName: "${parsed.sourceName}"`);
+              core.info(`sourceSummary: "${parsed.sourceSummary}"`);
             
-              // Save the feature spec to a file using the convention of <featuresDir> plus path SCREAMING_SNAKE_CASE(<feature name>).md
-              const featureName = parsed.featureName.replace(/ /g, "_").toUpperCase();
-              const featureSpec = parsed.featureSpec;
-              const featuresDir = process.env.featuresDir || 'features/';
+              // Save the source spec to a file using the convention of <sourcesFile> plus path SCREAMING_SNAKE_CASE(<source name>).md
+              const sourceName = parsed.sourceName.replace(/ /g, "_").toUpperCase();
+              const sourceSummary = parsed.sourceSummary;
+              const sourcesFilePath = process.env.sourcesFile || 'SOURCES.md';
               
-              const featureFilePath = path.join(featuresDir, `${featureName}.md`);
               try {
-                fs.mkdirSync(featuresDir, { recursive: true });
-                fs.writeFileSync(featureFilePath, featureSpec);
-                core.info(`Feature spec saved to ${featureFilePath}`);
+                fs.mkdirSync(sourcesFile, { recursive: true });
+                fs.writeFileSync(sourceFilePath, sourceSummary);
+                core.info(`source summary saved to ${sourceFilePath}`);
               } catch (e) {
-                core.setFailed(`Failed to save feature spec: ${e.message}`);
-              }
-            
-              const featureFilepathsToBeDeleted = parsed.featureNamesToBeDeleted
-                .split(',')
-                .map(name => path.join(featuresDir, `${name.trim().replace(/.md^/, "").toUpperCase()}.md`));
-              for (const filepath of featureFilepathsToBeDeleted) {
-                try {
-                  if( fs.existsSync(filepath) ) {
-                    core.info(`Deleting feature file: ${filepath}`);
-                    fs.unlinkSync(filepath);
-                  }
-                } catch (e) {
-                  core.info(`Could not delete ${filepath}: ${e.message}`);
-                }
+                core.setFailed(`Failed to save source summary: ${e.message}`);
               }
             
             } catch (e) {
@@ -533,12 +513,12 @@ jobs:
           git config --local user.email '${{ env.gitUserEmail }}'
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
-          git add -v --all '${{ env.featuresDir }}'
-          git commit -m 'Maintain ${{ steps.maintain-features.outputs.featureName }}'
+          git add -v --all '${{ env.sourcesFile }}'
+          git commit -m 'Maintain ${{ steps.maintain-sources.outputs.sourceName }}'
           git status -v
           git push -v origin ${{ github.ref }}
           git status -v
 
     outputs:
-      featureName: ${{ steps.maintain-features.outputs.featureName }}
-      featureSpec: ${{ steps.maintain-features.outputs.featureSpec }}
+      sourceName: ${{ steps.maintain-sources.outputs.sourceName }}
+      sourceSummary: ${{ steps.maintain-sources.outputs.sourceSummary }}

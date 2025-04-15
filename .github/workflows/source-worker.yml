@@ -50,7 +50,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-sources.yml@main'
     with:
       source: ${{ inputs.source }}
-      sourcesDir: 'sources/'
+      sourcesFile: 'SOURCES.md'
       sourcesLimit: '${{ needs.agentic-lib.outputs.sourcesLimit }}'
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
