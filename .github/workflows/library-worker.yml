@@ -15,7 +15,7 @@ on:
         required: false
         type: string
         default: 'house choice'
-  schedule:
+  #schedule:
     #- cron: '50 11 */7 * *' # schedule-UNUSED-1
     #- cron: '50 */4 * * *' # schedule-UNUSED-2
     #- cron: '50 */1 * * *' # schedule-UNUSED-3
