@@ -43,6 +43,11 @@ on:
         type: string
         required: false
         default: '3'
+      featuresDir:
+        description: 'The directory to read the features from. e.g. "features/"'
+        type: string
+        required: false
+        default: 'features/'
       target:
         description: 'The target file to create the issue to change. e.g. "src/lib/main.js"'
         type: string
@@ -135,6 +140,7 @@ jobs:
       source: ${{ inputs.source || '' }}
       sourcesFile: ${{ inputs.sourcesFile || 'SOURCES.md' }}
       sourcesLimit: ${{ inputs.sourcesLimit || '3' }}
+      featuresDir: ${{ inputs.featuresDir || 'features/' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
@@ -183,18 +189,18 @@ jobs:
         id: features
         shell: bash
         run: |
-          output=$(find "${{ env.sourcesFile }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
+          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
 
-      - name: List rejected feature named
+      - name: List rejected features
         id: rejectedFeatures
         shell: bash
         run: |
-          mkdir -p "${{ env.sourcesFile }}/rejects"
-          output=$(ls -1 "${{ env.sourcesFile }}/rejects" | sed 's/\.md//' | xargs echo )
+          mkdir -p "${{ env.featuresDir }}/rejects"
+          output=$(ls -1 "${{ env.featuresDir }}/rejects" | sed 's/\.md//' | xargs echo )
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -252,9 +258,13 @@ jobs:
           if [ ! -f "${{ env.sourcesFile }}" ]; then
             echo "Creating sources file ${GITHUB_WORKSPACE}/${{ env.sourcesFile }}"
             touch "${{ env.sourcesFile }}"
+            ls -lrt "${{ env.sourcesFile }}"
+            cat "${{ env.sourcesFile }}"
           else
             echo "Touching sources file ${GITHUB_WORKSPACE}/${{ env.sourcesFile }}"
             touch "${{ env.sourcesFile }}"
+            ls -lrt "${{ env.sourcesFile }}"
+            cat "${{ env.sourcesFile }}"
           fi
 
       - name: maintain-sources
@@ -311,14 +321,17 @@ jobs:
             core.info(`missionFile: "${missionFile}"`);
             core.info(`contributingFile: "${contributingFile}"`);
             core.info(`dependenciesFile: "${dependenciesFile}"`);
-            const sourcesFileContent = fs.readFileSync(readmeFile, 'utf8'); // fs.readFileSync(sourcesFile, 'utf8');
+
+            core.info(`Loading sources directory file '${sourcesFile}'...`);            
+            const sourcesFileContent = fs.readFileSync(sourcesFile, 'utf8');
+            core.info(`Sources directory file '${sourcesFile}' has been loaded (length ${sourcesFileContent.length}).`);
+            
             const targetFileContent = fs.readFileSync(target, 'utf8');
             const testFileContent = fs.readFileSync(testFile, 'utf8');
             const readmeFileContent = fs.readFileSync(readmeFile, 'utf8');
             const missionFileContent = fs.readFileSync(missionFile, 'utf8');
             const contributingFileContent = fs.readFileSync(contributingFile, 'utf8');
             const dependenciesFileContent = fs.readFileSync(dependenciesFile, 'utf8');
-            core.info(`Sources directory file '${sourcesFile}' has been loaded (length ${sourcesFileContent.length}).`);
             core.info(`Target file '${target}' has been loaded (length ${targetFileContent.length}).`);
             core.info(`Test file '${testFile}' has been loaded (length ${testFileContent.length}).`);
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
@@ -327,7 +340,7 @@ jobs:
             // generate the source prompt either by using the supplied source prompt or by reviewing the current sources and full context
             let prompt = source;
             if (source === 'house choice') {
-              prompt = `Please review the current sources in the repository and either;
+              prompt = `Please review the current sources in the directory and either;
                 * add a new source to the repository, or
                 * extend an existing source to add a new aspect to it, or
                 * update an existing source to bring it to a high standard matching other sources in the repository.
@@ -338,11 +351,12 @@ jobs:
             const chatGptPrompt = `
             Please create, extend or update the document sources in the sourcesFile based the supplied source prompt.
             The sources should be URLs which can be accessed without authentication for content which is publicly available.
+            The URLs should be public URLS on the internet external to this repository. e.g. https://docs.github.com/en/rest
             You are maintaining a file which should contain name, descriptions, licenses and URLS of document sources to be used in the repository.
             The file is in markdown format and should be a list of sources with repeated sections of the following format:
             START_OF_FORMAT
             # Source Name
-            ## https://source.url/path
+            ## https://docs.github.com/en/rest
             Source description.
             ## License, e.g. MIT
             END_OF_FORMAT
