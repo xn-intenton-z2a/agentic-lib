@@ -1,34 +1,44 @@
-# GitHub Actions Workflow Syntax Documentation
-## https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
-This official documentation details the syntax and configuration for GitHub Actions workflows. It covers how to define triggers, jobs, steps, and more, enabling developers to customize their CI/CD pipelines. The content is maintained by GitHub and is updated regularly. Last reviewed in 2023.
+# GitHub REST API Documentation
+## https://docs.github.com/en/rest
+The GitHub REST API documentation provides a comprehensive guide to utilizing GitHub's REST endpoints. It covers authentication, repository management, issues, pull requests, and more. This source is maintained directly by GitHub and receives frequent updates, ensuring its reliability and authority. Last reviewed in 2023.
 ## Unknown License
 
-# AWS Lambda Developer Guide
-## https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
-The AWS Lambda Developer Guide provides a comprehensive overview of AWS Lambda’s features including deployment, scaling, security, and operational best practices. It is an authoritative source for building serverless applications on AWS and is maintained by Amazon Web Services.
+# AWS SDK for JavaScript v3 Developer Guide
+## https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/welcome.html
+This guide offers official documentation for the AWS SDK for JavaScript V3. It includes examples on integrating AWS services, configuring clients, and best practices for building scalable applications. The content is maintained by Amazon Web Services and is continuously updated.
 ## Unknown License
 
-# AWS SQS Developer Guide
-## https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html
-This guide offers detailed instructions on using AWS Simple Queue Service (SQS) for building reliable and scalable messaging systems. It covers configuration, integration with other AWS services, and best practices in message handling, essential for systems integrating AWS Lambda with SQS.
-## Unknown License
-
-# Dotenv Documentation
-## https://github.com/motdotla/dotenv
-Dotenv is a popular Node.js module that loads environment variables from a .env file into process.env. It simplifies configuration management during development and production. The documentation provides installation instructions, usage examples, and troubleshooting tips.
+# Vitest Documentation
+## https://vitest.dev
+Vitest is a fast and modern testing framework built with Vite in mind. The documentation provides guides, API references, configuration options, and best practices for writing unit and integration tests. It is designed to be intuitive for quick setup and provides excellent coverage of modern testing needs, making it highly relevant for projects using modern JavaScript frameworks.
 ## MIT License
 
-# Zod Documentation
-## https://github.com/colinhacks/zod
-Zod is a TypeScript-first schema declaration and validation library. It is widely used for input validation, including parsing environment variables and API requests. The documentation covers API reference, examples, and advanced type inference features.
+# ESLint Documentation
+## https://eslint.org/docs/user-guide/getting-started
+ESLint is a popular pluggable linting utility for JavaScript and Node.js projects. This documentation covers installation, configuration, and usage of ESLint to identify problematic patterns or code that doesn’t adhere to certain style guidelines. It is widely regarded as an authoritative source on code quality in modern JavaScript projects.
 ## MIT License
 
-# OpenAI API Documentation
-## https://platform.openai.com/docs/api-reference/introduction
-The OpenAI API Documentation offers a detailed introduction to interacting with OpenAI's models via API endpoints. It includes guides, examples, and reference materials for making prompt completion requests, handling responses, and integrating AI capabilities into applications.
-## Unknown License
+# Prettier Documentation
+## https://prettier.io/docs/en/index.html
+Prettier is an opinionated code formatter that supports a wide array of languages and frameworks. Its documentation explains configuration, integration, and usage in diverse project environments. Prettier is essential for maintaining a consistent coding style across teams and is frequently updated to support new languages and standards.
+## MIT License
 
-# Chalk Documentation
-## https://github.com/chalk/chalk
-Chalk is a widely used library for styling terminal strings using colors and other formatting options in Node.js. Its documentation covers installation, usage examples, and advanced customization for producing visually enriched CLI outputs.
+# Serverless Framework Documentation
+## https://www.serverless.com/framework/docs/
+The Serverless Framework documentation offers extensive guidance on deploying and managing serverless applications. Covering topics from function configuration to deployment strategies, it is a valuable resource for developers leveraging AWS Lambda and similar services. The documentation is well-maintained and updated regularly.
+## Apache License 2.0
+
+# GitHub CLI Documentation
+## https://cli.github.com/manual/
+GitHub CLI provides a command-line interface to interact with GitHub, streamlining workflows such as repository management, issue tracking, and pull request handling. The manual offers clear instructions, examples, and reference material, making it easier to automate and script common GitHub tasks.
+## MIT License
+
+# Change-case Documentation
+## https://github.com/blakeembrey/change-case
+Change-case is a collection of utility functions for converting strings between various case formats. This documentation offers usage examples, API details, and integration tips which are highly useful for managing command-line inputs and ensuring consistent formatting throughout projects.
+## MIT License
+
+# Day.js Documentation
+## https://day.js.org/docs/en/installation/installation
+Day.js is a minimalist JavaScript library for parsing, validating, manipulating, and formatting dates. It is a modern alternative to Moment.js and is both lightweight and efficient. The documentation details installation, configuration, and usage examples to help developers integrate it smoothly into their projects.
 ## MIT License
