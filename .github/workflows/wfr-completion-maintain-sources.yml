@@ -124,10 +124,8 @@ on:
       CHATGPT_API_SECRET_KEY:
         required: true
     outputs:
-      sourceName:
-        value: ${{ jobs.maintain-sources.outputs.sourceName }}
-      sourceSummary:
-        value: ${{ jobs.maintain-sources.outputs.sourceSummary }}
+      sourcesDirectoryFileContent:
+        value: ${{ jobs.maintain-sources.outputs.sourcesDirectoryFileContent }}
 
 jobs:
   maintain-sources:
@@ -423,27 +421,25 @@ jobs:
             
             Answer strictly with a JSON object following this schema:
             {
-              "sourceName": "The source name as one or two words title case.",
-              "sourceSummary": "The source spec should be a multiline markdown with a few level 1 (#) headings a source name preceding level 2 (##) with the url of a document source."
+              "sourcesDirectoryFileContent": "The source spec should be a multiline markdown with a few level 1 (#) headings a source name preceding level 2 (##) with the url of a document source."
             }
             Ensure valid JSON.
             `;
             
-            const ResponseSchema = z.object({ sourceName: z.string(), sourceSummary: z.string() });
+            const ResponseSchema = z.object({ sourcesDirectoryFileContent: z.string() });
             
             // Define the function schema for function calling
             const tools = [{
               type: "function",
               function: {
                 name: "generate_sources",
-                description: "Elaborate on the supplied prompt and project files to create the sourceName and sourceSummary of a repository source. Return an object with sourceName (string), sourceSummary (string).",
+                description: "Elaborate on the supplied prompt and project files to create the sourcesDirectoryFileContent of a repository source. Return an object with sourcesDirectoryFileContent (string).",
                 parameters: {
                   type: "object",
                   properties: {
-                    sourceName: { type: "string", description: "The source name as one or two words in SCREAMING_SNAKECASE." },
-                    sourceSummary: { type: "string", description: "The source spec should be a multiline markdown with a few level 1 (#) headings a source name preceding level 2 (##) with the url of a document source." }
+                    sourcesDirectoryFileContent: { type: "string", description: "The source spec should be a multiline markdown with a few level 1 (#) headings a source name preceding level 2 (##) with the url of a document source." }
                   },
-                  required: ["sourceName", "sourceSummary"],
+                  required: ["sourcesDirectoryFileContent"],
                   additionalProperties: false
                 },
                 strict: true
@@ -479,19 +475,15 @@ jobs:
             
             try {
               const parsed = ResponseSchema.parse(result);
-              core.setOutput("sourceName", parsed.sourceName);
-              core.setOutput("sourceSummary", parsed.sourceSummary);
-              core.info(`sourceName: "${parsed.sourceName}"`);
-              core.info(`sourceSummary: "${parsed.sourceSummary}"`);
+              core.setOutput("sourcesDirectoryFileContent", parsed.sourcesDirectoryFileContent);
+              core.info(`sourcesDirectoryFileContent: "${parsed.sourcesDirectoryFileContent}"`);
             
-              // Save the source spec to a file using the convention of <sourcesFile> plus path SCREAMING_SNAKE_CASE(<source name>).md
-              const sourceName = parsed.sourceName.replace(/ /g, "_").toUpperCase();
-              const sourceSummary = parsed.sourceSummary;
+              const sourcesDirectoryFileContent = parsed.sourcesDirectoryFileContent;
               const sourcesFilePath = process.env.sourcesFile || 'SOURCES.md';
               
               try {
                 fs.mkdirSync(sourcesFile, { recursive: true });
-                fs.writeFileSync(sourceFilePath, sourceSummary);
+                fs.writeFileSync(sourceFilePath, sourcesDirectoryFileContent);
                 core.info(`source summary saved to ${sourceFilePath}`);
               } catch (e) {
                 core.setFailed(`Failed to save source summary: ${e.message}`);
@@ -514,11 +506,8 @@ jobs:
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
           git add -v --all '${{ env.sourcesFile }}'
-          git commit -m 'Maintain ${{ steps.maintain-sources.outputs.sourceName }}'
+          git commit -m 'Maintain ${{ env.sourcesFile }}'
           git status -v
           git push -v origin ${{ github.ref }}
           git status -v
 
-    outputs:
-      sourceName: ${{ steps.maintain-sources.outputs.sourceName }}
-      sourceSummary: ${{ steps.maintain-sources.outputs.sourceSummary }}
