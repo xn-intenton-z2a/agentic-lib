@@ -103,7 +103,7 @@ jobs:
             let mergeable = pullRequest.mergeable;
             if (pullRequest.state === "closed") { 
               core.info(`PR #${pullNumber} is already closed.`);
-            } if (mergeable === null) {
+            } else if (mergeable === null) {
               core.info(`PR #${pullNumber} does not yet have a value for mergeability, triggering checks.`);
               const ref = pullRequest.head.sha;
               const { data: checkSuites } = await github.rest.checks.listSuitesForRef({
