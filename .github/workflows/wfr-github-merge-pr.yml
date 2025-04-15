@@ -99,6 +99,7 @@ jobs:
               pull_number: pullNumber,
             });
             core.info(`Found pull request #${pullRequest.number} with state: ${pullRequest.state} and mergeable state: ${pullRequest.mergeable_state}`);
+            core.info(`PR: ${JSON.stringify(pullRequest)}`);
             
             let mergeable = pullRequest.mergeable;
             if (pullRequest.state === "closed") { 
@@ -111,6 +112,7 @@ jobs:
                 repo,
                 ref
               });
+              core.info(`PR check suites: ${JSON.stringify(checkSuites)}`);
               //for (const suite of checkSuites.check_suites) {
                 await github.rest.checks.rerequestSuite({
                   owner,
