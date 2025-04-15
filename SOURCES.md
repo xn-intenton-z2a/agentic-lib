@@ -1,9 +1,9 @@
-# GitHub REST API Documentation
-## https://docs.github.com/en/rest
-Comprehensive documentation for the GitHub REST API, covering endpoints, usage details, and examples. This source is invaluable for understanding API requests, responses, and authentication mechanisms used in modern integrations.
-## MIT
+# GitHub Platform Documentation
+## https://docs.github.com/
+This consolidated source provides documentation for both the GitHub REST API and GitHub Actions. It covers endpoints, authentication, workflow syntax, and automation details to support interactive and autonomous GitHub integrations.
+## Various
 
-# OpenAI API Documentation
-## https://platform.openai.com/docs/api-reference/introduction
-Official documentation for the OpenAI API, offering detailed guidance on endpoint usage, parameter definitions, and best practices for integrating AI capabilities.
-## MIT
+# OpenAI & AWS Lambda Developer Documentation
+## https://platform.openai.com/docs
+A merged resource featuring the official OpenAI API documentation along with guidance from the AWS Lambda Developer Guide for building and managing serverless functions. This source is essential for integrating AI capabilities and understanding serverless computing best practices.
+## MIT, various
