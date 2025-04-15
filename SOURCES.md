@@ -52,3 +52,33 @@ The AWS SQS Developer Guide covers how to use Amazon Simple Queue Service (SQS) 
 ## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/index.html
 This documentation provides guides and API references for the AWS SDK for JavaScript v3, which offers modular and modern interfaces for interacting with AWS services. It is maintained by AWS and is licensed under Apache-2.0, ensuring wide usage and community support.
 ## Apache-2.0 License
+
+# AWS CDK Documentation
+## https://docs.aws.amazon.com/cdk/v2/guide/home.html
+The AWS Cloud Development Kit (CDK) documentation offers detailed guidance on using infrastructure as code to define cloud resources on AWS. It provides best practices, tutorials, and examples to help developers build robust cloud applications using the AWS CDK.
+## Apache-2.0 License
+
+# Prettier Documentation
+## https://prettier.io/docs/en/index.html
+The official Prettier documentation provides comprehensive guides on installation, configuration, and usage of Prettier, an opinionated code formatter that helps maintain consistent coding styles across projects.
+## MIT License
+
+# ESLint Plugin Security Documentation
+## https://github.com/nodesecurity/eslint-plugin-security
+This resource offers documentation for ESLint Plugin Security, which supplies security-related linting rules for JavaScript projects. It guides users through installation, configuration, and best practices to enhance code security.
+## MIT License
+
+# Day.js Documentation
+## https://day.js.org/docs/en/installation/installation
+Day.js is a minimalist JavaScript library for parsing, validating, manipulating, and displaying dates and times. Its documentation covers installation, API usage, and practical examples to help developers manage date and time operations efficiently.
+## MIT License
+
+# GitHub Workflow Events Documentation
+## https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
+This documentation details the different events that can trigger GitHub Actions workflows, including automatic triggers like push, pull_request, workflow_dispatch, and the newer workflow_call event utilized by agentic workflows.
+## Unknown License
+
+# Semantic Release Documentation
+## https://semantic-release.gitbook.io/semantic-release/
+Semantic Release automates the versioning and publishing of software projects. Its documentation covers setup, configuration, and best practices for automating release processes, ensuring that versioning is handled consistently and reliably.
+## MIT License
