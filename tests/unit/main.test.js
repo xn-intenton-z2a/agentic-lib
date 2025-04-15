@@ -120,6 +120,21 @@ describe("CLI Dry Run Flag", () => {
   });
 });
 
+describe("CLI Simulate Error Flag", () => {
+  test("logs simulated error and exits with non-zero code when --simulate-error flag is provided", async () => {
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => { throw new Error(`process.exit: ${code}`); });
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await expect(agenticLib.main(["--simulate-error"]))
+      .rejects.toThrow(/process.exit: 1/);
+    // Check that simulated error message was logged
+    const loggedErrors = consoleErrorSpy.mock.calls.map(call => call[0]);
+    const foundSimulatedError = loggedErrors.some(msg => msg.includes("Simulated error triggered by '--simulate-error' flag"));
+    expect(foundSimulatedError).toBe(true);
+    exitSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
+  });
+});
+
 describe("agenticHandler Single Command Processing", () => {
   test("processes a valid agentic command correctly", async () => {
     const payload = { command: "doSomething" };

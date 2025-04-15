@@ -99,6 +99,7 @@ Additionally, the CLI now supports additional commands:
 - `--diagnostics`: Outputs an in‑depth diagnostic report, including the current configuration, Node.js version, and relevant environment variables.
 - `--status`: Outputs a runtime health summary in JSON format including configuration, Node.js version, callCount, uptime, and select environment variables.
 - `--digest`: Initiates processing of a sample digest event.
+- `--simulate-error`: Simulates an error scenario by logging a simulated error message and exiting with a non-zero status code. This is intended for testing error handling paths.
 
 ---
 
@@ -136,6 +137,8 @@ The CLI provides several flags to manage the library's operation:
   - Outputs a runtime health summary in JSON format including configuration, Node.js version, callCount, uptime, and select environment variables.
 - **--dry-run:**
   - Executes a dry run that simulates the command execution without performing any actions.
+- **--simulate-error:**
+  - Simulates an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.
 
 ---
 
