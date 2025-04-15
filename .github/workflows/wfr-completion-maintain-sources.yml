@@ -363,7 +363,8 @@ jobs:
             START_OF_FORMAT
             # Source Name
             ## https://docs.github.com/en/rest
-            Source description.
+            Source description. This can be several sentences long and should be a summary of the content of the source.
+            Include last known publication dates if you can and view you have on how authoritative the source is (and how you know this).
             ## License if known
             END_OF_FORMAT
             If there are more than the maximum number of ${sourcesLimit} sources in the repository, you must merge similar sources into a single source.
