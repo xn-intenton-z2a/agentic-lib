@@ -245,6 +245,18 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
 
+      - name: Touch or create sources file
+        id: touch
+        shell: bash
+        run: |
+          if [ ! -f "${{ env.sourcesFile }}" ]; then
+            echo "Creating sources file ${GITHUB_WORKSPACE}/${{ env.sourcesFile }}"
+            touch "${{ env.sourcesFile }}"
+          else
+            echo "Touching sources file ${GITHUB_WORKSPACE}/${{ env.sourcesFile }}"
+            touch "${{ env.sourcesFile }}"
+          fi
+
       - name: maintain-sources
         id: maintain-sources
         uses: actions/github-script@v7
