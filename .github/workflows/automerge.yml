@@ -183,6 +183,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      checks: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-merge-pr.yml@main'
     with:
       pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
