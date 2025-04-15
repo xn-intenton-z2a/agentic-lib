@@ -1,9 +1,9 @@
 # Which agentic-lib workflow schedule should be used?
 schedule: schedule-1
 # How many sources should exist for document fetching.
-sourcesLimit: 2
+sourcesLimit: 32
 # How many documents should exist in the library.
-documentsLimit: 2
+documentsLimit: 128
 # How many features should exist concurrently open for issue creation.
 featuresWipLimit: 2
 # TODO: Separate the concept of features in development and features in maintenance.
