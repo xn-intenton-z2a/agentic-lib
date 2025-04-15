@@ -311,7 +311,7 @@ jobs:
             core.info(`missionFile: "${missionFile}"`);
             core.info(`contributingFile: "${contributingFile}"`);
             core.info(`dependenciesFile: "${dependenciesFile}"`);
-            const sourcesFileContent = fs.readFileSync(sourcesFile, 'utf8');
+            const sourcesFileContent = fs.readFileSync(readmeFile, 'utf8'); // fs.readFileSync(sourcesFile, 'utf8');
             const targetFileContent = fs.readFileSync(target, 'utf8');
             const testFileContent = fs.readFileSync(testFile, 'utf8');
             const readmeFileContent = fs.readFileSync(readmeFile, 'utf8');
