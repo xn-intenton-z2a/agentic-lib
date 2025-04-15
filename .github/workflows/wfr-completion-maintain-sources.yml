@@ -443,7 +443,7 @@ jobs:
                     sourceName: { type: "string", description: "The source name as one or two words in SCREAMING_SNAKECASE." },
                     sourceSummary: { type: "string", description: "The source spec should be a multiline markdown with a few level 1 (#) headings a source name preceding level 2 (##) with the url of a document source." }
                   },
-                  required: ["sourceName", "sourceSummary", "sourceNamesToBeDeleted"],
+                  required: ["sourceName", "sourceSummary"],
                   additionalProperties: false
                 },
                 strict: true
