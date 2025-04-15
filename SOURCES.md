@@ -1,14 +1,24 @@
-# GitHub REST API Documentation
-## https://docs.github.com/en/rest
-Official documentation for GitHub's REST API. This resource covers endpoints, authentication, rate limiting, and integrations that can be used to interact with GitHub programmatically. It is valuable for projects that integrate CI/CD pipelines with GitHub features and repository management.
+# GitHub Actions Documentation
+## https://docs.github.com/en/actions
+Official documentation for GitHub Actions. This resource provides comprehensive guides, tutorials, and API references on building, customizing, and troubleshooting workflows in GitHub.
 ## Public Documentation
 
-# AWS SDK for JavaScript v3 Documentation
-## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/index.html
-Comprehensive documentation for the AWS SDK for JavaScript v3. This source is essential for developers building applications that interact with AWS services, including Lambda, SQS, and other compute and storage solutions using modern JavaScript practices.
-## Apache-2.0
+# OpenAI API Documentation
+## https://platform.openai.com/docs/api-reference
+Documentation for OpenAI's API. This source covers endpoints, usage guidelines, and best practices for integrating LLM capabilities into applications, which is key for automated code and workflow refinements.
+## Unknown License
 
-# Serverless Framework Documentation
-## https://www.serverless.com/framework/docs/
-Official documentation for the Serverless Framework, which simplifies the deployment and management of serverless applications. It provides guidelines, tutorials, and API references that are useful for understanding infrastructure as code, event-driven architectures, and CI/CD automation in cloud environments.
+# AWS Lambda Developer Guide
+## https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
+The AWS Lambda Developer Guide offers detailed instructions on creating, deploying, and managing serverless functions. It is an essential resource for understanding AWS integrations in automated and agentic workflows.
+## Amazon Software License
+
+# GitLab CI/CD Documentation
+## https://docs.gitlab.com/ee/ci/
+GitLab CI/CD documentation provides insights into continuous integration and deployment processes, offering a contrasting perspective to GitHub Actions workflows and valuable strategies for pipeline automation.
+## Public Documentation
+
+# Jenkins Pipeline Documentation
+## https://www.jenkins.io/doc/book/pipeline/
+This documentation details the fundamentals of Jenkins pipelines, covering pipeline as code practices and continuous integration techniques, which are relevant in the landscape of automated workflows.
 ## MIT
