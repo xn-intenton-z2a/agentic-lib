@@ -42,7 +42,7 @@ on:
         description: 'The maximum number of sources to create. e.g. "3"'
         type: string
         required: false
-        default: '3'
+        default: '32'
       featuresDir:
         description: 'The directory to read the features from. e.g. "features/"'
         type: string
@@ -139,7 +139,7 @@ jobs:
     env:
       source: ${{ inputs.source || '' }}
       sourcesFile: ${{ inputs.sourcesFile || 'SOURCES.md' }}
-      sourcesLimit: ${{ inputs.sourcesLimit || '3' }}
+      sourcesLimit: ${{ inputs.sourcesLimit || '32' }}
       featuresDir: ${{ inputs.featuresDir || 'features/' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
