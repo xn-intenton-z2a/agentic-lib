@@ -57,11 +57,16 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/maintenance-issue-creator.yml
 cp -v .github/workflows/publish.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish.yml"
 
+cp -v .github/workflows/source-worker.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/source-worker.yml"
+
 cp -v .github/workflows/stats.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/stats.yml"
 
 cp -v .github/workflows/test.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/test.yml"
+
+cp -v .github/workflows/truncate-issue-history.yml "${DEST_DIR}/."
 
 cp -v .github/workflows/truncate-workflow-history.yml "${DEST_DIR}/."
 
