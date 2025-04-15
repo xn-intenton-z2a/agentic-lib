@@ -1,25 +1,25 @@
-# .github/workflows/feature-worker.yml
+# .github/workflows/source-worker.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: Feature Worker
-concurrency: feature-worker
-run-name: "Feature Worker"
+name: Source Worker
+concurrency: source-worker
+run-name: "Source Worker"
 
 on:
   workflow_dispatch:
     inputs:
-      feature:
-        description: 'Text to drive the feature creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
+      source:
+        description: 'Text to drive the source creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Find out about using agents and LLMs."'
         required: false
         type: string
         default: 'house choice'
   schedule:
-    - cron: '50 11 */7 * *' # schedule-1
+    #- cron: '50 11 */7 * *' # schedule-1
     #- cron: '50 */4 * * *' # schedule-2
     #- cron: '50 */1 * * *' # schedule-3
-    #- cron: '50 */1 * * *' # schedule-4
+    #- cron: '*/10 * * * *' # schedule-4
 
 jobs:
 
@@ -33,25 +33,25 @@ jobs:
         id: agentic-lib
         shell: bash
         run: |
-          featuresWipLimit=$(grep '^featuresWipLimit:' .github/agentic-lib.yml | awk '{print $2}')
-          echo "featuresWipLimit=${featuresWipLimit}"
-          echo "featuresWipLimit=${featuresWipLimit}" >> $GITHUB_OUTPUT
+          sourcesLimit=$(grep '^sourcesLimit:' .github/agentic-lib.yml | awk '{print $2}')
+          echo "sourcesLimit=${sourcesLimit}"
+          echo "sourcesLimit=${sourcesLimit}" >> $GITHUB_OUTPUT
     outputs:
       featuresWipLimit: ${{ steps.agentic-lib.outputs.featuresWipLimit }}
 
   # If the feature is "house choice", the repository will be assessed an action chosen otherwise the supplied text will be used to generate a new feature.
-  maintain-features:
+  maintain-sources:
     needs:
       - agentic-lib
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-sources.yml@main'
     with:
-      feature: ${{ inputs.feature }}
-      featuresDir: 'features/'
-      featuresWipLimit: '${{ needs.agentic-lib.outputs.featuresWipLimit }}'
+      source: ${{ inputs.source }}
+      sourcesDir: 'sources/'
+      sourcesLimit: '${{ needs.agentic-lib.outputs.sourcesLimit }}'
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: 'README.md'
@@ -83,7 +83,7 @@ jobs:
   stats:
     needs:
       - select-issue
-      - maintain-features
+      - maintain-sources
     if: ${{ always() }}
     permissions:
       contents: write
