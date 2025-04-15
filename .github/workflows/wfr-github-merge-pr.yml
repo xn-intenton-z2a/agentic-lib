@@ -111,13 +111,13 @@ jobs:
                 repo,
                 ref
               });
-              for (const suite of checkSuites.check_suites) {
+              //for (const suite of checkSuites.check_suites) {
                 await github.rest.checks.rerequestSuite({
                   owner,
                   repo,
-                  check_suite_id: suite.id
+                  checkSuites.id    // check_suite_id: suite.id
                 });
-              }
+              //}
             } else {
               core.info(`PR #${pullNumber} is in mergeable state ${mergeable}.`);
             }
