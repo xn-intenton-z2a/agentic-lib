@@ -116,7 +116,8 @@ jobs:
                   owner,
                   repo,
                   check_suite_id: suite.id
-              });
+                });
+              }
             } else {
               core.info(`PR #${pullNumber} is in mergeable state ${mergeable}.`);
             }
