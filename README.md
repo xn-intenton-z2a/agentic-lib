@@ -72,7 +72,7 @@ This repository is organized into three distinct areas to help you understand th
 
 ## Agentic Library Functions
 
-A new set of agentic library functions have been implemented to enable autonomous workflow invocation. The primary function, `agenticHandler`, processes a JSON payload containing either a single command or a batch of commands. When using batch processing, supply a JSON payload with a `commands` array property. Each valid command increments the internal invocation counter. In addition, each processed command returns an `executionTimeMS` property that reflects the time taken to process that command (in milliseconds).
+A new set of agentic library functions have been implemented to enable autonomous workflow invocation. The primary function, `agenticHandler`, processes a JSON payload containing either a single command or a batch of commands. When using batch processing, supply a JSON payload with a `commands` array property. Each valid command increments the internal invocation counter. In addition, each processed command returns an `executionTimeMS` property that reflects its processing time in milliseconds.
 
 It can be invoked directly via the CLI using the `--agentic` flag followed by a JSON payload, e.g.,
 
@@ -99,7 +99,7 @@ Additionally, the CLI now supports additional commands:
 - `--diagnostics`: Outputs an in‑depth diagnostic report, including the current configuration, Node.js version, and relevant environment variables.
 - `--status`: Outputs a runtime health summary in JSON format including configuration, Node.js version, callCount, uptime, and select environment variables.
 - `--digest`: Initiates processing of a sample digest event.
-- `--simulate-error`: Simulates an error scenario by logging a simulated error message and exiting with a non-zero status code. This is intended for testing error handling paths.
+- `--simulate-error`: Simulates an error scenario by logging a simulated error and exiting with a non-zero status code. This is intended for testing error handling paths.
 
 ---
 
