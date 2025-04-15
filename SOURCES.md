@@ -1,24 +1,24 @@
-# GitHub Actions Documentation
-## https://docs.github.com/en/actions
-Official documentation for GitHub Actions. This resource provides comprehensive guides, tutorials, and API references on building, customizing, and troubleshooting workflows in GitHub.
-## Public Documentation
-
-# OpenAI API Documentation
-## https://platform.openai.com/docs/api-reference
-Documentation for OpenAI's API. This source covers endpoints, usage guidelines, and best practices for integrating LLM capabilities into applications, which is key for automated code and workflow refinements.
+# CircleCI Documentation
+## https://circleci.com/docs/2.0/
+CircleCI provides detailed documentation and tutorials for its continuous integration and delivery platform. This resource is useful for understanding pipeline configurations and automated testing strategies, which align with the repository's CI/CD automation features.
 ## Unknown License
 
-# AWS Lambda Developer Guide
-## https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
-The AWS Lambda Developer Guide offers detailed instructions on creating, deploying, and managing serverless functions. It is an essential resource for understanding AWS integrations in automated and agentic workflows.
-## Amazon Software License
+# Travis CI Documentation
+## https://docs.travis-ci.com/
+Travis CI offers comprehensive guides for setting up and managing continuous integration workflows. Its documentation covers configuration, build processes, and integration techniques relevant to automated code environments.
+## Unknown License
 
-# GitLab CI/CD Documentation
-## https://docs.gitlab.com/ee/ci/
-GitLab CI/CD documentation provides insights into continuous integration and deployment processes, offering a contrasting perspective to GitHub Actions workflows and valuable strategies for pipeline automation.
-## Public Documentation
+# Azure Pipelines Documentation
+## https://learn.microsoft.com/en-us/azure/devops/pipelines/
+Microsoft's Azure Pipelines documentation details CI/CD processes, offering insights into pipeline configuration, integration with Azure services, and best practices for DevOps automation, an alternative approach to GitHub Actions workflows.
+## Microsoft Public License
 
-# Jenkins Pipeline Documentation
-## https://www.jenkins.io/doc/book/pipeline/
-This documentation details the fundamentals of Jenkins pipelines, covering pipeline as code practices and continuous integration techniques, which are relevant in the landscape of automated workflows.
-## MIT
+# Serverless Framework Documentation
+## https://www.serverless.com/framework/docs/
+The Serverless Framework documentation provides guides and best practices for building, deploying, and managing serverless applications. It complements AWS Lambda tutorials and offers alternative methods for deploying automated workflows.
+## Apache 2.0
+
+# OpenTelemetry Documentation
+## https://opentelemetry.io/docs/
+OpenTelemetry offers robust guidelines and best practices for observability through distributed tracing and logging. This documentation is valuable for integrating monitoring into automated workflows and ensuring system reliability.
+## Apache 2.0
