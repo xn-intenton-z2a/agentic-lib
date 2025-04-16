@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>agentic-lib</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+    header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
+    h1 { font-size: 2em; }
+    section { margin-bottom: 1.5em; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5em 0; }
+    .label { font-weight: bold; }
+    footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>agentic-lib</h1>
+    <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest stats</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all stats</a></p>
+  </header>
+  <section>
+    <h1 class="md-github"><a class="md-github__anchor" name="apply_fix-feature-specification" href="#apply_fix-feature-specification"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>APPLY_FIX Feature Specification</h1>
+<p class="md-github">This feature describes the behavior of a GitHub Actions workflow that applies automated code, test, README, and dependency fixes based on outputs from build, test, and run validations. The workflow uses OpenAI's API to propose and apply changes. The following behaviors are expected:</p>
+<h2 class="md-github"><a class="md-github__anchor" name="scenario-prepare-and-load-inputs" href="#scenario-prepare-and-load-inputs"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Scenario: Prepare and Load Inputs</h2>
+<p class="md-github"><strong class="md-github">Given</strong> the workflow is triggered with inputs such as:</p>
+<ul class="md-github">
+<li class="md-github">paths to key project files (<code class="md-github">src/lib/main.js</code>, <code class="md-github">README.md</code>, <code class="md-github">package.json</code>, etc.),</li>
+<li class="md-github">scripts to build, test, and run the application,</li>
+<li class="md-github">and a secret API key for OpenAI,</li>
+</ul>
+<p class="md-github"><strong class="md-github">Then</strong> the workflow:</p>
+<ul class="md-github">
+<li class="md-github">Checks out the specified branch,</li>
+<li class="md-github">Configures Node.js and caching (if needed),</li>
+<li class="md-github">Optionally authenticates with GitHub’s NPM registry,</li>
+<li class="md-github">Lists existing features from the designated features directory.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="scenario-gather-build-context" href="#scenario-gather-build-context"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Scenario: Gather Build Context</h2>
+<p class="md-github"><strong class="md-github">Given</strong> the repository and environment are prepared,</p>
+<p class="md-github"><strong class="md-github">When</strong> the workflow runs:</p>
+<ul class="md-github">
+<li class="md-github">It installs project dependencies,</li>
+<li class="md-github">Executes the build script,</li>
+<li class="md-github">Runs test scripts,</li>
+<li class="md-github">Executes the main script with a timeout.</li>
+</ul>
+<p class="md-github"><strong class="md-github">Then</strong> the outputs of each step are captured and saved for later context.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="scenario-generate-fix-proposal-using-llm" href="#scenario-generate-fix-proposal-using-llm"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Scenario: Generate Fix Proposal Using LLM</h2>
+<p class="md-github"><strong class="md-github">Given</strong> the outputs from install, build, test, and run are available,</p>
+<p class="md-github"><strong class="md-github">When</strong> the workflow invokes the <code class="md-github">update-target</code> step,</p>
+<p class="md-github"><strong class="md-github">Then</strong> it:</p>
+<ul class="md-github">
+<li class="md-github">Loads contents of source files (<code class="md-github">main.js</code>, test file, README, etc.),</li>
+<li class="md-github">Assembles a prompt with all relevant project context (existing features, file contents, command outputs),</li>
+<li class="md-github">Sends the prompt to OpenAI with a functional call schema requesting updated versions of:
+<ul class="md-github">
+<li class="md-github">Source file,</li>
+<li class="md-github">Test file,</li>
+<li class="md-github">README file,</li>
+<li class="md-github">Dependencies file.</li>
+</ul>
+</li>
+</ul>
+<p class="md-github"><strong class="md-github">Then</strong> the model responds with a structured JSON containing:</p>
+<ul class="md-github">
+<li class="md-github">Updated versions of the four files,</li>
+<li class="md-github">A message suitable for use as a commit message.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="scenario-apply-proposed-fixes" href="#scenario-apply-proposed-fixes"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Scenario: Apply Proposed Fixes</h2>
+<p class="md-github"><strong class="md-github">Given</strong> the LLM returns updated content,</p>
+<p class="md-github"><strong class="md-github">When</strong> the content differs from current file versions,</p>
+<p class="md-github"><strong class="md-github">Then</strong> the workflow:</p>
+<ul class="md-github">
+<li class="md-github">Overwrites the respective files (<code class="md-github">main.js</code>, test file, README, package.json) with the updated content,</li>
+<li class="md-github">Logs file update status and lengths.</li>
+</ul>
+<p class="md-github"><strong class="md-github">If</strong> the LLM response is invalid or missing,</p>
+<ul class="md-github">
+<li class="md-github">The workflow fails with an appropriate message.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="scenario-validate-fix-locally" href="#scenario-validate-fix-locally"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Scenario: Validate Fix Locally</h2>
+<p class="md-github"><strong class="md-github">Given</strong> updated files have been written,</p>
+<p class="md-github"><strong class="md-github">Then</strong> the workflow:</p>
+<ul class="md-github">
+<li class="md-github">Re-installs dependencies (<code class="md-github">npm install</code>),</li>
+<li class="md-github">Runs CI install (<code class="md-github">npm ci</code>),</li>
+<li class="md-github">Runs the test script again,</li>
+<li class="md-github">Runs the main script again (with timeout).</li>
+</ul>
+<p class="md-github">Each of these validation steps is monitored for success or failure.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="scenario-commit-changes" href="#scenario-commit-changes"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Scenario: Commit Changes</h2>
+<p class="md-github"><strong class="md-github">Given</strong> one or more files were updated,</p>
+<p class="md-github"><strong class="md-github">Then</strong> the workflow:</p>
+<ul class="md-github">
+<li class="md-github">Stages and commits the changes with the sanitized commit message from the LLM,</li>
+<li class="md-github">Pushes the branch to origin.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="scenario-finalize-and-report" href="#scenario-finalize-and-report"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Scenario: Finalize and Report</h2>
+<p class="md-github"><strong class="md-github">When</strong> all steps have completed,</p>
+<p class="md-github"><strong class="md-github">Then</strong> the workflow:</p>
+<ul class="md-github">
+<li class="md-github">Summarizes outcomes of each validation step (install, CI, test, main, commit),</li>
+<li class="md-github">Exposes output flags indicating:
+<ul class="md-github">
+<li class="md-github">Whether a fix was applied,</li>
+<li class="md-github">The commit message,</li>
+<li class="md-github">Success/failure of post-fix validations,</li>
+<li class="md-github">Whether <em class="md-github">all</em> validations succeeded.</li>
+</ul>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="tags" href="#tags"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Tags</h2>
+<ul class="md-github">
+<li class="md-github"><code class="md-github">@agentic</code></li>
+<li class="md-github"><code class="md-github">@llm</code></li>
+<li class="md-github"><code class="md-github">@autofix</code></li>
+<li class="md-github"><code class="md-github">@ci</code></li>
+<li class="md-github"><code class="md-github">@validation</code></li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="examples" href="#examples"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Examples</h2>
+<table class="md-github">
+<thead class="md-github">
+<tr class="md-github">
+<th class="md-github">Input</th>
+<th class="md-github">Default Value</th>
+</tr>
+</thead>
+<tbody class="md-github">
+<tr class="md-github">
+<td class="md-github"><code class="md-github">featuresDir</code></td>
+<td class="md-github"><code class="md-github">features/</code></td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">target</code></td>
+<td class="md-github"><code class="md-github">src/lib/main.js</code></td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">testFile</code></td>
+<td class="md-github"><code class="md-github">tests/unit/main.test.js</code></td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">readmeFile</code></td>
+<td class="md-github"><code class="md-github">README.md</code></td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">dependenciesFile</code></td>
+<td class="md-github"><code class="md-github">package.json</code></td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">buildScript</code></td>
+<td class="md-github"><code class="md-github">npm run build</code></td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">testScript</code></td>
+<td class="md-github"><code class="md-github">npm test</code></td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">mainScript</code></td>
+<td class="md-github"><code class="md-github">npm run start</code></td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">model</code></td>
+<td class="md-github"><code class="md-github">o3-mini</code> or overridden</td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">branch</code></td>
+<td class="md-github">Current branch</td>
+</tr>
+</tbody>
+</table>
+<hr class="md-github">
+
+  </section>
+  <footer>
+    <p>Generated on 2025-04-16T19:30:41.894Z</p>
+  </footer>
+</body>
+</html>

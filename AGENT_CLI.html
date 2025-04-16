@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>agentic-lib</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+    header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
+    h1 { font-size: 2em; }
+    section { margin-bottom: 1.5em; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5em 0; }
+    .label { font-weight: bold; }
+    footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>agentic-lib</h1>
+    <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest stats</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all stats</a></p>
+  </header>
+  <section>
+    <h1 class="md-github"><a class="md-github__anchor" name="feature-cli-and-lambda-utilities-for-agentic-processing" href="#feature-cli-and-lambda-utilities-for-agentic-processing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Feature: CLI and Lambda Utilities for Agentic Processing</h1>
+<p class="md-github">This feature describes the behavior of a JavaScript-based command-line interface (CLI) and Lambda handlers that support logging, configuration, and command processing for an &quot;agentic&quot; system. The system includes utility functions for diagnostics, AWS SQS event handling, batch command processing, and CLI operation modes.</p>
+<hr class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="scenario-environment-initialization" href="#scenario-environment-initialization"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Scenario: Environment Initialization</h2>
+<p class="md-github"><strong class="md-github">Given</strong> the application starts,</p>
+<p class="md-github"><strong class="md-github">Then</strong> it:</p>
+<ul class="md-github">
+<li class="md-github">Loads environment variables from <code class="md-github">.env</code> file or system environment.</li>
+<li class="md-github">Uses defaults in test or development environments:
+<ul class="md-github">
+<li class="md-github"><code class="md-github">GITHUB_API_BASE_URL</code> set to a test URL.</li>
+<li class="md-github"><code class="md-github">OPENAI_API_KEY</code> set to a test key.</li>
+</ul>
+</li>
+<li class="md-github">Validates the environment with a schema.</li>
+</ul>
+<hr class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="scenario-logging-configuration" href="#scenario-logging-configuration"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Scenario: Logging Configuration</h2>
+<p class="md-github"><strong class="md-github">Given</strong> a log event occurs,</p>
+<p class="md-github"><strong class="md-github">Then</strong> the system:</p>
+<ul class="md-github">
+<li class="md-github">Logs messages with ISO timestamps and severity level (<code class="md-github">info</code> or <code class="md-github">error</code>).</li>
+<li class="md-github">Adds error stacks when verbose mode is enabled.</li>
+<li class="md-github">Includes metadata for diagnostics and debugging.</li>
+</ul>
+<hr class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="scenario-sqs-digest-lambda-handler" href="#scenario-sqs-digest-lambda-handler"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Scenario: SQS Digest Lambda Handler</h2>
+<p class="md-github"><strong class="md-github">When</strong> the <code class="md-github">digestLambdaHandler</code> receives an SQS event,</p>
+<p class="md-github"><strong class="md-github">Then</strong> it:</p>
+<ul class="md-github">
+<li class="md-github">Processes one or more records.</li>
+<li class="md-github">Logs each digest received.</li>
+<li class="md-github">Collects and returns failures if records have invalid JSON.</li>
+<li class="md-github">Returns a structure with <code class="md-github">batchItemFailures</code> for SQS partial failure retry.</li>
+</ul>
+<hr class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="scenario-agentic-command-handler" href="#scenario-agentic-command-handler"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Scenario: Agentic Command Handler</h2>
+<p class="md-github"><strong class="md-github">When</strong> the <code class="md-github">agenticHandler</code> processes a payload,</p>
+<p class="md-github"><strong class="md-github">Then</strong>:</p>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">If</strong> the payload has a <code class="md-github">commands</code> array:
+<ul class="md-github">
+<li class="md-github">Validates the array structure.</li>
+<li class="md-github">Enforces a maximum batch size if <code class="md-github">MAX_BATCH_COMMANDS</code> is set.</li>
+<li class="md-github">Logs and processes each command individually.</li>
+<li class="md-github">Returns a success object with timestamps and execution times.</li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">If</strong> the payload has a single <code class="md-github">command</code>:
+<ul class="md-github">
+<li class="md-github">Validates it is a non-empty, actionable string.</li>
+<li class="md-github">Processes and logs the command.</li>
+<li class="md-github">Returns metadata including execution time.</li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">If</strong> invalid input is detected:
+<ul class="md-github">
+<li class="md-github">Logs an error and throws an exception.</li>
+</ul>
+</li>
+</ul>
+<hr class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="scenario-cli-argument-handling" href="#scenario-cli-argument-handling"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Scenario: CLI Argument Handling</h2>
+<p class="md-github"><strong class="md-github">When</strong> the script is run from the command line,</p>
+<p class="md-github"><strong class="md-github">Then</strong> it supports the following flags:</p>
+<table class="md-github">
+<thead class="md-github">
+<tr class="md-github">
+<th class="md-github">Flag</th>
+<th class="md-github">Behavior</th>
+</tr>
+</thead>
+<tbody class="md-github">
+<tr class="md-github">
+<td class="md-github"><code class="md-github">--help</code></td>
+<td class="md-github">Prints a usage summary.</td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">--digest</code></td>
+<td class="md-github">Triggers the <code class="md-github">digestLambdaHandler</code> with a sample SQS event.</td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">--agentic &lt;json&gt;</code></td>
+<td class="md-github">Processes a command payload using the <code class="md-github">agenticHandler</code>.</td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">--version</code></td>
+<td class="md-github">Loads and displays version info from <code class="md-github">package.json</code>.</td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">--verbose</code></td>
+<td class="md-github">Enables verbose logging globally.</td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">--diagnostics</code></td>
+<td class="md-github">Logs detailed environment and runtime info.</td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">--status</code></td>
+<td class="md-github">Prints runtime health (config, node version, call count, uptime).</td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">--dry-run</code></td>
+<td class="md-github">Does nothing; logs that no action was taken.</td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">--simulate-error</code></td>
+<td class="md-github">Logs and throws a simulated fatal error, exiting with code 1.</td>
+</tr>
+</tbody>
+</table>
+<hr class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="scenario-verbose-and-diagnostic-mode" href="#scenario-verbose-and-diagnostic-mode"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Scenario: Verbose and Diagnostic Mode</h2>
+<p class="md-github"><strong class="md-github">When</strong> verbose mode is active,</p>
+<p class="md-github"><strong class="md-github">Then</strong>:</p>
+<ul class="md-github">
+<li class="md-github">All logs include a <code class="md-github">verbose</code> flag.</li>
+<li class="md-github">Full error stacks are printed.</li>
+<li class="md-github">Diagnostics print environmental and version context.</li>
+</ul>
+<hr class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="scenario-status-handler" href="#scenario-status-handler"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Scenario: Status Handler</h2>
+<p class="md-github"><strong class="md-github">When</strong> <code class="md-github">statusHandler()</code> is called,</p>
+<p class="md-github"><strong class="md-github">Then</strong> it returns:</p>
+<ul class="md-github">
+<li class="md-github">Current config values.</li>
+<li class="md-github">Node.js version and uptime.</li>
+<li class="md-github">Invocation <code class="md-github">callCount</code>.</li>
+<li class="md-github">Environment variables like <code class="md-github">NODE_ENV</code> and <code class="md-github">OPENAI_API_KEY</code>.</li>
+</ul>
+<hr class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="scenario-error-simulation" href="#scenario-error-simulation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Scenario: Error Simulation</h2>
+<p class="md-github"><strong class="md-github">When</strong> <code class="md-github">--simulate-error</code> is provided,</p>
+<p class="md-github"><strong class="md-github">Then</strong>:</p>
+<ul class="md-github">
+<li class="md-github">A simulated error is logged.</li>
+<li class="md-github">The process exits with a failure code.</li>
+</ul>
+<hr class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="tags" href="#tags"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Tags</h2>
+<ul class="md-github">
+<li class="md-github"><code class="md-github">@cli</code></li>
+<li class="md-github"><code class="md-github">@lambda</code></li>
+<li class="md-github"><code class="md-github">@agentic</code></li>
+<li class="md-github"><code class="md-github">@sqs</code></li>
+<li class="md-github"><code class="md-github">@logging</code></li>
+<li class="md-github"><code class="md-github">@diagnostics</code></li>
+</ul>
+<hr class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="examples" href="#examples"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Examples</h2>
+<table class="md-github">
+<thead class="md-github">
+<tr class="md-github">
+<th class="md-github">Command</th>
+<th class="md-github">Effect</th>
+</tr>
+</thead>
+<tbody class="md-github">
+<tr class="md-github">
+<td class="md-github"><code class="md-github">node main.js --help</code></td>
+<td class="md-github">Shows usage options.</td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">node main.js --agentic '{&quot;command&quot;:&quot;Hello&quot;}'</code></td>
+<td class="md-github">Processes a single agentic command.</td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">node main.js --digest</code></td>
+<td class="md-github">Simulates an SQS digest Lambda event.</td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">node main.js --status</code></td>
+<td class="md-github">Prints runtime status.</td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">node main.js --simulate-error</code></td>
+<td class="md-github">Logs and exits with a simulated error.</td>
+</tr>
+</tbody>
+</table>
+<hr class="md-github">
+
+  </section>
+  <footer>
+    <p>Generated on 2025-04-16T19:30:42.768Z</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>agentic-lib</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+    header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
+    h1 { font-size: 2em; }
+    section { margin-bottom: 1.5em; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5em 0; }
+    .label { font-weight: bold; }
+    footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>agentic-lib</h1>
+    <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest stats</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all stats</a></p>
+  </header>
+  <section>
+    <h1 class="md-github"><a class="md-github__anchor" name="chat_agent_advanced-feature-specification" href="#chat_agent_advanced-feature-specification"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>CHAT_AGENT_ADVANCED Feature Specification</h1>
+<h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
+<p class="md-github">This feature extends the existing Chat Agent functionality by allowing users to customize the conversational context through a configurable personality prompt. By reading an environment variable (e.g., OPENAI_CHAT_PERSONALITY), the chat agent can inject a custom system message into the Chat Completions API payload. This enhancement provides a tailored interactive experience while retaining robust error handling and logging.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="implementation-details" href="#implementation-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Implementation Details</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="source-file-modifications-srclibmainjs" href="#source-file-modifications-srclibmainjs"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Source File Modifications (src/lib/main.js)</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Enhance the Chat Function:</strong>
+<ul class="md-github">
+<li class="md-github">Update the implementation of the <code class="md-github">chatAgent</code> function to check for the <code class="md-github">OPENAI_CHAT_PERSONALITY</code> environment variable.</li>
+<li class="md-github">If set, prepend a system message with the personality prompt to the messages sent to the OpenAI Chat Completions API.</li>
+<li class="md-github">Log the usage of the custom personality to help with debugging and auditing.</li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">CLI Integration:</strong>
+<ul class="md-github">
+<li class="md-github">Ensure that the CLI flag <code class="md-github">--chat</code> continues to invoke the enhanced <code class="md-github">chatAgent</code> function without affecting existing functionality.</li>
+</ul>
+</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="testing-enhancements-testsunitmaintestjs" href="#testing-enhancements-testsunitmaintestjs"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Testing Enhancements (tests/unit/main.test.js)</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">New Test Cases for Custom Personality:</strong>
+<ul class="md-github">
+<li class="md-github">Add tests to simulate chat interactions with and without the <code class="md-github">OPENAI_CHAT_PERSONALITY</code> set.</li>
+<li class="md-github">Verify that when the environment variable is provided, the payload passed to the Chat Completions API includes the custom system message.</li>
+<li class="md-github">Maintain tests for standard error and success scenarios to ensure full coverage of the chat handling logic.</li>
+</ul>
+</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="documentation-updates-readmemd" href="#documentation-updates-readmemd"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Documentation Updates (README.md)</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Usage Section:</strong>
+<ul class="md-github">
+<li class="md-github">Update the CLI usage examples to demonstrate how to configure the <code class="md-github">OPENAI_CHAT_PERSONALITY</code> environment variable.</li>
+<li class="md-github">Provide example commands for invoking the chat agent with a custom personality prompt.</li>
+</ul>
+</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="dependencies" href="#dependencies"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Dependencies</h3>
+<ul class="md-github">
+<li class="md-github">This feature leverages the existing <code class="md-github">openai</code> package. No additional dependencies are introduced.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="benefits--success-criteria" href="#benefits--success-criteria"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Benefits &amp; Success Criteria</h2>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Personalized Conversations:</strong> Enables users to tailor the chat experience with a custom system prompt.</li>
+<li class="md-github"><strong class="md-github">Improved Debuggability:</strong> Enhanced logging provides visibility into the personality setting in use.</li>
+<li class="md-github"><strong class="md-github">Backward Compatibility:</strong> Retains existing chat functionality when no custom personality is provided.</li>
+<li class="md-github"><strong class="md-github">Robust Testing:</strong> New tests cover both scenarios (custom personality set and unset) ensuring reliability and ease of future maintenance.</li>
+</ul>
+
+  </section>
+  <footer>
+    <p>Generated on 2025-04-16T19:30:42.329Z</p>
+  </footer>
+</body>
+</html>

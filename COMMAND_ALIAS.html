@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>agentic-lib</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+    header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
+    h1 { font-size: 2em; }
+    section { margin-bottom: 1.5em; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5em 0; }
+    .label { font-weight: bold; }
+    footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>agentic-lib</h1>
+    <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest stats</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all stats</a></p>
+  </header>
+  <section>
+    <h1 class="md-github"><a class="md-github__anchor" name="command_alias-feature-specification" href="#command_alias-feature-specification"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>COMMAND_ALIAS Feature Specification</h1>
+<h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
+<p class="md-github">This feature introduces support for command aliases in the agentic-lib CLI. Users can define aliases for frequently used commands via the environment variable <code class="md-github">AGENTIC_ALIAS</code>. The variable is expected to contain a JSON mapping of alias names to the actual commands. This simplifies command input, reduces potential errors, and enhances the overall user experience.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="implementation-details" href="#implementation-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Implementation Details</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="source-file-modifications-srclibmainjs" href="#source-file-modifications-srclibmainjs"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Source File Modifications (src/lib/main.js)</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Alias Resolution:</strong> At the start of the CLI processing, parse the <code class="md-github">AGENTIC_ALIAS</code> environment variable (if set) as a JSON object mapping alias keys to actual command strings.</li>
+<li class="md-github"><strong class="md-github">Command Substitution:</strong> Before passing the command to the <code class="md-github">agenticHandler</code>, check if the provided command (or any command in a batch) exists in the alias map. If an alias is found, substitute it with the corresponding actual command.</li>
+<li class="md-github"><strong class="md-github">Compatibility:</strong> Ensure that both single command and batch command scenarios support alias substitution without interfering with existing validations. Maintain current logging and error handling behavior, and add verbose logs for alias substitutions when <code class="md-github">--verbose</code> is activated.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="testing-enhancements-testsunitmaintestjs" href="#testing-enhancements-testsunitmaintestjs"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Testing Enhancements (tests/unit/main.test.js)</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">New Test Cases for Alias Resolution:</strong> Add unit tests that set the <code class="md-github">AGENTIC_ALIAS</code> environment variable to a valid JSON mapping. Test that providing an alias via the <code class="md-github">--agentic</code> flag results in the actual command being processed.</li>
+<li class="md-github"><strong class="md-github">Batch Processing:</strong> Verify that each command in a batch payload is independently checked and substituted if an alias is defined.</li>
+<li class="md-github"><strong class="md-github">Fallback Behavior:</strong> Confirm that if an alias is not defined, the original command is processed unchanged.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="documentation-updates-readmemd" href="#documentation-updates-readmemd"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Documentation Updates (README.md)</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">CLI Usage Section Update:</strong> Document the new alias functionality. Explain how to define the <code class="md-github">AGENTIC_ALIAS</code> environment variable with a JSON mapping and provide examples of invoking commands using an alias.</li>
+<li class="md-github"><strong class="md-github">Usage Examples:</strong> Include example commands showing how using an alias simplifies the command input.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="benefits--success-criteria" href="#benefits--success-criteria"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Benefits &amp; Success Criteria</h2>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Simplified Command Input:</strong> Enables users to define shorter or more intuitive commands, reducing input errors and increasing efficiency.</li>
+<li class="md-github"><strong class="md-github">Enhanced User Experience:</strong> The alias resolution provides a more flexible CLI by allowing customization without code changes.</li>
+<li class="md-github"><strong class="md-github">Testable and Stable:</strong> The functionality is covered by unit tests and documented, ensuring reliability and ease of future maintenance.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="verification--acceptance" href="#verification--acceptance"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Verification &amp; Acceptance</h2>
+<ul class="md-github">
+<li class="md-github">The CLI should resolve an alias to its actual command both in single and batch processing scenarios.</li>
+<li class="md-github">Logs should indicate alias substitution when <code class="md-github">--verbose</code> mode is enabled.</li>
+<li class="md-github">Unit tests must confirm that alias resolution works correctly and that non-alias commands are processed normally.</li>
+</ul>
+
+  </section>
+  <footer>
+    <p>Generated on 2025-04-16T19:30:42.157Z</p>
+  </footer>
+</body>
+</html>

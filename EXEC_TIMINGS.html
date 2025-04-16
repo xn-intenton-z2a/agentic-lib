@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>agentic-lib</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+    header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
+    h1 { font-size: 2em; }
+    section { margin-bottom: 1.5em; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5em 0; }
+    .label { font-weight: bold; }
+    footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>agentic-lib</h1>
+    <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest stats</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all stats</a></p>
+  </header>
+  <section>
+    <h1 class="md-github"><a class="md-github__anchor" name="exec_timings-feature-specification" href="#exec_timings-feature-specification"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>EXEC_TIMINGS Feature Specification</h1>
+<h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
+<p class="md-github">This feature introduces a new CLI flag <code class="md-github">--timings</code> to measure and output the execution time of the commands processed by the agentic-lib. By wrapping the command execution flow with a timer, users will receive a report of how long the operation took, enhancing observability and performance troubleshooting without altering any core functionalities.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="implementation-details" href="#implementation-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Implementation Details</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="source-file-modifications-srclibmainjs" href="#source-file-modifications-srclibmainjs"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Source File Modifications (src/lib/main.js)</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Timer Integration:</strong>
+<ul class="md-github">
+<li class="md-github">Modify the <code class="md-github">main</code> function to check if the <code class="md-github">--timings</code> flag is present in the command arguments.</li>
+<li class="md-github">If present, capture the start time before processing any command.</li>
+<li class="md-github">After processing the command(s) (including CLI flags like <code class="md-github">--agentic</code>, <code class="md-github">--digest</code>, etc.), compute the elapsed time and print it to the console using a formatted message (e.g., &quot;Execution time: X ms&quot;).</li>
+<li class="md-github">Ensure that all branches (like <code class="md-github">--help</code>, <code class="md-github">--version</code>, etc.) include timing calculation where appropriate without interfering with their original behavior.</li>
+</ul>
+</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="testing-enhancements-testsunitmaintestjs" href="#testing-enhancements-testsunitmaintestjs"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Testing Enhancements (tests/unit/main.test.js)</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">New Test Cases for Execution Timings:</strong>
+<ul class="md-github">
+<li class="md-github">Add test cases that invoke the CLI with the <code class="md-github">--timings</code> flag along with another valid flag (such as <code class="md-github">--dry-run</code> or <code class="md-github">--status</code>).</li>
+<li class="md-github">Verify that the console output includes a message indicating the execution time (e.g., matches a regex like /Execution time: \d+ ms/).</li>
+<li class="md-github">Ensure that the addition of timings does not break existing CLI functionalities.</li>
+</ul>
+</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="documentation-updates-readmemd" href="#documentation-updates-readmemd"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Documentation Updates (README.md)</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Usage Section Update:</strong>
+<ul class="md-github">
+<li class="md-github">Include examples showing how to use the <code class="md-github">--timings</code> flag.</li>
+<li class="md-github">Document that the flag is intended to provide users with performance insights for the executed command.</li>
+</ul>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="benefits--success-criteria" href="#benefits--success-criteria"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Benefits &amp; Success Criteria</h2>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Enhanced Observability:</strong> Users can now easily measure how long each command or interaction takes, which is particularly useful for debugging or performance tuning.</li>
+<li class="md-github"><strong class="md-github">Non-intrusive:</strong> The feature integrates seamlessly with existing commands, providing additional value without modifying core behaviors.</li>
+<li class="md-github"><strong class="md-github">Testable:</strong> New unit tests ensure that the timing output is correctly reported and does not interfere with other outputs.</li>
+<li class="md-github"><strong class="md-github">Documentation:</strong> Updated README makes it clear how to utilize the new flag, helping users and developers alike.</li>
+</ul>
+
+  </section>
+  <footer>
+    <p>Generated on 2025-04-16T19:30:42.591Z</p>
+  </footer>
+</body>
+</html>

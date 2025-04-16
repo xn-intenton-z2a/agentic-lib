@@ -2,6 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>agentic-lib Documentation</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+    header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
+    h1 { font-size: 2em; }
+    h2 { font-size: 1.5em; margin-top: 1.5em; }
+    section { margin-bottom: 1.5em; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5em 0; }
+    .label { font-weight: bold; }
+    footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>agentic-lib Documentation</h1>
+    <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">Repository</a></p>
+  </header>
+
+  <section>
+    <h2>Library Documents</h2>
+    <ul>
+      
+    </ul>
+  </section>
+
+  <section>
+    <h2>Project Summary</h2>
+      <meta charset="UTF-8">
   <title>agentic-lib</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
@@ -16,7 +47,6 @@
     a:hover { text-decoration: underline; }
   </style>
 </head>
-<body>
   <header>
     <h1>agentic-lib</h1>
     <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest stats</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all stats</a></p>
@@ -76,9 +106,12 @@ The <code class="md-github">agenticHandler</code> function supports batch proces
 You can limit the maximum number of commands processed in a batch by setting the environment variable <code class="md-github">MAX_BATCH_COMMANDS</code>. When set, if the number of commands exceeds this limit, the batch will be rejected with an error message.</p>
 </li>
 <li class="md-github">
+<p class="md-github"><strong class="md-github">Execution Timing:</strong>
+For enhanced performance insights, the response of <code class="md-github">agenticHandler</code> now includes an <code class="md-github">executionTimeMS</code> field for each command, indicating the processing time in milliseconds.</p>
+</li>
+<li class="md-github">
 <p class="md-github"><strong class="md-github">Note on Prompt Validity:</strong>
-The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. <br/>
-<strong>Important:</strong> Inputs that, when trimmed and lowercased, equal to 'nan' (for example, 'NaN', 'nan', or 'NAN') are explicitly considered non-actionable and will result in an error.</p>
+The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. Inputs are processed by trimming whitespace and converting to lowercase. Therefore, even if the input appears in a different case or with extra spaces (e.g., ' NaN ', 'nan'), it will be considered non-actionable and will result in an error message explicitly stating that the input is non-actionable because it is equivalent to 'NaN'.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Stability:</strong><br>
@@ -95,7 +128,7 @@ The code is located in <code class="md-github">src/lib/main.js</code>.</p>
 </ul>
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="agentic-library-functions" href="#agentic-library-functions"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Agentic Library Functions</h2>
-<p class="md-github">A new set of agentic library functions have been implemented to enable autonomous workflow invocation. The primary function, <code class="md-github">agenticHandler</code>, processes a JSON payload containing either a single command or a batch of commands. When using batch processing, supply a JSON payload with a <code class="md-github">commands</code> array property. Each valid command increments the internal invocation counter.</p>
+<p class="md-github">A new set of agentic library functions have been implemented to enable autonomous workflow invocation. The primary function, <code class="md-github">agenticHandler</code>, processes a JSON payload containing either a single command or a batch of commands. When using batch processing, supply a JSON payload with a <code class="md-github">commands</code> array property. When a valid command is processed, the internal invocation counter is incremented and an <code class="md-github">executionTimeMS</code> property indicates its processing time in milliseconds.</p>
 <p class="md-github">It can be invoked directly via the CLI using the <code class="md-github">--agentic</code> flag followed by a JSON payload, e.g.,</p>
 <pre class="md-github"><code class="md-github">node src/lib/main.js --agentic '{&quot;command&quot;: &quot;doSomething&quot;}'
 </code></pre>
@@ -112,6 +145,7 @@ The code is located in <code class="md-github">src/lib/main.js</code>.</p>
 <li class="md-github"><code class="md-github">--diagnostics</code>: Outputs an in‑depth diagnostic report, including the current configuration, Node.js version, and relevant environment variables.</li>
 <li class="md-github"><code class="md-github">--status</code>: Outputs a runtime health summary in JSON format including configuration, Node.js version, callCount, uptime, and select environment variables.</li>
 <li class="md-github"><code class="md-github">--digest</code>: Initiates processing of a sample digest event.</li>
+<li class="md-github"><code class="md-github">--simulate-error</code>: Simulates an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.</li>
 </ul>
 <hr class="md-github">
 <h2 class="md-github"><a class="md-github__anchor" name="aws-integrations" href="#aws-integrations"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>AWS Integrations</h2>
@@ -148,7 +182,7 @@ The code is located in <code class="md-github">src/lib/main.js</code>.</p>
 </li>
 <li class="md-github"><strong class="md-github">--agentic:</strong>
 <ul class="md-github">
-<li class="md-github">Processes an agentic command. Supply a payload with either a single <code class="md-github">command</code> property or a <code class="md-github">commands</code> array for batch processing. Each valid command increments the internal invocation counter.</li>
+<li class="md-github">Processes an agentic command. Supply a payload with either a single <code class="md-github">command</code> property or a <code class="md-github">commands</code> array for batch processing. Each valid command increments the internal invocation counter and returns an <code class="md-github">executionTimeMS</code> property indicating its processing time.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">--version:</strong>
@@ -174,6 +208,11 @@ The code is located in <code class="md-github">src/lib/main.js</code>.</p>
 <li class="md-github"><strong class="md-github">--dry-run:</strong>
 <ul class="md-github">
 <li class="md-github">Executes a dry run that simulates the command execution without performing any actions.</li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">--simulate-error:</strong>
+<ul class="md-github">
+<li class="md-github">Simulates an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.</li>
 </ul>
 </li>
 </ul>
@@ -203,7 +242,12 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-04-14T18:00:05.120Z</p>
+    <p>Generated on 2025-04-16T19:30:42.902Z</p>
+  </footer>
+  </section>
+
+  <footer>
+    <p>Generated on 2025-04-16T19:30:42Z</p>
   </footer>
 </body>
 </html>

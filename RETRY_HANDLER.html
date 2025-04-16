@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>agentic-lib</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+    header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
+    h1 { font-size: 2em; }
+    section { margin-bottom: 1.5em; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5em 0; }
+    .label { font-weight: bold; }
+    footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>agentic-lib</h1>
+    <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest stats</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all stats</a></p>
+  </header>
+  <section>
+    <h1 class="md-github"><a class="md-github__anchor" name="retry_handler-feature-specification" href="#retry_handler-feature-specification"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>RETRY_HANDLER Feature Specification</h1>
+<h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
+<p class="md-github">This feature introduces a simple retry mechanism into the agentic command processing workflow. When enabled via an environment variable <code class="md-github">AGENTIC_RETRIES</code>, the library will automatically retry command execution upon transient failures before ultimately failing. This increases the robustness and resiliency of the agentic-lib, especially when facing intermittent errors in command processing.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="implementation-details" href="#implementation-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Implementation Details</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="source-file-modifications-srclibmainjs" href="#source-file-modifications-srclibmainjs"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Source File Modifications (src/lib/main.js)</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Command Retry Logic:</strong>
+<ul class="md-github">
+<li class="md-github">In the <code class="md-github">agenticHandler</code> function, wrap the single command processing block (and optionally batch processing) in a retry loop.</li>
+<li class="md-github">Read the environment variable <code class="md-github">AGENTIC_RETRIES</code> and parse it as an integer indicating the maximum number of attempts (defaulting to 1 if not set).</li>
+<li class="md-github">For each command, attempt processing. If an error occurs that qualifies as a transient error (for example, simulated by a specific command input such as &quot;forceRetry&quot; or any error generated during processing), catch the error and retry until the maximum number of attempts is reached.</li>
+<li class="md-github">Log each retry attempt using the existing <code class="md-github">logInfo</code> and <code class="md-github">logError</code> functions. Use verbose logging if enabled.</li>
+</ul>
+</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="testing-enhancements-testsunitmaintestjs" href="#testing-enhancements-testsunitmaintestjs"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Testing Enhancements (tests/unit/main.test.js)</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">New Test Cases for Retry Mechanism:</strong>
+<ul class="md-github">
+<li class="md-github">Add tests that simulate transient failures in the <code class="md-github">agenticHandler</code>. For instance, when a command string &quot;forceRetry&quot; is provided, the first attempt fails and a subsequent retry succeeds.</li>
+<li class="md-github">Verify that the global invocation counter (<code class="md-github">globalThis.callCount</code>) is incremented only after a successful processing.</li>
+<li class="md-github">Include negative tests to ensure that if all retry attempts fail, the final error is thrown and logged appropriately.</li>
+</ul>
+</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="documentation-updates-readmemd" href="#documentation-updates-readmemd"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Documentation Updates (README.md)</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Usage Section Update:</strong>
+<ul class="md-github">
+<li class="md-github">Document the new <code class="md-github">AGENTIC_RETRIES</code> environment variable. Explain that setting this variable to a positive integer enables automatic retries for command processing.</li>
+<li class="md-github">Provide usage examples showing how to set <code class="md-github">AGENTIC_RETRIES</code> (e.g., <code class="md-github">AGENTIC_RETRIES=3</code>) and describe scenarios where this mechanism adds value, such as handling intermittent errors.</li>
+</ul>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="benefits--success-criteria" href="#benefits--success-criteria"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Benefits &amp; Success Criteria</h2>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Improved Resiliency:</strong> Automatically retries transient failures, reducing the need for manual intervention during intermittent error conditions.</li>
+<li class="md-github"><strong class="md-github">Enhanced Robustness:</strong> The system becomes less brittle in the face of temporary issues, contributing to a smoother user experience.</li>
+<li class="md-github"><strong class="md-github">Testability:</strong> New tests ensure that the retry mechanism behaves as expected and that it does not interfere with the primary command processing functionality.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="verification--acceptance" href="#verification--acceptance"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Verification &amp; Acceptance</h2>
+<ul class="md-github">
+<li class="md-github">The <code class="md-github">agenticHandler</code> should retry processing a command up to the number of attempts specified by <code class="md-github">AGENTIC_RETRIES</code> when a transient error occurs.</li>
+<li class="md-github">Successful retry attempts should lead to normal command completions with the retry count logged.</li>
+<li class="md-github">If all retry attempts fail, the final error should be logged and thrown as per existing error-handling behavior.</li>
+<li class="md-github">All new tests added for this feature must pass without affecting current functionalities.</li>
+</ul>
+
+  </section>
+  <footer>
+    <p>Generated on 2025-04-16T19:30:42.678Z</p>
+  </footer>
+</body>
+</html>
