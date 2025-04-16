@@ -160,6 +160,8 @@ on:
         value: ${{ jobs.maintain-library.outputs.documentDetailedDigest }}
       crawlSummary:
         value: ${{ jobs.maintain-library.outputs.crawlSummary }}
+      normalisedExtract:
+        value: ${{ jobs.maintain-library.outputs.normalisedExtract }}
 
 jobs:
   maintain-library:
@@ -525,7 +527,7 @@ jobs:
 
             const chatGptPrompt = `
             Please generate a document detailed digest based on the supplied prompt and project files.
-            The detailed digest should be thorough but concise and take out bravado and speculation, include a critical assessment of the work and also of the authority of the source.
+            The detailed digest should be thorough but concise and state the usefulness and authority of the source.
             Ensure any content generated would be suitable for publication directly on the internet, in particular do not include private information about people.
             The word limit is ${summaryWordLimit} words but it not just a limit, it's a target to aim for provided the content is justified and not padded.
             Apply an internal peer review to ensure the detailed digest meets all of, a useful internal tech write up and a high academic for an informal paper providing a digest and insight into a topic.
@@ -537,8 +539,14 @@ jobs:
             You should extract a section from the sources file to create the document. Each document should contain:
             1. The original content from the source section in SOURCES.md
             2. A detailed digest as a detailed digest of the crawled content from the URL (limited to ${summaryWordLimit} words)
-            3. The date when the content was retrieved (current date)
-            4. Attribution information and data size obtained during crawling
+            3. A normalised extract of the crawled content, containing:
+               a. A summary of the key points
+               b. A table of contents listing the main topics
+               c. A paragraph on each topic in the crawl data
+            4. The date when the content was retrieved (current date)
+            5. Attribution information and data size obtained during crawling
+
+            For the normalised extract, ensure that the information in the crawled data is retained and transformed into topics that can be used to create product features and make engineering decisions. The content should be useful, dense, and presented in a consistent readable style.
 
             Consider the following when refining your response:
             * Document prompt details
@@ -649,7 +657,8 @@ jobs:
               documentDetailedDigest: z.string(), 
               documentNamesToBeDeleted: z.string(),
               sourceEntryIndex: z.string(),
-              crawlSummary: z.string()
+              crawlSummary: z.string(),
+              normalisedExtract: z.string()
             });
 
             // Define the function schema for function calling
@@ -665,9 +674,10 @@ jobs:
                     documentDetailedDigest: { type: "string", description: "The document detailed digest as multiline markdown with a few level 1 headings, including the original content from the source and the date when the content was retrieved." },
                     documentNamesToBeDeleted: { type: "string", description: "The comma separated list of document names to be deleted or 'none' if no document is to be deleted." },
                     sourceEntryIndex: { type: "string", description: "The index (1-based) of the source entry used for this document." },
-                    crawlSummary: { type: "string", description: "A summary of the crawled content from the URL, limited to the specified word limit." }
+                    crawlSummary: { type: "string", description: "A summary of the crawled content from the URL, limited to the specified word limit." },
+                    normalisedExtract: { type: "string", description: "A normalised extract of the crawled content, containing a summary, table of contents, and paragraphs on each topic in the crawl data. The information should be retained and transformed into topics for product features and engineering decisions. Content should be useful, dense, and in a consistent readable style." }
                   },
-                  required: ["documentName", "documentDetailedDigest", "documentNamesToBeDeleted", "sourceEntryIndex", "crawlSummary"],
+                  required: ["documentName", "documentDetailedDigest", "documentNamesToBeDeleted", "sourceEntryIndex", "crawlSummary", "normalisedExtract"],
                   additionalProperties: false
                 },
                 strict: true
@@ -708,11 +718,13 @@ jobs:
               core.setOutput("documentNamesToBeDeleted", parsed.documentNamesToBeDeleted);
               core.setOutput("sourceEntryIndex", parsed.sourceEntryIndex);
               core.setOutput("crawlSummary", parsed.crawlSummary);
+              core.setOutput("normalisedExtract", parsed.normalisedExtract);
               core.info(`documentName: "${parsed.documentName}"`);
               core.info(`documentDetailedDigest: "${parsed.documentDetailedDigest}"`);
               core.info(`documentNamesToBeDeleted: "${parsed.documentNamesToBeDeleted}"`);
               core.info(`sourceEntryIndex: "${parsed.sourceEntryIndex}"`);
               core.info(`crawlSummary: "${parsed.crawlSummary}"`);
+              core.info(`normalisedExtract: "${parsed.normalisedExtract}"`);
 
               // Get the source entry used for this document
               const sourceEntryIndex = parseInt(parsed.sourceEntryIndex, 10) - 1;
@@ -738,6 +750,7 @@ jobs:
 
                 documentContent = `# ${parsed.documentName}\n\n`;
                 documentContent += `## Crawl Summary\n${parsed.crawlSummary}\n\n`;
+                documentContent += `## Normalised Extract\n${parsed.normalisedExtract}\n\n`;
                 documentContent += `## Original Source\n${sourceEntry.name}\n${sourceEntry.url}\n\n`;
                 documentContent += `## Digest of ${parsed.documentName}\n\n`;
                 documentContent += `${parsed.documentDetailedDigest}\n\n`;
@@ -812,3 +825,4 @@ jobs:
       documentName: ${{ steps.maintain-library.outputs.documentName }}
       documentDetailedDigest: ${{ steps.maintain-library.outputs.documentDetailedDigest }}
       crawlSummary: ${{ steps.maintain-library.outputs.crawlSummary }}
+      normalisedExtract: ${{ steps.maintain-library.outputs.normalisedExtract }}
