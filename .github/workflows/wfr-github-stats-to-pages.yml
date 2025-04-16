@@ -1,0 +1,379 @@
+# .github/workflows/wfr-github-stats-to-pages.yml
+#
+#
+# agentic-lib
+# Copyright (C) 2025 Polycode Limited
+#
+# This file is part of agentic-lib.
+#
+# agentic-lib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# IMPORTANT: Any derived work must include the following attribution:
+# "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+#
+
+name: ∞ stats to GitHub Pages
+
+on:
+  workflow_call:
+    inputs:
+      public:
+        description: 'The public directory to use. e.g. "public"'
+        type: string
+        required: false
+        default: 'public'
+      cache:
+        description: 'The cache to use for npm. e.g. "npm"'
+        type: string
+        required: false
+        default: 'npm'
+      npmAuthOrganisation:
+        description: 'The npm auth organisation to use. e.g. "@xn-intenton-z2a"'
+        type: string
+        required: false
+      lastActivityName:
+        description: 'The name of the last activity. e.g. "stats"'
+        type: string
+        required: false
+      lastActivityBranchName:
+        description: 'The name of the last activity branch. e.g. "main"'
+        type: string
+        required: false
+      branchPrefix:
+        description: 'The prefix for the issue branch. e.g. "agentic-lib-issue-"'
+        type: string
+        required: false
+        default: 'agentic-lib-issue-'
+      nextIssue:
+        description: 'The next issue to review. e.g. "123 My issue automated"'
+        type: string
+        required: false
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+    outputs:
+      thisRepositoryStatsUrl:
+        description: 'The URL of the latest stats page. e.g. "https://xn-intenton-z2a.github.io/agentic-lib/latest.html"'
+        value: ${{ jobs.stats.outputs.thisRepositoryStatsUrl }}
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+
+    env:
+      public: ${{ inputs.public || 'public' }}
+      cache: ${{ inputs.cache || 'npm' }}
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
+      lastActivityName: ${{ inputs.lastActivityName || '' }}
+      lastActivityBranchName: ${{ inputs.lastActivityBranchName || '' }}
+      branchPrefix: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}
+      nextIssue: ${{ inputs.nextIssue || '' }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: ${{ env.cache }}
+
+      - name: Set up .npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - name: engine
+        id: engine
+        shell: bash
+        run: |
+          engine=$(grep '^schedule:' .github/agentic-lib.yml | awk '{print $2}')
+          echo "engine=${engine}"
+          echo "engine=${engine}" >> $GITHUB_OUTPUT
+
+      - name: Generate raw JSON statistics file
+        id: generate-json
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const now = new Date();
+            
+            const { owner, repo } = context.repo;
+            const engine = "${{ steps.engine.outputs.engine }}";
+            const lastActivityName = "${{ env.lastActivityName }}";
+            const lastActivityBranchName = "${{ env.lastActivityBranchName }}";
+            const nextIssue = "${{ env.nextIssue }}";
+            const branchPrefix = "${{ env.branchPrefix }}";
+            
+            // Open issues count
+            const { data: issuesResp } = await github.rest.issues.listForRepo({ owner, repo, state: "open", per_page: 256 });
+            
+            // Issues closed in last hour and day
+            const sinceOneHour = new Date(now.getTime() - (60 * 60 * 1000)).toISOString();
+            const { data: closedHourResp } = await github.rest.issues.listForRepo({ owner, repo, state: "closed", since: sinceOneHour, per_page: 256 });
+            const sinceOneDay = new Date(now.getTime() - (24 * 60 * 60 * 1000)).toISOString();
+            const { data: closedDayResp } = await github.rest.issues.listForRepo({ owner, repo, state: "closed", since: sinceOneDay, per_page: 256 });
+            
+            // Open pull requests with age in minutes
+            const { data: pullsResp } = await github.rest.pulls.list({ owner, repo, state: "open", per_page: 256 });
+            const prDetails = pullsResp.map(pr => {
+              const createdAt = new Date(pr.created_at);
+              const ageMinutes = Math.floor((now - createdAt) / (1000 * 60));
+              return { title: pr.title, ageMinutes };
+            });
+            const averagePRAge = prDetails.length > 0 ? Math.floor(prDetails.reduce((sum, pr) => sum + pr.ageMinutes, 0) / prDetails.length) : 0;
+            
+            // Repository push details
+            const { data: repoResp } = await github.rest.repos.get({ owner, repo });
+            const pushedAt = new Date(repoResp.pushed_at);
+            const { data: mainBranchResp } = await github.rest.repos.getBranch({ owner, repo, branch: "main" });
+            const mainPushedAt = new Date(mainBranchResp.commit.commit.author.date);
+            
+            // Commits in the last hour and day
+            const { data: commitsLastHourResp }  = await github.rest.repos.listCommits({ owner, repo, since: sinceOneHour, per_page: 256 });
+            const { data: commitsLastDayResp } = await github.rest.repos.listCommits({ owner, repo, since: sinceOneDay, per_page: 256 });
+            
+            // Last 5 commits on main
+            const { data: lastFiveCommitsResp } = await github.rest.repos.listCommits({ owner, repo, sha: "main", per_page: 5 });
+            const lastFiveCommitMessages = lastFiveCommitsResp.map(commit => {
+              const commitDate = new Date(commit.commit.author.date);
+              const hh = commitDate.getHours().toString().padStart(2, '0');
+              const mm = commitDate.getMinutes().toString().padStart(2, '0');
+              const message = commit.commit.message.length > 64 ? commit.commit.message.substring(0, 64) + "..." : commit.commit.message;
+              return { time: `${hh}:${mm}`, message };
+            });
+
+            // Branches excluding "main" and "github-pages"
+            const { data: branchesResp } = await github.rest.repos.listBranches({ owner, repo, per_page: 256 });
+            const branchData = branchesResp.filter(branch => branch.name !== "main" && branch.name !== "github-pages");
+            const branchDetails = await Promise.all(branchData.map(async branch => {
+              const { data: branchResp } = await github.rest.repos.getBranch({ owner, repo, branch: branch.name });
+              const lastCommitDate = new Date(branchResp.commit.commit.author.date);
+              const minutesSinceLastCommit = Math.floor((now - lastCommitDate) / (1000 * 60));
+              let issueNumber = '';
+              let issueTitle = "";
+              let issueLabels = "";
+              const issueNumberMatch = branch.name.match(new RegExp(branchPrefix + "(\\d+)"));
+              if (issueNumberMatch) {
+                issueNumber = issueNumberMatch[1];
+                const { data: issue } = await github.rest.issues.get({
+                  owner,
+                  repo,
+                  issue_number: parseInt(issueNumber)
+                });
+                if (issue) {
+                  issueTitle = issue.title;
+                  issueLabels = issue.labels.map(label => label.name).join(', ');
+                }
+              }  
+              return { branch: branch.name, issueNumber, issueTitle, issueLabels, minutesSinceLastCommit };
+            }));
+            const averageBranchAge = branchDetails.length > 0 ? Math.floor(branchDetails.reduce((sum, branch) => sum + branch.minutesSinceLastCommit, 0) / branchDetails.length) : 0;
+
+            let checks = [];
+            for (const branch of branchesResp) {
+              core.info(`Checking branch: ${branch.name}`);
+              const { data: branchResp } = await github.rest.repos.getBranch({ owner, repo, branch: branch.name });
+              if( branchResp ) {
+                const commitSha = branchResp.commit.sha;
+                const { data: branchChecks } = await github.rest.checks.listForRef({
+                  owner,
+                  repo,
+                  ref: commitSha,
+                });
+                const checkRuns = branchChecks.check_runs.map(check => {
+                  return {
+                    ...check,
+                    branchName: branch.name,
+                    branch
+                  };
+                });
+                checks.push(...checkRuns);
+              } else {
+                core.info(`Branch ${branch.name} not found.`);
+              }
+            }
+
+            const jsonData = { 
+              owner, 
+              repo,
+              engine,
+              agenticLib: {
+                schedule: engine
+              },
+              lastActivityName,
+              lastActivityBranchName,
+              repository: {
+                count: repoResp.length,
+                details: repoResp,
+                owner, 
+                repo,
+                lastActivityName,
+                lastActivityBranchName
+              },
+              nextIssue,
+              openIssues: issuesResp.length,
+              issuesClosedLastHour: closedHourResp.length,
+              issuesClosedLastDay: closedDayResp.length,
+              issues: {
+                open: {
+                  count: issuesResp.length, 
+                  details: issuesResp,
+                },
+                closed: {
+                  count: closedDayResp.length, 
+                  details: closedDayResp
+                },
+                nextIssue,
+                openIssues: issuesResp.length,
+                issuesClosedLastHour: closedHourResp.length,
+                issuesClosedLastDay: closedDayResp.length
+              },
+              openPRs: prDetails.length,
+              averagePRAge: averagePRAge,
+              prDetails: prDetails.map(pr => `[${pr.ageMinutes}m] ${pr.title}`),
+              diffMinutes: Math.floor((now - pushedAt) / (1000 * 60)),
+              diffMinutesMain: Math.floor((now - mainPushedAt) / (1000 * 60)),
+              prs: {
+                count: pullsResp.length, 
+                details: pullsResp,
+                openPRs: prDetails.length,
+                averagePRAge: averagePRAge,
+                prDetails: prDetails.map(pr => `[${pr.ageMinutes}m] ${pr.title}`),
+                diffMinutes: Math.floor((now - pushedAt) / (1000 * 60)),
+                diffMinutesMain: Math.floor((now - mainPushedAt) / (1000 * 60))
+              },
+              commitsLastHour: commitsLastHourResp.length,
+              commitsLastDay: commitsLastDayResp.length,
+              lastFiveCommitMessages: lastFiveCommitMessages.map(commit => `[${commit.time}] - ${commit.message}`),
+              commits: {
+                count: commitsLastDayResp.length, 
+                details: commitsLastDayResp,
+                commitsLastHour: commitsLastHourResp.length,
+                commitsLastDay: commitsLastDayResp.length,
+                lastFiveCommitMessages: lastFiveCommitMessages.map(commit => `[${commit.time}] - ${commit.message}`)
+              },
+              branches: { 
+                count: branchDetails.length, 
+                details: branchDetails.map(branch => `[${branch.minutesSinceLastCommit}m] ${branch.branch}`),
+                countRaw: branchesResp.length, 
+                detailsRaw: branchesResp,
+                branchIssueDetails: branchDetails.map(branch => `[${branch.issueNumber}] ${branch.issueTitle} ${branch.issueLabels}`),
+                averageBranchAge
+              },
+              checks: {
+                count: checks.length,
+                checks: checks,
+                testStatusOnBranch: "PASS - placeholder",
+                testsLastPassedMinutes: "15 - placeholder"
+              },
+              statsGeneratedAt: now.toISOString(),
+              context,
+              github
+            };
+
+            // Write JSON file
+            const outputDir = "${{ env.public }}";
+            if (!fs.existsSync(outputDir)) { fs.mkdirSync(outputDir); }
+            const outputPath = path.join(outputDir, "${{ github.event.repository.name }}-stats.json");
+            fs.writeFileSync(outputPath, JSON.stringify(jsonData, null, 2), "utf8");
+
+            core.info(`JSON stats generated at ${outputPath}.`);
+            core.setOutput("jsonStatsPath", outputPath);
+
+      - name: Upload JSON stats artifact to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: stats-json
+          path: ${{ steps.generate-json.outputs.jsonStatsPath }}
+
+      - run: npm install
+
+      - name: Generate HTML page for statistics
+        id: generate-html
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const ejs = require('ejs');
+
+            // Generate HTML contents from ${{ env.public }}/stats.html and the JSON file at ${{ steps.generate-json.outputs.jsonStatsPath }}
+            const statsDataFilePath = "${{ steps.generate-json.outputs.jsonStatsPath }}";
+            const statsData = JSON.parse(fs.readFileSync(statsDataFilePath, "utf8"));
+            const htmlEJSTemlatePath = "${{ env.public }}/stats.html";
+            const template = fs.readFileSync(htmlEJSTemlatePath, "utf8");
+            const html = ejs.render(template, statsData);
+              
+            // Ensure the output directory exists.
+            const outputDir = "${{ env.public }}";
+            if (!fs.existsSync(outputDir)) {
+              fs.mkdirSync(outputDir);
+            }
+            const outputPath = path.join(outputDir, "latest.html");
+            fs.writeFileSync(outputPath, html, "utf8");
+            core.info(`Static site generated at ${outputPath}.`);
+            core.setOutput("sitePath", outputPath);
+
+      - name: Generate index page
+        shell: bash
+        run: |
+          ./scripts/md-to-html.js < README.md > ${{ env.public }}/index.agentic-lib.html
+          cat ${{ env.public }}/index.agentic-lib.html | sed 's/agentic-lib/${{ github.event.repository.name }}/g' > ${{ env.public }}/index.html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ env.public }}
+          publish_branch: github-pages
+          keep_files: true
+          enable_jekyll: 'true'
+
+      - name: Upload generated site as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: ${{ env.public }}
+
+      - name: Output published github pages URLs
+        id: output-pages-urls
+        run: |
+          echo "[INFO] Determining GitHub Pages URL..."
+          # GitHub Pages URL typically: https://<owner>.github.io/<repo>/
+          repoName=${{ github.event.repository.name }}
+          owner=${{ github.repository_owner }}
+          baseUrl="https://${owner}.github.io/${repoName}"
+          thisRepositoryStatsUrl="${baseUrl}/latest.html"
+          thisHomePageUrl="${baseUrl}/index.html"
+          pwd
+          echo "${{ env.public }}:"
+          ls -larth "${{ env.public }}"
+          echo "${{ env.public }}/latest.html:"
+          ls -larth "${{ env.public }}/latest.html"
+          echo "::notice:: thisRepositoryStatsUrl: ${thisRepositoryStatsUrl}"
+          echo "thisRepositoryStatsUrl=${thisRepositoryStatsUrl}" >> $GITHUB_OUTPUT
+          echo "::notice:: thisHomePageUrl: ${thisHomePageUrl}"
+          echo "thisHomePageUrl=${thisHomePageUrl}" >> $GITHUB_OUTPUT
+
+    outputs:
+      thisRepositoryStatsUrl: ${{ steps.output-pages-urls.outputs.thisRepositoryStatsUrl }}

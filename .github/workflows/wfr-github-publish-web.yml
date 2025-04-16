@@ -254,8 +254,8 @@ jobs:
           EOF
 
           # Clean up temporary files
-          rm -f ${{ env.public }}/article_list.txt
-          rm -f ${{ env.public }}/readme.html
+          #rm -f ${{ env.public }}/article_list.txt
+          #rm -f ${{ env.public }}/readme.html
 
           echo "Index page generated successfully"
 

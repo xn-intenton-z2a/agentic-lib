@@ -1,9 +1,9 @@
-# .github/workflows/stats.yml
+# .github/workflows/stats-to-aws.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: Stats
+name: Stats to AWS
 
 on:
   workflow_dispatch:
@@ -40,7 +40,6 @@ jobs:
       lastActivityName: ${{ github.workflow }}
       lastActivityBranchName: ${{ github.ref_name }}
       nextIssue: "[${{ needs.select-issue.outputs.issueNumber }}] ${{ needs.select-issue.outputs.issueTitle }} ${{ needs.select-issue.outputs.issueLabels }}"
-      public: 'public'
       s3BucketUrl: 's3://agentic-lib-telemetry-bucket/events/'
       s3WebsiteBucketUrl: 's3://agentic-lib-public-website-stats-bucket/'
       iamActionsRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role'
