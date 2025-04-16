@@ -222,3 +222,18 @@ This guide details the Conventional Commits specification, which standardizes co
 ## https://opentelemetry.io/docs/instrumentation/js/
 The OpenTelemetry documentation for Node.js covers instrumentation for distributed tracing and metrics collection. It offers setup instructions, API references, and best practices for monitoring performance in cloud-native applications.
 ## Unknown License
+
+# GitHub Actions Security Best Practices
+## https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions
+This guide covers security best practices for hardening GitHub Actions workflows, including recommended approaches for secret management, least privilege execution, and secure use of third-party actions. Authored by GitHub, it serves as an authoritative resource for improving workflow security.
+## Unknown License
+
+# AWS Lambda Best Practices
+## https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html
+This official AWS documentation details best practices for designing, deploying, and managing Lambda functions. It covers performance optimizations, security recommendations, and cost-efficiency strategies, and is regularly updated by AWS experts.
+## Unknown License
+
+# Node.js Best Practices
+## https://github.com/goldbergyoni/nodebestpractices
+A comprehensive, community-driven guide to Node.js best practices covering project structure, performance enhancements, security considerations, and production deployment strategies. It serves as a valuable resource for developers seeking to write robust and maintainable Node.js applications.
+## MIT License
