@@ -1782,7 +1782,7 @@ jobs:
       libraryDir: ${{ inputs.libraryDir || 'library/' }}
       sourcesFile: ${{ inputs.sourcesFile || 'SOURCES.md' }}
       documentsLimit: ${{ inputs.documentsLimit || '3' }}
-      summaryWordLimit: ${{ inputs.summaryWordLimit || '200' }}
+      summaryWordLimit: ${{ inputs.summaryWordLimit || '10000' }}
       featuresDir: ${{ inputs.featuresDir || 'features/' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}

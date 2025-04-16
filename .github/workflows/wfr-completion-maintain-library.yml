@@ -170,7 +170,7 @@ jobs:
       libraryDir: ${{ inputs.libraryDir || 'library/' }}
       sourcesFile: ${{ inputs.sourcesFile || 'SOURCES.md' }}
       documentsLimit: ${{ inputs.documentsLimit || '3' }}
-      summaryWordLimit: ${{ inputs.summaryWordLimit || '200' }}
+      summaryWordLimit: ${{ inputs.summaryWordLimit || '10000' }}
       featuresDir: ${{ inputs.featuresDir || 'features/' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
@@ -525,6 +525,12 @@ jobs:
 
             const chatGptPrompt = `
             Please generate a document summary based on the supplied prompt and project files.
+            The summary should be thorough but concise and take out bravado and speculation, include a critical assessment of the work and also of the authority of the source.
+            Ensure any content generated would be suitable for publication directly on the internet, in particular do not include private information about people.
+            The word limit is ${summaryWordLimit} words but it not just a limit, it's a target to aim for provided the content is justified and not padded.
+            Apply an internal peer review to ensure the summary meets all of, a useful internal tech write up and a high academic for an informal paper providing a digest and insight into a topic.
+            Where possible find situations to support or refute statements made in the originally crawled material.
+            Use a journalistic style in the writing and include a glossary of any obscure terms at the end of the summary.
             Before adding a new document ensure that this document is distinct from any other document in the library, otherwise update an existing document.
             The document name should be one or two words in SCREAMING_SNAKECASE.
 
