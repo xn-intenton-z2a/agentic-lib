@@ -77,3 +77,13 @@ Chalk is a popular Node.js library for styling terminal string output with color
 ## https://markdown-it.github.io
 Markdown-it is a high-performance markdown parser for JavaScript known for its extensibility and plugin-friendly architecture. The documentation provides comprehensive examples, configuration options, and API references to help users effectively integrate markdown parsing into their projects.
 ## MIT License
+
+# GitHub REST API Documentation
+## https://docs.github.com/en/rest
+The GitHub REST API documentation is an authoritative resource for accessing GitHub's vast array of services. It covers endpoints for repositories, issues, pull requests, and workflow automation, offering detailed insights and usage examples. Regularly updated, this documentation serves as a primary reference for developers integrating with GitHub's RESTful services.
+## Unknown License
+
+# AWS SQS Developer Guide
+## https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html
+The AWS SQS Developer Guide provides comprehensive information on using the Amazon Simple Queue Service (SQS). It covers topics such as queue creation, message management, security, and best practices for integrating SQS into applications. This resource is maintained by AWS and updated regularly to reflect the latest service features.
+## Unknown License
