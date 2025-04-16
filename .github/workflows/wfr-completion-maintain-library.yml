@@ -156,8 +156,8 @@ on:
     outputs:
       documentName:
         value: ${{ jobs.maintain-library.outputs.documentName }}
-      documentSummary:
-        value: ${{ jobs.maintain-library.outputs.documentSummary }}
+      documentDetailedDigest:
+        value: ${{ jobs.maintain-library.outputs.documentDetailedDigest }}
       crawlSummary:
         value: ${{ jobs.maintain-library.outputs.crawlSummary }}
 
@@ -524,19 +524,19 @@ jobs:
             }
 
             const chatGptPrompt = `
-            Please generate a document summary based on the supplied prompt and project files.
-            The summary should be thorough but concise and take out bravado and speculation, include a critical assessment of the work and also of the authority of the source.
+            Please generate a document detailed digest based on the supplied prompt and project files.
+            The detailed digest should be thorough but concise and take out bravado and speculation, include a critical assessment of the work and also of the authority of the source.
             Ensure any content generated would be suitable for publication directly on the internet, in particular do not include private information about people.
             The word limit is ${summaryWordLimit} words but it not just a limit, it's a target to aim for provided the content is justified and not padded.
-            Apply an internal peer review to ensure the summary meets all of, a useful internal tech write up and a high academic for an informal paper providing a digest and insight into a topic.
+            Apply an internal peer review to ensure the detailed digest meets all of, a useful internal tech write up and a high academic for an informal paper providing a digest and insight into a topic.
             Where possible find situations to support or refute statements made in the originally crawled material.
-            Use a journalistic style in the writing and include a glossary of any obscure terms at the end of the summary.
+            Use a journalistic style in the writing and include a glossary of any obscure terms at the end of the detailed digest.
             Before adding a new document ensure that this document is distinct from any other document in the library, otherwise update an existing document.
             The document name should be one or two words in SCREAMING_SNAKECASE.
 
             You should extract a section from the sources file to create the document. Each document should contain:
             1. The original content from the source section in SOURCES.md
-            2. A detailed digest as a summary of the crawled content from the URL (limited to ${summaryWordLimit} words)
+            2. A detailed digest as a detailed digest of the crawled content from the URL (limited to ${summaryWordLimit} words)
             3. The date when the content was retrieved (current date)
             4. Attribution information and data size obtained during crawling
 
@@ -637,7 +637,7 @@ jobs:
             Answer strictly with a JSON object following this schema:
             {
               "documentName": "The document name as one or two words in SCREAMING_SNAKECASE.",
-              "documentSummary": "The document summary as multiline markdown with a few level 1 headings, including the original content from the source and the date when the content was retrieved.",
+              "documentDetailedDigest": "The document detailed digest as multiline markdown with a few level 1 headings, including the original content from the source and the date when the content was retrieved.",
               "documentNamesToBeDeleted": "The comma separated list of document names to be deleted or 'none' if no document is to be deleted.",
               "sourceEntryIndex": "The index (1-based) of the source entry used for this document."
             }
@@ -646,7 +646,7 @@ jobs:
 
             const ResponseSchema = z.object({ 
               documentName: z.string(), 
-              documentSummary: z.string(), 
+              documentDetailedDigest: z.string(), 
               documentNamesToBeDeleted: z.string(),
               sourceEntryIndex: z.string(),
               crawlSummary: z.string()
@@ -657,17 +657,17 @@ jobs:
               type: "function",
               function: {
                 name: "generate_document",
-                description: "Elaborate on the supplied prompt and project files to create the documentName, documentSummary, and crawlSummary of a repository document, and the document names to be deleted. Return an object with documentName (string), documentSummary (string), documentNamesToBeDeleted (string), sourceEntryIndex (string), and crawlSummary (string).",
+                description: "Elaborate on the supplied prompt and project files to create the documentName, documentDetailedDigest, and crawlSummary of a repository document, and the document names to be deleted. Return an object with documentName (string), documentDetailedDigest (string), documentNamesToBeDeleted (string), sourceEntryIndex (string), and crawlSummary (string).",
                 parameters: {
                   type: "object",
                   properties: {
                     documentName: { type: "string", description: "The document name as one or two words in SCREAMING_SNAKECASE." },
-                    documentSummary: { type: "string", description: "The document summary as multiline markdown with a few level 1 headings, including the original content from the source and the date when the content was retrieved." },
+                    documentDetailedDigest: { type: "string", description: "The document detailed digest as multiline markdown with a few level 1 headings, including the original content from the source and the date when the content was retrieved." },
                     documentNamesToBeDeleted: { type: "string", description: "The comma separated list of document names to be deleted or 'none' if no document is to be deleted." },
                     sourceEntryIndex: { type: "string", description: "The index (1-based) of the source entry used for this document." },
                     crawlSummary: { type: "string", description: "A summary of the crawled content from the URL, limited to the specified word limit." }
                   },
-                  required: ["documentName", "documentSummary", "documentNamesToBeDeleted", "sourceEntryIndex", "crawlSummary"],
+                  required: ["documentName", "documentDetailedDigest", "documentNamesToBeDeleted", "sourceEntryIndex", "crawlSummary"],
                   additionalProperties: false
                 },
                 strict: true
@@ -704,12 +704,12 @@ jobs:
             try {
               const parsed = ResponseSchema.parse(result);
               core.setOutput("documentName", parsed.documentName);
-              core.setOutput("documentSummary", parsed.documentSummary);
+              core.setOutput("documentDetailedDigest", parsed.documentDetailedDigest);
               core.setOutput("documentNamesToBeDeleted", parsed.documentNamesToBeDeleted);
               core.setOutput("sourceEntryIndex", parsed.sourceEntryIndex);
               core.setOutput("crawlSummary", parsed.crawlSummary);
               core.info(`documentName: "${parsed.documentName}"`);
-              core.info(`documentSummary: "${parsed.documentSummary}"`);
+              core.info(`documentDetailedDigest: "${parsed.documentDetailedDigest}"`);
               core.info(`documentNamesToBeDeleted: "${parsed.documentNamesToBeDeleted}"`);
               core.info(`sourceEntryIndex: "${parsed.sourceEntryIndex}"`);
               core.info(`crawlSummary: "${parsed.crawlSummary}"`);
@@ -724,22 +724,23 @@ jobs:
                 core.warning(`Invalid source entry index: ${parsed.sourceEntryIndex}`);
               }
 
-              // Add the current date to the document summary
+              // Add the current date to the document detailed digest
               const now = new Date();
               const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD format
 
               // Create the document content
-              let documentContent = parsed.documentSummary;
+              let documentContent = "";
 
-              // If we have a valid source entry, add the original content, crawl summary, and attribution fields
+              // If we have a valid source entry, add the original content, crawl detailed digest, and attribution fields
               if (sourceEntry) {
                 const crawlDate = new Date();
                 const crawlDateStr = crawlDate.toISOString();
 
                 documentContent = `# ${parsed.documentName}\n\n`;
-                documentContent += `## Original Source\n${sourceEntry.name}\n${sourceEntry.url}\n\n`;
-                documentContent += `## Content\n${sourceEntry.content}\n\n`;
                 documentContent += `## Crawl Summary\n${parsed.crawlSummary}\n\n`;
+                documentContent += `## Original Source\n${sourceEntry.name}\n${sourceEntry.url}\n\n`;
+                documentContent += `## Digest of ${parsed.documentName}\n\n`;
+                documentContent += `${parsed.documentDetailedDigest}\n\n`;
                 documentContent += `## Attribution\n`;
                 documentContent += `- Source: ${sourceEntry.name}\n`;
                 documentContent += `- URL: ${sourceEntry.url}\n`;
@@ -809,5 +810,5 @@ jobs:
 
     outputs:
       documentName: ${{ steps.maintain-library.outputs.documentName }}
-      documentSummary: ${{ steps.maintain-library.outputs.documentSummary }}
+      documentDetailedDigest: ${{ steps.maintain-library.outputs.documentDetailedDigest }}
       crawlSummary: ${{ steps.maintain-library.outputs.crawlSummary }}
