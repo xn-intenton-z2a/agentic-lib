@@ -42,3 +42,38 @@ Prettier is an opinionated code formatter that supports a wide range of language
 ## https://lodash.com/docs/
 Lodash is a utility library that offers modular functions for common programming tasks such as array and object manipulation. Its detailed documentation covers a broad array of functions, helping developers write efficient and readable code. Recognized as a standard in JavaScript utility libraries, it is maintained actively and is released under the MIT License.
 ## MIT License
+
+# Vitest Documentation
+## https://vitest.dev
+Vitest is a fast unit testing framework built on Vite. The documentation provides quick start guides, API references, and detailed examples for setting up and running tests in a modern JavaScript environment. It is frequently updated and well-regarded by the testing community. Last updated in 2023.
+## MIT License
+
+# AWS Lambda Developer Guide
+## https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
+The official AWS Lambda documentation offers comprehensive guides, best practices, and reference material for building and managing serverless applications on AWS Lambda. Maintained by AWS, this resource is regularly updated to align with the latest changes in the service.
+## Unknown License
+
+# Node.js ES Modules Documentation
+## https://nodejs.org/api/esm.html
+This documentation covers Node.js's implementation of ES Modules. It provides detailed guidance on import/export syntax, module resolution, and best practices for leveraging ES modules in a Node.js environment. The content is kept current with the latest Node releases.
+## Unknown License
+
+# EJS Templating Documentation
+## https://ejs.co
+EJS (Embedded JavaScript) is a simple templating language that allows developers to generate HTML markup with plain JavaScript. The documentation includes installation instructions, configuration options, and usage examples, making it a valuable resource for integrating EJS into web applications.
+## MIT License
+
+# AWS CDK Documentation
+## https://docs.aws.amazon.com/cdk/latest/guide/home.html
+The AWS Cloud Development Kit (CDK) documentation provides a complete guide to building cloud applications using modern programming languages. It includes tutorials, API references, and best practices for designing and deploying scalable cloud architectures on AWS.
+## Unknown License
+
+# Chalk Documentation
+## https://chalk.js.org
+Chalk is a popular Node.js library for styling terminal string output with colors and various text styles. The documentation details its API, usage examples, and configuration options, making it an ideal resource for developers looking to enhance CLI output.
+## MIT License
+
+# Markdown-It Documentation
+## https://markdown-it.github.io
+Markdown-it is a high-performance markdown parser for JavaScript known for its extensibility and plugin-friendly architecture. The documentation provides comprehensive examples, configuration options, and API references to help users effectively integrate markdown parsing into their projects.
+## MIT License
