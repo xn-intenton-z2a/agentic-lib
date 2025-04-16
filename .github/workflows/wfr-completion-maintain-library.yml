@@ -536,7 +536,7 @@ jobs:
 
             You should extract a section from the sources file to create the document. Each document should contain:
             1. The original content from the source section in SOURCES.md
-            2. A summary of the crawled content from the URL (limited to ${summaryWordLimit} words)
+            2. A detailed digest as a summary of the crawled content from the URL (limited to ${summaryWordLimit} words)
             3. The date when the content was retrieved (current date)
             4. Attribution information and data size obtained during crawling
 
