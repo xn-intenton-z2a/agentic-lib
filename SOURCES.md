@@ -112,3 +112,42 @@ The official NPM documentation offers comprehensive guides on package management
 ## https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html
 AWS SAM (Serverless Application Model) documentation provides detailed information on building and deploying serverless applications on AWS. It includes tutorials, best practices, and API references to help developers efficiently manage serverless resources.
 ## Unknown License
+
+---
+
+# New or Extended Sources
+
+# GitLab CI/CD Documentation
+## https://docs.gitlab.com/ee/ci/
+The official GitLab CI/CD documentation provides detailed guides on setting up pipelines, configuring runners, and integrating testing and deployment processes within the GitLab ecosystem. Frequently updated with community-driven best practices, it serves as an authoritative resource for continuous integration and delivery outside of GitHub Actions.
+## Unknown License
+
+# CircleCI Documentation
+## https://circleci.com/docs/2.0/configuration-reference/
+CircleCI's documentation offers comprehensive guidance on configuring and optimizing CI/CD pipelines using their platform. It covers pipeline configuration, environment setup, and integration with various development tools. The latest updates reflect modern best practices in continuous integration.
+## Unknown License
+
+# Jenkins Pipeline Documentation
+## https://www.jenkins.io/doc/book/pipeline/
+This documentation offers detailed insights into creating and managing pipelines using Jenkins. It includes tutorials, sample pipelines, and configuration best practices, providing a robust resource for teams implementing automation and continuous delivery through Jenkins.
+## Unknown License
+
+# Azure Pipelines Documentation
+## https://docs.microsoft.com/en-us/azure/devops/pipelines/?view=azure-devops
+Azure Pipelines documentation covers the configuration, usage, and best practices for implementing CI/CD workflows within the Microsoft ecosystem. It offers comprehensive guidance on integrating with various Azure services and third-party tools, with regular updates reflecting the latest service enhancements.
+## Unknown License
+
+# Semantic Release Documentation
+## https://semantic-release.gitbook.io/semantic-release/
+Semantic Release automates the whole package release workflow including determining the next version number, generating the release notes, and publishing the package. This documentation provides a detailed look at integrating semantic versioning into your CI/CD pipelines to streamline releases.
+## Unknown License
+
+# Serverless Framework Documentation
+## https://www.serverless.com/framework/docs/
+The Serverless Framework documentation offers guidance on building and deploying serverless applications across multiple cloud providers. It covers configuration options, deployment strategies, and best practices for managing serverless infrastructures, serving as a robust alternative to AWS-specific tools like SAM.
+## Unknown License
+
+# OpenAPI Specification Documentation
+## https://swagger.io/specification/
+The OpenAPI Specification provides a standard, language-agnostic interface to RESTful APIs which allows both humans and computers to understand the capabilities of a service without requiring access to source code. This resource is widely recognized across the industry and is maintained with updates reflecting evolving API design best practices.
+## Apache License 2.0
