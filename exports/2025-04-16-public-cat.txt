@@ -1,0 +1,306 @@
+public/all.html
+==== Content of public/all.html ====
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>agentic-lib</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/ejs@3.1.10/ejs.min.js"></script>
+  <style>
+
+/* Basic reset and box-sizing */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    padding: 1em;
+}
+/*header {
+    margin-bottom: 1em;
+    text-align: center;
+}*/
+h1 { font-size: 1.8em; margin-bottom: 0.5em; }
+#controls { margin-top: 1em; margin-bottom: 1em; text-align: center; }
+#autoReloadLabel { font-size: 1em; margin-left: 0.5em; }
+/* Main content container fills available space */
+#mainContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+/* Grid container: fill available space and auto-size rows */
+.grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1em;
+    overflow-y: auto;
+    grid-auto-rows: 1fr;  /* Each row takes equal available space */
+}
+/* The iframe now fills its container completely */
+.tile iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+footer {
+    margin-top: 0;
+    text-align: center;
+    font-size: 0.9em;
+    color: #777;
+}
+
+/* Add glowing animation */
+/*
+.glow {
+    animation: glowAnimation 1s ease-out;
+}
+@keyframes glowAnimation {
+    from { 
+        box-shadow: 0 0 10px #ffd700; 
+        background-color: #e0e0e0;
+    }
+    to { 
+        box-shadow: none; 
+        background-color: transparent;
+    }
+}
+*/
+  </style>
+</head>
+<body>
+<header>
+</header>
+<div id="mainContent">
+  <div class="grid" id="tileContainer">
+    <!-- Tiles will be generated here -->
+  </div>
+</div>
+<div id="controls">
+  <label>
+    <input type="checkbox" id="autoReloadSwitch" checked>
+    <span id="autoReloadLabel">Auto-reload enabled</span>
+  </label>
+</div>
+<footer>
+</footer>
+
+<script>
+
+// Configuration: list of URLs of stats data to display in the tiles.
+const urls = [
+  "agentic-lib-stats.json",
+  "repository0-crucible-stats.json",
+  "repository0-plot-code-lib-stats.json",
+  "repository0-stats.json"
+];
+
+const tileContainer = document.getElementById('tileContainer');
+const autoReloadSwitch = document.getElementById('autoReloadSwitch');
+
+// Helper: Attach a MutationObserver to a tile to add a glow effect on changes.
+//function attachGlowObserver(tile) {
+//  const observer = new MutationObserver((mutations) => {
+//    mutations.forEach(mutation => {
+//      if (mutation.type === 'childList' || mutation.type === 'attributes') {
+//        tile.classList.add('glow');
+//        setTimeout(() => tile.classList.remove('glow'), 1000);
+//      }
+//    });
+//  });
+//  observer.observe(tile, { childList: true, attributes: true, subtree: true });
+//}
+
+// Generate grid tiles with templated content using EJS.
+urls.forEach((jsonUrl, index) => {
+  const tile = document.createElement('div');
+  tile.className = 'tile';
+  tile.dataset.url = jsonUrl;
+
+  // Load the template and JSON data concurrently.
+  Promise.all([
+    fetch('stats.html').then(res => res.text()),
+    fetch(jsonUrl).then(res => res.json())
+  ])
+    .then(([template, statsData]) => {
+      // Use EJS to render the template with the JSON data.
+      tile.innerHTML = ejs.render(template, statsData);
+      // Attach the MutationObserver to this tile.
+      //attachGlowObserver(tile);
+    })
+    .catch(err => {
+      console.error('Error loading template or JSON:', err);
+      tile.innerHTML = `<p>Error loading data for tile ${index + 1}</p>`;
+    });
+
+  // Clicking a tile opens the JSON data URL in a new tab.
+  tile.addEventListener('click', () => {
+    window.open(jsonUrl, '_blank');
+  });
+
+  tileContainer.appendChild(tile);
+});
+
+// Auto-reload: cycle through tiles, reloading one every 10 seconds.
+let currentTile = 0;
+function autoReload() {
+  if (!autoReloadSwitch.checked) return;
+  const tiles = document.querySelectorAll('.tile');
+  if (tiles.length === 0) return;
+
+  // Reload the content of the current tile.
+  const tile = tiles[currentTile];
+  const jsonUrl = tile.dataset.url;
+  Promise.all([
+    fetch('stats.html').then(res => res.text()),
+    fetch(jsonUrl).then(res => res.json())
+  ])
+    .then(([template, statsData]) => {
+      tile.innerHTML = ejs.render(template, statsData);
+    })
+    .catch(err => {
+      console.error('Error reloading tile:', err);
+    });
+
+  currentTile = (currentTile + 1) % tiles.length;
+}
+setInterval(autoReload, 10000);
+
+// Update label on auto-reload switch change.
+autoReloadSwitch.addEventListener('change', () => {
+  document.getElementById('autoReloadLabel').textContent = autoReloadSwitch.checked
+    ? "Auto-reload enabled"
+    : "Auto-reload disabled";
+});
+
+</script>
+</body>
+</html>
+public/stats.html
+==== Content of public/stats.html ====
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= repo %> stats</title>
+  <style>
+      body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+      h1 { font-size: 1.5em; font-family: monospace; }
+      section { margin-bottom: 1em; }
+      ul { list-style: none; padding: 0; }
+      li { margin: 0.5em 0; }
+      .label { font-weight: bold; }
+      footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><%= repo %></h1>
+  </header>
+  <section>
+    <p>
+      <span class="label">Last Activity:</span>
+      <%= lastActivityName %> on <%= lastActivityBranchName %><br/>
+      at <%= statsGeneratedAt %>
+    </p>
+  </section>
+  <section>
+    <p>
+      <span class="label">Branches (<%= branches.count %> of average age <%= branches.averageBranchAge %> minutes):</span><br/>
+      <%= branches.details && branches.details.join(', ') || 'None' %>
+    </p>
+  </section>
+  <section>
+    <p>
+      <span class="label">Branch Issues:</span><br/>
+      <%= branches.branchIssueDetails && branches.branchIssueDetails.join(', ') || 'None' %>
+    </p>
+  </section>
+  <section>
+    <p>
+      <span class="label">Open PRs (<%= openPRs %> of average age <%= averagePRAge %> minutes):</span><br/>
+      <%= prDetails && prDetails.join(', ') || 'None' %>
+    </p>
+  </section>
+  <section>
+    <p>
+      <span class="label">Next Issue:</span><br/>
+      <%= nextIssue %>
+    </p>
+  </section>
+  <section>
+    <p><span class="label">Open Issues:</span> <%= openIssues %></p>
+    <p><span class="label">Issues closed in last hour:</span> <%= issuesClosedLastHour %></p>
+    <p><span class="label">Issues closed in last 24 hours:</span> <%= issuesClosedLastDay %></p>
+  </section>
+  <section>
+    <p><span class="label">Engine:</span> <%= engine %></p>
+  </section>
+  <section>
+    <p><span class="label">Minutes since push anywhere:</span> <%= diffMinutes %></p>
+    <p><span class="label">Minutes since push to main:</span> <%= diffMinutesMain %></p>
+  </section>
+  <section>
+    <p><span class="label">Commits to main last hour:</span> <%= commitsLastHour %></p>
+    <p><span class="label">Commits to main last day:</span> <%= commitsLastDay %></p>
+  </section>
+  <section>
+    <p><span class="label">Last 5 commit messages from main:</span></p>
+    <ul>
+      <% lastFiveCommitMessages.forEach(commitMessage => { %>
+      <li><%= commitMessage %></li>
+      <% }); %>
+    </ul>
+  </section>
+  <footer>
+    <p>Template Rendered <%= new Date().toISOString() %></p>
+  </footer>
+</body>
+</html>
+public/agentic-lib-stats.json
+==== Content of public/agentic-lib-stats.json ====
+{
+  "owner": "xn-intenton-z2a",
+  "repo": "repository0-agentic-lib",
+  "engine": "schedule-3",
+  "lastActivityName": "Review Issue",
+  "lastActivityBranchName": "main",
+  "nextIssue": "[2019] Add missing afterEach import in tests automated",
+  "openIssues": 8,
+  "issuesClosedLastHour": 0,
+  "issuesClosedLastDay": 100,
+  "openPRs": 1,
+  "averagePRAge": 0,
+  "prDetails": [
+    "[0m] Added missing afterEach import in tests and implemented generateMultiPlot function to address test failures. (fixes #2019)"
+  ],
+  "diffMinutes": 1,
+  "diffMinutesMain": 11,
+  "commitsLastHour": 8,
+  "commitsLastDay": 98,
+  "lastFiveCommitMessages": [
+    "[17:04] - Add SVG plot generation library with CLI and multi-plot support\n...",
+    "[16:59] - Update from agentic-lib",
+    "[16:55] - Update from agentic-lib",
+    "[16:46] - Update from agentic-lib",
+    "[16:37] - Update from agentic-lib"
+  ],
+  "branches": {
+    "count": 1,
+    "details": [
+      "[7m] agentic-lib-issue-2019"
+    ],
+    "branchIssueDetails": [
+      "[2019] Add missing afterEach import in tests automated"
+    ],
+    "averageBranchAge": 7
+  },
+  "testStatusOnBranch": "PASS",
+  "testsLastPassedMinutes": 15,
+  "statsGeneratedAt": "2025-04-12T17:15:51.768Z"
+}

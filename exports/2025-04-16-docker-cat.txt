@@ -1,0 +1,54 @@
+==== Content of Dockerfile ====
+FROM public.ecr.aws/lambda/nodejs:20
+
+WORKDIR /var/task
+
+ARG HANDLER=src/lib/main.digestLambdaHandler
+ENV HANDLER=$HANDLER
+
+ARG PERSONAL_ACCESS_TOKEN
+ENV PERSONAL_ACCESS_TOKEN=$PERSONAL_ACCESS_TOKEN
+
+RUN echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" > ~/.npmrc
+RUN echo "//npm.pkg.github.com/:_authToken=$PERSONAL_ACCESS_TOKEN" >> ~/.npmrc
+RUN echo "always-auth=true" >> ~/.npmrc
+
+COPY package.json package-lock.json ./
+RUN npm install --production
+COPY src/ src/
+
+# Use shell form so the environment variable gets expanded.
+CMD sh -c "exec $HANDLER"
+
+ENTRYPOINT /lambda-entrypoint.sh $HANDLER
+==== Content of compose.yml ====
+services:
+
+  localstack:
+    image: localstack/localstack
+    environment:
+      - SERVICES=sqs,s3,dynamodb
+      - DEBUG=1
+    ports:
+      - "4566:4566"
+      - "4571:4571"
+
+  replay:
+    build: .
+    container_name: agentic-lib
+    entrypoint: ["npm", "run", "replay"]
+    environment:
+      BUCKET_NAME: agentic-lib-telemetry-bucket-local
+      OBJECT_PREFIX: events/
+      REPLAY_QUEUE_URL: http://sqs.eu-west-2.localhost.localstack.cloud:4566/000000000000/agentic-lib-replay-queue-local
+      AWS_REGION: eu-west-2
+      AWS_ENDPOINT: http://localstack:4566
+      AWS_ACCESS_KEY_ID: LKIAQAAAAAAVNCBMPNSG
+      AWS_SECRET_ACCESS_KEY: localstack
+    depends_on:
+      - localstack
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
