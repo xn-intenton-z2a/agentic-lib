@@ -113,10 +113,6 @@ The official NPM documentation offers comprehensive guides on package management
 AWS SAM (Serverless Application Model) documentation provides detailed information on building and deploying serverless applications on AWS. It includes tutorials, best practices, and API references to help developers efficiently manage serverless resources.
 ## Unknown License
 
----
-
-# New or Extended Sources
-
 # GitLab CI/CD Documentation
 ## https://docs.gitlab.com/ee/ci/
 The official GitLab CI/CD documentation provides detailed guides on setting up pipelines, configuring runners, and integrating testing and deployment processes within the GitLab ecosystem. Frequently updated with community-driven best practices, it serves as an authoritative resource for continuous integration and delivery outside of GitHub Actions.
@@ -150,4 +146,19 @@ The Serverless Framework documentation offers guidance on building and deploying
 # OpenAPI Specification Documentation
 ## https://swagger.io/specification/
 The OpenAPI Specification provides a standard, language-agnostic interface to RESTful APIs which allows both humans and computers to understand the capabilities of a service without requiring access to source code. This resource is widely recognized across the industry and is maintained with updates reflecting evolving API design best practices.
+## Apache License 2.0
+
+# Travis CI Documentation
+## https://docs.travis-ci.com/
+Travis CI is a continuous integration service used to build and test software projects hosted on GitHub and Bitbucket. Its documentation provides configuration guides, best practices, and examples to leverage its automated build and testing services. It is widely used and frequently updated, reflecting best practices in CI/CD pipelines.
+## Unknown License
+
+# GitHub CLI Documentation
+## https://cli.github.com/manual
+The GitHub CLI (gh) documentation offers comprehensive guides on using the GitHub command line interface to interact with GitHub repositories, issues, pull requests, and other aspects of the platform. It provides installation guides, command references, and best practices for integrating GitHub automation into your workflow. Last updated in 2023.
+## Unknown License
+
+# OpenTelemetry JS Documentation
+## https://opentelemetry.io/docs/instrumentation/js/
+This documentation provides guidance on instrumenting JavaScript applications with OpenTelemetry for distributed tracing and observability. It includes API references, setup guides, and best practices to help developers monitor and optimize performance across cloud-native applications. Regularly updated to reflect current practices.
 ## Apache License 2.0
