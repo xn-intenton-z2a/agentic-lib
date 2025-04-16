@@ -112,3 +112,23 @@ A collection of examples and guides for best practices when using OpenAI's API. 
 ## https://nodejs.org/en/docs/latest-v20.x/api/
 This is the official API documentation for Node.js version 20, covering new features, core modules, and performance updates. It is a critical resource for developers looking to leverage the latest advancements in Node.js development.
 ## Unknown License
+
+# GitHub CLI Documentation
+## https://cli.github.com/manual
+The official GitHub CLI documentation provides a comprehensive guide for installing, configuring, and using the GitHub CLI tool. It explains commands for interacting with GitHub repositories, issues, and pull requests. Updated frequently and maintained by GitHub, it serves as an authoritative resource for command-line integration with GitHub services.
+## Unknown License
+
+# CircleCI Documentation
+## https://circleci.com/docs/
+CircleCI documentation offers extensive information on setting up and configuring CircleCI for continuous integration and deployment. It includes guides on pipeline creation, workflows, and best practices for optimizing CI/CD processes in cloud environments. The documentation is regularly updated by CircleCI.
+## Unknown License
+
+# GitLab CI/CD Documentation
+## https://docs.gitlab.com/ee/ci/
+GitLab CI/CD documentation provides in-depth coverage of continuous integration and continuous deployment with GitLab. It covers pipeline configurations, runners, caching, artifacts, and environment variables, and is maintained by the GitLab team with frequent updates.
+## Unknown License
+
+# AWS SAM CLI Documentation
+## https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html
+The AWS SAM CLI documentation guides developers through building, testing, and deploying serverless applications using the AWS Serverless Application Model. It includes tutorials, best practices, and API references, making it an essential resource for serverless architecture development.
+## Unknown License
