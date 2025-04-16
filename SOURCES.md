@@ -87,3 +87,28 @@ The GitHub REST API documentation is an authoritative resource for accessing Git
 ## https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html
 The AWS SQS Developer Guide provides comprehensive information on using the Amazon Simple Queue Service (SQS). It covers topics such as queue creation, message management, security, and best practices for integrating SQS into applications. This resource is maintained by AWS and updated regularly to reflect the latest service features.
 ## Unknown License
+
+# Renovate Bot Documentation
+## https://docs.renovatebot.com/
+Renovate Bot documentation offers detailed guidance on automating dependency updates, configuring version ranges, and integrating with CI/CD pipelines. It is actively maintained with frequent updates as best practices evolve within the development community. Last reviewed in 2023.
+## Unknown License
+
+# Dependabot Documentation
+## https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/about-dependabot-security-updates
+Dependabot documentation provides insights into GitHub's automated dependency update service, explaining how it manages pull requests, security alerts, and integration with repository workflows. It is a key resource for maintaining secure and up-to-date projects.
+## Unknown License
+
+# GitHub Actions Workflow Syntax Documentation
+## https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+This documentation explains the YAML syntax and configuration options for creating GitHub Actions workflows. It covers triggers, jobs, steps, and best practices for setting up automated processes in repositories, ensuring robust CI/CD pipelines.
+## Unknown License
+
+# NPM Documentation
+## https://docs.npmjs.com/
+The official NPM documentation offers comprehensive guides on package management, including installation, publishing, and dependency management. It is an essential resource for developers working within the Node.js ecosystem and is updated regularly with best practices.
+## Unknown License
+
+# AWS SAM Documentation
+## https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html
+AWS SAM (Serverless Application Model) documentation provides detailed information on building and deploying serverless applications on AWS. It includes tutorials, best practices, and API references to help developers efficiently manage serverless resources.
+## Unknown License
