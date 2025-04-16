@@ -33,7 +33,16 @@ jobs:
         id: agentic-lib
         shell: bash
         run: |
-          documentsLimit=$(grep '^documentsLimit:' .github/agentic-lib.yml | awk '{print $2}')
+          if [ -f ".github/agentic-lib.yml" ]; then
+            documentsLimit=$(grep '^documentsLimit:' .github/agentic-lib.yml | awk '{print $2}')
+            if [ -z "$documentsLimit" ]; then
+              documentsLimit="3"
+              echo "Warning: documentsLimit not found in .github/agentic-lib.yml, using default value: ${documentsLimit}"
+            fi
+          else
+            documentsLimit="3"
+            echo "Warning: .github/agentic-lib.yml file not found, using default documentsLimit: ${documentsLimit}"
+          fi
           echo "documentsLimit=${documentsLimit}"
           echo "documentsLimit=${documentsLimit}" >> $GITHUB_OUTPUT
     outputs:

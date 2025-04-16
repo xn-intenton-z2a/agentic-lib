@@ -322,6 +322,7 @@ jobs:
             const testOutput = process.env.testOutput;
             const mainScript = process.env.mainScript;
             const mainOutput = process.env.mainOutput;
+            const summaryWordLimit = process.env.summaryWordLimit;
 
             const fs = require('fs');
             const path = require('path');

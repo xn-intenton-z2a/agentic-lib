@@ -36,7 +36,16 @@ jobs:
         id: agentic-lib
         shell: bash
         run: |
-          sourcesLimit=$(grep '^sourcesLimit:' .github/agentic-lib.yml | awk '{print $2}')
+          if [ -f ".github/agentic-lib.yml" ]; then
+            sourcesLimit=$(grep '^sourcesLimit:' .github/agentic-lib.yml | awk '{print $2}')
+            if [ -z "$sourcesLimit" ]; then
+              sourcesLimit="32"
+              echo "Warning: sourcesLimit not found in .github/agentic-lib.yml, using default value: ${sourcesLimit}"
+            fi
+          else
+            sourcesLimit="32"
+            echo "Warning: .github/agentic-lib.yml file not found, using default sourcesLimit: ${sourcesLimit}"
+          fi
           echo "sourcesLimit=${sourcesLimit}"
           echo "sourcesLimit=${sourcesLimit}" >> $GITHUB_OUTPUT
     outputs:

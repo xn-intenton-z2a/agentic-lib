@@ -114,9 +114,15 @@ jobs:
         id: engine
         shell: bash
         run: |
-          engine=$(grep '^schedule:' .github/agentic-lib.yml | awk '{print $2}')
-          echo "engine=${engine}"
-          echo "engine=${engine}" >> $GITHUB_OUTPUT
+          if [ -f ".github/agentic-lib.yml" ]; then
+            engine=$(grep '^schedule:' .github/agentic-lib.yml | awk '{print $2}')
+            echo "engine=${engine}"
+            echo "engine=${engine}" >> $GITHUB_OUTPUT
+          else
+            echo "engine=default"
+            echo "engine=default" >> $GITHUB_OUTPUT
+            echo "Warning: .github/agentic-lib.yml file not found, using default engine"
+          fi
 
       - run: npm install
         if: ${{ env.publishToGitHubPages == 'true' }}
@@ -129,15 +135,36 @@ jobs:
           # Create public directory if it doesn't exist
           mkdir -p ${{ env.public }}
 
-          # Find all markdown files in the features directory
-          find "${{ env.featuresDir }}" -maxdepth 2 -type f -name "*.md" | while read -r file; do
-            # Get the filename without path and extension
-            filename=$(basename "$file" .md)
-            echo "Converting $file to ${{ env.public }}/$filename.html"
+          # Check if scripts directory and md-to-html.js exist
+          if [ ! -d "scripts" ]; then
+            echo "Warning: scripts directory not found, creating it"
+            mkdir -p scripts
+          fi
 
-            # Convert markdown to HTML using the md-to-html.js script
-            ./scripts/md-to-html.js < "$file" > "${{ env.public }}/$filename.html"
-          done
+          if [ ! -f "scripts/md-to-html.js" ]; then
+            echo "Error: scripts/md-to-html.js not found"
+            echo "Creating a simple placeholder HTML file for each markdown file"
+
+            # Find all markdown files in the features directory
+            find "${{ env.featuresDir }}" -maxdepth 2 -type f -name "*.md" | while read -r file; do
+              # Get the filename without path and extension
+              filename=$(basename "$file" .md)
+              echo "Creating placeholder HTML for $file to ${{ env.public }}/$filename.html"
+
+              # Create a simple HTML file
+              echo "<!DOCTYPE html><html><head><title>$filename</title></head><body><h1>$filename</h1><p>Markdown conversion failed: scripts/md-to-html.js not found</p></body></html>" > "${{ env.public }}/$filename.html"
+            done
+          else
+            # Find all markdown files in the features directory
+            find "${{ env.featuresDir }}" -maxdepth 2 -type f -name "*.md" | while read -r file; do
+              # Get the filename without path and extension
+              filename=$(basename "$file" .md)
+              echo "Converting $file to ${{ env.public }}/$filename.html"
+
+              # Convert markdown to HTML using the md-to-html.js script
+              ./scripts/md-to-html.js < "$file" > "${{ env.public }}/$filename.html"
+            done
+          fi
 
           # Create a list of all articles for the index page
           echo "Generating article list for index page"
@@ -161,8 +188,21 @@ jobs:
         if: ${{ env.publishToGitHubPages == 'true' }}
         shell: bash
         run: |
-          # Convert README.md to HTML for the summary
-          ./scripts/md-to-html.js < README.md > ${{ env.public }}/readme.html
+          # Check if README.md exists
+          if [ ! -f "README.md" ]; then
+            echo "Warning: README.md not found, creating a placeholder"
+            echo "# Project README" > README.md
+            echo "This is a placeholder README file." >> README.md
+          fi
+
+          # Check if scripts/md-to-html.js exists
+          if [ ! -f "scripts/md-to-html.js" ]; then
+            echo "Warning: scripts/md-to-html.js not found, creating a simple HTML file"
+            echo "<!DOCTYPE html><html><head><title>README</title></head><body><h1>Project README</h1><p>This is a placeholder README file.</p></body></html>" > ${{ env.public }}/readme.html
+          else
+            # Convert README.md to HTML for the summary
+            ./scripts/md-to-html.js < README.md > ${{ env.public }}/readme.html
+          fi
 
           # Extract the article list
           article_list=$(cat "${{ env.public }}/article_list.txt")
