@@ -15,11 +15,11 @@ on:
         required: false
         type: string
         default: 'house choice'
-  #schedule:
-    #- cron: '50 11 */7 * *' # schedule-UNUSED-1
-    #- cron: '50 */4 * * *' # schedule-UNUSED-2
-    #- cron: '50 */1 * * *' # schedule-UNUSED-3
-    #- cron: '*/10 * * * *' # schedule-UNUSED-4
+  schedule:
+    - cron: '50 11 */7 * *' # schedule-1
+    #- cron: '50 */4 * * *' # schedule-2
+    #- cron: '50 */1 * * *' # schedule-3
+    #- cron: '*/10 * * * *' # schedule-4
 
 jobs:
 
@@ -39,7 +39,7 @@ jobs:
     outputs:
       documentsLimit: ${{ steps.agentic-lib.outputs.documentsLimit }}
 
-  # If the document is "house choice", the repository will be assessed and an action chosen otherwise the supplied text will be used to generate a new feature.
+  # If the document is "house choice", the repository will be assessed and an action chosen otherwise the supplied text will be used to generate a new document.
   maintain-library:
     needs:
       - agentic-lib
@@ -51,6 +51,7 @@ jobs:
     with:
       document: ${{ inputs.document }}
       libraryDir: 'library/'
+      sourcesFile: 'SOURCES.md'
       documentsLimit: '${{ needs.agentic-lib.outputs.documentsLimit }}'
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
