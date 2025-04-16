@@ -1,0 +1,247 @@
+# .github/workflows/wfr-github-publish-web.yml
+
+#
+# agentic-lib
+# Copyright (C) 2025 Polycode Limited
+#
+# This file is part of agentic-lib.
+#
+# agentic-lib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# IMPORTANT: Any derived work must include the following attribution:
+# "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+#
+
+name: ∞ publish web
+
+on:
+  workflow_call:
+    inputs:
+      public:
+        description: 'The public directory to use. e.g. "public"'
+        type: string
+        required: false
+        default: 'public'
+      cache:
+        description: 'The cache to use for npm. e.g. "npm"'
+        type: string
+        required: false
+        default: 'npm'
+      npmAuthOrganisation:
+        description: 'The npm auth organisation to use. e.g. "@xn-intenton-z2a"'
+        type: string
+        required: false
+      lastActivityName:
+        description: 'The name of the last activity. e.g. "publish-web"'
+        type: string
+        required: false
+      lastActivityBranchName:
+        description: 'The name of the last activity branch. e.g. "main"'
+        type: string
+        required: false
+      branchPrefix:
+        description: 'The prefix for the issue branch. e.g. "agentic-lib-issue-"'
+        type: string
+        required: false
+        default: 'agentic-lib-issue-'
+      nextIssue:
+        description: 'The next issue to review. e.g. "123 My issue automated"'
+        type: string
+        required: false
+      publishToGitHubPages:
+        description: 'Whether to publish to GitHub Pages. e.g. "true"'
+        type: string
+        required: false
+        default: 'true'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+    outputs:
+      thisRepositoryWebsiteUrl:
+        description: 'The URL of the website. e.g. "https://xn-intenton-z2a.github.io/agentic-lib/index.html"'
+        value: ${{ jobs.publish-web.outputs.thisRepositoryWebsiteUrl }}
+
+jobs:
+  publish-web:
+    runs-on: ubuntu-latest
+
+    env:
+      public: ${{ inputs.public || 'public' }}
+      cache: ${{ inputs.cache || 'npm' }}
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
+      lastActivityName: ${{ inputs.lastActivityName || '' }}
+      lastActivityBranchName: ${{ inputs.lastActivityBranchName || '' }}
+      branchPrefix: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}
+      nextIssue: ${{ inputs.nextIssue || '' }}
+      publishToGitHubPages: ${{ inputs.publishToGitHubPages || 'true' }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: ${{ env.cache }}
+
+      - name: Set up .npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - name: engine
+        id: engine
+        shell: bash
+        run: |
+          engine=$(grep '^schedule:' .github/agentic-lib.yml | awk '{print $2}')
+          echo "engine=${engine}"
+          echo "engine=${engine}" >> $GITHUB_OUTPUT
+
+      - run: npm install
+        if: ${{ env.publishToGitHubPages == 'true' }}
+
+      - name: Generate HTML articles from library documents
+        id: generate-articles
+        if: ${{ env.publishToGitHubPages == 'true' }}
+        shell: bash
+        run: |
+          # Create public directory if it doesn't exist
+          mkdir -p ${{ env.public }}
+          
+          # Find all markdown files in the features directory
+          find "features" -maxdepth 2 -type f -name "*.md" | while read -r file; do
+            # Get the filename without path and extension
+            filename=$(basename "$file" .md)
+            echo "Converting $file to ${{ env.public }}/$filename.html"
+            
+            # Convert markdown to HTML using the md-to-html.js script
+            ./scripts/md-to-html.js < "$file" > "${{ env.public }}/$filename.html"
+          done
+          
+          # Create a list of all articles for the index page
+          echo "Generating article list for index page"
+          article_list=""
+          find "${{ env.public }}" -type f -name "*.html" | grep -v "index.html" | sort | while read -r html_file; do
+            filename=$(basename "$html_file")
+            name="${filename%.*}"
+            # Skip if this is not a feature file
+            if [[ "$html_file" != *"${{ env.public }}"* ]]; then
+              continue
+            fi
+            article_list="${article_list}<li><a href=\"${filename}\">${name}</a></li>\n"
+          done
+          
+          # Save the article list to a file for later use
+          echo -e "$article_list" > "${{ env.public }}/article_list.txt"
+          
+          echo "Articles generated successfully"
+
+      - name: Generate index page
+        if: ${{ env.publishToGitHubPages == 'true' }}
+        shell: bash
+        run: |
+          # Convert README.md to HTML for the summary
+          ./scripts/md-to-html.js < README.md > ${{ env.public }}/readme.html
+          
+          # Extract the article list
+          article_list=$(cat "${{ env.public }}/article_list.txt")
+          
+          # Create the index.html file with the article list and README summary
+          cat > ${{ env.public }}/index.html << EOF
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <title>agentic-lib Documentation</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+              header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
+              h1 { font-size: 2em; }
+              h2 { font-size: 1.5em; margin-top: 1.5em; }
+              section { margin-bottom: 1.5em; }
+              ul { list-style: none; padding: 0; }
+              li { margin: 0.5em 0; }
+              .label { font-weight: bold; }
+              footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+              a { color: #0366d6; text-decoration: none; }
+              a:hover { text-decoration: underline; }
+            </style>
+          </head>
+          <body>
+            <header>
+              <h1>agentic-lib Documentation</h1>
+              <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">Repository</a></p>
+            </header>
+            
+            <section>
+              <h2>Library Documents</h2>
+              <ul>
+                ${article_list}
+              </ul>
+            </section>
+            
+            <section>
+              <h2>Project Summary</h2>
+              $(cat ${{ env.public }}/readme.html | grep -v '<!DOCTYPE' | grep -v '<html' | grep -v '<head>' | grep -v '<body>' | grep -v '</body>' | grep -v '</html>')
+            </section>
+            
+            <footer>
+              <p>Generated on $(date -u +"%Y-%m-%dT%H:%M:%SZ")</p>
+            </footer>
+          </body>
+          </html>
+          EOF
+          
+          # Clean up temporary files
+          rm -f ${{ env.public }}/article_list.txt
+          rm -f ${{ env.public }}/readme.html
+          
+          echo "Index page generated successfully"
+
+      - name: Deploy to GitHub Pages
+        if: ${{ env.publishToGitHubPages == 'true' }}
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ env.public }}
+          publish_branch: github-pages
+          keep_files: true
+          enable_jekyll: 'true'
+
+      - name: Upload generated site as artifact
+        if: ${{ env.publishToGitHubPages == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: ${{ env.public }}
+
+      - name: Output published github pages URLs
+        if: ${{ env.publishToGitHubPages == 'true' }}
+        id: output-pages-urls
+        run: |
+          echo "[INFO] Determining GitHub Pages URL..."
+          # GitHub Pages URL typically: https://<owner>.github.io/<repo>/
+          repoName=${{ github.event.repository.name }}
+          owner=${{ github.repository_owner }}
+          baseUrl="https://${owner}.github.io/${repoName}"
+          thisRepositoryWebsiteUrl="${baseUrl}/index.html"
+          echo "::notice:: thisRepositoryWebsiteUrl: ${thisRepositoryWebsiteUrl}"
+          echo "thisRepositoryWebsiteUrl=${thisRepositoryWebsiteUrl}" >> $GITHUB_OUTPUT
+
+    outputs:
+      thisRepositoryWebsiteUrl: ${{ steps.output-pages-urls.outputs.thisRepositoryWebsiteUrl }}
