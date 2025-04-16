@@ -162,3 +162,29 @@ The GitHub CLI (gh) documentation offers comprehensive guides on using the GitHu
 ## https://opentelemetry.io/docs/instrumentation/js/
 This documentation provides guidance on instrumenting JavaScript applications with OpenTelemetry for distributed tracing and observability. It includes API references, setup guides, and best practices to help developers monitor and optimize performance across cloud-native applications. Regularly updated to reflect current practices.
 ## Apache License 2.0
+
+
+# GitHub GraphQL API Documentation
+## https://docs.github.com/en/graphql
+This documentation provides detailed guidance on using GitHub's GraphQL API. It includes information on constructing queries and mutations, schema introspection, and best practices for efficient data retrieval. Regularly maintained by GitHub, it serves as an authoritative resource for developers building integrations with GitHub's data.
+## Unknown License
+
+# AWS CloudWatch Documentation
+## https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html
+This source explains the fundamentals of Amazon CloudWatch, covering metrics, logs, and alarms to monitor AWS resources effectively. It is a primary resource provided by AWS for setting up observability and ensuring operational health of services.
+## Unknown License
+
+# Vite Documentation
+## https://vitejs.dev/guide/
+The Vite documentation offers comprehensive guides and API references for harnessing the power of Vite to build modern, fast, and efficient web applications. It emphasizes simplicity and performance, serving as an essential resource for developers using Vite and its ecosystem.
+## MIT License
+
+# TypeScript Documentation
+## https://www.typescriptlang.org/docs/
+This documentation provides an in-depth look at TypeScript, covering language features, compiler options, and best practices for writing robust, type-safe JavaScript. It is maintained by the TypeScript team and is an essential resource for developers adopting static typing in modern JavaScript projects.
+## Apache License 2.0
+
+# OpenAI Cookbook
+## https://github.com/openai/openai-cookbook
+The OpenAI Cookbook is a community-driven resource featuring practical examples, recipes, and best practices for leveraging OpenAI's APIs. It is regularly updated and provides innovative solutions and use cases for integrating AI into applications.
+## MIT License
