@@ -82,3 +82,33 @@ The AWS Cloud Development Kit (CDK) documentation provides resources for definin
 ## https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/
 This documentation offers comprehensive guides for using the AWS SDK for JavaScript v3. It includes setup instructions, API usage examples, and best practices for integrating AWS services into modern JavaScript applications.
 ## Unknown License
+
+# GitHub Actions Advanced Features Guide
+## https://docs.github.com/en/actions/learn-github-actions/advanced-features
+This guide details advanced features of GitHub Actions, including workflow control, matrix builds, and conditional steps. It is designed for developers looking to implement complex automation scenarios within GitHub workflows. Last updated in 2023 and published by GitHub, it is highly authoritative.
+## Unknown License
+
+# Vite Documentation
+## https://vitejs.dev/guide/
+The official guide for Vite, a fast development server and build tool that underpins the Vitest testing framework used in this repository. This documentation covers configuration, performance optimization, and plugin integration, and is updated frequently to reflect modern development practices.
+## MIT License
+
+# GitHub Actions Toolkit Documentation
+## https://github.com/actions/toolkit
+This resource provides documentation for the GitHub Actions Toolkit, a collection of Node.js packages that help developers create custom GitHub Actions. It includes API references, code samples, and best practices directly from GitHub.
+## MIT License
+
+# Semantic Release Documentation
+## https://semantic-release.gitbook.io/semantic-release/
+Semantic Release automates the versioning and package publishing process through conventional commit messages. The documentation offers detailed guidance on setup, configuration, and workflow integration, making it a popular tool in automated CI/CD environments.
+## MIT License
+
+# OpenAI Cookbook
+## https://github.com/openai/openai-cookbook
+A collection of examples and guides for best practices when using OpenAI's API. The OpenAI Cookbook offers practical use cases, code samples, and tips for integrating AI services into applications. It is maintained by the OpenAI community and serves as a valuable supplement to the official OpenAI API Documentation.
+## MIT License
+
+# Node.js v20 Documentation
+## https://nodejs.org/en/docs/latest-v20.x/api/
+This is the official API documentation for Node.js version 20, covering new features, core modules, and performance updates. It is a critical resource for developers looking to leverage the latest advancements in Node.js development.
+## Unknown License
