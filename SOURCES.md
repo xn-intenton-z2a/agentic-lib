@@ -163,7 +163,6 @@ The GitHub CLI (gh) documentation offers comprehensive guides on using the GitHu
 This documentation provides guidance on instrumenting JavaScript applications with OpenTelemetry for distributed tracing and observability. It includes API references, setup guides, and best practices to help developers monitor and optimize performance across cloud-native applications. Regularly updated to reflect current practices.
 ## Apache License 2.0
 
-
 # GitHub GraphQL API Documentation
 ## https://docs.github.com/en/graphql
 This documentation provides detailed guidance on using GitHub's GraphQL API. It includes information on constructing queries and mutations, schema introspection, and best practices for efficient data retrieval. Regularly maintained by GitHub, it serves as an authoritative resource for developers building integrations with GitHub's data.
@@ -187,4 +186,29 @@ This documentation provides an in-depth look at TypeScript, covering language fe
 # OpenAI Cookbook
 ## https://github.com/openai/openai-cookbook
 The OpenAI Cookbook is a community-driven resource featuring practical examples, recipes, and best practices for leveraging OpenAI's APIs. It is regularly updated and provides innovative solutions and use cases for integrating AI into applications.
+## MIT License
+
+# AWS EventBridge Documentation
+## https://docs.aws.amazon.com/eventbridge/latest/userguide/
+AWS EventBridge documentation provides detailed guidance on building event-driven architectures, integrating with various AWS services and third-party applications. It offers best practices, tutorials, and API references to help developers design scalable and reactive systems. Last updated by AWS, it is an authoritative resource for event-driven designs.
+## Unknown License
+
+# AWS Lambda Powertools for Node.js
+## https://awslabs.github.io/aws-lambda-powertools-node/
+This documentation details AWS Lambda Powertools for Node.js, a suite of utilities that assists developers in adopting best practices for building serverless applications. It covers logging, metrics, and distributed tracing, and is maintained by AWS Labs. Updated regularly, it provides comprehensive usage examples and API references.
+## Apache License 2.0
+
+# Change Case Library Documentation
+## https://github.com/blakeembrey/change-case
+The Change Case Library provides a set of string transformation utilities, including conversion between various letter cases (camelCase, snake_case, etc.) in JavaScript. It is a widely-used utility in many projects, offering simple API usage and clear documentation. The repository is actively maintained.
+## MIT License
+
+# Seedrandom Documentation
+## https://github.com/davidbau/seedrandom
+Seedrandom is a JavaScript library that allows seeding of the random number generator (Math.random()), enabling reproducible simulations and tests. Its documentation covers usage examples, API details, and configuration options, making it a vital resource for deterministic random number generation.
+## MIT License
+
+# GitHub Actions Toolkit Documentation
+## https://github.com/actions/toolkit/tree/main/packages/core
+The GitHub Actions Toolkit Documentation covers the core packages that provide helper functions for developing GitHub Actions. It includes API references, usage guides, and best practices for action development. Authored by GitHub, it is considered an authoritative source and supports rapid action development.
 ## MIT License
