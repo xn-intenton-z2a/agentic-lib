@@ -53,6 +53,11 @@ on:
         type: string
         required: false
         default: '200'
+      featuresDir:
+        description: 'The directory containing feature files. e.g. "features/"'
+        type: string
+        required: false
+        default: 'features/'
       target:
         description: 'The target file to create the issue to change. e.g. "src/lib/main.js"'
         type: string
@@ -98,6 +103,21 @@ on:
         type: string
         required: false
         default: 'npm run start'
+      mainScriptTimeout:
+        description: 'The timeout for the main script. e.g. "5m"'
+        type: string
+        required: false
+        default: '5m'
+      testScriptTimeout:
+        description: 'The timeout for the test script. e.g. "5m"'
+        type: string
+        required: false
+        default: '5m'
+      buildScriptTimeout:
+        description: 'The timeout for the build script. e.g. "5m"'
+        type: string
+        required: false
+        default: '5m'
       model:
         description: 'The OpenAI model to use. e.g. "o3-mini"'
         type: string
@@ -151,6 +171,7 @@ jobs:
       sourcesFile: ${{ inputs.sourcesFile || 'SOURCES.md' }}
       documentsLimit: ${{ inputs.documentsLimit || '3' }}
       summaryWordLimit: ${{ inputs.summaryWordLimit || '200' }}
+      featuresDir: ${{ inputs.featuresDir || 'features/' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
@@ -160,7 +181,9 @@ jobs:
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
       mainScript: ${{ inputs.mainScript || 'npm run start' }}
-      mainScriptTimeout: '5m'
+      mainScriptTimeout: ${{ inputs.mainScriptTimeout || '5m' }}
+      testScriptTimeout: ${{ inputs.testScriptTimeout || '5m' }}
+      buildScriptTimeout: ${{ inputs.buildScriptTimeout || '5m' }}
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
@@ -233,7 +256,7 @@ jobs:
         id: build
         shell: bash
         run: |
-          output=$(${{ env.buildScript }} 2>&1)
+          output=$(timeout ${{ env.buildScriptTimeout }} ${{ env.buildScript }} 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -248,7 +271,7 @@ jobs:
         id: test
         shell: bash
         run: |
-          output=$(${{ env.testScript }} 2>&1)
+          output=$(timeout ${{ env.testScriptTimeout }} ${{ env.testScript }} 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -281,6 +304,7 @@ jobs:
             const libraryDir = process.env.libraryDir;
             const sourcesFile = process.env.sourcesFile;
             const documentsLimit = process.env.documentsLimit;
+            const featuresDir = process.env.featuresDir;
             const currentFeatures = process.env.currentFeatures;
             const rejectedFeatures = process.env.rejectedFeatures;
             const target = process.env.target;
@@ -315,6 +339,7 @@ jobs:
             core.info(`document: "${document}"`);
             core.info(`libraryDir: "${libraryDir}"`);
             core.info(`sourcesFile: "${sourcesFile}"`);
+            core.info(`featuresDir: "${featuresDir}"`);
             core.info(`currentFeatures: "${currentFeatures}"`);
             core.info(`target: "${target}"`);
             core.info(`testFile: "${testFile}"`);

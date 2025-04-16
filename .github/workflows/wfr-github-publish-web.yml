@@ -64,6 +64,11 @@ on:
         type: string
         required: false
         default: 'true'
+      featuresDir:
+        description: 'The directory containing feature files. e.g. "features/"'
+        type: string
+        required: false
+        default: 'features/'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -85,6 +90,7 @@ jobs:
       branchPrefix: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}
       nextIssue: ${{ inputs.nextIssue || '' }}
       publishToGitHubPages: ${{ inputs.publishToGitHubPages || 'true' }}
+      featuresDir: ${{ inputs.featuresDir || 'features/' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -122,17 +128,17 @@ jobs:
         run: |
           # Create public directory if it doesn't exist
           mkdir -p ${{ env.public }}
-          
+
           # Find all markdown files in the features directory
-          find "features" -maxdepth 2 -type f -name "*.md" | while read -r file; do
+          find "${{ env.featuresDir }}" -maxdepth 2 -type f -name "*.md" | while read -r file; do
             # Get the filename without path and extension
             filename=$(basename "$file" .md)
             echo "Converting $file to ${{ env.public }}/$filename.html"
-            
+
             # Convert markdown to HTML using the md-to-html.js script
             ./scripts/md-to-html.js < "$file" > "${{ env.public }}/$filename.html"
           done
-          
+
           # Create a list of all articles for the index page
           echo "Generating article list for index page"
           article_list=""
@@ -145,10 +151,10 @@ jobs:
             fi
             article_list="${article_list}<li><a href=\"${filename}\">${name}</a></li>\n"
           done
-          
+
           # Save the article list to a file for later use
           echo -e "$article_list" > "${{ env.public }}/article_list.txt"
-          
+
           echo "Articles generated successfully"
 
       - name: Generate index page
@@ -157,10 +163,10 @@ jobs:
         run: |
           # Convert README.md to HTML for the summary
           ./scripts/md-to-html.js < README.md > ${{ env.public }}/readme.html
-          
+
           # Extract the article list
           article_list=$(cat "${{ env.public }}/article_list.txt")
-          
+
           # Create the index.html file with the article list and README summary
           cat > ${{ env.public }}/index.html << EOF
           <!DOCTYPE html>
@@ -187,30 +193,30 @@ jobs:
               <h1>agentic-lib Documentation</h1>
               <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">Repository</a></p>
             </header>
-            
+
             <section>
               <h2>Library Documents</h2>
               <ul>
                 ${article_list}
               </ul>
             </section>
-            
+
             <section>
               <h2>Project Summary</h2>
               $(cat ${{ env.public }}/readme.html | grep -v '<!DOCTYPE' | grep -v '<html' | grep -v '<head>' | grep -v '<body>' | grep -v '</body>' | grep -v '</html>')
             </section>
-            
+
             <footer>
               <p>Generated on $(date -u +"%Y-%m-%dT%H:%M:%SZ")</p>
             </footer>
           </body>
           </html>
           EOF
-          
+
           # Clean up temporary files
           rm -f ${{ env.public }}/article_list.txt
           rm -f ${{ env.public }}/readme.html
-          
+
           echo "Index page generated successfully"
 
       - name: Deploy to GitHub Pages

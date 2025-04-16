@@ -87,6 +87,26 @@ The following files are also taken into consideration but may also be changed (e
 
 ---
 
+## Feature Chain Workflows
+These workflows work together to maintain and publish feature documentation, creating a continuous chain from source material to published web content. For detailed information, see the [WORKFLOW_CHAIN.md](features/WORKFLOW_CHAIN.md) feature file.
+
+### Library Worker (`library-worker.yml`)
+- **Function:** Maintains the library of documents by creating, updating, or extending documents based on source material.
+- **Reusable Workflow:** [`wfr-completion-maintain-library.yml`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml)
+
+### Source Worker (`source-worker.yml`)
+- **Function:** Maintains the sources file that provides URLs and metadata for the library worker.
+- **Reusable Workflow:** [`wfr-completion-maintain-sources.yml`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-sources.yml)
+
+### Publish Web (`publish-web.yml`)
+- **Function:** Publishes feature documentation to GitHub Pages as HTML.
+- **Reusable Workflow:** [`wfr-github-publish-web.yml`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-publish-web.yml)
+
+### Workflow Chain
+The workflows interact in sequence: Source Worker maintains `SOURCES.md` → Library Worker creates/updates feature documents → Publish Web converts features to HTML and publishes to GitHub Pages. This chain can be extended with OWL semantic markup for machine-readable metadata, document traceability, and attribution information.
+
+---
+
 # Agentic Development System Guide
 
 This guide explains how the various workflows of the Agentic Coding Systems work together to automate and streamline your development process. Think of these workflows as modular SDK components that encapsulate common operations—publishing, testing, issue management, dependency updates, code formatting, and more—allowing you to build an agentic development system for your projects.
