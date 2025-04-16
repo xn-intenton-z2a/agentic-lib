@@ -169,14 +169,46 @@ jobs:
           # Create a list of all articles for the index page
           echo "Generating article list for index page"
           article_list=""
-          find "${{ env.public }}" -type f -name "*.html" | grep -v "library-index.html" | sort | while read -r html_file; do
-            filename=$(basename "$html_file")
-            name="${filename%.*}"
-            # Skip if this is not a feature file
-            if [[ "$html_file" != *"${{ env.public }}"* ]]; then
-              continue
+
+          # First, find all markdown files in the library directory and extract information
+          find "${{ env.libraryDir }}" -maxdepth 2 -type f -name "*.md" | sort | while read -r md_file; do
+            filename=$(basename "$md_file" .md)
+            html_filename="${filename}.html"
+
+            # Extract title, URL, and description from the markdown file
+            title=$(head -n 1 "$md_file" | sed 's/^# //')
+            url=$(grep -m 1 "^http" "$md_file" || echo "")
+
+            # Try to extract a description from the Content section or Crawl Summary
+            description=""
+            if grep -q "^## Content" "$md_file"; then
+              # Get the first non-empty line after "## Content" that's not a header
+              description=$(awk '/^## Content/{flag=1; next} flag && /^[^#]/ && NF {print; exit}' "$md_file")
             fi
-            article_list="${article_list}<li><a href=\"${filename}\">${name}</a></li>\n"
+
+            # If no description found in Content, try Crawl Summary
+            if [ -z "$description" ] && grep -q "^## Crawl Summary" "$md_file"; then
+              description=$(awk '/^## Crawl Summary/{flag=1; next} flag && /^[^#]/ && NF {print; exit}' "$md_file")
+            fi
+
+            # Truncate description if it's too long
+            if [ ${#description} -gt 150 ]; then
+              description="${description:0:147}..."
+            fi
+
+            # Create a more informative link with title, description, and URL
+            if [ -n "$url" ]; then
+              article_list="${article_list}<li><a href=\"${html_filename}\" class=\"doc-title\">${title}</a> <a href=\"${url}\" target=\"_blank\" class=\"source-link\">(Original Source)</a>"
+            else
+              article_list="${article_list}<li><a href=\"${html_filename}\" class=\"doc-title\">${title}</a>"
+            fi
+
+            # Add description if available
+            if [ -n "$description" ]; then
+              article_list="${article_list}<p class=\"description\">${description}</p>"
+            fi
+
+            article_list="${article_list}</li>\n"
           done
 
           # Save the article list to a file for later use
@@ -213,7 +245,7 @@ jobs:
           <html lang="en">
           <head>
             <meta charset="UTF-8">
-            <title>agentic-lib Documentation</title>
+            <title>Library Documents</title>
             <style>
               body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
               header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
@@ -221,8 +253,13 @@ jobs:
               h2 { font-size: 1.5em; margin-top: 1.5em; }
               section { margin-bottom: 1.5em; }
               ul { list-style: none; padding: 0; }
-              li { margin: 0.5em 0; }
+              li { margin: 1em 0; padding: 0.8em; background-color: #fff; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+              li:hover { background-color: #f0f8ff; }
               .label { font-weight: bold; }
+              .doc-title { font-weight: bold; font-size: 1.1em; }
+              .source-link { font-size: 0.9em; margin-left: 0.5em; color: #6c757d; }
+              .source-link:hover { color: #0366d6; }
+              .description { margin-top: 0.5em; margin-bottom: 0; font-size: 0.95em; color: #555; line-height: 1.4; }
               footer { margin-top: 2em; font-size: 0.9em; color: #777; }
               a { color: #0366d6; text-decoration: none; }
               a:hover { text-decoration: underline; }
@@ -230,20 +267,15 @@ jobs:
           </head>
           <body>
             <header>
-              <h1>agentic-lib Documentation</h1>
-              <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">Repository</a></p>
+              <h1>Library Documents</h1>
             </header>
 
             <section>
               <h2>Library Documents</h2>
+              <p>Below are links to various library documents with their original sources:</p>
               <ul>
                 ${article_list}
               </ul>
-            </section>
-
-            <section>
-              <h2>Project Summary</h2>
-              $(cat ${{ env.public }}/readme.html | grep -v '<!DOCTYPE' | grep -v '<html' | grep -v '<head>' | grep -v '<body>' | grep -v '</body>' | grep -v '</html>')
             </section>
 
             <footer>
@@ -252,10 +284,6 @@ jobs:
           </body>
           </html>
           EOF
-
-          # Clean up temporary files
-          #rm -f ${{ env.public }}/article_list.txt
-          #rm -f ${{ env.public }}/readme.html
 
           echo "Index page generated successfully"
 
