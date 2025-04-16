@@ -74,7 +74,7 @@ on:
         required: false
     outputs:
       thisRepositoryWebsiteUrl:
-        description: 'The URL of the website. e.g. "https://xn-intenton-z2a.github.io/agentic-lib/index.html"'
+        description: 'The URL of the website. e.g. "https://xn-intenton-z2a.github.io/agentic-lib/library-index.html"'
         value: ${{ jobs.publish-web.outputs.thisRepositoryWebsiteUrl }}
 
 jobs:
@@ -169,7 +169,7 @@ jobs:
           # Create a list of all articles for the index page
           echo "Generating article list for index page"
           article_list=""
-          find "${{ env.public }}" -type f -name "*.html" | grep -v "index.html" | sort | while read -r html_file; do
+          find "${{ env.public }}" -type f -name "*.html" | grep -v "library-index.html" | sort | while read -r html_file; do
             filename=$(basename "$html_file")
             name="${filename%.*}"
             # Skip if this is not a feature file
@@ -207,8 +207,8 @@ jobs:
           # Extract the article list
           article_list=$(cat "${{ env.public }}/article_list.txt")
 
-          # Create the index.html file with the article list and README summary
-          cat > ${{ env.public }}/index.html << EOF
+          # Create the library-index.html file with the article list and README summary
+          cat > ${{ env.public }}/library-index.html << EOF
           <!DOCTYPE html>
           <html lang="en">
           <head>
@@ -285,7 +285,7 @@ jobs:
           repoName=${{ github.event.repository.name }}
           owner=${{ github.repository_owner }}
           baseUrl="https://${owner}.github.io/${repoName}"
-          thisRepositoryWebsiteUrl="${baseUrl}/index.html"
+          thisRepositoryWebsiteUrl="${baseUrl}/library-index.html"
           echo "::notice:: thisRepositoryWebsiteUrl: ${thisRepositoryWebsiteUrl}"
           echo "thisRepositoryWebsiteUrl=${thisRepositoryWebsiteUrl}" >> $GITHUB_OUTPUT
 

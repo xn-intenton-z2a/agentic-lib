@@ -50,12 +50,18 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-reviewer.yml"
 cp -v .github/workflows/issue-worker.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-worker.yml"
 
+cp -v .github/workflows/library-worker.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/library-worker.yml"
+
 rm -f "${DEST_DIR}/.github/workflows/issue-creator.yml"
 cp -v .github/workflows/maintenance-issue-creator.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/maintenance-issue-creator.yml"
 
 cp -v .github/workflows/publish.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish.yml"
+
+cp -v .github/workflows/publish-web.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish-web.yml"
 
 cp -v .github/workflows/source-worker.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/source-worker.yml"
