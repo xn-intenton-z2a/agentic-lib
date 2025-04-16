@@ -182,3 +182,28 @@ This documentation provides instructions and best practices for setting up, conf
 ## https://docs.github.com/en/codespaces
 GitHub Codespaces documentation details the setup and usage of cloud-based development environments that facilitate rapid coding and collaboration. It includes guides on provisioning, configuration, and integration with GitHub repositories.
 ## Unknown License
+
+# Node.js ES Modules Documentation
+## https://nodejs.org/api/esm.html
+This official Node.js documentation explains the usage of ECMAScript Modules (ESM) in Node.js, covering import/export syntax, module resolution, and interoperability with CommonJS. It is maintained by the Node.js team and is essential for understanding modern module management in Node.
+## Unknown License
+
+# Visual Studio Code Debugging for Node.js
+## https://code.visualstudio.com/docs/nodejs/nodejs-debugging
+The Visual Studio Code documentation provides detailed guidance on setting up and using the built-in debugger for Node.js applications. It covers configuration, troubleshooting, and best practices for a smooth debugging experience in VS Code.
+## Unknown License
+
+# MDN Web Docs - JavaScript Guide
+## https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide
+MDN's JavaScript Guide offers an in-depth look at the fundamentals and advanced features of JavaScript. Updated regularly by the MDN community, this guide covers language concepts, best practices, and examples that serve as an invaluable resource for developers.
+## CC-BY-SA 2.5
+
+# GitHub Actions Best Practices
+## https://docs.github.com/en/actions/learn-github-actions/best-practices-for-developing-github-actions
+This guide offers best practices for developing GitHub Actions, including tips on workflow optimization, security, and performance. Authored by GitHub, it provides insights for creating efficient and reliable automation workflows.
+## Unknown License
+
+# AWS CloudWatch Logs Documentation
+## https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html
+AWS CloudWatch Logs documentation details how to collect, monitor, and analyze log data from AWS resources. It offers guidance on log management best practices and troubleshooting techniques, making it a key resource for cloud-based monitoring.
+## Unknown License
