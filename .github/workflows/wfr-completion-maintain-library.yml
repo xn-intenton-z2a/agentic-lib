@@ -48,6 +48,11 @@ on:
         type: string
         required: false
         default: '3'
+      summaryWordLimit:
+        description: 'The maximum number of words for the URL content summary. e.g. "200"'
+        type: string
+        required: false
+        default: '200'
       target:
         description: 'The target file to create the issue to change. e.g. "src/lib/main.js"'
         type: string
@@ -133,6 +138,8 @@ on:
         value: ${{ jobs.maintain-library.outputs.documentName }}
       documentSummary:
         value: ${{ jobs.maintain-library.outputs.documentSummary }}
+      crawlSummary:
+        value: ${{ jobs.maintain-library.outputs.crawlSummary }}
 
 jobs:
   maintain-library:
@@ -143,6 +150,7 @@ jobs:
       libraryDir: ${{ inputs.libraryDir || 'library/' }}
       sourcesFile: ${{ inputs.sourcesFile || 'SOURCES.md' }}
       documentsLimit: ${{ inputs.documentsLimit || '3' }}
+      summaryWordLimit: ${{ inputs.summaryWordLimit || '200' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
@@ -186,6 +194,9 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - run: npm ci
+
+      - name: Install web crawling dependencies
+        run: npm install axios cheerio
 
       - name: List current features
         id: features
@@ -292,8 +303,10 @@ jobs:
             const path = require('path');
             const OpenAI = require('openai').default;
             const { z } = require('zod');
+            const axios = require('axios');
+            const cheerio = require('cheerio');
             require('dotenv').config();
-  
+
             if (!apiKey) { 
               core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
             }
@@ -309,11 +322,11 @@ jobs:
             core.info(`missionFile: "${missionFile}"`);
             core.info(`contributingFile: "${contributingFile}"`);
             core.info(`dependenciesFile: "${dependenciesFile}"`);
-            
+
             // Load the sources file
             const sourcesFileContent = fs.readFileSync(sourcesFile, 'utf8');
             core.info(`Sources file '${sourcesFile}' has been loaded (length ${sourcesFileContent.length}).`);
-            
+
             const sourceFileContent = fs.readFileSync(target, 'utf8');
             const testFileContent = fs.readFileSync(testFile, 'utf8');
             const readmeFileContent = fs.readFileSync(readmeFile, 'utf8');
@@ -324,7 +337,7 @@ jobs:
             core.info(`Test file '${testFile}' has been loaded (length ${testFileContent.length}).`);
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
-            
+
             // Get list of existing library documents
             let existingDocuments = [];
             try {
@@ -339,24 +352,24 @@ jobs:
               core.warning(`Error reading library directory: ${e.message}`);
               fs.mkdirSync(libraryDir, { recursive: true });
             }
-            
+
             core.info(`Found ${existingDocuments.length} existing documents in ${libraryDir}`);
-            
+
             // Parse the sources file to extract sections
             // Each source entry starts with a level 1 heading (#) and contains URL, description, and license
             const sourceEntries = [];
             const sourceLines = sourcesFileContent.split('\n');
             let currentEntry = null;
-            
+
             for (let i = 0; i < sourceLines.length; i++) {
               const line = sourceLines[i];
-              
+
               if (line.startsWith('# ')) {
                 // If we have a current entry, push it to the array
                 if (currentEntry) {
                   sourceEntries.push(currentEntry);
                 }
-                
+
                 // Start a new entry
                 currentEntry = {
                   name: line.substring(2).trim(),
@@ -367,7 +380,7 @@ jobs:
                 };
               } else if (currentEntry) {
                 currentEntry.content += line + '\n';
-                
+
                 if (line.startsWith('## http')) {
                   currentEntry.url = line.substring(3).trim();
                 } else if (line.startsWith('## ')) {
@@ -379,14 +392,91 @@ jobs:
                 }
               }
             }
-            
+
             // Don't forget the last entry
             if (currentEntry) {
               sourceEntries.push(currentEntry);
             }
-            
+
             core.info(`Parsed ${sourceEntries.length} source entries from ${sourcesFile}`);
-            
+
+            // Function to crawl a URL and its links for 10 seconds
+            async function crawlUrl(url, maxTime = 10000) {
+              if (!url || !url.startsWith('http')) {
+                return { content: '', links: [], dataSize: 0, error: 'Invalid URL' };
+              }
+
+              const startTime = Date.now();
+              const visitedUrls = new Set();
+              const result = {
+                content: '',
+                links: [],
+                dataSize: 0,
+                error: null
+              };
+
+              try {
+                // Queue of URLs to visit
+                const urlQueue = [url];
+
+                while (urlQueue.length > 0 && (Date.now() - startTime) < maxTime) {
+                  const currentUrl = urlQueue.shift();
+
+                  // Skip if already visited
+                  if (visitedUrls.has(currentUrl)) {
+                    continue;
+                  }
+
+                  visitedUrls.add(currentUrl);
+
+                  try {
+                    core.info(`Crawling URL: ${currentUrl}`);
+                    const response = await axios.get(currentUrl, { 
+                      timeout: 5000,
+                      headers: {
+                        'User-Agent': 'Mozilla/5.0 (compatible; AgenticLibBot/1.0; +https://github.com/xn-intenton-z2a/agentic-lib)'
+                      }
+                    });
+
+                    const contentType = response.headers['content-type'] || '';
+
+                    // Only process HTML content
+                    if (contentType.includes('text/html')) {
+                      const $ = cheerio.load(response.data);
+
+                      // Extract text content
+                      const pageText = $('body').text().replace(/\\s+/g, ' ').trim();
+                      result.content += pageText + '\\n\\n';
+                      result.dataSize += pageText.length;
+
+                      // Extract links
+                      $('a').each((i, link) => {
+                        const href = $(link).attr('href');
+                        if (href && href.startsWith('http') && !visitedUrls.has(href)) {
+                          result.links.push(href);
+                          urlQueue.push(href);
+                        }
+                      });
+                    }
+                  } catch (error) {
+                    core.warning(`Error crawling ${currentUrl}: ${error.message}`);
+                  }
+                }
+
+                core.info(`Crawling completed. Visited ${visitedUrls.size} URLs. Data size: ${result.dataSize} bytes.`);
+                return result;
+              } catch (error) {
+                core.warning(`Crawling error: ${error.message}`);
+                result.error = error.message;
+                return result;
+              }
+            }
+
+            // Randomly select a source entry
+            const randomIndex = Math.floor(Math.random() * sourceEntries.length);
+            const randomSourceEntry = sourceEntries[randomIndex];
+            core.info(`Randomly selected source entry: ${randomSourceEntry.name} (${randomSourceEntry.url})`);
+
             // generate the document prompt either by using the supplied document prompt or by reviewing the current features and full context
             let prompt = document;
             if (document === 'house choice') {
@@ -397,16 +487,27 @@ jobs:
                 The document name should either be a current document name or be supplied with a summary which is distinct from any other document in the repository.
               `;
             }
-            
+
+            // Crawl the URL from the randomly selected source entry
+            core.info(`Crawling URL: ${randomSourceEntry.url}`);
+            let crawlResult = { content: '', links: [], dataSize: 0, error: 'Not crawled' };
+            try {
+              crawlResult = await crawlUrl(randomSourceEntry.url);
+            } catch (error) {
+              core.warning(`Error during crawling: ${error.message}`);
+            }
+
             const chatGptPrompt = `
             Please generate a document summary based on the supplied prompt and project files.
             Before adding a new document ensure that this document is distinct from any other document in the library, otherwise update an existing document.
             The document name should be one or two words in SCREAMING_SNAKECASE.
-            
+
             You should extract a section from the sources file to create the document. Each document should contain:
             1. The original content from the source section in SOURCES.md
-            2. The date when the content was retrieved (current date)
-            
+            2. A summary of the crawled content from the URL (limited to ${summaryWordLimit} words)
+            3. The date when the content was retrieved (current date)
+            4. Attribution information and data size obtained during crawling
+
             Consider the following when refining your response:
             * Document prompt details
             * Current feature names and specifications in the repository
@@ -422,27 +523,27 @@ jobs:
             * Test output
             * Main execution output
             * Available source entries from SOURCES.md
-            
+
             Document prompt:
             DOCUMENT_PROMPT_START
             ${prompt}
             DOCUMENT_PROMPT_END            
-            
+
             Current feature names and specifications:
             CURRENT_FEATURES_START
             ${currentFeatures}
             CURRENT_FEATURES_END
-            
+
             Rejected feature names:
             REJECTED_FEATURES_START
             ${rejectedFeatures}
             REJECTED_FEATURES_END
-            
+
             Source file: ${target}
             SOURCE_FILE_START
             ${sourceFileContent}
             SOURCE_FILE_END
-            
+
             Test file: ${testFile}
             TEST_FILE_START
             ${testFileContent}
@@ -452,7 +553,7 @@ jobs:
             README_FILE_START
             ${readmeFileContent}
             README_FILE_END
-            
+
             MISSION file: ${missionFile}
             MISSION_FILE_START
             ${missionFileContent}
@@ -462,22 +563,22 @@ jobs:
             CONTRIBUTING_FILE_START
             ${contributingFileContent}
             CONTRIBUTING_FILE_END
-            
+
             Dependencies file: ${dependenciesFile}
             DEPENDENCIES_FILE_START
             ${dependenciesFileContent}
             DEPENDENCIES_FILE_END
-            
+
             Dependencies list from command: npm list
             DEPENDENCIES_LIST_START
             ${dependenciesListOutput}
             DEPENDENCIES_LIST_END    
-            
+
             Build output from command: ${buildScript}
             TEST_OUTPUT_START
             ${buildOutput}
             TEST_OUTPUT_END      
-            
+
             Test output from command: ${testScript}
             TEST_OUTPUT_START
             ${testOutput}
@@ -487,12 +588,20 @@ jobs:
             MAIN_OUTPUT_START
             ${mainOutput}
             MAIN_OUTPUT_END
-            
+
             Available source entries from SOURCES.md (${sourceEntries.length} entries):
             SOURCES_ENTRIES_START
             ${sourceEntries.map((entry, index) => `Entry ${index + 1}: ${entry.name} (${entry.url})`).join('\n')}
             SOURCES_ENTRIES_END
-            
+
+            Crawled content from URL (${randomSourceEntry.url}):
+            CRAWLED_CONTENT_START
+            Data Size: ${crawlResult.dataSize} bytes
+            Links Found: ${crawlResult.links.length}
+            Error: ${crawlResult.error || 'None'}
+            Content Preview: ${crawlResult.content.substring(0, 1000)}...
+            CRAWLED_CONTENT_END
+
             Answer strictly with a JSON object following this schema:
             {
               "documentName": "The document name as one or two words in SCREAMING_SNAKECASE.",
@@ -502,29 +611,31 @@ jobs:
             }
             Ensure valid JSON.
             `;
-            
+
             const ResponseSchema = z.object({ 
               documentName: z.string(), 
               documentSummary: z.string(), 
               documentNamesToBeDeleted: z.string(),
-              sourceEntryIndex: z.string()
+              sourceEntryIndex: z.string(),
+              crawlSummary: z.string()
             });
-            
+
             // Define the function schema for function calling
             const tools = [{
               type: "function",
               function: {
                 name: "generate_document",
-                description: "Elaborate on the supplied prompt and project files to create the documentName and documentSummary of a repository document, and the document names to be deleted. Return an object with documentName (string), documentSummary (string), documentNamesToBeDeleted (string), and sourceEntryIndex (string).",
+                description: "Elaborate on the supplied prompt and project files to create the documentName, documentSummary, and crawlSummary of a repository document, and the document names to be deleted. Return an object with documentName (string), documentSummary (string), documentNamesToBeDeleted (string), sourceEntryIndex (string), and crawlSummary (string).",
                 parameters: {
                   type: "object",
                   properties: {
                     documentName: { type: "string", description: "The document name as one or two words in SCREAMING_SNAKECASE." },
                     documentSummary: { type: "string", description: "The document summary as multiline markdown with a few level 1 headings, including the original content from the source and the date when the content was retrieved." },
                     documentNamesToBeDeleted: { type: "string", description: "The comma separated list of document names to be deleted or 'none' if no document is to be deleted." },
-                    sourceEntryIndex: { type: "string", description: "The index (1-based) of the source entry used for this document." }
+                    sourceEntryIndex: { type: "string", description: "The index (1-based) of the source entry used for this document." },
+                    crawlSummary: { type: "string", description: "A summary of the crawled content from the URL, limited to the specified word limit." }
                   },
-                  required: ["documentName", "documentSummary", "documentNamesToBeDeleted", "sourceEntryIndex"],
+                  required: ["documentName", "documentSummary", "documentNamesToBeDeleted", "sourceEntryIndex", "crawlSummary"],
                   additionalProperties: false
                 },
                 strict: true
@@ -540,7 +651,7 @@ jobs:
               ],
               tools: tools
             });
-            
+
             let result;
             if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
               try {
@@ -557,18 +668,20 @@ jobs:
             } else {
               core.setFailed("No valid response received from OpenAI.");
             }
-            
+
             try {
               const parsed = ResponseSchema.parse(result);
               core.setOutput("documentName", parsed.documentName);
               core.setOutput("documentSummary", parsed.documentSummary);
               core.setOutput("documentNamesToBeDeleted", parsed.documentNamesToBeDeleted);
               core.setOutput("sourceEntryIndex", parsed.sourceEntryIndex);
+              core.setOutput("crawlSummary", parsed.crawlSummary);
               core.info(`documentName: "${parsed.documentName}"`);
               core.info(`documentSummary: "${parsed.documentSummary}"`);
               core.info(`documentNamesToBeDeleted: "${parsed.documentNamesToBeDeleted}"`);
               core.info(`sourceEntryIndex: "${parsed.sourceEntryIndex}"`);
-            
+              core.info(`crawlSummary: "${parsed.crawlSummary}"`);
+
               // Get the source entry used for this document
               const sourceEntryIndex = parseInt(parsed.sourceEntryIndex, 10) - 1;
               let sourceEntry = null;
@@ -578,25 +691,36 @@ jobs:
               } else {
                 core.warning(`Invalid source entry index: ${parsed.sourceEntryIndex}`);
               }
-              
+
               // Add the current date to the document summary
               const now = new Date();
               const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD format
-              
+
               // Create the document content
               let documentContent = parsed.documentSummary;
-              
-              // If we have a valid source entry, add the original content and retrieval date
+
+              // If we have a valid source entry, add the original content, crawl summary, and attribution fields
               if (sourceEntry) {
+                const crawlDate = new Date();
+                const crawlDateStr = crawlDate.toISOString();
+
                 documentContent = `# ${parsed.documentName}\n\n`;
                 documentContent += `## Original Source\n${sourceEntry.name}\n${sourceEntry.url}\n\n`;
                 documentContent += `## Content\n${sourceEntry.content}\n\n`;
+                documentContent += `## Crawl Summary\n${parsed.crawlSummary}\n\n`;
+                documentContent += `## Attribution\n`;
+                documentContent += `- Source: ${sourceEntry.name}\n`;
+                documentContent += `- URL: ${sourceEntry.url}\n`;
+                documentContent += `- License: ${sourceEntry.license || 'Unknown'}\n`;
+                documentContent += `- Crawl Date: ${crawlDateStr}\n`;
+                documentContent += `- Data Size: ${crawlResult.dataSize} bytes\n`;
+                documentContent += `- Links Found: ${crawlResult.links.length}\n\n`;
                 documentContent += `## Retrieved\n${dateStr}\n`;
               } else {
                 // If no valid source entry, just add the date at the end
                 documentContent += `\n\n_Retrieved: ${dateStr}_\n`;
               }
-              
+
               // Save the document to a file
               const documentName = parsed.documentName.replace(/ /g, "_").toUpperCase();
               const documentFilePath = path.join(libraryDir, `${documentName}.md`);
@@ -607,13 +731,13 @@ jobs:
               } catch (e) {
                 core.setFailed(`Failed to save document: ${e.message}`);
               }
-            
+
               // Delete any documents that should be deleted
               const documentNamesToBeDeleted = parsed.documentNamesToBeDeleted
                 .split(',')
                 .map(name => name.trim())
                 .filter(name => name && name !== 'none');
-                
+
               for (const name of documentNamesToBeDeleted) {
                 const documentNameToDelete = name.replace(/ /g, "_").toUpperCase().replace(/\.md$/, "") + ".md";
                 const documentPathToDelete = path.join(libraryDir, documentNameToDelete);
@@ -628,11 +752,11 @@ jobs:
                   core.warning(`Error deleting document ${documentPathToDelete}: ${e.message}`);
                 }
               }
-            
+
             } catch (e) {
               core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
             }
-              
+
             core.setOutput("response", JSON.stringify(response));
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`response: "${JSON.stringify(response)}"`);
@@ -654,3 +778,4 @@ jobs:
     outputs:
       documentName: ${{ steps.maintain-library.outputs.documentName }}
       documentSummary: ${{ steps.maintain-library.outputs.documentSummary }}
+      crawlSummary: ${{ steps.maintain-library.outputs.crawlSummary }}
