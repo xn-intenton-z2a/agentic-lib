@@ -132,3 +132,33 @@ GitLab CI/CD documentation provides in-depth coverage of continuous integration 
 ## https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html
 The AWS SAM CLI documentation guides developers through building, testing, and deploying serverless applications using the AWS Serverless Application Model. It includes tutorials, best practices, and API references, making it an essential resource for serverless architecture development.
 ## Unknown License
+
+# GitHub GraphQL API Documentation
+## https://docs.github.com/en/graphql
+This documentation provides comprehensive guides and references for using the GitHub GraphQL API. It details queries, mutations, subscriptions, authentication methods, rate limiting, and best practices for efficient data retrieval and manipulation in modern web applications. Regularly updated by GitHub, it is an authoritative source for developers looking to leverage the powerful capabilities of GraphQL with GitHub data.
+## Unknown License
+
+# Netlify Documentation
+## https://docs.netlify.com
+Netlify offers an intuitive platform for deploying and hosting web applications with a focus on continuous deployment, serverless functions, and modern front-end frameworks. The documentation provides guides on configuring build settings, integrating plugins, and managing deployments. It is updated frequently and is widely regarded for its clarity and comprehensive coverage.
+## Unknown License
+
+# Firebase Cloud Functions Documentation
+## https://firebase.google.com/docs/functions
+Firebase Cloud Functions enables developers to run backend code in response to events triggered by Firebase features or HTTPS requests. The documentation covers setup, deployment, debugging, and best practices for writing scalable serverless functions, making it an essential resource for integrating serverless backend capabilities in Firebase projects.
+## Unknown License
+
+# Cloudflare Workers Documentation
+## https://developers.cloudflare.com/workers
+This documentation provides detailed instructions on how to develop, test, and deploy serverless functions on Cloudflare's edge network using Cloudflare Workers. It includes guides on integration, debugging, performance optimization, and security best practices, making it a valuable resource for developers exploring edge computing solutions.
+## Unknown License
+
+# Probot Documentation
+## https://probot.github.io
+Probot is a framework for building GitHub Apps to automate and enhance workflows. Its documentation includes API references, usage examples, and detailed guides for developing custom GitHub integrations that can listen to events and respond with automated tasks. Maintained by the open-source community and GitHub, it is a popular tool for extending GitHub functionality.
+## MIT License
+
+# Renovate Bot Documentation
+## https://docs.renovatebot.com/
+Renovate Bot automates dependency management by scanning projects for outdated dependencies and proposing updates. The documentation provides detailed guides on setup, configuration, and advanced usage scenarios, making it an essential resource for developers looking to maintain secure and up-to-date codebases with minimal manual intervention.
+## Unknown License
