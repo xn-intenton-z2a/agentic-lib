@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
+import { describe, test, expect, vi, beforeAll, beforeEach } from "vitest";
 
 // Ensure that the global callCount is reset before tests that rely on it
 beforeAll(() => {
@@ -126,7 +126,6 @@ describe("CLI Simulate Error Flag", () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     await expect(agenticLib.main(["--simulate-error"]))
       .rejects.toThrow(/process.exit: 1/);
-    // Check that simulated error message was logged
     const loggedErrors = consoleErrorSpy.mock.calls.map(call => call[0]);
     const foundSimulatedError = loggedErrors.some(msg => msg.includes("Simulated error triggered by '--simulate-error' flag"));
     expect(foundSimulatedError).toBe(true);
@@ -141,6 +140,23 @@ describe("CLI Simulate Delay Flag", () => {
     await agenticLib.main(["--simulate-delay", "50", "--dry-run"]);
     const elapsed = Date.now() - start;
     expect(elapsed).toBeGreaterThanOrEqual(50);
+  });
+});
+
+describe("CLI Apply Fix Flag", () => {
+  test("logs applied fix message and exits immediately when --apply-fix flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await agenticLib.main(["--apply-fix"]);
+    const calls = consoleSpy.mock.calls;
+    let found = false;
+    for (const call of calls) {
+      if (typeof call[0] === 'string' && call[0].includes("Applied fix successfully")) {
+        found = true;
+        break;
+      }
+    }
+    expect(found).toBe(true);
+    consoleSpy.mockRestore();
   });
 });
 
