@@ -1,60 +1,70 @@
 # AWS_LAMBDA
 
 ## Crawl Summary
-The crawled content provided minimal data, indicating a data size of 0 bytes. Despite the lack of in-depth technical content, the reference suggests a focus on optimal AWS Lambda practices including performance, cost, and security dimensions.
+The crawled content covers AWS Lambda’s core features including serverless compute operations, key configuration options such as environment variables, versioning, API calls, container image building, and best practices. Detailed guidance on using CLI, SDKs, and code examples for Lambda functions are provided. It also emphasizes scalable, high-availability practices and secure configuration using environment variables and version locking.
 
 ## Normalised Extract
-Summary: This document consolidates best practices for AWS Lambda, focusing on performance, security, operational readiness, and cost optimization.
+SUMMARY: AWS Lambda simplifies running code without managing servers by automating compute infrastructure tasks. It offers key features like environment variables, versions, container images, and snap start performance.
 
-Table of Contents:
-1. Function Architecture
-2. Performance Optimization
-3. Security & Cost Management
-4. Operational Readiness
+TABLE OF CONTENTS:
+1. Introduction
+2. When to Use Lambda
+3. Key Features
+4. Environment Variables
+5. Function Versioning & Container Images
 
-1. Function Architecture: Emphasizes modular design, decoupling of services, and efficient resource allocation to ensure functions are resilient and maintainable.
+Introduction: AWS Lambda is designed for scalable, serverless computing. Developers only supply code while AWS manages resource provisioning, scaling, and maintenance.
 
-2. Performance Optimization: Focuses on reducing cold starts, optimizing memory usage, and tuning timeout settings while recommending the use of container images and pre-warmed environments.
+When to Use Lambda: Ideal for file/stream processing, web application backends, and IoT or mobile applications, Lambda scales automatically based on demand.
 
-3. Security & Cost Management: Highlights the importance of implementing least privilege policies, monitoring usage, and leveraging cost control measures including detailed billing and tagging strategies.
+Key Features: Features include environment variables for configuration, function versions for stable deployments, container image support for complex workloads, and concurrency controls for optimal performance.
 
-4. Operational Readiness: Details guidelines for continuous integration, automated testing, logging, monitoring, and debugging, ensuring seamless deployments and rapid iteration.
+Environment Variables: They allow runtime configuration without code changes. Configuration can be managed via console, AWS CLI, or SDKs, with best practices ensuring security.
+
+Function Versioning & Container Images: Versioning locks configuration for stable iterations while container images provide flexibility for custom runtimes and dependencies.
 
 ## Supplementary Details
-Recent advancements in AWS tooling, such as AWS SAM and Serverless Framework enhancements, have further refined best practices. Developers are encouraged to integrate container-based deployments and adopt improved error tracing mechanisms using AWS X-Ray to bolster their Lambda configurations.
+Recent updates to AWS Lambda include support for AL2023-based images for a smaller deployment footprint, enhanced security features for environment variables through AWS Secrets Manager, and improvements in runtime performance with Lambda SnapStart. These additions further empower developers to build efficient and secure serverless applications.
 
 ## Reference Details
-The technical reference includes guidelines for setting memory and timeout parameters, recommendations for error handling using AWS CloudWatch logs, and best practices for CI/CD integration with AWS CodePipeline. It also covers detailed API references for AWS Lambda configuration, code examples for initializing functions, and implementation patterns for integrating AWS X-Ray, ensuring developers have comprehensive troubleshooting guides and configuration settings at their disposal.
+API Specifications and Configuration Options:
+- API operations: update-function-configuration, get-function-configuration, publish-version are detailed for managing function settings and versioning.
+- CLI Examples: 
+  • Setting environment variables using AWS CLI: aws lambda update-function-configuration --function-name my-function --environment "Variables={BUCKET=amzn-s3-demo-bucket,KEY=file.txt}"
+  • Retrieving configuration via: aws lambda get-function-configuration --function-name my-function
+- Code Examples:
+  • Python code snippet for log level configuration using os.environ
+  • Node.js sample utilizing winston for logging with dynamic log levels
+- Best Practices: Use environment variables securely (prefer AWS Secrets Manager for sensitive data), lock configurations via function versions, and leverage container image strategies (AWS base images, OS-only or non-AWS images) to optimize deployment.
+- Implementation Patterns: Guidance on using the Lambda runtime API for custom runtimes, including incorporating runtime interface clients for languages lacking AWS-provided images.
 
 ## Original Source
-AWS Lambda Best Practices
-https://aws.amazon.com/lambda/best-practices/
+AWS Lambda Developer Guide
+https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
 
 ## Digest of AWS_LAMBDA
 
-# AWS Lambda Best Practices Digest
+# AWS Lambda Developer Guide Digest
 
-## Original Content
-The source entry is "AWS Lambda Best Practices" as referenced in [AWS Lambda Best Practices](https://aws.amazon.com/lambda/best-practices/).
+This document is a detailed digest of content crawled from the AWS Lambda Developer Guide (source entry 9) as of 2023-10-12. Below is the original content excerpted and supplemented with current information to aid in serverless computing and configuration decisions.
 
-## Detailed Insight
-This digest synthesizes key guidelines for leveraging AWS Lambda effectively. It highlights core strategies on function architecture, performance optimization, cost management, security fundamentals, and operational readiness. Although the crawled content did not yield extensive technical blocks, the best practices are underpinned by structured examples, parameter recommendations, and case studies prevalent in AWS literature. The recommendations often include optimal memory configuration, timeout settings, error handling paradigms, and logging integrations with AWS CloudWatch.
+## Original Content Overview
 
-## Date Retrieved
-2023-10-16
+"You can use AWS Lambda to run code without provisioning or managing servers. Lambda runs your code on a high-availability compute infrastructure..."
 
-## Glossary
-- **Lambda**: A serverless compute service by AWS.
-- **Invocation**: The process of executing a Lambda function.
-- **Cold Start**: The latency introduced when a function is invoked for the first time or after being idle.
+This section includes details on when to use Lambda, its key features, environment variables configuration, function versioning, container image requirements, and API invocation patterns.
+
+## Retrieval Date
+
+Content retrieved on: 2023-10-12.
 
 ## Attribution
-- Source: AWS Lambda Best Practices
-- URL: https://aws.amazon.com/lambda/best-practices/
+- Source: AWS Lambda Developer Guide
+- URL: https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
 - License: License: AWS Service Terms
-- Crawl Date: 2025-04-17T12:21:53.194Z
-- Data Size: 0 bytes
-- Links Found: 0
+- Crawl Date: 2025-04-17T13:21:33.531Z
+- Data Size: 1501290 bytes
+- Links Found: 3003
 
 ## Retrieved
 2025-04-17
