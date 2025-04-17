@@ -573,7 +573,7 @@ jobs:
                 documentContent += `## Retrieved\n${dateStr}\n`;
 
                 // Save the raw crawl data to a text file
-                const rawCrawlFilePath = path.join(libraryDir, `${documentName}_RAW_CRAWL.txt`);
+                const rawCrawlFilePath = path.join(libraryDir, `${parsed.documentName}_RAW_CRAWL.txt`);
                 try {
                   fs.writeFileSync(rawCrawlFilePath, crawlResult.content);
                   core.info(`Raw crawl data saved to ${rawCrawlFilePath}`);
