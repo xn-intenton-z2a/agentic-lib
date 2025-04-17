@@ -117,3 +117,23 @@ This guide from the W3C explains the OWL (Web Ontology Language), which is used 
 ## https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html
 The AWS Step Functions Developer Guide covers the design, implementation, and management of state machines that coordinate multiple AWS services into serverless workflows. It provides tutorials, API references, and best practices to build scalable and resilient automation pipelines within AWS.
 ## License: AWS Documentation Terms
+
+# CircleCI Documentation
+## https://circleci.com/docs/
+The CircleCI Documentation provides step-by-step tutorials, configuration examples, and best practices for building, testing, and deploying projects using CircleCI. It covers various aspects including pipeline configuration, caching, parallel execution, and integration with other tools. Updated frequently by CircleCI, it is an authoritative resource for continuous integration and delivery.
+## License: Custom CircleCI Docs License
+
+# Tekton Pipelines Documentation
+## https://tekton.dev/docs/pipelines/
+Tekton Pipelines is an open-source framework for creating CI/CD systems. This documentation offers in-depth guides, tutorials, and API references to set up declarative pipelines. It is maintained as part of the Tekton project and adheres to the Apache License 2.0.
+## License: Apache License 2.0
+
+# GitHub CLI Documentation
+## https://cli.github.com/manual/
+The GitHub CLI Documentation provides comprehensive details on how to use GitHub's command line tool. It includes command usage, examples, and integration guidelines for interacting with GitHub repositories, issues, and pull requests directly from the terminal. It remains a key resource for developers looking to streamline their GitHub workflow.
+## License: MIT License
+
+# MDN Web Docs - ECMAScript Modules
+## https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
+This guide from MDN Web Docs explains the use of ECMAScript modules in JavaScript. It covers module syntax, usage patterns, and best practices for code organization in modern web development. MDN is recognized for its high-quality, community-driven documentation.
+## License: CC BY-SA 2.5
