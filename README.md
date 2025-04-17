@@ -59,7 +59,7 @@ This repository is organized into three distinct areas to help you understand th
   For enhanced performance insights, the response of `agenticHandler` now includes an `executionTimeMS` field for each command, indicating the processing time in milliseconds.
 
 - **Note on Prompt Validity:**
-  The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. Inputs are processed by trimming whitespace and converting to lowercase. Therefore, even if the input appears in a different case or with extra spaces (e.g., ' NaN ', 'nan'), it will be considered non-actionable and will result in an error message explicitly stating that the input is non-actionable because it is equivalent to 'NaN'.
+  The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN' (case insensitive, even with extra spaces) are rejected with a clear error message: "Invalid input: command is non-actionable (equivalent to 'NaN'). Please provide a valid, non-empty string."
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
@@ -100,7 +100,7 @@ Additionally, the CLI now supports additional commands:
 - `--digest`: Initiates processing of a sample digest event.
 - `--simulate-error`: Simulates an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.
 - `--simulate-delay <ms>`: Delays execution for the specified number of milliseconds, simulating processing latency before executing further commands.
-- `--apply-fix`: **NEW.** Applies automated code fixes. When invoked, it logs a success message "Applied fix successfully" and exits without further processing.
+- `--apply-fix`: **NEW.** Applies automated fixes and logs a success message indicating "Applied fix successfully". Execution stops immediately after this action.
 
 ---
 
@@ -140,7 +140,7 @@ The CLI provides several flags to manage the library's operation:
   - Executes a dry run that simulates the command execution without performing any actions.
 - **--simulate-error:**
   - Simulates an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.
-- **--simulate-delay <ms>:**
+- **--simulate-delay:**
   - Delays execution for the specified number of milliseconds, simulating processing latency before executing any further commands.
 - **--apply-fix:**
   - **NEW.** Applies automated fixes and logs a success message indicating "Applied fix successfully". Execution stops immediately after this action.

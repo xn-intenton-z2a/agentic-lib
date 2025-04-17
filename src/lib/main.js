@@ -155,7 +155,7 @@ export async function agenticHandler(payload) {
       for (const cmd of payload.commands) {
         const commandStart = Date.now();
         if (typeof cmd !== "string" || cmd.trim() === "" || cmd.trim().toLowerCase() === "nan") {
-          const errorMsg = "Invalid prompt input in commands: each command must be a valid non-empty string and not 'NaN'";
+          const errorMsg = "Invalid input in commands: each command must be a valid, non-empty string (cannot be 'NaN').";
           logError(errorMsg);
           throw new Error(errorMsg);
         }
@@ -176,7 +176,7 @@ export async function agenticHandler(payload) {
       // Single command processing
       const startTime = Date.now();
       if (typeof payload.command !== "string" || payload.command.trim() === "" || payload.command.trim().toLowerCase() === "nan") {
-        const errorMsg = "Invalid prompt input: command is non-actionable because it is equivalent to 'NaN'. Please provide a valid, non-empty string command.";
+        const errorMsg = "Invalid input: command is non-actionable (equivalent to 'NaN'). Please provide a valid, non-empty string.";
         logError(errorMsg);
         throw new Error(errorMsg);
       }
