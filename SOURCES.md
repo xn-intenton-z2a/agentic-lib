@@ -282,3 +282,23 @@ This tutorial from DigitalOcean explains how to set up a continuous integration 
 ## https://jenkins-x.io/docs/
 Jenkins X documentation provides guidance on leveraging Jenkins X for automating CI/CD in Kubernetes environments. It covers topics such as automated environment management, preview environments, and modern best practices for continuous delivery in cloud-native setups.
 ## License: Apache License 2.0
+
+# AWS CloudFormation Documentation
+## https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html
+Provides detailed guidance on creating and managing AWS CloudFormation stacks, templates, and best practices for infrastructure as code. This source is maintained by AWS and updated regularly.
+## License: AWS Documentation License
+
+# GitHub Enterprise Server Documentation
+## https://docs.github.com/en/enterprise-server@latest
+This documentation covers GitHub Enterprise Server setup, management, and integration features tailored for on-premises instances. It includes security, maintenance, and migration guidelines, serving as an authoritative source for enterprise usage.
+## License: GitHub Docs License (CC BY 4.0)
+
+# GitHub Dependabot Documentation
+## https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically
+Documents how Dependabot integrates with GitHub repositories to automate dependency updates, highlighting configuration, pull request management, and security best practices.
+## License: GitHub Docs License (CC BY 4.0)
+
+# Apache Airflow Documentation
+## https://airflow.apache.org/docs/apache-airflow/stable/index.html
+Offers comprehensive information on Apache Airflow, a platform to programmatically author, schedule, and monitor workflows. It includes concepts, tutorials, API references, and deployment guides, maintained by the Apache Software Foundation.
+## License: Apache License 2.0
