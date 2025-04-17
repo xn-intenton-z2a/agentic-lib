@@ -47,3 +47,23 @@ The AWS Lambda Developer Guide offers extensive resources for building, testing,
 ## https://circleci.com/docs/2.0/
 CircleCI's documentation provides guidance on setting up, configuring, and optimizing CI/CD pipelines using its platform. The resource includes tutorials, best practices, and detailed configurations aimed at enhancing continuous integration and deployment workflows, making it an important comparative tool for teams exploring alternative CI/CD solutions.
 ## License: CircleCI Terms of Service
+
+# GitHub Actions Workflow Commands Documentation
+## https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
+This source outlines various GitHub Actions workflow commands, providing examples and guidelines on how to control and influence job execution in GitHub Actions. It details methods for setting outputs, handling errors, and preserving environment states within workflows.
+## License: GitHub Docs License (CC BY 4.0)
+
+# GitLab CI/CD Documentation
+## https://docs.gitlab.com/ee/ci/
+GitLab CI/CD documentation provides comprehensive guidance on configuring and managing pipelines within GitLab. It covers topics such as pipeline configuration, runner setup, and advanced CI/CD practices, offering a valuable point of comparison with GitHub Actions and similar platforms.
+## License: GitLab Documentation License
+
+# W3C OWL 2 Overview
+## https://www.w3.org/TR/owl2-overview/
+The W3C OWL 2 Overview document provides an introduction to the Web Ontology Language (OWL), detailing its key features for creating rich, machine-interpretable ontologies. This resource is especially relevant for projects looking to integrate semantic web technologies and extend their documentation with OWL semantic markup.
+## License: W3C Document License
+
+# OpenAI API Documentation
+## https://platform.openai.com/docs/api-reference
+This documentation offers an in-depth look at the OpenAI API, including details on authentication, endpoint usage, parameters, and example requests. It is a crucial resource for understanding how to integrate AI services effectively, particularly for systems that process natural language commands.
+## License: OpenAI API Terms of Use
