@@ -137,3 +137,23 @@ The GitHub CLI Documentation provides comprehensive details on how to use GitHub
 ## https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
 This guide from MDN Web Docs explains the use of ECMAScript modules in JavaScript. It covers module syntax, usage patterns, and best practices for code organization in modern web development. MDN is recognized for its high-quality, community-driven documentation.
 ## License: CC BY-SA 2.5
+
+# Travis CI Documentation
+## https://docs.travis-ci.com/
+The official Travis CI documentation provides guides and reference materials for configuring continuous integration pipelines using Travis CI. It includes tutorials on setting up repositories, creating configuration files, and integrating with various programming languages and frameworks. Regularly updated, this resource is invaluable for developers seeking to implement CI/CD practices using Travis CI.
+## License: Unspecified (Travis CI documentation terms)
+
+# Azure Pipelines Documentation
+## https://learn.microsoft.com/en-us/azure/devops/pipelines/
+This documentation offers comprehensive guidance on using Azure Pipelines for continuous integration and continuous deployment. It covers YAML configuration, best practices, and troubleshooting techniques. As a Microsoft-supported resource, it is regularly updated and widely regarded as authoritative in the field of CI/CD.
+## License: Microsoft Docs Terms
+
+# Drone CI Documentation
+## https://docs.drone.io/
+Drone CI is a container-native continuous delivery platform. Its documentation provides in-depth instructions on setting up Drone, configuring pipelines, and leveraging containerized workflows for efficient CI/CD. The resource is open-sourced and maintained under the Apache License.
+## License: Apache License 2.0
+
+# Semantic Release Documentation
+## https://semantic-release.gitbook.io/semantic-release/
+This documentation introduces Semantic Release, an automated tool for version management and package publishing. It details configuration, integration with CI/CD pipelines, and release automation best practices to help projects maintain consistent versioning and streamline release processes. It is frequently updated and widely adopted in modern development workflows.
+## License: MIT License
