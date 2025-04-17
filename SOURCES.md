@@ -117,3 +117,28 @@ This documentation explains the support and usage of ECMAScript Modules (ESM) in
 ## https://vitest.dev
 Vitest is a Vite-native unit testing framework that emphasizes speed and simplicity. Its documentation provides detailed guidelines for setting up, writing, and running tests in modern JavaScript projects. Given that agentic-lib utilizes Vitest for its testing framework, this resource offers invaluable information and best practices for maintaining robust unit tests in the repository.
 ## License: MIT
+
+# GitHub CLI Documentation
+## https://cli.github.com/manual
+The GitHub CLI documentation provides comprehensive guidance for interacting with GitHub from the command line. It empowers developers to automate repository tasks such as managing issues, pull requests, and workflows, making it a valuable resource for integrating command line interactions within agentic workflows.
+## License: MIT
+
+# DangerJS Documentation
+## https://danger.systems/js/
+DangerJS is a tool for automating code review tasks through a specialized DSL, enabling teams to enforce best practices and catch issues early. Its documentation covers setup, usage, and integration into CI/CD pipelines, which supports initiatives around automated quality checks in agentic-lib.
+## License: MIT License
+
+# Probot Documentation
+## https://probot.github.io/
+Probot is a framework for building GitHub Apps in Node.js, facilitating the automation of repository tasks and workflows. The documentation provides in-depth guidance on creating and configuring GitHub Apps, which can augment the autonomous capabilities of agentic-lib.
+## License: MIT License
+
+# Markdown Guide
+## https://www.markdownguide.org
+The Markdown Guide offers a comprehensive reference for Markdown syntax, best practices, and advanced usage. This resource is especially useful for projects that convert markdown content to HTML during the publication process, ensuring consistency and quality in documentation.
+## License: CC BY-SA 4.0
+
+# RDFa Primer
+## https://www.w3.org/TR/rdfa-primer/
+The RDFa Primer provides an introduction to RDFa, a set of extensions that enable embedding rich metadata within HTML documents. This resource is beneficial for projects implementing semantic enhancements, like the OWL semantic extensions in agentic-lib, to improve content traceability and discoverability.
+## License: W3C License
