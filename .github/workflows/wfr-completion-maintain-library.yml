@@ -374,25 +374,21 @@ jobs:
             }
 
             const chatGptPrompt = `
-            Please generate the salient points and supporting detail and crawl metadata from the supplied crawl result.
+            Extract and condense the actual technical details from the supplied crawl result.
             Before adding a new document ensure that this document is distinct from any other document in the library, otherwise update an existing document.
             The document name should be one or two words in SCREAMING_SNAKECASE.
 
             You should extract a section from the sources file to create the document. Each document should contain:
             1. A normalised extract of the crawled content containing:
-               a. A summary of the key points
-               b. A table of contents listing the main topics
-               c. A full paragraph for each item in the table of contents, providing comprehensive information on each topic
-            2. A supplementary details section containing the latest information from your own knowledge base that complements the crawled content
-            3. A reference details section containing comprehensive extracted or supplemented details about API specifications, SDK method signatures, code examples, implementation patterns, configuration options, best practices, troubleshooting guides, or instructional material related to the topic. This section should be thorough and directly extracted from the crawled content where possible.
-            4. A detailed digest as a detailed digest of the crawled content including original content from the source section in SOURCES.md and the date when the content was retrieved (current date)
+               a. The actual key technical points, not summaries of them
+               b. A table of contents listing the specific technical topics
+               c. The actual detailed information for each item in the table of contents, not just descriptions of what information exists
+            2. A supplementary details section containing the actual technical specifications and implementation details that complement the crawled content
+            3. A reference details section containing the actual API specifications, complete SDK method signatures with parameters and return types, full code examples, exact implementation patterns, specific configuration options with their values and effects, concrete best practices with implementation examples, step-by-step troubleshooting procedures, and detailed instructional material. Do not describe what specifications exist - include the actual specifications themselves.
+            4. A detailed digest containing the actual technical content from the source section in SOURCES.md and the date when the content was retrieved (current date)
             5. Attribution information and data size obtained during crawling
 
-            For the normalised extract, ensure that the information in the crawled data is retained and transformed into topics that can be used to create product features and make engineering decisions. The content should be useful, dense, and presented in a consistent readable style. Each item in the table of contents must have a full paragraph that thoroughly explains the topic.
-
-            Consider the following when refining your response:
-            * Crawled content
-            * Available source entries from SOURCES.md
+            For the normalised extract, extract the actual technical information from the crawled data and present it in a condensed, directly usable format. Do not describe what information exists - include the actual information itself. The content must be specific, technical, and immediately applicable. Each item in the table of contents must have the complete technical details that thoroughly explain the implementation.
 
             Crawled content from URL (${randomSourceEntry.url}):
             CRAWLED_CONTENT_START
@@ -407,18 +403,18 @@ jobs:
             ${sourceEntries.map((entry, index) => `Entry ${index + 1}: ${entry.name} (${entry.url})`).join('\n')}
             SOURCES_ENTRIES_END
 
-            Important: Thoroughly analyze the crawled content for technical details such as API specifications, SDK method signatures, code examples, implementation patterns, configuration options, best practices, and troubleshooting guides. Extract these details comprehensively and include them in the referenceDetails section. Pay special attention to code blocks, parameter lists, return values, error handling patterns, and any structured technical information that would be valuable for developers implementing solutions based on this content.
+            Critical: Extract the actual technical content, not summaries or descriptions. Include the complete API specifications with all parameters, return types, and exceptions. Extract the exact SDK method signatures including all arguments and their types. Include full code examples with comments. Document the precise implementation patterns with all steps. List all configuration options with their exact values, defaults, and effects. Provide concrete best practices with implementation code. Include detailed troubleshooting procedures with exact commands and expected outputs. The referenceDetails section must contain the actual technical specifications that developers can directly use without needing to look elsewhere.
 
             Answer strictly with a JSON object following this schema:
             {
               "documentName": "The document name as one or two words in SCREAMING_SNAKECASE.",
-              "documentDetailedDigest": "The document detailed digest as multiline markdown with a few level 1 headings, including the original content from the source and the date when the content was retrieved.",
+              "documentDetailedDigest": "The actual technical content from the source in multiline markdown with level 1 headings, including exact specifications, method signatures, and configuration details.",
               "documentNamesToBeDeleted": "The comma separated list of document names to be deleted or 'none' if no document is to be deleted.",
               "sourceEntryIndex": "The index (1-based) of the source entry used for this document.",
-              "crawlSummary": "A summary of the crawled content from the URL, limited to the specified word limit.",
-              "normalisedExtract": "A normalised extract of the crawled content, containing a summary, table of contents, and a full paragraph for each item in the table of contents. The information should be retained and transformed into topics for product features and engineering decisions. Content should be useful, dense, and in a consistent readable style.",
-              "supplementaryDetails": "Additional information from the LLM's own knowledge base that supplements the crawled content with the latest information on the topic.",
-              "referenceDetails": "Comprehensive extracted or supplemented details about API specifications, SDK method signatures, code examples, implementation patterns, configuration options, best practices, troubleshooting guides, or instructional material related to the topic. This section should be thorough and directly extracted from the crawled content where possible, including all relevant technical details found in the source material."
+              "crawlSummary": "The condensed technical details from the crawled content, with actual specifications rather than descriptions of what specifications exist.",
+              "normalisedExtract": "The actual technical information extracted from the crawled content, including specific implementation details, exact configuration parameters, and concrete examples. Include a table of contents of technical topics and complete technical details for each topic that can be directly used by developers.",
+              "supplementaryDetails": "The actual technical specifications and implementation details that complement the crawled content, including exact parameter values, configuration options, and implementation steps.",
+              "referenceDetails": "The complete API specifications with all parameters and return types, full SDK method signatures, actual code examples, exact implementation patterns with all steps, specific configuration options with their values and effects, concrete best practices with implementation code, and detailed troubleshooting procedures with exact commands."
             }
             Ensure valid JSON.
             `;
@@ -439,18 +435,18 @@ jobs:
               type: "function",
               function: {
                 name: "generate_document",
-                description: "Elaborate on the supplied prompt and project files to create the documentName, documentDetailedDigest, and crawlSummary of a repository document, and the document names to be deleted. Return an object with documentName (string), documentDetailedDigest (string), documentNamesToBeDeleted (string), sourceEntryIndex (string), and crawlSummary (string).",
+                description: "Extract and condense the actual technical details from the supplied prompt and project files to create a document with specific technical information. Return an object with documentName, documentDetailedDigest (containing actual technical content), documentNamesToBeDeleted, sourceEntryIndex, crawlSummary (with condensed technical details), normalisedExtract (with actual technical information), supplementaryDetails (with actual specifications), and referenceDetails (with complete API specifications).",
                 parameters: {
                   type: "object",
                   properties: {
                     documentName: { type: "string", description: "The document name as one or two words in SCREAMING_SNAKECASE." },
-                    documentDetailedDigest: { type: "string", description: "The document detailed digest as multiline markdown with a few level 1 headings, including the original content from the source and the date when the content was retrieved." },
+                    documentDetailedDigest: { type: "string", description: "The actual technical content from the source in multiline markdown with level 1 headings, including exact specifications, method signatures, and configuration details." },
                     documentNamesToBeDeleted: { type: "string", description: "The comma separated list of document names to be deleted or 'none' if no document is to be deleted." },
                     sourceEntryIndex: { type: "string", description: "The index (1-based) of the source entry used for this document." },
-                    crawlSummary: { type: "string", description: "A summary of the crawled content from the URL, limited to the specified word limit." },
-                    normalisedExtract: { type: "string", description: "A normalised extract of the crawled content, containing a summary, table of contents, and a full paragraph for each item in the table of contents. The information should be retained and transformed into topics for product features and engineering decisions. Content should be useful, dense, and in a consistent readable style." },
-                    supplementaryDetails: { type: "string", description: "Additional information from the LLM's own knowledge base that supplements the crawled content with the latest information on the topic." },
-                    referenceDetails: { type: "string", description: "Comprehensive extracted or supplemented details about API specifications, SDK method signatures, code examples, implementation patterns, configuration options, best practices, troubleshooting guides, or instructional material related to the topic. This section should be thorough and directly extracted from the crawled content where possible." }
+                    crawlSummary: { type: "string", description: "The condensed technical details from the crawled content, with actual specifications rather than descriptions of what specifications exist." },
+                    normalisedExtract: { type: "string", description: "The actual technical information extracted from the crawled content, including specific implementation details, exact configuration parameters, and concrete examples. Include a table of contents of technical topics and complete technical details for each topic that can be directly used by developers." },
+                    supplementaryDetails: { type: "string", description: "The actual technical specifications and implementation details that complement the crawled content, including exact parameter values, configuration options, and implementation steps." },
+                    referenceDetails: { type: "string", description: "The complete API specifications with all parameters and return types, full SDK method signatures, actual code examples, exact implementation patterns with all steps, specific configuration options with their values and effects, concrete best practices with implementation code, and detailed troubleshooting procedures with exact commands." }
                   },
                   required: ["documentName", "documentDetailedDigest", "documentNamesToBeDeleted", "sourceEntryIndex", "crawlSummary", "normalisedExtract", "supplementaryDetails", "referenceDetails"],
                   additionalProperties: false
@@ -463,7 +459,7 @@ jobs:
             const response = await openai.chat.completions.create({
               model,
               messages: [
-                { role: "system", content: "You are maintaining a library set by providing expert contemporary insight into both the product market and you will perform a detailed analysis of the current state of the repository and current document set in search of value opportunities and unique selling points. Answer strictly with a JSON object following the provided function schema." },
+                { role: "system", content: "You are maintaining a technical library by extracting and condensing actual technical details from source materials. Your task is to provide specific technical information, not summaries or descriptions. Extract complete API specifications, exact method signatures, full code examples, precise implementation patterns, specific configuration options, concrete best practices, and detailed troubleshooting procedures. Answer strictly with a JSON object following the provided function schema." },
                 { role: "user", content: chatGptPrompt }
               ],
               tools: tools
