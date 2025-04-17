@@ -23,6 +23,7 @@ on:
     #- cron: '5 4 * * *' # schedule-2
     #- cron: '5 */1 * * *' # schedule-3
     #- cron: '5 * * * *' # schedule-4
+    - cron: '*/5 * * * *' # schedule-5
 
 jobs:
 

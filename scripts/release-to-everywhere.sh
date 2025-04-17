@@ -17,6 +17,7 @@ fi
 ./scripts/deactivate-schedule.sh 2
 ./scripts/deactivate-schedule.sh 3
 ./scripts/deactivate-schedule.sh 4
+./scripts/deactivate-schedule.sh 5
 ./scripts/release-to-s3-sqs-bridge.sh "${1?}"
 ./scripts/release-to-repository0.sh "${1?}"
 ./scripts/release-to-repository0-crucible.sh "${1?}"
