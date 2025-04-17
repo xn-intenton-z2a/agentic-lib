@@ -9,12 +9,6 @@ run-name: "Library Worker"
 
 on:
   workflow_dispatch:
-    inputs:
-      document:
-        description: 'Text to drive the library maintenance (if "house choice", the repository will be assessed and an action chosen). e.g. "Get a document about agents."'
-        required: false
-        type: string
-        default: 'house choice'
   schedule:
     - cron: '15 4 */7 * *' # schedule-1
     #- cron: '15 4 * * *' # schedule-2
@@ -59,7 +53,6 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml@main'
     with:
-      document: ${{ inputs.document }}
       libraryDir: 'library/'
       sourcesFile: 'SOURCES.md'
       documentsLimit: '${{ needs.agentic-lib.outputs.documentsLimit }}'

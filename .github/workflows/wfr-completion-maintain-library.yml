@@ -28,11 +28,6 @@ name: ∞ maintain-library
 on:
   workflow_call:
     inputs:
-      document:
-        description: 'Text to drive the library maintenance (if "house choice", the repository will be assessed and an action chosen). e.g. "Get a document about agents."'
-        type: string
-        required: false
-        default: 'house choice'
       libraryDir:
         description: 'The directory to create/update the documents in. e.g. "library/"'
         type: string
@@ -112,6 +107,7 @@ jobs:
       sourcesFile: ${{ inputs.sourcesFile || 'SOURCES.md' }}
       documentsLimit: ${{ inputs.documentsLimit || '3' }}
       summaryWordLimit: ${{ inputs.summaryWordLimit || '10000' }}
+      crawlResultCharacterLimit: 50000
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
@@ -164,6 +160,7 @@ jobs:
             const libraryDir = process.env.libraryDir;
             const sourcesFile = process.env.sourcesFile;
             const documentsLimit = process.env.documentsLimit;
+            const crawlResultCharacterLimit = process.env.crawlResultCharacterLimit;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
             const dependenciesListOutput = process.env.dependenciesListOutput;
@@ -374,17 +371,6 @@ jobs:
             const randomSourceEntry = sourceEntries[randomIndex];
             core.info(`Randomly selected source entry: ${randomSourceEntry.name} (${randomSourceEntry.url})`);
 
-            // generate the document prompt either by using the supplied document prompt or by reviewing the current features and full context
-            let prompt = document;
-            if (document === 'house choice') {
-              prompt = `Please review the current documents in the library and either;
-                * add a new document to the repository, or
-                * extend an existing document to add a new aspect to it, or
-                * update an existing document to bring it to a high standard matching other documents in the repository.
-                The document name should either be a current document name or be supplied with a summary which is distinct from any other document in the repository.
-              `;
-            }
-
             // Crawl the URL from the randomly selected source entry
             core.info(`Crawling URL: ${randomSourceEntry.url}`);
             let crawlResult = { content: '', links: [], dataSize: 0, error: 'Not crawled' };
@@ -395,52 +381,38 @@ jobs:
             }
 
             const chatGptPrompt = `
-            Please generate a document detailed digest based on the supplied prompt and project files.
-            The detailed digest should be thorough but concise and state the usefulness and authority of the source.
-            Ensure any content generated would be suitable for publication directly on the internet, in particular do not include private information about people.
-            The word limit is ${summaryWordLimit} words but it not just a limit, it's a target to aim for provided the content is justified and not padded.
-            Apply an internal peer review to ensure the detailed digest meets all of, a useful internal tech write up and a high academic for an informal paper providing a digest and insight into a topic.
-            Where possible find situations to support or refute statements made in the originally crawled material.
-            Use a journalistic style in the writing and include a glossary of any obscure terms at the end of the detailed digest.
+            Please generate the salient points and supporting detail and crawl metadata from the supplied crawl result.
             Before adding a new document ensure that this document is distinct from any other document in the library, otherwise update an existing document.
             The document name should be one or two words in SCREAMING_SNAKECASE.
 
             You should extract a section from the sources file to create the document. Each document should contain:
-            1. The original content from the source section in SOURCES.md
-            2. A detailed digest as a detailed digest of the crawled content from the URL (limited to ${summaryWordLimit} words)
-            3. A normalised extract of the crawled content, containing:
+            1. A normalised extract of the crawled content (limited to ${summaryWordLimit} words), containing:
                a. A summary of the key points
                b. A table of contents listing the main topics
                c. A full paragraph for each item in the table of contents, providing comprehensive information on each topic
-            4. A supplementary details section containing the latest information from your own knowledge base that complements the crawled content
-            5. A reference details section containing comprehensive extracted or supplemented details about API specifications, SDK method signatures, code examples, implementation patterns, configuration options, best practices, troubleshooting guides, or instructional material related to the topic. This section should be thorough and directly extracted from the crawled content where possible.
-            6. The date when the content was retrieved (current date)
-            7. Attribution information and data size obtained during crawling
+            2. A supplementary details section containing the latest information from your own knowledge base that complements the crawled content
+            3. A reference details section containing comprehensive extracted or supplemented details about API specifications, SDK method signatures, code examples, implementation patterns, configuration options, best practices, troubleshooting guides, or instructional material related to the topic. This section should be thorough and directly extracted from the crawled content where possible.
+            4. A detailed digest as a detailed digest of the crawled content including original content from the source section in SOURCES.md and the date when the content was retrieved (current date)
+            5. Attribution information and data size obtained during crawling
 
             For the normalised extract, ensure that the information in the crawled data is retained and transformed into topics that can be used to create product features and make engineering decisions. The content should be useful, dense, and presented in a consistent readable style. Each item in the table of contents must have a full paragraph that thoroughly explains the topic.
 
             Consider the following when refining your response:
-            * Document prompt details
             * Crawled content
             * Available source entries from SOURCES.md
-
-            Document prompt:
-            DOCUMENT_PROMPT_START
-            ${prompt}
-            DOCUMENT_PROMPT_END            
-
-            Available source entries from SOURCES.md (${sourceEntries.length} entries):
-            SOURCES_ENTRIES_START
-            ${sourceEntries.map((entry, index) => `Entry ${index + 1}: ${entry.name} (${entry.url})`).join('\n')}
-            SOURCES_ENTRIES_END
 
             Crawled content from URL (${randomSourceEntry.url}):
             CRAWLED_CONTENT_START
             Data Size: ${crawlResult.dataSize} bytes
             Links Found: ${crawlResult.links.length}
             Error: ${crawlResult.error || 'None'}
-            Content Preview: ${crawlResult.content.substring(0, 10000)}...
-            CRAWLED_CONTENT_END
+            Content Preview: ${crawlResult.content.substring(0, crawlResultCharacterLimit)}...
+            CRAWLED_CONTENT_END        
+
+            Available source entries from SOURCES.md (${sourceEntries.length} entries):
+            SOURCES_ENTRIES_START
+            ${sourceEntries.map((entry, index) => `Entry ${index + 1}: ${entry.name} (${entry.url})`).join('\n')}
+            SOURCES_ENTRIES_END
 
             Important: Thoroughly analyze the crawled content for technical details such as API specifications, SDK method signatures, code examples, implementation patterns, configuration options, best practices, and troubleshooting guides. Extract these details comprehensively and include them in the referenceDetails section. Pay special attention to code blocks, parameter lists, return values, error handling patterns, and any structured technical information that would be valuable for developers implementing solutions based on this content.
 
