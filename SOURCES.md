@@ -1,24 +1,34 @@
-# GitLab CI/CD Documentation
-## https://docs.gitlab.com/ee/ci/
-This documentation offers comprehensive guidance on configuring and maintaining CI/CD pipelines using GitLab. It covers job definitions, automated testing, deployment strategies, and monitoring. GitLab continuously updates this authoritative resource and it represents a key competitor for GitHub Actions in the continuous integration space.
-## License: GitLab Documentation Terms
+# GitHub Actions Documentation
+## https://docs.github.com/en/actions
+This documentation provides comprehensive guides on how to create, configure, and manage GitHub Actions for automation, CI/CD, and workflow orchestration. It covers workflow syntax, best practices, and integration with GitHub services. Updated regularly by GitHub, it is an authoritative resource for modern automation practices.
+## License: GitHub Docs Terms
 
-# Semantic Versioning
-## https://semver.org
-Semantic Versioning (SemVer) is a widely adopted version numbering scheme that provides a standardized way to manage version numbers in software development. The site explains the principles and rules of semver, ensuring consistency and clarity in versioning across projects.
-## License: Public Domain
+# Node.js Documentation
+## https://nodejs.org/en/docs
+The official Node.js documentation covers its APIs, ecosystem, and guides for building scalable server-side applications. It is crucial for understanding language features, runtime behavior, and best practices for developing modern JavaScript applications. Regularly maintained, it is an essential resource for using Node.js effectively.
+## License: Creative Commons Attribution 4.0 International
 
-# GitHub Developer Documentation
-## https://docs.github.com/en/developers
-This resource provides details for developers who wish to integrate with GitHub's platform. It includes API references, authentication guides, and best practices for leveraging GitHub's extensive developer tools. It is maintained by GitHub and continuously updated to reflect new features and security practices.
-## License: GitHub Terms
-
-# Serverless Framework Documentation
-## https://www.serverless.com/framework/docs/
-The Serverless Framework documentation offers in-depth guides and tutorials on building serverless applications. It covers configuration, deployment, and management of functions across various cloud providers, emphasizing automation and infrastructure-as-code practices. This resource is highly regarded in the serverless computing community.
+# ESLint Documentation
+## https://eslint.org/docs/latest
+ESLint's documentation provides detailed information about configuring, extending, and utilizing the ESLint tool to maintain code quality. It covers rules, configurations, plugin integrations, and troubleshooting, making it an indispensable source for ensuring code consistency and security in JavaScript projects.
 ## License: MIT License
 
-# Vercel Platform Documentation
-## https://vercel.com/docs
-Vercel’s documentation covers modern deployment practices for frontend and serverless applications. It provides guides on deploying, scaling, and optimizing web applications, with a focus on performance and developer experience. The documentation is continuously improved by Vercel's engineering team.
-## License: Vercel Docs Terms
+# OpenAI API Documentation
+## https://platform.openai.com/docs/api-reference
+This resource offers comprehensive details on integrating with OpenAI's API, including guides on authentication, making API calls, and leveraging AI capabilities in your applications. It is frequently updated to reflect the latest changes in services and is vital for projects utilizing OpenAI technologies.
+## License: OpenAI API Terms
+
+# AWS Lambda Documentation
+## https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
+AWS Lambda documentation provides in-depth guidance on building and deploying serverless functions using AWS Lambda. It covers function configuration, event sources, monitoring, and best practices for efficient and scalable serverless applications.
+## License: AWS Documentation Terms
+
+# AWS CDK Documentation
+## https://docs.aws.amazon.com/cdk/v2/guide/home.html
+This documentation offers guidance on using the AWS Cloud Development Kit (CDK) to define cloud infrastructure through code. It includes tutorials, API references, and best practices for building, testing, and deploying cloud applications using modern programming languages.
+## License: AWS Documentation Terms
+
+# GitHub Pages Documentation
+## https://docs.github.com/en/pages
+GitHub Pages documentation provides comprehensive tutorials and guides on how to host static websites directly from GitHub repositories. It covers configuration, custom domains, and deployment practices, making it an essential resource for projects using GitHub Pages for content publication.
+## License: GitHub Docs Terms
