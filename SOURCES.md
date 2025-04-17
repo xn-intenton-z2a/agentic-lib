@@ -202,3 +202,23 @@ Netlify's documentation offers comprehensive guides on deploying, configuring, a
 ## https://vercel.com/docs
 The Vercel documentation provides detailed instructions on deploying front-end applications and serverless functions. It covers setup, configuration, performance optimizations, and best practices for modern web development and CI/CD, serving as an essential guide for leveraging Vercel's platform.
 ## License: Vercel Documentation License
+
+# AWS CloudWatch Logs Documentation
+## https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html
+This resource provides comprehensive documentation on AWS CloudWatch Logs, covering how to collect, monitor, and analyze log data from AWS resources such as Lambda functions and EC2 instances. It includes guides on log storage, filtering, and analytics, making it an essential reference for ensuring observability in cloud environments.
+## License: AWS Documentation Terms
+
+# Conventional Commits Specification
+## https://www.conventionalcommits.org/en/v1.0.0/
+The Conventional Commits specification defines a standard style for commit messages. This helps in automating semantic versioning and maintaining a clear, understandable commit history. The guidelines are widely adopted in modern development workflows.
+## License: CC0 1.0 Universal
+
+# AWS CloudFormation User Guide
+## https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html
+The official AWS CloudFormation documentation provides in-depth guidance on defining, deploying, and managing infrastructure as code. It covers template anatomy, best practices, and advanced features for automating AWS resource configurations.
+## License: AWS Documentation Terms
+
+# npm Official Documentation
+## https://docs.npmjs.com/
+The npm documentation offers comprehensive guidelines for using the Node Package Manager, including package installation, versioning, publishing, and troubleshooting. It is an essential resource for developers managing JavaScript dependencies.
+## License: Unspecified
