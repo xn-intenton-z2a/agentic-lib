@@ -152,3 +152,28 @@ This guide introduces AWS SAM, a framework that simplifies building serverless a
 ## https://docs.github.com/en/pages
 GitHub Pages documentation offers comprehensive guidance on publishing static websites directly from a GitHub repository. It covers setup, deployment, custom domains, and troubleshooting, serving as a vital resource for users hosting content on GitHub Pages.
 ## License: GitHub Docs License (CC BY 4.0)
+
+# GitHub Actions Environment Variables Documentation
+## https://docs.github.com/en/actions/learn-github-actions/environment-variables
+This documentation explains how environment variables are used within GitHub Actions. It covers how to set, access, and secure environment variables in workflows. Maintained by GitHub, it remains a critical resource for understanding dynamic configuration in CI/CD pipelines.
+## License: GitHub Docs License (CC BY 4.0)
+
+# GitHub Runner Documentation
+## https://docs.github.com/en/actions/hosting-your-own-runners
+This documentation provides insights into hosting and managing GitHub self-hosted runners. It offers guidance on setting up, securing, and scaling runners to optimize workflow execution in various environments.
+## License: GitHub Docs License (CC BY 4.0)
+
+# GitHub Actions Artifacts Documentation
+## https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts
+This guide explains how to store, manage, and retrieve artifacts generated during GitHub Actions workflows. It covers configuration, security, and best practices to ensure data is preserved and accessible for debugging and analysis.
+## License: GitHub Docs License (CC BY 4.0)
+
+# RDFa 1.1 Primer
+## https://www.w3.org/TR/rdfa-primer/
+This document is a primer on using RDFa 1.1 to embed rich metadata into HTML documents. It outlines how to integrate semantic annotations into web pages to enhance searchability and interoperability, aligning with the goals of semantic web extensions.
+## License: W3C Document License
+
+# Node.js Best Practices
+## https://github.com/goldbergyoni/nodebestpractices
+This repository outlines a set of best practices for developing Node.js applications. It covers various aspects including project structure, performance optimization, error handling, and testing, offering guidelines widely adopted by the Node.js community.
+## License: MIT
