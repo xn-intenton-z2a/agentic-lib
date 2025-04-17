@@ -287,3 +287,23 @@ The npm Documentation provides extensive details on package management, publishi
 ## https://opensource.guide
 Open Source Guides by GitHub offer best practices, strategies, and governance advice for managing open source projects. This resource supports community building, licensing, and project management for agentic-lib.
 ## License: CC BY 4.0
+
+# Renovate Bot Documentation
+## https://docs.renovatebot.com/
+Renovate Bot automates dependency upgrades by checking for outdated packages and creating pull requests to keep dependencies up-to-date. Its extensive documentation covers configuration, integration, and best practices, making it valuable for projects that prioritize automated dependency management.
+## License: MIT
+
+# semantic-release Documentation
+## https://semantic-release.gitbook.io/semantic-release/
+The semantic-release documentation details how to automate version management and package publishing based on conventional commits. It offers guidelines on changelog generation, automated releases, and integration with CI/CD pipelines, which complements agentic-lib's automation workflows.
+## License: MIT
+
+# AWS Lambda Best Practices Documentation
+## https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html
+This AWS documentation outlines best practices for designing, deploying, and monitoring AWS Lambda functions. It provides strategies for performance optimization, error handling, and security enhancements that align well with the serverless functions implemented in agentic-lib.
+## License: AWS Documentation License
+
+# GitHub Apps Documentation
+## https://docs.github.com/en/developers/apps/creating-a-github-app
+This documentation guides developers through creating GitHub Apps, which can integrate deeply with GitHub repositories to automate tasks and improve workflow efficiency. It covers authentication, webhook handling, and app maintenance, offering insights relevant to enhancing agentic-lib's autonomous operations.
+## License: GitHub Docs License (CC BY 4.0)
