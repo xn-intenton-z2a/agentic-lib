@@ -92,3 +92,28 @@ Day.js is a minimalist JavaScript library for parsing, validating, manipulating,
 ## https://github.com/markdown-it/markdown-it
 Markdown-it is a markdown parser that supports a robust plugin architecture. Its documentation offers detailed insight into customization and usage, making it relevant for transforming markdown content into HTML in various parts of the agentic-lib workflows.
 ## License: MIT
+
+# GitLab CI/CD Documentation
+## https://docs.gitlab.com/ee/ci/
+The GitLab CI/CD documentation covers how to set up continuous integration pipelines using GitLab. It provides comprehensive insights into configuration, stages, and job orchestration, serving as a valuable point of comparison for the integrated GitHub Actions workflows in agentic-lib. Its guidelines are regularly updated by GitLab and serve as an authoritative resource within the CI/CD community.
+## License: CC BY 4.0
+
+# OWL Web Ontology Language
+## https://www.w3.org/TR/owl-ref/
+The OWL (Web Ontology Language) documentation provides comprehensive guidelines for representing complex knowledge on the web, including details on classes, properties, and relationships. This serves as an essential resource for implementing semantic markup and traceability features, such as those planned for OWL semantic extensions in agentic-lib. It is maintained by the W3C and is highly authoritative.
+## License: W3C License
+
+# GitHub Pages Documentation
+## https://docs.github.com/en/pages
+The GitHub Pages Documentation details how to publish static sites directly from GitHub repositories. This resource is crucial for the Publish Web workflow in agentic-lib, which converts markdown feature documents to HTML and deploys them for public access. It provides step-by-step guides on configuration, custom domains, and troubleshooting.
+## License: GitHub Docs License (CC BY 4.0)
+
+# Node.js ECMAScript Modules Documentation
+## https://nodejs.org/api/esm.html
+This documentation explains the support and usage of ECMAScript Modules (ESM) in Node.js. It covers module resolution, interoperability with CommonJS, and best practices for leveraging modern JavaScript module systems, which is particularly important for agentic-lib running on Node.js 20+ environments.
+## License: Node.js Foundation License
+
+# Vitest Documentation
+## https://vitest.dev
+Vitest is a Vite-native unit testing framework that emphasizes speed and simplicity. Its documentation provides detailed guidelines for setting up, writing, and running tests in modern JavaScript projects. Given that agentic-lib utilizes Vitest for its testing framework, this resource offers invaluable information and best practices for maintaining robust unit tests in the repository.
+## License: MIT
