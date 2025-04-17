@@ -107,3 +107,43 @@ Offers extensive information on CircleCI, covering setup, configuration, and adv
 ## https://www.serverless.com/framework/docs/
 The official documentation for the Serverless Framework provides guidance on deploying and managing serverless applications. It covers setup, configuration tips, and troubleshooting steps, and is highly regarded in the serverless community.
 ## License: MIT License
+
+# MDN Web Docs - JavaScript
+## https://developer.mozilla.org/en-US/docs/Web/JavaScript
+MDN Web Docs provides comprehensive and up-to-date documentation on JavaScript, including language features, best practices, and tutorials. It is widely regarded as the definitive reference for web developers.
+## License: Creative Commons Attribution-ShareAlike License
+
+# Jenkins Pipeline Documentation
+## https://www.jenkins.io/doc/book/pipeline/
+This documentation provides an in-depth look into Jenkins Pipeline, including its configuration, syntax, and best practices for CI/CD automation. It offers tutorials and examples to help users implement robust pipelines.
+## License: Jenkins Documentation License
+
+# AWS CloudWatch Documentation
+## https://docs.aws.amazon.com/cloudwatch/index.html
+Provides comprehensive guidance on AWS CloudWatch, covering monitoring, alerting, log analytics, and performance metrics. It is essential for maintaining observability in AWS cloud environments.
+## License: AWS Service Terms
+
+# GitHub Codespaces Documentation
+## https://docs.github.com/en/codespaces
+Official documentation for GitHub Codespaces, detailing setup, configuration, and usage of cloud-hosted development environments that integrate seamlessly with GitHub.
+## License: Custom GitHub Docs License
+
+# GraphQL Official Documentation
+## https://graphql.org/learn/
+Offers complete guidance on GraphQL query language, including concepts like queries, mutations, and subscriptions. Authored and maintained by the GraphQL Foundation, it is a key resource in API development.
+## License: MIT License
+
+# Docker Documentation
+## https://docs.docker.com/
+The official Docker documentation provides detailed information on containerization, including installation, usage of Docker CLI, Docker Compose, and best practices for building and deploying containers.
+## License: Docker Documentation License
+
+# AWS CloudFormation Documentation
+## https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/
+Authoritative resource detailing AWS CloudFormation features, template syntax, and best practices for infrastructure as code. Regularly updated by AWS.
+## License: AWS Service Terms
+
+# Schema.org Documentation
+## https://schema.org/docs/doc.html
+Comprehensive guide on Schema.org vocabulary, offering details on structured data markup and best practices for enhancing search engine visibility through rich results.
+## License: Creative Commons Attribution 4.0 International License
