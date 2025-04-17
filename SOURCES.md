@@ -177,3 +177,28 @@ The OpenTelemetry Node.js documentation provides detailed guides on instrumentin
 ## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/index.html
 This documentation provides detailed guidance on using the AWS SDK for JavaScript v3 to interact with Amazon S3. It includes comprehensive API references, usage examples, and best practices for integrating S3 operations within serverless and automated workflows.
 ## License: Apache License 2.0
+
+# Bitbucket Pipelines Documentation
+## https://support.atlassian.com/bitbucket-cloud/docs/get-started-with-bitbucket-pipelines/
+The official Bitbucket Pipelines documentation provides guidance on continuous integration and continuous deployment in Bitbucket Cloud. It covers pipeline configuration, YAML file setup, and best practices. Updated regularly by Atlassian, it serves as a comprehensive resource for CI/CD using Bitbucket.
+## License: Atlassian Docs License
+
+# Spinnaker Documentation
+## https://spinnaker.io/docs/
+Spinnaker is an open source, multi-cloud continuous delivery platform. This documentation provides in-depth guides, tutorials, and API references for automating software deployment. It serves as a robust alternative for modern continuous delivery systems.
+## License: Apache License 2.0
+
+# Concourse CI Documentation
+## https://concourse-ci.org/
+The official documentation for Concourse CI details the architecture, pipeline configuration, and best practices for using this lightweight CI system. It emphasizes declarative pipeline definitions and efficient resource management, making it a valuable resource for automating workflows.
+## License: Apache License 2.0
+
+# Netlify Documentation
+## https://docs.netlify.com/
+Netlify's documentation offers comprehensive guides on deploying, configuring, and managing websites and serverless functions on its platform. It is a valuable resource for developers looking to integrate modern web deployment and continuous delivery strategies.
+## License: Netlify Docs License
+
+# Vercel Documentation
+## https://vercel.com/docs
+The Vercel documentation provides detailed instructions on deploying front-end applications and serverless functions. It covers setup, configuration, performance optimizations, and best practices for modern web development and CI/CD, serving as an essential guide for leveraging Vercel's platform.
+## License: Vercel Documentation License
