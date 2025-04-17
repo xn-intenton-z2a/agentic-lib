@@ -197,3 +197,23 @@ Official documentation for Google Cloud Build, detailing how to configure, run, 
 ## https://www.pulumi.com/docs/
 Pulumi is an infrastructure as code platform that enables the use of modern programming languages to manage cloud resources. The documentation provides in-depth guides, API references, and best practices for cloud automation.
 ## License: Apache License 2.0
+
+# Semantic Versioning Specification
+## https://semver.org/
+The Semantic Versioning specification provides guidelines on a version numbering scheme that conveys meaning about the underlying changes. It is widely adopted across the software industry to manage version releases in a consistent and predictable manner.
+## License: Public Domain
+
+# OpenTelemetry Documentation
+## https://opentelemetry.io/docs/
+The official documentation for OpenTelemetry offers comprehensive guidance on implementing distributed tracing and monitoring in applications. It is critical for enhancing observability and debugging in cloud-native systems.
+## License: Apache License 2.0
+
+# W3C Provenance Ontology (PROV-O)
+## https://www.w3.org/TR/prov-o/
+Provides a formal ontology for representing provenance information, enabling traceability and accountability in data workflows. This documentation is essential for implementing semantic metadata and ensuring data lineage.
+## License: W3C Document License
+
+# GitOps Documentation - Weaveworks
+## https://www.weave.works/what-is-gitops/
+This resource from Weaveworks offers insights into GitOps practices, outlining principles, benefits, and implementation strategies for continuous deployment and automated operations in cloud environments.
+## License: Not specified
