@@ -101,7 +101,7 @@ Additionally, the CLI now supports additional commands:
 - `--simulate-error`: Simulates an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.
 - `--simulate-delay <ms>`: Delays execution for the specified number of milliseconds, simulating processing latency before executing further commands.
 - `--apply-fix`: Applies automated fixes and logs a success message indicating "Applied fix successfully". Execution stops immediately after this action.
-- `--cli-utils`: **NEW.** Displays a summary of all available CLI commands along with a brief description for each. This flag is intended to enhance the discoverability of CLI utilities.
+- `--cli-utils`: **NEW.** Displays a comprehensive summary of all CLI commands available along with brief descriptions. Use this flag to quickly view all command options.
 
 ---
 
