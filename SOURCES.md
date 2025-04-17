@@ -62,3 +62,28 @@ Zod is a powerful schema declaration and validation library for TypeScript and J
 ## https://docs.aws.amazon.com/cdk/latest/guide/home.html
 The AWS Cloud Development Kit (CDK) documentation delivers extensive guidance on defining cloud infrastructure using familiar programming languages. It includes tutorials, API references, and best practices useful for developing infrastructure as code and integrating cloud services into automated workflows.
 ## License: Apache License 2.0
+
+# GitHub GraphQL API Documentation
+## https://docs.github.com/en/graphql
+This documentation provides detailed information about GitHub's GraphQL API, enabling developers to build dynamic queries that efficiently retrieve and manipulate data across GitHub services. Regularly updated with schema details and examples, it is an authoritative source for integrating GraphQL queries into automated workflows.
+## License: GitHub Docs License
+
+# Vitest Documentation
+## https://vitest.dev
+Vitest Documentation covers comprehensive usage and configuration of Vitest, a fast unit testing framework built for Vite. It includes guides, API references, and examples that make it indispensable for testing modern JavaScript and TypeScript applications within continuous integration pipelines.
+## License: MIT License
+
+# AWS Lambda Developer Guide
+## https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
+The AWS Lambda Developer Guide offers detailed instructions on building, deploying, and managing serverless applications using AWS Lambda. It provides best practices, troubleshooting tips, and sample code, which are essential for developers looking to implement cloud-based functions effectively.
+## License: AWS Content License
+
+# Prettier Documentation
+## https://prettier.io/docs/en/index.html
+Prettier Documentation outlines how to integrate and configure the Prettier code formatter to maintain consistency in coding style across projects. It covers setup instructions, configuration options, and advanced usage guidelines that help in achieving uniform code formatting.
+## License: MIT License
+
+# GitLab CI/CD Documentation
+## https://docs.gitlab.com/ee/ci/
+GitLab CI/CD Documentation provides an in-depth look at enabling continuous integration and delivery using GitLab's robust pipeline system. Although GitLab is a competitor to GitHub Actions, its detailed guides and best practices serve as a valuable reference for designing and managing automated workflows.
+## License: GitLab Free Documentation License
