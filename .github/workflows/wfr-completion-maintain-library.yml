@@ -97,6 +97,10 @@ on:
         value: ${{ jobs.maintain-library.outputs.crawlSummary }}
       normalisedExtract:
         value: ${{ jobs.maintain-library.outputs.normalisedExtract }}
+      supplementaryDetails:
+        value: ${{ jobs.maintain-library.outputs.supplementaryDetails }}
+      referenceDetails:
+        value: ${{ jobs.maintain-library.outputs.referenceDetails }}
 
 jobs:
   maintain-library:
@@ -292,17 +296,62 @@ jobs:
                     if (contentType.includes('text/html')) {
                       const $ = cheerio.load(response.data);
 
-                      // Extract text content
-                      const pageText = $('body').text().replace(/\\s+/g, ' ').trim();
-                      result.content += pageText + '\\n\\n';
-                      result.dataSize += pageText.length;
+                      // Extract text content with priority to meaningful content
+                      // Remove script, style, and other non-content elements
+                      $('script, style, meta, link, noscript, iframe, svg').remove();
+
+                      // Prioritize content from main content areas
+                      let mainContent = '';
+                      const contentSelectors = ['article', 'main', '.content', '.main', '#content', '#main', '.post', '.entry', '.blog-post'];
+
+                      for (const selector of contentSelectors) {
+                        if ($(selector).length > 0) {
+                          mainContent += $(selector).text().replace(/\\s+/g, ' ').trim() + '\\n\\n';
+                        }
+                      }
+
+                      // If no main content found, extract from body
+                      if (!mainContent) {
+                        // Extract text from paragraphs, headings, lists, and other text elements
+                        $('p, h1, h2, h3, h4, h5, h6, li, td, th, div, span, a').each((i, el) => {
+                          const text = $(el).text().trim();
+                          if (text.length > 20) { // Only include substantial text
+                            mainContent += text + '\\n';
+                          }
+                        });
+                      }
+
+                      // If still no content, fall back to body text
+                      if (!mainContent) {
+                        mainContent = $('body').text().replace(/\\s+/g, ' ').trim();
+                      }
+
+                      result.content += mainContent + '\\n\\n';
+                      result.dataSize += mainContent.length;
 
                       // Extract links
                       $('a').each((i, link) => {
                         const href = $(link).attr('href');
-                        if (href && href.startsWith('http') && !visitedUrls.has(href)) {
-                          result.links.push(href);
-                          urlQueue.push(href);
+                        if (href) {
+                          // Convert relative URLs to absolute
+                          let absoluteUrl = href;
+                          if (!href.startsWith('http')) {
+                            try {
+                              absoluteUrl = new URL(href, currentUrl).href;
+                            } catch (e) {
+                              // Skip invalid URLs
+                              return;
+                            }
+                          }
+
+                          // Only follow links on the same domain
+                          const currentDomain = new URL(currentUrl).hostname;
+                          const linkDomain = new URL(absoluteUrl).hostname;
+
+                          if (linkDomain === currentDomain && !visitedUrls.has(absoluteUrl)) {
+                            result.links.push(absoluteUrl);
+                            urlQueue.push(absoluteUrl);
+                          }
                         }
                       });
                     }
@@ -362,11 +411,13 @@ jobs:
             3. A normalised extract of the crawled content, containing:
                a. A summary of the key points
                b. A table of contents listing the main topics
-               c. A paragraph on each topic in the crawl data
-            4. The date when the content was retrieved (current date)
-            5. Attribution information and data size obtained during crawling
+               c. A full paragraph for each item in the table of contents, providing comprehensive information on each topic
+            4. A supplementary details section containing the latest information from your own knowledge base that complements the crawled content
+            5. A reference details section containing extracted or supplemented details about API specifications, SDK method signatures, or instructional material related to the topic
+            6. The date when the content was retrieved (current date)
+            7. Attribution information and data size obtained during crawling
 
-            For the normalised extract, ensure that the information in the crawled data is retained and transformed into topics that can be used to create product features and make engineering decisions. The content should be useful, dense, and presented in a consistent readable style.
+            For the normalised extract, ensure that the information in the crawled data is retained and transformed into topics that can be used to create product features and make engineering decisions. The content should be useful, dense, and presented in a consistent readable style. Each item in the table of contents must have a full paragraph that thoroughly explains the topic.
 
             Consider the following when refining your response:
             * Document prompt details
@@ -406,7 +457,9 @@ jobs:
               documentNamesToBeDeleted: z.string(),
               sourceEntryIndex: z.string(),
               crawlSummary: z.string(),
-              normalisedExtract: z.string()
+              normalisedExtract: z.string(),
+              supplementaryDetails: z.string(),
+              referenceDetails: z.string()
             });
 
             // Define the function schema for function calling
@@ -423,9 +476,11 @@ jobs:
                     documentNamesToBeDeleted: { type: "string", description: "The comma separated list of document names to be deleted or 'none' if no document is to be deleted." },
                     sourceEntryIndex: { type: "string", description: "The index (1-based) of the source entry used for this document." },
                     crawlSummary: { type: "string", description: "A summary of the crawled content from the URL, limited to the specified word limit." },
-                    normalisedExtract: { type: "string", description: "A normalised extract of the crawled content, containing a summary, table of contents, and paragraphs on each topic in the crawl data. The information should be retained and transformed into topics for product features and engineering decisions. Content should be useful, dense, and in a consistent readable style." }
+                    normalisedExtract: { type: "string", description: "A normalised extract of the crawled content, containing a summary, table of contents, and a full paragraph for each item in the table of contents. The information should be retained and transformed into topics for product features and engineering decisions. Content should be useful, dense, and in a consistent readable style." },
+                    supplementaryDetails: { type: "string", description: "Additional information from the LLM's own knowledge base that supplements the crawled content with the latest information on the topic." },
+                    referenceDetails: { type: "string", description: "Extracted or supplemented details about API specifications, SDK method signatures, or instructional material related to the topic." }
                   },
-                  required: ["documentName", "documentDetailedDigest", "documentNamesToBeDeleted", "sourceEntryIndex", "crawlSummary", "normalisedExtract"],
+                  required: ["documentName", "documentDetailedDigest", "documentNamesToBeDeleted", "sourceEntryIndex", "crawlSummary", "normalisedExtract", "supplementaryDetails", "referenceDetails"],
                   additionalProperties: false
                 },
                 strict: true
@@ -467,12 +522,16 @@ jobs:
               core.setOutput("sourceEntryIndex", parsed.sourceEntryIndex);
               core.setOutput("crawlSummary", parsed.crawlSummary);
               core.setOutput("normalisedExtract", parsed.normalisedExtract);
+              core.setOutput("supplementaryDetails", parsed.supplementaryDetails);
+              core.setOutput("referenceDetails", parsed.referenceDetails);
               core.info(`documentName: "${parsed.documentName}"`);
               core.info(`documentDetailedDigest: "${parsed.documentDetailedDigest}"`);
               core.info(`documentNamesToBeDeleted: "${parsed.documentNamesToBeDeleted}"`);
               core.info(`sourceEntryIndex: "${parsed.sourceEntryIndex}"`);
               core.info(`crawlSummary: "${parsed.crawlSummary}"`);
               core.info(`normalisedExtract: "${parsed.normalisedExtract}"`);
+              core.info(`supplementaryDetails: "${parsed.supplementaryDetails}"`);
+              core.info(`referenceDetails: "${parsed.referenceDetails}"`);
 
               // Get the source entry used for this document
               const sourceEntryIndex = parseInt(parsed.sourceEntryIndex, 10) - 1;
@@ -499,6 +558,8 @@ jobs:
                 documentContent = `# ${parsed.documentName}\n\n`;
                 documentContent += `## Crawl Summary\n${parsed.crawlSummary}\n\n`;
                 documentContent += `## Normalised Extract\n${parsed.normalisedExtract}\n\n`;
+                documentContent += `## Supplementary Details\n${parsed.supplementaryDetails}\n\n`;
+                documentContent += `## Reference Details\n${parsed.referenceDetails}\n\n`;
                 documentContent += `## Original Source\n${sourceEntry.name}\n${sourceEntry.url}\n\n`;
                 documentContent += `## Digest of ${parsed.documentName}\n\n`;
                 documentContent += `${parsed.documentDetailedDigest}\n\n`;
@@ -510,6 +571,15 @@ jobs:
                 documentContent += `- Data Size: ${crawlResult.dataSize} bytes\n`;
                 documentContent += `- Links Found: ${crawlResult.links.length}\n\n`;
                 documentContent += `## Retrieved\n${dateStr}\n`;
+
+                // Save the raw crawl data to a text file
+                const rawCrawlFilePath = path.join(libraryDir, `${documentName}_RAW_CRAWL.txt`);
+                try {
+                  fs.writeFileSync(rawCrawlFilePath, crawlResult.content);
+                  core.info(`Raw crawl data saved to ${rawCrawlFilePath}`);
+                } catch (e) {
+                  core.warning(`Failed to save raw crawl data: ${e.message}`);
+                }
               } else {
                 // If no valid source entry, just add the date at the end
                 documentContent += `\n\n_Retrieved: ${dateStr}_\n`;
@@ -574,3 +644,5 @@ jobs:
       documentDetailedDigest: ${{ steps.maintain-library.outputs.documentDetailedDigest }}
       crawlSummary: ${{ steps.maintain-library.outputs.crawlSummary }}
       normalisedExtract: ${{ steps.maintain-library.outputs.normalisedExtract }}
+      supplementaryDetails: ${{ steps.maintain-library.outputs.supplementaryDetails }}
+      referenceDetails: ${{ steps.maintain-library.outputs.referenceDetails }}
