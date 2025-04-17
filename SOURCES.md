@@ -287,3 +287,33 @@ Renovate is a tool for automating dependency updates in modern software projects
 ## https://docs.github.com/en/actions/monitoring-and-troubleshooting
 This documentation provides best practices for monitoring and troubleshooting GitHub Actions workflows. It covers techniques for diagnosing issues, analyzing logs, and resolving common errors encountered during workflow execution. Regularly updated by GitHub, it is a key resource for maintaining robust CI/CD pipelines.
 ## License: Custom GitHub Docs License
+
+# GitHub Actions Expressions
+## https://docs.github.com/en/actions/learn-github-actions/expressions
+Documentation covering GitHub Actions expressions, contexts, and conditionals. It details how to evaluate expressions and utilize variables within workflows to create dynamic automation. Regular updates from GitHub ensure its best practices remain current.
+## License: Custom GitHub Docs License
+
+# GitHub Actions Security Best Practices
+## https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions
+An in-depth guide to securing GitHub Actions workflows, including strategies for managing secrets, minimizing permissions, and protecting against common vulnerabilities. Updated regularly to address emerging security threats.
+## License: Custom GitHub Docs License
+
+# OpenAPI Specification
+## https://swagger.io/specification/
+The official OpenAPI Specification provides guidelines for designing and documenting RESTful APIs. This resource is essential for developers integrating automated API workflows and ensuring interoperability between services.
+## License: Apache License 2.0
+
+# AWS Lambda Best Practices
+## https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html
+This documentation outlines best practices for AWS Lambda functions, covering performance optimization, security, cost management, and error handling. It is a key resource for developers building serverless architectures.
+## License: AWS Documentation Terms
+
+# GitHub Actions Contexts and Variables
+## https://docs.github.com/en/actions/learn-github-actions/contexts
+A detailed guide to the various contexts available in GitHub Actions—including github, env, job, and runner. It explains how to access context properties to create dynamic and efficient workflows.
+## License: Custom GitHub Docs License
+
+# Node.js ECMAScript Modules Guide
+## https://nodejs.org/api/esm.html
+An essential guide for working with ECMAScript modules in Node.js, covering import/export syntax, module resolution, and best practices for interoperability with CommonJS modules. This resource is vital for modern JavaScript development.
+## License: Node.js Foundation License
