@@ -421,6 +421,7 @@ jobs:
 
             Consider the following when refining your response:
             * Document prompt details
+            * Crawled content
             * Available source entries from SOURCES.md
 
             Document prompt:
@@ -438,7 +439,7 @@ jobs:
             Data Size: ${crawlResult.dataSize} bytes
             Links Found: ${crawlResult.links.length}
             Error: ${crawlResult.error || 'None'}
-            Content Preview: ${crawlResult.content.substring(0, 1000)}...
+            Content Preview: ${crawlResult.content.substring(0, 10000)}...
             CRAWLED_CONTENT_END
 
             Answer strictly with a JSON object following this schema:
@@ -446,7 +447,11 @@ jobs:
               "documentName": "The document name as one or two words in SCREAMING_SNAKECASE.",
               "documentDetailedDigest": "The document detailed digest as multiline markdown with a few level 1 headings, including the original content from the source and the date when the content was retrieved.",
               "documentNamesToBeDeleted": "The comma separated list of document names to be deleted or 'none' if no document is to be deleted.",
-              "sourceEntryIndex": "The index (1-based) of the source entry used for this document."
+              "sourceEntryIndex": "The index (1-based) of the source entry used for this document.",
+              "crawlSummary": "A summary of the crawled content from the URL, limited to the specified word limit.",
+              "normalisedExtract": "A normalised extract of the crawled content, containing a summary, table of contents, and a full paragraph for each item in the table of contents. The information should be retained and transformed into topics for product features and engineering decisions. Content should be useful, dense, and in a consistent readable style.",
+              "supplementaryDetails": "Additional information from the LLM's own knowledge base that supplements the crawled content with the latest information on the topic.",
+              "referenceDetails": "Extracted or supplemented details about API specifications, SDK method signatures, or instructional material related to the topic."
             }
             Ensure valid JSON.
             `;
