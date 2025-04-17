@@ -35,7 +35,7 @@ Documentation for Zod, a TypeScript-first schema declaration and validation libr
 
 # Vitest Documentation
 ## https://vitest.dev/
-Vitest is a Vite-native unit testing framework that offers a fast and efficient testing experience with rich API and watch mode features. Frequently updated, it is highly relevant for projects using modern JavaScript and Node.js testing tools.
+Vitest is a Vite-native unit testing framework that offers a fast and efficient testing experience with a rich API and watch mode features. Frequently updated, it is highly relevant for projects using modern JavaScript and Node.js testing tools.
 ## License: MIT License
 
 # AWS SDK for JavaScript v3 Documentation
@@ -52,3 +52,33 @@ Official documentation for dotenv, a zero-dependency module that loads environme
 ## https://prettier.io/docs/en/index.html
 Prettier is an opinionated code formatter with support for many languages. The documentation provides comprehensive guidance on its usage, configuration options, and integration steps with various development environments. It is frequently updated and widely adopted for ensuring code style consistency.
 ## License: MIT License
+
+# AWS SQS Documentation
+## https://docs.aws.amazon.com/AWSSimpleQueueService/latest/developerguide/welcome.html
+The official documentation for Amazon Simple Queue Service (SQS) provides detailed guidance on sending, receiving, and managing messages in the cloud. This resource is essential for understanding how to integrate messaging systems within scalable applications and is maintained by AWS.
+## License: AWS Service Terms
+
+# GitHub Pages Documentation
+## https://docs.github.com/en/pages
+A comprehensive guide to GitHub Pages offering instructions on setup, configuration, and deployment of static websites directly from GitHub repositories. This documentation is continuously updated by GitHub to reflect new features and best practices.
+## License: Custom GitHub Docs License
+
+# AWS CDK Documentation
+## https://docs.aws.amazon.com/cdk/latest/guide/home.html
+Provides guidance on using the AWS Cloud Development Kit (CDK) for defining cloud infrastructure in code. This resource includes tutorials, examples, and reference material which is regularly updated by AWS.
+## License: AWS Service Terms
+
+# GNU GPL v3 Documentation
+## https://www.gnu.org/licenses/gpl-3.0.en.html
+The official documentation for the GNU General Public License version 3 details the terms and conditions governing the use, modification, and redistribution of software. Authored by the Free Software Foundation, it is a fundamental resource for projects adopting GPL licensing.
+## License: GNU GPL v3.0
+
+# Node.js ES Modules Documentation
+## https://nodejs.org/api/esm.html
+This resource provides in-depth documentation on ECMAScript modules in Node.js, covering syntax, module resolution, and best practices. It is an essential guide for developers working with modern JavaScript applications using ES modules.
+## License: CC BY 4.0
+
+# OWL Semantic Web Documentation
+## https://www.w3.org/Submission/2004/SUBM-owl-guide-20040310/
+An authoritative guide on the Web Ontology Language (OWL) and semantic web practices, this document explains how to define ontologies and semantic relationships. Authored by the W3C, it provides foundational knowledge for integrating semantic technologies into applications.
+## License: W3C Document License
