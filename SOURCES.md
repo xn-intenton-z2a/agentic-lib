@@ -72,3 +72,28 @@ An authoritative resource for setting up, configuring, and deploying sites with 
 ## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/index.html
 Comprehensive documentation for AWS SDK for JavaScript v3, this resource covers installation, configuration, and usage of the SDK to interact with various AWS services. It includes tutorials, API references, and examples essential for developers working with AWS in JavaScript environments.
 ## License: Apache License 2.0
+
+# GitHub GraphQL API Documentation
+## https://docs.github.com/en/graphql
+This documentation provides comprehensive guidance on using the GitHub GraphQL API, including query structure, authentication, and pagination. Regularly updated by GitHub, it offers an authoritative reference for developers seeking to leverage GitHub's data with more flexible queries.
+## License: Custom GitHub Docs License
+
+# EJS Template Engine Documentation
+## https://ejs.co/
+The official EJS documentation covers installation, usage, templating syntax, and best practices for integrating EJS into projects for dynamic HTML generation. It includes practical examples and security considerations to help developers produce efficient and secure web content.
+## License: MIT License
+
+# Lodash Documentation
+## https://lodash.com/docs/
+The official Lodash documentation outlines a wide array of utility functions available in the library, with detailed explanations, usage examples, and best practices for efficient manipulation of arrays, objects, and other data types in JavaScript.
+## License: MIT License
+
+# Dotenv Documentation
+## https://github.com/motdotla/dotenv
+The dotenv documentation explains how to load environment variables from a .env file into Node.js applications, offering guidelines on configuration best practices, security considerations, and common usage patterns for managing application settings.
+## License: MIT License
+
+# Markdown-it Documentation
+## https://github.com/markdown-it/markdown-it
+This repository offers detailed documentation for markdown-it, a fast and flexible Markdown parser that supports full CommonMark and various extensions. It is an important resource for developers needing customizable Markdown rendering in their projects.
+## License: MIT License
