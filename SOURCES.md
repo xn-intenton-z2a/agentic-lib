@@ -342,3 +342,8 @@ This documentation provides a comprehensive guide to HTML, including elements, s
 ## https://www.w3.org/TR/rdf11-concepts/
 The RDF 1.1 Concepts document elaborates on the fundamental principles of the Resource Description Framework (RDF). It provides a detailed explanation of RDF's data model and syntax, underpinning semantic web technologies used in agentic-lib's document traceability and advanced metadata functionalities.
 ## License: W3C License
+
+# Schema.org Reference
+## https://schema.org/docs/full.html
+Schema.org documentation provides a comprehensive resource for defining structured data on the web. Its extensive vocabulary supports semantic enrichment and microdata annotations, aligning with semantic web standards and complementing the OWL semantic enhancements present in agentic-lib.
+## License: CC BY-SA 4.0
