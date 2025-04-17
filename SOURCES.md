@@ -242,3 +242,28 @@ This official guide provides in-depth insights into GitHub Actions, detailing co
 ## https://github.com/goldbergyoni/nodebestpractices
 A community-curated compilation of best practices for Node.js development, covering topics from project structure and performance optimization to security and testing. Regularly updated by the community, it serves as an invaluable resource for developers aiming to build robust Node.js applications.
 ## License: MIT License
+
+# AWS SAM Developer Guide
+## https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html
+This guide explains the AWS Serverless Application Model (SAM) used for building and deploying serverless applications. It includes tutorials, examples, and best practices for leveraging AWS cloud services to build scalable serverless architectures. Regular updates from AWS provide authoritative guidance on serverless patterns.
+## License: AWS Documentation Terms
+
+# Kubernetes Operators Documentation
+## https://kubernetes.io/docs/concepts/extend-kubernetes/operator/
+This documentation covers the design and implementation of Kubernetes Operators, providing detailed information on extending Kubernetes APIs and automating complex application management tasks. It is maintained by the Kubernetes community and offers best practices for developing operators.
+## License: CC BY 4.0
+
+# Deno Deploy Documentation
+## https://deno.com/deploy/docs
+The official documentation for Deno Deploy outlines how to deploy JavaScript and TypeScript applications on Deno's edge runtime. It covers setup, performance optimization, and scalability tips for modern serverless edge computing.
+## License: MIT License
+
+# Serverless Framework Documentation
+## https://www.serverless.com/framework/docs/
+This documentation provides comprehensive guides and tutorials for using the Serverless Framework to build and deploy serverless applications. It details configuration options, deployment processes, and offers best practices for multi-cloud serverless architectures.
+## License: MIT License
+
+# GitHub Codespaces Documentation
+## https://docs.github.com/en/codespaces
+An authoritative resource for setting up and managing GitHub Codespaces, offering guides, usage examples, and best practices for cloud-based development environments.
+## License: Custom GitHub Docs License
