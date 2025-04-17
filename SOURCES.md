@@ -177,3 +177,23 @@ Documentation for the Change Case library, which offers utility functions to con
 ## https://www.w3.org/TR/rdfa-syntax/
 The official W3C specification for RDFa, a set of extensions to HTML5 for embedding rich metadata within web documents. This source provides detailed guidelines for implementing semantic web standards.
 ## License: W3C Document License
+
+# Argo Workflows Documentation
+## https://argoproj.github.io/argo-workflows/
+Argo Workflows is an open source container-native workflow engine for orchestrating parallel jobs on Kubernetes. This documentation provides comprehensive guides, tutorials, and API references, and is frequently updated by the CNCF and the Argo community.
+## License: Apache License 2.0
+
+# Tekton Pipelines Documentation
+## https://tekton.dev/docs/pipelines/
+Tekton Pipelines provides a flexible Kubernetes-native framework to create CI/CD systems. The documentation offers guides, API references, and tutorials maintained by the Tekton community under the CNCF umbrella.
+## License: Apache License 2.0
+
+# Google Cloud Build Documentation
+## https://cloud.google.com/build/docs
+Official documentation for Google Cloud Build, detailing how to configure, run, and monitor CI/CD pipelines on Google Cloud Platform. This resource is updated regularly by Google Cloud.
+## License: Google Cloud Platform Terms of Service
+
+# Pulumi Documentation
+## https://www.pulumi.com/docs/
+Pulumi is an infrastructure as code platform that enables the use of modern programming languages to manage cloud resources. The documentation provides in-depth guides, API references, and best practices for cloud automation.
+## License: Apache License 2.0
