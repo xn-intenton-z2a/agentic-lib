@@ -47,3 +47,28 @@ The comprehensive guide to ESLint, detailing setup, configuration, and best prac
 ## https://prettier.io/docs/en/index.html
 The official documentation for Prettier, a popular code formatter. It provides detailed instructions on how to configure, integrate, and use Prettier to automatically format code, ensuring consistent style and reducing formatting issues across projects.
 ## License: MIT License
+
+# GitHub REST API Documentation
+## https://docs.github.com/en/rest
+This resource provides comprehensive documentation for the GitHub REST API. It covers endpoints, authentication, rate limits, and usage examples to guide developers in integrating GitHub functionality into their applications. Updated regularly by GitHub, it is an authoritative guide.
+## License: Custom GitHub Docs License
+
+# AWS SQS Developer Guide
+## https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html
+The official guide for AWS Simple Queue Service (SQS) that offers detailed insights into queue management, message processing, and integration patterns. It is essential for developers aiming to implement robust, scalable messaging solutions on AWS.
+## License: AWS Documentation Terms
+
+# Vitest Documentation
+## https://vitest.dev/
+The official documentation for Vitest, a blazing-fast test runner built for Vite projects. It includes guides for setup, configuration, and best practices for writing and running tests in modern JavaScript applications, making it a crucial resource for ensuring code quality in the repository.
+## License: MIT License
+
+# GitHub Pages Documentation
+## https://docs.github.com/en/pages
+An authoritative resource for setting up, configuring, and deploying sites with GitHub Pages. This documentation provides step-by-step guides, troubleshooting, and best practices for using GitHub Pages to host static websites and project documentation.
+## License: Custom GitHub Docs License
+
+# AWS SDK for JavaScript v3 Documentation
+## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/index.html
+Comprehensive documentation for AWS SDK for JavaScript v3, this resource covers installation, configuration, and usage of the SDK to interact with various AWS services. It includes tutorials, API references, and examples essential for developers working with AWS in JavaScript environments.
+## License: Apache License 2.0
