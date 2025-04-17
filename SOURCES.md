@@ -192,3 +192,28 @@ The OpenAPI Specification documentation details the standards for designing and 
 ## https://www.typescriptlang.org/docs/
 The official TypeScript documentation provides comprehensive guidance on using TypeScript to build robust, type-safe JavaScript applications. It covers everything from basic typing to advanced language features, serving as a critical resource for developers looking to enhance code quality and maintainability.
 ## License: Apache License 2.0
+
+# MDN Web Docs - JavaScript
+## https://developer.mozilla.org/en-US/docs/Web/JavaScript
+MDN Web Docs offers exhaustive and regularly updated documentation for JavaScript, including language fundamentals, advanced topics, and API references. It is widely regarded as one of the most authoritative sources for web development best practices.
+## License: CC BY-SA 4.0
+
+# Commander.js Documentation
+## https://github.com/tj/commander.js
+Commander.js is a popular library for building command-line interfaces in Node.js. Its documentation provides comprehensive guidance on implementing and managing CLI commands, which can serve as both an inspiration and a reference for enhancing agentic-lib's CLI functionalities.
+## License: MIT
+
+# Semantic Versioning (SemVer) Specification
+## https://semver.org
+The Semantic Versioning specification defines a formal convention for version numbering in software projects. It aids in clearly communicating the nature of changes, ensuring consistency and predictability in project versioning.
+## License: Public Domain
+
+# GitHub Actions Toolkit
+## https://github.com/actions/toolkit
+The GitHub Actions Toolkit provides a set of reusable packages for creating GitHub Actions. Its documentation offers insights into interacting with GitHub workflows and environment variables, supporting developers in building robust automation tools.
+## License: MIT
+
+# Conventional Commits
+## https://www.conventionalcommits.org/en/v1.0.0/
+Conventional Commits is a specification for crafting commit messages that are both human-readable and machine-parsable, promoting clearer version histories and automated changelog generation. This standard is particularly useful for projects emphasizing clear traceability and version consistency.
+## License: CC BY 4.0
