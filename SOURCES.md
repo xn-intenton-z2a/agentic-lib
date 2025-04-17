@@ -142,3 +142,53 @@ The Markdown Guide offers a comprehensive reference for Markdown syntax, best pr
 ## https://www.w3.org/TR/rdfa-primer/
 The RDFa Primer provides an introduction to RDFa, a set of extensions that enable embedding rich metadata within HTML documents. This resource is beneficial for projects implementing semantic enhancements, like the OWL semantic extensions in agentic-lib, to improve content traceability and discoverability.
 ## License: W3C License
+
+# GitHub Actions Best Practices
+## https://docs.github.com/en/actions/learn-github-actions/best-practices-for-ci-cd
+This guide outlines best practices for designing and implementing CI/CD pipelines using GitHub Actions. It delves into configuration strategies, security considerations, and optimization techniques—all of which are invaluable for projects like agentic-lib that rely on autonomous workflows.
+## License: GitHub Docs License (CC BY 4.0)
+
+# Serverless Framework Documentation
+## https://www.serverless.com/framework/docs
+The Serverless Framework documentation provides comprehensive guidance on building and deploying serverless applications across multiple cloud providers. Its insights on scalability, deployment, and operational management make it a useful reference for enhancing agentic-lib's cloud integrations.
+## License: MIT
+
+# AWS Lambda Powertools for Node.js
+## https://awslabs.github.io/aws-lambda-powertools-node
+AWS Lambda Powertools for Node.js offers utilities for structured logging, tracing, custom metrics, and configuration management in serverless applications. This resource assists developers in enhancing observability and performance in AWS Lambda functions.
+## License: Apache License 2.0
+
+# GitLab CI/CD Best Practices
+## https://docs.gitlab.com/ee/ci/best_practices/
+The GitLab CI/CD Best Practices documentation provides actionable insights for optimizing continuous integration pipelines. It covers setup, configuration, and testing strategies, serving as a cross-reference point for robust CI/CD methodologies.
+## License: CC BY 4.0
+
+# Jenkins Pipeline Documentation
+## https://www.jenkins.io/doc/book/pipeline/
+Jenkins Pipeline documentation introduces the syntax and design patterns for creating robust, maintainable pipelines within Jenkins. This resource offers a contrasting approach to workflow automation compared to GitHub Actions.
+## License: MIT
+
+# Modern JavaScript on Node.js
+## https://nodejs.dev/learn
+The Node.js learning portal offers tutorials and guides on modern JavaScript practices within the Node.js ecosystem. It covers ECMAScript features, module systems, and performance considerations that are crucial for contemporary application development.
+## License: MIT
+
+# Semantic Web Standards
+## https://www.w3.org/standards/semanticweb/
+This resource from the W3C outlines fundamental standards and best practices for the semantic web, including RDF, OWL, and SPARQL. It provides strategic insights for projects aiming to implement semantic data and document traceability.
+## License: W3C License
+
+# PROV Primer
+## https://www.w3.org/TR/prov-primer/
+The PROV Primer offers an introductory guide to the PROV Data Model, which is essential for representing provenance information within digital documents. It complements the PROV-O Ontology by providing foundational context for document traceability features.
+## License: W3C License
+
+# OpenAPI Specification
+## https://swagger.io/specification/
+The OpenAPI Specification documentation details the standards for designing and documenting RESTful APIs. This resource aids in constructing robust API interfaces and is particularly useful for projects that extend the agentic-lib functionality with external integrations.
+## License: Apache License 2.0
+
+# TypeScript Documentation
+## https://www.typescriptlang.org/docs/
+The official TypeScript documentation provides comprehensive guidance on using TypeScript to build robust, type-safe JavaScript applications. It covers everything from basic typing to advanced language features, serving as a critical resource for developers looking to enhance code quality and maintainability.
+## License: Apache License 2.0
