@@ -7,11 +7,11 @@ name: Stats to GitHub Pages
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '55 */12 * *  *' # schedule-1
-    #- cron: '55 * * * *' # schedule-2
-    #- cron: '55 * * * *' # schedule-3
-    #- cron: '55 * * * *' # schedule-4
+  #schedule:
+    #- cron: '55 */12 * *  *' # schedule-unused-1
+    #- cron: '55 * * * *' # schedule-unused-2
+    #- cron: '55 * * * *' # schedule-unused-3
+    #- cron: '55 * * * *' # schedule-unused-4
 
 jobs:
 
