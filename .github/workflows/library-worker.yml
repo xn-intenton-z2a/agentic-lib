@@ -62,8 +62,6 @@ jobs:
       libraryDir: 'library/'
       sourcesFile: 'SOURCES.md'
       documentsLimit: '${{ needs.agentic-lib.outputs.documentsLimit }}'
-      target: ${{ inputs.target || 'src/lib/main.js' }}
-      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: 'README.md'
       missionFile: 'MISSION.md'
       contributingFile: 'CONTRIBUTING.md'
