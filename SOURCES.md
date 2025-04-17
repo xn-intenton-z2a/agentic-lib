@@ -157,3 +157,23 @@ Drone CI is a container-native continuous delivery platform. Its documentation p
 ## https://semantic-release.gitbook.io/semantic-release/
 This documentation introduces Semantic Release, an automated tool for version management and package publishing. It details configuration, integration with CI/CD pipelines, and release automation best practices to help projects maintain consistent versioning and streamline release processes. It is frequently updated and widely adopted in modern development workflows.
 ## License: MIT License
+
+# Commander.js Documentation
+## https://github.com/tj/commander.js
+Commander.js is a popular Node.js library for building command-line interfaces. It offers a simple and powerful API to define commands, options, and help content, making it easier to integrate and manage CLI functionalities in automation workflows. Regularly maintained with an active community, it is a valuable resource for developing agentic CLI utilities.
+## License: MIT License
+
+# Winston Logging Documentation
+## https://github.com/winstonjs/winston
+Winston is a versatile logging library for Node.js that supports multiple transport methods for log messages. It enables developers to build robust logging mechanisms with flexible output formatting and log level management, which is critical for maintaining observability in complex systems.
+## License: MIT License
+
+# OpenTelemetry for Node.js
+## https://opentelemetry.io/docs/instrumentation/js/
+The OpenTelemetry Node.js documentation provides detailed guides on instrumenting and monitoring Node.js applications. This resource covers distributed tracing, metrics collection, and context propagation, offering best practices that help enhance observability in automated and serverless environments.
+## License: Apache License 2.0
+
+# AWS S3 Client Documentation
+## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/index.html
+This documentation provides detailed guidance on using the AWS SDK for JavaScript v3 to interact with Amazon S3. It includes comprehensive API references, usage examples, and best practices for integrating S3 operations within serverless and automated workflows.
+## License: Apache License 2.0
