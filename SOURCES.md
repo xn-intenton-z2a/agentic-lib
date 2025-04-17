@@ -257,3 +257,28 @@ Semantic-release automates the versioning and release process by parsing commit 
 ## https://www.conventionalcommits.org/en/v1.0.0/
 The Conventional Commits specification standardizes commit message formats to facilitate automated versioning and changelog generation in CI/CD pipelines. It is widely adopted by the developer community and serves as a best practice guide for structuring commit messages.
 ## License: CC BY 4.0
+
+# GitHub CLI Documentation
+## https://cli.github.com/manual
+The GitHub CLI documentation provides detailed guidance on using the GitHub command-line tool to interact with repositories, manage issues, pull requests, and automate workflows directly from the terminal. Maintained by GitHub, the guide is frequently updated to reflect new features and improvements.
+## License: GitHub Docs License (CC BY 4.0)
+
+# MDN JavaScript Modules
+## https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
+The MDN Web Docs offer an in-depth guide to JavaScript modules, covering ES module syntax, best practices, and browser compatibility. This authoritative resource is maintained by Mozilla and is continually updated to reflect modern JavaScript standards.
+## License: CC BY-SA 2.5
+
+# AWS Step Functions Documentation
+## https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html
+AWS Step Functions documentation provides comprehensive guides on building and orchestrating serverless workflows. It details state machines, integration patterns with AWS services, and best practices for scalable and fault-tolerant workflow management.
+## License: AWS Documentation License
+
+# DigitalOcean CI/CD for Node.js
+## https://www.digitalocean.com/community/tutorials/how-to-set-up-a-ci-cd-pipeline-for-node-js-applications-on-github-actions
+This tutorial from DigitalOcean explains how to set up a continuous integration and deployment pipeline for Node.js applications using GitHub Actions. It provides step-by-step instructions and best practices for automating testing, building, and deployment processes.
+## License: DigitalOcean Community License
+
+# Jenkins X Documentation
+## https://jenkins-x.io/docs/
+Jenkins X documentation provides guidance on leveraging Jenkins X for automating CI/CD in Kubernetes environments. It covers topics such as automated environment management, preview environments, and modern best practices for continuous delivery in cloud-native setups.
+## License: Apache License 2.0
