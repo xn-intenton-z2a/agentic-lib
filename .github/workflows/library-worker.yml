@@ -62,10 +62,6 @@ jobs:
       libraryDir: 'library/'
       sourcesFile: 'SOURCES.md'
       documentsLimit: '${{ needs.agentic-lib.outputs.documentsLimit }}'
-      readmeFile: 'README.md'
-      missionFile: 'MISSION.md'
-      contributingFile: 'CONTRIBUTING.md'
-      dependenciesFile: 'package.json'
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: '@xn-intenton-z2a'
       gitUserEmail: 'action@github.com'
