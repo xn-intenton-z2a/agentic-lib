@@ -317,3 +317,23 @@ A detailed guide to the various contexts available in GitHub Actions—including
 ## https://nodejs.org/api/esm.html
 An essential guide for working with ECMAScript modules in Node.js, covering import/export syntax, module resolution, and best practices for interoperability with CommonJS modules. This resource is vital for modern JavaScript development.
 ## License: Node.js Foundation License
+
+# AWS CDK Documentation
+## https://docs.aws.amazon.com/cdk/v2/guide/home.html
+Provides comprehensive documentation for the AWS Cloud Development Kit (CDK), enabling developers to define cloud infrastructure as code using modern, high-level constructs. Regularly updated by AWS, it is an authoritative resource for cloud developers.
+## License: AWS Documentation Terms
+
+# Next.js Documentation
+## https://nextjs.org/docs
+The official documentation for Next.js covers topics such as static site generation, server-side rendering, and API routes. It offers best practices for building production-grade web applications using React, and is frequently updated with the latest features.
+## License: MIT License
+
+# TypeScript Handbook
+## https://www.typescriptlang.org/docs/handbook/intro.html
+The TypeScript Handbook provides detailed guidance for using TypeScript, emphasizing static type-checking, advanced language features, and best practices for scalable JavaScript development. It is an authoritative guide maintained by the TypeScript team.
+## License: Apache License 2.0
+
+# Docusaurus Documentation
+## https://docusaurus.io/docs
+Docusaurus offers comprehensive documentation on how to build and maintain documentation websites using modern static site generation techniques. It includes guides for setup, customization, and deployment, making it a valuable resource for teams looking to create high-quality project documentation.
+## License: MIT License
