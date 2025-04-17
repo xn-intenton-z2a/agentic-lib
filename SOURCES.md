@@ -67,3 +67,33 @@ This resource offers official documentation for the Vitest testing framework, in
 ## https://eslint.org/docs/latest/
 This documentation provides comprehensive guidance on using ESLint, a popular tool for identifying and fixing problems in JavaScript code. It covers setup, configuration, and advanced usage patterns to help maintain code quality and consistency.
 ## License: MIT License
+
+# GitLab CI/CD Documentation
+## https://docs.gitlab.com/ee/ci/
+The documentation provides an in-depth guide to using GitLab's CI/CD tools, featuring pipeline configuration, job definitions, and best practices for continuous integration and continuous deployment. Regularly updated by GitLab, this resource is authoritative for projects hosted on GitLab.
+## License: GitLab Terms
+
+# CircleCI Documentation
+## https://circleci.com/docs/
+CircleCI offers comprehensive documentation covering configuration, pipelines, and best practices for continuous integration and deployment. The documentation is updated frequently and serves as an essential guide for using CircleCI effectively.
+## License: Custom CircleCI Docs License
+
+# RDFa Primer
+## https://www.w3.org/TR/rdfa-primer/
+This document provides an introductory guide to the RDFa (Resource Description Framework in Attributes), a standard for embedding rich semantic metadata within HTML content. Published by W3C, it is an authoritative starting point for understanding semantic web markup.
+## License: W3C Document License
+
+# OWL 2 Web Ontology Language Overview
+## https://www.w3.org/TR/owl2-overview/
+The document offers an overview of the OWL 2 Web Ontology Language, detailing its capabilities, syntax, and semantics for creating complex ontologies in the semantic web. Authored by W3C, it is a definitive resource for ontology engineering.
+## License: W3C Document License
+
+# Prettier Documentation
+## https://prettier.io/docs/en/index.html
+Prettier is an opinionated code formatter that supports many languages and frameworks. This documentation covers setup, configuration, and usage scenarios for ensuring consistently formatted code. It is maintained by the Prettier community and updated regularly.
+## License: MIT License
+
+# Node.js Official Documentation
+## https://nodejs.org/en/docs/
+The Node.js official documentation covers all aspects of Node.js including core modules, API references, and guides for modern JavaScript development. Published by the Node.js project, it is an essential resource for developers building scalable server-side applications.
+## License: Node.js Project License
