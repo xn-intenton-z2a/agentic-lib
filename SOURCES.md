@@ -387,3 +387,13 @@ The V8 JavaScript Engine Features page outlines the latest capabilities, optimiz
 ## https://owasp.org/www-project-nodejs-security-wg/
 The OWASP Node.js Security Guide offers a comprehensive collection of best practices and guidelines for securing Node.js applications. This resource is essential for identifying and mitigating common security vulnerabilities in modern JavaScript projects.
 ## License: OWASP License
+
+# Azure DevOps Pipelines Documentation
+## https://docs.microsoft.com/en-us/azure/devops/pipelines/?view=azure-devops
+Azure DevOps provides comprehensive documentation on setting up and managing pipelines for CI/CD. Its guides cover everything from installation and configuration to advanced pipeline features and troubleshooting. Last updated in 2023, this resource is authoritative and essential for teams integrating Azure services with their development workflows.
+## License: Microsoft Documentation License (varies by document)
+
+# Docusaurus Documentation
+## https://docusaurus.io/docs
+Docusaurus is a modern static site generator optimized for building documentation websites. Its documentation covers installation, configuration, theming, and deployment, making it an authoritative resource for projects looking to enhance their publishing workflows with polished, user-friendly documentation sites.
+## License: MIT
