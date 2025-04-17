@@ -1,0 +1,5 @@
+Argo Workflows
+              This page has moved to https://argo-workflows.readthedocs.io/en/latest/.
+              You should be redirected there automatically. Please click the link above if you are not redirected.\n\nArgo Workflows
+              This page has moved to https://argo-workflows.readthedocs.io/en/latest/.
+              You should be redirected there automatically. Please click the link above if you are not redirected.\n\n\n\n
