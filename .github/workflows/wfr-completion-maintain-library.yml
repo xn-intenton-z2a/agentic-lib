@@ -43,11 +43,6 @@ on:
         type: string
         required: false
         default: '3'
-      summaryWordLimit:
-        description: 'The maximum number of words for the URL content summary. e.g. "200"'
-        type: string
-        required: false
-        default: '200'
       model:
         description: 'The OpenAI model to use. e.g. "o3-mini"'
         type: string
@@ -106,7 +101,6 @@ jobs:
       libraryDir: ${{ inputs.libraryDir || 'library/' }}
       sourcesFile: ${{ inputs.sourcesFile || 'SOURCES.md' }}
       documentsLimit: ${{ inputs.documentsLimit || '3' }}
-      summaryWordLimit: ${{ inputs.summaryWordLimit || '10000' }}
       crawlResultCharacterLimit: 50000
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
@@ -164,7 +158,6 @@ jobs:
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
             const dependenciesListOutput = process.env.dependenciesListOutput;
-            const summaryWordLimit = process.env.summaryWordLimit;
 
             const fs = require('fs');
             const path = require('path');
@@ -386,7 +379,7 @@ jobs:
             The document name should be one or two words in SCREAMING_SNAKECASE.
 
             You should extract a section from the sources file to create the document. Each document should contain:
-            1. A normalised extract of the crawled content (limited to ${summaryWordLimit} words), containing:
+            1. A normalised extract of the crawled content containing:
                a. A summary of the key points
                b. A table of contents listing the main topics
                c. A full paragraph for each item in the table of contents, providing comprehensive information on each topic
