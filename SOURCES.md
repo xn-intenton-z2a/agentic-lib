@@ -432,3 +432,13 @@ The Google Cloud Functions Documentation provides in-depth information on buildi
 ## https://docs.netlify.com/functions/overview/
 The Netlify Functions Documentation details the deployment and management of serverless functions on Netlify. It explores configuration, triggers, and best practices for serverless workflows, offering additional insights into alternative serverless environments compatible with static site generators and continuous deployment systems.
 ## License: Netlify Docs License
+
+# GitHub Self-hosted Runner Documentation
+## https://docs.github.com/en/actions/hosting-your-own-runners
+The GitHub Self-hosted Runner Documentation provides detailed guidelines for installing, configuring, and securing self-hosted runners for GitHub Actions. This resource is useful for teams integrating custom environments with agentic-lib's autonomous workflows.
+## License: GitHub Docs License (CC BY 4.0)
+
+# oclif CLI Framework
+## https://oclif.io/docs/introduction
+The oclif CLI Framework documentation offers best practices and detailed guides for building command line tools in Node.js. Its recommendations on command structure, argument parsing, and help generation can offer valuable insights for enhancing the unified CLI utilities in agentic-lib.
+## License: MIT
