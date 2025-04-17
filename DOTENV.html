@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>agentic-lib</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+    header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
+    h1 { font-size: 2em; }
+    section { margin-bottom: 1.5em; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5em 0; }
+    .label { font-weight: bold; }
+    footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>agentic-lib</h1>
+    <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest stats</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all stats</a></p>
+  </header>
+  <section>
+    <h1 class="md-github"><a class="md-github__anchor" name="dotenv" href="#dotenv"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>DOTENV</h1>
+<h2 class="md-github"><a class="md-github__anchor" name="crawl-summary" href="#crawl-summary"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Crawl Summary</h2>
+<p class="md-github">Installation commands, usage instructions for loading environment variables from a .env file into process.env, details on multiline values, comments, parsing, preloading, variable expansion, command substitution using dotenvx, syncing multiple environments, deployment with encryption, and complete API details for the four functions: config, parse, populate, and decrypt.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="normalised-extract" href="#normalised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Normalised Extract</h2>
+<h2 class="md-github"><a class="md-github__anchor" name="table-of-contents" href="#table-of-contents"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Table of Contents</h2>
+<ol class="md-github">
+<li class="md-github">Installation</li>
+<li class="md-github">Usage</li>
+<li class="md-github">Multiline Values</li>
+<li class="md-github">Comments</li>
+<li class="md-github">Parsing</li>
+<li class="md-github">Preloading</li>
+<li class="md-github">Variable Expansion &amp; Command Substitution</li>
+<li class="md-github">Syncing and Multiple Environments</li>
+<li class="md-github">Deploying &amp; Encryption</li>
+<li class="md-github">API Functions</li>
+<li class="md-github">Troubleshooting</li>
+</ol>
+<h3 class="md-github"><a class="md-github__anchor" name="1-installation" href="#1-installation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>1. Installation</h3>
+<ul class="md-github">
+<li class="md-github">npm: <code class="md-github">npm install dotenv --save</code></li>
+<li class="md-github">yarn: <code class="md-github">yarn add dotenv</code></li>
+<li class="md-github">bun: <code class="md-github">bun add dotenv</code></li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="2-usage" href="#2-usage"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>2. Usage</h3>
+<ul class="md-github">
+<li class="md-github">Create a <code class="md-github">.env</code> file with key-value pairs.</li>
+<li class="md-github">Load configuration by:
+<ul class="md-github">
+<li class="md-github">CommonJS: <code class="md-github">require('dotenv').config()</code></li>
+<li class="md-github">ES6: <code class="md-github">import 'dotenv/config'</code></li>
+</ul>
+</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="3-multiline-values" href="#3-multiline-values"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>3. Multiline Values</h3>
+<ul class="md-github">
+<li class="md-github">Direct line breaks supported (&gt;= v15.0.0) and alternative using \n escape.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="4-comments" href="#4-comments"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>4. Comments</h3>
+<ul class="md-github">
+<li class="md-github">Lines starting with <code class="md-github">#</code> are ignored. Inline comments require quoting if value contains <code class="md-github">#</code>.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="5-parsing" href="#5-parsing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>5. Parsing</h3>
+<ul class="md-github">
+<li class="md-github">Use <code class="md-github">dotenv.parse(Buffer.from('KEY=val'))</code> to generate an object.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="6-preloading" href="#6-preloading"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>6. Preloading</h3>
+<ul class="md-github">
+<li class="md-github">Preload with the command: <code class="md-github">node -r dotenv/config your_script.js</code></li>
+<li class="md-github">Configure using environment variables or CLI arguments (e.g., <code class="md-github">dotenv_config_path</code> and <code class="md-github">dotenv_config_debug</code>).</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="7-variable-expansion--command-substitution" href="#7-variable-expansion--command-substitution"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>7. Variable Expansion &amp; Command Substitution</h3>
+<ul class="md-github">
+<li class="md-github">Expand variables with <code class="md-github">dotenv-expand</code>.</li>
+<li class="md-github">Use <code class="md-github">dotenvx</code> for command substitution in your <code class="md-github">.env</code> file.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="8-syncing-and-multiple-environments" href="#8-syncing-and-multiple-environments"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>8. Syncing and Multiple Environments</h3>
+<ul class="md-github">
+<li class="md-github">Manage multiple files (.env.production, .env.local) and sync them using dotenvx.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="9-deploying--encryption" href="#9-deploying--encryption"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>9. Deploying &amp; Encryption</h3>
+<ul class="md-github">
+<li class="md-github">Encrypt .env files with <code class="md-github">--encrypt</code> flag using dotenvx, and deploy with a decryption key provided in environment variables.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="10-api-functions" href="#10-api-functions"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>10. API Functions</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">config(options)</strong>: Reads and parses the .env file to process.env. Options: path, encoding, debug, override, processEnv.</li>
+<li class="md-github"><strong class="md-github">parse(src, options?)</strong>: Parses a string/Buffer to an object; option for debug logging.</li>
+<li class="md-github"><strong class="md-github">populate(target, source, options?)</strong>: Populates target with source object values; options for override and debug.</li>
+<li class="md-github"><strong class="md-github">decrypt</strong>: Decrypts encrypted environment files (via dotenvx integration).</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="11-troubleshooting" href="#11-troubleshooting"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>11. Troubleshooting</h3>
+<ul class="md-github">
+<li class="md-github">Enable debug mode to output errors (<code class="md-github">{ debug: true }</code>).</li>
+<li class="md-github">For React, preface environment variables with REACT_APP_.</li>
+<li class="md-github">For missing modules in Webpack, use <code class="md-github">node-polyfill-webpack-plugin</code> or <code class="md-github">dotenv-webpack</code>.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="supplementary-details" href="#supplementary-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Supplementary Details</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="configuration-options-for-config" href="#configuration-options-for-config"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Configuration Options for config()</h3>
+<ul class="md-github">
+<li class="md-github">path: string, default = path.resolve(process.cwd(), '.env')</li>
+<li class="md-github">encoding: string, default = 'utf8'</li>
+<li class="md-github">debug: boolean, default = false</li>
+<li class="md-github">override: boolean, default = false</li>
+<li class="md-github">processEnv: object, default = process.env</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="implementation-steps" href="#implementation-steps"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Implementation Steps</h3>
+<ol class="md-github">
+<li class="md-github">Create .env file with key-value pairs.</li>
+<li class="md-github">Import and run <code class="md-github">require('dotenv').config(options)</code> at the start of your application.</li>
+<li class="md-github">Validate that process.env contains the loaded values.</li>
+</ol>
+<h3 class="md-github"><a class="md-github__anchor" name="example-code-snippet-for-population" href="#example-code-snippet-for-population"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example Code Snippet for Population</h3>
+<pre class="md-github"><code class="md-github language-javascript">const dotenv = require('dotenv');
+const parsed = { HELLO: 'world' };
+
+// Option 1: Populate process.env
+dotenv.populate(process.env, parsed);
+console.log(process.env.HELLO); // 'world'
+
+// Option 2: Populate a custom object with override enabled
+const target = { HELLO: 'world' };
+dotenv.populate(target, { HELLO: 'universe' }, { override: true, debug: true });
+console.log(target); // { HELLO: 'universe' }
+</code></pre>
+<h3 class="md-github"><a class="md-github__anchor" name="command-line-preloading" href="#command-line-preloading"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Command Line Preloading</h3>
+<pre class="md-github"><code class="md-github language-bash">node -r dotenv/config your_script.js
+</code></pre>
+<p class="md-github">Pass configuration via CLI:</p>
+<pre class="md-github"><code class="md-github language-bash">node -r dotenv/config your_script.js dotenv_config_path=/custom/path/to/.env dotenv_config_debug=true
+</code></pre>
+<h3 class="md-github"><a class="md-github__anchor" name="troubleshooting-commands" href="#troubleshooting-commands"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Troubleshooting Commands</h3>
+<p class="md-github">Enable debug mode:</p>
+<pre class="md-github"><code class="md-github language-javascript">require('dotenv').config({ debug: true });
+</code></pre>
+<p class="md-github">For Webpack issues, install polyfill:</p>
+<pre class="md-github"><code class="md-github language-bash">npm install node-polyfill-webpack-plugin
+</code></pre>
+<p class="md-github">And configure in webpack.config.js accordingly.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="reference-details" href="#reference-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reference Details</h2>
+<h2 class="md-github"><a class="md-github__anchor" name="api-specifications" href="#api-specifications"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>API Specifications</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="configoptions" href="#configoptions"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>config(options?)</h3>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Signature:</strong></p>
+<pre class="md-github"><code class="md-github language-javascript">function config(options?: {
+  path?: string,        // Default: path.resolve(process.cwd(), '.env')
+  encoding?: string,    // Default: 'utf8'
+  debug?: boolean,      // Default: false
+  override?: boolean,   // Default: false
+  processEnv?: Object   // Default: process.env
+}): { parsed?: { [key: string]: string }, error?: Error }
+</code></pre>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Example:</strong></p>
+<pre class="md-github"><code class="md-github language-javascript">const result = require('dotenv').config({
+  path: '/custom/path/to/.env',
+  encoding: 'latin1',
+  debug: true,
+  override: true
+});
+
+if (result.error) {
+  throw result.error;
+}
+console.log(result.parsed);
+</code></pre>
+</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="parsesrc-options" href="#parsesrc-options"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>parse(src, options?)</h3>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Signature:</strong></p>
+<pre class="md-github"><code class="md-github language-javascript">function parse(src: string | Buffer, options?: { debug?: boolean }): { [key: string]: string }
+</code></pre>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Example:</strong></p>
+<pre class="md-github"><code class="md-github language-javascript">const dotenv = require('dotenv');
+const buf = Buffer.from('BASIC=basic');
+const config = dotenv.parse(buf, { debug: true });
+console.log(typeof config, config); // { BASIC: 'basic' }
+</code></pre>
+</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="populatetarget-source-options" href="#populatetarget-source-options"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>populate(target, source, options?)</h3>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Signature:</strong></p>
+<pre class="md-github"><code class="md-github language-javascript">function populate(target: { [key: string]: any }, source: { [key: string]: string }, options?: { override?: boolean, debug?: boolean }): void
+</code></pre>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Example:</strong></p>
+<pre class="md-github"><code class="md-github language-javascript">const dotenv = require('dotenv');
+const parsed = { HELLO: 'world' };
+
+// Populate process.env directly
+dotenv.populate(process.env, parsed);
+console.log(process.env.HELLO); // world
+
+// Populate a custom target with override
+const target = { HELLO: 'world' };
+dotenv.populate(target, { HELLO: 'universe' }, { override: true, debug: true });
+console.log(target); // { HELLO: 'universe' }
+</code></pre>
+</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="decrypt-integration-with-dotenvx" href="#decrypt-integration-with-dotenvx"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>decrypt (Integration with dotenvx)</h3>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Note:</strong> The decrypt function is provided when using dotenvx for encrypted environment files.</p>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Usage Example:</strong></p>
+<pre class="md-github"><code class="md-github language-bash">DOTENV_PRIVATE_KEY_PRODUCTION=&quot;&lt;.env.production private key&gt;&quot; dotenvx run -- node index.js
+</code></pre>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="best-practices" href="#best-practices"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Best Practices</h2>
+<ul class="md-github">
+<li class="md-github">Do not commit your .env file to version control.</li>
+<li class="md-github">Use different .env files for different environments (.env.development, .env.production).</li>
+<li class="md-github">Enable debug mode if environment variables are not loading as expected.</li>
+<li class="md-github">When using dotenv with ES6 modules, preload with <code class="md-github">import 'dotenv/config'</code> to avoid issues with module execution order.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="detailed-troubleshooting-procedures" href="#detailed-troubleshooting-procedures"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Detailed Troubleshooting Procedures</h2>
+<ol class="md-github">
+<li class="md-github">Verify the .env file exists in the correct directory (usually the project's root).</li>
+<li class="md-github">Enable debugging:<pre class="md-github"><code class="md-github language-javascript">require('dotenv').config({ debug: true });
+</code></pre>
+Inspect logs for errors in key-value parsing.</li>
+<li class="md-github">For React/Webpack issues, ensure a proper polyfill is installed:<pre class="md-github"><code class="md-github language-bash">npm install node-polyfill-webpack-plugin
+</code></pre>
+And update your webpack.config.js accordingly.</li>
+<li class="md-github">If variables are not being overridden as expected, pass <code class="md-github">override: true</code> in the options:<pre class="md-github"><code class="md-github language-javascript">require('dotenv').config({ override: true });
+</code></pre>
+</li>
+<li class="md-github">For encryption issues using dotenvx, ensure the decryption key is correctly set in the environment variable (e.g., DOTENV_PRIVATE_KEY_PRODUCTION).</li>
+</ol>
+<h2 class="md-github"><a class="md-github__anchor" name="original-source" href="#original-source"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Original Source</h2>
+<p class="md-github">dotenv Documentation
+https://github.com/motdotla/dotenv</p>
+<h2 class="md-github"><a class="md-github__anchor" name="digest-of-dotenv" href="#digest-of-dotenv"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Digest of DOTENV</h2>
+<h1 class="md-github"><a class="md-github__anchor" name="dotenv-documentation" href="#dotenv-documentation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>DOTENV Documentation</h1>
+<p class="md-github">Retrieved: 2023-10-05</p>
+<h2 class="md-github"><a class="md-github__anchor" name="installation" href="#installation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Installation</h2>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github">Install via npm:</p>
+<pre class="md-github"><code class="md-github language-bash">npm install dotenv --save
+</code></pre>
+</li>
+<li class="md-github">
+<p class="md-github">Alternative package managers:</p>
+<pre class="md-github"><code class="md-github language-bash">yarn add dotenv
+# or
+bun add dotenv
+</code></pre>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="usage-env-setup" href="#usage-env-setup"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Usage (.env Setup)</h2>
+<ol class="md-github">
+<li class="md-github">
+<p class="md-github">Create a file named <code class="md-github">.env</code> in the root of your project (or in the same folder where your application process is run).</p>
+<p class="md-github">Example <code class="md-github">.env</code> file:</p>
+<pre class="md-github"><code class="md-github language-dotenv">S3_BUCKET=&quot;YOURS3BUCKET&quot;
+SECRET_KEY=&quot;YOURSECRETKEYGOESHERE&quot;
+</code></pre>
+</li>
+<li class="md-github">
+<p class="md-github">Import and configure dotenv as early as possible in your application:</p>
+<p class="md-github">CommonJS:</p>
+<pre class="md-github"><code class="md-github language-javascript">require('dotenv').config();
+console.log(process.env); // Remove after confirmation
+</code></pre>
+<p class="md-github">ES6:</p>
+<pre class="md-github"><code class="md-github language-javascript">import 'dotenv/config';
+</code></pre>
+<p class="md-github">After configuration, <code class="md-github">process.env</code> contains all keys and values defined in your <code class="md-github">.env</code> file.</p>
+</li>
+</ol>
+<h2 class="md-github"><a class="md-github__anchor" name="multiline-values" href="#multiline-values"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Multiline Values</h2>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github">For multiline values (&gt;= v15.0.0), you can include line breaks directly:</p>
+<pre class="md-github"><code class="md-github language-dotenv">PRIVATE_KEY=&quot;-----BEGIN RSA PRIVATE KEY-----
+...
+Kh9NV...
+...
+-----END RSA PRIVATE KEY-----&quot;
+</code></pre>
+</li>
+<li class="md-github">
+<p class="md-github">Alternatively, use the \n escape character:</p>
+<pre class="md-github"><code class="md-github language-dotenv">PRIVATE_KEY=&quot;-----BEGIN RSA PRIVATE KEY-----\nKh9NV...\n-----END RSA PRIVATE KEY-----\n&quot;
+</code></pre>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="comments" href="#comments"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Comments</h2>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github">Comments can be on their own line or inline. Wrap values containing the <code class="md-github">#</code> character in quotes:</p>
+<pre class="md-github"><code class="md-github language-dotenv"># This is a comment
+SECRET_KEY=YOURSECRETKEYGOESHERE # comment
+SECRET_HASH=&quot;something-with-a-#-hash&quot;
+</code></pre>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="parsing" href="#parsing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Parsing</h2>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github">Use the parsing engine to convert a string or Buffer into an object:</p>
+<pre class="md-github"><code class="md-github language-javascript">const dotenv = require('dotenv');
+const buf = Buffer.from('BASIC=basic');
+const config = dotenv.parse(buf);
+console.log(typeof config, config); // object { BASIC: 'basic' }
+</code></pre>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="preloading" href="#preloading"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Preloading</h2>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github">You can preload dotenv so that you do not explicitly require it in your code:</p>
+<pre class="md-github"><code class="md-github language-bash">node -r dotenv/config your_script.js
+</code></pre>
+</li>
+<li class="md-github">
+<p class="md-github">Command line configuration options can be passed using the format <code class="md-github">dotenv_config_&lt;option&gt;=value</code>:</p>
+<pre class="md-github"><code class="md-github language-bash">node -r dotenv/config your_script.js dotenv_config_path=/custom/path/to/.env dotenv_config_debug=true
+</code></pre>
+</li>
+<li class="md-github">
+<p class="md-github">Alternatively, environment variables can be used:</p>
+<pre class="md-github"><code class="md-github language-bash">DOTENV_CONFIG_ENCODING=latin1 DOTENV_CONFIG_DEBUG=true node -r dotenv/config your_script.js dotenv_config_path=/custom/path/to/.env
+</code></pre>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="variable-expansion--command-substitution" href="#variable-expansion--command-substitution"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Variable Expansion &amp; Command Substitution</h2>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github">Variable Expansion: Use <code class="md-github">dotenv-expand</code> to add the value of one variable into another.</p>
+</li>
+<li class="md-github">
+<p class="md-github">Command Substitution: Use <code class="md-github">dotenvx</code> to substitute command output directly into variables within your <code class="md-github">.env</code> file.</p>
+<p class="md-github">Example in <code class="md-github">.env</code> file:</p>
+<pre class="md-github"><code class="md-github language-dotenv">DATABASE_URL=&quot;postgres://$(whoami)@localhost/my_database&quot;
+</code></pre>
+<p class="md-github">In your JavaScript code:</p>
+<pre class="md-github"><code class="md-github language-javascript">console.log('DATABASE_URL', process.env.DATABASE_URL);
+</code></pre>
+<p class="md-github">Execute using:</p>
+<pre class="md-github"><code class="md-github language-bash">dotenvx run --debug -- node index.js
+</code></pre>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="syncing-and-multiple-environments" href="#syncing-and-multiple-environments"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Syncing and Multiple Environments</h2>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github">To keep <code class="md-github">.env</code> files in sync or to manage multiple environments, consider using <code class="md-github">dotenvx</code>.</p>
+</li>
+<li class="md-github">
+<p class="md-github">Example for multiple environments:</p>
+<pre class="md-github"><code class="md-github language-bash">echo &quot;HELLO=production&quot; &gt; .env.production
+echo &quot;console.log('Hello ' + process.env.HELLO)&quot; &gt; index.js
+dotenvx run --env-file=.env.production -- node index.js
+</code></pre>
+</li>
+<li class="md-github">
+<p class="md-github">For using multiple .env files:</p>
+<pre class="md-github"><code class="md-github language-bash">echo &quot;HELLO=local&quot; &gt; .env.local
+echo &quot;HELLO=World&quot; &gt; .env
+echo &quot;console.log('Hello ' + process.env.HELLO)&quot; &gt; index.js
+dotenvx run --env-file=.env.local --env-file=.env -- node index.js
+</code></pre>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="deploying-and-encryption" href="#deploying-and-encryption"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Deploying and Encryption</h2>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github">Encrypt your <code class="md-github">.env</code> file with the following command:</p>
+<pre class="md-github"><code class="md-github language-bash">dotenvx set HELLO Production --encrypt -f .env.production
+</code></pre>
+</li>
+<li class="md-github">
+<p class="md-github">Run your script using the decryption key:</p>
+<pre class="md-github"><code class="md-github language-bash">DOTENV_PRIVATE_KEY_PRODUCTION=&quot;&lt;.env.production private key&gt;&quot; dotenvx run -- node index.js
+</code></pre>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="api-functions" href="#api-functions"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>API Functions</h2>
+<p class="md-github">Dotenv exposes four main functions:</p>
+<h3 class="md-github"><a class="md-github__anchor" name="config" href="#config"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>config</h3>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github">Loads the .env file into <code class="md-github">process.env</code> and returns an object with the key <code class="md-github">parsed</code> or an <code class="md-github">error</code> if it fails.</p>
+<p class="md-github"><strong class="md-github">Signature:</strong></p>
+<pre class="md-github"><code class="md-github language-javascript">function config(options?: {
+  path?: string,           // Default: path.resolve(process.cwd(), '.env')
+  encoding?: string,       // Default: 'utf8'
+  debug?: boolean,         // Default: false
+  override?: boolean,      // Default: false
+  processEnv?: Object      // Default: process.env
+}): { parsed?: Object, error?: Error }
+</code></pre>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Example:</strong></p>
+<pre class="md-github"><code class="md-github language-javascript">const result = require('dotenv').config({
+  path: '/custom/path/to/.env',
+  encoding: 'latin1',
+  debug: process.env.DEBUG,
+  override: true
+});
+
+if (result.error) {
+  throw result.error;
+}
+
+console.log(result.parsed);
+</code></pre>
+</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="parse" href="#parse"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>parse</h3>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github">Parses a provided string or Buffer into an object.</p>
+<p class="md-github"><strong class="md-github">Signature:</strong></p>
+<pre class="md-github"><code class="md-github language-javascript">function parse(src: string | Buffer, options?: { debug?: boolean }): Object
+</code></pre>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Example:</strong></p>
+<pre class="md-github"><code class="md-github language-javascript">const dotenv = require('dotenv');
+const buf = Buffer.from('BASIC=basic');
+const config = dotenv.parse(buf, { debug: true });
+console.log(typeof config, config);
+</code></pre>
+</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="populate" href="#populate"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>populate</h3>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github">Populates a target object with parsed key-value pairs from a source object.</p>
+<p class="md-github"><strong class="md-github">Signature:</strong></p>
+<pre class="md-github"><code class="md-github language-javascript">function populate(target: Object, source: Object, options?: { override?: boolean, debug?: boolean }): void
+</code></pre>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Example:</strong></p>
+<pre class="md-github"><code class="md-github language-javascript">const dotenv = require('dotenv');
+const parsed = { HELLO: 'world' };
+
+// Populating process.env:
+dotenv.populate(process.env, parsed);
+console.log(process.env.HELLO); // world
+
+// Populating a custom target with override enabled:
+const target = { HELLO: 'world' };
+dotenv.populate(target, { HELLO: 'universe' }, { override: true, debug: true });
+console.log(target); // { HELLO: 'universe' }
+</code></pre>
+</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="decrypt" href="#decrypt"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>decrypt</h3>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github">Exposed function for decryption purposes when working with encrypted environment files (used by dotenvx).</p>
+<p class="md-github">(No detailed signature provided in the documentation; see dotenvx for implementation.)</p>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="troubleshooting" href="#troubleshooting"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Troubleshooting</h2>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github"><strong class="md-github">.env file not loading:</strong></p>
+<p class="md-github">Ensure the file is in the correct directory. Enable debug logging:</p>
+<pre class="md-github"><code class="md-github language-javascript">require('dotenv').config({ debug: true });
+</code></pre>
+<p class="md-github">This will output helpful error messages.</p>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">React and process.env:</strong></p>
+<p class="md-github">When using React with Webpack, ensure that variables are injected via bundler configuration. For create-react-app, prefix variables with <code class="md-github">REACT_APP_</code>.</p>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Module not found (crypto|os|path):</strong></p>
+<p class="md-github">Install polyfills for Webpack &lt; 5:</p>
+<pre class="md-github"><code class="md-github language-bash">npm install node-polyfill-webpack-plugin
+</code></pre>
+<p class="md-github">And configure <code class="md-github">webpack.config.js</code>:</p>
+<pre class="md-github"><code class="md-github language-javascript">const path = require('path');
+const webpack = require('webpack');
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
+
+module.exports = {
+  mode: 'development',
+  entry: './src/index.ts',
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+  },
+  plugins: [
+    new NodePolyfillPlugin(),
+    new webpack.DefinePlugin({
+      'process.env': {
+        HELLO: JSON.stringify(process.env.HELLO)
+      }
+    }),
+  ],
+};
+</code></pre>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="attribution" href="#attribution"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h2>
+<ul class="md-github">
+<li class="md-github">Data Size: 621779 bytes</li>
+<li class="md-github">Retrieved from: https://github.com/motdotla/dotenv</li>
+<li class="md-github">Crawled Links: 5053</li>
+</ul>
+<hr class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="attribution-1" href="#attribution-1"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h2>
+<ul class="md-github">
+<li class="md-github">Source: dotenv Documentation</li>
+<li class="md-github">URL: https://github.com/motdotla/dotenv</li>
+<li class="md-github">License: License: MIT</li>
+<li class="md-github">Crawl Date: 2025-04-17T16:11:25.633Z</li>
+<li class="md-github">Data Size: 621779 bytes</li>
+<li class="md-github">Links Found: 5053</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="retrieved" href="#retrieved"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Retrieved</h2>
+<p class="md-github">2025-04-17</p>
+
+  </section>
+  <footer>
+    <p>Generated on 2025-04-17T23:59:39.380Z</p>
+  </footer>
+</body>
+</html>

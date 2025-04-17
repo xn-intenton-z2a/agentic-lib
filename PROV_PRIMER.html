@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>agentic-lib</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+    header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
+    h1 { font-size: 2em; }
+    section { margin-bottom: 1.5em; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5em 0; }
+    .label { font-weight: bold; }
+    footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>agentic-lib</h1>
+    <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest stats</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all stats</a></p>
+  </header>
+  <section>
+    <h1 class="md-github"><a class="md-github__anchor" name="prov_primer" href="#prov_primer"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>PROV_PRIMER</h1>
+<h2 class="md-github"><a class="md-github__anchor" name="crawl-summary" href="#crawl-summary"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Crawl Summary</h2>
+<p class="md-github">This technical document details the PROV data model with specific implementation examples in Turtle, PROV-N, and XML. It provides exact syntax for declaring entities, activities, agents (including roles and responsibilities), usage and generation relationships, derivation and revision logic, as well as plans and time annotations using xsd:dateTime. The document specifies precise RDF triples, PROV-N statements with optional argument placeholders (denoted by '-') and equivalent XML schema elements. It also covers best practices for linking provenance records with explicit role assignments and qualified associations.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="normalised-extract" href="#normalised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Normalised Extract</h2>
+<p class="md-github">Table of Contents:</p>
+<ol class="md-github">
+<li class="md-github">PROV Introduction
+<ul class="md-github">
+<li class="md-github">Overview: Defines a provenance model for representing origins of data.</li>
+</ul>
+</li>
+<li class="md-github">Entities
+<ul class="md-github">
+<li class="md-github">Technical Detail: Entities are declared using 'prov:Entity' with attributes (e.g. dcterms:title).</li>
+<li class="md-github">Examples:
+<ul class="md-github">
+<li class="md-github">Turtle:
+exn:article a prov:Entity ;
+dcterms:title &quot;Crime rises in cities&quot; .</li>
+<li class="md-github">PROV-N:
+entity(exn:article, [dcterms:title=&quot;Crime rises in cities&quot;])</li>
+<li class="md-github">XML:
+&lt;prov:entity prov:id=&quot;exn:article&quot;&gt;
+<a href="dct:title" class="md-github">dct:title</a>Crime rises in cities&lt;/dct:title&gt;
+&lt;/prov:entity&gt;</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="md-github">Activities
+<ul class="md-github">
+<li class="md-github">Technical Detail: Declared with 'prov:Activity'; used for processes that generate or use entities.</li>
+<li class="md-github">Examples:
+<ul class="md-github">
+<li class="md-github">Turtle: exc:compile1 a prov:Activity .</li>
+<li class="md-github">PROV-N: activity(exc:compile1)</li>
+<li class="md-github">XML: &lt;prov:activity prov:id=&quot;exc:compile1&quot;/&gt;</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="md-github">Usage and Generation
+<ul class="md-github">
+<li class="md-github">Technical Detail: Use of 'prov:used' and 'prov:wasGeneratedBy' to relate entities and activities.</li>
+<li class="md-github">Examples:
+<ul class="md-github">
+<li class="md-github">Turtle:
+exc:compose1 prov:used exg:dataset1 ;
+prov:used exc:regionList1 .
+exc:composition1 prov:wasGeneratedBy exc:compose1 .</li>
+<li class="md-github">PROV-N:
+used(exc:compose1, exg:dataset1, -)
+used(exc:compose1, exc:regionList1, -)
+wasGeneratedBy(exc:composition1, exc:compose1, -)</li>
+<li class="md-github">XML:
+<a href="prov:used" class="md-github">prov:used</a>
+&lt;prov:activity prov:ref=&quot;exc:compose1&quot;/&gt;
+&lt;prov:entity prov:ref=&quot;exg:dataset1&quot;/&gt;
+&lt;/prov:used&gt;
+<a href="prov:used" class="md-github">prov:used</a>
+&lt;prov:activity prov:ref=&quot;exc:compose1&quot;/&gt;
+&lt;prov:entity prov:ref=&quot;exc:regionList1&quot;/&gt;
+&lt;/prov:used&gt;
+<a href="prov:wasGeneratedBy" class="md-github">prov:wasGeneratedBy</a>
+&lt;prov:entity prov:ref=&quot;exc:composition1&quot;/&gt;
+&lt;prov:activity prov:ref=&quot;exc:compose1&quot;/&gt;
+&lt;/prov:wasGeneratedBy&gt;</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="md-github">Agents and Responsibility
+<ul class="md-github">
+<li class="md-github">Technical Detail: Agents are defined with 'prov:Agent'; subtypes specify Person, Organization, etc.</li>
+<li class="md-github">Examples:
+<ul class="md-github">
+<li class="md-github">Turtle:
+exc:derek a prov:Agent , prov:Person ;
+foaf:givenName &quot;Derek&quot; ;
+foaf:mbox <a href="mailto:derek@example.org" class="md-github">mailto:derek@example.org</a> .</li>
+<li class="md-github">PROV-N:
+agent(exc:derek, [prov:type='prov:Person', foaf:givenName=&quot;Derek&quot;, foaf:mbox=&quot;<a href="mailto:derek@example.org" class="md-github">mailto:derek@example.org</a>&quot;])</li>
+<li class="md-github">XML:
+&lt;prov:agent prov:id=&quot;exc:derek&quot;&gt;
+<a href="prov:type" class="md-github">prov:type</a>prov:Person&lt;/prov:type&gt;
+<a href="foaf:givenName" class="md-github">foaf:givenName</a>Derek&lt;/foaf:givenName&gt;
+<a href="foaf:mbox" class="md-github">foaf:mbox</a>mailto:derek@example.org&lt;/foaf:mbox&gt;
+&lt;/prov:agent&gt;</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="md-github">Roles and Qualified Associations
+<ul class="md-github">
+<li class="md-github">Technical Detail: Roles are declared via 'prov:hadRole'; qualified usage/generation add further details.</li>
+<li class="md-github">Examples:
+<ul class="md-github">
+<li class="md-github">Turtle:
+exc:compose1 prov:qualifiedUsage [
+a prov:Usage ;
+prov:entity  exg:dataset1 ;
+prov:hadRole exc:dataToCompose
+] .</li>
+<li class="md-github">PROV-N:
+used(exc:compose1, exg:dataset1, -, [prov:role='exc:dataToCompose'])</li>
+<li class="md-github">XML:
+<a href="prov:used" class="md-github">prov:used</a>
+&lt;prov:activity prov:ref=&quot;exc:compose1&quot;/&gt;
+&lt;prov:entity prov:ref=&quot;exg:dataset1&quot;/&gt;
+<a href="prov:role" class="md-github">prov:role</a>exc:dataToCompose&lt;/prov:role&gt;
+&lt;/prov:used&gt;</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="md-github">Derivation and Revision
+<ul class="md-github">
+<li class="md-github">Technical Detail: Use 'prov:wasRevisionOf' and 'prov:wasDerivedFrom' to link revisions.</li>
+<li class="md-github">Examples:
+<ul class="md-github">
+<li class="md-github">Turtle:
+exg:dataset2 a prov:Entity ;
+prov:wasRevisionOf exg:dataset1 .</li>
+<li class="md-github">PROV-N:
+wasDerivedFrom(exc:chart2, exc:chart1, [prov:type='prov:Revision'])</li>
+<li class="md-github">XML:
+<a href="prov:wasDerivedFrom" class="md-github">prov:wasDerivedFrom</a>
+&lt;prov:generatedEntity prov:ref=&quot;exc:chart2&quot;/&gt;
+&lt;prov:usedEntity prov:ref=&quot;exc:chart1&quot;/&gt;
+<a href="prov:type" class="md-github">prov:type</a>prov:Revision&lt;/prov:type&gt;
+&lt;/prov:wasDerivedFrom&gt;</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="md-github">Plans and Time
+<ul class="md-github">
+<li class="md-github">Technical Detail: Activities and associations can include time data; use xsd:dateTime format.</li>
+<li class="md-github">Examples:
+<ul class="md-github">
+<li class="md-github">Turtle:
+exg:correct1 prov:startedAtTime &quot;2012-03-31T09:21:00&quot;^^xsd:dateTime ;
+prov:endedAtTime &quot;2012-04-01T15:21:00&quot;^^xsd:dateTime .</li>
+<li class="md-github">PROV-N:
+activity(exg:correct1, 2012-03-31T09:21:00, 2012-04-01T15:21:00)</li>
+<li class="md-github">XML:
+&lt;prov:activity prov:id=&quot;exg:correct1&quot;&gt;
+<a href="prov:startTime" class="md-github">prov:startTime</a>2012-03-31T09:21:00&lt;/prov:startTime&gt;
+<a href="prov:endTime" class="md-github">prov:endTime</a>2012-04-01T15:21:00&lt;/prov:endTime&gt;
+&lt;/prov:activity&gt;</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="md-github">Alternate Entities and Specialization
+<ul class="md-github">
+<li class="md-github">Technical Detail: Link multiple perspectives using qualifiers such as 'prov:wasQuotedFrom'.</li>
+<li class="md-github">Examples:
+<ul class="md-github">
+<li class="md-github">Turtle:
+exb:quoteInBlogEntry-20130326 a prov:Entity ;
+prov:value &quot;Smaller cities have more crime than larger ones&quot; ;
+prov:wasQuotedFrom exn:article .</li>
+<li class="md-github">PROV-N:
+entity(exb:quoteInBlogEntry-20130326, prov:value=&quot;Smaller cities have more crime than larger ones&quot;)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h2 class="md-github"><a class="md-github__anchor" name="supplementary-details" href="#supplementary-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Supplementary Details</h2>
+<p class="md-github">PROV Technical Specifications and Implementation Details:</p>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Entities:</strong>
+<ul class="md-github">
+<li class="md-github">Must be declared as 'prov:Entity'. Attributes (e.g., dcterms:title) are added for metadata.</li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">Activities:</strong>
+<ul class="md-github">
+<li class="md-github">Declared using 'prov:Activity'. Usage relationships are detailed with 'prov:used' and outputs with 'prov:wasGeneratedBy'.</li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">Agents:</strong>
+<ul class="md-github">
+<li class="md-github">Declared as 'prov:Agent'. Sub-types include 'prov:Person' and 'prov:Organization'. A typical declaration includes FOAF properties as seen in the examples.</li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">Roles and Qualified Associations:</strong>
+<ul class="md-github">
+<li class="md-github">Express roles via 'prov:hadRole'. Qualified associations are implemented via nested structures in Turtle, additional parameters in PROV-N, and child elements in XML.</li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">Time and DateTime:</strong>
+<ul class="md-github">
+<li class="md-github">Use xsd:dateTime (e.g., &quot;2012-03-31T09:21:00&quot;^^xsd:dateTime) for timestamping activities.</li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">Plans:</strong>
+<ul class="md-github">
+<li class="md-github">Declared as 'prov:Plan' and linked via 'prov:hadPlan' in both PROV-O and XML.</li>
+</ul>
+</li>
+</ul>
+<p class="md-github">Implementation Steps:</p>
+<ol class="md-github">
+<li class="md-github">Define namespace prefixes explicitly. Example:
+@prefix prov: <a href="http://www.w3.org/ns/prov#" class="md-github">http://www.w3.org/ns/prov#</a> .
+@prefix dcterms: <a href="http://purl.org/dc/terms/" class="md-github">http://purl.org/dc/terms/</a> .
+@prefix foaf: <a href="http://xmlns.com/foaf/0.1/" class="md-github">http://xmlns.com/foaf/0.1/</a> .</li>
+<li class="md-github">Declare entities, activities, and agents following the provided examples.</li>
+<li class="md-github">Use qualified usage/generation constructs to attach roles and additional metadata.</li>
+<li class="md-github">Validate documents using respective validators (RDF validators for Turtle, xmllint for XML, and syntax checkers for PROV-N).</li>
+</ol>
+<p class="md-github">Configuration Options:</p>
+<ul class="md-github">
+<li class="md-github">Namespace prefixes (exn, exg, exc, exb) must be defined according to their data sources (e.g., newspaper, government, chart generator, blog).</li>
+<li class="md-github">Time attributes require strict adherence to xsd:dateTime format.</li>
+</ul>
+<p class="md-github">Best Practices:</p>
+<ul class="md-github">
+<li class="md-github">Always include explicit types and role assignments.</li>
+<li class="md-github">Link revisions using 'prov:wasRevisionOf' to maintain historical data lineage.</li>
+<li class="md-github">Validate provenance documents against the PROV-DM and PROV-XML schemas.</li>
+</ul>
+<p class="md-github">Troubleshooting Procedures:</p>
+<ul class="md-github">
+<li class="md-github">For XML: Run <code class="md-github">xmllint --schema prov.xsd file.xml</code> and expect a valid XML output.</li>
+<li class="md-github">For Turtle: Use an RDF validator (e.g., <code class="md-github">rapper -g file.ttl</code>) to ensure correct triple syntax.</li>
+<li class="md-github">For PROV-N: Compare statements against the official PROV-N specification and check for missing optional parameters (denoted by '-').</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="reference-details" href="#reference-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reference Details</h2>
+<p class="md-github">Complete API Specifications, SDK Method Signatures and Code Examples:</p>
+<ol class="md-github">
+<li class="md-github">
+<p class="md-github">PROV-O / PROV-DM Functions (Pseudocode):</p>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github">used(activity: string, entity: string, time?: string, attributes?: object): void</p>
+<ul class="md-github">
+<li class="md-github">Parameters:
+<ul class="md-github">
+<li class="md-github">activity (string): The identifier of the activity.</li>
+<li class="md-github">entity (string): The identifier of the used entity.</li>
+<li class="md-github">time (optional string): The timestamp (xsd:dateTime) when the usage occurred.</li>
+<li class="md-github">attributes (optional object): Map of additional attributes (e.g., {prov:role: 'roleValue'}).</li>
+</ul>
+</li>
+<li class="md-github">Example (PROV-N):
+used(exc:compose1, exg:dataset1, -, [prov:role='exc:dataToCompose'])</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github">wasGeneratedBy(entity: string, activity: string, time?: string, attributes?: object): void</p>
+<ul class="md-github">
+<li class="md-github">Parameters:
+<ul class="md-github">
+<li class="md-github">entity (string): The identifier of the generated entity.</li>
+<li class="md-github">activity (string): The identifier of the activity that generated the entity.</li>
+<li class="md-github">time (optional string): The generation timestamp.</li>
+<li class="md-github">attributes (optional object): Additional properties (e.g., {prov:role: 'generatedData'}).</li>
+</ul>
+</li>
+<li class="md-github">Example (PROV-N):
+wasGeneratedBy(exc:composition1, exc:compose1, -)</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github">wasAssociatedWith(activity: string, agent: string, time?: string, attributes?: object): void</p>
+<ul class="md-github">
+<li class="md-github">Parameters:
+<ul class="md-github">
+<li class="md-github">activity (string): The identifier of the activity.</li>
+<li class="md-github">agent (string): The identifier of the associated agent.</li>
+<li class="md-github">time (optional string): Timestamp of association.</li>
+<li class="md-github">attributes (optional object): Additional attributes (e.g., {prov:role: 'analyst'}).</li>
+</ul>
+</li>
+<li class="md-github">Example (PROV-N):
+wasAssociatedWith(exc:compose1, exc:derek, -, [prov:role='exc:analyst'])</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github">Full Code Examples:</p>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Turtle Format Example:</strong></p>
+<pre class="md-github"><code class="md-github language-turtle">@prefix prov: &lt;http://www.w3.org/ns/prov#&gt; .
+@prefix dcterms: &lt;http://purl.org/dc/terms/&gt; .
+@prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt; .
+
+exn:article a prov:Entity ;
+         dcterms:title &quot;Crime rises in cities&quot; .
+
+exc:compile1 a prov:Activity .
+
+exc:compose1 prov:qualifiedUsage [
+    a prov:Usage ;
+    prov:entity  exg:dataset1 ;
+    prov:hadRole exc:dataToCompose
+] .
+
+exg:dataset2 a prov:Entity ;
+         prov:wasRevisionOf exg:dataset1 .
+</code></pre>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">PROV-N Format Example:</strong></p>
+<pre class="md-github"><code class="md-github language-provn">entity(exn:article, [dcterms:title=&quot;Crime rises in cities&quot;])
+activity(exc:compile1)
+used(exc:compose1, exg:dataset1, -, [prov:role='exc:dataToCompose'])
+wasDerivedFrom(exc:chart2, exc:chart1, [prov:type='prov:Revision'])
+</code></pre>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">XML Format Example:</strong></p>
+<pre class="md-github"><code class="md-github language-xml">&lt;prov:document xmlns:prov=&quot;http://www.w3.org/ns/prov#&quot; 
+                xmlns:dct=&quot;http://purl.org/dc/terms/&quot; 
+                xmlns:foaf=&quot;http://xmlns.com/foaf/0.1/&quot;&gt;
+  &lt;prov:entity prov:id=&quot;exn:article&quot;&gt;
+    &lt;dct:title&gt;Crime rises in cities&lt;/dct:title&gt;
+  &lt;/prov:entity&gt;
+  &lt;prov:activity prov:id=&quot;exc:compile1&quot;/&gt;
+  &lt;prov:used&gt;
+    &lt;prov:activity prov:ref=&quot;exc:compose1&quot;/&gt;
+    &lt;prov:entity prov:ref=&quot;exg:dataset1&quot;/&gt;
+    &lt;prov:role&gt;exc:dataToCompose&lt;/prov:role&gt;
+  &lt;/prov:used&gt;
+  &lt;prov:wasDerivedFrom&gt;
+    &lt;prov:generatedEntity prov:ref=&quot;exc:chart2&quot;/&gt;
+    &lt;prov:usedEntity prov:ref=&quot;exc:chart1&quot;/&gt;
+    &lt;prov:type&gt;prov:Revision&lt;/prov:type&gt;
+  &lt;/prov:wasDerivedFrom&gt;
+&lt;/prov:document&gt;
+</code></pre>
+</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github">Configuration Options:</p>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Namespaces:</strong> Must be defined in each document. Example:
+@prefix prov: <a href="http://www.w3.org/ns/prov#" class="md-github">http://www.w3.org/ns/prov#</a> .
+@prefix dcterms: <a href="http://purl.org/dc/terms/" class="md-github">http://purl.org/dc/terms/</a> .
+@prefix foaf: <a href="http://xmlns.com/foaf/0.1/" class="md-github">http://xmlns.com/foaf/0.1/</a> .</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github">Best Practices:</p>
+<ul class="md-github">
+<li class="md-github">Explicitly declare roles and time attributes to ensure complete provenance.</li>
+<li class="md-github">Validate each document using appropriate schema validators: RDF/Turtle validators, xmllint for XML, and syntax checkers for PROV-N.</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github">Troubleshooting Procedures:</p>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">XML Validation:</strong>
+Command: <code class="md-github">xmllint --schema prov.xsd file.xml</code>
+Expected Output: XML document validates successfully against the PROV schema.</li>
+<li class="md-github"><strong class="md-github">RDF Validation:</strong>
+Command: <code class="md-github">rapper -g file.ttl</code>
+Expected Output: Valid RDF triples with no errors.</li>
+<li class="md-github"><strong class="md-github">PROV-N Validation:</strong>
+Compare against official PROV-N specification; ensure use of '-' for unspecified optional fields.</li>
+</ul>
+</li>
+</ol>
+<h2 class="md-github"><a class="md-github__anchor" name="original-source" href="#original-source"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Original Source</h2>
+<p class="md-github">PROV Primer
+https://www.w3.org/TR/prov-primer/</p>
+<h2 class="md-github"><a class="md-github__anchor" name="digest-of-prov_primer" href="#digest-of-prov_primer"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Digest of PROV_PRIMER</h2>
+<h1 class="md-github"><a class="md-github__anchor" name="prov-primer" href="#prov-primer"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>PROV PRIMER</h1>
+<p class="md-github">This document was retrieved on 2023-10-26 and contains the complete technical details of the PROV data model as described by W3C. It includes the exact specifications for entities, activities, agents, roles, qualified relationships, derivation, revision, plans, and time annotations in three representation formats: Turtle, PROV-N, and XML.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="entities" href="#entities"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Entities</h2>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Definition:</strong> A physical, digital, conceptual, or other object whose provenance is tracked.</li>
+<li class="md-github"><strong class="md-github">Turtle Example:</strong><pre class="md-github"><code class="md-github language-turtle">exn:article a prov:Entity ;
+         dcterms:title &quot;Crime rises in cities&quot; .
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">PROV-N Example:</strong><pre class="md-github"><code class="md-github language-provn">entity(exn:article, [dcterms:title=&quot;Crime rises in cities&quot;])
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">XML Example:</strong><pre class="md-github"><code class="md-github language-xml">&lt;prov:entity prov:id=&quot;exn:article&quot;&gt;
+  &lt;dct:title&gt;Crime rises in cities&lt;/dct:title&gt;
+&lt;/prov:entity&gt;
+</code></pre>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="activities" href="#activities"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Activities</h2>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Definition:</strong> A process or action that generates or uses entities.</li>
+<li class="md-github"><strong class="md-github">Turtle Example:</strong><pre class="md-github"><code class="md-github language-turtle">exc:compile1 a prov:Activity .
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">PROV-N Example:</strong><pre class="md-github"><code class="md-github language-provn">activity(exc:compile1)
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">XML Example:</strong><pre class="md-github"><code class="md-github language-xml">&lt;prov:activity prov:id=&quot;exc:compile1&quot;/&gt;
+</code></pre>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="usage-and-generation" href="#usage-and-generation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Usage and Generation</h2>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Specification:</strong> Linking entities with activities using relationships such as <code class="md-github">prov:used</code> and <code class="md-github">prov:wasGeneratedBy</code>.</li>
+<li class="md-github"><strong class="md-github">Turtle Example:</strong><pre class="md-github"><code class="md-github language-turtle">exc:compose1 prov:used exg:dataset1 ;
+             prov:used exc:regionList1 .
+exc:composition1 prov:wasGeneratedBy exc:compose1 .
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">PROV-N Example:</strong><pre class="md-github"><code class="md-github language-provn">used(exc:compose1, exg:dataset1, -)
+used(exc:compose1, exc:regionList1, -)
+wasGeneratedBy(exc:composition1, exc:compose1, -)
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">XML Example:</strong><pre class="md-github"><code class="md-github language-xml">&lt;prov:used&gt;
+  &lt;prov:activity prov:ref=&quot;exc:compose1&quot;/&gt;
+  &lt;prov:entity prov:ref=&quot;exg:dataset1&quot;/&gt;
+&lt;/prov:used&gt;
+&lt;prov:used&gt;
+  &lt;prov:activity prov:ref=&quot;exc:compose1&quot;/&gt;
+  &lt;prov:entity prov:ref=&quot;exc:regionList1&quot;/&gt;
+&lt;/prov:used&gt;
+&lt;prov:wasGeneratedBy&gt;
+  &lt;prov:entity prov:ref=&quot;exc:composition1&quot;/&gt;
+  &lt;prov:activity prov:ref=&quot;exc:compose1&quot;/&gt;
+&lt;/prov:wasGeneratedBy&gt;
+</code></pre>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="agents-and-responsibility" href="#agents-and-responsibility"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Agents and Responsibility</h2>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Definition:</strong> Agents are responsible actors (persons, software, organizations) which participate in activities.</li>
+<li class="md-github"><strong class="md-github">Turtle Example:</strong><pre class="md-github"><code class="md-github language-turtle">exc:derek a prov:Agent , prov:Person ;
+        foaf:givenName &quot;Derek&quot; ;
+        foaf:mbox &lt;mailto:derek@example.org&gt; .
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">PROV-N Example:</strong><pre class="md-github"><code class="md-github language-provn">agent(exc:derek, [prov:type='prov:Person', foaf:givenName=&quot;Derek&quot;, foaf:mbox=&quot;&lt;mailto:derek@example.org&gt;&quot;])
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">XML Example:</strong><pre class="md-github"><code class="md-github language-xml">&lt;prov:agent prov:id=&quot;exc:derek&quot;&gt;
+  &lt;prov:type&gt;prov:Person&lt;/prov:type&gt;
+  &lt;foaf:givenName&gt;Derek&lt;/foaf:givenName&gt;
+  &lt;foaf:mbox&gt;mailto:derek@example.org&lt;/foaf:mbox&gt;
+&lt;/prov:agent&gt;
+</code></pre>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="roles-qualified-usage--generation" href="#roles-qualified-usage--generation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Roles, Qualified Usage &amp; Generation</h2>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Definition:</strong> Roles express the function an entity or agent plays in an activity. Qualified relationships add precise detail.</li>
+<li class="md-github"><strong class="md-github">Turtle Example:</strong><pre class="md-github"><code class="md-github language-turtle">exc:compose1 prov:qualifiedUsage [
+         a prov:Usage ;
+         prov:entity  exg:dataset1 ;
+         prov:hadRole exc:dataToCompose 
+] .
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">PROV-N Example:</strong><pre class="md-github"><code class="md-github language-provn">used(exc:compose1, exg:dataset1, -, [prov:role='exc:dataToCompose'])
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">XML Example:</strong><pre class="md-github"><code class="md-github language-xml">&lt;prov:used&gt;
+  &lt;prov:activity prov:ref=&quot;exc:compose1&quot;/&gt;
+  &lt;prov:entity prov:ref=&quot;exg:dataset1&quot;/&gt;
+  &lt;prov:role&gt;exc:dataToCompose&lt;/prov:role&gt;
+&lt;/prov:used&gt;
+</code></pre>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="derivation-and-revision" href="#derivation-and-revision"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Derivation and Revision</h2>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Specification:</strong> Describes relationships where one entity derives from or revises another.</li>
+<li class="md-github"><strong class="md-github">Turtle Example:</strong><pre class="md-github"><code class="md-github language-turtle">exg:dataset2 a prov:Entity ;
+         prov:wasRevisionOf exg:dataset1 .
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">PROV-N Example:</strong><pre class="md-github"><code class="md-github language-provn">wasDerivedFrom(exc:chart2, exc:chart1, [prov:type='prov:Revision'])
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">XML Example:</strong><pre class="md-github"><code class="md-github language-xml">&lt;prov:wasDerivedFrom&gt;
+  &lt;prov:generatedEntity prov:ref=&quot;exc:chart2&quot;/&gt;
+  &lt;prov:usedEntity prov:ref=&quot;exc:chart1&quot;/&gt;
+  &lt;prov:type&gt;prov:Revision&lt;/prov:type&gt;
+&lt;/prov:wasDerivedFrom&gt;
+</code></pre>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="plans-and-time" href="#plans-and-time"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Plans and Time</h2>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Specification:</strong> Documenting plan execution and time-stamping events using xsd:dateTime.</li>
+<li class="md-github"><strong class="md-github">Turtle Example:</strong><pre class="md-github"><code class="md-github language-turtle">exg:correct1 prov:startedAtTime &quot;2012-03-31T09:21:00&quot;^^xsd:dateTime ;
+         prov:endedAtTime &quot;2012-04-01T15:21:00&quot;^^xsd:dateTime .
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">PROV-N Example:</strong><pre class="md-github"><code class="md-github language-provn">activity(exg:correct1, 2012-03-31T09:21:00, 2012-04-01T15:21:00)
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">XML Example:</strong><pre class="md-github"><code class="md-github language-xml">&lt;prov:activity prov:id=&quot;exg:correct1&quot;&gt;
+  &lt;prov:startTime&gt;2012-03-31T09:21:00&lt;/prov:startTime&gt;
+  &lt;prov:endTime&gt;2012-04-01T15:21:00&lt;/prov:endTime&gt;
+&lt;/prov:activity&gt;
+</code></pre>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="alternate-entities-and-specialization" href="#alternate-entities-and-specialization"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Alternate Entities and Specialization</h2>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Definition:</strong> Linking multiple descriptions or specializations of the same entity.</li>
+<li class="md-github"><strong class="md-github">Turtle Example:</strong><pre class="md-github"><code class="md-github language-turtle">exb:quoteInBlogEntry-20130326 a prov:Entity ;
+                            prov:value &quot;Smaller cities have more crime than larger ones&quot; ;
+                            prov:wasQuotedFrom exn:article .
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">PROV-N Example:</strong><pre class="md-github"><code class="md-github language-provn">entity(exb:quoteInBlogEntry-20130326, prov:value=&quot;Smaller cities have more crime than larger ones&quot;)
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">XML Example:</strong> (Similar structure using <a href="prov:entity" class="md-github">prov:entity</a> and <a href="prov:wasDerivedFrom" class="md-github">prov:wasDerivedFrom</a> elements.)</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="attribution" href="#attribution"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h2>
+<ul class="md-github">
+<li class="md-github">Source: PROV Primer</li>
+<li class="md-github">URL: https://www.w3.org/TR/prov-primer/</li>
+<li class="md-github">License: License: W3C License</li>
+<li class="md-github">Crawl Date: 2025-04-17T17:38:23.105Z</li>
+<li class="md-github">Data Size: 16068910 bytes</li>
+<li class="md-github">Links Found: 29571</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="retrieved" href="#retrieved"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Retrieved</h2>
+<p class="md-github">2025-04-17</p>
+
+  </section>
+  <footer>
+    <p>Generated on 2025-04-17T23:59:38.166Z</p>
+  </footer>
+</body>
+</html>

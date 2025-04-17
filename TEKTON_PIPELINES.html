@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>agentic-lib</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+    header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
+    h1 { font-size: 2em; }
+    section { margin-bottom: 1.5em; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5em 0; }
+    .label { font-weight: bold; }
+    footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>agentic-lib</h1>
+    <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest stats</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all stats</a></p>
+  </header>
+  <section>
+    <h1 class="md-github"><a class="md-github__anchor" name="tekton_pipelines" href="#tekton_pipelines"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>TEKTON_PIPELINES</h1>
+<h2 class="md-github"><a class="md-github__anchor" name="crawl-summary" href="#crawl-summary"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Crawl Summary</h2>
+<p class="md-github">Tekton Pipelines provides Kubernetes CRDs for Tasks, TaskRuns, Pipelines, and PipelineRuns. The installation process involves applying a YAML from the Tekton release URL and monitoring pod status. Detailed YAML examples for creating Tasks, TaskRuns, Pipelines, and PipelineRuns are provided, along with commands for deploying and verifying the setup on a minikube Kubernetes cluster. Troubleshooting commands and cluster cleanup procedures are also specified.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="normalised-extract" href="#normalised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Normalised Extract</h2>
+<h2 class="md-github"><a class="md-github__anchor" name="table-of-contents" href="#table-of-contents"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Table of Contents</h2>
+<ol class="md-github">
+<li class="md-github">Tekton Pipelines Entities
+<ul class="md-github">
+<li class="md-github">Task</li>
+<li class="md-github">TaskRun</li>
+<li class="md-github">Pipeline</li>
+<li class="md-github">PipelineRun</li>
+</ul>
+</li>
+<li class="md-github">Installation &amp; Setup
+<ul class="md-github">
+<li class="md-github">Creating a Kubernetes Cluster (minikube)</li>
+<li class="md-github">Installing Tekton Pipelines</li>
+</ul>
+</li>
+<li class="md-github">Task Execution Example
+<ul class="md-github">
+<li class="md-github">YAML definition for Task</li>
+<li class="md-github">YAML definition for TaskRun</li>
+<li class="md-github">Commands to apply and verify</li>
+</ul>
+</li>
+<li class="md-github">Pipeline Execution Example
+<ul class="md-github">
+<li class="md-github">YAML definition for goodbye Task</li>
+<li class="md-github">Pipeline YAML and PipelineRun YAML</li>
+<li class="md-github">Deployment commands and log verification</li>
+</ul>
+</li>
+<li class="md-github">Troubleshooting &amp; Cleanup
+<ul class="md-github">
+<li class="md-github">Cluster troubleshooting commands</li>
+<li class="md-github">minikube deletion steps</li>
+</ul>
+</li>
+</ol>
+<h2 class="md-github"><a class="md-github__anchor" name="1-tekton-pipelines-entities" href="#1-tekton-pipelines-entities"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>1. Tekton Pipelines Entities</h2>
+<p class="md-github"><strong class="md-github">Task</strong>: Defines sequential steps in a pod.
+<em class="md-github">YAML:</em></p>
+<pre class="md-github"><code class="md-github language-yaml">apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: hello
+spec:
+  steps:
+    - name: echo
+      image: alpine
+      script: |
+        #!/bin/sh
+        echo &quot;Hello World&quot;
+</code></pre>
+<p class="md-github"><strong class="md-github">TaskRun</strong>: Instantiates Task execution.
+<em class="md-github">YAML:</em></p>
+<pre class="md-github"><code class="md-github language-yaml">apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: hello-task-run
+spec:
+  taskRef:
+    name: hello
+</code></pre>
+<p class="md-github"><strong class="md-github">Pipeline</strong>: Groups Tasks in a defined order.
+<em class="md-github">YAML:</em></p>
+<pre class="md-github"><code class="md-github language-yaml">apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: hello-goodbye
+spec:
+  params:
+  - name: username
+    type: string
+  tasks:
+    - name: hello
+      taskRef:
+        name: hello
+    - name: goodbye
+      runAfter:
+        - hello
+      taskRef:
+        name: goodbye
+      params:
+      - name: username
+        value: $(params.username)
+</code></pre>
+<p class="md-github"><strong class="md-github">PipelineRun</strong>: Executes the Pipeline with parameter values.
+<em class="md-github">YAML:</em></p>
+<pre class="md-github"><code class="md-github language-yaml">apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: hello-goodbye-run
+spec:
+  pipelineRef:
+    name: hello-goodbye
+  params:
+  - name: username
+    value: &quot;Tekton&quot;
+</code></pre>
+<h2 class="md-github"><a class="md-github__anchor" name="2-installation--setup" href="#2-installation--setup"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>2. Installation &amp; Setup</h2>
+<p class="md-github"><strong class="md-github">Kubernetes Cluster with minikube:</strong></p>
+<pre class="md-github"><code class="md-github language-bash">minikube start --kubernetes-version v1.30.2
+kubectl cluster-info
+</code></pre>
+<p class="md-github"><strong class="md-github">Install Tekton Pipelines:</strong></p>
+<pre class="md-github"><code class="md-github language-bash">kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
+kubectl get pods --namespace tekton-pipelines --watch
+</code></pre>
+<h2 class="md-github"><a class="md-github__anchor" name="3-task-execution-example" href="#3-task-execution-example"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>3. Task Execution Example</h2>
+<ul class="md-github">
+<li class="md-github">Create a file <code class="md-github">hello-world.yaml</code> for Task; apply using:</li>
+</ul>
+<pre class="md-github"><code class="md-github language-bash">kubectl apply --filename hello-world.yaml
+</code></pre>
+<ul class="md-github">
+<li class="md-github">Create <code class="md-github">hello-world-run.yaml</code> for TaskRun; apply using:</li>
+</ul>
+<pre class="md-github"><code class="md-github language-bash">kubectl apply --filename hello-world-run.yaml
+</code></pre>
+<ul class="md-github">
+<li class="md-github">Verify TaskRun status:</li>
+</ul>
+<pre class="md-github"><code class="md-github language-bash">kubectl get taskrun hello-task-run
+kubectl logs --selector=tekton.dev/taskRun=hello-task-run
+</code></pre>
+<h2 class="md-github"><a class="md-github__anchor" name="4-pipeline-execution-example" href="#4-pipeline-execution-example"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>4. Pipeline Execution Example</h2>
+<ul class="md-github">
+<li class="md-github">Create a file <code class="md-github">goodbye-world.yaml</code> with parameterized Task:</li>
+</ul>
+<pre class="md-github"><code class="md-github language-yaml">apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: goodbye
+spec:
+  params:
+  - name: username
+    type: string
+  steps:
+    - name: goodbye
+      image: ubuntu
+      script: |
+        #!/bin/bash
+        echo &quot;Goodbye $(params.username)!&quot;
+</code></pre>
+<ul class="md-github">
+<li class="md-github">Create and apply <code class="md-github">hello-goodbye-pipeline.yaml</code> and <code class="md-github">hello-goodbye-pipeline-run.yaml</code> as shown in the digest.</li>
+<li class="md-github">Verify logs using Tekton CLI:</li>
+</ul>
+<pre class="md-github"><code class="md-github language-bash">tkn pipelinerun logs hello-goodbye-run -f -n default
+</code></pre>
+<h2 class="md-github"><a class="md-github__anchor" name="5-troubleshooting--cleanup" href="#5-troubleshooting--cleanup"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>5. Troubleshooting &amp; Cleanup</h2>
+<ul class="md-github">
+<li class="md-github">Dump cluster info for debugging:</li>
+</ul>
+<pre class="md-github"><code class="md-github language-bash">kubectl cluster-info dump
+</code></pre>
+<ul class="md-github">
+<li class="md-github">Delete minikube cluster:</li>
+</ul>
+<pre class="md-github"><code class="md-github language-bash">minikube delete
+</code></pre>
+<h2 class="md-github"><a class="md-github__anchor" name="supplementary-details" href="#supplementary-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Supplementary Details</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="supplementary-technical-specifications" href="#supplementary-technical-specifications"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Supplementary Technical Specifications</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Kubernetes Version:</strong> v1.30.2 is used in minikube command.</li>
+<li class="md-github"><strong class="md-github">Tekton Pipelines Installation URL:</strong> https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml</li>
+<li class="md-github"><strong class="md-github">Pod Status Monitoring:</strong> Ensure pods in the tekton-pipelines namespace reach '1/1 Ready'.</li>
+<li class="md-github"><strong class="md-github">Parameter Passing:</strong> Pipeline YAML passes a parameter 'username' to the Task 'goodbye'.</li>
+<li class="md-github"><strong class="md-github">CLI Verification:</strong> Use 'tkn pipelinerun logs <run-name> -f -n default' for real-time log viewing.</li>
+<li class="md-github"><strong class="md-github">Cluster Troubleshooting:</strong> Use 'kubectl cluster-info dump' to diagnose issues.</li>
+<li class="md-github"><strong class="md-github">Cleanup Commands:</strong> 'minikube delete' removes the cluster and associated Docker containers.</li>
+<li class="md-github"><strong class="md-github">Coding Best Practices:</strong> Each YAML file should have correct indentation and API version supported by Tekton (v1beta1).</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="reference-details" href="#reference-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reference Details</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="complete-api-specifications--sdk-method-signatures" href="#complete-api-specifications--sdk-method-signatures"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Complete API Specifications &amp; SDK Method Signatures</h3>
+<h4 class="md-github"><a class="md-github__anchor" name="task-api" href="#task-api"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Task API</h4>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">API Version:</strong> tekton.dev/v1beta1</li>
+<li class="md-github"><strong class="md-github">Kind:</strong> Task</li>
+<li class="md-github"><strong class="md-github">Required Fields:</strong> metadata.name, spec.steps</li>
+<li class="md-github"><strong class="md-github">Step Object:</strong>
+<ul class="md-github">
+<li class="md-github">name: string</li>
+<li class="md-github">image: string</li>
+<li class="md-github">script: string (shell script content)</li>
+</ul>
+</li>
+</ul>
+<h4 class="md-github"><a class="md-github__anchor" name="taskrun-api" href="#taskrun-api"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>TaskRun API</h4>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">API Version:</strong> tekton.dev/v1beta1</li>
+<li class="md-github"><strong class="md-github">Kind:</strong> TaskRun</li>
+<li class="md-github"><strong class="md-github">Required Fields:</strong> metadata.name, spec.taskRef.name</li>
+</ul>
+<h4 class="md-github"><a class="md-github__anchor" name="pipeline-api" href="#pipeline-api"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Pipeline API</h4>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">API Version:</strong> tekton.dev/v1beta1</li>
+<li class="md-github"><strong class="md-github">Kind:</strong> Pipeline</li>
+<li class="md-github"><strong class="md-github">Required Fields:</strong> metadata.name, spec.params, spec.tasks</li>
+<li class="md-github"><strong class="md-github">Task in Pipeline:</strong>
+<ul class="md-github">
+<li class="md-github">name: string</li>
+<li class="md-github">taskRef: { name: string }</li>
+<li class="md-github">runAfter: list of task names (optional)</li>
+<li class="md-github">params: list of parameter assignments (name and value)</li>
+</ul>
+</li>
+</ul>
+<h4 class="md-github"><a class="md-github__anchor" name="pipelinerun-api" href="#pipelinerun-api"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>PipelineRun API</h4>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">API Version:</strong> tekton.dev/v1beta1</li>
+<li class="md-github"><strong class="md-github">Kind:</strong> PipelineRun</li>
+<li class="md-github"><strong class="md-github">Required Fields:</strong> metadata.name, spec.pipelineRef.name, spec.params</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="code-examples" href="#code-examples"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Code Examples</h3>
+<h4 class="md-github"><a class="md-github__anchor" name="example-creating-a-task" href="#example-creating-a-task"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example: Creating a Task</h4>
+<pre class="md-github"><code class="md-github language-yaml">apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: hello
+spec:
+  steps:
+    - name: echo
+      image: alpine
+      script: |
+        #!/bin/sh
+        echo &quot;Hello World&quot;
+</code></pre>
+<h4 class="md-github"><a class="md-github__anchor" name="example-executing-a-taskrun" href="#example-executing-a-taskrun"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example: Executing a TaskRun</h4>
+<pre class="md-github"><code class="md-github language-yaml">apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: hello-task-run
+spec:
+  taskRef:
+    name: hello
+</code></pre>
+<h4 class="md-github"><a class="md-github__anchor" name="example-pipeline-with-parameter-passing" href="#example-pipeline-with-parameter-passing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example: Pipeline with Parameter Passing</h4>
+<pre class="md-github"><code class="md-github language-yaml">apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: hello-goodbye
+spec:
+  params:
+  - name: username
+    type: string
+  tasks:
+    - name: hello
+      taskRef:
+        name: hello
+    - name: goodbye
+      runAfter:
+        - hello
+      taskRef:
+        name: goodbye
+      params:
+      - name: username
+        value: $(params.username)
+</code></pre>
+<h4 class="md-github"><a class="md-github__anchor" name="example-pipelinerun-to-trigger-pipeline" href="#example-pipelinerun-to-trigger-pipeline"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example: PipelineRun to Trigger Pipeline</h4>
+<pre class="md-github"><code class="md-github language-yaml">apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: hello-goodbye-run
+spec:
+  pipelineRef:
+    name: hello-goodbye
+  params:
+  - name: username
+    value: &quot;Tekton&quot;
+</code></pre>
+<h3 class="md-github"><a class="md-github__anchor" name="implementation-patterns--best-practices" href="#implementation-patterns--best-practices"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Implementation Patterns &amp; Best Practices</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">YAML Validation:</strong> Ensure proper indentation and API version consistency.</li>
+<li class="md-github"><strong class="md-github">Parameterization:</strong> Use parameters in Pipeline and Task definitions to enhance reusability.</li>
+<li class="md-github"><strong class="md-github">CLI Usage:</strong> Leverage 'kubectl' for applying configurations and 'tkn' for log tracing.</li>
+<li class="md-github"><strong class="md-github">Troubleshooting Steps:</strong>
+<ol class="md-github">
+<li class="md-github">Check pod status with <code class="md-github">kubectl get pods --namespace tekton-pipelines</code>.</li>
+<li class="md-github">Inspect logs using <code class="md-github">kubectl logs --selector=tekton.dev/taskRun=&lt;name&gt;</code>.</li>
+<li class="md-github">Run <code class="md-github">kubectl cluster-info dump</code> to diagnose cluster issues.</li>
+</ol>
+</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="specific-configuration-options" href="#specific-configuration-options"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Specific Configuration Options</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">minikube Start Options:</strong>
+<ul class="md-github">
+<li class="md-github"><code class="md-github">--kubernetes-version v1.30.2</code> ensures compatibility.</li>
+<li class="md-github">Ensure allocated resources (CPUs, Memory) match cluster requirements.</li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">Tekton Pipelines Release YAML:</strong> hosted at https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="detailed-troubleshooting-commands" href="#detailed-troubleshooting-commands"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Detailed Troubleshooting Commands</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">View Cluster Info:</strong><pre class="md-github"><code class="md-github language-bash">kubectl cluster-info
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">Monitor Pod Readiness:</strong><pre class="md-github"><code class="md-github language-bash">kubectl get pods --namespace tekton-pipelines --watch
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">Delete Cluster:</strong><pre class="md-github"><code class="md-github language-bash">minikube delete
+</code></pre>
+</li>
+</ul>
+<p class="md-github">This reference provides the full, exact technical specifications required for setting up and managing Tekton Pipelines in a Kubernetes environment.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="original-source" href="#original-source"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Original Source</h2>
+<p class="md-github">Tekton Pipelines Documentation
+https://tekton.dev/docs/pipelines/</p>
+<h2 class="md-github"><a class="md-github__anchor" name="digest-of-tekton_pipelines" href="#digest-of-tekton_pipelines"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Digest of TEKTON_PIPELINES</h2>
+<h1 class="md-github"><a class="md-github__anchor" name="tekton-pipelines-documentation" href="#tekton-pipelines-documentation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Tekton Pipelines Documentation</h1>
+<p class="md-github"><strong class="md-github">Retrieved Date:</strong> 2023-10-30</p>
+<h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
+<p class="md-github">Tekton Pipelines is a Kubernetes extension that provides a set of Custom Resources to construct CI/CD workflows. It is available via kubectl and API calls, and integrates with Kubernetes native functionality.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="tekton-entities" href="#tekton-entities"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Tekton Entities</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="task" href="#task"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Task</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Definition:</strong> A Task is a series of steps executed sequentially in a pod.</li>
+<li class="md-github"><strong class="md-github">YAML Example:</strong></li>
+</ul>
+<pre class="md-github"><code class="md-github language-yaml">apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: hello
+spec:
+  steps:
+    - name: echo
+      image: alpine
+      script: |
+        #!/bin/sh
+        echo &quot;Hello World&quot;
+</code></pre>
+<h3 class="md-github"><a class="md-github__anchor" name="taskrun" href="#taskrun"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>TaskRun</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Definition:</strong> Instantiates and executes a Task with specific parameters.</li>
+<li class="md-github"><strong class="md-github">YAML Example:</strong></li>
+</ul>
+<pre class="md-github"><code class="md-github language-yaml">apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: hello-task-run
+spec:
+  taskRef:
+    name: hello
+</code></pre>
+<h3 class="md-github"><a class="md-github__anchor" name="pipeline" href="#pipeline"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Pipeline</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Definition:</strong> A collection of Tasks executed in a specified order.</li>
+<li class="md-github"><strong class="md-github">YAML Example:</strong></li>
+</ul>
+<pre class="md-github"><code class="md-github language-yaml">apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: hello-goodbye
+spec:
+  params:
+  - name: username
+    type: string
+  tasks:
+    - name: hello
+      taskRef:
+        name: hello
+    - name: goodbye
+      runAfter:
+        - hello
+      taskRef:
+        name: goodbye
+      params:
+      - name: username
+        value: $(params.username)
+</code></pre>
+<h3 class="md-github"><a class="md-github__anchor" name="pipelinerun" href="#pipelinerun"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>PipelineRun</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Definition:</strong> Instantiates and executes a Pipeline with provided parameters.</li>
+<li class="md-github"><strong class="md-github">YAML Example:</strong></li>
+</ul>
+<pre class="md-github"><code class="md-github language-yaml">apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: hello-goodbye-run
+spec:
+  pipelineRef:
+    name: hello-goodbye
+  params:
+  - name: username
+    value: &quot;Tekton&quot;
+</code></pre>
+<h2 class="md-github"><a class="md-github__anchor" name="installation--setup" href="#installation--setup"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Installation &amp; Setup</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="creating-a-kubernetes-cluster-with-minikube" href="#creating-a-kubernetes-cluster-with-minikube"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Creating a Kubernetes Cluster with minikube</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Command:</strong></li>
+</ul>
+<pre class="md-github"><code class="md-github language-bash">minikube start --kubernetes-version v1.30.2
+</code></pre>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Verification:</strong></li>
+</ul>
+<pre class="md-github"><code class="md-github language-bash">kubectl cluster-info
+</code></pre>
+<h3 class="md-github"><a class="md-github__anchor" name="installing-tekton-pipelines" href="#installing-tekton-pipelines"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Installing Tekton Pipelines</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Command:</strong></li>
+</ul>
+<pre class="md-github"><code class="md-github language-bash">kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
+</code></pre>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Monitor Installation:</strong></li>
+</ul>
+<pre class="md-github"><code class="md-github language-bash">kubectl get pods --namespace tekton-pipelines --watch
+</code></pre>
+<h2 class="md-github"><a class="md-github__anchor" name="task-and-pipeline-execution-examples" href="#task-and-pipeline-execution-examples"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Task and Pipeline Execution Examples</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="create-and-run-a-task" href="#create-and-run-a-task"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Create and Run a Task</h3>
+<ol class="md-github">
+<li class="md-github">Create file <code class="md-github">hello-world.yaml</code>:</li>
+</ol>
+<pre class="md-github"><code class="md-github language-yaml">apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: hello
+spec:
+  steps:
+    - name: echo
+      image: alpine
+      script: |
+        #!/bin/sh
+        echo &quot;Hello World&quot;
+</code></pre>
+<ol start="2" class="md-github">
+<li class="md-github">Apply Task:</li>
+</ol>
+<pre class="md-github"><code class="md-github language-bash">kubectl apply --filename hello-world.yaml
+</code></pre>
+<ol start="3" class="md-github">
+<li class="md-github">Create file <code class="md-github">hello-world-run.yaml</code>:</li>
+</ol>
+<pre class="md-github"><code class="md-github language-yaml">apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: hello-task-run
+spec:
+  taskRef:
+    name: hello
+</code></pre>
+<ol start="4" class="md-github">
+<li class="md-github">Launch TaskRun:</li>
+</ol>
+<pre class="md-github"><code class="md-github language-bash">kubectl apply --filename hello-world-run.yaml
+</code></pre>
+<ol start="5" class="md-github">
+<li class="md-github">Check TaskRun status:</li>
+</ol>
+<pre class="md-github"><code class="md-github language-bash">kubectl get taskrun hello-task-run
+</code></pre>
+<ol start="6" class="md-github">
+<li class="md-github">Verify Logs:</li>
+</ol>
+<pre class="md-github"><code class="md-github language-bash">kubectl logs --selector=tekton.dev/taskRun=hello-task-run
+</code></pre>
+<h3 class="md-github"><a class="md-github__anchor" name="create-and-run-a-pipeline" href="#create-and-run-a-pipeline"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Create and Run a Pipeline</h3>
+<ol class="md-github">
+<li class="md-github">Create file <code class="md-github">goodbye-world.yaml</code>:</li>
+</ol>
+<pre class="md-github"><code class="md-github language-yaml">apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: goodbye
+spec:
+  params:
+  - name: username
+    type: string
+  steps:
+    - name: goodbye
+      image: ubuntu
+      script: |
+        #!/bin/bash
+        echo &quot;Goodbye $(params.username)!&quot;
+</code></pre>
+<ol start="2" class="md-github">
+<li class="md-github">Apply the Task:</li>
+</ol>
+<pre class="md-github"><code class="md-github language-bash">kubectl apply --filename goodbye-world.yaml
+</code></pre>
+<ol start="3" class="md-github">
+<li class="md-github">Create file <code class="md-github">hello-goodbye-pipeline.yaml</code>:</li>
+</ol>
+<pre class="md-github"><code class="md-github language-yaml">apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: hello-goodbye
+spec:
+  params:
+  - name: username
+    type: string
+  tasks:
+    - name: hello
+      taskRef:
+        name: hello
+    - name: goodbye
+      runAfter:
+        - hello
+      taskRef:
+        name: goodbye
+      params:
+      - name: username
+        value: $(params.username)
+</code></pre>
+<ol start="4" class="md-github">
+<li class="md-github">Apply the Pipeline:</li>
+</ol>
+<pre class="md-github"><code class="md-github language-bash">kubectl apply --filename hello-goodbye-pipeline.yaml
+</code></pre>
+<ol start="5" class="md-github">
+<li class="md-github">Create file <code class="md-github">hello-goodbye-pipeline-run.yaml</code>:</li>
+</ol>
+<pre class="md-github"><code class="md-github language-yaml">apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: hello-goodbye-run
+spec:
+  pipelineRef:
+    name: hello-goodbye
+  params:
+  - name: username
+    value: &quot;Tekton&quot;
+</code></pre>
+<ol start="6" class="md-github">
+<li class="md-github">Start the PipelineRun:</li>
+</ol>
+<pre class="md-github"><code class="md-github language-bash">kubectl apply --filename hello-goodbye-pipeline-run.yaml
+</code></pre>
+<ol start="7" class="md-github">
+<li class="md-github">View Pipeline logs using Tekton CLI:</li>
+</ol>
+<pre class="md-github"><code class="md-github language-bash">tkn pipelinerun logs hello-goodbye-run -f -n default
+</code></pre>
+<h2 class="md-github"><a class="md-github__anchor" name="troubleshooting--cleanup" href="#troubleshooting--cleanup"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Troubleshooting &amp; Cleanup</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="cluster-troubleshooting" href="#cluster-troubleshooting"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Cluster Troubleshooting</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Command:</strong></li>
+</ul>
+<pre class="md-github"><code class="md-github language-bash">kubectl cluster-info dump
+</code></pre>
+<h3 class="md-github"><a class="md-github__anchor" name="deleting-the-minikube-cluster" href="#deleting-the-minikube-cluster"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Deleting the minikube Cluster</h3>
+<pre class="md-github"><code class="md-github language-bash">minikube delete
+</code></pre>
+<p class="md-github">Expected Output:</p>
+<ul class="md-github">
+<li class="md-github">Confirmation messages indicating deletion of the cluster and its resources.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="attribution" href="#attribution"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h2>
+<ul class="md-github">
+<li class="md-github">Source: Tekton Pipelines Documentation</li>
+<li class="md-github">URL: https://tekton.dev/docs/pipelines/</li>
+<li class="md-github">License: License: Apache License 2.0</li>
+<li class="md-github">Crawl Date: 2025-04-17T14:43:59.198Z</li>
+<li class="md-github">Data Size: 887477 bytes</li>
+<li class="md-github">Links Found: 8424</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="retrieved" href="#retrieved"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Retrieved</h2>
+<p class="md-github">2025-04-17</p>
+
+  </section>
+  <footer>
+    <p>Generated on 2025-04-17T23:59:39.207Z</p>
+  </footer>
+</body>
+</html>
