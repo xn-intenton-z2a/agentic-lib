@@ -97,3 +97,23 @@ The dotenv documentation explains how to load environment variables from a .env 
 ## https://github.com/markdown-it/markdown-it
 This repository offers detailed documentation for markdown-it, a fast and flexible Markdown parser that supports full CommonMark and various extensions. It is an important resource for developers needing customizable Markdown rendering in their projects.
 ## License: MIT License
+
+# GitLab CI/CD Documentation
+## https://docs.gitlab.com/ee/ci/
+This documentation provides a comprehensive guide to GitLab's CI/CD pipeline configuration and monitoring. It includes detailed instructions for setting up pipelines, writing .gitlab-ci.yml files, as well as integrating testing, deployment, and other automation strategies on the GitLab platform. Regular updates and in-depth examples make it an essential resource for continuous integration and delivery.
+## License: GitLab Documentation License
+
+# Jenkins Pipeline Documentation
+## https://www.jenkins.io/doc/book/pipeline/
+This official documentation by Jenkins guides users through creating and managing pipelines using the Jenkins Pipeline DSL. It offers practical examples, detailed breakdowns of pipeline syntax, and best practices for building robust CI/CD systems. Frequently updated by the Jenkins community, it aids both newcomers and experienced developers.
+## License: Jenkins Community License
+
+# OWL Web Ontology Language Guide
+## https://www.w3.org/TR/owl-guide/
+This guide from the W3C explains the OWL (Web Ontology Language), which is used for publishing and sharing ontologies on the semantic web. The document provides detailed explanations of OWL constructs, best practices for encoding semantic relationships, and examples for practical implementations. It is an authoritative resource on semantic web standards.
+## License: W3C License
+
+# AWS Step Functions Developer Guide
+## https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html
+The AWS Step Functions Developer Guide covers the design, implementation, and management of state machines that coordinate multiple AWS services into serverless workflows. It provides tutorials, API references, and best practices to build scalable and resilient automation pipelines within AWS.
+## License: AWS Documentation Terms
