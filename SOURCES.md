@@ -25,7 +25,7 @@ The Node.js Official Documentation offers an authoritative reference on the Node
 
 # GitHub Actions Documentation
 ## https://docs.github.com/en/actions
-This documentation provides detailed guidance on automating workflows using GitHub Actions. It covers setup, configuration, best practices for CI/CD pipelines, and integration with other GitHub services. Maintained by GitHub, it is a vital resource for developers looking to implement automated and agentic behaviors in their repositories.
+This documentation provides detailed guidance on automating workflows using GitHub Actions. It covers setup, configuration, best practices for CI/CD pipelines, and integration with other GitHub services. Maintained by GitHub, it is a vital resource for developers looking to implement agentic and automated solutions in their repositories.
 ## License: GitHub Terms
 
 # AWS SQS Developer Guide
@@ -91,4 +91,29 @@ Day.js is a minimalist JavaScript library for parsing, validating, manipulating,
 # Change Case Documentation
 ## https://www.npmjs.com/package/change-case
 The Change Case documentation covers a suite of functions to convert strings between different cases (camelCase, snake_case, etc.). It provides usage examples and API details, supporting developers in normalizing text data across applications.
+## License: MIT License
+
+# AWS SDK for JavaScript v3 Documentation
+## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/index.html
+The official documentation for the AWS SDK for JavaScript (v3) provides comprehensive guidance on integrating AWS services into JavaScript applications. It includes API references, code examples, and best practices for building scalable cloud solutions. Maintained by AWS, this resource is frequently updated and recognized for its authoritative content.
+## License: AWS Documentation License
+
+# Jenkins Pipeline Documentation
+## https://www.jenkins.io/doc/book/pipeline/
+Jenkins Pipeline Documentation offers an extensive guide on automating CI/CD workflows using Jenkins. It provides tutorials, syntax references, and best practices for defining, maintaining, and troubleshooting pipeline scripts in Jenkins. This resource is highly regarded within the continuous integration community.
+## License: MIT License
+
+# CircleCI Documentation
+## https://circleci.com/docs/
+The CircleCI Documentation delivers detailed guidance on configuring and automating continuous integration and delivery pipelines using CircleCI. Covering workflow configuration, best practices, and troubleshooting tips, it serves as both a comprehensive guide and a competitive alternative to GitHub Actions.
+## License: CircleCI Docs Terms
+
+# Vite Documentation
+## https://vitejs.dev/guide/features.html
+Vite Documentation provides an overview of the modern build tool's features, configuration options, and integration strategies for rapid development. Often used in tandem with Vitest for testing, Vite's guides help developers leverage its speed and simplicity in modern web projects.
+## License: MIT License
+
+# ESLint Plugin Security Documentation
+## https://github.com/nodesecurity/eslint-plugin-security
+This documentation explains how to utilize the ESLint Plugin Security to detect and prevent potential vulnerabilities in JavaScript code. It includes setup instructions, rule references, and configuration recommendations to help integrate security best practices into your development workflow.
 ## License: MIT License
