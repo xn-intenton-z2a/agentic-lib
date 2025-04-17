@@ -412,3 +412,23 @@ The Docker documentation covers containerization concepts, best practices, and t
 ## https://docs.github.com/en/codespaces
 GitHub Codespaces provides cloud-based development environments that integrate directly with GitHub repositories. This documentation offers insights into setting up and managing Codespaces, which can streamline development processes and collaboration on projects like agentic-lib.
 ## License: GitHub Docs License (CC BY 4.0)
+
+# Tekton Pipelines Documentation
+## https://tekton.dev/docs/pipelines/
+Tekton Pipelines Documentation provides comprehensive guidance on using Tekton to build CI/CD pipelines on Kubernetes. This resource offers insights into modern, container-native workflow orchestration, serving as a comparative guide to GitHub Actions workflows utilized in agentic-lib.
+## License: Apache License 2.0
+
+# Azure Functions Documentation
+## https://learn.microsoft.com/en-us/azure/azure-functions/
+The Azure Functions Documentation covers the development and deployment of serverless functions on Microsoft Azure. It details triggers, bindings, and scaling options, offering an alternative perspective to AWS Lambda implementations in agentic-lib.
+## License: Microsoft Documentation License (varies by document)
+
+# Google Cloud Functions Documentation
+## https://cloud.google.com/functions/docs
+The Google Cloud Functions Documentation provides in-depth information on building and deploying event-driven, serverless functions using Google Cloud Platform. This resource serves as a comparative guide alongside AWS Lambda for designing serverless architectures.
+## License: Google Cloud Terms of Service
+
+# Netlify Functions Documentation
+## https://docs.netlify.com/functions/overview/
+The Netlify Functions Documentation details the deployment and management of serverless functions on Netlify. It explores configuration, triggers, and best practices for serverless workflows, offering additional insights into alternative serverless environments compatible with static site generators and continuous deployment systems.
+## License: Netlify Docs License
