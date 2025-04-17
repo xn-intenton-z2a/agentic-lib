@@ -222,3 +222,23 @@ The official AWS CloudFormation documentation provides in-depth guidance on defi
 ## https://docs.npmjs.com/
 The npm documentation offers comprehensive guidelines for using the Node Package Manager, including package installation, versioning, publishing, and troubleshooting. It is an essential resource for developers managing JavaScript dependencies.
 ## License: Unspecified
+
+# Schema.org Documentation
+## https://schema.org/docs/full.html
+The official documentation for Schema.org provides a comprehensive guide to structured data markup used to enhance search engine optimization and data interoperability. Maintained by the Schema.org community, it is frequently updated and serves as an authoritative resource in the semantic web domain.
+## License: CC BY-SA 3.0
+
+# RDF Primer
+## https://www.w3.org/TR/rdf-primer/
+This document serves as an introductory guide to the Resource Description Framework (RDF), offering insights into its structure, syntax, and practical applications in developing semantic web technologies. Authored by the W3C, it is a fundamental resource for understanding linked data and ontologies.
+## License: W3C License
+
+# Understanding GitHub Actions
+## https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
+This official guide provides in-depth insights into GitHub Actions, detailing core concepts, workflow architecture, and best practices for automation. It is an essential resource for users looking to harness the full potential of GitHub's automation platform.
+## License: Custom GitHub Docs License
+
+# Node.js Best Practices
+## https://github.com/goldbergyoni/nodebestpractices
+A community-curated compilation of best practices for Node.js development, covering topics from project structure and performance optimization to security and testing. Regularly updated by the community, it serves as an invaluable resource for developers aiming to build robust Node.js applications.
+## License: MIT License
