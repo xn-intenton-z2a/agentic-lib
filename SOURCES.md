@@ -237,3 +237,18 @@ This official AWS documentation details best practices for designing, deploying,
 ## https://github.com/goldbergyoni/nodebestpractices
 A comprehensive, community-driven guide to Node.js best practices covering project structure, performance enhancements, security considerations, and production deployment strategies. It serves as a valuable resource for developers seeking to write robust and maintainable Node.js applications.
 ## MIT License
+
+# GitHub Actions Workflow Commands
+## https://docs.github.com/en/actions/using-workflows/using-workflow-commands-for-github-actions
+This documentation explains how to utilize GitHub Actions workflow commands to interact with the runner environment. It includes instructions on setting outputs, updating job status, and leveraging logging commands directly from workflow steps. Last updated in 2023, it is considered authoritative as it is published by GitHub.
+## Unknown License
+
+# Schema.org Documentation
+## https://schema.org/docs/about.html
+The Schema.org documentation provides an in-depth explanation of the vocabulary used for semantic markup on the web. It offers guidelines and examples to help developers structure their data for better search engine understanding, updated regularly by the Schema.org community.
+## Unknown License
+
+# AWS Step Functions Developer Guide
+## https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html
+This guide covers the fundamentals of AWS Step Functions, enabling the orchestration of microservices into serverless workflows through state machines. It includes examples, best practices, and recent updates from AWS, making it an authoritative resource for building distributed applications.
+## Unknown License
