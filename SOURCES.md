@@ -367,3 +367,23 @@ The CloudEvents specification provides a common standard for describing event da
 ## https://martinfowler.com/articles/201701-event-driven.html
 This article by Martin Fowler provides an in-depth analysis of event-driven architecture principles. It offers guidance on designing scalable, decoupled systems and is relevant for architects looking to implement autonomous workflows similar to those in agentic-lib.
 ## License: Copyright Martin Fowler, used with permission for educational purposes.
+
+# Node.js Event Loop and Timers
+## https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/
+This guide explains the inner workings of the Node.js event loop, including timers and the process.nextTick() mechanism. It provides essential insights into asynchronous operations and performance optimizations within Node.js applications.
+## License: Node.js Foundation License
+
+# W3C Linked Data Platform (LDP)
+## https://www.w3.org/TR/ldp/
+The W3C Linked Data Platform (LDP) provides guidelines for building interoperable RESTful HTTP services in line with linked data principles. This standard is critical for developing semantic web applications and integrating linked data practices into projects like agentic-lib.
+## License: W3C License
+
+# V8 JavaScript Engine Features
+## https://v8.dev/features
+The V8 JavaScript Engine Features page outlines the latest capabilities, optimizations, and performance improvements of the V8 engine, which underpins Node.js. This resource is valuable for understanding cutting-edge advancements in JavaScript runtime performance.
+## License: BSD 3-Clause License (V8)
+
+# OWASP Node.js Security Guide
+## https://owasp.org/www-project-nodejs-security-wg/
+The OWASP Node.js Security Guide offers a comprehensive collection of best practices and guidelines for securing Node.js applications. This resource is essential for identifying and mitigating common security vulnerabilities in modern JavaScript projects.
+## License: OWASP License
