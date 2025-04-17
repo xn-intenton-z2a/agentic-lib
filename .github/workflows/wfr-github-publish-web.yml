@@ -287,6 +287,12 @@ jobs:
 
           echo "Index page generated successfully"
 
+      - name: Generate index page
+        shell: bash
+        run: |
+          ./scripts/md-to-html.js < README.md > ${{ env.public }}/index.agentic-lib.html
+          cat ${{ env.public }}/index.agentic-lib.html | sed 's/agentic-lib/${{ github.event.repository.name }}/g' > ${{ env.public }}/index.html
+
       - name: Deploy to GitHub Pages
         if: ${{ env.publishToGitHubPages == 'true' }}
         uses: peaceiris/actions-gh-pages@v4
@@ -314,8 +320,11 @@ jobs:
           owner=${{ github.repository_owner }}
           baseUrl="https://${owner}.github.io/${repoName}"
           thisRepositoryWebsiteUrl="${baseUrl}/library-index.html"
+          thisHomePageUrl="${baseUrl}/index.html"
           echo "::notice:: thisRepositoryWebsiteUrl: ${thisRepositoryWebsiteUrl}"
           echo "thisRepositoryWebsiteUrl=${thisRepositoryWebsiteUrl}" >> $GITHUB_OUTPUT
+          echo "::notice:: thisHomePageUrl: ${thisHomePageUrl}"
+          echo "thisHomePageUrl=${thisHomePageUrl}" >> $GITHUB_OUTPUT
 
     outputs:
       thisRepositoryWebsiteUrl: ${{ steps.output-pages-urls.outputs.thisRepositoryWebsiteUrl }}
