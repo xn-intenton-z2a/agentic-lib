@@ -228,7 +228,7 @@ jobs:
             const OpenAI = require('openai').default;
             const { z } = require('zod');
             require('dotenv').config();
-  
+
             if (!apiKey) { 
               core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
             }
@@ -253,7 +253,29 @@ jobs:
             core.info(`Test file '${testFile}' has been loaded (length ${testFileContent.length}).`);
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
-            
+
+            // Load library documents
+            let libraryDocuments = '';
+            try {
+              const libraryDir = 'library';
+              if (fs.existsSync(libraryDir)) {
+                const libraryFiles = fs.readdirSync(libraryDir)
+                  .filter(file => file.endsWith('.md'))
+                  .map(file => path.join(libraryDir, file));
+
+                for (const file of libraryFiles) {
+                  const fileName = path.basename(file);
+                  const content = fs.readFileSync(file, 'utf8');
+                  libraryDocuments += `# ${fileName}\n${content}\n\n`;
+                }
+                core.info(`Loaded ${libraryFiles.length} library documents.`);
+              } else {
+                core.info('Library directory not found.');
+              }
+            } catch (e) {
+              core.warning(`Error reading library documents: ${e.message}`);
+            }
+
             // generate the feature prompt either by using the supplied feature or by reviewing the current features and full context
             let prompt = feature;
             if (feature === 'house choice') {
@@ -264,7 +286,7 @@ jobs:
                 The feature name should either be a current feature name or be supplied with a feature specification which is distinct from any other feature in the repository.
               `;
             }
-            
+
             const chatGptPrompt = `
             Please generate the name and specification for a software feature which will be added or updated to action the supplied feature prompt.
             Prefer to refine a feature focusing on achievable value with a single repository, not a grandiose vision, or bloated feature set.
@@ -294,28 +316,34 @@ jobs:
             * MISSION file content
             * Contributing file content
             * Dependencies file content
+            * Library documents
             * Dependency list
-            
+
             Feature prompt:
             FEATURE_PROMPT_START
             ${prompt}
             FEATURE_PROMPT_END            
-            
+
             Current feature names and specifications:
             CURRENT_FEATURES_START
             ${currentFeatures}
             CURRENT_FEATURES_END
-            
+
+            Library documents:
+            LIBRARY_DOCUMENTS_START
+            ${libraryDocuments}
+            LIBRARY_DOCUMENTS_END
+
             Rejected feature names:
             REJECTED_FEATURES_START
             ${rejectedFeatures}
             REJECTED_FEATURES_END
-            
+
             Source file: ${target}
             SOURCE_FILE_START
             ${sourceFileContent}
             SOURCE_FILE_END
-            
+
             Test file: ${testFile}
             TEST_FILE_START
             ${testFileContent}
@@ -325,7 +353,7 @@ jobs:
             README_FILE_START
             ${readmeFileContent}
             README_FILE_END
-            
+
             MISSION file: ${missionFile}
             MISSION_FILE_START
             ${missionFileContent}
@@ -335,17 +363,17 @@ jobs:
             CONTRIBUTING_FILE_START
             ${contributingFileContent}
             CONTRIBUTING_FILE_END
-            
+
             Dependencies file: ${dependenciesFile}
             DEPENDENCIES_FILE_START
             ${dependenciesFileContent}
             DEPENDENCIES_FILE_END
-            
+
             Dependencies list from command: npm list
             DEPENDENCIES_LIST_START
             ${dependenciesListOutput}
             DEPENDENCIES_LIST_END    
-            
+
             Answer strictly with a JSON object following this schema:
             {
               "featureName": "The feature name as one or two words in SCREAMING_SNAKECASE.",
@@ -354,9 +382,9 @@ jobs:
             }
             Ensure valid JSON.
             `;
-            
+
             const ResponseSchema = z.object({ featureName: z.string(), featureSpec: z.string(), featureNamesToBeDeleted: z.string() });
-            
+
             // Define the function schema for function calling
             const tools = [{
               type: "function",
@@ -386,7 +414,7 @@ jobs:
               ],
               tools: tools
             });
-            
+
             let result;
             if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
               try {
@@ -403,7 +431,7 @@ jobs:
             } else {
               core.setFailed("No valid response received from OpenAI.");
             }
-            
+
             try {
               const parsed = ResponseSchema.parse(result);
               core.setOutput("featureName", parsed.featureName);
@@ -412,12 +440,12 @@ jobs:
               core.info(`featureName: "${parsed.featureName}"`);
               core.info(`featureSpec: "${parsed.featureSpec}"`);
               core.info(`featureNamesToBeDeleted: "${parsed.featureNamesToBeDeleted}"`);
-            
+
               // Save the feature spec to a file using the convention of <featuresDir> plus path SCREAMING_SNAKE_CASE(<feature name>).md
               const featureName = parsed.featureName.replace(/ /g, "_").toUpperCase();
               const featureSpec = parsed.featureSpec;
               const featuresDir = process.env.featuresDir || 'features/';
-              
+
               const featureFilePath = path.join(featuresDir, `${featureName}.md`);
               try {
                 fs.mkdirSync(featuresDir, { recursive: true });
@@ -426,7 +454,7 @@ jobs:
               } catch (e) {
                 core.setFailed(`Failed to save feature spec: ${e.message}`);
               }
-            
+
               const featureFilepathsToBeDeleted = parsed.featureNamesToBeDeleted
                 .split(',')
                 .map(name => path.join(featuresDir, `${name.trim().replace(/.md^/, "").toUpperCase()}.md`));
@@ -440,11 +468,11 @@ jobs:
                   core.info(`Could not delete ${filepath}: ${e.message}`);
                 }
               }
-            
+
             } catch (e) {
               core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
             }
-              
+
             core.setOutput("response", JSON.stringify(response));
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`response: "${JSON.stringify(response)}"`);

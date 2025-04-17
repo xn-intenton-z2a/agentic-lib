@@ -246,6 +246,7 @@ jobs:
             const mainOutput = process.env.mainOutput;
 
             const fs = require('fs');
+            const path = require('path');
             const OpenAI = require('openai').default;
             const { z } = require('zod');
             require('dotenv').config();
@@ -272,7 +273,29 @@ jobs:
             core.info(`Test file '${testFile}' has been loaded (length ${testFileContent.length}).`);
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
-            
+
+            // Load library documents
+            let libraryDocuments = '';
+            try {
+              const libraryDir = 'library';
+              if (fs.existsSync(libraryDir)) {
+                const libraryFiles = fs.readdirSync(libraryDir)
+                  .filter(file => file.endsWith('.md'))
+                  .map(file => path.join(libraryDir, file));
+
+                for (const file of libraryFiles) {
+                  const fileName = path.basename(file);
+                  const content = fs.readFileSync(file, 'utf8');
+                  libraryDocuments += `# ${fileName}\n${content}\n\n`;
+                }
+                core.info(`Loaded ${libraryFiles.length} library documents.`);
+              } else {
+                core.info('Library directory not found.');
+              }
+            } catch (e) {
+              core.warning(`Error reading library documents: ${e.message}`);
+            }
+
             const issue = await github.rest.issues.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -288,7 +311,7 @@ jobs:
             const issueCommentsText = issueComments.data
               .map(comment => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
               .join('\n');
-            
+
             const prompt = `
             Does the combination source file, test file, README file and dependencies file show a solution with a reasonable likelihood of including a resolution to the following issue?
             Consider the following when refining your response:
@@ -299,22 +322,28 @@ jobs:
             * MISSION file content
             * Contributing file content
             * Dependencies file content
+            * Library documents
             * Issue details
             * Dependency list
             * Build output
             * Test output
             * Main execution output
-            
+
             Current feature names and specifications:
             CURRENT_FEATURES_START
             ${currentFeatures}
             CURRENT_FEATURES_END
-            
+
+            Library documents:
+            LIBRARY_DOCUMENTS_START
+            ${libraryDocuments}
+            LIBRARY_DOCUMENTS_END
+
             Source file: ${target}
             SOURCE_FILE_START
             ${sourceFileContent}
             SOURCE_FILE_END
-            
+
             Test file: ${testFile}
             TEST_FILE_START
             ${testFileContent}
@@ -324,7 +353,7 @@ jobs:
             README_FILE_START
             ${readmeFileContent}
             README_FILE_END
-            
+
             MISSION file: ${missionFile}
             MISSION_FILE_START
             ${missionFileContent}
@@ -334,12 +363,12 @@ jobs:
             CONTRIBUTING_FILE_START
             ${contributingFileContent}
             CONTRIBUTING_FILE_END
-            
+
             Dependencies file: ${dependenciesFile}
             DEPENDENCIES_FILE_START
             ${dependenciesFileContent}
             DEPENDENCIES_FILE_END
-            
+
             Issue:
             ISSUE_START
             title: ${issueTitle}
@@ -353,12 +382,12 @@ jobs:
             DEPENDENCIES_LIST_START
             ${dependenciesListOutput}
             DEPENDENCIES_LIST_END    
-            
+
             Build output from command: ${buildScript}
             TEST_OUTPUT_START
             ${buildOutput}
             TEST_OUTPUT_END      
-            
+
             Test output from command: ${testScript}
             TEST_OUTPUT_START
             ${testOutput}
@@ -368,7 +397,7 @@ jobs:
             MAIN_OUTPUT_START
             ${mainOutput}
             MAIN_OUTPUT_END    
-            
+
             Answer strictly with a JSON object following this schema:
             {
               "fixed": "true", // if the fix is present, or "false" otherwise.
@@ -377,9 +406,9 @@ jobs:
             }
             Ensure valid JSON.
             `;
-            
+
             const ResponseSchema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
-            
+
             // Define the function schema for function calling
             const tools = [{
               type: "function",
@@ -409,7 +438,7 @@ jobs:
               ],
               tools: tools
             });
-            
+
             let result;
             if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
               try {
@@ -426,7 +455,7 @@ jobs:
             } else {
               core.setFailed("No valid response received from OpenAI.");
             }
-            
+
             try {
               const parsed = ResponseSchema.parse(result);
               core.setOutput("fixed", parsed.fixed);
@@ -435,14 +464,14 @@ jobs:
               core.info(`fixed: "${parsed.fixed}"`);
               core.info(`message: "${parsed.message}"`);
               core.info(`refinement: "${parsed.refinement}"`);
-            
+
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issueNumber,
                 body: parsed.message
               });
-            
+
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -452,7 +481,7 @@ jobs:
             } catch (e) {
               core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
             }
-            
+
             core.setOutput("response", JSON.stringify(response));
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`response: "${JSON.stringify(response)}"`);

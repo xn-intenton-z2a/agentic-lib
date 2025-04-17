@@ -301,17 +301,18 @@ jobs:
             const testOutput = process.env.testOutput;
             const mainScript = process.env.mainScript;
             const mainOutput = process.env.mainOutput;
-            
+
             const fs = require('fs');
+            const path = require('path');
             const OpenAI = require('openai').default;
             const { z } = require('zod');
             require('dotenv').config();
-            
+
             if (!apiKey) { 
               core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
             }
             const openai = new OpenAI({ apiKey });
-            
+
             core.info(`currentFeatures: "${currentFeatures}"`);
             core.info(`target: "${target}"`);
             core.info(`testFile: "${testFile}"`);
@@ -335,7 +336,29 @@ jobs:
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
             core.info(`Formatting file '${formattingFile}' has been loaded (length ${formattingFileContent.length}).`);
             core.info(`Linting file '${lintingFile}' has been loaded (length ${lintingFileContent.length}).`);
-            
+
+            // Load library documents
+            let libraryDocuments = '';
+            try {
+              const libraryDir = 'library';
+              if (fs.existsSync(libraryDir)) {
+                const libraryFiles = fs.readdirSync(libraryDir)
+                  .filter(file => file.endsWith('.md'))
+                  .map(file => path.join(libraryDir, file));
+
+                for (const file of libraryFiles) {
+                  const fileName = path.basename(file);
+                  const content = fs.readFileSync(file, 'utf8');
+                  libraryDocuments += `# ${fileName}\n${content}\n\n`;
+                }
+                core.info(`Loaded ${libraryFiles.length} library documents.`);
+              } else {
+                core.info('Library directory not found.');
+              }
+            } catch (e) {
+              core.warning(`Error reading library documents: ${e.message}`);
+            }
+
             const issue = await github.rest.issues.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -351,7 +374,7 @@ jobs:
             const issueCommentsText = issueComments.data
               .map(comment => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
               .join('\n');
-            
+
             const prompt = `
             You are providing the entire new content of the source file, test file and README file with all necessary changes applied to resolve an issue.
             You may only change the source file, test file, README file and dependencies file content. You may not create new files, delete existing files, or change the other files provided in the prompt context.
@@ -365,24 +388,30 @@ jobs:
             * Dependencies file content
             * Formatting file content
             * Linting file content
+            * Library documents
             * Issue details
             * Dependency list
             * Build output
             * Test output
             * Main execution output
-            
+
             Apply the contributing guidelines to your response and when suggesting enhancements consider the tone and direction of the contributing guidelines.
-            
+
             Current feature names and specifications:
             CURRENT_FEATURES_START
             ${currentFeatures}
             CURRENT_FEATURES_END
-            
+
+            Library documents:
+            LIBRARY_DOCUMENTS_START
+            ${libraryDocuments}
+            LIBRARY_DOCUMENTS_END
+
             Source file: ${target}
             SOURCE_FILE_START
             ${sourceFileContent}
             SOURCE_FILE_END
-            
+
             Test file: ${testFile}
             TEST_FILE_START
             ${testFileContent}
@@ -392,7 +421,7 @@ jobs:
             README_FILE_START
             ${readmeFileContent}
             README_FILE_END
-            
+
             MISSION file: ${missionFile}
             MISSION_FILE_START
             ${missionFileContent}
@@ -402,22 +431,22 @@ jobs:
             CONTRIBUTING_FILE_START
             ${contributingFileContent}
             CONTRIBUTING_FILE_END
-            
+
             Dependencies file: ${dependenciesFile}
             DEPENDENCIES_FILE_START
             ${dependenciesFileContent}
             DEPENDENCIES_FILE_END
-            
+
             Formatting file: ${formattingFile}
             FORMATTING_FILE_START
             ${formattingFileContent}
             FORMATTING_FILE_END
-            
+
             Linting file: ${lintingFile}
             LINTING_FILE_START
             ${lintingFileContent}
             LINTING_FILE_END
-                 
+
             Issue details:
             ISSUE_START
             title: ${issueTitle}
@@ -436,7 +465,7 @@ jobs:
             BUILD_OUTPUT_START
             ${buildOutput}
             BUILD_OUTPUT_END      
-            
+
             Test output from command: ${testScript}
             TEST_OUTPUT_START
             ${testOutput}
@@ -446,10 +475,10 @@ jobs:
             MAIN_OUTPUT_START
             ${mainOutput}
             MAIN_OUTPUT_END    
-            
+
             Please produce an updated version of the source file, and test file, and README and dependencies file that resolves the issue.
             Answer strictly with a JSON object following this schema:
-            
+
             {
               "updatedSourceFileContent": "The entire new content of the source file, with all necessary changes applied.",
               "updatedTestFileContent": "The entire new content of the test file, with all necessary changes applied.",
@@ -457,12 +486,12 @@ jobs:
               "updatedDependenciesFileContent": "The entire new content of the dependencies file, with all necessary changes applied.",
               "message": "A short sentence explaining the change applied suitable for a commit message."
             }
-            
+
             Ensure valid JSON.
             `;
-            
+
             const ResponseSchema = z.object({ updatedSourceFileContent: z.string(), updatedTestFileContent: z.string(), updatedReadmeFileContent: z.string(), updatedDependenciesFileContent: z.string(), message: z.string() });
-            
+
             // Define the function schema for functional calling
             const applyIssueResolutionToSource = [{
               type: "function",
@@ -499,7 +528,7 @@ jobs:
                 strict: true
               }
             }];
-            
+
             // Call OpenAI using the function calling format via the tools parameter
             const response = await openai.chat.completions.create({
               model,
@@ -509,7 +538,7 @@ jobs:
               ],
               tools: applyIssueResolutionToSource
             });
-            
+
             let fixApplied;
             let result;
             // Check if the model made a function call; if so, parse its arguments.
@@ -531,14 +560,14 @@ jobs:
               fixApplied = false;
               core.setFailed("No valid response received from OpenAI.");
             }
-            
+
             try {
               const parsed = ResponseSchema.parse(result);
               // Sanitize commit message: retain only alphanumerics, spaces, and basic URL-safe punctuation (-, _, ., ~)
               const sanitizedMessage = parsed.message.replace(/[^A-Za-z0-9 \-\_\.\~]/g, '').replace(/\s+/g, ' ').trim();
               core.setOutput("message", sanitizedMessage);
               core.info(`message: "${sanitizedMessage}"`);
-            
+
               if(parsed.updatedSourceFileContent && parsed.updatedSourceFileContent.length > 1 && parsed.updatedSourceFileContent !== sourceFileContent) {
                 fs.writeFileSync(target, parsed.updatedSourceFileContent, 'utf8');
                 fixApplied = true;
@@ -570,7 +599,7 @@ jobs:
               fixApplied = false;
               core.setFailed(`Failed to validate or process the response: ${e.message}`);
             }
-            
+
             core.setOutput("fixApplied", fixApplied);
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`fixApplied: "${fixApplied}"`);
@@ -699,4 +728,3 @@ jobs:
       commitOutcome: ${{ steps.results.outputs.commitOutcome }}
       postResolutionCommentOutcome: ${{ steps.results.outputs.postResolutionCommentOutcome }}
       allValidationStepsSuccessful: ${{ steps.results.outputs.allValidationStepsSuccessful }}
-
