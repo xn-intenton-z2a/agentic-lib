@@ -217,3 +217,23 @@ The GitHub Actions Toolkit provides a set of reusable packages for creating GitH
 ## https://www.conventionalcommits.org/en/v1.0.0/
 Conventional Commits is a specification for crafting commit messages that are both human-readable and machine-parsable, promoting clearer version histories and automated changelog generation. This standard is particularly useful for projects emphasizing clear traceability and version consistency.
 ## License: CC BY 4.0
+
+# Temporal Documentation
+## https://docs.temporal.io/docs/
+Temporal is a platform for orchestrating scalable and resilient workflows in distributed systems. Its documentation provides detailed guidance on building long-running workflows with fault tolerance, making it a strong reference for autonomous workflow orchestration concepts relevant to agentic-lib.
+## License: Apache License 2.0
+
+# CircleCI Configuration Reference
+## https://circleci.com/docs/2.0/configuration-reference/
+The CircleCI Configuration Reference outlines how to define and configure CI/CD pipelines using CircleCI. While agentic-lib primarily integrates with GitHub Actions, this documentation offers valuable insights into alternative workflow configuration and orchestration methods.
+## License: CircleCI Docs License
+
+# OpenTelemetry Documentation
+## https://opentelemetry.io/docs/
+OpenTelemetry provides a suite of tools and standards for distributed tracing and logging. This documentation is useful for enhancing observability within complex workflows and serverless applications, aligning well with agentic-lib's focus on detailed logging and diagnostics.
+## License: Apache License 2.0
+
+# GraphQL Code Generator Documentation
+## https://www.graphql-code-generator.com/docs/
+GraphQL Code Generator automates the creation of type-safe code based on GraphQL queries, schemas, and operations. Its documentation is valuable for projects that integrate GraphQL by ensuring consistent, maintainable, and error-free code generation.
+## License: MIT
