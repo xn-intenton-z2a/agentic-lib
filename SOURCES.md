@@ -5,7 +5,7 @@ The W3C PROV-O Ontology provides the official guidelines for representing proven
 
 # JSON-LD Specification
 ## https://json-ld.org/spec/latest/json-ld/
-The JSON-LD Specification from the World Wide Web Consortium explains how to structure linked data using JSON. This documentation is highly relevant for projects that incorporate semantic markup extensions to embed machine-readable metadata and semantic relationships in published documents.
+The JSON-LD Specification from the World Wide Web Consortium explains how to structure linked data using JSON. This documentation is highly relevant for projects that incorporate semantic markup extensions to embed machine-readable metadata and define semantic relationships in published documents.
 ## License: W3C License
 
 # Node.js v20 Documentation
@@ -66,4 +66,29 @@ Prettier is an opinionated code formatter used in agentic-lib to enforce code st
 # ESLint Documentation
 ## https://eslint.org/docs/latest/
 ESLint is a tool for identifying and reporting on patterns in JavaScript code to ensure code quality and consistency. Its comprehensive documentation provides configuration options, rule definitions, and best practices which are essential for maintaining clean code standards in the repository.
+## License: MIT
+
+# GitHub GraphQL API
+## https://docs.github.com/en/graphql
+The GitHub GraphQL API documentation details how to use GitHub's GraphQL endpoint to perform complex queries and mutations. This resource offers insights into retrieving and manipulating repository data in a more efficient and flexible manner compared to REST, making it a valuable asset for advanced integrations.
+## License: GitHub Docs License (CC BY 4.0)
+
+# AWS CDK Documentation
+## https://docs.aws.amazon.com/cdk/latest/guide/home.html
+The AWS Cloud Development Kit (CDK) Documentation provides guidance on using the CDK to define cloud infrastructure using code. For agentic-lib, which leverages AWS services like Lambda and SQS, this resource is invaluable for understanding how to model and deploy serverless and cloud native architectures.
+## License: AWS Documentation License
+
+# EJS Documentation
+## https://ejs.co
+EJS is a simple templating language that lets you generate HTML markup with plain JavaScript. Its documentation covers setup, usage, and advanced features, making it useful for projects like agentic-lib where generating dynamic content or views is required.
+## License: MIT
+
+# Day.js Documentation
+## https://day.js.org/docs/en/installation/installation
+Day.js is a minimalist JavaScript library for parsing, validating, manipulating, and displaying dates. The documentation provides detailed examples and API references for performing date operations, which is helpful for time-sensitive features within the repository.
+## License: MIT
+
+# markdown-it Documentation
+## https://github.com/markdown-it/markdown-it
+Markdown-it is a markdown parser that supports a robust plugin architecture. Its documentation offers detailed insight into customization and usage, making it relevant for transforming markdown content into HTML in various parts of the agentic-lib workflows.
 ## License: MIT
