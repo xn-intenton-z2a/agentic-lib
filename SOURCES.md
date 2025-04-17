@@ -82,3 +82,28 @@ This resource provides in-depth documentation on ECMAScript modules in Node.js, 
 ## https://www.w3.org/Submission/2004/SUBM-owl-guide-20040310/
 An authoritative guide on the Web Ontology Language (OWL) and semantic web practices, this document explains how to define ontologies and semantic relationships. Authored by the W3C, it provides foundational knowledge for integrating semantic technologies into applications.
 ## License: W3C Document License
+
+# GitHub GraphQL API Documentation
+## https://docs.github.com/en/graphql
+This documentation provides comprehensive details on GitHub's GraphQL API. It covers key concepts such as queries, mutations, and subscriptions, and offers examples on filtering and data retrieval. Updated regularly, this is an authoritative resource for developers leveraging GitHub's API through GraphQL.
+## License: Custom GitHub Docs License
+
+# GitHub CLI Documentation
+## https://cli.github.com/manual
+Official documentation for GitHub CLI, offering guidance on installation, configuration, and command usage for automating interactions with GitHub. This resource is essential for integrating GitHub workflows via the command line and is maintained with frequent updates.
+## License: Custom GitHub Docs License
+
+# GitLab CI/CD Documentation
+## https://docs.gitlab.com/ee/ci/
+Provides detailed documentation on GitLab's CI/CD pipelines including configuration, examples, and best practices for continuous integration and delivery. Frequently updated, this source is a key resource for users of GitLab's automation capabilities.
+## License: GitLab Documentation License
+
+# CircleCI Documentation
+## https://circleci.com/docs/
+Offers extensive information on CircleCI, covering setup, configuration, and advanced workflows for continuous integration and deployment. This documentation is updated frequently with community-driven insights and best practices.
+## License: CircleCI Documentation License
+
+# Serverless Framework Documentation
+## https://www.serverless.com/framework/docs/
+The official documentation for the Serverless Framework provides guidance on deploying and managing serverless applications. It covers setup, configuration tips, and troubleshooting steps, and is highly regarded in the serverless community.
+## License: MIT License
