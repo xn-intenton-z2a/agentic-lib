@@ -147,3 +147,33 @@ Authoritative resource detailing AWS CloudFormation features, template syntax, a
 ## https://schema.org/docs/doc.html
 Comprehensive guide on Schema.org vocabulary, offering details on structured data markup and best practices for enhancing search engine visibility through rich results.
 ## License: Creative Commons Attribution 4.0 International License
+
+# GitHub Actions Workflow Syntax
+## https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+Provides detailed documentation on the syntax and structure of GitHub Actions workflows, covering triggers, jobs, and steps. This resource helps developers configure and troubleshoot automation workflows effectively.
+## License: Custom GitHub Docs License
+
+# EJS Documentation
+## https://ejs.co/
+Official documentation for EJS, a simple templating language that lets you generate HTML markup with plain JavaScript. It provides usage examples and guidelines for integrating EJS into various projects.
+## License: MIT License
+
+# Markdown-it Documentation
+## https://markdown-it.github.io/markdown-it/
+Comprehensive documentation for markdown-it, a fast and flexible Markdown parser. This resource includes API references, configuration options, and integration examples for rendering Markdown content.
+## License: MIT License
+
+# GitHub Actions Toolkit Documentation
+## https://github.com/actions/toolkit
+Documentation and repository for the GitHub Actions Toolkit, a collection of libraries that enable developers to build GitHub Actions in Node.js. It provides API references and examples for interacting with the GitHub Actions environment.
+## License: MIT License
+
+# Change Case Documentation
+## https://github.com/blakeembrey/change-case
+Documentation for the Change Case library, which offers utility functions to convert strings between different case formats. This resource outlines installation instructions, API methods, and usage examples.
+## License: MIT License
+
+# RDFa Syntax Specification
+## https://www.w3.org/TR/rdfa-syntax/
+The official W3C specification for RDFa, a set of extensions to HTML5 for embedding rich metadata within web documents. This source provides detailed guidelines for implementing semantic web standards.
+## License: W3C Document License
