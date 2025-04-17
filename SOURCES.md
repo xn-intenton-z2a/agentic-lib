@@ -57,3 +57,28 @@ The AWS SQS Documentation provides an in-depth look at Amazon's Simple Queue Ser
 ## https://nodejs.org/api/esm.html
 This documentation outlines how to use ECMAScript Modules (ESM) in Node.js, covering module syntax, interoperability with CommonJS, and best practices for leveraging modern JavaScript module standards in Node.js environments.
 ## License: Node.js License
+
+# GitHub CLI Documentation
+## https://cli.github.com/manual
+The GitHub CLI Documentation provides a comprehensive guide for installing and using the GitHub CLI. It covers command usage, configuration, authentication, and examples to manage repositories and workflows directly from the terminal, complementing the automation aspects of this repository.
+## License: GitHub CLI License
+
+# GitLab CI/CD Documentation
+## https://docs.gitlab.com/ee/ci/
+This documentation offers extensive insights into GitLab's CI/CD pipeline configuration, covering topics from basic pipeline setup to advanced deployment strategies. It serves as a valuable resource for understanding continuous integration concepts and comparing different CI/CD systems.
+## License: GitLab Foundation License
+
+# Prettier Documentation
+## https://prettier.io/docs/en/index.html
+The Prettier Documentation details how to integrate and configure Prettier, a code formatter that enforces a consistent style across your codebase. It covers configuration options, CLI usage, and integration guidelines to ensure that code remains clean and readable.
+## License: MIT License
+
+# AWS Lambda Developer Guide
+## https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
+This guide provides detailed instructions on deploying, managing, and monitoring AWS Lambda functions. It is an essential resource for developers looking to build serverless applications and integrate AWS Lambda with other cloud services.
+## License: AWS Service Terms
+
+# Semantic Versioning
+## https://semver.org/
+Semantic Versioning introduces a version numbering system that conveys meaning about the underlying changes in a release. It lays out clear guidelines for major, minor, and patch releases, helping developers manage version consistency across projects.
+## License: CC0 1.0 Universal
