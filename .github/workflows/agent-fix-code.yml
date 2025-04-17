@@ -1,11 +1,11 @@
-# .github/workflows/apply-fix.yml
+# .github/workflows/agent-fix-code.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: Apply Fix on Fail
+name: agent-fix-code
 concurrency: agentic-lib-commit-branch
-run-name: "Apply Fix on Fail [${{ github.ref_name }}]"
+run-name: "agent-fix-code [${{ github.ref_name }}]"
 
 on:
   workflow_dispatch:
@@ -37,8 +37,8 @@ on:
         default: false
   #workflow_run:
   #  workflows:
-  #    - 'Tests'
-  #    - 'Issue Worker'
+  #    - 'ci-test'
+  #    - 'agent-issue-to-code'
   #  types:
   #    - completed
   #  branches:

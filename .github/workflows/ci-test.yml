@@ -1,53 +1,38 @@
-# .github/workflows/publish.yml
+# .github/workflows/ci-test.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: Publish
-run-name: 'Publish packages [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
-concurrency: agentic-lib-commit
+name: ci-test
+run-name: 'ci-test [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
 
 on:
-  #push:
-  #  branches:
-  #    # When publishing from a branch, add branch name here, e,g, 'beta'
-  #    - main
-  #  paths:
-  #    - '**/*.sh'
-  #    - '**/*.js'
-  #    - '**/*.json'
-  #    - '**/*.yml'
-  #    - '**/*.properties'
-  #    - '!intentions/**'
-  #    - '!conversations/**'
-  #    - '!exports/**'
-  #    - '!programs/**'
-  #    - '!results/**'
+  push:
+    paths:
+      - '**/*.sh'
+      - '**/*.java'
+      - '**/*.js'
+      - '**/*.json'
+      - '**/*.yml'
+      - '**/pom.xml'
+      - '**/*.properties'
+      - '!exports/**'
   workflow_dispatch:
-    inputs:
-      versionIncrement:
-        description: 'Select the Semantic Versioning segment to increment'
-        required: true
-        default: 'prerelease'
-        type: choice
-        options:
-          - prerelease
-          - patch
-          - minor
-          - major
-          - premajor
-          - preminor
-          - prepatch
   schedule:
-    - cron: '50 8 15 1 *' # schedule-1
-    #- cron: '50 8 15 1 *' # schedule-2
-    #- cron: '50 8 15 1 *' # schedule-3
-    #- cron: '50 8 15 1 *' # schedule-4
+    - cron: '17 */12 * * *' # schedule-1
+    #- cron: '17 */4 * * *' # schedule-2
+    #- cron: '2,17,32,47 */1 * * *' # schedule-3
+    #- cron: '2,17,32,47 */1 * * *' # schedule-4
 
 jobs:
 
-  npm-test-and-run-main:
+  npm-test:
+    name: 'npm test'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -65,6 +50,62 @@ jobs:
           echo "always-auth=true" >> ~/.npmrc
 
       - run: npm ci
+
+      - run: npm test
+
+  npm-unit-test:
+    name: 'npm unit test with coverage'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Set up ~/.npmrc
+        run: |
+          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci
+
+      - run: npm run test:unit
+
+  npm-build-test-and-run-main:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Set up ~/.npmrc
+        run: |
+          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci
+
+      - name: build
+        id: build
+        shell: bash
+        run: 'npm run build'
 
       - name: test
         id: test
@@ -121,6 +162,11 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+      - name: check
+        id: check
+        run: cat ~/.m2/settings.xml
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+
       - name: package
         id: package
         if: steps.mvn.outputs.pomXmlExists == 'true'
@@ -134,55 +180,10 @@ jobs:
         id: synth
         if: steps.mvn.outputs.pomXmlExists == 'true'
         shell: bash
-        run: npx cdk synth --strict --validation --no-staging
+        run: npx cdk synth --strict --validation --no-staging --trace
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-    outputs:
-      pomXmlExists: ${{ steps.mvn.outputs.pomXmlExists }}
-
-  publish-npm:
-    needs:
-      - npm-test-and-run-main
-      - mvn-package-cdk-synth
-    permissions:
-      contents: write
-      packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-publish.yml@main'
-    with:
-      versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
-      #githubRelease: true
-      buildScript: 'npm run build'
-      releaseNotes: 'Release increment: ${{ inputs.versionIncrement }}.'
-      npmAuthOrganisation: '@xn-intenton-z2a'
-      gitUserEmail: 'action@github.com'
-      gitUserName: 'GitHub Actions[bot]'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-  publish-mvn:
-    needs:
-      - npm-test-and-run-main
-      - publish-npm
-      - mvn-package-cdk-synth
-    if: needs.mvn-package-cdk-synth.outputs.pomXmlExists == 'true'
-    permissions:
-      contents: write
-      packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-publish.yml@main'
-    with:
-      versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
-      releaseVersionOverride: ${{ needs.publish-npm.outputs.releasedVersion }}
-      newVersionOverride: ${{ needs.publish-npm.outputs.newVersion }}
-      githubRelease: false
-      mavenBuildScript: './mvnw --batch-mode clean install'
-      mavenDeployScript: './mvnw --batch-mode deploy'
-      releaseNotes: 'Release increment: ${{ inputs.versionIncrement }}.'
-      gitUserEmail: 'action@github.com'
-      gitUserName: 'GitHub Actions[bot]'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   select-issue:
     permissions:
@@ -198,8 +199,6 @@ jobs:
   stats:
     needs:
       - select-issue
-      - publish-npm
-      - publish-mvn
     if: ${{ always() }}
     permissions:
       contents: write

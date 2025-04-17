@@ -1,11 +1,11 @@
-# .github/workflows/automerge.yml
+# .github/workflows/ci-automerge.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: Automerge
+name: ci-automerge
 concurrency: agentic-lib-commit-main
-run-name: "Automerge [${{ github.ref_name }}]"
+run-name: "ci-automerge [${{ github.ref_name }}]"
 
 on:
   pull_request:
@@ -13,7 +13,8 @@ on:
   workflow_dispatch:
   #workflow_run:
   #  workflows:
-  #    - "Issue Worker"
+  #    - "agent-issue-to-code"
+  #    - "agent-fix-code"
   #  types:
   #    - completed
   schedule:

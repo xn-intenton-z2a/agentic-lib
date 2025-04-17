@@ -1,62 +1,82 @@
-# .github/workflows/update.yml
+# .github/workflows/publish-packages.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: Update
-concurrency: agentic-lib-commit-main
-run-name: "Update [${{ github.ref_name }}]"
+name: publish-packages
+concurrency: agentic-lib-commit
+run-name: 'publish-packages [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
 
 on:
-  repository_dispatch:
-    types: [package-published]
-  schedule:
-    - cron: '30 7 */28 * *' # schedule-1
-    #- cron: '30 7 */7 * *' # schedule-2
-    #- cron: '30 7 * * *' # schedule-3
-    #- cron: '30 7 * * *' # schedule-4
-
+  #push:
+  #  branches:
+  #    # When publishing from a branch, add branch name here, e,g, 'beta'
+  #    - main
+  #  paths:
+  #    - '**/*.sh'
+  #    - '**/*.js'
+  #    - '**/*.json'
+  #    - '**/*.yml'
+  #    - '**/*.properties'
+  #    - '!intentions/**'
+  #    - '!conversations/**'
+  #    - '!exports/**'
+  #    - '!programs/**'
+  #    - '!results/**'
   workflow_dispatch:
     inputs:
-      upgradeTarget:
-        description: 'Select the type of update to run'
+      versionIncrement:
+        description: 'Select the Semantic Versioning segment to increment'
+        required: true
+        default: 'prerelease'
         type: choice
-        default: 'minor'
-        required: false
         options:
-          - greatest
-          - latest
-          - newest
+          - prerelease
           - patch
           - minor
-          - semver
+          - major
+          - premajor
+          - preminor
+          - prepatch
+  schedule:
+    - cron: '50 8 15 1 *' # schedule-1
+    #- cron: '50 8 15 1 *' # schedule-2
+    #- cron: '50 8 15 1 *' # schedule-3
+    #- cron: '50 8 15 1 *' # schedule-4
 
 jobs:
 
-  check-branch:
+  npm-test-and-run-main:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    env:
-      branchPrefix: 'agentic-lib-'
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.ref }}
-      - name: Ensure there isn't already a branch for this prefix
-        shell: bash
-        run: |
-          git fetch origin
-          if git branch -r | grep -q 'origin/${{ env.branchPrefix }}'; then
-            echo "A branch with the prefix '${{ env.branchPrefix }}' already exists."
-            exit 1
-          else
-            echo "No existing branch with the prefix found."
-          fi
 
-  pom-check:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Set up ~/.npmrc
+        run: |
+          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci
+
+      - name: test
+        id: test
+        shell: bash
+        run: 'npm test'
+
+      - name: main
+        id: main
+        shell: bash
+        run: timeout 5m ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+
+  mvn-package-cdk-synth:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -65,6 +85,20 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Set up ~/.npmrc
+        run: |
+          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci
+
       - name: mvn
         id: mvn
         shell: bash
@@ -91,7 +125,16 @@ jobs:
         id: package
         if: steps.mvn.outputs.pomXmlExists == 'true'
         shell: bash
-        run: ./mvnw validate
+        run: ./mvnw clean package
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: synth
+        id: synth
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        shell: bash
+        run: npx cdk synth --strict --validation --no-staging
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -99,88 +142,47 @@ jobs:
     outputs:
       pomXmlExists: ${{ steps.mvn.outputs.pomXmlExists }}
 
-
-  update-npm:
+  publish-npm:
     needs:
-      - check-branch
+      - npm-test-and-run-main
+      - mvn-package-cdk-synth
     permissions:
       contents: write
-      pull-requests: write
-      id-token: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-update.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-publish.yml@main'
     with:
+      versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
+      #githubRelease: true
       buildScript: 'npm run build'
-      testScript: 'npm test'
-      mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
-      upgradeTarget: ${{ inputs.upgradeTarget || 'patch' }}
-      branch: 'agentic-lib-update'
+      releaseNotes: 'Release increment: ${{ inputs.versionIncrement }}.'
       npmAuthOrganisation: '@xn-intenton-z2a'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
-      gitCommitMessage: 'chore: dependency updates'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  update-mvn:
+  publish-mvn:
     needs:
-      - check-branch
-      - update-npm
-      - pom-check
-    if: ${{ needs.update-npm.outputs.updatedFiles != 'true' && needs.pom-check.outputs.pomXmlExists == 'true' }}
+      - npm-test-and-run-main
+      - publish-npm
+      - mvn-package-cdk-synth
+    if: needs.mvn-package-cdk-synth.outputs.pomXmlExists == 'true'
     permissions:
       contents: write
-      pull-requests: write
-      id-token: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-update.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-publish.yml@main'
     with:
-      buildScript: './mvnw clean install'
-      testScript: './mvnw test'
-      upgradeTarget: 'minor'
-      branch: 'agentic-lib-update'
+      versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
+      releaseVersionOverride: ${{ needs.publish-npm.outputs.releasedVersion }}
+      newVersionOverride: ${{ needs.publish-npm.outputs.newVersion }}
+      githubRelease: false
+      mavenBuildScript: './mvnw --batch-mode clean install'
+      mavenDeployScript: './mvnw --batch-mode deploy'
+      releaseNotes: 'Release increment: ${{ inputs.versionIncrement }}.'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
-      gitCommitMessage: 'chore: dependency updates'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-  create-pr-npm:
-    needs:
-      - update-npm
-    if: ${{ needs.update-npm.outputs.updatedFiles == 'true' }}
-    permissions:
-      contents: write
-      packages: write
-      issues: write
-      pull-requests: write
-      checks: write
-      id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@main'
-    with:
-      branch: 'agentic-lib-update'
-      baseBranch: 'main'
-      gitCommitMessage: 'chore: dependency updates'
-      label: 'automerge'
-
-  create-pr-mvn:
-    needs:
-      - update-mvn
-      - pom-check
-    if: ${{ needs.update-mvn.outputs.updatedFiles == 'true' && needs.pom-check.outputs.pomXmlExists == 'true' }}
-    permissions:
-      contents: write
-      packages: write
-      issues: write
-      pull-requests: write
-      checks: write
-      id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@main'
-    with:
-      branch: 'agentic-lib-update'
-      baseBranch: 'main'
-      gitCommitMessage: 'chore: dependency updates'
-      label: 'automerge'
 
   select-issue:
     permissions:
@@ -196,9 +198,8 @@ jobs:
   stats:
     needs:
       - select-issue
-      - check-branch
-      - create-pr-npm
-      - create-pr-mvn
+      - publish-npm
+      - publish-mvn
     if: ${{ always() }}
     permissions:
       contents: write

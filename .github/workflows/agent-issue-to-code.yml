@@ -1,11 +1,11 @@
-# .github/workflows/issue-worker.yml
+# .github/workflows/agent-issue-to-code.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: Issue Worker
+name: agent-issue-to-code
 concurrency: agentic-lib-commit-main
-run-name: "Issue Worker [${{ github.ref_name }}]"
+run-name: "agent-issue-to-code [${{ github.ref_name }}]"
 
 on:
   workflow_dispatch:
@@ -32,9 +32,10 @@ on:
         default: 'automated'
   workflow_run:
     workflows:
-      - "Create Feature Development Issue"
-      - "Create Maintenance Issue"
-      - "Linting"
+      - agent-feature-to-issue
+      - agent-prompt-to-issue
+      - agent-linting-to-issue
+      - agent-issue-to-ready-issue
     types:
       - completed
   schedule:

@@ -110,7 +110,7 @@ Message on digest queue:
       "MessageId": "f3b0c4a2-5d8e-4b7c-9f1d-6a0e5f3c8b2d",
       "ReceiptHandle": "AQEBwJ...==",
       "MD5OfBody": "d41d8cd98f00b204e9800998ecf8427e",
-      "Body": "{\"branches\":{\"main\":{\"id\":\"main\",\"workflowRuns\":{\"test.yml\":{\"id\":\"test.yml\",\"workflowRunId\":\"1234567890\",\"workflowRunAttempt\":1,\"status\":\"completed\",\"conclusion\":\"success\",\"createdAt\":\"2025-03-18T21:22:35.000Z\",\"updatedAt\":\"2025-03-18T21:22:35.000Z\"}}}}}"
+      "Body": "{\"branches\":{\"main\":{\"id\":\"main\",\"workflowRuns\":{\"ci-test.yml\":{\"id\":\"ci-test.yml\",\"workflowRunId\":\"1234567890\",\"workflowRunAttempt\":1,\"status\":\"completed\",\"conclusion\":\"success\",\"createdAt\":\"2025-03-18T21:22:35.000Z\",\"updatedAt\":\"2025-03-18T21:22:35.000Z\"}}}}}"
     }
   ]
 }

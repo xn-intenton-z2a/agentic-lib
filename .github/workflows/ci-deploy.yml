@@ -1,43 +1,39 @@
-# .github/workflows/test.yml
+# .github/workflows/ci-deploy.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: Tests
-run-name: 'Tests [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
+name: ci-deploy
+run-name: 'ci-deploy [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
+concurrency: agentic-lib-deploy
 
 on:
-  push:
-    paths:
-      - '**/*.sh'
-      - '**/*.java'
-      - '**/*.js'
-      - '**/*.json'
-      - '**/*.yml'
-      - '**/pom.xml'
-      - '**/*.properties'
-      - '!exports/**'
+  #push:
+  #  branches:
+  #    # When publishing from a branch, add branch name here, e,g, 'beta'
+  #    - main
+  #  paths:
+  #    - '**/*.sh'
+  #    - '**/*.js'
+  #    - '**/*.json'
+  #    - '**/*.yml'
+  #    - '**/*.properties'
+  #    - '!intentions/**'
+  #    - '!conversations/**'
+  #    - '!exports/**'
+  #    - '!programs/**'
+  #    - '!results/**'
   workflow_dispatch:
-  #workflow_run:
-  #  workflows:
-  #    - "Automerge"
-  #  types:
-  #    - completed
   schedule:
-    - cron: '17 */12 * * *' # schedule-1
-    #- cron: '17 */4 * * *' # schedule-2
-    #- cron: '2,17,32,47 */1 * * *' # schedule-3
-    #- cron: '2,17,32,47 */1 * * *' # schedule-4
+    - cron: '22 */12 */7 * *' # schedule-1
+    #- cron: '22 */12 * * *' # schedule-2
+    #- cron: '22 */3 * * *' # schedule-3
+    #- cron: '22 */3 * * *' # schedule-4
 
 jobs:
 
-  npm-test:
-    name: 'npm test'
+  npm-test-and-run-main:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: read
-      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -55,62 +51,6 @@ jobs:
           echo "always-auth=true" >> ~/.npmrc
 
       - run: npm ci
-
-      - run: npm test
-
-  npm-unit-test:
-    name: 'npm unit test with coverage'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Set up ~/.npmrc
-        run: |
-          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
-          echo "always-auth=true" >> ~/.npmrc
-
-      - run: npm ci
-
-      - run: npm run test:unit
-
-  npm-build-test-and-run-main:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Set up ~/.npmrc
-        run: |
-          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
-          echo "always-auth=true" >> ~/.npmrc
-
-      - run: npm ci
-
-      - name: build
-        id: build
-        shell: bash
-        run: 'npm run build'
 
       - name: test
         id: test
@@ -124,9 +64,6 @@ jobs:
 
   mvn-package-cdk-synth:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -146,6 +83,7 @@ jobs:
       - run: npm ci
 
       - name: mvn
+        if: steps.mvn.outputs.pomXmlExists == 'true'
         id: mvn
         shell: bash
         run: |
@@ -167,11 +105,6 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-      - name: check
-        id: check
-        run: cat ~/.m2/settings.xml
-        if: steps.mvn.outputs.pomXmlExists == 'true'
-
       - name: package
         id: package
         if: steps.mvn.outputs.pomXmlExists == 'true'
@@ -185,7 +118,131 @@ jobs:
         id: synth
         if: steps.mvn.outputs.pomXmlExists == 'true'
         shell: bash
-        run: npx cdk synth --strict --validation --no-staging --trace
+        run: npx cdk synth --strict --validation --no-staging
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  deploy:
+    needs:
+      - npm-test-and-run-main
+      - mvn-package-cdk-synth
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Set up ~/.npmrc
+        run: |
+          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci
+
+      - name: test
+        id: test
+        shell: bash
+        run: npm test
+
+      - name: mvn
+        id: mvn
+        shell: bash
+        run: |
+          if [ -f pom.xml ]; then
+            pomXmlExists='true'
+          else
+            pomXmlExists='false'
+          fi
+          echo "pomXmlExists=${pomXmlExists?}" | tee -a "${GITHUB_OUTPUT?}"
+
+      #- run: npm install -g aws-cdk
+
+      - name: Configure AWS Credentials
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::541134664601:role/agentic-lib-github-actions-role
+          role-chaining: false
+          aws-region: eu-west-2
+          audience: sts.amazonaws.com
+          role-skip-session-tagging: true
+          output-credentials: true
+          retry-max-attempts: 3
+
+      - run: aws sts get-caller-identity --region eu-west-2
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+
+      - name: Configure AWS Credentials
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::541134664601:role/agentic-lib-deployment-role
+          role-chaining: true
+          aws-region: eu-west-2
+          audience: sts.amazonaws.com
+          role-skip-session-tagging: true
+          output-credentials: true
+          retry-max-attempts: 3
+
+      - run: aws s3 ls --region eu-west-2
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+
+      - uses: actions/setup-java@v4
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        with:
+          distribution: 'corretto'
+          java-version: 21
+          cache: 'maven'
+          server-password: PERSONAL_ACCESS_TOKEN
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: package
+        id: package
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        shell: bash
+        run: ./mvnw clean package
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: stacks
+        id: stacks
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        shell: bash
+        run: |
+          synth=$(jq -r '.deployStacks' cdk.json)
+          deploy=$(jq -r '.deployStacks' cdk.json)
+          echo "deploy=${deploy?}" | tee -a "${GITHUB_OUTPUT?}"
+          echo "synth=${synth?}" | tee -a "${GITHUB_OUTPUT?}"
+
+      - name: synth
+        id: synth
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        shell: bash
+        run: ${{ steps.stacks.outputs.synth }}
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: deploy
+        id: deploy
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        shell: bash
+        run: ${{ steps.stacks.outputs.deploy }}
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -204,6 +261,7 @@ jobs:
   stats:
     needs:
       - select-issue
+      - deploy
     if: ${{ always() }}
     permissions:
       contents: write

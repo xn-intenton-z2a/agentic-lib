@@ -23,65 +23,89 @@ DEST_DIR="$2"
 
 mkdir -p "${DEST_DIR}"
 
-cp -v .github/workflows/apply-fix.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/apply-fix.yml"
+# Agent workflows
 
-cp -v .github/workflows/automerge.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/automerge.yml"
+rm -f "${DEST_DIR}/apply-fix.yml"
+cp -v .github/workflows/agent-fix-code.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-fix-code.yml"
 
-cp -v .github/workflows/deploy.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/deploy.yml"
+rm "${DEST_DIR}/feature-development-issue-creator.yml"
+cp -v .github/workflows/agent-feature-to-issue.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}//agent-feature-to-issue.yml"
 
-cp -v .github/workflows/feature-development-issue-creator.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/feature-development-issue-creator.yml"
+rm -f "${DEST_DIR}/feature-worker.yml"
+cp -v .github/workflows/agent-library-to-feature.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-library-to-feature.yml"
 
-cp -v .github/workflows/feature-worker.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/feature-worker.yml"
+rm -f "${DEST_DIR}/issue-for-linting.yml"
+cp -v .github/workflows/agent-linting-to-issue.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-linting-to-issue.yml"
 
-cp -v .github/workflows/formating.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/formating.yml"
+rm -f "${DEST_DIR}/issue-reviewer.yml"
+cp -v .github/workflows/agent-code-to-close-issue.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-code-to-close-issue.yml"
 
-cp -v .github/workflows/issue-for-linting.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-for-linting.yml"
+rm -f "${DEST_DIR}/issue-worker.yml"
+cp -v .github/workflows/agent-issue-to-code.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-issue-to-code.yml"
 
-cp -v .github/workflows/issue-reviewer.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-reviewer.yml"
+rm -f "${DEST_DIR}/library-worker.yml"
+cp -v .github/workflows/agent-source-to-library.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-source-to-library.yml"
 
-cp -v .github/workflows/issue-worker.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/issue-worker.yml"
+rm -f "${DEST_DIR}/issue-creator.yml" "${DEST_DIR}/maintenance-issue-creator.yml"
+cp -v .github/workflows/agent-prompt-to-issue.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-prompt-to-issue.yml"
 
-cp -v .github/workflows/library-worker.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/library-worker.yml"
+rm -f "${DEST_DIR}/source-worker.yml"
+cp -v .github/workflows/agent-mission-to-source.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-mission-to-source.yml"
 
-rm -f "${DEST_DIR}/.github/workflows/issue-creator.yml"
-cp -v .github/workflows/maintenance-issue-creator.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/maintenance-issue-creator.yml"
+# CI workflows
 
-cp -v .github/workflows/publish.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish.yml"
+rm -f "${DEST_DIR}/automerge.yml"
+cp -v .github/workflows/ci-automerge.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-automerge.yml"
+
+rm -f "${DEST_DIR}/deploy.yml"
+cp -v .github/workflows/ci-deploy.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-deploy.yml"
+
+rm -f "${DEST_DIR}/formating.yml"
+cp -v .github/workflows/ci-formating.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-formating.yml"
+
+rm -f "${DEST_DIR}/test.yml"
+cp -v .github/workflows/ci-test.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-test.yml"
+
+rm -f "${DEST_DIR}/update.yml"
+cp -v .github/workflows/ci-update.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-update.yml"
+
+# Publish workflows
+
+rm -f "${DEST_DIR}/publish.yml"
+cp -v .github/workflows/publish-packages.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish-packages.yml"
 
 cp -v .github/workflows/publish-web.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish-web.yml"
 
-cp -v .github/workflows/source-worker.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/source-worker.yml"
+rm -f "${DEST_DIR}/stats.yml" "${DEST_DIR}/stats-to-aws.yml"
+cp -v .github/workflows/publish-stats.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish-stats.yml"
 
-rm -f "${DEST_DIR}/.github/workflows/stats.yml"
-cp -v .github/workflows/stats-to-aws.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/stats-to-aws.yml"
+rm -f "${DEST_DIR}/stats-to-web.yml" "${DEST_DIR}/stats-to-s3.yml"
 
-cp -v .github/workflows/stats-to-s3.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/stats-to-s3.yml"
+# Utility workflows
 
-cp -v .github/workflows/test.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/test.yml"
+rm -f "${DEST_DIR}/truncate-git-history.yml"
+cp -v .github/workflows/utils-truncate-issue-history.yml "${DEST_DIR}/."
 
-cp -v .github/workflows/truncate-issue-history.yml "${DEST_DIR}/."
+rm -f "${DEST_DIR}/truncate-workflow-history.yml"
+cp -v .github/workflows/utils-truncate-workflow-history.yml "${DEST_DIR}/."
 
-cp -v .github/workflows/truncate-workflow-history.yml "${DEST_DIR}/."
-
-cp -v .github/workflows/update.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/update.yml"
 
 mkdir -p "${DEST_DIR}/../../scripts"
 

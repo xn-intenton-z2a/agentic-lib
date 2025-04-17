@@ -173,7 +173,7 @@ Follow these steps to set up your repository using the agentic development syste
 
 2. **Configure Repository Settings:**
    - Ensure your repository supports Node.js (v20+).
-   - Add necessary secrets (e.g., `CHATGPT_API_SECRET_KEY`, `GITHUB_TOKEN`) via your repository settings.
+   - Add the necessary secrets (e.g., `CHATGPT_API_SECRET_KEY`, `GITHUB_TOKEN`) via your repository settings.
 
 3. **Customize Workflow Inputs:**
    - Edit workflow files under `.github/workflows/` to match your project specifics (e.g., branch names, file paths).
@@ -614,10 +614,6 @@ Output:
 
 ---
 
-## Contributing
-
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
 ### TODO
 
 Re-usable GitHub Actions Workflows:
@@ -636,19 +632,15 @@ Re-usable GitHub Actions Workflows:
 - [x] apply-fix check branches for conflicts and try to resolve them.
 - [x] pull before changes to reduce the chance of conflicts.
 - [x] Dashboard metrics from github (e.g. GitHub Insights? commits by agents).
-- [ ] apply-fix to add issue details to the completion request.
-- [ ] Add git log to the context for review issue, issue worker and apply fixes.
-- [ ] apply-fix to check if an issue is resolved before raising a PR.
-- [ ] issue-worker to check if an issue is resolved before raising a PR.
-- [ ] Add PR review comments via LLM.
-- [ ] Add PR review comments resolution via LLM.
-- [ ] Make a PR review required to automerge a PR.
-- [ ] Update CHANGELOG.md when a publishing a release version of the changes since the last release.
-- [ ] Duplicate the test when publishing a release version with a version numbered test file.
+- [x] apply-fix to add issue details to the completion request.
+- [x] semantic versioning for releasing versions.
+- [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
 - [ ] Generate API.md based on the source file.
-- [ ] Consider: semantic-release for releasing versions.
 - [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
-- [ ] Pre-request with file and a some context in a completions request for which files should be sent.
+- [~] Add an issue refiner that picks and issues either sets 'ready', improves the issue, or closes it if irrelevant. (Then change the issue worker to look for 'ready' issues.)
+- [ ] Mark in-progress issues as such, (Then change the issue worker to ignore 'in-progress' issues.)
+- [ ] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issues is not resolved.
+- [ ] Launch repository0-web
 
 Supervisor:
 - [x] Deploy a s3-sqs-bridge Stack from the agentic-lib project.
@@ -675,35 +667,25 @@ Supervisor:
 - [x] Before trying to apply fix a make sure there isn't an open PR.
 - [x] In auto-merge, close PRs and delete branches which have conflicts.
 - [x] Expose check states in the stats.
-- [ ] Do this everywhere:  echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-- [ ] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
-- [ ] Set repository0 to skip github pages and s3 by default
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix) and relabel "engine" to "schedule".
-- [ ] Expose the stats generate-stats step as a GitHub Action.
-
-Schedule based workflow refinement:
-- [ ] Add an issue refiner that picks and issues either sets 'ready', improves the issue, or closes it if irrelevant. (Then change the issue worker to look for 'ready' issues.)
-- [ ] Mark in-progress issues as such, (Then change the issue worker to ignore 'in-progress' issues.)
-- [ ] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issues is not resolved.
-
-Knowledge based refinement:
-- [x] Maintain a list of data sources suitable for crawling and querying in relation to software, science and business.
-- [~] Build a library of documents useful to the project mission statement of current tech or features, sanitise, normalise to a common word limit, and store them the repository.
-- [ ] Use the documents to generate new features or refine existing ones and add to a library wishlist.
-- [ ] Support local docs added directly to the repository and have summaries created from these, they should be scanned for addition as sources.
-- [ ] Publish documents using markdown to html to github pages and create a dedicated demo repository which just builds a website.
-- [ ] Supply a subset of relevant documents to the LLM when working on issues or bugs.
-- [ ] Add to the library wishlist when a bug is observed or when a library or pattern is used.
 
 Supervisor launch:
 - [ ] Publish a demo to GitHub sites that animates issue workflow, git logs applying changes to files and raising PRs with live links to the repository and a draggable timeline.
 
 Marketplace GitHub Actions:
+- [ ] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+- [ ] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
+- [ ] Set repository0 to skip github pages and s3 by default
+- [ ] Expose the stats generate-stats step as a GitHub Action.
 - [ ] Consolidate reusable workflows jobs into a single GitHub Action GitHub Script step.
 - [ ] Move GitHub Script to a GitHub Action.
 - [ ] Build GitHub Action with the release process.
 - [ ] Switch example workflows to use the GitHub Actions.
 - [ ] Convert the actions library JS to an SDK.
+
+Supervisor: chat
+- [ ] Orchestrate the creation of a repository0-web templated repository via GitHub Discussions Chat (free).
+- [ ] Guide and receive feedback from a repository0-web templated repository via a Slack bot or GitHub Discussions (paid).
 
 ---
 

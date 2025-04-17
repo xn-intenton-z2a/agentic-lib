@@ -1,11 +1,11 @@
-# .github/workflows/source-worker.yml
+# .github/workflows/agent-mission-to-source.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: Source Worker
-concurrency: source-worker
-run-name: "Source Worker"
+name: agent-mission-to-source
+concurrency: agent-mission-to-source
+run-name: "agent-mission-to-source"
 
 on:
   #push:

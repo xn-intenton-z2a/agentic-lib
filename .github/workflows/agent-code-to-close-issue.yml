@@ -1,10 +1,10 @@
-# .github/workflows/issue-reviewer.yml
+# .github/workflows/agent-code-to-close-issue.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: Review Issue
-run-name: "Review Issue [${{ github.ref_name }}]"
+name: agent-code-to-close-issue
+run-name: "agent-code-to-close-issue[${{ github.ref_name }}]"
 
 on:
   workflow_dispatch:
@@ -31,7 +31,7 @@ on:
         default: 'tests/unit/main.test.js'
   #workflow_run:
   #  workflows:
-  #    - "Automerge"
+  #    - "ci-automerge"
   #  types:
   #    - completed
   schedule:
