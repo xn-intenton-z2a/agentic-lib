@@ -37,6 +37,11 @@ on:
         type: string
         required: false
         default: 'features/'
+      libraryDir:
+        description: 'The directory containing library documents. e.g. "library/"'
+        type: string
+        required: false
+        default: 'library/'
       featureDevelopmentIssuesWipLimit:
         description: 'The WIP limit for the feature development issues. e.g. "5"'
         type: string
@@ -130,6 +135,7 @@ jobs:
     env:
       featureName: ${{ inputs.featureName || '' }}
       featuresDir: ${{ inputs.featuresDir || 'features/' }}
+      libraryDir: ${{ inputs.libraryDir || 'library/' }}
       featureDevelopmentIssuesWipLimit: ${{ inputs.featureDevelopmentIssuesWipLimit || '5' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
@@ -249,6 +255,7 @@ jobs:
             const missionFile = process.env.missionFile;
             const contributingFile = process.env.contributingFile;
             const dependenciesFile = process.env.dependenciesFile;
+            const libraryDir = process.env.libraryDir;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
             const dependenciesListOutput = process.env.dependenciesListOutput;
@@ -278,7 +285,7 @@ jobs:
             if (openIssues.data.length >= featureDevelopmentIssuesWipLimit) {
               core.setFailed(`There are already ${featureDevelopmentIssuesWipLimit} open issues with the label '${issueSelectionLabel}'.`);
             }
-            
+
             if (!apiKey) { 
               core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
             }
@@ -303,7 +310,29 @@ jobs:
             core.info(`Test file '${testFile}' has been loaded (length ${testFileContent.length}).`);
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
-            
+
+            // Get list of library documents
+            let libraryFiles = [];
+            let libraryContent = '';
+            try {
+              if (fs.existsSync(libraryDir)) {
+                libraryFiles = fs.readdirSync(libraryDir)
+                  .filter(file => file.endsWith('.md'))
+                  .map(file => {
+                    const filePath = path.join(libraryDir, file);
+                    const content = fs.readFileSync(filePath, 'utf8');
+                    libraryContent += `# ${file}\n${content}\n\n`;
+                    return file;
+                  });
+              } else {
+                core.warning(`Library directory '${libraryDir}' does not exist.`);
+              }
+            } catch (e) {
+              core.warning(`Error reading library directory: ${e.message}`);
+            }
+
+            core.info(`Found ${libraryFiles.length} library documents in ${libraryDir}`);
+
             const chatGptPrompt = `
             Please generate the title and description of a GitHub issue to which will be used to further the development of the ${featureName} feature.
             You may only give instructions in the issues to only change the source file, test file, README file and dependencies file content. You may not create issues that request new files, delete existing files, or change the other files provided in the prompt context.
@@ -322,22 +351,23 @@ jobs:
             * MISSION file content
             * Contributing file content
             * Dependencies file content
+            * Library documents
             * Dependency list
             * Build output
             * Test output
             * Main execution output
             * Open issue titles
-            
+
             Current feature names and specifications:
             CURRENT_FEATURES_START
             ${currentFeatures}
             CURRENT_FEATURES_END
-            
+
             Source file: ${target}
             SOURCE_FILE_START
             ${sourceFileContent}
             SOURCE_FILE_END
-            
+
             Test file: ${testFile}
             TEST_FILE_START
             ${testFileContent}
@@ -347,7 +377,7 @@ jobs:
             README_FILE_START
             ${readmeFileContent}
             README_FILE_END
-            
+
             MISSION file: ${missionFile}
             MISSION_FILE_START
             ${missionFileContent}
@@ -357,22 +387,27 @@ jobs:
             CONTRIBUTING_FILE_START
             ${contributingFileContent}
             CONTRIBUTING_FILE_END
-            
+
             Dependencies file: ${dependenciesFile}
             DEPENDENCIES_FILE_START
             ${dependenciesFileContent}
-            DEPENDENCIES_FILE_END          
+            DEPENDENCIES_FILE_END
+
+            Library documents from directory: ${libraryDir}
+            LIBRARY_DOCUMENTS_START
+            ${libraryContent}
+            LIBRARY_DOCUMENTS_END
 
             Dependencies list from command: npm list
             DEPENDENCIES_LIST_START
             ${dependenciesListOutput}
             DEPENDENCIES_LIST_END    
-            
+
             Build output from command: ${buildScript}
             TEST_OUTPUT_START
             ${buildOutput}
             TEST_OUTPUT_END      
-            
+
             Test output from command: ${testScript}
             TEST_OUTPUT_START
             ${testOutput}
@@ -382,12 +417,12 @@ jobs:
             MAIN_OUTPUT_START
             ${mainOutput}
             MAIN_OUTPUT_END    
-            
+
             Open issue titles:
             OPEN_ISSUE_TITLES_START
             ${openIssueTitles}
             OPEN_ISSUE_TITLES_END
-            
+
             Answer strictly with a JSON object following this schema:
             {
               "issueTitle": "The title of the GitHub issue summarising the change",
@@ -395,9 +430,9 @@ jobs:
             }
             Ensure valid JSON.
             `;
-            
+
             const ResponseSchema = z.object({ issueTitle: z.string(), issueDescription: z.string() });
-            
+
             // Define the function schema for function calling
             const tools = [{
               type: "function",
@@ -426,7 +461,7 @@ jobs:
               ],
               tools: tools
             });
-            
+
             let result;
             if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
               try {
@@ -443,18 +478,18 @@ jobs:
             } else {
               core.setFailed("No valid response received from OpenAI.");
             }
-            
+
             try {
               const parsed = ResponseSchema.parse(result);
               core.setOutput("issueTitle", parsed.issueTitle);
               core.setOutput("issueDescription", parsed.issueDescription);
               core.info(`issueTitle: "${parsed.issueTitle}"`);
               core.info(`issueDescription: "${parsed.issueDescription}"`);
-            
+
             } catch (e) {
               core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
             }
-            
+
             core.setOutput("response", JSON.stringify(response));
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`response: "${JSON.stringify(response)}"`);

@@ -96,6 +96,7 @@ jobs:
       missionFile: 'MISSION.md'
       contributingFile: 'CONTRIBUTING.md'
       dependenciesFile: 'package.json'
+      libraryDir: 'library/'
       buildScript: 'npm run build'
       testScript: 'npm test'
       issueSelectionLabel: 'maintenance'

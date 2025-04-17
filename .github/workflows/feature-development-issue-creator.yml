@@ -43,7 +43,7 @@ jobs:
   select-feature:
     runs-on: ubuntu-latest
     outputs:
-      prompt: ${{ steps.extract.outputs.prompt }}
+      featureName: ${{ steps.select.outputs.featureName }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -87,8 +87,9 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@main'
     with:
-      featureName: ${{ needs.select-prompt.outputs.featureName }}
+      featureName: ${{ needs.select-feature.outputs.featureName }}
       featuresDir: './features'
+      libraryDir: 'library/'
       featureDevelopmentIssuesWipLimit: '${{ needs.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}'
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
