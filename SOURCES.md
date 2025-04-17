@@ -67,3 +67,38 @@ The W3C OWL 2 Overview document provides an introduction to the Web Ontology Lan
 ## https://platform.openai.com/docs/api-reference
 This documentation offers an in-depth look at the OpenAI API, including details on authentication, endpoint usage, parameters, and example requests. It is a crucial resource for understanding how to integrate AI services effectively, particularly for systems that process natural language commands.
 ## License: OpenAI API Terms of Use
+
+# Node.js Documentation
+## https://nodejs.org/en/docs/
+The official Node.js documentation provides comprehensive coverage of the Node.js runtime, including core APIs, asynchronous programming techniques, and best practices for building scalable applications. This is particularly relevant for agentic-lib, which leverages Node.js features for its workflow automation and CLI functionalities.
+## License: Node.js Documentation License (CC BY 4.0)
+
+# AWS SQS Documentation
+## https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html
+This documentation provides in-depth guidance on Amazon Simple Queue Service (SQS), covering message queuing, error handling, and integration with services like AWS Lambda. It is especially pertinent for understanding and extending the digest processing capabilities of agentic-lib.
+## License: AWS Documentation License
+
+# dotenv Package Documentation
+## https://github.com/motdotla/dotenv
+This source is the official repository and documentation for dotenv, a critical package for managing environment variables in Node.js applications. It outlines setup procedures, configuration options, and best practices, all of which are integral to agentic-lib's environment configuration process.
+## License: MIT
+
+# AWS SDK for JavaScript v3 Documentation
+## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/
+The AWS SDK for JavaScript (v3) documentation offers extensive guidance on integrating AWS services such as Lambda, SQS, and others into JavaScript applications. It provides API references, code examples, and best practices that are valuable for developers extending agentic-lib's cloud integration features.
+## License: Apache License 2.0
+
+# ESLint Documentation
+## https://eslint.org/docs/latest/
+ESLint's official documentation covers configuration, usage, and best practices for maintaining code quality in JavaScript projects. This resource is essential for contributors looking to adhere to consistent coding styles and for ensuring that agentic-lib remains robust and error-free.
+## License: MIT
+
+# Prettier Documentation
+## https://prettier.io/docs/en/index.html
+The Prettier documentation offers detailed guidance on using this popular code formatter to enforce consistent styling across codebases. As formatting is a key part of agentic-lib's development workflow, this source is invaluable for both new and experienced contributors.
+## License: MIT
+
+# AWS CDK Documentation
+## https://docs.aws.amazon.com/cdk/v2/guide/home.html
+This documentation provides an introduction to the AWS Cloud Development Kit (CDK) v2, guiding developers through defining cloud infrastructure as code. It is particularly useful for projects like agentic-lib that interface with AWS services and require robust, code-driven infrastructure management.
+## License: Apache License 2.0
