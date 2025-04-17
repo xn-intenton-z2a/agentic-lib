@@ -135,6 +135,15 @@ describe("CLI Simulate Error Flag", () => {
   });
 });
 
+describe("CLI Simulate Delay Flag", () => {
+  test("delays execution by at least the specified duration", async () => {
+    const start = Date.now();
+    await agenticLib.main(["--simulate-delay", "50", "--dry-run"]);
+    const elapsed = Date.now() - start;
+    expect(elapsed).toBeGreaterThanOrEqual(50);
+  });
+});
+
 describe("agenticHandler Single Command Processing", () => {
   test("processes a valid agentic command correctly", async () => {
     const payload = { command: "doSomething" };

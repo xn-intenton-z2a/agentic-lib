@@ -99,6 +99,7 @@ Additionally, the CLI now supports additional commands:
 - `--status`: Outputs a runtime health summary in JSON format including configuration, Node.js version, callCount, uptime, and select environment variables.
 - `--digest`: Initiates processing of a sample digest event.
 - `--simulate-error`: Simulates an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.
+- `--simulate-delay <ms>`: Simulates processing latency by delaying execution for the specified duration in milliseconds before executing further commands.
 
 ---
 
@@ -138,6 +139,8 @@ The CLI provides several flags to manage the library's operation:
   - Executes a dry run that simulates the command execution without performing any actions.
 - **--simulate-error:**
   - Simulates an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.
+- **--simulate-delay <ms>:**
+  - Delays execution for the specified number of milliseconds, simulating processing latency before executing any further commands.
 
 ---
 

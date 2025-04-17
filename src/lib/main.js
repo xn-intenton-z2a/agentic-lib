@@ -243,10 +243,25 @@ function generateUsage() {
       --status                 Output runtime health summary in JSON format
       --dry-run                Execute a dry run with no side effects
       --simulate-error         Simulate an error for testing purposes
+      --simulate-delay <ms>      Simulate processing delay for the specified duration in milliseconds
     `;
 }
 
 export async function main(args = process.argv.slice(2)) {
+  // Process --simulate-delay flag and delay execution if specified
+  const simulateDelayIndex = args.indexOf("--simulate-delay");
+  if (simulateDelayIndex !== -1) {
+    const delayValue = args[simulateDelayIndex + 1];
+    const delayMs = Number(delayValue);
+    if (isNaN(delayMs) || delayMs < 0) {
+      console.error("Invalid delay duration provided for --simulate-delay");
+      process.exit(1);
+    }
+    await new Promise(resolve => setTimeout(resolve, delayMs));
+    // Remove the flag and its value from args
+    args.splice(simulateDelayIndex, 2);
+  }
+
   // Enable verbose mode if --verbose flag is provided
   if (args.includes("--verbose")) {
     VERBOSE_MODE = true;
