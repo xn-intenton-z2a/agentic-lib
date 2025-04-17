@@ -267,3 +267,23 @@ This documentation provides comprehensive guides and tutorials for using the Ser
 ## https://docs.github.com/en/codespaces
 An authoritative resource for setting up and managing GitHub Codespaces, offering guides, usage examples, and best practices for cloud-based development environments.
 ## License: Custom GitHub Docs License
+
+# AWS CodePipeline Documentation
+## https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html
+This documentation provides guidance on AWS CodePipeline, a cloud-based continuous integration and delivery service. It covers pipeline setup, integration, and best practices for automating release processes in the cloud.
+## License: AWS Documentation Terms
+
+# Act Documentation
+## https://github.com/nektos/act
+Act is a tool that allows you to run your GitHub Actions locally by simulating the GitHub Actions environment. Its documentation provides comprehensive guides on installation, configuration, and troubleshooting for offline testing of Actions workflows.
+## License: MIT License
+
+# Renovate Documentation
+## https://docs.renovatebot.com/
+Renovate is a tool for automating dependency updates in modern software projects. Its documentation provides comprehensive guides and best practices for configuring automatic merge requests, scheduling updates, and customizing update behaviors across different package managers.
+## License: MIT License
+
+# GitHub Actions Troubleshooting Guide
+## https://docs.github.com/en/actions/monitoring-and-troubleshooting
+This documentation provides best practices for monitoring and troubleshooting GitHub Actions workflows. It covers techniques for diagnosing issues, analyzing logs, and resolving common errors encountered during workflow execution. Regularly updated by GitHub, it is a key resource for maintaining robust CI/CD pipelines.
+## License: Custom GitHub Docs License
