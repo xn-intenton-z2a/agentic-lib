@@ -397,3 +397,18 @@ Azure DevOps provides comprehensive documentation on setting up and managing pip
 ## https://docusaurus.io/docs
 Docusaurus is a modern static site generator optimized for building documentation websites. Its documentation covers installation, configuration, theming, and deployment, making it an authoritative resource for projects looking to enhance their publishing workflows with polished, user-friendly documentation sites.
 ## License: MIT
+
+# Snyk Vulnerability Scanner Documentation
+## https://docs.snyk.io
+The Snyk documentation provides detailed guidelines on vulnerability scanning, remediation, and continuous security monitoring for software projects. Integrating Snyk can help enhance the security posture of projects like agentic-lib by incorporating automated vulnerability checks into CI/CD pipelines.
+## License: Snyk Docs License (proprietary)
+
+# Docker Documentation
+## https://docs.docker.com
+The Docker documentation covers containerization concepts, best practices, and tool usage. While not a direct dependency of agentic-lib, understanding Docker is beneficial for deploying and testing containerized applications in modern CI/CD workflows.
+## License: Docker Docs License
+
+# GitHub Codespaces Documentation
+## https://docs.github.com/en/codespaces
+GitHub Codespaces provides cloud-based development environments that integrate directly with GitHub repositories. This documentation offers insights into setting up and managing Codespaces, which can streamline development processes and collaboration on projects like agentic-lib.
+## License: GitHub Docs License (CC BY 4.0)
