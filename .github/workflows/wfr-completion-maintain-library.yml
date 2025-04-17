@@ -53,71 +53,6 @@ on:
         type: string
         required: false
         default: '200'
-      featuresDir:
-        description: 'The directory containing feature files. e.g. "features/"'
-        type: string
-        required: false
-        default: 'features/'
-      target:
-        description: 'The target file to create the issue to change. e.g. "src/lib/main.js"'
-        type: string
-        required: false
-        default: 'src/lib/main.js'
-      testFile:
-        description: 'The test file. e.g. "tests/unit/main.test.js"'
-        type: string
-        required: false
-        default: 'tests/unit/main.test.js'
-      readmeFile:
-        description: 'The README file. e.g. "README.md"'
-        type: string
-        required: false
-        default: 'README.md'
-      missionFile:
-        description: 'The MISSION statement file. e.g. "MISSION.md"'
-        type: string
-        required: false
-        default: 'MISSION.md'
-      contributingFile:
-        description: 'The CONTRIBUTING file. e.g. "CONTRIBUTING.md"'
-        type: string
-        required: false
-        default: 'CONTRIBUTING.md'
-      dependenciesFile:
-        description: 'The dependencies file. e.g. "package.json"'
-        type: string
-        required: false
-        default: 'package.json'
-      buildScript:
-        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
-        type: string
-        required: false
-        default: 'echo "No build script specified."'
-      testScript:
-        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
-        type: string
-        required: false
-        default: 'npm test'
-      mainScript:
-        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run start`'
-        type: string
-        required: false
-        default: 'npm run start'
-      mainScriptTimeout:
-        description: 'The timeout for the main script. e.g. "5m"'
-        type: string
-        required: false
-        default: '5m'
-      testScriptTimeout:
-        description: 'The timeout for the test script. e.g. "5m"'
-        type: string
-        required: false
-        default: '5m'
-      buildScriptTimeout:
-        description: 'The timeout for the build script. e.g. "5m"'
-        type: string
-        required: false
-        default: '5m'
       model:
         description: 'The OpenAI model to use. e.g. "o3-mini"'
         type: string
@@ -173,19 +108,6 @@ jobs:
       sourcesFile: ${{ inputs.sourcesFile || 'SOURCES.md' }}
       documentsLimit: ${{ inputs.documentsLimit || '3' }}
       summaryWordLimit: ${{ inputs.summaryWordLimit || '10000' }}
-      featuresDir: ${{ inputs.featuresDir || 'features/' }}
-      target: ${{ inputs.target || 'src/lib/main.js' }}
-      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
-      readmeFile: ${{ inputs.readmeFile || 'README.md' }}
-      missionFile: ${{ inputs.missionFile || 'MISSION.md' }}
-      contributingFile: ${{ inputs.contributingFile || 'CONTRIBUTING.md' }}
-      dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
-      buildScript: ${{ inputs.buildScript || 'npm run build' }}
-      testScript: ${{ inputs.testScript || 'npm test' }}
-      mainScript: ${{ inputs.mainScript || 'npm run start' }}
-      mainScriptTimeout: ${{ inputs.mainScriptTimeout || '5m' }}
-      testScriptTimeout: ${{ inputs.testScriptTimeout || '5m' }}
-      buildScriptTimeout: ${{ inputs.buildScriptTimeout || '5m' }}
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
@@ -223,82 +145,14 @@ jobs:
       - name: Install web crawling dependencies
         run: npm install axios cheerio
 
-      - name: List current features
-        id: features
-        shell: bash
-        run: |
-          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
-          echo "output<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$output" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "output=${output}"
-
-      - name: List rejected feature named
-        id: rejectedFeatures
-        shell: bash
-        run: |
-          mkdir -p "${{ env.featuresDir }}/rejects"
-          output=$(ls -1 "${{ env.featuresDir }}/rejects" | sed 's/\.md//' | xargs echo )
-          echo "output<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$output" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "output=${output}"
-
-      - name: List dependencies
-        id: list
-        shell: bash
-        run: |
-          output=$(npm list 2>&1)
-          echo "output<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$output" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "output=${output}"
-
-      - name: Build project
-        id: build
-        shell: bash
-        run: |
-          output=$(timeout ${{ env.buildScriptTimeout }} ${{ env.buildScript }} 2>&1)
-          echo "output<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$output" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "output=${output}"
-
       - name: Tear down .npmrc
         if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
         run: rm -f .npmrc
 
-      - name: Run tests
-        id: test
-        shell: bash
-        run: |
-          output=$(timeout ${{ env.testScriptTimeout }} ${{ env.testScript }} 2>&1)
-          echo "output<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$output" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "output=${output}"
-
-      - name: Run main
-        id: main
-        shell: bash
-        run: |
-          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
-          echo "output<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$output" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "output=${output}"
-
       - name: maintain-library
         id: maintain-library
         uses: actions/github-script@v7
-        env:
-          currentFeatures: ${{ steps.features.outputs.output }}
-          rejectedFeatures: ${{ steps.rejectedFeatures.outputs.output }}
-          dependenciesListOutput: ${{ steps.list.outputs.output }}
-          buildOutput: ${{ steps.build.outputs.output }}
-          testOutput: ${{ steps.test.outputs.output }}
-          mainOutput: ${{ steps.main.outputs.output }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -306,24 +160,9 @@ jobs:
             const libraryDir = process.env.libraryDir;
             const sourcesFile = process.env.sourcesFile;
             const documentsLimit = process.env.documentsLimit;
-            const featuresDir = process.env.featuresDir;
-            const currentFeatures = process.env.currentFeatures;
-            const rejectedFeatures = process.env.rejectedFeatures;
-            const target = process.env.target;
-            const testFile = process.env.testFile;
-            const readmeFile = process.env.readmeFile;
-            const missionFile = process.env.missionFile;
-            const contributingFile = process.env.contributingFile;
-            const dependenciesFile = process.env.dependenciesFile;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
             const dependenciesListOutput = process.env.dependenciesListOutput;
-            const buildScript = process.env.buildScript;
-            const buildOutput = process.env.buildOutput;
-            const testScript = process.env.testScript;
-            const testOutput = process.env.testOutput;
-            const mainScript = process.env.mainScript;
-            const mainOutput = process.env.mainOutput;
             const summaryWordLimit = process.env.summaryWordLimit;
 
             const fs = require('fs');
@@ -342,29 +181,10 @@ jobs:
             core.info(`document: "${document}"`);
             core.info(`libraryDir: "${libraryDir}"`);
             core.info(`sourcesFile: "${sourcesFile}"`);
-            core.info(`featuresDir: "${featuresDir}"`);
-            core.info(`currentFeatures: "${currentFeatures}"`);
-            core.info(`target: "${target}"`);
-            core.info(`testFile: "${testFile}"`);
-            core.info(`readmeFile: "${readmeFile}"`);
-            core.info(`missionFile: "${missionFile}"`);
-            core.info(`contributingFile: "${contributingFile}"`);
-            core.info(`dependenciesFile: "${dependenciesFile}"`);
 
             // Load the sources file
             const sourcesFileContent = fs.readFileSync(sourcesFile, 'utf8');
             core.info(`Sources file '${sourcesFile}' has been loaded (length ${sourcesFileContent.length}).`);
-
-            const sourceFileContent = fs.readFileSync(target, 'utf8');
-            const testFileContent = fs.readFileSync(testFile, 'utf8');
-            const readmeFileContent = fs.readFileSync(readmeFile, 'utf8');
-            const missionFileContent = fs.readFileSync(missionFile, 'utf8');
-            const contributingFileContent = fs.readFileSync(contributingFile, 'utf8');
-            const dependenciesFileContent = fs.readFileSync(dependenciesFile, 'utf8');
-            core.info(`Target file '${target}' has been loaded (length ${sourceFileContent.length}).`);
-            core.info(`Test file '${testFile}' has been loaded (length ${testFileContent.length}).`);
-            core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
-            core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
 
             // Get list of existing library documents
             let existingDocuments = [];
@@ -428,8 +248,8 @@ jobs:
 
             core.info(`Parsed ${sourceEntries.length} source entries from ${sourcesFile}`);
 
-            // Function to crawl a URL and its links for 10 seconds
-            async function crawlUrl(url, maxTime = 10000) {
+            // Function to crawl a URL and its links for 16 seconds
+            async function crawlUrl(url, maxTime = 16000) {
               if (!url || !url.startsWith('http')) {
                 return { content: '', links: [], dataSize: 0, error: 'Invalid URL' };
               }
@@ -550,84 +370,12 @@ jobs:
 
             Consider the following when refining your response:
             * Document prompt details
-            * Current feature names and specifications in the repository
-            * Rejected feature names
-            * Source file content
-            * Test file content
-            * README file content
-            * MISSION file content
-            * Contributing file content
-            * Dependencies file content
-            * Dependency list
-            * Build output
-            * Test output
-            * Main execution output
             * Available source entries from SOURCES.md
 
             Document prompt:
             DOCUMENT_PROMPT_START
             ${prompt}
             DOCUMENT_PROMPT_END            
-
-            Current feature names and specifications:
-            CURRENT_FEATURES_START
-            ${currentFeatures}
-            CURRENT_FEATURES_END
-
-            Rejected feature names:
-            REJECTED_FEATURES_START
-            ${rejectedFeatures}
-            REJECTED_FEATURES_END
-
-            Source file: ${target}
-            SOURCE_FILE_START
-            ${sourceFileContent}
-            SOURCE_FILE_END
-
-            Test file: ${testFile}
-            TEST_FILE_START
-            ${testFileContent}
-            TEST_FILE_END
-
-            README file: ${readmeFile}
-            README_FILE_START
-            ${readmeFileContent}
-            README_FILE_END
-
-            MISSION file: ${missionFile}
-            MISSION_FILE_START
-            ${missionFileContent}
-            MISSION_FILE_END
-
-            Contributing file: ${contributingFile}
-            CONTRIBUTING_FILE_START
-            ${contributingFileContent}
-            CONTRIBUTING_FILE_END
-
-            Dependencies file: ${dependenciesFile}
-            DEPENDENCIES_FILE_START
-            ${dependenciesFileContent}
-            DEPENDENCIES_FILE_END
-
-            Dependencies list from command: npm list
-            DEPENDENCIES_LIST_START
-            ${dependenciesListOutput}
-            DEPENDENCIES_LIST_END    
-
-            Build output from command: ${buildScript}
-            TEST_OUTPUT_START
-            ${buildOutput}
-            TEST_OUTPUT_END      
-
-            Test output from command: ${testScript}
-            TEST_OUTPUT_START
-            ${testOutput}
-            TEST_OUTPUT_END            
-
-            Main output from command: ${mainScript}
-            MAIN_OUTPUT_START
-            ${mainOutput}
-            MAIN_OUTPUT_END
 
             Available source entries from SOURCES.md (${sourceEntries.length} entries):
             SOURCES_ENTRIES_START

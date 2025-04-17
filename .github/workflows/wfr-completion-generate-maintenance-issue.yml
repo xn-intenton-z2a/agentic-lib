@@ -252,12 +252,6 @@ jobs:
             const apiKey = process.env.chatgptApiSecretKey;
             const prompt = parseInt(process.env.prompt);
             const dependenciesListOutput = process.env.dependenciesListOutput;
-            const buildScript = process.env.buildScript;
-            const buildOutput = process.env.buildOutput;
-            const testScript = process.env.testScript;
-            const testOutput = process.env.testOutput;
-            const mainScript = process.env.mainScript;
-            const mainOutput = process.env.mainOutput;
             const issueSelectionLabel = process.env.issueSelectionLabel;
             
             const fs = require('fs');
@@ -310,7 +304,6 @@ jobs:
             Do not include steps that would need to be taken manually by a human and expect to "dry-run" without an execution environment.
             The maximum number of maintenance issues that should be open at any one time is ${maintenanceIssuesWipLimit}, if there are already ${maintenanceIssuesWipLimit} open issues fail this request.
             Do not add valueless layers of validation, configuration, and abstraction. In particular do not create issues related to NaNs.
-            Ensure that the issue is distinct from any existing open issues in the repository so that the new issue remains valid when the other open issues are closed.
             Consider the following when refining your response:
             * Prompt details
             * Current feature names and specifications in the repository
@@ -321,10 +314,6 @@ jobs:
             * Contributing file content
             * Dependencies file content
             * Dependency list
-            * Build output
-            * Test output
-            * Main execution output
-            * Open issue titles
             
             Current feature names and specifications:
             CURRENT_FEATURES_START
@@ -369,27 +358,7 @@ jobs:
             Dependencies list from command: npm list
             DEPENDENCIES_LIST_START
             ${dependenciesListOutput}
-            DEPENDENCIES_LIST_END    
-            
-            Build output from command: ${buildScript}
-            TEST_OUTPUT_START
-            ${buildOutput}
-            TEST_OUTPUT_END      
-            
-            Test output from command: ${testScript}
-            TEST_OUTPUT_START
-            ${testOutput}
-            TEST_OUTPUT_END            
-
-            Main output from command: ${mainScript}
-            MAIN_OUTPUT_START
-            ${mainOutput}
-            MAIN_OUTPUT_END    
-            
-            Open issue titles:
-            OPEN_ISSUE_TITLES_START
-            ${openIssueTitles}
-            OPEN_ISSUE_TITLES_END
+            DEPENDENCIES_LIST_END
             
             Answer strictly with a JSON object following this schema:
             {

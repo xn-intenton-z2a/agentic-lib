@@ -78,21 +78,6 @@ on:
         type: string
         required: false
         default: 'package.json'
-      buildScript:
-        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
-        type: string
-        required: false
-        default: 'echo "No build script specified."'
-      testScript:
-        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
-        type: string
-        required: false
-        default: 'npm test'
-      mainScript:
-        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run start`'
-        type: string
-        required: false
-        default: 'npm run start'
       model:
         description: 'The OpenAI model to use. e.g. "o3-mini"'
         type: string
@@ -147,12 +132,6 @@ jobs:
       missionFile: ${{ inputs.missionFile || 'MISSION.md' }}
       contributingFile: ${{ inputs.contributingFile || 'CONTRIBUTING.md' }}
       dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
-      buildScript: ${{ inputs.buildScript || 'npm run build' }}
-      testScript: ${{ inputs.testScript || 'npm test' }}
-      mainScript: ${{ inputs.mainScript || 'npm run start' }}
-      mainScriptTimeout: '5m'
-      testScriptTimeout: '5m'
-      buildScriptTimeout: '5m'
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
@@ -197,17 +176,6 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
 
-      - name: List rejected features
-        id: rejectedFeatures
-        shell: bash
-        run: |
-          mkdir -p "${{ env.featuresDir }}/rejects"
-          output=$(ls -1 "${{ env.featuresDir }}/rejects" | sed 's/\.md//' | xargs echo )
-          echo "output<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$output" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "output=${output}"
-
       - name: List dependencies
         id: list
         shell: bash
@@ -218,40 +186,10 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
 
-      - name: Build project
-        id: build
-        shell: bash
-        run: |
-          output=$(timeout ${{ env.buildScriptTimeout }} ${{ env.buildScript }} 2>&1)
-          echo "output<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$output" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "output=${output}"
-
       - name: Tear down .npmrc
         if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
         run: rm -f .npmrc
-
-      - name: Run tests
-        id: test
-        shell: bash
-        run: |
-          output=$(timeout ${{ env.testScriptTimeout }} ${{ env.testScript }} 2>&1)
-          echo "output<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$output" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "output=${output}"
-
-      - name: Run main
-        id: main
-        shell: bash
-        run: |
-          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
-          echo "output<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$output" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "output=${output}"
 
       - name: Touch or create sources file
         id: touch
@@ -274,11 +212,7 @@ jobs:
         uses: actions/github-script@v7
         env:
           currentFeatures: ${{ steps.features.outputs.output }}
-          rejectedFeatures: ${{ steps.rejectedFeatures.outputs.output }}
           dependenciesListOutput: ${{ steps.list.outputs.output }}
-          buildOutput: ${{ steps.build.outputs.output }}
-          testOutput: ${{ steps.test.outputs.output }}
-          mainOutput: ${{ steps.main.outputs.output }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -286,7 +220,6 @@ jobs:
             const sourcesFile = process.env.sourcesFile;
             const sourcesLimit = process.env.sourcesLimit;
             const currentFeatures = process.env.currentFeatures;
-            const rejectedFeatures = process.env.rejectedFeatures;
             const target = process.env.target;
             const testFile = process.env.testFile;
             const readmeFile = process.env.readmeFile;
@@ -296,12 +229,6 @@ jobs:
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
             const dependenciesListOutput = process.env.dependenciesListOutput;
-            const buildScript = process.env.buildScript;
-            const buildOutput = process.env.buildOutput;
-            const testScript = process.env.testScript;
-            const testOutput = process.env.testOutput;
-            const mainScript = process.env.mainScript;
-            const mainOutput = process.env.mainOutput;
 
             const fs = require('fs');
             const path = require('path');
@@ -377,7 +304,6 @@ jobs:
             * Source prompt details
             * Current sources file content
             * Current feature names and specifications in the repository
-            * Rejected feature names
             * Target file content
             * Test file content
             * README file content
@@ -385,9 +311,6 @@ jobs:
             * Contributing file content
             * Dependencies file content
             * Dependency list
-            * Build output
-            * Test output
-            * Main execution output
 
             Source prompt:
             SOURCE_PROMPT_START
@@ -403,11 +326,6 @@ jobs:
             CURRENT_FEATURES_START
             ${currentFeatures}
             CURRENT_FEATURES_END
-
-            Rejected feature names:
-            REJECTED_FEATURES_START
-            ${rejectedFeatures}
-            REJECTED_FEATURES_END
 
             Target file: ${target}
             TARGET_FILE_START
@@ -443,21 +361,6 @@ jobs:
             DEPENDENCIES_LIST_START
             ${dependenciesListOutput}
             DEPENDENCIES_LIST_END    
-
-            Build output from command: ${buildScript}
-            BUILD_OUTPUT_START
-            ${buildOutput}
-            BUILD_OUTPUT_END      
-
-            Test output from command: ${testScript}
-            TEST_OUTPUT_START
-            ${testOutput}
-            TEST_OUTPUT_END            
-
-            Main output from command: ${mainScript}
-            MAIN_OUTPUT_START
-            ${mainOutput}
-            MAIN_OUTPUT_END
 
             Answer strictly with a JSON object following this schema:
             {
