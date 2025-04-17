@@ -22,3 +22,28 @@ GitHub Actions Toolkit provides libraries, modules, and best practice guides for
 ## https://nodejs.org/en/docs/guides/debugging-getting-started/
 This official guide from Node.js explains various techniques and tools for debugging Node.js applications. It covers fundamental and advanced debugging strategies, making it an essential resource for developers who need to troubleshoot and optimize Node.js code, especially in complex, production-level environments.
 ## License: Node.js Foundation License
+
+# OpenAI API Documentation
+## https://platform.openai.com/docs/api-reference
+The official API reference for OpenAI's API, providing detailed documentation on endpoints, usage examples, and best practices for integrating AI features in applications. Regularly updated, it is a key resource for developers working with OpenAI's language models and other AI services.
+## License: OpenAI API Terms of Service
+
+# Zod Documentation
+## https://github.com/colinhacks/zod
+Zod is a TypeScript-first schema declaration and validation library that allows developers to define robust schemas for their data. This repository contains comprehensive documentation, examples, and best practices for using Zod in modern JavaScript and TypeScript projects.
+## License: MIT License
+
+# AWS Lambda Developer Guide
+## https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
+The official AWS Lambda documentation provides guidance on creating, deploying, and managing serverless functions. It covers various topics including event sources, security considerations, and integration with other AWS services, serving as an essential guide for serverless architecture development.
+## License: AWS Documentation Terms
+
+# ESLint Documentation
+## https://eslint.org/docs/latest/user-guide/getting-started
+The comprehensive guide to ESLint, detailing setup, configuration, and best practices for linting JavaScript code. It offers step-by-step instructions to integrate ESLint into development workflows to ensure code quality and consistency.
+## License: MIT License
+
+# Prettier Documentation
+## https://prettier.io/docs/en/index.html
+The official documentation for Prettier, a popular code formatter. It provides detailed instructions on how to configure, integrate, and use Prettier to automatically format code, ensuring consistent style and reducing formatting issues across projects.
+## License: MIT License
