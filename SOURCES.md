@@ -25,10 +25,30 @@ Provides extensive details on ESLint configuration, rules, and best practices to
 
 # Node.js Documentation
 ## https://nodejs.org/en/docs/
-The official Node.js documentation covers APIs, modules, and guides essential for developing applications with Node.js (v20+). It is a foundational reference for modern JavaScript development.
+The official Node.js documentation covers APIs, modules, and guides essential for developing applications with Node.js. It is a foundational reference for modern JavaScript development.
 ## License: MIT License
 
 # Zod Schema Validation Documentation
 ## https://github.com/colinhacks/zod
 Documentation for Zod, a TypeScript-first schema declaration and validation library, providing clear examples, API details, and best practices for enforcing data integrity in applications.
+## License: MIT License
+
+# Vitest Documentation
+## https://vitest.dev/
+Vitest is a Vite-native unit testing framework that offers a fast and efficient testing experience with rich API and watch mode features. Frequently updated, it is highly relevant for projects using modern JavaScript and Node.js testing tools.
+## License: MIT License
+
+# AWS SDK for JavaScript v3 Documentation
+## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/index.html
+Comprehensive reference for the AWS SDK for JavaScript v3, covering usage, configurations, and integration examples. This resource is essential for developers building serverless and cloud-integrated applications using AWS services.
+## License: Apache License 2.0
+
+# dotenv Documentation
+## https://github.com/motdotla/dotenv
+Official documentation for dotenv, a zero-dependency module that loads environment variables from a .env file into process.env. This document describes configuration, usage patterns, and best practices to manage environment variables.
+## License: BSD-2-Clause
+
+# Prettier Documentation
+## https://prettier.io/docs/en/index.html
+Prettier is an opinionated code formatter with support for many languages. The documentation provides comprehensive guidance on its usage, configuration options, and integration steps with various development environments. It is frequently updated and widely adopted for ensuring code style consistency.
 ## License: MIT License
