@@ -257,3 +257,33 @@ Vite is a build tool that offers a fast development experience for modern web pr
 ## https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html
 The AWS S3 Documentation provides guidance on storing, retrieving, and managing data in Amazon S3, offering essential insights for projects integrating object storage functionalities like those in agentic-lib.
 ## License: AWS Documentation License
+
+# AWS CLI v2 Documentation
+## https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html
+This documentation details how to configure and use AWS CLI v2, including managing configuration files and profiles. It is useful for developers who manage AWS resources from the command line in environments that leverage agentic-lib for automation.
+## License: AWS Documentation License
+
+# markdownlint Documentation
+## https://github.com/DavidAnson/markdownlint
+markdownlint provides guidelines and configuration options for maintaining consistent Markdown formatting. This resource is important for ensuring high-quality documentation in agentic-lib and its workflows.
+## License: MIT
+
+# Dependabot Documentation
+## https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically
+Dependabot automatically checks for outdated dependencies and security vulnerabilities. This documentation is useful for maintaining the security and integrity of agentic-lib's dependency ecosystem.
+## License: GitHub Docs License (CC BY 4.0)
+
+# Pro Git Book
+## https://git-scm.com/book/en/v2
+The Pro Git Book offers comprehensive guidance on using Git for version control. Its deep insights into branching, merging, and collaboration practices benefit developers working on agentic-lib and similar projects.
+## License: CC BY-NC-ND 2.0
+
+# npm Documentation
+## https://docs.npmjs.com
+The npm Documentation provides extensive details on package management, publishing, and dependency management. It is essential for maintaining and distributing agentic-lib as an npm package.
+## License: npm Docs License
+
+# Open Source Guides
+## https://opensource.guide
+Open Source Guides by GitHub offer best practices, strategies, and governance advice for managing open source projects. This resource supports community building, licensing, and project management for agentic-lib.
+## License: CC BY 4.0
