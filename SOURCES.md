@@ -217,3 +217,43 @@ Offers guidelines and best practices for setting up and managing GitLab Runner i
 ## https://eslint.org/blog/
 The ESLint blog provides updates, release notes, and insights into new features and improvements for the ESLint static analysis tool.
 ## License: MIT
+
+# Azure DevOps Pipelines Documentation
+## https://docs.microsoft.com/en-us/azure/devops/pipelines/?view=azure-devops
+This documentation provides comprehensive guidance on using Azure DevOps for continuous integration and continuous deployment (CI/CD). It covers pipeline configuration, build and release management, and integrations with various tools in the Azure ecosystem. The documentation is regularly updated and maintained by Microsoft, making it a reliable resource for DevOps practitioners.
+## License: Microsoft Docs License
+
+# OWASP Cheat Sheet Series
+## https://cheatsheetseries.owasp.org/
+The OWASP Cheat Sheet Series offers a collection of concise guides designed to assist developers and security professionals in implementing robust security measures. It includes best practices for securing web applications and CI/CD pipelines, and is maintained by the OWASP community with frequent updates.
+## License: OWASP Open License
+
+# Netlify Build Documentation
+## https://docs.netlify.com/configure-builds/get-started/
+Netlify’s documentation provides detailed instructions on configuring and deploying projects using Netlify’s build system. It covers build settings, environment variables, and continuous deployment strategies tailored for static sites and modern web applications.
+## License: Netlify Terms of Service
+
+# Terraform Documentation
+## https://www.terraform.io/docs/index.html
+Terraform’s official documentation offers in-depth guides on infrastructure as code, enabling users to define and manage cloud resources efficiently. It covers configuration syntax, state management, and best practices for deployments, and is regularly updated by HashiCorp.
+## License: Mozilla Public License 2.0
+
+# Argo CD Documentation
+## https://argo-cd.readthedocs.io/en/stable/
+Argo CD is a declarative, GitOps continuous delivery tool for Kubernetes. Its documentation provides guidance on installation, configuration, and usage, emphasizing version control and automated deployment strategies in Kubernetes environments.
+## License: Apache License 2.0
+
+# GitHub Actions Toolkit Documentation
+## https://github.com/actions/toolkit
+The GitHub Actions Toolkit documentation covers libraries and tools designed to help developers create GitHub Actions. It includes API references, usage examples, and best practices for integrating with GitHub’s workflow automation system.
+## License: MIT
+
+# semantic-release Documentation
+## https://semantic-release.gitbook.io/semantic-release/
+Semantic-release automates the versioning and release process by parsing commit messages according to a conventional standard. This documentation provides detailed guidance on configuration, plugins, and integrations, making it a valuable resource for automating release workflows.
+## License: MIT
+
+# Conventional Commits
+## https://www.conventionalcommits.org/en/v1.0.0/
+The Conventional Commits specification standardizes commit message formats to facilitate automated versioning and changelog generation in CI/CD pipelines. It is widely adopted by the developer community and serves as a best practice guide for structuring commit messages.
+## License: CC BY 4.0
