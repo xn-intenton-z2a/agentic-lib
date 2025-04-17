@@ -37,3 +37,33 @@ This guide explains how to use Jenkins for continuous integration and delivery t
 ## https://www.serverless.com/framework/docs/
 This documentation covers the Serverless Framework, a popular toolkit for building and deploying serverless applications. It includes tutorials, examples, and detailed explanations of core concepts, and is regularly updated by the Serverless community.
 ## License: MIT License
+
+# AWS Lambda Developer Guide
+## https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
+This guide provides detailed documentation for AWS Lambda, covering topics such as getting started, deployment strategies, best practices, troubleshooting, and performance optimization. It is an authoritative source maintained by AWS and updated regularly.
+## License: AWS Service Terms
+
+# Amazon SQS Developer Guide
+## https://docs.aws.amazon.com/AWSSimpleQueueService/latest/sqs-DeveloperGuide/welcome.html
+This documentation offers a comprehensive overview of Amazon Simple Queue Service (SQS). It covers queue configuration, message processing, security considerations, and scalability practices essential for building resilient distributed systems.
+## License: AWS Service Terms
+
+# Zod Documentation
+## https://zod.dev
+This is the official website and documentation for the Zod validation library. It offers detailed guides, API references, and examples for creating type-safe schemas and validating data in JavaScript and TypeScript applications.
+## License: MIT License
+
+# dotenv Documentation
+## https://github.com/motdotla/dotenv
+The dotenv repository provides documentation on loading environment variables from a .env file into Node.js applications. This resource is essential for configuration management and is maintained by the open-source community.
+## License: MIT License
+
+# Vitest Testing Framework Documentation
+## https://vitest.dev
+This resource offers official documentation for the Vitest testing framework, including guides, API references, and examples. It is a modern testing solution for JavaScript and TypeScript projects that emphasizes speed and ease of use.
+## License: MIT License
+
+# ESLint Official Documentation
+## https://eslint.org/docs/latest/
+This documentation provides comprehensive guidance on using ESLint, a popular tool for identifying and fixing problems in JavaScript code. It covers setup, configuration, and advanced usage patterns to help maintain code quality and consistency.
+## License: MIT License
