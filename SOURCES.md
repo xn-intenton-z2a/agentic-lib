@@ -307,3 +307,23 @@ This AWS documentation outlines best practices for designing, deploying, and mon
 ## https://docs.github.com/en/developers/apps/creating-a-github-app
 This documentation guides developers through creating GitHub Apps, which can integrate deeply with GitHub repositories to automate tasks and improve workflow efficiency. It covers authentication, webhook handling, and app maintenance, offering insights relevant to enhancing agentic-lib's autonomous operations.
 ## License: GitHub Docs License (CC BY 4.0)
+
+# SPARQL 1.1 Query Language
+## https://www.w3.org/TR/sparql11-query/
+The SPARQL 1.1 Query Language specification provides detailed instructions on querying RDF data using the SPARQL language. This resource is essential for developers working with semantic web technologies and linked data, supporting advanced query capabilities in document traceability and semantic markup applications.
+## License: W3C License
+
+# Apollo GraphQL Documentation
+## https://www.apollographql.com/docs/
+Apollo GraphQL offers comprehensive guidance for building robust GraphQL implementations for both client and server applications. Its documentation is valuable for integrating advanced graph query capabilities and streamlined API interactions within projects like agentic-lib.
+## License: MIT
+
+# Microsoft REST API Guidelines
+## https://github.com/microsoft/api-guidelines
+This guide details best practices for designing and documenting RESTful APIs as outlined by Microsoft. It serves as an authoritative resource for building scalable, maintainable, and well-documented API services, which can inform integration strategies in agentic-lib and similar projects.
+## License: CC BY 4.0
+
+# Node.js Best Practices
+## https://github.com/goldbergyoni/nodebestpractices
+A comprehensive resource outlining best practices for Node.js development, including topics on performance, security, and maintainability. This guide is especially useful for developers working with agentic-lib to ensure robust and efficient application development.
+## License: MIT
