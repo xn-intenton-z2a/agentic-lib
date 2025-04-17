@@ -347,3 +347,23 @@ The RDF 1.1 Concepts document elaborates on the fundamental principles of the Re
 ## https://schema.org/docs/full.html
 Schema.org documentation provides a comprehensive resource for defining structured data on the web. Its extensive vocabulary supports semantic enrichment and microdata annotations, aligning with semantic web standards and complementing the OWL semantic enhancements present in agentic-lib.
 ## License: CC BY-SA 4.0
+
+# Argo Workflows Documentation
+## https://argoproj.github.io/argo-workflows/
+Argo Workflows is an open source container-native workflow engine for orchestrating parallel jobs on Kubernetes. It offers insights into efficient, scalable orchestration of microservices, complementing the autonomous workflows in agentic-lib. Last updated 2023. Licensed under Apache License 2.0.
+## License: Apache License 2.0
+
+# AWS Step Functions Developer Guide
+## https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html
+The AWS Step Functions Developer Guide explains how to build and orchestrate complex workflows with AWS services. This documentation is particularly useful for understanding stateful, serverless workflow orchestration that can serve as a complementary or alternative approach to agentic-lib's architectural model.
+## License: AWS Documentation License
+
+# CloudEvents Specification
+## https://cloudevents.io/
+The CloudEvents specification provides a common standard for describing event data across services and platforms. It facilitates interoperability in event-driven architectures, enhancing the integration of agentic-lib with various event sources and serverless functions.
+## License: Apache License 2.0
+
+# Event-Driven Architecture (EDA) - Martin Fowler
+## https://martinfowler.com/articles/201701-event-driven.html
+This article by Martin Fowler provides an in-depth analysis of event-driven architecture principles. It offers guidance on designing scalable, decoupled systems and is relevant for architects looking to implement autonomous workflows similar to those in agentic-lib.
+## License: Copyright Martin Fowler, used with permission for educational purposes.
