@@ -97,3 +97,28 @@ Prettier is an opinionated code formatter that supports many languages and frame
 ## https://nodejs.org/en/docs/
 The Node.js official documentation covers all aspects of Node.js including core modules, API references, and guides for modern JavaScript development. Published by the Node.js project, it is an essential resource for developers building scalable server-side applications.
 ## License: Node.js Project License
+
+# Node.js ECMAScript Modules Guide
+## https://nodejs.org/api/esm.html
+This guide explains how Node.js implements ECMAScript Modules (ESM) and provides guidance on how to use them effectively. It covers topics such as module loading, interoperation with CommonJS, and migration strategies. Updated with the latest version of Node.js, it is essential for developers adopting modern JavaScript module standards.
+## License: Node.js Project License
+
+# GitHub CLI Manual
+## https://cli.github.com/manual/
+This manual covers GitHub's command-line interface (CLI) for managing repositories, issues, pull requests, and more directly from the terminal. It includes comprehensive command descriptions, examples, and usage scenarios, regularly updated by the GitHub team.
+## License: Custom GitHub Docs License
+
+# Schema.org Documentation
+## https://schema.org/docs/full.html
+This documentation provides a detailed reference for Schema.org, which is a collaborative initiative to create, maintain, and promote schemas for structured data on the Internet. It is critical for implementing semantic markup and improving search visibility. The resource is continuously evolved by a community of developers and search engines.
+## License: Creative Commons License
+
+# Architect Framework Documentation
+## https://arc.codes/docs/getting-started/
+This documentation covers Architect, a framework for building and deploying serverless applications. It provides guidance on set-up, deployment, and best practices as an alternative to other serverless frameworks, and is maintained by the team at Arc.codes with regular updates.
+## License: MIT License
+
+# OpenAPI Specification Documentation
+## https://swagger.io/specification/
+This resource outlines the OpenAPI Specification, a standard for designing and documenting RESTful APIs. It provides comprehensive guidelines on building API definitions that can power automated documentation, testing, and client generation, and is widely adopted in the industry.
+## License: Apache License 2.0
