@@ -127,3 +127,28 @@ CDK Patterns provides curated design patterns and best practices for the AWS CDK
 ## https://semver.org/
 Semantic Versioning (SemVer) is a widely-adopted versioning scheme for software that encourages meaningful, incremental version updates. The website offers the specification and rationale behind the SemVer standard.
 ## License: Public Domain or CC0
+
+# GitHub Actions Workflow Syntax Documentation
+## https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+This documentation provides a detailed guide on the workflow syntax for GitHub Actions. It covers configuration, event triggers, job definitions, and conditional execution. Maintained by GitHub, it includes comprehensive examples and is regularly updated to reflect changes in the platform.
+## License: GitHub Docs License (CC BY 4.0)
+
+# GitHub GraphQL API Documentation
+## https://docs.github.com/en/graphql
+This documentation offers detailed guidance on interacting with GitHub’s GraphQL API. It covers query structure, authentication, and the use of GraphQL for fetching precise data from GitHub repositories. As an official resource, it is authoritative and frequently updated.
+## License: GitHub Docs License (CC BY 4.0)
+
+# OpenAI Cookbook Documentation
+## https://github.com/openai/openai-cookbook/blob/main/README.md
+The OpenAI Cookbook provides examples, best practices, and guides for working with OpenAI's API. It covers topics such as prompt engineering, error handling, and model fine-tuning, offering practical insights from community contributions and regular updates.
+## License: MIT
+
+# AWS SAM Developer Guide
+## https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html
+This guide introduces AWS SAM, a framework that simplifies building serverless applications on AWS. It includes tutorials, best practices, and in-depth information about deploying and managing serverless architectures.
+## License: AWS Documentation License
+
+# GitHub Pages Documentation
+## https://docs.github.com/en/pages
+GitHub Pages documentation offers comprehensive guidance on publishing static websites directly from a GitHub repository. It covers setup, deployment, custom domains, and troubleshooting, serving as a vital resource for users hosting content on GitHub Pages.
+## License: GitHub Docs License (CC BY 4.0)
