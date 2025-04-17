@@ -167,7 +167,7 @@ jobs:
             
             // Open issues count
             const { data: issuesResp } = await github.rest.issues.listForRepo({ owner, repo, state: "open", per_page: 256 });
-            
+             
             // Issues closed in last hour and day
             const sinceOneHour = new Date(now.getTime() - (60 * 60 * 1000)).toISOString();
             const { data: closedHourResp } = await github.rest.issues.listForRepo({ owner, repo, state: "closed", since: sinceOneHour, per_page: 256 });
@@ -265,7 +265,7 @@ jobs:
               lastActivityName,
               lastActivityBranchName,
               repository: {
-                count: repoResp.length,
+                count: repoResp ? repoResp.length : 0,
                 details: repoResp,
                 owner, 
                 repo,
@@ -273,57 +273,57 @@ jobs:
                 lastActivityBranchName
               },
               nextIssue,
-              openIssues: issuesResp.length,
-              issuesClosedLastHour: closedHourResp.length,
-              issuesClosedLastDay: closedDayResp.length,
+              openIssues: issuesResp ? issuesResp.length : 0,
+              issuesClosedLastHour: closedHourResp ? closedHourResp.length : 0,
+              issuesClosedLastDay: closedDayResp? closedDayResp.length : 0,
               issues: {
                 open: {
-                  count: issuesResp.length, 
+                  count: issuesResp ? issuesResp.length : 0, 
                   details: issuesResp,
                 },
                 closed: {
-                  count: closedDayResp.length, 
+                  count: closedDayResp ? closedDayResp.length : 0, 
                   details: closedDayResp
                 },
                 nextIssue,
-                openIssues: issuesResp.length,
-                issuesClosedLastHour: closedHourResp.length,
-                issuesClosedLastDay: closedDayResp.length
+                openIssues: issuesResp ? issuesResp.length : 0,
+                issuesClosedLastHour: closedHourResp ? closedHourResp.length : 0,
+                issuesClosedLastDay: closedDayResp ? closedDayResp.length : 0
               },
-              openPRs: prDetails.length,
+              openPRs: prDetails ? prDetails.length : 0,
               averagePRAge: averagePRAge,
-              prDetails: prDetails.map(pr => `[${pr.ageMinutes}m] ${pr.title}`),
+              prDetails: prDetails ? prDetails.map(pr => `[${pr.ageMinutes}m] ${pr.title}`) : [],
               diffMinutes: Math.floor((now - pushedAt) / (1000 * 60)),
               diffMinutesMain: Math.floor((now - mainPushedAt) / (1000 * 60)),
               prs: {
-                count: pullsResp.length, 
+                count: pullsResp ? pullsResp.length : 0, 
                 details: pullsResp,
-                openPRs: prDetails.length,
+                openPRs: prDetails ? prDetails.length : 0,
                 averagePRAge: averagePRAge,
-                prDetails: prDetails.map(pr => `[${pr.ageMinutes}m] ${pr.title}`),
+                prDetails: prDetails ? prDetails.map(pr => `[${pr.ageMinutes}m] ${pr.title}`) : 0,
                 diffMinutes: Math.floor((now - pushedAt) / (1000 * 60)),
                 diffMinutesMain: Math.floor((now - mainPushedAt) / (1000 * 60))
               },
-              commitsLastHour: commitsLastHourResp.length,
-              commitsLastDay: commitsLastDayResp.length,
-              lastFiveCommitMessages: lastFiveCommitMessages.map(commit => `[${commit.time}] - ${commit.message}`),
+              commitsLastHour: commitsLastHourResp ? commitsLastHourResp.length : 0,
+              commitsLastDay: commitsLastDayResp ? commitsLastDayResp.length : 0,
+              lastFiveCommitMessages: lastFiveCommitMessages ? lastFiveCommitMessages.map(commit => `[${commit.time}] - ${commit.message}`) : [],
               commits: {
-                count: commitsLastDayResp.length, 
+                count: commitsLastDayResp ? commitsLastDayResp.length : 0, 
                 details: commitsLastDayResp,
-                commitsLastHour: commitsLastHourResp.length,
-                commitsLastDay: commitsLastDayResp.length,
-                lastFiveCommitMessages: lastFiveCommitMessages.map(commit => `[${commit.time}] - ${commit.message}`)
+                commitsLastHour: commitsLastHourResp ? commitsLastHourResp.length : 0,
+                commitsLastDay: commitsLastDayResp ? commitsLastDayResp.length : 0,
+                lastFiveCommitMessages: lastFiveCommitMessages ? lastFiveCommitMessages.map(commit => `[${commit.time}] - ${commit.message}`) : []
               },
               branches: { 
-                count: branchDetails.length, 
-                details: branchDetails.map(branch => `[${branch.minutesSinceLastCommit}m] ${branch.branch}`),
-                countRaw: branchesResp.length, 
+                count: branchDetails ? branchDetails.length : 0, 
+                details: branchDetails ? branchDetails.map(branch => `[${branch.minutesSinceLastCommit}m] ${branch.branch}`) : [],
+                countRaw: branchesResp ? branchesResp.length : 0, 
                 detailsRaw: branchesResp,
-                branchIssueDetails: branchDetails.map(branch => `[${branch.issueNumber}] ${branch.issueTitle} ${branch.issueLabels}`),
+                branchIssueDetails: branchDetails ? branchDetails.map(branch => `[${branch.issueNumber}] ${branch.issueTitle} ${branch.issueLabels}`) : [],
                 averageBranchAge
               },
               checks: {
-                count: checks.length,
+                count: checks ? checks.length : 0,
                 checks: checks,
                 testStatusOnBranch: "PASS - placeholder",
                 testsLastPassedMinutes: "15 - placeholder"

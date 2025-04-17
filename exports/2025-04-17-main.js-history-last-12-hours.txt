@@ -1,0 +1,84 @@
+commit 318a793e210d9f4a349c5817dd8802d45ec1443a
+Author: GitHub Actions[bot] <action@github.com>
+Date:   Thu Apr 17 12:25:54 2025 +0000
+
+    No changes required tests and build outputs are as expected.
+
+diff --git a/src/lib/main.js b/src/lib/main.js
+index f94e6e5..69974dd 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -407,4 +407,4 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+     logError("Fatal error in main execution", err);
+     process.exit(1);
+   });
+-}
++}
+\ No newline at end of file
+
+commit b4ad44efea87f23f3c3f67170b2d32a55d3f0ed7
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Thu Apr 17 12:18:43 2025 +0000
+
+    Added --cli-utils flag to display CLI commands summary along with tests and documentation updates. (fixes #1031) (#1032)
+    
+    Co-authored-by: GitHub Actions[bot] <action@github.com>
+
+diff --git a/src/lib/main.js b/src/lib/main.js
+index f08d80a..f94e6e5 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -235,6 +235,32 @@ export function applyFix() {
+   logInfo("Applied fix successfully");
+ }
+ 
++// ---------------------------------------------------------------------------------------------------------------------
++// New function to handle CLI utilities display
++// ---------------------------------------------------------------------------------------------------------------------
++
++export function cliUtilsHandler() {
++  const cliCommands = [
++    { command: "--help", description: "Show this help message and usage instructions." },
++    { command: "--digest", description: "Run full bucket replay." },
++    { command: "--agentic <jsonPayload>", description: "Process an agentic command with a JSON payload." },
++    { command: "--version", description: "Show version information along with a timestamp." },
++    { command: "--verbose", description: "Enable verbose logging for detailed output." },
++    { command: "--diagnostics", description: "Output detailed diagnostic information." },
++    { command: "--status", description: "Output runtime health summary in JSON format." },
++    { command: "--dry-run", description: "Execute a dry run with no side effects." },
++    { command: "--simulate-error", description: "Simulate an error for testing purposes." },
++    { command: "--simulate-delay <ms>", description: "Simulate processing delay for the specified duration in milliseconds." },
++    { command: "--apply-fix", description: "Apply automated fixes and log a success message." },
++    { command: "--cli-utils", description: "Display a summary of available CLI commands and their descriptions." }
++  ];
++  let output = "CLI Commands Summary:\n";
++  cliCommands.forEach(cmd => {
++    output += `${cmd.command}: ${cmd.description}\n`;
++  });
++  console.log(output);
++}
++
+ // ---------------------------------------------------------------------------------------------------------------------
+ // Main CLI
+ // ---------------------------------------------------------------------------------------------------------------------
+@@ -253,6 +279,7 @@ function generateUsage() {
+       --simulate-error           Simulate an error for testing purposes
+       --simulate-delay <ms>      Simulate processing delay for the specified duration in milliseconds
+       --apply-fix                Apply automated fixes and log success message
++      --cli-utils                Display a summary of available CLI commands and their descriptions
+     `;
+ }
+ 
+@@ -288,6 +315,12 @@ export async function main(args = process.argv.slice(2)) {
+     return;
+   }
+ 
++  // New: Check for cli-utils flag
++  if (args.includes("--cli-utils")) {
++    cliUtilsHandler();
++    return;
++  }
++
+   if (args.includes("--help")) {
+     console.log(generateUsage());
+     return;

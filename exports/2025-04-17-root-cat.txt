@@ -1,0 +1,2436 @@
+./MISSION.md
+==== Content of ./MISSION.md ====
+# Mission Statement
+
+**agentic‑lib** Is a JavaScript library which can be used as a drop in JS implementation or wholesale replacement for 
+the steps, jobs, and re-usable workflows below in this repository. It is designed to be used in a GitHub Actions 
+workflow to enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate
+through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be
+invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+./SOURCES.md
+==== Content of ./SOURCES.md ====
+# OWASP Top 10 Vulnerabilities
+## https://owasp.org/Top10/
+This resource provides a detailed overview of the top ten most critical web application security risks as identified by OWASP. It is an authoritative, regularly updated guide that helps developers and security professionals understand, mitigate, and prioritize remediation of common vulnerabilities.
+## License: OWASP Open License
+
+# Airbnb JavaScript Style Guide
+## https://github.com/airbnb/javascript
+A widely adopted style guide for writing clean and maintainable JavaScript code. This documentation outlines best practices, coding conventions, and design patterns that have influenced many modern JavaScript projects globally.
+## License: MIT
+
+# W3C Web Accessibility Initiative (WAI)
+## https://www.w3.org/WAI/
+The W3C Web Accessibility Initiative provides guidelines, resources, and best practices for making web content accessible to people with disabilities. This source is continuously updated by industry experts and offers comprehensive standards for building inclusive web experiences.
+## License: W3C Document License
+
+# Tekton Pipelines Documentation
+## https://tekton.dev/docs/pipelines/
+Tekton Pipelines is an open-source framework designed for building CI/CD systems, providing detailed documentation on creating, managing, and scaling pipelines. It includes tutorials, API references, and practical examples valuable for modern DevOps practices.
+## License: Apache License 2.0
+
+# Spinnaker Documentation
+## https://www.spinnaker.io/docs/
+Spinnaker is an open-source, multi-cloud continuous delivery platform. Its documentation covers pipeline configuration, deployment strategies, and integrations with various cloud services, making it a key resource for teams implementing robust CD workflows.
+## License: Apache License 2.0
+
+# MDN Web Docs: JavaScript Guide
+## https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide
+The MDN Web Docs offer a comprehensive guide to JavaScript, covering fundamental concepts, modern syntax, and best practices. Maintained by Mozilla, this resource is updated frequently and is essential for both new and experienced developers.
+## License: CC BY-SA 2.5./WORKFLOWS-README.md
+==== Content of ./WORKFLOWS-README.md ====
+# intentïon `agentic-lib`
+
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your 
+repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and 
+issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using 
+GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, using this
+tool and the reusable workflows shall become bundled actions in due course.
+
+*Warning:* Executing these workflows shall incur charges on your OpenAI account and consume chargeable GitHub Actions resources minutes.
+
+*Warning:* Experimental. This coding system has generated a few interesting examples (I have been educated) but nothing of personal utility.
+
+*Warning:* This project is not yet ready for production use. You should not point the `agentic-lib` workflows a repository containing existing intellectual property.
+
+Mixed licensing:
+* This project is licensed under the GNU General Public License (GPL).
+* This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+* This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+[Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
+
+Examples:
+* [`repository0-plot-code-lib`](https://github.com/xn-intenton-z2a/repository0-plot-code-lib) - A CLI generating SVG and novel formats plots for formulae. 
+* Send a PR to add your example, either descending from `repository0` or using the `agentic-lib` SDK directly.
+
+## Should you use the `agentic-lib` Coding System?
+
+* Can you access an OpenAI account with API keys that can access at least `o3-mini` ?
+* Are you willing to incur charges the resources consumed by the OpenAI API and GitHub Actions ?
+* Are you curious as to where self-evolving code might lead ?
+* Would you like to see how such a system can be built and has been built ?
+* Do you like that it's OpenAI and GitHub API calls wired together in JS (GitHub Script) and packaged as GitHub Workflows* ?
+* Do you appreciate that you need `dotenv, openai, zod` in your `package.json` because the JS has dependencies on them ?
+
+*Actions with bundled JS coming soon.
+
+---
+
+## Getting Started
+
+Clone a seed repository which is pre-configured with the reusable workflows and scripts: https://github.com/xn-intenton-z2a/repository0
+
+### Initiating the workflow
+
+Run the action "Create Issue" and enter some text to create an issue. This will create an issue and trigger the 
+"Issue Worker" to write the code. If the Issue Worker is able to resolve the issue a Pull Request is raised, the change 
+automatically merged. The issue reviewed and closed if the change is deemed to have delivered whatever was requested in the issue.
+
+Development Workflows:
+```
+On timer / Manual: Create Issue (new issue opened) 
+-> Issue Worker (code changed, issue updated) 
+-> Automerge (code merged)
+-> Review Issue (issue reviewed and closed)
+
+On timer: Issue Worker (code changed, issue updated) 
+-> Automerge (code merged)
+-> Review Issue (issue reviewed and closed)
+
+On timer: Automerge (code merged)
+-> Review Issue (issue reviewed and closed)
+
+On timer: Review Issue (issue reviewed and closed)
+```
+(Each workflow is triggered by the previous one and also on a schedule so that failures can be recovered from.)
+
+### Tuning the agentic coding system
+
+The default set-up is quite open which can be chaotic. To temper this chaos you can change these files which the workflow takes into consideration:
+- `CONTRIBUTING.md` - The workflow is itself a contributor and will be asked to follow these guidelines. Start by writing your owm mission statement.
+- `eslint.config.js` - Code style rules and additional plugins can be added here.
+
+The following files are also taken into consideration but may also be changed (even blanked out completely) by the workflow:
+- `README.md`
+- `package.json`
+- `src/lib/main.js`
+- `tests/unit/main.test.js`
+
+**Chain Workflows Together:**  
+   Use outputs from one workflow as inputs for another. For example, if an issue review workflow outputs `fixed`, then trigger an automerge workflow based on that flag.
+
+**Customize Parameters:**  
+   Each workflow accepts parameters with sensible defaults. Override them as needed to fit your project’s structure and requirements.
+
+**Seed and Evolve:**  
+   With a simple prompt (e.g. a new issue), the system will automatically review, generate fixes using ChatGPT, commit changes, and merge them—allowing the program to evolve autonomously.
+
+---
+
+## Feature Chain Workflows
+These workflows work together to maintain and publish feature documentation, creating a continuous chain from source material to published web content. For detailed information, see the [WORKFLOW_CHAIN.md](features/WORKFLOW_CHAIN.md) feature file.
+
+### Library Worker (`library-worker.yml`)
+- **Function:** Maintains the library of documents by creating, updating, or extending documents based on source material.
+- **Reusable Workflow:** [`wfr-completion-maintain-library.yml`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml)
+
+### Source Worker (`source-worker.yml`)
+- **Function:** Maintains the sources file that provides URLs and metadata for the library worker.
+- **Reusable Workflow:** [`wfr-completion-maintain-sources.yml`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-sources.yml)
+
+### Publish Web (`publish-web.yml`)
+- **Function:** Publishes feature documentation to GitHub Pages as HTML.
+- **Reusable Workflow:** [`wfr-github-publish-web.yml`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-publish-web.yml)
+
+### Workflow Chain
+The workflows interact in sequence: Source Worker maintains `SOURCES.md` → Library Worker creates/updates feature documents → Publish Web converts features to HTML and publishes to GitHub Pages. This chain can be extended with OWL semantic markup for machine-readable metadata, document traceability, and attribution information.
+
+---
+
+# Agentic Development System Guide
+
+This guide explains how the various workflows of the Agentic Coding Systems work together to automate and streamline your development process. Think of these workflows as modular SDK components that encapsulate common operations—publishing, testing, issue management, dependency updates, code formatting, and more—allowing you to build an agentic development system for your projects.
+
+---
+
+## Issue Management Workflows
+These workflows generalize the concept of work items as “tasks” rather than platform-specific issues.
+
+### Issue Creator (`issue-creator.yml`)
+- **Function:** Creates a new task based on predefined prompts.
+- **Reusable Workflow:** [`wfr-create-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@1.2.0)
+- **Trigger:** Manual dispatch or scheduled events with input parameters.
+
+### Issue Worker (`issue-worker.yml`)
+- **Function:** Selects, validates, and initiates work on existing tasks.
+- **Reusable Workflows:**
+  - [`wfr-select-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@1.2.0)
+  - [`wfr-apply-issue-resolution.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-issue-resolution.yml@1.2.0)
+  - [`wfr-create-pr.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.2.0)
+
+### Issue Reviewer (`issue-reviewer.yml`)
+- **Function:** Reviews and finalizes tasks once work is complete.
+- **Reusable Workflow:** [`wfr-review-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-review-issue.yml@1.2.0)
+
+### Automerge Workflow (`automerge.yml`)
+- **Function:** Automatically merges pull requests when criteria are met.
+- **Reusable Workflows:**
+  - [`wfr-automerge-find-pr-from-pull-request.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-from-pull-request.yml@1.2.0)
+  - [`wfr-automerge-find-pr-in-check-suite.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-in-check-suite.yml@1.2.0)
+  - [`wfr-automerge-label-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@1.2.0)
+  - [`wfr-automerge-merge-pr.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-merge-pr.yml@1.2.0)
+
+---
+
+## Reusable Workflows SDK Guide
+
+Think of each reusable workflow as a function in an SDK:
+- **Inputs:** Parameters (e.g., `versionIncrement`, `buildScript`, `issueTitle`) customize workflow behavior.
+- **Outputs:** Results such as task status, pull request numbers, or merge status.
+- **Integration:** Invoke these workflows via GitHub Actions workflow calls, schedule triggers, or manual dispatch. They encapsulate complex operations into modular, reusable components.
+
+### Example: Invoking the Issue Creator Workflow
+```yaml
+on:
+  workflow_dispatch:
+    inputs:
+      issueTitle:
+        description: 'Title for the new task'
+        required: false
+        default: 'house choice'
+```
+Internally, this triggers [`wfr-create-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@1.2.0) to generate an issue template based on provided parameters.
+
+---
+
+## Repository Setup Guide
+
+Follow these steps to set up your repository using the agentic development system:
+
+1. **Create a Repository from Template:**
+   - Begin with a repository template that includes the top-level workflows (e.g., `publish.yml`, `test.yml`, `issue-creator.yml`, etc.).
+   - Clone the repository locally.
+
+2. **Configure Repository Settings:**
+   - Ensure your repository supports Node.js (v20+).
+   - Add necessary secrets (e.g., `CHATGPT_API_SECRET_KEY`, `GITHUB_TOKEN`) via your repository settings.
+
+3. **Customize Workflow Inputs:**
+   - Edit workflow files under `.github/workflows/` to match your project specifics (e.g., branch names, file paths).
+   - Update configuration files such as `dependabot.yml` and `FUNDING.yml` as needed.
+
+---
+
+## Component Breakdown
+
+This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:
+
+### 1. Re‑usable Workflows (Core Functionality)
+- **Purpose:**  
+  These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.
+- **Stability:**  
+  They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.
+- **Licensing:**  
+  The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.
+- **Location:**  
+  Find these in the `.github/workflows/` directory.
+
+### 2. Example Workflows (Demonstrative Content)
+- **Purpose:**  
+  These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
+- **Stability:**  
+  While functional, they are intended primarily for demonstration and experimentation.
+- **Licensing:**  
+  The example workflows are covered by the MIT license to allow for broader use and modification.
+- **Location:**  
+  Look in the `examples/` directory for sample implementations.
+
+### 3. The Evolving main.js (Experimental Work in Progress)
+- **Purpose:**  
+  This file showcases experimental features and serves as a testbed for integrating new ideas into the system.
+- **Stability:**  
+  It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
+- **Licensing:**  
+  As part of the core project, it is under GPL‑3 with the attribution clause.
+- **Location:**  
+  The experimental code is located in `src/lib/main.js`.
+
+Each of these components is documented separately to ensure you can quickly determine which parts are ready for use and which are intended as examples or experimental features.
+
+---
+
+## Project Structure
+
+The key components of the project are organized as follows:
+
+```text
+.
+├── Dockerfile
+├── package.json
+├── cdk.json
+├── pom.xml
+├── compose.yml
+├── src/lib/main.js
+├── aws/main/java/com/intention/AgenticLib/AgenticLibApp.java
+├── aws/main/java/com/intention/AgenticLib/AgenticLibStack.java
+├── aws/test/java/com/intentïon/AgenticLib/AgenticLibStackTest.java
+└── tests/unit/main.test.js
+```
+
+Additional files include GitHub workflows (for CI/CD and maintenance scripts) and various helper scripts under the `scripts/` directory.
+
+---
+
+## Getting Started with local development
+
+### Prerequisites
+
+- [Node.js v20+](https://nodejs.org/)
+- [AWS CLI](https://aws.amazon.com/cli/) (configured with sufficient permissions)
+- [Java JDK 11+](https://openjdk.java.net/)
+- [Apache Maven](https://maven.apache.org/)
+- [AWS CDK 2.x](https://docs.aws.amazon.com/cdk/v2/guide/home.html) (your account should be CDK bootstrapped)
+- [Docker](https://www.docker.com/get-started)
+- [Docker Compose](https://docs.docker.com/compose/)
+
+---
+
+## Local Development Environment
+
+### Clone the Repository
+
+```bash
+
+git clone https://github.com/xn-intenton-z2a/agentic-lib.git
+cd agentic-lib
+```
+
+### Install Node.js dependencies and test
+
+```bash
+
+npm install
+npm test
+```
+
+### Build and test the Java Application
+
+```bash
+./mvnw clean package
+```
+
+## Setup for AWS CDK
+
+You'll need to have run `cdk bootstrap` to set up the environment for the CDK. This is a one-time setup per AWS account and region.
+General administrative permissions are required to run this command. (NPM installed the CDK.)
+
+In this example for a user `antony-local-user` and a role `agentic-lib-github-actions-role` (create them if you need to)
+we would add the following trust policy so that they can assume the role: `agentic-lib-deployment-role`:
+```json
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "Statement1",
+			"Effect": "Allow",
+			"Action": ["sts:AssumeRole", "sts:TagSession"],
+			"Resource": ["arn:aws:iam::541134664601:role/agentic-lib-deployment-role"]
+		}
+	]
+}
+```
+
+The `agentic-lib-github-actions-role` also needs the following trust entity to allow GitHub Actions to assume the role:
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Federated": "arn:aws:iam::541134664601:oidc-provider/token.actions.githubusercontent.com"
+            },
+            "Action": "sts:AssumeRoleWithWebIdentity",
+            "Condition": {
+                "StringEquals": {
+                    "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                },
+                "StringLike": {
+                    "token.actions.githubusercontent.com:sub": "repo:xn-intenton-z2a/agentic-lib:*"
+                }
+            }
+        }
+    ]
+}
+```
+
+Create the IAM role with the necessary permissions to assume role from your authenticated user:
+```bash
+
+cat <<'EOF' > agentic-lib-deployment-trust-policy.json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "arn:aws:iam::541134664601:user/antony-local-user",
+          "arn:aws:iam::541134664601:role/agentic-lib-github-actions-role"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+aws iam create-role \
+  --role-name agentic-lib-deployment-role \
+  --assume-role-policy-document file://agentic-lib-deployment-trust-policy.json
+```
+
+Add the necessary permissions to deploy `agentic-lib`:
+```bash
+
+cat <<'EOF' > agentic-lib-deployment-permissions-policy.json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:*",
+        "iam:*",
+        "s3:*",
+        "cloudtrail:*",
+        "logs:*",
+        "events:*",
+        "lambda:*",
+        "dynamodb:*",
+        "sqs:*",
+        "sts:AssumeRole"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+aws iam put-role-policy \
+  --role-name agentic-lib-deployment-role \
+  --policy-name agentic-lib-deployment-permissions-policy \
+  --policy-document file://agentic-lib-deployment-permissions-policy.json
+```
+
+Assume the deployment role:
+```bash
+
+unset AWS_ACCESS_KEY_ID
+unset AWS_SECRET_ACCESS_KEY
+unset AWS_SESSION_TOKEN
+ROLE_ARN="arn:aws:iam::541134664601:role/agentic-lib-deployment-role"
+SESSION_NAME="agentic-lib-deployment-session-local"
+ASSUME_ROLE_OUTPUT=$(aws sts assume-role --role-arn "$ROLE_ARN" --role-session-name "$SESSION_NAME" --output json)
+if [ $? -ne 0 ]; then
+  echo "Error: Failed to assume role."
+  exit 1
+fi
+export AWS_ACCESS_KEY_ID=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.AccessKeyId')
+export AWS_SECRET_ACCESS_KEY=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.SecretAccessKey')
+export AWS_SESSION_TOKEN=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.SessionToken')
+EXPIRATION=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.Expiration')
+echo "Assumed role successfully. Credentials valid until: $EXPIRATION"
+```
+Output:
+```log
+Assumed role successfully. Credentials valid until: 2025-03-25T02:27:18+00:00
+```
+
+Check the session:
+```bash
+
+aws sts get-caller-identity
+```
+
+Output:
+```json
+{
+  "UserId": "AROAX37RDWOM7ZHORNHKD:3-sqs-bridge-deployment-session",
+  "Account": "541134664601",
+  "Arn": "arn:aws:sts::541134664601:assumed-role/agentic-lib-deployment-role/3-sqs-bridge-deployment-session"
+}
+```
+
+Check the permissions of the role:
+```bash
+
+aws iam list-role-policies \
+  --role-name agentic-lib-deployment-role
+```
+Output (the policy we created above):
+```json
+{
+  "PolicyNames": [
+    "agentic-lib-deployment-permissions-policy"
+  ]
+}
+```
+
+An example of the GitHub Actions role being assumed in a GitHub Actions Workflow:
+```yaml
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::541134664601:role/agentic-lib-deployment-role
+          aws-region: eu-west-2
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - run: npm install -g aws-cdk
+      - run: aws s3 ls --region eu-west-2
+```
+
+## Deployment to AWS
+
+See also:
+* local running using [Localstack](LOCALSTACK.md).
+* Debugging notes for the AWS deployment here [DEBUGGING](DEBUGGING.md).
+
+Package the CDK, deploy the CDK stack which rebuilds the Docker image, and deploy the AWS infrastructure:
+```bash
+
+./mvnw clean package
+```
+
+Maven build output:
+```log
+...truncated...
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jar:3.4.1:jar (default-jar) @ agentic-lib ---
+[INFO] Building jar: /Users/antony/projects/agentic-lib/target/agentic-lib-2.8.1-0.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  18.775 s
+[INFO] Finished at: 2025-04-02T00:59:55+01:00
+[INFO] ------------------------------------------------------------------------
+Unexpected error in background thread "software.amazon.jsii.JsiiRuntime.ErrorStreamSink": java.lang.NullPointerException: Cannot read field "stderr" because "consoleOutput" is null
+```
+(Yes... the last line, the error "is a bug in the CDK, but it doesn't affect the deployment", according to Copilot.)
+
+Destroy a previous stack and delete related log groups:
+```bash
+
+npx cdk destroy
+```
+(The commands go in separately because the CDK can be interactive.)
+```bash
+
+aws logs delete-log-group \
+  --log-group-name "/aws/s3/agentic-lib-telemetry-bucket"
+aws logs delete-log-group \
+  --log-group-name "/aws/lambda/agentic-lib-digest-function"
+```
+
+Create a file `secrets.env` with the following content:
+```bash
+
+export PERSONAL_ACCESS_TOKEN=Your Personal Access Token with packages:read
+```
+
+Deploys the AWS infrastructure including an App Runner service, an SQS queue, Lambda functions, and a PostgreSQL table.
+```bash
+
+. ./secrets.env
+npx cdk deploy
+```
+
+Example output:
+```log
+...truncated...
+AgenticLibStack: deploying... [1/1]
+AgenticLibStack: creating CloudFormation changeset...
+
+ ✅  AgenticLibStack
+
+✨  Deployment time: 78.98s
+
+Outputs:
+AgenticLibStack.DigestLambdaArn = arn:aws:lambda:eu-west-2:541134664601:function:agentic-lib-digest-function
+AgenticLibStack.DigestQueueUrl = https://sqs.eu-west-2.amazonaws.com/541134664601/agentic-lib-digest-queue
+AgenticLibStack.EventsBucketArn = arn:aws:s3:::agentic-lib-telemetry-bucket
+AgenticLibStack.EventsS3AccessRoleArn = arn:aws:iam::541134664601:role/agentic-lib-telemetry-bucket-writer-role
+AgenticLibStack.digestLambdaFunctionName = agentic-lib-digest-function (Source: CDK context.)
+AgenticLibStack.digestLambdaHandlerFunctionName = digestLambdaHandler (Source: CDK context.)
+...truncated...
+AgenticLibStack.sqsDigestQueueArn = arn:aws:sqs:eu-west-2:541134664601:agentic-lib-digest-queue (Source: CDK context.)
+AgenticLibStack.sqsDigestQueueName = agentic-lib-digest-queue (Source: CDK context.)
+Stack ARN:
+arn:aws:cloudformation:eu-west-2:541134664601:stack/AgenticLibStack/62d89c60-0f62-11f0-852e-02fc4561559f
+
+✨  Total time: 116.49s
+
+```
+
+Write to S3 (2 keys, 2 times each, interleaved):
+```bash
+
+aws s3 ls agentic-lib-telemetry-bucket/events/
+for value in $(seq 1 2); do
+  for id in $(seq 1 2); do
+    echo "{\"id\": \"${id?}\", \"value\": \"$(printf "%010d" "${value?}")\"}" > "${id?}.json"
+    aws s3 cp "${id?}.json" s3://agentic-lib-telemetry-bucket/events/"${id?}.json"
+  done
+done
+aws s3 ls agentic-lib-telemetry-bucket/events/
+```
+
+Output:
+```
+upload: ./1.json to s3://agentic-lib-telemetry-bucket/events/1.json    
+upload: ./1.json to s3://agentic-lib-telemetry-bucket/events/1.json   
+...
+upload: ./2.json to s3://agentic-lib-telemetry-bucket/events/2.json   
+2025-03-19 23:47:07         31 1.json
+2025-03-19 23:52:12         31 2.json
+```
+
+List the versions of all s3 objects:
+```bash
+
+aws s3api list-object-versions \
+  --bucket agentic-lib-telemetry-bucket \
+  --prefix events/ \
+  | jq -r '.Versions[] | "\(.LastModified) \(.Key) \(.VersionId) \(.IsLatest)"' \
+  | head -5 \
+  | tail -r
+```
+
+Output (note grouping by key, requiring a merge by LastModified to get the Put Event order):
+```log
+2025-03-23T02:37:10+00:00 events/2.json NGxS.PCWdSlxMPVIRreb_ra_WsTjc4L5 false
+2025-03-23T02:37:12+00:00 events/2.json 7SDSiqco1dgFGKZmRk8bjSoyi5eD5ZLW true
+2025-03-23T02:37:09+00:00 events/1.json cxY1weJ62JNq4DvqrgfvIWKJEYDQinly false
+2025-03-23T02:37:11+00:00 events/1.json wHEhP8RdXTD8JUsrrUlMfSANzm7ahDlv true
+```
+
+Check the projections table:
+```bash
+
+aws dynamodb scan \
+  --table-name agentic-lib-projections-table \
+  --output json \
+  | jq --compact-output '.Items[] | with_entries(if (.value | has("S")) then .value = .value.S else . end)' \
+  | tail --lines=5
+```
+
+Output:
+```json lines
+{"id":"events/1.json","value":"{\"id\": \"1\", \"value\": \"0000000002\"}\n"}
+{"id":"events/2.json","value":"{\"id\": \"2\", \"value\": \"0000000002\"}\n"}
+```
+
+Count the attributes on the digest queue:
+```bash
+
+aws sqs get-queue-attributes \
+  --queue-url https://sqs.eu-west-2.amazonaws.com/541134664601/agentic-lib-digest-queue \
+  --attribute-names ApproximateNumberOfMessages
+```
+
+Output:
+```json
+{
+  "Attributes": {
+    "ApproximateNumberOfMessages": "4"
+  }
+}
+```
+
+---
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### TODO
+
+Re-usable GitHub Actions Workflows:
+- [x] Implement "apply-fix" by raising a bug, then running start-issue (with a new name) in a tolerant mode allowing builds to fail but gathering output.
+- [x] Run apply fix on a schedule checking if a fix is necessary.
+- [x] Add check for failed Test run then re-instate. e.g. #workflow_run:  workflows: - "Tests" / types: - completed
+- [x] Detect failing build rather than relying on a passive no change
+- [x] Trigger apply fix when a test run completes and attempt a fix if the tests failed, ideally just for automated branches (issues, agentic-lib-formatting, apply-linting). <- This will then fix a broken PR branch or a broken main branch.
+- [x] Write issue body when creating an issue from a linting error.
+- [x] repository0 init workflow which archives the 4 files (1 of 4): a generic README, package.json, src/lib/main.js, tests/unit/main.test.js, and initialises a CONTRIBUTING.md.
+- [x] apply fix should create a PR if it passes.
+- [x] use a single branch pre-fix and check it to avoid conflicts.
+- [x] pass the change description for the commit message.
+- [x] locate the issue number in apply-fix and comment the issue.
+- [x] apply-fix to be able to apply a fix to the main branch.
+- [x] apply-fix check branches for conflicts and try to resolve them.
+- [x] pull before changes to reduce the chance of conflicts.
+- [x] Dashboard metrics from github (e.g. GitHub Insights? commits by agents).
+- [ ] apply-fix to add issue details to the completion request.
+- [ ] Add git log to the context for review issue, issue worker and apply fixes.
+- [ ] apply-fix to check if an issue is resolved before raising a PR.
+- [ ] issue-worker to check if an issue is resolved before raising a PR.
+- [ ] Add PR review comments via LLM.
+- [ ] Add PR review comments resolution via LLM.
+- [ ] Make a PR review required to automerge a PR.
+- [ ] Update CHANGELOG.md when a publishing a release version of the changes since the last release.
+- [ ] Duplicate the test when publishing a release version with a version numbered test file.
+- [ ] Generate API.md based on the source file.
+- [ ] Consider: semantic-release for releasing versions.
+- [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
+- [ ] Pre-request with file and a some context in a completions request for which files should be sent.
+
+Supervisor:
+- [x] Deploy a s3-sqs-bridge Stack from the agentic-lib project.
+- [x] Publish GitHub telemetry data to S3.
+- [x] Reintegrate the s3-sqs-bridge workflows with agentic-lib.
+- [x] Switch to generating issues based on the prompts.
+- [x] Reinstate the agentic workflows in s3-sqs-bridge with maintenance focused tasks.
+- [x] Create a feature refiner.
+- [x] Provide the feature set to all LLM submissions.
+- [x] Create a feature issue creator that creates issues for a feature (like the mission prompt) for a feature picked from 'features/build'.
+- [x] Distribute the issue maintenance agentic-lib workflows to the other repositories and remove the renamed ones.
+- [x] Prune the features.
+- [x] Scan the rejects (names) and avoid adding similar features.
+- [x] Dashboard metrics from s3 into the existing all stats dashboard.
+- [x] remove urls from the bottom of the stats pages
+- [x] fix deployment
+- [x] change stats assume role to agentic-lib-bucket-writer-role
+- [x] copy website and stats json files to the bucket agentic-lib-public-website-stats-bucket
+- [x] rename agentic-lib-bucket to agentic-lib-telemetry-bucket
+- [x] create an issue WIP limit in agentic-lib.yml
+- [x] Add a NaN filter to stop any NaN issues from being created.
+- [x] In Apply Fix, limit the number if attempts to [work++fix] a branch on an issue to 3 (as per agentic-lib.yml), then comment the issue and delete the branch.
+- [x] In Issue Worker, limit the number if attempts to [work] an issue on an issue to 2 (as per agentic-lib.yml), then comment and close the issue. 
+- [x] Before trying to apply fix a make sure there isn't an open PR.
+- [x] In auto-merge, close PRs and delete branches which have conflicts.
+- [x] Expose check states in the stats.
+- [ ] Do this everywhere:  echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+- [ ] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
+- [ ] Set repository0 to skip github pages and s3 by default
+- [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix) and relabel "engine" to "schedule".
+- [ ] Expose the stats generate-stats step as a GitHub Action.
+
+Schedule based workflow refinement:
+- [ ] Add an issue refiner that picks and issues either sets 'ready', improves the issue, or closes it if irrelevant. (Then change the issue worker to look for 'ready' issues.)
+- [ ] Mark in-progress issues as such, (Then change the issue worker to ignore 'in-progress' issues.)
+- [ ] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issues is not resolved.
+
+Knowledge based refinement:
+- [x] Maintain a list of data sources suitable for crawling and querying in relation to software, science and business.
+- [~] Build a library of documents useful to the project mission statement of current tech or features, sanitise, normalise to a common word limit, and store them the repository.
+- [ ] Use the documents to generate new features or refine existing ones and add to a library wishlist.
+- [ ] Support local docs added directly to the repository and have summaries created from these, they should be scanned for addition as sources.
+- [ ] Publish documents using markdown to html to github pages and create a dedicated demo repository which just builds a website.
+- [ ] Supply a subset of relevant documents to the LLM when working on issues or bugs.
+- [ ] Add to the library wishlist when a bug is observed or when a library or pattern is used.
+
+Supervisor launch:
+- [ ] Publish a demo to GitHub sites that animates issue workflow, git logs applying changes to files and raising PRs with live links to the repository and a draggable timeline.
+
+Marketplace GitHub Actions:
+- [ ] Consolidate reusable workflows jobs into a single GitHub Action GitHub Script step.
+- [ ] Move GitHub Script to a GitHub Action.
+- [ ] Build GitHub Action with the release process.
+- [ ] Switch example workflows to use the GitHub Actions.
+- [ ] Convert the actions library JS to an SDK.
+
+---
+
+## License
+
+This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
+
+License notice:
+```
+agentic-lib
+Copyright (C) 2025 Polycode Limited
+
+agentic-lib is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+IMPORTANT: Any derived work must include the following attribution:
+"This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+```
+
+*IMPORTANT*: The project README and any derived work should always include the following attribution:
+_"This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"_
+./LOCALSTACK.md
+==== Content of ./LOCALSTACK.md ====
+# agentic-lib (Versioned Amazon S3 Object Put Event replay capable queuing to SQS)
+
+An alternate version of the Deployment to AWS with localstack and direct execution of JavaScript.
+
+---
+
+## Getting Started Locally
+
+### Clone the Repository
+
+```bash
+
+git clone https://github.com/xn-intenton-z2a/agentic-lib.git
+cd agentic-lib
+```
+
+### Install Node.js Dependencies and test
+
+```bash
+
+npm install
+npm test
+```
+
+Run digest processor job:
+```bash
+cat >>EOF > digest.json
+{
+  "branches": {
+    "main": {
+      "id": "main",
+      "workflowRuns": {
+        "test.yml": {
+          "id": "test.yml",
+          "workflowRunId": "1234567890",
+          "workflowRunAttempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "createdAt": "2025-03-18T21:22:35.000Z",
+          "updatedAt": "2025-03-18T21:22:35.000Z"
+        }
+      }
+    }
+  }
+}
+EOF
+PROJECTIONS_TABLE_NAME=agentic-lib-projections-table-local \
+AWS_ENDPOINT='http://localhost:4566' \
+npm run digest-processor -- --digest-file digest.json
+```
+
+Output:
+```log
+TODO
+```
+
+### Start Local Services
+
+Launch with LocalStack (Simulates AWS S3 and SQS endpoints):
+```bash
+
+docker compose up --detach localstack
+```
+
+Create the digest queue:
+```bash
+
+aws --endpoint-url=http://localhost:4566 sqs create-queue --queue-name agentic-lib-digest-queue-local
+```
+
+Add a message to the digest queue:
+```bash
+cat >>EOF > digest.json
+{
+  "branches": {
+    "main": {
+      "id": "main",
+      "workflowRuns": {
+        "test.yml": {
+          "id": "test.yml",
+          "workflowRunId": "1234567890",
+          "workflowRunAttempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "createdAt": "2025-03-18T21:22:35.000Z",
+          "updatedAt": "2025-03-18T21:22:35.000Z"
+        }
+      }
+    }
+  }
+}
+EOF
+aws --endpoint-url=http://localhost:4566 sqs send-message \
+  --queue-url http://sqs.eu-west-2.localhost.localstack.cloud:4566/000000000000/agentic-lib-digest-queue-local \
+  --message-body file://digest.json
+```
+
+Observe message on the SQS digest queue:
+```bash
+
+aws --endpoint-url=http://localhost:4566 sqs receive-message \
+--queue-url http://sqs.eu-west-2.localhost.localstack.cloud:4566/000000000000/agentic-lib-digest-queue-local
+```
+
+Message on digest queue:
+```json
+{
+  "Messages": [
+    {
+      "MessageId": "f3b0c4a2-5d8e-4b7c-9f1d-6a0e5f3c8b2d",
+      "ReceiptHandle": "AQEBwJ...==",
+      "MD5OfBody": "d41d8cd98f00b204e9800998ecf8427e",
+      "Body": "{\"branches\":{\"main\":{\"id\":\"main\",\"workflowRuns\":{\"test.yml\":{\"id\":\"test.yml\",\"workflowRunId\":\"1234567890\",\"workflowRunAttempt\":1,\"status\":\"completed\",\"conclusion\":\"success\",\"createdAt\":\"2025-03-18T21:22:35.000Z\",\"updatedAt\":\"2025-03-18T21:22:35.000Z\"}}}}}"
+    }
+  ]
+}
+```
+
+Launch the digest processor in a Container (the same Docker file is used for the lambda):
+```bash
+
+docker compose up --detach digest
+```
+
+docker compose logs digest
+```bash
+
+docker compose logs digest
+```
+
+Check the Docker logs for a message consumed from the digest queue:
+```log
+TODO
+```
+
+---
+
+### Handy Commands
+
+Handy cleanup, Docker:
+```bash
+
+docker system prune --all --force --volumes
+```
+
+Handy cleanup, Node:
+```bash
+
+rm -rf node_modules ; rm -rf package-lock.json ; npm install
+```
+
+Run the Docker container with a shell instead of the default entrypoint:
+```bash
+
+docker build -t agentic-lib .
+docker run -it \
+  --env BUCKET_NAME='agentic-lib-telemetry-bucket-local' \
+  --env OBJECT_PREFIX='events/' \
+  --env REPLAY_QUEUE_URL='http://sqs.eu-west-2.localhost.localstack.cloud:4566/000000000000/agentic-lib-replay-queue-local' \
+  --env AWS_ENDPOINT='http://localhost:4566' \
+  --entrypoint /bin/bash \
+  agentic-lib:latest
+```
+
+---
+
+## License
+
+This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
+
+License notice:
+```
+agentic-lib
+Copyright (C) 2025 Polycode Limited
+
+agentic-lib is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+IMPORTANT: Any derived work must include the following attribution:
+"This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+```
+
+*IMPORTANT*: The project README and any derived work should always include the following attribution:
+_"This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"_
+./README.md
+==== Content of ./README.md ====
+# intentïon agentic-lib
+
+You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/WORKFLOWS-README.md)
+
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
+repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
+issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
+GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+
+[Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
+
+[Repository Library](https://xn-intenton-z2a.github.io/agentic-lib/library-index.html)
+
+[Also on GitHub Pages](https://xn-intenton-z2a.github.io/agentic-lib/index.html)
+
+Mixed licensing:
+* This project is licensed under the GNU General Public License (GPL).
+* This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+* This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+This README file will evolve as the test experiment within this repository evolves.
+
+---
+
+## Component Breakdown
+
+This repository is organized into three distinct areas to help you understand the purpose and maturity level of each component:
+
+### 1. Re‑usable Workflows (Core Functionality)
+- **Purpose:**  
+  These workflows form the backbone of the agentic‑lib system, enabling automated coding processes such as testing, publishing, and issue management.
+- **Stability:**  
+  They are stable and well‑tested, designed to be integrated into your CI/CD pipelines.
+- **Licensing:**  
+  The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.
+- **Location:**  
+  Find these in the `.github/workflows/` directory.
+
+### 2. Example Workflows (Demonstrative Content)
+- **Purpose:**  
+  These files provide practical examples of how to use the core workflows. They serve as learning tools and reference implementations.
+- **Stability:**  
+  While functional, they are intended primarily for demonstration and experimentation.
+- **Licensing:**  
+  The example workflows are covered by the MIT license to allow for broader use and modification.
+- **Location:**  
+  Look in the `examples/` directory for sample implementations.
+
+### 3. The Evolving main.js (JavaScript re‑implementation of Re‑usable Workflows)
+- **Purpose:**  
+  This file implements the Re‑usable Workflows above as a JavaScript module, enabling programmatic access to the core functionality. It now also tracks each successful invocation of the agentic command using an internal counter for improved observability.
+- **Batch Processing:**
+  The `agenticHandler` function supports batch processing by accepting a payload with a `commands` array. Each command is validated and processed sequentially. On success, each command is individually logged and the global invocation counter (`globalThis.callCount`) is incremented accordingly. The aggregated response contains a list of individual results.
+
+  **Optional Batch Throttling:**
+  You can limit the maximum number of commands processed in a batch by setting the environment variable `MAX_BATCH_COMMANDS`. When set, if the number of commands exceeds this limit, the batch will be rejected with an error message.
+
+- **Execution Timing:**
+  For enhanced performance insights, the response of `agenticHandler` now includes an `executionTimeMS` field for each command, indicating the processing time in milliseconds.
+
+- **Note on Prompt Validity:**
+  The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. Inputs are processed by trimming whitespace and converting to lowercase. Therefore, even if the input appears in a different case or with extra spaces (e.g., ' NaN ', 'nan'), it will be considered non-actionable and will result in an error message explicitly stating that the input is non-actionable because it is equivalent to 'NaN'.
+- **Stability:**  
+  It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
+- **Licensing:**  
+  As part of the core project, it is under GPL‑3 with the attribution clause.
+- **Location:**  
+  The code is located in `src/lib/main.js`.
+
+---
+
+## Agentic Library Functions
+
+A new set of agentic library functions have been implemented to enable autonomous workflow invocation. The primary function, `agenticHandler`, processes a JSON payload containing either a single command or a batch of commands. When using batch processing, supply a JSON payload with a `commands` array property. When a valid command is processed, the internal invocation counter is incremented and an `executionTimeMS` property indicates its processing time in milliseconds.
+
+It can be invoked directly via the CLI using the `--agentic` flag followed by a JSON payload, e.g.,
+
+```
+node src/lib/main.js --agentic '{"command": "doSomething"}'
+```
+
+Or for batch processing:
+
+```
+node src/lib/main.js --agentic '{"commands": ["cmd1", "cmd2"]}'
+```
+
+A new CLI flag has been added for dry runs:
+
+```
+node src/lib/main.js --dry-run
+```
+
+Additionally, the CLI now supports additional commands:
+
+- `--version`: Displays version information from package.json along with a timestamp.
+- `--verbose`: Activates detailed logging for debugging purposes.
+- `--diagnostics`: Outputs an in‑depth diagnostic report, including the current configuration, Node.js version, and relevant environment variables.
+- `--status`: Outputs a runtime health summary in JSON format including configuration, Node.js version, callCount, uptime, and select environment variables.
+- `--digest`: Initiates processing of a sample digest event.
+- `--simulate-error`: Simulates an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.
+- `--simulate-delay <ms>`: Delays execution for the specified number of milliseconds, simulating processing latency before executing further commands.
+- `--apply-fix`: Applies automated fixes and logs a success message indicating "Applied fix successfully". Execution stops immediately after this action.
+- `--cli-utils`: **NEW.** Displays a comprehensive summary of all CLI commands available along with brief descriptions. Use this flag to quickly view all command options.
+
+---
+
+## AWS Integrations
+
+The agentic‑lib library leverages AWS services to enhance automation and reliability:
+
+- **SQS Integration:**
+  - The function `createSQSEventFromDigest` constructs a mock AWS SQS event from a given digest, formatting the payload to resemble a typical SQS message.
+  - The `digestLambdaHandler` function processes incoming SQS events, gracefully handling JSON parsing errors and accumulating failed records. If a messageId is omitted, a fallback identifier is generated.
+  - These integrations ensure that messages can be retried by AWS SQS in case of processing errors, thereby enhancing fault tolerance.
+
+- **Logging:**
+  - Detailed logging via `logInfo` and `logError` functions provides insight into the operations, including configurations and error stacks when verbose mode is enabled.
+
+---
+
+## CLI Behavior
+
+The CLI provides several flags to manage the library's operation:
+
+- **--help:**
+  - Displays usage instructions and available command line flags.
+- **--digest:**
+  - Initiates the processing of a sample digest by creating a simulated SQS event and handling it through the AWS-integrated lambda handler.
+- **--agentic:**
+  - Processes an agentic command. Supply a payload with either a single `command` property or a `commands` array for batch processing. Each valid command increments the internal invocation counter and returns an `executionTimeMS` property indicating its processing time.
+- **--version:**
+  - Displays version information from package.json along with a timestamp in JSON format.
+- **--verbose:**
+  - Activates detailed logging for debugging purposes.
+- **--diagnostics:**
+  - Outputs an in‑depth diagnostic report, including the current configuration, Node.js version, and relevant environment variables.
+- **--status:**
+  - Outputs a runtime health summary in JSON format including configuration, Node.js version, callCount, uptime, and select environment variables.
+- **--dry-run:**
+  - Executes a dry run that simulates the command execution without performing any actions.
+- **--simulate-error:**
+  - Simulates an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.
+- **--simulate-delay <ms>:**
+  - Delays execution for the specified number of milliseconds, simulating processing latency before executing any further commands.
+- **--apply-fix:**
+  - Applies automated fixes and logs a success message.
+- **--cli-utils:**
+  - **NEW.** Displays a comprehensive summary of all CLI commands available along with brief descriptions. Use this flag to quickly view all command options.
+
+---
+
+## License
+
+This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
+
+License notice:
+```
+agentic-lib
+Copyright (C) 2025 Polycode Limited
+
+agentic-lib is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+IMPORTANT: Any derived work must include the following attribution:
+"This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+```./CONTRIBUTING.md
+==== Content of ./CONTRIBUTING.md ====
+# agentic‑lib
+
+This document outlines our guidelines for human and automated contributions, ensuring that our core library remains 
+robust, testable, and efficient in powering our reusable GitHub Workflows.
+
+## How to Contribute
+
+The guidelines below apply to human or automated contributions:
+
+1. **Report Issues or Ideas:**
+    - Open an issue on GitHub to share bug reports, feature requests, or any improvements you envision.
+    - Clear descriptions and reproducible steps are highly appreciated.
+
+2. **Submit Pull Requests:**
+    - Fork the repository and create a feature branch.
+    - Implement your changes, ensuring you follow the existing coding style and standards.
+    - Add tests to cover any new functionality.
+    - Update documentation if your changes affect usage or workflow behavior.
+    - Submit your pull request for review.
+
+## Guidelines
+
+- **Features:**
+    - Clear Objective & Scope: Define the feature with a concise description outlining its purpose, scope, and the specific problem it solves for the end user.
+    - Value Proposition: Articulate the tangible benefits of the feature, including improved functionality, performance, or user experience.
+    - Success Criteria & Requirements: List measurable success criteria and requirements, including performance benchmarks, usability standards, and stability expectations, to guide development and testing.
+    - Testability & Stability: Ensure the feature can be verified through both automated tests and user acceptance criteria. Specify any necessary rollback or fail-safe mechanisms to maintain system stability.
+    - Dependencies & Constraints: Identify any dependencies (external libraries, APIs, etc.), assumptions, and limitations that could impact feature delivery or future enhancements.
+    - User Scenarios & Examples: Provide illustrative use cases or scenarios that demonstrate how the feature will be used in real-world situations, making it easier for both developers and stakeholders to understand its impact.
+    - Verification & Acceptance: Define clear verification steps and acceptance criteria to ensure the feature meets its intended requirements. This should include detailed plans for unit tests, integration tests, manual user acceptance tests, and code reviews. Specify measurable outcomes that must be achieved for the feature to be considered successfully delivered and stable.
+
+- **Code Quality:**
+    - Ensure there are tests that cover your changes and any likely new cases they introduce.
+    - When making a change remain consistent with the existing code style and structure.
+    - When adding new functionality, consider if some unused or superseded code should be removed.
+
+- **Compatibility:**
+    - Ensure your code runs on Node 20 and adheres to ECMAScript Module (ESM) standards.
+    - Tests use vitest and competing test frameworks should not be added.
+    - Mocks in tests must not interfere with other tests.
+
+- **Testing:**
+    - The command `npm test` should invoke the tests added for the new functionality (and pass).
+    - If you add new functionality, ensure it is covered by tests.
+
+- **Documentation:**
+    - When making a change to the main source file, review the readme to see if it needs to be updated and if so, update it.
+    - Where the source exports a function, consider that part of the API of the library and document it in the readme.
+    - Where the source stands-up an HTTP endpoint, consider that part of the API of the library and document it in the readme.
+    - Include usage examples including inline code usage and CLI and HTTP invocation, API references.
+
+- **README:**
+    - Ensure README.md begins like this:
+
+START_OF_README_BEGINNING
+
+# intentïon agentic-lib
+
+You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/WORKFLOWS-README.md)
+
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
+repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
+issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
+GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+
+[Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
+
+[Also on GitHub Pages](https://xn-intenton-z2a.github.io/agentic-lib/index.html)
+
+[See the latest repository stats](https://xn-intenton-z2a.github.io/agentic-lib/latest.html)
+
+Mixed licensing:
+* This project is licensed under the GNU General Public License (GPL).
+* This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+* This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+This README file will evolve as the test experiment within this repository evolves but the above links remain stable.
+
+END_OF_README_BEGINNING
+./DEBUGGING.md
+==== Content of ./DEBUGGING.md ====
+# agentic-lib (Debugging on AWS)
+
+An expanded version of the Deployment to AWS with additional utility commands and debugging steps.
+
+---
+
+## Deployment to AWS
+
+### Clone the Repository
+
+```bash
+
+git clone https://github.com/xn-intenton-z2a/agentic-lib.git
+cd agentic-lib
+```
+
+### Install Node.js Dependencies and test
+
+```bash
+
+npm install
+npm test
+```
+
+Package the CDK, deploy the CDK stack which rebuilds the Docker image, and deploy the AWS infrastructure:
+```bash
+
+./mvnw clean package
+```
+
+Maven build output:
+```log
+...truncated...
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ agentic-lib ---
+[INFO] Building jar: /Users/antony/projects/agentic-lib/target/agentic-lib-0.0.1.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  13.743 s
+[INFO] Finished at: 2025-03-18T22:19:37Z
+[INFO] ------------------------------------------------------------------------
+Unexpected error in background thread "software.amazon.jsii.JsiiRuntime.ErrorStreamSink": java.lang.NullPointerException: Cannot read field "stderr" because "consoleOutput" is null
+```
+(Yes... the last line, the error "is a bug in the CDK, but it doesn't affect the deployment", according to Copilot.)
+
+Destroy a previous stack and delete related log groups:
+```bash
+
+npx cdk 
+```
+(The commands go in separately because the CDK can be interactive.)
+```bash
+
+aws logs delete-log-group \
+  --log-group-name "/aws/lambda/agentic-lib-digest-function"
+```
+
+Deploys the AWS infrastructure:
+```bash
+
+npx cdk deploy
+```
+
+Example output:
+```log
+...truncated...
+S3SqsBridgeStack: success: Published f23b4641b15bfe521c575e572ebe41ca2c4613e3e1ea8a9c8ef816c73832cddf:current_account-current_region
+S3SqsBridgeStack: deploying... [1/1]
+S3SqsBridgeStack: creating CloudFormation changeset...
+
+ ✅  S3SqsBridgeStack
+
+✨  Deployment time: 105.48s
+
+Outputs:
+S3SqsBridgeStack.BucketArn = arn:aws:s3:::agentic-lib-telemetry-bucket
+S3SqsBridgeStack.OffsetsTableArn = arn:aws:dynamodb:eu-west-2:541134664601:table/offsets
+S3SqsBridgeStack.OneOffJobLambdaArn = arn:aws:lambda:eu-west-2:541134664601:function:replayBatchLambdaHandler
+S3SqsBridgeStack.ReplayQueueUrl = https://sqs.eu-west-2.amazonaws.com/541134664601/agentic-lib-replay-queue
+...truncated...
+S3SqsBridgeStack.s3BucketName = agentic-lib-telemetry-bucket (Source: CDK context.)
+S3SqsBridgeStack.s3ObjectPrefix = events/ (Source: CDK context.)
+S3SqsBridgeStack.s3RetainBucket = false (Source: CDK context.)
+S3SqsBridgeStack.s3UseExistingBucket = false (Source: CDK context.)
+Stack ARN:
+arn:aws:cloudformation:eu-west-2:541134664601:stack/S3SqsBridgeStack/30cf37a0-0504-11f0-b142-06193d47b789
+
+✨  Total time: 118.12s
+
+```
+
+Write to S3 (2 keys, 2 times each, interleaved):
+```bash
+
+aws s3 ls agentic-lib-telemetry-bucket/events/
+for value in $(seq 1 2); do
+  for id in $(seq 1 2); do
+    echo "{\"id\": \"${id?}\", \"value\": \"$(printf "%010d" "${value?}")\"}" > "${id?}.json"
+    aws s3 cp "${id?}.json" s3://agentic-lib-telemetry-bucket/events/"${id?}.json"
+  done
+done
+aws s3 ls agentic-lib-telemetry-bucket/events/
+```
+
+Output:
+```
+upload: ./1.json to s3://agentic-lib-telemetry-bucket/events/1.json    
+upload: ./1.json to s3://agentic-lib-telemetry-bucket/events/1.json   
+...
+upload: ./2.json to s3://agentic-lib-telemetry-bucket/events/2.json   
+2025-03-19 23:47:07         31 1.json
+2025-03-19 23:52:12         31 2.json
+```
+
+List the versions of all s3 objects:
+```bash
+
+aws s3api list-object-versions \
+  --bucket agentic-lib-telemetry-bucket \
+  --prefix events/ \
+  | jq -r '.Versions[] | "\(.LastModified) \(.Key) \(.VersionId) \(.IsLatest)"' \
+  | head -5 \
+  | tail -r
+```
+
+Output (note grouping by key, requiring a merge by LastModified to get the Put Event order):
+```log
+2025-03-23T02:37:10+00:00 events/2.json NGxS.PCWdSlxMPVIRreb_ra_WsTjc4L5 false
+2025-03-23T02:37:12+00:00 events/2.json 7SDSiqco1dgFGKZmRk8bjSoyi5eD5ZLW true
+2025-03-23T02:37:09+00:00 events/1.json cxY1weJ62JNq4DvqrgfvIWKJEYDQinly false
+2025-03-23T02:37:11+00:00 events/1.json wHEhP8RdXTD8JUsrrUlMfSANzm7ahDlv true
+```
+
+Check the projections table:
+```bash
+
+aws dynamodb scan \
+  --table-name agentic-lib-projections-table \
+  --output json \
+  | jq --compact-output '.Items[] | with_entries(if (.value | has("S")) then .value = .value.S else . end)' \
+  | tail --lines=5
+```
+
+Output:
+```json lines
+{"id":"events/1.json","value":"{\"id\": \"1\", \"value\": \"0000000002\"}\n"}
+{"id":"events/2.json","value":"{\"id\": \"2\", \"value\": \"0000000002\"}\n"}
+```
+
+Count the attributes on the digest queue:
+```bash
+
+aws sqs get-queue-attributes \
+  --queue-url https://sqs.eu-west-2.amazonaws.com/541134664601/agentic-lib-digest-queue \
+  --attribute-names ApproximateNumberOfMessages
+```
+
+Output:
+```json
+{
+  "Attributes": {
+    "ApproximateNumberOfMessages": "4"
+  }
+}
+```
+
+---
+
+## Debugging
+
+List the versions of one s3 object:
+```bash
+
+aws s3api list-object-versions \
+  --bucket agentic-lib-telemetry-bucket \
+  --prefix events/1.json \
+  | jq -r '.Versions[] | "\(.LastModified) \(.VersionId)"' \
+  | head -5 \
+  | tail -r
+```
+      
+output:
+```log
+2025-03-20T19:41:00+00:00 2noSga6Gzo8Tgv_LRN6KhDyfxItokdhV
+2025-03-20T19:41:01+00:00 IVvCthHy3USr7htaRW_Px12gLmDUMDci
+2025-03-20T19:41:01+00:00 YI1qVe4r1jlQJU7K7.KUrQhuXa_N7Gzc
+2025-03-20T19:41:02+00:00 alzPWnOMUMOmpM5St8EvnDAZ4jR3L5WM
+2025-03-20T19:41:03+00:00 krC5yOc7ESrGCo2KQn.V_5FuT6WK7m_U
+```
+
+Count the attributes on the digest queue:
+```bash
+
+aws sqs get-queue-attributes \
+  --queue-url https://sqs.eu-west-2.amazonaws.com/541134664601/agentic-lib-digest-queue \
+  --attribute-names ApproximateNumberOfMessages
+```
+
+Output:
+```json
+{
+    "Attributes": {
+        "ApproximateNumberOfMessages": "0"
+    }
+}
+```
+
+### Handy Commands
+
+Handy cleanup, Docker:
+```bash
+
+docker system prune --all --force --volumes
+```
+
+Handy cleanup, CDK:
+```bash
+
+rm -rf cdk.out
+```
+
+Handy cleanup, Node:
+```bash
+
+rm -rf node_modules ; rm -rf package-lock.json ; npm install
+```
+
+
+Delete log groups:
+```bash
+
+aws logs delete-log-group \
+  --log-group-name "/aws/s3/agentic-lib-telemetry-bucket"
+aws logs delete-log-group \
+  --log-group-name "/aws/lambda/agentic-lib-digest-function"
+```
+
+Handy cleanup, CDK:
+```bash
+
+rm -rf cdk.out
+```
+
+---
+
+## License
+
+This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
+
+License notice:
+```
+agentic-lib
+Copyright (C) 2025 Polycode Limited
+
+agentic-lib is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+IMPORTANT: Any derived work must include the following attribution:
+"This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+```
+
+*IMPORTANT*: The project README and any derived work should always include the following attribution:
+_"This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"_
+./package.json
+==== Content of ./package.json ====
+{
+  "name": "@xn-intenton-z2a/agentic-lib",
+  "version": "3.14.10-0",
+  "description": "Agentic-lib Agentic Coding Systems SDK powering automated GitHub workflows.",
+  "type": "module",
+  "main": "src/lib/main.js",
+  "scripts": {
+    "build": "echo \"Nothing to build\"",
+    "formatting": "prettier --check",
+    "formatting-fix": "prettier --write",
+    "linting": "eslint",
+    "linting-json": "eslint --format=@microsoft/eslint-formatter-sarif",
+    "linting-fix": "eslint --fix",
+    "update-to-minor": "npx npm-check-updates --upgrade --enginesNode --target minor --verbose --install always",
+    "update-to-greatest": "npx npm-check-updates --upgrade --enginesNode --target greatest --verbose --install always --reject \"alpha\"",
+    "test": "vitest tests/unit/*.test.js",
+    "test:unit": "vitest --coverage tests/unit/*.test.js",
+    "start": "node src/lib/main.js",
+    "diagnostics": "node src/lib/main.js --diagnostics",
+    "dry-run": "node src/lib/main.js --dry-run",
+    "release": "echo \"Automated release script to be implemented\""
+  },
+  "keywords": [],
+  "author": "https://github.com/xn-intenton-z2a",
+  "license": "GPL-3.0, MIT",
+  "dependencies": {
+    "@aws-sdk/client-lambda": "^3.782.0",
+    "@xn-intenton-z2a/s3-sqs-bridge": "^0.23.0",
+    "chalk": "^5.4.1",
+    "change-case": "^5.4.4",
+    "dayjs": "^1.11.13",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "figlet": "^1.8.0",
+    "lodash": "^4.17.21",
+    "openai": "^4.93.0",
+    "seedrandom": "^3.0.5",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@microsoft/eslint-formatter-sarif": "^3.1.0",
+    "@vitest/coverage-v8": "^3.1.1",
+    "aws-cdk": "^2.1007.0",
+    "eslint": "^9.24.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "^8.10.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.2.6",
+    "eslint-plugin-promise": "^7.2.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-security": "^3.0.1",
+    "eslint-plugin-sonarjs": "^3.0.2",
+    "figlet": "^1.8.0",
+    "markdown-it": "^14.1.0",
+    "markdown-it-github": "^0.5.0",
+    "npm-check-updates": "^17.1.17",
+    "prettier": "^3.5.3",
+    "vitest": "^3.1.1"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "files": [
+    "package.json"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}
+./vitest.config.js
+==== Content of ./vitest.config.js ====
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      "@dist": "/dist",
+      "@src": "/src",
+      "@tests": "/tests",
+    },
+  },
+  test: {
+    environment: "node",
+    include: ["tests/unit/*.test.js"],
+    coverage: {
+      provider: "v8",
+      reportsDirectory: "./coverage",
+      reporter: ["text", "json", "html"],
+      include: ["src/**/*.js"],
+      exclude: ["**/dist/**", "**/entrypoint/**", "**/tests/**", "**/node_modules/**", "src/index.js", "**/exports/**"],
+      threshold: {
+        statements: 85,
+        branches: 80,
+        functions: 75,
+        lines: 85,
+        perFile: {
+          statements: 70,
+          branches: 60,
+          functions: 40,
+          lines: 70,
+        },
+      },
+    },
+  },
+});
+./jsconfig.json
+==== Content of ./jsconfig.json ====
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "// Also make path changes in vitest.config.js": "",
+    "paths": {
+      "@dist/*": ["dist/*"],
+      "@src/*": ["src/*"],
+      "@tests/*": ["tests/*"]
+    }
+  }
+}
+./eslint.config.js
+==== Content of ./eslint.config.js ====
+import js from "@eslint/js";
+import google from "eslint-config-google";
+import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
+import globals from "globals";
+import promise from "eslint-plugin-promise";
+import security from "eslint-plugin-security";
+import sonarjs from "eslint-plugin-sonarjs";
+import react from "eslint-plugin-react";
+import importPlugin from "eslint-plugin-import";
+
+const modifiedGoogleConfig = { ...google, rules: { ...google.rules } };
+delete modifiedGoogleConfig.rules["valid-jsdoc"];
+delete modifiedGoogleConfig.rules["require-jsdoc"];
+
+/** @type {import('eslint').Linter.FlatConfig[]} */
+export default [
+  js.configs.recommended,
+  modifiedGoogleConfig,
+  eslintPluginPrettierRecommended,
+  {
+    plugins: {
+      promise,
+      security,
+      sonarjs,
+      react,
+      import: importPlugin,
+    },
+    languageOptions: {
+      ecmaVersion: 2023,
+      sourceType: "module",
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      "prettier/prettier": "error",
+      ...promise.configs.recommended.rules,
+      "promise/avoid-new": "warn",
+      "promise/no-new-statics": "error",
+      "promise/valid-params": "error",
+      "promise/prefer-await-to-then": "warn",
+
+      ...sonarjs.configs.recommended.rules,
+      "sonarjs/no-nested-conditional": "warn",
+      "sonarjs/pseudo-random": "warn",
+      "sonarjs/sonar-no-fallthrough": "off",
+      "sonarjs/os-command": "off",
+      "sonarjs/todo-tag": "off",
+      "sonarjs/no-commented-code": "off",
+
+      // Enabled non-recommended rules (SonarJS)
+      "sonarjs/no-inverted-boolean-check": "warn",
+      "sonarjs/no-useless-catch": "warn",
+
+      // Local customizations
+      "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      "no-extra-semi": 2,
+      "object-curly-newline": ["error", { consistent: true }],
+      "array-element-newline": ["error", "consistent", { multiline: true, minItems: 10 }],
+      "import/newline-after-import": ["error", { count: 1 }],
+      "camelcase": "off",
+      "import/no-amd": "error",
+      "import/no-commonjs": "error",
+      "import/no-import-module-exports": "error",
+      "import/no-cycle": "error",
+      "import/no-dynamic-require": "error",
+      "import/no-self-import": "off",
+      "import/no-unresolved": "off",
+      "import/no-useless-path-segments": "error",
+      "import/no-duplicates": "error",
+      "sonarjs/fixme-tag": "warn",
+    },
+  },
+  {
+    files: ["**/*.js"],
+    ignores: ["**/tests/**/*.js", "**/*.test.js", "eslint.config.js"],
+    rules: {
+      ...security.configs.recommended.rules,
+      "security/detect-non-literal-regexp": "off",
+    },
+  },
+  {
+    settings: {
+      react: {
+        version: "18", // With no react installed we can't use "detect"
+      },
+    },
+  },
+  {
+    ignores: ["build/", "coverage/", "dist/", "exports/", "node_modules/", "eslint.config.js"],
+  },
+];
+./.prettierrc
+==== Content of ./.prettierrc ====
+{
+  "singleQuote": false,
+  "trailingComma": "all",
+  "printWidth": 120,
+  "tabWidth": 2,
+  "useTabs": false,
+  "quoteProps": "consistent",
+  "overrides": [
+    {
+      "files": ".prettierrc",
+      "options": { "parser": "json" }
+    }
+  ]
+}
+./LICENSE
+==== Content of ./LICENSE ====
+                    GNU GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007
+
+ Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+                            Preamble
+
+  The GNU General Public License is a free, copyleft license for
+software and other kinds of works.
+
+  The licenses for most software and other practical works are designed
+to take away your freedom to share and change the works.  By contrast,
+the GNU General Public License is intended to guarantee your freedom to
+share and change all versions of a program--to make sure it remains free
+software for all its users.  We, the Free Software Foundation, use the
+GNU General Public License for most of our software; it applies also to
+any other work released this way by its authors.  You can apply it to
+your programs, too.
+
+  When we speak of free software, we are referring to freedom, not
+price.  Our General Public Licenses are designed to make sure that you
+have the freedom to distribute copies of free software (and charge for
+them if you wish), that you receive source code or can get it if you
+want it, that you can change the software or use pieces of it in new
+free programs, and that you know you can do these things.
+
+  To protect your rights, we need to prevent others from denying you
+these rights or asking you to surrender the rights.  Therefore, you have
+certain responsibilities if you distribute copies of the software, or if
+you modify it: responsibilities to respect the freedom of others.
+
+  For example, if you distribute copies of such a program, whether
+gratis or for a fee, you must pass on to the recipients the same
+freedoms that you received.  You must make sure that they, too, receive
+or can get the source code.  And you must show them these terms so they
+know their rights.
+
+  Developers that use the GNU GPL protect your rights with two steps:
+(1) assert copyright on the software, and (2) offer you this License
+giving you legal permission to copy, distribute and/or modify it.
+
+  For the developers' and authors' protection, the GPL clearly explains
+that there is no warranty for this free software.  For both users' and
+authors' sake, the GPL requires that modified versions be marked as
+changed, so that their problems will not be attributed erroneously to
+authors of previous versions.
+
+  Some devices are designed to deny users access to install or run
+modified versions of the software inside them, although the manufacturer
+can do so.  This is fundamentally incompatible with the aim of
+protecting users' freedom to change the software.  The systematic
+pattern of such abuse occurs in the area of products for individuals to
+use, which is precisely where it is most unacceptable.  Therefore, we
+have designed this version of the GPL to prohibit the practice for those
+products.  If such problems arise substantially in other domains, we
+stand ready to extend this provision to those domains in future versions
+of the GPL, as needed to protect the freedom of users.
+
+  Finally, every program is threatened constantly by software patents.
+States should not allow patents to restrict development and use of
+software on general-purpose computers, but in those that do, we wish to
+avoid the special danger that patents applied to a free program could
+make it effectively proprietary.  To prevent this, the GPL assures that
+patents cannot be used to render the program non-free.
+
+  The precise terms and conditions for copying, distribution and
+modification follow.
+
+                       TERMS AND CONDITIONS
+
+  0. Definitions.
+
+  "This License" refers to version 3 of the GNU General Public License.
+
+  "Copyright" also means copyright-like laws that apply to other kinds of
+works, such as semiconductor masks.
+
+  "The Program" refers to any copyrightable work licensed under this
+License.  Each licensee is addressed as "you".  "Licensees" and
+"recipients" may be individuals or organizations.
+
+  To "modify" a work means to copy from or adapt all or part of the work
+in a fashion requiring copyright permission, other than the making of an
+exact copy.  The resulting work is called a "modified version" of the
+earlier work or a work "based on" the earlier work.
+
+  A "covered work" means either the unmodified Program or a work based
+on the Program.
+
+  To "propagate" a work means to do anything with it that, without
+permission, would make you directly or secondarily liable for
+infringement under applicable copyright law, except executing it on a
+computer or modifying a private copy.  Propagation includes copying,
+distribution (with or without modification), making available to the
+public, and in some countries other activities as well.
+
+  To "convey" a work means any kind of propagation that enables other
+parties to make or receive copies.  Mere interaction with a user through
+a computer network, with no transfer of a copy, is not conveying.
+
+  An interactive user interface displays "Appropriate Legal Notices"
+to the extent that it includes a convenient and prominently visible
+feature that (1) displays an appropriate copyright notice, and (2)
+tells the user that there is no warranty for the work (except to the
+extent that warranties are provided), that licensees may convey the
+work under this License, and how to view a copy of this License.  If
+the interface presents a list of user commands or options, such as a
+menu, a prominent item in the list meets this criterion.
+
+  1. Source Code.
+
+  The "source code" for a work means the preferred form of the work
+for making modifications to it.  "Object code" means any non-source
+form of a work.
+
+  A "Standard Interface" means an interface that either is an official
+standard defined by a recognized standards body, or, in the case of
+interfaces specified for a particular programming language, one that
+is widely used among developers working in that language.
+
+  The "System Libraries" of an executable work include anything, other
+than the work as a whole, that (a) is included in the normal form of
+packaging a Major Component, but which is not part of that Major
+Component, and (b) serves only to enable use of the work with that
+Major Component, or to implement a Standard Interface for which an
+implementation is available to the public in source code form.  A
+"Major Component", in this context, means a major essential component
+(kernel, window system, and so on) of the specific operating system
+(if any) on which the executable work runs, or a compiler used to
+produce the work, or an object code interpreter used to run it.
+
+  The "Corresponding Source" for a work in object code form means all
+the source code needed to generate, install, and (for an executable
+work) run the object code and to modify the work, including scripts to
+control those activities.  However, it does not include the work's
+System Libraries, or general-purpose tools or generally available free
+programs which are used unmodified in performing those activities but
+which are not part of the work.  For example, Corresponding Source
+includes interface definition files associated with source files for
+the work, and the source code for shared libraries and dynamically
+linked subprograms that the work is specifically designed to require,
+such as by intimate data communication or control flow between those
+subprograms and other parts of the work.
+
+  The Corresponding Source need not include anything that users
+can regenerate automatically from other parts of the Corresponding
+Source.
+
+  The Corresponding Source for a work in source code form is that
+same work.
+
+  2. Basic Permissions.
+
+  All rights granted under this License are granted for the term of
+copyright on the Program, and are irrevocable provided the stated
+conditions are met.  This License explicitly affirms your unlimited
+permission to run the unmodified Program.  The output from running a
+covered work is covered by this License only if the output, given its
+content, constitutes a covered work.  This License acknowledges your
+rights of fair use or other equivalent, as provided by copyright law.
+
+  You may make, run and propagate covered works that you do not
+convey, without conditions so long as your license otherwise remains
+in force.  You may convey covered works to others for the sole purpose
+of having them make modifications exclusively for you, or provide you
+with facilities for running those works, provided that you comply with
+the terms of this License in conveying all material for which you do
+not control copyright.  Those thus making or running the covered works
+for you must do so exclusively on your behalf, under your direction
+and control, on terms that prohibit them from making any copies of
+your copyrighted material outside their relationship with you.
+
+  Conveying under any other circumstances is permitted solely under
+the conditions stated below.  Sublicensing is not allowed; section 10
+makes it unnecessary.
+
+  3. Protecting Users' Legal Rights From Anti-Circumvention Law.
+
+  No covered work shall be deemed part of an effective technological
+measure under any applicable law fulfilling obligations under article
+11 of the WIPO copyright treaty adopted on 20 December 1996, or
+similar laws prohibiting or restricting circumvention of such
+measures.
+
+  When you convey a covered work, you waive any legal power to forbid
+circumvention of technological measures to the extent such circumvention
+is effected by exercising rights under this License with respect to
+the covered work, and you disclaim any intention to limit operation or
+modification of the work as a means of enforcing, against the work's
+users, your or third parties' legal rights to forbid circumvention of
+technological measures.
+
+  4. Conveying Verbatim Copies.
+
+  You may convey verbatim copies of the Program's source code as you
+receive it, in any medium, provided that you conspicuously and
+appropriately publish on each copy an appropriate copyright notice;
+keep intact all notices stating that this License and any
+non-permissive terms added in accord with section 7 apply to the code;
+keep intact all notices of the absence of any warranty; and give all
+recipients a copy of this License along with the Program.
+
+  You may charge any price or no price for each copy that you convey,
+and you may offer support or warranty protection for a fee.
+
+  5. Conveying Modified Source Versions.
+
+  You may convey a work based on the Program, or the modifications to
+produce it from the Program, in the form of source code under the
+terms of section 4, provided that you also meet all of these conditions:
+
+    a) The work must carry prominent notices stating that you modified
+    it, and giving a relevant date.
+
+    b) The work must carry prominent notices stating that it is
+    released under this License and any conditions added under section
+    7.  This requirement modifies the requirement in section 4 to
+    "keep intact all notices".
+
+    c) You must license the entire work, as a whole, under this
+    License to anyone who comes into possession of a copy.  This
+    License will therefore apply, along with any applicable section 7
+    additional terms, to the whole of the work, and all its parts,
+    regardless of how they are packaged.  This License gives no
+    permission to license the work in any other way, but it does not
+    invalidate such permission if you have separately received it.
+
+    d) If the work has interactive user interfaces, each must display
+    Appropriate Legal Notices; however, if the Program has interactive
+    interfaces that do not display Appropriate Legal Notices, your
+    work need not make them do so.
+
+  A compilation of a covered work with other separate and independent
+works, which are not by their nature extensions of the covered work,
+and which are not combined with it such as to form a larger program,
+in or on a volume of a storage or distribution medium, is called an
+"aggregate" if the compilation and its resulting copyright are not
+used to limit the access or legal rights of the compilation's users
+beyond what the individual works permit.  Inclusion of a covered work
+in an aggregate does not cause this License to apply to the other
+parts of the aggregate.
+
+  6. Conveying Non-Source Forms.
+
+  You may convey a covered work in object code form under the terms
+of sections 4 and 5, provided that you also convey the
+machine-readable Corresponding Source under the terms of this License,
+in one of these ways:
+
+    a) Convey the object code in, or embodied in, a physical product
+    (including a physical distribution medium), accompanied by the
+    Corresponding Source fixed on a durable physical medium
+    customarily used for software interchange.
+
+    b) Convey the object code in, or embodied in, a physical product
+    (including a physical distribution medium), accompanied by a
+    written offer, valid for at least three years and valid for as
+    long as you offer spare parts or customer support for that product
+    model, to give anyone who possesses the object code either (1) a
+    copy of the Corresponding Source for all the software in the
+    product that is covered by this License, on a durable physical
+    medium customarily used for software interchange, for a price no
+    more than your reasonable cost of physically performing this
+    conveying of source, or (2) access to copy the
+    Corresponding Source from a network server at no charge.
+
+    c) Convey individual copies of the object code with a copy of the
+    written offer to provide the Corresponding Source.  This
+    alternative is allowed only occasionally and noncommercially, and
+    only if you received the object code with such an offer, in accord
+    with subsection 6b.
+
+    d) Convey the object code by offering access from a designated
+    place (gratis or for a charge), and offer equivalent access to the
+    Corresponding Source in the same way through the same place at no
+    further charge.  You need not require recipients to copy the
+    Corresponding Source along with the object code.  If the place to
+    copy the object code is a network server, the Corresponding Source
+    may be on a different server (operated by you or a third party)
+    that supports equivalent copying facilities, provided you maintain
+    clear directions next to the object code saying where to find the
+    Corresponding Source.  Regardless of what server hosts the
+    Corresponding Source, you remain obligated to ensure that it is
+    available for as long as needed to satisfy these requirements.
+
+    e) Convey the object code using peer-to-peer transmission, provided
+    you inform other peers where the object code and Corresponding
+    Source of the work are being offered to the general public at no
+    charge under subsection 6d.
+
+  A separable portion of the object code, whose source code is excluded
+from the Corresponding Source as a System Library, need not be
+included in conveying the object code work.
+
+  A "User Product" is either (1) a "consumer product", which means any
+tangible personal property which is normally used for personal, family,
+or household purposes, or (2) anything designed or sold for incorporation
+into a dwelling.  In determining whether a product is a consumer product,
+doubtful cases shall be resolved in favor of coverage.  For a particular
+product received by a particular user, "normally used" refers to a
+typical or common use of that class of product, regardless of the status
+of the particular user or of the way in which the particular user
+actually uses, or expects or is expected to use, the product.  A product
+is a consumer product regardless of whether the product has substantial
+commercial, industrial or non-consumer uses, unless such uses represent
+the only significant mode of use of the product.
+
+  "Installation Information" for a User Product means any methods,
+procedures, authorization keys, or other information required to install
+and execute modified versions of a covered work in that User Product from
+a modified version of its Corresponding Source.  The information must
+suffice to ensure that the continued functioning of the modified object
+code is in no case prevented or interfered with solely because
+modification has been made.
+
+  If you convey an object code work under this section in, or with, or
+specifically for use in, a User Product, and the conveying occurs as
+part of a transaction in which the right of possession and use of the
+User Product is transferred to the recipient in perpetuity or for a
+fixed term (regardless of how the transaction is characterized), the
+Corresponding Source conveyed under this section must be accompanied
+by the Installation Information.  But this requirement does not apply
+if neither you nor any third party retains the ability to install
+modified object code on the User Product (for example, the work has
+been installed in ROM).
+
+  The requirement to provide Installation Information does not include a
+requirement to continue to provide support service, warranty, or updates
+for a work that has been modified or installed by the recipient, or for
+the User Product in which it has been modified or installed.  Access to a
+network may be denied when the modification itself materially and
+adversely affects the operation of the network or violates the rules and
+protocols for communication across the network.
+
+  Corresponding Source conveyed, and Installation Information provided,
+in accord with this section must be in a format that is publicly
+documented (and with an implementation available to the public in
+source code form), and must require no special password or key for
+unpacking, reading or copying.
+
+  7. Additional Terms.
+
+  "Additional permissions" are terms that supplement the terms of this
+License by making exceptions from one or more of its conditions.
+Additional permissions that are applicable to the entire Program shall
+be treated as though they were included in this License, to the extent
+that they are valid under applicable law.  If additional permissions
+apply only to part of the Program, that part may be used separately
+under those permissions, but the entire Program remains governed by
+this License without regard to the additional permissions.
+
+  When you convey a copy of a covered work, you may at your option
+remove any additional permissions from that copy, or from any part of
+it.  (Additional permissions may be written to require their own
+removal in certain cases when you modify the work.)  You may place
+additional permissions on material, added by you to a covered work,
+for which you have or can give appropriate copyright permission.
+
+  Notwithstanding any other provision of this License, for material you
+add to a covered work, you may (if authorized by the copyright holders of
+that material) supplement the terms of this License with terms:
+
+    a) Disclaiming warranty or limiting liability differently from the
+    terms of sections 15 and 16 of this License; or
+
+    b) Requiring preservation of specified reasonable legal notices or
+    author attributions in that material or in the Appropriate Legal
+    Notices displayed by works containing it; or
+
+    c) Prohibiting misrepresentation of the origin of that material, or
+    requiring that modified versions of such material be marked in
+    reasonable ways as different from the original version; or
+
+    d) Limiting the use for publicity purposes of names of licensors or
+    authors of the material; or
+
+    e) Declining to grant rights under trademark law for use of some
+    trade names, trademarks, or service marks; or
+
+    f) Requiring indemnification of licensors and authors of that
+    material by anyone who conveys the material (or modified versions of
+    it) with contractual assumptions of liability to the recipient, for
+    any liability that these contractual assumptions directly impose on
+    those licensors and authors.
+
+  All other non-permissive additional terms are considered "further
+restrictions" within the meaning of section 10.  If the Program as you
+received it, or any part of it, contains a notice stating that it is
+governed by this License along with a term that is a further
+restriction, you may remove that term.  If a license document contains
+a further restriction but permits relicensing or conveying under this
+License, you may add to a covered work material governed by the terms
+of that license document, provided that the further restriction does
+not survive such relicensing or conveying.
+
+  If you add terms to a covered work in accord with this section, you
+must place, in the relevant source files, a statement of the
+additional terms that apply to those files, or a notice indicating
+where to find the applicable terms.
+
+  Additional terms, permissive or non-permissive, may be stated in the
+form of a separately written license, or stated as exceptions;
+the above requirements apply either way.
+
+  8. Termination.
+
+  You may not propagate or modify a covered work except as expressly
+provided under this License.  Any attempt otherwise to propagate or
+modify it is void, and will automatically terminate your rights under
+this License (including any patent licenses granted under the third
+paragraph of section 11).
+
+  However, if you cease all violation of this License, then your
+license from a particular copyright holder is reinstated (a)
+provisionally, unless and until the copyright holder explicitly and
+finally terminates your license, and (b) permanently, if the copyright
+holder fails to notify you of the violation by some reasonable means
+prior to 60 days after the cessation.
+
+  Moreover, your license from a particular copyright holder is
+reinstated permanently if the copyright holder notifies you of the
+violation by some reasonable means, this is the first time you have
+received notice of violation of this License (for any work) from that
+copyright holder, and you cure the violation prior to 30 days after
+your receipt of the notice.
+
+  Termination of your rights under this section does not terminate the
+licenses of parties who have received copies or rights from you under
+this License.  If your rights have been terminated and not permanently
+reinstated, you do not qualify to receive new licenses for the same
+material under section 10.
+
+  9. Acceptance Not Required for Having Copies.
+
+  You are not required to accept this License in order to receive or
+run a copy of the Program.  Ancillary propagation of a covered work
+occurring solely as a consequence of using peer-to-peer transmission
+to receive a copy likewise does not require acceptance.  However,
+nothing other than this License grants you permission to propagate or
+modify any covered work.  These actions infringe copyright if you do
+not accept this License.  Therefore, by modifying or propagating a
+covered work, you indicate your acceptance of this License to do so.
+
+  10. Automatic Licensing of Downstream Recipients.
+
+  Each time you convey a covered work, the recipient automatically
+receives a license from the original licensors, to run, modify and
+propagate that work, subject to this License.  You are not responsible
+for enforcing compliance by third parties with this License.
+
+  An "entity transaction" is a transaction transferring control of an
+organization, or substantially all assets of one, or subdividing an
+organization, or merging organizations.  If propagation of a covered
+work results from an entity transaction, each party to that
+transaction who receives a copy of the work also receives whatever
+licenses to the work the party's predecessor in interest had or could
+give under the previous paragraph, plus a right to possession of the
+Corresponding Source of the work from the predecessor in interest, if
+the predecessor has it or can get it with reasonable efforts.
+
+  You may not impose any further restrictions on the exercise of the
+rights granted or affirmed under this License.  For example, you may
+not impose a license fee, royalty, or other charge for exercise of
+rights granted under this License, and you may not initiate litigation
+(including a cross-claim or counterclaim in a lawsuit) alleging that
+any patent claim is infringed by making, using, selling, offering for
+sale, or importing the Program or any portion of it.
+
+  11. Patents.
+
+  A "contributor" is a copyright holder who authorizes use under this
+License of the Program or a work on which the Program is based.  The
+work thus licensed is called the contributor's "contributor version".
+
+  A contributor's "essential patent claims" are all patent claims
+owned or controlled by the contributor, whether already acquired or
+hereafter acquired, that would be infringed by some manner, permitted
+by this License, of making, using, or selling its contributor version,
+but do not include claims that would be infringed only as a
+consequence of further modification of the contributor version.  For
+purposes of this definition, "control" includes the right to grant
+patent sublicenses in a manner consistent with the requirements of
+this License.
+
+  Each contributor grants you a non-exclusive, worldwide, royalty-free
+patent license under the contributor's essential patent claims, to
+make, use, sell, offer for sale, import and otherwise run, modify and
+propagate the contents of its contributor version.
+
+  In the following three paragraphs, a "patent license" is any express
+agreement or commitment, however denominated, not to enforce a patent
+(such as an express permission to practice a patent or covenant not to
+sue for patent infringement).  To "grant" such a patent license to a
+party means to make such an agreement or commitment not to enforce a
+patent against the party.
+
+  If you convey a covered work, knowingly relying on a patent license,
+and the Corresponding Source of the work is not available for anyone
+to copy, free of charge and under the terms of this License, through a
+publicly available network server or other readily accessible means,
+then you must either (1) cause the Corresponding Source to be so
+available, or (2) arrange to deprive yourself of the benefit of the
+patent license for this particular work, or (3) arrange, in a manner
+consistent with the requirements of this License, to extend the patent
+license to downstream recipients.  "Knowingly relying" means you have
+actual knowledge that, but for the patent license, your conveying the
+covered work in a country, or your recipient's use of the covered work
+in a country, would infringe one or more identifiable patents in that
+country that you have reason to believe are valid.
+
+  If, pursuant to or in connection with a single transaction or
+arrangement, you convey, or propagate by procuring conveyance of, a
+covered work, and grant a patent license to some of the parties
+receiving the covered work authorizing them to use, propagate, modify
+or convey a specific copy of the covered work, then the patent license
+you grant is automatically extended to all recipients of the covered
+work and works based on it.
+
+  A patent license is "discriminatory" if it does not include within
+the scope of its coverage, prohibits the exercise of, or is
+conditioned on the non-exercise of one or more of the rights that are
+specifically granted under this License.  You may not convey a covered
+work if you are a party to an arrangement with a third party that is
+in the business of distributing software, under which you make payment
+to the third party based on the extent of your activity of conveying
+the work, and under which the third party grants, to any of the
+parties who would receive the covered work from you, a discriminatory
+patent license (a) in connection with copies of the covered work
+conveyed by you (or copies made from those copies), or (b) primarily
+for and in connection with specific products or compilations that
+contain the covered work, unless you entered into that arrangement,
+or that patent license was granted, prior to 28 March 2007.
+
+  Nothing in this License shall be construed as excluding or limiting
+any implied license or other defenses to infringement that may
+otherwise be available to you under applicable patent law.
+
+  12. No Surrender of Others' Freedom.
+
+  If conditions are imposed on you (whether by court order, agreement or
+otherwise) that contradict the conditions of this License, they do not
+excuse you from the conditions of this License.  If you cannot convey a
+covered work so as to satisfy simultaneously your obligations under this
+License and any other pertinent obligations, then as a consequence you may
+not convey it at all.  For example, if you agree to terms that obligate you
+to collect a royalty for further conveying from those to whom you convey
+the Program, the only way you could satisfy both those terms and this
+License would be to refrain entirely from conveying the Program.
+
+  13. Use with the GNU Affero General Public License.
+
+  Notwithstanding any other provision of this License, you have
+permission to link or combine any covered work with a work licensed
+under version 3 of the GNU Affero General Public License into a single
+combined work, and to convey the resulting work.  The terms of this
+License will continue to apply to the part which is the covered work,
+but the special requirements of the GNU Affero General Public License,
+section 13, concerning interaction through a network will apply to the
+combination as such.
+
+  14. Revised Versions of this License.
+
+  The Free Software Foundation may publish revised and/or new versions of
+the GNU General Public License from time to time.  Such new versions will
+be similar in spirit to the present version, but may differ in detail to
+address new problems or concerns.
+
+  Each version is given a distinguishing version number.  If the
+Program specifies that a certain numbered version of the GNU General
+Public License "or any later version" applies to it, you have the
+option of following the terms and conditions either of that numbered
+version or of any later version published by the Free Software
+Foundation.  If the Program does not specify a version number of the
+GNU General Public License, you may choose any version ever published
+by the Free Software Foundation.
+
+  If the Program specifies that a proxy can decide which future
+versions of the GNU General Public License can be used, that proxy's
+public statement of acceptance of a version permanently authorizes you
+to choose that version for the Program.
+
+  Later license versions may give you additional or different
+permissions.  However, no additional obligations are imposed on any
+author or copyright holder as a result of your choosing to follow a
+later version.
+
+  15. Disclaimer of Warranty.
+
+  THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY
+APPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT
+HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY
+OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM
+IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF
+ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+
+  16. Limitation of Liability.
+
+  IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS
+THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY
+GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE
+USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF
+DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD
+PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
+EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
+
+  17. Interpretation of Sections 15 and 16.
+
+  If the disclaimer of warranty and limitation of liability provided
+above cannot be given local legal effect according to their terms,
+reviewing courts shall apply local law that most closely approximates
+an absolute waiver of all civil liability in connection with the
+Program, unless a warranty or assumption of liability accompanies a
+copy of the Program in return for a fee.
+
+                     END OF TERMS AND CONDITIONS
+
+            How to Apply These Terms to Your New Programs
+
+  If you develop a new program, and you want it to be of the greatest
+possible use to the public, the best way to achieve this is to make it
+free software which everyone can redistribute and change under these terms.
+
+  To do so, attach the following notices to the program.  It is safest
+to attach them to the start of each source file to most effectively
+state the exclusion of warranty; and each file should have at least
+the "copyright" line and a pointer to where the full notice is found.
+
+    <one line to give the program's name and a brief idea of what it does.>
+    Copyright (C) <year>  <name of author>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+Also add information on how to contact you by electronic and paper mail.
+
+  If the program does terminal interaction, make it output a short
+notice like this when it starts in an interactive mode:
+
+    <program>  Copyright (C) <year>  <name of author>
+    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
+    This is free software, and you are welcome to redistribute it
+    under certain conditions; type `show c' for details.
+
+The hypothetical commands `show w' and `show c' should show the appropriate
+parts of the General Public License.  Of course, your program's commands
+might be different; for a GUI interface, you would use an "about box".
+
+  You should also get your employer (if you work as a programmer) or school,
+if any, to sign a "copyright disclaimer" for the program, if necessary.
+For more information on this, and how to apply and follow the GNU GPL, see
+<https://www.gnu.org/licenses/>.
+
+  The GNU General Public License does not permit incorporating your program
+into proprietary programs.  If your program is a subroutine library, you
+may consider it more useful to permit linking proprietary applications with
+the library.  If this is what you want to do, use the GNU Lesser General
+Public License instead of this License.  But first, please read
+<https://www.gnu.org/licenses/why-not-lgpl.html>.
+./.prettierrc
+==== Content of ./.prettierrc ====
+{
+  "singleQuote": false,
+  "trailingComma": "all",
+  "printWidth": 120,
+  "tabWidth": 2,
+  "useTabs": false,
+  "quoteProps": "consistent",
+  "overrides": [
+    {
+      "files": ".prettierrc",
+      "options": { "parser": "json" }
+    }
+  ]
+}

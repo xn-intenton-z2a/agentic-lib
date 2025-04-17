@@ -488,6 +488,7 @@ jobs:
           git add -v --all '${{ env.featuresDir }}'
           git commit -m 'Maintain ${{ steps.maintain-features.outputs.featureName }}'
           git status -v
+          git pull --ff-only origin ${{ github.ref }}
           git push -v origin ${{ github.ref }}
           git status -v
 

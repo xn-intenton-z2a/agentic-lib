@@ -604,6 +604,7 @@ jobs:
           git add -v --all '${{ env.libraryDir }}'
           git commit -m 'Maintain ${{ steps.maintain-library.outputs.documentName }}'
           git status -v
+          git pull --ff-only origin ${{ github.ref }}
           git push -v origin ${{ github.ref }}
           git status -v
 

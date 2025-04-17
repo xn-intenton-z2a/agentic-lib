@@ -293,12 +293,13 @@ jobs:
           #GITHUB_ACTOR: ${{ github.actor }}
           #PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-      - name: Examine the git working copy (pre-push)
+      - name: Examine the git working copy (pre-push) and pull
         shell: bash
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git status -v
+          git pull --ff-only origin ${{ github.ref }}
 
       - name: Push version commit
         id: push

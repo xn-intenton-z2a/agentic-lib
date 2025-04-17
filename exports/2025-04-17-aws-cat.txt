@@ -1,0 +1,748 @@
+==== Content of pom.xml ====
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.xn-intenton-z2a</groupId>
+    <artifactId>agentic-lib</artifactId>
+    <version>3.14.10-0</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <cdk.version>2.182.0</cdk.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <!-- AWS CDK library consolidates all AWS CDK modules for v2 -->
+        <dependency>
+            <groupId>software.amazon.awscdk</groupId>
+            <artifactId>aws-cdk-lib</artifactId>
+            <version>${cdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>software.constructs</groupId>
+            <artifactId>constructs</artifactId>
+            <version>10.4.2</version>
+        </dependency>
+        <!-- AWS CDK Stack to event-source from s3 -->
+        <dependency>
+            <groupId>com.xn-intenton-z2a</groupId>
+            <artifactId>s3-sqs-bridge</artifactId>
+            <version>0.23.0</version>
+        </dependency>
+        <!-- JUnit 5 for testing -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.13.0-M2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.13.0-M2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.org.webcompere</groupId>
+            <artifactId>system-stubs-jupiter</artifactId>
+            <version>2.1.7</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/xn-intenton-z2a/s3-sqs-bridge</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/xn-intenton-z2a/agentic-lib</url>
+        </repository>
+    </distributionManagement>
+
+    <build>
+        <!-- Change the default source directories -->
+        <sourceDirectory>aws/main/java</sourceDirectory>
+        <testSourceDirectory>aws/test/java</testSourceDirectory>
+
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+                <configuration>
+                    <!-- Run tests in the same JVM -->
+                    <forkCount>0</forkCount>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.1.4</version>
+                <configuration>
+                    <repositoryId>github</repositoryId>
+                    <url>https://github.com/xn-intenton-z2a/s3-sqs-bridge</url>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+    </profiles>
+</project>
+==== Content of cdk.json ====
+{
+  "app": "mvn exec:java -Dexec.mainClass=com.intentïon.AgenticLib.AgenticLibApp",
+  "synthStacks": "npx cdk synth AgenticLibStack S3SqsBridgeStack --ci true --strict --validation",
+  "deployStacks": "npx cdk deploy AgenticLibStack --require-approval never --ci true --verbose --strict --validation",
+  "context": {
+    "githubActionsArnPrinciple": "arn:aws:iam::541134664601:role/agentic-lib-github-actions-role",
+    "s3BucketName": "agentic-lib-telemetry-bucket",
+    "s3ObjectPrefix": "events/",
+    "s3UseExistingBucket": "false",
+    "s3RetainBucket": "false",
+    "s3BucketWriterRoleName": "agentic-lib-telemetry-bucket-writer-role",
+    "s3WebsiteBucketName": "agentic-lib-public-website-stats-bucket",
+    "s3UseExistingWebsiteBucket": "false",
+    "s3RetainWebsiteBucket": "false",
+    "s3WebsiteBucketWriterRoleName": "agentic-lib-public-website-stats-bucket-writer-role",
+    "sqsSourceQueueName": "agentic-lib-source-queue",
+    "sqsReplayQueueName": "agentic-lib-replay-queue",
+    "sqsDigestQueueName": "agentic-lib-digest-queue",
+    "sqsDigestQueueArn": "arn:aws:sqs:eu-west-2:541134664601:agentic-lib-digest-queue",
+    "sqsUseExistingDigestQueue": "false",
+    "sqsRetainDigestQueue": "false",
+    "offsetsTableName": "agentic-lib-offsets-table",
+    "projectionsTableName": "agentic-lib-projections-table",
+    "lambdaEntry": "src/lib/main.",
+    "replayBatchLambdaFunctionName": "agentic-lib-replay-batch-function",
+    "sourceLambdaFunctionName": "agentic-lib-source-function",
+    "replayLambdaFunctionName": "agentic-lib-replay-function",
+    "replayBatchLambdaHandlerFunctionName": "replayBatchLambdaHandler",
+    "sourceLambdaHandlerFunctionName": "sourceLambdaHandler",
+    "replayLambdaHandlerFunctionName": "replayLambdaHandler",
+    "digestLambdaFunctionName": "agentic-lib-digest-function",
+    "digestLambdaHandlerFunctionName": "digestLambdaHandler",
+    "githubAPIBaseUrl": "https://api.github.com",
+    "personalAccessToken": ""
+  }
+}
+aws/test/java/com/intentïon/AgenticLib/AgenticLibStackTest.java
+==== Content of aws/test/java/com/intentïon/AgenticLib/AgenticLibStackTest.java ====
+package com.intentïon.AgenticLib;
+
+import org.junit.jupiter.api.Test;
+import software.amazon.awscdk.App;
+import software.amazon.awscdk.assertions.Template;
+
+public class AgenticLibStackTest {
+
+    @Test
+    public void testStackResources() {
+        App app = new App();
+
+        AgenticLibStack stack = AgenticLibStack.Builder.create(app, "S3SqsBridgeConfigureAndBuildStack")
+                .githubActionsArnPrinciple("arn:aws:iam::123456789012:user/test")
+                .s3BucketName("agentic-lib-telemetry-bucket-test")
+                .s3ObjectPrefix("test/")
+                .s3UseExistingBucket(false)
+                .s3RetainBucket(false)
+                .s3BucketWriterRoleName("agentic-lib-telemetry-bucket-writer-role")
+                .s3WebsiteBucketName("agentic-lib-website-bucket-test")
+                .s3UseExistingWebsiteBucket(false)
+                .s3RetainWebsiteBucket(false)
+                .s3WebsiteBucketWriterRoleName("agentic-lib-public-website-stats-bucket-writer-role-test")
+                .sqsDigestQueueName("agentic-lib-digest-queue-test")
+                .sqsDigestQueueArn("arn:aws:sqs:eu-west-2:123456789012:agentic-lib-digest-queue-test")
+                .sqsUseExistingDigestQueue(false)
+                .sqsRetainDigestQueue(false)
+                .lambdaEntry("src/lib/main.")
+                .digestLambdaFunctionName("agentic-lib-digest-function-test")
+                .digestLambdaHandlerFunctionName("digestLambdaHandler")
+                .githubAPIBaseUrl("https://api.github.com.test/")
+                .personalAccessToken("ghp_test")
+                .build();
+
+        Template template = Template.fromStack(stack);
+        template.resourceCountIs("AWS::SQS::Queue", 2);
+        template.resourceCountIs("AWS::Lambda::Function", 2);
+    }
+}
+aws/main/java/com/intentïon/AgenticLib/AgenticLibStack.java
+==== Content of aws/main/java/com/intentïon/AgenticLib/AgenticLibStack.java ====
+package com.intentïon.AgenticLib;
+
+import software.amazon.awscdk.CfnOutput;
+import software.amazon.awscdk.Duration;
+import software.amazon.awscdk.RemovalPolicy;
+import software.amazon.awscdk.Stack;
+import software.amazon.awscdk.StackProps;
+import software.amazon.awscdk.services.cloudtrail.S3EventSelector;
+import software.amazon.awscdk.services.cloudtrail.Trail;
+import software.amazon.awscdk.services.iam.ArnPrincipal;
+import software.amazon.awscdk.services.iam.Effect;
+import software.amazon.awscdk.services.iam.PolicyDocument;
+import software.amazon.awscdk.services.iam.PolicyStatement;
+import software.amazon.awscdk.services.iam.Role;
+import software.amazon.awscdk.services.lambda.AssetImageCodeProps;
+import software.amazon.awscdk.services.lambda.DockerImageCode;
+import software.amazon.awscdk.services.lambda.DockerImageFunction;
+import software.amazon.awscdk.services.lambda.eventsources.SqsEventSource;
+import software.amazon.awscdk.services.lambda.eventsources.SqsEventSourceProps;
+import software.amazon.awscdk.services.logs.LogGroup;
+import software.amazon.awscdk.services.logs.LogGroupProps;
+import software.amazon.awscdk.services.logs.RetentionDays;
+import software.amazon.awscdk.services.s3.BlockPublicAccess;
+import software.amazon.awscdk.services.s3.Bucket;
+import software.amazon.awscdk.services.s3.IBucket;
+import software.amazon.awscdk.services.sqs.DeadLetterQueue;
+import software.amazon.awscdk.services.sqs.IQueue;
+import software.amazon.awscdk.services.sqs.Queue;
+import software.constructs.Construct;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+public class AgenticLibStack extends Stack {
+
+    public IBucket eventsBucket;
+    public String githubActionsArnPrinciple;
+    public String s3BucketWriterRoleName;
+    public LogGroup eventsBucketLogGroup;
+    public Trail eventsBucketTrail;
+    public Role s3EventsAccessRole;
+    public IBucket websiteBucket;
+    public  LogGroup websiteBucketLogGroup;
+    public Trail websiteBucketTrail;
+    public Role s3WebsiteAccessRole;
+    public IQueue digestQueue;
+    public Queue digestQueueDLQ;
+    public DockerImageFunction digestLambda;
+    public LogGroup digestLambdaLogGroup;
+
+    public static class Builder {
+        public Construct scope;
+        public String id;
+        public StackProps props;
+        public String githubActionsArnPrinciple;
+        public String s3BucketName;
+        public String s3ObjectPrefix;
+        public boolean s3UseExistingBucket;
+        public boolean s3RetainBucket;
+        public String s3BucketWriterRoleName;
+        public String s3WebsiteBucketName;
+        public boolean s3UseExistingWebsiteBucket;
+        public boolean s3RetainWebsiteBucket;
+        public String s3WebsiteBucketWriterRoleName;
+        public String sqsDigestQueueName;
+        public String sqsDigestQueueArn;
+        public boolean sqsUseExistingDigestQueue;
+        public boolean sqsRetainDigestQueue;
+        public String lambdaEntry;
+        public String digestLambdaFunctionName;
+        public String digestLambdaHandlerFunctionName;
+        public String githubAPIBaseUrl;
+        public String personalAccessToken;
+
+        public Builder(Construct scope, String id, StackProps props) {
+            this.scope = scope;
+            this.id = id;
+            this.props = props;
+        }
+
+        public static Builder create(Construct scope, String id) {
+            Builder builder = new Builder(scope, id, null);
+            return builder;
+        }
+
+        public static Builder create(Construct scope, String id, StackProps props) {
+            Builder builder = new Builder(scope, id, props);
+            return builder;
+        }
+
+        public Builder githubActionsArnPrinciple(String githubActionsArnPrinciple) {
+            this.githubActionsArnPrinciple = githubActionsArnPrinciple;
+            return this;
+        }
+
+        public Builder s3BucketName(String s3BucketName) {
+            this.s3BucketName = s3BucketName;
+            return this;
+        }
+
+        public Builder s3ObjectPrefix(String s3ObjectPrefix) {
+            this.s3ObjectPrefix = s3ObjectPrefix;
+            return this;
+        }
+
+        public Builder s3UseExistingBucket(boolean s3UseExistingBucket) {
+            this.s3UseExistingBucket = s3UseExistingBucket;
+            return this;
+        }
+
+        public Builder s3RetainBucket(boolean s3RetainBucket) {
+            this.s3RetainBucket = s3RetainBucket;
+            return this;
+        }
+
+        public Builder s3BucketWriterRoleName(String s3BucketWriterRoleName) {
+            this.s3BucketWriterRoleName = s3BucketWriterRoleName;
+            return this;
+        }
+
+        public Builder s3WebsiteBucketName(String s3WebsiteBucketName) {
+            this.s3WebsiteBucketName = s3WebsiteBucketName;
+            return this;
+        }
+
+        public Builder s3UseExistingWebsiteBucket(boolean s3UseExistingWebsiteBucket) {
+            this.s3UseExistingWebsiteBucket = s3UseExistingWebsiteBucket;
+            return this;
+        }
+
+        public Builder s3RetainWebsiteBucket(boolean s3RetainWebsiteBucket) {
+            this.s3RetainWebsiteBucket = s3RetainWebsiteBucket;
+            return this;
+        }
+
+        public Builder s3WebsiteBucketWriterRoleName(String s3WebsiteBucketWriterRoleName) {
+            this.s3WebsiteBucketWriterRoleName = s3WebsiteBucketWriterRoleName;
+            return this;
+        }
+
+        public Builder sqsDigestQueueName(String sqsDigestQueueName) {
+            this.sqsDigestQueueName = sqsDigestQueueName;
+            return this;
+        }
+
+        public Builder sqsDigestQueueArn(String sqsDigestQueueArn) {
+            this.sqsDigestQueueArn = sqsDigestQueueArn;
+            return this;
+        }
+
+        public Builder sqsUseExistingDigestQueue(boolean sqsUseExistingDigestQueue) {
+            this.sqsUseExistingDigestQueue = sqsUseExistingDigestQueue;
+            return this;
+        }
+
+        public Builder sqsRetainDigestQueue(boolean sqsRetainDigestQueue) {
+            this.sqsRetainDigestQueue = sqsRetainDigestQueue;
+            return this;
+        }
+
+        public Builder lambdaEntry(String lambdaEntry) {
+            this.lambdaEntry = lambdaEntry;
+            return this;
+        }
+
+        public Builder digestLambdaFunctionName(String digestLambdaFunctionName) {
+            this.digestLambdaFunctionName = digestLambdaFunctionName;
+            return this;
+        }
+
+        public Builder digestLambdaHandlerFunctionName(String digestLambdaHandlerFunctionName) {
+            this.digestLambdaHandlerFunctionName = digestLambdaHandlerFunctionName;
+            return this;
+        }
+
+        public Builder githubAPIBaseUrl(String githubAPIBaseUrl) {
+            this.githubAPIBaseUrl = githubAPIBaseUrl;
+            return this;
+        }
+
+        public Builder personalAccessToken(String personalAccessToken) {
+            this.personalAccessToken = personalAccessToken;
+            return this;
+        }
+
+        public AgenticLibStack build() {
+            AgenticLibStack stack = new AgenticLibStack(this.scope, this.id, this.props, this);
+            return stack;
+        }
+
+    }
+
+    public String s3BucketName;
+    public String s3ObjectPrefix;
+    public boolean s3UseExistingBucket;
+    public boolean s3RetainBucket;
+    public String s3WebsiteBucketName;
+    public boolean s3UseExistingWebsiteBucket;
+    public boolean s3RetainWebsiteBucket;
+    public String sqsDigestQueueArn;
+    public boolean sqsUseExistingDigestQueue;
+    public boolean sqsRetainDigestQueue;
+    public String digestLambdaFunctionName;
+    public String digestLambdaHandlerFunctionName;
+
+    public AgenticLibStack(Construct scope, String id, AgenticLibStack.Builder builder) {
+        this(scope, id, null, builder);
+    }
+
+    public AgenticLibStack(Construct scope, String id, StackProps props, AgenticLibStack.Builder builder) {
+        super(scope, id, props);
+
+        this.githubActionsArnPrinciple = this.getConfigValue(builder.githubActionsArnPrinciple, "githubActionsArnPrinciple");
+        this.s3BucketName = this.getConfigValue(builder.s3BucketName, "s3BucketName");
+        this.s3ObjectPrefix = this.getConfigValue(builder.s3ObjectPrefix, "s3ObjectPrefix");
+        this.s3UseExistingBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3UseExistingBucket), "s3UseExistingBucket"));
+        this.s3RetainBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3RetainBucket), "s3RetainBucket"));
+        this.s3BucketWriterRoleName = this.getConfigValue(builder.s3BucketWriterRoleName, "s3BucketWriterRoleName");
+        this.s3WebsiteBucketName = this.getConfigValue(builder.s3WebsiteBucketName, "s3WebsiteBucketName");
+        this.s3UseExistingWebsiteBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3UseExistingWebsiteBucket), "s3UseExistingWebsiteBucket"));
+        this.s3RetainWebsiteBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3RetainWebsiteBucket), "s3RetainWebsiteBucket"));
+        String s3WebsiteBucketWriterRoleName = this.getConfigValue(builder.s3WebsiteBucketWriterRoleName, "s3WebsiteBucketWriterRoleName");
+        String sqsDigestQueueName = this.getConfigValue(builder.sqsDigestQueueName, "sqsDigestQueueName");
+        this.sqsDigestQueueArn = this.getConfigValue(builder.sqsDigestQueueArn, "sqsDigestQueueArn");
+        this.sqsUseExistingDigestQueue = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.sqsUseExistingDigestQueue), "sqsUseExistingDigestQueue"));
+        this.sqsRetainDigestQueue = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.sqsRetainDigestQueue), "sqsRetainDigestQueue"));
+        String lambdaEntry = this.getConfigValue(builder.lambdaEntry, "lambdaEntry");
+        this.digestLambdaHandlerFunctionName = this.getConfigValue(builder.digestLambdaHandlerFunctionName, "digestLambdaHandlerFunctionName");
+        this.digestLambdaFunctionName = this.getConfigValue(builder.digestLambdaFunctionName, "digestLambdaFunctionName");
+        String githubAPIBaseUrl = this.getConfigValue(builder.githubAPIBaseUrl, "githubAPIBaseUrl");
+        String personalAccessToken = this.getConfigValue(builder.personalAccessToken, "personalAccessToken");
+
+        if (s3UseExistingBucket) {
+            this.eventsBucket = Bucket.fromBucketName(this, "EventsBucket", s3BucketName);
+        } else {
+            this.eventsBucket = Bucket.Builder.create(this, "EventsBucket")
+                    .bucketName(s3BucketName)
+                    .versioned(true)
+                    .removalPolicy(s3RetainBucket ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY)
+                    .autoDeleteObjects(!s3RetainBucket)
+                    .build();
+            this.eventsBucketLogGroup = LogGroup.Builder.create(this, "EventsBucketLogGroup")
+                    .logGroupName("/aws/s3/" + this.eventsBucket.getBucketName())
+                    .retention(RetentionDays.THREE_DAYS)
+                    .build();
+            this.eventsBucketTrail = Trail.Builder.create(this, "EventsBucketAccessTrail")
+                    .trailName(this.eventsBucket.getBucketName() + "-access-trail")
+                    .cloudWatchLogGroup(this.eventsBucketLogGroup)
+                    .sendToCloudWatchLogs(true)
+                    .cloudWatchLogsRetention(RetentionDays.THREE_DAYS)
+                    .includeGlobalServiceEvents(false)
+                    .isMultiRegionTrail(false)
+                    .build();
+            this.eventsBucketTrail.addS3EventSelector(Arrays.asList(S3EventSelector.builder()
+                    .bucket(this.eventsBucket)
+                    .objectPrefix(s3ObjectPrefix)
+                    .build()
+            ));
+        }
+
+        PolicyStatement eventsObjectCrudPolicyStatement = PolicyStatement.Builder.create()
+                .effect(Effect.ALLOW)
+                .actions(List.of(
+                        "s3:PutObject",
+                        "s3:GetObject",
+                        "s3:ListBucket",
+                        "s3:DeleteObject"
+                ))
+                .resources(List.of(
+                        this.eventsBucket.getBucketArn(),
+                        this.eventsBucket.getBucketArn() + "/" + s3ObjectPrefix + "*"
+                ))
+                .build();
+        // Add a trust policy to the role to allow the GitHub Actions ARN principle to assume the role
+
+        this.s3EventsAccessRole = Role.Builder.create(this, "EventsS3AccessRole")
+                .roleName(s3BucketWriterRoleName)
+                .assumedBy(new ArnPrincipal(githubActionsArnPrinciple))
+                .inlinePolicies(java.util.Collections.singletonMap("S3AccessPolicy", PolicyDocument.Builder.create()
+                        .statements(List.of(eventsObjectCrudPolicyStatement))
+                        .build()))
+                .build();
+
+        if (s3UseExistingWebsiteBucket) {
+            this.websiteBucket = Bucket.fromBucketName(this, "WebsiteBucket", s3WebsiteBucketName);
+        } else {
+            BlockPublicAccess blockPublicAccess = BlockPublicAccess.Builder.create()
+                    .blockPublicAcls(false)
+                    .ignorePublicAcls(false)
+                    .blockPublicPolicy(false)
+                    .build();
+            this.websiteBucket = Bucket.Builder.create(this, "WebsiteBucket")
+                    .bucketName(s3WebsiteBucketName)
+                    .websiteIndexDocument("index.html")
+                    .blockPublicAccess(blockPublicAccess)
+                    .publicReadAccess(true)
+                    .removalPolicy(s3RetainWebsiteBucket ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY)
+                    .autoDeleteObjects(!s3RetainWebsiteBucket)
+                    .build();
+            this.websiteBucketLogGroup = LogGroup.Builder.create(this, "WebsiteBucketLogGroup")
+                    .logGroupName("/aws/s3/" + this.websiteBucket.getBucketName())
+                    .retention(RetentionDays.THREE_DAYS)
+                    .build();
+            this.websiteBucketTrail = Trail.Builder.create(this, "WebsiteucketAccessTrail")
+                    .trailName(this.websiteBucket.getBucketName() + "-access-trail")
+                    .cloudWatchLogGroup(this.websiteBucketLogGroup)
+                    .sendToCloudWatchLogs(true)
+                    .cloudWatchLogsRetention(RetentionDays.THREE_DAYS)
+                    .includeGlobalServiceEvents(false)
+                    .isMultiRegionTrail(false)
+                    .build();
+            this.websiteBucketTrail.addS3EventSelector(Arrays.asList(S3EventSelector.builder()
+                    .bucket(this.websiteBucket)
+                    .build()
+            ));
+        }
+
+        PolicyStatement websiteObjectCrudPolicyStatement = PolicyStatement.Builder.create()
+                .effect(Effect.ALLOW)
+                .actions(List.of(
+                        "s3:PutObject",
+                        "s3:GetObject",
+                        "s3:ListBucket",
+                        "s3:DeleteObject"
+                ))
+                .resources(List.of(
+                        this.websiteBucket.getBucketArn(),
+                        this.websiteBucket.getBucketArn() + "/*"
+                ))
+                .build();
+        // Add a trust policy to the role to allow the GitHub Actions ARN principle to assume the role
+        this.s3WebsiteAccessRole = Role.Builder.create(this, "S3WebsiteAccessRole")
+                .roleName(s3WebsiteBucketWriterRoleName)
+                .assumedBy(new ArnPrincipal(githubActionsArnPrinciple))
+                .inlinePolicies(java.util.Collections.singletonMap("S3AccessPolicy", PolicyDocument.Builder.create()
+                        .statements(List.of(websiteObjectCrudPolicyStatement))
+                        .build()))
+                .build();
+
+        Duration digestLambdaDuration = Duration.seconds(5);
+        Duration digestQueueDuration = Duration.seconds(digestLambdaDuration.toSeconds().intValue() * 2);
+        if (sqsUseExistingDigestQueue) {
+            this.digestQueue = Queue.fromQueueArn(this, "DigestQueue", sqsDigestQueueArn);
+        } else {
+            this.digestQueueDLQ = Queue.Builder.create(this, "DigestQueueDLQ")
+                    .queueName(sqsDigestQueueName + "-dlq")
+                    .retentionPeriod(Duration.days(3))
+                    .build();
+            this.digestQueue = Queue.Builder.create(this, "DigestQueue")
+                    .queueName(sqsDigestQueueName)
+                    .visibilityTimeout(digestQueueDuration)
+                    .removalPolicy(sqsRetainDigestQueue ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY)
+                    .retentionPeriod(Duration.hours(24))
+                    .deadLetterQueue(DeadLetterQueue.builder()
+                            .queue(this.digestQueueDLQ)
+                            .maxReceiveCount(5)
+                            .build())
+                    .build();
+        }
+
+        this.digestLambda = DockerImageFunction.Builder.create(this, "DigestLambda")
+                .code(DockerImageCode.fromImageAsset(".", AssetImageCodeProps.builder()
+                        .buildArgs(Map.of("HANDLER", lambdaEntry + digestLambdaHandlerFunctionName))
+                        .buildArgs(Map.of("PERSONAL_ACCESS_TOKEN", personalAccessToken))
+                        .build()))
+                .environment(Map.of(
+                        "GITHUB_API_BASE_URL", githubAPIBaseUrl
+                ))
+                .functionName(digestLambdaFunctionName)
+                .reservedConcurrentExecutions(1)
+                .timeout(digestLambdaDuration)
+                .build();
+        this.digestLambdaLogGroup = new LogGroup(this, "DigestLambdaLogGroup", LogGroupProps.builder()
+                .logGroupName("/aws/lambda/" + this.digestLambda.getFunctionName())
+                .retention(RetentionDays.THREE_DAYS)
+                .removalPolicy(RemovalPolicy.DESTROY)
+                .build());
+        this.digestLambda.addEventSource(new SqsEventSource(this.digestQueue, SqsEventSourceProps.builder()
+                .batchSize(1)
+                .maxBatchingWindow(Duration.seconds(0))
+                .build()));
+    }
+
+    private String getConfigValue(String customValue, String contextKey) {
+        if (customValue == null || customValue.isEmpty()) {
+            Object contextValue = null;
+            try {
+                contextValue = this.getNode().tryGetContext(contextKey);
+            }catch (Exception e) {
+                // NOP
+            }
+            if (contextValue != null && !contextValue.toString().isEmpty()) {
+                CfnOutput.Builder.create(this, contextKey)
+                        .value(contextValue.toString() + " (Source: CDK context.)")
+                        .build();
+                return contextValue.toString();
+            } else {
+                throw new IllegalArgumentException("No customValue found or context key " + contextKey);
+            }
+        }
+        return customValue;
+    }
+}
+
+aws/main/java/com/intentïon/AgenticLib/AgenticLibApp.java
+==== Content of aws/main/java/com/intentïon/AgenticLib/AgenticLibApp.java ====
+package com.intentïon.AgenticLib;
+
+import com.intentïon.S3SqsBridge.S3SqsBridgeStack;
+import software.amazon.awscdk.App;
+import software.amazon.awscdk.CfnOutput;
+
+public class AgenticLibApp {
+    public static void main(final String[] args) {
+        App app = new App();
+
+        // TODO: Build a new main.js from the one in the s3-sqs-bridge package
+
+        // Create the AgenticLibStack with the s3 bucket name and the digest SQS queue
+        AgenticLibStack agenticLibStack = AgenticLibStack.Builder.create(app, "AgenticLibStack")
+                .githubActionsArnPrinciple(System.getenv("S3_GITHUB_ACTIONS_ARN_PRINCIPLE"))
+                .s3BucketName(System.getenv("BUCKET_NAME"))
+                .s3ObjectPrefix(System.getenv("OBJECT_PREFIX"))
+                .s3UseExistingBucket(Boolean.parseBoolean(System.getenv("USE_EXISTING_BUCKET")))
+                .s3RetainBucket(Boolean.parseBoolean(System.getenv("RETAIN_BUCKET")))
+                .s3BucketWriterRoleName(System.getenv("S3_BUCKET_WRITER_ROLE_NAME"))
+                .s3WebsiteBucketName(System.getenv("WEBSITE_BUCKET_NAME"))
+                .s3UseExistingWebsiteBucket(Boolean.parseBoolean(System.getenv("USE_EXISTING_WEBSITE_BUCKET")))
+                .s3RetainWebsiteBucket(Boolean.parseBoolean(System.getenv("RETAIN_WEBSITE_BUCKET")))
+                .s3WebsiteBucketWriterRoleName(System.getenv("S3_WEBSITE_BUCKET_WRITER_ROLE_NAME"))
+                .sqsDigestQueueName(System.getenv("SQS_DIGEST_QUEUE_NAME"))
+                .sqsDigestQueueArn(System.getenv("SQS_DIGEST_QUEUE_ARN"))
+                .sqsUseExistingDigestQueue(Boolean.parseBoolean(System.getenv("USE_EXISTING_DIGEST_QUEUE")))
+                .sqsRetainDigestQueue(Boolean.parseBoolean(System.getenv("RETAIN_DIGEST_QUEUE"))) // TODO: Switch to removal policy
+                .lambdaEntry(System.getenv("LAMBDA_ENTRY"))
+                .digestLambdaFunctionName(System.getenv("DIGEST_LAMBDA_FUNCTION_NAME"))
+                .digestLambdaHandlerFunctionName(System.getenv("DIGEST_LAMBDA_HANDLER_FUNCTION_NAME"))
+                .githubAPIBaseUrl(System.getenv("GITHUB_API_BASE_URL"))
+                .personalAccessToken(System.getenv("PERSONAL_ACCESS_TOKEN"))
+                .build();
+
+        CfnOutput.Builder.create(agenticLibStack, "EventsBucketArn")
+                .value(agenticLibStack.eventsBucket.getBucketArn())
+                .build();
+
+        CfnOutput.Builder.create(agenticLibStack, "EventsS3AccessRoleArn")
+                .value(agenticLibStack.s3EventsAccessRole.getRoleArn())
+                .build();
+
+        CfnOutput.Builder.create(agenticLibStack, "WebsiteBucketArn")
+                .value(agenticLibStack.websiteBucket.getBucketArn())
+                .build();
+
+        CfnOutput.Builder.create(agenticLibStack, "S3WebsiteAccessRoleArn")
+                .value(agenticLibStack.s3WebsiteAccessRole.getRoleArn())
+                .build();
+
+        CfnOutput.Builder.create(agenticLibStack, "DigestQueueUrl")
+                .value(agenticLibStack.digestQueue.getQueueUrl())
+                .build();
+
+        CfnOutput.Builder.create(agenticLibStack, "DigestLambdaArn")
+                .value(agenticLibStack.digestLambda.getFunctionArn())
+                .build();
+
+        // Reuse s3 bucket name and the digest SQS queue from the AgenticLibStack
+        S3SqsBridgeStack s3SqsBridgeStack = S3SqsBridgeStack.Builder.create(app, "S3SqsBridgeStack")
+                // TODO: LogGroup retention periods
+                .s3BucketName(agenticLibStack.s3BucketName)
+                .s3WriterRoleName(agenticLibStack.s3BucketWriterRoleName)
+                .s3WriterArnPrinciple(agenticLibStack.githubActionsArnPrinciple)
+                // TODO: S3 LogGroup prefix
+                // TODO: S3 bucket enable/disable cloudtrail
+                .s3ObjectPrefix(System.getenv("OBJECT_PREFIX"))
+                .s3UseExistingBucket(true)
+                .s3RetainBucket(agenticLibStack.s3RetainBucket)
+                // TODO: S3 bucket object lifecycle policy (delete after 1 month)
+                // TODO: DLQ postfix
+                // TODO: SQS Queue and DLQ retention period
+                .sqsSourceQueueName(System.getenv("SQS_SOURCE_QUEUE_NAME"))
+                .sqsReplayQueueName(System.getenv("SQS_REPLAY_QUEUE_NAME"))
+                .sqsDigestQueueName(System.getenv("SQS_DIGEST_QUEUE_NAME"))
+                .sqsDigestQueueArn(agenticLibStack.sqsDigestQueueArn)
+                .sqsUseExistingDigestQueue(true)
+                .sqsRetainDigestQueue(agenticLibStack.sqsRetainDigestQueue)
+                .offsetsTableName(System.getenv("OFFSETS_TABLE_NAME"))
+                // TODO: Offsets table partition key
+                // TODO: Offsets table stack removal policy
+                // TODO: Offsets table TTL (1 month)
+                .projectionsTableName(System.getenv("PROJECTIONS_TABLE_NAME"))
+                // TODO: Projections table partition key
+                // TODO: Projections table stack removal policy
+                // TODO: Projections table TTL (1 month)
+                .lambdaEntry(System.getenv("LAMBDA_ENTRY"))
+                // TODO: Lambda LogGroup prefix
+                .replayBatchLambdaFunctionName(System.getenv("REPLAY_BATCH_LAMBDA_FUNCTION_NAME"))
+                .replayBatchLambdaHandlerFunctionName(System.getenv("REPLAY_BATCH_LAMBDA_HANDLER_FUNCTION_NAME"))
+                // TODO: Lambda timeout
+                .sourceLambdaFunctionName(System.getenv("SOURCE_LAMBDA_FUNCTION_NAME"))
+                .sourceLambdaHandlerFunctionName(System.getenv("SOURCE_LAMBDA_HANDLER_FUNCTION_NAME"))
+                // TODO: Lambda timeout
+                .replayLambdaFunctionName(System.getenv("REPLAY_LAMBDA_FUNCTION_NAME"))
+                .replayLambdaHandlerFunctionName(System.getenv("REPLAY_LAMBDA_HANDLER_FUNCTION_NAME"))
+                // TODO: Lambda timeout
+                // TODO: As properties not variables: Enable/disable versioning (also allowing unlimited concurrency because we always read the latest state)
+                .build();
+
+        CfnOutput.Builder.create(s3SqsBridgeStack, "EventsBucketArn")
+                .value(s3SqsBridgeStack.eventsBucket.getBucketArn())
+                .build();
+
+        CfnOutput.Builder.create(s3SqsBridgeStack, "EventsS3AccessRoleArn")
+                .value(s3SqsBridgeStack.s3AccessRole.getRoleArn())
+                .build();
+
+        CfnOutput.Builder.create(s3SqsBridgeStack, "SourceQueueUrl")
+                .value(s3SqsBridgeStack.sourceQueue.getQueueUrl())
+                .build();
+
+        CfnOutput.Builder.create(s3SqsBridgeStack, "ReplayQueueUrl")
+                .value(s3SqsBridgeStack.replayQueue.getQueueUrl())
+                .build();
+
+        CfnOutput.Builder.create(s3SqsBridgeStack, "DigestQueueUrl")
+                .value(s3SqsBridgeStack.digestQueue.getQueueUrl())
+                .build();
+
+        CfnOutput.Builder.create(s3SqsBridgeStack, "OffsetsTableArn")
+                .value(s3SqsBridgeStack.offsetsTable.getTableArn())
+                .build();
+
+        CfnOutput.Builder.create(s3SqsBridgeStack, "ProjectionsTableArn")
+                .value(s3SqsBridgeStack.projectionsTable.getTableArn())
+                .build();
+
+        CfnOutput.Builder.create(s3SqsBridgeStack, "ReplayBatchLambdaArn")
+                .value(s3SqsBridgeStack.replayBatchLambda.getFunctionArn())
+                .build();
+
+        CfnOutput.Builder.create(s3SqsBridgeStack, "ReplayBatchLambdaLogGroupArn")
+                .value(s3SqsBridgeStack.replayBatchLambdaLogGroup.getLogGroupArn())
+                .build();
+
+        CfnOutput.Builder.create(s3SqsBridgeStack, "ReplayBatchOneOffJobResourceRef")
+                .value(s3SqsBridgeStack.replayBatchOneOffJobResource.getRef())
+                .build();
+
+        CfnOutput.Builder.create(s3SqsBridgeStack, "SourceLambdaArn")
+                .value(s3SqsBridgeStack.sourceLambda.getFunctionArn())
+                .build();
+
+        CfnOutput.Builder.create(s3SqsBridgeStack, "ReplayLambdaArn")
+                .value(s3SqsBridgeStack.replayLambda.getFunctionArn())
+                .build();
+
+        app.synth();
+    }
+}

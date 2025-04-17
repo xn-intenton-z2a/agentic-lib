@@ -1,0 +1,470 @@
+features/rejects/SECURITY_SCANNER.md
+# features/rejects/SECURITY_SCANNER.md
+# Security Scanner
+
+## Overview
+The Security Scanner feature integrates a robust, automated vulnerability detection mechanism into agentic-lib. This feature reviews source code, configuration files, and dependencies to identify potential security flaws and code vulnerabilities. It leverages both static analysis techniques and configurable scanning tools to detect issues, thereby enabling proactive remediation and enhancing repository safety.
+
+## Objectives
+- **Automated Vulnerability Detection:** Scan code and dependency lists to detect known security issues and potential vulnerabilities.
+- **Actionable Feedback:** Generate detailed reports outlining the vulnerabilities, affected areas in the codebase, and actionable remediation steps.
+- **Seamless Issue Integration:** Automatically create GitHub issues for critical security findings using existing ISSUE_CREATOR and ISSUE_BATCHER integrations.
+- **Configurable Scanning:** Allow configuration of scan frequency, thresholds for alerts, and integration with external security advisories.
+- **Enhanced Traceability:** Log all scanning events and store historical data to track improvement trends and ensure timely updates.
+
+## Implementation Strategy
+1. **Integration of Scanning Tools:**
+   - Incorporate static analysis tools and security plugins (e.g., eslint-plugin-security) to identify common coding vulnerabilities.
+   - Implement custom scanning logic to parse dependency files (like package.json) for outdated or vulnerable packages.
+
+2. **Report Generation and Automation:**
+   - Generate detailed JSON reports that catalog detected vulnerabilities along with recommended fixes.
+   - Leverage existing logging and workflow mechanisms to output scan results in a structured, human-readable format.
+
+3. **Issue Creation Workflow:**
+   - Use existing ISSUE_CREATOR and ISSUE_BATCHER features to automatically generate GitHub issues for high-severity vulnerabilities.
+   - Include comprehensive context such as code snippets, dependency details, and remediation suggestions in the issue descriptions.
+
+4. **Configuration and Scheduling:**
+   - Provide configuration options via environment variables or configuration files to customize scan frequency, alert thresholds, and scanning scope.
+   - Integrate the Security Scanner as a step in CI/CD pipelines to ensure continuous security monitoring.
+
+## Acceptance Criteria
+- The Security Scanner successfully identifies known vulnerabilities and security misconfigurations in both code and dependencies.
+- Detailed reports are generated, highlighting affected components and suggested remediation steps.
+- High-severity issues trigger the automated creation of GitHub issues through the existing issue management workflows.
+- Logs and historical scan data are maintained for traceability and trend analysis.
+- The feature integrates seamlessly with agentic-lib's mission of supporting autonomous workflows for continuous code evolution and resilience.features/rejects/RETRY_HANDLER.md
+# features/rejects/RETRY_HANDLER.md
+# RETRY_HANDLER Feature Specification
+
+## Overview
+This feature introduces a simple retry mechanism into the agentic command processing workflow. When enabled via an environment variable `AGENTIC_RETRIES`, the library will automatically retry command execution upon transient failures before ultimately failing. This increases the robustness and resiliency of the agentic-lib, especially when facing intermittent errors in command processing.
+
+## Implementation Details
+### Source File Modifications (src/lib/main.js)
+- **Command Retry Logic:**
+  - In the `agenticHandler` function, wrap the single command processing block (and optionally batch processing) in a retry loop.
+  - Read the environment variable `AGENTIC_RETRIES` and parse it as an integer indicating the maximum number of attempts (defaulting to 1 if not set).
+  - For each command, attempt processing. If an error occurs that qualifies as a transient error (for example, simulated by a specific command input such as "forceRetry" or any error generated during processing), catch the error and retry until the maximum number of attempts is reached.
+  - Log each retry attempt using the existing `logInfo` and `logError` functions. Use verbose logging if enabled.
+  
+### Testing Enhancements (tests/unit/main.test.js)
+- **New Test Cases for Retry Mechanism:**
+  - Add tests that simulate transient failures in the `agenticHandler`. For instance, when a command string "forceRetry" is provided, the first attempt fails and a subsequent retry succeeds.
+  - Verify that the global invocation counter (`globalThis.callCount`) is incremented only after a successful processing.
+  - Include negative tests to ensure that if all retry attempts fail, the final error is thrown and logged appropriately.
+
+### Documentation Updates (README.md)
+- **Usage Section Update:**
+  - Document the new `AGENTIC_RETRIES` environment variable. Explain that setting this variable to a positive integer enables automatic retries for command processing.
+  - Provide usage examples showing how to set `AGENTIC_RETRIES` (e.g., `AGENTIC_RETRIES=3`) and describe scenarios where this mechanism adds value, such as handling intermittent errors.
+
+## Benefits & Success Criteria
+- **Improved Resiliency:** Automatically retries transient failures, reducing the need for manual intervention during intermittent error conditions.
+- **Enhanced Robustness:** The system becomes less brittle in the face of temporary issues, contributing to a smoother user experience.
+- **Testability:** New tests ensure that the retry mechanism behaves as expected and that it does not interfere with the primary command processing functionality.
+
+## Verification & Acceptance
+- The `agenticHandler` should retry processing a command up to the number of attempts specified by `AGENTIC_RETRIES` when a transient error occurs.
+- Successful retry attempts should lead to normal command completions with the retry count logged.
+- If all retry attempts fail, the final error should be logged and thrown as per existing error-handling behavior.
+- All new tests added for this feature must pass without affecting current functionalities.
+features/rejects/METRICS_EXPORT.md
+# features/rejects/METRICS_EXPORT.md
+# METRICS_EXPORT Feature Specification
+
+## Overview
+This feature introduces a new CLI flag `--metrics` that aggregates and exports performance and usage metrics collected during the runtime of the agentic-lib. By providing insights such as the total number of commands processed and the average execution time for commands, this feature enhances observability and helps diagnose performance variations or potential bottlenecks.
+
+## Implementation Details
+### Source File Modifications (src/lib/main.js)
+- **New Metrics Aggregator Function:**
+  - Implement a function `exportMetrics` which computes and logs aggregated metrics (e.g., total calls via `globalThis.callCount` and average `executionTimeMS` from recent executions).
+  - Store execution times in an array (e.g., `globalThis.executionTimes`) updated after each command in `agenticHandler`.
+- **CLI Integration:**
+  - Add a new CLI flag `--metrics` in the `main` function. When provided, the program should call `exportMetrics` to output the collected metrics to the console.
+  - Ensure that this flag does not interfere with other functionalities such as `--status` or `--verbose`.
+
+### Testing Enhancements (tests/unit/main.test.js)
+- **New Test Cases for Metrics Export:**
+  - Add test cases to simulate command processing and then invoke the CLI with the `--metrics` flag to verify that the metrics output includes the total number of processed commands and average execution times in a formatted message.
+  - Ensure that the metrics output does not disrupt normal operation and that other CLI flags remain functional.
+
+### Documentation Updates (README.md)
+- **Usage Section Update:**
+  - Update the CLI usage instructions to include the `--metrics` flag.
+  - Provide example commands that demonstrate how to invoke the metrics export and explain the meaning of the reported metrics (e.g., total invocation count and average execution time per command).
+
+## Benefits & Success Criteria
+- **Enhanced Observability:** Provides immediate feedback on runtime performance and usage, assisting developers in monitoring system behavior under load.
+- **Non-intrusive:** Integrates seamlessly with the existing CLI without affecting other available commands or features.
+- **Testable:** Unit tests and CLI simulations cover the new functionality to ensure metrics are accurately reported.
+
+## Verification & Acceptance
+- When the `--metrics` flag is used, the CLI should output a clear message that includes aggregated metrics such as the total call count and average execution time computed from recent commands.
+- Automated tests should cover both the metrics export functionality and its integration with the other CLI commands without regression.
+features/rejects/CHAT_AGENT.md
+# features/rejects/CHAT_AGENT.md
+# CHAT_AGENT Feature Specification
+
+## Overview
+This feature implements a conversational chat agent within the CLI interface using the OpenAI Chat Completions API. The chat agent provides an interactive conversational experience when the user supplies the `--chat` flag. This update refines and completes the earlier design by adding the missing implementation of the `chatAgent` function, integrating robust error handling, and extending the existing test suite and documentation.
+
+## Implementation Details
+
+### Source File Modifications (src/lib/main.js)
+- **New Function `chatAgent`:**
+  - Implement the `chatAgent` function which accepts a string message or a JSON payload as input.
+  - Use the `openai` package to call the Chat Completions API with the provided payload. Ensure the API call is wrapped in a try/catch block to handle errors gracefully.
+  - Log the initiation and the outcome of the API call using the existing `logInfo` and `logError` utilities.
+  - Return the response from the API in a formatted manner.
+
+- **CLI Integration:**
+  - Update the argument parser to recognize a new `--chat` flag.
+  - When the flag is present, invoke the `chatAgent` function, process its response and print the output to the console.
+
+### Testing Enhancements (tests/unit/main.test.js)
+- **Unit Tests for `chatAgent`:**
+  - Add tests simulating both a successful chat interaction and failure scenarios by mocking the OpenAI Chat Completions API.
+  - For successful interactions, mock a response that returns a JSON containing a message.
+  - For failure cases, simulate API errors and ensure the function logs the error and rethrows or handles it appropriately.
+
+### Documentation Updates (README.md)
+- **Usage Section:**
+  - Add examples on how to use the new `--chat` flag.
+  - Explain the purpose of the chat agent and illustrate example commands to invoke it.
+
+### Dependencies
+- This feature relies on the existing `openai` package. No new dependencies are introduced.
+
+## Benefits & Success Criteria
+
+- **Enhanced Interaction:** Provides a natural language conversational interface via the CLI, improving user experience.
+- **Robust Error Handling:** Incorporates thorough error checking and logging to ensure stability and clear diagnostics in case of issues with API calls.
+- **Comprehensive Test Coverage:** New unit tests cover both successful responses and error paths, ensuring the chat functionality maintains high reliability.
+
+## Verification & Acceptance
+
+- The `--chat` flag should correctly trigger the `chatAgent` function and print the formatted response from the OpenAI API.
+- Unit tests for the `chatAgent` function must pass, verifying both successful and error handling scenarios.
+- The README documentation must be updated with usage examples and details regarding the chat agent functionality.
+features/rejects/COMMAND_ALIAS.md
+# features/rejects/COMMAND_ALIAS.md
+# COMMAND_ALIAS Feature Specification
+
+## Overview
+This feature introduces support for command aliases in the agentic-lib CLI. Users can define aliases for frequently used commands via the environment variable `AGENTIC_ALIAS`. The variable is expected to contain a JSON mapping of alias names to the actual commands. This simplifies command input, reduces potential errors, and enhances the overall user experience.
+
+## Implementation Details
+### Source File Modifications (src/lib/main.js)
+- **Alias Resolution:** At the start of the CLI processing, parse the `AGENTIC_ALIAS` environment variable (if set) as a JSON object mapping alias keys to actual command strings.
+- **Command Substitution:** Before passing the command to the `agenticHandler`, check if the provided command (or any command in a batch) exists in the alias map. If an alias is found, substitute it with the corresponding actual command.
+- **Compatibility:** Ensure that both single command and batch command scenarios support alias substitution without interfering with existing validations. Maintain current logging and error handling behavior, and add verbose logs for alias substitutions when `--verbose` is activated.
+
+### Testing Enhancements (tests/unit/main.test.js)
+- **New Test Cases for Alias Resolution:** Add unit tests that set the `AGENTIC_ALIAS` environment variable to a valid JSON mapping. Test that providing an alias via the `--agentic` flag results in the actual command being processed.
+- **Batch Processing:** Verify that each command in a batch payload is independently checked and substituted if an alias is defined.
+- **Fallback Behavior:** Confirm that if an alias is not defined, the original command is processed unchanged.
+
+### Documentation Updates (README.md)
+- **CLI Usage Section Update:** Document the new alias functionality. Explain how to define the `AGENTIC_ALIAS` environment variable with a JSON mapping and provide examples of invoking commands using an alias.
+- **Usage Examples:** Include example commands showing how using an alias simplifies the command input.
+
+## Benefits & Success Criteria
+- **Simplified Command Input:** Enables users to define shorter or more intuitive commands, reducing input errors and increasing efficiency.
+- **Enhanced User Experience:** The alias resolution provides a more flexible CLI by allowing customization without code changes.
+- **Testable and Stable:** The functionality is covered by unit tests and documented, ensuring reliability and ease of future maintenance.
+
+## Verification & Acceptance
+- The CLI should resolve an alias to its actual command both in single and batch processing scenarios.
+- Logs should indicate alias substitution when `--verbose` mode is enabled.
+- Unit tests must confirm that alias resolution works correctly and that non-alias commands are processed normally.features/rejects/EXEC_TIMINGS.md
+# features/rejects/EXEC_TIMINGS.md
+# EXEC_TIMINGS Feature Specification
+
+## Overview
+This feature introduces a new CLI flag `--timings` to measure and output the execution time of the commands processed by the agentic-lib. By wrapping the command execution flow with a timer, users will receive a report of how long the operation took, enhancing observability and performance troubleshooting without altering any core functionalities.
+
+## Implementation Details
+
+### Source File Modifications (src/lib/main.js)
+- **Timer Integration:**
+  - Modify the `main` function to check if the `--timings` flag is present in the command arguments.
+  - If present, capture the start time before processing any command.
+  - After processing the command(s) (including CLI flags like `--agentic`, `--digest`, etc.), compute the elapsed time and print it to the console using a formatted message (e.g., "Execution time: X ms").
+  - Ensure that all branches (like `--help`, `--version`, etc.) include timing calculation where appropriate without interfering with their original behavior.
+
+### Testing Enhancements (tests/unit/main.test.js)
+- **New Test Cases for Execution Timings:**
+  - Add test cases that invoke the CLI with the `--timings` flag along with another valid flag (such as `--dry-run` or `--status`).
+  - Verify that the console output includes a message indicating the execution time (e.g., matches a regex like /Execution time: \d+ ms/).
+  - Ensure that the addition of timings does not break existing CLI functionalities.
+
+### Documentation Updates (README.md)
+- **Usage Section Update:**
+  - Include examples showing how to use the `--timings` flag.
+  - Document that the flag is intended to provide users with performance insights for the executed command.
+
+## Benefits & Success Criteria
+- **Enhanced Observability:** Users can now easily measure how long each command or interaction takes, which is particularly useful for debugging or performance tuning.
+- **Non-intrusive:** The feature integrates seamlessly with existing commands, providing additional value without modifying core behaviors.
+- **Testable:** New unit tests ensure that the timing output is correctly reported and does not interfere with other outputs.
+- **Documentation:** Updated README makes it clear how to utilize the new flag, helping users and developers alike.
+features/rejects/LOG_TAGS.md
+# features/rejects/LOG_TAGS.md
+# LOG_TAGS Feature Specification
+
+## Overview
+This feature enhances the logging functionality by allowing users to inject custom log tags into every log message. By setting an environment variable `AGENTIC_LOG_TAGS` (expected to be a JSON object), users can include additional metadata—such as application, region, or custom identifiers—in all log outputs. This improves log aggregation, filtering, and overall observability in environments where traces and correlation are required.
+
+## Implementation Details
+### Source File Modifications (src/lib/main.js)
+- **Enhanced Log Functions:**
+  - Update both `logInfo` and `logError` functions to check for the environment variable `AGENTIC_LOG_TAGS`.
+  - If the variable is set, attempt to parse it as a JSON object. On success, merge the resulting tags into the log object before outputting.
+  - Ensure that parsing errors do not crash the logging functions; if parsing fails, fallback silently to existing behavior and optionally log a warning if in verbose mode.
+
+### Testing Enhancements (tests/unit/main.test.js)
+- **New Test Cases:**
+  - Add tests that temporarily set `process.env.AGENTIC_LOG_TAGS` to a valid JSON string and capture console output.
+  - Verify that both `logInfo` and `logError` output objects include all the custom keys provided through the environment variable.
+  - Include negative tests where `AGENTIC_LOG_TAGS` is set to an invalid JSON and ensure that the logging output does not include additional tags.
+
+### Documentation Updates (README.md)
+- **Logging Section Update:**
+  - Document the new `AGENTIC_LOG_TAGS` environment variable, explaining its purpose and format.
+  - Provide example usage and JSON format guidelines for setting custom log tags.
+
+## Benefits & Success Criteria
+- **Improved Observability:** Users can add contextual metadata to logs aiding in diagnostics and filtering.
+- **Seamless Integration:** This feature augments existing logging without affecting core functionalities when `AGENTIC_LOG_TAGS` is not set or is invalid.
+- **Testable and Reliable:** Unit tests validate proper merging of tags into log messages, ensuring reliability and ease of maintenance.
+
+## Verification & Acceptance
+- The logging functions must correctly merge custom tag data when `AGENTIC_LOG_TAGS` is set with valid JSON.
+- Unit tests must pass, verifying that the additional tags appear in the log object's output.
+- Documentation must be updated to include example setups and usage instructions for the new logging tags feature.features/rejects/CHAT_AGENT_ADVANCED.md
+# features/rejects/CHAT_AGENT_ADVANCED.md
+# CHAT_AGENT_ADVANCED Feature Specification
+
+## Overview
+This feature extends the existing Chat Agent functionality by allowing users to customize the conversational context through a configurable personality prompt. By reading an environment variable (e.g., OPENAI_CHAT_PERSONALITY), the chat agent can inject a custom system message into the Chat Completions API payload. This enhancement provides a tailored interactive experience while retaining robust error handling and logging.
+
+## Implementation Details
+
+### Source File Modifications (src/lib/main.js)
+- **Enhance the Chat Function:**
+  - Update the implementation of the `chatAgent` function to check for the `OPENAI_CHAT_PERSONALITY` environment variable.
+  - If set, prepend a system message with the personality prompt to the messages sent to the OpenAI Chat Completions API.
+  - Log the usage of the custom personality to help with debugging and auditing.
+- **CLI Integration:**
+  - Ensure that the CLI flag `--chat` continues to invoke the enhanced `chatAgent` function without affecting existing functionality.
+
+### Testing Enhancements (tests/unit/main.test.js)
+- **New Test Cases for Custom Personality:**
+  - Add tests to simulate chat interactions with and without the `OPENAI_CHAT_PERSONALITY` set.
+  - Verify that when the environment variable is provided, the payload passed to the Chat Completions API includes the custom system message.
+  - Maintain tests for standard error and success scenarios to ensure full coverage of the chat handling logic.
+
+### Documentation Updates (README.md)
+- **Usage Section:**
+  - Update the CLI usage examples to demonstrate how to configure the `OPENAI_CHAT_PERSONALITY` environment variable.
+  - Provide example commands for invoking the chat agent with a custom personality prompt.
+
+### Dependencies
+- This feature leverages the existing `openai` package. No additional dependencies are introduced.
+
+## Benefits & Success Criteria
+- **Personalized Conversations:** Enables users to tailor the chat experience with a custom system prompt.
+- **Improved Debuggability:** Enhanced logging provides visibility into the personality setting in use.
+- **Backward Compatibility:** Retains existing chat functionality when no custom personality is provided.
+- **Robust Testing:** New tests cover both scenarios (custom personality set and unset) ensuring reliability and ease of future maintenance.
+features/rejects/LOGGING_ENHANCEMENT.md
+# features/rejects/LOGGING_ENHANCEMENT.md
+# LOGGING_ENHANCEMENT Feature Specification
+
+## Overview
+This feature enhances the existing logging functionality by introducing an optional correlation identifier (e.g., REQUEST_ID) to be included in every log message. This improves traceability, especially when the library is used in distributed or automated workflows. By embedding a unique request identifier into each log record when available, developers and operators can easily correlate log entries related to a specific invocation or workflow execution.
+
+## Implementation Details
+
+### Source File Modifications (src/lib/main.js)
+- **Enhanced Log Functions:**
+  - Update `logInfo` and `logError` to check for an environment variable (e.g., `REQUEST_ID`).
+  - If set, include an additional property `requestId` in the log output.
+  - Ensure the new field does not affect existing functionality when the variable is not set.
+  
+### Testing Enhancements (tests/unit/main.test.js)
+- **New Test Cases for Logging Enhancement:**
+  - Add tests to verify that when the `REQUEST_ID` environment variable is provided, the log output from `logInfo` and `logError` includes a `requestId` field with the correct value.
+  - Ensure that existing log outputs remain unaffected when `REQUEST_ID` is not set.
+
+### Documentation Updates (README.md)
+- **Logging Section Update:**
+  - Document the new logging behavior and describe how to set the `REQUEST_ID` environment variable.
+  - Provide usage examples demonstrating the enhanced log output.
+
+## Benefits & Success Criteria
+- **Improved Traceability:** Makes it easier to correlate and analyze logs for individual commands or workflows.
+- **Enhanced Debugging:** Assists in troubleshooting by linking log entries with specific requests.
+- **Backward Compatibility:** Existing functionality is preserved if `REQUEST_ID` is not defined.
+- **Testable:** New unit tests will verify the presence of the request identifier under the appropriate conditions.
+
+## Verification & Acceptance
+- The `logInfo` and `logError` functions must include the `requestId` property in the log object when `REQUEST_ID` is set.
+- Tests must pass verifying the enhanced log output behavior.
+- Documentation in README is updated with clear instructions on using the enhanced logging mechanism.features/WORKFLOW_CHAIN.md
+# features/WORKFLOW_CHAIN.md
+# WORKFLOW_CHAIN Feature Specification
+
+This feature describes the interaction between the library, sources, and publish web workflows, creating a continuous chain from source material to published web content. The workflows work together to maintain and publish feature documentation, with potential extensions for OWL semantic markup, visible and metadata attributions, and document traceability.
+
+## Scenario: Source Material Collection
+
+**Given** the source worker workflow is triggered,
+
+**Then** it:
+- Maintains the `SOURCES.md` file with URLs and metadata
+- Updates source entries with new URLs and metadata
+- Validates source entries for proper formatting
+- Ensures sources have appropriate licensing information
+
+## Scenario: Library Document Generation
+
+**Given** the library worker workflow is triggered,
+
+**When** source entries are available in `SOURCES.md`,
+
+**Then** it:
+- Crawls URLs from source entries to gather content
+- Generates document summaries using AI
+- Creates or updates feature documents in the features directory
+- Manages document lifecycle (creation, updates, deletion)
+- Handles timeouts gracefully for build, test, and main scripts
+
+## Scenario: Web Content Publication
+
+**Given** the publish web workflow is triggered,
+
+**When** feature documents exist in the features directory,
+
+**Then** it:
+- Converts markdown feature files to HTML
+- Generates an index page with links to all features
+- Deploys to GitHub Pages for public access
+- Makes the content available at a published URL
+
+## Scenario: Workflow Chain Interaction
+
+**Given** all three workflows are configured in the repository,
+
+**Then** they interact in the following way:
+1. The Source Worker maintains the `SOURCES.md` file with URLs and metadata
+2. The Library Worker uses the sources to create/update feature documents in the features directory
+3. The Publish Web workflow converts these feature documents to HTML and publishes them to GitHub Pages
+
+## Scenario: OWL Semantic Markup Extension
+
+**Given** the feature chain is operational,
+
+**When** OWL semantic markup extensions are implemented,
+
+**Then** the published HTML is enhanced with:
+- RDFa attributes in the HTML templates
+- Semantic relationships between features using OWL properties
+- Feature classes and properties defined in an ontology file
+- Machine-readable metadata that enables advanced search and reasoning
+
+## Scenario: Document Traceability Implementation
+
+**Given** the feature chain with OWL extensions is operational,
+
+**Then** document traceability is implemented through:
+- Provenance information using OWL properties
+- Links between features and their source material with semantic relationships
+- Version history and change tracking metadata
+- Clear attribution chains from source to published content
+
+## Scenario: Visible and Metadata Attributions
+
+**Given** the feature chain with OWL extensions is operational,
+
+**Then** attributions are implemented as:
+- Visible attribution sections in the HTML
+- Machine-readable attribution metadata using RDFa
+- Links to license information with semantic properties
+- Clear citation of original sources and modifications
+
+## Tags
+- `@workflow`
+- `@feature-chain`
+- `@semantic-web`
+- `@owl`
+- `@documentation`
+- `@traceability`
+
+## Examples
+
+| Workflow | Input File | Output |
+|----------|------------|--------|
+| Source Worker | External URLs | `SOURCES.md` |
+| Library Worker | `SOURCES.md` | Feature files in `features/` |
+| Publish Web | Feature files in `features/` | HTML in `public/` deployed to GitHub Pages |
+
+---features/CLI_UTILS.md
+# features/CLI_UTILS.md
+# CLI_UTILS Feature Specification
+
+This feature consolidates and upgrades the command line interface functionalities of the repository. It merges the previously separate APPLY_FIX and AGENT_CLI features into a unified CLI utility that supports agentic command processing, automated fix application, simulation of errors and delays, diagnostics, status reporting, and version output. 
+
+## Objectives
+
+- Provide a single CLI entry point for processing agentic commands (both single and batch modes).
+- Enable automated code, test, README, and dependency fixes via the --apply-fix flag.
+- Enhance observability with detailed logging, diagnostics (--diagnostics) and runtime health reports (--status).
+- Support additional CLI behaviors such as simulating errors (--simulate-error), delaying execution (--simulate-delay), and dry-run mode (--dry-run).
+- Maintain clear and informative usage output (--help) and proper version reporting (--version).
+
+## User Scenarios
+
+**Scenario: Agentic Command Processing**
+
+- When a user invokes the CLI with the --agentic flag and a valid JSON payload with a single command or an array of commands, the system validates and processes the commands sequentially.
+- Each valid command is logged with its execution time (executionTimeMS) and the global invocation counter is incremented.
+
+**Scenario: Automated Fix Application**
+
+- When the CLI is invoked with the --apply-fix flag, the system applies pre-defined automated fixes to source, test, README, and dependency files.
+- A success message "Applied fix successfully" is logged to indicate completion.
+
+**Scenario: Simulation and Diagnostics**
+
+- When the --simulate-error flag is provided, the system logs a simulated error and exits with a non-zero exit code, aiding in testing error handling.
+- When the --simulate-delay flag is used with a specified delay in milliseconds, execution is deferred appropriately to simulate processing latency.
+- The --diagnostics flag outputs an in-depth report detailing configuration, Node.js version, environment variables, and other runtime data.
+
+**Scenario: Informational Commands**
+
+- The --version flag outputs current version information along with a timestamp, extracted from package.json.
+- The --status flag provides a JSON summary of runtime health including configuration, invocation count, and uptime.
+- The --dry-run flag allows a no-side-effect execution mode, confirming action without performing any operations.
+
+## Success Criteria
+
+- Correct merging of functionalities with detailed logging and error handling.
+- Comprehensive test coverage ensuring that each CLI flag returns expected outputs.
+- Consistent and clear output messages across all CLI commands.
+- Full integration with existing workflows without disrupting the Workflow Chain feature.
+
+## Dependencies & Constraints
+
+- This feature is implemented solely by modifying existing source, test, README, and dependency files.
+- It adheres to Node 20+ requirements and ECMAScript module standards.
+- No new files are added, and legacy features APPLY_FIX and AGENT_CLI are merged into this new unified CLI utility.
+
+## Verification & Acceptance
+
+- Automated tests should cover all CLI flags including edge cases (e.g., invalid JSON, empty commands, commands equivalent to "NaN").
+- Manual testing should confirm that the CLI displays usage, version, diagnostics, and proper error messages.
+- Code reviews ensure adherence to the contributing guidelines and synchronization with updated documentation in README.md.
