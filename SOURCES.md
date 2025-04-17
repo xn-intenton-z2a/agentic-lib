@@ -22,3 +22,28 @@ This documentation details the usage of semantic-release for automating version 
 ## https://nodejs.org/en/docs/
 The Node.js Official Documentation offers an authoritative reference on the Node.js runtime, including guides for built-in modules, API references, and tutorials on modern JavaScript practices on the server side. It is an indispensable resource for developers and is maintained by the Node.js foundation.
 ## License: MIT
+
+# GitHub Actions Documentation
+## https://docs.github.com/en/actions
+This documentation provides detailed guidance on automating workflows using GitHub Actions. It covers setup, configuration, best practices for CI/CD pipelines, and integration with other GitHub services. Maintained by GitHub, it is a vital resource for developers looking to implement automated and agentic behaviors in their repositories.
+## License: GitHub Terms
+
+# AWS SQS Developer Guide
+## https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html
+The AWS SQS Developer Guide offers comprehensive information on using the Amazon Simple Queue Service (SQS) for building scalable, distributed systems. It includes tutorials, API references, and best practices for securing and managing message queues in serverless and microservice architectures.
+## License: AWS Documentation License
+
+# OpenAI API Documentation
+## https://platform.openai.com/docs/api-reference/introduction
+This documentation provides an in-depth look into the OpenAI API, including authentication, endpoints, usage examples, and best practices for integrating AI-powered features into applications. It is regularly updated and maintained by OpenAI, making it a reliable and essential resource for AI integration.
+## License: OpenAI API Terms
+
+# Zod Documentation
+## https://zod.dev/
+Zod is a TypeScript-first schema declaration and validation library. The documentation offers extensive details, including API references, examples, and guidelines for using Zod to enforce type safety and validate data structures in JavaScript and TypeScript projects.
+## License: MIT
+
+# AWS Lambda Developer Guide
+## https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
+The AWS Lambda Developer Guide provides comprehensive instructions on building, deploying, and managing serverless functions using AWS Lambda. It covers details on event sources, configuration, scaling, and monitoring, making it an essential resource for developers implementing serverless architectures.
+## License: AWS Documentation License
