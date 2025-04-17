@@ -236,6 +236,32 @@ export function applyFix() {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
+// New function to handle CLI utilities display
+// ---------------------------------------------------------------------------------------------------------------------
+
+export function cliUtilsHandler() {
+  const cliCommands = [
+    { command: "--help", description: "Show this help message and usage instructions." },
+    { command: "--digest", description: "Run full bucket replay." },
+    { command: "--agentic <jsonPayload>", description: "Process an agentic command with a JSON payload." },
+    { command: "--version", description: "Show version information along with a timestamp." },
+    { command: "--verbose", description: "Enable verbose logging for detailed output." },
+    { command: "--diagnostics", description: "Output detailed diagnostic information." },
+    { command: "--status", description: "Output runtime health summary in JSON format." },
+    { command: "--dry-run", description: "Execute a dry run with no side effects." },
+    { command: "--simulate-error", description: "Simulate an error for testing purposes." },
+    { command: "--simulate-delay <ms>", description: "Simulate processing delay for the specified duration in milliseconds." },
+    { command: "--apply-fix", description: "Apply automated fixes and log a success message." },
+    { command: "--cli-utils", description: "Display a summary of available CLI commands and their descriptions." }
+  ];
+  let output = "CLI Commands Summary:\n";
+  cliCommands.forEach(cmd => {
+    output += `${cmd.command}: ${cmd.description}\n`;
+  });
+  console.log(output);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
 // Main CLI
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -253,6 +279,7 @@ function generateUsage() {
       --simulate-error           Simulate an error for testing purposes
       --simulate-delay <ms>      Simulate processing delay for the specified duration in milliseconds
       --apply-fix                Apply automated fixes and log success message
+      --cli-utils                Display a summary of available CLI commands and their descriptions
     `;
 }
 
@@ -285,6 +312,12 @@ export async function main(args = process.argv.slice(2)) {
   // Check for apply-fix flag
   if (args.includes("--apply-fix")) {
     applyFix();
+    return;
+  }
+
+  // New: Check for cli-utils flag
+  if (args.includes("--cli-utils")) {
+    cliUtilsHandler();
     return;
   }
 

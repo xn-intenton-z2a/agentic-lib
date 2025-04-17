@@ -100,7 +100,8 @@ Additionally, the CLI now supports additional commands:
 - `--digest`: Initiates processing of a sample digest event.
 - `--simulate-error`: Simulates an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.
 - `--simulate-delay <ms>`: Delays execution for the specified number of milliseconds, simulating processing latency before executing further commands.
-- `--apply-fix`: **NEW.** Applies automated code fixes. When invoked, it logs a success message "Applied fix successfully" and exits without further processing.
+- `--apply-fix`: Applies automated fixes and logs a success message indicating "Applied fix successfully". Execution stops immediately after this action.
+- `--cli-utils`: **NEW.** Displays a summary of all available CLI commands along with a brief description for each. This flag is intended to enhance the discoverability of CLI utilities.
 
 ---
 
@@ -143,7 +144,9 @@ The CLI provides several flags to manage the library's operation:
 - **--simulate-delay <ms>:**
   - Delays execution for the specified number of milliseconds, simulating processing latency before executing any further commands.
 - **--apply-fix:**
-  - **NEW.** Applies automated fixes and logs a success message indicating "Applied fix successfully". Execution stops immediately after this action.
+  - Applies automated fixes and logs a success message.
+- **--cli-utils:**
+  - **NEW.** Displays a comprehensive summary of all CLI commands available along with brief descriptions. Use this flag to quickly view all command options.
 
 ---
 

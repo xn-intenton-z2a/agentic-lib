@@ -160,6 +160,27 @@ describe("CLI Apply Fix Flag", () => {
   });
 });
 
+describe("CLI CLI Utils Flag", () => {
+  test("prints CLI utility commands summary when --cli-utils flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await agenticLib.main(["--cli-utils"]);
+    const output = consoleSpy.mock.calls.map(call => call[0]).join("\n");
+    expect(output).toContain("--help: Show this help message");
+    expect(output).toContain("--digest: Run full bucket replay");
+    expect(output).toContain("--agentic <jsonPayload>: Process an agentic command with a JSON payload");
+    expect(output).toContain("--version: Show version information");
+    expect(output).toContain("--verbose: Enable verbose logging");
+    expect(output).toContain("--diagnostics: Output detailed diagnostic information");
+    expect(output).toContain("--status: Output runtime health summary in JSON format");
+    expect(output).toContain("--dry-run: Execute a dry run with no side effects");
+    expect(output).toContain("--simulate-error: Simulate an error for testing purposes");
+    expect(output).toContain("--simulate-delay <ms>: Simulate processing delay");
+    expect(output).toContain("--apply-fix: Apply automated fixes and log a success message");
+    expect(output).toContain("--cli-utils: Display a summary of available CLI commands and their descriptions");
+    consoleSpy.mockRestore();
+  });
+});
+
 describe("agenticHandler Single Command Processing", () => {
   test("processes a valid agentic command correctly", async () => {
     const payload = { command: "doSomething" };
