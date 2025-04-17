@@ -99,7 +99,7 @@ Additionally, the CLI now supports additional commands:
 - `--status`: Outputs a runtime health summary in JSON format including configuration, Node.js version, callCount, uptime, and select environment variables.
 - `--digest`: Initiates processing of a sample digest event.
 - `--simulate-error`: Simulates an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.
-- `--simulate-delay <ms>`: Simulates processing latency by delaying execution for the specified duration in milliseconds before executing further commands.
+- `--simulate-delay <ms>`: Delays execution for the specified number of milliseconds, simulating processing latency before executing further commands.
 
 ---
 
