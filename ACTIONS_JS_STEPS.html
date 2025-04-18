@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>agentic-lib</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+    header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
+    h1 { font-size: 2em; }
+    section { margin-bottom: 1.5em; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5em 0; }
+    .label { font-weight: bold; }
+    footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>agentic-lib</h1>
+    <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest stats</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all stats</a></p>
+  </header>
+  <section>
+    <h3 class="md-github"><a class="md-github__anchor" name="short-answer" href="#short-answer"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Short answer</h3>
+<p class="md-github">Yes — you can publish the JavaScript as an <strong class="md-github">npm / GitHub Packages</strong> module and have the action code pull that package at runtime, even when the workflow that calls the action lives in the <em class="md-github">same</em> repository.<br>
+However you must arrange two extra things:</p>
+<ol class="md-github">
+<li class="md-github"><strong class="md-github">A publish‑on‑commit (or on‑release) workflow</strong> that pushes <code class="md-github">@scope/agentic-lib</code> to the registry every time you cut a ref you want others to consume.</li>
+<li class="md-github"><strong class="md-github">A workflow step inside the action job</strong> that runs <code class="md-github">npm ci</code> (or <code class="md-github">npm install</code>) so the runtime can actually resolve <code class="md-github">require('@scope/agentic-lib')</code>.</li>
+</ol>
+<p class="md-github">Below is a practical recipe that builds on the GitHub Packages setup you already use in other workflows — see the <code class="md-github">.npmrc</code> logic in <em class="md-github">wfr‑completion‑generate‑feature‑development‑issue.yml</em> for reference citeturn0file4.</p>
+<hr class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="1--publish-the-library-on-every-commit-you-care-about" href="#1--publish-the-library-on-every-commit-you-care-about"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>1  Publish the library on every commit you care about</h2>
+<pre class="md-github"><code class="md-github language-yaml"># .github/workflows/publish-lib.yml   (in R1)
+name: Publish agentic‑lib package
+
+on:
+  push:
+    branches: [main]           # or 'release/*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read           # to fetch the code
+      packages: write          # to publish to GH Packages
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com
+          cache: npm
+
+      - run: npm ci
+
+      # Optional: bump a prerelease like 0.1.0‑&lt;shortSHA&gt;
+      - name: Compute version
+        id: ver
+        run: |
+          echo &quot;ver=$(node -e &quot;console.log(require('./package.json').version.split('-')[0]+'-'+process.env.GITHUB_SHA.substr(0,7))&quot;)&quot; &gt;&gt;&quot;$GITHUB_OUTPUT&quot;
+
+      - run: npm version --no-git-tag-version ${{ steps.ver.outputs.ver }}
+
+      - name: Publish
+        run: npm publish --access public        # or omit --access for private
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+</code></pre>
+<p class="md-github">That gives you <strong class="md-github">immutable</strong> versions such as <code class="md-github">0.4.2‑c0ffeee</code>.<br>
+If you <em class="md-github">also</em> want a moving “latest‑commit” tag you can add:</p>
+<pre class="md-github"><code class="md-github language-bash">npm dist-tag add @org/agentic-lib@${{ steps.ver.outputs.ver }} latest-commit
+</code></pre>
+<hr class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="2--consume-the-package-from-inside-the-action-job" href="#2--consume-the-package-from-inside-the-action-job"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>2  Consume the package from inside the action job</h2>
+<p class="md-github">Update your reusable workflow (or the calling workflow in <strong class="md-github">R2</strong>) so the job that <em class="md-github">runs</em> the action does an <code class="md-github">npm ci</code> and has an <code class="md-github">.npmrc</code> pointing at the same registry.<br>
+You already do this pattern in other jobs citeturn0file4:</p>
+<pre class="md-github"><code class="md-github language-yaml">jobs:
+  find-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Configure npm for GitHub Packages
+        run: |
+          echo &quot;@xn-intenton-z2a:registry=https://npm.pkg.github.com&quot; &gt;&gt; .npmrc
+          echo &quot;//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}&quot; &gt;&gt; .npmrc
+          echo &quot;always-auth=true&quot;              &gt;&gt; .npmrc
+
+      - run: npm ci            # pulls @xn-intenton-z2a/agentic-lib@latest‑commit
+
+      - name: Find PR
+        id: find-pr
+        run: node -e &quot;require('@xn-intenton-z2a/agentic-lib').findPrInCheckSuite()&quot;
+</code></pre>
+<p class="md-github">Your action entry file can now be as small as:</p>
+<pre class="md-github"><code class="md-github language-js">// .github/actions/find-pr/action.yml
+runs:
+  using: 'node20'
+  main: 'dist/index.js'       # compiled with esbuild/ncc
+</code></pre>
+<p class="md-github">and <code class="md-github">dist/index.js</code> might do nothing but:</p>
+<pre class="md-github"><code class="md-github language-js">const { findPrInCheckSuite } = require('@xn-intenton-z2a/agentic-lib');
+findPrInCheckSuite();
+</code></pre>
+<hr class="md-github">
+<h3 class="md-github"><a class="md-github__anchor" name="pros--cons-of-the-pullfrompackage-style" href="#pros--cons-of-the-pullfrompackage-style"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Pros &amp; Cons of the “pull‑from‑package” style</h3>
+<table class="md-github">
+<thead class="md-github">
+<tr class="md-github">
+<th class="md-github">✅ Pros</th>
+<th class="md-github">❌ Cons</th>
+</tr>
+</thead>
+<tbody class="md-github">
+<tr class="md-github">
+<td class="md-github">• Single source of truth for the logic (library).<br>• Consumers (R2, R3…) can choose <strong class="md-github">semver</strong> or <strong class="md-github">commit‑tag</strong> versions.<br>• Library can be reused outside Actions as well.</td>
+<td class="md-github">• Every job pays the cost of <code class="md-github">npm ci</code>.<br>• Requires registry auth (<code class="md-github">NODE_AUTH_TOKEN</code>) in every repo that calls it.<br>• Less deterministic if you rely on a moving tag like <code class="md-github">latest-commit</code>; better to pin to the immutable dist‑tag you publish.</td>
+</tr>
+</tbody>
+</table>
+<p class="md-github">If startup speed and “works without <code class="md-github">npm install</code>” matter, it’s still better to bundle the compiled JS <strong class="md-github">inside the action directory</strong> and <em class="md-github">optionally</em> share business logic through a package.</p>
+<p class="md-github">A common hybrid is:</p>
+<ol class="md-github">
+<li class="md-github"><strong class="md-github">Library package</strong> (<code class="md-github">@org/agentic-lib-core</code>) – pure functions, published on commit.</li>
+<li class="md-github"><strong class="md-github">Action repo</strong> – commits the compiled <code class="md-github">dist/index.js</code> that <code class="md-github">require</code>s the core lib, but <em class="md-github">vendors</em> it (esbuild/ncc) so no install step is needed.<br>
+When you want to update the action, just bump the dependency and re‑compile in a release workflow.</li>
+</ol>
+<p class="md-github">That gives callers fast, dependency‑free actions <strong class="md-github">and</strong> lets other Node projects depend on the same logic.</p>
+
+  </section>
+  <footer>
+    <p>Generated on 2025-04-18T12:25:35.477Z</p>
+  </footer>
+</body>
+</html>
