@@ -1,0 +1,581 @@
+# .github/workflows/wfr-completion-enhance-issue.yml
+#
+# agentic-lib
+# Copyright (C) 2025 Polycode Limited
+#
+# This file is part of agentic-lib.
+#
+# agentic-lib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# IMPORTANT: Any derived work must include the following attribution:
+# "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+#
+
+name: ∞ enhance-issue
+
+on:
+  workflow_call:
+    inputs:
+      issueNumber:
+        description: 'The issue number to enhance or close. e.g. "123"'
+        type: string
+        required: true
+      featuresDir:
+        description: 'The directory to create/update the features in. e.g. "features/"'
+        type: string
+        required: false
+        default: 'features/'
+      libraryDir:
+        description: 'The directory containing library documents. e.g. "library/"'
+        type: string
+        required: false
+        default: 'library/'
+      target:
+        description: 'The target file to review. e.g. "src/lib/main.js"'
+        type: string
+        required: false
+        default: 'src/lib/main.js'
+      testFile:
+        description: 'The test file to review. e.g. "tests/unit/main.test.js"'
+        type: string
+        required: false
+        default: 'tests/unit/main.test.js'
+      readmeFile:
+        description: 'The README file to review. e.g. "README.md"'
+        type: string
+        required: false
+        default: 'README.md'
+      missionFile:
+        description: 'The MISSION statement file. e.g. "MISSION.md"'
+        type: string
+        required: false
+        default: 'MISSION.md'
+      contributingFile:
+        description: 'The CONTRIBUTING file to review. e.g. "CONTRIBUTING.md"'
+        type: string
+        required: false
+        default: 'CONTRIBUTING.md'
+      dependenciesFile:
+        description: 'The dependencies file to review. e.g. "package.json"'
+        type: string
+        required: false
+        default: 'package.json'
+      buildScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
+        type: string
+        required: false
+        default: 'echo "No build script specified."'
+      testScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
+        type: string
+        required: false
+        default: 'npm test'
+      mainScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run start`'
+        type: string
+        required: false
+        default: 'npm run start'
+      model:
+        description: 'The OpenAI model to use. e.g. "o3-mini"'
+        type: string
+        required: false
+        default: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      cache:
+        description: 'The cache to use for npm. e.g. "npm"'
+        type: string
+        required: false
+        default: 'npm'
+      promptFile:
+        description: 'The file containing the prompt text. e.g. "AGENT_READY_ISSUE.md"'
+        type: string
+        required: false
+        default: 'AGENT_READY_ISSUE.md'
+      npmAuthOrganisation:
+        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
+        type: string
+        required: false
+        default: ''
+      s3BucketUrl:
+        description: 'The S3 bucket URL with prefix to use. e.g. "s3://my-bucket/prefix"'
+        type: string
+        required: false
+        default: ''
+      iamRoleArn:
+        description: 'The ARN of the IAM role to assume. e.g. "arn:aws:iam::123456789012:role/my-role"'
+        type: string
+        required: false
+        default: ''
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
+    outputs:
+      action:
+        value: ${{ jobs.enhance-issue.outputs.action }}
+      enhancedDescription:
+        value: ${{ jobs.enhance-issue.outputs.enhancedDescription }}
+      relevantLibraryDocuments:
+        value: ${{ jobs.enhance-issue.outputs.relevantLibraryDocuments }}
+      closeReason:
+        value: ${{ jobs.enhance-issue.outputs.closeReason }}
+
+jobs:
+  enhance-issue:
+    runs-on: ubuntu-latest
+
+    env:
+      issueNumber: ${{ inputs.issueNumber }}
+      featuresDir: ${{ inputs.featuresDir || 'features/' }}
+      libraryDir: ${{ inputs.libraryDir || 'library/' }}
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
+      readmeFile: ${{ inputs.readmeFile || 'README.md' }}
+      missionFile: ${{ inputs.missionFile || 'MISSION.md' }}
+      contributingFile: ${{ inputs.contributingFile || 'CONTRIBUTING.md' }}
+      dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
+      buildScript: ${{ inputs.buildScript || 'npm run build' }}
+      testScript: ${{ inputs.testScript || 'npm test' }}
+      mainScript: ${{ inputs.mainScript || 'npm run start' }}
+      mainScriptTimeout: '5m'
+      model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      cache: ${{ inputs.cache || 'npm' }}
+      promptFile: ${{ inputs.promptFile || 'AGENT_READY_ISSUE.md' }}
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
+      s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
+      iamRoleArn: ${{ inputs.iamRoleArn || '' }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: ${{ env.cache }}
+
+      - name: Check GitHub authentication
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - run: npm ci
+
+      - name: List current features
+        id: features
+        shell: bash
+        run: |
+          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: List dependencies
+        id: list
+        shell: bash
+        run: |
+          output=$(npm list 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Build project
+        id: build
+        shell: bash
+        run: |
+          output=$(${{ env.buildScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: rm -f .npmrc
+
+      - name: Run tests
+        id: test
+        shell: bash
+        run: |
+          output=$(${{ env.testScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Run main
+        id: main
+        shell: bash
+        run: |
+          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: enhance-issue
+        id: enhance-issue
+        uses: actions/github-script@v7
+        env:
+          dependenciesListOutput: ${{ steps.list.outputs.output }}
+          buildOutput: ${{ steps.build.outputs.output }}
+          testOutput: ${{ steps.test.outputs.output }}
+          mainOutput: ${{ steps.main.outputs.output }}
+          currentFeatures: ${{ steps.features.outputs.output }}
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const currentFeatures = process.env.currentFeatures;
+            const target = process.env.target;
+            const testFile = process.env.testFile;
+            const readmeFile = process.env.readmeFile;
+            const missionFile = process.env.missionFile;
+            const contributingFile = process.env.contributingFile;
+            const dependenciesFile = process.env.dependenciesFile;
+            const libraryDir = process.env.libraryDir;
+            const model = process.env.model;
+            const apiKey = process.env.chatgptApiSecretKey;
+            const issueNumber = parseInt(process.env.issueNumber);
+            const promptFile = process.env.promptFile;
+            const dependenciesListOutput = process.env.dependenciesListOutput;
+            const buildScript = process.env.buildScript;
+            const buildOutput = process.env.buildOutput;
+            const testScript = process.env.testScript;
+            const testOutput = process.env.testOutput;
+            const mainScript = process.env.mainScript;
+            const mainOutput = process.env.mainOutput;
+
+            const fs = require('fs');
+            const path = require('path');
+            const OpenAI = require('openai').default;
+            const { z } = require('zod');
+            require('dotenv').config();
+
+            if (!apiKey) { 
+              core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
+            }
+            const openai = new OpenAI({ apiKey });
+
+            core.info(`currentFeatures: "${currentFeatures}"`);
+            core.info(`target: "${target}"`);
+            core.info(`testFile: "${testFile}"`);
+            core.info(`readmeFile: "${readmeFile}"`);
+            core.info(`missionFile: "${missionFile}"`);
+            core.info(`contributingFile: "${contributingFile}"`);
+            core.info(`dependenciesFile: "${dependenciesFile}"`);
+            core.info(`libraryDir: "${libraryDir}"`);
+            core.info(`promptFile: "${promptFile}"`);
+
+            const sourceFileContent = fs.readFileSync(target, 'utf8');
+            const testFileContent = fs.readFileSync(testFile, 'utf8');
+            const readmeFileContent = fs.readFileSync(readmeFile, 'utf8');
+            const missionFileContent = fs.readFileSync(missionFile, 'utf8');
+            const contributingFileContent = fs.readFileSync(contributingFile, 'utf8');
+            const dependenciesFileContent = fs.readFileSync(dependenciesFile, 'utf8');
+            const promptContent = fs.readFileSync(promptFile, 'utf8');
+            
+            core.info(`Target file '${target}' has been loaded (length ${sourceFileContent.length}).`);
+            core.info(`Test file '${testFile}' has been loaded (length ${testFileContent.length}).`);
+            core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
+            core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
+            core.info(`Prompt file '${promptFile}' has been loaded (length ${promptContent.length}).`);
+
+            // Load library documents
+            let libraryFiles = [];
+            let libraryContent = '';
+            try {
+              if (fs.existsSync(libraryDir)) {
+                libraryFiles = fs.readdirSync(libraryDir)
+                  .filter(file => file.endsWith('.md'))
+                  .map(file => {
+                    const filePath = path.join(libraryDir, file);
+                    const content = fs.readFileSync(filePath, 'utf8');
+                    libraryContent += `# ${file}\n${content}\n\n`;
+                    return { name: file, content };
+                  });
+              } else {
+                core.warning(`Library directory '${libraryDir}' does not exist.`);
+              }
+            } catch (e) {
+              core.warning(`Error reading library directory: ${e.message}`);
+            }
+
+            core.info(`Found ${libraryFiles.length} library documents in ${libraryDir}`);
+
+            const issue = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            const issueTitle = issue.data.title;
+            const issueDescription = issue.data.body;
+            const issueComments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            const issueCommentsText = issueComments.data
+              .map(comment => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
+              .join('\n');
+
+            const prompt = `
+            ${promptContent}
+
+            Current feature names and specifications:
+            CURRENT_FEATURES_START
+            ${currentFeatures}
+            CURRENT_FEATURES_END
+
+            Library documents:
+            LIBRARY_DOCUMENTS_START
+            ${libraryContent}
+            LIBRARY_DOCUMENTS_END
+
+            Source file: ${target}
+            SOURCE_FILE_START
+            ${sourceFileContent}
+            SOURCE_FILE_END
+
+            Test file: ${testFile}
+            TEST_FILE_START
+            ${testFileContent}
+            TEST_FILE_END
+
+            README file: ${readmeFile}
+            README_FILE_START
+            ${readmeFileContent}
+            README_FILE_END
+
+            MISSION file: ${missionFile}
+            MISSION_FILE_START
+            ${missionFileContent}
+            MISSION_FILE_END
+
+            Contributing file: ${contributingFile}
+            CONTRIBUTING_FILE_START
+            ${contributingFileContent}
+            CONTRIBUTING_FILE_END
+
+            Dependencies file: ${dependenciesFile}
+            DEPENDENCIES_FILE_START
+            ${dependenciesFileContent}
+            DEPENDENCIES_FILE_END
+
+            Issue:
+            ISSUE_START
+            title: ${issueTitle}
+            description:
+            ${issueDescription}
+            comments:
+            ${issueCommentsText}
+            ISSUE_END            
+
+            Dependencies list from command: npm list
+            DEPENDENCIES_LIST_START
+            ${dependenciesListOutput}
+            DEPENDENCIES_LIST_END    
+
+            Build output from command: ${buildScript}
+            TEST_OUTPUT_START
+            ${buildOutput}
+            TEST_OUTPUT_END      
+
+            Test output from command: ${testScript}
+            TEST_OUTPUT_START
+            ${testOutput}
+            TEST_OUTPUT_END            
+
+            Main output from command: ${mainScript}
+            MAIN_OUTPUT_START
+            ${mainOutput}
+            MAIN_OUTPUT_END    
+
+            Answer strictly with a JSON object following this schema:
+            {
+              "action": "enhance", // "enhance" if the issue should be enhanced, "close" if it should be closed
+              "enhancedDescription": "Updated issue description with testable acceptance criteria", // Only if action is "enhance"
+              "relevantLibraryDocuments": ["document1.md", "document2.md"], // Array of relevant library document names, only if action is "enhance"
+              "closeReason": "Explanation of why the issue was closed" // Only if action is "close"
+            }
+            Ensure valid JSON.
+            `;
+
+            const ResponseSchema = z.object({ 
+              action: z.enum(["enhance", "close"]), 
+              enhancedDescription: z.string().optional(), 
+              relevantLibraryDocuments: z.array(z.string()).optional(),
+              closeReason: z.string().optional()
+            });
+
+            // Define the function schema for function calling
+            const tools = [{
+              type: "function",
+              function: {
+                name: "enhance_issue",
+                description: "Evaluate whether a GitHub issue should be enhanced or closed. If enhanced, provide updated description and relevant library documents. If closed, provide a reason.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    action: { 
+                      type: "string", 
+                      enum: ["enhance", "close"],
+                      description: "Whether to enhance the issue or close it" 
+                    },
+                    enhancedDescription: { 
+                      type: "string", 
+                      description: "Updated issue description with testable acceptance criteria. Only required if action is 'enhance'." 
+                    },
+                    relevantLibraryDocuments: { 
+                      type: "array", 
+                      items: { type: "string" },
+                      description: "Array of relevant library document names. Only required if action is 'enhance'." 
+                    },
+                    closeReason: { 
+                      type: "string", 
+                      description: "Explanation of why the issue was closed. Only required if action is 'close'." 
+                    }
+                  },
+                  required: ["action"],
+                  additionalProperties: false
+                },
+                strict: true
+              }
+            }];
+
+            // Call OpenAI using function calling format
+            const response = await openai.chat.completions.create({
+              model,
+              messages: [
+                { role: "system", content: "You are evaluating whether a GitHub issue should be enhanced or closed based on its relevance and value. Answer strictly with a JSON object following the provided function schema." },
+                { role: "user", content: prompt }
+              ],
+              tools: tools
+            });
+
+            let result;
+            if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
+              try {
+                result = JSON.parse(response.choices[0].message.tool_calls[0].function.arguments);
+              } catch (e) {
+                core.setFailed(`Failed to parse function call arguments: ${e.message}`);
+              }
+            } else if (response.choices[0].message.content) {
+              try {
+                result = JSON.parse(response.choices[0].message.content);
+              } catch (e) {
+                core.setFailed(`Failed to parse response content: ${e.message}`);
+              }
+            } else {
+              core.setFailed("No valid response received from OpenAI.");
+            }
+
+            try {
+              const parsed = ResponseSchema.parse(result);
+              core.setOutput("action", parsed.action);
+              
+              if (parsed.action === "enhance") {
+                core.setOutput("enhancedDescription", parsed.enhancedDescription || "");
+                core.setOutput("relevantLibraryDocuments", JSON.stringify(parsed.relevantLibraryDocuments || []));
+                core.info(`action: "enhance"`);
+                core.info(`enhancedDescription: "${parsed.enhancedDescription}"`);
+                core.info(`relevantLibraryDocuments: ${JSON.stringify(parsed.relevantLibraryDocuments)}`);
+                
+                // Update issue description
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  body: parsed.enhancedDescription
+                });
+                
+                // Add 'ready' label
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  labels: ['ready']
+                });
+                
+                // Add relevant library documents as comments
+                if (parsed.relevantLibraryDocuments && parsed.relevantLibraryDocuments.length > 0) {
+                  for (const docName of parsed.relevantLibraryDocuments) {
+                    const doc = libraryFiles.find(file => file.name === docName);
+                    if (doc) {
+                      await github.rest.issues.createComment({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: issueNumber,
+                        body: `## Relevant Library Document: ${docName}\n\n${doc.content}`
+                      });
+                    }
+                  }
+                }
+                
+                // Add a comment indicating the issue has been enhanced
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  body: "This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents have been added as comments."
+                });
+              } else {
+                core.setOutput("closeReason", parsed.closeReason || "");
+                core.info(`action: "close"`);
+                core.info(`closeReason: "${parsed.closeReason}"`);
+                
+                // Add a comment explaining why the issue was closed
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  body: parsed.closeReason
+                });
+                
+                // Close the issue
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  state: "closed"
+                });
+              }
+            } catch (e) {
+              core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
+            }
+
+            core.setOutput("response", JSON.stringify(response));
+            core.setOutput("usage", JSON.stringify(response.usage));
+            core.info(`response: "${JSON.stringify(response)}"`);
+            core.info(`usage: "${JSON.stringify(response.usage)}"`);
+
+    outputs:
+      action: ${{ steps.enhance-issue.outputs.action }}
+      enhancedDescription: ${{ steps.enhance-issue.outputs.enhancedDescription }}
+      relevantLibraryDocuments: ${{ steps.enhance-issue.outputs.relevantLibraryDocuments }}
+      closeReason: ${{ steps.enhance-issue.outputs.closeReason }}

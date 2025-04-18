@@ -635,10 +635,10 @@ Re-usable GitHub Actions Workflows:
 - [x] apply-fix to add issue details to the completion request.
 - [x] semantic versioning for releasing versions.
 - [~] [r0w-MVP] Add an issue refiner that picks and issues either sets 'ready', improves the issue, or closes it if irrelevant. (Then change the issue worker to look for 'ready' issues.)
-- [ ] [r0w-MVP] Attach relevant context from the library to an issue during refinement (and stop sending the whole libary to the issue worker). 
-- [ ] [r0w-MVP] Extract prompt text to AGENT.md files.
-- [ ] [r0w-MVP] Allow user supplied sources files for building the library.
+- [~] [r0w-MVP] Attach relevant context from the library to an issue during refinement (and stop sending the whole libary to the issue worker). 
+- [~] [r0w-MVP] Extract prompt text to AGENT.md files.
 - [ ] [r0w-MVP] agentic-lib.yml list of files which are allowed to be changed or edited and by which agents (perhaps in the AGENT.md files)
+- [ ] [r0w-MVP] Allow user supplied sources files for building the library.
 - [ ] [r0w-MVP] Mark in-progress issues as such, (Then change the issue worker to ignore 'in-progress' issues.)
 - [ ] [r0w-MVP] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
 - [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.

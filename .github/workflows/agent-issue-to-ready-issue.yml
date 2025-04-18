@@ -85,11 +85,40 @@ jobs:
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
-  # TODO: Implement agent-issue-to-ready-issue
+  enhance-issue:
+    needs:
+      - select-issue
+      - agentic-lib
+    if: ${{ needs.select-issue.outputs.issueNumber != '' }}
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@main'
+    with:
+      issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
+      featuresDir: './features'
+      libraryDir: 'library/'
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
+      readmeFile: 'README.md'
+      missionFile: 'MISSION.md'
+      contributingFile: 'CONTRIBUTING.md'
+      dependenciesFile: 'package.json'
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+      promptFile: 'AGENT_READY_ISSUE.md'
+      model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      npmAuthOrganisation: ${{ env.npmAuthOrganisation }}
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   stats:
     needs:
       - select-issue
+      - enhance-issue
     if: ${{ always() }}
     permissions:
       contents: write
