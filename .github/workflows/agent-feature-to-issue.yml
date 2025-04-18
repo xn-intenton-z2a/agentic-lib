@@ -21,6 +21,15 @@ on:
     #- cron: '0 */1 1-3,5-7,9-11,13-15,17-19,21-23,25-27,29-31 * *' # schedule-3
     #- cron: '0,27,43 */1 1-3,5-7,9-11,13-15,17-19,21-23,25-27,29-31 * *' # schedule-4
 
+env:
+  npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+  public: ${{ vars.public || 'public' }}
+  s3BucketUrl: ${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}
+  s3WebsiteBucketUrl: ${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}
+  iamActionsRoleArn: ${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}§
+  iamStatsBucketWriterRoleArn: ${{ vars.iamStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role' }}
+  iamPublicWebsiteStatsBucketWriterRoleArn: ${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}
+
 jobs:
 
   agentic-lib:
@@ -143,15 +152,15 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@main'
     with:
       cache: 'npm'
-      npmAuthOrganisation: '@xn-intenton-z2a'
+      npmAuthOrganisation: ${{ env.npmAuthOrganisation }}
       lastActivityName: ${{ github.workflow }}
       lastActivityBranchName: ${{ github.ref_name }}
       nextIssue: "[${{ needs.select-issue.outputs.issueNumber }}] ${{ needs.select-issue.outputs.issueTitle }} ${{ needs.select-issue.outputs.issueLabels }}"
       public: 'public'
-      s3BucketUrl: 's3://agentic-lib-telemetry-bucket/events/'
-      s3WebsiteBucketUrl: 's3://agentic-lib-public-website-stats-bucket/'
-      iamActionsRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role'
-      iamStatsBucketWriterRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role'
-      iamPublicWebsiteStatsBucketWriterRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role'
+      s3BucketUrl: ${{ env.s3BucketUrl }}
+      s3WebsiteBucketUrl: ${{ env.s3WebsiteBucketUrl }}
+      iamActionsRoleArn: ${{ env.iamActionsRoleArn }}
+      iamStatsBucketWriterRoleArn: ${{ env.iamStatsBucketWriterRoleArn }}
+      iamPublicWebsiteStatsBucketWriterRoleArn: ${{ env.iamPublicWebsiteStatsBucketWriterRoleArn }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
