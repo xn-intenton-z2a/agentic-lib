@@ -634,15 +634,41 @@ Re-usable GitHub Actions Workflows:
 - [x] Dashboard metrics from github (e.g. GitHub Insights? commits by agents).
 - [x] apply-fix to add issue details to the completion request.
 - [x] semantic versioning for releasing versions.
-- [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
-- [ ] Generate API.md based on the source file.
-- [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
 - [~] Add an issue refiner that picks and issues either sets 'ready', improves the issue, or closes it if irrelevant. (Then change the issue worker to look for 'ready' issues.)
 - [ ] Mark in-progress issues as such, (Then change the issue worker to ignore 'in-progress' issues.)
 - [ ] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issues is not resolved.
-- [ ] Launch repository0-web
+- [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
+- [ ] Generate API.md based on the source file.
 
-Supervisor:
+Marketplace GitHub Actions:
+- [ ] Extract prompt text to AGENT.md files.
+- [ ] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+- [ ] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
+- [ ] Switch from github script actions to `run: node` and have the action run against a moving 'latest' tag. 
+See: [ACTIONS_JS_STEPS.md](library/ACTIONS_JS_STEPS.md)
+- [ ] Consolidate reusable workflows jobs into a single GitHub Action GitHub Script step.
+- [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
+- [ ] Move GitHub JS Actions to a GitHub distributed Action.
+- [ ] Build GitHub Action with the release process.
+- [ ] Switch example workflows to use the GitHub Actions.
+- [ ] Convert the actions library JS to an SDK and make available as an API.
+
+Repository0-web:
+- [ ] New template for the repository0-web repository.
+- [ ] Reduce distributed workflows to web publishing and node ci only.
+- [ ] Create example templates using content from the library.
+- [ ] Identify range of means of accessing the library content.
+- [ ] Add owl tags to the library content.
+- [ ] Extract owl from the library content into JSON and publish as content.
+- [ ] Also collect a library of assets downloaded from the crawls.
+- [ ] Store and present license and content attribution information on the generated website.
+- [ ] Create generator script / action to create the mission.
+- [ ] agent-discussions to be able to initialise the repository from a discussions post.
+- [ ] Allow user sources files.
+- [ ] agentic-lib.allow list of files which are allowed to be changed. 
+- [ ] Hand off to supervisor:chat : (free) Orchestrate the creation of a repository0-web templated repository via GitHub Discussions Chat.
+
+supervisor:
 - [x] Deploy a s3-sqs-bridge Stack from the agentic-lib project.
 - [x] Publish GitHub telemetry data to S3.
 - [x] Reintegrate the s3-sqs-bridge workflows with agentic-lib.
@@ -669,23 +695,35 @@ Supervisor:
 - [x] Expose check states in the stats.
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix) and relabel "engine" to "schedule".
 
+supervisor: chat-pro
+- [ ] (free) Orchestrate the creation of a repository0-web templated repository via GitHub Discussions Chat.
+- [ ] (paid) Guide and receive feedback from a repository0-web templated repository via a Slack bot or GitHub Discussions 
+- [ ] (capped) Join the AI repositories about their features to talk about their features on Slack.
+- [ ] Re-occurring billing platform integration.
+- [ ] (paid) Provision ChatGPT API keys directly to the target repository.
+- [ ] Usage analytics for users.
+- [ ] (paid) Usage throttling for issued ChatGPT API keys.
+- [ ] Costing model for ChatGPT API keys.
+- [ ] Support multiple keys per repository.
+- [ ] Support multiple repositories per account.
+- [ ] Add page to libray browser plugin.
+- [ ] (paid) Remember all interactions and use as context for future interactions.
+- [ ] (paid) Analyse user interactions vs actual outcomes and bring this to the user's attention.
+- [ ] (paid) Suggest improvements to the user and changes in direction with the user.
+- [ ] Principle: Charge a margin on top of dynamically calculated shared platform costs.
+- [ ] Principle: Offer free tier features where there is no running cost (e.g. libraries).
+- [ ] Principle: For every paid feature there is a self-hosted or BYOKeys alternative.
+
 Supervisor launch:
-- [ ] Publish a demo to GitHub sites that animates issue workflow, git logs applying changes to files and raising PRs with live links to the repository and a draggable timeline.
-
-Marketplace GitHub Actions:
-- [ ] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-- [ ] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
-- [ ] Set repository0 to skip github pages and s3 by default
-- [ ] Expose the stats generate-stats step as a GitHub Action.
-- [ ] Consolidate reusable workflows jobs into a single GitHub Action GitHub Script step.
-- [ ] Move GitHub Script to a GitHub Action.
-- [ ] Build GitHub Action with the release process.
-- [ ] Switch example workflows to use the GitHub Actions.
-- [ ] Convert the actions library JS to an SDK.
-
-Supervisor: chat
-- [ ] Orchestrate the creation of a repository0-web templated repository via GitHub Discussions Chat (free).
-- [ ] Guide and receive feedback from a repository0-web templated repository via a Slack bot or GitHub Discussions (paid).
+- [ ] Show which agent is operating in a swim lane with a solid region where they were active.
+- [ ] Live links to the repository on a commit branch visualisation with draggable timeline.
+- [ ] Generate and publish to GitHub pages for the repository.
+- [ ] An Agent annotation of the change linked to a commit branch visualisation.
+- [ ] Animate issue workflow.
+- [ ] Animate git logs applying changes to files
+- [ ] Animate raising PRs.
+- [ ] Include this in the repository0 template.
+- [ ] Run live mode with a real-time scrolling timeline.
 
 ---
 
