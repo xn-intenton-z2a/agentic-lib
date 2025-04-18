@@ -8,7 +8,10 @@ ENV HANDLER=$HANDLER
 ARG PERSONAL_ACCESS_TOKEN
 ENV PERSONAL_ACCESS_TOKEN=$PERSONAL_ACCESS_TOKEN
 
-RUN echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" > ~/.npmrc
+ARG NPM_AUTH_ORGANISATION=@xn-intenton-z2a
+ENV NPM_AUTH_ORGANISATION=$NPM_AUTH_ORGANISATION
+
+RUN echo "$NPM_AUTH_ORGANISATION:registry=https://npm.pkg.github.com" > ~/.npmrc
 RUN echo "//npm.pkg.github.com/:_authToken=$PERSONAL_ACCESS_TOKEN" >> ~/.npmrc
 RUN echo "always-auth=true" >> ~/.npmrc
 

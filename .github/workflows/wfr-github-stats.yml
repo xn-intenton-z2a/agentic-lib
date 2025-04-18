@@ -134,6 +134,7 @@ jobs:
           cache: ${{ env.cache }}
 
       - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
         run: |
           echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc

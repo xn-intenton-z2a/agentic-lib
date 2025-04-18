@@ -30,6 +30,9 @@ on:
     #- cron: '22 */3 * * *' # schedule-3
     #- cron: '22 */3 * * *' # schedule-4
 
+env:
+  npmAuthOrganisation: '@xn-intenton-z2a'
+
 jobs:
 
   npm-test-and-run-main:
@@ -45,8 +48,10 @@ jobs:
           cache: 'npm'
 
       - name: Set up ~/.npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
         run: |
-          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 
@@ -75,8 +80,10 @@ jobs:
           cache: 'npm'
 
       - name: Set up ~/.npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
         run: |
-          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 
@@ -144,8 +151,10 @@ jobs:
           cache: 'npm'
 
       - name: Set up ~/.npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
         run: |
-          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 

@@ -79,7 +79,7 @@ jobs:
 
       - name: Configure npm for GitHub Packages
         run: |
-          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
           echo "always-auth=true"              >> .npmrc
 
