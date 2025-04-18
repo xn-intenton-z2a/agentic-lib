@@ -634,38 +634,38 @@ Re-usable GitHub Actions Workflows:
 - [x] Dashboard metrics from github (e.g. GitHub Insights? commits by agents).
 - [x] apply-fix to add issue details to the completion request.
 - [x] semantic versioning for releasing versions.
-- [~] Add an issue refiner that picks and issues either sets 'ready', improves the issue, or closes it if irrelevant. (Then change the issue worker to look for 'ready' issues.)
-- [ ] Mark in-progress issues as such, (Then change the issue worker to ignore 'in-progress' issues.)
-- [ ] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issues is not resolved.
+- [~] [r0w-MVP] Add an issue refiner that picks and issues either sets 'ready', improves the issue, or closes it if irrelevant. (Then change the issue worker to look for 'ready' issues.)
+- [ ] [r0w-MVP] Attach relevant context from the library to an issue during refinement (and stop sending the whole libary to the issue worker). 
+- [ ] [r0w-MVP] Mark in-progress issues as such, (Then change the issue worker to ignore 'in-progress' issues.)
+- [ ] [r0w-MVP] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
 - [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
 - [ ] Generate API.md based on the source file.
 
 Marketplace GitHub Actions:
-- [ ] Extract prompt text to AGENT.md files.
-- [ ] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-- [ ] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
-- [ ] Switch from github script actions to `run: node` and have the action run against a moving 'latest' tag. 
+- [ ] [r0w-MVP] Extract prompt text to AGENT.md files.
+- [ ] [r0w-MVP] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+- [ ] [r0w-MVP] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
+- [ ] [r0w-MVP] Switch from github script actions to `run: node` and have the action run against a moving 'latest' tag. 
 See: [ACTIONS_JS_STEPS.md](library/ACTIONS_JS_STEPS.md)
-- [ ] Consolidate reusable workflows jobs into a single GitHub Action GitHub Script step.
-- [ ] Expose parameters for wrapped action steps with defaults matching the action steps defaults behaviour.
-- [ ] Move GitHub JS Actions to a GitHub distributed Action.
-- [ ] Build GitHub Action with the release process.
-- [ ] Switch example workflows to use the GitHub Actions.
-- [ ] Convert the actions library JS to an SDK and make available as an API.
+- [ ] [r0w-MVP] Expose all parameters for wrapped action steps with defaults matching the action step's default behaviour.
+- [ ] [r0w-MVP] Move JS Steps to a GitHub distributed Action.
+- [ ] Convert the actions library JS to an SDK.
+- [ ] Make the SDK available as an API.
+- [ ] Make the API available as an MCP server.
 
 Repository0-web:
-- [ ] New template for the repository0-web repository.
-- [ ] Reduce distributed workflows to web publishing and node ci only.
-- [ ] Create example templates using content from the library.
-- [ ] Identify range of means of accessing the library content.
-- [ ] Add owl tags to the library content.
-- [ ] Extract owl from the library content into JSON and publish as content.
-- [ ] Also collect a library of assets downloaded from the crawls.
-- [ ] Store and present license and content attribution information on the generated website.
-- [ ] Create generator script / action to create the mission.
-- [ ] agent-discussions to be able to initialise the repository from a discussions post.
-- [ ] Allow user sources files.
-- [ ] agentic-lib.allow list of files which are allowed to be changed. 
+- [ ] [r0w-MVP] New template for the repository0-web repository.
+- [ ] [r0w-MVP] Reduce distributed workflows to web publishing and node ci only.
+- [ ] [r0w-MVP] Create example templates using content from the library.
+- [ ] [r0w-MVP] Identify range of means of accessing the library content (e.g. EJS, REST).
+- [ ] [r0w-MVP] Add owl tags to the library content.
+- [ ] [r0w-MVP] Extract owl from the library content into JSON and publish as content.
+- [ ] [r0w-MVP] Collect a library of assets downloaded from the crawls.
+- [ ] [r0w-MVP] Store and present license and content attribution information on the generated website.
+- [ ] [r0w-MVP] Create generator script / action to create the mission from some supplied text.
+- [ ] [r0w-MVP] agent-discussions to be able to initialise the repository from a discussions post.
+- [ ] [r0w-MVP] Allow user supplied sources files for building the library.
+- [ ] [r0w-MVP] agentic-lib.yml list of files which are allowed to be changed or edited and by which agents (perhaps in the AGENT.md files)
 - [ ] Hand off to supervisor:chat : (free) Orchestrate the creation of a repository0-web templated repository via GitHub Discussions Chat.
 
 supervisor:
@@ -707,6 +707,7 @@ supervisor: chat-pro
 - [ ] Support multiple keys per repository.
 - [ ] Support multiple repositories per account.
 - [ ] Add page to libray browser plugin.
+- [ ] Talk to the code: Slack bot in your work Slack taking instructions from humans.
 - [ ] (paid) Remember all interactions and use as context for future interactions.
 - [ ] (paid) Analyse user interactions vs actual outcomes and bring this to the user's attention.
 - [ ] (paid) Suggest improvements to the user and changes in direction with the user.
