@@ -654,6 +654,8 @@ as input parameters to the re-usable workflow and set defaults both
 for workflow invocation input parameters and schedule 
 (by setting it in an environment variable in my style). 
 The default should match the action step's default behaviour ideally ''. 
+Review all the parameters where re-usable workflows are used and ensure 
+that any parameters that are filepaths are stated explicitly in the calling workflow.
 - [ ] [r0w-MVP] Switch from github script actions to `run: node` and have the action run against a moving 'latest' tag. 
 See: [ACTIONS_JS_STEPS.md](library/ACTIONS_JS_STEPS.md)
 - [ ] [r0w-MVP] Move JS Steps to a GitHub distributed Action.
