@@ -91,7 +91,7 @@ You already do this pattern in other jobs citeturn0file4:</p>
 
       - name: Configure npm for GitHub Packages
         run: |
-          echo &quot;@xn-intenton-z2a:registry=https://npm.pkg.github.com&quot; &gt;&gt; .npmrc
+          echo &quot;${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com&quot; &gt;&gt; .npmrc
           echo &quot;//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}&quot; &gt;&gt; .npmrc
           echo &quot;always-auth=true&quot;              &gt;&gt; .npmrc
 
@@ -138,7 +138,7 @@ When you want to update the action, just bump the dependency and re‑compile in
 
   </section>
   <footer>
-    <p>Generated on 2025-04-18T12:25:35.477Z</p>
+    <p>Generated on 2025-04-19T22:55:02.662Z</p>
   </footer>
 </body>
 </html>
