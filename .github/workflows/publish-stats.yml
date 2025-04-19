@@ -45,9 +45,9 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@main'
     with:
       cache: 'npm'
-      npmAuthOrganisation: ${{ env.npmAuthOrganisation }}
-      lastActivityName: ${{ github.workflow }}
-      lastActivityBranchName: ${{ github.ref_name }}
+      npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
+      lastActivityName: "${{ github.workflow }}"
+      lastActivityBranchName: "${{ github.ref_name }}"
       nextIssue: "[${{ needs.select-issue.outputs.issueNumber }}] ${{ needs.select-issue.outputs.issueTitle }} ${{ needs.select-issue.outputs.issueLabels }}"
       s3BucketUrl: 's3://agentic-lib-telemetry-bucket/events/'
       s3WebsiteBucketUrl: 's3://agentic-lib-public-website-stats-bucket/'
