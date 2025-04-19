@@ -34,7 +34,7 @@ on:
         required: false
         default: 'house choice'
       sourcesFile:
-        description: 'The file to create/update the sources in. e.g. "SOURCES.md"'
+        description: 'The file to create/update the sources in. Can include wildcards for multiple files. e.g. "SOURCES.md" or "SOURCES*.md"'
         type: string
         required: false
         default: 'SOURCES.md'
@@ -195,16 +195,39 @@ jobs:
         id: touch
         shell: bash
         run: |
-          if [ ! -f "${{ env.sourcesFile }}" ]; then
-            echo "Creating sources file ${GITHUB_WORKSPACE}/${{ env.sourcesFile }}"
-            touch "${{ env.sourcesFile }}"
-            ls -lrt "${{ env.sourcesFile }}"
-            cat "${{ env.sourcesFile }}"
+          # Check if sourcesFile contains a wildcard
+          if [[ "${{ env.sourcesFile }}" == *"*"* ]]; then
+            # Get the pattern and create the main file if it doesn't exist
+            # For example, if pattern is SOURCES*.md, create SOURCES.md if it doesn't exist
+            mainFile=$(echo "${{ env.sourcesFile }}" | sed 's/\*//g')
+            if [ ! -f "$mainFile" ]; then
+              echo "Creating main sources file ${GITHUB_WORKSPACE}/$mainFile"
+              touch "$mainFile"
+              ls -lrt "$mainFile"
+              cat "$mainFile"
+            else
+              echo "Touching main sources file ${GITHUB_WORKSPACE}/$mainFile"
+              touch "$mainFile"
+              ls -lrt "$mainFile"
+              cat "$mainFile"
+            fi
+
+            # List all files matching the pattern
+            echo "Files matching pattern ${{ env.sourcesFile }}:"
+            ls -la ${{ env.sourcesFile }} 2>/dev/null || echo "No files found matching ${{ env.sourcesFile }}"
           else
-            echo "Touching sources file ${GITHUB_WORKSPACE}/${{ env.sourcesFile }}"
-            touch "${{ env.sourcesFile }}"
-            ls -lrt "${{ env.sourcesFile }}"
-            cat "${{ env.sourcesFile }}"
+            # Handle single file case
+            if [ ! -f "${{ env.sourcesFile }}" ]; then
+              echo "Creating sources file ${GITHUB_WORKSPACE}/${{ env.sourcesFile }}"
+              touch "${{ env.sourcesFile }}"
+              ls -lrt "${{ env.sourcesFile }}"
+              cat "${{ env.sourcesFile }}"
+            else
+              echo "Touching sources file ${GITHUB_WORKSPACE}/${{ env.sourcesFile }}"
+              touch "${{ env.sourcesFile }}"
+              ls -lrt "${{ env.sourcesFile }}"
+              cat "${{ env.sourcesFile }}"
+            fi
           fi
 
       - name: maintain-sources
@@ -251,9 +274,41 @@ jobs:
             core.info(`contributingFile: "${contributingFile}"`);
             core.info(`dependenciesFile: "${dependenciesFile}"`);
 
-            core.info(`Loading sources directory file '${sourcesFile}'...`);            
-            const sourcesFileContent = fs.readFileSync(sourcesFile, 'utf8');
-            core.info(`Sources directory file '${sourcesFile}' has been loaded (length ${sourcesFileContent.length}).`);
+            core.info(`Loading sources directory file(s) '${sourcesFile}'...`);
+
+            let sourcesFileContent = '';
+
+            // If sourcesFile contains a wildcard, find all matching files
+            if (sourcesFile.includes('*')) {
+              const sourcesPattern = sourcesFile;
+              const sourcesDir = path.dirname(sourcesPattern);
+              const sourcesBasename = path.basename(sourcesPattern);
+              const sourcesRegex = new RegExp('^' + sourcesBasename.replace(/\*/g, '.*') + '$');
+
+              // Get all files in the directory
+              const files = fs.readdirSync(sourcesDir || '.');
+
+              // Filter files that match the pattern
+              const matchingFiles = files.filter(file => sourcesRegex.test(file))
+                .map(file => path.join(sourcesDir || '.', file));
+
+              core.info(`Found ${matchingFiles.length} sources files matching pattern '${sourcesPattern}': ${matchingFiles.join(', ')}`);
+
+              // Read content from all matching files
+              for (const file of matchingFiles) {
+                try {
+                  const content = fs.readFileSync(file, 'utf8');
+                  core.info(`Sources file '${file}' has been loaded (length ${content.length}).`);
+                  sourcesFileContent += content + '\n\n';
+                } catch (e) {
+                  core.warning(`Error reading sources file '${file}': ${e.message}`);
+                }
+              }
+            } else {
+              // Load a single sources file
+              sourcesFileContent = fs.readFileSync(sourcesFile, 'utf8');
+              core.info(`Sources directory file '${sourcesFile}' has been loaded (length ${sourcesFileContent.length}).`);
+            }
 
             const targetFileContent = fs.readFileSync(target, 'utf8');
             const testFileContent = fs.readFileSync(testFile, 'utf8');
@@ -422,7 +477,13 @@ jobs:
               core.info(`sourcesDirectoryFileContent: "${parsed.sourcesDirectoryFileContent}"`);
 
               const sourcesDirectoryFileContent = parsed.sourcesDirectoryFileContent;
-              const sourcesDirectoryFilePath = process.env.sourcesFile || 'SOURCES.md';
+              let sourcesDirectoryFilePath = process.env.sourcesFile || 'SOURCES.md';
+
+              // If sourcesFile contains a wildcard, write to the main file (with the wildcard removed)
+              if (sourcesDirectoryFilePath.includes('*')) {
+                sourcesDirectoryFilePath = sourcesDirectoryFilePath.replace(/\*/g, '');
+                core.info(`Writing to main sources file: ${sourcesDirectoryFilePath}`);
+              }
 
               try {
                 fs.writeFileSync(sourcesDirectoryFilePath, sourcesDirectoryFileContent);
@@ -447,8 +508,21 @@ jobs:
           git config --local user.email '${{ env.gitUserEmail }}'
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
-          git add -v --all '${{ env.sourcesFile }}'
-          git commit -m 'Maintain ${{ env.sourcesFile }}'
+
+          # If sourcesFile contains a wildcard, add all matching files
+          if [[ "${{ env.sourcesFile }}" == *"*"* ]]; then
+            echo "Adding all files matching pattern ${{ env.sourcesFile }}"
+            git add -v --all ${{ env.sourcesFile }}
+            # Also add the main file (with the wildcard removed)
+            mainFile=$(echo "${{ env.sourcesFile }}" | sed 's/\*//g')
+            git add -v --all "$mainFile"
+            git commit -m "Maintain sources files matching ${{ env.sourcesFile }}"
+          else
+            # Add the specific file
+            git add -v --all '${{ env.sourcesFile }}'
+            git commit -m "Maintain ${{ env.sourcesFile }}"
+          fi
+
           git status -v
           git pull --ff-only origin ${{ github.ref }}
           git push -v origin ${{ github.ref }}

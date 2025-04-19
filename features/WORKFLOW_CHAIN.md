@@ -7,7 +7,7 @@ This feature describes the interaction between the library, sources, and publish
 **Given** the source worker workflow is triggered,
 
 **Then** it:
-- Maintains the `SOURCES.md` file with URLs and metadata
+- Maintains the `SOURCES*.md` files with URLs and metadata (e.g., `SOURCES.md`, `SOURCES-WISHLIST.md`)
 - Updates source entries with new URLs and metadata
 - Validates source entries for proper formatting
 - Ensures sources have appropriate licensing information
@@ -16,7 +16,7 @@ This feature describes the interaction between the library, sources, and publish
 
 **Given** the library worker workflow is triggered,
 
-**When** source entries are available in `SOURCES.md`,
+**When** source entries are available in `SOURCES*.md` files,
 
 **Then** it:
 - Crawls URLs from source entries to gather content
@@ -42,7 +42,7 @@ This feature describes the interaction between the library, sources, and publish
 **Given** all three workflows are configured in the repository,
 
 **Then** they interact in the following way:
-1. The Source Worker maintains the `SOURCES.md` file with URLs and metadata
+1. The Source Worker maintains the `SOURCES*.md` files with URLs and metadata (e.g., `SOURCES.md`, `SOURCES-WISHLIST.md`)
 2. The Library Worker uses the sources to create/update feature documents in the features directory
 3. The Publish Web workflow converts these feature documents to HTML and publishes them to GitHub Pages
 
@@ -90,8 +90,8 @@ This feature describes the interaction between the library, sources, and publish
 
 | Workflow | Input File | Output |
 |----------|------------|--------|
-| Source Worker | External URLs | `SOURCES.md` |
-| Library Worker | `SOURCES.md` | Feature files in `features/` |
+| Source Worker | External URLs | `SOURCES*.md` files |
+| Library Worker | `SOURCES*.md` files | Feature files in `features/` |
 | Publish Web | Feature files in `features/` | HTML in `public/` deployed to GitHub Pages |
 
 ---

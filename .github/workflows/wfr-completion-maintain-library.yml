@@ -176,9 +176,40 @@ jobs:
             core.info(`libraryDir: "${libraryDir}"`);
             core.info(`sourcesFile: "${sourcesFile}"`);
 
-            // Load the sources file
-            const sourcesFileContent = fs.readFileSync(sourcesFile, 'utf8');
-            core.info(`Sources file '${sourcesFile}' has been loaded (length ${sourcesFileContent.length}).`);
+            // Load the sources files (support for multiple SOURCES*.md files)
+            let sourcesFileContent = '';
+
+            // If sourcesFile contains a wildcard, find all matching files
+            if (sourcesFile.includes('*')) {
+              const sourcesPattern = sourcesFile;
+              const sourcesDir = path.dirname(sourcesPattern);
+              const sourcesBasename = path.basename(sourcesPattern);
+              const sourcesRegex = new RegExp('^' + sourcesBasename.replace(/\*/g, '.*') + '$');
+
+              // Get all files in the directory
+              const files = fs.readdirSync(sourcesDir || '.');
+
+              // Filter files that match the pattern
+              const matchingFiles = files.filter(file => sourcesRegex.test(file))
+                .map(file => path.join(sourcesDir || '.', file));
+
+              core.info(`Found ${matchingFiles.length} sources files matching pattern '${sourcesPattern}': ${matchingFiles.join(', ')}`);
+
+              // Read content from all matching files
+              for (const file of matchingFiles) {
+                try {
+                  const content = fs.readFileSync(file, 'utf8');
+                  core.info(`Sources file '${file}' has been loaded (length ${content.length}).`);
+                  sourcesFileContent += content + '\n\n';
+                } catch (e) {
+                  core.warning(`Error reading sources file '${file}': ${e.message}`);
+                }
+              }
+            } else {
+              // Load a single sources file
+              sourcesFileContent = fs.readFileSync(sourcesFile, 'utf8');
+              core.info(`Sources file '${sourcesFile}' has been loaded (length ${sourcesFileContent.length}).`);
+            }
 
             // Get list of existing library documents
             let existingDocuments = [];

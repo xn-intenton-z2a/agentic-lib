@@ -95,7 +95,7 @@ These workflows work together to maintain and publish feature documentation, cre
 - **Reusable Workflow:** [`wfr-completion-maintain-library.yml`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml)
 
 ### Source Worker (`source-worker.yml`)
-- **Function:** Maintains the sources file that provides URLs and metadata for the library worker.
+- **Function:** Maintains the sources files (SOURCES*.md) that provide URLs and metadata for the library worker.
 - **Reusable Workflow:** [`wfr-completion-maintain-sources.yml`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-sources.yml)
 
 ### Publish Web (`publish-web.yml`)
@@ -103,7 +103,7 @@ These workflows work together to maintain and publish feature documentation, cre
 - **Reusable Workflow:** [`wfr-github-publish-web.yml`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-publish-web.yml)
 
 ### Workflow Chain
-The workflows interact in sequence: Source Worker maintains `SOURCES.md` → Library Worker creates/updates feature documents → Publish Web converts features to HTML and publishes to GitHub Pages. This chain can be extended with OWL semantic markup for machine-readable metadata, document traceability, and attribution information.
+The workflows interact in sequence: Source Worker maintains `SOURCES*.md` files → Library Worker creates/updates feature documents → Publish Web converts features to HTML and publishes to GitHub Pages. This chain can be extended with OWL semantic markup for machine-readable metadata, document traceability, and attribution information.
 
 ---
 
@@ -637,10 +637,10 @@ Re-usable GitHub Actions Workflows:
 - [~] [r0w-MVP] Add an issue refiner that picks and issues either sets 'ready', improves the issue, or closes it if irrelevant. (Then change the issue worker to look for 'ready' issues.)
 - [~] [r0w-MVP] Attach relevant context from the library to an issue during refinement (and stop sending the whole libary to the issue worker). 
 - [~] [r0w-MVP] Extract prompt text to AGENT.md files.
-- [ ] [r0w-MVP] agentic-lib.yml list of files which are allowed to be changed or edited and by which agents (perhaps in the AGENT.md files)
-- [ ] [r0w-MVP] Allow user supplied sources files for building the library.
-- [ ] [r0w-MVP] Mark in-progress issues as such, (Then change the issue worker to ignore 'in-progress' issues.)
+- [~] [r0w-MVP] Allow user supplied sources files for building the library.
+- [ ] [r0w-MVP] Mark in-progress issues as such, and change the issue worker to ignore 'in-progress' issues.
 - [ ] [r0w-MVP] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
+- [ ] [r0w-MVP] agentic-lib.yml list of files which are allowed to be changed or edited and by which agents (perhaps in the AGENT.md files)
 - [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
 - [ ] Generate API.md based on the source file.
 

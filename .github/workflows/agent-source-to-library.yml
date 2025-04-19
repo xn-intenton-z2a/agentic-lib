@@ -62,7 +62,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml@main'
     with:
       libraryDir: 'library/'
-      sourcesFile: 'SOURCES.md'
+      sourcesFile: 'SOURCES*.md'
       documentsLimit: '${{ needs.agentic-lib.outputs.documentsLimit }}'
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: '@xn-intenton-z2a'
