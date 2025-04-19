@@ -97,3 +97,18 @@ Markdown-it is a fast, flexible Markdown parser for JavaScript that converts Mar
 ## https://github.com/nodesecurity/eslint-plugin-security
 This documentation provides guidelines for integrating security-focused linting into your JavaScript projects using ESLint Plugin Security. It includes usage instructions and examples to help detect potential security issues in your code.
 ## License: BSD-2-Clause
+
+# GitLab CI/CD Documentation
+## https://docs.gitlab.com/ee/ci/
+The GitLab CI/CD documentation provides extensive guidance on configuring and managing CI/CD pipelines using GitLab's integrated tools. It covers pipeline configuration syntax, best practices for automation, and troubleshooting common issues while leveraging GitLab's robust platform.
+## License: GitLab Docs Terms
+
+# Jenkins Documentation
+## https://www.jenkins.io/doc/
+Jenkins documentation offers in-depth guides on setting up, configuring, and customizing Jenkins for continuous integration and delivery. It covers pipeline creation, plugin usage, security configurations, and maintenance best practices, maintained by a vibrant community of contributors.
+## License: Jenkins Open Source Project
+
+# Terraform Documentation
+## https://www.terraform.io/docs
+Terraform's documentation provides comprehensive resources for infrastructure as code, including guides on writing configurations, managing state, using modules, and best practices for scalable and secure infrastructure management. It is maintained by HashiCorp and periodically updated with new features and improvements.
+## License: Mozilla Public License 2.0
