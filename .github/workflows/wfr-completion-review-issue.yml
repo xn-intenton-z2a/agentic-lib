@@ -481,25 +481,72 @@ jobs:
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`response: "${JSON.stringify(response)}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
-      - name: Close fixed issues
-        if: steps.verify.outputs.fixed == 'true'
+      - name: Handle issue labels and status
+        id: handle-issue
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
             const issueNumber = parseInt("${{ env.issueNumber }}");
-            await github.rest.issues.createComment({
+            const isFixed = "${{ steps.verify.outputs.fixed }}" === "true";
+
+            // Get current issue labels
+            const { data: issue } = await github.rest.issues.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: issueNumber,
-              body: "The issue has been automatically resolved and the fix has been merged."
+              issue_number: issueNumber
             });
-            await github.rest.issues.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              state: "closed"
-            });
+
+            if (isFixed) {
+              // If issue is fixed, close it
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: "The issue has been automatically resolved and the fix has been merged."
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                state: "closed"
+              });
+            } else {
+              // If issue is not fixed, remove 'in-progress' label and restore 'automated' label
+              const hasInProgressLabel = issue.labels.some(label => label.name === 'in-progress');
+              const hasAutomatedLabel = issue.labels.some(label => label.name === 'automated');
+
+              if (hasInProgressLabel) {
+                // Remove 'in-progress' label
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  name: 'in-progress'
+                });
+
+                core.info(`Removed 'in-progress' label from issue #${issueNumber}`);
+              }
+
+              if (!hasAutomatedLabel) {
+                // Add 'automated' label
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  labels: ['automated']
+                });
+
+                core.info(`Added 'automated' label to issue #${issueNumber}`);
+              }
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: "The issue was not resolved. It has been returned to the automated queue for further processing."
+              });
+            }
 
     outputs:
       fixed: ${{ steps.verify.outputs.fixed }}

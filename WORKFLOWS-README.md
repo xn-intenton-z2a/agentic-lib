@@ -638,16 +638,22 @@ Re-usable GitHub Actions Workflows:
 - [~] [r0w-MVP] Attach relevant context from the library to an issue during refinement (and stop sending the whole libary to the issue worker). 
 - [~] [r0w-MVP] Extract prompt text to AGENT.md files.
 - [~] [r0w-MVP] Allow user supplied sources files for building the library.
-- [ ] [r0w-MVP] Mark in-progress issues as such, and change the issue worker to ignore 'in-progress' issues.
-- [ ] [r0w-MVP] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
-- [ ] [r0w-MVP] agentic-lib.yml list of files which are allowed to be changed or edited and by which agents (perhaps in the AGENT.md files)
+- [~] [r0w-MVP] Mark in-progress issues as such, and change the issue worker to ignore 'in-progress' issues.
+- [~] [r0w-MVP] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
+- [ ] [r0w-MVP] Add to agentic-lib.yml a list of filepath patterns which are allowed to be changed by agents (default: [ "features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md" ]) and have these checked before writing to a file.
+- [ ] [r0w-MVP] Add agentic-lib.yml a mapping for concepts such as src / tests / docs / sources / library and use these as defaults when invoking the workflows.
 - [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
 - [ ] Generate API.md based on the source file.
 
 Marketplace GitHub Actions:
 - [~] [r0w-MVP] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
 - [~] [r0w-MVP] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
-- [ ] [r0w-MVP] Expose all parameters for wrapped action steps with defaults matching the action step's default behaviour.
+- [ ] [r0w-MVP]
+Expose all parameters for wrapped action steps within re-usable workflows
+as input parameters to the re-usable workflow and set defaults both
+for workflow invocation input parameters and schedule 
+(by setting it in an environment variable in my style). 
+The default should match the action step's default behaviour ideally ''. 
 - [ ] [r0w-MVP] Switch from github script actions to `run: node` and have the action run against a moving 'latest' tag. 
 See: [ACTIONS_JS_STEPS.md](library/ACTIONS_JS_STEPS.md)
 - [ ] [r0w-MVP] Move JS Steps to a GitHub distributed Action.
@@ -657,7 +663,7 @@ See: [ACTIONS_JS_STEPS.md](library/ACTIONS_JS_STEPS.md)
 
 Repository0-web:
 - [ ] [r0w-MVP] New template for the repository0-web repository.
-- [ ] [r0w-MVP] Reduce distributed workflows to web publishing and node ci only.
+- [ ] [r0w-MVP] Reduce running of workflows to web publishing and node ci only.
 - [ ] [r0w-MVP] Create example templates using content from the library.
 - [ ] [r0w-MVP] Identify a range of means of accessing the library content (e.g. EJS, REST).
 - [ ] [r0w-MVP] Add owl tags to the library content.

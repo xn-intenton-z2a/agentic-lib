@@ -308,7 +308,7 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
           echo "always-auth=true" >> .npmrc
 
-      - name: Add "issueWorker-<run-id>" label
+      - name: Add "issueWorker-<run-id>" and "in-progress" labels
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -317,7 +317,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: "${{ needs.select-issue.outputs.issueNumber }}",
-              labels: [`issue-worker-${{ github.run_id }}`]
+              labels: [`issue-worker-${{ github.run_id }}`, `in-progress`]
             });
 
   apply-issue-resolution:
