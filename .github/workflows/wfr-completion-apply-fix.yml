@@ -44,10 +44,15 @@ on:
         required: false
         default: 'tests/unit/main.test.js'
       readmeFile:
-        description: 'The README file to review. e.g. "README.md"'
+        description: 'The README file to review (for context only). e.g. "README.md"'
         type: string
         required: false
         default: 'README.md'
+      docsFile:
+        description: 'The documentation file to write to. e.g. "docs/USAGE.md"'
+        type: string
+        required: false
+        default: 'docs/USAGE.md'
       missionFile:
         description: 'The MISSION statement file. e.g. "MISSION.md"'
         type: string
@@ -172,6 +177,7 @@ jobs:
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
+      docsFile: ${{ inputs.docsFile || 'docs/USAGE.md' }}
       missionFile: ${{ inputs.missionFile || 'MISSION.md' }}
       contributingFile: ${{ inputs.contributingFile || 'CONTRIBUTING.md' }}
       dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
@@ -344,6 +350,21 @@ jobs:
             const sourceFileContent = fs.readFileSync(target, 'utf8');
             const testFileContent = fs.readFileSync(testFile, 'utf8');
             const readmeFileContent = fs.readFileSync(readmeFile, 'utf8');
+            // Check if docsFile exists, if not create an empty file
+            let docsFileContent = '';
+            try {
+              if (fs.existsSync(docsFile)) {
+                docsFileContent = fs.readFileSync(docsFile, 'utf8');
+              } else {
+                // Create directory if it doesn't exist
+                const docsDir = path.dirname(docsFile);
+                if (!fs.existsSync(docsDir)) {
+                  fs.mkdirSync(docsDir, { recursive: true });
+                }
+              }
+            } catch (e) {
+              core.warning(`Error reading docs file: ${e.message}`);
+            }
             const missionFileContent = fs.readFileSync(missionFile, 'utf8');
             const contributingFileContent = fs.readFileSync(contributingFile, 'utf8');
             const dependenciesFileContent = fs.readFileSync(dependenciesFile, 'utf8');
@@ -353,6 +374,7 @@ jobs:
             core.info(`Target file '${target}' has been loaded (length ${sourceFileContent.length}).`);
             core.info(`Test file '${testFile}' has been loaded (length ${testFileContent.length}).`);
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
+            core.info(`Docs file '${docsFile}' has been loaded (length ${docsFileContent.length}).`);
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
             core.info(`Formatting file '${formattingFile}' has been loaded (length ${formattingFileContent.length}).`);
             core.info(`Linting file '${lintingFile}' has been loaded (length ${lintingFileContent.length}).`);
@@ -403,10 +425,15 @@ jobs:
             ${testFileContent}
             TEST_FILE_END
 
-            README file: ${readmeFile}
+            README file (for context only): ${readmeFile}
             README_FILE_START
             ${readmeFileContent}
             README_FILE_END
+
+            Documentation file (for writing): ${docsFile}
+            DOCS_FILE_START
+            ${docsFileContent}
+            DOCS_FILE_END
 
             MISSION file: ${missionFile}
             MISSION_FILE_START
@@ -453,14 +480,15 @@ jobs:
             ${mainOutput}
             MAIN_OUTPUT_END    
 
-            Please produce an updated version of the source file, and test file, and README and dependencies file that resolves the possible build or test problem.
+            Please produce an updated version of the source file, test file, documentation file (USAGE.md), and dependencies file that resolves the possible build or test problem.
             If there are no changes required, please provide the original content and state that no changes are necessary in the message.
+            Note that the README.md file is provided for context only - any documentation changes should be written to the documentation file (USAGE.md).
             Answer strictly with a JSON object following this schema:
 
             {
               "updatedSourceFileContent": "The entire new content of the source file, with all necessary changes applied, if any.",
               "updatedTestFileContent": "The entire new content of the test file, with all necessary changes applied, if any.",
-              "updatedReadmeFileContent": "The entire new content of the README file, with all necessary changes applied, if any.",
+              "updatedDocsFileContent": "The entire new content of the documentation file (USAGE.md), with all necessary changes applied, if any.",
               "updatedDependenciesFileContent": "The entire new content of the dependencies file, with all necessary changes applied, if any.",
               "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text."
             }
@@ -468,7 +496,7 @@ jobs:
             Ensure valid JSON.
             `;
 
-            const ResponseSchema = z.object({ updatedSourceFileContent: z.string(), updatedTestFileContent: z.string(), updatedReadmeFileContent: z.string(), updatedDependenciesFileContent: z.string(), message: z.string() });
+            const ResponseSchema = z.object({ updatedSourceFileContent: z.string(), updatedTestFileContent: z.string(), updatedDocsFileContent: z.string(), updatedDependenciesFileContent: z.string(), message: z.string() });
 
             // Define the function schema for functional calling
             const applyIssueResolutionToSource = [{
@@ -487,9 +515,9 @@ jobs:
                       type: "string",
                       description: "The entire new content of the test file, with all necessary changes applied, if any."
                     },
-                    updatedReadmeFileContent: {
+                    updatedDocsFileContent: {
                       type: "string",
-                      description: "The entire new content of the README file, with all necessary changes applied, if any."
+                      description: "The entire new content of the documentation file (USAGE.md), with all necessary changes applied, if any."
                     },
                     updatedDependenciesFileContent: {
                       type: "string",
@@ -500,7 +528,7 @@ jobs:
                       description: "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text."
                     }
                   },
-                  required: ["updatedSourceFileContent", "updatedTestFileContent", "updatedReadmeFileContent", "updatedDependenciesFileContent", "message"],
+                  required: ["updatedSourceFileContent", "updatedTestFileContent", "updatedDocsFileContent", "updatedDependenciesFileContent", "message"],
                   additionalProperties: false
                 },
                 strict: true
@@ -564,13 +592,18 @@ jobs:
                   core.warning(`Test file '${testFile}' is not in the allowed filepath patterns. Skipping update.`);
                 }
               }
-              if(parsed.updatedReadmeFileContent && parsed.updatedReadmeFileContent.length > 1 && parsed.updatedReadmeFileContent !== readmeFileContent) {
-                if (isFilePathAllowed(readmeFile, allowedFilepathPatterns)) {
-                  fs.writeFileSync(readmeFile, parsed.updatedReadmeFileContent, 'utf8');
+              if(parsed.updatedDocsFileContent && parsed.updatedDocsFileContent.length > 1 && parsed.updatedDocsFileContent !== docsFileContent) {
+                if (isFilePathAllowed(docsFile, allowedFilepathPatterns)) {
+                  // Create directory if it doesn't exist
+                  const docsDir = path.dirname(docsFile);
+                  if (!fs.existsSync(docsDir)) {
+                    fs.mkdirSync(docsDir, { recursive: true });
+                  }
+                  fs.writeFileSync(docsFile, parsed.updatedDocsFileContent, 'utf8');
                   fixApplied = true;
-                  core.info(`Readme file '${readmeFile}' has been updated (length ${parsed.updatedReadmeFileContent.length}).`);
+                  core.info(`Documentation file '${docsFile}' has been updated (length ${parsed.updatedDocsFileContent.length}).`);
                 } else {
-                  core.warning(`Readme file '${readmeFile}' is not in the allowed filepath patterns. Skipping update.`);
+                  core.warning(`Documentation file '${docsFile}' is not in the allowed filepath patterns. Skipping update.`);
                 }
               }
               if(parsed.updatedDependenciesFileContent && parsed.updatedDependenciesFileContent.length > 1 && parsed.updatedDependenciesFileContent !== dependenciesFileContent) {

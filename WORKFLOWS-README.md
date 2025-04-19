@@ -640,22 +640,18 @@ Re-usable GitHub Actions Workflows:
 - [~] [r0w-MVP] Allow user supplied sources files for building the library.
 - [~] [r0w-MVP] Mark in-progress issues as such, and change the issue worker to ignore 'in-progress' issues.
 - [~] [r0w-MVP] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
-- [ ] [r0w-MVP]
-Add to agentic-lib.yml a list of filepath patterns which are allowed to be changed by agents
-(default: [ "features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md" ]) 
-and have these checked before writing to a file.
-- [ ] [r0w-MVP] 
-Add to agentic-lib.yml a mapping for concepts such as src / tests / docs / sources / library 
-and use these as defaults when invoking the workflows and at any time a default is applied.
+- [~] [r0w-MVP] Add to agentic-lib.yml a list of filepath patterns which are allowed to be changed by agents (default: [ "features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md" ]) and have these checked before writing to a file.
+- [~] [r0w-MVP] Add to agentic-lib.yml a mapping for concepts such as src / tests / docs / sources / library  and use these as defaults when invoking the workflows and at any time a default is applied.
 - [ ] Support creation, edit and deletion of multiple files of each type (src, tests, docs, sources, library) etc.
-- [ ] PR review
+- [ ] Add a PR review workflow with a reviewer and responder.
+- [ ] Remove the prompts folder favouring the maintenance AGENT.md files.
 - [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
 - [ ] Generate API.md based on the source file.
 
 Marketplace GitHub Actions:
+- [x] [r0w-MVP] Review all the parameters where re-usable workflows are used and ensure that any parameters that are filepaths are stated explicitly in the calling workflow.
 - [~] [r0w-MVP] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
 - [~] [r0w-MVP] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
-- [x] [r0w-MVP] Review all the parameters where re-usable workflows are used and ensure that any parameters that are filepaths are stated explicitly in the calling workflow.
 - [ ] [r0w-MVP] Switch from github script actions to `run: node` and have the action run against a moving 'latest' tag. 
 See: [ACTIONS_JS_STEPS.md](library/ACTIONS_JS_STEPS.md)
 - [ ] [r0w-MVP] Add tests for the actions library JS and organise the code.
@@ -676,6 +672,11 @@ Repository0-web:
 - [ ] [r0w-MVP] Create a generator script / action to create the mission from some supplied text.
 - [ ] [r0w-MVP] agent-discussions to be able to initialise the repository from a discussions post.
 - [ ] Hand off to supervisor:chat : (free) Orchestrate the creation of a repository0-web templated repository via GitHub Discussions Chat.
+- [ ] ./news Similar to ./library but event based news sources are scanned and new articles collected and catalogued.
+- [ ] ./analysis news articles reviewed in the context of v library topics
+- [ ] ./socials feed of commentary created from analysis articles
+- [ ] (paid) Post to socials
+- [ ] (paid) Responders suggestions of content in comments added to sources.
 
 supervisor:
 - [x] Deploy a s3-sqs-bridge Stack from the agentic-lib project.
