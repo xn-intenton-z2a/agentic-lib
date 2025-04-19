@@ -98,6 +98,11 @@ on:
         type: string
         required: false
         default: ''
+      promptFile:
+        description: 'The file containing the prompt text. e.g. "AGENT-MAINTAIN-FEATURES.md"'
+        type: string
+        required: false
+        default: 'AGENT-MAINTAIN-FEATURES.md'
       iamRoleArn:
         description: 'The ARN of the IAM role to assume. e.g. "arn:aws:iam::123456789012:role/my-role"'
         type: string
@@ -133,6 +138,7 @@ jobs:
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      promptFile: ${{ inputs.promptFile || 'AGENT-MAINTAIN-FEATURES.md' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
 
@@ -221,6 +227,7 @@ jobs:
             const dependenciesFile = process.env.dependenciesFile;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
+            const promptFile = process.env.promptFile;
             const dependenciesListOutput = process.env.dependenciesListOutput;
 
             const fs = require('fs');
@@ -249,10 +256,12 @@ jobs:
             const missionFileContent = fs.readFileSync(missionFile, 'utf8');
             const contributingFileContent = fs.readFileSync(contributingFile, 'utf8');
             const dependenciesFileContent = fs.readFileSync(dependenciesFile, 'utf8');
+            const promptContent = fs.readFileSync(promptFile, 'utf8');
             core.info(`Target file '${target}' has been loaded (length ${sourceFileContent.length}).`);
             core.info(`Test file '${testFile}' has been loaded (length ${testFileContent.length}).`);
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
+            core.info(`Prompt file '${promptFile}' has been loaded (length ${promptContent.length}).`);
 
             // Load library documents
             let libraryDocuments = '';

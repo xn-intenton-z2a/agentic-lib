@@ -121,6 +121,11 @@ on:
         type: string
         required: false
         default: 'npm'
+      promptFile:
+        description: 'The file containing the prompt text. e.g. "AGENT-ISSUE-RESOLUTION.md"'
+        type: string
+        required: false
+        default: 'AGENT-ISSUE-RESOLUTION.md'
       s3BucketUrl:
         description: 'The S3 bucket URL with prefix to use. e.g. "s3://my-bucket/prefix"'
         type: string
@@ -184,6 +189,7 @@ jobs:
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
       cache: ${{ inputs.cache || 'npm' }}
+      promptFile: ${{ inputs.promptFile || 'AGENT-ISSUE-RESOLUTION.md' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
 
@@ -293,6 +299,7 @@ jobs:
             const lintingFile = process.env.lintingFile;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
+            const promptFile = process.env.promptFile;
             const issueNumber = parseInt(process.env.issueNumber);
             const dependenciesListOutput = process.env.dependenciesListOutput;
             const buildScript = process.env.buildScript;
@@ -330,12 +337,14 @@ jobs:
             const dependenciesFileContent = fs.readFileSync(dependenciesFile, 'utf8');
             const formattingFileContent = fs.readFileSync(formattingFile, 'utf8');
             const lintingFileContent = fs.readFileSync(lintingFile, 'utf8');
+            const promptContent = fs.readFileSync(promptFile, 'utf8');
             core.info(`Target file '${target}' has been loaded (length ${sourceFileContent.length}).`);
             core.info(`Test file '${testFile}' has been loaded (length ${testFileContent.length}).`);
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
             core.info(`Formatting file '${formattingFile}' has been loaded (length ${formattingFileContent.length}).`);
             core.info(`Linting file '${lintingFile}' has been loaded (length ${lintingFileContent.length}).`);
+            core.info(`Prompt file '${promptFile}' has been loaded (length ${promptContent.length}).`);
 
             // Load library documents
             let libraryDocuments = '';
@@ -376,26 +385,7 @@ jobs:
               .join('\n');
 
             const prompt = `
-            You are providing the entire new content of the source file, test file and README file with all necessary changes applied to resolve an issue.
-            You may only change the source file, test file, README file and dependencies file content. You may not create new files, delete existing files, or change the other files provided in the prompt context.
-            Consider the following when refining your response:
-            * Current feature names and specifications in the repository
-            * Source file content
-            * Test file content
-            * README file content
-            * MISSION file content
-            * Contributing file content
-            * Dependencies file content
-            * Formatting file content
-            * Linting file content
-            * Library documents
-            * Issue details
-            * Dependency list
-            * Build output
-            * Test output
-            * Main execution output
-
-            Apply the contributing guidelines to your response and when suggesting enhancements consider the tone and direction of the contributing guidelines.
+            ${promptContent}
 
             Current feature names and specifications:
             CURRENT_FEATURES_START

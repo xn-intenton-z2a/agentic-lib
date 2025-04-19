@@ -97,10 +97,10 @@ on:
         required: false
         default: 'npm'
       promptFile:
-        description: 'The file containing the prompt text. e.g. "AGENT_READY_ISSUE.md"'
+        description: 'The file containing the prompt text. e.g. "AGENT-READY-ISSUE.md"'
         type: string
         required: false
-        default: 'AGENT_READY_ISSUE.md'
+        default: 'AGENT-READY-ISSUE.md'
       npmAuthOrganisation:
         description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
         type: string
@@ -152,7 +152,7 @@ jobs:
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       cache: ${{ inputs.cache || 'npm' }}
-      promptFile: ${{ inputs.promptFile || 'AGENT_READY_ISSUE.md' }}
+      promptFile: ${{ inputs.promptFile || 'AGENT-READY-ISSUE.md' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
@@ -299,7 +299,7 @@ jobs:
             const contributingFileContent = fs.readFileSync(contributingFile, 'utf8');
             const dependenciesFileContent = fs.readFileSync(dependenciesFile, 'utf8');
             const promptContent = fs.readFileSync(promptFile, 'utf8');
-            
+
             core.info(`Target file '${target}' has been loaded (length ${sourceFileContent.length}).`);
             core.info(`Test file '${testFile}' has been loaded (length ${testFileContent.length}).`);
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
@@ -498,14 +498,14 @@ jobs:
             try {
               const parsed = ResponseSchema.parse(result);
               core.setOutput("action", parsed.action);
-              
+
               if (parsed.action === "enhance") {
                 core.setOutput("enhancedDescription", parsed.enhancedDescription || "");
                 core.setOutput("relevantLibraryDocuments", JSON.stringify(parsed.relevantLibraryDocuments || []));
                 core.info(`action: "enhance"`);
                 core.info(`enhancedDescription: "${parsed.enhancedDescription}"`);
                 core.info(`relevantLibraryDocuments: ${JSON.stringify(parsed.relevantLibraryDocuments)}`);
-                
+
                 // Update issue description
                 await github.rest.issues.update({
                   owner: context.repo.owner,
@@ -513,7 +513,7 @@ jobs:
                   issue_number: issueNumber,
                   body: parsed.enhancedDescription
                 });
-                
+
                 // Add 'ready' label
                 await github.rest.issues.addLabels({
                   owner: context.repo.owner,
@@ -521,7 +521,7 @@ jobs:
                   issue_number: issueNumber,
                   labels: ['ready']
                 });
-                
+
                 // Add relevant library documents as comments
                 if (parsed.relevantLibraryDocuments && parsed.relevantLibraryDocuments.length > 0) {
                   for (const docName of parsed.relevantLibraryDocuments) {
@@ -536,7 +536,7 @@ jobs:
                     }
                   }
                 }
-                
+
                 // Add a comment indicating the issue has been enhanced
                 await github.rest.issues.createComment({
                   owner: context.repo.owner,
@@ -548,7 +548,7 @@ jobs:
                 core.setOutput("closeReason", parsed.closeReason || "");
                 core.info(`action: "close"`);
                 core.info(`closeReason: "${parsed.closeReason}"`);
-                
+
                 // Add a comment explaining why the issue was closed
                 await github.rest.issues.createComment({
                   owner: context.repo.owner,
@@ -556,7 +556,7 @@ jobs:
                   issue_number: issueNumber,
                   body: parsed.closeReason
                 });
-                
+
                 // Close the issue
                 await github.rest.issues.update({
                   owner: context.repo.owner,

@@ -108,7 +108,7 @@ jobs:
       buildScript: 'npm run build'
       testScript: 'npm test'
       mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
-      promptFile: 'AGENT_READY_ISSUE.md'
+      promptFile: 'AGENT-READY-ISSUE.md'
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: ${{ env.npmAuthOrganisation }}
     secrets:
