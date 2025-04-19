@@ -34,45 +34,74 @@ jobs:
 
       - name: agentic-lib
         id: agentic-lib
-        shell: bash
-        run: |
-          if [ -f ".github/agentic-lib.yml" ]; then
-            documentsLimit=$(grep '^documentsLimit:' .github/agentic-lib.yml | awk '{print $2}')
-            if [ -z "$documentsLimit" ]; then
-              documentsLimit="3"
-              echo "Warning: documentsLimit not found in .github/agentic-lib.yml, using default value: ${documentsLimit}"
-            fi
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const yaml = require('js-yaml');
 
-            # Extract library path from writeableFilepaths
-            libraryDir=$(awk '/^writeableFilepaths:/,/^[^[:space:]]/ {if ($0 ~ /^[[:space:]]*library:/) print $2}' .github/agentic-lib.yml | sed 's/"//g')
-            if [ -z "$libraryDir" ]; then
-              libraryDir="library/"
-              echo "Warning: library path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${libraryDir}"
-            fi
+            // Default values
+            let documentsLimit = "3";
+            let libraryDir = "library/";
+            let sourcesFile = "SOURCES*.md";
+            let writeableFilepaths = [];
 
-            # Extract sources path from writeableFilepaths
-            sourcesFile=$(awk '/^writeableFilepaths:/,/^[^[:space:]]/ {if ($0 ~ /^[[:space:]]*sources:/) print $2}' .github/agentic-lib.yml | sed 's/"//g')
-            if [ -z "$sourcesFile" ]; then
-              sourcesFile="SOURCES*.md"
-              echo "Warning: sources path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${sourcesFile}"
-            fi
-          else
-            documentsLimit="3"
-            libraryDir="library/"
-            sourcesFile="SOURCES*.md"
-            echo "Warning: .github/agentic-lib.yml file not found, using default values: documentsLimit=${documentsLimit}, libraryDir=${libraryDir}, sourcesFile=${sourcesFile}"
-          fi
-          echo "documentsLimit=${documentsLimit}"
-          echo "documentsLimit=${documentsLimit}" >> $GITHUB_OUTPUT
-          echo "libraryDir=${libraryDir}"
-          echo "libraryDir=${libraryDir}" >> $GITHUB_OUTPUT
-          echo "sourcesFile=${sourcesFile}"
-          echo "sourcesFile=${sourcesFile}" >> $GITHUB_OUTPUT
+            // Check if agentic-lib.yml exists
+            const configPath = path.join('.github', 'agentic-lib.yml');
+            if (fs.existsSync(configPath)) {
+              try {
+                // Read and parse the YAML file
+                const fileContents = fs.readFileSync(configPath, 'utf8');
+                const config = yaml.load(fileContents);
 
-          # Extract writeable filepaths from writeableFilepaths values
-          writeableFilepaths=$(awk '/^writeableFilepaths:/,/^[^[:space:]]/ {if ($0 ~ /^[[:space:]]*[a-zA-Z0-9_-]+:/) print $2}' .github/agentic-lib.yml | sed 's/"//g' | grep -v '^$' | jq -R . | jq -s .)
-          echo "writeableFilepaths=${writeableFilepaths}"
-          echo "writeableFilepaths=${writeableFilepaths}" >> $GITHUB_OUTPUT
+                // Extract documentsLimit
+                if (config.documentsLimit) {
+                  documentsLimit = config.documentsLimit.toString();
+                } else {
+                  console.log(`Warning: documentsLimit not found in .github/agentic-lib.yml, using default value: ${documentsLimit}`);
+                }
+
+                // Extract library path from writeableFilepaths
+                if (config.writeableFilepaths && config.writeableFilepaths.library) {
+                  libraryDir = config.writeableFilepaths.library.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: library path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${libraryDir}`);
+                }
+
+                // Extract sources path from writeableFilepaths
+                if (config.writeableFilepaths && config.writeableFilepaths.sources) {
+                  sourcesFile = config.writeableFilepaths.sources.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: sources path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${sourcesFile}`);
+                }
+
+                // Extract all writeable filepaths
+                if (config.writeableFilepaths) {
+                  writeableFilepaths = Object.values(config.writeableFilepaths)
+                    .filter(value => value && value.trim() !== '')
+                    .map(value => value.replace(/"/g, ''));
+                }
+              } catch (error) {
+                console.log(`Error parsing .github/agentic-lib.yml: ${error.message}`);
+                console.log(`Using default values: documentsLimit=${documentsLimit}, libraryDir=${libraryDir}, sourcesFile=${sourcesFile}`);
+              }
+            } else {
+              console.log(`Warning: .github/agentic-lib.yml file not found, using default values: documentsLimit=${documentsLimit}, libraryDir=${libraryDir}, sourcesFile=${sourcesFile}`);
+            }
+
+            // Set outputs
+            console.log(`documentsLimit=${documentsLimit}`);
+            core.setOutput('documentsLimit', documentsLimit);
+
+            console.log(`libraryDir=${libraryDir}`);
+            core.setOutput('libraryDir', libraryDir);
+
+            console.log(`sourcesFile=${sourcesFile}`);
+            core.setOutput('sourcesFile', sourcesFile);
+
+            console.log(`writeableFilepaths=${JSON.stringify(writeableFilepaths)}`);
+            core.setOutput('writeableFilepaths', JSON.stringify(writeableFilepaths));
     outputs:
       documentsLimit: ${{ steps.agentic-lib.outputs.documentsLimit }}
       libraryDir: ${{ steps.agentic-lib.outputs.libraryDir }}
