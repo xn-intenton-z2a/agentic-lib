@@ -159,6 +159,7 @@ jobs:
       - run: npm ci
       - name: check
         id: check
+        if: ${{ env.issueNumber != '' && env.attemptsPerIssue != '' }}
         uses: actions/github-script@v7
         with:
           script: |
