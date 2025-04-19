@@ -172,9 +172,18 @@ jobs:
 
             if (branch === "main") {
               core.info("Main branch selected. Skipping auto-resolution.");
+              core.setOutput("issueNumber", undefined);
+              core.info(`Issue number: no issue number attached to main`);
               core.setOutput("conflictsDetected", "false");
               core.setOutput("conflictsResolved", "true");
-            } else {
+            } else if ( branch ){
+                      
+              // Extract issue number from branch name using branchPrefix.
+              const issueNumberMatch = branch.match(new RegExp(`${prefix}issue-(\\d+)`));
+              const issueNumber = issueNumberMatch ? issueNumberMatch[1] : '';
+              core.setOutput("issueNumber", issueNumber);
+              core.info(`Issue number: ${issueNumber}`);
+            
               core.info("Detect and resolve merge conflicts between the selected branch and main.");
               execSync("git config --local user.email '${{ env.gitUserEmail }}'", { stdio: 'pipe' });
               execSync("git config --local user.name '${{ env.gitUserName }}'", { stdio: 'pipe' });
@@ -207,14 +216,13 @@ jobs:
                   core.setOutput("conflictsResolved", "false");
                 }
               }
+            } else {
+              core.info("No branch selected. Skipping auto-resolution.");
+              core.setOutput("issueNumber", undefined);
+              core.info(`Issue number: no branch found for issue number`);
+              core.setOutput("conflictsDetected", "false");
+              core.setOutput("conflictsResolved", "true");
             }
-
-            // Extract issue number from branch name using branchPrefix.
-            const issueNumberMatch = branch.match(new RegExp(`${prefix}issue-(\\d+)`));
-            const issueNumber = issueNumberMatch ? issueNumberMatch[1] : '';
-
-            core.setOutput("issueNumber", issueNumber);
-            core.info(`Issue number: ${issueNumber}`);
     outputs:
       branch: ${{ steps.determine.outputs.branch }}
       issueNumber: ${{ steps.determine.outputs.issueNumber }}
