@@ -648,7 +648,7 @@ Re-usable GitHub Actions Workflows:
 Marketplace GitHub Actions:
 - [~] [r0w-MVP] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
 - [~] [r0w-MVP] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
-- [ ] [r0w-MVP]
+- [~] [r0w-MVP]
 Expose all parameters for wrapped action steps within re-usable workflows
 as input parameters to the re-usable workflow and set defaults both
 for workflow invocation input parameters and schedule 
