@@ -153,10 +153,12 @@ jobs:
         id: has-merged-label
         if: steps.select-issue.outputs.issueNumber != ''
         uses: actions/github-script@v7
+        env:
+          issueNumber: ${{ steps.select-issue.outputs.issueNumber }}
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
-            const issueNumber = parseInt("${{ steps.select-issue.outputs.issueNumber }}");
+            const issueNumber = parseInt(process.env.issueNumber);
             const { data: issue } = await github.rest.issues.get({
               owner: context.repo.owner,
               repo: context.repo.repo,

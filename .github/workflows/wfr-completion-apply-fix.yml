@@ -687,15 +687,23 @@ jobs:
         if: always()
         id: results
         uses: actions/github-script@v7
+        env:
+          fixApplied: ${{ steps.update-target.outputs.fixApplied }}
+          message: ${{ steps.update-target.outputs.message }}
+          installAfterUpdateOutcome: ${{ steps.install-after-update.outcome }}
+          ciAfterUpdateOutcome: ${{ steps.ci-after-update.outcome }}
+          testAfterUpdateOutcome: ${{ steps.test-after-update.outcome }}
+          mainAfterUpdateOutcome: ${{ steps.main-after-update.outcome }}
+          commitOutcome: ${{ steps.commit.outcome }}
         with:
           script: |
-            const fixApplied = '${{ steps.update-target.outputs.fixApplied }}';
-            const message = '${{ steps.update-target.outputs.message }}';
-            const installAfterUpdateOutcome = '${{ steps.install-after-update.outcome }}';
-            const ciAfterUpdateOutcome = '${{ steps.ci-after-update.outcome }}';
-            const testAfterUpdateOutcome = '${{ steps.test-after-update.outcome }}';
-            const mainAfterUpdateOutcome = '${{ steps.main-after-update.outcome }}';
-            const commitOutcome = '${{ steps.commit.outcome }}';
+            const fixApplied = process.env.fixApplied;
+            const message = process.env.message;
+            const installAfterUpdateOutcome = process.env.installAfterUpdateOutcome;
+            const ciAfterUpdateOutcome = process.env.ciAfterUpdateOutcome;
+            const testAfterUpdateOutcome = process.env.testAfterUpdateOutcome;
+            const mainAfterUpdateOutcome = process.env.mainAfterUpdateOutcome;
+            const commitOutcome = process.env.commitOutcome;
             const allValidationStepsSuccessful = installAfterUpdateOutcome === "success" && ciAfterUpdateOutcome === "success" && testAfterUpdateOutcome === "success" && mainAfterUpdateOutcome === "success" && commitOutcome === "success";
             core.setOutput('fixApplied', fixApplied);
             core.setOutput('message', message);

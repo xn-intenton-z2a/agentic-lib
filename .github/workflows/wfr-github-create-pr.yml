@@ -94,49 +94,54 @@ jobs:
 
       - name: Create pull request, if fixed after re-checking linting
         uses: actions/github-script@v7
+        env:
+          branch: ${{ env.branch }}
+          baseBranch: ${{ env.baseBranch }}
+          gitCommitMessage: ${{ env.gitCommitMessage }}
+          label: ${{ env.label }}
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
             const { data: existingPulls } = await github.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              head: `${context.repo.owner}:${{ env.branch }}`,
-              base: '${{ env.baseBranch }}',
+              head: `${context.repo.owner}:${process.env.branch}`,
+              base: process.env.baseBranch,
               state: 'open',
             });
             if (existingPulls.length === 0) {
               const comparison = await github.rest.repos.compareCommits({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  base: '${{ env.baseBranch }}',
-                  head: '${{ env.branch }}',
+                  base: process.env.baseBranch,
+                  head: process.env.branch,
               });
               // Delete the branch if there is no addition to the base branch (and this branch isn't main)
-              if('${{ env.branch }}' != 'main' && comparison.data.ahead_by === 0){
-                core.info('No additions detected in ${{ env.branch }} compared to ${{ env.baseBranch }}. Deleting branch: ${{ env.branch }}');
+              if(process.env.branch != 'main' && comparison.data.ahead_by === 0){
+                core.info(`No additions detected in ${process.env.branch} compared to ${process.env.baseBranch}. Deleting branch: ${process.env.branch}`);
                 await github.rest.git.deleteRef({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  ref: 'heads/${{ env.branch }}',
+                  ref: `heads/${process.env.branch}`,
                 });
               } else {
                 const { data: pr } = await github.rest.pulls.create({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  title: '${{ env.gitCommitMessage }}',
-                  head: '${{ env.branch }}',
-                  base: '${{ env.baseBranch }}',
-                  body: '${{ env.gitCommitMessage }}',
+                  title: process.env.gitCommitMessage,
+                  head: process.env.branch,
+                  base: process.env.baseBranch,
+                  body: process.env.gitCommitMessage,
                   maintainer_can_modify: true,
                 });
                 await github.rest.issues.addLabels({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: pr.number,
-                  labels: ['${{ env.label }}'],
+                  labels: [process.env.label],
                 });
                 core.info(`Pull request created: ${pr.html_url}`);
-              
+
                 // Initiate Check Suites
                 const { data: checkSuites } = await github.rest.checks.listForRef({
                   owner: context.repo.owner,
@@ -159,4 +164,3 @@ jobs:
             } else {
               core.info('Pull request already exists for this branch.');
             }
-
