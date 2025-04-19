@@ -653,7 +653,7 @@ Marketplace GitHub Actions:
 - [~] [r0w-MVP] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
 - [~] [r0w-MVP] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
 - [ ] [r0w-MVP] Switch from github script actions to `run: node` and have the action run against a moving 'latest' tag. 
-See: [ACTIONS_JS_STEPS.md](library/ACTIONS_JS_STEPS.md)
+See: [ACTIONS_JS_STEPS.md](library/archive-2025-04-20/ACTIONS_JS_STEPS.md)
 - [ ] [r0w-MVP] Add tests for the actions library JS and organise the code.
 - [ ] [r0w-MVP] Move JS Steps to a GitHub distributed Action.
 - [ ] Convert the actions library JS to an SDK.

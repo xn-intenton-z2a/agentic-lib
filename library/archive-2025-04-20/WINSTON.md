@@ -117,8 +117,9 @@ The crawled content provides technical details on configuring and using the wins
 - Returns: A Logger instance with helper methods: log(), error(), warn(), info(), http(), verbose(), debug(), and silly().
 
 Example:
+
 ```javascript
-const winston = require('winston');
+const winston = require('library/archive-2025-04-20/WINSTON');
 
 const logger = winston.createLogger({
   level: 'info',
@@ -293,7 +294,7 @@ Refer to examples in the `./examples/` folder.
 The recommended way is to create your own logger:
 
 ```javascript
-const winston = require('winston');
+const winston = require('library/archive-2025-04-20/WINSTON');
 
 const logger = winston.createLogger({
   level: 'info',
@@ -353,7 +354,7 @@ const levels = {
 Formats are composed using `winston.format.combine`. Basic examples:
 
 ```javascript
-const { createLogger, format, transports } = require('winston');
+const { createLogger, format, transports } = require('library/archive-2025-04-20/WINSTON');
 const { combine, timestamp, label, printf } = format;
 
 const myFormat = printf(({ level, message, label, timestamp }) => {
