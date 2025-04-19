@@ -224,15 +224,15 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@main'
     with:
       cache: 'npm'
-      npmAuthOrganisation: ${{ env.npmAuthOrganisation || '' }}
-      lastActivityName: ${{ github.workflow }}
-      lastActivityBranchName: ${{ github.ref_name }}
+      npmAuthOrganisation: "${{ env.npmAuthOrganisation || '' }}"
+      lastActivityName: "${{ github.workflow }}"
+      lastActivityBranchName: "${{ github.ref_name }}"
       nextIssue: "[${{ needs.select-issue.outputs.issueNumber }}] ${{ needs.select-issue.outputs.issueTitle }} ${{ needs.select-issue.outputs.issueLabels }}"
       public: 'public'
-      s3BucketUrl: ${{ env.s3BucketUrl || '' }}
-      s3WebsiteBucketUrl: ${{ env.s3WebsiteBucketUrl }}
-      iamActionsRoleArn: ${{ env.iamActionsRoleArn }}
-      iamStatsBucketWriterRoleArn: ${{ env.iamStatsBucketWriterRoleArn }}
-      iamPublicWebsiteStatsBucketWriterRoleArn: ${{ env.iamPublicWebsiteStatsBucketWriterRoleArn }}
+      s3BucketUrl: "${{ env.s3BucketUrl || '' }}"
+      s3WebsiteBucketUrl: "${{ env.s3WebsiteBucketUrl }}"
+      iamActionsRoleArn: "${{ env.iamActionsRoleArn }}"
+      iamStatsBucketWriterRoleArn: "${{ env.iamStatsBucketWriterRoleArn }}"
+      iamPublicWebsiteStatsBucketWriterRoleArn: "${{ env.iamPublicWebsiteStatsBucketWriterRoleArn }}"
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
