@@ -70,7 +70,7 @@ jobs:
           echo "sourcesFile=${sourcesFile}" >> $GITHUB_OUTPUT
 
           # Extract writeable filepaths from writeableFilepaths values
-          writeableFilepaths=$(awk '/^writeableFilepaths:/,/^[^[:space:]]/ {if ($0 ~ /^[[:space:]]*[a-zA-Z0-9_-]+:/) print $2}' .github/agentic-lib.yml | sed 's/"//g' | jq -R . | jq -s .)
+          writeableFilepaths=$(awk '/^writeableFilepaths:/,/^[^[:space:]]/ {if ($0 ~ /^[[:space:]]*[a-zA-Z0-9_-]+:/) print $2}' .github/agentic-lib.yml | sed 's/"//g' | grep -v '^$' | jq -R . | jq -s .)
           echo "writeableFilepaths=${writeableFilepaths}"
           echo "writeableFilepaths=${writeableFilepaths}" >> $GITHUB_OUTPUT
     outputs:
