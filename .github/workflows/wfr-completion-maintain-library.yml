@@ -73,6 +73,11 @@ on:
         type: string
         required: false
         default: ''
+      allowedFilepathPatterns:
+        description: 'JSON array of filepath patterns that are allowed to be changed by agents. e.g. ["features/*", "library/*"]'
+        type: string
+        required: false
+        default: '["features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md"]'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -109,6 +114,7 @@ jobs:
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
+      allowedFilepathPatterns: ${{ inputs.allowedFilepathPatterns || '["features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md"]' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -158,6 +164,7 @@ jobs:
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
             const dependenciesListOutput = process.env.dependenciesListOutput;
+            const allowedFilepathPatterns = JSON.parse(process.env.allowedFilepathPatterns || '["features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md"]');
 
             const fs = require('fs');
             const path = require('path');
@@ -165,7 +172,13 @@ jobs:
             const { z } = require('zod');
             const axios = require('axios');
             const cheerio = require('cheerio');
+            const minimatch = require('minimatch');
             require('dotenv').config();
+
+            // Function to check if a file path matches any of the allowed patterns
+            function isFilePathAllowed(filePath, allowedPatterns) {
+              return allowedPatterns.some(pattern => minimatch(filePath, pattern));
+            }
 
             if (!apiKey) { 
               core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
@@ -574,8 +587,12 @@ jobs:
                 // Save the raw crawl data to a text file
                 const rawCrawlFilePath = path.join(libraryDir, `${parsed.documentName}_RAW_CRAWL.txt`);
                 try {
-                  fs.writeFileSync(rawCrawlFilePath, crawlResult.content);
-                  core.info(`Raw crawl data saved to ${rawCrawlFilePath}`);
+                  if (isFilePathAllowed(rawCrawlFilePath, allowedFilepathPatterns)) {
+                    fs.writeFileSync(rawCrawlFilePath, crawlResult.content);
+                    core.info(`Raw crawl data saved to ${rawCrawlFilePath}`);
+                  } else {
+                    core.warning(`Raw crawl file path '${rawCrawlFilePath}' is not in the allowed filepath patterns. Skipping update.`);
+                  }
                 } catch (e) {
                   core.warning(`Failed to save raw crawl data: ${e.message}`);
                 }
@@ -589,8 +606,13 @@ jobs:
               const documentFilePath = path.join(libraryDir, `${documentName}.md`);
               try {
                 fs.mkdirSync(libraryDir, { recursive: true });
-                fs.writeFileSync(documentFilePath, documentContent);
-                core.info(`Document saved to ${documentFilePath}`);
+                if (isFilePathAllowed(documentFilePath, allowedFilepathPatterns)) {
+                  fs.writeFileSync(documentFilePath, documentContent);
+                  core.info(`Document saved to ${documentFilePath}`);
+                } else {
+                  core.warning(`Document file path '${documentFilePath}' is not in the allowed filepath patterns. Skipping update.`);
+                  core.setFailed(`Cannot save document to '${documentFilePath}' as it is not in the allowed filepath patterns.`);
+                }
               } catch (e) {
                 core.setFailed(`Failed to save document: ${e.message}`);
               }
@@ -606,8 +628,12 @@ jobs:
                 const documentPathToDelete = path.join(libraryDir, documentNameToDelete);
                 try {
                   if (fs.existsSync(documentPathToDelete)) {
-                    core.info(`Deleting document: ${documentPathToDelete}`);
-                    fs.unlinkSync(documentPathToDelete);
+                    if (isFilePathAllowed(documentPathToDelete, allowedFilepathPatterns)) {
+                      core.info(`Deleting document: ${documentPathToDelete}`);
+                      fs.unlinkSync(documentPathToDelete);
+                    } else {
+                      core.warning(`Document path '${documentPathToDelete}' is not in the allowed filepath patterns. Skipping deletion.`);
+                    }
                   } else {
                     core.warning(`Document not found for deletion: ${documentPathToDelete}`);
                   }

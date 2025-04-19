@@ -13,3 +13,11 @@ maintenanceIssuesWipLimit: 2
 # How many attempts should be made to work on an issue?
 attemptsPerBranch: 2
 attemptsPerIssue: 2
+# Which filepath patterns are allowed to be changed by agents?
+allowedFilepathPatterns:
+  - "features/*"
+  - "library/*"
+  - "src/lib/*"
+  - "tests/unit/*"
+  - "package.json"
+  - "README.md"

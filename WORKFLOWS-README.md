@@ -640,24 +640,25 @@ Re-usable GitHub Actions Workflows:
 - [~] [r0w-MVP] Allow user supplied sources files for building the library.
 - [~] [r0w-MVP] Mark in-progress issues as such, and change the issue worker to ignore 'in-progress' issues.
 - [~] [r0w-MVP] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
-- [ ] [r0w-MVP] Add to agentic-lib.yml a list of filepath patterns which are allowed to be changed by agents (default: [ "features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md" ]) and have these checked before writing to a file.
-- [ ] [r0w-MVP] Add agentic-lib.yml a mapping for concepts such as src / tests / docs / sources / library and use these as defaults when invoking the workflows.
+- [ ] [r0w-MVP]
+Add to agentic-lib.yml a list of filepath patterns which are allowed to be changed by agents
+(default: [ "features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md" ]) 
+and have these checked before writing to a file.
+- [ ] [r0w-MVP] 
+Add to agentic-lib.yml a mapping for concepts such as src / tests / docs / sources / library 
+and use these as defaults when invoking the workflows and at any time a default is applied.
+- [ ] Support creation, edit and deletion of multiple files of each type (src, tests, docs, sources, library) etc.
+- [ ] PR review
 - [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
 - [ ] Generate API.md based on the source file.
 
 Marketplace GitHub Actions:
 - [~] [r0w-MVP] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
 - [~] [r0w-MVP] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
-- [~] [r0w-MVP]
-Expose all parameters for wrapped action steps within re-usable workflows
-as input parameters to the re-usable workflow and set defaults both
-for workflow invocation input parameters and schedule 
-(by setting it in an environment variable in my style). 
-The default should match the action step's default behaviour ideally ''. 
-Review all the parameters where re-usable workflows are used and ensure 
-that any parameters that are filepaths are stated explicitly in the calling workflow.
+- [x] [r0w-MVP] Review all the parameters where re-usable workflows are used and ensure that any parameters that are filepaths are stated explicitly in the calling workflow.
 - [ ] [r0w-MVP] Switch from github script actions to `run: node` and have the action run against a moving 'latest' tag. 
 See: [ACTIONS_JS_STEPS.md](library/ACTIONS_JS_STEPS.md)
+- [ ] [r0w-MVP] Add tests for the actions library JS and organise the code.
 - [ ] [r0w-MVP] Move JS Steps to a GitHub distributed Action.
 - [ ] Convert the actions library JS to an SDK.
 - [ ] Make the SDK available as an API.

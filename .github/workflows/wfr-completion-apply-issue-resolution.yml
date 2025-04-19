@@ -136,6 +136,11 @@ on:
         type: string
         required: false
         default: ''
+      allowedFilepathPatterns:
+        description: 'JSON array of filepath patterns that are allowed to be changed by agents. e.g. ["features/*", "library/*"]'
+        type: string
+        required: false
+        default: '["features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md"]'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -192,6 +197,7 @@ jobs:
       promptFile: ${{ inputs.promptFile || 'AGENT-ISSUE-RESOLUTION.md' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
+      allowedFilepathPatterns: ${{ inputs.allowedFilepathPatterns || '["features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md"]' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -308,12 +314,19 @@ jobs:
             const testOutput = process.env.testOutput;
             const mainScript = process.env.mainScript;
             const mainOutput = process.env.mainOutput;
+            const allowedFilepathPatterns = JSON.parse(process.env.allowedFilepathPatterns || '["features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md"]');
 
             const fs = require('fs');
             const path = require('path');
             const OpenAI = require('openai').default;
             const { z } = require('zod');
+            const minimatch = require('minimatch');
             require('dotenv').config();
+
+            // Function to check if a file path matches any of the allowed patterns
+            function isFilePathAllowed(filePath, allowedPatterns) {
+              return allowedPatterns.some(pattern => minimatch(filePath, pattern));
+            }
 
             if (!apiKey) { 
               core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
@@ -559,24 +572,40 @@ jobs:
               core.info(`message: "${sanitizedMessage}"`);
 
               if(parsed.updatedSourceFileContent && parsed.updatedSourceFileContent.length > 1 && parsed.updatedSourceFileContent !== sourceFileContent) {
-                fs.writeFileSync(target, parsed.updatedSourceFileContent, 'utf8');
-                fixApplied = true;
-                core.info(`Target file '${target}' has been updated (length ${parsed.updatedSourceFileContent.length}).`);
+                if (isFilePathAllowed(target, allowedFilepathPatterns)) {
+                  fs.writeFileSync(target, parsed.updatedSourceFileContent, 'utf8');
+                  fixApplied = true;
+                  core.info(`Target file '${target}' has been updated (length ${parsed.updatedSourceFileContent.length}).`);
+                } else {
+                  core.warning(`Target file '${target}' is not in the allowed filepath patterns. Skipping update.`);
+                }
               }
               if(parsed.updatedTestFileContent && parsed.updatedTestFileContent.length > 1 && parsed.updatedTestFileContent !== testFileContent) {
-                fs.writeFileSync(testFile, parsed.updatedTestFileContent, 'utf8');
-                fixApplied = true;
-                core.info(`Test file '${testFile}' has been updated (length ${parsed.updatedTestFileContent.length}).`);
+                if (isFilePathAllowed(testFile, allowedFilepathPatterns)) {
+                  fs.writeFileSync(testFile, parsed.updatedTestFileContent, 'utf8');
+                  fixApplied = true;
+                  core.info(`Test file '${testFile}' has been updated (length ${parsed.updatedTestFileContent.length}).`);
+                } else {
+                  core.warning(`Test file '${testFile}' is not in the allowed filepath patterns. Skipping update.`);
+                }
               }
               if(parsed.updatedReadmeFileContent && parsed.updatedReadmeFileContent.length > 1 && parsed.updatedReadmeFileContent !== readmeFileContent) {
-                fs.writeFileSync(readmeFile, parsed.updatedReadmeFileContent, 'utf8');
-                fixApplied = true;
-                core.info(`Readme file '${readmeFile}' has been updated (length ${parsed.updatedReadmeFileContent.length}).`);
+                if (isFilePathAllowed(readmeFile, allowedFilepathPatterns)) {
+                  fs.writeFileSync(readmeFile, parsed.updatedReadmeFileContent, 'utf8');
+                  fixApplied = true;
+                  core.info(`Readme file '${readmeFile}' has been updated (length ${parsed.updatedReadmeFileContent.length}).`);
+                } else {
+                  core.warning(`Readme file '${readmeFile}' is not in the allowed filepath patterns. Skipping update.`);
+                }
               }
               if(parsed.updatedDependenciesFileContent && parsed.updatedDependenciesFileContent.length > 1 && parsed.updatedDependenciesFileContent !== dependenciesFileContent) {
-                fs.writeFileSync(dependenciesFile, parsed.updatedDependenciesFileContent, 'utf8');
-                fixApplied = true;
-                core.info(`Dependencies file '${dependenciesFile}' has been updated (length ${parsed.updatedDependenciesFileContent.length}).`);
+                if (isFilePathAllowed(dependenciesFile, allowedFilepathPatterns)) {
+                  fs.writeFileSync(dependenciesFile, parsed.updatedDependenciesFileContent, 'utf8');
+                  fixApplied = true;
+                  core.info(`Dependencies file '${dependenciesFile}' has been updated (length ${parsed.updatedDependenciesFileContent.length}).`);
+                } else {
+                  core.warning(`Dependencies file '${dependenciesFile}' is not in the allowed filepath patterns. Skipping update.`);
+                }
               }
 
               await github.rest.issues.createComment({
