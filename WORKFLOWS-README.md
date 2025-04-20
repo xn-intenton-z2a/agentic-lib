@@ -643,10 +643,10 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-MVP] Add to agentic-lib.yml a list of filepath patterns which are allowed to be changed by agents (default: [ "features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md" ]) and have these checked before writing to a file.
 - [x] [r0w-MVP] Allow user supplied sources files for building the library.
 - [x] [r0w-MVP] Add to agentic-lib.yml a mapping for concepts such as src / tests / docs / sources / library  and use these as defaults when invoking the workflows and at any time a default is applied.
+- [x] [r0w-MVP] Why don't tests run after merge? (Possibly because it down stream of auto-merge PRs under a token of some kind .)
+- [x] [r0w-MVP] Why did the issue get closed right after the merge?
 - [ ] [r0w-MVP] In the refiner replace ${libraryDocuments.substring(0, 10000)} with the summary of each library document extracted from the markdown looking for the summary section.
 - [ ] [r0w-MVP] In the feature maintainer replace ${libraryDocuments.substring(0, 10000)} with a condensed form of the library documents (a new section to be added to the library)
-- [ ] [r0w-MVP] Why don't tests run after merge? (Possibly because it down stream of auto-merge PRs under a token of some kind .)
-- [ ] [r0w-MVP] Why did the issue get closed right after the merge?
 - [ ] Support creation, edit and deletion of multiple files of each type (src, tests, docs, sources, library) etc.
 - [ ] Add a PR review workflow with a reviewer and responder.
 - [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
@@ -654,7 +654,7 @@ Re-usable GitHub Actions Workflows:
 
 Marketplace GitHub Actions:
 - [x] [r0w-MVP] Review all the parameters where re-usable workflows are used and ensure that any parameters that are filepaths are stated explicitly in the calling workflow.
-- [~] [r0w-MVP] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+- [x] [r0w-MVP] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
 - [~] [r0w-MVP] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
 - [ ] [r0w-MVP] Switch from github script actions to `run: node` and have the action run against a moving 'latest' tag. 
 See: [ACTIONS_JS_STEPS.md](library/archive-2025-04-20/ACTIONS_JS_STEPS.md)
