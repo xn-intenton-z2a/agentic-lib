@@ -1,60 +1,50 @@
 # GITHUB_ACTIONS
 
 ## Crawl Summary
-The crawled content specifies comprehensive details for setting up GitHub Actions workflows including YAML syntax, event triggers, job configuration, matrix strategies, dependency caching, service containers, and runner labels. It includes exact YAML examples for defining workflows triggered on push events, job dependencies using 'needs', and advanced features like caching, secrets management, and containerized services.
+The technical details extracted include precise YAML configuration for GitHub Actions workflows, including event triggers, job definitions, matrix strategies, dependency caching, and service containers. The content provides exact code examples with configuration values such as 'runs-on: ubuntu-latest', checkout version 'actions/checkout@v4', and detailed steps to list repository files and display job statuses. Additionally, advanced topics like using a matrix for Node.js version testing, caching the ~/.npm directory, and running service containers for PostgreSQL are covered with complete code snippets.
 
 ## Normalised Extract
 ## Table of Contents
-1. Workflows and YAML Basics
-   - YAML file location: `.github/workflows`
-   - Required keys: name, run-name, on, jobs
-2. Event Triggers
-   - Examples: push, pull_request, repository_dispatch, workflow_dispatch
-3. Job Configuration
-   - Defining jobs and steps
-   - Using 'needs' for dependencies
-4. Matrix Strategy
-   - Example for testing Node.js versions
-5. Caching Dependencies
-   - Using actions/cache@v4 with key and restore-keys
-6. Using Secrets and Environment Variables
-   - Injecting secrets via `${{ secrets.SECRET_NAME }}`
-7. Service Containers
-   - Configuring container jobs including specifying an image and services
-8. Runner Selection
-   - Specifying runners by labels (e.g., self-hosted, linux, x64, gpu)
-9. Advanced Troubleshooting
-   - Viewing logs, re-running, and best practices
+1. Overview
+2. Workflow Configuration
+3. Event Triggers
+4. Job and Step Definitions
+5. Actions and Runners
+6. Advanced Configurations
+   6.1 Matrix Strategy
+   6.2 Caching Dependencies
+   6.3 Service Containers
+7. Quickstart Workflow Example
 
 ---
 
-### 1. Workflows and YAML Basics
-**Example:**
+### 1. Overview
+GitHub Actions automates CI/CD pipelines. The workflows are YAML files placed in the `.github/workflows` directory.
+
+### 2. Workflow Configuration
+- **YAML File Placement:** `.github/workflows`
+- **Key Elements:** `name`, `on`, `jobs`.
+- **YAML Example:**
 ```yaml
 name: GitHub Actions Demo
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on: [push]
 jobs:
-  Explore-GitHub-Actions:
+  ExampleJob:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Triggered by ${{ github.event_name }} event"
-      - name: Check out repository code
-        uses: actions/checkout@v4
+      - run: echo "Triggered by ${{ github.event_name }}"
 ```
 
-### 2. Event Triggers
-Define events with the `on` key. For example:
+### 3. Event Triggers
+- **Definition:** Events that trigger workflows (e.g., push, pull_request, schedule).
+- **Syntax Example:**
 ```yaml
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    types: [opened, synchronize]
+on: [push, pull_request]
 ```
 
-### 3. Job Configuration
-Jobs are collections of steps. For dependent execution use the `needs` keyword:
+### 4. Job and Step Definitions
+- **Jobs:** Consist of multiple steps running on a designated runner.
+- **Example of Dependent Jobs:**
 ```yaml
 jobs:
   setup:
@@ -68,109 +58,42 @@ jobs:
       - run: ./build.sh
 ```
 
-### 4. Matrix Strategy
-Define multiple runs with varying parameters:
+### 5. Actions and Runners
+- **Actions Usage:** Reusable tasks, e.g., checking out code using `actions/checkout@v4`.
+- **Runners:** Specified via `runs-on` (e.g., ubuntu-latest, windows-latest, macos-latest).
+
+### 6. Advanced Configurations
+#### 6.1 Matrix Strategy
+- **Purpose:** Run jobs across different configurations.
+- **Example:**
 ```yaml
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [12, 14, 16]
-    steps:
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node }}
+strategy:
+  matrix:
+    node: [14, 16]
 ```
 
-### 5. Caching Dependencies
-Cache directories to speed up workflows:
+#### 6.2 Caching Dependencies
+- **Purpose:** Cache directories like `~/.npm` to speed up workflows.
+- **Example:**
 ```yaml
-- name: Cache npm modules
+- name: Cache node modules
   uses: actions/cache@v4
   with:
     path: ~/.npm
     key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-    restore-keys: |
-      ${{ runner.os }}-node-
 ```
 
-### 6. Using Secrets and Environment Variables
-Inject secrets securely:
+#### 6.3 Service Containers
+- **Purpose:** Provide ephemeral service containers (e.g., PostgreSQL) during workflows.
+- **Example:**
 ```yaml
-- name: Use Secret
-  env:
-    API_KEY: ${{ secrets.API_KEY }}
-  run: echo "API key is set"
+services:
+  postgres:
+    image: postgres
 ```
 
-### 7. Service Containers
-Configure ephemeral service containers:
-```yaml
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    container: node:20
-    services:
-      redis:
-        image: redis
-    steps:
-      - run: npm test
-```
-
-### 8. Runner Selection
-Specify runner labels to control execution environment:
-```yaml
-jobs:
-  custom-runner:
-    runs-on: [self-hosted, linux, x64]
-    steps:
-      - run: echo "Running on a custom runner"
-```
-
-### 9. Advanced Troubleshooting
-- **Viewing Logs:** Use the GitHub Actions UI to expand step logs.
-- **Re-running Workflows:** Use the Re-run button in the Actions tab.
-- **Canceling Workflows:** Use the cancel workflow option in the UI.
-- **Avoiding Recursive Triggers:** Use appropriate tokens (e.g., use a personal access token if triggering a workflow from another workflow).
-
-
-## Supplementary Details
-### Technical Specifications and Implementation Details
-
-- **Workflow File Location:** All workflow YAML files must reside in the `.github/workflows` directory.
-- **Mandatory YAML Keys:** `name`, `on`, `jobs`. Optionally, `run-name` can be used for custom naming per run.
-- **Event Triggers:** Define events (e.g., push, pull_request). Use filters for branches and activity types as needed.
-- **Job Dependencies:** Use `needs` to enforce job sequencing. Jobs without dependencies run in parallel.
-- **Matrix Configuration:** Use the `strategy.matrix` section to run jobs with variable combinations; example: Node.js versions [14, 16].
-- **Caching:** Use `actions/cache@v4` with explicit keys based on runner OS and dependency file hashes.
-- **Secrets Management:** Secrets are referenced using `${{ secrets.SECRET_NAME }}` and injected as environment variables.
-- **Service Containers:** Define containers under the `container` key and use the `services` key to start related service containers (e.g., postgres, redis).
-- **Runner Constraints:** Specify exact runner labels in `runs-on` to target specific hardware or hosted environments.
-- **Best Practices:** Always name steps, use comments for clarity, and ensure your YAML configuration is correctly indented. Use the GitHub Actions UI to view logs and troubleshoot errors.
-
-
-## Reference Details
-### API Specifications and Complete Code Examples
-
-#### 1. GitHub Actions Workflow YAML Specification
-
-- **name:** (string) The display name for the workflow.
-- **run-name:** (string) Custom name injected per run using GitHub expressions.
-- **on:** (array/object) Specifies the events that trigger the workflow. Examples:
-  - `push`: Can include branch filters.
-  - `pull_request`: Can specify activity types like opened, synchronized.
-  - `workflow_dispatch`: Allows manual triggering with inputs.
-
-- **jobs:** (object) A dictionary of job definitions. Each job includes:
-  - **runs-on:** (string or array) The runner environment (e.g., `ubuntu-latest`, `[self-hosted, linux, x64]`).
-  - **strategy:** (object, optional) For matrix builds. Contains `matrix` property with parameter array.
-  - **steps:** (array) A list of step definitions. Each step can be:
-    - **run:** (string) A command line to execute.
-    - **uses:** (string) Reference to a GitHub Action (with version tag, e.g., `actions/checkout@v4`).
-    - **env:** (object, optional) Environment variables mapping.
-
-**Example Full Workflow:**
+### 7. Quickstart Workflow Example
+A complete workflow that clones the repository, lists files, and reports status:
 ```yaml
 name: GitHub Actions Demo
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
@@ -179,63 +102,171 @@ jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "🎉 Triggered by ${{ github.event_name }} event."
-      - run: echo "🐧 Running on ${{ runner.os }}."
-      - run: echo "Branch: ${{ github.ref }}, Repository: ${{ github.repository }}."
+      - run: echo "Triggered by ${{ github.event_name }}"
+      - run: echo "Running on ${{ runner.os }}"
       - name: Check out code
         uses: actions/checkout@v4
-      - run: echo "Repository cloned to runner."
       - name: List files
-        run: |
-          ls ${{ github.workspace }}
-      - run: echo "Job status: ${{ job.status }}."
+        run: ls ${{ github.workspace }}
+      - run: echo "Job status: ${{ job.status }}"
 ```
 
-#### 2. SDK Method Signatures and Usage in Actions (Conceptual)
 
-While GitHub Actions does not expose a traditional SDK API, actions are defined via YAML and executable code. For instance, an action written in JavaScript might export a function:
+## Supplementary Details
+### Detailed Implementation Specifications
 
-```javascript
-const core = require('@actions/core');
+1. **Workflow File Structure**:
+   - Must be located in `.github/workflows/`.
+   - Filename must end with `.yml` or `.yaml`.
+   - Example structure:
+     - `.github/`
+       - `workflows/`
+         - `github-actions-demo.yml`
 
-function run() {
-  try {
-    const message = core.getInput('message', { required: true });
-    console.log(`Message: ${message}`);
-    core.setOutput('success', 'true');
-  } catch (error) {
-    core.setFailed(error.message);
-  }
-}
+2. **Key YAML Keys and Their Effects**:
+   - `name`: Display name of the workflow.
+   - `run-name`: Custom label for each run, interpolating variables (e.g., `${{ github.actor }}`).
+   - `on`: Defines when the workflow is executed. Can be events like `push`, `pull_request` or a schedule.
+   - `jobs`: Collection of job definitions.
+   - `runs-on`: Specifies the OS image. Common values: `ubuntu-latest`, `windows-latest`, `macos-latest`.
+   - `steps`: Ordered list of commands or actions.
 
-run();
+3. **Matrix Strategy & Caching Examples**:
+   - **Matrix Usage:** Trial different Node.js versions:
+     ```yaml
+     strategy:
+       matrix:
+         node: [14, 16]
+     ```
+   - **Cache Dependencies:** Caching NPM modules to optimize subsequent runs:
+     ```yaml
+     - uses: actions/cache@v4
+       with:
+         path: ~/.npm
+         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+     ```
+
+4. **Service Container Configuration:**
+   - Runs a container for PostgreSQL:
+     ```yaml
+     services:
+       postgres:
+         image: postgres
+         ports:
+           - 5432:5432
+     ```
+   - Integration: Environment variables (e.g., `POSTGRES_HOST`) must match the service name.
+
+5. **Secrets and Security Best Practices:**
+   - Use GitHub Secrets to secure sensitive data:
+     ```yaml
+     env:
+       SUPER_SECRET: ${{ secrets.SUPERSECRET }}
+     ```
+   - Do not hardcode credentials in workflows.
+
+6. **Troubleshooting Procedures:**
+   - **Viewing Logs:** Navigate to the Actions tab, select a run, and expand steps for detailed logs.
+   - **Common Command:**
+     ```bash
+     ls ${{ github.workspace }}
+     ```
+     Use this command to verify workspace contents.
+   - **Error Investigation:**
+     - Check if the workflow file is in the correct directory.
+     - Ensure correct indentation in YAML files.
+     - Validate runner selection and environment variable usage.
+
+7. **Step-by-Step Workflow Execution:**
+   - Commit a YAML file to trigger a workflow run.
+   - Monitor execution via the GitHub Actions logs interface.
+   - Re-run failed jobs using the GitHub web UI or CLI commands.
+
+
+## Reference Details
+### Complete API Specifications & SDK Method Signatures
+
+#### Workflow YAML API Specification
+
+- **Workflow Definition File**:
+  - File path: `.github/workflows/<filename>.yml`
+  - Mandatory keys: `name`, `on`, `jobs`
+
+- **Job Definition**:
+  - Key: `runs-on`: Accepts string or array of strings (e.g., `ubuntu-latest`, `[self-hosted, linux, x64, gpu]`).
+  - Key: `steps`: Array of step definitions.
+  - Each step can include:
+    - `run`: string command to execute.
+    - `uses`: action reference in the format `owner/name@version`.
+    - `name`: descriptive label for the step.
+    - `env`: dictionary of environment variables (key: variable name, value: interpolated string).
+
+#### Example SDK/CLI Command and Method Signatures
+
+Although GitHub Actions does not use traditional SDK method signatures, the following structure is directly usable in workflows:
+
+```yaml
+# Example: Checkout and Cache
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [14, 16]
+    steps:
+      # Check out the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Setup Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # Cache node modules
+      - name: Cache modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # Build the project
+      - name: Build
+        run: npm run build
 ```
 
-**Parameters:**
-- `getInput(name: string, options?: { required: boolean }): string`
-- `setOutput(name: string, value: string): void`
-- `setFailed(message: string): void`
+#### Detailed Troubleshooting Steps
 
-#### 3. Troubleshooting Procedures
+1. **Verify Workflow Directory Structure**:
+   - Command:
+     ```bash
+     find . -type d -name '.github'
+     ```
+   - Expected Output: Directory structure including `/workflows`.
 
-- **Viewing Logs:** Use the GitHub Actions UI to inspect detailed logs for each step.
-- **Re-run Workflow:** Click the "Re-run jobs" button in the Actions tab after a failure.
-- **Cancel Workflow:** Use the "Cancel workflow" option if a job hangs.
-- **Command-line Testing:** Locally test shell commands using the same environment variables, e.g.,
-  ```bash
-  echo "Testing GitHub Actions environment: $GITHUB_WORKSPACE"
-  ls $GITHUB_WORKSPACE
-  ```
-- **Cache Verification:** Check cache key output for `actions/cache@v4` and verify file paths.
+2. **Validate YAML File**:
+   - Use online YAML linters or the GitHub Actions built-in validator.
+   - Ensure proper indentation (2 spaces recommended) and valid syntax.
 
-#### 4. Configuration Options and Their Effects
+3. **Examine Runner Logs**:
+   - Navigate to the Actions tab on the repository page.
+   - Click on the failed run, select the job and expand steps to see error details.
+   - Look for command outputs such as `ls ${{ github.workspace }}` to ensure files exist.
 
-- **`runs-on`:** Specifies the OS; affects available pre-installed software.
-- **`key` in cache:** Must be unique per OS and dependency state; affects cache hit rate.
-- **`matrix` options:** Produce parallel jobs; ensure tests do not conflict.
-- **Secrets configuration:** Must be set in repository settings; accessed via `${{ secrets.SECRET_NAME }}`.
+4. **Common Configuration Options and Their Effects**:
+   - `runs-on`: Determines which OS image is used. Incorrect values may result in runner selection errors.
+   - `on`: Incorrect or overly broad event filters might trigger unwanted runs. Use specific branch filters if needed.
+   - `env`: Must be defined with available secrets; missing secrets will cause runtime failures.
 
-Follow these detailed specifications to implement and troubleshoot GitHub Actions workflows effectively.
+5. **Best Practices Implementation Example**:
+   - Split workflows by purpose (CI, CD, testing) to isolate failures.
+   - Use caching and matrix strategies to improve performance and coverage.
+   - Incorporate error checking in scripts, e.g., exit codes in shell commands.
+
+Developers can copy the YAML examples provided directly into their repository to set up a fully operational GitHub Actions workflow without additional modifications.
 
 
 ## Original Source
@@ -246,20 +277,19 @@ https://docs.github.com/en/actions
 
 # GitHub Actions Documentation
 
-**Retrieved on:** 2023-10-12
+**Retrieved:** 2023-10-31
 
 ## Overview
-GitHub Actions is a CI/CD platform that automates build, test, and deployment pipelines. Workflows are defined in YAML files stored under the `.github/workflows` directory in a repository.
+GitHub Actions is a CI/CD platform that automates build, test, and deployment workflows directly in your repositories. It supports triggering workflows across Linux, Windows, and macOS runners, or via self-hosted runners. Workflows are defined using YAML files stored in the `.github/workflows` directory.
 
-## Workflow Structure
-- **Workflow**: A configurable automated process defined in YAML with one or more jobs.
-- **Events**: Trigger conditions such as `push`, `pull_request`, `repository_dispatch`, or scheduled events.
-- **Jobs**: A collection of steps that run on a single runner. Jobs can run sequentially (using dependencies) or in parallel.
-- **Steps**: Individual commands or actions executed within a job. Steps may run shell scripts or call pre-built actions.
+## Core Components
 
-## Key YAML Syntax Elements
+### Workflows
+- **Definition:** A configurable automated process defined in YAML.
+- **Location:** `.github/workflows` directory.
+- **Usage:** Can contain one or more jobs that are triggered by repository events, schedules, manual triggers, or via API.
+- **Example YAML Snippet:**
 
-### Basic Workflow YAML Example
 ```yaml
 name: GitHub Actions Demo
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
@@ -270,47 +300,37 @@ jobs:
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - run: echo "🔎 The branch is ${{ github.ref }} in repository ${{ github.repository }}."
       - name: Check out repository code
         uses: actions/checkout@v4
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      - run: echo "💡 Repository cloned."
       - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+        run: ls ${{ github.workspace }}
+      - run: echo "🍏 Job status: ${{ job.status }}."
 ```
 
-### Event Triggers
-Workflows can be triggered by:
-- **Repository events**: `push`, `pull_request`, `issues` etc.
-- **Scheduled triggers**: Using cron syntax
-- **Manual triggers**: `workflow_dispatch`
+### Events
+- **Trigger Types:** push, pull_request, schedule, repository_dispatch, manual triggers, etc.
+- **Configuration:** Defined using the `on:` key in the workflow YAML.
 
-### Defining Jobs and Dependencies
-Jobs are defined under the `jobs` key. Dependencies can be modeled using the `needs` keyword:
-```yaml
-jobs:
-  setup:
-    runs-on: ubuntu-latest
-    steps:
-      - run: ./setup_server.sh
+### Jobs and Steps
+- **Jobs:** Series of steps executed on the same runner. They can run sequentially (using the `needs` keyword) or in parallel.
+- **Steps:** Commands run as shell scripts or actions. Include direct commands and usage of pre-built actions.
 
-  build:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - run: ./build_server.sh
+### Actions
+- **Definition:** Reusable extensions that perform specific tasks (e.g., checkout code, set up environments).
+- **Usage Example:** ```uses: actions/checkout@v4```
 
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - run: ./test_server.sh
-```
+### Runners
+- **Available Runners:** Ubuntu, Windows, macOS (hosted by GitHub) and self-hosted options.
+- **Configuration:** Specified using `runs-on` (e.g., `ubuntu-latest`).
+
+## Advanced Configurations
 
 ### Matrix Strategy
-To run tests against different versions or configurations:
+- **Purpose:** Run tests on multiple configurations using a single job definition.
+- **Example:**
+
 ```yaml
 jobs:
   build:
@@ -325,12 +345,12 @@ jobs:
 ```
 
 ### Caching Dependencies
-Example for caching npm modules:
+- **Purpose:** Improve performance by caching dependency directories.
+- **Example:**
+
 ```yaml
 - name: Cache node modules
   uses: actions/cache@v4
-  env:
-    cache-name: cache-node-modules
   with:
     path: ~/.npm
     key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
@@ -338,20 +358,10 @@ Example for caching npm modules:
       ${{ runner.os }}-build-${{ env.cache-name }}-
 ```
 
-## Advanced Configuration Options
-
-### Using Secrets
-Secrets can be injected into workflows:
-```yaml
-- name: Retrieve secret
-  env:
-    super_secret: ${{ secrets.SUPERSECRET }}
-  run: |
-    echo "Using secret: $super_secret"
-```
-
 ### Service Containers
-To run a job within a containerized service environment:
+- **Usage:** Spin up ephemeral containers for services (e.g., PostgreSQL) during a job.
+- **Example:**
+
 ```yaml
 jobs:
   container-job:
@@ -370,32 +380,38 @@ jobs:
           POSTGRES_PORT: 5432
 ```
 
-### Runner Selection via Labels
-Specify runners using labels:
+## Quickstart Example Workflow
+A complete quickstart workflow file:
+
 ```yaml
+name: GitHub Actions Demo
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on: [push]
 jobs:
-  example-job:
-    runs-on: [self-hosted, linux, x64, gpu]
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 Triggered by ${{ github.event_name }} event."
+      - run: echo "🐧 Running on ${{ runner.os }}."
+      - run: echo "🔎 Branch: ${{ github.ref }}, Repository: ${{ github.repository }}."
+      - name: Check out code
+        uses: actions/checkout@v4
+      - run: echo "💡 Repository cloned. Ready for tests."
+      - name: List files
+        run: |
+          ls ${{ github.workspace }}
+      - run: echo "🍏 Job status: ${{ job.status }}."
 ```
 
-## Troubleshooting and Best Practices
-
-- **Monitoring Workflow Runs**: Navigate to the Actions tab in the repository to view logs and job details.
-- **Re-running or Cancelling Workflows**: Use the GitHub UI to manage active or failed workflow runs.
-- **Avoid Recursive Triggers**: Use tokens correctly (e.g., avoid using GITHUB_TOKEN when triggering another workflow from within a workflow run).
-- **Efficient Caching**: Keep cache keys updated using hash functions on dependency lock files.
-
-## Attribution and Data Size
-- **Source**: GitHub Actions Documentation (https://docs.github.com/en/actions)
-- **Data Size**: 939175 bytes
-- **Links Found**: 16573
+## Attribution
+Data Size: 939175 bytes | Links Found: 16573
 
 
 ## Attribution
 - Source: GitHub Actions Documentation
 - URL: https://docs.github.com/en/actions
 - License: License: GitHub Docs Terms
-- Crawl Date: 2025-04-20T16:47:15.913Z
+- Crawl Date: 2025-04-20T16:50:37.466Z
 - Data Size: 939175 bytes
 - Links Found: 16573
 
