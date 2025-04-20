@@ -97,6 +97,11 @@ on:
         type: string
         required: false
         default: 'AGENT-REVIEW-ISSUE.md'
+      npmAuthOrganisation:
+        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
+        type: string
+        required: false
+        default: ''
       s3BucketUrl:
         description: 'The S3 bucket URL with prefix to use. e.g. "s3://my-bucket/prefix"'
         type: string
@@ -137,6 +142,7 @@ jobs:
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       cache: ${{ inputs.cache || 'npm' }}
       promptFile: ${{ inputs.promptFile || 'AGENT-REVIEW-ISSUE.md' }}
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
 
