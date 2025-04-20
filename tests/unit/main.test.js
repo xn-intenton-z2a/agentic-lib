@@ -189,6 +189,13 @@ describe("agenticHandler Single Command Processing", () => {
     expect(response.executionTimeMS).toBeGreaterThanOrEqual(0);
   });
 
+  test("trims whitespace in command input", async () => {
+    const payload = { command: "   doSomething   " };
+    const response = await agenticLib.agenticHandler(payload);
+    expect(response.status).toBe("success");
+    expect(response.processedCommand).toBe("doSomething");
+  });
+
   test("throws an error when payload is not an object", async () => {
     await expect(agenticLib.agenticHandler(null)).rejects.toThrow("Invalid payload: must be an object");
   });

@@ -152,17 +152,18 @@ export async function agenticHandler(payload) {
       }
 
       const responses = [];
-      for (const cmd of payload.commands) {
+      for (const originalCmd of payload.commands) {
+        const trimmedCmd = typeof originalCmd === 'string' ? originalCmd.trim() : originalCmd;
         const commandStart = Date.now();
-        if (typeof cmd !== "string" || cmd.trim() === "" || cmd.trim().toLowerCase() === "nan") {
+        if (typeof trimmedCmd !== "string" || trimmedCmd === "" || trimmedCmd.toLowerCase() === "nan") {
           const errorMsg = "Invalid prompt input in commands: each command must be a valid non-empty string and not 'NaN'";
           logError(errorMsg);
           throw new Error(errorMsg);
         }
-        logInfo(`Agentic Handler: processing command ${cmd}`);
+        logInfo(`Agentic Handler: processing command ${trimmedCmd}`);
         const response = {
           status: "success",
-          processedCommand: cmd,
+          processedCommand: trimmedCmd,
           timestamp: new Date().toISOString(),
           executionTimeMS: Date.now() - commandStart
         };
@@ -173,18 +174,19 @@ export async function agenticHandler(payload) {
     } else if (!('command' in payload)) {
       throw new Error("Payload must have a 'command' property");
     } else {
-      // Single command processing
+      // Single command processing with normalization
       const startTime = Date.now();
-      if (typeof payload.command !== "string" || payload.command.trim() === "" || payload.command.trim().toLowerCase() === "nan") {
+      const trimmedCommand = typeof payload.command === 'string' ? payload.command.trim() : payload.command;
+      if (typeof trimmedCommand !== "string" || trimmedCommand === "" || trimmedCommand.toLowerCase() === "nan") {
         const errorMsg = "Invalid prompt input: command is non-actionable because it is equivalent to 'NaN'. Please provide a valid, non-empty string command.";
         logError(errorMsg);
         throw new Error(errorMsg);
       }
       
-      logInfo(`Agentic Handler: processing command ${payload.command}`);
+      logInfo(`Agentic Handler: processing command ${trimmedCommand}`);
       const response = {
         status: "success",
-        processedCommand: payload.command,
+        processedCommand: trimmedCommand,
         timestamp: new Date().toISOString(),
         executionTimeMS: Date.now() - startTime
       };
