@@ -263,7 +263,13 @@ jobs:
             const libraryDir = process.env.libraryDir;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
-            const promptHint = process.env.promptHint;
+            let promptHint;
+            if (!process.env.promptHint && process.env.promptHint === "house choice") {
+              promptHint = "Pick the most useful and timely activity from the maintenance activity types";
+            } else {
+              promptHint = process.env.promptHint;
+            }
+            
             const promptFile = process.env.promptFile;
             const dependenciesListOutput = process.env.dependenciesListOutput;
             const issueSelectionLabel = process.env.issueSelectionLabel;
