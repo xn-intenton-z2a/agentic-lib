@@ -327,7 +327,7 @@ jobs:
             const path = require('path');
             const OpenAI = require('openai').default;
             const { z } = require('zod');
-            const minimatch = require('minimatch');
+            const { minimatch } = require('minimatch');
             require('dotenv').config();
 
             // Function to check if a file path matches any of the allowed patterns
