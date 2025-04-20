@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeAll, beforeEach } from "vitest";
+import { describe, test, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
 
 // Ensure that the global callCount is reset before tests that rely on it
 beforeAll(() => {
@@ -8,6 +8,11 @@ beforeAll(() => {
 // Reset callCount before each test in agenticHandler tests
 beforeEach(() => {
   globalThis.callCount = 0;
+});
+
+// Clear all mocks after each test to tidy up
+afterEach(() => {
+  vi.clearAllMocks();
 });
 
 // Use dynamic import for the module to ensure mocks are applied correctly
@@ -165,18 +170,18 @@ describe("CLI CLI Utils Flag", () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await agenticLib.main(["--cli-utils"]);
     const output = consoleSpy.mock.calls.map(call => call[0]).join("\n");
-    expect(output).toContain("--help: Show this help message");
-    expect(output).toContain("--digest: Run full bucket replay");
-    expect(output).toContain("--agentic <jsonPayload>: Process an agentic command with a JSON payload");
-    expect(output).toContain("--version: Show version information");
-    expect(output).toContain("--verbose: Enable verbose logging");
-    expect(output).toContain("--diagnostics: Output detailed diagnostic information");
-    expect(output).toContain("--status: Output runtime health summary in JSON format");
-    expect(output).toContain("--dry-run: Execute a dry run with no side effects");
-    expect(output).toContain("--simulate-error: Simulate an error for testing purposes");
-    expect(output).toContain("--simulate-delay <ms>: Simulate processing delay");
-    expect(output).toContain("--apply-fix: Apply automated fixes and log a success message");
-    expect(output).toContain("--cli-utils: Display a summary of available CLI commands and their descriptions");
+    expect(output).toContain("--help: Show this help message and usage instructions.");
+    expect(output).toContain("--digest: Run full bucket replay.");
+    expect(output).toContain("--agentic <jsonPayload>: Process an agentic command with a JSON payload.");
+    expect(output).toContain("--version: Show version information along with a timestamp.");
+    expect(output).toContain("--verbose: Enable verbose logging for detailed output.");
+    expect(output).toContain("--diagnostics: Output detailed diagnostic information.");
+    expect(output).toContain("--status: Output runtime health summary in JSON format.");
+    expect(output).toContain("--dry-run: Execute a dry run with no side effects.");
+    expect(output).toContain("--simulate-error: Simulate an error for testing purposes.");
+    expect(output).toContain("--simulate-delay <ms>: Simulate processing delay for the specified duration in milliseconds.");
+    expect(output).toContain("--apply-fix: Apply automated fixes and log success message");
+    expect(output).toContain("--cli-utils: Display a summary of available CLI commands and their descriptions.");
     consoleSpy.mockRestore();
   });
 });

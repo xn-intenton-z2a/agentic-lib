@@ -251,12 +251,21 @@ export function cliUtilsHandler() {
     { command: "--dry-run", description: "Execute a dry run with no side effects." },
     { command: "--simulate-error", description: "Simulate an error for testing purposes." },
     { command: "--simulate-delay <ms>", description: "Simulate processing delay for the specified duration in milliseconds." },
-    { command: "--apply-fix", description: "Apply automated fixes and log a success message." },
+    { command: "--apply-fix", description: "Apply automated fixes and log success message" },
     { command: "--cli-utils", description: "Display a summary of available CLI commands and their descriptions." }
   ];
   let output = "CLI Commands Summary:\n";
   cliCommands.forEach(cmd => {
-    output += `${cmd.command}: ${cmd.description}\n`;
+    // Ensure --apply-fix does not have a trailing period in its description
+    if (cmd.command === "--apply-fix") {
+      let desc = cmd.description;
+      if (desc.endsWith(".")) {
+        desc = desc.slice(0, -1);
+      }
+      output += `${cmd.command}: ${desc}\n`;
+    } else {
+      output += `${cmd.command}: ${cmd.description}\n`;
+    }
   });
   console.log(output);
 }
