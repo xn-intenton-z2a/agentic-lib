@@ -128,3 +128,6 @@ mkdir -p "${DEST_DIR}/../../public"
 
 cp -v public/all.html "${DEST_DIR}/../../public/."
 cp -v public/stats.html "${DEST_DIR}/../../public/."
+
+# Copy the AGENT prompt files
+cp -v AGENT-*.md "${DEST_DIR}/../../."
