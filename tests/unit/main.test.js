@@ -274,3 +274,28 @@ describe("agenticHandler Batch Processing", () => {
     delete process.env.MAX_BATCH_COMMANDS;
   });
 });
+
+describe("Agentic Handler Command Aliases", () => {
+  beforeEach(() => {
+    // Set the alias environment variable for tests
+    process.env.COMMAND_ALIASES = JSON.stringify({ "ls": "list", "rm": "remove" });
+  });
+  afterEach(() => {
+    delete process.env.COMMAND_ALIASES;
+  });
+
+  test("applies alias substitution for single command", async () => {
+    const payload = { command: "ls" };
+    const response = await agenticLib.agenticHandler(payload);
+    expect(response.processedCommand).toBe("list");
+  });
+
+  test("applies alias substitution for batch commands", async () => {
+    const payload = { commands: ["ls", "rm", "status"] };
+    const response = await agenticLib.agenticHandler(payload);
+    expect(response.results[0].processedCommand).toBe("list");
+    expect(response.results[1].processedCommand).toBe("remove");
+    // 'status' is not aliased so remains unchanged
+    expect(response.results[2].processedCommand).toBe("status");
+  });
+});

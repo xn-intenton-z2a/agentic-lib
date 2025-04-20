@@ -94,6 +94,25 @@ export function createSQSEventFromDigest(digest) {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
+// Helper function to apply command aliases
+// ---------------------------------------------------------------------------------------------------------------------
+
+function applyAlias(command) {
+  if (typeof command !== "string") return command;
+  if (process.env.COMMAND_ALIASES) {
+    try {
+      const aliases = JSON.parse(process.env.COMMAND_ALIASES);
+      if (aliases && typeof aliases === 'object' && aliases.hasOwnProperty(command)) {
+        return aliases[command];
+      }
+    } catch (err) {
+      logError("COMMAND_ALIASES environment variable contains invalid JSON", err);
+    }
+  }
+  return command;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
 // SQS Lambda Handlers
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -155,16 +174,18 @@ export async function agenticHandler(payload) {
       const responses = [];
       for (const originalCmd of payload.commands) {
         const trimmedCmd = typeof originalCmd === 'string' ? originalCmd.trim() : originalCmd;
+        // Apply alias substitution
+        const substitutedCmd = applyAlias(trimmedCmd);
         const commandStart = Date.now();
-        if (typeof trimmedCmd !== "string" || trimmedCmd === "" || trimmedCmd.toLowerCase() === "nan") {
+        if (typeof substitutedCmd !== "string" || substitutedCmd === "" || substitutedCmd.toLowerCase() === "nan") {
           const errorMsg = "Invalid prompt input in commands: each command must be a valid non-empty string and not 'NaN'";
           logError(errorMsg);
           throw new Error(errorMsg);
         }
-        logInfo(`Agentic Handler: processing command ${trimmedCmd}`);
+        logInfo(`Agentic Handler: processing command ${substitutedCmd}`);
         const response = {
           status: "success",
-          processedCommand: trimmedCmd,
+          processedCommand: substitutedCmd,
           timestamp: new Date().toISOString(),
           executionTimeMS: Date.now() - commandStart
         };
@@ -178,16 +199,18 @@ export async function agenticHandler(payload) {
       // Single command processing with normalization
       const startTime = Date.now();
       const trimmedCommand = typeof payload.command === 'string' ? payload.command.trim() : payload.command;
-      if (typeof trimmedCommand !== "string" || trimmedCommand === "" || trimmedCommand.toLowerCase() === "nan") {
+      // Apply alias substitution
+      const substitutedCommand = applyAlias(trimmedCommand);
+      if (typeof substitutedCommand !== "string" || substitutedCommand === "" || substitutedCommand.toLowerCase() === "nan") {
         const errorMsg = "Invalid prompt input: command is non-actionable because it is equivalent to 'NaN'. Please provide a valid, non-empty string command.";
         logError(errorMsg);
         throw new Error(errorMsg);
       }
       
-      logInfo(`Agentic Handler: processing command ${trimmedCommand}`);
+      logInfo(`Agentic Handler: processing command ${substitutedCommand}`);
       const response = {
         status: "success",
-        processedCommand: trimmedCommand,
+        processedCommand: substitutedCommand,
         timestamp: new Date().toISOString(),
         executionTimeMS: Date.now() - startTime
       };
