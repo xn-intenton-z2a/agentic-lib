@@ -25,13 +25,24 @@ mkdir -p "${DEST_DIR}"
 
 # Agent workflows
 
+rm -f "${DEST_DIR}/issue-reviewer.yml"
+cp -v .github/workflows/agent-code-to-close-issue.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-code-to-close-issue.yml"
+
+rm "${DEST_DIR}/feature-development-issue-creator.yml"
+cp -v .github/workflows/agent-feature-to-issue.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-feature-to-issue.yml"
+
 rm -f "${DEST_DIR}/apply-fix.yml"
 cp -v .github/workflows/agent-fix-code.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-fix-code.yml"
 
-rm "${DEST_DIR}/feature-development-issue-creator.yml"
-cp -v .github/workflows/agent-feature-to-issue.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}//agent-feature-to-issue.yml"
+rm -f "${DEST_DIR}/issue-worker.yml"
+cp -v .github/workflows/agent-issue-to-code.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-issue-to-code.yml"
+
+cp -v .github/workflows/agent-issue-to-ready-issue.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-issue-to-ready-issue.yml"
 
 rm -f "${DEST_DIR}/feature-worker.yml"
 cp -v .github/workflows/agent-library-to-feature.yml "${DEST_DIR}/."
@@ -41,18 +52,6 @@ rm -f "${DEST_DIR}/issue-for-linting.yml"
 cp -v .github/workflows/agent-linting-to-issue.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-linting-to-issue.yml"
 
-rm -f "${DEST_DIR}/issue-reviewer.yml"
-cp -v .github/workflows/agent-code-to-close-issue.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-code-to-close-issue.yml"
-
-rm -f "${DEST_DIR}/issue-worker.yml"
-cp -v .github/workflows/agent-issue-to-code.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-issue-to-code.yml"
-
-rm -f "${DEST_DIR}/library-worker.yml"
-cp -v .github/workflows/agent-source-to-library.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-source-to-library.yml"
-
 rm -f "${DEST_DIR}/issue-creator.yml" "${DEST_DIR}/maintenance-issue-creator.yml" "${DEST_DIR}/agent-prompt-to-issue.yml"
 cp -v .github/workflows/agent-maintenance-activity-to-issue.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-maintenance-activity-to-issue.yml"
@@ -60,6 +59,10 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-maintenance-activity-to
 rm -f "${DEST_DIR}/source-worker.yml"
 cp -v .github/workflows/agent-mission-to-source.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-mission-to-source.yml"
+
+rm -f "${DEST_DIR}/library-worker.yml"
+cp -v .github/workflows/agent-source-to-library.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-source-to-library.yml"
 
 # CI workflows
 
