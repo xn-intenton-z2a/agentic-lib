@@ -418,19 +418,19 @@ jobs:
 
             Answer strictly with a JSON object following this schema:
             {
-              "action": "enhance", // "enhance" if the issue should be enhanced, "close" if it should be closed
-              "enhancedDescription": "Updated issue description with testable acceptance criteria", // Only if action is "enhance"
-              "relevantLibraryDocuments": ["document1.md", "document2.md"], // Array of relevant library document names, only if action is "enhance"
-              "closeReason": "Explanation of why the issue was closed" // Only if action is "close"
+              "action": "enhance", // Whether to enhance the issue, close it pr do nothing.
+              "enhancedDescription": "Updated issue description with testable acceptance criteria", // Updated issue description with testable acceptance criteria if action is 'enhance', otherwise match the supplied issue description.
+              "relevantLibraryDocuments": ["document1.md", "document2.md"], // Array of relevant library document names if action is 'enhance', otherwise a an empty array.
+              "closeReason": "Explanation of why the issue was closed" // Explanation of why the issue was closed if action is 'close', otherwise 'n/a'.
             }
             Ensure valid JSON.
             `;
 
             const ResponseSchema = z.object({ 
-              action: z.enum(["enhance", "close"]), 
-              enhancedDescription: z.string().optional(), 
-              relevantLibraryDocuments: z.array(z.string()).optional(),
-              closeReason: z.string().optional()
+              action: z.enum(["enhance", "close", "nop"]), 
+              enhancedDescription: z.string(), 
+              relevantLibraryDocuments: z.array(z.string()),
+              closeReason: z.string()
             });
 
             // Define the function schema for function calling
@@ -444,24 +444,24 @@ jobs:
                   properties: {
                     action: { 
                       type: "string", 
-                      enum: ["enhance", "close"],
-                      description: "Whether to enhance the issue or close it" 
+                      enum: ["enhance", "close", "nop"],
+                      description: "Whether to enhance the issue, close it pr do nothing." 
                     },
                     enhancedDescription: { 
                       type: "string", 
-                      description: "Updated issue description with testable acceptance criteria. Only required if action is 'enhance'." 
+                      description: "Updated issue description with testable acceptance criteria if action is 'enhance', otherwise match the supplied issue description." 
                     },
                     relevantLibraryDocuments: { 
                       type: "array", 
                       items: { type: "string" },
-                      description: "Array of relevant library document names. Only required if action is 'enhance'." 
+                      description: "Array of relevant library document names if action is 'enhance', otherwise a an empty array." 
                     },
                     closeReason: { 
                       type: "string", 
-                      description: "Explanation of why the issue was closed. Only required if action is 'close'." 
+                      description: "Explanation of why the issue was closed if action is 'close', otherwise 'n/a'." 
                     }
                   },
-                  required: ["action"],
+                  required: ["action", "enhancedDescription", "relevantLibraryDocuments", "closeReason"],
                   additionalProperties: false
                 },
                 strict: true
