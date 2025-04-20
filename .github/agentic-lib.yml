@@ -16,11 +16,11 @@ attemptsPerIssue: 2
 # Mapping for writeable filepaths
 # These are used as defaults when invoking workflows and as allowed patterns for agents
 writeableFilepaths:
-  src: "src/lib/"
-  tests: "tests/unit/"
-  docs: "docs/"
-  sources: "SOURCES*.md"
-  library: "library/*"
-  features: "features/*"
+  docs:         "docs/"
+  features:     "features/"
+  library:      "library/"
+  src:          "src/lib/"
+  tests:        "tests/unit/"
   dependencies: "package.json"
-  readme: "README.md"
+  readme:       "README.md"
+  sources:      "SOURCES.md"
