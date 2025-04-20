@@ -495,17 +495,22 @@ jobs:
               core.setFailed("No valid response received from OpenAI.");
             }
 
+            let parsed;
             try {
-              const parsed = ResponseSchema.parse(result);
+              parsed = ResponseSchema.parse(result);
               core.setOutput("action", parsed.action);
+            } catch (e) {
+              core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
+            }
+            
+            if (parsed.action === "enhance") {
+              core.setOutput("enhancedDescription", parsed.enhancedDescription || "");
+              core.setOutput("relevantLibraryDocuments", JSON.stringify(parsed.relevantLibraryDocuments || []));
+              core.info(`action: "enhance"`);
+              core.info(`enhancedDescription: "${parsed.enhancedDescription}"`);
+              core.info(`relevantLibraryDocuments: ${JSON.stringify(parsed.relevantLibraryDocuments)}`);
 
-              if (parsed.action === "enhance") {
-                core.setOutput("enhancedDescription", parsed.enhancedDescription || "");
-                core.setOutput("relevantLibraryDocuments", JSON.stringify(parsed.relevantLibraryDocuments || []));
-                core.info(`action: "enhance"`);
-                core.info(`enhancedDescription: "${parsed.enhancedDescription}"`);
-                core.info(`relevantLibraryDocuments: ${JSON.stringify(parsed.relevantLibraryDocuments)}`);
-
+              try {
                 // Update issue description
                 await github.rest.issues.update({
                   owner: context.repo.owner,
@@ -513,7 +518,7 @@ jobs:
                   issue_number: issueNumber,
                   body: parsed.enhancedDescription
                 });
-
+  
                 // Add 'ready' label
                 await github.rest.issues.addLabels({
                   owner: context.repo.owner,
@@ -536,7 +541,7 @@ jobs:
                     }
                   }
                 }
-
+  
                 // Add a comment indicating the issue has been enhanced
                 await github.rest.issues.createComment({
                   owner: context.repo.owner,
@@ -544,11 +549,15 @@ jobs:
                   issue_number: issueNumber,
                   body: "This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents have been added as comments."
                 });
-              } else {
+              } catch (e) {
+                core.setFailed(`Failed to update issue and add comments: ${e.message}`);
+              }
+            } else if (parsed.action === "enhance") {
+              try {
                 core.setOutput("closeReason", parsed.closeReason || "");
                 core.info(`action: "close"`);
                 core.info(`closeReason: "${parsed.closeReason}"`);
-
+  
                 // Add a comment explaining why the issue was closed
                 await github.rest.issues.createComment({
                   owner: context.repo.owner,
@@ -556,7 +565,7 @@ jobs:
                   issue_number: issueNumber,
                   body: parsed.closeReason
                 });
-
+  
                 // Close the issue
                 await github.rest.issues.update({
                   owner: context.repo.owner,
@@ -564,9 +573,11 @@ jobs:
                   issue_number: issueNumber,
                   state: "closed"
                 });
+              } catch (e) {
+                core.setFailed(`Failed to update issue description: ${e.message}`);
               }
-            } catch (e) {
-              core.setFailed(`Failed to parse ChatGPT response and update the issue: ${e.message}`);
+            } else {
+              core.info(`action: "nop"`);
             }
 
             core.setOutput("response", JSON.stringify(response));
