@@ -172,7 +172,7 @@ jobs:
             const { z } = require('zod');
             const axios = require('axios');
             const cheerio = require('cheerio');
-            const minimatch = require('minimatch');
+            const { minimatch } = require('minimatch');
             require('dotenv').config();
 
             // Function to check if a file path matches any of the writeable filepaths
