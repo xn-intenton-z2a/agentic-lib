@@ -257,7 +257,7 @@ jobs:
             const libraryDir = process.env.libraryDir;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
-            const prompt = parseInt(process.env.prompt);
+            const prompt = process.env.prompt;
             const dependenciesListOutput = process.env.dependenciesListOutput;
             const issueSelectionLabel = process.env.issueSelectionLabel;
 
