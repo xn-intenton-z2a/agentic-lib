@@ -264,7 +264,7 @@ jobs:
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
             let promptHint;
-            if (!process.env.promptHint && process.env.promptHint === "house choice") {
+            if (!process.env.promptHint || process.env.promptHint === "house choice") {
               promptHint = "Pick the most useful and timely activity from the maintenance activity types";
             } else {
               promptHint = process.env.promptHint;
