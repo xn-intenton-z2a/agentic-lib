@@ -23,4 +23,4 @@ writeableFilepaths:
   tests:        "tests/unit/"
   dependencies: "package.json"
   readme:       "README.md"
-  sources:      "SOURCES.md"
+  sources:      "SOURCES*.md"
