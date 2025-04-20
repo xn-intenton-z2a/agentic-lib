@@ -8,6 +8,8 @@ All significant features of the repository should be present in the feature set 
 Before adding a new feature ensure that this feature is distinct from any other feature in the repository, otherwise update an existing feature.
 When updating an existing feature, ensure that the existing aspects are not omitted in the response, provide the full feature spec.
 The feature name should be one or two words in SCREAMING_SNAKECASE.
+Use library documents for inspiration and as resources for the detail of the feature.
+Consider the contents of the library documents for similar products and avoid duplication where we can use a library.
 Any new feature should not be similar to any of the rejected features and steer existing features away from the rejected features.
 The feature spec should be a detailed description of the feature, compatible with the guidelines in CONTRIBUTING.md.
 You may also just update a feature spec to bring it to a high standard matching other features in the repository.

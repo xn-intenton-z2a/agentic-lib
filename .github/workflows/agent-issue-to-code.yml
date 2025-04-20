@@ -26,16 +26,16 @@ on:
         type: string
         default: 'tests/unit/main.test.js'
       selectionLabel:
-        description: 'Label used to filter issues for resolution. e.g. "automated"'
+        description: 'Label used to filter issues for resolution. e.g. "ready"'
         required: false
         type: string
-        default: 'automated'
+        default: 'ready'
   workflow_run:
     workflows:
-      - agent-feature-to-issue
-      - agent-maintenance-activity-to-issue
-      - agent-linting-to-issue
-      #- agent-issue-to-ready-issue
+      #- agent-feature-to-issue
+      #- agent-maintenance-activity-to-issue
+      #- agent-linting-to-issue
+      - agent-issue-to-ready-issue
     types:
       - completed
   schedule:
@@ -171,7 +171,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
-      selectionLabel: ${{ inputs.selectionLabel || 'automated' }}
+      selectionLabel: ${{ inputs.selectionLabel || 'ready' }}
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 

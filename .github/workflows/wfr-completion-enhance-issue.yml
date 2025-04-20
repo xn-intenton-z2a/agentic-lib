@@ -354,7 +354,7 @@ jobs:
 
             Library documents:
             LIBRARY_DOCUMENTS_START
-            ${libraryContent}
+            ${libraryContent.substring(0, 100000)}
             LIBRARY_DOCUMENTS_END
 
             Source file: ${target}
