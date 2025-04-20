@@ -4,7 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: agent-code-to-close-issue
-run-name: "agent-code-to-close-issue[${{ github.ref_name }}]"
+run-name: "agent-code-to-close-issue"
 
 on:
   workflow_dispatch:

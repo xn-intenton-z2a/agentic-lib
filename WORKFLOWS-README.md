@@ -645,7 +645,11 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-MVP] Add to agentic-lib.yml a mapping for concepts such as src / tests / docs / sources / library  and use these as defaults when invoking the workflows and at any time a default is applied.
 - [x] [r0w-MVP] Why don't tests run after merge? (Possibly because it down stream of auto-merge PRs under a token of some kind .)
 - [x] [r0w-MVP] Why did the issue get closed right after the merge?
-- [ ] [r0w-MVP] In the refiner replace ${libraryDocuments.substring(0, 10000)} with the summary of each library document extracted from the markdown looking for the summary section.
+- [ ] [r0w-MVP]
+In the refiner replace the need to truncate like this ${libraryDocuments.substring(0, 10000)} 
+by exacting the summary of each library document extracted from the markdown by extracting the summary
+section to concatenate the summaries into libraryDocuments instead of the whole document. The workflow
+should continue to pick the relevant documents from the library and add the whole document to the issue.
 - [ ] [r0w-MVP] In the feature maintainer replace ${libraryDocuments.substring(0, 10000)} with a condensed form of the library documents (a new section to be added to the library)
 - [ ] Support creation, edit and deletion of multiple files of each type (src, tests, docs, sources, library) etc.
 - [ ] Add a PR review workflow with a reviewer and responder.
