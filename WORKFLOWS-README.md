@@ -727,6 +727,10 @@ supervisor: chat-pro
 - [ ] Principle: Charge a margin on top of dynamically calculated shared platform costs.
 - [ ] Principle: Offer free tier features where there is no running cost (e.g. libraries).
 - [ ] Principle: For every paid feature there is a self-hosted or BYOKeys alternative.
+- [ ] Website with auth by github or Google etc... all features available (paid via purchase of action subscription). 
+- [ ] Website kicks off creation and invites to Chat (support various platforms).
+- [ ] Content filtering required for the website.
+- [ ] Website allows submission of prompts (one at a time) for an experiment repo which runs for a bit on a branch and shares the permalink.
 
 Supervisor launch:
 - [ ] Show which agent is operating in a swim lane with a solid region where they were active.
