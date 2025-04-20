@@ -5,17 +5,17 @@ This document provides usage details for the agentic-lib command line interface.
 ## Available Commands
 
 - **--help**: Displays the help message with usage instructions.
-- **--digest**: Runs a sample digest process simulating an SQS event.
-- **--agentic <jsonPayload>**: Processes an agentic command using a JSON payload. The payload may contain a single command using a `command` property, or a batch of commands using a `commands` array. Each valid command increments an internal invocation counter.
-- **--version**: Outputs version information from package.json along with a timestamp.
-- **--verbose**: Activates detailed logging for debugging purposes.
-- **--diagnostics**: Outputs detailed diagnostics including the configuration, Node.js version, and relevant environment variables.
-- **--status**: Displays a runtime health summary in JSON format (includes configuration, Node version, callCount, uptime, etc.).
-- **--dry-run**: Executes a dry run without causing any side effects. (Prints "Dry-run: No action taken.")
-- **--simulate-error**: Simulates an error for testing by triggering an immediate error and exiting with a non-zero status code.
-- **--simulate-delay <ms>**: Delays execution for the specified number of milliseconds to simulate processing latency.
-- **--apply-fix**: Applies an automated fix and logs a success message (no further actions are taken).
-- **--cli-utils**: Displays a summary of all available CLI commands along with brief descriptions.
+- **--digest**: Runs a full bucket replay simulating an SQS event.
+- **--agentic <jsonPayload>**: Processes an agentic command using a JSON payload. The payload can contain a single command using a `command` property or a batch of commands using a `commands` array. Each valid command increments an internal invocation counter and returns an `executionTimeMS` value indicating processing time.
+- **--version**: Shows version information retrieved from package.json along with the current timestamp.
+- **--verbose**: Enables detailed logging for debugging purposes.
+- **--diagnostics**: Outputs detailed diagnostics including configuration, Node.js version, and relevant environment variables.
+- **--status**: Displays runtime health summary in JSON format including configuration, Node version, call count, and uptime.
+- **--dry-run**: Executes a dry run without causing any side effects (prints "Dry-run: No action taken.").
+- **--simulate-error**: Simulates an error for testing purposes by triggering an immediate error and exiting with a non-zero status code.
+- **--simulate-delay <ms>**: Simulates processing delay for the specified number of milliseconds.
+- **--apply-fix**: Applies an automated fix and logs a success message.
+- **--cli-utils**: Displays a summary of available CLI commands along with their descriptions.
 
 ## Examples
 
@@ -37,7 +37,7 @@ This document provides usage details for the agentic-lib command line interface.
    node src/lib/main.js --agentic '{"commands": ["cmd1", "cmd2"]}'
    ```
 
-4. **Simulate a Dry Run (Do Nothing)**:
+4. **Simulate a Dry Run**:
 
    ```
    node src/lib/main.js --dry-run
