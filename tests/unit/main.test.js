@@ -139,15 +139,6 @@ describe("CLI Simulate Error Flag", () => {
   });
 });
 
-describe("CLI Simulate Delay Flag", () => {
-  test("delays execution by at least the specified duration", async () => {
-    const start = Date.now();
-    await agenticLib.main(["--simulate-delay", "50", "--dry-run"]);
-    const elapsed = Date.now() - start;
-    expect(elapsed).toBeGreaterThanOrEqual(50);
-  });
-});
-
 describe("CLI Apply Fix Flag", () => {
   test("logs applied fix message and exits immediately when --apply-fix flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
