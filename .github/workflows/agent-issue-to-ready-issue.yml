@@ -33,7 +33,7 @@ on:
   #workflow_run:
   #  workflows:
   #    - agent-feature-to-issue
-  #    - agent-prompt-to-issue
+  #    - agent-maintenance-activity-to-issue
   #    - agent-linting-to-issue
   #  types:
   #    - completed

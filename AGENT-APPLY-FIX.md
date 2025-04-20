@@ -11,6 +11,7 @@ Consider the following when refining your response:
 * Formatting file content
 * Linting file content
 * Dependency install output
+* Issue details (if any)
 * Build output
 * Test output
 * Main execution output

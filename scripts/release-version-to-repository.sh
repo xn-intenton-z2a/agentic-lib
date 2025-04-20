@@ -53,9 +53,9 @@ rm -f "${DEST_DIR}/library-worker.yml"
 cp -v .github/workflows/agent-source-to-library.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-source-to-library.yml"
 
-rm -f "${DEST_DIR}/issue-creator.yml" "${DEST_DIR}/maintenance-issue-creator.yml"
-cp -v .github/workflows/agent-prompt-to-issue.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-prompt-to-issue.yml"
+rm -f "${DEST_DIR}/issue-creator.yml" "${DEST_DIR}/maintenance-issue-creator.yml" "${DEST_DIR}/agent-prompt-to-issue.yml"
+cp -v .github/workflows/agent-maintenance-activity-to-issue.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-maintenance-activity-to-issue.yml"
 
 rm -f "${DEST_DIR}/source-worker.yml"
 cp -v .github/workflows/agent-mission-to-source.yml "${DEST_DIR}/."

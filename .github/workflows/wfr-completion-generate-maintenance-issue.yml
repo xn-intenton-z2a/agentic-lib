@@ -28,8 +28,8 @@ name: ∞ generate-maintenance-issue
 on:
   workflow_call:
     inputs:
-      prompt:
-        description: 'The prompt to guide the issue creation. e.g. "Make an improvement to tests."'
+      promptHint:
+        description: 'The promptHint to guide the issue creation. e.g. "Make an improvement to tests."'
         type: string
         required: true
       featuresDir:
@@ -102,6 +102,11 @@ on:
         type: string
         required: false
         default: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      promptFile:
+        description: 'The file containing the prompt text. e.g. "AGENT-MAINTENANCE-ISSUE.md"'
+        type: string
+        required: false
+        default: 'AGENT-MAINTENANCE-ISSUE.md'
       npmAuthOrganisation:
         description: 'The GitHub organisation to authenticate with for npm. e.g. "@xn-intenton-z2a"'
         type: string
@@ -133,7 +138,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      prompt: ${{ inputs.prompt || '' }}
+      promptHint: ${{ inputs.promptHint || '' }}
       featuresDir: ${{ inputs.featuresDir || 'features/' }}
       libraryDir: ${{ inputs.libraryDir || 'library/' }}
       maintenanceIssuesWipLimit: ${{ inputs.maintenanceIssuesWipLimit || '5' }}
@@ -151,6 +156,7 @@ jobs:
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      promptFile: ${{ inputs.promptFile || 'AGENT-MAINTENANCE-ISSUE.md' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
 
@@ -257,7 +263,8 @@ jobs:
             const libraryDir = process.env.libraryDir;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
-            const prompt = process.env.prompt;
+            const promptHint = process.env.promptHint;
+            const promptFile = process.env.promptFile;
             const dependenciesListOutput = process.env.dependenciesListOutput;
             const issueSelectionLabel = process.env.issueSelectionLabel;
 
@@ -299,10 +306,12 @@ jobs:
             const missionFileContent = fs.readFileSync(missionFile, 'utf8');
             const contributingFileContent = fs.readFileSync(contributingFile, 'utf8');
             const dependenciesFileContent = fs.readFileSync(dependenciesFile, 'utf8');
+            const promptContent = fs.readFileSync(promptFile, 'utf8');
             core.info(`Target file '${target}' has been loaded (length ${sourceFileContent.length}).`);
             core.info(`Test file '${testFile}' has been loaded (length ${testFileContent.length}).`);
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
+            core.info(`Prompt file '${promptFile}' has been loaded (length ${promptContent.length}).`);
 
             // Get list of library documents
             let libraryFiles = [];
@@ -327,14 +336,10 @@ jobs:
             core.info(`Found ${libraryFiles.length} library documents in ${libraryDir}`);
 
             const chatGptPrompt = `
-            Please generate the title and description of a GitHub issue to which will be used to action the supplied prompt.
-            You may only give instructions in the issues to only change the source file, test file, README file and dependencies file content. You may not create issues that request new files, delete existing files, or change the other files provided in the prompt context.
-            The issue will be resolved by an LLM which can process over 200,000 tokens of context and it will provide completed source files in the response.
-            Do not include steps that would need to be taken manually by a human and expect to "dry-run" without an execution environment.
-            The maximum number of maintenance issues that should be open at any one time is ${maintenanceIssuesWipLimit}, if there are already ${maintenanceIssuesWipLimit} open issues fail this request.
-            Do not add valueless layers of validation, configuration, and abstraction. In particular do not create issues related to NaNs.
+            ${promptContent}
+
             Consider the following when refining your response:
-            * Prompt details
+            * Prompt hint
             * Current feature names and specifications in the repository
             * Source file content
             * Test file content
@@ -385,10 +390,10 @@ jobs:
             ${libraryContent}
             LIBRARY_DOCUMENTS_END
 
-            Prompt:
-            PROMPT_START
-            ${prompt}
-            PROMPT_END            
+            Prompt hint:
+            PROMPT_HINT_START
+            ${promptHint}
+            PROMPT_HINT_END            
 
             Dependencies list from command: npm list
             DEPENDENCIES_LIST_START
@@ -410,7 +415,7 @@ jobs:
               type: "function",
               function: {
                 name: "generate_issue",
-                description: "Elaborate on the supplied prompt and project files to create the issueTitle and issueDescription of a GitHub Issue. Return an object with issueTitle (string), and issueDescription (string).",
+                description: "Create the issueTitle and issueDescription of a GitHub Issue based on the maintenance activity type and prompt hint. Return an object with issueTitle (string), and issueDescription (string).",
                 parameters: {
                   type: "object",
                   properties: {

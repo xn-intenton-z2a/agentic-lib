@@ -178,7 +178,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      issueNumber: ${{ inputs.issueNumber }}
+      issueNumber: ${{ inputs.issueNumber || '' }}
       featuresDir: ${{ inputs.featuresDir || 'features/' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
