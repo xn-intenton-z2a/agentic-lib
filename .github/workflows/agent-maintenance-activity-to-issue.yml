@@ -121,7 +121,6 @@ jobs:
 
   create-issue:
     needs:
-      - select-prompt
       - generate-maintenance-issue
     permissions:
       issues: write
