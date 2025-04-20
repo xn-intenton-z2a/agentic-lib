@@ -636,7 +636,7 @@ Re-usable GitHub Actions Workflows:
 - [x] semantic versioning for releasing versions.
 - [x] [r0w-MVP] Grab the issue comments when working on an issue or a fix or a review.
 - [x] [r0w-MVP] Extract prompt text to AGENT.md files.
-- [x] [r0w-MVP] Attach relevant context from the library to an issue during refinement (and stop sending the whole libary to the issue worker).
+- [?] [r0w-MVP] Attach relevant context from the library to an issue during refinement (and stop sending the whole libary to the issue worker).
 - [x] [r0w-MVP] Add an issue refiner that picks and issues either sets 'ready', improves the issue, or closes it if irrelevant. (Then change the issue worker to look for 'ready' issues.)
 - [x] [r0w-MVP] Mark in-progress issues as such, and change the issue worker to ignore 'in-progress' issues.
 - [x] [r0w-MVP] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
