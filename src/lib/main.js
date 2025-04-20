@@ -172,6 +172,7 @@ export async function agenticHandler(payload) {
       }
 
       const responses = [];
+      const batchStartTime = Date.now();
       for (const originalCmd of payload.commands) {
         const trimmedCmd = typeof originalCmd === 'string' ? originalCmd.trim() : originalCmd;
         // Apply alias substitution
@@ -192,7 +193,15 @@ export async function agenticHandler(payload) {
         responses.push(response);
         globalThis.callCount++;
       }
-      return { status: "success", results: responses };
+      const totalTime = Date.now() - batchStartTime;
+      return {
+        status: "success",
+        results: responses,
+        batchSummary: {
+          totalCommands: payload.commands.length,
+          totalExecutionTimeMS: totalTime
+        }
+      };
     } else if (!('command' in payload)) {
       throw new Error("Payload must have a 'command' property");
     } else {
