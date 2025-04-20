@@ -35,13 +35,13 @@ on:
         required: false
         type: boolean
         default: false
-  workflow_run:
-    workflows:
-      - 'agent-issue-to-code'
-    types:
-      - completed
-    branches:
-      - agentic-lib-*
+  #workflow_run:
+  #  workflows:
+  #    - agent-issue-to-code
+  #  types:
+  #    - completed
+  #  branches:
+  #    - agentic-lib-*
   schedule:
     - cron: '15 */12 * * *' # schedule-1
     #- cron: '15 */4 * * *' # schedule-2
