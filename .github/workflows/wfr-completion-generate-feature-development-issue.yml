@@ -275,6 +275,7 @@ jobs:
             const issueSelectionLabel = process.env.issueSelectionLabel;
 
             const fs = require('fs');
+            const path = require('path');
             const OpenAI = require('openai').default;
             const { z } = require('zod');
             require('dotenv').config();
@@ -307,6 +308,7 @@ jobs:
             core.info(`missionFile: "${missionFile}"`);
             core.info(`contributingFile: "${contributingFile}"`);
             core.info(`dependenciesFile: "${dependenciesFile}"`);
+            core.info(`libraryDir: "${libraryDir}"`);
             const sourceFileContent = fs.readFileSync(target, 'utf8');
             const testFileContent = fs.readFileSync(testFile, 'utf8');
             const readmeFileContent = fs.readFileSync(readmeFile, 'utf8');
@@ -340,7 +342,7 @@ jobs:
               core.warning(`Error reading library directory: ${e.message}`);
             }
 
-            core.info(`Found ${libraryFiles.length} library documents in ${libraryDir}`);
+            core.info(`Found ${libraryFiles.length} library documents in directory "${libraryDir}"`);
 
             const chatGptPrompt = `
             ${promptContent}
