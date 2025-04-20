@@ -242,17 +242,17 @@ export function applyFix() {
 export function cliUtilsHandler() {
   const cliCommands = [
     { command: "--help", description: "Show this help message and usage instructions." },
-    { command: "--digest", description: "Run full bucket replay." },
-    { command: "--agentic <jsonPayload>", description: "Process an agentic command with a JSON payload." },
-    { command: "--version", description: "Show version information along with a timestamp." },
-    { command: "--verbose", description: "Enable verbose logging for detailed output." },
-    { command: "--diagnostics", description: "Output detailed diagnostic information." },
-    { command: "--status", description: "Output runtime health summary in JSON format." },
+    { command: "--digest", description: "Run a full bucket replay simulating an SQS event." },
+    { command: "--agentic <jsonPayload>", description: "Process an agentic command using a JSON payload. Payload may include a 'command' or a 'commands' array for batch processing." },
+    { command: "--version", description: "Show version information with current timestamp." },
+    { command: "--verbose", description: "Enable detailed logging for debugging." },
+    { command: "--diagnostics", description: "Output detailed diagnostics including configuration and environment details." },
+    { command: "--status", description: "Display runtime health summary in JSON format." },
     { command: "--dry-run", description: "Execute a dry run with no side effects." },
-    { command: "--simulate-error", description: "Simulate an error for testing purposes." },
+    { command: "--simulate-error", description: "Simulate an error for testing purposes and exit." },
     { command: "--simulate-delay <ms>", description: "Simulate processing delay for the specified duration in milliseconds." },
-    { command: "--apply-fix", description: "Apply automated fixes and log success message" },
-    { command: "--cli-utils", description: "Display a summary of available CLI commands and their descriptions." }
+    { command: "--apply-fix", description: "Apply automated fix and log success message" },
+    { command: "--cli-utils", description: "Display a summary of available CLI commands with their descriptions." }
   ];
   let output = "CLI Commands Summary:\n";
   cliCommands.forEach(cmd => {
@@ -276,20 +276,20 @@ export function cliUtilsHandler() {
 
 function generateUsage() {
   return `
-      Usage:
-      --help                     Show this help message (default)
-      --digest                   Run full bucket replay
-      --agentic <jsonPayload>    Process an agentic command with a JSON payload
-      --version                  Show version information
-      --verbose                  Enable verbose logging
-      --diagnostics              Output detailed diagnostic information
-      --status                   Output runtime health summary in JSON format
-      --dry-run                  Execute a dry run with no side effects
-      --simulate-error           Simulate an error for testing purposes
-      --simulate-delay <ms>      Simulate processing delay for the specified duration in milliseconds
-      --apply-fix                Apply automated fixes and log success message
-      --cli-utils                Display a summary of available CLI commands and their descriptions
-    `;
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --agentic <jsonPayload>    Process an agentic command using a JSON payload. Payload may include a 'command' or a 'commands' array for batch processing.
+  --version                  Show version information with current timestamp.
+  --verbose                  Enable detailed logging for debugging.
+  --diagnostics              Output detailed diagnostics including config and environment details.
+  --status                   Display runtime health summary in JSON format.
+  --dry-run                  Execute a dry run with no side effects.
+  --simulate-error           Simulate an error for testing purposes and exit.
+  --simulate-delay <ms>      Simulate processing delay for the specified duration in milliseconds.
+  --apply-fix                Apply automated fix and log success message.
+  --cli-utils                Display a summary of available CLI commands with their descriptions.
+`;
 }
 
 export async function main(args = process.argv.slice(2)) {
