@@ -642,7 +642,7 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-MVP] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
 - [x] [r0w-MVP] Add to agentic-lib.yml a list of filepath patterns which are allowed to be changed by agents (default: [ "features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md" ]) and have these checked before writing to a file.
 - [x] [r0w-MVP] Allow user supplied sources files for building the library.
-- [~] [r0w-MVP] Add to agentic-lib.yml a mapping for concepts such as src / tests / docs / sources / library  and use these as defaults when invoking the workflows and at any time a default is applied.
+- [x] [r0w-MVP] Add to agentic-lib.yml a mapping for concepts such as src / tests / docs / sources / library  and use these as defaults when invoking the workflows and at any time a default is applied.
 - [ ] [r0w-MVP] Replace ${libraryDocuments.substring(0, 10000)} with a summary of the library documents.
 - [ ] [r0w-MVP] Why don't tests run after merge? (Possibly because it down stream of auto-merge PRs under a token of some kind .)
 - [ ] [r0w-MVP] Why did the issue get closed right after the merge?
