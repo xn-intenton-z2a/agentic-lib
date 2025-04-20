@@ -643,7 +643,8 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-MVP] Add to agentic-lib.yml a list of filepath patterns which are allowed to be changed by agents (default: [ "features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md" ]) and have these checked before writing to a file.
 - [x] [r0w-MVP] Allow user supplied sources files for building the library.
 - [x] [r0w-MVP] Add to agentic-lib.yml a mapping for concepts such as src / tests / docs / sources / library  and use these as defaults when invoking the workflows and at any time a default is applied.
-- [ ] [r0w-MVP] Replace ${libraryDocuments.substring(0, 10000)} with a summary of the library documents.
+- [ ] [r0w-MVP] In the refiner replace ${libraryDocuments.substring(0, 10000)} with the summary of each library document extracted from the markdown looking for the summary section.
+- [ ] [r0w-MVP] In the feature maintainer replace ${libraryDocuments.substring(0, 10000)} with a condensed form of the library documents (a new section to be added to the library)
 - [ ] [r0w-MVP] Why don't tests run after merge? (Possibly because it down stream of auto-merge PRs under a token of some kind .)
 - [ ] [r0w-MVP] Why did the issue get closed right after the merge?
 - [ ] Support creation, edit and deletion of multiple files of each type (src, tests, docs, sources, library) etc.

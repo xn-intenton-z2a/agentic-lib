@@ -8,6 +8,8 @@ run-name: 'ci-test [${{ github.ref_name }}] [${{ github.event.head_commit.messag
 
 on:
   push:
+    branches:
+      - main
     paths:
       - '**/*.sh'
       - '**/*.java'
@@ -18,6 +20,13 @@ on:
       - '**/*.properties'
       - '!exports/**'
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - "ci-automerge"
+    types:
+      - completed
+    branches:
+      - main
   schedule:
     - cron: '17 */12 * * *' # schedule-1
     #- cron: '17 */4 * * *' # schedule-2
@@ -35,8 +44,25 @@ env:
 
 jobs:
 
+  check-workflow-run:
+    name: 'Check workflow run trigger'
+    runs-on: ubuntu-latest
+    outputs:
+      is_workflow_run: ${{ steps.check.outputs.is_workflow_run }}
+    steps:
+      - id: check
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+            echo "is_workflow_run=true" >> $GITHUB_OUTPUT
+            echo "This workflow was triggered by a workflow_run event"
+          else
+            echo "is_workflow_run=false" >> $GITHUB_OUTPUT
+            echo "This workflow was triggered by a ${{ github.event_name }} event"
+          fi
+
   npm-test:
     name: 'npm test'
+    needs: check-workflow-run
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -64,6 +90,7 @@ jobs:
 
   npm-unit-test:
     name: 'npm unit test with coverage'
+    needs: check-workflow-run
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -89,6 +116,7 @@ jobs:
       - run: npm run test:unit
 
   npm-build-test-and-run-main:
+    needs: check-workflow-run
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -127,6 +155,7 @@ jobs:
         run: timeout 5m ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
   mvn-package-cdk-synth:
+    needs: check-workflow-run
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -195,6 +224,7 @@ jobs:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   select-issue:
+    needs: check-workflow-run
     permissions:
       issues: read
       id-token: write
@@ -208,6 +238,10 @@ jobs:
   stats:
     needs:
       - select-issue
+      - npm-test
+      - npm-unit-test
+      - npm-build-test-and-run-main
+      - mvn-package-cdk-synth
     if: ${{ always() }}
     permissions:
       contents: write
