@@ -170,7 +170,7 @@ logger.on('finish', () =&gt; { console.log('All logs flushed'); });
 <li class="md-github">Returns: A Logger instance with helper methods: log(), error(), warn(), info(), http(), verbose(), debug(), and silly().</li>
 </ul>
 <p class="md-github">Example:</p>
-<pre class="md-github"><code class="md-github language-javascript">const winston = require('winston');
+<pre class="md-github"><code class="md-github language-javascript">const winston = require('library/archive-2025-04-20/WINSTON');
 
 const logger = winston.createLogger({
   level: 'info',
@@ -337,7 +337,7 @@ https://github.com/winstonjs/winston</p>
 <p class="md-github">Refer to examples in the <code class="md-github">./examples/</code> folder.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="usage" href="#usage"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Usage</h2>
 <p class="md-github">The recommended way is to create your own logger:</p>
-<pre class="md-github"><code class="md-github language-javascript">const winston = require('winston');
+<pre class="md-github"><code class="md-github language-javascript">const winston = require('library/archive-2025-04-20/WINSTON');
 
 const logger = winston.createLogger({
   level: 'info',
@@ -393,7 +393,7 @@ if (process.env.NODE_ENV !== 'production') {
 </code></pre>
 <h2 class="md-github"><a class="md-github__anchor" name="formats-and-custom-formats" href="#formats-and-custom-formats"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Formats and Custom Formats</h2>
 <p class="md-github">Formats are composed using <code class="md-github">winston.format.combine</code>. Basic examples:</p>
-<pre class="md-github"><code class="md-github language-javascript">const { createLogger, format, transports } = require('winston');
+<pre class="md-github"><code class="md-github language-javascript">const { createLogger, format, transports } = require('library/archive-2025-04-20/WINSTON');
 const { combine, timestamp, label, printf } = format;
 
 const myFormat = printf(({ level, message, label, timestamp }) =&gt; {
@@ -525,7 +525,7 @@ logger.configure({
 
   </section>
   <footer>
-    <p>Generated on 2025-04-19T23:05:03.091Z</p>
+    <p>Generated on 2025-04-20T00:40:24.509Z</p>
   </footer>
 </body>
 </html>
