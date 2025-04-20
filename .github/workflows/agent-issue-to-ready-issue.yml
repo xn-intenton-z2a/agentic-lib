@@ -5,7 +5,7 @@
 
 name: agent-issue-to-ready-issue
 concurrency: agent-issue-to-ready-issue
-run-name: "agent-issue-to-ready-issue"
+run-name: "agent issue to ready issue"
 
 on:
   workflow_dispatch:
