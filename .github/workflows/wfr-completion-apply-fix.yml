@@ -400,7 +400,6 @@ jobs:
             let issueDescription;
             let issueCommentsText;
             if (issueNumber) {
-              let issueComments = await github.rest.issues.listComments({
               issue = await github.rest.issues.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
