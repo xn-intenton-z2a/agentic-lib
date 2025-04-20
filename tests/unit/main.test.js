@@ -240,6 +240,10 @@ describe("agenticHandler Batch Processing", () => {
       expect(typeof res.executionTimeMS).toBe('number');
       expect(res.executionTimeMS).toBeGreaterThanOrEqual(0);
     });
+    // New assertions for batchSummary
+    expect(response).toHaveProperty('batchSummary');
+    expect(response.batchSummary.totalCommands).toBe(3);
+    expect(response.batchSummary.totalExecutionTimeMS).toBeGreaterThanOrEqual(0);
     expect(globalThis.callCount).toBe(3);
   });
 
