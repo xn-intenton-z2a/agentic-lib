@@ -11,7 +11,7 @@ This document provides usage details for the agentic-lib command line interface.
 - **--verbose**: Activates detailed logging for debugging purposes.
 - **--diagnostics**: Outputs detailed diagnostics including the configuration, Node.js version, and relevant environment variables.
 - **--status**: Displays a runtime health summary in JSON format (includes configuration, Node version, callCount, uptime, etc.).
-- **--dry-run**: Executes a dry run without causing any side effects.
+- **--dry-run**: Executes a dry run without causing any side effects. (Prints "Dry-run: No action taken.")
 - **--simulate-error**: Simulates an error for testing by triggering an immediate error and exiting with a non-zero status code.
 - **--simulate-delay <ms>**: Delays execution for the specified number of milliseconds to simulate processing latency.
 - **--apply-fix**: Applies an automated fix and logs a success message (no further actions are taken).
@@ -37,7 +37,7 @@ This document provides usage details for the agentic-lib command line interface.
    node src/lib/main.js --agentic '{"commands": ["cmd1", "cmd2"]}'
    ```
 
-4. **Simulate a Dry Run**:
+4. **Simulate a Dry Run (Do Nothing)**:
 
    ```
    node src/lib/main.js --dry-run
