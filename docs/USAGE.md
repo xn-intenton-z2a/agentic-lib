@@ -17,6 +17,10 @@ This document provides clear and concise usage details for the agentic-lib comma
 - **--apply-fix**: Apply an automated fix and log a success message.
 - **--cli-utils**: Display a summary of available CLI commands with their descriptions.
 
+## Colorized Output Enhancement
+
+The CLI output has been enhanced using the chalk dependency for improved readability. Commands are displayed in blue and their corresponding descriptions in white (or their default color), providing a clear visual distinction.
+
 ## Examples
 
 1. **Display Help**:
@@ -49,7 +53,7 @@ This document provides clear and concise usage details for the agentic-lib comma
    node src/lib/main.js --diagnostics
    ```
 
-7. **Display CLI Utility Summary**:
+7. **Display CLI Utility Summary (with colored output)**:
    ```bash
    node src/lib/main.js --cli-utils
    ```

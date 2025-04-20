@@ -9,6 +9,7 @@ if (typeof globalThis.callCount === "undefined") {
 import { fileURLToPath } from "url";
 import { z } from "zod";
 import dotenv from "dotenv";
+import chalk from "chalk";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Environment configuration from .env file or environment variables or test values.
@@ -238,7 +239,7 @@ export function applyFix() {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// New function to handle CLI utilities display
+// New function to handle CLI utilities display with colored formatting
 // ---------------------------------------------------------------------------------------------------------------------
 
 export function cliUtilsHandler() {
@@ -256,18 +257,13 @@ export function cliUtilsHandler() {
     { command: "--apply-fix", description: "Apply automated fix and log success message" },
     { command: "--cli-utils", description: "Display a summary of available CLI commands with their descriptions." }
   ];
-  let output = "CLI Commands Summary:\n";
+  let output = chalk.bold("CLI Commands Summary:\n\n");
   cliCommands.forEach(cmd => {
-    // Ensure --apply-fix does not have a trailing period in its description
-    if (cmd.command === "--apply-fix") {
-      let desc = cmd.description;
-      if (desc.endsWith(".")) {
-        desc = desc.slice(0, -1);
-      }
-      output += `${cmd.command}: ${desc}\n`;
-    } else {
-      output += `${cmd.command}: ${cmd.description}\n`;
+    let desc = cmd.description;
+    if (cmd.command === "--apply-fix" && desc.endsWith(".")) {
+      desc = desc.slice(0, -1);
     }
+    output += chalk.blue(cmd.command) + ": " + chalk.white(desc) + "\n";
   });
   console.log(output);
 }
