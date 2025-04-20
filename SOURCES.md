@@ -112,3 +112,33 @@ Jenkins documentation offers in-depth guides on setting up, configuring, and cus
 ## https://www.terraform.io/docs
 Terraform's documentation provides comprehensive resources for infrastructure as code, including guides on writing configurations, managing state, using modules, and best practices for scalable and secure infrastructure management. It is maintained by HashiCorp and periodically updated with new features and improvements.
 ## License: Mozilla Public License 2.0
+
+# GitHub GraphQL API Documentation
+## https://docs.github.com/en/graphql
+This documentation covers GitHub's GraphQL API, providing detailed guidance on constructing queries, understanding schema, and implementing best practices for efficient data retrieval. Regularly updated by GitHub, it is an essential resource for developers looking to leverage GraphQL in their applications.
+## License: GitHub Docs Terms
+
+# AWS CloudWatch Documentation
+## https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html
+AWS CloudWatch documentation offers an overview of monitoring, logging, and event management capabilities provided by AWS. It details setup, configuration, and best practices for tracking and responding to system events in AWS environments.
+## License: AWS Documentation Terms
+
+# npm Documentation
+## https://docs.npmjs.com/
+The official npm documentation provides comprehensive information on using the npm package manager. It covers command-line usage, package authoring, dependency management, and troubleshooting, ensuring effective management of JavaScript packages and projects.
+## License: npm Documentation Terms
+
+# AWS SDK for JavaScript v3 Documentation
+## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/index.html
+This documentation details the AWS SDK for JavaScript v3, explaining its modular architecture and providing comprehensive API references, tutorials, and best practices for integrating AWS services into JavaScript applications.
+## License: AWS Documentation Terms
+
+# Vite Documentation
+## https://vitejs.dev/guide/
+Vite's documentation offers a deep dive into the fast development workflow provided by Vite. It includes guides on configuration, plugin usage, optimization techniques, and best practices for modern frontend development.
+## License: MIT License
+
+# GNU GPL v3 Documentation
+## https://www.gnu.org/licenses/gpl-3.0.en.html
+The GNU General Public License version 3 documentation provides detailed explanations of the licensing terms for software distributed under GPL v3. It covers user rights, obligations, and distribution requirements, serving as an authoritative legal resource for open-source licensing.
+## License: GNU GPL v3
