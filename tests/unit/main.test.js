@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeAll, beforeEach } from "vitest";
+import { describe, test, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
 
 // Ensure that the global callCount is reset before tests that rely on it
 beforeAll(() => {
@@ -8,6 +8,11 @@ beforeAll(() => {
 // Reset callCount before each test in agenticHandler tests
 beforeEach(() => {
   globalThis.callCount = 0;
+});
+
+// Clear all mocks after each test to tidy up
+afterEach(() => {
+  vi.clearAllMocks();
 });
 
 // Use dynamic import for the module to ensure mocks are applied correctly

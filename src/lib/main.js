@@ -251,7 +251,7 @@ export function cliUtilsHandler() {
     { command: "--dry-run", description: "Execute a dry run with no side effects." },
     { command: "--simulate-error", description: "Simulate an error for testing purposes." },
     { command: "--simulate-delay <ms>", description: "Simulate processing delay for the specified duration in milliseconds." },
-    { command: "--apply-fix", description: "Apply automated fixes and log a success message." },
+    { command: "--apply-fix", description: "Apply automated fixes and log success message." },
     { command: "--cli-utils", description: "Display a summary of available CLI commands and their descriptions." }
   ];
   let output = "CLI Commands Summary:\n";
