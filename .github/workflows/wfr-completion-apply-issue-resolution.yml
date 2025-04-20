@@ -330,8 +330,16 @@ jobs:
             require('dotenv').config();
 
             // Function to check if a file path matches any of the allowed patterns
-            function isFilePathAllowed(filePath, allowedPatterns) {
-              return allowedPatterns.some(pattern => minimatch(filePath, pattern));
+            function isFilePathAllowed(filePath, writeableFilepaths) {
+              // Ensure writeableFilepaths is an array
+              const patterns = Array.isArray(writeableFilepaths) ? writeableFilepaths : String(writeableFilepaths).split(',');
+              core.info(`Checking if file path '${filePath}' is allowed in writeableFilepaths: ${patterns}`);
+              return patterns.some(pattern => (
+                minimatch(filePath, pattern.trim()) || 
+                minimatch(filePath, `${pattern.trim()}*`) || 
+                minimatch(filePath, `${pattern.trim()}**`) || 
+                minimatch(filePath, `${pattern.trim()}/**`)
+              ));
             }
 
             if (!apiKey) { 
