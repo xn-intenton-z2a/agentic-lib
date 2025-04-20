@@ -283,28 +283,6 @@ jobs:
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
             core.info(`Prompt file '${promptFile}' has been loaded (length ${promptContent.length}).`);
 
-            // Load library documents
-            let libraryDocuments = '';
-            try {
-              const libraryDir = 'library';
-              if (fs.existsSync(libraryDir)) {
-                const libraryFiles = fs.readdirSync(libraryDir)
-                  .filter(file => file.endsWith('.md'))
-                  .map(file => path.join(libraryDir, file));
-
-                for (const file of libraryFiles) {
-                  const fileName = path.basename(file);
-                  const content = fs.readFileSync(file, 'utf8');
-                  libraryDocuments += `# ${fileName}\n${content}\n\n`;
-                }
-                core.info(`Loaded ${libraryFiles.length} library documents.`);
-              } else {
-                core.info('Library directory not found.');
-              }
-            } catch (e) {
-              core.warning(`Error reading library documents: ${e.message}`);
-            }
-
             const issue = await github.rest.issues.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -328,11 +306,6 @@ jobs:
             CURRENT_FEATURES_START
             ${currentFeatures}
             CURRENT_FEATURES_END
-
-            Library documents:
-            LIBRARY_DOCUMENTS_START
-            ${libraryDocuments}
-            LIBRARY_DOCUMENTS_END
 
             Source file: ${target}
             SOURCE_FILE_START

@@ -340,7 +340,7 @@ jobs:
 
             Library documents:
             LIBRARY_DOCUMENTS_START
-            ${libraryDocuments}
+            ${libraryDocuments.substring(0, 10000)}
             LIBRARY_DOCUMENTS_END
 
             Rejected feature names:

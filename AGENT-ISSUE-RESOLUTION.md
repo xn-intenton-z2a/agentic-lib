@@ -10,7 +10,6 @@ Consider the following when refining your response:
 * Dependencies file content
 * Formatting file content
 * Linting file content
-* Library documents
 * Issue details
 * Dependency list
 * Build output

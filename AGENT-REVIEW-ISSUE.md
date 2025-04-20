@@ -7,7 +7,6 @@ Consider the following when refining your response:
 * MISSION file content
 * Contributing file content
 * Dependencies file content
-* Library documents
 * Issue details
 * Dependency list
 * Build output

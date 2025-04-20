@@ -642,6 +642,9 @@ Re-usable GitHub Actions Workflows:
 - [~] [r0w-MVP] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
 - [~] [r0w-MVP] Add to agentic-lib.yml a list of filepath patterns which are allowed to be changed by agents (default: [ "features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md" ]) and have these checked before writing to a file.
 - [~] [r0w-MVP] Add to agentic-lib.yml a mapping for concepts such as src / tests / docs / sources / library  and use these as defaults when invoking the workflows and at any time a default is applied.
+- [ ] [r0w-MVP] Replace ${libraryDocuments.substring(0, 10000)} with a summary of the library documents.
+- [ ] [r0w-MVP] Attach relevant summarised docs to the issue during refinement.
+- [ ] [r0w-MVP] Grab the issue comments when working on an issue or a fix or a review.
 - [ ] Support creation, edit and deletion of multiple files of each type (src, tests, docs, sources, library) etc.
 - [ ] Add a PR review workflow with a reviewer and responder.
 - [ ] Remove the prompts folder favouring the maintenance AGENT.md files.
