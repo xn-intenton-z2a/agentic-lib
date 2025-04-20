@@ -24,298 +24,456 @@
   <section>
     <h1 class="md-github"><a class="md-github__anchor" name="github_actions" href="#github_actions"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GITHUB_ACTIONS</h1>
 <h2 class="md-github"><a class="md-github__anchor" name="crawl-summary" href="#crawl-summary"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Crawl Summary</h2>
-<p class="md-github">Crawled data did not contain direct technical content; using the GitHub Actions Best Practices reference, key technical details include explicit YAML configurations for events, job definitions, secrets management, caching strategies, and debugging commands. The guidelines stress version pinning, conditional execution via 'if', and usage of official actions such as checkout, setup-node, cache, and artifact upload.</p>
+<p class="md-github">The technical details extracted include precise YAML configuration for GitHub Actions workflows, including event triggers, job definitions, matrix strategies, dependency caching, and service containers. The content provides exact code examples with configuration values such as 'runs-on: ubuntu-latest', checkout version 'actions/checkout@v4', and detailed steps to list repository files and display job statuses. Additionally, advanced topics like using a matrix for Node.js version testing, caching the ~/.npm directory, and running service containers for PostgreSQL are covered with complete code snippets.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="normalised-extract" href="#normalised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Normalised Extract</h2>
 <h2 class="md-github"><a class="md-github__anchor" name="table-of-contents" href="#table-of-contents"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Table of Contents</h2>
 <ol class="md-github">
-<li class="md-github">Workflow YAML Configurations</li>
-<li class="md-github">Conditional Execution</li>
-<li class="md-github">Secrets and Environment Variables</li>
-<li class="md-github">Caching and Artifacts</li>
-<li class="md-github">Debugging and Troubleshooting</li>
+<li class="md-github">Overview</li>
+<li class="md-github">Workflow Configuration</li>
+<li class="md-github">Event Triggers</li>
+<li class="md-github">Job and Step Definitions</li>
+<li class="md-github">Actions and Runners</li>
+<li class="md-github">Advanced Configurations
+6.1 Matrix Strategy
+6.2 Caching Dependencies
+6.3 Service Containers</li>
+<li class="md-github">Quickstart Workflow Example</li>
 </ol>
-<h3 class="md-github"><a class="md-github__anchor" name="1-workflow-yaml-configurations" href="#1-workflow-yaml-configurations"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>1. Workflow YAML Configurations</h3>
+<hr class="md-github">
+<h3 class="md-github"><a class="md-github__anchor" name="1-overview" href="#1-overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>1. Overview</h3>
+<p class="md-github">GitHub Actions automates CI/CD pipelines. The workflows are YAML files placed in the <code class="md-github">.github/workflows</code> directory.</p>
+<h3 class="md-github"><a class="md-github__anchor" name="2-workflow-configuration" href="#2-workflow-configuration"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>2. Workflow Configuration</h3>
 <ul class="md-github">
-<li class="md-github">Example snippet:<pre class="md-github"><code class="md-github language-yaml">name: CI Pipeline
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+<li class="md-github"><strong class="md-github">YAML File Placement:</strong> <code class="md-github">.github/workflows</code></li>
+<li class="md-github"><strong class="md-github">Key Elements:</strong> <code class="md-github">name</code>, <code class="md-github">on</code>, <code class="md-github">jobs</code>.</li>
+<li class="md-github"><strong class="md-github">YAML Example:</strong></li>
+</ul>
+<pre class="md-github"><code class="md-github language-yaml">name: GitHub Actions Demo
+on: [push]
 jobs:
-  build:
+  ExampleJob:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '16'
+      - run: echo &quot;Triggered by ${{ github.event_name }}&quot;
 </code></pre>
-</li>
-<li class="md-github">Details: Use explicit versions for actions; define <code class="md-github">on</code> events and specify runner OS.</li>
-</ul>
-<h3 class="md-github"><a class="md-github__anchor" name="2-conditional-execution" href="#2-conditional-execution"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>2. Conditional Execution</h3>
+<h3 class="md-github"><a class="md-github__anchor" name="3-event-triggers" href="#3-event-triggers"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>3. Event Triggers</h3>
 <ul class="md-github">
-<li class="md-github">Example snippet:<pre class="md-github"><code class="md-github language-yaml">- name: Run tests only on push
-  if: ${{ github.event_name == 'push' }}
-  run: npm test
+<li class="md-github"><strong class="md-github">Definition:</strong> Events that trigger workflows (e.g., push, pull_request, schedule).</li>
+<li class="md-github"><strong class="md-github">Syntax Example:</strong></li>
+</ul>
+<pre class="md-github"><code class="md-github language-yaml">on: [push, pull_request]
 </code></pre>
-</li>
-<li class="md-github">Details: Conditions help limit step execution based on event context.</li>
-</ul>
-<h3 class="md-github"><a class="md-github__anchor" name="3-secrets-and-environment-variables" href="#3-secrets-and-environment-variables"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>3. Secrets and Environment Variables</h3>
+<h3 class="md-github"><a class="md-github__anchor" name="4-job-and-step-definitions" href="#4-job-and-step-definitions"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>4. Job and Step Definitions</h3>
 <ul class="md-github">
-<li class="md-github">Example snippet:<pre class="md-github"><code class="md-github language-yaml">env:
-  SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}
+<li class="md-github"><strong class="md-github">Jobs:</strong> Consist of multiple steps running on a designated runner.</li>
+<li class="md-github"><strong class="md-github">Example of Dependent Jobs:</strong></li>
+</ul>
+<pre class="md-github"><code class="md-github language-yaml">jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - run: ./setup.sh
+  build:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - run: ./build.sh
 </code></pre>
-</li>
-<li class="md-github">Details: Securely inject secrets and use environment variables for configuration.</li>
-</ul>
-<h3 class="md-github"><a class="md-github__anchor" name="4-caching-and-artifacts" href="#4-caching-and-artifacts"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>4. Caching and Artifacts</h3>
+<h3 class="md-github"><a class="md-github__anchor" name="5-actions-and-runners" href="#5-actions-and-runners"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>5. Actions and Runners</h3>
 <ul class="md-github">
-<li class="md-github">Caching example:<pre class="md-github"><code class="md-github language-yaml">- name: Cache dependencies
-  uses: actions/cache@v3
+<li class="md-github"><strong class="md-github">Actions Usage:</strong> Reusable tasks, e.g., checking out code using <code class="md-github">actions/checkout@v4</code>.</li>
+<li class="md-github"><strong class="md-github">Runners:</strong> Specified via <code class="md-github">runs-on</code> (e.g., ubuntu-latest, windows-latest, macos-latest).</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="6-advanced-configurations" href="#6-advanced-configurations"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>6. Advanced Configurations</h3>
+<h4 class="md-github"><a class="md-github__anchor" name="61-matrix-strategy" href="#61-matrix-strategy"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>6.1 Matrix Strategy</h4>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Purpose:</strong> Run jobs across different configurations.</li>
+<li class="md-github"><strong class="md-github">Example:</strong></li>
+</ul>
+<pre class="md-github"><code class="md-github language-yaml">strategy:
+  matrix:
+    node: [14, 16]
+</code></pre>
+<h4 class="md-github"><a class="md-github__anchor" name="62-caching-dependencies" href="#62-caching-dependencies"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>6.2 Caching Dependencies</h4>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Purpose:</strong> Cache directories like <code class="md-github">~/.npm</code> to speed up workflows.</li>
+<li class="md-github"><strong class="md-github">Example:</strong></li>
+</ul>
+<pre class="md-github"><code class="md-github language-yaml">- name: Cache node modules
+  uses: actions/cache@v4
   with:
-    path: node_modules
+    path: ~/.npm
+    key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+</code></pre>
+<h4 class="md-github"><a class="md-github__anchor" name="63-service-containers" href="#63-service-containers"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>6.3 Service Containers</h4>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Purpose:</strong> Provide ephemeral service containers (e.g., PostgreSQL) during workflows.</li>
+<li class="md-github"><strong class="md-github">Example:</strong></li>
+</ul>
+<pre class="md-github"><code class="md-github language-yaml">services:
+  postgres:
+    image: postgres
+</code></pre>
+<h3 class="md-github"><a class="md-github__anchor" name="7-quickstart-workflow-example" href="#7-quickstart-workflow-example"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>7. Quickstart Workflow Example</h3>
+<p class="md-github">A complete workflow that clones the repository, lists files, and reports status:</p>
+<pre class="md-github"><code class="md-github language-yaml">name: GitHub Actions Demo
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on: [push]
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo &quot;Triggered by ${{ github.event_name }}&quot;
+      - run: echo &quot;Running on ${{ runner.os }}&quot;
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: List files
+        run: ls ${{ github.workspace }}
+      - run: echo &quot;Job status: ${{ job.status }}&quot;
+</code></pre>
+<h2 class="md-github"><a class="md-github__anchor" name="supplementary-details" href="#supplementary-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Supplementary Details</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="detailed-implementation-specifications" href="#detailed-implementation-specifications"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Detailed Implementation Specifications</h3>
+<ol class="md-github">
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Workflow File Structure</strong>:</p>
+<ul class="md-github">
+<li class="md-github">Must be located in <code class="md-github">.github/workflows/</code>.</li>
+<li class="md-github">Filename must end with <code class="md-github">.yml</code> or <code class="md-github">.yaml</code>.</li>
+<li class="md-github">Example structure:
+<ul class="md-github">
+<li class="md-github"><code class="md-github">.github/</code>
+<ul class="md-github">
+<li class="md-github"><code class="md-github">workflows/</code>
+<ul class="md-github">
+<li class="md-github"><code class="md-github">github-actions-demo.yml</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Key YAML Keys and Their Effects</strong>:</p>
+<ul class="md-github">
+<li class="md-github"><code class="md-github">name</code>: Display name of the workflow.</li>
+<li class="md-github"><code class="md-github">run-name</code>: Custom label for each run, interpolating variables (e.g., <code class="md-github">${{ github.actor }}</code>).</li>
+<li class="md-github"><code class="md-github">on</code>: Defines when the workflow is executed. Can be events like <code class="md-github">push</code>, <code class="md-github">pull_request</code> or a schedule.</li>
+<li class="md-github"><code class="md-github">jobs</code>: Collection of job definitions.</li>
+<li class="md-github"><code class="md-github">runs-on</code>: Specifies the OS image. Common values: <code class="md-github">ubuntu-latest</code>, <code class="md-github">windows-latest</code>, <code class="md-github">macos-latest</code>.</li>
+<li class="md-github"><code class="md-github">steps</code>: Ordered list of commands or actions.</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Matrix Strategy &amp; Caching Examples</strong>:</p>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Matrix Usage:</strong> Trial different Node.js versions:<pre class="md-github"><code class="md-github language-yaml">strategy:
+  matrix:
+    node: [14, 16]
+</code></pre>
+</li>
+<li class="md-github"><strong class="md-github">Cache Dependencies:</strong> Caching NPM modules to optimize subsequent runs:<pre class="md-github"><code class="md-github language-yaml">- uses: actions/cache@v4
+  with:
+    path: ~/.npm
     key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 </code></pre>
 </li>
-<li class="md-github">Artifact upload example:<pre class="md-github"><code class="md-github language-yaml">- name: Upload artifact
-  uses: actions/upload-artifact@v3
-  with:
-    name: build-artifact
-    path: ./dist
-</code></pre>
-</li>
 </ul>
-<h3 class="md-github"><a class="md-github__anchor" name="5-debugging-and-troubleshooting" href="#5-debugging-and-troubleshooting"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>5. Debugging and Troubleshooting</h3>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Service Container Configuration:</strong></p>
 <ul class="md-github">
-<li class="md-github">Enable debug mode:<pre class="md-github"><code class="md-github language-bash">export ACTIONS_RUNNER_DEBUG=true
-export ACTIONS_STEP_DEBUG=true
+<li class="md-github">Runs a container for PostgreSQL:<pre class="md-github"><code class="md-github language-yaml">services:
+  postgres:
+    image: postgres
+    ports:
+      - 5432:5432
 </code></pre>
 </li>
-<li class="md-github">Use logging in custom actions with @actions/core:<pre class="md-github"><code class="md-github language-typescript">import * as core from '@actions/core';
-
-try {
-  core.info('Debug info message');
-} catch (error) {
-  core.setFailed(`Error: ${error}`);
-}
-</code></pre>
-</li>
+<li class="md-github">Integration: Environment variables (e.g., <code class="md-github">POSTGRES_HOST</code>) must match the service name.</li>
 </ul>
-<h2 class="md-github"><a class="md-github__anchor" name="supplementary-details" href="#supplementary-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Supplementary Details</h2>
-<h3 class="md-github"><a class="md-github__anchor" name="supplementary-technical-specifications" href="#supplementary-technical-specifications"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Supplementary Technical Specifications</h3>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Secrets and Security Best Practices:</strong></p>
 <ul class="md-github">
-<li class="md-github">Workflow configuration requires defining <code class="md-github">name</code>, <code class="md-github">on</code>, and <code class="md-github">jobs</code> keys in a YAML file.</li>
-<li class="md-github">For job execution, <code class="md-github">runs-on</code> must be set (e.g., ubuntu-latest).</li>
-<li class="md-github">Action versions should be pinned (e.g., @v3) to avoid unexpected updates.</li>
-<li class="md-github">Caching must use a unique key; recommended strategy is to hash dependency lock files (e.g., package-lock.json).</li>
-<li class="md-github">Debug configuration: set <code class="md-github">ACTIONS_RUNNER_DEBUG</code> and <code class="md-github">ACTIONS_STEP_DEBUG</code> to 'true' in the runner environment to output detailed logs.</li>
-<li class="md-github">Secrets are referenced using the syntax <code class="md-github">${{ secrets.NAME }}</code> ensuring sensitive data is not exposed.</li>
-<li class="md-github">Conditional steps employ the <code class="md-github">if</code> keyword; the GitHub context (e.g., <code class="md-github">github.event_name</code>) can be used to determine execution paths.</li>
+<li class="md-github">Use GitHub Secrets to secure sensitive data:<pre class="md-github"><code class="md-github language-yaml">env:
+  SUPER_SECRET: ${{ secrets.SUPERSECRET }}
+</code></pre>
+</li>
+<li class="md-github">Do not hardcode credentials in workflows.</li>
 </ul>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Troubleshooting Procedures:</strong></p>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Viewing Logs:</strong> Navigate to the Actions tab, select a run, and expand steps for detailed logs.</li>
+<li class="md-github"><strong class="md-github">Common Command:</strong><pre class="md-github"><code class="md-github language-bash">ls ${{ github.workspace }}
+</code></pre>
+Use this command to verify workspace contents.</li>
+<li class="md-github"><strong class="md-github">Error Investigation:</strong>
+<ul class="md-github">
+<li class="md-github">Check if the workflow file is in the correct directory.</li>
+<li class="md-github">Ensure correct indentation in YAML files.</li>
+<li class="md-github">Validate runner selection and environment variable usage.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Step-by-Step Workflow Execution:</strong></p>
+<ul class="md-github">
+<li class="md-github">Commit a YAML file to trigger a workflow run.</li>
+<li class="md-github">Monitor execution via the GitHub Actions logs interface.</li>
+<li class="md-github">Re-run failed jobs using the GitHub web UI or CLI commands.</li>
+</ul>
+</li>
+</ol>
 <h2 class="md-github"><a class="md-github__anchor" name="reference-details" href="#reference-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reference Details</h2>
-<h3 class="md-github"><a class="md-github__anchor" name="complete-api-and-sdk-specifications-for-github-actions" href="#complete-api-and-sdk-specifications-for-github-actions"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Complete API and SDK Specifications for GitHub Actions</h3>
-<h4 class="md-github"><a class="md-github__anchor" name="1-yaml-workflow-configuration" href="#1-yaml-workflow-configuration"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>1. YAML Workflow Configuration</h4>
+<h3 class="md-github"><a class="md-github__anchor" name="complete-api-specifications--sdk-method-signatures" href="#complete-api-specifications--sdk-method-signatures"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Complete API Specifications &amp; SDK Method Signatures</h3>
+<h4 class="md-github"><a class="md-github__anchor" name="workflow-yaml-api-specification" href="#workflow-yaml-api-specification"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Workflow YAML API Specification</h4>
 <ul class="md-github">
-<li class="md-github">Example File: .github/workflows/ci.yml</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Workflow Definition File</strong>:</p>
+<ul class="md-github">
+<li class="md-github">File path: <code class="md-github">.github/workflows/&lt;filename&gt;.yml</code></li>
+<li class="md-github">Mandatory keys: <code class="md-github">name</code>, <code class="md-github">on</code>, <code class="md-github">jobs</code></li>
 </ul>
-<pre class="md-github"><code class="md-github language-yaml">name: CI Pipeline
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Job Definition</strong>:</p>
+<ul class="md-github">
+<li class="md-github">Key: <code class="md-github">runs-on</code>: Accepts string or array of strings (e.g., <code class="md-github">ubuntu-latest</code>, <code class="md-github">[self-hosted, linux, x64, gpu]</code>).</li>
+<li class="md-github">Key: <code class="md-github">steps</code>: Array of step definitions.</li>
+<li class="md-github">Each step can include:
+<ul class="md-github">
+<li class="md-github"><code class="md-github">run</code>: string command to execute.</li>
+<li class="md-github"><code class="md-github">uses</code>: action reference in the format <code class="md-github">owner/name@version</code>.</li>
+<li class="md-github"><code class="md-github">name</code>: descriptive label for the step.</li>
+<li class="md-github"><code class="md-github">env</code>: dictionary of environment variables (key: variable name, value: interpolated string).</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 class="md-github"><a class="md-github__anchor" name="example-sdkcli-command-and-method-signatures" href="#example-sdkcli-command-and-method-signatures"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example SDK/CLI Command and Method Signatures</h4>
+<p class="md-github">Although GitHub Actions does not use traditional SDK method signatures, the following structure is directly usable in workflows:</p>
+<pre class="md-github"><code class="md-github language-yaml"># Example: Checkout and Cache
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [14, 16]
     steps:
+      # Check out the repository
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      # Setup Node.js environment
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
-      - name: Install dependencies
-        run: npm install
-      - name: Run tests
-        if: ${{ github.event_name == 'push' }}
-        run: npm test
-      - name: Cache node modules
-        uses: actions/cache@v3
+          node-version: ${{ matrix.node }}
+
+      # Cache node modules
+      - name: Cache modules
+        uses: actions/cache@v4
         with:
-          path: node_modules
+          path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifact
-          path: ./build
-</code></pre>
-<h4 class="md-github"><a class="md-github__anchor" name="2-github-actions-toolkit-javascripttypescript-sdk" href="#2-github-actions-toolkit-javascripttypescript-sdk"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>2. GitHub Actions Toolkit (JavaScript/TypeScript SDK)</h4>
-<ul class="md-github">
-<li class="md-github">Importing the core module:</li>
-</ul>
-<pre class="md-github"><code class="md-github language-typescript">import * as core from '@actions/core';
-</code></pre>
-<ul class="md-github">
-<li class="md-github">
-<p class="md-github">Method: core.info</p>
-<ul class="md-github">
-<li class="md-github">Signature: core.info(message: string): void</li>
-<li class="md-github">Description: Logs an informational message to the GitHub Actions log.</li>
-</ul>
-</li>
-<li class="md-github">
-<p class="md-github">Method: core.setFailed</p>
-<ul class="md-github">
-<li class="md-github">Signature: core.setFailed(error: string | Error): void</li>
-<li class="md-github">Description: Marks the action as failed and logs the error message.</li>
-</ul>
-</li>
-<li class="md-github">
-<p class="md-github">Example:</p>
-</li>
-</ul>
-<pre class="md-github"><code class="md-github language-typescript">import * as core from '@actions/core';
 
-async function run(): Promise&lt;void&gt; {
-  try {
-    core.info('Starting action execution');
-    // Perform action tasks...
-    core.info('Action executed successfully');
-  } catch (error) {
-    core.setFailed(`Execution failed: ${error}`);
-  }
-}
-
-run();
+      # Build the project
+      - name: Build
+        run: npm run build
 </code></pre>
-<h4 class="md-github"><a class="md-github__anchor" name="3-debugging-and-logging-commands" href="#3-debugging-and-logging-commands"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>3. Debugging and Logging Commands</h4>
-<ul class="md-github">
-<li class="md-github">To enable detailed debug logs in GitHub Actions, set environment variables in the runner:</li>
-</ul>
-<pre class="md-github"><code class="md-github language-bash">export ACTIONS_RUNNER_DEBUG=true
-export ACTIONS_STEP_DEBUG=true
-</code></pre>
-<ul class="md-github">
-<li class="md-github">Troubleshooting Steps:
+<h4 class="md-github"><a class="md-github__anchor" name="detailed-troubleshooting-steps" href="#detailed-troubleshooting-steps"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Detailed Troubleshooting Steps</h4>
 <ol class="md-github">
-<li class="md-github">Re-run the workflow with debug flags enabled.</li>
-<li class="md-github">Examine the logs for detailed command execution outputs.</li>
-<li class="md-github">Use <code class="md-github">core.debug('message')</code> within custom actions for granular logging.</li>
-</ol>
-</li>
-</ul>
-<h4 class="md-github"><a class="md-github__anchor" name="4-best-practices-implementation-pattern" href="#4-best-practices-implementation-pattern"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>4. Best Practices Implementation Pattern</h4>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Verify Workflow Directory Structure</strong>:</p>
 <ul class="md-github">
-<li class="md-github">Always pin action versions (e.g., <code class="md-github">actions/checkout@v3</code> rather than <code class="md-github">@master</code>).</li>
-<li class="md-github">Use dependency caching to improve performance.</li>
-<li class="md-github">Inject secrets securely using <code class="md-github">${{ secrets.VARIABLE }}</code> and never hard-code sensitive data.</li>
-<li class="md-github">Use conditional execution (if statements) to optimize workflow runs.</li>
-<li class="md-github">Validate YAML configuration using GitHub's workflow linter before committing.</li>
-</ul>
-<p class="md-github">By following these explicit technical procedures, developers can implement robust, efficient, and secure CI/CD workflows using GitHub Actions.</p>
-<h2 class="md-github"><a class="md-github__anchor" name="original-source" href="#original-source"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Original Source</h2>
-<p class="md-github">GitHub Actions Best Practices
-https://docs.github.com/en/actions/learn-github-actions/best-practices-for-ci-cd</p>
-<h2 class="md-github"><a class="md-github__anchor" name="digest-of-github_actions" href="#digest-of-github_actions"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Digest of GITHUB_ACTIONS</h2>
-<h1 class="md-github"><a class="md-github__anchor" name="github-actions-best-practices-for-cicd" href="#github-actions-best-practices-for-cicd"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GitHub Actions Best Practices for CI/CD</h1>
-<p class="md-github"><strong class="md-github">Retrieved Date:</strong> 2023-10-17</p>
-<h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
-<p class="md-github">This document consolidates the specific technical guidelines and best practices for implementing CI/CD pipelines using GitHub Actions. It includes YAML workflow configurations, conditional execution, dependency caching, and debugging/troubleshooting procedures.</p>
-<h2 class="md-github"><a class="md-github__anchor" name="technical-details" href="#technical-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Technical Details</h2>
-<h3 class="md-github"><a class="md-github__anchor" name="workflow-yaml-configurations" href="#workflow-yaml-configurations"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Workflow YAML Configurations</h3>
-<ul class="md-github">
-<li class="md-github">Use explicit version pinning (e.g., <code class="md-github">actions/checkout@v3</code>, <code class="md-github">actions/setup-node@v3</code>).</li>
-<li class="md-github">Define event triggers explicitly:<pre class="md-github"><code class="md-github language-yaml">on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+<li class="md-github">Command:<pre class="md-github"><code class="md-github language-bash">find . -type d -name '.github'
 </code></pre>
 </li>
-<li class="md-github">Specify the <code class="md-github">runs-on</code> parameter (e.g., <code class="md-github">ubuntu-latest</code>).</li>
+<li class="md-github">Expected Output: Directory structure including <code class="md-github">/workflows</code>.</li>
 </ul>
-<h3 class="md-github"><a class="md-github__anchor" name="conditional-execution" href="#conditional-execution"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Conditional Execution</h3>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Validate YAML File</strong>:</p>
 <ul class="md-github">
-<li class="md-github">Use <code class="md-github">if</code> conditions to control job/step execution:<pre class="md-github"><code class="md-github language-yaml">jobs:
-  build:
+<li class="md-github">Use online YAML linters or the GitHub Actions built-in validator.</li>
+<li class="md-github">Ensure proper indentation (2 spaces recommended) and valid syntax.</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Examine Runner Logs</strong>:</p>
+<ul class="md-github">
+<li class="md-github">Navigate to the Actions tab on the repository page.</li>
+<li class="md-github">Click on the failed run, select the job and expand steps to see error details.</li>
+<li class="md-github">Look for command outputs such as <code class="md-github">ls ${{ github.workspace }}</code> to ensure files exist.</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Common Configuration Options and Their Effects</strong>:</p>
+<ul class="md-github">
+<li class="md-github"><code class="md-github">runs-on</code>: Determines which OS image is used. Incorrect values may result in runner selection errors.</li>
+<li class="md-github"><code class="md-github">on</code>: Incorrect or overly broad event filters might trigger unwanted runs. Use specific branch filters if needed.</li>
+<li class="md-github"><code class="md-github">env</code>: Must be defined with available secrets; missing secrets will cause runtime failures.</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Best Practices Implementation Example</strong>:</p>
+<ul class="md-github">
+<li class="md-github">Split workflows by purpose (CI, CD, testing) to isolate failures.</li>
+<li class="md-github">Use caching and matrix strategies to improve performance and coverage.</li>
+<li class="md-github">Incorporate error checking in scripts, e.g., exit codes in shell commands.</li>
+</ul>
+</li>
+</ol>
+<p class="md-github">Developers can copy the YAML examples provided directly into their repository to set up a fully operational GitHub Actions workflow without additional modifications.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="original-source" href="#original-source"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Original Source</h2>
+<p class="md-github">GitHub Actions Documentation
+https://docs.github.com/en/actions</p>
+<h2 class="md-github"><a class="md-github__anchor" name="digest-of-github_actions" href="#digest-of-github_actions"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Digest of GITHUB_ACTIONS</h2>
+<h1 class="md-github"><a class="md-github__anchor" name="github-actions-documentation" href="#github-actions-documentation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GitHub Actions Documentation</h1>
+<p class="md-github"><strong class="md-github">Retrieved:</strong> 2023-10-31</p>
+<h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
+<p class="md-github">GitHub Actions is a CI/CD platform that automates build, test, and deployment workflows directly in your repositories. It supports triggering workflows across Linux, Windows, and macOS runners, or via self-hosted runners. Workflows are defined using YAML files stored in the <code class="md-github">.github/workflows</code> directory.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="core-components" href="#core-components"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Core Components</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="workflows" href="#workflows"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Workflows</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Definition:</strong> A configurable automated process defined in YAML.</li>
+<li class="md-github"><strong class="md-github">Location:</strong> <code class="md-github">.github/workflows</code> directory.</li>
+<li class="md-github"><strong class="md-github">Usage:</strong> Can contain one or more jobs that are triggered by repository events, schedules, manual triggers, or via API.</li>
+<li class="md-github"><strong class="md-github">Example YAML Snippet:</strong></li>
+</ul>
+<pre class="md-github"><code class="md-github language-yaml">name: GitHub Actions Demo
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on: [push]
+jobs:
+  Explore-GitHub-Actions:
     runs-on: ubuntu-latest
     steps:
-      - name: Conditional Step
-        if: ${{ github.event_name == 'push' }}
-        run: echo &quot;This step runs only on push events.&quot;
+      - run: echo &quot;🎉 The job was automatically triggered by a ${{ github.event_name }} event.&quot;
+      - run: echo &quot;🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!&quot;
+      - run: echo &quot;🔎 The branch is ${{ github.ref }} in repository ${{ github.repository }}.&quot;
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - run: echo &quot;💡 Repository cloned.&quot;
+      - name: List files in the repository
+        run: ls ${{ github.workspace }}
+      - run: echo &quot;🍏 Job status: ${{ job.status }}.&quot;
 </code></pre>
-</li>
-</ul>
-<h3 class="md-github"><a class="md-github__anchor" name="secrets-and-environment-variables" href="#secrets-and-environment-variables"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Secrets and Environment Variables</h3>
+<h3 class="md-github"><a class="md-github__anchor" name="events" href="#events"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Events</h3>
 <ul class="md-github">
-<li class="md-github">Pass secrets securely:<pre class="md-github"><code class="md-github language-yaml">env:
-  API_KEY: ${{ secrets.API_KEY }}
+<li class="md-github"><strong class="md-github">Trigger Types:</strong> push, pull_request, schedule, repository_dispatch, manual triggers, etc.</li>
+<li class="md-github"><strong class="md-github">Configuration:</strong> Defined using the <code class="md-github">on:</code> key in the workflow YAML.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="jobs-and-steps" href="#jobs-and-steps"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Jobs and Steps</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Jobs:</strong> Series of steps executed on the same runner. They can run sequentially (using the <code class="md-github">needs</code> keyword) or in parallel.</li>
+<li class="md-github"><strong class="md-github">Steps:</strong> Commands run as shell scripts or actions. Include direct commands and usage of pre-built actions.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="actions" href="#actions"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Actions</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Definition:</strong> Reusable extensions that perform specific tasks (e.g., checkout code, set up environments).</li>
+<li class="md-github"><strong class="md-github">Usage Example:</strong> <code class="md-github">uses: actions/checkout@v4</code></li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="runners" href="#runners"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Runners</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Available Runners:</strong> Ubuntu, Windows, macOS (hosted by GitHub) and self-hosted options.</li>
+<li class="md-github"><strong class="md-github">Configuration:</strong> Specified using <code class="md-github">runs-on</code> (e.g., <code class="md-github">ubuntu-latest</code>).</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="advanced-configurations" href="#advanced-configurations"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Advanced Configurations</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="matrix-strategy" href="#matrix-strategy"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Matrix Strategy</h3>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Purpose:</strong> Run tests on multiple configurations using a single job definition.</li>
+<li class="md-github"><strong class="md-github">Example:</strong></li>
+</ul>
+<pre class="md-github"><code class="md-github language-yaml">jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [14, 16]
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
 </code></pre>
-</li>
-<li class="md-github">Leverage environment files to isolate configuration.</li>
-</ul>
-<h3 class="md-github"><a class="md-github__anchor" name="caching-and-artifacts" href="#caching-and-artifacts"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Caching and Artifacts</h3>
+<h3 class="md-github"><a class="md-github__anchor" name="caching-dependencies" href="#caching-dependencies"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Caching Dependencies</h3>
 <ul class="md-github">
-<li class="md-github">Cache dependencies to improve workflow speed:<pre class="md-github"><code class="md-github language-yaml">- name: Cache node modules
-  uses: actions/cache@v3
+<li class="md-github"><strong class="md-github">Purpose:</strong> Improve performance by caching dependency directories.</li>
+<li class="md-github"><strong class="md-github">Example:</strong></li>
+</ul>
+<pre class="md-github"><code class="md-github language-yaml">- name: Cache node modules
+  uses: actions/cache@v4
   with:
-    path: node_modules
-    key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+    path: ~/.npm
+    key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
     restore-keys: |
-      ${{ runner.os }}-node-
+      ${{ runner.os }}-build-${{ env.cache-name }}-
 </code></pre>
-</li>
-<li class="md-github">Upload artifacts for later use:<pre class="md-github"><code class="md-github language-yaml">- name: Upload Build Artifact
-  uses: actions/upload-artifact@v3
-  with:
-    name: build
-    path: ./build
-</code></pre>
-</li>
-</ul>
-<h3 class="md-github"><a class="md-github__anchor" name="debugging-and-troubleshooting" href="#debugging-and-troubleshooting"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Debugging and Troubleshooting</h3>
+<h3 class="md-github"><a class="md-github__anchor" name="service-containers" href="#service-containers"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Service Containers</h3>
 <ul class="md-github">
-<li class="md-github">Enable debug logging by setting environment variables:<pre class="md-github"><code class="md-github language-bash">export ACTIONS_RUNNER_DEBUG=true
-export ACTIONS_STEP_DEBUG=true
-</code></pre>
-</li>
-<li class="md-github">Use the GitHub Actions Toolkit for logging and error handling in custom actions:<pre class="md-github"><code class="md-github language-typescript">import * as core from '@actions/core';
-
-try {
-  // Execute your code
-  core.info('Action executed successfully');
-} catch (error) {
-  core.setFailed(`Action failed with error ${error}`);
-}
-</code></pre>
-</li>
+<li class="md-github"><strong class="md-github">Usage:</strong> Spin up ephemeral containers for services (e.g., PostgreSQL) during a job.</li>
+<li class="md-github"><strong class="md-github">Example:</strong></li>
 </ul>
+<pre class="md-github"><code class="md-github language-yaml">jobs:
+  container-job:
+    runs-on: ubuntu-latest
+    container: node:20-bookworm-slim
+    services:
+      postgres:
+        image: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - name: Connect to PostgreSQL
+        run: node client.js
+        env:
+          POSTGRES_HOST: postgres
+          POSTGRES_PORT: 5432
+</code></pre>
+<h2 class="md-github"><a class="md-github__anchor" name="quickstart-example-workflow" href="#quickstart-example-workflow"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Quickstart Example Workflow</h2>
+<p class="md-github">A complete quickstart workflow file:</p>
+<pre class="md-github"><code class="md-github language-yaml">name: GitHub Actions Demo
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on: [push]
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo &quot;🎉 Triggered by ${{ github.event_name }} event.&quot;
+      - run: echo &quot;🐧 Running on ${{ runner.os }}.&quot;
+      - run: echo &quot;🔎 Branch: ${{ github.ref }}, Repository: ${{ github.repository }}.&quot;
+      - name: Check out code
+        uses: actions/checkout@v4
+      - run: echo &quot;💡 Repository cloned. Ready for tests.&quot;
+      - name: List files
+        run: |
+          ls ${{ github.workspace }}
+      - run: echo &quot;🍏 Job status: ${{ job.status }}.&quot;
+</code></pre>
 <h2 class="md-github"><a class="md-github__anchor" name="attribution" href="#attribution"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h2>
-<ul class="md-github">
-<li class="md-github">Crawled Content Data Size: 0 bytes</li>
-<li class="md-github">Source: https://docs.github.com/en/actions/learn-github-actions/best-practices-for-ci-cd</li>
-</ul>
+<p class="md-github">Data Size: 939175 bytes | Links Found: 16573</p>
 <h2 class="md-github"><a class="md-github__anchor" name="attribution-1" href="#attribution-1"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h2>
 <ul class="md-github">
-<li class="md-github">Source: GitHub Actions Best Practices</li>
-<li class="md-github">URL: https://docs.github.com/en/actions/learn-github-actions/best-practices-for-ci-cd</li>
-<li class="md-github">License: License: GitHub Docs License (CC BY 4.0)</li>
-<li class="md-github">Crawl Date: 2025-04-17T18:50:18.841Z</li>
-<li class="md-github">Data Size: 0 bytes</li>
-<li class="md-github">Links Found: 0</li>
+<li class="md-github">Source: GitHub Actions Documentation</li>
+<li class="md-github">URL: https://docs.github.com/en/actions</li>
+<li class="md-github">License: License: GitHub Docs Terms</li>
+<li class="md-github">Crawl Date: 2025-04-20T16:50:37.466Z</li>
+<li class="md-github">Data Size: 939175 bytes</li>
+<li class="md-github">Links Found: 16573</li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="retrieved" href="#retrieved"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Retrieved</h2>
-<p class="md-github">2025-04-17</p>
+<p class="md-github">2025-04-20</p>
 
   </section>
   <footer>
-    <p>Generated on 2025-04-20T12:25:21.659Z</p>
+    <p>Generated on 2025-04-20T20:01:46.370Z</p>
   </footer>
 </body>
 </html>
