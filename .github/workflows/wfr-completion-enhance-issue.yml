@@ -498,18 +498,18 @@ jobs:
             let parsed;
             try {
               parsed = ResponseSchema.parse(result);
+              core.info(`Parsed response: ${JSON.stringify(parsed)}`);
+              core.info(`Parsed response: ${parsed}`);
               core.setOutput("action", parsed.action);
             } catch (e) {
               core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
             }
+            core.info(`enhancedDescription: "${parsed.enhancedDescription}"`);
+            core.info(`relevantLibraryDocuments: ${JSON.stringify(parsed.relevantLibraryDocuments)}`);
+            core.setOutput("enhancedDescription", parsed.enhancedDescription || "");
+            core.setOutput("relevantLibraryDocuments", JSON.stringify(parsed.relevantLibraryDocuments || []));
             
             if (parsed.action === "enhance") {
-              core.setOutput("enhancedDescription", parsed.enhancedDescription || "");
-              core.setOutput("relevantLibraryDocuments", JSON.stringify(parsed.relevantLibraryDocuments || []));
-              core.info(`action: "enhance"`);
-              core.info(`enhancedDescription: "${parsed.enhancedDescription}"`);
-              core.info(`relevantLibraryDocuments: ${JSON.stringify(parsed.relevantLibraryDocuments)}`);
-
               try {
                 // Update issue description
                 await github.rest.issues.update({
@@ -552,7 +552,7 @@ jobs:
               } catch (e) {
                 core.setFailed(`Failed to update issue and add comments: ${e.message}`);
               }
-            } else if (parsed.action === "enhance") {
+            } else if (parsed.action === "close") {
               try {
                 core.setOutput("closeReason", parsed.closeReason || "");
                 core.info(`action: "close"`);
@@ -574,10 +574,12 @@ jobs:
                   state: "closed"
                 });
               } catch (e) {
-                core.setFailed(`Failed to update issue description: ${e.message}`);
+                core.setFailed(`Failed to close issue or update issue description: ${e.message}`);
               }
-            } else {
+            } else if (parsed.action === "nop") {
               core.info(`action: "nop"`);
+            } else {
+              core.info(`action: "${parsed.action}" unmapped. nop`);
             }
 
             core.setOutput("response", JSON.stringify(response));
