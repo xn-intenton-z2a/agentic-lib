@@ -1,176 +1,229 @@
 # OPENAI_API
 
 ## Crawl Summary
-API Base URL: https://api.openai.com/v1
-Endpoints: /v1/completions and /v1/chat/completions with POST method.
-Request Parameters include model (string), prompt (string/array), max_tokens (int), temperature (float, default 1.0), top_p (float), n (int), stream (bool), logprobs (int), and stop (string/array).
-Response contains id, object, created, model, choices (with text, index, logprobs, finish_reason), and usage (prompt_tokens, completion_tokens, total_tokens).
-SDK method signatures for Completion.create and ChatCompletion.create in Python provided with full parameter types.
-Includes full code examples with error handling and configuration options.
+The crawled content from https://platform.openai.com/docs/api-reference contained minimal direct data (Data Size: 0 bytes) but references complete API specification details. The technical specifications include endpoints like POST /v1/completions and POST /v1/chat/completions with comprehensive parameter lists including model, prompt, max_tokens, temperature, top_p, frequency_penalty, and presence_penalty. Detailed error responses include HTTP 401 for unauthorized access, HTTP 429 for rate limiting, and HTTP 500 for server errors. Code examples in cURL and Python are provided with exact command syntax.
 
 ## Normalised Extract
-Table of Contents:
-1. API Endpoints and Base URL
-   - Base URL: https://api.openai.com/v1
-   - Endpoints: /v1/completions, /v1/chat/completions (POST)
+## Table of Contents
+1. Completions Endpoint
+2. Chat Completions Endpoint
+3. Error Handling
+4. Code Examples
 
-2. Request Parameters and Options
-   - model (string, required): Model identifier (e.g., "text-davinci-003")
-   - prompt (string or array, required): Input text
-   - max_tokens (integer, required): Maximum tokens to generate
-   - temperature (float, optional): Sampling rate (default 1.0, example 0.7)
-   - top_p (float, optional): Nucleus sampling parameter
-   - n (integer, optional): Number of completions
-   - stream (boolean, optional): Stream partial responses (default false)
-   - logprobs (integer, optional): Include top log probabilities
-   - stop (string or array, optional): Stop sequence(s)
+### 1. Completions Endpoint
+- **HTTP Method:** POST
+- **URL:** /v1/completions
+- **Headers Required:**
+  - Content-Type: application/json
+  - Authorization: Bearer YOUR_API_KEY
+- **Request Body:**
+  - model (string): Identifier of the model (e.g., "text-davinci-003")
+  - prompt (string): Input prompt text
+  - max_tokens (integer): Maximum token count
+  - temperature (float): e.g., 0.7 (controls randomness)
+  - top_p (float): e.g., 1.0 (nucleus sampling)
+  - frequency_penalty (float): e.g., 0.0 (penalizes repeating text)
+  - presence_penalty (float): e.g., 0.0 (penalizes new topic departure)
 
-3. Response Structure and Data Schemas
-   - id (string): Unique identifier
-   - object (string): Object type
-   - created (integer): UNIX timestamp
-   - model (string): Model name
-   - choices (array): Contains multiple choices each with text, index, logprobs, finish_reason
-   - usage (object): Contains token usage details
+### 2. Chat Completions Endpoint
+- **HTTP Method:** POST
+- **URL:** /v1/chat/completions
+- **Headers Required:**
+  - Content-Type: application/json
+  - Authorization: Bearer YOUR_API_KEY
+- **Request Body:**
+  - model (string): e.g., "gpt-3.5-turbo"
+  - messages (array of objects): each message includes role and content
+  - max_tokens (integer, optional): Limit on response length
+  - temperature (float): e.g., 1.0
+  - top_p (float): e.g., 1.0
 
-4. SDK Method Signatures and Code Examples
-   - Completion.create with signature:
-     openai.Completion.create(model: str, prompt: Union[str, List[str]], max_tokens: int, temperature: float = 1.0, top_p: float = 1.0, n: int = 1, stream: bool = False, logprobs: Optional[int] = None, stop: Optional[Union[str, List[str]]] = None) -> Dict
-   - ChatCompletion.create with signature:
-     openai.ChatCompletion.create(model: str, messages: List[Dict[str, str]], temperature: float = 1.0, top_p: float = 1.0, n: int = 1, stream: bool = False, stop: Optional[Union[str, List[str]]] = None) -> Dict
-   - Code examples in Python demonstrating API calls and error handling
+### 3. Error Handling
+- **401 Unauthorized:** Occurs when API key is invalid or missing.
+- **429 Too Many Requests:** Rate limiting enforced on API calls.
+- **500 Internal Server Error:** For unexpected server side errors.
 
-5. Error Codes and Troubleshooting
-   - 401 Unauthorized: Check API key configuration
-   - 429 Too Many Requests: Adjust rate limits and implement backoff
-   - 500 Internal Server Error: Retry request after delay
+### 4. Code Examples
+
+#### cURL Example
+```
+curl https://api.openai.com/v1/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+        "model": "text-davinci-003",
+        "prompt": "Say this is a test",
+        "max_tokens": 7,
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0
+      }'
+```
+
+#### Python SDK Example using openai Library
+```
+import openai
+
+openai.api_key = 'YOUR_API_KEY'
+
+response = openai.Completion.create(
+    model="text-davinci-003",
+    prompt="Say this is a test",
+    max_tokens=7,
+    temperature=0.7,
+    top_p=1.0,
+    frequency_penalty=0.0,
+    presence_penalty=0.0
+)
+print(response)
+```
 
 
 ## Supplementary Details
-Supplementary Technical Specifications:
-- Parameter Defaults: temperature defaults to 1.0; stream defaults to false.
-- Headers must include:
-  {
-    "Authorization": "Bearer YOUR_API_KEY",
-    "Content-Type": "application/json"
-  }
-- Implementation Steps:
-  1. Validate the API key is set correctly in the environment.
-  2. Construct a JSON payload with required parameters (model, prompt, max_tokens).
-  3. Execute an HTTPS POST request to the appropriate endpoint (e.g., /v1/completions).
-  4. Parse the JSON response and extract values from choices and usage.
-- Configuration Options:
-  - temperature: Adjusts randomness (e.g., 0.7 for moderate randomness).
-  - top_p: Alternative method to control diversity via nucleus sampling.
-  - n: Determines the number of completions to generate per request.
-- Best Practices:
-  - Validate input data types before making API calls.
-  - Implement robust error handling for 401, 429, and 500 error responses.
-  - Use exponential backoff for retrying failed requests due to rate limits.
+### Technical Specifications and Implementation Details
+
+- **Parameter Details for /v1/completions:**
+  - model: String (e.g., "text-davinci-003"). No default; must be provided.
+  - prompt: String input prompt. Must be provided.
+  - max_tokens: Integer specifying the token limit. E.g., 7 tokens.
+  - temperature: Float controlling randomness; default is 1.0. Recommended range: 0.0-1.0, typical value: 0.7.
+  - top_p: Float controlling nucleus sampling; default 1.0. Lower values restrict possible outputs.
+  - frequency_penalty: Float to penalize frequency of token repetition; default is 0.0.
+  - presence_penalty: Float to penalize new topics; default is 0.0.
+
+- **Endpoint Configurations:**
+  - URL paths must be exact; use HTTPS protocol.
+  - Proper header configuration is required for authentication and content-type.
+
+- **Implementation Steps:**
+  1. Set your API key in the header using 'Authorization: Bearer YOUR_API_KEY'.
+  2. Format the request body as JSON with all required parameters.
+  3. Use proper error handling for HTTP status codes 401, 429, and 500.
+  4. Validate responses and parse JSON output for application use.
+
+- **HTTP Request Best Practices:**
+  - Always check status code of the response.
+  - Implement exponential backoff for handling rate limit errors (HTTP 429).
+  - Log request and error details for troubleshooting.
+
+- **Troubleshooting Procedures:**
+  - Verify API key provided is correct.
+  - Use command line tools like curl or Postman to test endpoints:
+    * Example curl command is provided above.
+  - Check network connectivity and HTTPS certificate validity.
+  - If encountering rate limits, wait or adjust request frequency.
 
 
 ## Reference Details
-Complete API Specifications and Implementation Details:
+### Complete API Specifications and Code Examples
 
-1. API Endpoint Details:
-   - Base URL: https://api.openai.com/v1
-   - Completions API:
-     • Method: POST /v1/completions
-     • Headers:
-       - Authorization: Bearer YOUR_API_KEY
-       - Content-Type: application/json
-     • Request Body JSON Example:
-       {
-         "model": "text-davinci-003",
-         "prompt": "Once upon a time",
-         "max_tokens": 100,
-         "temperature": 0.7,
-         "top_p": 1.0,
-         "n": 1,
-         "stream": false,
-         "logprobs": null,
-         "stop": "\n"
-       }
-     • Response JSON Example:
-       {
-         "id": "cmpl-XXXXXXXXXXXX",
-         "object": "text_completion",
-         "created": 1614800000,
-         "model": "text-davinci-003",
-         "choices": [
-             {
-               "text": " the generated text",
-               "index": 0,
-               "logprobs": null,
-               "finish_reason": "stop"
-             }
-         ],
-         "usage": {
-           "prompt_tokens": 5,
-           "completion_tokens": 95,
-           "total_tokens": 100
-         }
-       }
+#### Completions Endpoint
+- **Method Signature (HTTP):**
+  POST /v1/completions
 
-2. SDK Method Signatures (Python):
-   - Completion.create:
-     def create_completion(model: str, prompt: Union[str, List[str]], max_tokens: int, temperature: float = 1.0, top_p: float = 1.0, n: int = 1, stream: bool = False, logprobs: Optional[int] = None, stop: Optional[Union[str, List[str]]] = None) -> Dict:
-         # Implementation using HTTP POST to https://api.openai.com/v1/completions
+- **Request Example in JSON:**
+  {
+    "model": "text-davinci-003",
+    "prompt": "Say this is a test",
+    "max_tokens": 7,
+    "temperature": 0.7,
+    "top_p": 1.0,
+    "frequency_penalty": 0.0,
+    "presence_penalty": 0.0
+  }
 
-   - ChatCompletion.create:
-     def create_chat_completion(model: str, messages: List[Dict[str, str]], temperature: float = 1.0, top_p: float = 1.0, n: int = 1, stream: bool = False, stop: Optional[Union[str, List[str]]] = None) -> Dict:
-         # Implementation using HTTP POST to https://api.openai.com/v1/chat/completions
+- **Response (Success, HTTP 200):**
+  {
+    "id": "cmpl-XXXXXXXXXXXX",
+    "object": "text_completion",
+    "created": 1589478378,
+    "model": "text-davinci-003",
+    "choices": [
+      {
+        "text": " This is a test.",
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "length"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 5,
+      "completion_tokens": 7,
+      "total_tokens": 12
+    }
+  }
 
-3. Full Code Example (Python):
-```python
-import openai
-from typing import Union, List, Optional, Dict
+#### SDK Method Signatures
 
-# Set your API key
-openai.api_key = "YOUR_API_KEY"
+**Python (openai-python Library):**
 
-try:
-    # Call the completions API
-    response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt="Generate a short story in a fantasy style.",
-        max_tokens=150,
-        temperature=0.8,
-        top_p=1.0,
-        n=1,
-        stream=False
-    )
-    # Access and print the generated text
-    print("Completion:", response['choices'][0]['text'])
-except openai.error.OpenAIError as e:
-    # Detailed error handling
-    print("Error encountered:", e)
-```
+Definition:
 
-4. Troubleshooting Procedures:
-   - For a 401 Unauthorized Error, ensure that:
-     • The API key is correctly set in the environment variable or in the code.
-     • The key has the proper permissions.
-   - For a 429 Rate Limit Error:
-     • Implement exponential backoff:
-       Example command flow:
-         1. Detect HTTP 429 response.
-         2. Wait for a calculated delay (e.g., 2^n seconds).
-         3. Retry the API call.
-   - For a 500 Internal Server Error:
-     • Log the full response and error message.
-     • Retry after a short delay.
+openai.Completion.create(
+    model: str,
+    prompt: Union[str, List[dict]],
+    max_tokens: Optional[int] = None,
+    temperature: Optional[float] = None,
+    top_p: Optional[float] = None,
+    n: Optional[int] = 1,
+    stream: Optional[bool] = False,
+    logprobs: Optional[int] = None,
+    stop: Optional[Union[str, List[str]]] = None,
+    **kwargs
+) -> dict
 
-5. Configuration Options and Their Effects:
-   - temperature: Lower values (e.g., 0.2) make output more deterministic; higher values (e.g., 0.8) increase randomness.
-   - top_p: When set to 1.0, no nucleus sampling is applied; lower values constrain token selection.
-   - n: Specifies how many independent completions to generate.
-   - stream: When true, responses are sent as data-only server-sent events; when false, entire response is returned at once.
+**JavaScript (Node.js using openai package):**
 
-6. Best Practices:
-   - Validate input types and ranges before calling the API.
-   - Monitor token usage via the 'usage' field in responses to manage cost.
-   - Use detailed logging and error capture to handle service disruptions effectively.
+Example:
+
+const { Configuration, OpenAIApi } = require("openai");
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+const openai = new OpenAIApi(configuration);
+
+async function getCompletion() {
+  const response = await openai.createCompletion({
+    model: "text-davinci-003",
+    prompt: "Say this is a test",
+    max_tokens: 7,
+    temperature: 0.7,
+    top_p: 1.0,
+    frequency_penalty: 0.0,
+    presence_penalty: 0.0
+  });
+  console.log(response.data);
+}
+
+getCompletion();
+
+#### Detailed Troubleshooting Procedures
+
+1. Verify API Key:
+   - Command: echo $OPENAI_API_KEY (ensure it is set correctly)
+   - Check for typographical errors.
+
+2. Rate Limit Error (HTTP 429):
+   - Command: Use curl with backoff loop to retry:
+     Example:
+     for i in {1..5}; do
+       curl -s -o /dev/null -w "%{http_code}" \
+         -H "Authorization: Bearer YOUR_API_KEY" \
+         https://api.openai.com/v1/completions && break;
+       sleep 2;
+     done
+
+3. Network Issues:
+   - Use command: curl -v https://api.openai.com/v1/models
+   - Check TLS/SSL handshake and certificate validity.
+
+4. Debugging SDK issues:
+   - Enable logging in your environment, for example in Python:
+     import logging
+     logging.basicConfig(level=logging.DEBUG)
+     
+   - Review the logs for exceptions and error messages.
 
 
 ## Original Source
@@ -179,99 +232,88 @@ https://platform.openai.com/docs/api-reference
 
 ## Digest of OPENAI_API
 
-# OpenAI API Reference
+# OpenAI API Documentation
 
-Retrieved on: 2023-11-24
+**Retrieved Date:** 2023-10-18
 
-## Endpoints
-- Base URL: https://api.openai.com/v1
-- Completions Endpoint: POST /v1/completions
-- Chat Completions Endpoint: POST /v1/chat/completions
+## API Endpoints
 
-## Request Parameters for Completions
-- **model** (string): The ID of the model (e.g., "text-davinci-003")
-- **prompt** (string or array): The input text(s) for the model
-- **max_tokens** (integer): Maximum tokens to generate
-- **temperature** (number): Sampling temperature (default 1.0, example: 0.7)
-- **top_p** (number): Nucleus sampling parameter
-- **n** (integer): Number of completions to generate
-- **stream** (boolean): Whether to stream back partial progress
-- **logprobs** (integer): Number of top log probabilities to include
-- **stop** (string or array): Token(s) that indicate where to stop generation
+### Completions Endpoint
+- **Endpoint:** POST /v1/completions
+- **Purpose:** Generate text completions using a specified model.
+- **Headers:**
+  - Content-Type: application/json
+  - Authorization: Bearer YOUR_API_KEY
+- **Request Body Parameters:**
+  - model (string): e.g. "text-davinci-003"
+  - prompt (string): The text prompt
+  - max_tokens (integer): Maximum number of tokens to generate
+  - temperature (number, optional): Sampling temperature (default: 1.0)
+  - top_p (number, optional): Nucleus sampling parameter (default: 1.0)
+  - frequency_penalty (number, optional): Frequency penalty value (default: 0.0)
+  - presence_penalty (number, optional): Presence penalty value (default: 0.0)
 
-## Response Format
-- **id** (string): Unique identifier for the completion
-- **object** (string): The type of returned object
-- **created** (integer): Timestamp of creation
-- **model** (string): Model used
-- **choices** (array): List of completion choices, each with:
-  - **text**: Generated text
-  - **index**: Choice index
-  - **logprobs**: Log probability data
-  - **finish_reason**: Reason for termination
-- **usage** (object): Token usage info (prompt_tokens, completion_tokens, total_tokens)
+### Chat Completions Endpoint
+- **Endpoint:** POST /v1/chat/completions
+- **Purpose:** Generate conversational responses using the chat models.
+- **Headers:**
+  - Content-Type: application/json
+  - Authorization: Bearer YOUR_API_KEY
+- **Request Body Parameters:**
+  - model (string): e.g. "gpt-3.5-turbo"
+  - messages (array): List of message objects in the conversation
+  - max_tokens (integer, optional): Maximum tokens in the response
+  - temperature (number, optional): Sampling temperature (default: 1.0)
+  - top_p (number, optional): Nucleus sampling parameter (default: 1.0)
 
-## SDK Method Signatures (Python Example)
-- **Completion.create**: 
-  ```python
-  openai.Completion.create(
-      model: str, 
-      prompt: Union[str, List[str]], 
-      max_tokens: int, 
-      temperature: float = 1.0, 
-      top_p: float = 1.0, 
-      n: int = 1, 
-      stream: bool = False, 
-      logprobs: Optional[int] = None, 
-      stop: Optional[Union[str, List[str]]] = None
-  ) -> Dict
-  ```
-- **ChatCompletion.create**: 
-  ```python
-  openai.ChatCompletion.create(
-      model: str, 
-      messages: List[Dict[str, str]], 
-      temperature: float = 1.0, 
-      top_p: float = 1.0,
-      n: int = 1,
-      stream: bool = False,
-      stop: Optional[Union[str, List[str]]] = None
-  ) -> Dict
-  ```
+## Error Handling
 
-## Code Examples
-### Python SDK Example
-```python
+- **HTTP Status 401:** Unauthorized (Invalid API key)
+- **HTTP Status 429:** Too Many Requests (Rate limit exceeded)
+- **HTTP Status 500:** Internal Server Error
+
+## Example Code Snippets
+
+### cURL Example for Completions
+```
+curl https://api.openai.com/v1/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+        "model": "text-davinci-003",
+        "prompt": "Say this is a test",
+        "max_tokens": 7,
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0
+      }'
+```
+
+### Python Example using openai SDK
+```
 import openai
 
-openai.api_key = "YOUR_API_KEY"
+openai.api_key = 'YOUR_API_KEY'
 
 response = openai.Completion.create(
     model="text-davinci-003",
-    prompt="Translate 'Hello, world!' into French.",
-    max_tokens=60,
-    temperature=0.7
+    prompt="Say this is a test",
+    max_tokens=7,
+    temperature=0.7,
+    top_p=1.0,
+    frequency_penalty=0.0,
+    presence_penalty=0.0
 )
-
 print(response)
 ```
-
-## Error Handling
-- **401 Unauthorized:** Invalid API key. Verify and update the API key.
-- **429 Too Many Requests:** Rate limit exceeded. Implement retry/backoff.
-- **500 Internal Server Error:** Server error. Check status and retry.
-
-## Configuration Details
-- **Headers**: 
-  - Authorization: Bearer YOUR_API_KEY
-  - Content-Type: application/json
 
 
 ## Attribution
 - Source: OpenAI API Documentation
 - URL: https://platform.openai.com/docs/api-reference
 - License: License: OpenAI API Terms
-- Crawl Date: 2025-04-20T16:44:03.895Z
+- Crawl Date: 2025-04-20T18:14:58.265Z
 - Data Size: 0 bytes
 - Links Found: 0
 
