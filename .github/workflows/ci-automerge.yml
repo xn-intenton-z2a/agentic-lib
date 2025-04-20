@@ -11,12 +11,12 @@ on:
   pull_request:
   check_suite:
   workflow_dispatch:
-  #workflow_run:
-  #  workflows:
-  #    - "agent-issue-to-code"
-  #    - "agent-fix-code"
-  #  types:
-  #    - completed
+  workflow_run:
+    workflows:
+      - "agent-issue-to-code"
+      - "agent-fix-code"
+    types:
+      - completed
   schedule:
     - cron: '10 */12 * * *' # schedule-1
     #- cron: '10 */4 * * *' # schedule-2
