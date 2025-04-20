@@ -20,7 +20,7 @@ writeableFilepaths:
   tests: "tests/unit/"
   docs: "docs/"
   sources: "SOURCES*.md"
-  library: "library/"
+  library: "library/*"
   features: "features/*"
   dependencies: "package.json"
   readme: "README.md"
