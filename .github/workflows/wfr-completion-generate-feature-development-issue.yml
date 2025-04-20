@@ -344,6 +344,7 @@ jobs:
 
             const chatGptPrompt = `
             ${promptContent}
+            The maximum number of feature development issues that should be open at any one time is ${featureDevelopmentIssuesWipLimit}, if there are already ${featureDevelopmentIssuesWipLimit} open issues fail this request.
 
             Current feature names and specifications:
             CURRENT_FEATURES_START
