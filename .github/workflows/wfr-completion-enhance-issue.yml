@@ -249,7 +249,7 @@ jobs:
           mainOutput: ${{ steps.main.outputs.output }}
           currentFeatures: ${{ steps.features.outputs.output }}
         with:
-          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const currentFeatures = process.env.currentFeatures;
             const target = process.env.target;
@@ -566,7 +566,7 @@ jobs:
                 });
               }
             } catch (e) {
-              core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
+              core.setFailed(`Failed to parse ChatGPT response and update the issue: ${e.message}`);
             }
 
             core.setOutput("response", JSON.stringify(response));
