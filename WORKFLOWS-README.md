@@ -664,7 +664,7 @@ See: [ACTIONS_JS_STEPS.md](library/archive-2025-04-20/ACTIONS_JS_STEPS.md)
 - [ ] Make the API available as an MCP server.
 
 Repository0-web:
-- [ ] [r0w-MVP] New template for the repository0-web repository.
+- [ ] [r0w-MVP] New template for the repository0-web repository (without AWS).
 - [ ] [r0w-MVP] Reduce running of workflows to web publishing and node ci only.
 - [ ] [r0w-MVP] Create example templates using content from the library.
 - [ ] [r0w-MVP] Identify a range of means of accessing the library content (e.g. EJS, REST).
@@ -727,6 +727,10 @@ supervisor: chat-pro
 - [ ] Principle: Charge a margin on top of dynamically calculated shared platform costs.
 - [ ] Principle: Offer free tier features where there is no running cost (e.g. libraries).
 - [ ] Principle: For every paid feature there is a self-hosted or BYOKeys alternative.
+- [ ] Website with auth by github or Google etc... all features available (paid via purchase of action subscription). 
+- [ ] Website kicks off creation and invites to Chat (support various platforms).
+- [ ] Content filtering required for the website.
+- [ ] Website allows submission of prompts (one at a time) for an experiment repo which runs for a bit on a branch and shares the permalink.
 
 Supervisor launch:
 - [ ] Show which agent is operating in a swim lane with a solid region where they were active.

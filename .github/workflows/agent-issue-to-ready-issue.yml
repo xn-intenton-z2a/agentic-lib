@@ -62,14 +62,52 @@ jobs:
 
       - name: agentic-lib
         id: agentic-lib
-        shell: bash
-        run: |
-          featureDevelopmentIssuesWipLimit=$(grep '^featureDevelopmentIssuesWipLimit:' .github/agentic-lib.yml | awk '{print $2}')
-          echo "featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}"
-          echo "featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}" >> $GITHUB_OUTPUT
-          maintenanceIssuesWipLimit=$(grep '^maintenanceIssuesWipLimit:' .github/agentic-lib.yml | awk '{print $2}')
-          echo "maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}"
-          echo "maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}" >> $GITHUB_OUTPUT
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const yaml = require('js-yaml');
+
+            // Default values
+            let featureDevelopmentIssuesWipLimit = "3";
+            let maintenanceIssuesWipLimit = "3";
+
+            // Check if agentic-lib.yml exists
+            const configPath = path.join('.github', 'agentic-lib.yml');
+            if (fs.existsSync(configPath)) {
+              try {
+                // Read and parse the YAML file
+                const fileContents = fs.readFileSync(configPath, 'utf8');
+                const config = yaml.load(fileContents);
+
+                // Extract featureDevelopmentIssuesWipLimit
+                if (config.featureDevelopmentIssuesWipLimit) {
+                  featureDevelopmentIssuesWipLimit = config.featureDevelopmentIssuesWipLimit.toString();
+                } else {
+                  console.log(`Warning: featureDevelopmentIssuesWipLimit not found in .github/agentic-lib.yml, using default value: ${featureDevelopmentIssuesWipLimit}`);
+                }
+
+                // Extract maintenanceIssuesWipLimit
+                if (config.maintenanceIssuesWipLimit) {
+                  maintenanceIssuesWipLimit = config.maintenanceIssuesWipLimit.toString();
+                } else {
+                  console.log(`Warning: maintenanceIssuesWipLimit not found in .github/agentic-lib.yml, using default value: ${maintenanceIssuesWipLimit}`);
+                }
+              } catch (error) {
+                console.log(`Error parsing .github/agentic-lib.yml: ${error.message}`);
+                console.log(`Using default values: featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}, maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
+              }
+            } else {
+              console.log(`Warning: .github/agentic-lib.yml file not found, using default values: featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}, maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
+            }
+
+            // Set outputs
+            console.log(`featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}`);
+            core.setOutput('featureDevelopmentIssuesWipLimit', featureDevelopmentIssuesWipLimit);
+
+            console.log(`maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
+            core.setOutput('maintenanceIssuesWipLimit', maintenanceIssuesWipLimit);
     outputs:
       featureDevelopmentIssuesWipLimit: ${{ steps.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}
       maintenanceIssuesWipLimit: ${{ steps.agentic-lib.outputs.maintenanceIssuesWipLimit }}
