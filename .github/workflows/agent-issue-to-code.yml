@@ -35,7 +35,7 @@ on:
       - agent-feature-to-issue
       - agent-prompt-to-issue
       - agent-linting-to-issue
-      - agent-issue-to-ready-issue
+      #- agent-issue-to-ready-issue
     types:
       - completed
   schedule:
