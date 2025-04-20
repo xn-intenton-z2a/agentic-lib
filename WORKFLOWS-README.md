@@ -645,6 +645,8 @@ Re-usable GitHub Actions Workflows:
 - [ ] [r0w-MVP] Replace ${libraryDocuments.substring(0, 10000)} with a summary of the library documents.
 - [ ] [r0w-MVP] Attach relevant summarised docs to the issue during refinement.
 - [ ] [r0w-MVP] Grab the issue comments when working on an issue or a fix or a review.
+- [ ] [r0w-MVP] Why don't tests run after merge? (Possibly because it down stream of auto-merge PRs under a token of some kind .)
+- [ ] [r0w-MVP] Why did the issue get closed right after the merge?
 - [ ] Support creation, edit and deletion of multiple files of each type (src, tests, docs, sources, library) etc.
 - [ ] Add a PR review workflow with a reviewer and responder.
 - [ ] Remove the prompts folder favouring the maintenance AGENT.md files.
