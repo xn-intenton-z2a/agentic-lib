@@ -308,6 +308,7 @@ jobs:
             const dependenciesFile = process.env.dependenciesFile;
             const formattingFile = process.env.formattingFile;
             const lintingFile = process.env.lintingFile;
+            const docsFile = process.env.docsFile;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
             const promptFile = process.env.promptFile;
