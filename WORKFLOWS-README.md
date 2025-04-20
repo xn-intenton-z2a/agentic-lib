@@ -664,7 +664,7 @@ See: [ACTIONS_JS_STEPS.md](library/archive-2025-04-20/ACTIONS_JS_STEPS.md)
 - [ ] Make the API available as an MCP server.
 
 Repository0-web:
-- [ ] [r0w-MVP] New template for the repository0-web repository.
+- [ ] [r0w-MVP] New template for the repository0-web repository (without AWS).
 - [ ] [r0w-MVP] Reduce running of workflows to web publishing and node ci only.
 - [ ] [r0w-MVP] Create example templates using content from the library.
 - [ ] [r0w-MVP] Identify a range of means of accessing the library content (e.g. EJS, REST).
