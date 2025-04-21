@@ -651,6 +651,7 @@ by exacting the summary of each library document extracted from the markdown by 
 section to concatenate the summaries into libraryDocuments instead of the whole document. The workflow
 should continue to pick the relevant documents from the library and add the whole document to the issue.
 - [ ] [r0w-MVP] In the feature maintainer replace ${libraryDocuments.substring(0, 10000)} with a condensed form of the library documents (a new section to be added to the library)
+- [ ] [r0w-MVP] Fix (feature story): Enhance '${featureName}' CLI Command with Help Option and Usage Documentation #1653
 - [ ] Support creation, edit and deletion of multiple files of each type (src, tests, docs, sources, library) etc.
 - [ ] Add a PR review workflow with a reviewer and responder.
 - [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
