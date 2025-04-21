@@ -32,16 +32,23 @@ export const config = configSchema.parse(process.env);
 // Global verbose mode flag
 let VERBOSE_MODE = false;
 
-export function logConfig() {
-  const logObj = {
-    level: "info",
+// Helper function to format log entries
+function formatLogEntry(level, message, additionalData = {}) {
+  return {
+    level,
     timestamp: new Date().toISOString(),
-    message: "Configuration loaded",
+    message,
+    ...additionalData,
+  };
+}
+
+export function logConfig() {
+  const logObj = formatLogEntry("info", "Configuration loaded", {
     config: {
       GITHUB_API_BASE_URL: config.GITHUB_API_BASE_URL,
       OPENAI_API_KEY: config.OPENAI_API_KEY,
     }
-  };
+  });
   console.log(JSON.stringify(logObj));
 }
 logConfig();
@@ -51,27 +58,17 @@ logConfig();
 // ---------------------------------------------------------------------------------------------------------------------
 
 export function logInfo(message) {
-  const logObj = {
-    level: "info",
-    timestamp: new Date().toISOString(),
-    message,
-  };
-  if (VERBOSE_MODE) {
-    logObj.verbose = true;
-  }
+  const additionalData = VERBOSE_MODE ? { verbose: true } : {};
+  const logObj = formatLogEntry("info", message, additionalData);
   console.log(JSON.stringify(logObj));
 }
 
 export function logError(message, error) {
-  const logObj = {
-    level: "error",
-    timestamp: new Date().toISOString(),
-    message,
-    error: error ? error.toString() : undefined,
-  };
+  const additionalData = { error: error ? error.toString() : undefined };
   if (VERBOSE_MODE && error && error.stack) {
-    logObj.stack = error.stack;
+    additionalData.stack = error.stack;
   }
+  const logObj = formatLogEntry("error", message, additionalData);
   console.error(JSON.stringify(logObj));
 }
 

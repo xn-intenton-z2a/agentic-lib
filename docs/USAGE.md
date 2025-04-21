@@ -20,7 +20,7 @@ This document provides clear and concise usage details for the agentic-lib comma
 - **--simulate-error**: Simulate an error scenario for testing; logs a simulated error and exits with a non-zero status code.
 - **--simulate-delay <ms>**: Simulate processing delay for the specified duration in milliseconds.
 - **--apply-fix**: Apply an automated fix and log a success message.
-- **--cli-utils**: Display a summary of available CLI commands with their descriptions.
+- **--cli-utils**: **NEW.** Displays a comprehensive summary of all CLI commands available along with brief descriptions. Use this flag to quickly view all command options.
 
 ## Command Aliases
 
