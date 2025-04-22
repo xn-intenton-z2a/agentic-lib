@@ -101,6 +101,8 @@ on:
         value: ${{ jobs.maintain-library.outputs.supplementaryDetails }}
       referenceDetails:
         value: ${{ jobs.maintain-library.outputs.referenceDetails }}
+      informationDenseExtract:
+        value: ${{ jobs.maintain-library.outputs.informationDenseExtract }}
 
 jobs:
   maintain-library:
@@ -471,7 +473,8 @@ jobs:
               "crawlSummary": "The condensed technical details from the crawled content, with actual specifications rather than descriptions of what specifications exist.",
               "normalisedExtract": "The actual technical information extracted from the crawled content, including specific implementation details, exact configuration parameters, and concrete examples. Include a table of contents of technical topics and complete technical details for each topic that can be directly used by developers.",
               "supplementaryDetails": "The actual technical specifications and implementation details that complement the crawled content, including exact parameter values, configuration options, and implementation steps.",
-              "referenceDetails": "The complete API specifications with all parameters and return types, full SDK method signatures, actual code examples, exact implementation patterns with all steps, specific configuration options with their values and effects, concrete best practices with implementation code, and detailed troubleshooting procedures with exact commands."
+              "referenceDetails": "The complete API specifications with all parameters and return types, full SDK method signatures, actual code examples, exact implementation patterns with all steps, specific configuration options with their values and effects, concrete best practices with implementation code, and detailed troubleshooting procedures with exact commands.",
+              "informationDenseExtract": "A highly condensed, information-rich version of the technical content optimized for LLM consumption. This should contain all key technical details in a dense format without redundancy or explanatory text. Focus on facts, specifications, parameters, and code patterns."
             }
             Ensure valid JSON.
             `;
@@ -484,7 +487,8 @@ jobs:
               crawlSummary: z.string(),
               normalisedExtract: z.string(),
               supplementaryDetails: z.string(),
-              referenceDetails: z.string()
+              referenceDetails: z.string(),
+              informationDenseExtract: z.string()
             });
 
             // Define the function schema for function calling
@@ -503,9 +507,10 @@ jobs:
                     crawlSummary: { type: "string", description: "The condensed technical details from the crawled content, with actual specifications rather than descriptions of what specifications exist." },
                     normalisedExtract: { type: "string", description: "The actual technical information extracted from the crawled content, including specific implementation details, exact configuration parameters, and concrete examples. Include a table of contents of technical topics and complete technical details for each topic that can be directly used by developers." },
                     supplementaryDetails: { type: "string", description: "The actual technical specifications and implementation details that complement the crawled content, including exact parameter values, configuration options, and implementation steps." },
-                    referenceDetails: { type: "string", description: "The complete API specifications with all parameters and return types, full SDK method signatures, actual code examples, exact implementation patterns with all steps, specific configuration options with their values and effects, concrete best practices with implementation code, and detailed troubleshooting procedures with exact commands." }
+                    referenceDetails: { type: "string", description: "The complete API specifications with all parameters and return types, full SDK method signatures, actual code examples, exact implementation patterns with all steps, specific configuration options with their values and effects, concrete best practices with implementation code, and detailed troubleshooting procedures with exact commands." },
+                    informationDenseExtract: { type: "string", description: "A highly condensed, information-rich version of the technical content optimized for LLM consumption. This should contain all key technical details in a dense format without redundancy or explanatory text. Focus on facts, specifications, parameters, and code patterns." }
                   },
-                  required: ["documentName", "documentDetailedDigest", "documentNamesToBeDeleted", "sourceEntryIndex", "crawlSummary", "normalisedExtract", "supplementaryDetails", "referenceDetails"],
+                  required: ["documentName", "documentDetailedDigest", "documentNamesToBeDeleted", "sourceEntryIndex", "crawlSummary", "normalisedExtract", "supplementaryDetails", "referenceDetails", "informationDenseExtract"],
                   additionalProperties: false
                 },
                 strict: true
@@ -549,6 +554,7 @@ jobs:
               core.setOutput("normalisedExtract", parsed.normalisedExtract);
               core.setOutput("supplementaryDetails", parsed.supplementaryDetails);
               core.setOutput("referenceDetails", parsed.referenceDetails);
+              core.setOutput("informationDenseExtract", parsed.informationDenseExtract);
               core.info(`documentName: "${parsed.documentName}"`);
               core.info(`documentDetailedDigest: "${parsed.documentDetailedDigest}"`);
               core.info(`documentNamesToBeDeleted: "${parsed.documentNamesToBeDeleted}"`);
@@ -557,6 +563,7 @@ jobs:
               core.info(`normalisedExtract: "${parsed.normalisedExtract}"`);
               core.info(`supplementaryDetails: "${parsed.supplementaryDetails}"`);
               core.info(`referenceDetails: "${parsed.referenceDetails}"`);
+              core.info(`informationDenseExtract: "${parsed.informationDenseExtract}"`);
 
               // Get the source entry used for this document
               const sourceEntryIndex = parseInt(parsed.sourceEntryIndex, 10) - 1;
@@ -586,10 +593,28 @@ jobs:
                 documentContent += `## Supplementary Details\n${parsed.supplementaryDetails}\n\n`;
                 documentContent += `## Reference Details\n${parsed.referenceDetails}\n\n`;
 
-                // Create Information Dense Extract by sanitizing the Normalised Extract
-                let informationDenseExtract = '';
+                // Use the LLM-generated Information Dense Extract
+                let llmInformationDenseExtract = '';
+                if (parsed.informationDenseExtract && parsed.informationDenseExtract.trim()) {
+                  llmInformationDenseExtract = parsed.informationDenseExtract;
+                } else {
+                  // If LLM-generated Information Dense Extract is empty or missing, use a combination of other sections
+                  const combinedContent = [
+                    parsed.crawlSummary || '',
+                    parsed.supplementaryDetails || '',
+                    parsed.referenceDetails || '',
+                    parsed.documentDetailedDigest || ''
+                  ].filter(Boolean).join('\n\n');
+
+                  llmInformationDenseExtract = combinedContent;
+                }
+
+                documentContent += `## Information Dense Extract\n${llmInformationDenseExtract}\n\n`;
+
+                // Create Escaped Extract by sanitizing the Normalised Extract
+                let escapedExtract = '';
                 if (parsed.normalisedExtract && parsed.normalisedExtract.trim()) {
-                  informationDenseExtract = parsed.normalisedExtract
+                  escapedExtract = parsed.normalisedExtract
                     .replace(/[^\x20-\x7E\n]/g, '') // Remove non-ASCII characters
                     .replace(/[\\"`]/g, "'") // Replace quotes and backslashes with single quotes
                     .replace(/[\t\r]/g, ' ') // Replace tabs and carriage returns with spaces
@@ -603,14 +628,14 @@ jobs:
                     parsed.documentDetailedDigest || ''
                   ].filter(Boolean).join('\n\n');
 
-                  informationDenseExtract = combinedContent
+                  escapedExtract = combinedContent
                     .replace(/[^\x20-\x7E\n]/g, '') // Remove non-ASCII characters
                     .replace(/[\\"`]/g, "'") // Replace quotes and backslashes with single quotes
                     .replace(/[\t\r]/g, ' ') // Replace tabs and carriage returns with spaces
                     .trim();
                 }
 
-                documentContent += `## Information Dense Extract\n${informationDenseExtract}\n\n`;
+                documentContent += `## Escaped Extract\n${escapedExtract}\n\n`;
                 documentContent += `## Original Source\n${sourceEntry.name}\n${sourceEntry.url}\n\n`;
                 documentContent += `## Digest of ${parsed.documentName}\n\n`;
                 documentContent += `${parsed.documentDetailedDigest}\n\n`;
@@ -711,3 +736,4 @@ jobs:
       normalisedExtract: ${{ steps.maintain-library.outputs.normalisedExtract }}
       supplementaryDetails: ${{ steps.maintain-library.outputs.supplementaryDetails }}
       referenceDetails: ${{ steps.maintain-library.outputs.referenceDetails }}
+      informationDenseExtract: ${{ steps.maintain-library.outputs.informationDenseExtract }}
