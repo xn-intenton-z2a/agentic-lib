@@ -636,7 +636,6 @@ Re-usable GitHub Actions Workflows:
 - [x] semantic versioning for releasing versions.
 - [x] [r0w-MVP] Grab the issue comments when working on an issue or a fix or a review.
 - [x] [r0w-MVP] Extract prompt text to AGENT.md files.
-- [?] [r0w-MVP] Attach relevant context from the library to an issue during refinement (and stop sending the whole libary to the issue worker).
 - [x] [r0w-MVP] Add an issue refiner that picks and issues either sets 'ready', improves the issue, or closes it if irrelevant. (Then change the issue worker to look for 'ready' issues.)
 - [x] [r0w-MVP] Mark in-progress issues as such, and change the issue worker to ignore 'in-progress' issues.
 - [x] [r0w-MVP] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
@@ -645,13 +644,14 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-MVP] Add to agentic-lib.yml a mapping for concepts such as src / tests / docs / sources / library  and use these as defaults when invoking the workflows and at any time a default is applied.
 - [x] [r0w-MVP] Why don't tests run after merge? (Possibly because it down stream of auto-merge PRs under a token of some kind .)
 - [x] [r0w-MVP] Why did the issue get closed right after the merge?
+- [?] [r0w-MVP] Fix (feature story): Enhance '${featureName}' CLI Command with Help Option and Usage Documentation #1653
+- [?] [r0w-MVP] Attach relevant context from the library to an issue during refinement (and stop sending the whole libary to the issue worker).
 - [ ] [r0w-MVP]
 In the refiner replace the need to truncate like this ${libraryDocuments.substring(0, 10000)} 
 by exacting the summary of each library document extracted from the markdown by extracting the summary
 section to concatenate the summaries into libraryDocuments instead of the whole document. The workflow
 should continue to pick the relevant documents from the library and add the whole document to the issue.
 - [ ] [r0w-MVP] In the feature maintainer replace ${libraryDocuments.substring(0, 10000)} with a condensed form of the library documents (a new section to be added to the library)
-- [ ] [r0w-MVP] Fix (feature story): Enhance '${featureName}' CLI Command with Help Option and Usage Documentation #1653
 - [ ] Support creation, edit and deletion of multiple files of each type (src, tests, docs, sources, library) etc.
 - [ ] Add a PR review workflow with a reviewer and responder.
 - [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
