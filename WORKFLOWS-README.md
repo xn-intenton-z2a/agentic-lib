@@ -644,7 +644,7 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-MVP] Add to agentic-lib.yml a mapping for concepts such as src / tests / docs / sources / library  and use these as defaults when invoking the workflows and at any time a default is applied.
 - [x] [r0w-MVP] Why don't tests run after merge? (Possibly because it down stream of auto-merge PRs under a token of some kind .)
 - [x] [r0w-MVP] Why did the issue get closed right after the merge?
-- [?] [r0w-MVP] Fix (feature story): Enhance '${featureName}' CLI Command with Help Option and Usage Documentation #1653
+- [x] [r0w-MVP] Fix (feature story): Enhance '${featureName}' CLI Command with Help Option and Usage Documentation #1653
 - [?] [r0w-MVP] Attach relevant context from the library to an issue during refinement (and stop sending the whole libary to the issue worker).
 - [ ] [r0w-MVP]
 In the refiner replace the need to truncate like this ${libraryDocuments.substring(0, 10000)} 
