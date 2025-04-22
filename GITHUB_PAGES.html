@@ -24,438 +24,349 @@
   <section>
     <h1 class="md-github"><a class="md-github__anchor" name="github_pages" href="#github_pages"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GITHUB_PAGES</h1>
 <h2 class="md-github"><a class="md-github__anchor" name="crawl-summary" href="#crawl-summary"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Crawl Summary</h2>
-<p class="md-github">The documentation details the steps to create and deploy a GitHub Pages site including repository setup, branch selection, custom domain and HTTPS configurations, and GitHub Actions workflow integration. It includes specific configuration options: repository naming (<username>.github.io), branch publishing settings, use of .nojekyll to disable Jekyll builds, and full YAML examples for custom workflows that include steps for checkout, building with Jekyll, uploading artifacts, and deploying with deploy-pages action. Additionally, it outlines procedures to delete or unpublish a site, and methods to create a custom 404 error page.</p>
+<p class="md-github">Repository setup instructions for creating a site with repository name <username>.github.io, setting publishing source via branch or folder, and modifying _config.yml for title and description. GitHub Actions integration requires actions/configure-pages@v5, actions/upload-pages-artifact@v3, and actions/deploy-pages@v4 with specified permissions (pages: write, id-token: write). Custom domain configuration includes updating DNS and repository settings. HTTPS enforcement and custom 404 page creation are detailed. Limits on site size, build duration, bandwidth, and build frequency are specified.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="normalised-extract" href="#normalised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Normalised Extract</h2>
-<h2 class="md-github"><a class="md-github__anchor" name="table-of-contents" href="#table-of-contents"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Table of Contents</h2>
+<p class="md-github">Table of Contents:</p>
 <ol class="md-github">
-<li class="md-github">
-<p class="md-github">Quickstart and Repository Setup</p>
+<li class="md-github">Repository Setup
 <ul class="md-github">
-<li class="md-github">Create repository: <code class="md-github">&lt;username&gt;.github.io</code></li>
-<li class="md-github">Initialize with README</li>
-<li class="md-github">Configure Pages via Settings &gt; Pages</li>
+<li class="md-github">Create repository with name <username>.github.io</li>
+<li class="md-github">Initialize with README; set visibility as required</li>
 </ul>
 </li>
-<li class="md-github">
-<p class="md-github">Custom Domain Configuration</p>
+<li class="md-github">Publishing Source Configuration
 <ul class="md-github">
-<li class="md-github">Update DNS records</li>
-<li class="md-github">Set custom domain in repository settings</li>
-<li class="md-github">API endpoint usage for custom domains</li>
+<li class="md-github">Access Settings &gt; Pages</li>
+<li class="md-github">Set publishing branch and optional folder (e.g., /docs)</li>
 </ul>
 </li>
-<li class="md-github">
-<p class="md-github">HTTPS Enforcement</p>
+<li class="md-github">GitHub Actions Workflow
 <ul class="md-github">
-<li class="md-github">Enforce HTTPS via Settings &gt; Pages</li>
-<li class="md-github">Certificate prerequisites (domain length &lt; 64 characters)</li>
+<li class="md-github">Use actions/configure-pages@v5 to set up Pages</li>
+<li class="md-github">Use actions/upload-pages-artifact@v3 to upload build artifact</li>
+<li class="md-github">Use actions/deploy-pages@v4 for deployment</li>
+<li class="md-github">YAML example provided with checkout, setup, build (Jekyll), upload, and deploy steps</li>
 </ul>
 </li>
-<li class="md-github">
-<p class="md-github">Custom GitHub Actions Workflow</p>
+<li class="md-github">Custom Domain and HTTPS
 <ul class="md-github">
-<li class="md-github">Workflow sample for build and deploy</li>
-<li class="md-github">YAML configuration for multi-job and single-job workflows</li>
+<li class="md-github">Configure DNS records for custom domains</li>
+<li class="md-github">Enable Enforce HTTPS in Pages settings</li>
 </ul>
 </li>
-<li class="md-github">
-<p class="md-github">Publishing Source Configuration</p>
+<li class="md-github">Custom 404 Page Creation
 <ul class="md-github">
-<li class="md-github">Select branch and folder (root or <code class="md-github">/docs</code>)</li>
-<li class="md-github">Use of <code class="md-github">.nojekyll</code> for bypassing Jekyll build</li>
-<li class="md-github">Entry file requirement (index.html / index.md / README.md)</li>
+<li class="md-github">Add 404.html or 404.md with YAML front matter (permalink: /404.html)</li>
 </ul>
 </li>
-<li class="md-github">
-<p class="md-github">Deleting and Unpublishing Site</p>
+<li class="md-github">Deletion/Unpublishing Procedures
 <ul class="md-github">
-<li class="md-github">Options: delete repository or change publishing source</li>
-<li class="md-github">Unpublishing steps via Settings</li>
+<li class="md-github">Delete repository or change publishing source to None to remove site</li>
+<li class="md-github">Use Unpublish option to remove current deployment</li>
 </ul>
 </li>
-<li class="md-github">
-<p class="md-github">Custom 404 Page</p>
+<li class="md-github">MIME Types and Site Limits
 <ul class="md-github">
-<li class="md-github">Creating custom 404 page with YAML front matter and commit steps</li>
+<li class="md-github">Supports over 750 MIME types</li>
+<li class="md-github">Site size limit of 1GB; 10 minute build timeout; 100GB/month bandwidth limit; 10 builds per hour soft cap</li>
 </ul>
 </li>
 </ol>
-<h2 class="md-github"><a class="md-github__anchor" name="detailed-technical-information" href="#detailed-technical-information"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Detailed Technical Information</h2>
-<ol class="md-github">
-<li class="md-github">
-<p class="md-github">Quickstart: Execute steps by clicking &quot;New repository&quot; in GitHub and naming it <code class="md-github">&lt;username&gt;.github.io</code>. Initialize with a README; then navigate to Settings &gt; Pages, select &quot;Deploy from a branch&quot;, choose branch and source folder. Changes may take up to 10 minutes to show.</p>
-</li>
-<li class="md-github">
-<p class="md-github">Custom Domain: After setting up the site, update DNS records and set the custom domain. Verify the domain using the repository’s Pages section.</p>
-</li>
-<li class="md-github">
-<p class="md-github">HTTPS Enforcement: In the Pages settings, tick &quot;Enforce HTTPS&quot;. GitHub automatically provisions SSL certificates, provided the domain meets RFC3280 restrictions.</p>
-</li>
-<li class="md-github">
-<p class="md-github">GitHub Actions Workflow: Use predefined actions:</p>
-<ul class="md-github">
-<li class="md-github">checkout: <code class="md-github">actions/checkout@v4</code></li>
-<li class="md-github">configure-pages: <code class="md-github">actions/configure-pages@v5</code></li>
-<li class="md-github">Jekyll build: <code class="md-github">actions/jekyll-build-pages@v1</code> (with parameters source and destination)</li>
-<li class="md-github">upload artifact: <code class="md-github">actions/upload-pages-artifact@v3</code></li>
-<li class="md-github">deploy: <code class="md-github">actions/deploy-pages@v4</code></li>
-</ul>
-</li>
-<li class="md-github">
-<p class="md-github">Publishing Configuration: For non-Jekyll sites, add a <code class="md-github">.nojekyll</code> file. The publishing branch must exist and contain an entry file at the correct folder level.</p>
-</li>
-<li class="md-github">
-<p class="md-github">Deletion/Unpublishing: Change publishing source to 'None' via Settings to remove the site without deleting the repository, or delete the repository entirely.</p>
-</li>
-<li class="md-github">
-<p class="md-github">Custom 404 Page: Create <code class="md-github">404.html</code> or <code class="md-github">404.md</code>. If using markdown, include YAML front matter:</p>
-</li>
-</ol>
-<pre class="md-github"><code class="md-github language-yaml">---
-permalink: /404.html
----
-</code></pre>
-<p class="md-github">Commit the file with a proper commit message.</p>
+<p class="md-github">Detailed Information:
+Repository Setup: Create repository using New Repository button, ensure it is named as <username>.github.io, and initialize with a README.
+Publishing Source: In repository Settings &gt; Pages, select 'Deploy from a branch', choose branch (e.g., main) and folder if needed. Save settings to trigger automatic deployment on push.
+GitHub Actions: Configure workflows with steps including checkout (actions/checkout@v4), configuration (actions/configure-pages@v5), build using Jekyll (actions/jekyll-build-pages@v1), artifact upload (actions/upload-pages-artifact@v3) and deployment (actions/deploy-pages@v4). Ensure required permissions: pages: write, id-token: write.
+Custom Domain: Update domain settings in repository and DNS provider; verify the custom domain through repository settings.
+HTTPS: Enforce HTTPS using the toggle in Pages settings to redirect all HTTP requests to HTTPS.
+404 Page: Create a file named 404.html or 404.md at the root; include YAML header with permalink to ensure correct routing.
+Deletion/Unpublishing: To remove a site, delete the repository or set the publishing source to None in Pages settings.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="supplementary-details" href="#supplementary-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Supplementary Details</h2>
-<h3 class="md-github"><a class="md-github__anchor" name="detailed-implementation-steps-and-config-options" href="#detailed-implementation-steps-and-config-options"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Detailed Implementation Steps and Config Options</h3>
+<p class="md-github">Repository Settings:</p>
 <ul class="md-github">
-<li class="md-github">Repository Name: Must follow <code class="md-github">&lt;username&gt;.github.io</code>. Replace <code class="md-github">&lt;username&gt;</code> with your GitHub username in lowercase if necessary.</li>
-<li class="md-github">Branch Selection: Default branch (e.g., 'main') or a dedicated branch for pages (e.g., 'gh-pages').</li>
-<li class="md-github">Source Folder: Options include '/' (root) or '/docs'.</li>
-<li class="md-github">.nojekyll File: Create an empty file named <code class="md-github">.nojekyll</code> in the root of your publishing source if using non-Jekyll static generators.</li>
-<li class="md-github">GitHub Actions Workflow Parameters:
+<li class="md-github">Repository Name: Must be <username>.github.io for user sites.</li>
+<li class="md-github">Publishing Source: Branch selection (any branch) with an optional folder (e.g., /docs).</li>
+<li class="md-github">_config.yml modifications: Add lines 'title: <your title>' and 'description: <your description>'.</li>
+</ul>
+<p class="md-github">GitHub Actions Workflow:</p>
 <ul class="md-github">
-<li class="md-github"><strong class="md-github">actions/configure-pages@v5</strong>: No additional parameters required.</li>
-<li class="md-github"><strong class="md-github">actions/jekyll-build-pages@v1</strong>:
+<li class="md-github">Actions required:
 <ul class="md-github">
-<li class="md-github">Parameters: <code class="md-github">source</code> (string, path to site source), <code class="md-github">destination</code> (string, path to output directory).</li>
+<li class="md-github">actions/checkout@v4</li>
+<li class="md-github">actions/configure-pages@v5</li>
+<li class="md-github">actions/jekyll-build-pages@v1 (for Jekyll based builds)</li>
+<li class="md-github">actions/upload-pages-artifact@v3</li>
+<li class="md-github">actions/deploy-pages@v4</li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">actions/upload-pages-artifact@v3</strong>:
+<li class="md-github">Workflow Permissions: Set pages: write and id-token: write in job permissions.</li>
+<li class="md-github">Environment: Use environment name 'github-pages'; set URL output field using ${{steps.deployment.outputs.page_url}}.</li>
+</ul>
+<p class="md-github">Custom Domain and HTTPS:</p>
 <ul class="md-github">
-<li class="md-github">Parameter: <code class="md-github">path</code> (string, directory to package).</li>
+<li class="md-github">Custom domain configuration: Manually update DNS records and set custom domain in repository settings.</li>
+<li class="md-github">HTTPS: Toggle 'Enforce HTTPS' in the Pages settings; ensure domain name length is less than 64 characters per RFC3280.</li>
 </ul>
-</li>
-<li class="md-github"><strong class="md-github">actions/deploy-pages@v4</strong>:
+<p class="md-github">Troubleshooting:</p>
 <ul class="md-github">
-<li class="md-github">Requires job permissions: <code class="md-github">contents: read</code>, <code class="md-github">pages: write</code>, <code class="md-github">id-token: write</code>.</li>
-<li class="md-github">Environment must set <code class="md-github">name: github-pages</code> and output <code class="md-github">url</code> can be captured via <code class="md-github">${{steps.deployment.outputs.page_url}}</code>.</li>
+<li class="md-github">If site changes are not visible within 10 minutes, verify that an admin with a verified email has pushed changes.</li>
+<li class="md-github">For build errors, inspect workflow run logs and ensure a .nojekyll file is used if not using Jekyll.</li>
+<li class="md-github">For symbolic link issues in repositories, deploy using a GitHub Actions workflow instead of direct branch publishing.</li>
 </ul>
-</li>
-</ul>
-</li>
-<li class="md-github">Custom Domain and HTTPS:
+<p class="md-github">Site Limits:</p>
 <ul class="md-github">
-<li class="md-github">In Settings &gt; Pages, set custom domain and enforce HTTPS. Domain must be less than 64 characters (RFC3280).</li>
+<li class="md-github">Maximum site size: 1GB</li>
+<li class="md-github">Build timeout: 10 minutes</li>
+<li class="md-github">Bandwidth limit: 100GB/month</li>
+<li class="md-github">Build frequency: 10 builds per hour (unless custom workflow is used)</li>
 </ul>
-</li>
-<li class="md-github">404 Page Setup:
+<p class="md-github">Additional Best Practices:</p>
 <ul class="md-github">
-<li class="md-github">File name: <code class="md-github">404.md</code> or <code class="md-github">404.html</code>, with YAML front matter if markdown is used.</li>
-</ul>
-</li>
-</ul>
-<h3 class="md-github"><a class="md-github__anchor" name="exact-configuration-options-with-defaults" href="#exact-configuration-options-with-defaults"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Exact Configuration Options with Defaults</h3>
-<ul class="md-github">
-<li class="md-github">Repository visibility: Public (default for GitHub Free accounts).</li>
-<li class="md-github">Build timeout: 10 minutes max for GitHub Pages deployments.</li>
-<li class="md-github">Bandwidth limit: Soft limit of 100 GB/month.</li>
-<li class="md-github">Build frequency: Soft limit of 10 builds per hour unless using custom workflows.</li>
+<li class="md-github">Use a dedicated branch for site source files if repository includes unrelated project files.</li>
+<li class="md-github">Configure deployment environment with branch protection rules for 'github-pages'.</li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="reference-details" href="#reference-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reference Details</h2>
-<h3 class="md-github"><a class="md-github__anchor" name="full-api-and-sdk-method-examples" href="#full-api-and-sdk-method-examples"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Full API and SDK Method Examples</h3>
-<h4 class="md-github"><a class="md-github__anchor" name="github-actions-workflow-yaml-example-multi-job" href="#github-actions-workflow-yaml-example-multi-job"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GitHub Actions Workflow YAML Example (Multi-Job):</h4>
-<pre class="md-github"><code class="md-github language-yaml">name: GitHub Pages Deployment
-
-on:
-  push:
-    branches: 
-      - main
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Pages
-        id: setup
-        uses: actions/configure-pages@v5
-
-      - name: Build with Jekyll
-        id: jekyll_build
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: './'
-          destination: './_site'
-
-      - name: Upload artifact
-        id: upload
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './_site'
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-</code></pre>
-<h4 class="md-github"><a class="md-github__anchor" name="single-job-deployment-workflow-example" href="#single-job-deployment-workflow-example"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Single-Job Deployment Workflow Example:</h4>
-<pre class="md-github"><code class="md-github language-yaml">jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-</code></pre>
-<h4 class="md-github"><a class="md-github__anchor" name="_configyml-example-for-customizing-site-title-and-description" href="#_configyml-example-for-customizing-site-title-and-description"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>_config.yml Example for Customizing Site Title and Description:</h4>
-<pre class="md-github"><code class="md-github language-yaml">theme: jekyll-theme-minimal
-Title: &quot;Octocat's homepage&quot;
-description: &quot;Bookmark this to keep an eye on my project updates!&quot;
-</code></pre>
-<h4 class="md-github"><a class="md-github__anchor" name="custom-404-page-example-in-markdown" href="#custom-404-page-example-in-markdown"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Custom 404 Page Example in Markdown:</h4>
-<p class="md-github">Filename: 404.md</p>
-<pre class="md-github"><code class="md-github language-markdown">---
-permalink: /404.html
----
-
-# Page Not Found
-
-The page you are looking for does not exist. Please check the URL or return to the homepage.
-</code></pre>
-<h3 class="md-github"><a class="md-github__anchor" name="troubleshooting-procedures" href="#troubleshooting-procedures"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Troubleshooting Procedures</h3>
+<p class="md-github">API and Workflow Specifications:</p>
 <ol class="md-github">
 <li class="md-github">
-<p class="md-github">If the site does not publish after pushing changes:</p>
+<p class="md-github">Checkout Action:
+Method: actions/checkout@v4
+Usage: { name: 'Checkout', uses: 'actions/checkout@v4' }</p>
+</li>
+<li class="md-github">
+<p class="md-github">Configure Pages Action:
+Method: actions/configure-pages@v5
+Usage: { name: 'Setup Pages', id: 'pages', uses: 'actions/configure-pages@v5' }</p>
+</li>
+<li class="md-github">
+<p class="md-github">Jekyll Build Action:
+Method: actions/jekyll-build-pages@v1
+Parameters:</p>
 <ul class="md-github">
-<li class="md-github">Confirm that the publishing branch/folder exists and contains an entry file (e.g., README.md, index.html).</li>
-<li class="md-github">Verify that GitHub Actions is enabled and that a verified email address has pushed to the branch.</li>
-<li class="md-github">Check workflow run logs via the &quot;Actions&quot; tab in GitHub repository for errors.</li>
+<li class="md-github">source: string (path to source, e.g., './')</li>
+<li class="md-github">destination: string (path to output directory, e.g., './_site')
+Usage: { name: 'Build with Jekyll', uses: 'actions/jekyll-build-pages@v1', with: { source: './', destination: './_site' } }</li>
 </ul>
 </li>
 <li class="md-github">
-<p class="md-github">If custom domain issues occur:</p>
+<p class="md-github">Upload Pages Artifact Action:
+Method: actions/upload-pages-artifact@v3
+Parameters:</p>
 <ul class="md-github">
-<li class="md-github">Ensure DNS records are correctly configured (A or CNAME records pointing to GitHub Pages servers).</li>
-<li class="md-github">Use the repository Settings &gt; Pages to verify domain and check for certificate provisioning errors.</li>
-<li class="md-github">Confirm that the domain name is less than 64 characters.</li>
+<li class="md-github">path: string (directory to compress and upload; default is '.' if entire directory)
+Usage: { name: 'Upload Artifact', uses: 'actions/upload-pages-artifact@v3' }</li>
 </ul>
 </li>
 <li class="md-github">
-<p class="md-github">For HTTPS enforcement problems:</p>
+<p class="md-github">Deploy Pages Action:
+Method: actions/deploy-pages@v4
+Parameters:</p>
 <ul class="md-github">
-<li class="md-github">Ensure the &quot;Enforce HTTPS&quot; option is enabled in Settings &gt; Pages.</li>
-<li class="md-github">Verify that the site’s domain meets the necessary criteria for SSL certificate issuance.</li>
-</ul>
-</li>
-<li class="md-github">
-<p class="md-github">Action Workflow Failures:</p>
-<ul class="md-github">
-<li class="md-github">Check permissions: The job must have <code class="md-github">contents: read</code>, <code class="md-github">pages: write</code>, and <code class="md-github">id-token: write</code>.</li>
-<li class="md-github">Confirm the workflow YAML syntax and that all referenced actions are available (e.g., actions/checkout@v4, actions/deploy-pages@v4).</li>
-<li class="md-github">Re-run the workflow from the Actions tab if a transient error is suspected.</li>
+<li class="md-github">id: string (identifier for deployment step)</li>
+<li class="md-github">environment: object { name: 'github-pages', url: string output from deployment step }
+Usage: { name: 'Deploy to GitHub Pages', id: 'deployment', uses: 'actions/deploy-pages@v4' }</li>
 </ul>
 </li>
 </ol>
+<p class="md-github">Complete Deployment YAML Example:</p>
+<p class="md-github">jobs:
+build:
+runs-on: ubuntu-latest
+steps:
+- name: Checkout
+uses: actions/checkout@v4
+- name: Setup Pages
+id: pages
+uses: actions/configure-pages@v5
+- name: Build with Jekyll
+uses: actions/jekyll-build-pages@v1
+with:
+source: './'
+destination: './_site'
+- name: Upload artifact
+uses: actions/upload-pages-artifact@v3
+deploy:
+environment:
+name: github-pages
+url: ${{steps.deployment.outputs.page_url}}
+runs-on: ubuntu-latest
+needs: build
+steps:
+- name: Deploy to GitHub Pages
+id: deployment
+uses: actions/deploy-pages@v4</p>
+<p class="md-github">Configuration Options and Effects:</p>
+<ul class="md-github">
+<li class="md-github">_config.yml: Modify 'title' and 'description' to change site metadata.</li>
+<li class="md-github">.nojekyll file: Presence disables Jekyll build for non-Jekyll static site generators.</li>
+<li class="md-github">Publishing Source: Selecting a branch and folder triggers GitHub Actions workflow on push.</li>
+<li class="md-github">Custom Domain: Must update repository settings and DNS. A valid certificate is issued if domain length &lt; 64 characters.</li>
+</ul>
+<p class="md-github">Troubleshooting Procedures:</p>
+<ul class="md-github">
+<li class="md-github">Verify admin push with verified email if deployment does not trigger.</li>
+<li class="md-github">Check GitHub Actions workflow logs for errors in build or deployment.</li>
+<li class="md-github">Use .nojekyll to bypass unwanted build steps if using alternative static site generators.</li>
+<li class="md-github">For MIME type issues, refer to mime-db supported list (~750 types).</li>
+<li class="md-github">Confirm environment permissions: pages must be set with 'write' permissions and id-token access using repository secrets.</li>
+</ul>
+<p class="md-github">Exception Handling:</p>
+<ul class="md-github">
+<li class="md-github">If GitHub Actions fails with HTTP 429, review rate limits and adjust build frequency.</li>
+<li class="md-github">Jekyll build errors: Inspect error messages, check for missing /docs folder if selected as publishing source.</li>
+<li class="md-github">Certificate errors: Ensure custom domain meets RFC3280 requirements.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="information-dense-extract" href="#information-dense-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Information Dense Extract</h2>
+<p class="md-github">Repo: <username>.github.io; Visibility: public/private per plan; Publish source: branch (e.g., main) or /docs; _config.yml: title, description; Actions: checkout@v4, configure-pages@v5, jekyll-build-pages@v1, upload-pages-artifact@v3, deploy-pages@v4; Permissions: pages: write, id-token: write; Environment: github-pages; Custom Domain: DNS update, certificate if domain &lt;64 chars; HTTPS: enforce toggle; 404 page: 404.html/_md with YAML (permalink: /404.html); Limits: 1GB size, 10min build, 100GB/month, 10 builds/hour; Troubleshooting: check workflow logs, admin push, .nojekyll for non-Jekyll; MIME: supports 750+ types.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="sanitised-extract" href="#sanitised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Sanitised Extract</h2>
+<p class="md-github">Table of Contents:</p>
+<ol class="md-github">
+<li class="md-github">Repository Setup
+<ul class="md-github">
+<li class="md-github">Create repository with name <username>.github.io</li>
+<li class="md-github">Initialize with README; set visibility as required</li>
+</ul>
+</li>
+<li class="md-github">Publishing Source Configuration
+<ul class="md-github">
+<li class="md-github">Access Settings &gt; Pages</li>
+<li class="md-github">Set publishing branch and optional folder (e.g., /docs)</li>
+</ul>
+</li>
+<li class="md-github">GitHub Actions Workflow
+<ul class="md-github">
+<li class="md-github">Use actions/configure-pages@v5 to set up Pages</li>
+<li class="md-github">Use actions/upload-pages-artifact@v3 to upload build artifact</li>
+<li class="md-github">Use actions/deploy-pages@v4 for deployment</li>
+<li class="md-github">YAML example provided with checkout, setup, build (Jekyll), upload, and deploy steps</li>
+</ul>
+</li>
+<li class="md-github">Custom Domain and HTTPS
+<ul class="md-github">
+<li class="md-github">Configure DNS records for custom domains</li>
+<li class="md-github">Enable Enforce HTTPS in Pages settings</li>
+</ul>
+</li>
+<li class="md-github">Custom 404 Page Creation
+<ul class="md-github">
+<li class="md-github">Add 404.html or 404.md with YAML front matter (permalink: /404.html)</li>
+</ul>
+</li>
+<li class="md-github">Deletion/Unpublishing Procedures
+<ul class="md-github">
+<li class="md-github">Delete repository or change publishing source to None to remove site</li>
+<li class="md-github">Use Unpublish option to remove current deployment</li>
+</ul>
+</li>
+<li class="md-github">MIME Types and Site Limits
+<ul class="md-github">
+<li class="md-github">Supports over 750 MIME types</li>
+<li class="md-github">Site size limit of 1GB; 10 minute build timeout; 100GB/month bandwidth limit; 10 builds per hour soft cap</li>
+</ul>
+</li>
+</ol>
+<p class="md-github">Detailed Information:
+Repository Setup: Create repository using New Repository button, ensure it is named as <username>.github.io, and initialize with a README.
+Publishing Source: In repository Settings &gt; Pages, select 'Deploy from a branch', choose branch (e.g., main) and folder if needed. Save settings to trigger automatic deployment on push.
+GitHub Actions: Configure workflows with steps including checkout (actions/checkout@v4), configuration (actions/configure-pages@v5), build using Jekyll (actions/jekyll-build-pages@v1), artifact upload (actions/upload-pages-artifact@v3) and deployment (actions/deploy-pages@v4). Ensure required permissions: pages: write, id-token: write.
+Custom Domain: Update domain settings in repository and DNS provider; verify the custom domain through repository settings.
+HTTPS: Enforce HTTPS using the toggle in Pages settings to redirect all HTTP requests to HTTPS.
+404 Page: Create a file named 404.html or 404.md at the root; include YAML header with permalink to ensure correct routing.
+Deletion/Unpublishing: To remove a site, delete the repository or set the publishing source to None in Pages settings.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="original-source" href="#original-source"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Original Source</h2>
 <p class="md-github">GitHub Pages Documentation
 https://docs.github.com/en/pages</p>
 <h2 class="md-github"><a class="md-github__anchor" name="digest-of-github_pages" href="#digest-of-github_pages"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Digest of GITHUB_PAGES</h2>
-<h1 class="md-github"><a class="md-github__anchor" name="github-pages-documentation" href="#github-pages-documentation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GitHub Pages Documentation</h1>
-<p class="md-github">Retrieved on: 2023-11-24</p>
-<h2 class="md-github"><a class="md-github__anchor" name="quickstart-and-setup" href="#quickstart-and-setup"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Quickstart and Setup</h2>
+<h1 class="md-github"><a class="md-github__anchor" name="quickstart-overview" href="#quickstart-overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Quickstart Overview</h1>
+<p class="md-github">Retrieved Date: 2023-10-12</p>
+<p class="md-github">This section covers the step-by-step process to create a user site at <username>.github.io by creating a new repository, setting the repository visibility, and initializing with a README. Navigate to Settings and then to the Pages section to select the publishing source from a specific branch or folder.</p>
+<h1 class="md-github"><a class="md-github__anchor" name="creating-your-website" href="#creating-your-website"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Creating Your Website</h1>
+<ol class="md-github">
+<li class="md-github">In the upper-right corner, click New repository.</li>
+<li class="md-github">Name the repository as <username>.github.io (replace <username> with your GitHub username).</li>
+<li class="md-github">Choose the repository visibility (public or private depending on your plan).</li>
+<li class="md-github">Initialize the repository with a README.</li>
+<li class="md-github">In the repository, select Settings &gt; Pages.</li>
+<li class="md-github">Under Build and Deployment, choose 'Deploy from a branch' and select the publishing branch and optionally a folder.</li>
+</ol>
+<h1 class="md-github"><a class="md-github__anchor" name="changing-title-and-description" href="#changing-title-and-description"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Changing Title and Description</h1>
+<ol class="md-github">
+<li class="md-github">Open the _config.yml file in the repository.</li>
+<li class="md-github">Add a new line with 'title: Your Site Title'.</li>
+<li class="md-github">Add a new line with 'description: Your description here'.</li>
+<li class="md-github">Commit changes to update the site.</li>
+</ol>
+<h1 class="md-github"><a class="md-github__anchor" name="github-actions-integration-and-workflow-setup" href="#github-actions-integration-and-workflow-setup"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GitHub Actions Integration and Workflow Setup</h1>
+<p class="md-github">This section describes how GitHub Actions automates the Jekyll build and deployment process. It includes the usage of the following actions:</p>
 <ul class="md-github">
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Repository Creation</strong>:</p>
-<ul class="md-github">
-<li class="md-github">New repository name must be <code class="md-github">&lt;username&gt;.github.io</code> (e.g., octocat.github.io).</li>
-<li class="md-github">Initialize with README.</li>
-<li class="md-github">Set repository visibility (public for GitHub Free accounts).</li>
+<li class="md-github">actions/configure-pages@v5 for setting up GitHub Pages.</li>
+<li class="md-github">actions/upload-pages-artifact@v3 for packaging the build artifact (a gzip compressed tar file).</li>
+<li class="md-github">actions/deploy-pages@v4 for deploying the artifact.</li>
 </ul>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Configuration Steps</strong>:</p>
+<p class="md-github">Example YAML configuration:</p>
+<p class="md-github">jobs:
+build:
+runs-on: ubuntu-latest
+steps:
+- name: Checkout
+uses: actions/checkout@v4
+- name: Setup Pages
+id: pages
+uses: actions/configure-pages@v5
+- name: Build with Jekyll
+uses: actions/jekyll-build-pages@v1
+with:
+source: ./
+destination: ./_site
+- name: Upload artifact
+uses: actions/upload-pages-artifact@v3</p>
+<p class="md-github">deploy:
+environment:
+name: github-pages
+url: ${{steps.deployment.outputs.page_url}}
+runs-on: ubuntu-latest
+needs: build
+steps:
+- name: Deploy to GitHub Pages
+id: deployment
+uses: actions/deploy-pages@v4</p>
+<h1 class="md-github"><a class="md-github__anchor" name="configuring-a-publishing-source" href="#configuring-a-publishing-source"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Configuring a Publishing Source</h1>
+<ol class="md-github">
+<li class="md-github">Ensure that the branch specified as the publishing source exists.</li>
+<li class="md-github">Within the repository Settings &gt; Pages, select the branch and, optionally, a folder (e.g., /docs) as the publishing source.</li>
+<li class="md-github">Save the settings to activate publishing with automatic deployment triggered on push.</li>
+</ol>
+<h1 class="md-github"><a class="md-github__anchor" name="custom-domain-and-https-settings" href="#custom-domain-and-https-settings"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Custom Domain and HTTPS Settings</h1>
 <ul class="md-github">
-<li class="md-github">Navigate to repository Settings &gt; Pages.</li>
-<li class="md-github">Under &quot;Build and deployment&quot;, select &quot;Deploy from a branch&quot;.</li>
-<li class="md-github">Choose branch and source folder (root <code class="md-github">/</code> or <code class="md-github">/docs</code>).</li>
-<li class="md-github">Wait up to 10 minutes for the changes to reflect.</li>
+<li class="md-github">Custom Domain: Update DNS records and repository settings to point a custom domain to your GitHub Pages site. Changes require manual verification.</li>
+<li class="md-github">HTTPS Enforcement: In Settings &gt; Pages, select 'Enforce HTTPS' to ensure all HTTP requests are redirected to HTTPS.</li>
 </ul>
-</li>
-</ul>
-<h2 class="md-github"><a class="md-github__anchor" name="custom-domain-configuration" href="#custom-domain-configuration"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Custom Domain Configuration</h2>
+<h1 class="md-github"><a class="md-github__anchor" name="handling-404-and-custom-error-pages" href="#handling-404-and-custom-error-pages"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Handling 404 and Custom Error Pages</h1>
+<p class="md-github">To create a custom 404 page, add a 404.html or 404.md file in the repository. For markdown files, include the YAML front matter:</p>
+<hr class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="permalink-404html" href="#permalink-404html"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>permalink: /404.html</h2>
+<p class="md-github">Then add the desired content and commit the change.</p>
+<h1 class="md-github"><a class="md-github__anchor" name="deleting-and-unpublishing-a-site" href="#deleting-and-unpublishing-a-site"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Deleting and Unpublishing a Site</h1>
+<p class="md-github">To delete a site, you can either delete the repository or change the publishing source to 'None'. To unpublish without deletion, use the unpublish option in the Pages settings.</p>
+<h1 class="md-github"><a class="md-github__anchor" name="mime-types-and-limits" href="#mime-types-and-limits"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>MIME Types and Limits</h1>
 <ul class="md-github">
-<li class="md-github">
-<p class="md-github"><strong class="md-github">DNS Setup</strong>:</p>
-<ul class="md-github">
-<li class="md-github">Update DNS records to point to your GitHub Pages site.</li>
-<li class="md-github">Verify the custom domain via repository settings.</li>
-</ul>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Configuration</strong>:</p>
-<ul class="md-github">
-<li class="md-github">Set up custom domain in Pages settings</li>
-<li class="md-github">Use API endpoints if needed for custom configuration.</li>
-</ul>
-</li>
-</ul>
-<h2 class="md-github"><a class="md-github__anchor" name="https-and-security" href="#https-and-security"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>HTTPS and Security</h2>
-<ul class="md-github">
-<li class="md-github"><strong class="md-github">Enable HTTPS</strong>:
-<ul class="md-github">
-<li class="md-github">In Settings &gt; Pages, select the &quot;Enforce HTTPS&quot; checkbox.</li>
-<li class="md-github">GitHub automatically provisions certificates for github.io domains.</li>
-<li class="md-github">Note: The full domain name must be less than 64 characters.</li>
-</ul>
-</li>
-</ul>
-<h2 class="md-github"><a class="md-github__anchor" name="custom-github-actions-workflow" href="#custom-github-actions-workflow"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Custom GitHub Actions Workflow</h2>
-<ul class="md-github">
-<li class="md-github"><strong class="md-github">Workflow Sample</strong>:</li>
-</ul>
-<pre class="md-github"><code class="md-github language-yaml">name: GitHub Pages Deployment
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./
-          destination: ./_site
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-</code></pre>
-<ul class="md-github">
-<li class="md-github"><strong class="md-github">Alternative Single Job Deployment</strong>:</li>
-</ul>
-<pre class="md-github"><code class="md-github language-yaml">jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-</code></pre>
-<h2 class="md-github"><a class="md-github__anchor" name="publishing-configuration" href="#publishing-configuration"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Publishing Configuration</h2>
-<ul class="md-github">
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Publishing from Branch</strong>:</p>
-<ul class="md-github">
-<li class="md-github">Choose the branch and optionally a folder (e.g., <code class="md-github">/docs</code>).</li>
-<li class="md-github">For non-Jekyll sites, add an empty <code class="md-github">.nojekyll</code> file in the root.</li>
-</ul>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Entry File Requirements</strong>:</p>
-<ul class="md-github">
-<li class="md-github">Must have an <code class="md-github">index.html</code>, <code class="md-github">index.md</code>, or <code class="md-github">README.md</code> at the top level of the source folder.</li>
-</ul>
-</li>
-</ul>
-<h2 class="md-github"><a class="md-github__anchor" name="deletion-and-unpublishing" href="#deletion-and-unpublishing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Deletion and Unpublishing</h2>
-<ul class="md-github">
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Deleting the Site</strong>:</p>
-<ul class="md-github">
-<li class="md-github">Option 1: Delete the repository.</li>
-<li class="md-github">Option 2: Change the publishing source to &quot;None&quot; in Settings &gt; Pages.</li>
-</ul>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Unpublishing</strong>:</p>
-<ul class="md-github">
-<li class="md-github">Use the &quot;Unpublish site&quot; option next to the live site message in Pages settings.</li>
-</ul>
-</li>
-</ul>
-<h2 class="md-github"><a class="md-github__anchor" name="custom-404-page" href="#custom-404-page"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Custom 404 Page</h2>
-<ul class="md-github">
-<li class="md-github"><strong class="md-github">Creation</strong>:
-<ul class="md-github">
-<li class="md-github">Create a file named <code class="md-github">404.html</code> or <code class="md-github">404.md</code> in the repository.</li>
-<li class="md-github">For markdown, add the YAML front matter:</li>
-</ul>
-</li>
-</ul>
-<pre class="md-github"><code class="md-github language-yaml">---
-permalink: /404.html
----
-</code></pre>
-<ul class="md-github">
-<li class="md-github"><strong class="md-github">Commit</strong>: Provide a meaningful commit message and push to publishing branch.</li>
+<li class="md-github">GitHub Pages supports over 750 MIME types based on the mime-db project.</li>
+<li class="md-github">Limits include a site size of up to 1GB, a build timeout of 10 minutes, a soft bandwidth limit of 100GB/month, and a limit of 10 builds per hour (unless using custom workflows).</li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="attribution" href="#attribution"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h2>
 <ul class="md-github">
 <li class="md-github">Source: GitHub Pages Documentation</li>
 <li class="md-github">URL: https://docs.github.com/en/pages</li>
-<li class="md-github">License: License: GitHub Docs Terms</li>
-<li class="md-github">Crawl Date: 2025-04-17T22:09:12.814Z</li>
-<li class="md-github">Data Size: 540644 bytes</li>
-<li class="md-github">Links Found: 9971</li>
+<li class="md-github">License: License: Not specified</li>
+<li class="md-github">Crawl Date: 2025-04-22T04:49:52.497Z</li>
+<li class="md-github">Data Size: 545885 bytes</li>
+<li class="md-github">Links Found: 9983</li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="retrieved" href="#retrieved"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Retrieved</h2>
-<p class="md-github">2025-04-17</p>
+<p class="md-github">2025-04-22</p>
 
   </section>
   <footer>
-    <p>Generated on 2025-04-22T00:37:19.670Z</p>
+    <p>Generated on 2025-04-22T12:25:47.221Z</p>
   </footer>
 </body>
 </html>

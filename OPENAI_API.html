@@ -24,369 +24,237 @@
   <section>
     <h1 class="md-github"><a class="md-github__anchor" name="openai_api" href="#openai_api"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>OPENAI_API</h1>
 <h2 class="md-github"><a class="md-github__anchor" name="crawl-summary" href="#crawl-summary"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Crawl Summary</h2>
-<p class="md-github">The crawled content from https://platform.openai.com/docs/api-reference contained minimal direct data (Data Size: 0 bytes) but references complete API specification details. The technical specifications include endpoints like POST /v1/completions and POST /v1/chat/completions with comprehensive parameter lists including model, prompt, max_tokens, temperature, top_p, frequency_penalty, and presence_penalty. Detailed error responses include HTTP 401 for unauthorized access, HTTP 429 for rate limiting, and HTTP 500 for server errors. Code examples in cURL and Python are provided with exact command syntax.</p>
+<p class="md-github">Endpoint POST /v1/completions accepts parameters: engine (string), prompt (string), max_tokens (int), temperature (number), top_p (number), frequency_penalty (number), presence_penalty (number), stop (array). GET /v1/models returns a list of models with id and metadata. SDK method openai.Completion.create signature provided with explicit default values. Configuration options include API key via environment variable, base URL https://api.openai.com/v1, and a 30 second timeout. Troubleshooting includes handling HTTP 401, 429, 500 errors with specific recommendations.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="normalised-extract" href="#normalised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Normalised Extract</h2>
-<h2 class="md-github"><a class="md-github__anchor" name="table-of-contents" href="#table-of-contents"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Table of Contents</h2>
+<p class="md-github">Table of Contents:</p>
 <ol class="md-github">
-<li class="md-github">Completions Endpoint</li>
-<li class="md-github">Chat Completions Endpoint</li>
-<li class="md-github">Error Handling</li>
-<li class="md-github">Code Examples</li>
-</ol>
-<h3 class="md-github"><a class="md-github__anchor" name="1-completions-endpoint" href="#1-completions-endpoint"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>1. Completions Endpoint</h3>
-<ul class="md-github">
-<li class="md-github"><strong class="md-github">HTTP Method:</strong> POST</li>
-<li class="md-github"><strong class="md-github">URL:</strong> /v1/completions</li>
-<li class="md-github"><strong class="md-github">Headers Required:</strong>
-<ul class="md-github">
-<li class="md-github">Content-Type: application/json</li>
-<li class="md-github">Authorization: Bearer YOUR_API_KEY</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">Request Body:</strong>
-<ul class="md-github">
-<li class="md-github">model (string): Identifier of the model (e.g., &quot;text-davinci-003&quot;)</li>
-<li class="md-github">prompt (string): Input prompt text</li>
-<li class="md-github">max_tokens (integer): Maximum token count</li>
-<li class="md-github">temperature (float): e.g., 0.7 (controls randomness)</li>
-<li class="md-github">top_p (float): e.g., 1.0 (nucleus sampling)</li>
-<li class="md-github">frequency_penalty (float): e.g., 0.0 (penalizes repeating text)</li>
-<li class="md-github">presence_penalty (float): e.g., 0.0 (penalizes new topic departure)</li>
-</ul>
-</li>
-</ul>
-<h3 class="md-github"><a class="md-github__anchor" name="2-chat-completions-endpoint" href="#2-chat-completions-endpoint"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>2. Chat Completions Endpoint</h3>
-<ul class="md-github">
-<li class="md-github"><strong class="md-github">HTTP Method:</strong> POST</li>
-<li class="md-github"><strong class="md-github">URL:</strong> /v1/chat/completions</li>
-<li class="md-github"><strong class="md-github">Headers Required:</strong>
-<ul class="md-github">
-<li class="md-github">Content-Type: application/json</li>
-<li class="md-github">Authorization: Bearer YOUR_API_KEY</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">Request Body:</strong>
-<ul class="md-github">
-<li class="md-github">model (string): e.g., &quot;gpt-3.5-turbo&quot;</li>
-<li class="md-github">messages (array of objects): each message includes role and content</li>
-<li class="md-github">max_tokens (integer, optional): Limit on response length</li>
-<li class="md-github">temperature (float): e.g., 1.0</li>
-<li class="md-github">top_p (float): e.g., 1.0</li>
-</ul>
-</li>
-</ul>
-<h3 class="md-github"><a class="md-github__anchor" name="3-error-handling" href="#3-error-handling"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>3. Error Handling</h3>
-<ul class="md-github">
-<li class="md-github"><strong class="md-github">401 Unauthorized:</strong> Occurs when API key is invalid or missing.</li>
-<li class="md-github"><strong class="md-github">429 Too Many Requests:</strong> Rate limiting enforced on API calls.</li>
-<li class="md-github"><strong class="md-github">500 Internal Server Error:</strong> For unexpected server side errors.</li>
-</ul>
-<h3 class="md-github"><a class="md-github__anchor" name="4-code-examples" href="#4-code-examples"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>4. Code Examples</h3>
-<h4 class="md-github"><a class="md-github__anchor" name="curl-example" href="#curl-example"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>cURL Example</h4>
-<pre class="md-github"><code class="md-github">curl https://api.openai.com/v1/completions \
-  -H &quot;Content-Type: application/json&quot; \
-  -H &quot;Authorization: Bearer YOUR_API_KEY&quot; \
-  -d '{
-        &quot;model&quot;: &quot;text-davinci-003&quot;,
-        &quot;prompt&quot;: &quot;Say this is a test&quot;,
-        &quot;max_tokens&quot;: 7,
-        &quot;temperature&quot;: 0.7,
-        &quot;top_p&quot;: 1.0,
-        &quot;frequency_penalty&quot;: 0.0,
-        &quot;presence_penalty&quot;: 0.0
-      }'
-</code></pre>
-<h4 class="md-github"><a class="md-github__anchor" name="python-sdk-example-using-openai-library" href="#python-sdk-example-using-openai-library"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Python SDK Example using openai Library</h4>
-<pre class="md-github"><code class="md-github">import openai
-
-openai.api_key = 'YOUR_API_KEY'
-
-response = openai.Completion.create(
-    model=&quot;text-davinci-003&quot;,
-    prompt=&quot;Say this is a test&quot;,
-    max_tokens=7,
-    temperature=0.7,
-    top_p=1.0,
-    frequency_penalty=0.0,
-    presence_penalty=0.0
-)
-print(response)
-</code></pre>
-<h2 class="md-github"><a class="md-github__anchor" name="supplementary-details" href="#supplementary-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Supplementary Details</h2>
-<h3 class="md-github"><a class="md-github__anchor" name="technical-specifications-and-implementation-details" href="#technical-specifications-and-implementation-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Technical Specifications and Implementation Details</h3>
-<ul class="md-github">
 <li class="md-github">
-<p class="md-github"><strong class="md-github">Parameter Details for /v1/completions:</strong></p>
-<ul class="md-github">
-<li class="md-github">model: String (e.g., &quot;text-davinci-003&quot;). No default; must be provided.</li>
-<li class="md-github">prompt: String input prompt. Must be provided.</li>
-<li class="md-github">max_tokens: Integer specifying the token limit. E.g., 7 tokens.</li>
-<li class="md-github">temperature: Float controlling randomness; default is 1.0. Recommended range: 0.0-1.0, typical value: 0.7.</li>
-<li class="md-github">top_p: Float controlling nucleus sampling; default 1.0. Lower values restrict possible outputs.</li>
-<li class="md-github">frequency_penalty: Float to penalize frequency of token repetition; default is 0.0.</li>
-<li class="md-github">presence_penalty: Float to penalize new topics; default is 0.0.</li>
-</ul>
+<p class="md-github">Endpoints
+a. POST /v1/completions
+b. GET /v1/models</p>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">Endpoint Configurations:</strong></p>
-<ul class="md-github">
-<li class="md-github">URL paths must be exact; use HTTPS protocol.</li>
-<li class="md-github">Proper header configuration is required for authentication and content-type.</li>
-</ul>
+<p class="md-github">SDK Methods</p>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">Implementation Steps:</strong></p>
-<ol class="md-github">
-<li class="md-github">Set your API key in the header using 'Authorization: Bearer YOUR_API_KEY'.</li>
-<li class="md-github">Format the request body as JSON with all required parameters.</li>
-<li class="md-github">Use proper error handling for HTTP status codes 401, 429, and 500.</li>
-<li class="md-github">Validate responses and parse JSON output for application use.</li>
-</ol>
+<p class="md-github">Configuration Options</p>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">HTTP Request Best Practices:</strong></p>
-<ul class="md-github">
-<li class="md-github">Always check status code of the response.</li>
-<li class="md-github">Implement exponential backoff for handling rate limit errors (HTTP 429).</li>
-<li class="md-github">Log request and error details for troubleshooting.</li>
-</ul>
+<p class="md-github">Troubleshooting</p>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">Troubleshooting Procedures:</strong></p>
-<ul class="md-github">
-<li class="md-github">Verify API key provided is correct.</li>
-<li class="md-github">Use command line tools like curl or Postman to test endpoints:
-<ul class="md-github">
-<li class="md-github">Example curl command is provided above.</li>
-</ul>
-</li>
-<li class="md-github">Check network connectivity and HTTPS certificate validity.</li>
-<li class="md-github">If encountering rate limits, wait or adjust request frequency.</li>
-</ul>
-</li>
-</ul>
-<h2 class="md-github"><a class="md-github__anchor" name="reference-details" href="#reference-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reference Details</h2>
-<h3 class="md-github"><a class="md-github__anchor" name="complete-api-specifications-and-code-examples" href="#complete-api-specifications-and-code-examples"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Complete API Specifications and Code Examples</h3>
-<h4 class="md-github"><a class="md-github__anchor" name="completions-endpoint" href="#completions-endpoint"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Completions Endpoint</h4>
-<ul class="md-github">
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Method Signature (HTTP):</strong>
+<p class="md-github">Endpoints:
 POST /v1/completions</p>
 </li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Request Example in JSON:</strong>
-{
-&quot;model&quot;: &quot;text-davinci-003&quot;,
-&quot;prompt&quot;: &quot;Say this is a test&quot;,
-&quot;max_tokens&quot;: 7,
-&quot;temperature&quot;: 0.7,
-&quot;top_p&quot;: 1.0,
-&quot;frequency_penalty&quot;: 0.0,
-&quot;presence_penalty&quot;: 0.0
-}</p>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Response (Success, HTTP 200):</strong>
-{
-&quot;id&quot;: &quot;cmpl-XXXXXXXXXXXX&quot;,
-&quot;object&quot;: &quot;text_completion&quot;,
-&quot;created&quot;: 1589478378,
-&quot;model&quot;: &quot;text-davinci-003&quot;,
-&quot;choices&quot;: [
-{
-&quot;text&quot;: &quot; This is a test.&quot;,
-&quot;index&quot;: 0,
-&quot;logprobs&quot;: null,
-&quot;finish_reason&quot;: &quot;length&quot;
-}
-],
-&quot;usage&quot;: {
-&quot;prompt_tokens&quot;: 5,
-&quot;completion_tokens&quot;: 7,
-&quot;total_tokens&quot;: 12
-}
-}</p>
-</li>
-</ul>
-<h4 class="md-github"><a class="md-github__anchor" name="sdk-method-signatures" href="#sdk-method-signatures"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>SDK Method Signatures</h4>
-<p class="md-github"><strong class="md-github">Python (openai-python Library):</strong></p>
-<p class="md-github">Definition:</p>
-<p class="md-github">openai.Completion.create(
-model: str,
-prompt: Union[str, List[dict]],
-max_tokens: Optional[int] = None,
-temperature: Optional[float] = None,
-top_p: Optional[float] = None,
-n: Optional[int] = 1,
-stream: Optional[bool] = False,
-logprobs: Optional[int] = None,
-stop: Optional[Union[str, List[str]]] = None,
-**kwargs
-) -&gt; dict</p>
-<p class="md-github"><strong class="md-github">JavaScript (Node.js using openai package):</strong></p>
-<p class="md-github">Example:</p>
-<p class="md-github">const { Configuration, OpenAIApi } = require(&quot;openai&quot;);
-const configuration = new Configuration({
-apiKey: process.env.OPENAI_API_KEY,
-});
-const openai = new OpenAIApi(configuration);</p>
-<p class="md-github">async function getCompletion() {
-const response = await openai.createCompletion({
-model: &quot;text-davinci-003&quot;,
-prompt: &quot;Say this is a test&quot;,
-max_tokens: 7,
-temperature: 0.7,
-top_p: 1.0,
-frequency_penalty: 0.0,
-presence_penalty: 0.0
-});
-console.log(response.data);
-}</p>
-<p class="md-github">getCompletion();</p>
-<h4 class="md-github"><a class="md-github__anchor" name="detailed-troubleshooting-procedures" href="#detailed-troubleshooting-procedures"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Detailed Troubleshooting Procedures</h4>
-<ol class="md-github">
-<li class="md-github">
-<p class="md-github">Verify API Key:</p>
+</ol>
 <ul class="md-github">
-<li class="md-github">Command: echo $OPENAI_API_KEY (ensure it is set correctly)</li>
-<li class="md-github">Check for typographical errors.</li>
+<li class="md-github">engine: string (e.g., davinci, curie)</li>
+<li class="md-github">prompt: string</li>
+<li class="md-github">max_tokens: integer (default 16)</li>
+<li class="md-github">temperature: number (default 1.0, range 0 to 2)</li>
+<li class="md-github">top_p: number (default 1.0)</li>
+<li class="md-github">frequency_penalty: number (default 0.0)</li>
+<li class="md-github">presence_penalty: number (default 0.0)</li>
+<li class="md-github">stop: array of strings (optional)
+GET /v1/models</li>
+<li class="md-github">Returns list of models with properties: id (string), object (string), created (timestamp), owned_by (string)</li>
 </ul>
+<ol start="2" class="md-github">
+<li class="md-github">
+<p class="md-github">SDK Methods:
+Python: openai.Completion.create(engine: str, prompt: str, max_tokens: int = 16, temperature: float = 1.0, top_p: float = 1.0, frequency_penalty: float = 0.0, presence_penalty: float = 0.0, stop: Optional[List[str]] = None) -&gt; dict</p>
 </li>
 <li class="md-github">
-<p class="md-github">Rate Limit Error (HTTP 429):</p>
-<ul class="md-github">
-<li class="md-github">Command: Use curl with backoff loop to retry:
-Example:
-for i in {1..5}; do
-curl -s -o /dev/null -w &quot;%{http_code}&quot; <br>
--H &quot;Authorization: Bearer YOUR_API_KEY&quot; <br>
-https://api.openai.com/v1/completions &amp;&amp; break;
-sleep 2;
-done</li>
-</ul>
-</li>
-<li class="md-github">
-<p class="md-github">Network Issues:</p>
-<ul class="md-github">
-<li class="md-github">Use command: curl -v https://api.openai.com/v1/models</li>
-<li class="md-github">Check TLS/SSL handshake and certificate validity.</li>
-</ul>
-</li>
-<li class="md-github">
-<p class="md-github">Debugging SDK issues:</p>
-<ul class="md-github">
-<li class="md-github">
-<p class="md-github">Enable logging in your environment, for example in Python:
-import logging
-logging.basicConfig(level=logging.DEBUG)</p>
-</li>
-<li class="md-github">
-<p class="md-github">Review the logs for exceptions and error messages.</p>
-</li>
-</ul>
+<p class="md-github">Configuration Options:</p>
 </li>
 </ol>
+<ul class="md-github">
+<li class="md-github">API Key setup via OPENAI_API_KEY environment variable</li>
+<li class="md-github">Base URL: https://api.openai.com/v1</li>
+<li class="md-github">Request timeout default: 30 seconds</li>
+</ul>
+<ol start="4" class="md-github">
+<li class="md-github">Troubleshooting:</li>
+</ol>
+<ul class="md-github">
+<li class="md-github">HTTP 401: Check API key validity</li>
+<li class="md-github">HTTP 429: Implement retry with exponential backoff</li>
+<li class="md-github">HTTP 500: Retry request or consult support</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="supplementary-details" href="#supplementary-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Supplementary Details</h2>
+<p class="md-github">Endpoint POST /v1/completions detailed specifications:
+Parameter: engine must be a valid string identifier for the model.
+Parameter: prompt requires non-empty string input.
+Parameter: max_tokens integer governs the response length; default is 16 but may go higher based on engine capacity.
+Parameter: temperature influences randomness; typical default 1.0 with recommended range from 0.0 (deterministic) to 2.0 (highly variable).
+Parameter: top_p used for nucleus sampling, default is 1.0.
+Parameter: frequency_penalty and presence_penalty both default to 0.0 and adjust repetition control.
+Parameter: stop can be provided as an array of strings to designate stop sequences.</p>
+<p class="md-github">SDK method openai.Completion.create in Python uses keyword arguments with type hints. Ensure to supply non-null prompt and valid numerical parameters.</p>
+<p class="md-github">Configuration options:</p>
+<ul class="md-github">
+<li class="md-github">API Key required at runtime via environment variable OPENAI_API_KEY.</li>
+<li class="md-github">Base URL is fixed at https://api.openai.com/v1 and should not include trailing slash.</li>
+<li class="md-github">Timeout defaults to 30 seconds but can be overridden per API call if necessary.</li>
+</ul>
+<p class="md-github">Troubleshooting steps include verifying API key, network connectivity, checking error response codes, and enabling detailed logging to trace request-response cycles.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="reference-details" href="#reference-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reference Details</h2>
+<p class="md-github">API Endpoint: POST /v1/completions
+Params: engine: string, prompt: string, max_tokens: int (default 16), temperature: float (default 1.0), top_p: float (default 1.0), frequency_penalty: float (default 0.0), presence_penalty: float (default 0.0), stop: list[string] (optional)
+Return: JSON object containing choices, usage, and metadata.</p>
+<p class="md-github">SDK Method Signature (Python):
+openai.Completion.create(engine: str, prompt: str, max_tokens: int = 16, temperature: float = 1.0, top_p: float = 1.0, frequency_penalty: float = 0.0, presence_penalty: float = 0.0, stop: Optional[List[str]] = None) -&gt; dict</p>
+<p class="md-github">Example Usage (Python):
+import openai
+response = openai.Completion.create(engine='davinci', prompt='Hello, world!', max_tokens=5, temperature=0.5)</p>
+<p class="md-github">Configuration Parameters:</p>
+<ul class="md-github">
+<li class="md-github">API Key: set via OPENAI_API_KEY environment variable</li>
+<li class="md-github">Base URL: https://api.openai.com/v1</li>
+<li class="md-github">Timeout: 30 seconds, configurable</li>
+</ul>
+<p class="md-github">Troubleshooting:</p>
+<ul class="md-github">
+<li class="md-github">For 401 errors, verify header Authorization: Bearer YOUR_API_KEY</li>
+<li class="md-github">For 429 errors, implement retry logic using exponential backoff (e.g., wait 1, 2, 4, 8 seconds)</li>
+<li class="md-github">For 500 errors, log details and retry; check server status</li>
+</ul>
+<p class="md-github">Best Practices:</p>
+<ul class="md-github">
+<li class="md-github">Validate prompt input to avoid empty strings</li>
+<li class="md-github">Monitor usage via the returned usage field</li>
+<li class="md-github">Use consistent error handling to capture HTTP error codes and messages</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="information-dense-extract" href="#information-dense-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Information Dense Extract</h2>
+<p class="md-github">Endpoints: POST /v1/completions (engine: string, prompt: string, max_tokens: int=16, temperature: float=1.0, top_p: float=1.0, frequency_penalty: float=0.0, presence_penalty: float=0.0, stop: list[string]) and GET /v1/models (returns list with id, object, created, owned_by). SDK: openai.Completion.create(engine: str, prompt: str, max_tokens: int=16, temperature: float=1.0, top_p: float=1.0, frequency_penalty: float=0.0, presence_penalty: float=0.0, stop: Optional[List[str]]=None) -&gt; dict. Config: API key via OPENAI_API_KEY, Base URL https://api.openai.com/v1, Timeout 30s. Troubleshooting: handle HTTP 401 (invalid key), 429 (rate limit; use exponential backoff), 500 (retry or consult support). Example: import openai; response = openai.Completion.create(engine='davinci', prompt='Hello, world!', max_tokens=5, temperature=0.5).</p>
+<h2 class="md-github"><a class="md-github__anchor" name="escaped-extract" href="#escaped-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Escaped Extract</h2>
+<p class="md-github">Table of Contents:</p>
+<ol class="md-github">
+<li class="md-github">
+<p class="md-github">Endpoints
+a. POST /v1/completions
+b. GET /v1/models</p>
+</li>
+<li class="md-github">
+<p class="md-github">SDK Methods</p>
+</li>
+<li class="md-github">
+<p class="md-github">Configuration Options</p>
+</li>
+<li class="md-github">
+<p class="md-github">Troubleshooting</p>
+</li>
+<li class="md-github">
+<p class="md-github">Endpoints:
+POST /v1/completions</p>
+</li>
+</ol>
+<ul class="md-github">
+<li class="md-github">engine: string (e.g., davinci, curie)</li>
+<li class="md-github">prompt: string</li>
+<li class="md-github">max_tokens: integer (default 16)</li>
+<li class="md-github">temperature: number (default 1.0, range 0 to 2)</li>
+<li class="md-github">top_p: number (default 1.0)</li>
+<li class="md-github">frequency_penalty: number (default 0.0)</li>
+<li class="md-github">presence_penalty: number (default 0.0)</li>
+<li class="md-github">stop: array of strings (optional)
+GET /v1/models</li>
+<li class="md-github">Returns list of models with properties: id (string), object (string), created (timestamp), owned_by (string)</li>
+</ul>
+<ol start="2" class="md-github">
+<li class="md-github">
+<p class="md-github">SDK Methods:
+Python: openai.Completion.create(engine: str, prompt: str, max_tokens: int = 16, temperature: float = 1.0, top_p: float = 1.0, frequency_penalty: float = 0.0, presence_penalty: float = 0.0, stop: Optional[List[str]] = None) -&gt; dict</p>
+</li>
+<li class="md-github">
+<p class="md-github">Configuration Options:</p>
+</li>
+</ol>
+<ul class="md-github">
+<li class="md-github">API Key setup via OPENAI_API_KEY environment variable</li>
+<li class="md-github">Base URL: https://api.openai.com/v1</li>
+<li class="md-github">Request timeout default: 30 seconds</li>
+</ul>
+<ol start="4" class="md-github">
+<li class="md-github">Troubleshooting:</li>
+</ol>
+<ul class="md-github">
+<li class="md-github">HTTP 401: Check API key validity</li>
+<li class="md-github">HTTP 429: Implement retry with exponential backoff</li>
+<li class="md-github">HTTP 500: Retry request or consult support</li>
+</ul>
 <h2 class="md-github"><a class="md-github__anchor" name="original-source" href="#original-source"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Original Source</h2>
 <p class="md-github">OpenAI API Documentation
 https://platform.openai.com/docs/api-reference</p>
 <h2 class="md-github"><a class="md-github__anchor" name="digest-of-openai_api" href="#digest-of-openai_api"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Digest of OPENAI_API</h2>
-<h1 class="md-github"><a class="md-github__anchor" name="openai-api-documentation" href="#openai-api-documentation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>OpenAI API Documentation</h1>
-<p class="md-github"><strong class="md-github">Retrieved Date:</strong> 2023-10-18</p>
-<h2 class="md-github"><a class="md-github__anchor" name="api-endpoints" href="#api-endpoints"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>API Endpoints</h2>
-<h3 class="md-github"><a class="md-github__anchor" name="completions-endpoint-1" href="#completions-endpoint-1"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Completions Endpoint</h3>
+<h1 class="md-github"><a class="md-github__anchor" name="openai-api-reference" href="#openai-api-reference"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>OPENAI API REFERENCE</h1>
+<p class="md-github">Date Retrieved: 2023-10-05</p>
+<h2 class="md-github"><a class="md-github__anchor" name="endpoints" href="#endpoints"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Endpoints</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="post-v1completions" href="#post-v1completions"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>POST /v1/completions</h3>
 <ul class="md-github">
-<li class="md-github"><strong class="md-github">Endpoint:</strong> POST /v1/completions</li>
-<li class="md-github"><strong class="md-github">Purpose:</strong> Generate text completions using a specified model.</li>
-<li class="md-github"><strong class="md-github">Headers:</strong>
+<li class="md-github">Description: Generates completions based on prompt provided.</li>
+<li class="md-github">Parameters:
 <ul class="md-github">
-<li class="md-github">Content-Type: application/json</li>
-<li class="md-github">Authorization: Bearer YOUR_API_KEY</li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">Request Body Parameters:</strong>
-<ul class="md-github">
-<li class="md-github">model (string): e.g. &quot;text-davinci-003&quot;</li>
-<li class="md-github">prompt (string): The text prompt</li>
-<li class="md-github">max_tokens (integer): Maximum number of tokens to generate</li>
-<li class="md-github">temperature (number, optional): Sampling temperature (default: 1.0)</li>
-<li class="md-github">top_p (number, optional): Nucleus sampling parameter (default: 1.0)</li>
-<li class="md-github">frequency_penalty (number, optional): Frequency penalty value (default: 0.0)</li>
-<li class="md-github">presence_penalty (number, optional): Presence penalty value (default: 0.0)</li>
+<li class="md-github">engine: string (e.g. &quot;davinci&quot;, &quot;curie&quot;)</li>
+<li class="md-github">prompt: string</li>
+<li class="md-github">max_tokens: integer (default 16, max depends on engine)</li>
+<li class="md-github">temperature: number (default 1.0, range 0 to 2)</li>
+<li class="md-github">top_p: number (default 1.0)</li>
+<li class="md-github">frequency_penalty: number (default 0.0)</li>
+<li class="md-github">presence_penalty: number (default 0.0)</li>
+<li class="md-github">stop: array of strings (optional termination sequences)</li>
 </ul>
 </li>
 </ul>
-<h3 class="md-github"><a class="md-github__anchor" name="chat-completions-endpoint" href="#chat-completions-endpoint"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Chat Completions Endpoint</h3>
+<h3 class="md-github"><a class="md-github__anchor" name="get-v1models" href="#get-v1models"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GET /v1/models</h3>
 <ul class="md-github">
-<li class="md-github"><strong class="md-github">Endpoint:</strong> POST /v1/chat/completions</li>
-<li class="md-github"><strong class="md-github">Purpose:</strong> Generate conversational responses using the chat models.</li>
-<li class="md-github"><strong class="md-github">Headers:</strong>
+<li class="md-github">Description: Retrieves the list of available models.</li>
+<li class="md-github">Returns: JSON list where each model has id (string), object (string), and other metadata.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="sdk-method-signatures" href="#sdk-method-signatures"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>SDK Method Signatures</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="python-sdk-openaicompletioncreate" href="#python-sdk-openaicompletioncreate"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Python SDK (openai.Completion.create)</h3>
+<p class="md-github">Signature: openai.Completion.create(
+engine: str,
+prompt: str,
+max_tokens: int = 16,
+temperature: float = 1.0,
+top_p: float = 1.0,
+frequency_penalty: float = 0.0,
+presence_penalty: float = 0.0,
+stop: Optional[List[str]] = None
+) -&gt; dict</p>
+<h2 class="md-github"><a class="md-github__anchor" name="configuration-details" href="#configuration-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Configuration Details</h2>
 <ul class="md-github">
-<li class="md-github">Content-Type: application/json</li>
-<li class="md-github">Authorization: Bearer YOUR_API_KEY</li>
+<li class="md-github">API Key: Must be set via environment variable OPENAI_API_KEY or passed directly.</li>
+<li class="md-github">Base URL: https://api.openai.com/v1</li>
+<li class="md-github">Timeout: Default 30 seconds, configurable per request.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="troubleshooting" href="#troubleshooting"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Troubleshooting</h2>
+<ul class="md-github">
+<li class="md-github">Common Errors:
+<ul class="md-github">
+<li class="md-github">HTTP 401: Invalid API key. Recheck API credentials.</li>
+<li class="md-github">HTTP 429: Rate limit exceeded. Implement exponential backoff.</li>
+<li class="md-github">HTTP 500: Internal server error. Retry request or contact support.</li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">Request Body Parameters:</strong>
-<ul class="md-github">
-<li class="md-github">model (string): e.g. &quot;gpt-3.5-turbo&quot;</li>
-<li class="md-github">messages (array): List of message objects in the conversation</li>
-<li class="md-github">max_tokens (integer, optional): Maximum tokens in the response</li>
-<li class="md-github">temperature (number, optional): Sampling temperature (default: 1.0)</li>
-<li class="md-github">top_p (number, optional): Nucleus sampling parameter (default: 1.0)</li>
+<li class="md-github">Logging: Enable detailed logging for request and response bodies for debugging.</li>
 </ul>
-</li>
-</ul>
-<h2 class="md-github"><a class="md-github__anchor" name="error-handling" href="#error-handling"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Error Handling</h2>
-<ul class="md-github">
-<li class="md-github"><strong class="md-github">HTTP Status 401:</strong> Unauthorized (Invalid API key)</li>
-<li class="md-github"><strong class="md-github">HTTP Status 429:</strong> Too Many Requests (Rate limit exceeded)</li>
-<li class="md-github"><strong class="md-github">HTTP Status 500:</strong> Internal Server Error</li>
-</ul>
-<h2 class="md-github"><a class="md-github__anchor" name="example-code-snippets" href="#example-code-snippets"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example Code Snippets</h2>
-<h3 class="md-github"><a class="md-github__anchor" name="curl-example-for-completions" href="#curl-example-for-completions"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>cURL Example for Completions</h3>
-<pre class="md-github"><code class="md-github">curl https://api.openai.com/v1/completions \
-  -H &quot;Content-Type: application/json&quot; \
-  -H &quot;Authorization: Bearer YOUR_API_KEY&quot; \
-  -d '{
-        &quot;model&quot;: &quot;text-davinci-003&quot;,
-        &quot;prompt&quot;: &quot;Say this is a test&quot;,
-        &quot;max_tokens&quot;: 7,
-        &quot;temperature&quot;: 0.7,
-        &quot;top_p&quot;: 1.0,
-        &quot;frequency_penalty&quot;: 0.0,
-        &quot;presence_penalty&quot;: 0.0
-      }'
-</code></pre>
-<h3 class="md-github"><a class="md-github__anchor" name="python-example-using-openai-sdk" href="#python-example-using-openai-sdk"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Python Example using openai SDK</h3>
-<pre class="md-github"><code class="md-github">import openai
-
-openai.api_key = 'YOUR_API_KEY'
-
-response = openai.Completion.create(
-    model=&quot;text-davinci-003&quot;,
-    prompt=&quot;Say this is a test&quot;,
-    max_tokens=7,
-    temperature=0.7,
-    top_p=1.0,
-    frequency_penalty=0.0,
-    presence_penalty=0.0
-)
-print(response)
-</code></pre>
 <h2 class="md-github"><a class="md-github__anchor" name="attribution" href="#attribution"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h2>
 <ul class="md-github">
 <li class="md-github">Source: OpenAI API Documentation</li>
 <li class="md-github">URL: https://platform.openai.com/docs/api-reference</li>
 <li class="md-github">License: License: OpenAI API Terms</li>
-<li class="md-github">Crawl Date: 2025-04-20T18:14:58.265Z</li>
+<li class="md-github">Crawl Date: 2025-04-22T02:27:40.631Z</li>
 <li class="md-github">Data Size: 0 bytes</li>
 <li class="md-github">Links Found: 0</li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="retrieved" href="#retrieved"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Retrieved</h2>
-<p class="md-github">2025-04-20</p>
+<p class="md-github">2025-04-22</p>
 
   </section>
   <footer>
-    <p>Generated on 2025-04-22T00:37:21.418Z</p>
+    <p>Generated on 2025-04-22T12:25:47.316Z</p>
   </footer>
 </body>
 </html>
