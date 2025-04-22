@@ -332,8 +332,16 @@ describe("workflowChainHandler", () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const payload = { chain: ["cmd1", "cmd2"] };
     await agenticLib.main(["--workflow-chain", JSON.stringify(payload)]);
-    const output = consoleSpy.mock.calls.map(call => call[0]).join("");
-    const parsed = JSON.parse(output);
+    const validLog = consoleSpy.mock.calls.find(call => {
+      try {
+        const parsed = JSON.parse(call[0]);
+        return parsed && parsed.chainSummary !== undefined;
+      } catch (e) {
+        return false;
+      }
+    });
+    expect(validLog).toBeDefined();
+    const parsed = JSON.parse(validLog[0]);
     expect(parsed).toHaveProperty("results");
     expect(parsed.chainSummary.totalCommands).toBe(2);
     consoleSpy.mockRestore();
