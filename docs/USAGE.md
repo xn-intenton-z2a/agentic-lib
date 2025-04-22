@@ -6,7 +6,7 @@ This document provides clear and concise usage details for the agentic-lib comma
 
 - **--help**: Show help message and usage instructions.
 - **--digest**: Run a sample SQS event simulation.
-- **--agentic <jsonPayload>**: Process an agentic command using a JSON payload. The payload can contain either a single command (using the `command` property) or multiple commands (using a `commands` array for batch processing). Each valid command increments an internal counter and returns its execution time in milliseconds. 
+- **--agentic <jsonPayload>**: Process an agentic command using a JSON payload. The payload can contain either a single command (using the `command` property) or multiple commands (using a `commands` array for batch processing). Each valid command increments an internal counter and returns its execution time in milliseconds.
 
   **Batch Processing Note:** When a payload contains a `commands` array, the response will include a new property called `batchSummary`. This object contains:
   - `totalCommands`: the total number of commands processed
@@ -20,7 +20,8 @@ This document provides clear and concise usage details for the agentic-lib comma
 - **--simulate-error**: Simulate an error scenario for testing; logs a simulated error and exits with a non-zero status code.
 - **--simulate-delay <ms>**: Simulate processing delay for the specified duration in milliseconds.
 - **--apply-fix**: Apply an automated fix and log a success message.
-- **--cli-utils**: **NEW.** Displays a comprehensive summary of all CLI commands available along with brief descriptions. Use this flag to quickly view all command options.
+- **--cli-utils**: Display a summary of available CLI commands along with brief descriptions.
+- **--workflow-chain <jsonPayload>**: Process a chain of workflow commands sequentially. The JSON payload must include a property `chain` which is an array of valid commands. The command processing is performed sequentially, and the final output aggregates individual command results along with a chain summary that includes the total number of commands and total execution time.
 
 ## Command Aliases
 
@@ -55,7 +56,6 @@ Alias substitution is applied before any validations.
    export COMMAND_ALIASES='{ "ls": "list", "rm": "remove" }'
    node src/lib/main.js --agentic '{"commands": ["  ls  ", "rm", "status"]}'
    ```
-
    *Note:* The response will include a `batchSummary` object, for example:
    ```json
    {
@@ -87,3 +87,9 @@ Alias substitution is applied before any validations.
    ```bash
    node src/lib/main.js --cli-utils
    ```
+
+8. **Process a Workflow Chain**:
+   ```bash
+   node src/lib/main.js --workflow-chain '{"chain": ["command1", "command2", "command3"]}'
+   ```
+   This will execute each command in the `chain` sequentially and output an aggregated response containing an array of individual results and a chain summary with the total number of commands and total execution time.
