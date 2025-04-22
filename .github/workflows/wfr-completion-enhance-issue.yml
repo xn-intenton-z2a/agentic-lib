@@ -311,14 +311,51 @@ jobs:
             let libraryContent = '';
             try {
               if (fs.existsSync(libraryDir)) {
-                libraryFiles = fs.readdirSync(libraryDir)
+                // First, load all library files and extract their content
+                const allLibraryFiles = fs.readdirSync(libraryDir)
                   .filter(file => file.endsWith('.md'))
                   .map(file => {
                     const filePath = path.join(libraryDir, file);
                     const content = fs.readFileSync(filePath, 'utf8');
-                    libraryContent += `# ${file}\n${content}\n\n`;
-                    return { name: file, content };
+
+                    // Extract the Information Dense Extract section if it exists
+                    let informationDenseExtract = '';
+                    const match = content.match(/## Information Dense Extract\n([\s\S]*?)(?=\n##|$)/);
+                    if (match && match[1] && match[1].trim()) {
+                      informationDenseExtract = match[1].trim();
+                      return { name: file, content, informationDenseExtract, extractSize: informationDenseExtract.length };
+                    } else {
+                      // Fallback to the full content if Information Dense Extract is not found or empty
+                      return { name: file, content, extractSize: content.length };
+                    }
                   });
+
+                // Sort files by the size of their extract (smallest first) to maximize the number of files we can include
+                allLibraryFiles.sort((a, b) => a.extractSize - b.extractSize);
+
+                // Limit the total size to 500,000 characters to avoid token limits in OpenAI models
+                const maxTotalSize = 500000;
+                let currentSize = 0;
+                let includedCount = 0;
+
+                // Process each file and add it to libraryContent if it fits within the size limit
+                libraryFiles = allLibraryFiles.filter(file => {
+                  const contentToUse = file.informationDenseExtract || file.content;
+                  const docSize = contentToUse.length + file.name.length + 5; // +5 for "# " and "\n\n"
+
+                  if (currentSize + docSize <= maxTotalSize) {
+                    libraryContent += `# ${file.name}\n${contentToUse}\n\n`;
+                    currentSize += docSize;
+                    includedCount++;
+                    return true;
+                  } else {
+                    // If we can't include the full document, log a note
+                    core.info(`Skipping document ${file.name} (size: ${docSize}) to avoid exceeding token limits.`);
+                    return false;
+                  }
+                });
+
+                core.info(`Included ${includedCount} of ${allLibraryFiles.length} library documents in prompt (total size: ${currentSize} characters).`);
               } else {
                 core.warning(`Library directory '${libraryDir}' does not exist.`);
               }
@@ -354,7 +391,7 @@ jobs:
 
             Library documents:
             LIBRARY_DOCUMENTS_START
-            ${libraryContent.substring(0, 100000)}
+            ${libraryContent}
             LIBRARY_DOCUMENTS_END
 
             Source file: ${target}
@@ -508,7 +545,7 @@ jobs:
             core.info(`relevantLibraryDocuments: ${JSON.stringify(parsed.relevantLibraryDocuments)}`);
             core.setOutput("enhancedDescription", parsed.enhancedDescription || "");
             core.setOutput("relevantLibraryDocuments", JSON.stringify(parsed.relevantLibraryDocuments || []));
-            
+
             if (parsed.action === "enhance") {
               try {
                 // Update issue description
@@ -518,7 +555,7 @@ jobs:
                   issue_number: issueNumber,
                   body: parsed.enhancedDescription
                 });
-  
+
                 // Add 'ready' label
                 await github.rest.issues.addLabels({
                   owner: context.repo.owner,
@@ -532,16 +569,27 @@ jobs:
                   for (const docName of parsed.relevantLibraryDocuments) {
                     const doc = libraryFiles.find(file => file.name === docName);
                     if (doc) {
+                      // Prepare the comment content, using Information Dense Extract if available
+                      let commentContent = doc.informationDenseExtract || doc.content;
+
+                      // GitHub comments have a maximum length of 65,536 characters
+                      // Truncate if necessary, leaving room for the header and a truncation message
+                      const maxCommentLength = 65000;
+                      if (commentContent.length > maxCommentLength) {
+                        commentContent = commentContent.substring(0, maxCommentLength) + 
+                          '\n\n... (content truncated due to GitHub comment length limits)';
+                      }
+
                       await github.rest.issues.createComment({
                         owner: context.repo.owner,
                         repo: context.repo.repo,
                         issue_number: issueNumber,
-                        body: `## Relevant Library Document: ${docName}\n\n${doc.content}`
+                        body: `## Relevant Library Document: ${docName}\n\n${commentContent}`
                       });
                     }
                   }
                 }
-  
+
                 // Add a comment indicating the issue has been enhanced
                 await github.rest.issues.createComment({
                   owner: context.repo.owner,
@@ -557,7 +605,7 @@ jobs:
                 core.setOutput("closeReason", parsed.closeReason || "");
                 core.info(`action: "close"`);
                 core.info(`closeReason: "${parsed.closeReason}"`);
-  
+
                 // Add a comment explaining why the issue was closed
                 await github.rest.issues.createComment({
                   owner: context.repo.owner,
@@ -565,7 +613,7 @@ jobs:
                   issue_number: issueNumber,
                   body: parsed.closeReason
                 });
-  
+
                 // Close the issue
                 await github.rest.issues.update({
                   owner: context.repo.owner,

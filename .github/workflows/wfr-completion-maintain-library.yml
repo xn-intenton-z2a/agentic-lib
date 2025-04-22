@@ -585,6 +585,32 @@ jobs:
                 documentContent += `## Normalised Extract\n${parsed.normalisedExtract}\n\n`;
                 documentContent += `## Supplementary Details\n${parsed.supplementaryDetails}\n\n`;
                 documentContent += `## Reference Details\n${parsed.referenceDetails}\n\n`;
+
+                // Create Information Dense Extract by sanitizing the Normalised Extract
+                let informationDenseExtract = '';
+                if (parsed.normalisedExtract && parsed.normalisedExtract.trim()) {
+                  informationDenseExtract = parsed.normalisedExtract
+                    .replace(/[^\x20-\x7E\n]/g, '') // Remove non-ASCII characters
+                    .replace(/[\\"`]/g, "'") // Replace quotes and backslashes with single quotes
+                    .replace(/[\t\r]/g, ' ') // Replace tabs and carriage returns with spaces
+                    .trim();
+                } else {
+                  // If Normalised Extract is empty or missing, use a combination of other sections
+                  const combinedContent = [
+                    parsed.crawlSummary || '',
+                    parsed.supplementaryDetails || '',
+                    parsed.referenceDetails || '',
+                    parsed.documentDetailedDigest || ''
+                  ].filter(Boolean).join('\n\n');
+
+                  informationDenseExtract = combinedContent
+                    .replace(/[^\x20-\x7E\n]/g, '') // Remove non-ASCII characters
+                    .replace(/[\\"`]/g, "'") // Replace quotes and backslashes with single quotes
+                    .replace(/[\t\r]/g, ' ') // Replace tabs and carriage returns with spaces
+                    .trim();
+                }
+
+                documentContent += `## Information Dense Extract\n${informationDenseExtract}\n\n`;
                 documentContent += `## Original Source\n${sourceEntry.name}\n${sourceEntry.url}\n\n`;
                 documentContent += `## Digest of ${parsed.documentName}\n\n`;
                 documentContent += `${parsed.documentDetailedDigest}\n\n`;

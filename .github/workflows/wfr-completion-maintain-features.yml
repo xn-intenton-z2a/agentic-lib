@@ -272,12 +272,46 @@ jobs:
                   .filter(file => file.endsWith('.md'))
                   .map(file => path.join(libraryDir, file));
 
+                // Prepare an array to hold all document contents
+                const documentContents = [];
+
                 for (const file of libraryFiles) {
                   const fileName = path.basename(file);
                   const content = fs.readFileSync(file, 'utf8');
-                  libraryDocuments += `# ${fileName}\n${content}\n\n`;
+
+                  // Extract the Information Dense Extract section if it exists
+                  let informationDenseExtract = '';
+                  const match = content.match(/## Information Dense Extract\n([\s\S]*?)(?=\n##|$)/);
+                  if (match && match[1] && match[1].trim()) {
+                    informationDenseExtract = match[1].trim();
+                    documentContents.push({ name: fileName, content: informationDenseExtract });
+                  } else {
+                    // Fallback to the full content if Information Dense Extract is not found or empty
+                    documentContents.push({ name: fileName, content });
+                  }
                 }
-                core.info(`Loaded ${libraryFiles.length} library documents.`);
+
+                // Sort documents by size (smallest first) to maximize the number of documents we can include
+                documentContents.sort((a, b) => a.content.length - b.content.length);
+
+                // Limit the total size to 500,000 characters to avoid token limits in OpenAI models
+                const maxTotalSize = 500000;
+                let currentSize = 0;
+                let includedCount = 0;
+
+                for (const doc of documentContents) {
+                  const docSize = doc.content.length + doc.name.length + 5; // +5 for "# " and "\n\n"
+                  if (currentSize + docSize <= maxTotalSize) {
+                    libraryDocuments += `# ${doc.name}\n${doc.content}\n\n`;
+                    currentSize += docSize;
+                    includedCount++;
+                  } else {
+                    // If we can't include the full document, add a note
+                    core.info(`Skipping document ${doc.name} (size: ${docSize}) to avoid exceeding token limits.`);
+                  }
+                }
+
+                core.info(`Loaded ${includedCount} of ${libraryFiles.length} library documents (total size: ${currentSize} characters).`);
               } else {
                 core.info('Library directory not found.');
               }
@@ -324,7 +358,7 @@ jobs:
 
             Library documents:
             LIBRARY_DOCUMENTS_START
-            ${libraryDocuments.substring(0, 100000)}
+            ${libraryDocuments}
             LIBRARY_DOCUMENTS_END
 
             Rejected feature names:
