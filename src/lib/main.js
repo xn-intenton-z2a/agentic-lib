@@ -299,7 +299,7 @@ export function cliUtilsHandler() {
     { command: "--simulate-delay <ms>", description: "Simulate processing delay for the specified duration in milliseconds." },
     { command: "--apply-fix", description: "Apply automated fix and log success message" },
     { command: "--cli-utils", description: "Display a summary of available CLI commands with their descriptions." },
-    { command: "--workflow-chain <jsonPayload>", description: "Process a chain of workflow commands sequentially. The payload must include a 'chain' array of commands." }
+    { command: "--workflow-chain <jsonPayload>", description: "Process a chain of workflow commands sequentially. The payload must have a 'chain' array property" }
   ];
   let output = chalk.bold("CLI Commands Summary:\n\n");
   cliCommands.forEach(cmd => {
@@ -326,9 +326,10 @@ export function statusHandler() {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// Main CLI
+// Main CLI and Helper Functions for CLI Command Processing
 // ---------------------------------------------------------------------------------------------------------------------
 
+// Function to generate CLI usage instructions
 function generateUsage() {
   return `
 Usage:
@@ -348,51 +349,68 @@ Usage:
 `;
 }
 
-export async function main(args = process.argv.slice(2)) {
-  // Process --simulate-delay flag and delay execution if specified
-  const simulateDelayIndex = args.indexOf("--simulate-delay");
-  if (simulateDelayIndex !== -1) {
-    const delayValue = args[simulateDelayIndex + 1];
+// CLI Helper Functions
+
+// Asynchronously process the --simulate-delay flag
+async function processSimulateDelay(args) {
+  const index = args.indexOf("--simulate-delay");
+  if (index !== -1) {
+    const delayValue = args[index + 1];
     const delayMs = Number(delayValue);
     if (isNaN(delayMs) || delayMs < 0) {
       console.error("Invalid delay duration provided for --simulate-delay");
       process.exit(1);
     }
-    await new Promise(resolve => setTimeout(resolve, delayMs));
     // Remove the flag and its value from args
-    args.splice(simulateDelayIndex, 2);
+    args.splice(index, 2);
+    await new Promise(resolve => setTimeout(resolve, delayMs));
   }
+  return false;
+}
 
-  // Enable verbose mode if --verbose flag is provided
+// Process the --verbose flag
+function processVerbose(args) {
   if (args.includes("--verbose")) {
     VERBOSE_MODE = true;
     logInfo("Verbose mode activated.");
   }
+}
 
-  // Check for simulate error flag first
+// Process the --simulate-error flag
+function processSimulateError(args) {
   if (args.includes("--simulate-error")) {
     simulateError();
+    return true;
   }
+  return false;
+}
 
-  // Check for apply-fix flag
+// Process the --apply-fix flag
+function processApplyFix(args) {
   if (args.includes("--apply-fix")) {
     applyFix();
-    return;
+    return true;
   }
+  return false;
+}
 
-  // Check for cli-utils flag
+// Process the --cli-utils flag
+function processCliUtils(args) {
   if (args.includes("--cli-utils")) {
     cliUtilsHandler();
-    return;
+    return true;
   }
+  return false;
+}
 
-  // Check for workflow-chain flag
-  if (args.includes("--workflow-chain")) {
-    const index = args.indexOf("--workflow-chain");
+// Process the --workflow-chain flag
+async function processWorkflowChain(args) {
+  const index = args.indexOf("--workflow-chain");
+  if (index !== -1) {
     const payloadArg = args[index + 1];
     if (!payloadArg) {
       console.log("No payload provided for --workflow-chain flag.");
-      return;
+      return true;
     }
     try {
       const payload = JSON.parse(payloadArg);
@@ -401,19 +419,31 @@ export async function main(args = process.argv.slice(2)) {
     } catch (error) {
       logError("Failed to process workflow chain", error);
     }
-    return;
+    return true;
   }
+  return false;
+}
 
+// Process the --help flag
+function processHelp(args) {
   if (args.includes("--help")) {
     console.log(generateUsage());
-    return;
+    return true;
   }
+  return false;
+}
 
+// Process the --dry-run flag
+function processDryRun(args) {
   if (args.includes("--dry-run")) {
     console.log("Dry-run: No action taken.");
-    return;
+    return true;
   }
+  return false;
+}
 
+// Process the --diagnostics flag
+function processDiagnostics(args) {
   if (args.includes("--diagnostics")) {
     const diagnostics = {
       config: config,
@@ -427,15 +457,23 @@ export async function main(args = process.argv.slice(2)) {
       timestamp: new Date().toISOString()
     };
     logInfo("Diagnostics Mode: " + JSON.stringify(diagnostics));
-    return;
+    return true;
   }
+  return false;
+}
 
+// Process the --status flag
+function processStatus(args) {
   if (args.includes("--status")) {
     const status = statusHandler();
     console.log(JSON.stringify(status));
-    return;
+    return true;
   }
+  return false;
+}
 
+// Process the --version flag
+async function processVersion(args) {
   if (args.includes("--version")) {
     try {
       const { readFileSync } = await import("fs");
@@ -449,9 +487,13 @@ export async function main(args = process.argv.slice(2)) {
     } catch (error) {
       logError("Failed to retrieve version", error);
     }
-    return;
+    return true;
   }
+  return false;
+}
 
+// Process the --digest flag
+async function processDigest(args) {
   if (args.includes("--digest")) {
     const exampleDigest = {
       key: "events/1.json",
@@ -460,15 +502,19 @@ export async function main(args = process.argv.slice(2)) {
     };
     const sqsEvent = createSQSEventFromDigest(exampleDigest);
     await digestLambdaHandler(sqsEvent);
-    return;
+    return true;
   }
+  return false;
+}
 
+// Process the --agentic flag
+async function processAgentic(args) {
   if (args.includes("--agentic")) {
     const index = args.indexOf("--agentic");
     const payloadArg = args[index + 1];
     if (!payloadArg) {
       console.log("No payload provided for --agentic flag.");
-      return;
+      return true;
     }
     try {
       const payload = JSON.parse(payloadArg);
@@ -477,8 +523,29 @@ export async function main(args = process.argv.slice(2)) {
     } catch (error) {
       logError("Failed to process agentic command", error);
     }
-    return;
+    return true;
   }
+  return false;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Main CLI
+// ---------------------------------------------------------------------------------------------------------------------
+
+export async function main(args = process.argv.slice(2)) {
+  await processSimulateDelay(args);
+  processVerbose(args);
+  if (processSimulateError(args)) return;
+  if (processApplyFix(args)) return;
+  if (processCliUtils(args)) return;
+  if (await processWorkflowChain(args)) return;
+  if (processHelp(args)) return;
+  if (processDryRun(args)) return;
+  if (processDiagnostics(args)) return;
+  if (processStatus(args)) return;
+  if (await processVersion(args)) return;
+  if (await processDigest(args)) return;
+  if (await processAgentic(args)) return;
 
   console.log("No command argument supplied.");
   console.log(generateUsage());
