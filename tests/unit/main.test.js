@@ -175,6 +175,7 @@ describe("CLI CLI Utils Flag", () => {
     expect(strippedOutput).toContain("--simulate-delay <ms>: Simulate processing delay for the specified duration in milliseconds.");
     expect(strippedOutput).toContain("--apply-fix: Apply automated fix and log success message");
     expect(strippedOutput).toContain("--cli-utils: Display a summary of available CLI commands with their descriptions.");
+    expect(strippedOutput).toContain("--workflow-chain <jsonPayload>: Process a chain of workflow commands sequentially. The payload must include a 'chain' array of commands.");
     consoleSpy.mockRestore();
   });
 });
@@ -240,7 +241,6 @@ describe("agenticHandler Batch Processing", () => {
       expect(typeof res.executionTimeMS).toBe('number');
       expect(res.executionTimeMS).toBeGreaterThanOrEqual(0);
     });
-    // New assertions for batchSummary
     expect(response).toHaveProperty('batchSummary');
     expect(response.batchSummary.totalCommands).toBe(3);
     expect(response.batchSummary.totalExecutionTimeMS).toBeGreaterThanOrEqual(0);
@@ -299,7 +299,43 @@ describe("Agentic Handler Command Aliases", () => {
     const response = await agenticLib.agenticHandler(payload);
     expect(response.results[0].processedCommand).toBe("list");
     expect(response.results[1].processedCommand).toBe("remove");
-    // 'status' is not aliased so remains unchanged
     expect(response.results[2].processedCommand).toBe("status");
+  });
+});
+
+describe("workflowChainHandler", () => {
+  test("processes a valid chain of commands correctly", async () => {
+    const payload = { chain: ["command1", "command2", "command3"] };
+    const response = await agenticLib.workflowChainHandler(payload);
+    expect(response.status).toBe("success");
+    expect(response.results).toHaveLength(3);
+    expect(response.chainSummary.totalCommands).toBe(3);
+    expect(response.chainSummary.totalExecutionTimeMS).toBeGreaterThanOrEqual(0);
+  });
+
+  test("throws an error for payload missing chain property", async () => {
+    const payload = { commands: ["cmd1", "cmd2"] };
+    await expect(agenticLib.workflowChainHandler(payload)).rejects.toThrow(/must be an object containing a 'chain' array property/);
+  });
+
+  test("throws an error for empty chain array", async () => {
+    const payload = { chain: [] };
+    await expect(agenticLib.workflowChainHandler(payload)).rejects.toThrow(/Chain array cannot be empty/);
+  });
+
+  test("throws an error when one command in the chain is invalid", async () => {
+    const payload = { chain: ["command1", "", "command3"] };
+    await expect(agenticLib.workflowChainHandler(payload)).rejects.toThrow();
+  });
+
+  test("CLI flag --workflow-chain triggers the workflowChainHandler functionality", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const payload = { chain: ["cmd1", "cmd2"] };
+    await agenticLib.main(["--workflow-chain", JSON.stringify(payload)]);
+    const output = consoleSpy.mock.calls.map(call => call[0]).join("");
+    const parsed = JSON.parse(output);
+    expect(parsed).toHaveProperty("results");
+    expect(parsed.chainSummary.totalCommands).toBe(2);
+    consoleSpy.mockRestore();
   });
 });

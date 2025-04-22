@@ -230,23 +230,37 @@ export async function agenticHandler(payload) {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// Status Handler
+// WORKFLOW CHAIN Feature: Sequential Workflow Chaining
 // ---------------------------------------------------------------------------------------------------------------------
 
-export function statusHandler() {
-  const status = {
-    config: config,
-    nodeVersion: process.version,
-    callCount: globalThis.callCount,
-    uptime: process.uptime(),
-    env: {
-      NODE_ENV: process.env.NODE_ENV,
-      VITEST: process.env.VITEST || null,
-      GITHUB_API_BASE_URL: process.env.GITHUB_API_BASE_URL,
-      OPENAI_API_KEY: process.env.OPENAI_API_KEY
+export async function workflowChainHandler(payload) {
+  if (!payload || typeof payload !== "object" || !Array.isArray(payload.chain)) {
+    const errorMsg = "Invalid payload: must be an object containing a 'chain' array property";
+    logError(errorMsg);
+    throw new Error(errorMsg);
+  }
+  if (payload.chain.length === 0) {
+    const errorMsg = "Chain array cannot be empty";
+    logError(errorMsg);
+    throw new Error(errorMsg);
+  }
+  const results = [];
+  const chainStartTime = Date.now();
+  for (const cmd of payload.chain) {
+    const trimmed = typeof cmd === 'string' ? cmd.trim() : cmd;
+    // Reuse single command processing logic
+    const result = await agenticHandler({ command: trimmed });
+    results.push(result);
+  }
+  const totalTime = Date.now() - chainStartTime;
+  return {
+    status: "success",
+    results,
+    chainSummary: {
+      totalCommands: payload.chain.length,
+      totalExecutionTimeMS: totalTime
     }
   };
-  return status;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -284,7 +298,8 @@ export function cliUtilsHandler() {
     { command: "--simulate-error", description: "Simulate an error for testing purposes and exit." },
     { command: "--simulate-delay <ms>", description: "Simulate processing delay for the specified duration in milliseconds." },
     { command: "--apply-fix", description: "Apply automated fix and log success message" },
-    { command: "--cli-utils", description: "Display a summary of available CLI commands with their descriptions." }
+    { command: "--cli-utils", description: "Display a summary of available CLI commands with their descriptions." },
+    { command: "--workflow-chain <jsonPayload>", description: "Process a chain of workflow commands sequentially. The payload must include a 'chain' array of commands." }
   ];
   let output = chalk.bold("CLI Commands Summary:\n\n");
   cliCommands.forEach(cmd => {
@@ -316,6 +331,7 @@ Usage:
   --simulate-delay <ms>      Simulate processing delay for the specified duration in milliseconds.
   --apply-fix                Apply automated fix and log success message.
   --cli-utils                Display a summary of available CLI commands with their descriptions.
+  --workflow-chain <jsonPayload>    Process a chain of workflow commands sequentially. (Payload must have a 'chain' array property)
 `;
 }
 
@@ -351,9 +367,27 @@ export async function main(args = process.argv.slice(2)) {
     return;
   }
 
-  // New: Check for cli-utils flag
+  // Check for cli-utils flag
   if (args.includes("--cli-utils")) {
     cliUtilsHandler();
+    return;
+  }
+
+  // Check for workflow-chain flag
+  if (args.includes("--workflow-chain")) {
+    const index = args.indexOf("--workflow-chain");
+    const payloadArg = args[index + 1];
+    if (!payloadArg) {
+      console.log("No payload provided for --workflow-chain flag.");
+      return;
+    }
+    try {
+      const payload = JSON.parse(payloadArg);
+      const result = await workflowChainHandler(payload);
+      console.log(JSON.stringify(result));
+    } catch (error) {
+      logError("Failed to process workflow chain", error);
+    }
     return;
   }
 
