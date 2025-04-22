@@ -305,7 +305,21 @@ jobs:
 
             const prompt = `
             ${promptContent}
-
+            
+            Consider the following when refining your response:
+              * Current feature names and specifications in the repository
+              * Source file content
+              * Test file content
+              * README file content
+              * MISSION file content
+              * Contributing file content
+              * Dependencies file content
+              * Issue details
+              * Dependency list
+              * Build output
+              * Test output
+              * Main execution output
+  
             Current feature names and specifications:
             CURRENT_FEATURES_START
             ${currentFeatures}

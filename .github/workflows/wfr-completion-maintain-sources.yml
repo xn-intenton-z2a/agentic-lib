@@ -343,6 +343,7 @@ jobs:
 
             const chatGptPrompt = `
             ${promptContent}
+            If there are more than the maximum number of ${sourcesLimit} sources in the repository, you must merge similar sources into a single source.
 
             Consider the following when refining your response:
             * Source prompt details

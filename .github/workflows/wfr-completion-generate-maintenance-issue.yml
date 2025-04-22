@@ -343,6 +343,7 @@ jobs:
 
             const chatGptPrompt = `
             ${promptContent}
+            The maximum number of maintenance issues that should be open at any one time is ${maintenanceIssuesWipLimit}, if there are already ${maintenanceIssuesWipLimit} open issues fail this request.
 
             Consider the following when refining your response:
             * Prompt hint

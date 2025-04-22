@@ -332,6 +332,8 @@ jobs:
 
             const chatGptPrompt = `
             ${promptContent}
+            If there are more than the maximum number of ${featuresWipLimit} features in the repository, you must merge similar features into a single feature and name the features to be deleted.
+            All significant features of the repository should be present in the feature set before new features are added and features can be consolidated to make room below the maximum of ${featuresWipLimit} features.
 
             Consider the following when refining your response:
             * Feature prompt details

@@ -332,7 +332,29 @@ jobs:
                   .map(file => {
                     const filePath = path.join(libraryDir, file);
                     const content = fs.readFileSync(filePath, 'utf8');
-                    libraryContent += `# ${file}\n${content}\n\n`;
+
+                    // Extract the Sanitised Extract section if it exists
+                    let sanitisedExtract = '';
+                    let sanitisedMatch = content.match(/## Sanitised Extract\n([\s\S]*?)(?=\n##|$)/);
+
+                    // If Sanitised Extract is not found, try to find Escaped Extract (for older documents)
+                    if (!sanitisedMatch || !sanitisedMatch[1] || !sanitisedMatch[1].trim()) {
+                      const escapedMatch = content.match(/## Escaped Extract\n([\s\S]*?)(?=\n##|$)/);
+                      if (escapedMatch && escapedMatch[1] && escapedMatch[1].trim()) {
+                        sanitisedExtract = escapedMatch[1].trim();
+                        core.info(`Using Escaped Extract for ${file} as fallback`);
+                      }
+                    } else {
+                      sanitisedExtract = sanitisedMatch[1].trim();
+                    }
+
+                    // If neither Sanitised Extract nor Escaped Extract is found, use the full content
+                    if (!sanitisedExtract) {
+                      libraryContent += `# ${file}\n${content}\n\n`;
+                    } else {
+                      libraryContent += `# ${file}\n${sanitisedExtract}\n\n`;
+                    }
+
                     return file;
                   });
               } else {
@@ -345,8 +367,26 @@ jobs:
             core.info(`Found ${libraryFiles.length} library documents in directory "${libraryDir}"`);
 
             const chatGptPrompt = `
+            Please generate the title and description of a GitHub issue to which will be used to further the development of the ${featureName} feature.
+            Examine the details named feature ${featureName} in the current feature names and specifications, and evaluate the current state of the repository to determine which changes will implement the feature and allow it's value to be realised.
+
             ${promptContent}
             The maximum number of feature development issues that should be open at any one time is ${featureDevelopmentIssuesWipLimit}, if there are already ${featureDevelopmentIssuesWipLimit} open issues fail this request.
+
+            Consider the following when refining your response:
+              * Current feature names and specifications in the repository
+              * Source file content
+              * Test file content
+              * README file content
+              * MISSION file content
+              * Contributing file content
+              * Dependencies file content
+              * Library documents
+              * Dependency list
+              * Build output
+              * Test output
+              * Main execution output
+              * Open issue titles
 
             Current feature names and specifications:
             CURRENT_FEATURES_START

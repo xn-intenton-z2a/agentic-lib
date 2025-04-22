@@ -611,10 +611,10 @@ jobs:
 
                 documentContent += `## Information Dense Extract\n${llmInformationDenseExtract}\n\n`;
 
-                // Create Escaped Extract by sanitizing the Normalised Extract
-                let escapedExtract = '';
+                // Create Sanitised Extract by sanitizing the Normalised Extract
+                let sanitisedExtract = '';
                 if (parsed.normalisedExtract && parsed.normalisedExtract.trim()) {
-                  escapedExtract = parsed.normalisedExtract
+                  sanitisedExtract = parsed.normalisedExtract
                     .replace(/[^\x20-\x7E\n]/g, '') // Remove non-ASCII characters
                     .replace(/[\\"`]/g, "'") // Replace quotes and backslashes with single quotes
                     .replace(/[\t\r]/g, ' ') // Replace tabs and carriage returns with spaces
@@ -628,14 +628,14 @@ jobs:
                     parsed.documentDetailedDigest || ''
                   ].filter(Boolean).join('\n\n');
 
-                  escapedExtract = combinedContent
+                  sanitisedExtract = combinedContent
                     .replace(/[^\x20-\x7E\n]/g, '') // Remove non-ASCII characters
                     .replace(/[\\"`]/g, "'") // Replace quotes and backslashes with single quotes
                     .replace(/[\t\r]/g, ' ') // Replace tabs and carriage returns with spaces
                     .trim();
                 }
 
-                documentContent += `## Escaped Extract\n${escapedExtract}\n\n`;
+                documentContent += `## Sanitised Extract\n${sanitisedExtract}\n\n`;
                 documentContent += `## Original Source\n${sourceEntry.name}\n${sourceEntry.url}\n\n`;
                 documentContent += `## Digest of ${parsed.documentName}\n\n`;
                 documentContent += `${parsed.documentDetailedDigest}\n\n`;
