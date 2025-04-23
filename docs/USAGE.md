@@ -21,7 +21,7 @@ This document provides clear and concise usage details for the agentic-lib comma
 - **--simulate-delay <ms>**: Simulate processing delay for the specified duration in milliseconds.
 - **--apply-fix**: Apply an automated fix and log a success message.
 - **--cli-utils**: Display a summary of available CLI commands along with brief descriptions.
-- **--workflow-chain <jsonPayload>**: Process a chain of workflow commands sequentially. The JSON payload must include a property `chain` which is an array of valid commands. The command processing is performed sequentially, and the final output aggregates individual command results along with a chain summary that includes the total number of commands and total execution time.
+- **--workflow-chain <jsonPayload>**: Process a chain of workflow commands sequentially. (Payload must have a 'chain' array property)
 
 ## Command Aliases
 

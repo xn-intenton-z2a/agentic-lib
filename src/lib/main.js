@@ -299,7 +299,7 @@ export function cliUtilsHandler() {
     { command: "--simulate-delay <ms>", description: "Simulate processing delay for the specified duration in milliseconds." },
     { command: "--apply-fix", description: "Apply automated fix and log success message" },
     { command: "--cli-utils", description: "Display a summary of available CLI commands with their descriptions." },
-    { command: "--workflow-chain <jsonPayload>", description: "Process a chain of workflow commands sequentially. The payload must have a 'chain' array property" }
+    { command: "--workflow-chain <jsonPayload>", description: "Process a chain of workflow commands sequentially. (Payload must have a 'chain' array property)" }
   ];
   let output = chalk.bold("CLI Commands Summary:\n\n");
   cliCommands.forEach(cmd => {
