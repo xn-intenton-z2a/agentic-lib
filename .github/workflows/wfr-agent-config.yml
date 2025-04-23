@@ -1,0 +1,331 @@
+# .github/workflows/wfr-agent-config.yml
+
+#
+# agentic-lib
+# Copyright (C) 2025 Polycode Limited
+#
+# This file is part of agentic-lib.
+#
+# agentic-lib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# IMPORTANT: Any derived work must include the following attribution:
+# "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+#
+
+name: ∞ wfr-agent-config
+
+on:
+  workflow_call:
+    inputs:
+      configPath:
+        description: 'The the location of the agentic-lib configuration file. e.g. ".github/agentic-lib.yml"'
+        type: string
+        required: false
+        default: '.github/agentic-lib.yml'
+      defaultAttemptsPerIssue:
+        description: 'The default number of attempts per issue.'
+        type: string
+        required: false
+        default: '2'
+      defaultWriteableFilepaths:
+        description: 'The default writeable filepaths.'
+        type: string
+        required: false
+        default: '["docs/", "features/", "library/", "src/lib/", "tests/unit/", "package.json", "README.md", "SOURCES*.md"]'
+      defaultSrcPath:
+        description: 'The default source path.'
+        type: string
+        required: false
+        default: 'src/lib/'
+      defaultTestsPath:
+        description: 'The default tests path.'
+        type: string
+        required: false
+        default: 'tests/unit/'
+      defaultDocsPath:
+        description: 'The default docs path.'
+        type: string
+        required: false
+        default: 'docs/'
+      defaultLibraryDir:
+        description: 'The default library directory.'
+        type: string
+        required: false
+        default: 'library/'
+      defaultSourcesFile:
+        description: 'The default sources file.'
+        type: string
+        required: false
+        default: 'SOURCES*.md'
+      defaultDocumentsLimit:
+        description: 'The default documents limit.'
+        type: string
+        required: false
+        default: '3'
+      defaultSourcesLimit:
+        description: 'The default sources limit.'
+        type: string
+        required: false
+        default: '8'
+      defaultFeatureDevelopmentIssuesWipLimit:
+        description: 'The default feature development issues WIP limit.'
+        type: string
+        required: false
+        default: '8'
+      defaultMaintenanceIssuesWipLimit:
+        description: 'The default maintenance issues WIP limit.'
+        type: string
+        required: false
+        default: '8'
+      defaultFeaturesWipLimit:
+        description: 'The default features WIP limit.'
+        type: string
+        required: false
+        default: '2'
+    outputs:
+      attemptsPerIssue:
+        value: ${{ jobs.agentic-lib.outputs.attemptsPerIssue }}
+      writeableFilepaths:
+        value: ${{ jobs.agentic-lib.outputs.writeableFilepaths }}
+      srcPath:
+        value: ${{ jobs.agentic-lib.outputs.srcPath }}
+      testsPath:
+        value: ${{ jobs.agentic-lib.outputs.testsPath }}
+      docsPath:
+        value: ${{ jobs.agentic-lib.outputs.docsPath }}
+      documentsLimit:
+        value: ${{ jobs.agentic-lib.outputs.documentsLimit }}
+      libraryDir:
+        value: ${{ jobs.agentic-lib.outputs.libraryDir }}
+      sourcesFile:
+        value: ${{ jobs.agentic-lib.outputs.sourcesFile }}
+      sourcesLimit:
+        value: ${{ jobs.agentic-lib.outputs.sourcesLimit }}
+      featureDevelopmentIssuesWipLimit:
+        value: ${{ jobs.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}
+      maintenanceIssuesWipLimit:
+        value: ${{ jobs.agentic-lib.outputs.maintenanceIssuesWipLimit }}
+      featuresWipLimit:
+        value: ${{ jobs.agentic-lib.outputs.featuresWipLimit }}
+
+jobs:
+  agentic-lib:
+    runs-on: ubuntu-latest
+    env:
+      configPath: ${{ inputs.configPath || '.github/agentic-lib.yml' }}
+      defaultAttemptsPerIssue: ${{ inputs.defaultAttemptsPerIssue || '2' }}
+      defaultWriteableFilepaths: ${{ inputs.defaultWriteableFilepaths || '["docs/", "features/", "library/", "src/lib/", "tests/unit/", "package.json", "README.md", "SOURCES*.md"]' }}
+      defaultSrcPath: ${{ inputs.defaultSrcPath || 'src/lib/' }}
+      defaultTestsPath: ${{ inputs.defaultTestsPath || 'tests/unit/' }}
+      defaultDocsPath: ${{ inputs.defaultDocsPath || 'docs/' }}
+      defaultLibraryDir: ${{ inputs.defaultLibraryDir || 'library/' }}
+      defaultSourcesFile: ${{ inputs.defaultSourcesFile || 'SOURCES*.md' }}
+      defaultDocumentsLimit: ${{ inputs.defaultDocumentsLimit || '3' }}
+      defaultSourcesLimit: ${{ inputs.defaultSourcesLimit || '8' }}
+      defaultFeatureDevelopmentIssuesWipLimit: ${{ inputs.defaultFeatureDevelopmentIssuesWipLimit || '8' }}
+      defaultMaintenanceIssuesWipLimit: ${{ inputs.defaultMaintenanceIssuesWipLimit || '8' }}
+      defaultFeaturesWipLimit: ${{ inputs.defaultFeaturesWipLimit || '2' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Configure npm for GitHub Packages
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: agentic-lib
+        id: agentic-lib
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const yaml = require('js-yaml');
+
+            // Default values
+            let attemptsPerIssue = process.env.defaultAttemptsPerIssue;
+            let srcPath = process.env.defaultSrcPath;
+            let testsPath = process.env.defaultTestsPath;
+            let docsPath = process.env.defaultDocsPath;
+            let writeableFilepaths = JSON.parse(process.env.defaultWriteableFilepaths);
+            let documentsLimit = process.env.defaultDocumentsLimit;
+            let libraryDir = process.env.defaultLibraryDir;
+            let sourcesFile = process.env.defaultSourcesFile;
+            let sourcesLimit = process.env.defaultSourcesLimit;
+            let featureDevelopmentIssuesWipLimit = process.env.defaultSourcesLimit;
+            let maintenanceIssuesWipLimit = process.env.defaultSourcesLimit;
+            let featuresWipLimit = process.env.defaultFeaturesWipLimit;
+            
+            // Check if agentic-lib.yml exists
+            const configPath = path.join('.github', 'agentic-lib.yml');
+            if (fs.existsSync(configPath)) {
+              try {
+                // Read and parse the YAML file
+                const fileContents = fs.readFileSync(configPath, 'utf8');
+                const config = yaml.load(fileContents);
+
+                // Extract documentsLimit
+                if (config.documentsLimit) {
+                  documentsLimit = config.documentsLimit.toString();
+                } else {
+                  console.log(`Warning: documentsLimit not found in .github/agentic-lib.yml, using default value: ${documentsLimit}`);
+                }
+
+                // Extract library path from writeableFilepaths
+                if (config.writeableFilepaths && config.writeableFilepaths.library) {
+                  libraryDir = config.writeableFilepaths.library.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: library path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${libraryDir}`);
+                }
+
+                // Extract sources path from writeableFilepaths
+                if (config.writeableFilepaths && config.writeableFilepaths.sources) {
+                  sourcesFile = config.writeableFilepaths.sources.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: sources path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${sourcesFile}`);
+                  console.log(`Using default values: documentsLimit=${documentsLimit}, libraryDir=${libraryDir}, sourcesFile=${sourcesFile}`);
+                }
+
+                // Extract attemptsPerIssue
+                if (config.attemptsPerIssue) {
+                  attemptsPerIssue = config.attemptsPerIssue.toString();
+                } else {
+                  console.log(`Warning: attemptsPerIssue not found in .github/agentic-lib.yml, using default value: ${attemptsPerIssue}`);
+                }
+
+                // Extract src path from writeableFilepaths
+                if (config.writeableFilepaths && config.writeableFilepaths.src) {
+                  srcPath = config.writeableFilepaths.src.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: src path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${srcPath}`);
+                }
+
+                // Extract tests path from writeableFilepaths
+                if (config.writeableFilepaths && config.writeableFilepaths.tests) {
+                  testsPath = config.writeableFilepaths.tests.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: tests path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${testsPath}`);
+                }
+
+                // Extract docs path from writeableFilepaths
+                if (config.writeableFilepaths && config.writeableFilepaths.docs) {
+                  docsPath = config.writeableFilepaths.docs.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: docs path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${docsPath}`);
+                }
+
+                // Extract all writeable filepaths
+                if (config.writeableFilepaths) {
+                  writeableFilepaths = Object.values(config.writeableFilepaths)
+                    .filter(value => value && value.trim() !== '')
+                    .map(value => value.replace(/"/g, ''));
+                }
+            
+                // Extract sourcesLimit
+                if (config.sourcesLimit) {
+                  sourcesLimit = config.sourcesLimit.toString();
+                } else {
+                  console.log(`Warning: sourcesLimit not found in .github/agentic-lib.yml, using default value: ${sourcesLimit}`);
+                }
+
+                // Extract featureDevelopmentIssuesWipLimit
+                if (config.featureDevelopmentIssuesWipLimit) {
+                  featureDevelopmentIssuesWipLimit = config.featureDevelopmentIssuesWipLimit.toString();
+                } else {
+                  console.log(`Warning: featureDevelopmentIssuesWipLimit not found in .github/agentic-lib.yml, using default value: ${featureDevelopmentIssuesWipLimit}`);
+                }
+
+                // Extract maintenanceIssuesWipLimit
+                if (config.maintenanceIssuesWipLimit) {
+                  maintenanceIssuesWipLimit = config.maintenanceIssuesWipLimit.toString();
+                } else {
+                  console.log(`Warning: maintenanceIssuesWipLimit not found in .github/agentic-lib.yml, using default value: ${maintenanceIssuesWipLimit}`);
+                }
+
+                // Extract featuresWipLimit
+                if (config.featuresWipLimit) {
+                  featuresWipLimit = config.featuresWipLimit.toString();
+                } else {
+                  console.log(`Warning: featuresWipLimit not found in .github/agentic-lib.yml, using default value: ${featuresWipLimit}`);
+                }
+            
+              } catch (error) {
+                console.log(`Error parsing .github/agentic-lib.yml: ${error.message}`);
+                console.log(`Using default values: attemptsPerIssue=${attemptsPerIssue}, srcPath=${srcPath}, testsPath=${testsPath}, docsPath=${docsPath}`);
+              }
+            } else {
+              console.log(`Warning: .github/agentic-lib.yml file not found, using default values: attemptsPerIssue=${attemptsPerIssue}, srcPath=${srcPath}, testsPath=${testsPath}, docsPath=${docsPath}`);
+            }
+
+            // Set outputs
+            console.log(`attemptsPerIssue=${attemptsPerIssue}`);
+            core.setOutput('attemptsPerIssue', attemptsPerIssue);
+
+            console.log(`srcPath=${srcPath}`);
+            core.setOutput('srcPath', srcPath);
+
+            console.log(`testsPath=${testsPath}`);
+            core.setOutput('testsPath', testsPath);
+
+            console.log(`docsPath=${docsPath}`);
+            core.setOutput('docsPath', docsPath);
+
+            console.log(`writeableFilepaths=${JSON.stringify(writeableFilepaths)}`);
+            core.setOutput('writeableFilepaths', JSON.stringify(writeableFilepaths));
+
+            console.log(`documentsLimit=${documentsLimit}`);
+            core.setOutput('documentsLimit', documentsLimit);
+
+            console.log(`libraryDir=${libraryDir}`);
+            core.setOutput('libraryDir', libraryDir);
+
+            console.log(`sourcesFile=${sourcesFile}`);
+            core.setOutput('sourcesFile', sourcesFile);
+            
+            console.log(`sourcesLimit=${sourcesLimit}`);
+            core.setOutput('sourcesLimit', sourcesLimit);
+
+            console.log(`featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}`);
+            core.setOutput('featureDevelopmentIssuesWipLimit', featureDevelopmentIssuesWipLimit);
+
+            console.log(`maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
+            core.setOutput('maintenanceIssuesWipLimit', maintenanceIssuesWipLimit);
+            
+            console.log(`featuresWipLimit=${featuresWipLimit}`);
+            core.setOutput('featuresWipLimit', featuresWipLimit);
+
+    outputs:
+      attemptsPerIssue: ${{ steps.agentic-lib.outputs.attemptsPerIssue }}
+      writeableFilepaths: ${{ steps.agentic-lib.outputs.writeableFilepaths }}
+      srcPath: ${{ steps.agentic-lib.outputs.srcPath }}
+      testsPath: ${{ steps.agentic-lib.outputs.testsPath }}
+      docsPath: ${{ steps.agentic-lib.outputs.docsPath }}
+      documentsLimit: ${{ steps.agentic-lib.outputs.documentsLimit }}
+      libraryDir: ${{ steps.agentic-lib.outputs.libraryDir }}
+      sourcesFile: ${{ steps.agentic-lib.outputs.sourcesFile }}
+      sourcesLimit: ${{ steps.agentic-lib.outputs.sourcesLimit }}
+      featureDevelopmentIssuesWipLimit: ${{ steps.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}
+      maintenanceIssuesWipLimit: ${{ steps.agentic-lib.outputs.maintenanceIssuesWipLimit }}
+      featuresWipLimit: ${{ steps.agentic-lib.outputs.featuresWipLimit }}

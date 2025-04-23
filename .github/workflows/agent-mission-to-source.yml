@@ -36,65 +36,22 @@ env:
 jobs:
 
   agentic-lib:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Configure npm for GitHub Packages
-        run: |
-          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> .npmrc
-          echo "always-auth=true" >> .npmrc
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: agentic-lib
-        id: agentic-lib
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-            const yaml = require('js-yaml');
-
-            // Default values
-            let sourcesLimit = "32";
-
-            // Check if agentic-lib.yml exists
-            const configPath = path.join('.github', 'agentic-lib.yml');
-            if (fs.existsSync(configPath)) {
-              try {
-                // Read and parse the YAML file
-                const fileContents = fs.readFileSync(configPath, 'utf8');
-                const config = yaml.load(fileContents);
-
-                // Extract sourcesLimit
-                if (config.sourcesLimit) {
-                  sourcesLimit = config.sourcesLimit.toString();
-                } else {
-                  console.log(`Warning: sourcesLimit not found in .github/agentic-lib.yml, using default value: ${sourcesLimit}`);
-                }
-              } catch (error) {
-                console.log(`Error parsing .github/agentic-lib.yml: ${error.message}`);
-                console.log(`Using default values: sourcesLimit=${sourcesLimit}`);
-              }
-            } else {
-              console.log(`Warning: .github/agentic-lib.yml file not found, using default values: sourcesLimit=${sourcesLimit}`);
-            }
-
-            // Set outputs
-            console.log(`sourcesLimit=${sourcesLimit}`);
-            core.setOutput('sourcesLimit', sourcesLimit);
-    outputs:
-      sourcesLimit: ${{ steps.agentic-lib.outputs.sourcesLimit }}
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@main'
+    with:
+      configPath: ${{ env.configPath || '.github/agentic-lib.yml' }}
+    #outputs:
+    #  attemptsPerIssue:
+    #  writeableFilepaths:
+    #  srcPath:
+    #  testsPath:
+    #  docsPath:
+    #  documentsLimit
+    #  libraryDir
+    #  sourcesFile
+    #  sourcesLimit
+    #  featureDevelopmentIssuesWipLimit
+    #  maintenanceIssuesWipLimit
+    #  featuresWipLimit
 
   # If the feature is "house choice", the repository will be assessed an action chosen otherwise the supplied text will be used to generate a new feature.
   maintain-sources:
