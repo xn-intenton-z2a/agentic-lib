@@ -175,7 +175,7 @@ describe("CLI CLI Utils Flag", () => {
     expect(strippedOutput).toContain("--simulate-delay <ms>: Simulate processing delay for the specified duration in milliseconds.");
     expect(strippedOutput).toContain("--apply-fix: Apply automated fix and log success message");
     expect(strippedOutput).toContain("--cli-utils: Display a summary of available CLI commands with their descriptions.");
-    expect(strippedOutput).toContain("--workflow-chain <jsonPayload>: Process a chain of workflow commands sequentially. The payload must include a 'chain' array of commands.");
+    expect(strippedOutput).toContain("--workflow-chain <jsonPayload>: Process a chain of workflow commands sequentially. (Payload must have a 'chain' array property)");
     consoleSpy.mockRestore();
   });
 });
