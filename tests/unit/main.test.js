@@ -388,8 +388,7 @@ describe("chainWorkflows", () => {
     expect(result.results).toHaveLength(3);
     expect(result.results[0].status).toBe("success");
     expect(result.results[1].status).toBe("failed");
-    expect(result.results[2].status).toBe("success
-");
+    expect(result.results[2].status).toBe("success");
   });
 
   test("throws error when steps array is empty", async () => {
