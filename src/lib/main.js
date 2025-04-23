@@ -248,7 +248,7 @@ export async function workflowChainHandler(payload) {
   const chainStartTime = Date.now();
   for (const cmd of payload.chain) {
     const trimmed = typeof cmd === 'string' ? cmd.trim() : cmd;
-    // Reuse single command processing logic
+    // Process each command sequentially via agenticHandler. If a command is invalid, agenticHandler will log and throw an error.
     const result = await agenticHandler({ command: trimmed });
     results.push(result);
   }
