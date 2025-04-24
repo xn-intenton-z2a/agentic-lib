@@ -1,20 +1,19 @@
-# SIMULATE LOAD Feature Specification
+# SIMULATE_LOAD Feature Specification
 
 ## Overview
-This feature introduces a new CLI flag "--simulate-load" to simulate heavy load processing. When this flag is provided, the system will execute a batch of dummy commands to measure performance and aggregate processing time. It is designed to test the robustness and observability of the agentic-lib during high volume command processing, and to provide insights into performance under load.
+This feature enhances the existing simulate load functionality by introducing a dynamic load simulation mode via the CLI flag "--simulate-load". In addition to triggering a batch of dummy commands, users can now optionally specify the number of commands to simulate. When the flag is supplied without an argument, a default of 10 commands is processed. This extension not only tests system robustness under configurable load but also provides insights into performance with varying command counts.
 
 ## Implementation Details
-The source file (src/lib/main.js) will be updated to recognize the "--simulate-load" flag. When detected, a predefined batch of dummy commands (for example, 10 commands) will be processed using the existing agenticHandler function. The start and end times will be recorded to calculate the total execution time. The global callCount will be incremented accordingly, and a summary message including the total number of commands processed and execution time will be logged.
+- Update the main CLI in src/lib/main.js to check for the "--simulate-load" flag. If detected, determine if a numeric argument follows the flag; if absent, default to 10 commands.
+- The simulation loop calls the existing agenticHandler function iteratively with a dummy command (such as "dummy"). Timing is recorded to compute the total execution time for the simulated load.
+- Increment the global invocation counter for each processed command.
+- In tests (tests/unit/main.test.js), add a new test case to trigger the "--simulate-load" flag with and without a numeric parameter and verify that the output includes a summary message with the correct number of commands and execution time.
+- Update the README (README.md) under the CLI Behavior section to document the usage of "--simulate-load", including the optional numeric parameter for command count.
 
-The test file (tests/unit/main.test.js) will be updated to include a test case for the new "--simulate-load" flag. The test will verify that the load simulation scenario executes as expected and that the output message contains the load simulation summary.
+## User Scenarios & Acceptance Criteria
+- When invoked with "--simulate-load" and no argument, the CLI processes 10 dummy commands and logs a summary with total commands and execution time.
+- When invoked with "--simulate-load <number>", the system processes the specified number of dummy commands.
+- The test suite includes cases verifying both default and custom load simulations.
+- Documentation is updated to reflect the new parameterized load simulation mode.
 
-The README file (README.md) will be updated in the CLI Behavior section to document the new "--simulate-load" flag, explaining its purpose and usage in simulating a high load environment.
-
-## User Scenarios and Acceptance Criteria
-- Given the CLI is invoked with the "--simulate-load" flag, the system should start processing a batch of dummy commands.
-- The processing should measure and log the total execution time along with the total number of commands processed.
-- The output should include a clear summary message indicating that the load simulation has completed.
-- The test suite should include a new test case that triggers the "--simulate-load" flag and verifies the proper simulation summary message is logged.
-- Documentation in the README file must be updated to include the description and usage of the "--simulate-load" flag.
-
-This feature aligns with the mission of building resilient and observable workflows and provides a practical tool for performance testing within the agentic-lib repository.
+This feature aligns with the mission of providing resilient and observable workflows in a configurable and testable manner.
