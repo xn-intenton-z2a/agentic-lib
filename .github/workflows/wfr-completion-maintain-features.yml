@@ -571,6 +571,7 @@ jobs:
 
             try {
               const parsed = ResponseSchema.parse(result);
+              core.info(`parsed response: "${JSON.stringify(parsed)}"`);
               core.setOutput("featureName", parsed.featureName);
               core.setOutput("featureSpec", parsed.featureSpec);
               core.setOutput("featureNamesToBeDeleted", parsed.featureNamesToBeDeleted);

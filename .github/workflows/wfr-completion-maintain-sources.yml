@@ -569,6 +569,7 @@ jobs:
 
             try {
               const parsed = ResponseSchema.parse(result);
+              core.info(`parsed response: "${JSON.stringify(parsed)}"`);
               core.setOutput("sourcesDirectoryFileContent", parsed.sourcesDirectoryFileContent);
               core.info(`sourcesDirectoryFileContent: "${parsed.sourcesDirectoryFileContent}"`);
 
