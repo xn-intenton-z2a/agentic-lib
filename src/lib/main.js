@@ -364,7 +364,7 @@ export function cliUtilsHandler() {
     { command: "--agentic <jsonPayload>", description: "Process an agentic command using a JSON payload. Payload may include a 'command' or a 'commands' array for batch processing." },
     { command: "--version", description: "Show version information with current timestamp." },
     { command: "--verbose", description: "Enable detailed logging for debugging." },
-    { command: "--diagnostics", description: "Output detailed diagnostics including config and environment details." },
+    { command: "--diagnostics", description: "Output detailed diagnostics including configuration and environment details." },
     { command: "--status", description: "Display runtime health summary in JSON format." },
     { command: "--dry-run", description: "Execute a dry run with no side effects." },
     { command: "--simulate-error", description: "Simulate an error for testing purposes and exit." },
