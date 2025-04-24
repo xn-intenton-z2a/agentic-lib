@@ -1,97 +1,22 @@
 # WORKFLOW_CHAIN Feature Specification
 
-This feature describes the interaction between the library, sources, and publish web workflows, creating a continuous chain from source material to published web content. The workflows work together to maintain and publish feature documentation, with potential extensions for OWL semantic markup, visible and metadata attributions, and document traceability.
+## Overview
+This update refines the existing WORKFLOW_CHAIN feature by enhancing its fault tolerance. When processing a chain of commands, failures in individual commands will now be logged and collected rather than halting the entire chain. This improvement ensures that the workflow continues processing remaining commands, providing a summary of both successful and failed command executions. This makes the system more robust in the presence of intermittent errors, aligning with our mission of resilient, observable workflows.
 
-## Scenario: Source Material Collection
+## Implementation Details
+- Update the workflowChainHandler function to wrap each command execution in a try-catch block.
+- Instead of throwing an error immediately upon encountering an invalid command, log the error and continue processing the rest of the chain.
+- Accumulate results into two arrays: one for successful command outputs and one for failures (including error messages and the associated command).
+- The returned summary object includes:
+  - totalCommands: total number of commands attempted
+  - successfulCommands: array of results from commands that succeeded
+  - failedCommands: array with objects detailing the command and the error message for failures
+  - totalExecutionTimeMS: overall processing time
+- Update relevant tests in tests/unit/main.test.js to simulate error conditions in the chain and verify that the chain processing continues and the summary reflects both successes and failures.
+- Update README under the CLI Behavior section to document the enhanced fault tolerance of the --workflow-chain flag.
 
-**Given** the source worker workflow is triggered,
-
-**Then** it:
-- Maintains the `SOURCES*.md` files with URLs and metadata (e.g., `SOURCES.md`, `SOURCES-WISHLIST.md`)
-- Updates source entries with new URLs and metadata
-- Validates source entries for proper formatting
-- Ensures sources have appropriate licensing information
-
-## Scenario: Library Document Generation
-
-**Given** the library worker workflow is triggered,
-
-**When** source entries are available in `SOURCES*.md` files,
-
-**Then** it:
-- Crawls URLs from source entries to gather content
-- Generates document summaries using AI
-- Creates or updates feature documents in the features directory
-- Manages document lifecycle (creation, updates, deletion)
-- Handles timeouts gracefully for build, test, and main scripts
-
-## Scenario: Web Content Publication
-
-**Given** the publish web workflow is triggered,
-
-**When** feature documents exist in the features directory,
-
-**Then** it:
-- Converts markdown feature files to HTML
-- Generates an index page with links to all features
-- Deploys to GitHub Pages for public access
-- Makes the content available at a published URL
-
-## Scenario: Workflow Chain Interaction
-
-**Given** all three workflows are configured in the repository,
-
-**Then** they interact in the following way:
-1. The Source Worker maintains the `SOURCES*.md` files with URLs and metadata (e.g., `SOURCES.md`, `SOURCES-WISHLIST.md`)
-2. The Library Worker uses the sources to create/update feature documents in the features directory
-3. The Publish Web workflow converts these feature documents to HTML and publishes them to GitHub Pages
-
-## Scenario: OWL Semantic Markup Extension
-
-**Given** the feature chain is operational,
-
-**When** OWL semantic markup extensions are implemented,
-
-**Then** the published HTML is enhanced with:
-- RDFa attributes in the HTML templates
-- Semantic relationships between features using OWL properties
-- Feature classes and properties defined in an ontology file
-- Machine-readable metadata that enables advanced search and reasoning
-
-## Scenario: Document Traceability Implementation
-
-**Given** the feature chain with OWL extensions is operational,
-
-**Then** document traceability is implemented through:
-- Provenance information using OWL properties
-- Links between features and their source material with semantic relationships
-- Version history and change tracking metadata
-- Clear attribution chains from source to published content
-
-## Scenario: Visible and Metadata Attributions
-
-**Given** the feature chain with OWL extensions is operational,
-
-**Then** attributions are implemented as:
-- Visible attribution sections in the HTML
-- Machine-readable attribution metadata using RDFa
-- Links to license information with semantic properties
-- Clear citation of original sources and modifications
-
-## Tags
-- `@workflow`
-- `@feature-chain`
-- `@semantic-web`
-- `@owl`
-- `@documentation`
-- `@traceability`
-
-## Examples
-
-| Workflow | Input File | Output |
-|----------|------------|--------|
-| Source Worker | External URLs | `SOURCES*.md` files |
-| Library Worker | `SOURCES*.md` files | Feature files in `features/` |
-| Publish Web | Feature files in `features/` | HTML in `public/` deployed to GitHub Pages |
-
----
+## User Scenarios & Acceptance Criteria
+- When a chain of commands is processed, if one or more commands are invalid, the handler logs the error for each, includes them in the summary, and continues processing subsequent commands.
+- The overall status returns "partial-success" if there are failures, or "success" if all commands complete without errors.
+- The test suite includes cases triggering a chain with both valid and invalid commands, verifying that the summary contains correct counts of successful and failed commands and that processing does not halt on the first error.
+- Documentation is updated accordingly to reflect this resilient behavior.

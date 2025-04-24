@@ -638,17 +638,20 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-MVP] Extract prompt text to AGENT.md files.
 - [x] [r0w-MVP] Add an issue refiner that picks and issues either sets 'ready', improves the issue, or closes it if irrelevant. (Then change the issue worker to look for 'ready' issues.)
 - [x] [r0w-MVP] Mark in-progress issues as such, and change the issue worker to ignore 'in-progress' issues.
-- [x] [r0w-MVP] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
 - [x] [r0w-MVP] Add to agentic-lib.yml a list of filepath patterns which are allowed to be changed by agents (default: [ "features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md" ]) and have these checked before writing to a file.
 - [x] [r0w-MVP] Allow user supplied sources files for building the library.
 - [x] [r0w-MVP] Add to agentic-lib.yml a mapping for concepts such as src / tests / docs / sources / library  and use these as defaults when invoking the workflows and at any time a default is applied.
 - [x] [r0w-MVP] Why don't tests run after merge? (Possibly because it down stream of auto-merge PRs under a token of some kind .)
 - [x] [r0w-MVP] Why did the issue get closed right after the merge?
 - [x] [r0w-MVP] Fix (feature story): Enhance '${featureName}' CLI Command with Help Option and Usage Documentation #1653
-- [?] [r0w-MVP] Attach relevant context from the library to an issue during refinement (and stop sending the whole libary to the issue worker).
-- [~] [r0w-MVP] In the refiner replace the need to truncate like this ${libraryDocuments.substring(0, 10000)} by exacting the summary of each library document extracted from the markdown by extracting the summary
-- [~] [r0w-MVP] In the feature maintainer replace ${libraryDocuments.substring(0, 10000)} with a condensed form of the library documents (a new section to be added to the library)
-- [ ] Support creation, edit and deletion of multiple files of each type (src, tests, docs, sources, library) etc.
+- [x] [r0w-MVP] Attach relevant context from the library to an issue during refinement (and stop sending the whole libary to the issue worker).
+- [x] [r0w-MVP] In the refiner replace the need to truncate like this ${libraryDocuments.substring(0, 10000)} by exacting the summary of each library document extracted from the markdown by extracting the summary
+- [x] [r0w-MVP] In the feature maintainer replace ${libraryDocuments.substring(0, 10000)} with a condensed form of the library documents (a new section to be added to the library)
+- [~] [r0w-MVP] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
+- [~] [r0w-MVP] Support creation, edit and deletion of multiple files of each type (src, tests, docs) etc.
+- [ ] [r0w-MVP] Move the fix code workflows except the fix code ones to read the docs and the readme.
+- [ ] [r0w-MVP] Change all the workflows to just write to docs and read the readme
+- [ ] [r0w-MVP] Add a workflow to change the readme.
 - [ ] Add a PR review workflow with a reviewer and responder.
 - [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
 - [ ] Generate API.md based on the source file.
