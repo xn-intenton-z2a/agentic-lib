@@ -503,6 +503,7 @@ jobs:
 
             try {
               const parsed = ResponseSchema.parse(result);
+              core.info(`parsed response: "${JSON.stringify(parsed)}"`);
               core.setOutput("fixed", parsed.fixed);
               core.setOutput("message", parsed.message);
               core.setOutput("refinement", parsed.refinement);

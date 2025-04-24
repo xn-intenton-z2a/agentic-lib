@@ -546,6 +546,7 @@ jobs:
 
             try {
               const parsed = ResponseSchema.parse(result);
+              core.info(`parsed response: "${JSON.stringify(parsed)}"`);
               core.setOutput("documentName", parsed.documentName);
               core.setOutput("documentDetailedDigest", parsed.documentDetailedDigest);
               core.setOutput("documentNamesToBeDeleted", parsed.documentNamesToBeDeleted);

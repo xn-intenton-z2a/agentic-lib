@@ -524,6 +524,7 @@ jobs:
 
             try {
               const parsed = ResponseSchema.parse(result);
+              core.info(`parsed response: "${JSON.stringify(parsed)}"`);
               core.setOutput("issueTitle", parsed.issueTitle);
               core.setOutput("issueDescription", parsed.issueDescription);
               core.info(`issueTitle: "${parsed.issueTitle}"`);

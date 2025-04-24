@@ -632,7 +632,7 @@ jobs:
                   required: ["message", "updatedFiles"],
                   additionalProperties: false
                 },
-                strict: true
+                strict: false
               }
             }];
 
@@ -670,6 +670,7 @@ jobs:
 
             try {
               const parsed = ResponseSchema.parse(result);
+              core.info(`parsed response: "${JSON.stringify(parsed)}"`);
               // Sanitize commit message: retain only alphanumerics, spaces, and basic URL-safe punctuation (-, _, ., ~)
               const sanitizedMessage = parsed.message.replace(/[^A-Za-z0-9 \-\_\.\~]/g, '').replace(/\s+/g, ' ').trim();
               core.setOutput("message", sanitizedMessage);
@@ -711,15 +712,6 @@ jobs:
             core.info(`fixApplied: "${fixApplied}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
             core.info(`response: "${JSON.stringify(response)}"`);
-
-      - name: Display source files
-        run: |
-          IFS=';' read -ra SRC_FILES <<< "${{ env.srcPath }}"
-          for file in "${SRC_FILES[@]}"; do
-            echo "=== Source file: $file ==="
-            cat "$file"
-            echo ""
-          done
 
       - name: Examine the git working copy
         shell: bash
