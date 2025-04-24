@@ -78,8 +78,8 @@ jobs:
       source: ${{ inputs.source }}
       sourcesFile: 'SOURCES.md'
       sourcesLimit: '${{ needs.agentic-lib.outputs.sourcesLimit }}'
-      target: ${{ inputs.target || 'src/lib/main.js' }}
-      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
+      srcPath: ${{ inputs.target || 'src/lib/main.js' }}
+      testsPath: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: 'README.md'
       missionFile: 'MISSION.md'
       contributingFile: 'CONTRIBUTING.md'
