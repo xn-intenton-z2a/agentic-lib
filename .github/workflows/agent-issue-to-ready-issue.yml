@@ -19,12 +19,12 @@ on:
         description: 'The source file whose content is used in the resolution prompt. e.g. "src/lib/main.js"'
         required: false
         type: string
-        default: 'src/lib/main.js'
+        default: 'src/lib/'
       testsPath:
         description: 'The test file to run to validate the resolution. e.g. "tests/unit/main.test.js"'
         required: false
         type: string
-        default: 'tests/unit/main.test.js'
+        default: 'tests/unit/'
       selectionLabel:
         description: 'Label used to filter issues for resolution. e.g. "automated"'
         required: false
@@ -99,8 +99,8 @@ jobs:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       featuresDir: './features'
       libraryDir: 'library/'
-      srcPath: ${{ inputs.srcPath || 'src/lib/main.js' }}
-      testsPath: ${{ inputs.testsPath || 'tests/unit/main.test.js' }}
+      srcPath: ${{ inputs.srcPath || '' }}
+      testsPath: ${{ inputs.testsPath || '' }}
       readmeFile: 'README.md'
       missionFile: 'MISSION.md'
       contributingFile: 'CONTRIBUTING.md'

@@ -19,12 +19,12 @@ on:
         description: 'The source file(s) whose content is used in the resolution prompt. e.g. "src/lib/main.js" or multiple files separated by semicolons "src/lib/main.js;src/lib/utils.js"'
         required: false
         type: string
-        default: 'src/lib/main.js'
+        default: 'src/lib/'
       testsPath:
         description: 'The test file(s) to run to validate the resolution. e.g. "tests/unit/main.test.js" or multiple files separated by semicolons "tests/unit/main.test.js;tests/unit/utils.test.js"'
         required: false
         type: string
-        default: 'tests/unit/main.test.js'
+        default: 'tests/unit/'
       selectionLabel:
         description: 'Label used to filter issues for resolution. e.g. "ready"'
         required: false
