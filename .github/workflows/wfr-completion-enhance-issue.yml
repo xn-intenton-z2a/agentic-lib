@@ -419,12 +419,21 @@ jobs:
 
             const prompt = `
             ${promptContent}
+            Consider the following when making your decision:
+            * Issue details (title, description, comments)
+            * Mission statement
+            * Current features and specifications
+            * Source code content
+            * Test content
+            * Library documents
+            * Repository structure and dependencies
 
             Current feature names and specifications:
             CURRENT_FEATURES_START
             ${currentFeatures}
             CURRENT_FEATURES_END
 
+            The relevantLibrary documents to be taken from the documents between LIBRARY_DOCUMENTS_START and LIBRARY_DOCUMENTS_END.
             Library documents:
             LIBRARY_DOCUMENTS_START
             ${libraryContent}
@@ -493,7 +502,7 @@ jobs:
             {
               "action": "enhance", // Whether to enhance the issue, close it pr do nothing.
               "enhancedDescription": "Updated issue description with testable acceptance criteria", // Updated issue description with testable acceptance criteria if action is 'enhance', otherwise match the supplied issue description.
-              "relevantLibraryDocuments": ["document1.md", "document2.md"], // Array of relevant library document names if action is 'enhance', otherwise a an empty array.
+              "relevantLibraryDocuments": ["document1.md", "document2.md"], // Array of relevant library document names from the documents between LIBRARY_DOCUMENTS_START and LIBRARY_DOCUMENTS_END if action is 'enhance', otherwise a an empty array.
               "closeReason": "Explanation of why the issue was closed" // Explanation of why the issue was closed if action is 'close', otherwise 'n/a'.
             }
             Ensure valid JSON.
@@ -527,7 +536,7 @@ jobs:
                     relevantLibraryDocuments: { 
                       type: "array", 
                       items: { type: "string" },
-                      description: "Array of relevant library document names if action is 'enhance', otherwise a an empty array." 
+                      description: "Array of relevant library document names from the documents between LIBRARY_DOCUMENTS_START and LIBRARY_DOCUMENTS_END if action is 'enhance', otherwise a an empty array." 
                     },
                     closeReason: { 
                       type: "string", 
