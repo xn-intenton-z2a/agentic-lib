@@ -58,6 +58,11 @@ on:
         type: string
         required: false
         default: 'tests/unit/main.test.js'
+      docsPath:
+        description: 'The documentation file(s) to write to. e.g. "docs/USAGE.md" or multiple files separated by semicolons "docs/USAGE.md;docs/API.md"'
+        type: string
+        required: false
+        default: 'docs/USAGE.md'
       readmeFile:
         description: 'The README file. e.g. "README.md"'
         type: string
@@ -133,6 +138,7 @@ jobs:
       featuresDir: ${{ inputs.featuresDir || 'features/' }}
       srcPath: ${{ inputs.srcPath || 'src/lib/main.js' }}
       testsPath: ${{ inputs.testsPath || 'tests/unit/main.test.js' }}
+      docsPath: ${{ inputs.docsPath || 'docs/USAGE.md' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
       missionFile: ${{ inputs.missionFile || 'MISSION.md' }}
       contributingFile: ${{ inputs.contributingFile || 'CONTRIBUTING.md' }}
@@ -317,15 +323,110 @@ jobs:
               core.info(`Sources directory file '${sourcesFile}' has been loaded (length ${sourcesFileContent.length}).`);
             }
 
-            const srcFileContent = fs.readFileSync(srcPath, 'utf8');
-            const testsFileContent = fs.readFileSync(testsPath, 'utf8');
+            // Handle multiple source files
+            const srcFiles = srcPath.split(';');
+            let sourceFileContents = {};
+            for (const file of srcFiles) {
+              try {
+                const trimmedFile = file.trim();
+                if (fs.existsSync(trimmedFile)) {
+                  const stats = fs.statSync(trimmedFile);
+                  if (stats.isDirectory()) {
+                    // If it's a directory, read all files in the directory
+                    const files = fs.readdirSync(trimmedFile);
+                    for (const subFile of files) {
+                      const fullPath = path.join(trimmedFile, subFile);
+                      if (fs.statSync(fullPath).isFile()) {
+                        sourceFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
+                        core.info(`Source file '${fullPath}' from directory has been loaded (length ${sourceFileContents[fullPath].length}).`);
+                      }
+                    }
+                  } else {
+                    // It's a file, read it directly
+                    sourceFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
+                    core.info(`Source file '${trimmedFile}' has been loaded (length ${sourceFileContents[trimmedFile].length}).`);
+                  }
+                } else {
+                  core.warning(`Source file '${trimmedFile}' does not exist.`);
+                }
+              } catch (e) {
+                core.warning(`Error reading source file '${file}': ${e.message}`);
+              }
+            }
+
+            // Handle multiple test files
+            const testFiles = testsPath.split(';');
+            let testFileContents = {};
+            for (const file of testFiles) {
+              try {
+                const trimmedFile = file.trim();
+                if (fs.existsSync(trimmedFile)) {
+                  const stats = fs.statSync(trimmedFile);
+                  if (stats.isDirectory()) {
+                    // If it's a directory, read all files in the directory
+                    const files = fs.readdirSync(trimmedFile);
+                    for (const subFile of files) {
+                      const fullPath = path.join(trimmedFile, subFile);
+                      if (fs.statSync(fullPath).isFile()) {
+                        testFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
+                        core.info(`Test file '${fullPath}' from directory has been loaded (length ${testFileContents[fullPath].length}).`);
+                      }
+                    }
+                  } else {
+                    // It's a file, read it directly
+                    testFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
+                    core.info(`Test file '${trimmedFile}' has been loaded (length ${testFileContents[trimmedFile].length}).`);
+                  }
+                } else {
+                  core.warning(`Test file '${trimmedFile}' does not exist.`);
+                }
+              } catch (e) {
+                core.warning(`Error reading test file '${file}': ${e.message}`);
+              }
+            }
+
+            // Handle multiple docs files
+            const docsFiles = docsPath.split(';');
+            let docsFileContents = {};
+            for (const file of docsFiles) {
+              try {
+                const trimmedFile = file.trim();
+                if (fs.existsSync(trimmedFile)) {
+                  const stats = fs.statSync(trimmedFile);
+                  if (stats.isDirectory()) {
+                    // If it's a directory, read all files in the directory
+                    const files = fs.readdirSync(trimmedFile);
+                    for (const subFile of files) {
+                      const fullPath = path.join(trimmedFile, subFile);
+                      if (fs.statSync(fullPath).isFile()) {
+                        docsFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
+                        core.info(`Docs file '${fullPath}' from directory has been loaded (length ${docsFileContents[fullPath].length}).`);
+                      }
+                    }
+                  } else {
+                    // It's a file, read it directly
+                    docsFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
+                    core.info(`Docs file '${trimmedFile}' has been loaded (length ${docsFileContents[trimmedFile].length}).`);
+                  }
+                } else {
+                  // Create directory if it doesn't exist
+                  const docsDir = path.dirname(trimmedFile);
+                  if (!fs.existsSync(docsDir)) {
+                    fs.mkdirSync(docsDir, { recursive: true });
+                  }
+                  docsFileContents[trimmedFile] = '';
+                  core.info(`Docs file '${trimmedFile}' does not exist and will be created.`);
+                }
+              } catch (e) {
+                core.warning(`Error reading docs file '${file}': ${e.message}`);
+              }
+            }
+
             const readmeFileContent = fs.readFileSync(readmeFile, 'utf8');
             const missionFileContent = fs.readFileSync(missionFile, 'utf8');
             const contributingFileContent = fs.readFileSync(contributingFile, 'utf8');
             const dependenciesFileContent = fs.readFileSync(dependenciesFile, 'utf8');
             const promptContent = fs.readFileSync(promptFile, 'utf8');
-            core.info(`Source file '${srcPath}' has been loaded (length ${srcFileContent.length}).`);
-            core.info(`Tests file '${testsPath}' has been loaded (length ${testsFileContent.length}).`);
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
             core.info(`Prompt file '${promptFile}' has been loaded (length ${promptContent.length}).`);
@@ -372,15 +473,20 @@ jobs:
             ${currentFeatures}
             CURRENT_FEATURES_END
 
-            Source file: ${srcPath}
-            SOURCE_FILE_START
-            ${srcFileContent}
-            SOURCE_FILE_END
+            Source files:
+            SOURCE_FILES_START
+            ${Object.entries(sourceFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
+            SOURCE_FILES_END
 
-            Tests file: ${testsPath}
-            TESTS_FILE_START
-            ${testsFileContent}
-            TESTS_FILE_END
+            Test files:
+            TEST_FILES_START
+            ${Object.entries(testFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
+            TEST_FILES_END
+
+            Documentation files:
+            DOCS_FILES_START
+            ${Object.entries(docsFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
+            DOCS_FILES_END
 
             README file: ${readmeFile}
             README_FILE_START
