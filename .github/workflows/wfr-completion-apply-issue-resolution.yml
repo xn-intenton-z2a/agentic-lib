@@ -585,7 +585,8 @@ jobs:
             MAIN_OUTPUT_END    
 
             Please produce updated versions of the files that resolve the issue.
-            Note that the README.md file is provided for context only - any documentation changes should be written to the documentation file (USAGE.md).
+            Note that the README.md file is provided for context only - any documentation changes should be written to the documentation files.
+            The source files, test files, and documentation files can be individual files or directories containing multiple files.
             Answer strictly with a JSON object following this schema:
 
             {
@@ -593,7 +594,7 @@ jobs:
               "updatedFiles": {
                 "src/orderParser.js": "The entire new content of the file, with all necessary changes applied.",
                 "tests/orderParser.test.js": "The entire new content of the file, with all necessary changes applied.",
-                "USAGE.md": "The entire new content of the file, with all necessary changes applied."
+                "docs/USAGE.md": "The entire new content of the file, with all necessary changes applied."
               }
             }
 
@@ -639,7 +640,7 @@ jobs:
             const response = await openai.chat.completions.create({
               model,
               messages: [
-                { role: "system", content: "You are a code fixer that returns updated file contents to resolve an issue. You can update multiple files by specifying their paths and contents in the updatedFiles object. Answer strictly with a JSON object that adheres to the provided function schema." },
+                { role: "system", content: "You are a code fixer that returns updated file contents to resolve an issue. You can update multiple files by specifying their paths and contents in the updatedFiles object. The source files, test files, and documentation files can be individual files or directories containing multiple files. Answer strictly with a JSON object that adheres to the provided function schema." },
                 { role: "user", content: prompt }
               ],
               tools: applyIssueResolutionToSource
