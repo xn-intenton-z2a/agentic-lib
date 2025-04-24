@@ -93,6 +93,11 @@ on:
         type: string
         required: false
         default: '2'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      GITHUB_TOKEN:
+        required: false
     outputs:
       attemptsPerIssue:
         value: ${{ jobs.agentic-lib.outputs.attemptsPerIssue }}

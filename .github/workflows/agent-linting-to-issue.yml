@@ -36,6 +36,9 @@ jobs:
       script: 'npm run linting src/lib/main.js tests/unit/main.test.js'
       sarifScript: 'npm run linting-json --silent src/lib/main.js tests/unit/main.test.js'
       testScript: 'npm test'
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   create-issue:
     needs:

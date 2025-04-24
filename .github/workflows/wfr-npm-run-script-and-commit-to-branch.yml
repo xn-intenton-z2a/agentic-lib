@@ -76,6 +76,8 @@ on:
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
+      GITHUB_TOKEN:
+        required: false
     outputs:
       updatedFiles:
           description: 'Whether files were updated by the script. e.g. "true"'
@@ -120,14 +122,14 @@ jobs:
         if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
         run: |
-          curl --include --header "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/user
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
 
       - name: Set up .npmrc
         if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
         run: |
           echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
           echo "always-auth=true" >> .npmrc
 
       - name: Get latest from remote
