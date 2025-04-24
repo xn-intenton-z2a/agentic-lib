@@ -15,12 +15,12 @@ on:
         required: false
         type: string
         default: ''
-      target:
+      srcPath:
         description: 'The source file whose content is used in the resolution prompt. e.g. "src/lib/main.js"'
         required: false
         type: string
         default: 'src/lib/main.js'
-      testFile:
+      testsPath:
         description: 'The test file to run to validate the resolution. e.g. "tests/unit/main.test.js"'
         required: false
         type: string
@@ -59,7 +59,6 @@ jobs:
     with:
       configPath: ${{ vars.configPath || '.github/agentic-lib.yml' }}
     secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
     #outputs:
     #  attemptsPerIssue:
@@ -100,8 +99,8 @@ jobs:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       featuresDir: './features'
       libraryDir: 'library/'
-      target: ${{ inputs.target || 'src/lib/main.js' }}
-      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
+      srcPath: ${{ inputs.srcPath || 'src/lib/main.js' }}
+      testsPath: ${{ inputs.testsPath || 'tests/unit/main.test.js' }}
       readmeFile: 'README.md'
       missionFile: 'MISSION.md'
       contributingFile: 'CONTRIBUTING.md'

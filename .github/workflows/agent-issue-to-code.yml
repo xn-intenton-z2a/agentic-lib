@@ -61,7 +61,6 @@ jobs:
     with:
       configPath: ${{ vars.configPath || '.github/agentic-lib.yml' }}
     secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
     #outputs:
     #  attemptsPerIssue:
@@ -84,7 +83,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
-      selectionLabel: ${{ env.selectionLabel || 'ready' }}
+      selectionLabel: ${{ inputs.selectionLabel || 'ready' }}
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
@@ -339,8 +338,8 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-issue-resolution.yml@main'
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
-      srcPath: ${{ env.srcPath || needs.agentic-lib.outputs.srcPath }}
-      testsPath: ${{ env.testsPath || needs.agentic-lib.outputs.testsPath }}
+      srcPath: ${{ inputs.srcPath || needs.agentic-lib.outputs.srcPath }}
+      testsPath: ${{ inputs.testsPath || needs.agentic-lib.outputs.testsPath }}
       readmeFile: 'README.md'
       docsPath: ${{ needs.agentic-lib.outputs.docsPath }}
       missionFile: 'MISSION.md'
