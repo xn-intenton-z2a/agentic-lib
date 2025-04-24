@@ -362,8 +362,27 @@ jobs:
             let sourceFileContents = {};
             for (const file of srcFiles) {
               try {
-                sourceFileContents[file] = fs.readFileSync(file.trim(), 'utf8');
-                core.info(`Source file '${file}' has been loaded (length ${sourceFileContents[file].length}).`);
+                const trimmedFile = file.trim();
+                if (fs.existsSync(trimmedFile)) {
+                  const stats = fs.statSync(trimmedFile);
+                  if (stats.isDirectory()) {
+                    // If it's a directory, read all files in the directory
+                    const files = fs.readdirSync(trimmedFile);
+                    for (const subFile of files) {
+                      const fullPath = path.join(trimmedFile, subFile);
+                      if (fs.statSync(fullPath).isFile()) {
+                        sourceFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
+                        core.info(`Source file '${fullPath}' from directory has been loaded (length ${sourceFileContents[fullPath].length}).`);
+                      }
+                    }
+                  } else {
+                    // It's a file, read it directly
+                    sourceFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
+                    core.info(`Source file '${trimmedFile}' has been loaded (length ${sourceFileContents[trimmedFile].length}).`);
+                  }
+                } else {
+                  core.warning(`Source file '${trimmedFile}' does not exist.`);
+                }
               } catch (e) {
                 core.warning(`Error reading source file '${file}': ${e.message}`);
               }
@@ -374,8 +393,27 @@ jobs:
             let testFileContents = {};
             for (const file of testFiles) {
               try {
-                testFileContents[file] = fs.readFileSync(file.trim(), 'utf8');
-                core.info(`Test file '${file}' has been loaded (length ${testFileContents[file].length}).`);
+                const trimmedFile = file.trim();
+                if (fs.existsSync(trimmedFile)) {
+                  const stats = fs.statSync(trimmedFile);
+                  if (stats.isDirectory()) {
+                    // If it's a directory, read all files in the directory
+                    const files = fs.readdirSync(trimmedFile);
+                    for (const subFile of files) {
+                      const fullPath = path.join(trimmedFile, subFile);
+                      if (fs.statSync(fullPath).isFile()) {
+                        testFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
+                        core.info(`Test file '${fullPath}' from directory has been loaded (length ${testFileContents[fullPath].length}).`);
+                      }
+                    }
+                  } else {
+                    // It's a file, read it directly
+                    testFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
+                    core.info(`Test file '${trimmedFile}' has been loaded (length ${testFileContents[trimmedFile].length}).`);
+                  }
+                } else {
+                  core.warning(`Test file '${trimmedFile}' does not exist.`);
+                }
               } catch (e) {
                 core.warning(`Error reading test file '${file}': ${e.message}`);
               }
