@@ -121,8 +121,8 @@ jobs:
       featuresDir: './features'
       libraryDir: 'library/'
       featureDevelopmentIssuesWipLimit: '${{ needs.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}'
-      target: ${{ inputs.target || 'src/lib/main.js' }}
-      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
+      srcPath: ${{ inputs.target || 'src/lib/main.js' }}
+      testsPath: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: 'README.md'
       missionFile: 'MISSION.md'
       contributingFile: 'CONTRIBUTING.md'
