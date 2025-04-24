@@ -639,10 +639,7 @@ jobs:
                     },
                     updatedFiles: {
                       type: "object",
-                      description: "An object where keys are file paths and values are the entire new content of those files, with all necessary changes applied, if any.",
-                      additionalProperties: {
-                        type: "string"
-                      }
+                      description: "An object where keys are file paths and values are the entire new content of those files, with all necessary changes applied, if any."
                     }
                   },
                   required: ["message", "updatedFiles"],
@@ -651,6 +648,10 @@ jobs:
                 strict: true
               }
             }];
+                      //additionalProperties: {
+                      //  type: "string"
+                      //}
+ 
 
             // Call OpenAI using the function calling format via the tools parameter
             const response = await openai.chat.completions.create({
