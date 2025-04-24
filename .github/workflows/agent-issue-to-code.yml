@@ -59,7 +59,7 @@ jobs:
   agentic-lib:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@main'
     with:
-      configPath: ${{ env.configPath || '.github/agentic-lib.yml' }}
+      configPath: ${{ vars.configPath || '.github/agentic-lib.yml' }}
     #outputs:
     #  attemptsPerIssue:
     #  writeableFilepaths:
@@ -80,7 +80,7 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
     with:
-      issueNumber: ${{ env.issueNumber || '' }}
+      issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: ${{ env.selectionLabel || 'ready' }}
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

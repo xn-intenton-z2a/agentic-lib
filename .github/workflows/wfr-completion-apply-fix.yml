@@ -784,7 +784,7 @@ jobs:
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
           git add -v --all
-          git diff '${{ env.target }}'
+          git diff
           git commit -m '${{ steps.update-target.outputs.message }}'
           git status -v
           git push -v origin ${{ env.branch }}

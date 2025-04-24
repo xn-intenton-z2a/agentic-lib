@@ -57,7 +57,7 @@ jobs:
   agentic-lib:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@main'
     with:
-      configPath: ${{ env.configPath || '.github/agentic-lib.yml' }}
+      configPath: ${{ vars.configPath || '.github/agentic-lib.yml' }}
     #outputs:
     #  attemptsPerIssue:
     #  writeableFilepaths:
