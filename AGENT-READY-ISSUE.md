@@ -1,6 +1,6 @@
 Please review the GitHub issue and determine if it should be enhanced, closed or if no operation is needed.
 
-If the issue is relevant to the mission statement and features, and provides value:
+If the issue is relevant to the mission statement and features and provides value:
 1. Decide if the issue should be refined, closed or if no operation is needed.
 2. Update the issue description with testable acceptance criteria
 3. Enhance the issue by adding relevant library documents as issue comments
