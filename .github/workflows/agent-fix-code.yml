@@ -472,10 +472,10 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-fix.yml@main'
     with:
-      target: ${{ inputs.target || format('{0}main.js', needs.agentic-lib.outputs.srcPath) }}
-      testFile: ${{ inputs.testFile || format('{0}main.test.js', needs.agentic-lib.outputs.testsPath) }}
+      srcPath: ${{ inputs.srcPath || format('{0}main.js', needs.agentic-lib.outputs.srcPath) }}
+      testsPath: ${{ inputs.testsPath || format('{0}main.test.js', needs.agentic-lib.outputs.testsPath) }}
       readmeFile: 'README.md'
-      docsFile: ${{ format('{0}USAGE.md', needs.agentic-lib.outputs.docsPath) }}
+      docsPath: ${{ format('{0}USAGE.md', needs.agentic-lib.outputs.docsPath) }}
       missionFile: 'MISSION.md'
       contributingFile: 'CONTRIBUTING.md'
       dependenciesFile: 'package.json'
