@@ -572,7 +572,6 @@ jobs:
             try {
               parsed = ResponseSchema.parse(result);
               core.info(`Parsed response: ${JSON.stringify(parsed)}`);
-              core.info(`Parsed response: ${parsed}`);
               core.setOutput("action", parsed.action);
             } catch (e) {
               core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
@@ -622,6 +621,8 @@ jobs:
                         issue_number: issueNumber,
                         body: `## Relevant Library Document: ${docName}\n\n${commentContent}`
                       });
+                    } else {
+                      core.warning(`Document ${docName} not found in library files.`);
                     }
                   }
                 }
