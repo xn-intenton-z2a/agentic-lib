@@ -631,7 +631,7 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issueNumber,
-                  body: "This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents have been added as comments."
+                  body: `This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([${parsed.relevantLibraryDocuments}], ${parsed.relevantLibraryDocuments.length} in total) have been added as comments.`
                 });
               } catch (e) {
                 core.setFailed(`Failed to update issue and add comments: ${e.message}`);
