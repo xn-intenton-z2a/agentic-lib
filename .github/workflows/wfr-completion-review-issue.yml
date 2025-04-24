@@ -274,6 +274,7 @@ jobs:
             core.info(`missionFile: "${missionFile}"`);
             core.info(`contributingFile: "${contributingFile}"`);
             core.info(`dependenciesFile: "${dependenciesFile}"`);
+            
             // Handle multiple source files
             const srcFiles = srcPath.split(';');
             let sourceFileContents = {};

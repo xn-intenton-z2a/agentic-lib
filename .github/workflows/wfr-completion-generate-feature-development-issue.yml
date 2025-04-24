@@ -309,6 +309,7 @@ jobs:
             core.info(`contributingFile: "${contributingFile}"`);
             core.info(`dependenciesFile: "${dependenciesFile}"`);
             core.info(`libraryDir: "${libraryDir}"`);
+            
             // Handle multiple source files
             const srcFiles = srcPath.split(';');
             let sourceFileContents = {};
