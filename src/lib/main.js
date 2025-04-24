@@ -264,6 +264,78 @@ export async function workflowChainHandler(payload) {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
+// Enhanced WORKFLOW CHAIN Feature: Robust Chaining with Error Handling and Conditional Branching
+// ---------------------------------------------------------------------------------------------------------------------
+
+export async function chainWorkflows(steps, options = {}) {
+  if (!Array.isArray(steps)) {
+    const errorMsg = "Invalid steps: must be an array";
+    logError(errorMsg);
+    throw new Error(errorMsg);
+  }
+  if (steps.length === 0) {
+    const errorMsg = "Steps array cannot be empty";
+    logError(errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  const results = [];
+  let overallStatus = "success";
+  const chainStartTime = Date.now();
+
+  for (let i = 0; i < steps.length; i++) {
+    const step = steps[i];
+    if (!step || typeof step !== 'object' || !step.command) {
+      const errorMsg = `Step at index ${i} is invalid: missing 'command' property`;
+      logError(errorMsg);
+      throw new Error(errorMsg);
+    }
+    // Use haltOnFailure flag from step, defaulting to true if not provided
+    const haltOnFailure = step.hasOwnProperty('haltOnFailure') ? step.haltOnFailure : true;
+    const stepResult = {
+      stepIndex: i,
+      command: step.command,
+      haltOnFailure,
+      executionTimeMS: null,
+      status: "unknown",
+      error: null,
+      timestamp: new Date().toISOString()
+    };
+
+    try {
+      const start = Date.now();
+      const result = await agenticHandler({ command: step.command });
+      stepResult.executionTimeMS = Date.now() - start;
+      stepResult.status = "success";
+      stepResult.result = result;
+      logInfo(`Chain Step ${i}: Success. Command: ${step.command} executed in ${stepResult.executionTimeMS} ms`);
+    } catch (error) {
+      stepResult.executionTimeMS = Date.now() - new Date(stepResult.timestamp).getTime();
+      stepResult.status = "failed";
+      stepResult.error = error.toString();
+      logError(`Chain Step ${i}: Failure on command: ${step.command}`, error);
+      overallStatus = haltOnFailure ? "failed" : "partial";
+      results.push(stepResult);
+      if (haltOnFailure) {
+        logInfo(`Chain halted due to failure at step ${i}`);
+        break;
+      } else {
+        continue;
+      }
+    }
+    results.push(stepResult);
+  }
+
+  const totalTime = Date.now() - chainStartTime;
+  return {
+    overallStatus,
+    totalSteps: steps.length,
+    totalExecutionTimeMS: totalTime,
+    results
+  };
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
 // New function to simulate an error and exit
 // ---------------------------------------------------------------------------------------------------------------------
 

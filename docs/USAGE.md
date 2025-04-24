@@ -23,54 +23,61 @@ This document provides clear and concise usage details for the agentic-lib comma
 - **--cli-utils**: Display a summary of available CLI commands along with brief descriptions.
 - **--workflow-chain <jsonPayload>**: Process a chain of workflow commands sequentially. (Payload must have a `chain` array property)
 
-## Workflow Chain Feature
+## Enhanced Workflow Chain: Robust Chaining with Error Handling and Conditional Branching
 
-The workflow chain feature enables you to execute a sequence of commands in a sequential manner. To use this feature, supply a JSON payload that contains a `chain` property, where `chain` is a non-empty array of command strings. Each command will be trimmed and processed sequentially via the `agenticHandler` function, and the global invocation counter will be incremented for every processed command. The final response includes a `chainSummary` object that details the total number of commands processed and the aggregate execution time.
+A new function, `chainWorkflows`, has been introduced to provide more robust control when executing a sequence of workflow steps. Each step is an object that must include at least a `command` property and can optionally include a `haltOnFailure` flag (defaults to `true`).
 
-**Usage Example (CLI):**
+- **Behavior:**
+  - Each step is executed sequentially by invoking the underlying `agenticHandler`.
+  - If a step fails and `haltOnFailure` is `true`, the chain is halted immediately.
+  - If `haltOnFailure` is `false`, the chain continues executing subsequent steps even if a step fails.
+  - Execution details for each step (status, execution time, and any error messages) are logged and aggregated.
 
-```bash
-node src/lib/main.js --workflow-chain '{"chain": ["command1", "command2", "command3"]}'
-```
+- **Return Value:**
+  The function returns an object containing:
+  - `overallStatus`: "success", "failed", or "partial" depending on the execution outcomes.
+  - `totalSteps`: the number of steps processed.
+  - `totalExecutionTimeMS`: the total time taken for the chain execution.
+  - `results`: an array with the outcome of each step.
 
-**Usage Example (Programmatic):**
+- **Usage Example (Programmatic):**
 
 ```js
-import { workflowChainHandler } from 'agentic-lib';
+import { chainWorkflows } from 'agentic-lib';
 
-const payload = { chain: ["command1", "command2", "command3"] };
-workflowChainHandler(payload)
-  .then(response => console.log(response))
+const steps = [
+  { command: 'build', haltOnFailure: false },
+  { command: 'test' }, // defaults to haltOnFailure: true
+  { command: 'deploy', haltOnFailure: false }
+];
+
+chainWorkflows(steps)
+  .then(result => console.log(result))
   .catch(err => console.error(err));
 ```
 
-The output will include an array of individual command responses and a `chainSummary` object, for example:
+In the above example, if the second step fails, the chain halts because the default `haltOnFailure` is `true`. If you want the chain to continue despite failures, set `haltOnFailure` to `false` in the step object.
 
-```json
-{
-  "status": "success",
-  "results": [
-    { "status": "success", "processedCommand": "command1", "timestamp": "...", "executionTimeMS": 5 },
-    { "status": "success", "processedCommand": "command2", "timestamp": "...", "executionTimeMS": 3 },
-    { "status": "success", "processedCommand": "command3", "timestamp": "...", "executionTimeMS": 4 }
-  ],
-  "chainSummary": {
-    "totalCommands": 3,
-    "totalExecutionTimeMS": 12
-  }
-}
-```
+## Additional Information
 
-## Command Aliases
+For more detailed CLI instructions and command descriptions, please refer to the rest of this document.
 
-You can configure command aliases using the `COMMAND_ALIASES` environment variable. When set, this variable should contain a JSON string mapping alias keys to their full command values. For example:
+---
 
-```bash
-export COMMAND_ALIASES='{ "ls": "list", "rm": "remove" }'
-```
+## AWS Integrations
 
-With this configuration:
-- A single command payload with `{ "command": "ls" }` will be processed as `list`.
-- A batch command payload with `{ "commands": ["ls", "rm", "status"] }` will process the commands as `list`, `remove`, and `status` respectively (commands without an alias remain unchanged).
+The agentic‑lib library leverages AWS services to enhance automation and reliability:
 
-Alias substitution is applied before any validations.
+- **SQS Integration:**
+  - The function `createSQSEventFromDigest` constructs a mock AWS SQS event from a given digest, formatting the payload to resemble a typical SQS message.
+  - The `digestLambdaHandler` function processes incoming SQS events, gracefully handling JSON parsing errors and accumulating failed records. If a messageId is omitted, a fallback identifier is generated.
+  - These integrations ensure that messages can be retried by AWS SQS in case of processing errors, thereby enhancing fault tolerance.
+
+- **Logging:**
+  - Detailed logging via `logInfo` and `logError` functions provides insight into the operations, including configurations and error stacks when verbose mode is enabled.
+
+---
+
+## CLI Behavior
+
+The CLI provides several flags to manage the library's operation. Refer to the descriptions above for details about each command.

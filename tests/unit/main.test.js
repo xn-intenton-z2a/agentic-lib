@@ -347,3 +347,56 @@ describe("workflowChainHandler", () => {
     consoleSpy.mockRestore();
   });
 });
+
+describe("chainWorkflows", () => {
+  test("successfully executes a chain with all valid steps", async () => {
+    const steps = [
+      { command: "command1", haltOnFailure: false },
+      { command: "command2", haltOnFailure: false }
+    ];
+    const result = await agenticLib.chainWorkflows(steps);
+    expect(result.overallStatus).toBe("success");
+    expect(result.results).toHaveLength(2);
+    result.results.forEach((step, idx) => {
+      expect(step.status).toBe("success");
+      expect(step.command).toBe(`command${idx+1}`);
+    });
+  });
+
+  test("halts the chain on failure when haltOnFailure is true", async () => {
+    const steps = [
+      { command: "command1" },
+      { command: "NaN" },
+      { command: "command3", haltOnFailure: false }
+    ];
+    const result = await agenticLib.chainWorkflows(steps);
+    // Expect chain to halt at second step
+    expect(result.overallStatus).toBe("failed");
+    expect(result.results).toHaveLength(2);
+    expect(result.results[0].status).toBe("success");
+    expect(result.results[1].status).toBe("failed");
+  });
+
+  test("continues the chain on failure when haltOnFailure is false", async () => {
+    const steps = [
+      { command: "command1", haltOnFailure: false },
+      { command: "NaN", haltOnFailure: false },
+      { command: "command3", haltOnFailure: false }
+    ];
+    const result = await agenticLib.chainWorkflows(steps);
+    expect(result.overallStatus).toBe("partial");
+    expect(result.results).toHaveLength(3);
+    expect(result.results[0].status).toBe("success");
+    expect(result.results[1].status).toBe("failed");
+    expect(result.results[2].status).toBe("success");
+  });
+
+  test("throws error when steps array is empty", async () => {
+    await expect(agenticLib.chainWorkflows([])).rejects.toThrow(/Steps array cannot be empty/);
+  });
+
+  test("throws error when a step is missing the command property", async () => {
+    const steps = [ { foo: "bar"} ];
+    await expect(agenticLib.chainWorkflows(steps)).rejects.toThrow(/missing 'command' property/);
+  });
+});
