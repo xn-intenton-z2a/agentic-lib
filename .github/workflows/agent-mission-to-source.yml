@@ -18,6 +18,16 @@ on:
         required: false
         type: string
         default: 'house choice'
+      target:
+        description: 'The source file whose content is used in the resolution prompt. e.g. "src/lib/main.js"'
+        required: false
+        type: string
+        default: 'src/lib/main.js'
+      testFile:
+        description: 'The test file to run to validate the resolution. e.g. "tests/unit/main.test.js"'
+        required: false
+        type: string
+        default: 'tests/unit/main.test.js'
   schedule:
     - cron: '40 4 */7 * *' # schedule-1
     #- cron: '40 4 * * *' # schedule-2
