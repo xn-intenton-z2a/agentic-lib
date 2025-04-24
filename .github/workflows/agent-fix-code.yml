@@ -10,13 +10,13 @@ run-name: "agent fix code [${{ github.ref_name }}]"
 on:
   workflow_dispatch:
     inputs:
-      target:
-        description: 'The source file whose content is used in the resolution prompt. e.g. "src/lib/main.js"'
+      srcPath:
+        description: 'The source file(s) whose content is used in the resolution prompt. e.g. "src/lib/main.js" or multiple files separated by semicolons "src/lib/main.js;src/lib/utils.js"'
         required: false
         type: string
         default: 'src/lib/main.js'
-      testFile:
-        description: 'The test file to run to validate the resolution. e.g. "tests/unit/main.test.js"'
+      testsPath:
+        description: 'The test file(s) to run to validate the resolution. e.g. "tests/unit/main.test.js" or multiple files separated by semicolons "tests/unit/main.test.js;tests/unit/utils.test.js"'
         required: false
         type: string
         default: 'tests/unit/main.test.js'
@@ -71,6 +71,13 @@ jobs:
     #  srcPath:
     #  testsPath:
     #  docsPath:
+    #  documentsLimit
+    #  libraryDir
+    #  sourcesFile
+    #  sourcesLimit
+    #  featureDevelopmentIssuesWipLimit
+    #  maintenanceIssuesWipLimit
+    #  featuresWipLimit
 
   select-branch:
     runs-on: ubuntu-latest
@@ -474,10 +481,10 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-fix.yml@main'
     with:
-      srcPath: ${{ inputs.target || format('{0}main.js', needs.agentic-lib.outputs.srcPath) }}
-      testsPath: ${{ inputs.testFile || format('{0}main.test.js', needs.agentic-lib.outputs.testsPath) }}
+      srcPath: ${{ inputs.srcPath || needs.agentic-lib.outputs.srcPath }}
+      testsPath: ${{ inputs.testsPath || needs.agentic-lib.outputs.testsPath }}
       readmeFile: 'README.md'
-      docsPath: ${{ format('{0}USAGE.md', needs.agentic-lib.outputs.docsPath) }}
+      docsPath: ${{ needs.agentic-lib.outputs.docsPath }}
       missionFile: 'MISSION.md'
       contributingFile: 'CONTRIBUTING.md'
       dependenciesFile: 'package.json'
