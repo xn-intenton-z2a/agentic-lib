@@ -647,12 +647,15 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-MVP] Attach relevant context from the library to an issue during refinement (and stop sending the whole libary to the issue worker).
 - [x] [r0w-MVP] In the refiner replace the need to truncate like this ${libraryDocuments.substring(0, 10000)} by exacting the summary of each library document extracted from the markdown by extracting the summary
 - [x] [r0w-MVP] In the feature maintainer replace ${libraryDocuments.substring(0, 10000)} with a condensed form of the library documents (a new section to be added to the library)
-- [~] [r0w-MVP] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
-- [~] [r0w-MVP] Support creation, edit and deletion of multiple files of each type (src, tests, docs) etc.
+- [x] [r0w-MVP] Support creation, edit and deletion of multiple files of each type (src, tests, docs) etc.
 - [~] [r0w-MVP] Move the workflows except the fix code ones to read the docs and the readme.
 - [~] [r0w-MVP] Change the fix code workflows to just write to docs and read the readme
 - [ ] [r0w-MVP] Add a workflow to change the readme.
-- [ ] Find out why issues autoclose when the PR closes 
+- [ ] [r0w-MVP] Set up agentic-lib, se-sqs-bridge and repository0 to only write to supplementary files and not to the main files.
+- [ ] [r0w-MVP] Set up plot-code-lib to use a single file
+- [ ] [r0w-MVP] Set up repository0-crucible to use multiple files
+- [ ] Find out why issues autoclose when the PR closes and stop this to that the issue is closed when the review is done.
+- [ ] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
 - [ ] Add a workflow to maintain the documents.
 - [ ] Support a more TDD / literate approach to software development.
 - [ ] Add a PR review workflow with a reviewer and responder.
