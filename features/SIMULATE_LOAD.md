@@ -1,19 +1,24 @@
 # SIMULATE_LOAD Feature Specification
 
 ## Overview
-This feature enhances the existing simulate load functionality by introducing a dynamic load simulation mode via the CLI flag "--simulate-load". In addition to triggering a batch of dummy commands, users can now optionally specify the number of commands to simulate. When the flag is supplied without an argument, a default of 10 commands is processed. This extension not only tests system robustness under configurable load but also provides insights into performance with varying command counts.
+This update enhances the dynamic load simulation mode when the CLI flag "--simulate-load" is invoked. In addition to triggering a batch of dummy commands and allowing an optional specification of the number of commands to simulate (default is 10), the simulation will now also compute the average execution time per command. This improvement provides deeper insights into performance under varying loads while keeping the mode configurable and testable.
 
 ## Implementation Details
-- Update the main CLI in src/lib/main.js to check for the "--simulate-load" flag. If detected, determine if a numeric argument follows the flag; if absent, default to 10 commands.
-- The simulation loop calls the existing agenticHandler function iteratively with a dummy command (such as "dummy"). Timing is recorded to compute the total execution time for the simulated load.
-- Increment the global invocation counter for each processed command.
-- In tests (tests/unit/main.test.js), add a new test case to trigger the "--simulate-load" flag with and without a numeric parameter and verify that the output includes a summary message with the correct number of commands and execution time.
-- Update the README (README.md) under the CLI Behavior section to document the usage of "--simulate-load", including the optional numeric parameter for command count.
+- Update the main CLI processing in the source file (src/lib/main.js) to detect the "--simulate-load" flag. When detected, check for an optional numeric argument; if absent, default to 10 simulated commands.
+- In the simulation loop, each dummy command is processed using the existing agenticHandler. Capture the individual execution time (executionTimeMS) for each command.
+- After processing all commands, compute the average execution time by summing the individual times and dividing by the number of commands.
+- Extend the simulation summary to include:
+  - Total number of commands processed
+  - Total combined execution time
+  - Average execution time per command
+- Update the unit tests in tests/unit/main.test.js to include cases for both the default and custom number of commands and to verify the presence and correctness of the average execution time in the simulation summary.
+- Update the README (README.md) in the CLI Behavior section to document the enhanced simulation mode and its additional performance metrics.
 
 ## User Scenarios & Acceptance Criteria
-- When invoked with "--simulate-load" and no argument, the CLI processes 10 dummy commands and logs a summary with total commands and execution time.
-- When invoked with "--simulate-load <number>", the system processes the specified number of dummy commands.
-- The test suite includes cases verifying both default and custom load simulations.
-- Documentation is updated to reflect the new parameterized load simulation mode.
+- Invoking the CLI with "--simulate-load" without an argument runs 10 dummy commands, logs a summary of the total commands processed, total execution time, and the average execution time per command.
+- Invoking the CLI with "--simulate-load <number>" runs the specified number of commands.
+- The simulation summary output includes the correct values for total commands, total execution time, and accurately computed average execution time.
+- Unit tests cover both default and custom numeric parameters, ensuring that the average execution time is calculated as expected.
+- Documentation in the README is updated to reflect these changes.
 
-This feature aligns with the mission of providing resilient and observable workflows in a configurable and testable manner.
+This feature aligns with the mission by ensuring enhanced observability and performance insights in simulated load scenarios, aiding developers in understanding and tuning their workflows.
