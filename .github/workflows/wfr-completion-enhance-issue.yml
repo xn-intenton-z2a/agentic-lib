@@ -427,6 +427,8 @@ jobs:
             * Test content
             * Library documents
             * Repository structure and dependencies
+            Only include the library documents in relevantLibraryDocuments not the others and in particular not CONTRIBUTING.md.
+            Documents not from the library directory won't be found later when attaching documents to the issue so don't include them.
 
             Current feature names and specifications:
             CURRENT_FEATURES_START
