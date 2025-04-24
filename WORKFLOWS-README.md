@@ -652,6 +652,7 @@ Re-usable GitHub Actions Workflows:
 - [~] [r0w-MVP] Move the workflows except the fix code ones to read the docs and the readme.
 - [~] [r0w-MVP] Change the fix code workflows to just write to docs and read the readme
 - [ ] [r0w-MVP] Add a workflow to change the readme.
+- [ ] Find out why issues autoclose when the PR closes 
 - [ ] Add a workflow to maintain the documents.
 - [ ] Support a more TDD / literate approach to software development.
 - [ ] Add a PR review workflow with a reviewer and responder.

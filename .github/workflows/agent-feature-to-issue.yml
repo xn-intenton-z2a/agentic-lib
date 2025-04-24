@@ -15,16 +15,6 @@ on:
         required: false
         type: string
         default: 'house choice'
-      target:
-        description: 'The source file whose content is used in the resolution prompt. e.g. "src/lib/main.js"'
-        required: false
-        type: string
-        default: 'src/lib/main.js'
-      testFile:
-        description: 'The test file to run to validate the resolution. e.g. "tests/unit/main.test.js"'
-        required: false
-        type: string
-        default: 'tests/unit/main.test.js'
   workflow_run:
     workflows:
       - agent-library-to-feature
@@ -121,8 +111,8 @@ jobs:
       featuresDir: './features'
       libraryDir: 'library/'
       featureDevelopmentIssuesWipLimit: '${{ needs.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}'
-      srcPath: ${{ inputs.target || 'src/lib/main.js' }}
-      testsPath: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
+      srcPath: ${{ needs.agentic-lib.outputs.srcPath }}
+      testsPath: ${{ needs.agentic-lib.outputs.testsPath }}
       readmeFile: 'README.md'
       missionFile: 'MISSION.md'
       contributingFile: 'CONTRIBUTING.md'

@@ -14,21 +14,6 @@ on:
         required: false
         type: string
         default: ''
-      selectionLabel:
-        description: 'Label used to filter issues for review. e.g. "merged"'
-        required: false
-        type: string
-        default: 'merged'
-      target:
-        description: 'The source file whose content was used in the resolution prompt. e.g. "src/lib/main.js"'
-        required: false
-        type: string
-        default: 'src/lib/main.js'
-      testFile:
-        description: 'The test file to run to validate the resolution. e.g. "tests/unit/main.test.js"'
-        required: false
-        type: string
-        default: 'tests/unit/main.test.js'
   workflow_run:
     workflows:
       - ci-automerge
@@ -58,7 +43,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
-      selectionLabel: ${{ inputs.selectionLabel || 'merged' }}
+      selectionLabel: 'merged'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
