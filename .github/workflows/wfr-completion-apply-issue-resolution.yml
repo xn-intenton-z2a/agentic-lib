@@ -362,8 +362,27 @@ jobs:
             let sourceFileContents = {};
             for (const file of srcFiles) {
               try {
-                sourceFileContents[file] = fs.readFileSync(file.trim(), 'utf8');
-                core.info(`Source file '${file}' has been loaded (length ${sourceFileContents[file].length}).`);
+                const trimmedFile = file.trim();
+                if (fs.existsSync(trimmedFile)) {
+                  const stats = fs.statSync(trimmedFile);
+                  if (stats.isDirectory()) {
+                    // If it's a directory, read all files in the directory
+                    const files = fs.readdirSync(trimmedFile);
+                    for (const subFile of files) {
+                      const fullPath = path.join(trimmedFile, subFile);
+                      if (fs.statSync(fullPath).isFile()) {
+                        sourceFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
+                        core.info(`Source file '${fullPath}' from directory has been loaded (length ${sourceFileContents[fullPath].length}).`);
+                      }
+                    }
+                  } else {
+                    // It's a file, read it directly
+                    sourceFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
+                    core.info(`Source file '${trimmedFile}' has been loaded (length ${sourceFileContents[trimmedFile].length}).`);
+                  }
+                } else {
+                  core.warning(`Source file '${trimmedFile}' does not exist.`);
+                }
               } catch (e) {
                 core.warning(`Error reading source file '${file}': ${e.message}`);
               }
@@ -374,8 +393,27 @@ jobs:
             let testFileContents = {};
             for (const file of testFiles) {
               try {
-                testFileContents[file] = fs.readFileSync(file.trim(), 'utf8');
-                core.info(`Test file '${file}' has been loaded (length ${testFileContents[file].length}).`);
+                const trimmedFile = file.trim();
+                if (fs.existsSync(trimmedFile)) {
+                  const stats = fs.statSync(trimmedFile);
+                  if (stats.isDirectory()) {
+                    // If it's a directory, read all files in the directory
+                    const files = fs.readdirSync(trimmedFile);
+                    for (const subFile of files) {
+                      const fullPath = path.join(trimmedFile, subFile);
+                      if (fs.statSync(fullPath).isFile()) {
+                        testFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
+                        core.info(`Test file '${fullPath}' from directory has been loaded (length ${testFileContents[fullPath].length}).`);
+                      }
+                    }
+                  } else {
+                    // It's a file, read it directly
+                    testFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
+                    core.info(`Test file '${trimmedFile}' has been loaded (length ${testFileContents[trimmedFile].length}).`);
+                  }
+                } else {
+                  core.warning(`Test file '${trimmedFile}' does not exist.`);
+                }
               } catch (e) {
                 core.warning(`Error reading test file '${file}': ${e.message}`);
               }
@@ -546,54 +584,51 @@ jobs:
             ${mainOutput}
             MAIN_OUTPUT_END    
 
-            Please produce an updated version of the source file, test file, documentation file (USAGE.md), and dependencies file that resolves the issue.
+            Please produce updated versions of the files that resolve the issue.
             Note that the README.md file is provided for context only - any documentation changes should be written to the documentation file (USAGE.md).
             Answer strictly with a JSON object following this schema:
 
             {
-              "updatedSourceFileContent": "The entire new content of the source file, with all necessary changes applied.",
-              "updatedTestFileContent": "The entire new content of the test file, with all necessary changes applied.",
-              "updatedDocsFileContent": "The entire new content of the documentation file (USAGE.md), with all necessary changes applied.",
-              "updatedDependenciesFileContent": "The entire new content of the dependencies file, with all necessary changes applied.",
-              "message": "A short sentence explaining the change applied suitable for a commit message."
+              "message": "A short sentence explaining the change applied suitable for a commit message.",
+              "updatedFiles": {
+                "src/orderParser.js": "The entire new content of the file, with all necessary changes applied.",
+                "tests/orderParser.test.js": "The entire new content of the file, with all necessary changes applied.",
+                "USAGE.md": "The entire new content of the file, with all necessary changes applied."
+              }
             }
+
+            You can include any number of files in the updatedFiles object. Each file will be checked against the allowedFilepathPatterns before being written.
 
             Ensure valid JSON.
             `;
 
-            const ResponseSchema = z.object({ updatedSourceFileContent: z.string(), updatedTestFileContent: z.string(), updatedDocsFileContent: z.string(), updatedDependenciesFileContent: z.string(), message: z.string() });
+            const ResponseSchema = z.object({ 
+              message: z.string(),
+              updatedFiles: z.record(z.string())
+            });
 
             // Define the function schema for functional calling
             const applyIssueResolutionToSource = [{
               type: "function",
               function: {
                 name: "applyIssueResolutionToSource",
-                description: "Return an updated version of the source file content along with a commit message. Use the provided source file content and supporting context to generate the update.",
+                description: "Return updated versions of files along with a commit message. Use the provided file contents and supporting context to generate the updates.",
                 parameters: {
                   type: "object",
                   properties: {
-                    updatedSourceFileContent: {
-                      type: "string",
-                      description: "The entire new content of the source file, with all necessary changes applied."
-                    },
-                    updatedTestFileContent: {
-                      type: "string",
-                      description: "The entire new content of the test file, with all necessary changes applied."
-                    },
-                    updatedDocsFileContent: {
-                      type: "string",
-                      description: "The entire new content of the documentation file (USAGE.md), with all necessary changes applied."
-                    },
-                    updatedDependenciesFileContent: {
-                      type: "string",
-                      description: "The entire new content of the dependencies file, with all necessary changes applied."
-                    },
                     message: {
                       type: "string",
                       description: "A short sentence explaining the change applied suitable for a commit message."
+                    },
+                    updatedFiles: {
+                      type: "object",
+                      description: "An object where keys are file paths and values are the entire new content of those files, with all necessary changes applied.",
+                      additionalProperties: {
+                        type: "string"
+                      }
                     }
                   },
-                  required: ["updatedSourceFileContent", "updatedTestFileContent", "updatedDocsFileContent", "updatedDependenciesFileContent", "message"],
+                  required: ["message", "updatedFiles"],
                   additionalProperties: false
                 },
                 strict: true
@@ -604,7 +639,7 @@ jobs:
             const response = await openai.chat.completions.create({
               model,
               messages: [
-                { role: "system", content: "You are a code fixer that returns an updated source file content, test file content, README file content and dependencies file content to resolve an issue. Answer strictly with a JSON object that adheres to the provided function schema." },
+                { role: "system", content: "You are a code fixer that returns updated file contents to resolve an issue. You can update multiple files by specifying their paths and contents in the updatedFiles object. Answer strictly with a JSON object that adheres to the provided function schema." },
                 { role: "user", content: prompt }
               ],
               tools: applyIssueResolutionToSource
@@ -639,62 +674,23 @@ jobs:
               core.setOutput("message", sanitizedMessage);
               core.info(`message: "${sanitizedMessage}"`);
 
-              // Handle source files
-              if(parsed.updatedSourceFileContent && parsed.updatedSourceFileContent.length > 1) {
-                // For backward compatibility, if there's only one source file, use the first one
-                const primarySrcFile = srcFiles[0].trim();
-                if (srcFiles.length === 1 && sourceFileContents[primarySrcFile] !== parsed.updatedSourceFileContent) {
-                  if (isFilePathAllowed(primarySrcFile, allowedFilepathPatterns)) {
-                    fs.writeFileSync(primarySrcFile, parsed.updatedSourceFileContent, 'utf8');
-                    fixApplied = true;
-                    core.info(`Source file '${primarySrcFile}' has been updated (length ${parsed.updatedSourceFileContent.length}).`);
-                  } else {
-                    core.warning(`Source file '${primarySrcFile}' is not in the allowed filepath patterns. Skipping update.`);
-                  }
-                }
-              }
-
-              // Handle test files
-              if(parsed.updatedTestFileContent && parsed.updatedTestFileContent.length > 1) {
-                // For backward compatibility, if there's only one test file, use the first one
-                const primaryTestFile = testFiles[0].trim();
-                if (testFiles.length === 1 && testFileContents[primaryTestFile] !== parsed.updatedTestFileContent) {
-                  if (isFilePathAllowed(primaryTestFile, allowedFilepathPatterns)) {
-                    fs.writeFileSync(primaryTestFile, parsed.updatedTestFileContent, 'utf8');
-                    fixApplied = true;
-                    core.info(`Test file '${primaryTestFile}' has been updated (length ${parsed.updatedTestFileContent.length}).`);
-                  } else {
-                    core.warning(`Test file '${primaryTestFile}' is not in the allowed filepath patterns. Skipping update.`);
-                  }
-                }
-              }
-
-              // Handle docs files
-              if(parsed.updatedDocsFileContent && parsed.updatedDocsFileContent.length > 1) {
-                // For backward compatibility, if there's only one docs file, use the first one
-                const primaryDocsFile = docsFiles[0].trim();
-                if (docsFiles.length === 1 && docsFileContents[primaryDocsFile] !== parsed.updatedDocsFileContent) {
-                  if (isFilePathAllowed(primaryDocsFile, allowedFilepathPatterns)) {
-                    // Create directory if it doesn't exist
-                    const docsDir = path.dirname(primaryDocsFile);
-                    if (!fs.existsSync(docsDir)) {
-                      fs.mkdirSync(docsDir, { recursive: true });
+              // Handle updated files
+              if (parsed.updatedFiles && Object.keys(parsed.updatedFiles).length > 0) {
+                for (const [filePath, fileContent] of Object.entries(parsed.updatedFiles)) {
+                  if (fileContent && fileContent.length > 1) {
+                    if (isFilePathAllowed(filePath, allowedFilepathPatterns)) {
+                      // Create directory if it doesn't exist
+                      const fileDir = path.dirname(filePath);
+                      if (!fs.existsSync(fileDir)) {
+                        fs.mkdirSync(fileDir, { recursive: true });
+                      }
+                      fs.writeFileSync(filePath, fileContent, 'utf8');
+                      fixApplied = true;
+                      core.info(`File '${filePath}' has been updated (length ${fileContent.length}).`);
+                    } else {
+                      core.warning(`File '${filePath}' is not in the allowed filepath patterns. Skipping update.`);
                     }
-                    fs.writeFileSync(primaryDocsFile, parsed.updatedDocsFileContent, 'utf8');
-                    fixApplied = true;
-                    core.info(`Documentation file '${primaryDocsFile}' has been updated (length ${parsed.updatedDocsFileContent.length}).`);
-                  } else {
-                    core.warning(`Documentation file '${primaryDocsFile}' is not in the allowed filepath patterns. Skipping update.`);
                   }
-                }
-              }
-              if(parsed.updatedDependenciesFileContent && parsed.updatedDependenciesFileContent.length > 1 && parsed.updatedDependenciesFileContent !== dependenciesFileContent) {
-                if (isFilePathAllowed(dependenciesFile, allowedFilepathPatterns)) {
-                  fs.writeFileSync(dependenciesFile, parsed.updatedDependenciesFileContent, 'utf8');
-                  fixApplied = true;
-                  core.info(`Dependencies file '${dependenciesFile}' has been updated (length ${parsed.updatedDependenciesFileContent.length}).`);
-                } else {
-                  core.warning(`Dependencies file '${dependenciesFile}' is not in the allowed filepath patterns. Skipping update.`);
                 }
               }
 
