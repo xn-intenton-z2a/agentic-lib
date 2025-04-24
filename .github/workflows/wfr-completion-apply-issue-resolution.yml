@@ -388,17 +388,32 @@ jobs:
             let docsFileContents = {};
             for (const file of docsFiles) {
               try {
-                if (fs.existsSync(file.trim())) {
-                  docsFileContents[file] = fs.readFileSync(file.trim(), 'utf8');
-                  core.info(`Docs file '${file}' has been loaded (length ${docsFileContents[file].length}).`);
+                const trimmedFile = file.trim();
+                if (fs.existsSync(trimmedFile)) {
+                  const stats = fs.statSync(trimmedFile);
+                  if (stats.isDirectory()) {
+                    // If it's a directory, read all files in the directory
+                    const files = fs.readdirSync(trimmedFile);
+                    for (const subFile of files) {
+                      const fullPath = path.join(trimmedFile, subFile);
+                      if (fs.statSync(fullPath).isFile()) {
+                        docsFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
+                        core.info(`Docs file '${fullPath}' from directory has been loaded (length ${docsFileContents[fullPath].length}).`);
+                      }
+                    }
+                  } else {
+                    // It's a file, read it directly
+                    docsFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
+                    core.info(`Docs file '${trimmedFile}' has been loaded (length ${docsFileContents[trimmedFile].length}).`);
+                  }
                 } else {
                   // Create directory if it doesn't exist
-                  const docsDir = path.dirname(file.trim());
+                  const docsDir = path.dirname(trimmedFile);
                   if (!fs.existsSync(docsDir)) {
                     fs.mkdirSync(docsDir, { recursive: true });
                   }
-                  docsFileContents[file] = '';
-                  core.info(`Docs file '${file}' does not exist and will be created.`);
+                  docsFileContents[trimmedFile] = '';
+                  core.info(`Docs file '${trimmedFile}' does not exist and will be created.`);
                 }
               } catch (e) {
                 core.warning(`Error reading docs file '${file}': ${e.message}`);

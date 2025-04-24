@@ -649,8 +649,8 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-MVP] In the feature maintainer replace ${libraryDocuments.substring(0, 10000)} with a condensed form of the library documents (a new section to be added to the library)
 - [~] [r0w-MVP] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
 - [~] [r0w-MVP] Support creation, edit and deletion of multiple files of each type (src, tests, docs) etc.
-- [ ] [r0w-MVP] Move the fix code workflows except the fix code ones to read the docs and the readme.
-- [ ] [r0w-MVP] Change all the workflows to just write to docs and read the readme
+- [ ] [r0w-MVP] Change the fix code workflows to just write to docs and read the readme
+- [ ] [r0w-MVP] Move the workflows except the fix code ones to read the docs and the readme.
 - [ ] [r0w-MVP] Add a workflow to change the readme.
 - [ ] Add a PR review workflow with a reviewer and responder.
 - [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
