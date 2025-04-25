@@ -257,6 +257,7 @@ jobs:
             const currentFeatures = process.env.currentFeatures;
             const srcPath = process.env.srcPath;
             const testsPath = process.env.testsPath;
+            const docsPath = process.env.docsPath;
             const readmeFile = process.env.readmeFile;
             const missionFile = process.env.missionFile;
             const contributingFile = process.env.contributingFile;
