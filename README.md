@@ -59,7 +59,11 @@ This repository is organized into three distinct areas to help you understand th
   For enhanced performance insights, the response of `agenticHandler` now includes an `executionTimeMS` field for each command, indicating the processing time in milliseconds.
 
 - **Note on Prompt Validity:**
-  The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. Inputs are processed by trimming whitespace and converting to lowercase. Therefore, even if the input appears in a different case or with extra spaces (e.g., ' NaN ', 'nan'), it will be considered non-actionable and will result in an error message explicitly stating that the input is non-actionable because it is equivalent to 'NaN'.
+  The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. Inputs are processed by trimming whitespace. Therefore, even if the input appears in a different case (e.g., ' nan ', 'NaN', ' NAn '), it will be considered non-actionable and will result in an error message explicitly stating that the input is non-actionable because it is equivalent to 'NaN'.
+
+- **Command Aliases:**
+  The agentic library also supports command alias substitution. If the environment variable `COMMAND_ALIASES` is set with a JSON mapping (for example, `{ "ls": "list", "rm": "remove" }`), any command matching an alias will be automatically replaced with its corresponding command before processing.
+
 - **Stability:**  
   It is under active development and may change frequently. It represents bleeding‑edge functionality that might not yet be production‑ready.
 - **Licensing:**  
@@ -100,6 +104,7 @@ Additionally, the CLI now supports additional commands:
 - `--digest`: Initiates processing of a sample digest event.
 - `--simulate-error`: Simulates an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.
 - `--simulate-delay <ms>`: Delays execution for the specified number of milliseconds, simulating processing latency before executing further commands.
+- `--simulate-load <ms>`: Simulates a heavy processing load by executing a CPU‑intensive loop for the specified duration in milliseconds.
 - `--apply-fix`: Applies automated fixes and logs a success message indicating "Applied fix successfully". Execution stops immediately after this action.
 - `--cli-utils`: **NEW.** Displays a comprehensive summary of all CLI commands available along with brief descriptions. Use this flag to quickly view all command options.
 
@@ -126,7 +131,7 @@ The CLI provides several flags to manage the library's operation:
 - **--help:**
   - Displays usage instructions and available command line flags.
 - **--digest:**
-  - Initiates the processing of a sample digest by creating a simulated SQS event and handling it through the AWS-integrated lambda handler.
+  - Initiates the processing of a sample digest by creating a simulated SQS event and handling it through the AWS‑integrated lambda handler.
 - **--agentic:**
   - Processes an agentic command. Supply a payload with either a single `command` property or a `commands` array for batch processing. Each valid command increments the internal invocation counter and returns an `executionTimeMS` property indicating its processing time.
 - **--version:**
@@ -143,10 +148,12 @@ The CLI provides several flags to manage the library's operation:
   - Simulates an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.
 - **--simulate-delay <ms>:**
   - Delays execution for the specified number of milliseconds, simulating processing latency before executing any further commands.
+- **--simulate-load <ms>:**
+  - Simulates a heavy processing load by executing a CPU‑intensive loop for the specified duration in milliseconds.
 - **--apply-fix:**
   - Applies automated fixes and logs a success message.
 - **--cli-utils:**
-  - **NEW.** Displays a comprehensive summary of all CLI commands available along with brief descriptions. Use this flag to quickly view all command options.
+  - Displays a summary of available CLI commands along with brief descriptions.
 
 ---
 
