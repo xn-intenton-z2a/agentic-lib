@@ -230,7 +230,6 @@ jobs:
             core.info(`Prompt file '${promptFile}' has been loaded (length ${promptContent.length}).`);
 
             // Read the agent config file
-            const agentConfigPath = process.env.agentConfigPath;
             let agentConfigContent = '';
             try {
               if (fs.existsSync(agentConfigPath)) {

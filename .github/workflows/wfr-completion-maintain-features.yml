@@ -373,7 +373,6 @@ jobs:
             const promptContent = fs.readFileSync(promptFile, 'utf8');
 
             // Read the agent config file
-            const agentConfigPath = process.env.agentConfigPath;
             let agentConfigContent = '';
             try {
               if (fs.existsSync(agentConfigPath)) {
