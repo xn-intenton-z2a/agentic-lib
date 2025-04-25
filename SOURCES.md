@@ -27,3 +27,13 @@ A comprehensive guide on performance and load testing using Apache JMeter. It in
 ## https://xn-intenton-z2a.github.io/agentic-lib/index.html
 This source offers detailed documentation on the agentic‑lib project, covering its architectural design, CLI command references, autonomous workflow functionalities, and advanced features such as robust workflow chaining and enhanced logging. It serves as the official reference for users and contributors and is updated regularly to reflect new enhancements.
 ## License: Mixed – GPL-3.0 and MIT
+
+# GitHub REST API Documentation
+## https://docs.github.com/en/rest
+Provides comprehensive documentation for GitHub’s REST API, covering endpoints, authentication, rate limiting, and usage examples. Updated regularly, it is a critical resource for developers integrating GitHub services.
+## License: Not specified
+
+# GitHub CLI Documentation
+## https://cli.github.com/manual/
+Official documentation for GitHub CLI, offering detailed usage instructions, installation guides, and configuration options. This source helps developers automate and integrate CLI operations within their workflows.
+## License: Not specified
