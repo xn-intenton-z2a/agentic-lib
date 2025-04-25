@@ -31,6 +31,8 @@ export const config = configSchema.parse(process.env);
 
 // Global verbose mode flag
 let VERBOSE_MODE = false;
+// Global verbose stats flag
+let VERBOSE_STATS = false;
 
 // Helper function to format log entries
 function formatLogEntry(level, message, additionalData = {}) {
@@ -387,7 +389,8 @@ export function cliUtilsHandler() {
     { command: "--simulate-load <ms>", description: "Simulate a heavy processing load by executing a CPU-intensive loop for the specified duration in milliseconds." },
     { command: "--apply-fix", description: "Apply automated fix and log success message" },
     { command: "--cli-utils", description: "Display a summary of available CLI commands with their descriptions." },
-    { command: "--workflow-chain <jsonPayload>", description: "Process a chain of workflow commands sequentially. (Payload must have a 'chain' array property)" }
+    { command: "--workflow-chain <jsonPayload>", description: "Process a chain of workflow commands sequentially. (Payload must have a 'chain' array property)" },
+    { command: "--verbose-stats", description: "When used with a valid command, outputs detailed statistics including callCount and uptime in JSON format." }
   ];
   let output = chalk.bold("CLI Commands Summary:\n\n");
   cliCommands.forEach(cmd => {
@@ -435,6 +438,7 @@ Usage:
   --apply-fix                Apply automated fix and log success message.
   --cli-utils                Display a summary of available CLI commands with their descriptions.
   --workflow-chain <jsonPayload>    Process a chain of workflow commands sequentially. (Payload must have a 'chain' array property)
+  --verbose-stats            When used with a valid command, outputs detailed statistics including callCount and uptime in JSON format.
 `;
 }
 
@@ -481,6 +485,17 @@ function processVerbose(args) {
     VERBOSE_MODE = true;
     logInfo("Verbose mode activated.");
   }
+}
+
+// Process the --verbose-stats flag
+function processVerboseStats(args) {
+  const index = args.indexOf("--verbose-stats");
+  if (index !== -1) {
+    args.splice(index, 1);
+    VERBOSE_STATS = true;
+    return true;
+  }
+  return false;
 }
 
 // Process the --simulate-error flag
@@ -605,7 +620,7 @@ async function processDigest(args) {
     const exampleDigest = {
       key: "events/1.json",
       value: "12345",
-      lastModified: new Date().toISOString(),
+      lastModified: new Date().toISOString()
     };
     const sqsEvent = createSQSEventFromDigest(exampleDigest);
     await digestLambdaHandler(sqsEvent);
@@ -641,22 +656,86 @@ async function processAgentic(args) {
 
 export async function main(args = process.argv.slice(2)) {
   await processSimulateDelay(args);
-  if (processSimulateLoad(args)) return;
+  processVerboseStats(args);
+  if (processSimulateLoad(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
   processVerbose(args);
-  if (processSimulateError(args)) return;
-  if (processApplyFix(args)) return;
-  if (processCliUtils(args)) return;
-  if (await processWorkflowChain(args)) return;
-  if (processHelp(args)) return;
-  if (processDryRun(args)) return;
-  if (processDiagnostics(args)) return;
-  if (processStatus(args)) return;
-  if (await processVersion(args)) return;
-  if (await processDigest(args)) return;
-  if (await processAgentic(args)) return;
+  if (processSimulateError(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (processApplyFix(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (processCliUtils(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (await processWorkflowChain(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (processHelp(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (processDryRun(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (processDiagnostics(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (processStatus(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (await processVersion(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (await processDigest(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (await processAgentic(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
 
   console.log("No command argument supplied.");
   console.log(generateUsage());
+  if (VERBOSE_STATS) {
+    console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+  }
 }
 
 // if (import.meta.url.endsWith(process.argv[1])) {

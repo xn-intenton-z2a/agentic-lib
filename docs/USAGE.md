@@ -23,6 +23,7 @@ This document provides clear and concise usage details for the agentic-lib comma
 - **--apply-fix**: Apply an automated fix and log a success message indicating that the fix was applied.
 - **--cli-utils**: Display a summary of available CLI commands along with brief descriptions.
 - **--workflow-chain <jsonPayload>**: Process a chain of workflow commands sequentially. (Payload must have a `chain` array property)
+- **--verbose-stats**: When used with a valid command, outputs additional runtime statistics in JSON format, including `callCount` (the number of times a command has been successfully executed) and `uptime` (the process uptime in seconds).
 
 ## Enhanced Workflow Chain: Robust Chaining with Error Handling and Conditional Branching
 
@@ -67,4 +68,9 @@ For more detailed CLI instructions and command descriptions, please refer to the
 
 ## CLI Behavior
 
-The CLI provides several flags to manage the library's operation. Refer to the descriptions above for details about each command.
+The CLI provides several flags to manage the library's operation. When using the `--verbose-stats` flag in addition to any valid command (e.g., `--dry-run`, `--agentic`, etc.), the application will output an additional JSON object containing runtime statistics. This includes:
+
+- `callCount`: The total number of successful command invocations since the application started.
+- `uptime`: The current process uptime in seconds.
+
+This additional output aids in monitoring and diagnosing the operational performance of the agentic-lib CLI.
