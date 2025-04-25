@@ -152,6 +152,7 @@ jobs:
       gitUserName: 'GitHub Actions[bot]'
       allowedFilepathPatterns: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
       promptFile: 'AGENT-UPDATE-README.md'
+      agentConfigPath: ${{ needs.agentic-lib.outputs.agentConfigPath }}
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

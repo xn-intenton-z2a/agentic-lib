@@ -86,10 +86,13 @@ jobs:
       - name: trigger-checks
         id: trigger-checks
         uses: actions/github-script@v7
+        env:
+          pullNumber: ${{ inputs.pullNumber }}
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
-            const pullNumber = parseInt('${{ inputs.pullNumber }}', 10);
+            const pullNumberStr = process.env.pullNumber;
+            const pullNumber = (parseInt(pullNumberStr) ? parseInt(pullNumberStr) : "");
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             
@@ -139,10 +142,13 @@ jobs:
       - name: auto-merge-pr
         id: auto-merge-pr
         uses: actions/github-script@v7
+        env:
+          pullNumber: ${{ inputs.pullNumber }}
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
-            const pullNumber = parseInt('${{ inputs.pullNumber }}', 10);
+            const pullNumberStr = process.env.pullNumber;
+            const pullNumber = (parseInt(pullNumberStr) ? parseInt(pullNumberStr) : "");
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             let prMerged;

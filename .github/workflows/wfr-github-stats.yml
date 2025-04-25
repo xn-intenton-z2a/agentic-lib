@@ -223,7 +223,7 @@ jobs:
               let issueTitle = "";
               let issueLabels = "";
               const issueNumberMatch = branch.name.match(new RegExp(branchPrefix + "(\\d+)"));
-              if (issueNumberMatch) {
+              if (issueNumberMatch && parseInt(issueNumberMatch[1])) {
                 issueNumber = issueNumberMatch[1];
                 const { data: issue } = await github.rest.issues.get({
                   owner,

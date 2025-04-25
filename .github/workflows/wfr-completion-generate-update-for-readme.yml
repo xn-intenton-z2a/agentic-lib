@@ -146,6 +146,11 @@ on:
         type: string
         required: false
         default: '["features/*", "library/*", "docs/*", "README.md"]'
+      agentConfigPath:
+        description: 'The path to the agentic-lib.yml configuration file'
+        type: string
+        required: false
+        default: '.github/agentic-lib.yml'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -202,6 +207,7 @@ jobs:
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
       allowedFilepathPatterns: ${{ inputs.allowedFilepathPatterns || '["features/*", "library/*", "docs/*", "README.md"]' }}
+      agentConfigPath: ${{ inputs.agentConfigPath || '.github/agentic-lib.yml' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -314,7 +320,8 @@ jobs:
             const lintingFile = process.env.lintingFile;
             const docsPath = process.env.docsPath;
             const model = process.env.model;
-            const issueNumber = parseInt(process.env.issueNumber);
+            const issueNumberStr = process.env.issueNumber
+            const issueNumber = (parseInt(issueNumberStr) ? parseInt(issueNumberStr) : "");;
             const apiKey = process.env.chatgptApiSecretKey;
             const promptFile = process.env.promptFile;
             const installOutput = process.env.installOutput;
@@ -468,6 +475,20 @@ jobs:
             const formattingFileContent = fs.readFileSync(formattingFile, 'utf8');
             const lintingFileContent = fs.readFileSync(lintingFile, 'utf8');
             const promptContent = fs.readFileSync(promptFile, 'utf8');
+
+            // Read the agent config file
+            let agentConfigContent = '';
+            try {
+              if (fs.existsSync(agentConfigPath)) {
+                agentConfigContent = fs.readFileSync(agentConfigPath, 'utf8');
+                core.info(`Agent config file '${agentConfigPath}' has been loaded (length ${agentConfigContent.length}).`);
+              } else {
+                core.warning(`Agent config file '${agentConfigPath}' does not exist.`);
+              }
+            } catch (e) {
+              core.warning(`Error reading agent config file '${agentConfigPath}': ${e.message}`);
+            }
+
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
             core.info(`Formatting file '${formattingFile}' has been loaded (length ${formattingFileContent.length}).`);
@@ -519,6 +540,7 @@ jobs:
               * Build output
               * Test output
               * Main execution output
+              * Agent configuration file content
 
             Current feature names and specifications (for context, read only):
             CURRENT_FEATURES_START
@@ -598,6 +620,11 @@ jobs:
             MAIN_OUTPUT_START
             ${mainOutput}
             MAIN_OUTPUT_END    
+
+            Agent configuration file: ${agentConfigPath}
+            AGENT_CONFIG_FILE_START
+            ${agentConfigContent}
+            AGENT_CONFIG_FILE_END
 
             Please produce updated versions of the README and documentation files to ensure they accurately reflect the current state of the codebase.
             Remember:
@@ -699,7 +726,19 @@ jobs:
               // Handle updated files
               if (parsed.updatedFiles && Object.keys(parsed.updatedFiles).length > 0) {
                 for (const [filePath, fileContent] of Object.entries(parsed.updatedFiles)) {
-                  if (fileContent && fileContent.length > 1) {
+                  if (fileContent === "delete") {
+                    if (isFilePathAllowed(filePath, allowedFilepathPatterns)) {
+                      if (fs.existsSync(filePath)) {
+                        fs.unlinkSync(filePath);
+                        updateApplied = true;
+                        core.info(`File '${filePath}' has been deleted.`);
+                      } else {
+                        core.warning(`File '${filePath}' does not exist, cannot delete.`);
+                      }
+                    } else {
+                      core.warning(`File '${filePath}' is not in the allowed filepath patterns. Skipping deletion.`);
+                    }
+                  } else if (fileContent && fileContent.length > 1) {
                     if (isFilePathAllowed(filePath, allowedFilepathPatterns)) {
                       // Create directory if it doesn't exist
                       const fileDir = path.dirname(filePath);

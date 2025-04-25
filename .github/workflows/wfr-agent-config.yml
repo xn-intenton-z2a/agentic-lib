@@ -191,6 +191,8 @@ on:
         value: ${{ jobs.agentic-lib.outputs.dependenciesFile }}
       readmeFile:
         value: ${{ jobs.agentic-lib.outputs.readmeFile }}
+      agentConfigPath:
+        value: ${{ jobs.agentic-lib.outputs.agentConfigPath }}
 
 jobs:
   agentic-lib:
@@ -271,8 +273,8 @@ jobs:
             let dependenciesFile = process.env.defaultDependenciesFile;
             let readmeFile = process.env.defaultReadmeFile;
 
-            // Check if agentic-lib.yml exists
-            const configPath = path.join('.github', 'agentic-lib.yml');
+            // Use the configPath from input parameter
+            const configPath = process.env.configPath;
             if (fs.existsSync(configPath)) {
               try {
                 // Read and parse the YAML file
@@ -509,6 +511,9 @@ jobs:
             console.log(`readmeFile=${readmeFile}`);
             core.setOutput('readmeFile', readmeFile);
 
+            console.log(`agentConfigPath=${configPath}`);
+            core.setOutput('agentConfigPath', configPath);
+
     outputs:
       attemptsPerIssue: ${{ steps.agentic-lib.outputs.attemptsPerIssue }}
       writeableFilepaths: ${{ steps.agentic-lib.outputs.writeableFilepaths }}
@@ -532,3 +537,4 @@ jobs:
       featuresPath: ${{ steps.agentic-lib.outputs.featuresPath }}
       dependenciesFile: ${{ steps.agentic-lib.outputs.dependenciesFile }}
       readmeFile: ${{ steps.agentic-lib.outputs.readmeFile }}
+      agentConfigPath: ${{ steps.agentic-lib.outputs.agentConfigPath }}

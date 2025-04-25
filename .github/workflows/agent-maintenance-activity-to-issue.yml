@@ -36,21 +36,12 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@main'
     with:
       configPath: ${{ env.configPath || '.github/agentic-lib.yml' }}
-    #outputs:
-    #  attemptsPerIssue:
-    #  writeableFilepaths:
-    #  srcPath:
-    #  testsPath:
-    #  docsPath:
-    #  documentsLimit
-    #  libraryDir
-    #  sourcesFile
-    #  sourcesLimit
-    #  featureDevelopmentIssuesWipLimit
-    #  maintenanceIssuesWipLimit
-    #  featuresWipLimit
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   generate-maintenance-issue:
+    needs:
+      - agentic-lib
     permissions:
       contents: write
       issues: write
@@ -73,6 +64,7 @@ jobs:
       mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+      agentConfigPath: ${{ needs.agentic-lib.outputs.agentConfigPath }}
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

@@ -146,6 +146,11 @@ on:
         type: string
         required: false
         default: '["features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md"]'
+      agentConfigPath:
+        description: 'The path to the agentic-lib.yml configuration file'
+        type: string
+        required: false
+        default: '.github/agentic-lib.yml'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -204,6 +209,7 @@ jobs:
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
       allowedFilepathPatterns: ${{ inputs.allowedFilepathPatterns || '["features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md"]' }}
+      agentConfigPath: ${{ inputs.agentConfigPath || '.github/agentic-lib.yml' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -312,7 +318,8 @@ jobs:
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
             const promptFile = process.env.promptFile;
-            const issueNumber = parseInt(process.env.issueNumber);
+            const issueNumberStr = process.env.issueNumber
+            const issueNumber = (parseInt(issueNumberStr) ? parseInt(issueNumberStr) : "");;
             const dependenciesListOutput = process.env.dependenciesListOutput;
             const buildScript = process.env.buildScript;
             const buildOutput = process.env.buildOutput;
@@ -321,6 +328,7 @@ jobs:
             const mainScript = process.env.mainScript;
             const mainOutput = process.env.mainOutput;
             const allowedFilepathPatterns = JSON.parse(process.env.allowedFilepathPatterns || '["features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md"]');
+            const agentConfigPath = process.env.agentConfigPath;
 
             const fs = require('fs');
             const path = require('path');
@@ -463,6 +471,20 @@ jobs:
             const formattingFileContent = fs.readFileSync(formattingFile, 'utf8');
             const lintingFileContent = fs.readFileSync(lintingFile, 'utf8');
             const promptContent = fs.readFileSync(promptFile, 'utf8');
+
+            // Read the agent config file
+            let agentConfigContent = '';
+            try {
+              if (fs.existsSync(agentConfigPath)) {
+                agentConfigContent = fs.readFileSync(agentConfigPath, 'utf8');
+                core.info(`Agent config file '${agentConfigPath}' has been loaded (length ${agentConfigContent.length}).`);
+              } else {
+                core.warning(`Agent config file '${agentConfigPath}' does not exist.`);
+              }
+            } catch (e) {
+              core.warning(`Error reading agent config file '${agentConfigPath}': ${e.message}`);
+            }
+
             // Log messages for source, test, and docs files are now handled in the file loading loops above
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
@@ -500,6 +522,7 @@ jobs:
             * Dependencies file content
             * Formatting file content
             * Linting file content
+            * Agent configuration file content
             * Issue details
             * Dependency list
             * Build output
@@ -555,6 +578,11 @@ jobs:
             LINTING_FILE_START
             ${lintingFileContent}
             LINTING_FILE_END
+
+            Agent configuration file (for context, read only): ${agentConfigPath}
+            AGENT_CONFIG_FILE_START
+            ${agentConfigContent}
+            AGENT_CONFIG_FILE_END
 
             Issue details:
             ISSUE_START
@@ -680,7 +708,19 @@ jobs:
               // Handle updated files
               if (parsed.updatedFiles && Object.keys(parsed.updatedFiles).length > 0) {
                 for (const [filePath, fileContent] of Object.entries(parsed.updatedFiles)) {
-                  if (fileContent && fileContent.length > 1) {
+                  if (fileContent === "delete") {
+                    if (isFilePathAllowed(filePath, allowedFilepathPatterns)) {
+                      if (fs.existsSync(filePath)) {
+                        fs.unlinkSync(filePath);
+                        fixApplied = true;
+                        core.info(`File '${filePath}' has been deleted.`);
+                      } else {
+                        core.warning(`File '${filePath}' does not exist, cannot delete.`);
+                      }
+                    } else {
+                      core.warning(`File '${filePath}' is not in the allowed filepath patterns. Skipping deletion.`);
+                    }
+                  } else if (fileContent && fileContent.length > 1) {
                     if (isFilePathAllowed(filePath, allowedFilepathPatterns)) {
                       // Create directory if it doesn't exist
                       const fileDir = path.dirname(filePath);
@@ -780,7 +820,7 @@ jobs:
           git switch -c '${{ env.branch }}'
           git add -v --all
           git diff '${{ env.srcPath }}'
-          git commit -m '${{ steps.update-target.outputs.message }} (fixes #${{ env.issueNumber }})'
+          git commit -m '${{ steps.update-target.outputs.message }} (working on #${{ env.issueNumber }})'
           git push --set-upstream origin '${{ env.branch }}' -v
           git status -v
 
@@ -790,9 +830,11 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const issueNumber = parseInt("${{ env.issueNumber }}");
-            const branchName = `${{ env.branch }}`;
-            const branchUrl = `https://github.com/${{ github.repository }}/tree/${branchName}`;
+            const issueNumberStr = process.env.issueNumber;
+            const issueNumber = (parseInt(issueNumberStr) ? parseInt(issueNumberStr) : "");
+            const branchName = process.env.branch;
+            const repository = process.env.GITHUB_REPOSITORY;
+            const branchUrl = `https://github.com/${repository}/tree/${branchName}`;
             const body = `${branchUrl}`;
             await github.rest.issues.createComment({
               owner: context.repo.owner,
@@ -811,16 +853,25 @@ jobs:
         if: always()
         id: results
         uses: actions/github-script@v7
+        env:
+            fixApplied: ${{ steps.update-target.outputs.fixApplied }}
+            message: ${{ steps.update-target.outputs.message }}
+            installAfterUpdateOutcome: ${{ steps.install-after-update.outcome }}
+            ciAfterUpdateOutcome: ${{ steps.ci-after-update.outcome }}
+            testAfterUpdateOutcome: ${{ steps.test-after-update.outcome }}
+            mainAfterUpdateOutcome: ${{ steps.main-after-update.outcome }}
+            commitOutcome: ${{ steps.commit.outcome }}
+            postResolutionCommentOutcome: ${{ steps.post-resolution-comment.outcome }}
         with:
           script: |
-            const fixApplied = '${{ steps.update-target.outputs.fixApplied }}';
-            const message = '${{ steps.update-target.outputs.message }}';
-            const installAfterUpdateOutcome = '${{ steps.install-after-update.outcome }}';
-            const ciAfterUpdateOutcome = '${{ steps.ci-after-update.outcome }}';
-            const testAfterUpdateOutcome = '${{ steps.test-after-update.outcome }}';
-            const mainAfterUpdateOutcome = '${{ steps.main-after-update.outcome }}';
-            const commitOutcome = '${{ steps.commit.outcome }}';
-            const postResolutionCommentOutcome = '${{ steps.post-resolution-comment.outcome }}';
+            const fixApplied = process.env.fixApplied === 'true';
+            const message = process.env.message;
+            const installAfterUpdateOutcome = process.env.installAfterUpdateOutcome;
+            const ciAfterUpdateOutcome = process.env.ciAfterUpdateOutcome;
+            const testAfterUpdateOutcome = process.env.testAfterUpdateOutcome;
+            const mainAfterUpdateOutcome = process.env.mainAfterUpdateOutcome;
+            const commitOutcome = process.env.commitOutcome;
+            const postResolutionCommentOutcome = process.env.postResolutionCommentOutcome;
             const allValidationStepsSuccessful = installAfterUpdateOutcome === "success" && ciAfterUpdateOutcome === "success" && testAfterUpdateOutcome === "success" && mainAfterUpdateOutcome === "success" && commitOutcome === "success" && postResolutionCommentOutcome === "success";
             core.setOutput('fixApplied', fixApplied);
             core.setOutput('message', message);

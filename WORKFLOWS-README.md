@@ -647,35 +647,35 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-MVP] Attach relevant context from the library to an issue during refinement (and stop sending the whole libary to the issue worker).
 - [x] [r0w-MVP] In the refiner replace the need to truncate like this ${libraryDocuments.substring(0, 10000)} by exacting the summary of each library document extracted from the markdown by extracting the summary
 - [x] [r0w-MVP] In the feature maintainer replace ${libraryDocuments.substring(0, 10000)} with a condensed form of the library documents (a new section to be added to the library)
-- [x] [r0w-MVP] Support creation, edit and deletion of multiple files of each type (src, tests, docs) etc.
+- [x] [r0w-MVP] Support creation, edit, and deletion of multiple files of each type (src, tests, docs) etc.
 - [x] [r0w-MVP] Change the fix code workflows to just write to docs and read the readme
 - [x] [r0w-MVP] Move the workflows except the fix code ones to read the docs and the readme.
 - [x] [r0w-MVP] Remove defaulting where agentic-lib has a default directory value.
 - [x] [r0w-MVP] Add a workflow to change the readme.
 - [ ] [r0w-MVP] Set up agentic-lib (prototype), se-sqs-bridge to only write to supplementary files and not to the main files.
-- [ ] [r0w-MVP] Set up repository0 to use a single file.
+- [ ] [r0w-MVP] Set up repository0 to use a demo directory and reset every week.
 - [ ] [r0w-MVP] Set up plot-code-lib to use a single file and the readme as the documentation.
 - [ ] [r0w-MVP] Set up repository0-crucible to use multiple files
-- [ ] Move AGENT- files to ./github/agentic-lib/agent-*.md
-- [ ] Move agentic-lib.yml to ./github/agentic-lib/agentic-lib.yml
-- [ ] Support the deletion of files by specifying "delete" as the contents but ignore of it's just empty.
-- [ ] Create a readOnlyFilepaths alongside readWriteFilepaths
-- [ ] Find out why issues autoclose when the PR closes and stop this to that the issue is closed when the review is done.
-- [ ] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
-- [ ] Add a workflow to maintain the documents.
-- [ ] Support a more TDD / literate approach to software development.
+- [~] [r0w-Launch] Support the deletion of files by specifying "delete" as the contents but ignore of it's just empty.
+- [~] [r0w-Launch] Create a readOnlyFilepaths alongside readWriteFilepaths
+- [~] [r0w-Launch] Find out why issues autoclose when the PR closes (because of fixes #123) and stop this to that the issue is closed when the review is done.
+- [~] [r0w-Launch] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
+- [ ] [r0w-Launch] Move AGENT- files to ./github/agentic-lib/agent-*.md
+- [ ] [r0w-Launch] Move agentic-lib.yml to ./github/agentic-lib/agentic-lib.yml
+- [ ] [r0w-Launch] Feature switch roles: librarian, developer, web publisher
+- [ ] Support a more TDD / literate approach by starting a feature branch with a failing test then fix code should extract the issue details and be alerted to the test addition as TDD.
 - [ ] Add a PR review workflow with a reviewer and responder.
 - [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
 - [ ] Generate API.md based on the source file.
 
 Marketplace GitHub Actions:
-- [x] [r0w-MVP] Review all the parameters where re-usable workflows are used and ensure that any parameters that are filepaths are stated explicitly in the calling workflow.
-- [x] [r0w-MVP] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-- [~] [r0w-MVP] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
-- [ ] [r0w-MVP] Switch from github script actions to `run: node` and have the action run against a moving 'latest' tag. 
+- [x] [r0w-Launch] Review all the parameters where re-usable workflows are used and ensure that any parameters that are filepaths are stated explicitly in the calling workflow.
+- [x] [r0w-Launch] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+- [~] [r0w-Launch] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
+- [ ] [r0w-Launch] Switch from github script actions to `run: node` and have the action run against a moving 'latest' tag. 
 See: [ACTIONS_JS_STEPS.md](examples/archive-2025-04-20/ACTIONS_JS_STEPS.md)
-- [ ] [r0w-MVP] Add tests for the actions library JS and organise the code.
-- [ ] [r0w-MVP] Move JS Steps to a GitHub distributed Action.
+- [ ] [r0w-Launch] Add tests for the actions library JS and organise the code.
+- [ ] [r0w-Launch] Move JS Steps to a GitHub distributed Action.
 - [ ] Convert the actions library JS to an SDK.
 - [ ] Make the SDK available as an API.
 - [ ] Make the API available as an MCP server.

@@ -97,7 +97,7 @@ jobs:
             let issueLabelsOutput;
 
             let issue;
-            if (issueNumberInput) {
+            if (parseInt(issueNumberInput)) {
               const { data: issue } = await github.rest.issues.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -158,7 +158,8 @@ jobs:
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
-            const issueNumber = parseInt(process.env.issueNumber);
+            const issueNumberStr = process.env.issueNumber
+            const issueNumber = (parseInt(issueNumberStr) ? parseInt(issueNumberStr) : "");
             const { data: issue } = await github.rest.issues.get({
               owner: context.repo.owner,
               repo: context.repo.repo,

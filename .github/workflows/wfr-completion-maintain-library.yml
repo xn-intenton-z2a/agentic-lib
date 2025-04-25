@@ -83,6 +83,11 @@ on:
         type: string
         required: false
         default: '["features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md"]'
+      agentConfigPath:
+        description: 'The path to the agentic-lib.yml configuration file'
+        type: string
+        required: false
+        default: '.github/agentic-lib.yml'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -123,6 +128,7 @@ jobs:
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
       writeableFilepaths: ${{ inputs.writeableFilepaths || '["features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md"]' }}
+      agentConfigPath: ${{ inputs.agentConfigPath || '.github/agentic-lib.yml' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -220,6 +226,20 @@ jobs:
             // Read the prompt file
             promptContent = fs.readFileSync(promptFile, 'utf8');
             core.info(`Prompt file '${promptFile}' has been loaded (length ${promptContent.length}).`);
+
+            // Read the agent config file
+            const agentConfigPath = process.env.agentConfigPath;
+            let agentConfigContent = '';
+            try {
+              if (fs.existsSync(agentConfigPath)) {
+                agentConfigContent = fs.readFileSync(agentConfigPath, 'utf8');
+                core.info(`Agent config file '${agentConfigPath}' has been loaded (length ${agentConfigContent.length}).`);
+              } else {
+                core.warning(`Agent config file '${agentConfigPath}' does not exist.`);
+              }
+            } catch (e) {
+              core.warning(`Error reading agent config file '${agentConfigPath}': ${e.message}`);
+            }
 
             // If sourcesFile contains a wildcard, find all matching files
             if (sourcesFile.includes('*')) {
@@ -461,6 +481,11 @@ jobs:
             SOURCES_ENTRIES_START
             ${sourceEntries.map((entry, index) => `Entry ${index + 1}: ${entry.name} (${entry.url})`).join('\n')}
             SOURCES_ENTRIES_END
+
+            Agent configuration file: ${agentConfigPath}
+            AGENT_CONFIG_FILE_START
+            ${agentConfigContent}
+            AGENT_CONFIG_FILE_END
 
             Critical: Extract the actual technical content, not summaries or descriptions. Include the complete API specifications with all parameters, return types, and exceptions. Extract the exact SDK method signatures including all arguments and their types. Include full code examples with comments. Document the precise implementation patterns with all steps. List all configuration options with their exact values, defaults, and effects. Provide concrete best practices with implementation code. Include detailed troubleshooting procedures with exact commands and expected outputs. The referenceDetails section must contain the actual technical specifications that developers can directly use without needing to look elsewhere.
 

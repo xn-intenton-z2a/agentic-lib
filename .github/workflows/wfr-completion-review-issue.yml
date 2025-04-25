@@ -117,6 +117,11 @@ on:
         type: string
         required: false
         default: ''
+      agentConfigPath:
+        description: 'The path to the agentic-lib.yml configuration file'
+        type: string
+        required: false
+        default: '.github/agentic-lib.yml'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -151,6 +156,7 @@ jobs:
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
+      agentConfigPath: ${{ inputs.agentConfigPath || '.github/agentic-lib.yml' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -253,7 +259,8 @@ jobs:
             const dependenciesFile = process.env.dependenciesFile;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
-            const issueNumber = parseInt(process.env.issueNumber);
+            const issueNumberStr = process.env.issueNumber;
+            const issueNumber = (parseInt(issueNumberStr) ? parseInt(issueNumberStr) : "");
             const promptFile = process.env.promptFile;
             const dependenciesListOutput = process.env.dependenciesListOutput;
             const buildScript = process.env.buildScript;
@@ -262,6 +269,7 @@ jobs:
             const testOutput = process.env.testOutput;
             const mainScript = process.env.mainScript;
             const mainOutput = process.env.mainOutput;
+            const agentConfigPath = process.env.agentConfigPath;
 
             const fs = require('fs');
             const path = require('path');
@@ -386,6 +394,20 @@ jobs:
             const contributingFileContent = fs.readFileSync(contributingFile, 'utf8');
             const dependenciesFileContent = fs.readFileSync(dependenciesFile, 'utf8');
             const promptContent = fs.readFileSync(promptFile, 'utf8');
+
+            // Read the agent config file
+            let agentConfigContent = '';
+            try {
+              if (fs.existsSync(agentConfigPath)) {
+                agentConfigContent = fs.readFileSync(agentConfigPath, 'utf8');
+                core.info(`Agent config file '${agentConfigPath}' has been loaded (length ${agentConfigContent.length}).`);
+              } else {
+                core.warning(`Agent config file '${agentConfigPath}' does not exist.`);
+              }
+            } catch (e) {
+              core.warning(`Error reading agent config file '${agentConfigPath}': ${e.message}`);
+            }
+
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
             core.info(`Prompt file '${promptFile}' has been loaded (length ${promptContent.length}).`);
@@ -418,6 +440,7 @@ jobs:
               * MISSION file content
               * Contributing file content
               * Dependencies file content
+              * Agent configuration file content
               * Issue details
               * Dependency list
               * Build output
@@ -463,6 +486,11 @@ jobs:
             DEPENDENCIES_FILE_START
             ${dependenciesFileContent}
             DEPENDENCIES_FILE_END
+
+            Agent configuration file: ${agentConfigPath}
+            AGENT_CONFIG_FILE_START
+            ${agentConfigContent}
+            AGENT_CONFIG_FILE_END
 
             Issue:
             ISSUE_START
@@ -588,8 +616,12 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const issueNumber = parseInt("${{ env.issueNumber }}");
-            const isFixed = "${{ steps.verify.outputs.fixed }}" === "true";
+            const fixed = process.env.fixed;
+            const message = process.env.message;
+            const refinement = process.env.refinement;
+            const issueNumberStr = process.env.issueNumber;
+            const issueNumber = (parseInt(issueNumberStr) ? parseInt(issueNumberStr) : "");
+            const isFixed = ( fixed === "true" );
 
             // Get current issue labels
             const { data: issue } = await github.rest.issues.get({
@@ -606,6 +638,12 @@ jobs:
                 issue_number: issueNumber,
                 body: "The issue has been automatically resolved and the fix has been merged."
               });
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: message
+              });
               await github.rest.issues.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -616,7 +654,19 @@ jobs:
               // If issue is not fixed, remove 'in-progress' label and restore 'automated' label
               const hasInProgressLabel = issue.labels.some(label => label.name === 'in-progress');
               const hasAutomatedLabel = issue.labels.some(label => label.name === 'automated');
-
+              // Issue is not fixed, so we add te reason to the issue comments
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: message
+              });
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: refinement
+              });
               if (hasInProgressLabel) {
                 // Remove 'in-progress' label
                 await github.rest.issues.removeLabel({

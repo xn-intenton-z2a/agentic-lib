@@ -43,19 +43,6 @@ jobs:
       configPath: ${{ vars.configPath || '.github/agentic-lib.yml' }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-    #outputs:
-    #  attemptsPerIssue:
-    #  writeableFilepaths:
-    #  srcPath:
-    #  testsPath:
-    #  docsPath:
-    #  documentsLimit
-    #  libraryDir
-    #  sourcesFile
-    #  sourcesLimit
-    #  featureDevelopmentIssuesWipLimit
-    #  maintenanceIssuesWipLimit
-    #  featuresWipLimit
 
   # If the prompt is "house choice", a random feature will be selected from the feature library otherwise the supplied feature name will be used.
   select-feature:
@@ -100,6 +87,7 @@ jobs:
 
   generate-feature-development-issue:
     needs:
+      - agentic-lib
       - select-feature
     permissions:
       contents: write
@@ -124,6 +112,7 @@ jobs:
       mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+      agentConfigPath: ${{ needs.agentic-lib.outputs.agentConfigPath }}
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
