@@ -1,0 +1,839 @@
+# .github/workflows/wfr-completion-generate-update-for-readme.yml
+#
+# agentic-lib
+# Copyright (C) 2025 Polycode Limited
+#
+# This file is part of agentic-lib.
+#
+# agentic-lib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# IMPORTANT: Any derived work must include the following attribution:
+# "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+#
+
+name: ∞ wfr-update-readme
+
+on:
+  workflow_call:
+    inputs:
+      featuresDir:
+        description: 'The directory to create/update the features in. e.g. "features/"'
+        type: string
+        required: false
+        default: 'features/'
+      srcPath:
+        description: 'The source file(s) to review (for context only). e.g. "src/lib/" or multiple files separated by semicolons "src/lib/;src/utils/utils.js"'
+        type: string
+        required: false
+        default: 'src/lib/'
+      testsPath:
+        description: 'The test file(s) to review (for context only). e.g. "tests/unit/" or multiple files separated by semicolons "tests/unit/;tests/utils/utils.test.js"'
+        type: string
+        required: false
+        default: 'tests/unit/'
+      docsPath:
+        description: 'The documentation file(s) to write to. e.g. "docs/" or multiple files separated by semicolons "docs/api;docs/API.md"'
+        type: string
+        required: false
+        default: 'docs/'
+      readmeFile:
+        description: 'The README file to update. e.g. "README.md"'
+        type: string
+        required: false
+        default: 'README.md'
+      missionFile:
+        description: 'The MISSION statement file. e.g. "MISSION.md"'
+        type: string
+        required: false
+        default: 'MISSION.md'
+      contributingFile:
+        description: 'The CONTRIBUTING file to review. e.g. "CONTRIBUTING.md"'
+        type: string
+        required: false
+        default: 'CONTRIBUTING.md'
+      dependenciesFile:
+        description: 'The dependencies file to review. e.g. "package.json"'
+        type: string
+        required: false
+        default: 'package.json'
+      formattingFile:
+        description: 'The formatting file to review. e.g. ".prettierrc"'
+        type: string
+        required: false
+        default: '.prettierrc'
+      lintingFile:
+        description: 'The linting file to review. e.g. "eslint.config.js"'
+        type: string
+        required: false
+        default: 'eslint.config.js'
+      buildScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
+        type: string
+        required: false
+        default: 'echo "No build script specified."'
+      testScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
+        type: string
+        required: false
+        default: 'npm test'
+      mainScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run start`'
+        type: string
+        required: false
+        default: 'npm run start'
+      model:
+        description: 'The OpenAI model to use. e.g. "o3-mini"'
+        type: string
+        required: false
+        default: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      branch:
+        description: 'The branch to use for the update. e.g. "agentic-lib-issue-123"'
+        type: string
+        required: false
+        default: ${{ github.ref }}
+      issueNumber:
+        description: 'The issue number to review. e.g. "123"'
+        type: string
+        required: true
+      npmAuthOrganisation:
+        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
+        type: string
+        required: false
+        default: ''
+      gitUserEmail:
+        description: 'The email to use for git commits. e.g. "action@github.com"'
+        type: string
+        required: false
+        default: 'action@github.com'
+      gitUserName:
+        description: 'The name to use for git commits. e.g. "GitHub Actions[bot]"'
+        type: string
+        required: false
+        default: 'GitHub Actions[bot]'
+      cache:
+        description: 'The cache to use for npm. e.g. "npm"'
+        type: string
+        required: false
+        default: 'npm'
+      promptFile:
+        description: 'The file containing the prompt text. e.g. "AGENT-UPDATE-README.md"'
+        type: string
+        required: false
+        default: 'AGENT-UPDATE-README.md'
+      s3BucketUrl:
+        description: 'The S3 bucket URL with prefix to use. e.g. "s3://my-bucket/prefix"'
+        type: string
+        required: false
+        default: ''
+      iamRoleArn:
+        description: 'The ARN of the IAM role to assume. e.g. "arn:aws:iam::123456789012:role/my-role"'
+        type: string
+        required: false
+        default: ''
+      allowedFilepathPatterns:
+        description: 'JSON array of filepath patterns that are allowed to be changed by agents. e.g. ["features/*", "library/*"]'
+        type: string
+        required: false
+        default: '["features/*", "library/*", "docs/*", "README.md"]'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
+    outputs:
+      updateApplied:
+        value: ${{ jobs.apply-update.outputs.updateApplied }}
+      message:
+        value: ${{ jobs.apply-update.outputs.message }}
+      installAfterUpdateOutcome:
+        value: ${{ jobs.apply-update.outputs.installAfterUpdateOutcome }}
+      ciAfterUpdateOutcome:
+        value: ${{ jobs.apply-update.outputs.ciAfterUpdateOutcome }}
+      testAfterUpdateOutcome:
+        value: ${{ jobs.apply-update.outputs.testAfterUpdateOutcome }}
+      mainAfterUpdateOutcome:
+        value: ${{ jobs.apply-update.outputs.mainAfterUpdateOutcome }}
+      commitOutcome:
+        value: ${{ jobs.apply-update.outputs.commitOutcome }}
+      postResolutionCommentOutcome:
+        value: ${{ jobs.start-issue.outputs.postResolutionCommentOutcome }}
+      allValidationStepsSuccessful:
+        value: ${{ jobs.start-issue.outputs.allValidationStepsSuccessful }}
+
+jobs:
+  apply-update:
+    runs-on: ubuntu-latest
+
+    env:
+      featuresDir: ${{ inputs.featuresDir || 'features/' }}
+      srcPath: ${{ inputs.srcPath || '' }}
+      testsPath: ${{ inputs.testsPath || '' }}
+      docsPath: ${{ inputs.docsPath || '' }}
+      readmeFile: ${{ inputs.readmeFile || 'README.md' }}
+      missionFile: ${{ inputs.missionFile || 'MISSION.md' }}
+      contributingFile: ${{ inputs.contributingFile || 'CONTRIBUTING.md' }}
+      dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
+      formattingFile: ${{ inputs.formattingFile || '.prettierrc' }}
+      lintingFile: ${{ inputs.lintingFile || 'eslint.config.js' }}
+      buildScript: ${{ inputs.buildScript || 'npm run build' }}
+      testScript: ${{ inputs.testScript || 'npm test' }}
+      mainScript: ${{ inputs.mainScript || 'npm run start' }}
+      mainScriptTimeout: '5m'
+      model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
+      branch: ${{ inputs.branch || github.ref }}
+      issueNumber: ${{ inputs.issueNumber || '' }}
+      gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
+      gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
+      cache: ${{ inputs.cache || 'npm' }}
+      promptFile: ${{ inputs.promptFile || 'AGENT-UPDATE-README.md' }}
+      s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
+      iamRoleArn: ${{ inputs.iamRoleArn || '' }}
+      allowedFilepathPatterns: ${{ inputs.allowedFilepathPatterns || '["features/*", "library/*", "docs/*", "README.md"]' }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ env.branch }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: ${{ env.cache }}
+
+      - name: Check GitHub authentication
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - name: List current features
+        id: features
+        shell: bash
+        run: |
+          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
+      - name: Install dependencies
+        id: install
+        shell: bash
+        run: |
+          set +e
+          output=$(npm install 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+          exit 0
+
+      - name: Build project
+        id: build
+        shell: bash
+        run: |
+          set +e
+          output=$(${{ env.buildScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+          exit 0
+
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: rm -f .npmrc
+
+      - name: Run tests
+        id: test
+        shell: bash
+        run: |
+          set +e
+          output=$(${{ env.testScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+          exit 0
+
+      - name: Run main
+        id: main
+        shell: bash
+        run: |
+          set +e
+          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+          exit 0
+
+      - name: update-readme
+        id: update-readme
+        uses: actions/github-script@v7
+        env:
+          installOutput: ${{ steps.install.outputs.output }}
+          buildOutput: ${{ steps.build.outputs.output }}
+          testOutput: ${{ steps.test.outputs.output }}
+          mainOutput: ${{ steps.main.outputs.output }}
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const currentFeatures = process.env.currentFeatures;
+            const srcPath = process.env.srcPath;
+            const testsPath = process.env.testsPath;
+            const readmeFile = process.env.readmeFile;
+            const missionFile = process.env.missionFile;
+            const contributingFile = process.env.contributingFile;
+            const dependenciesFile = process.env.dependenciesFile;
+            const formattingFile = process.env.formattingFile;
+            const lintingFile = process.env.lintingFile;
+            const docsPath = process.env.docsPath;
+            const model = process.env.model;
+            const issueNumber = parseInt(process.env.issueNumber);
+            const apiKey = process.env.chatgptApiSecretKey;
+            const promptFile = process.env.promptFile;
+            const installOutput = process.env.installOutput;
+            const dependenciesListOutput = process.env.dependenciesListOutput;
+            const buildScript = process.env.buildScript;
+            const buildOutput = process.env.buildOutput;
+            const testScript = process.env.testScript;
+            const testOutput = process.env.testOutput;
+            const mainScript = process.env.mainScript;
+            const mainOutput = process.env.mainOutput;
+            const allowedFilepathPatterns = JSON.parse(process.env.allowedFilepathPatterns || '["features/*", "library/*", "docs/*", "README.md"]');
+
+            const fs = require('fs');
+            const path = require('path');
+            const OpenAI = require('openai').default;
+            const { z } = require('zod');
+            const { minimatch } = require('minimatch');
+            require('dotenv').config();
+
+            // Function to check if a file path matches any of the allowed patterns
+            function isFilePathAllowed(filePath, writeableFilepaths) {
+              // Ensure writeableFilepaths is an array
+              const patterns = Array.isArray(writeableFilepaths) ? writeableFilepaths : String(writeableFilepaths).split(',');
+              core.info(`Checking if file path '${filePath}' is allowed in writeableFilepaths: ${patterns}`);
+              return patterns.some(pattern => (
+                minimatch(filePath, pattern.trim()) || 
+                minimatch(filePath, `${pattern.trim()}*`) || 
+                minimatch(filePath, `${pattern.trim()}**`) || 
+                minimatch(filePath, `${pattern.trim()}/**`)
+              ));
+            }
+
+            if (!apiKey) { 
+              core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
+            }
+            const openai = new OpenAI({ apiKey });
+
+            core.info(`currentFeatures: "${currentFeatures}"`);
+            core.info(`srcPath: "${srcPath}"`);
+            core.info(`testsPath: "${testsPath}"`);
+            core.info(`readmeFile: "${readmeFile}"`);
+            core.info(`missionFile: "${missionFile}"`);
+            core.info(`contributingFile: "${contributingFile}"`);
+            core.info(`dependenciesFile: "${dependenciesFile}"`);
+            core.info(`formattingFile: "${formattingFile}"`);
+            core.info(`lintingFile: "${lintingFile}"`);
+
+            // Handle multiple source files (for context only)
+            const srcFiles = srcPath.split(';');
+            let sourceFileContents = {};
+            for (const file of srcFiles) {
+              try {
+                const trimmedFile = file.trim();
+                if (fs.existsSync(trimmedFile)) {
+                  const stats = fs.statSync(trimmedFile);
+                  if (stats.isDirectory()) {
+                    // If it's a directory, read all files in the directory
+                    const files = fs.readdirSync(trimmedFile);
+                    for (const subFile of files) {
+                      const fullPath = path.join(trimmedFile, subFile);
+                      if (fs.statSync(fullPath).isFile()) {
+                        sourceFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
+                        core.info(`Source file '${fullPath}' from directory has been loaded (length ${sourceFileContents[fullPath].length}).`);
+                      }
+                    }
+                  } else {
+                    // It's a file, read it directly
+                    sourceFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
+                    core.info(`Source file '${trimmedFile}' has been loaded (length ${sourceFileContents[trimmedFile].length}).`);
+                  }
+                } else {
+                  core.warning(`Source file '${trimmedFile}' does not exist.`);
+                }
+              } catch (e) {
+                core.warning(`Error reading source file '${file}': ${e.message}`);
+              }
+            }
+
+            // Handle multiple test files (for context only)
+            const testFiles = testsPath.split(';');
+            let testFileContents = {};
+            for (const file of testFiles) {
+              try {
+                const trimmedFile = file.trim();
+                if (fs.existsSync(trimmedFile)) {
+                  const stats = fs.statSync(trimmedFile);
+                  if (stats.isDirectory()) {
+                    // If it's a directory, read all files in the directory
+                    const files = fs.readdirSync(trimmedFile);
+                    for (const subFile of files) {
+                      const fullPath = path.join(trimmedFile, subFile);
+                      if (fs.statSync(fullPath).isFile()) {
+                        testFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
+                        core.info(`Test file '${fullPath}' from directory has been loaded (length ${testFileContents[fullPath].length}).`);
+                      }
+                    }
+                  } else {
+                    // It's a file, read it directly
+                    testFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
+                    core.info(`Test file '${trimmedFile}' has been loaded (length ${testFileContents[trimmedFile].length}).`);
+                  }
+                } else {
+                  core.warning(`Test file '${trimmedFile}' does not exist.`);
+                }
+              } catch (e) {
+                core.warning(`Error reading test file '${file}': ${e.message}`);
+              }
+            }
+
+            const readmeFileContent = fs.readFileSync(readmeFile, 'utf8');
+
+            // Handle multiple docs files
+            const docsFiles = docsPath.split(';');
+            let docsFileContents = {};
+            for (const file of docsFiles) {
+              try {
+                const trimmedFile = file.trim();
+                if (fs.existsSync(trimmedFile)) {
+                  const stats = fs.statSync(trimmedFile);
+                  if (stats.isDirectory()) {
+                    // If it's a directory, read all files in the directory
+                    const files = fs.readdirSync(trimmedFile);
+                    for (const subFile of files) {
+                      const fullPath = path.join(trimmedFile, subFile);
+                      if (fs.statSync(fullPath).isFile()) {
+                        docsFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
+                        core.info(`Docs file '${fullPath}' from directory has been loaded (length ${docsFileContents[fullPath].length}).`);
+                      }
+                    }
+                  } else {
+                    // It's a file, read it directly
+                    docsFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
+                    core.info(`Docs file '${trimmedFile}' has been loaded (length ${docsFileContents[trimmedFile].length}).`);
+                  }
+                } else {
+                  // Create directory if it doesn't exist
+                  const docsDir = path.dirname(trimmedFile);
+                  if (!fs.existsSync(docsDir)) {
+                    fs.mkdirSync(docsDir, { recursive: true });
+                  }
+                  docsFileContents[trimmedFile] = '';
+                  core.info(`Docs file '${trimmedFile}' does not exist and will be created.`);
+                }
+              } catch (e) {
+                core.warning(`Error reading docs file '${file}': ${e.message}`);
+              }
+            }
+            const missionFileContent = fs.readFileSync(missionFile, 'utf8');
+            const contributingFileContent = fs.readFileSync(contributingFile, 'utf8');
+            const dependenciesFileContent = fs.readFileSync(dependenciesFile, 'utf8');
+            const formattingFileContent = fs.readFileSync(formattingFile, 'utf8');
+            const lintingFileContent = fs.readFileSync(lintingFile, 'utf8');
+            const promptContent = fs.readFileSync(promptFile, 'utf8');
+            core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
+            core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
+            core.info(`Formatting file '${formattingFile}' has been loaded (length ${formattingFileContent.length}).`);
+            core.info(`Linting file '${lintingFile}' has been loaded (length ${lintingFileContent.length}).`);
+            core.info(`Prompt file '${promptFile}' has been loaded (length ${promptContent.length}).`);
+
+            let issue;
+            let issueTitle;
+            let issueDescription;
+            let issueCommentsText;
+            if (issueNumber) {
+              issue = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber
+              });
+              issueTitle = issue.data.title;
+              issueDescription = issue.data.body;
+              const issueComments = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber
+              });
+              issueCommentsText = issueComments.data
+                .map(comment => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
+                .join('\n');
+            } else {
+              issueTitle = `No issue number provided`;
+              issueDescription = "No issue description provided (${process.env.issueNumber} parsed to ${issueNumber})";
+              issueCommentsText = "No issue comments provided";
+            }
+
+            const prompt = `
+            ${promptContent}
+
+            Consider the following when refining your response:
+              * Current feature names and specifications in the repository
+              * Source file content (for context only)
+              * Test file content (for context only)
+              * Documentation file content
+              * README file content
+              * MISSION file content
+              * Contributing file content
+              * Dependencies file content
+              * Formatting file content
+              * Linting file content
+              * Dependency install output
+              * Issue details (if any)
+              * Build output
+              * Test output
+              * Main execution output
+
+            Current feature names and specifications (for context, read only):
+            CURRENT_FEATURES_START
+            ${currentFeatures}
+            CURRENT_FEATURES_END
+
+            Source files (for context only, DO NOT UPDATE):
+            SOURCE_FILES_START
+            ${Object.entries(sourceFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
+            SOURCE_FILES_END
+
+            Test files (for context only, DO NOT UPDATE):
+            TEST_FILES_START
+            ${Object.entries(testFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
+            TEST_FILES_END
+
+            Documentation files (to be updated if necessary):
+            DOCS_FILES_START
+            ${Object.entries(docsFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
+            DOCS_FILES_END
+
+            README file (primary focus, to be updated): ${readmeFile}
+            README_FILE_START
+            ${readmeFileContent}
+            README_FILE_END
+
+            MISSION file (for context, read only): ${missionFile}
+            MISSION_FILE_START
+            ${missionFileContent}
+            MISSION_FILE_END
+
+            Contributing file (for context, read only): ${contributingFile}
+            CONTRIBUTING_FILE_START
+            ${contributingFileContent}
+            CONTRIBUTING_FILE_END
+
+            Dependencies file (for context, read only): ${dependenciesFile}
+            DEPENDENCIES_FILE_START
+            ${dependenciesFileContent}
+            DEPENDENCIES_FILE_END
+
+            Formatting file (for context, read only): ${formattingFile}
+            FORMATTING_FILE_START
+            ${formattingFileContent}
+            FORMATTING_FILE_END
+
+            Linting file (for context, read only): ${lintingFile}
+            LINTING_FILE_START
+            ${lintingFileContent}
+            LINTING_FILE_END        
+
+            Dependencies install from command: npm install
+            DEPENDENCIES_INSTALL_START
+            ${installOutput}
+            DEPENDENCIES_INSTALL_END    
+
+            Issue details:
+            ISSUE_START
+            title: ${issueTitle}
+            description:
+            ${issueDescription}
+            comments:
+            ${issueCommentsText}
+            ISSUE_END
+
+            Build output from command: ${buildScript}
+            BUILD_OUTPUT_START
+            ${buildOutput}
+            BUILD_OUTPUT_END      
+
+            Test output from command: ${testScript}
+            TEST_OUTPUT_START
+            ${testOutput}
+            TEST_OUTPUT_END            
+
+            Main execution output from command: ${mainScript}
+            MAIN_OUTPUT_START
+            ${mainOutput}
+            MAIN_OUTPUT_END    
+
+            Please produce updated versions of the README and documentation files to ensure they accurately reflect the current state of the codebase.
+            Remember:
+            1. The README is the primary focus, but other documentation files can be updated as well if needed
+            2. Source files (srcFiles) and test files (testFiles) should NOT be updated
+            3. Preserve existing README content even if it describes features not yet implemented
+            4. Update the README if it conflicts with current source code, tests, or documentation
+            5. If documentation files are out of date compared to the source code or tests, update them to be consistent
+
+            If there are no changes required, please provide the original content and state that no changes are necessary in the message.
+
+            Answer strictly with a JSON object following this schema:
+            {
+              "message": "A short sentence explaining the changes applied (or why no changes were applied) suitable for a commit message or PR text.",
+              "updatedFiles": {
+                "README.md": "The entire new content of the README file, with all necessary changes applied, if any.",
+                "docs/USAGE.md": "The entire new content of the file, with all necessary changes applied, if any."
+              }
+            }
+
+            You can include any number of files in the updatedFiles object. Each file will be checked against the allowedFilepathPatterns before being written.
+
+            Ensure valid JSON.
+            `;
+
+            const ResponseSchema = z.object({ 
+              message: z.string(),
+              updatedFiles: z.record(z.string())
+            });
+
+            // Define the function schema for functional calling
+            const applyReadmeUpdate = [{
+              type: "function",
+              function: {
+                name: "applyReadmeUpdate",
+                description: "Return updated versions of README and documentation files along with a commit message. Use the provided file contents and supporting context to generate the updates.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      description: "A short sentence explaining the changes applied (or why no changes were applied) suitable for a commit message or PR text."
+                    },
+                    updatedFiles: {
+                      type: "object",
+                      description: "An object where keys are file paths and values are the entire new content of those files, with all necessary changes applied, if any.",
+                      additionalProperties: {
+                        type: "string"
+                      }
+                    }
+                  },
+                  required: ["message", "updatedFiles"],
+                  additionalProperties: false
+                },
+                strict: false
+              }
+            }];
+
+            // Call OpenAI using the function calling format via the tools parameter
+            const response = await openai.chat.completions.create({
+              model,
+              messages: [
+                { role: "system", content: "You are a documentation updater that returns updated README and documentation file contents to ensure they accurately reflect the current state of the codebase. You can update multiple files by specifying their paths and contents in the updatedFiles object. Answer strictly with a JSON object that adheres to the provided function schema." },
+                { role: "user", content: prompt }
+              ],
+              tools: applyReadmeUpdate
+            });
+
+            let updateApplied;
+            let result;
+            // Check if the model made a function call; if so, parse its arguments.
+            if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
+              try {
+                result = JSON.parse(response.choices[0].message.tool_calls[0].function.arguments);
+              } catch (e) {
+                updateApplied = false;
+                core.setFailed(`Failed to parse function call arguments: ${e.message}`);
+              }
+            } else if (response.choices[0].message.content) {
+              try {
+                result = JSON.parse(response.choices[0].message.content);
+              } catch (e) {
+                updateApplied = false;
+                core.setFailed(`Failed to parse response content: ${e.message}`);
+              }
+            } else {
+              updateApplied = false;
+              core.setFailed("No valid response received from OpenAI.");
+            }
+
+            try {
+              const parsed = ResponseSchema.parse(result);
+              core.info(`parsed response: "${JSON.stringify(parsed)}"`);
+              // Sanitize commit message: retain only alphanumerics, spaces, and basic URL-safe punctuation (-, _, ., ~)
+              const sanitizedMessage = parsed.message.replace(/[^A-Za-z0-9 \-\_\.\~]/g, '').replace(/\s+/g, ' ').trim();
+              core.setOutput("message", sanitizedMessage);
+              core.info(`message: "${sanitizedMessage}"`);
+
+              // Handle updated files
+              if (parsed.updatedFiles && Object.keys(parsed.updatedFiles).length > 0) {
+                for (const [filePath, fileContent] of Object.entries(parsed.updatedFiles)) {
+                  if (fileContent && fileContent.length > 1) {
+                    if (isFilePathAllowed(filePath, allowedFilepathPatterns)) {
+                      // Create directory if it doesn't exist
+                      const fileDir = path.dirname(filePath);
+                      if (!fs.existsSync(fileDir)) {
+                        fs.mkdirSync(fileDir, { recursive: true });
+                      }
+                      fs.writeFileSync(filePath, fileContent, 'utf8');
+                      updateApplied = true;
+                      core.info(`File '${filePath}' has been updated (length ${fileContent.length}).`);
+                    } else {
+                      core.warning(`File '${filePath}' is not in the allowed filepath patterns. Skipping update.`);
+                    }
+                  }
+                }
+              }
+
+            } catch (e) {
+              updateApplied = false;
+              core.setFailed(`Failed to validate or process the response: ${e.message}`);
+            }
+
+            core.setOutput("updateApplied", updateApplied);
+            core.setOutput("usage", JSON.stringify(response.usage));
+            core.info(`updateApplied: "${updateApplied}"`);
+            core.info(`usage: "${JSON.stringify(response.usage)}"`);
+            core.info(`response: "${JSON.stringify(response)}"`);
+
+      - name: Examine the git working copy
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          IFS=';' read -ra DOCS_FILES <<< "${{ env.docsPath }}"
+          for file in "${DOCS_FILES[@]}"; do
+            echo "=== Git diff for docs file: $file ==="
+            git diff "$file" || true
+            echo ""
+          done
+          echo "=== Git diff for README file: ${{ env.readmeFile }} ==="
+          git diff "${{ env.readmeFile }}" || true
+          echo ""
+
+      - name: install-after-update
+        id: install-after-update
+        shell: bash
+        run: |
+          set +e
+          npm install
+          exit 0
+
+      - name: ci-after-update
+        id: ci-after-update
+        shell: bash
+        run: |
+          set +e
+          npm ci
+          exit 0
+
+      - name: Test after update
+        id: test-after-update
+        shell: bash
+        run: |
+          set +e
+          ${{ env.testScript }}
+          exit 0
+
+      - name: Run main after update
+        id: main-after-update
+        shell: bash
+        run: |
+          set +e
+          timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }}
+          exit 0
+
+      - name: Commit changes
+        id: commit
+        continue-on-error: true
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git add -v --all
+          git diff
+          git commit -m '${{ steps.update-readme.outputs.message }}'
+          git status -v
+          git push -v origin ${{ env.branch }}
+          git status -v
+
+      - name: Extract Results
+        if: always()
+        id: results
+        uses: actions/github-script@v7
+        env:
+          updateApplied: ${{ steps.update-readme.outputs.updateApplied }}
+          message: ${{ steps.update-readme.outputs.message }}
+          installAfterUpdateOutcome: ${{ steps.install-after-update.outcome }}
+          ciAfterUpdateOutcome: ${{ steps.ci-after-update.outcome }}
+          testAfterUpdateOutcome: ${{ steps.test-after-update.outcome }}
+          mainAfterUpdateOutcome: ${{ steps.main-after-update.outcome }}
+          commitOutcome: ${{ steps.commit.outcome }}
+        with:
+          script: |
+            const updateApplied = process.env.updateApplied;
+            const message = process.env.message;
+            const installAfterUpdateOutcome = process.env.installAfterUpdateOutcome;
+            const ciAfterUpdateOutcome = process.env.ciAfterUpdateOutcome;
+            const testAfterUpdateOutcome = process.env.testAfterUpdateOutcome;
+            const mainAfterUpdateOutcome = process.env.mainAfterUpdateOutcome;
+            const commitOutcome = process.env.commitOutcome;
+            const allValidationStepsSuccessful = installAfterUpdateOutcome === "success" && ciAfterUpdateOutcome === "success" && testAfterUpdateOutcome === "success" && mainAfterUpdateOutcome === "success" && commitOutcome === "success";
+            core.setOutput('updateApplied', updateApplied);
+            core.setOutput('message', message);
+            core.setOutput('installAfterUpdateOutcome', installAfterUpdateOutcome);
+            core.setOutput('ciAfterUpdateOutcome', ciAfterUpdateOutcome);
+            core.setOutput('testAfterUpdateOutcome', testAfterUpdateOutcome);
+            core.setOutput('mainAfterUpdateOutcome', mainAfterUpdateOutcome);
+            core.setOutput('commitOutcome', commitOutcome);
+            core.setOutput('allValidationStepsSuccessful', allValidationStepsSuccessful);
+            core.info(`updateApplied: "${updateApplied}"`);
+            core.info(`message: "${message}"`);
+            core.info(`installAfterUpdateOutcome: "${installAfterUpdateOutcome}"`);
+            core.info(`ciAfterUpdateOutcome: "${ciAfterUpdateOutcome}"`);
+            core.info(`testAfterUpdateOutcome: "${testAfterUpdateOutcome}"`);
+            core.info(`mainAfterUpdateOutcome: "${mainAfterUpdateOutcome}"`);
+            core.info(`commitOutcome: "${commitOutcome}"`);
+            core.info(`allValidationStepsSuccessful: "${allValidationStepsSuccessful}"`);
+
+    outputs:
+      updateApplied: ${{ steps.results.outputs.updateApplied }}
+      message: ${{ steps.results.outputs.message }}
+      installAfterUpdateOutcome: ${{ steps.results.outputs.installAfterUpdateOutcome }}
+      ciAfterUpdateOutcome: ${{ steps.results.outputs.ciAfterUpdateOutcome }}
+      testAfterUpdateOutcome: ${{ steps.results.outputs.testAfterUpdateOutcome }}
+      mainAfterUpdateOutcome: ${{ steps.results.outputs.mainAfterUpdateOutcome }}
+      commitOutcome: ${{ steps.results.outputs.commitOutcome }}
+      allValidationStepsSuccessful: ${{ steps.results.outputs.allValidationStepsSuccessful }}
