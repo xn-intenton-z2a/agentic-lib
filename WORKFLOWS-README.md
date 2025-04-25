@@ -652,8 +652,9 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-MVP] Move the workflows except the fix code ones to read the docs and the readme.
 - [x] [r0w-MVP] Remove defaulting where agentic-lib has a default directory value.
 - [x] [r0w-MVP] Add a workflow to change the readme.
-- [ ] [r0w-MVP] Set up agentic-lib (prototype), se-sqs-bridge and repository0 to only write to supplementary files and not to the main files.
-- [ ] [r0w-MVP] Set up plot-code-lib to use a single file
+- [ ] [r0w-MVP] Set up agentic-lib (prototype), se-sqs-bridge to only write to supplementary files and not to the main files.
+- [ ] [r0w-MVP] Set up repository0 to use a single file.
+- [ ] [r0w-MVP] Set up plot-code-lib to use a single file and the readme as the documentation.
 - [ ] [r0w-MVP] Set up repository0-crucible to use multiple files
 - [ ] Move AGENT- files to ./github/agentic-lib/agent-*.md
 - [ ] Move agentic-lib.yml to ./github/agentic-lib/agentic-lib.yml
