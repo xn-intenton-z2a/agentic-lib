@@ -126,7 +126,6 @@ jobs:
       - npm-test
       - npm-build
       - npm-run
-    if: ${{ always() && needs.needs-update.outputs.needsUpdate == 'true' }}
     permissions:
       contents: write
       issues: write
