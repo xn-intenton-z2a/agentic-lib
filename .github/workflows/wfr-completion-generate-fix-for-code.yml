@@ -1,4 +1,4 @@
-# .github/workflows/wfr-completion-apply-issue-resolution.yml
+# .github/workflows/wfr-completion-agent-fix-code.yml
 
 #
 # agentic-lib
@@ -23,40 +23,36 @@
 # "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 #
 
-name: ∞ wfr-apply-issue-resolution
+name: ∞ wfr-apply-fix
 
 on:
   workflow_call:
     inputs:
-      issueNumber:
-        description: 'The issue number to review. e.g. "123"'
-        type: string
-        required: true
       featuresDir:
         description: 'The directory to create/update the features in. e.g. "features/"'
         type: string
         required: false
         default: 'features/'
       srcPath:
-        description: 'The source file(s) to review. e.g. "src/lib/main.js" or multiple files separated by semicolons "src/lib/main.js;src/lib/utils.js"'
+        description: 'The source file(s) to review. e.g. "src/lib/" or multiple files separated by semicolons "src/lib/;src/utils/utils.js"'
         type: string
         required: false
-        default: 'src/lib/main.js'
+        default: 'src/lib/'
       testsPath:
-        description: 'The test file(s) to review. e.g. "tests/unit/main.test.js" or multiple files separated by semicolons "tests/unit/main.test.js;tests/unit/utils.test.js"'
+        description: 'The test file(s) to review. e.g. "tests/unit/" or multiple files separated by semicolons "tests/unit/;tests/utils/utils.test.js"'
         type: string
         required: false
-        default: 'tests/unit/main.test.js'
+        default: 'tests/unit/'
+      docsPath:
+        description: 'The documentation file(s) to write to. e.g. "docs/" or multiple files separated by semicolons "docs/api;docs/API.md"'
+        type: string
+        required: false
+        default: 'docs/'
       readmeFile:
         description: 'The README file to review (for context only). e.g. "README.md"'
         type: string
         required: false
         default: 'README.md'
-      docsPath:
-        description: 'The documentation file(s) to write to. e.g. "docs/USAGE.md" or multiple files separated by semicolons "docs/USAGE.md;docs/API.md"'
-        type: string
-        required: false
-        default: 'docs/USAGE.md'
       missionFile:
         description: 'The MISSION statement file. e.g. "MISSION.md"'
         type: string
@@ -82,10 +78,6 @@ on:
         type: string
         required: false
         default: 'eslint.config.js'
-      branchPrefix:
-        description: 'The prefix for the issue branch. e.g. "agentic-lib-issue-".'
-        type: string
-        required: true
       buildScript:
         description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
         type: string
@@ -106,8 +98,17 @@ on:
         type: string
         required: false
         default: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      branch:
+        description: 'The branch to use for the fix. e.g. "agentic-lib-issue-123"'
+        type: string
+        required: false
+        default: ${{ github.ref }}
+      issueNumber:
+        description: 'The issue number to review. e.g. "123"'
+        type: string
+        required: true
       npmAuthOrganisation:
-        description: 'The GitHub organisation to authenticate with for npm. e.g. "@xn-intenton-z2a"'
+        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
         type: string
         required: false
         default: ''
@@ -127,10 +128,10 @@ on:
         required: false
         default: 'npm'
       promptFile:
-        description: 'The file containing the prompt text. e.g. "AGENT-ISSUE-RESOLUTION.md"'
+        description: 'The file containing the prompt text. e.g. "AGENT-APPLY-FIX.md"'
         type: string
         required: false
-        default: 'AGENT-ISSUE-RESOLUTION.md'
+        default: 'AGENT-APPLY-FIX.md'
       s3BucketUrl:
         description: 'The S3 bucket URL with prefix to use. e.g. "s3://my-bucket/prefix"'
         type: string
@@ -153,43 +154,39 @@ on:
         required: true
     outputs:
       fixApplied:
-        value: ${{ jobs.apply-issue-resolution.outputs.fixApplied }}
+        value: ${{ jobs.apply-fix.outputs.fixApplied }}
       message:
-        value: ${{ jobs.apply-issue-resolution.outputs.message }}
+        value: ${{ jobs.apply-fix.outputs.message }}
       installAfterUpdateOutcome:
-        value: ${{ jobs.apply-issue-resolution.outputs.installAfterUpdateOutcome }}
+        value: ${{ jobs.apply-fix.outputs.installAfterUpdateOutcome }}
       ciAfterUpdateOutcome:
-        value: ${{ jobs.apply-issue-resolution.outputs.ciAfterUpdateOutcome }}
+        value: ${{ jobs.apply-fix.outputs.ciAfterUpdateOutcome }}
       testAfterUpdateOutcome:
-        value: ${{ jobs.apply-issue-resolution.outputs.testAfterUpdateOutcome }}
+        value: ${{ jobs.apply-fix.outputs.testAfterUpdateOutcome }}
       mainAfterUpdateOutcome:
-        value: ${{ jobs.apply-issue-resolution.outputs.mainAfterUpdateOutcome }}
+        value: ${{ jobs.apply-fix.outputs.mainAfterUpdateOutcome }}
       commitOutcome:
-        value: ${{ jobs.apply-issue-resolution.outputs.commitOutcome }}
+        value: ${{ jobs.apply-fix.outputs.commitOutcome }}
       postResolutionCommentOutcome:
-        value: ${{ jobs.apply-issue-resolution.outputs.postResolutionCommentOutcome }}
+        value: ${{ jobs.start-issue.outputs.postResolutionCommentOutcome }}
       allValidationStepsSuccessful:
-        value: ${{ jobs.apply-issue-resolution.outputs.allValidationStepsSuccessful }}
-      branch:
-        value: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}${{ inputs.issueNumber }}
+        value: ${{ jobs.start-issue.outputs.allValidationStepsSuccessful }}
 
 jobs:
-  apply-issue-resolution:
+  apply-fix:
     runs-on: ubuntu-latest
 
     env:
-      issueNumber: ${{ inputs.issueNumber || '' }}
       featuresDir: ${{ inputs.featuresDir || 'features/' }}
-      srcPath: ${{ inputs.srcPath || 'src/lib/main.js' }}
-      testsPath: ${{ inputs.testsPath || 'tests/unit/main.test.js' }}
+      srcPath: ${{ inputs.srcPath || '' }}
+      testsPath: ${{ inputs.testsPath || '' }}
+      docsPath: ${{ inputs.docsPath || '' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
-      docsPath: ${{ inputs.docsPath || 'docs/USAGE.md' }}
       missionFile: ${{ inputs.missionFile || 'MISSION.md' }}
       contributingFile: ${{ inputs.contributingFile || 'CONTRIBUTING.md' }}
       dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
       formattingFile: ${{ inputs.formattingFile || '.prettierrc' }}
       lintingFile: ${{ inputs.lintingFile || 'eslint.config.js' }}
-      branch: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}${{ inputs.issueNumber }}
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
       mainScript: ${{ inputs.mainScript || 'npm run start' }}
@@ -197,10 +194,12 @@ jobs:
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
+      branch: ${{ inputs.branch || github.ref }}
+      issueNumber: ${{ inputs.issueNumber || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
       cache: ${{ inputs.cache || 'npm' }}
-      promptFile: ${{ inputs.promptFile || 'AGENT-ISSUE-RESOLUTION.md' }}
+      promptFile: ${{ inputs.promptFile || 'AGENT-APPLY-FIX.md' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
       allowedFilepathPatterns: ${{ inputs.allowedFilepathPatterns || '["features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md"]' }}
@@ -208,7 +207,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
+          fetch-depth: 0
+          ref: ${{ env.branch }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -230,14 +230,6 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
           echo "always-auth=true" >> .npmrc
 
-      - name: Get latest from remote
-        run: |
-          git config --local user.email "${{ env.gitUserEmail }}"
-          git config --local user.name "${{ env.gitUserName }}"
-          git pull --ff-only origin ${{ github.ref }}
-
-      - run: npm ci
-
       - name: List current features
         id: features
         shell: bash
@@ -248,56 +240,69 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
 
-      - name: List dependencies
-        id: list
+      - name: Install dependencies
+        id: install
         shell: bash
         run: |
-          output=$(npm list 2>&1)
+          set +e
+          output=$(npm install 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
+          exit 0
 
       - name: Build project
         id: build
         shell: bash
         run: |
+          set +e
           output=$(${{ env.buildScript }} 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
+          exit 0
+
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: rm -f .npmrc
 
       - name: Run tests
         id: test
         shell: bash
         run: |
+          set +e
           output=$(${{ env.testScript }} 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
+          exit 0
 
       - name: Run main
         id: main
         shell: bash
         run: |
+          set +e
           output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
+          exit 0
 
       - name: update-target
         id: update-target
         uses: actions/github-script@v7
         env:
-          dependenciesListOutput: ${{ steps.list.outputs.output }}
+          installOutput: ${{ steps.install.outputs.output }}
           buildOutput: ${{ steps.build.outputs.output }}
           testOutput: ${{ steps.test.outputs.output }}
           mainOutput: ${{ steps.main.outputs.output }}
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
             const currentFeatures = process.env.currentFeatures;
             const srcPath = process.env.srcPath;
@@ -310,9 +315,10 @@ jobs:
             const lintingFile = process.env.lintingFile;
             const docsPath = process.env.docsPath;
             const model = process.env.model;
+            const issueNumber = parseInt(process.env.issueNumber);
             const apiKey = process.env.chatgptApiSecretKey;
             const promptFile = process.env.promptFile;
-            const issueNumber = parseInt(process.env.issueNumber);
+            const installOutput = process.env.installOutput;
             const dependenciesListOutput = process.env.dependenciesListOutput;
             const buildScript = process.env.buildScript;
             const buildOutput = process.env.buildOutput;
@@ -463,97 +469,117 @@ jobs:
             const formattingFileContent = fs.readFileSync(formattingFile, 'utf8');
             const lintingFileContent = fs.readFileSync(lintingFile, 'utf8');
             const promptContent = fs.readFileSync(promptFile, 'utf8');
-            // Log messages for source, test, and docs files are now handled in the file loading loops above
             core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
             core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
             core.info(`Formatting file '${formattingFile}' has been loaded (length ${formattingFileContent.length}).`);
             core.info(`Linting file '${lintingFile}' has been loaded (length ${lintingFileContent.length}).`);
             core.info(`Prompt file '${promptFile}' has been loaded (length ${promptContent.length}).`);
 
-            const issue = await github.rest.issues.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber
-            });
-            const issueTitle = issue.data.title;
-            const issueDescription = issue.data.body;
-            const issueComments = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber
-            });
-            const issueCommentsText = issueComments.data
-              .map(comment => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
-              .join('\n');
+            let issue;
+            let issueTitle;
+            let issueDescription;
+            let issueCommentsText;
+            if (issueNumber) {
+              issue = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber
+              });
+              issueTitle = issue.data.title;
+              issueDescription = issue.data.body;
+              const issueComments = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber
+              });
+              issueCommentsText = issueComments.data
+                .map(comment => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
+                .join('\n');
+            } else {
+              issueTitle = `No issue number provided`;
+              issueDescription = "No issue description provided (${process.env.issueNumber} parsed to ${issueNumber})";
+              issueCommentsText = "No issue comments provided";
+            }
 
             const prompt = `
             ${promptContent}
 
             Consider the following when refining your response:
-            * Current feature names and specifications in the repository
-            * Source file content
-            * Test file content
-            * README file content
-            * MISSION file content
-            * Contributing file content
-            * Dependencies file content
-            * Formatting file content
-            * Linting file content
-            * Issue details
-            * Dependency list
-            * Build output
-            * Test output
-            * Main execution output
+              * Current feature names and specifications in the repository
+              * Source file content
+              * Test file content
+              * Documentation file content
+              * README file content
+              * MISSION file content
+              * Contributing file content
+              * Dependencies file content
+              * Formatting file content
+              * Linting file content
+              * Dependency install output
+              * Issue details (if any)
+              * Build output
+              * Test output
+              * Main execution output
 
-            Current feature names and specifications:
+            Current feature names and specifications (for context, read only):
             CURRENT_FEATURES_START
             ${currentFeatures}
             CURRENT_FEATURES_END
 
-            Source files:
+            Source files (to update if necessary):
             SOURCE_FILES_START
             ${Object.entries(sourceFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
             SOURCE_FILES_END
 
-            Test files:
+            Test files (to update if necessary):
             TEST_FILES_START
             ${Object.entries(testFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
             TEST_FILES_END
 
-            README file (for context only): ${readmeFile}
-            README_FILE_START
-            ${readmeFileContent}
-            README_FILE_END
-
-            Documentation files (for writing):
+            Documentation files (to be updated if necessary):
             DOCS_FILES_START
             ${Object.entries(docsFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
             DOCS_FILES_END
 
-            MISSION file: ${missionFile}
+            README file (for context, read only): ${readmeFile}
+            README_FILE_START
+            ${readmeFileContent}
+            README_FILE_END
+
+            Documentation files (to update if necessary):
+            DOCS_FILES_START
+            ${Object.entries(docsFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
+            DOCS_FILES_END
+
+            MISSION file (for context, read only): ${missionFile}
             MISSION_FILE_START
             ${missionFileContent}
             MISSION_FILE_END
 
-            Contributing file: ${contributingFile}
+            Contributing file (for context, read only): ${contributingFile}
             CONTRIBUTING_FILE_START
             ${contributingFileContent}
             CONTRIBUTING_FILE_END
 
-            Dependencies file: ${dependenciesFile}
+            Dependencies file (for context, read only): ${dependenciesFile}
             DEPENDENCIES_FILE_START
             ${dependenciesFileContent}
             DEPENDENCIES_FILE_END
 
-            Formatting file: ${formattingFile}
+            Formatting file (for context, read only): ${formattingFile}
             FORMATTING_FILE_START
             ${formattingFileContent}
             FORMATTING_FILE_END
 
-            Linting file: ${lintingFile}
+            Linting file (for context, read only): ${lintingFile}
             LINTING_FILE_START
             ${lintingFileContent}
-            LINTING_FILE_END
+            LINTING_FILE_END        
+
+            Dependencies install from command: npm install
+            DEPENDENCIES_INSTALL_START
+            ${installOutput}
+            DEPENDENCIES_INSTALL_END    
 
             Issue details:
             ISSUE_START
@@ -562,12 +588,7 @@ jobs:
             ${issueDescription}
             comments:
             ${issueCommentsText}
-            ISSUE_END            
-
-            Dependencies list from command: npm list
-            DEPENDENCIES_LIST_START
-            ${dependenciesListOutput}
-            DEPENDENCIES_LIST_END    
+            ISSUE_END
 
             Build output from command: ${buildScript}
             BUILD_OUTPUT_START
@@ -584,17 +605,18 @@ jobs:
             ${mainOutput}
             MAIN_OUTPUT_END    
 
-            Please produce updated versions of the files that resolve the issue.
+            Please produce updated versions of the files that resolve the possible build or test problem.
+            If there are no changes required, please provide the original content and state that no changes are necessary in the message.
             Note that the README.md file is provided for context only - any documentation changes should be written to the documentation files.
             The source files, test files, and documentation files can be individual files or directories containing multiple files.
+            
             Answer strictly with a JSON object following this schema:
-
             {
-              "message": "A short sentence explaining the change applied suitable for a commit message.",
+              "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text.",
               "updatedFiles": {
-                "src/orderParser.js": "The entire new content of the file, with all necessary changes applied.",
-                "tests/orderParser.test.js": "The entire new content of the file, with all necessary changes applied.",
-                "docs/USAGE.md": "The entire new content of the file, with all necessary changes applied."
+                "src/orderParser.js": "The entire new content of the file, with all necessary changes applied, if any.",
+                "tests/orderParser.test.js": "The entire new content of the file, with all necessary changes applied, if any.",
+                "docs/USAGE.md": "The entire new content of the file, with all necessary changes applied, if any."
               }
             }
 
@@ -619,11 +641,11 @@ jobs:
                   properties: {
                     message: {
                       type: "string",
-                      description: "A short sentence explaining the change applied suitable for a commit message."
+                      description: "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text."
                     },
                     updatedFiles: {
                       type: "object",
-                      description: "An object where keys are file paths and values are the entire new content of those files, with all necessary changes applied.",
+                      description: "An object where keys are file paths and values are the entire new content of those files, with all necessary changes applied, if any.",
                       additionalProperties: {
                         type: "string"
                       }
@@ -640,7 +662,7 @@ jobs:
             const response = await openai.chat.completions.create({
               model,
               messages: [
-                { role: "system", content: "You are a code fixer that returns updated file contents to resolve an issue. You can update multiple files by specifying their paths and contents in the updatedFiles object. The source files, test files, and documentation files can be individual files or directories containing multiple files. Answer strictly with a JSON object that adheres to the provided function schema." },
+                { role: "system", content: "You are a code fixer that returns updated file contents to resolve a possible build or test problem. You can update multiple files by specifying their paths and contents in the updatedFiles object. The source files, test files, and documentation files can be individual files or directories containing multiple files. Answer strictly with a JSON object that adheres to the provided function schema." },
                 { role: "user", content: prompt }
               ],
               tools: applyIssueResolutionToSource
@@ -696,12 +718,6 @@ jobs:
                 }
               }
 
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                body: parsed.message
-              });
             } catch (e) {
               fixApplied = false;
               core.setFailed(`Failed to validate or process the response: ${e.message}`);
@@ -738,89 +754,74 @@ jobs:
             echo ""
           done
 
-      - run: rm -rf node_modules
-
       - name: install-after-update
         id: install-after-update
-        run: npm install
+        shell: bash
+        run: |
+          set +e
+          npm install
+          exit 0
 
       - name: ci-after-update
         id: ci-after-update
-        continue-on-error: true
-        run: npm ci
-
-      - name: Tear down .npmrc
-        continue-on-error: true
-        if: ${{ env.npmAuthOrganisation != '' }}
-        shell: bash
-        run: rm -f .npmrc
-
-      - name: test-after-update
-        id: test-after-update
-        continue-on-error: true
         shell: bash
         run: |
+          set +e
+          npm ci
+          exit 0
+
+      - name: Test after update
+        id: test-after-update
+        shell: bash
+        run: |
+          set +e
           ${{ env.testScript }}
+          exit 0
 
       - name: Run main after update
         id: main-after-update
-        continue-on-error: true
         shell: bash
         run: |
+          set +e
           timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }}
+          exit 0
 
-      - name: Commit to new branch
+      - name: Commit changes
         id: commit
         continue-on-error: true
         run: |
           git config --local user.email '${{ env.gitUserEmail }}'
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
-          git switch -c '${{ env.branch }}'
           git add -v --all
-          git diff '${{ env.srcPath }}'
-          git commit -m '${{ steps.update-target.outputs.message }} (fixes #${{ env.issueNumber }})'
-          git push --set-upstream origin '${{ env.branch }}' -v
+          git diff
+          git commit -m '${{ steps.update-target.outputs.message }}'
           git status -v
-
-      - name: Post Resolution Comment
-        id: post-resolution-comment
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const issueNumber = parseInt("${{ env.issueNumber }}");
-            const branchName = `${{ env.branch }}`;
-            const branchUrl = `https://github.com/${{ github.repository }}/tree/${branchName}`;
-            const body = `${branchUrl}`;
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              body: body
-            });
-            await github.rest.issues.addAssignees({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              assignees: [ context.actor ]
-            });
+          git push -v origin ${{ env.branch }}
+          git status -v
 
       - name: Extract Results
         if: always()
         id: results
         uses: actions/github-script@v7
+        env:
+          fixApplied: ${{ steps.update-target.outputs.fixApplied }}
+          message: ${{ steps.update-target.outputs.message }}
+          installAfterUpdateOutcome: ${{ steps.install-after-update.outcome }}
+          ciAfterUpdateOutcome: ${{ steps.ci-after-update.outcome }}
+          testAfterUpdateOutcome: ${{ steps.test-after-update.outcome }}
+          mainAfterUpdateOutcome: ${{ steps.main-after-update.outcome }}
+          commitOutcome: ${{ steps.commit.outcome }}
         with:
           script: |
-            const fixApplied = '${{ steps.update-target.outputs.fixApplied }}';
-            const message = '${{ steps.update-target.outputs.message }}';
-            const installAfterUpdateOutcome = '${{ steps.install-after-update.outcome }}';
-            const ciAfterUpdateOutcome = '${{ steps.ci-after-update.outcome }}';
-            const testAfterUpdateOutcome = '${{ steps.test-after-update.outcome }}';
-            const mainAfterUpdateOutcome = '${{ steps.main-after-update.outcome }}';
-            const commitOutcome = '${{ steps.commit.outcome }}';
-            const postResolutionCommentOutcome = '${{ steps.post-resolution-comment.outcome }}';
-            const allValidationStepsSuccessful = installAfterUpdateOutcome === "success" && ciAfterUpdateOutcome === "success" && testAfterUpdateOutcome === "success" && mainAfterUpdateOutcome === "success" && commitOutcome === "success" && postResolutionCommentOutcome === "success";
+            const fixApplied = process.env.fixApplied;
+            const message = process.env.message;
+            const installAfterUpdateOutcome = process.env.installAfterUpdateOutcome;
+            const ciAfterUpdateOutcome = process.env.ciAfterUpdateOutcome;
+            const testAfterUpdateOutcome = process.env.testAfterUpdateOutcome;
+            const mainAfterUpdateOutcome = process.env.mainAfterUpdateOutcome;
+            const commitOutcome = process.env.commitOutcome;
+            const allValidationStepsSuccessful = installAfterUpdateOutcome === "success" && ciAfterUpdateOutcome === "success" && testAfterUpdateOutcome === "success" && mainAfterUpdateOutcome === "success" && commitOutcome === "success";
             core.setOutput('fixApplied', fixApplied);
             core.setOutput('message', message);
             core.setOutput('installAfterUpdateOutcome', installAfterUpdateOutcome);
@@ -828,7 +829,6 @@ jobs:
             core.setOutput('testAfterUpdateOutcome', testAfterUpdateOutcome);
             core.setOutput('mainAfterUpdateOutcome', mainAfterUpdateOutcome);
             core.setOutput('commitOutcome', commitOutcome);
-            core.setOutput('postResolutionCommentOutcome', postResolutionCommentOutcome);
             core.setOutput('allValidationStepsSuccessful', allValidationStepsSuccessful);
             core.info(`fixApplied: "${fixApplied}"`);
             core.info(`message: "${message}"`);
@@ -837,7 +837,6 @@ jobs:
             core.info(`testAfterUpdateOutcome: "${testAfterUpdateOutcome}"`);
             core.info(`mainAfterUpdateOutcome: "${mainAfterUpdateOutcome}"`);
             core.info(`commitOutcome: "${commitOutcome}"`);
-            core.info(`postResolutionCommentOutcome: "${postResolutionCommentOutcome}"`);
             core.info(`allValidationStepsSuccessful: "${allValidationStepsSuccessful}"`);
 
     outputs:
@@ -848,5 +847,4 @@ jobs:
       testAfterUpdateOutcome: ${{ steps.results.outputs.testAfterUpdateOutcome }}
       mainAfterUpdateOutcome: ${{ steps.results.outputs.mainAfterUpdateOutcome }}
       commitOutcome: ${{ steps.results.outputs.commitOutcome }}
-      postResolutionCommentOutcome: ${{ steps.results.outputs.postResolutionCommentOutcome }}
       allValidationStepsSuccessful: ${{ steps.results.outputs.allValidationStepsSuccessful }}

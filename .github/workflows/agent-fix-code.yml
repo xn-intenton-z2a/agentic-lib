@@ -479,7 +479,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-fix.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@main'
     with:
       srcPath: ${{ inputs.srcPath || needs.agentic-lib.outputs.srcPath }}
       testsPath: ${{ inputs.testsPath || needs.agentic-lib.outputs.testsPath }}

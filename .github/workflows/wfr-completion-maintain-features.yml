@@ -47,17 +47,17 @@ on:
         description: 'The source file(s) to create the issue to change. e.g. "src/lib/main.js" or multiple files separated by semicolons "src/lib/main.js;src/lib/utils.js"'
         type: string
         required: false
-        default: 'src/lib/main.js'
+        default: 'src/lib/'
       testsPath:
         description: 'The test file(s). e.g. "tests/unit/main.test.js" or multiple files separated by semicolons "tests/unit/main.test.js;tests/unit/utils.test.js"'
         type: string
         required: false
-        default: 'tests/unit/main.test.js'
+        default: 'tests/unit/'
       docsPath:
-        description: 'The documentation file(s) to write to. e.g. "docs/USAGE.md" or multiple files separated by semicolons "docs/USAGE.md;docs/API.md"'
+        description: 'The documentation file(s) to write to. e.g. "docs/" or multiple files separated by semicolons "docs/api;docs/API.md"'
         type: string
         required: false
-        default: 'docs/USAGE.md'
+        default: 'docs/'
       readmeFile:
         description: 'The README file. e.g. "README.md"'
         type: string
@@ -132,9 +132,9 @@ jobs:
       feature: ${{ inputs.feature || '' }}
       featuresDir: ${{ inputs.featuresDir || 'features/' }}
       featuresWipLimit: ${{ inputs.featuresWipLimit || '3' }}
-      srcPath: ${{ inputs.srcPath || 'src/lib/main.js' }}
-      testsPath: ${{ inputs.testsPath || 'tests/unit/main.test.js' }}
-      docsPath: ${{ inputs.docsPath || 'docs/USAGE.md' }}
+      srcPath: ${{ inputs.srcPath || '' }}
+      testsPath: ${{ inputs.testsPath || '' }}
+      docsPath: ${{ inputs.docsPath || '' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
       missionFile: ${{ inputs.missionFile || 'MISSION.md' }}
       contributingFile: ${{ inputs.contributingFile || 'CONTRIBUTING.md' }}
@@ -444,6 +444,7 @@ jobs:
             * Rejected feature names
             * Source file content
             * Test file content
+            * Documentation file content
             * README file content
             * MISSION file content
             * Contributing file content

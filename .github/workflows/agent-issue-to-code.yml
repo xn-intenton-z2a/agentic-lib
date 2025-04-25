@@ -335,7 +335,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-issue-resolution.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-issue-resolution-in-code.yml@main'
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       srcPath: ${{ inputs.srcPath || needs.agentic-lib.outputs.srcPath }}

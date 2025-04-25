@@ -64,6 +64,7 @@ jobs:
       dependenciesFile: 'package.json'
       buildScript: 'npm run build'
       testScript: 'npm test'
+      docsPath: ${{ needs.agentic-lib.outputs.docsPath }}
       mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}

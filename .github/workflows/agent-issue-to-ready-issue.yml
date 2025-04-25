@@ -91,6 +91,7 @@ jobs:
       libraryDir: 'library/'
       srcPath: ${{ needs.agentic-lib.outputs.srcPath }}
       testsPath: ${{ needs.agentic-lib.outputs.testsPath }}
+      docsPath: ${{ needs.agentic-lib.outputs.docsPath }}
       readmeFile: 'README.md'
       missionFile: 'MISSION.md'
       contributingFile: 'CONTRIBUTING.md'

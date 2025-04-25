@@ -187,12 +187,12 @@ on:
         description: 'The target file to create the issue to change. e.g. "src/lib/main.js"'
         type: string
         required: false
-        default: 'src/lib/main.js'
+        default: 'src/lib/'
       testFile:
         description: 'The test file. e.g. "tests/unit/main.test.js"'
         type: string
         required: false
-        default: 'tests/unit/main.test.js'
+        default: 'tests/unit/'
       readmeFile:
         description: 'The README file. e.g. "README.md"'
         type: string
@@ -1674,12 +1674,12 @@ on:
         description: 'The target file to create the issue to change. e.g. "src/lib/main.js"'
         type: string
         required: false
-        default: 'src/lib/main.js'
+        default: 'src/lib/'
       testFile:
         description: 'The test file. e.g. "tests/unit/main.test.js"'
         type: string
         required: false
-        default: 'tests/unit/main.test.js'
+        default: 'tests/unit/'
       readmeFile:
         description: 'The README file. e.g. "README.md"'
         type: string
@@ -2659,12 +2659,12 @@ on:
         description: 'The source file whose content is used in the resolution prompt. e.g. "src/lib/main.js"'
         required: false
         type: string
-        default: 'src/lib/main.js'
+        default: 'src/lib/'
       testFile:
         description: 'The test file to run to validate the resolution. e.g. "tests/unit/main.test.js"'
         required: false
         type: string
-        default: 'tests/unit/main.test.js'
+        default: 'tests/unit/'
       branchPrefix:
         description: 'The prefix of the branch to scan for. e.g. "agentic-lib-"'
         required: false
@@ -4792,12 +4792,12 @@ on:
         description: 'The target file to create the issue to change. e.g. "src/lib/main.js"'
         type: string
         required: false
-        default: 'src/lib/main.js'
+        default: 'src/lib/'
       testFile:
         description: 'The test file. e.g. "tests/unit/main.test.js"'
         type: string
         required: false
-        default: 'tests/unit/main.test.js'
+        default: 'tests/unit/'
       readmeFile:
         description: 'The README file. e.g. "README.md"'
         type: string
@@ -6062,12 +6062,12 @@ on:
         description: 'The target file to review. e.g. "src/lib/main.js"'
         type: string
         required: false
-        default: 'src/lib/main.js'
+        default: 'src/lib/'
       testFile:
         description: 'The test file to review. e.g. "tests/unit/main.test.js"'
         type: string
         required: false
-        default: 'tests/unit/main.test.js'
+        default: 'tests/unit/'
       readmeFile:
         description: 'The README file to review. e.g. "README.md"'
         type: string
@@ -6744,12 +6744,12 @@ on:
         description: 'The source file whose content is used in the resolution prompt. e.g. "src/lib/main.js"'
         required: false
         type: string
-        default: 'src/lib/main.js'
+        default: 'src/lib/'
       testFile:
         description: 'The test file to run to validate the resolution. e.g. "tests/unit/main.test.js"'
         required: false
         type: string
-        default: 'tests/unit/main.test.js'
+        default: 'tests/unit/'
       selectionLabel:
         description: 'Label used to filter issues for resolution. e.g. "automated"'
         required: false
@@ -7843,12 +7843,12 @@ on:
         description: 'The target file to review. e.g. "src/lib/main.js"'
         type: string
         required: false
-        default: 'src/lib/main.js'
+        default: 'src/lib/'
       testFile:
         description: 'The test file to review. e.g. "tests/unit/main.test.js"'
         type: string
         required: false
-        default: 'tests/unit/main.test.js'
+        default: 'tests/unit/'
       readmeFile:
         description: 'The README file to review. e.g. "README.md"'
         type: string
@@ -8757,12 +8757,12 @@ on:
         description: 'The target file to review. e.g. "src/lib/main.js"'
         type: string
         required: false
-        default: 'src/lib/main.js'
+        default: 'src/lib/'
       testFile:
         description: 'The test file to review. e.g. "tests/unit/main.test.js"'
         type: string
         required: false
-        default: 'tests/unit/main.test.js'
+        default: 'tests/unit/'
       readmeFile:
         description: 'The README file to review. e.g. "README.md"'
         type: string
@@ -9818,12 +9818,12 @@ on:
         description: 'The source file whose content was used in the resolution prompt. e.g. "src/lib/main.js"'
         required: false
         type: string
-        default: 'src/lib/main.js'
+        default: 'src/lib/'
       testFile:
         description: 'The test file to run to validate the resolution. e.g. "tests/unit/main.test.js"'
         required: false
         type: string
-        default: 'tests/unit/main.test.js'
+        default: 'tests/unit/'
   #workflow_run:
   #  workflows:
   #    - "Automerge"
@@ -10275,12 +10275,12 @@ on:
         description: 'The target file to create the issue to change. e.g. "src/lib/main.js"'
         type: string
         required: false
-        default: 'src/lib/main.js'
+        default: 'src/lib/'
       testFile:
         description: 'The test file. e.g. "tests/unit/main.test.js"'
         type: string
         required: false
-        default: 'tests/unit/main.test.js'
+        default: 'tests/unit/'
       readmeFile:
         description: 'The README file. e.g. "README.md"'
         type: string
@@ -10745,12 +10745,12 @@ on:
         description: 'The target file to create the issue to change. e.g. "src/lib/main.js"'
         type: string
         required: false
-        default: 'src/lib/main.js'
+        default: 'src/lib/'
       testFile:
         description: 'The test file. e.g. "tests/unit/main.test.js"'
         type: string
         required: false
-        default: 'tests/unit/main.test.js'
+        default: 'tests/unit/'
       readmeFile:
         description: 'The README file. e.g. "README.md"'
         type: string
