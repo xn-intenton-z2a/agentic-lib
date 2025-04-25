@@ -19,7 +19,8 @@ This document provides clear and concise usage details for the agentic-lib comma
 - **--dry-run**: Execute a dry run without performing any actions.
 - **--simulate-error**: Simulate an error scenario for testing; logs a simulated error and exits with a non-zero status code.
 - **--simulate-delay <ms>**: Simulate processing delay for the specified duration in milliseconds.
-- **--apply-fix**: Apply an automated fix and log a success message.
+- **--simulate-load <ms>**: Simulate a heavy processing load by executing a CPU-intensive loop for the specified duration in milliseconds.
+- **--apply-fix**: Apply an automated fix and log a success message indicating that the fix was applied.
 - **--cli-utils**: Display a summary of available CLI commands along with brief descriptions.
 - **--workflow-chain <jsonPayload>**: Process a chain of workflow commands sequentially. (Payload must have a `chain` array property)
 
@@ -61,20 +62,6 @@ In the above example, if the second step fails, the chain halts because the defa
 ## Additional Information
 
 For more detailed CLI instructions and command descriptions, please refer to the rest of this document.
-
----
-
-## AWS Integrations
-
-The agentic‑lib library leverages AWS services to enhance automation and reliability:
-
-- **SQS Integration:**
-  - The function `createSQSEventFromDigest` constructs a mock AWS SQS event from a given digest, formatting the payload to resemble a typical SQS message.
-  - The `digestLambdaHandler` function processes incoming SQS events, gracefully handling JSON parsing errors and accumulating failed records. If a messageId is omitted, a fallback identifier is generated.
-  - These integrations ensure that messages can be retried by AWS SQS in case of processing errors, thereby enhancing fault tolerance.
-
-- **Logging:**
-  - Detailed logging via `logInfo` and `logError` functions provides insight into the operations, including configurations and error stacks when verbose mode is enabled.
 
 ---
 

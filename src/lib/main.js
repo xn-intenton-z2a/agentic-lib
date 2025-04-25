@@ -354,6 +354,21 @@ export function applyFix() {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
+// New function to simulate load for performance/stress testing
+// ---------------------------------------------------------------------------------------------------------------------
+
+export function simulateLoad(durationMs) {
+  if (isNaN(durationMs) || durationMs < 0) {
+    throw new Error("simulateLoad: duration must be a positive number");
+  }
+  const start = Date.now();
+  while (Date.now() - start < durationMs) {
+    // Busy-wait loop to simulate heavy CPU load
+  }
+  logInfo(`Simulated load for ${durationMs} milliseconds`);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
 // New function to handle CLI utilities display with colored formatting
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -369,6 +384,7 @@ export function cliUtilsHandler() {
     { command: "--dry-run", description: "Execute a dry run with no side effects." },
     { command: "--simulate-error", description: "Simulate an error for testing purposes and exit." },
     { command: "--simulate-delay <ms>", description: "Simulate processing delay for the specified duration in milliseconds." },
+    { command: "--simulate-load <ms>", description: "Simulate a heavy processing load by executing a CPU-intensive loop for the specified duration in milliseconds." },
     { command: "--apply-fix", description: "Apply automated fix and log success message" },
     { command: "--cli-utils", description: "Display a summary of available CLI commands with their descriptions." },
     { command: "--workflow-chain <jsonPayload>", description: "Process a chain of workflow commands sequentially. (Payload must have a 'chain' array property)" }
@@ -398,7 +414,7 @@ export function statusHandler() {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// Main CLI and Helper Functions for CLI Command Processing
+// CLI Helper Functions
 // ---------------------------------------------------------------------------------------------------------------------
 
 // Function to generate CLI usage instructions
@@ -415,13 +431,12 @@ Usage:
   --dry-run                  Execute a dry run with no side effects.
   --simulate-error           Simulate an error for testing purposes and exit.
   --simulate-delay <ms>      Simulate processing delay for the specified duration in milliseconds.
+  --simulate-load <ms>       Simulate a heavy processing load for the specified duration in milliseconds.
   --apply-fix                Apply automated fix and log success message.
   --cli-utils                Display a summary of available CLI commands with their descriptions.
   --workflow-chain <jsonPayload>    Process a chain of workflow commands sequentially. (Payload must have a 'chain' array property)
 `;
 }
-
-// CLI Helper Functions
 
 // Asynchronously process the --simulate-delay flag
 async function processSimulateDelay(args) {
@@ -436,6 +451,26 @@ async function processSimulateDelay(args) {
     // Remove the flag and its value from args
     args.splice(index, 2);
     await new Promise(resolve => setTimeout(resolve, delayMs));
+  }
+  return false;
+}
+
+// New: Process the --simulate-load flag
+function processSimulateLoad(args) {
+  const index = args.indexOf("--simulate-load");
+  if (index !== -1) {
+    const loadValue = args[index + 1];
+    if (!loadValue) {
+      console.error("No duration provided for --simulate-load flag.");
+      process.exit(1);
+    }
+    const durationMs = Number(loadValue);
+    if (isNaN(durationMs) || durationMs < 0) {
+      console.error("Invalid duration provided for --simulate-load flag.");
+      process.exit(1);
+    }
+    simulateLoad(durationMs);
+    return true;
   }
   return false;
 }
@@ -606,6 +641,7 @@ async function processAgentic(args) {
 
 export async function main(args = process.argv.slice(2)) {
   await processSimulateDelay(args);
+  if (processSimulateLoad(args)) return;
   processVerbose(args);
   if (processSimulateError(args)) return;
   if (processApplyFix(args)) return;
