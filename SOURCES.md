@@ -1,39 +1,39 @@
 # GitHub Documentation
 ## https://docs.github.com
-Comprehensive documentation covering GitHub's REST API, GraphQL API, Actions workflows, and CLI (via https://cli.github.com/manual). This resource provides detailed guidance on integration, automation, and best practices. Last confirmed update in 2023.
+This source provides comprehensive documentation on GitHub’s REST and GraphQL APIs as well as guidance on GitHub Pages. It is maintained by GitHub and is updated regularly (last confirmed update in 2023), making it an authoritative reference for integrating with GitHub platform services.
 ## License: Not specified
 
 # AWS Documentation
 ## https://aws.amazon.com/documentation/
-This consolidated source covers various AWS resources including the CDK, Lambda Developer Guide, and Amazon SQS documentation. It offers extensive guidance on cloud infrastructure development, serverless architectures, and distributed messaging, ensuring robust integration with AWS services. Last updated in 2023.
+This consolidated resource covers a wide range of AWS topics including the AWS CDK, Lambda Developer Guide, and various AWS services. It offers extensive guidance on cloud infrastructure, serverless architectures, and distributed messaging. Last updated in 2023.
 ## License: Not specified
 
 # OpenAI API Documentation
 ## https://platform.openai.com/docs/api-reference
-Official documentation for OpenAI's API, providing in-depth guidance on endpoints, parameters, and usage examples essential for integrating AI functionalities. Regularly updated and highly authoritative for developers. Last confirmed update in 2023.
+Official documentation for OpenAI’s API, offering detailed explanations on endpoints, parameters, usage examples, and integration best practices. Regularly updated and highly authoritative for developers building AI-powered features. Last confirmed update in 2023.
 ## License: Not specified
 
-# Development and Testing Tools Documentation
+# Development, Testing & Environment Tools Documentation
 ## https://nodejs.org/en/docs/
-This source aggregates documentation for key development tools and utilities including Node.js, Vitest, ESLint, Prettier, and the oclif CLI framework. It provides comprehensive information that aids in building, testing, and maintaining modern JavaScript applications. Various components are covered under different licenses (e.g., MIT, others). Last reviewed in 2023.
-## License: Multiple Licenses
+This source amalgamates documentation for development and testing tools including Node.js, Vitest, ESLint, Prettier, and environment management libraries such as Zod and dotenv. It provides robust information for building, testing, and configuring modern JavaScript applications. Reviewed in 2023. 
+## License: Multiple Licenses (e.g., MIT, others)
 
-# Environment and Schema Management Documentation
-## https://zod.dev
-Combined documentation for managing configuration and ensuring data integrity using tools like Zod for schema validation and dotenv for environment variable management. Both tools are essential for robust configuration and data parsing in JavaScript projects. Last confirmed update in 2023.
-## License: MIT License
-
-# GitHub Pages Documentation
-## https://docs.github.com/en/pages
-This documentation offers comprehensive instructions on configuring, deploying, and managing GitHub Pages for hosting static sites and documentation. It is an authoritative source maintained by GitHub, ensuring up-to-date best practices for public web hosting. Last updated in 2023.
+# GitHub Actions Documentation
+## https://docs.github.com/en/actions
+A dedicated documentation resource for GitHub Actions, covering workflow automation, usage of the workflow_call event, and best practices for integrating automated processes into repositories. This source is authoritative and updated frequently by GitHub (last update in 2023).
 ## License: Not specified
-
-# OWL Semantic Markup Documentation
-## https://www.w3.org/TR/owl2-overview/
-Official documentation on the Web Ontology Language (OWL), providing an overview of its features, semantic relationships, and machine-readable metadata. This resource is particularly useful for implementing OWL semantic markup extensions and document traceability in automated workflows. Last updated in 2012, and remains a W3C standard reference.
-## License: W3C Document
 
 # Performance Testing Documentation
 ## https://jmeter.apache.org/usermanual/index.html
-This resource provides comprehensive guidelines on conducting performance and load testing using Apache JMeter. It covers principles, best practices, and configuration techniques relevant to designing load simulation features similar to those found in agentic-lib's simulate load mode. Regularly updated and widely recognized as an authoritative source in the field of performance testing.
+A comprehensive guide on performance and load testing using Apache JMeter. It covers testing principles, configuration techniques, and best practices for simulating load and analyzing performance metrics. Regularly updated and recognized as a standard in performance testing.
 ## License: Apache License 2.0
+
+# Agentic‑lib Project Documentation
+## https://xn-intenton-z2a.github.io/agentic-lib/index.html
+This source offers detailed information about the agentic‑lib project, including its architectural design, autonomous workflow functionalities, CLI command references, and integration examples. It serves as the official online documentation for users looking to understand and implement the library’s features.
+## License: Mixed – GPL-3.0 and MIT
+
+# Vitest Documentation
+## https://vitest.dev
+Official documentation for Vitest, a modern testing framework used in this repository. It provides comprehensive guides on setup, usage, and configuration for running unit tests and coverage reports. Updated regularly to align with cutting-edge testing practices in JavaScript development.
+## License: MIT License
