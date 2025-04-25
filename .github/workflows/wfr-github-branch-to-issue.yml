@@ -1,4 +1,4 @@
-# .github/workflows/wfr-github-label-issue.yml
+# .github/workflows/wfr-github-branch-to-issue.yml
 
 #
 # agentic-lib
@@ -23,33 +23,15 @@
 # "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
 #
 
-name: ∞ automerge-label-issue
+name: ∞ branch-to-issue
 
 on:
   workflow_call:
     inputs:
-      pullNumber:
-        description: 'The pull request number. e.g. "123"'
-        type: string
-        required: true
       branchPrefix:
         description: 'The prefix for the issue branch. e.g. "agentic-lib-issue-".'
         type: string
         required: true
-      issueNumber:
-        description: 'The issue number to review. e.g. "123"'
-        type: string
-        required: true
-      removeAllLabels:
-        description: 'Whether to remove all labels from the issue. e.g. "true"'
-        type: string
-        required: false
-        default: 'false'
-      commentPrefix:
-        description: 'The prefix for the comment. e.g. "The feature branch ".'
-        type: string
-        required: false
-        default: 'The feature branch has been merged: '
       npmAuthOrganisation:
         description: 'The organisation for npm authentication. e.g. "@xn-intenton-z2a"'
         type: string
@@ -76,19 +58,15 @@ on:
     outputs:
       issueNumber:
         description: 'The issue number just merged. e.g. "123"'
-        value: ${{ jobs.check-pr.outputs.issueNumber }}
+        value: ${{ jobs.branch-to-issue.outputs.issueNumber }}
 jobs:
-  label-issue:
+  branch-to-issue:
     runs-on: ubuntu-latest
 
     env:
-      pullNumber: ${{ inputs.pullNumber || ''}}
       branchPrefix: ${{ inputs.branchPrefix || '' }}
-      issueNumber: ${{ inputs.issueNumber || '' }}
-      commentPrefix: ${{ inputs.commentPrefix || '' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '@xn-intenton-z2a' }}
       cache: ${{ inputs.cache || 'npm' }}
-      removeAllLabels: ${{ inputs.removeAllLabels || 'false' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
 
@@ -111,19 +89,17 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
           echo "always-auth=true" >> .npmrc
 
-      - name: Add "merged" label and comment on issue
-        if: env.issueNumber != ''
+      - name: extract-issueNumber
+        id: extract-issue-number
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
-            const pullNumberStr = process.env.pullNumber;
-            const issueNumber = process.env.issueNumber;
             const branchPrefix = process.env.branchPrefix;
+            const pullNumberStr = process.env.pullNumber;
             const pullNumber = (parseInt(pullNumberStr) ? parseInt(pullNumberStr) : "");
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const removeAllLabels = process.env.removeAllLabels === 'true';
             
             const { data: pullRequest } = await github.rest.pulls.get({
               owner,
@@ -131,24 +107,16 @@ jobs:
               pull_number: pullNumber,
             });
             const branchName = pullRequest.head.ref;
-            const commentBody = `The feature branch has been merged: ${(branchPrefix ? branchPrefix : "")}${branchName}`;
-            if(removeAllLabels){
-              core.info(`Removing all labels from issue #${issueNumber}`);
-              await github.rest.issues.removeAllLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-              });
+            const issueNumberMatch = branchName.match(/${branchPrefix}(\d+)/);
+            let issueNumber;
+            if (issueNumberMatch) {
+              issueNumber = issueNumberMatch[1];
+            } else {
+              issueNumber = '';
             }
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              labels: ['merged']
-            });
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              body: commentBody
-            });
+
+            core.setOutput('issueNumber', issueNumber);
+            core.info(`issueNumber '${issueNumber}'`);
+    outputs:
+      issueNumber: ${{ steps.extract-issue-number.outputs.issueNumber }}
+
