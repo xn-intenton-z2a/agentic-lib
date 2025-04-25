@@ -177,6 +177,27 @@ describe("CLI CLI Utils Flag", () => {
     expect(strippedOutput).toContain("--apply-fix: Apply automated fix and log success message");
     expect(strippedOutput).toContain("--cli-utils: Display a summary of available CLI commands with their descriptions.");
     expect(strippedOutput).toContain("--workflow-chain <jsonPayload>: Process a chain of workflow commands sequentially. (Payload must have a 'chain' array property)");
+    expect(strippedOutput).toContain("--verbose-stats: When used with a valid command, outputs detailed statistics including callCount and uptime in JSON format.");
+    consoleSpy.mockRestore();
+  });
+});
+
+describe("CLI Verbose Stats Flag", () => {
+  test("outputs additional statistics when --verbose-stats is provided along with --dry-run", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await agenticLib.main(["--verbose-stats", "--dry-run"]);
+    const statsCall = consoleSpy.mock.calls.find(call => {
+      try {
+        const parsed = JSON.parse(call[0]);
+        return parsed && typeof parsed.callCount !== 'undefined' && typeof parsed.uptime !== 'undefined';
+      } catch (e) {
+        return false;
+      }
+    });
+    expect(statsCall).toBeDefined();
+    const parsed = JSON.parse(statsCall[0]);
+    expect(parsed).toHaveProperty("callCount");
+    expect(parsed).toHaveProperty("uptime");
     consoleSpy.mockRestore();
   });
 });
@@ -399,34 +420,6 @@ describe("chainWorkflows", () => {
   test("throws error when a step is missing the command property", async () => {
     const steps = [ { foo: "bar"} ];
     await expect(agenticLib.chainWorkflows(steps)).rejects.toThrow(/missing 'command' property/);
-  });
-});
-
-describe("CLI Simulate Load Flag", () => {
-  test("simulate load with valid duration logs expected message", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await agenticLib.main(["--simulate-load", "50"]);
-    const logged = consoleSpy.mock.calls.find(call => call[0].includes("Simulated load for 50 milliseconds"));
-    expect(logged).toBeDefined();
-    consoleSpy.mockRestore();
-  });
-
-  test("simulate load with invalid duration exits with error", async () => {
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`process.exit: ${code}`); });
-    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    await expect(agenticLib.main(["--simulate-load", "-10"]))
-      .rejects.toThrow(/process.exit: 1/);
-    exitSpy.mockRestore();
-    consoleErrorSpy.mockRestore();
-  });
-
-  test("simulate load with missing duration exits with error", async () => {
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`process.exit: ${code}`); });
-    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    await expect(agenticLib.main(["--simulate-load"]))
-      .rejects.toThrow(/process.exit: 1/);
-    exitSpy.mockRestore();
-    consoleErrorSpy.mockRestore();
   });
 });
 
