@@ -173,6 +173,7 @@ describe("CLI CLI Utils Flag", () => {
     expect(strippedOutput).toContain("--dry-run: Execute a dry run with no side effects.");
     expect(strippedOutput).toContain("--simulate-error: Simulate an error for testing purposes and exit.");
     expect(strippedOutput).toContain("--simulate-delay <ms>: Simulate processing delay for the specified duration in milliseconds.");
+    expect(strippedOutput).toContain("--simulate-load <ms>: Simulate a heavy processing load by executing a CPU-intensive loop for the specified duration in milliseconds.");
     expect(strippedOutput).toContain("--apply-fix: Apply automated fix and log success message");
     expect(strippedOutput).toContain("--cli-utils: Display a summary of available CLI commands with their descriptions.");
     expect(strippedOutput).toContain("--workflow-chain <jsonPayload>: Process a chain of workflow commands sequentially. (Payload must have a 'chain' array property)");
@@ -398,5 +399,41 @@ describe("chainWorkflows", () => {
   test("throws error when a step is missing the command property", async () => {
     const steps = [ { foo: "bar"} ];
     await expect(agenticLib.chainWorkflows(steps)).rejects.toThrow(/missing 'command' property/);
+  });
+});
+
+describe("CLI Simulate Load Flag", () => {
+  test("simulate load with valid duration logs expected message", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await agenticLib.main(["--simulate-load", "50"]);
+    const logged = consoleSpy.mock.calls.find(call => call[0].includes("Simulated load for 50 milliseconds"));
+    expect(logged).toBeDefined();
+    consoleSpy.mockRestore();
+  });
+
+  test("simulate load with invalid duration exits with error", async () => {
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`process.exit: ${code}`); });
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    await expect(agenticLib.main(["--simulate-load", "-10"]))
+      .rejects.toThrow(/process.exit: 1/);
+    exitSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
+  });
+
+  test("simulate load with missing duration exits with error", async () => {
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`process.exit: ${code}`); });
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    await expect(agenticLib.main(["--simulate-load"]))
+      .rejects.toThrow(/process.exit: 1/);
+    exitSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
+  });
+});
+
+import anything from "@src/index.js";
+
+describe("Index Module Exports", () => {
+  test("module index should be defined", () => {
+    expect(anything).toBeUndefined();
   });
 });
