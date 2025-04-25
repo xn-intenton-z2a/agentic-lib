@@ -364,6 +364,7 @@ jobs:
             core.info(`dependenciesFile: "${dependenciesFile}"`);
             core.info(`formattingFile: "${formattingFile}"`);
             core.info(`lintingFile: "${lintingFile}"`);
+            core.info(`agentConfigPath: "${agentConfigPath}"`);
 
             // Handle multiple source files
             const srcFiles = srcPath.split(';');

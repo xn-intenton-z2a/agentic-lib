@@ -180,6 +180,7 @@ jobs:
             const promptFile = process.env.promptFile;
             const dependenciesListOutput = process.env.dependenciesListOutput;
             const writeableFilepaths = JSON.parse(process.env.writeableFilepaths || '["features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md"]');
+            const agentConfigPath = process.env.agentConfigPath;
 
             core.info(`document: "${document}"`);
             core.info(`libraryDir: "${libraryDir}"`);
@@ -191,6 +192,7 @@ jobs:
             core.info(`promptFile: "${promptFile}"`);
             core.info(`dependenciesListOutput: "${dependenciesListOutput}"`);
             core.info(`writeableFilepaths: "${writeableFilepaths}"`);
+            core.info(`agentConfigPath: "${agentConfigPath}"`);
 
             const fs = require('fs');
             const path = require('path');

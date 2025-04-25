@@ -306,6 +306,7 @@ jobs:
             core.info(`dependenciesFile: "${dependenciesFile}"`);
             core.info(`libraryDir: "${libraryDir}"`);
             core.info(`promptFile: "${promptFile}"`);
+            core.info(`agentConfigPath: "${agentConfigPath}"`);
 
             // Handle multiple source files
             const srcFiles = srcPath.split(';');

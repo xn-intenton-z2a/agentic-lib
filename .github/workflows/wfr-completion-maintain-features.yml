@@ -242,6 +242,7 @@ jobs:
             const apiKey = process.env.chatgptApiSecretKey;
             const promptFile = process.env.promptFile;
             const dependenciesListOutput = process.env.dependenciesListOutput;
+            const agentConfigPath = process.env.agentConfigPath;
 
             const fs = require('fs');
             const path = require('path');
@@ -264,6 +265,8 @@ jobs:
             core.info(`missionFile: "${missionFile}"`);
             core.info(`contributingFile: "${contributingFile}"`);
             core.info(`dependenciesFile: "${dependenciesFile}"`);
+            core.info(`agentConfigPath: "${agentConfigPath}"`);
+            
             // Handle multiple source files
             const srcFiles = srcPath.split(';');
             let sourceFileContents = {};

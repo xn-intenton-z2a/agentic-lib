@@ -294,6 +294,7 @@ jobs:
             core.info(`missionFile: "${missionFile}"`);
             core.info(`contributingFile: "${contributingFile}"`);
             core.info(`dependenciesFile: "${dependenciesFile}"`);
+            core.info(`agentConfigPath: "${agentConfigPath}"`);
 
             core.info(`Loading sources directory file(s) '${sourcesFile}'...`);
 

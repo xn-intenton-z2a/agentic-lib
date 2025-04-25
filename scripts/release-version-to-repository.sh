@@ -64,6 +64,9 @@ rm -f "${DEST_DIR}/library-worker.yml"
 cp -v .github/workflows/agent-source-to-library.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-source-to-library.yml"
 
+cp -v .github/workflows/agent-update-readme.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-update-readme.yml"
+
 # CI workflows
 
 rm -f "${DEST_DIR}/automerge.yml"

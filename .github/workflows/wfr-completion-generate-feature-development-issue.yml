@@ -286,6 +286,7 @@ jobs:
             const mainScript = process.env.mainScript;
             const mainOutput = process.env.mainOutput;
             const issueSelectionLabel = process.env.issueSelectionLabel;
+            const agentConfigPath = process.env.agentConfigPath;
 
             const fs = require('fs');
             const path = require('path');
@@ -322,6 +323,7 @@ jobs:
             core.info(`contributingFile: "${contributingFile}"`);
             core.info(`dependenciesFile: "${dependenciesFile}"`);
             core.info(`libraryDir: "${libraryDir}"`);
+            core.info(`agentConfigPath: "${agentConfigPath}"`);
 
             // Handle multiple source files
             const srcFiles = srcPath.split(';');

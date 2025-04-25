@@ -282,7 +282,7 @@ jobs:
             } else {
               promptHint = process.env.promptHint;
             }
-
+            const agentConfigPath = process.env.agentConfigPath;
             const promptFile = process.env.promptFile;
             const dependenciesListOutput = process.env.dependenciesListOutput;
             const issueSelectionLabel = process.env.issueSelectionLabel;
@@ -319,6 +319,7 @@ jobs:
             core.info(`missionFile: "${missionFile}"`);
             core.info(`contributingFile: "${contributingFile}"`);
             core.info(`dependenciesFile: "${dependenciesFile}"`);
+            core.info(`agentConfigPath: "${agentConfigPath}"`);
 
             // Handle multiple source files
             const srcFiles = srcPath.split(';');

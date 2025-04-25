@@ -334,7 +334,8 @@ jobs:
             const mainScript = process.env.mainScript;
             const mainOutput = process.env.mainOutput;
             const allowedFilepathPatterns = JSON.parse(process.env.allowedFilepathPatterns || '["features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md"]');
-
+            const agentConfigPath = process.env.agentConfigPath;
+  
             const fs = require('fs');
             const path = require('path');
             const OpenAI = require('openai').default;
@@ -369,6 +370,7 @@ jobs:
             core.info(`dependenciesFile: "${dependenciesFile}"`);
             core.info(`formattingFile: "${formattingFile}"`);
             core.info(`lintingFile: "${lintingFile}"`);
+            core.info(`agentConfigPath: "${agentConfigPath}"`);
 
             // Handle multiple source files
             const srcFiles = srcPath.split(';');

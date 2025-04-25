@@ -333,6 +333,7 @@ jobs:
             const mainScript = process.env.mainScript;
             const mainOutput = process.env.mainOutput;
             const allowedFilepathPatterns = JSON.parse(process.env.allowedFilepathPatterns || '["features/*", "library/*", "docs/*", "README.md"]');
+            const agentConfigPath = process.env.agentConfigPath;
 
             const fs = require('fs');
             const path = require('path');
@@ -368,6 +369,7 @@ jobs:
             core.info(`dependenciesFile: "${dependenciesFile}"`);
             core.info(`formattingFile: "${formattingFile}"`);
             core.info(`lintingFile: "${lintingFile}"`);
+            core.info(`agentConfigPath: "${agentConfigPath}"`);
 
             // Handle multiple source files (for context only)
             const srcFiles = srcPath.split(';');
