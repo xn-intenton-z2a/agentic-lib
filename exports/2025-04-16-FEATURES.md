@@ -558,7 +558,7 @@ Each of these validation steps is monitored for success or failure.
 
 | Input                  | Default Value             |
 |------------------------|---------------------------|
-| `featuresDir`          | `features/`               |
+| `featuresPath`          | `features/`               |
 | `target`               | `src/lib/main.js`         |
 | `testFile`             | `tests/unit/main.test.js` |
 | `readmeFile`           | `README.md`               |

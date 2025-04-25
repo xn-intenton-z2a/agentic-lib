@@ -71,10 +71,10 @@ jobs:
       srcPath: ${{ needs.agentic-lib.outputs.srcPath }}
       testsPath: ${{ needs.agentic-lib.outputs.testsPath }}
       docsPath: ${{ needs.agentic-lib.outputs.docsPath }}
-      readmeFile: 'README.md'
-      missionFile: 'MISSION.md'
-      contributingFile: 'CONTRIBUTING.md'
-      dependenciesFile: 'package.json'
+      readmeFile: ${{ needs.agentic-lib.outputs.readmeFile }}
+      missionFile: ${{ needs.agentic-lib.outputs.missionFile }}
+      contributingFile: ${{ needs.agentic-lib.outputs.contributingFile }}
+      dependenciesFile: ${{ needs.agentic-lib.outputs.dependenciesFile }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
       gitUserEmail: 'action@github.com'

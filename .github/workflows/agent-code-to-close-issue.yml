@@ -58,14 +58,14 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-review-issue.yml@main'
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
-      missionFile: 'MISSION.md'
-      readmeFile: 'README.md'
-      contributingFile: 'CONTRIBUTING.md'
-      dependenciesFile: 'package.json'
-      buildScript: 'npm run build'
-      testScript: 'npm test'
+      missionFile: ${{ needs.agentic-lib.outputs.missionFile }}
+      readmeFile: ${{ needs.agentic-lib.outputs.readmeFile }}
+      contributingFile: ${{ needs.agentic-lib.outputs.contributingFile }}
+      dependenciesFile: ${{ needs.agentic-lib.outputs.dependenciesFile }}
+      buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
+      testScript: ${{ needs.agentic-lib.outputs.testScript }}
       docsPath: ${{ needs.agentic-lib.outputs.docsPath }}
-      mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+      testScript: ${{ needs.agentic-lib.outputs.mainScript }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
     secrets:

@@ -28,7 +28,7 @@ name: ∞ wfr-apply-fix
 on:
   workflow_call:
     inputs:
-      featuresDir:
+      featuresPath:
         description: 'The directory to create/update the features in. e.g. "features/"'
         type: string
         required: false
@@ -177,7 +177,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      featuresDir: ${{ inputs.featuresDir || 'features/' }}
+      featuresPath: ${{ inputs.featuresPath || 'features/' }}
       srcPath: ${{ inputs.srcPath || '' }}
       testsPath: ${{ inputs.testsPath || '' }}
       docsPath: ${{ inputs.docsPath || '' }}
@@ -234,7 +234,7 @@ jobs:
         id: features
         shell: bash
         run: |
-          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
+          output=$(find "${{ env.featuresPath }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"

@@ -32,7 +32,7 @@ on:
         description: 'The promptHint to guide the issue creation. e.g. "Make an improvement to tests."'
         type: string
         required: true
-      featuresDir:
+      featuresPath:
         description: 'The directory to create/update the features in. e.g. "features/"'
         type: string
         required: false
@@ -144,7 +144,7 @@ jobs:
 
     env:
       promptHint: ${{ inputs.promptHint || '' }}
-      featuresDir: ${{ inputs.featuresDir || 'features/' }}
+      featuresPath: ${{ inputs.featuresPath || 'features/' }}
       libraryDir: ${{ inputs.libraryDir || 'library/' }}
       maintenanceIssuesWipLimit: ${{ inputs.maintenanceIssuesWipLimit || '5' }}
       srcPath: ${{ inputs.srcPath || '' }}
@@ -196,7 +196,7 @@ jobs:
         id: features
         shell: bash
         run: |
-          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
+          output=$(find "${{ env.featuresPath }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"

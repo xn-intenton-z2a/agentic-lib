@@ -119,9 +119,9 @@ jobs:
       packages: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-update.yml@main'
     with:
-      buildScript: 'npm run build'
-      testScript: 'npm test'
-      mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+      buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
+      testScript: ${{ needs.agentic-lib.outputs.testScript }}
+      mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
       upgradeTarget: ${{ inputs.upgradeTarget || 'patch' }}
       branch: 'agentic-lib-update'
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}

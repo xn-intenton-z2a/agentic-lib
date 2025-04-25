@@ -483,16 +483,16 @@ jobs:
     with:
       srcPath: ${{ inputs.srcPath || needs.agentic-lib.outputs.srcPath }}
       testsPath: ${{ inputs.testsPath || needs.agentic-lib.outputs.testsPath }}
-      readmeFile: 'README.md'
+      readmeFile: ${{ needs.agentic-lib.outputs.readmeFile }}
       docsPath: ${{ needs.agentic-lib.outputs.docsPath }}
-      missionFile: 'MISSION.md'
-      contributingFile: 'CONTRIBUTING.md'
-      dependenciesFile: 'package.json'
-      formattingFile: '.prettierrc'
-      lintingFile: 'eslint.config.js'
-      buildScript: 'npm run build'
-      testScript: 'npm test'
-      mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+      missionFile: ${{ needs.agentic-lib.outputs.missionFile }}
+      contributingFile: ${{ needs.agentic-lib.outputs.contributingFile }}
+      dependenciesFile: ${{ needs.agentic-lib.outputs.dependenciesFile }}
+      formattingFile: ${{ needs.agentic-lib.outputs.formattingFile }}
+      lintingFile: ${{ needs.agentic-lib.outputs.lintingFile }}
+      buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
+      testScript: ${{ needs.agentic-lib.outputs.testScript }}
+      mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       branch: ${{ needs.branch-for-fix.outputs.branch }}
       issueNumber: ${{ needs.select-branch.outputs.issueNumber }}

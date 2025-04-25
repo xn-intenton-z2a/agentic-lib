@@ -166,7 +166,7 @@ jobs:
     with:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
       #githubRelease: true
-      buildScript: 'npm run build'
+      buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
       releaseNotes: 'Release increment: ${{ inputs.versionIncrement }}.'
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
       gitUserEmail: 'action@github.com'

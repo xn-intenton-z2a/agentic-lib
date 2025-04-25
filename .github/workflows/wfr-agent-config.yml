@@ -93,6 +93,56 @@ on:
         type: string
         required: false
         default: '2'
+      defaultMissionFile:
+        description: 'The default mission file path.'
+        type: string
+        required: false
+        default: 'MISSION.md'
+      defaultContributingFile:
+        description: 'The default contributing file path.'
+        type: string
+        required: false
+        default: 'CONTRIBUTING.md'
+      defaultFormattingFile:
+        description: 'The default formatting file path.'
+        type: string
+        required: false
+        default: '.prettierrc'
+      defaultLintingFile:
+        description: 'The default linting file path.'
+        type: string
+        required: false
+        default: 'eslint.config.js'
+      defaultBuildScript:
+        description: 'The default build script.'
+        type: string
+        required: false
+        default: 'npm run build'
+      defaultTestScript:
+        description: 'The default test script.'
+        type: string
+        required: false
+        default: 'npm test'
+      defaultMainScript:
+        description: 'The default main script.'
+        type: string
+        required: false
+        default: 'npm run start'
+      defaultFeaturesPath:
+        description: 'The default features path.'
+        type: string
+        required: false
+        default: 'features/'
+      defaultDependenciesFile:
+        description: 'The default dependencies file path.'
+        type: string
+        required: false
+        default: 'package.json'
+      defaultReadmeFile:
+        description: 'The default readme file path.'
+        type: string
+        required: false
+        default: 'README.md'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -121,6 +171,26 @@ on:
         value: ${{ jobs.agentic-lib.outputs.maintenanceIssuesWipLimit }}
       featuresWipLimit:
         value: ${{ jobs.agentic-lib.outputs.featuresWipLimit }}
+      missionFile:
+        value: ${{ jobs.agentic-lib.outputs.missionFile }}
+      contributing:
+        value: ${{ jobs.agentic-lib.outputs.contributing }}
+      formattingFile:
+        value: ${{ jobs.agentic-lib.outputs.formattingFile }}
+      lintingFile:
+        value: ${{ jobs.agentic-lib.outputs.lintingFile }}
+      buildScript:
+        value: ${{ jobs.agentic-lib.outputs.buildScript }}
+      testScript:
+        value: ${{ jobs.agentic-lib.outputs.testScript }}
+      mainScript:
+        value: ${{ jobs.agentic-lib.outputs.mainScript }}
+      featuresPath:
+        value: ${{ jobs.agentic-lib.outputs.featuresPath }}
+      dependenciesFile:
+        value: ${{ jobs.agentic-lib.outputs.dependenciesFile }}
+      readmeFile:
+        value: ${{ jobs.agentic-lib.outputs.readmeFile }}
 
 jobs:
   agentic-lib:
@@ -139,6 +209,16 @@ jobs:
       defaultFeatureDevelopmentIssuesWipLimit: ${{ inputs.defaultFeatureDevelopmentIssuesWipLimit || '8' }}
       defaultMaintenanceIssuesWipLimit: ${{ inputs.defaultMaintenanceIssuesWipLimit || '8' }}
       defaultFeaturesWipLimit: ${{ inputs.defaultFeaturesWipLimit || '2' }}
+      defaultMissionFile: ${{ inputs.defaultMission || 'MISSION.md' }}
+      defaultContributingFile: ${{ inputs.defaultContributingFile || 'CONTRIBUTING.md' }}
+      defaultFormattingFile: ${{ inputs.defaultFormattingFile || '.prettierrc' }}
+      defaultLintingFile: ${{ inputs.defaultLintingFile || 'eslint.config.js' }}
+      defaultBuildScript: ${{ inputs.defaultBuildScript || 'npm run build' }}
+      defaultTestScript: ${{ inputs.defaultTestScript || 'npm test' }}
+      defaultMainScript: ${{ inputs.defaultMainScript || 'npm run start' }}
+      defaultFeaturesPath: ${{ inputs.defaultFeaturesPath || 'features/' }}
+      defaultDependenciesFile: ${{ inputs.defaultDependenciesFile || 'package.json' }}
+      defaultReadmeFile: ${{ inputs.defaultReadmeFile || 'README.md' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -180,7 +260,17 @@ jobs:
             let featureDevelopmentIssuesWipLimit = process.env.defaultSourcesLimit;
             let maintenanceIssuesWipLimit = process.env.defaultSourcesLimit;
             let featuresWipLimit = process.env.defaultFeaturesWipLimit;
-            
+            let missionFile = process.env.defaultMissionFile;
+            let contributingFile = process.env.defaultContributingFile;
+            let formattingFile = process.env.defaultFormattingFile;
+            let lintingFile = process.env.defaultLintingFile;
+            let buildScript = process.env.defaultBuildScript;
+            let testScript = process.env.defaultTestScript;
+            let mainScript = process.env.defaultMainScript;
+            let featuresPath = process.env.defaultFeaturesPath;
+            let dependenciesFile = process.env.defaultDependenciesFile;
+            let readmeFile = process.env.defaultReadmeFile;
+
             // Check if agentic-lib.yml exists
             const configPath = path.join('.github', 'agentic-lib.yml');
             if (fs.existsSync(configPath)) {
@@ -245,7 +335,7 @@ jobs:
                     .filter(value => value && value.trim() !== '')
                     .map(value => value.replace(/"/g, ''));
                 }
-            
+
                 // Extract sourcesLimit
                 if (config.sourcesLimit) {
                   sourcesLimit = config.sourcesLimit.toString();
@@ -273,7 +363,77 @@ jobs:
                 } else {
                   console.log(`Warning: featuresWipLimit not found in .github/agentic-lib.yml, using default value: ${featuresWipLimit}`);
                 }
-            
+
+                // Extract missionFile from readOnlyFilepaths
+                if (config.readOnlyFilepaths && config.readOnlyFilepaths.missionFile) {
+                  missionFile = config.readOnlyFilepaths.missionFile.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: missionFile not found in readOnlyFilepaths in .github/agentic-lib.yml, using default value: ${missionFile}`);
+                }
+
+                // Extract contributingFile from readOnlyFilepaths
+                if (config.readOnlyFilepaths && config.readOnlyFilepaths.contributingFile) {
+                  contributingFile = config.readOnlyFilepaths.contributingFile.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: contributingFile not found in readOnlyFilepaths in .github/agentic-lib.yml, using default value: ${contributingFile}`);
+                }
+
+                // Extract formattingFile from readOnlyFilepaths
+                if (config.readOnlyFilepaths && config.readOnlyFilepaths.formattingFile) {
+                  formattingFile = config.readOnlyFilepaths.formattingFile.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: formattingFile not found in readOnlyFilepaths in .github/agentic-lib.yml, using default value: ${formattingFile}`);
+                }
+
+                // Extract lintingFile from readOnlyFilepaths
+                if (config.readOnlyFilepaths && config.readOnlyFilepaths.lintingFile) {
+                  lintingFile = config.readOnlyFilepaths.lintingFile.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: lintingFile not found in readOnlyFilepaths in .github/agentic-lib.yml, using default value: ${lintingFile}`);
+                }
+
+                // Extract buildScript from top level
+                if (config.buildScript) {
+                  buildScript = config.buildScript.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: buildScript not found in .github/agentic-lib.yml, using default value: ${buildScript}`);
+                }
+
+                // Extract testScript from top level
+                if (config.testScript) {
+                  testScript = config.testScript.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: testScript not found in .github/agentic-lib.yml, using default value: ${testScript}`);
+                }
+
+                // Extract mainScript from top level
+                if (config.mainScript) {
+                  mainScript = config.mainScript.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: mainScript not found in .github/agentic-lib.yml, using default value: ${mainScript}`);
+                }
+
+                // Extract featuresPath from writeableFilepaths
+                if (config.writeableFilepaths && config.writeableFilepaths.features) {
+                  featuresPath = config.writeableFilepaths.features.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: features path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${featuresPath}`);
+                }
+
+                // Extract dependenciesFile from writeableFilepaths
+                if (config.writeableFilepaths && config.writeableFilepaths.dependencies) {
+                  dependenciesFile = config.writeableFilepaths.dependencies.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: dependencies file not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${dependenciesFile}`);
+                }
+
+                // Extract readmeFile from writeableFilepaths
+                if (config.writeableFilepaths && config.writeableFilepaths.readme) {
+                  readmeFile = config.writeableFilepaths.readme.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: readme file not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${readmeFile}`);
+                }
+
               } catch (error) {
                 console.log(`Error parsing .github/agentic-lib.yml: ${error.message}`);
                 console.log(`Using default values: attemptsPerIssue=${attemptsPerIssue}, srcPath=${srcPath}, testsPath=${testsPath}, docsPath=${docsPath}`);
@@ -306,7 +466,7 @@ jobs:
 
             console.log(`sourcesFile=${sourcesFile}`);
             core.setOutput('sourcesFile', sourcesFile);
-            
+
             console.log(`sourcesLimit=${sourcesLimit}`);
             core.setOutput('sourcesLimit', sourcesLimit);
 
@@ -315,9 +475,39 @@ jobs:
 
             console.log(`maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
             core.setOutput('maintenanceIssuesWipLimit', maintenanceIssuesWipLimit);
-            
+
             console.log(`featuresWipLimit=${featuresWipLimit}`);
             core.setOutput('featuresWipLimit', featuresWipLimit);
+
+            console.log(`missionFile=${missionFile}`);
+            core.setOutput('missionFile', missionFile);
+
+            console.log(`contributingFile=${contributingFile}`);
+            core.setOutput('contributingFile', contributingFile);
+
+            console.log(`formattingFile=${formattingFile}`);
+            core.setOutput('formattingFile', formattingFile);
+
+            console.log(`lintingFile=${lintingFile}`);
+            core.setOutput('lintingFile', lintingFile);
+
+            console.log(`buildScript=${buildScript}`);
+            core.setOutput('buildScript', buildScript);
+
+            console.log(`testScript=${testScript}`);
+            core.setOutput('testScript', testScript);
+
+            console.log(`mainScript=${mainScript}`);
+            core.setOutput('mainScript', mainScript);
+
+            console.log(`featuresPath=${featuresPath}`);
+            core.setOutput('featuresPath', featuresPath);
+
+            console.log(`dependenciesFile=${dependenciesFile}`);
+            core.setOutput('dependenciesFile', dependenciesFile);
+
+            console.log(`readmeFile=${readmeFile}`);
+            core.setOutput('readmeFile', readmeFile);
 
     outputs:
       attemptsPerIssue: ${{ steps.agentic-lib.outputs.attemptsPerIssue }}
@@ -332,3 +522,13 @@ jobs:
       featureDevelopmentIssuesWipLimit: ${{ steps.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}
       maintenanceIssuesWipLimit: ${{ steps.agentic-lib.outputs.maintenanceIssuesWipLimit }}
       featuresWipLimit: ${{ steps.agentic-lib.outputs.featuresWipLimit }}
+      missionFile: ${{ steps.agentic-lib.outputs.missionFile }}
+      contributingFile: ${{ steps.agentic-lib.outputs.contributingFile }}
+      formattingFile: ${{ steps.agentic-lib.outputs.formattingFile }}
+      lintingFile: ${{ steps.agentic-lib.outputs.lintingFile }}
+      buildScript: ${{ steps.agentic-lib.outputs.buildScript }}
+      testScript: ${{ steps.agentic-lib.outputs.testScript }}
+      mainScript: ${{ steps.agentic-lib.outputs.mainScript }}
+      featuresPath: ${{ steps.agentic-lib.outputs.featuresPath }}
+      dependenciesFile: ${{ steps.agentic-lib.outputs.dependenciesFile }}
+      readmeFile: ${{ steps.agentic-lib.outputs.readmeFile }}

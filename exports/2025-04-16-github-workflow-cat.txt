@@ -173,7 +173,7 @@ on:
         description: 'name of the feature to create an issue for. e.g. "WEBSITE"'
         type: string
         required: true
-      featuresDir:
+      featuresPath:
         description: 'The directory to create/update the features in. e.g. "features/"'
         type: string
         required: false
@@ -270,7 +270,7 @@ jobs:
 
     env:
       featureName: ${{ inputs.featureName || '' }}
-      featuresDir: ${{ inputs.featuresDir || 'features/' }}
+      featuresPath: ${{ inputs.featuresPath || 'features/' }}
       featureDevelopmentIssuesWipLimit: ${{ inputs.featureDevelopmentIssuesWipLimit || '5' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
@@ -319,7 +319,7 @@ jobs:
         id: features
         shell: bash
         run: |
-          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
+          output=$(find "${{ env.featuresPath }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -1665,7 +1665,7 @@ on:
         type: string
         required: false
         default: '200'
-      featuresDir:
+      featuresPath:
         description: 'The directory containing feature files. e.g. "features/"'
         type: string
         required: false
@@ -1783,7 +1783,7 @@ jobs:
       sourcesFile: ${{ inputs.sourcesFile || 'SOURCES.md' }}
       documentsLimit: ${{ inputs.documentsLimit || '3' }}
       summaryWordLimit: ${{ inputs.summaryWordLimit || '10000' }}
-      featuresDir: ${{ inputs.featuresDir || 'features/' }}
+      featuresPath: ${{ inputs.featuresPath || 'features/' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
@@ -1837,7 +1837,7 @@ jobs:
         id: features
         shell: bash
         run: |
-          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
+          output=$(find "${{ env.featuresPath }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -1847,8 +1847,8 @@ jobs:
         id: rejectedFeatures
         shell: bash
         run: |
-          mkdir -p "${{ env.featuresDir }}/rejects"
-          output=$(ls -1 "${{ env.featuresDir }}/rejects" | sed 's/\.md//' | xargs echo )
+          mkdir -p "${{ env.featuresPath }}/rejects"
+          output=$(ls -1 "${{ env.featuresPath }}/rejects" | sed 's/\.md//' | xargs echo )
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -1916,7 +1916,7 @@ jobs:
             const libraryDir = process.env.libraryDir;
             const sourcesFile = process.env.sourcesFile;
             const documentsLimit = process.env.documentsLimit;
-            const featuresDir = process.env.featuresDir;
+            const featuresPath = process.env.featuresPath;
             const currentFeatures = process.env.currentFeatures;
             const rejectedFeatures = process.env.rejectedFeatures;
             const target = process.env.target;
@@ -1952,7 +1952,7 @@ jobs:
             core.info(`document: "${document}"`);
             core.info(`libraryDir: "${libraryDir}"`);
             core.info(`sourcesFile: "${sourcesFile}"`);
-            core.info(`featuresDir: "${featuresDir}"`);
+            core.info(`featuresPath: "${featuresPath}"`);
             core.info(`currentFeatures: "${currentFeatures}"`);
             core.info(`target: "${target}"`);
             core.info(`testFile: "${testFile}"`);
@@ -4509,7 +4509,7 @@ on:
         type: string
         required: false
         default: 'true'
-      featuresDir:
+      featuresPath:
         description: 'The directory containing feature files. e.g. "features/"'
         type: string
         required: false
@@ -4535,7 +4535,7 @@ jobs:
       branchPrefix: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}
       nextIssue: ${{ inputs.nextIssue || '' }}
       publishToGitHubPages: ${{ inputs.publishToGitHubPages || 'true' }}
-      featuresDir: ${{ inputs.featuresDir || 'features/' }}
+      featuresPath: ${{ inputs.featuresPath || 'features/' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -4591,7 +4591,7 @@ jobs:
             echo "Creating a simple placeholder HTML file for each markdown file"
 
             # Find all markdown files in the features directory
-            find "${{ env.featuresDir }}" -maxdepth 2 -type f -name "*.md" | while read -r file; do
+            find "${{ env.featuresPath }}" -maxdepth 2 -type f -name "*.md" | while read -r file; do
               # Get the filename without path and extension
               filename=$(basename "$file" .md)
               echo "Creating placeholder HTML for $file to ${{ env.public }}/$filename.html"
@@ -4601,7 +4601,7 @@ jobs:
             done
           else
             # Find all markdown files in the features directory
-            find "${{ env.featuresDir }}" -maxdepth 2 -type f -name "*.md" | while read -r file; do
+            find "${{ env.featuresPath }}" -maxdepth 2 -type f -name "*.md" | while read -r file; do
               # Get the filename without path and extension
               filename=$(basename "$file" .md)
               echo "Converting $file to ${{ env.public }}/$filename.html"
@@ -4783,7 +4783,7 @@ on:
         type: string
         required: false
         default: '32'
-      featuresDir:
+      featuresPath:
         description: 'The directory to read the features from. e.g. "features/"'
         type: string
         required: false
@@ -4880,7 +4880,7 @@ jobs:
       source: ${{ inputs.source || '' }}
       sourcesFile: ${{ inputs.sourcesFile || 'SOURCES.md' }}
       sourcesLimit: ${{ inputs.sourcesLimit || '32' }}
-      featuresDir: ${{ inputs.featuresDir || 'features/' }}
+      featuresPath: ${{ inputs.featuresPath || 'features/' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
@@ -4931,7 +4931,7 @@ jobs:
         id: features
         shell: bash
         run: |
-          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
+          output=$(find "${{ env.featuresPath }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -4941,8 +4941,8 @@ jobs:
         id: rejectedFeatures
         shell: bash
         run: |
-          mkdir -p "${{ env.featuresDir }}/rejects"
-          output=$(ls -1 "${{ env.featuresDir }}/rejects" | sed 's/\.md//' | xargs echo )
+          mkdir -p "${{ env.featuresPath }}/rejects"
+          output=$(ls -1 "${{ env.featuresPath }}/rejects" | sed 's/\.md//' | xargs echo )
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -6053,7 +6053,7 @@ on:
         description: 'The issue number to review. e.g. "123"'
         type: string
         required: true
-      featuresDir:
+      featuresPath:
         description: 'The directory to create/update the features in. e.g. "features/"'
         type: string
         required: false
@@ -6185,7 +6185,7 @@ jobs:
 
     env:
       issueNumber: ${{ inputs.issueNumber }}
-      featuresDir: ${{ inputs.featuresDir || 'features/' }}
+      featuresPath: ${{ inputs.featuresPath || 'features/' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
@@ -6246,7 +6246,7 @@ jobs:
         id: features
         shell: bash
         run: |
-          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
+          output=$(find "${{ env.featuresPath }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -7326,7 +7326,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@main'
     with:
       feature: ${{ inputs.feature }}
-      featuresDir: 'features/'
+      featuresPath: 'features/'
       featuresWipLimit: '${{ needs.agentic-lib.outputs.featuresWipLimit }}'
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
@@ -7834,7 +7834,7 @@ name: ∞ wfr-apply-fix
 on:
   workflow_call:
     inputs:
-      featuresDir:
+      featuresPath:
         description: 'The directory to create/update the features in. e.g. "features/"'
         type: string
         required: false
@@ -7964,7 +7964,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      featuresDir: ${{ inputs.featuresDir || 'features/' }}
+      featuresPath: ${{ inputs.featuresPath || 'features/' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
@@ -8017,7 +8017,7 @@ jobs:
         id: features
         shell: bash
         run: |
-          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
+          output=$(find "${{ env.featuresPath }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -8748,7 +8748,7 @@ on:
         description: 'The issue number to review. e.g. "123"'
         type: string
         required: true
-      featuresDir:
+      featuresPath:
         description: 'The directory to create/update the features in. e.g. "features/"'
         type: string
         required: false
@@ -8833,7 +8833,7 @@ jobs:
 
     env:
       issueNumber: ${{ inputs.issueNumber }}
-      featuresDir: ${{ inputs.featuresDir || 'features/' }}
+      featuresPath: ${{ inputs.featuresPath || 'features/' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
@@ -8881,7 +8881,7 @@ jobs:
         id: features
         shell: bash
         run: |
-          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
+          output=$(find "${{ env.featuresPath }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -10261,7 +10261,7 @@ on:
         description: 'The prompt to guide the issue creation. e.g. "Make an improvement to tests."'
         type: string
         required: true
-      featuresDir:
+      featuresPath:
         description: 'The directory to create/update the features in. e.g. "features/"'
         type: string
         required: false
@@ -10358,7 +10358,7 @@ jobs:
 
     env:
       prompt: ${{ inputs.prompt || '' }}
-      featuresDir: ${{ inputs.featuresDir || 'features/' }}
+      featuresPath: ${{ inputs.featuresPath || 'features/' }}
       maintenanceIssuesWipLimit: ${{ inputs.maintenanceIssuesWipLimit || '5' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
@@ -10407,7 +10407,7 @@ jobs:
         id: features
         shell: bash
         run: |
-          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
+          output=$(find "${{ env.featuresPath }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -10731,7 +10731,7 @@ on:
         type: string
         required: false
         default: 'house choice'
-      featuresDir:
+      featuresPath:
         description: 'The directory to create/update the features in. e.g. "features/"'
         type: string
         required: false
@@ -10833,7 +10833,7 @@ jobs:
 
     env:
       feature: ${{ inputs.feature || '' }}
-      featuresDir: ${{ inputs.featuresDir || 'features/' }}
+      featuresPath: ${{ inputs.featuresPath || 'features/' }}
       featuresWipLimit: ${{ inputs.featuresWipLimit || '3' }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
@@ -10883,7 +10883,7 @@ jobs:
         id: features
         shell: bash
         run: |
-          output=$(find "${{ env.featuresDir }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
+          output=$(find "${{ env.featuresPath }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -10893,8 +10893,8 @@ jobs:
         id: rejectedFeatures
         shell: bash
         run: |
-          mkdir -p "${{ env.featuresDir }}/rejects"
-          output=$(ls -1 "${{ env.featuresDir }}/rejects" | sed 's/\.md//' | xargs echo )
+          mkdir -p "${{ env.featuresPath }}/rejects"
+          output=$(ls -1 "${{ env.featuresPath }}/rejects" | sed 's/\.md//' | xargs echo )
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -10959,7 +10959,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const feature = process.env.feature;
-            const featuresDir = process.env.featuresDir;
+            const featuresPath = process.env.featuresPath;
             const featuresWipLimit = process.env.featuresWipLimit;
             const currentFeatures = process.env.currentFeatures;
             const rejectedFeatures = process.env.rejectedFeatures;
@@ -10991,7 +10991,7 @@ jobs:
             const openai = new OpenAI({ apiKey });
 
             core.info(`feature: "${feature}"`);
-            core.info(`featuresDir: "${featuresDir}"`);
+            core.info(`featuresPath: "${featuresPath}"`);
             core.info(`currentFeatures: "${currentFeatures}"`);
             core.info(`target: "${target}"`);
             core.info(`testFile: "${testFile}"`);
@@ -11187,14 +11187,14 @@ jobs:
               core.info(`featureSpec: "${parsed.featureSpec}"`);
               core.info(`featureNamesToBeDeleted: "${parsed.featureNamesToBeDeleted}"`);
             
-              // Save the feature spec to a file using the convention of <featuresDir> plus path SCREAMING_SNAKE_CASE(<feature name>).md
+              // Save the feature spec to a file using the convention of <featuresPath> plus path SCREAMING_SNAKE_CASE(<feature name>).md
               const featureName = parsed.featureName.replace(/ /g, "_").toUpperCase();
               const featureSpec = parsed.featureSpec;
-              const featuresDir = process.env.featuresDir || 'features/';
+              const featuresPath = process.env.featuresPath || 'features/';
               
-              const featureFilePath = path.join(featuresDir, `${featureName}.md`);
+              const featureFilePath = path.join(featuresPath, `${featureName}.md`);
               try {
-                fs.mkdirSync(featuresDir, { recursive: true });
+                fs.mkdirSync(featuresPath, { recursive: true });
                 fs.writeFileSync(featureFilePath, featureSpec);
                 core.info(`Feature spec saved to ${featureFilePath}`);
               } catch (e) {
@@ -11203,7 +11203,7 @@ jobs:
             
               const featureFilepathsToBeDeleted = parsed.featureNamesToBeDeleted
                 .split(',')
-                .map(name => path.join(featuresDir, `${name.trim().replace(/.md^/, "").toUpperCase()}.md`));
+                .map(name => path.join(featuresPath, `${name.trim().replace(/.md^/, "").toUpperCase()}.md`));
               for (const filepath of featureFilepathsToBeDeleted) {
                 try {
                   if( fs.existsSync(filepath) ) {
@@ -11231,7 +11231,7 @@ jobs:
           git config --local user.email '${{ env.gitUserEmail }}'
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
-          git add -v --all '${{ env.featuresDir }}'
+          git add -v --all '${{ env.featuresPath }}'
           git commit -m 'Maintain ${{ steps.maintain-features.outputs.featureName }}'
           git status -v
           git push -v origin ${{ github.ref }}
@@ -11332,7 +11332,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@main'
     with:
       featureName: ${{ needs.select-prompt.outputs.featureName }}
-      featuresDir: './features'
+      featuresPath: './features'
       featureDevelopmentIssuesWipLimit: '${{ needs.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}'
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
