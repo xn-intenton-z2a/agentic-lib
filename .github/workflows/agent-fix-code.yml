@@ -268,6 +268,16 @@ jobs:
                 core.info(`Deleted branch ${branch}.`);
               }
 
+              // Remove the issueLabelsStartingWithApplyFix labels now that the branch has been deleted
+              for (const label of issueLabelsStartingWithApplyFix) {
+                  await github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issueNumber,
+                    name: label.name
+                  });
+              }
+
               // Comment the issue
               await github.rest.issues.createComment({
                 owner: context.repo.owner,

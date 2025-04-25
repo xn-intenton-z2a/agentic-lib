@@ -663,10 +663,12 @@ Re-usable GitHub Actions Workflows:
 - [ ] [r0w-Launch] Move AGENT- files to ./github/agentic-lib/agent-*.md
 - [ ] [r0w-Launch] Move agentic-lib.yml to ./github/agentic-lib/agentic-lib.yml
 - [ ] [r0w-Launch] Feature switch roles: librarian, developer, web publisher
+- [ ] [r0w-Launch] Ensure every file path referenced by the workflows defaults to the agentic-lib.yml
 - [ ] Support a more TDD / literate approach by starting a feature branch with a failing test then fix code should extract the issue details and be alerted to the test addition as TDD.
 - [ ] Add a PR review workflow with a reviewer and responder.
 - [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
 - [ ] Generate API.md based on the source file.
+- [ ] Move check-attempts-limit into a reusable workflow.
 
 Marketplace GitHub Actions:
 - [x] [r0w-Launch] Review all the parameters where re-usable workflows are used and ensure that any parameters that are filepaths are stated explicitly in the calling workflow.

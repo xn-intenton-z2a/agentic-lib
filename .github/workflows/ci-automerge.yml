@@ -193,21 +193,6 @@ jobs:
     with:
       branchPrefix: 'agentic-lib-issue-'
 
-  label-issue-after-check-pr:
-    needs:
-      - merge-check
-      - branch-to-issue
-    if: needs.merge-check.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber != ''
-    permissions:
-      contents: write
-      pull-requests: read
-      issues: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@main'
-    with:
-      pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
-      issueNumber: '${{ needs.branch-to-issue.outputs.issueNumber }}'
-      branchPrefix: 'agentic-lib-issue-'
-
   automerge:
     needs:
       - merge-check
@@ -235,7 +220,6 @@ jobs:
       pullNumber: ${{ needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber || '' }}
       issueNumber: '${{ needs.branch-to-issue.outputs.issueNumber }}'
       branchPrefix: 'agentic-lib-issue-'
-      removeAllLabels: 'true'
 
   select-issue:
     permissions:

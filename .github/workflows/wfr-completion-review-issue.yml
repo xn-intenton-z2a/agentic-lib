@@ -663,6 +663,8 @@ jobs:
               // If issue is not fixed, remove 'in-progress' label and restore 'automated' label
               const hasInProgressLabel = issue.labels.some(label => label.name === 'in-progress');
               const hasAutomatedLabel = issue.labels.some(label => label.name === 'automated');
+              const hasMergedLabel = issue.labels.some(label => label.name === 'merged');
+              const hasReadyLabel = issue.labels.some(label => label.name === 'ready');
               // Issue is not fixed, so we add te reason to the issue comments
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
@@ -687,7 +689,28 @@ jobs:
 
                 core.info(`Removed 'in-progress' label from issue #${issueNumber}`);
               }
+              if (hasMergedLabel) {
+                // Remove 'merged' label
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  name: 'merged'
+                });
 
+                core.info(`Removed 'merged' label from issue #${issueNumber}`);
+              }
+              if (hasReadyLabel) {
+                // Remove 'ready' label
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  name: 'ready'
+                });
+
+                core.info(`Removed 'ready' label from issue #${issueNumber}`);
+              }
               if (!hasAutomatedLabel) {
                 // Add 'automated' label
                 await github.rest.issues.addLabels({
