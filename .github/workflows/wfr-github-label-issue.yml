@@ -150,6 +150,8 @@ jobs:
             });
             core.info(`Issue title: ${issue.title}`);
             const hasMergedLabel = issue.labels.some(label => label.name === 'merged');
+            const hasInProgressLabel = issue.labels.some(label => label.name === 'in-progress');
+            
             if (hasMergedLabel) {
               core.info(`Issue #${issueNumber} already has the "merged" label.`);
             } else {
@@ -166,4 +168,16 @@ jobs:
                 issue_number: issueNumber,
                 body: commentBody
               });
+            }
+            
+            if (hasInProgressLabel) {
+              core.info(`Removing "in-progress" label from issue #${issueNumber}.`);
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                name: 'in-progress'
+              });
+            } else {
+              core.info(`Issue #${issueNumber} does not have the "in-progress" label.`);
             }

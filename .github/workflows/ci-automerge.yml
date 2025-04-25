@@ -190,6 +190,7 @@ jobs:
       pull-requests: read
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-branch-to-issue.yml@main'
     with:
+      pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
       branchPrefix: 'agentic-lib-issue-'
 
   automerge:

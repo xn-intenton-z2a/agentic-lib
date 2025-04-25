@@ -32,6 +32,10 @@ on:
         description: 'The prefix for the issue branch. e.g. "agentic-lib-issue-".'
         type: string
         required: true
+      pullNumber:
+        description: 'The pull request number. e.g. "123"'
+        type: string
+        required: true
       npmAuthOrganisation:
         description: 'The organisation for npm authentication. e.g. "@xn-intenton-z2a"'
         type: string
@@ -65,6 +69,7 @@ jobs:
 
     env:
       branchPrefix: ${{ inputs.branchPrefix || '' }}
+      pullNumber: ${{ inputs.pullNumber || '' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '@xn-intenton-z2a' }}
       cache: ${{ inputs.cache || 'npm' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
