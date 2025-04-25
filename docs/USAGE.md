@@ -17,13 +17,20 @@ This document provides clear and concise usage details for the agentic-lib comma
 - **--diagnostics**: Output detailed diagnostics, including configuration and environment details.
 - **--status**: Display a runtime health summary in JSON format.
 - **--dry-run**: Execute a dry run without performing any actions.
-- **--simulate-error**: Simulate an error scenario for testing; logs a simulated error and exits with a non-zero status code.
+- **--simulate-error**: Simulate an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.
 - **--simulate-delay <ms>**: Simulate processing delay for the specified duration in milliseconds.
-- **--simulate-load <ms>**: Simulate a heavy processing load by executing a CPU-intensive loop for the specified duration in milliseconds.
-- **--apply-fix**: Apply an automated fix and log a success message indicating that the fix was applied.
-- **--cli-utils**: Display a summary of available CLI commands along with brief descriptions.
+- **--simulate-load <ms>**: Simulate a heavy processing load by executing a CPU‑intensive loop for the specified duration in milliseconds.
+- **--apply-fix**: Apply automated fix and log a success message indicating that the fix was applied.
+- **--cli-utils**: Displays a comprehensive summary of all CLI commands available along with brief descriptions.
 - **--workflow-chain <jsonPayload>**: Process a chain of workflow commands sequentially. (Payload must have a `chain` array property)
-- **--verbose-stats**: When used with a valid command, outputs additional runtime statistics in JSON format, including `callCount` (the number of times a command has been successfully executed) and `uptime` (the process uptime in seconds).
+- **--verbose-stats**: When used with a valid command, outputs additional runtime statistics in JSON format, including `callCount` (the number of successful command invocations) and `uptime` (the process uptime in seconds).
+
+## Environment Variables
+
+The CLI behavior can be customized using the following environment variables:
+
+- **MAX_BATCH_COMMANDS**: Set this variable to limit the maximum number of commands that can be processed in a batch. If the number of commands exceeds this limit, the batch will be rejected with an error.
+- **COMMAND_ALIASES**: Provide a JSON string mapping aliases to full command strings. For example, setting `COMMAND_ALIASES='{"ls": "list", "rm": "remove"}'` will automatically substitute any occurrence of the alias with its corresponding command.
 
 ## Enhanced Workflow Chain: Robust Chaining with Error Handling and Conditional Branching
 
@@ -60,17 +67,8 @@ chainWorkflows(steps)
 
 In the above example, if the second step fails, the chain halts because the default `haltOnFailure` is `true`. If you want the chain to continue despite failures, set `haltOnFailure` to `false` in the step object.
 
+---
+
 ## Additional Information
 
 For more detailed CLI instructions and command descriptions, please refer to the rest of this document.
-
----
-
-## CLI Behavior
-
-The CLI provides several flags to manage the library's operation. When using the `--verbose-stats` flag in addition to any valid command (e.g., `--dry-run`, `--agentic`, etc.), the application will output an additional JSON object containing runtime statistics. This includes:
-
-- `callCount`: The total number of successful command invocations since the application started.
-- `uptime`: The current process uptime in seconds.
-
-This additional output aids in monitoring and diagnosing the operational performance of the agentic-lib CLI.
