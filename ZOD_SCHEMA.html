@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>agentic-lib</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+    header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
+    h1 { font-size: 2em; }
+    section { margin-bottom: 1.5em; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5em 0; }
+    .label { font-weight: bold; }
+    footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>agentic-lib</h1>
+    <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest stats</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all stats</a></p>
+  </header>
+  <section>
+    <h1 class="md-github"><a class="md-github__anchor" name="zod_schema" href="#zod_schema"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>ZOD_SCHEMA</h1>
+<h2 class="md-github"><a class="md-github__anchor" name="crawl-summary" href="#crawl-summary"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Crawl Summary</h2>
+<p class="md-github">Crawled content returned no data directly. Extraction relies on established Zod API details: schema creation via z.string, z.number, etc.; validation methods parse and safeParse with detailed error output; advanced schema composition through union, intersection, enum, and refinement functionality including API method signatures and parameter specifics.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="normalised-extract" href="#normalised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Normalised Extract</h2>
+<p class="md-github">Table of Contents:</p>
+<ol class="md-github">
+<li class="md-github">Basic Schemas
+<ul class="md-github">
+<li class="md-github">z.string(): No parameters, returns ZodString instance</li>
+<li class="md-github">z.number(): No parameters, returns ZodNumber instance</li>
+<li class="md-github">z.boolean(): No parameters, returns ZodBoolean instance</li>
+</ul>
+</li>
+<li class="md-github">Object and Array Schemas
+<ul class="md-github">
+<li class="md-github">z.object({ key: schema, ... }): Accepts object mapping where each key is assigned a schema</li>
+<li class="md-github">z.array(schema): Validates all elements in an array using the provided schema</li>
+</ul>
+</li>
+<li class="md-github">Validation Methods
+<ul class="md-github">
+<li class="md-github">parse(input: unknown): Returns type T on success, throws ZodError on failure</li>
+<li class="md-github">safeParse(input: unknown): Returns an object { success: boolean, data?: T, error?: ZodError }</li>
+</ul>
+</li>
+<li class="md-github">Advanced Features
+<ul class="md-github">
+<li class="md-github">z.union([schema1, schema2, ...]): Validates input against any schema in list</li>
+<li class="md-github">z.intersection(schema1, schema2): Merges two schemas into one unified schema</li>
+<li class="md-github">z.enum([&quot;A&quot;, &quot;B&quot;, ...]): Creates an enum type from string array</li>
+<li class="md-github">Refinement using .refine(callback, { message, path }): Implements custom validations with precise error messages</li>
+<li class="md-github">Default and Optional Configurations: .default(value), .optional(), .nullable()
+Detailed Items:
+Basic Schemas: Direct instantiation of type validators
+Object and Array Schemas: Structured validation using key-based and list-based schema definitions
+Validation Methods: Direct use of parse and safeParse for error handling
+Advanced Features: Use union, intersection, enum, and refine for complex scenarios; custom error mapping via setErrorMap method</li>
+</ul>
+</li>
+</ol>
+<h2 class="md-github"><a class="md-github__anchor" name="supplementary-details" href="#supplementary-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Supplementary Details</h2>
+<p class="md-github">Technical Specifications and Implementation Details:</p>
+<ol class="md-github">
+<li class="md-github">z.string() - API: z.string() returns a ZodString with prototype methods parse(input: unknown): string and safeParse(input: unknown): { success: boolean, data?: string, error?: ZodError }.</li>
+<li class="md-github">z.number() - API: z.number() returns a ZodNumber instance with parse(input: unknown): number and safeParse function.</li>
+<li class="md-github">z.object() - API: z.object({ key: schema, ... }) takes an object where each value is a Zod schema; returns a ZodObject with method parse(input: unknown): { key: value } matching schema types.</li>
+<li class="md-github">z.array() - API: z.array(schema) creates an array schema; parse(input: unknown): T[] validates input array elements.</li>
+<li class="md-github">Validation Methods - parse and safeParse:
+<ul class="md-github">
+<li class="md-github">parse(input: unknown): T; may throw a ZodError that includes detailed error paths and messages.</li>
+<li class="md-github">safeParse(input: unknown): returns { success: boolean, data?: T, error?: ZodError } without throwing.</li>
+</ul>
+</li>
+<li class="md-github">Advanced Refinements and Configurations:
+<ul class="md-github">
+<li class="md-github">.refine((val: T) =&gt; boolean, { message: string, path: string[] }): adds custom conditional validations</li>
+<li class="md-github">.default(value): assigns a default value when input is missing</li>
+<li class="md-github">.optional() and .nullable(): marks the schema field as optional (undefined) or nullable (null allowed)</li>
+<li class="md-github">.union([...]) and .intersection(a, b): combine multiple schemas; union validates if any schema passes, intersection requires all to pass</li>
+</ul>
+</li>
+<li class="md-github">Error Handling and Best Practices:
+<ul class="md-github">
+<li class="md-github">Use safeParse to maintain flow control</li>
+<li class="md-github">Configure custom error responses using .setErrorMap(customMapFunction) where customMapFunction receives a context and returns { message: string }.</li>
+<li class="md-github">Recommended to chain .default, .optional when schema field values may be absent.</li>
+</ul>
+</li>
+</ol>
+<h2 class="md-github"><a class="md-github__anchor" name="reference-details" href="#reference-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reference Details</h2>
+<p class="md-github">Full API Specifications:</p>
+<ul class="md-github">
+<li class="md-github">z.string(): Signature: () =&gt; ZodString. Methods: parse(input: unknown): string; safeParse(input: unknown): { success: boolean, data?: string, error?: ZodError }.</li>
+<li class="md-github">z.number(): Signature: () =&gt; ZodNumber. Methods: parse(input: unknown): number; safeParse(input: unknown): { success: boolean, data?: number, error?: ZodError }.</li>
+<li class="md-github">z.boolean(): Signature: () =&gt; ZodBoolean. Methods: parse(input: unknown): boolean; safeParse(input: unknown): { success: boolean, data?: boolean, error?: ZodError }.</li>
+<li class="md-github">z.object(): Signature: <T>(shape: T) =&gt; ZodObject<T>. Methods: parse(input: unknown): T; safeParse(input: unknown): { success: boolean, data?: T, error?: ZodError }.</li>
+<li class="md-github">z.array(): Signature: <T>(schema: ZodType<T>) =&gt; ZodArray<T>. Methods: parse(input: unknown): T[]; safeParse(input: unknown): { success: boolean, data?: T[], error?: ZodError }.</li>
+<li class="md-github">parse(input: unknown): T
+<ul class="md-github">
+<li class="md-github">Throws: ZodError containing error details with path and message.</li>
+</ul>
+</li>
+<li class="md-github">safeParse(input: unknown): { success: boolean, data?: T, error?: ZodError }</li>
+<li class="md-github">Advanced Methods:
+<ul class="md-github">
+<li class="md-github">z.union(schemas: [ZodType<any>, ...]): Validates input against any one of the provided schemas.</li>
+<li class="md-github">z.intersection(a: ZodType<any>, b: ZodType<any>): Returns a schema that requires input to pass both validations.</li>
+<li class="md-github">z.enum(values: string[]): Returns a ZodEnum; valid values limited to provided array entries.</li>
+<li class="md-github">Refinement: refine(callback: (val: T) =&gt; boolean, { message?: string, path?: string[] }): Enforces custom validations with specific error messages.
+Example Implementation Pattern:
+const schema = z.object({
+name: z.string(),
+age: z.number().optional(),
+});
+const result = schema.safeParse(input);
+if (!result.success) {
+// Handle errors by inspecting result.error.errors for field-specific issues
+}
+Configuration Options:</li>
+<li class="md-github">.default(value): sets a fallback default when data is undefined</li>
+<li class="md-github">.optional() and .nullable(): flag property as not strictly required</li>
+<li class="md-github">.setErrorMap(customMap): customizes the mapping of error contexts to error messages.
+Troubleshooting Procedures:</li>
+<li class="md-github">Use try-catch around parse() to capture thrown ZodError.</li>
+<li class="md-github">Inspect error.errors array for detailed validation errors including paths and custom messages.</li>
+<li class="md-github">Validate schema configuration and chaining order if default values and optional flags do not work as expected.</li>
+</ul>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="information-dense-extract" href="#information-dense-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Information Dense Extract</h2>
+<p class="md-github">z.string(): ZodString; z.number(): ZodNumber; z.boolean(); z.object({}); z.array(schema); parse(input:unknown): T throws ZodError; safeParse(input:unknown):{success:boolean,data?:T,error?:ZodError}; z.union([...]); z.intersection(a,b); z.enum([...]); refine(callback, {message, path}); .default(value), .optional(), .nullable(); setErrorMap(customMap); API: full method signatures with parameter types and error details; implementation pattern: schema creation, parse vs safeParse, error handling via try-catch and error.errors inspection</p>
+<h2 class="md-github"><a class="md-github__anchor" name="sanitised-extract" href="#sanitised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Sanitised Extract</h2>
+<p class="md-github">Table of Contents:</p>
+<ol class="md-github">
+<li class="md-github">Basic Schemas
+<ul class="md-github">
+<li class="md-github">z.string(): No parameters, returns ZodString instance</li>
+<li class="md-github">z.number(): No parameters, returns ZodNumber instance</li>
+<li class="md-github">z.boolean(): No parameters, returns ZodBoolean instance</li>
+</ul>
+</li>
+<li class="md-github">Object and Array Schemas
+<ul class="md-github">
+<li class="md-github">z.object({ key: schema, ... }): Accepts object mapping where each key is assigned a schema</li>
+<li class="md-github">z.array(schema): Validates all elements in an array using the provided schema</li>
+</ul>
+</li>
+<li class="md-github">Validation Methods
+<ul class="md-github">
+<li class="md-github">parse(input: unknown): Returns type T on success, throws ZodError on failure</li>
+<li class="md-github">safeParse(input: unknown): Returns an object { success: boolean, data?: T, error?: ZodError }</li>
+</ul>
+</li>
+<li class="md-github">Advanced Features
+<ul class="md-github">
+<li class="md-github">z.union([schema1, schema2, ...]): Validates input against any schema in list</li>
+<li class="md-github">z.intersection(schema1, schema2): Merges two schemas into one unified schema</li>
+<li class="md-github">z.enum(['A', 'B', ...]): Creates an enum type from string array</li>
+<li class="md-github">Refinement using .refine(callback, { message, path }): Implements custom validations with precise error messages</li>
+<li class="md-github">Default and Optional Configurations: .default(value), .optional(), .nullable()
+Detailed Items:
+Basic Schemas: Direct instantiation of type validators
+Object and Array Schemas: Structured validation using key-based and list-based schema definitions
+Validation Methods: Direct use of parse and safeParse for error handling
+Advanced Features: Use union, intersection, enum, and refine for complex scenarios; custom error mapping via setErrorMap method</li>
+</ul>
+</li>
+</ol>
+<h2 class="md-github"><a class="md-github__anchor" name="original-source" href="#original-source"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Original Source</h2>
+<p class="md-github">Environment and Schema Management Documentation
+https://zod.dev</p>
+<h2 class="md-github"><a class="md-github__anchor" name="digest-of-zod_schema" href="#digest-of-zod_schema"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Digest of ZOD_SCHEMA</h2>
+<h1 class="md-github"><a class="md-github__anchor" name="zod-documentation" href="#zod-documentation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>ZOD DOCUMENTATION</h1>
+<p class="md-github">Retrieved: 2023-10-16</p>
+<h1 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h1>
+<p class="md-github">This document details the Zod environment and schema management library as defined on https://zod.dev. It provides complete API method signatures, configuration options, and implementation patterns.</p>
+<h1 class="md-github"><a class="md-github__anchor" name="technical-specifications" href="#technical-specifications"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Technical Specifications</h1>
+<h2 class="md-github"><a class="md-github__anchor" name="schema-creation" href="#schema-creation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Schema Creation</h2>
+<ul class="md-github">
+<li class="md-github">z.string()  -&gt; returns a ZodString instance</li>
+<li class="md-github">z.number()  -&gt; returns a ZodNumber instance</li>
+<li class="md-github">z.boolean() -&gt; returns a ZodBoolean instance</li>
+<li class="md-github">z.object({ key: schema, ... }) -&gt; creates an object schema with required key validations</li>
+<li class="md-github">z.array(schema) -&gt; validates arrays where each element is validated against the provided schema</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="validation-methods" href="#validation-methods"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Validation Methods</h2>
+<ul class="md-github">
+<li class="md-github">parse(input: unknown): T
+<ul class="md-github">
+<li class="md-github">Description: Parses and validates the input; throws an error if invalid</li>
+<li class="md-github">Returns: Parsed type T</li>
+</ul>
+</li>
+<li class="md-github">safeParse(input: unknown): { success: boolean, data?: T, error?: ZodError }
+<ul class="md-github">
+<li class="md-github">Description: Safely parses the input; returns success flag along with data or error</li>
+</ul>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="advanced-features--compositions" href="#advanced-features--compositions"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Advanced Features &amp; Compositions</h2>
+<ul class="md-github">
+<li class="md-github">z.union([schema1, schema2, ...]) -&gt; validates against multiple schemas</li>
+<li class="md-github">z.intersection(schema1, schema2) -&gt; combines two schemas into one</li>
+<li class="md-github">z.enum([&quot;Value1&quot;, &quot;Value2&quot;, ...]) -&gt; defines an enum based on provided string array</li>
+<li class="md-github">.default(value) -&gt; assigns a default value if input is undefined</li>
+<li class="md-github">.optional() and .nullable() -&gt; designate fields as optional or nullable</li>
+<li class="md-github">.refine((val: T) =&gt; boolean, { message?: string, path?: string[] }) -&gt; adds custom validation logic with specific error messaging</li>
+</ul>
+<h1 class="md-github"><a class="md-github__anchor" name="attribution" href="#attribution"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h1>
+<p class="md-github">Source: https://zod.dev
+Data Size: 0 bytes</p>
+<h2 class="md-github"><a class="md-github__anchor" name="attribution-1" href="#attribution-1"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h2>
+<ul class="md-github">
+<li class="md-github">Source: Environment and Schema Management Documentation</li>
+<li class="md-github">URL: https://zod.dev</li>
+<li class="md-github">License: License: MIT License</li>
+<li class="md-github">Crawl Date: 2025-04-25T00:00:40.241Z</li>
+<li class="md-github">Data Size: 0 bytes</li>
+<li class="md-github">Links Found: 0</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="retrieved" href="#retrieved"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Retrieved</h2>
+<p class="md-github">2025-04-25</p>
+
+  </section>
+  <footer>
+    <p>Generated on 2025-04-25T00:37:12.870Z</p>
+  </footer>
+</body>
+</html>
