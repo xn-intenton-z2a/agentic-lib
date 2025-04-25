@@ -135,12 +135,24 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
 
+      - name: download-dependencies
+        id: download-dependencies
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        shell: bash
+        run: ./mvnw --batch-mode --quiet dependency:go-offline > /dev/null 2>&1
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
       - name: Update Maven dependencies
         continue-on-error: true
         shell: bash
         run: |
           mvn versions:use-latest-releases -DallowSnapshots=false
           # Optionally, run: mvn versions:commit to finalize changes
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Get git diff status
         id: git-diff

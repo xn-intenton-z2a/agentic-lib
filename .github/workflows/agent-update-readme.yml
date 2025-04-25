@@ -11,9 +11,9 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '20 8 */28 * *' # schedule-1
-    #- cron: '20 8 */7 * *' # schedule-2
-    #- cron: '20 8 * * *' # schedule-3
-    #- cron: '20 8 * * *' # schedule-4
+    #- cron: '20 8 * * *' # schedule-2
+    #- cron: '20 * * * *' # schedule-3
+    #- cron: '20 * * * *' # schedule-4
 
 env:
   branchPrefix: 'agentic-lib-'
