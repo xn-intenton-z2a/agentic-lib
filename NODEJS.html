@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>agentic-lib</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+    header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
+    h1 { font-size: 2em; }
+    section { margin-bottom: 1.5em; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5em 0; }
+    .label { font-weight: bold; }
+    footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>agentic-lib</h1>
+    <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest stats</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all stats</a></p>
+  </header>
+  <section>
+    <h1 class="md-github"><a class="md-github__anchor" name="nodejs" href="#nodejs"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>NODEJS</h1>
+<h2 class="md-github"><a class="md-github__anchor" name="crawl-summary" href="#crawl-summary"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Crawl Summary</h2>
+<p class="md-github">Node.js documentation covers detailed API specifications for core modules including HTTP, File System, Streams, Child Processes, and more. Specific API methods include createServer from 'node:http', fs.readFile, process.exit, and async_hooks.createHook. The documentation lists configuration options such as CLI flags (--inspect, --max-old-space-size) and includes code examples, detailed parameter types, method signatures, and operational best practices.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="normalised-extract" href="#normalised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Normalised Extract</h2>
+<p class="md-github">Table of Contents:</p>
+<ol class="md-github">
+<li class="md-github">Assertion Testing: Methods such as assert.ok(value, message) and assert.strictEqual(actual, expected, message) for test validation.</li>
+<li class="md-github">Asynchronous Context Tracking: APIs to trace execution context across asynchronous calls.</li>
+<li class="md-github">Async Hooks: createHook({ init, before, after, destroy }) returns a hook with enable/disable. Callback signature: (asyncId: number, type: string, triggerAsyncId: number, resource: Object).</li>
+<li class="md-github">Buffer: Buffer.from(input[, encoding]) and Buffer.alloc(size[, fill[, encoding]]) with detailed parameters.</li>
+<li class="md-github">C++ Addons: Node-API functions like napi_create_function(execEnv, name, strlen(name), callback, data, &amp;result) with precise types.</li>
+<li class="md-github">Child Processes &amp; Cluster: Using require('child_process').fork(modulePath, args, options) with detailed options; cluster.fork() returns a Worker with messaging via worker.send(message).</li>
+<li class="md-github">Command-line Options: Flags such as --inspect for debugging, --max-old-space-size for memory limits.</li>
+<li class="md-github">HTTP Server: createServer(callback: (req: http.IncomingMessage, res: http.ServerResponse) =&gt; void) returns http.Server; server.listen(port: number, hostname: string, callback: () =&gt; void) with exactly defined parameters.</li>
+<li class="md-github">Modules: CommonJS require(module) vs ES Module import syntax; node:module API providing enhanced loading.</li>
+<li class="md-github">Worker Threads: worker_threads.Worker(filename, { workerData, argv, eval }) with return of a Worker instance and on('message', ...) event.</li>
+</ol>
+<p class="md-github">Each section contains exact method signatures, parameter types, expected behavior and error handling procedures directly usable in production code.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="supplementary-details" href="#supplementary-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Supplementary Details</h2>
+<p class="md-github">Technical specifications include:</p>
+<ul class="md-github">
+<li class="md-github">createServer: Function signature createServer((req: http.IncomingMessage, res: http.ServerResponse) =&gt; void): http.Server.</li>
+<li class="md-github">server.listen: Method signature listen(port: number, hostname: string, backlog?: number, callback?: () =&gt; void): this.</li>
+<li class="md-github">async_hooks.createHook: Accepts an object with functions init(asyncId: number, type: string, triggerAsyncId: number, resource: Object), before(asyncId: number), after(asyncId: number), destroy(asyncId: number).</li>
+<li class="md-github">Buffer methods: Buffer.from(data: string | Array, encoding?: string): Buffer; Buffer.alloc(size: number, fill?: string | Buffer | number, encoding?: string): Buffer.</li>
+<li class="md-github">CLI Flags: --inspect (enables debugger), --max-old-space-size=VALUE (sets V8 memory limit).
+Implementation steps:</li>
+</ul>
+<ol class="md-github">
+<li class="md-github">Import required module using either require() or import statement.</li>
+<li class="md-github">Create a server instance with appropriate callback.</li>
+<li class="md-github">Configure server.listen with explicit port and host parameters.</li>
+<li class="md-github">Handle errors using try-catch for synchronous functions and error callbacks for async APIs.</li>
+<li class="md-github">Use child_process.fork() for multi-process patterns and cluster.fork() to scale across CPUs.</li>
+</ol>
+<p class="md-github">Best practices:</p>
+<ul class="md-github">
+<li class="md-github">Use asynchronous non-blocking APIs for I/O operations.</li>
+<li class="md-github">Validate input and outputs using assert methods.</li>
+<li class="md-github">Utilize process.on('uncaughtException') for global error catching.</li>
+</ul>
+<p class="md-github">Troubleshooting procedures:</p>
+<ul class="md-github">
+<li class="md-github">If the server fails to start, run node server.js and check for EADDRINUSE errors; use netstat to identify port usage.</li>
+<li class="md-github">For debugging, start node with --inspect flag and connect via Chrome DevTools.</li>
+<li class="md-github">Validate configuration flag values by inspecting process.argv output.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="reference-details" href="#reference-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reference Details</h2>
+<p class="md-github">API Specifications:</p>
+<ol class="md-github">
+<li class="md-github">http.createServer(callback: (req: http.IncomingMessage, res: http.ServerResponse) =&gt; void): http.Server
+<ul class="md-github">
+<li class="md-github">Returns a Server instance. Callback must handle req and res objects.</li>
+</ul>
+</li>
+<li class="md-github">Server.listen(port: number, hostname: string, backlog?: number, callback?: () =&gt; void): this
+<ul class="md-github">
+<li class="md-github">port: listening port number</li>
+<li class="md-github">hostname: bind address (e.g. '127.0.0.1')</li>
+<li class="md-github">backlog: Optional, maximum pending connections</li>
+<li class="md-github">callback: Called when the server starts listening</li>
+</ul>
+</li>
+</ol>
+<p class="md-github">SDK Method Signatures:</p>
+<ul class="md-github">
+<li class="md-github">Buffer.from(input: string | Array, encoding?: string): Buffer</li>
+<li class="md-github">Buffer.alloc(size: number, fill?: string | Buffer | number, encoding?: string): Buffer</li>
+<li class="md-github">async_hooks.createHook(callbacks: { init(asyncId: number, type: string, triggerAsyncId: number, resource: Object): void, before?(asyncId: number): void, after?(asyncId: number): void, destroy?(asyncId: number): void }): AsyncHook</li>
+</ul>
+<p class="md-github">Code Examples:
+// HTTP Server Example
+import { createServer } from 'node:http';</p>
+<p class="md-github">const server = createServer((req, res) =&gt; {
+res.writeHead(200, { 'Content-Type': 'text/plain' });  // Set header
+res.end('Hello World!\n');  // End response
+});</p>
+<p class="md-github">server.listen(3000, '127.0.0.1', () =&gt; {
+console.log('Listening on 127.0.0.1:3000');
+});</p>
+<p class="md-github">// Async Hook Example
+import async_hooks from 'async_hooks';
+const hook = async_hooks.createHook({
+init(asyncId, type, triggerAsyncId, resource) {
+// Initialize hook for async operation
+},
+before(asyncId) {
+// Before callback
+},
+after(asyncId) {
+// After callback
+},
+destroy(asyncId) {
+// Cleanup
+}
+});
+hook.enable();</p>
+<p class="md-github">Configuration Options:
+--inspect: Enables V8 inspector for debugging.
+--max-old-space-size: Sets the maximum heap size for V8 (in MB).</p>
+<p class="md-github">Best Practices:</p>
+<ul class="md-github">
+<li class="md-github">Always use non-blocking asynchronous APIs.</li>
+<li class="md-github">Validate parameters using assert module.</li>
+<li class="md-github">Use cluster module for scaling across CPU cores.</li>
+</ul>
+<p class="md-github">Troubleshooting:</p>
+<ul class="md-github">
+<li class="md-github">Command: node --inspect server.mjs
+Expected output: 'Debugger listening on ws://127.0.0.1:9229'</li>
+<li class="md-github">For port conflicts, check: netstat -an | grep 3000</li>
+</ul>
+<p class="md-github">Detailed Steps:</p>
+<ol class="md-github">
+<li class="md-github">Import module with require or import syntax.</li>
+<li class="md-github">Create resources (server, buffers) with exact parameter values.</li>
+<li class="md-github">Use error-first callbacks to catch and handle exceptions.</li>
+<li class="md-github">Verify command line flags by checking process.execArgv output.</li>
+</ol>
+<h2 class="md-github"><a class="md-github__anchor" name="information-dense-extract" href="#information-dense-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Information Dense Extract</h2>
+<p class="md-github">Node.js docs. createServer(callback(req:http.IncomingMessage, res:http.ServerResponse):void)-&gt;http.Server; server.listen(port:number, hostname:string, [backlog:number], [callback:()=&gt;void]); Buffer.from(data, [encoding]); Buffer.alloc(size, [fill, encoding]); async_hooks.createHook({init(asyncId:number,type:string,triggerAsyncId:number,resource:object), before?(asyncId:number), after?(asyncId:number), destroy?(asyncId:number)}); CLI: --inspect, --max-old-space-size; Modules: CommonJS require vs ES import; child_process.fork(modulePath, args, options); cluster.fork(); worker_threads.Worker(filename, {workerData, argv, eval}); troubleshooting: check netstat, use --inspect, process.on('uncaughtException').</p>
+<h2 class="md-github"><a class="md-github__anchor" name="sanitised-extract" href="#sanitised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Sanitised Extract</h2>
+<p class="md-github">Table of Contents:</p>
+<ol class="md-github">
+<li class="md-github">Assertion Testing: Methods such as assert.ok(value, message) and assert.strictEqual(actual, expected, message) for test validation.</li>
+<li class="md-github">Asynchronous Context Tracking: APIs to trace execution context across asynchronous calls.</li>
+<li class="md-github">Async Hooks: createHook({ init, before, after, destroy }) returns a hook with enable/disable. Callback signature: (asyncId: number, type: string, triggerAsyncId: number, resource: Object).</li>
+<li class="md-github">Buffer: Buffer.from(input[, encoding]) and Buffer.alloc(size[, fill[, encoding]]) with detailed parameters.</li>
+<li class="md-github">C++ Addons: Node-API functions like napi_create_function(execEnv, name, strlen(name), callback, data, &amp;result) with precise types.</li>
+<li class="md-github">Child Processes &amp; Cluster: Using require('child_process').fork(modulePath, args, options) with detailed options; cluster.fork() returns a Worker with messaging via worker.send(message).</li>
+<li class="md-github">Command-line Options: Flags such as --inspect for debugging, --max-old-space-size for memory limits.</li>
+<li class="md-github">HTTP Server: createServer(callback: (req: http.IncomingMessage, res: http.ServerResponse) =&gt; void) returns http.Server; server.listen(port: number, hostname: string, callback: () =&gt; void) with exactly defined parameters.</li>
+<li class="md-github">Modules: CommonJS require(module) vs ES Module import syntax; node:module API providing enhanced loading.</li>
+<li class="md-github">Worker Threads: worker_threads.Worker(filename, { workerData, argv, eval }) with return of a Worker instance and on('message', ...) event.</li>
+</ol>
+<p class="md-github">Each section contains exact method signatures, parameter types, expected behavior and error handling procedures directly usable in production code.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="original-source" href="#original-source"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Original Source</h2>
+<p class="md-github">Development &amp; Testing Tools Documentation
+https://nodejs.org/en/docs/</p>
+<h2 class="md-github"><a class="md-github__anchor" name="digest-of-nodejs" href="#digest-of-nodejs"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Digest of NODEJS</h2>
+<h1 class="md-github"><a class="md-github__anchor" name="nodejs-documentation" href="#nodejs-documentation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Node.js Documentation</h1>
+<p class="md-github">Retrieved Date: 2023-10-18</p>
+<h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
+<p class="md-github">This document contains the full technical details extracted from the Node.js documentation available at https://nodejs.org/en/docs/.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="topics-table-of-contents" href="#topics-table-of-contents"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Topics Table of Contents</h2>
+<ol class="md-github">
+<li class="md-github">Assertion Testing</li>
+<li class="md-github">Asynchronous Context Tracking</li>
+<li class="md-github">Async Hooks</li>
+<li class="md-github">Buffer</li>
+<li class="md-github">C++ Addons and Node-API</li>
+<li class="md-github">Child Processes and Cluster</li>
+<li class="md-github">Command-line Options</li>
+<li class="md-github">Console and Crypto</li>
+<li class="md-github">Debugger and Deprecated APIs</li>
+<li class="md-github">Diagnostics Channel</li>
+<li class="md-github">DNS, Domain, Errors, and Events</li>
+<li class="md-github">File System and Globals</li>
+<li class="md-github">HTTP, HTTP/2, HTTPS</li>
+<li class="md-github">Inspector and Internationalization</li>
+<li class="md-github">Modules (CommonJS, ECMAScript, node:module API, Packages, TypeScript)</li>
+<li class="md-github">Net, OS, and Path</li>
+<li class="md-github">Performance Hooks, Permissions, Process</li>
+<li class="md-github">Punycode, Query Strings, QUIC</li>
+<li class="md-github">Readline, REPL, Report</li>
+<li class="md-github">Single Executable Applications, SQLite</li>
+<li class="md-github">Stream, String Decoder, Test Runner, Timers</li>
+<li class="md-github">TLS/SSL, Trace Events, TTY, UDP/datagram, URL</li>
+<li class="md-github">Utilities, V8, VM, WASI</li>
+<li class="md-github">Web Crypto API, Web Streams API, Worker Threads, Zlib</li>
+</ol>
+<h2 class="md-github"><a class="md-github__anchor" name="detailed-technical-content" href="#detailed-technical-content"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Detailed Technical Content</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="1-assertion-testing" href="#1-assertion-testing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>1. Assertion Testing</h3>
+<ul class="md-github">
+<li class="md-github">Built-in assertion module to validate expected outcomes in tests.</li>
+<li class="md-github">API: assert.ok(value[, message]) and additional methods assert.strictEqual(actual, expected[, message]).</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="2-asynchronous-context-tracking" href="#2-asynchronous-context-tracking"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>2. Asynchronous Context Tracking</h3>
+<ul class="md-github">
+<li class="md-github">Provides functions to track execution context across asynchronous calls.</li>
+<li class="md-github">Used for logging, debugging and performance analysis.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="3-async-hooks" href="#3-async-hooks"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>3. Async Hooks</h3>
+<ul class="md-github">
+<li class="md-github">API to register hooks for asynchronous events.</li>
+<li class="md-github">Methods: async_hooks.createHook({ init, before, after, destroy }) returns a Hook object with enable() and disable() methods.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="4-buffer" href="#4-buffer"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>4. Buffer</h3>
+<ul class="md-github">
+<li class="md-github">Implementation of binary data.</li>
+<li class="md-github">Methods: Buffer.from, Buffer.alloc with precise parameters and return types.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="5-c-addons-and-node-api" href="#5-c-addons-and-node-api"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>5. C++ Addons and Node-API</h3>
+<ul class="md-github">
+<li class="md-github">Allows C/C++ integration using Node-API.</li>
+<li class="md-github">Specifications: Exposes functions such as napi_create_function with exact parameter types.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="6-child-processes-and-cluster" href="#6-child-processes-and-cluster"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>6. Child Processes and Cluster</h3>
+<ul class="md-github">
+<li class="md-github">API: require('child_process') for spawning processes (e.g. spawn, exec, fork).</li>
+<li class="md-github">Cluster module allows load balancing: cluster.fork() returns a worker object.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="7-command-line-options" href="#7-command-line-options"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>7. Command-line Options</h3>
+<ul class="md-github">
+<li class="md-github">Various CLI flags such as --inspect, --max-old-space-size, with effects on debugging and memory limits.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="8-console-and-crypto" href="#8-console-and-crypto"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>8. Console and Crypto</h3>
+<ul class="md-github">
+<li class="md-github">Console: Global methods console.log, console.error available in the runtime.</li>
+<li class="md-github">Crypto: Provides cryptographic functions, e.g. crypto.createHash(algorithm) which returns a Hash object.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="9-debugger-and-deprecated-apis" href="#9-debugger-and-deprecated-apis"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>9. Debugger and Deprecated APIs</h3>
+<ul class="md-github">
+<li class="md-github">Debugger: External debugger integration via --inspect flag.</li>
+<li class="md-github">Deprecated APIs are documented with version details and migration guidelines.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="10-diagnostics-channel" href="#10-diagnostics-channel"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>10. Diagnostics Channel</h3>
+<ul class="md-github">
+<li class="md-github">Introduces new diagnostic APIs to subscribe to internal events.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="11-dns-domain-errors-and-events" href="#11-dns-domain-errors-and-events"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>11. DNS, Domain, Errors, and Events</h3>
+<ul class="md-github">
+<li class="md-github">DNS: Methods like dns.lookup(hostname[, options], callback) with detailed parameter types.</li>
+<li class="md-github">Domain: Deprecated exception handling mechanism.</li>
+<li class="md-github">Error handling: Standard Error objects with stack traces.</li>
+<li class="md-github">Events: Implementation of event emitter (e.g. EventEmitter.on(event, listener)).</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="12-file-system-and-globals" href="#12-file-system-and-globals"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>12. File System and Globals</h3>
+<ul class="md-github">
+<li class="md-github">fs module APIs: fs.readFile(path, options, callback) and fs.writeFile(path, data, options, callback).</li>
+<li class="md-github">Global objects like process, __dirname, and __filename provided by Node.js.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="13-http-http2-https" href="#13-http-http2-https"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>13. HTTP, HTTP/2, HTTPS</h3>
+<ul class="md-github">
+<li class="md-github">HTTP server creation: http.createServer((req, res) =&gt; {}) returns instance of http.Server.</li>
+<li class="md-github">Server listen method: server.listen(port, hostname, callback) with port (number) and hostname (string).</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="14-inspector-and-internationalization" href="#14-inspector-and-internationalization"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>14. Inspector and Internationalization</h3>
+<ul class="md-github">
+<li class="md-github">Inspector: Integrated debugging tool, activated with command-line flags.</li>
+<li class="md-github">Internationalization: Provides ICU support for formatting.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="15-modules" href="#15-modules"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>15. Modules</h3>
+<ul class="md-github">
+<li class="md-github">CommonJS: require() system.</li>
+<li class="md-github">ECMAScript: import/export syntax supported via .mjs extension.</li>
+<li class="md-github">node:module API: Enhanced module resolution and loading.</li>
+<li class="md-github">Packages: npm package management details.</li>
+<li class="md-github">TypeScript: Typings and support via declaration files.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="16-net-os-and-path" href="#16-net-os-and-path"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>16. Net, OS, and Path</h3>
+<ul class="md-github">
+<li class="md-github">Net: API for TCP/IPC sockets.</li>
+<li class="md-github">OS: Provides operating system-specific information, e.g. os.platform(), os.release().</li>
+<li class="md-github">Path: Path module methods like path.join, path.resolve with string parameters.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="17-performance-hooks-permissions-process" href="#17-performance-hooks-permissions-process"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>17. Performance Hooks, Permissions, Process</h3>
+<ul class="md-github">
+<li class="md-github">Performance hooks: Methods like performance.now() and monitoring tools.</li>
+<li class="md-github">Process: process object with process.env, process.argv, process.exit([code]).</li>
+<li class="md-github">Permissions: Experimental APIs to manage resource permissions.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="18-punycode-query-strings-quic" href="#18-punycode-query-strings-quic"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>18. Punycode, Query Strings, QUIC</h3>
+<ul class="md-github">
+<li class="md-github">Punycode: Conversion utilities for domain names.</li>
+<li class="md-github">Query Strings: qs.parse and qs.stringify for URL parameters.</li>
+<li class="md-github">QUIC: Experimental support in HTTP/3 modules.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="19-readline-repl-report" href="#19-readline-repl-report"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>19. Readline, REPL, Report</h3>
+<ul class="md-github">
+<li class="md-github">Readline: Command interface for reading input.</li>
+<li class="md-github">REPL: Interactive shell provided by Node.js.</li>
+<li class="md-github">Report: Usage of process.report for diagnostic reports.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="20-single-executable-applications-sqlite" href="#20-single-executable-applications-sqlite"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>20. Single Executable Applications, SQLite</h3>
+<ul class="md-github">
+<li class="md-github">Mechanisms to compile Node.js applications into single executables.</li>
+<li class="md-github">SQLite: Integration details with underlying binary support.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="21-stream-string-decoder-test-runner-timers" href="#21-stream-string-decoder-test-runner-timers"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>21. Stream, String Decoder, Test Runner, Timers</h3>
+<ul class="md-github">
+<li class="md-github">Streams: API for readable, writable, duplex, and transform streams.</li>
+<li class="md-github">String Decoder: Utility to decode buffer streams.</li>
+<li class="md-github">Test Runner: Built-in test runner with assertions.</li>
+<li class="md-github">Timers: setTimeout, setInterval, and setImmediate with their callback patterns.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="22-tlsssl-trace-events-tty-udpdatagram-url" href="#22-tlsssl-trace-events-tty-udpdatagram-url"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>22. TLS/SSL, Trace Events, TTY, UDP/datagram, URL</h3>
+<ul class="md-github">
+<li class="md-github">TLS/SSL: Secure communication using tls.createServer(options, secureConnectionListener).</li>
+<li class="md-github">Trace Events: Capturing internal events for profiling.</li>
+<li class="md-github">TTY: Terminal interface support.</li>
+<li class="md-github">UDP/datagram: dgram module methods for UDP sockets.</li>
+<li class="md-github">URL: URL module to parse and format URLs.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="23-utilities-v8-vm-wasi" href="#23-utilities-v8-vm-wasi"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>23. Utilities, V8, VM, WASI</h3>
+<ul class="md-github">
+<li class="md-github">Utilities: util module for inherits, promisify, and debugging.</li>
+<li class="md-github">V8: V8 engine integration and performance APIs.</li>
+<li class="md-github">VM: Virtual machine sandbox via vm.Script and vm.runInContext.</li>
+<li class="md-github">WASI: WebAssembly System Interface for WASM modules.</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="24-web-crypto-api-web-streams-api-worker-threads-zlib" href="#24-web-crypto-api-web-streams-api-worker-threads-zlib"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>24. Web Crypto API, Web Streams API, Worker Threads, Zlib</h3>
+<ul class="md-github">
+<li class="md-github">Web Crypto API: Subset of modern browser crypto functions available in Node.js.</li>
+<li class="md-github">Web Streams API: Standard streams for web compatibility.</li>
+<li class="md-github">Worker Threads: Multi-threading support using worker_threads module.</li>
+<li class="md-github">Zlib: Data compression, with methods zlib.gzip, zlib.deflate supporting buffer and stream modes.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="code-example-http-server" href="#code-example-http-server"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Code Example: HTTP Server</h2>
+<p class="md-github">A sample HTTP server using ES modules:</p>
+<p class="md-github">import { createServer } from 'node:http';</p>
+<p class="md-github">const server = createServer((req, res) =&gt; {
+res.writeHead(200, { 'Content-Type': 'text/plain' });
+res.end('Hello World!\n');
+});</p>
+<p class="md-github">server.listen(3000, '127.0.0.1', () =&gt; {
+console.log('Listening on 127.0.0.1:3000');
+});</p>
+<p class="md-github">Run with command: node server.mjs</p>
+<h2 class="md-github"><a class="md-github__anchor" name="attribution" href="#attribution"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h2>
+<p class="md-github">Crawled from https://nodejs.org/en/docs/ with a data size of 101501 bytes; 1797 links found; No errors.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="attribution-1" href="#attribution-1"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h2>
+<ul class="md-github">
+<li class="md-github">Source: Development &amp; Testing Tools Documentation</li>
+<li class="md-github">URL: https://nodejs.org/en/docs/</li>
+<li class="md-github">License: License: Multiple Licenses (e.g., MIT, others)</li>
+<li class="md-github">Crawl Date: 2025-04-25T11:28:59.745Z</li>
+<li class="md-github">Data Size: 101501 bytes</li>
+<li class="md-github">Links Found: 1797</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="retrieved" href="#retrieved"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Retrieved</h2>
+<p class="md-github">2025-04-25</p>
+
+  </section>
+  <footer>
+    <p>Generated on 2025-04-25T12:25:56.830Z</p>
+  </footer>
+</body>
+</html>

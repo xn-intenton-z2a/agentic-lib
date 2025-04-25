@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>agentic-lib</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+    header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
+    h1 { font-size: 2em; }
+    section { margin-bottom: 1.5em; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5em 0; }
+    .label { font-weight: bold; }
+    footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>agentic-lib</h1>
+    <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest stats</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all stats</a></p>
+  </header>
+  <section>
+    <h1 class="md-github"><a class="md-github__anchor" name="github_copilot" href="#github_copilot"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GITHUB_COPILOT</h1>
+<h2 class="md-github"><a class="md-github__anchor" name="crawl-summary" href="#crawl-summary"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Crawl Summary</h2>
+<p class="md-github">Includes detailed sections on GitHub SSH authentication, repository and pull request management, and comprehensive GitHub Copilot integration for JetBrains IDEs with specific prerequisites, supported IDEs, plugin installation, code suggestion workflows, shortcut keys for navigating suggestions, and troubleshooting best practices.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="normalised-extract" href="#normalised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Normalised Extract</h2>
+<p class="md-github">Table of Contents:</p>
+<ol class="md-github">
+<li class="md-github">GitHub Authentication and SSH
+<ul class="md-github">
+<li class="md-github">Generate SSH keys using ssh-keygen.</li>
+<li class="md-github">Add key to ssh-agent and GitHub account.</li>
+<li class="md-github">Troubleshoot errors like 'Permission denied (publickey)' and 'Host key verification failed'.</li>
+</ul>
+</li>
+<li class="md-github">Repository Management and Pull Requests
+<ul class="md-github">
+<li class="md-github">Create and clone repositories; add files and manage branches.</li>
+<li class="md-github">Protect branches using branch protection rules.</li>
+<li class="md-github">Manage pull requests: create, review, merge, and revert.</li>
+</ul>
+</li>
+<li class="md-github">GitHub Copilot in JetBrains IDEs
+<ul class="md-github">
+<li class="md-github">Prerequisites: Valid Copilot access and a supported JetBrains IDE.</li>
+<li class="md-github">Supported IDEs: IntelliJ IDEA, Android Studio, AppCode, CLion, Code With Me Guest, DataGrip, DataSpell, GoLand, JetBrains Client, MPS, PhpStorm, PyCharm, Rider, RubyMine, RustRover, WebStorm, Writerside.</li>
+<li class="md-github">Plugin setup: Install from JetBrains Marketplace and authenticate with GitHub.</li>
+<li class="md-github">Code suggestion flow: Typing 'class Test' yields a suggestion; accept with Tab.</li>
+<li class="md-github">Alternative suggestions: Use shortcuts (macOS Option + ] / Option + [; Windows/Linux Alt + ] / Alt + [).</li>
+<li class="md-github">Best practices: Disable duplication detection if suggestions are limited; edit code contextually after acceptance.</li>
+</ul>
+</li>
+</ol>
+<h2 class="md-github"><a class="md-github__anchor" name="supplementary-details" href="#supplementary-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Supplementary Details</h2>
+<p class="md-github">GitHub Authentication: Use ssh-keygen for key generation; add key to ssh-agent using 'eval &quot;$(ssh-agent -s)&quot;' and 'ssh-add ~/.ssh/id_rsa'.
+Repository Operations: Clone with 'git clone &lt;repo_url&gt;', add and commit using 'git add .' then 'git commit -m &quot;message&quot;', and push with 'git push'.
+Pull Request Workflow: Create pull request on GitHub; review and merge using GitHub interface or command line.
+GitHub Copilot Integration in JetBrains: Install plugin from JetBrains Marketplace; after login, trigger suggestions by typing code (e.g., Java snippet 'class Test').
+Keyboard Shortcuts: macOS next suggestion: Option + ]; previous: Option + [; Windows/Linux: Alt + ] and Alt + [.
+Troubleshooting: If receiving no suggestions, check for duplication detection settings and confirm plugin authentication.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="reference-details" href="#reference-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reference Details</h2>
+<p class="md-github">API Specifications for GitHub Copilot (Conceptual Example):
+Function: getCopilotSuggestions
+Signature: public List<Suggestion> getCopilotSuggestions(String codeContext)
+Parameters: codeContext (String) - the current code snippet or comment context.
+Return: List<Suggestion> where Suggestion is an object containing fields: text (String), confidence (float).
+Example Usage in Java:
+// Example method invocation
+List<Suggestion> suggestions = copilot.getCopilotSuggestions(&quot;class Test {&quot;);
+for (Suggestion s : suggestions) {
+// Accept suggestion if confidence &gt; 0.85
+if (s.getConfidence() &gt; 0.85) {
+System.out.println(s.getText());
+}
+}</p>
+<p class="md-github">Supported Configuration Options:</p>
+<ul class="md-github">
+<li class="md-github">Plugin installation requires a valid GitHub account authentication token.</li>
+<li class="md-github">IDE settings can be configured to adjust suggestion delay and duplication detection flag (default: enabled).</li>
+</ul>
+<p class="md-github">Troubleshooting Commands:</p>
+<ul class="md-github">
+<li class="md-github">To check SSH agent status: execute 'ssh-agent -s'.</li>
+<li class="md-github">To add a key: execute 'ssh-add ~/.ssh/id_rsa'.</li>
+<li class="md-github">To view Git configuration: 'git config --list'.</li>
+</ul>
+<p class="md-github">Best Practices:</p>
+<ul class="md-github">
+<li class="md-github">Always verify the code context when accepting suggestions.</li>
+<li class="md-github">Customize shortcut keys in the IDE settings if default keys conflict with other system shortcuts.</li>
+<li class="md-github">Regularly update the GitHub Copilot plugin to benefit from performance improvements and expanded language support.</li>
+</ul>
+<p class="md-github">Full SDK method examples and configuration details are provided in the Copilot plugin documentation for JetBrains IDE integration.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="information-dense-extract" href="#information-dense-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Information Dense Extract</h2>
+<p class="md-github">SSH keygen; ssh-agent and ssh-add commands; git clone, add, commit, push; Pull request creation, review, merge, revert; GitHub Copilot prerequisites: valid access, supported IDEs (IntelliJ, Android Studio, etc); Plugin installation from JetBrains Marketplace; Code suggestion trigger: type 'class Test' then Tab; Alternative suggestions shortcuts: macOS Option+], Option+[; Windows/Linux Alt+], Alt+[; API sample: getCopilotSuggestions(String codeContext) returns List<Suggestion>; Configuration: duplication detection enabled by default; Troubleshoot via 'ssh-agent -s' and 'ssh-add ~/.ssh/id_rsa'; Best practices: context matching, regular plugin updates.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="sanitised-extract" href="#sanitised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Sanitised Extract</h2>
+<p class="md-github">Table of Contents:</p>
+<ol class="md-github">
+<li class="md-github">GitHub Authentication and SSH
+<ul class="md-github">
+<li class="md-github">Generate SSH keys using ssh-keygen.</li>
+<li class="md-github">Add key to ssh-agent and GitHub account.</li>
+<li class="md-github">Troubleshoot errors like 'Permission denied (publickey)' and 'Host key verification failed'.</li>
+</ul>
+</li>
+<li class="md-github">Repository Management and Pull Requests
+<ul class="md-github">
+<li class="md-github">Create and clone repositories; add files and manage branches.</li>
+<li class="md-github">Protect branches using branch protection rules.</li>
+<li class="md-github">Manage pull requests: create, review, merge, and revert.</li>
+</ul>
+</li>
+<li class="md-github">GitHub Copilot in JetBrains IDEs
+<ul class="md-github">
+<li class="md-github">Prerequisites: Valid Copilot access and a supported JetBrains IDE.</li>
+<li class="md-github">Supported IDEs: IntelliJ IDEA, Android Studio, AppCode, CLion, Code With Me Guest, DataGrip, DataSpell, GoLand, JetBrains Client, MPS, PhpStorm, PyCharm, Rider, RubyMine, RustRover, WebStorm, Writerside.</li>
+<li class="md-github">Plugin setup: Install from JetBrains Marketplace and authenticate with GitHub.</li>
+<li class="md-github">Code suggestion flow: Typing 'class Test' yields a suggestion; accept with Tab.</li>
+<li class="md-github">Alternative suggestions: Use shortcuts (macOS Option + ] / Option + [; Windows/Linux Alt + ] / Alt + [).</li>
+<li class="md-github">Best practices: Disable duplication detection if suggestions are limited; edit code contextually after acceptance.</li>
+</ul>
+</li>
+</ol>
+<h2 class="md-github"><a class="md-github__anchor" name="original-source" href="#original-source"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Original Source</h2>
+<p class="md-github">Git Platform Documentation
+https://docs.github.com</p>
+<h2 class="md-github"><a class="md-github__anchor" name="digest-of-github_copilot" href="#digest-of-github_copilot"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Digest of GITHUB_COPILOT</h2>
+<h1 class="md-github"><a class="md-github__anchor" name="github-copilot-documentation" href="#github-copilot-documentation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GITHUB COPILOT DOCUMENTATION</h1>
+<p class="md-github">Retrieved: 2023-10-06</p>
+<h1 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h1>
+<p class="md-github">This document compiles technical details extracted from GitHub Docs. It covers Git usage, SSH authentication, repository management, pull request workflows, and in-depth GitHub Copilot integration with JetBrains IDEs.</p>
+<h1 class="md-github"><a class="md-github__anchor" name="github-authentication-and-ssh" href="#github-authentication-and-ssh"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GitHub Authentication and SSH</h1>
+<ul class="md-github">
+<li class="md-github">Generate a new SSH key using standard Git commands (e.g., ssh-keygen).</li>
+<li class="md-github">Check for existing keys before generation. Add the key to the ssh-agent and then add it to the GitHub account.</li>
+<li class="md-github">Troubleshooting common SSH errors such as &quot;Permission denied (publickey)&quot; and &quot;Host key verification failed&quot;.</li>
+</ul>
+<h1 class="md-github"><a class="md-github__anchor" name="repository-management" href="#repository-management"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Repository Management</h1>
+<ul class="md-github">
+<li class="md-github">Creating repositories on GitHub, cloning them locally, and synchronizing changes.</li>
+<li class="md-github">Detailed operations include adding files, licensing repositories, branch protection rules, and pull request workflows.</li>
+<li class="md-github">Example workflow: Create a repository, modify files locally, commit, push, create a pull request, review comments, and merge.</li>
+</ul>
+<h1 class="md-github"><a class="md-github__anchor" name="pull-request-operations" href="#pull-request-operations"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Pull Request Operations</h1>
+<ul class="md-github">
+<li class="md-github">Pull request creation, review process, merging, and reverting pull requests.</li>
+<li class="md-github">Methods to change commit messages and resolve merge conflicts via command line or the GitHub interface.</li>
+</ul>
+<h1 class="md-github"><a class="md-github__anchor" name="github-copilot-integration-in-jetbrains-ides" href="#github-copilot-integration-in-jetbrains-ides"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GitHub Copilot Integration in JetBrains IDEs</h1>
+<h2 class="md-github"><a class="md-github__anchor" name="prerequisites" href="#prerequisites"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Prerequisites</h2>
+<ul class="md-github">
+<li class="md-github">Valid Copilot access (either Copilot Free with limitations or a full paid plan).</li>
+<li class="md-github">A supported JetBrains IDE installed. Supported IDEs include:
+<ul class="md-github">
+<li class="md-github">IntelliJ IDEA (Ultimate, Community, Educational)</li>
+<li class="md-github">Android Studio</li>
+<li class="md-github">AppCode</li>
+<li class="md-github">CLion</li>
+<li class="md-github">Code With Me Guest</li>
+<li class="md-github">DataGrip</li>
+<li class="md-github">DataSpell</li>
+<li class="md-github">GoLand</li>
+<li class="md-github">JetBrains Client</li>
+<li class="md-github">MPS</li>
+<li class="md-github">PhpStorm</li>
+<li class="md-github">PyCharm (Professional, Community, Educational)</li>
+<li class="md-github">Rider</li>
+<li class="md-github">RubyMine</li>
+<li class="md-github">RustRover</li>
+<li class="md-github">WebStorm</li>
+<li class="md-github">Writerside</li>
+</ul>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="plugin-installation-and-authentication" href="#plugin-installation-and-authentication"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Plugin Installation and Authentication</h2>
+<ul class="md-github">
+<li class="md-github">Install the GitHub Copilot plugin from the JetBrains Marketplace following provided instructions.</li>
+<li class="md-github">Authenticate with GitHub within the IDE to enable Copilot functionalities.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="code-suggestions-and-workflow" href="#code-suggestions-and-workflow"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Code Suggestions and Workflow</h2>
+<ul class="md-github">
+<li class="md-github">As you type in a Java file, for instance, begin with: class Test
+<ul class="md-github">
+<li class="md-github">GitHub Copilot will display a grayed-out suggestion of the class body.</li>
+<li class="md-github">Press Tab to accept the suggestion.</li>
+</ul>
+</li>
+<li class="md-github">You can also add descriptive comments (e.g., &quot;// find all images without alternate text and give them a red border&quot;) and Copilot will propose relevant code.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="alternative-suggestions-and-navigation" href="#alternative-suggestions-and-navigation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Alternative Suggestions and Navigation</h2>
+<ul class="md-github">
+<li class="md-github">Copilot may offer multiple suggestions. Use the following shortcuts to navigate:
+<ul class="md-github">
+<li class="md-github">macOS: Option + ] for next suggestion; Option + [ for previous suggestion.</li>
+<li class="md-github">Windows/Linux: Alt + ] for next; Alt + [ for previous.</li>
+</ul>
+</li>
+<li class="md-github">Accept a suggestion by pressing Tab or clicking the Accept option in the Copilot control palette.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="troubleshooting-and-best-practices" href="#troubleshooting-and-best-practices"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Troubleshooting and Best Practices</h2>
+<ul class="md-github">
+<li class="md-github">Enable or disable duplication detection if limited suggestions are received.</li>
+<li class="md-github">Edit suggested code as necessary. Maintain context consistency by ensuring comment descriptions match intended functionalities.</li>
+</ul>
+<h1 class="md-github"><a class="md-github__anchor" name="attribution-and-data-size" href="#attribution-and-data-size"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution and Data Size</h1>
+<p class="md-github">Data Size: 351020 bytes; Links Found: 9334; Source: GitHub Docs; Retrieved on 2023-10-06.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="attribution" href="#attribution"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h2>
+<ul class="md-github">
+<li class="md-github">Source: Git Platform Documentation</li>
+<li class="md-github">URL: https://docs.github.com</li>
+<li class="md-github">License: License: Not specified</li>
+<li class="md-github">Crawl Date: 2025-04-25T03:35:04.307Z</li>
+<li class="md-github">Data Size: 351020 bytes</li>
+<li class="md-github">Links Found: 9334</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="retrieved" href="#retrieved"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Retrieved</h2>
+<p class="md-github">2025-04-25</p>
+
+  </section>
+  <footer>
+    <p>Generated on 2025-04-25T12:25:56.643Z</p>
+  </footer>
+</body>
+</html>

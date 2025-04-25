@@ -81,7 +81,11 @@ For enhanced performance insights, the response of <code class="md-github">agent
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Note on Prompt Validity:</strong>
-The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. Inputs are processed by trimming whitespace and converting to lowercase. Therefore, even if the input appears in a different case or with extra spaces (e.g., ' NaN ', 'nan'), it will be considered non-actionable and will result in an error message explicitly stating that the input is non-actionable because it is equivalent to 'NaN'.</p>
+The agentic library expects actionable prompts. Non-actionable inputs such as 'NaN', empty strings, or improperly formatted commands are logged as errors and rejected. Inputs are processed by trimming whitespace. Therefore, even if the input appears in a different case (e.g., ' nan ', 'NaN', ' NAn '), it will be considered non-actionable and will result in an error message explicitly stating that the input is non-actionable because it is equivalent to 'NaN'.</p>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Command Aliases:</strong>
+The agentic library also supports command alias substitution. If the environment variable <code class="md-github">COMMAND_ALIASES</code> is set with a JSON mapping (for example, <code class="md-github">{ &quot;ls&quot;: &quot;list&quot;, &quot;rm&quot;: &quot;remove&quot; }</code>), any command matching an alias will be automatically replaced with its corresponding command before processing.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Stability:</strong><br>
@@ -117,6 +121,7 @@ The code is located in <code class="md-github">src/lib/main.js</code>.</p>
 <li class="md-github"><code class="md-github">--digest</code>: Initiates processing of a sample digest event.</li>
 <li class="md-github"><code class="md-github">--simulate-error</code>: Simulates an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.</li>
 <li class="md-github"><code class="md-github">--simulate-delay &lt;ms&gt;</code>: Delays execution for the specified number of milliseconds, simulating processing latency before executing further commands.</li>
+<li class="md-github"><code class="md-github">--simulate-load &lt;ms&gt;</code>: Simulates a heavy processing load by executing a CPU‑intensive loop for the specified duration in milliseconds.</li>
 <li class="md-github"><code class="md-github">--apply-fix</code>: Applies automated fixes and logs a success message indicating &quot;Applied fix successfully&quot;. Execution stops immediately after this action.</li>
 <li class="md-github"><code class="md-github">--cli-utils</code>: <strong class="md-github">NEW.</strong> Displays a comprehensive summary of all CLI commands available along with brief descriptions. Use this flag to quickly view all command options.</li>
 </ul>
@@ -150,7 +155,7 @@ The code is located in <code class="md-github">src/lib/main.js</code>.</p>
 </li>
 <li class="md-github"><strong class="md-github">--digest:</strong>
 <ul class="md-github">
-<li class="md-github">Initiates the processing of a sample digest by creating a simulated SQS event and handling it through the AWS-integrated lambda handler.</li>
+<li class="md-github">Initiates the processing of a sample digest by creating a simulated SQS event and handling it through the AWS‑integrated lambda handler.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">--agentic:</strong>
@@ -193,6 +198,11 @@ The code is located in <code class="md-github">src/lib/main.js</code>.</p>
 <li class="md-github">Delays execution for the specified number of milliseconds, simulating processing latency before executing any further commands.</li>
 </ul>
 </li>
+<li class="md-github"><strong class="md-github">--simulate-load <ms>:</strong>
+<ul class="md-github">
+<li class="md-github">Simulates a heavy processing load by executing a CPU‑intensive loop for the specified duration in milliseconds.</li>
+</ul>
+</li>
 <li class="md-github"><strong class="md-github">--apply-fix:</strong>
 <ul class="md-github">
 <li class="md-github">Applies automated fixes and logs a success message.</li>
@@ -200,7 +210,7 @@ The code is located in <code class="md-github">src/lib/main.js</code>.</p>
 </li>
 <li class="md-github"><strong class="md-github">--cli-utils:</strong>
 <ul class="md-github">
-<li class="md-github"><strong class="md-github">NEW.</strong> Displays a comprehensive summary of all CLI commands available along with brief descriptions. Use this flag to quickly view all command options.</li>
+<li class="md-github">Displays a summary of available CLI commands along with brief descriptions.</li>
 </ul>
 </li>
 </ul>
@@ -230,7 +240,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-04-25T00:37:13.343Z</p>
+    <p>Generated on 2025-04-25T12:25:57.238Z</p>
   </footer>
 </body>
 </html>
