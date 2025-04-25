@@ -13,6 +13,15 @@ maintenanceIssuesWipLimit: 2
 # How many attempts should be made to work on an issue?
 attemptsPerBranch: 2
 attemptsPerIssue: 2
+
+readOnlyFilepaths:
+  mission: "MISSION.md"
+  contributing: "CONTRIBUTING.md"
+  formattingFile: ".prettierrc"
+  lintingFile: "eslint.config.js"
+  buildScript: "npm run build"
+  testScript: "npm test"
+  mainScript: "npm run start"
 # Mapping for writeable filepaths
 # These are used as defaults when invoking workflows and as allowed patterns for agents
 writeableFilepaths:

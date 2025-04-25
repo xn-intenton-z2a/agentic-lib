@@ -15,6 +15,8 @@ on:
     workflows:
       - agent-issue-to-code
       - agent-fix-code
+      - agent-update-readme
+      - ci-update
     types:
       - completed
   #schedule:

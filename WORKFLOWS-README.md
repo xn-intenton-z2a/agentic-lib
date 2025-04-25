@@ -651,10 +651,12 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-MVP] Change the fix code workflows to just write to docs and read the readme
 - [x] [r0w-MVP] Move the workflows except the fix code ones to read the docs and the readme.
 - [x] [r0w-MVP] Remove defaulting where agentic-lib has a default directory value.
-- [~] [r0w-MVP] Add a workflow to change the readme.
+- [x] [r0w-MVP] Add a workflow to change the readme.
 - [ ] [r0w-MVP] Set up agentic-lib (prototype), se-sqs-bridge and repository0 to only write to supplementary files and not to the main files.
 - [ ] [r0w-MVP] Set up plot-code-lib to use a single file
 - [ ] [r0w-MVP] Set up repository0-crucible to use multiple files
+- [ ] Move AGENT- files to ./github/agentic-lib/agent-*.md
+- [ ] Move agentic-lib.yml to ./github/agentic-lib/agentic-lib.yml
 - [ ] Support the deletion of files by specifying "delete" as the contents but ignore of it's just empty.
 - [ ] Create a readOnlyFilepaths alongside readWriteFilepaths
 - [ ] Find out why issues autoclose when the PR closes and stop this to that the issue is closed when the review is done.
