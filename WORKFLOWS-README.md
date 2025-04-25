@@ -666,6 +666,9 @@ Re-usable GitHub Actions Workflows:
 - [ ] [r0w-Launch] Ensure every file path referenced by the workflows defaults to the agentic-lib.yml
 - [ ] Support a more TDD / literate approach by starting a feature branch with a failing test then fix code should extract the issue details and be alerted to the test addition as TDD.
 - [ ] Add a PR review workflow with a reviewer and responder.
+- [ ] Add branch sweeper.
+- [ ] Add issue sweeper.
+- [ ] Record and escalate sweeping incidents.
 - [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
 - [ ] Generate API.md based on the source file.
 - [ ] Move check-attempts-limit into a reusable workflow.
