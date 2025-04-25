@@ -123,11 +123,13 @@ jobs:
             const attemptsPerIssue = (parseInt(attemptsPerIssueStr) ? parseInt(attemptsPerIssueStr) : "");
 
             // If attempts to [work++fix] a branch exceed the limit as per agentic-lib.yml, then comment the issue and close it      
+            core.info(`Retrieving issue ${issueNumber} details...`);
             const { data: issue } = await github.rest.issues.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber
             });
+            core.info(`Issue title: ${issue.title}`);
             const issueLabelsStartingWithApplyFix = issue.labels.filter(label => label.name.startsWith("apply-fix-"));
             const issueLabelsStartingWithIssueWorker = issue.labels.filter(label => label.name.startsWith("issue-worker-"));
             const attemptsOnIssue = issueLabelsStartingWithApplyFix.length + issueLabelsStartingWithIssueWorker.length

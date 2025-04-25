@@ -160,11 +160,13 @@ jobs:
           script: |
             const issueNumberStr = process.env.issueNumber
             const issueNumber = (parseInt(issueNumberStr) ? parseInt(issueNumberStr) : "");
+            core.info(`Retrieving issue ${issueNumber} details...`);
             const { data: issue } = await github.rest.issues.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber
             });
+            core.info(`Issue title: ${issue.title}`);
 
             const merged = issue.labels.some(label => label.name.toLowerCase() === "merged") ? "true" : "false";
 

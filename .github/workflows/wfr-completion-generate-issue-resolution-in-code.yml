@@ -493,11 +493,13 @@ jobs:
             core.info(`Linting file '${lintingFile}' has been loaded (length ${lintingFileContent.length}).`);
             core.info(`Prompt file '${promptFile}' has been loaded (length ${promptContent.length}).`);
 
+            core.info(`Retrieving issue ${issueNumber} details...`);
             const issue = await github.rest.issues.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber
             });
+            core.info(`Issue title: ${issue.data.title}`);
             const issueTitle = issue.data.title;
             const issueDescription = issue.data.body;
             const issueComments = await github.rest.issues.listComments({

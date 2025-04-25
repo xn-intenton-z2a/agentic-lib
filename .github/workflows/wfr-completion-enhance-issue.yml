@@ -505,12 +505,14 @@ jobs:
             }
 
             core.info(`Found ${libraryFiles.length} library documents in ${libraryDir}`);
+            core.info(`Retrieving issue ${issueNumber} details...`);
 
             const issue = await github.rest.issues.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber
             });
+            core.info(`Issue title: ${issue.data.title}`);
             const issueTitle = issue.data.title;
             const issueDescription = issue.data.body;
             const issueComments = await github.rest.issues.listComments({
