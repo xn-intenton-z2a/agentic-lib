@@ -652,14 +652,14 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-MVP] Move the workflows except the fix code ones to read the docs and the readme.
 - [x] [r0w-MVP] Remove defaulting where agentic-lib has a default directory value.
 - [x] [r0w-MVP] Add a workflow to change the readme.
+- [x] [r0w-Launch] Create a readOnlyFilepaths alongside readWriteFilepaths
+- [x] [r0w-Launch] Support the deletion of files by specifying "delete" as the contents but ignore of it's just empty.
+- [x] [r0w-Launch] Find out why issues autoclose when the PR closes (because of fixes #123) and stop this to that the issue is closed when the review is done.
+- [~] [r0w-Launch] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
 - [ ] [r0w-MVP] Set up agentic-lib (prototype), se-sqs-bridge to only write to supplementary files and not to the main files.
 - [ ] [r0w-MVP] Set up repository0 to use a demo directory and reset every week.
 - [ ] [r0w-MVP] Set up plot-code-lib to use a single file and the readme as the documentation.
 - [ ] [r0w-MVP] Set up repository0-crucible to use multiple files
-- [~] [r0w-Launch] Support the deletion of files by specifying "delete" as the contents but ignore of it's just empty.
-- [~] [r0w-Launch] Create a readOnlyFilepaths alongside readWriteFilepaths
-- [~] [r0w-Launch] Find out why issues autoclose when the PR closes (because of fixes #123) and stop this to that the issue is closed when the review is done.
-- [~] [r0w-Launch] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
 - [ ] [r0w-Launch] Move AGENT- files to ./github/agentic-lib/agent-*.md
 - [ ] [r0w-Launch] Move agentic-lib.yml to ./github/agentic-lib/agentic-lib.yml
 - [ ] [r0w-Launch] Feature switch roles: librarian, developer, web publisher
