@@ -200,24 +200,36 @@ jobs:
             let checks = [];
             for (const branch of branchesResp) {
               core.info(`Checking branch: ${branch.name}`);
-              const { data: branchResp } = await github.rest.repos.getBranch({ owner, repo, branch: branch.name });
-              if( branchResp ) {
-                const commitSha = branchResp.commit.sha;
-                const { data: branchChecks } = await github.rest.checks.listForRef({
-                  owner,
-                  repo,
-                  ref: commitSha,
-                });
-                const checkRuns = branchChecks.check_runs.map(check => {
-                  return {
-                    ...check,
-                    branchName: branch.name,
-                    branch
-                  };
-                });
-                checks.push(...checkRuns);
-              } else {
-                core.info(`Branch ${branch.name} not found.`);
+              try {
+                const { data: branchResp } = await github.rest.repos.getBranch({ owner, repo, branch: branch.name });
+                if( branchResp ) {
+                  const commitSha = branchResp.commit.sha;
+                  try {
+                    const { data: branchChecks } = await github.rest.checks.listForRef({
+                      owner,
+                      repo,
+                      ref: commitSha,
+                    });
+                    if (branchChecks && branchChecks.check_runs) {
+                      const checkRuns = branchChecks.check_runs.map(check => {
+                        return {
+                          ...check,
+                          branchName: branch.name,
+                          branch
+                        };
+                      });
+                      checks.push(...checkRuns);
+                    } else {
+                      core.info(`No check runs found for branch ${branch.name}.`);
+                    }
+                  } catch (checkError) {
+                    core.warning(`Error fetching check runs for branch ${branch.name}: ${checkError.message}`);
+                  }
+                } else {
+                  core.info(`Branch ${branch.name} not found.`);
+                }
+              } catch (branchError) {
+                core.warning(`Error fetching branch ${branch.name}: ${branchError.message}`);
               }
             }
 
