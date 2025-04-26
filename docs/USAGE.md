@@ -19,10 +19,11 @@ This document provides clear and concise usage details for the agentic-lib comma
 - **--dry-run**: Execute a dry run without performing any actions.
 - **--simulate-error**: Simulate an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.
 - **--simulate-delay <ms>**: Simulate processing delay for the specified duration in milliseconds.
-- **--simulate-load <ms>**: Simulate a heavy processing load by executing a CPU‑intensive loop for the specified duration in milliseconds.
+- **--simulate-load <ms>**: Simulate a heavy processing load by executing a CPU-intensive loop for the specified duration in milliseconds.
 - **--apply-fix**: Apply automated fix and log a success message indicating that the fix was applied.
 - **--cli-utils**: Displays a comprehensive summary of all CLI commands available along with brief descriptions.
 - **--workflow-chain <jsonPayload>**: Process a chain of workflow commands sequentially. (Payload must have a `chain` array property)
+- **--perf-metrics**: Display aggregated performance metrics for agentic commands and workflow chains in JSON format, including total count, average, minimum, and maximum execution times.
 - **--verbose-stats**: When used with a valid command, outputs additional runtime statistics in JSON format, including `callCount` (the number of successful command invocations) and `uptime` (the process uptime in seconds).
 
 ## Environment Variables

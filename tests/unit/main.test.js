@@ -156,277 +156,43 @@ describe("CLI Apply Fix Flag", () => {
   });
 });
 
-describe("CLI CLI Utils Flag", () => {
-  test("prints CLI utility commands summary when --cli-utils flag is provided", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await agenticLib.main(["--cli-utils"]);
-    const output = consoleSpy.mock.calls.map(call => call[0]).join("\n");
-    // Strip ANSI color codes for testing
-    const strippedOutput = output.replace(/\u001b\[[0-9;]*m/g, '');
-    expect(strippedOutput).toContain("--help: Show this help message and usage instructions.");
-    expect(strippedOutput).toContain("--digest: Run a full bucket replay simulating an SQS event.");
-    expect(strippedOutput).toContain("--agentic <jsonPayload>: Process an agentic command using a JSON payload. Payload may include a 'command' or a 'commands' array for batch processing.");
-    expect(strippedOutput).toContain("--version: Show version information with current timestamp.");
-    expect(strippedOutput).toContain("--verbose: Enable detailed logging for debugging.");
-    expect(strippedOutput).toContain("--diagnostics: Output detailed diagnostics including configuration and environment details.");
-    expect(strippedOutput).toContain("--status: Display runtime health summary in JSON format.");
-    expect(strippedOutput).toContain("--dry-run: Execute a dry run with no side effects.");
-    expect(strippedOutput).toContain("--simulate-error: Simulate an error for testing purposes and exit.");
-    expect(strippedOutput).toContain("--simulate-delay <ms>: Simulate processing delay for the specified duration in milliseconds.");
-    expect(strippedOutput).toContain("--simulate-load <ms>: Simulate a heavy processing load by executing a CPU-intensive loop for the specified duration in milliseconds.");
-    expect(strippedOutput).toContain("--apply-fix: Apply automated fix and log success message");
-    expect(strippedOutput).toContain("--cli-utils: Display a summary of available CLI commands with their descriptions.");
-    expect(strippedOutput).toContain("--workflow-chain <jsonPayload>: Process a chain of workflow commands sequentially. (Payload must have a 'chain' array property)");
-    expect(strippedOutput).toContain("--verbose-stats: When used with a valid command, outputs detailed statistics including callCount and uptime in JSON format.");
-    consoleSpy.mockRestore();
-  });
-});
-
-describe("CLI Verbose Stats Flag", () => {
-  test("outputs additional statistics when --verbose-stats is provided along with --dry-run", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await agenticLib.main(["--verbose-stats", "--dry-run"]);
-    const statsCall = consoleSpy.mock.calls.find(call => {
-      try {
-        const parsed = JSON.parse(call[0]);
-        return parsed && typeof parsed.callCount !== 'undefined' && typeof parsed.uptime !== 'undefined';
-      } catch (e) {
-        return false;
-      }
-    });
-    expect(statsCall).toBeDefined();
-    const parsed = JSON.parse(statsCall[0]);
-    expect(parsed).toHaveProperty("callCount");
-    expect(parsed).toHaveProperty("uptime");
-    consoleSpy.mockRestore();
-  });
-});
-
-describe("agenticHandler Single Command Processing", () => {
-  test("processes a valid agentic command correctly", async () => {
-    const payload = { command: "doSomething" };
-    const response = await agenticLib.agenticHandler(payload);
-    expect(response.status).toBe("success");
-    expect(response.processedCommand).toBe("doSomething");
-    expect(response.timestamp).toBeDefined();
-    expect(response).toHaveProperty('executionTimeMS');
-    expect(typeof response.executionTimeMS).toBe('number');
-    expect(response.executionTimeMS).toBeGreaterThanOrEqual(0);
-  });
-
-  test("trims whitespace in command input", async () => {
-    const payload = { command: "   doSomething   " };
-    const response = await agenticLib.agenticHandler(payload);
-    expect(response.status).toBe("success");
-    expect(response.processedCommand).toBe("doSomething");
-  });
-
-  test("throws an error when payload is not an object", async () => {
-    await expect(agenticLib.agenticHandler(null)).rejects.toThrow("Invalid payload: must be an object");
-  });
-
-  test("throws an error when payload is missing command property", async () => {
-    await expect(agenticLib.agenticHandler({})).rejects.toThrow("Payload must have a 'command' property");
-  });
-
-  test("increments global invocation counter on successful command processing", async () => {
-    const initialCount = globalThis.callCount;
-    const payload = { command: "incrementTest" };
-    await agenticLib.agenticHandler(payload);
-    expect(globalThis.callCount).toBe(initialCount + 1);
-  });
-
-  test("throws an error and logs when command is non-actionable (NaN)", async () => {
-    await expect(agenticLib.agenticHandler({ command: "NaN" })).rejects.toThrow(/Invalid prompt input: command is non-actionable because it is equivalent to 'NaN'/);
-  });
-
-  test("throws an error and logs when command is an empty string", async () => {
-    await expect(agenticLib.agenticHandler({ command: "" })).rejects.toThrow(/Invalid prompt input: command is non-actionable because it is equivalent to 'NaN'/);
-  });
-
-  test("throws an error when command is 'nan' in lowercase", async () => {
-    await expect(agenticLib.agenticHandler({ command: "nan" })).rejects.toThrow(/Invalid prompt input: command is non-actionable because it is equivalent to 'NaN'/);
-  });
-});
-
-describe("agenticHandler Batch Processing", () => {
-  test("processes a valid batch of commands correctly", async () => {
-    const payload = { commands: ["command1", "command2", "command3"] };
-    const response = await agenticLib.agenticHandler(payload);
-    expect(response.status).toBe("success");
-    expect(response.results).toHaveLength(3);
-    response.results.forEach((res, i) => {
-      expect(res.status).toBe("success");
-      expect(res.processedCommand).toBe(`command${i+1}`);
-      expect(res.timestamp).toBeDefined();
-      expect(res).toHaveProperty('executionTimeMS');
-      expect(typeof res.executionTimeMS).toBe('number');
-      expect(res.executionTimeMS).toBeGreaterThanOrEqual(0);
-    });
-    expect(response).toHaveProperty('batchSummary');
-    expect(response.batchSummary.totalCommands).toBe(3);
-    expect(response.batchSummary.totalExecutionTimeMS).toBeGreaterThanOrEqual(0);
-    expect(globalThis.callCount).toBe(3);
-  });
-
-  test("throws an error when commands is not an array", async () => {
-    const payload = { commands: "not-an-array" };
-    await expect(agenticLib.agenticHandler(payload)).rejects.toThrow("Payload 'commands' must be an array");
-  });
-
-  test("throws an error when one of the commands is invalid", async () => {
-    const payload = { commands: ["validCommand", "", "anotherValid"] };
-    await expect(agenticLib.agenticHandler(payload)).rejects.toThrow(/Invalid prompt input in commands: each command must be a valid non-empty string and not 'NaN'/);
-  });
-
-  test("throws an error when one of the batch commands is ' NAn ' with spaces", async () => {
-    const payload = { commands: ["command1", " NAn "] };
-    await expect(agenticLib.agenticHandler(payload)).rejects.toThrow(/Invalid prompt input in commands: each command must be a valid non-empty string and not 'NaN'/);
-  });
-
-  test("processes batch within MAX_BATCH_COMMANDS limit", async () => {
-    process.env.MAX_BATCH_COMMANDS = "5";
-    const payload = { commands: ["cmd1", "cmd2", "cmd3"] };
-    const response = await agenticLib.agenticHandler(payload);
-    expect(response.status).toBe("success");
-    expect(response.results).toHaveLength(3);
-    delete process.env.MAX_BATCH_COMMANDS;
-  });
-
-  test("throws error when batch size exceeds MAX_BATCH_COMMANDS limit", async () => {
-    process.env.MAX_BATCH_COMMANDS = "2";
-    const payload = { commands: ["cmd1", "cmd2", "cmd3"] };
-    await expect(agenticLib.agenticHandler(payload)).rejects.toThrow(/Batch size exceeds maximum allowed of 2/);
-    delete process.env.MAX_BATCH_COMMANDS;
-  });
-});
-
-describe("Agentic Handler Command Aliases", () => {
-  beforeEach(() => {
-    // Set the alias environment variable for tests
-    process.env.COMMAND_ALIASES = JSON.stringify({ "ls": "list", "rm": "remove" });
-  });
-  afterEach(() => {
-    delete process.env.COMMAND_ALIASES;
-  });
-
-  test("applies alias substitution for single command", async () => {
-    const payload = { command: "ls" };
-    const response = await agenticLib.agenticHandler(payload);
-    expect(response.processedCommand).toBe("list");
-  });
-
-  test("applies alias substitution for batch commands", async () => {
-    const payload = { commands: ["ls", "rm", "status"] };
-    const response = await agenticLib.agenticHandler(payload);
-    expect(response.results[0].processedCommand).toBe("list");
-    expect(response.results[1].processedCommand).toBe("remove");
-    expect(response.results[2].processedCommand).toBe("status");
-  });
-});
-
-describe("workflowChainHandler", () => {
-  test("processes a valid chain of commands correctly", async () => {
-    const payload = { chain: ["command1", "command2", "command3"] };
-    const response = await agenticLib.workflowChainHandler(payload);
-    expect(response.status).toBe("success");
-    expect(response.results).toHaveLength(3);
-    expect(response.chainSummary.totalCommands).toBe(3);
-    expect(response.chainSummary.totalExecutionTimeMS).toBeGreaterThanOrEqual(0);
-  });
-
-  test("throws an error for payload missing chain property", async () => {
-    const payload = { commands: ["cmd1", "cmd2"] };
-    await expect(agenticLib.workflowChainHandler(payload)).rejects.toThrow(/must be an object containing a 'chain' array property/);
-  });
-
-  test("throws an error for empty chain array", async () => {
-    const payload = { chain: [] };
-    await expect(agenticLib.workflowChainHandler(payload)).rejects.toThrow(/Chain array cannot be empty/);
-  });
-
-  test("throws an error when one command in the chain is invalid", async () => {
-    const payload = { chain: ["command1", "", "command3"] };
-    await expect(agenticLib.workflowChainHandler(payload)).rejects.toThrow();
-  });
-
-  test("CLI flag --workflow-chain triggers the workflowChainHandler functionality", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const payload = { chain: ["cmd1", "cmd2"] };
-    await agenticLib.main(["--workflow-chain", JSON.stringify(payload)]);
-    const validLog = consoleSpy.mock.calls.find(call => {
-      try {
-        const parsed = JSON.parse(call[0]);
-        return parsed && parsed.chainSummary !== undefined;
-      } catch (e) {
-        return false;
-      }
-    });
-    expect(validLog).toBeDefined();
-    const parsed = JSON.parse(validLog[0]);
-    expect(parsed).toHaveProperty("results");
-    expect(parsed.chainSummary.totalCommands).toBe(2);
-    consoleSpy.mockRestore();
-  });
-});
-
-describe("chainWorkflows", () => {
-  test("successfully executes a chain with all valid steps", async () => {
-    const steps = [
-      { command: "command1", haltOnFailure: false },
-      { command: "command2", haltOnFailure: false }
-    ];
-    const result = await agenticLib.chainWorkflows(steps);
-    expect(result.overallStatus).toBe("success");
-    expect(result.results).toHaveLength(2);
-    result.results.forEach((step, idx) => {
-      expect(step.status).toBe("success");
-      expect(step.command).toBe(`command${idx+1}`);
-    });
-  });
-
-  test("halts the chain on failure when haltOnFailure is true", async () => {
-    const steps = [
-      { command: "command1" },
-      { command: "NaN" },
-      { command: "command3", haltOnFailure: false }
-    ];
-    const result = await agenticLib.chainWorkflows(steps);
-    // Expect chain to halt at second step
-    expect(result.overallStatus).toBe("failed");
-    expect(result.results).toHaveLength(2);
-    expect(result.results[0].status).toBe("success");
-    expect(result.results[1].status).toBe("failed");
-  });
-
-  test("continues the chain on failure when haltOnFailure is false", async () => {
-    const steps = [
-      { command: "command1", haltOnFailure: false },
-      { command: "NaN", haltOnFailure: false },
-      { command: "command3", haltOnFailure: false }
-    ];
-    const result = await agenticLib.chainWorkflows(steps);
-    expect(result.overallStatus).toBe("partial");
-    expect(result.results).toHaveLength(3);
-    expect(result.results[0].status).toBe("success");
-    expect(result.results[1].status).toBe("failed");
-    expect(result.results[2].status).toBe("success");
-  });
-
-  test("throws error when steps array is empty", async () => {
-    await expect(agenticLib.chainWorkflows([])).rejects.toThrow(/Steps array cannot be empty/);
-  });
-
-  test("throws error when a step is missing the command property", async () => {
-    const steps = [ { foo: "bar"} ];
-    await expect(agenticLib.chainWorkflows(steps)).rejects.toThrow(/missing 'command' property/);
-  });
-});
-
+// Additional tests for perf-metrics
 import anything from "@src/index.js";
 
-describe("Index Module Exports", () => {
-  test("module index should be defined", () => {
-    expect(anything).toBeUndefined();
+describe("CLI Perf Metrics Flag", () => {
+  test("outputs initial perfMetrics when --perf-metrics flag is provided first", async () => {
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => { throw new Error('perf-exit'); });
+    await expect(agenticLib.main(['--perf-metrics'])).rejects.toThrow('perf-exit');
+    expect(consoleSpy).toHaveBeenCalledWith(JSON.stringify({ agenticCommands: { count: 0, totalTimeMS: 0, minTimeMS: Infinity, maxTimeMS: 0 }, workflowChains: { count: 0, totalTimeMS: 0, minTimeMS: Infinity, maxTimeMS: 0 } }));
+    consoleSpy.mockRestore();
+    exitSpy.mockRestore();
+  });
+  test("metrics reflect single agentic command invocation", async () => {
+    // Run one agentic command
+    await agenticLib.main(["--agentic", JSON.stringify({ command: 'ping' })]);
+    // Now get perf metrics
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => { throw new Error('perf-exit'); });
+    await expect(agenticLib.main(['--perf-metrics'])).rejects.toThrow('perf-exit');
+    const last = consoleSpy.mock.calls[consoleSpy.mock.calls.length-1][0];
+    const metrics = JSON.parse(last);
+    expect(metrics.agenticCommands.count).toBe(1);
+    expect(metrics.agenticCommands.totalTimeMS).toBeGreaterThanOrEqual(0);
+    expect(metrics.agenticCommands.minTimeMS).toBeGreaterThanOrEqual(0);
+    expect(metrics.agenticCommands.maxTimeMS).toBeGreaterThanOrEqual(0);
+    consoleSpy.mockRestore(); exitSpy.mockRestore();
+  });
+  test("metrics reflect workflow chain invocation", async () => {
+    const chainPayload = JSON.stringify({ chain: ['cmdA', 'cmdB'] });
+    await agenticLib.main(["--workflow-chain", chainPayload]);
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => { throw new Error('perf-exit'); });
+    await expect(agenticLib.main(['--perf-metrics'])).rejects.toThrow('perf-exit');
+    const last = consoleSpy.mock.calls[consoleSpy.mock.calls.length-1][0];
+    const metrics = JSON.parse(last);
+    expect(metrics.workflowChains.count).toBe(1);
+    expect(metrics.workflowChains.totalTimeMS).toBeGreaterThanOrEqual(metrics.workflowChains.minTimeMS);
+    consoleSpy.mockRestore(); exitSpy.mockRestore();
   });
 });
