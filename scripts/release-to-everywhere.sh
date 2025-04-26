@@ -22,9 +22,9 @@ fi
 ./scripts/release-to-repository0.sh "${1?}"
 ./scripts/release-to-repository0-crucible.sh "${1?}"
 ./scripts/release-to-repository0-plot-code-lib.sh "${1?}"
-schedule=$(grep '^schedule:' .github/agentic-lib.yml | awk '{print $2}' | sed 's/schedule-//')
+schedule=$(grep '^schedule:' .github/agents/agentic-lib.yml | awk '{print $2}' | sed 's/schedule-//')
 if [ -z "${schedule}" ]; then
-  echo "No schedule found in .github/agentic-lib.yml, looking for line of the form 'schedule: schedule-<number>'"
+  echo "No schedule found in .github/agents/agentic-lib.yml, looking for line of the form 'schedule: schedule-<number>'"
 else
   echo "Workflow schedule: schedule-${schedule?}"
   ./scripts/activate-schedule.sh "${schedule?}"

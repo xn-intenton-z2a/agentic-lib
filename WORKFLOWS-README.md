@@ -656,13 +656,13 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-Launch] Support the deletion of files by specifying "delete" as the contents but ignore of it's just empty.
 - [x] [r0w-Launch] Find out why issues autoclose when the PR closes (because of fixes #123) and stop this to that the issue is closed when the review is done.
 - [x] [r0w-Launch] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
+- [x] [r0w-Launch] Move AGENT- files to ./github/agentic-lib/agent-*.md
+- [x] [r0w-Launch] Move agentic-lib.yml to ./github/agentic-lib/agentic-lib.yml
 - [ ] [r0w-MVP] Set up s3-sqs-bridge to only do essential updates.
 - [ ] [r0w-MVP] Set up agentic-lib to only write to supplementary files (`./prototype`) and not to the main files.
 - [ ] [r0w-MVP] Set up repository0 to use a demo directory and reset every week and show case past projects.
 - [ ] [r0w-MVP] Set up plot-code-lib to use a single file and the readme as the documentation.
 - [ ] [r0w-MVP] Set up repository0-crucible to use multiple files
-- [~] [r0w-Launch] Move AGENT- files to ./github/agentic-lib/agent-*.md
-- [~] [r0w-Launch] Move agentic-lib.yml to ./github/agentic-lib/agentic-lib.yml
 - [ ] [r0w-Launch] Feature switch role: elaborator (sources, library, web publish, features, docs, web publish)
 - [ ] [r0w-Launch] Feature switch role: engineer (src, tests, docs, packages)
 - [ ] [r0w-Launch] Feature switch role: maintainer (pr+linting+updates+readme+docs)
