@@ -645,11 +645,38 @@ jobs:
               "updatedFile02Name":  "tests/orderParser.test.js",
               "updatedFile02Contents": "The entire new content of the file, with all necessary changes applied, if any.",
               "updatedFile03Name": "docs/USAGE.md",
-              "updatedFile03Contents": "The entire new content of the file, with all necessary changes applied, if any."
+              "updatedFile03Contents": "The entire new content of the file, with all necessary changes applied, if any.",
+              "updatedFile04Name": "unused",
+              "updatedFile04Contents": "unused",
+              "updatedFile05Name": "unused",
+              "updatedFile05Contents": "unused",
+              "updatedFile06Name": "unused",
+              "updatedFile06Contents": "unused",
+              "updatedFile07Name": "unused",
+              "updatedFile07Contents": "unused",
+              "updatedFile08Name": "unused",
+              "updatedFile08Contents": "unused",
+              "updatedFile09Name": "unused",
+              "updatedFile09Contents": "unused",
+              "updatedFile10Name": "unused",
+              "updatedFile10Contents": "unused",
+              "updatedFile11Name": "unused",
+              "updatedFile11Contents": "unused",
+              "updatedFile12Name": "unused",
+              "updatedFile12Contents": "unused",
+              "updatedFile13Name": "unused",
+              "updatedFile13Contents": "unused",
+              "updatedFile14Name": "unused",
+              "updatedFile14Contents": "unused",
+              "updatedFile15Name": "unused",
+              "updatedFile15Contents": "unused",
+              "updatedFile16Name": "unused",
+              "updatedFile16Contents": "unused"
             }
 
             You can include up to 16 files using the updatedFileXXName and updatedFileXXContents pairs (where XX is a number from 01 to 16)
             Where a file name and contents slot is not used, populate tha name with "unused" and the contents with "unused".
+            Never truncate the files, when returning a file, always return the entire file content.
 
             All files will be checked against the allowedFilepathPatterns before being written.
 
@@ -658,7 +685,6 @@ jobs:
 
             const ResponseSchema = z.object({ 
               message: z.string(),
-              updatedFiles: z.object().catchall(z.string()).optional(),
               updatedFile01Name: z.string().optional(),
               updatedFile01Contents: z.string().optional(),
               updatedFile02Name: z.string().optional(),
@@ -705,13 +731,6 @@ jobs:
                     message: {
                       type: "string",
                       description: "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text."
-                    },
-                    updatedFiles: {
-                      type: "object",
-                      description: "An object where keys are file paths and values are the entire new content of those files, with all necessary changes applied, if any.",
-                      additionalProperties: {
-                        type: "string"
-                      }
                     },
                     updatedFile01Name: {
                       type: "string",
