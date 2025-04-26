@@ -584,7 +584,9 @@ jobs:
             try {
               core.info("raw response start: **********************************************");
               core.info(`raw response (${(result ? result.length : "undefined")} characters): "${result}"`);
-              core.info("raw response end: **********************************************");
+              core.info("raw response mid: ================================================");
+              core.info(`raw response as JSON: "${JSON.stringify(result)}"`);
+              core.info("raw response end: ************************************************");
               const parsed = ResponseSchema.parse(result);
               core.info(`parsed response: "${JSON.stringify(parsed)}"`);
               core.setOutput("fixed", parsed.fixed);
