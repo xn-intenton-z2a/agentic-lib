@@ -655,15 +655,23 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-Launch] Create a readOnlyFilepaths alongside readWriteFilepaths
 - [x] [r0w-Launch] Support the deletion of files by specifying "delete" as the contents but ignore of it's just empty.
 - [x] [r0w-Launch] Find out why issues autoclose when the PR closes (because of fixes #123) and stop this to that the issue is closed when the review is done.
-- [~] [r0w-Launch] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
-- [ ] [r0w-MVP] Set up agentic-lib (prototype), se-sqs-bridge to only write to supplementary files and not to the main files.
+- [x] [r0w-Launch] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
+- [ ] [r0w-MVP] Set up s3-sqs-bridge to only do essential updates.
+- [ ] [r0w-MVP] Set up agentic-lib to only write to supplementary files (`./prototype`) and not to the main files.
 - [ ] [r0w-MVP] Set up repository0 to use a demo directory and reset every week.
 - [ ] [r0w-MVP] Set up plot-code-lib to use a single file and the readme as the documentation.
 - [ ] [r0w-MVP] Set up repository0-crucible to use multiple files
 - [ ] [r0w-Launch] Move AGENT- files to ./github/agentic-lib/agent-*.md
 - [ ] [r0w-Launch] Move agentic-lib.yml to ./github/agentic-lib/agentic-lib.yml
-- [ ] [r0w-Launch] Feature switch roles: librarian, developer, web publisher
-- [ ] [r0w-Launch] Ensure every file path referenced by the workflows defaults to the agentic-lib.yml
+- [ ] [r0w-Launch] Feature switch role: elaborator (sources, library, web publish, features, docs, web publish)
+- [ ] [r0w-Launch] Feature switch role: engineer (src, tests, docs, packages)
+- [ ] [r0w-Launch] Feature switch role: maintainer (pr+linting+updates+readme+docs)
+- [ ] [r0w-Launch] Ensure every file path or external element referenced by the workflows, defaults to the value in agentic-lib.yml
+- [ ] [r0w-Launch] Add a comment and put an issue for review if it is already done.
+- [ ] [r0w-Launch] For all issue comments, add context to the comment such as: "After review, this issue was found to be already done."
+- [ ] [r0w-Launch] Pass and log a stamp on a current feature report for feature-to-issue if the feature is done.
+- [ ] [r0w-Launch] Pass and log a stamp on a current maintenance report for a maintenance-activity-to-issue if there is no value in making changes.
+- [ ] Add role: Commentator (news feed sources, news feed updates, news feed commentary, web publish).
 - [ ] Support a more TDD / literate approach by starting a feature branch with a failing test then fix code should extract the issue details and be alerted to the test addition as TDD.
 - [ ] Add a PR review workflow with a reviewer and responder.
 - [ ] Add branch sweeper.
