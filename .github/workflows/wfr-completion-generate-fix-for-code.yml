@@ -648,9 +648,8 @@ jobs:
               "updatedFile03Contents": "The entire new content of the file, with all necessary changes applied, if any."
             }
 
-            You can include up to 16 files using either:
-            1. The updatedFiles object where keys are file paths and values are file contents, or
-            2. The updatedFileXXName and updatedFileXXContents pairs (where XX is a number from 01 to 16)
+            You can include up to 16 files using the updatedFileXXName and updatedFileXXContents pairs (where XX is a number from 01 to 16)
+            Where a file name and contents slot is not used, populate tha name with "unused" and the contents with "unused".
 
             All files will be checked against the allowedFilepathPatterns before being written.
 
@@ -843,7 +842,7 @@ jobs:
                       description: "The entire new content of the sixteenth file, with all necessary changes applied"
                     }
                   },
-                  required: ["message"],
+                  required: ["message", "updatedFile01Name", "updatedFile01Contents", "updatedFile02Name", "updatedFile02Contents", "updatedFile03Name", "updatedFile03Contents", "updatedFile04Name", "updatedFile04Contents", "updatedFile05Name", "updatedFile05Contents", "updatedFile06Name", "updatedFile06Contents", "updatedFile07Name", "updatedFile07Contents", "updatedFile08Name", "updatedFile08Contents", "updatedFile09Name", "updatedFile09Contents", "updatedFile10Name", "updatedFile10Contents", "updatedFile11Name", "updatedFile11Contents", "updatedFile12Name", "updatedFile12Contents", "updatedFile13Name", "updatedFile13Contents", "updatedFile14Name", "updatedFile14Contents", "updatedFile15Name", "updatedFile15Contents", "updatedFile16Name", "updatedFile16Contents"],
                   additionalProperties: false
                 },
                 strict: true
@@ -898,13 +897,6 @@ jobs:
               // Create a map to store all file updates
               const fileUpdates = {};
 
-              // Handle updated files from the old format
-              if (parsed.updatedFiles && Object.keys(parsed.updatedFiles).length > 0) {
-                for (const [filePath, fileContent] of Object.entries(parsed.updatedFiles)) {
-                  fileUpdates[filePath] = fileContent;
-                }
-              }
-
               // Handle updated files from the new format
               for (let i = 1; i <= 16; i++) {
                 const numStr = i.toString().padStart(2, '0');
@@ -930,8 +922,8 @@ jobs:
                   } else {
                     core.warning(`File '${filePath}' is not in the allowed filepath patterns. Skipping deletion.`);
                   }
-                } else if (fileContent && fileContent.length > 1) {
-                  if (isFilePathAllowed(filePath, allowedFilepathPatterns)) {
+                } else if (fileContent && fileContent != "unused" && fileContent.length > 1) {
+                  if (filePath && filePath != "unused" && isFilePathAllowed(filePath, allowedFilepathPatterns)) {
                     // Create directory if it doesn't exist
                     const fileDir = path.dirname(filePath);
                     if (!fs.existsSync(fileDir)) {
