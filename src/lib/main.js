@@ -34,6 +34,12 @@ let VERBOSE_MODE = false;
 // Global verbose stats flag
 let VERBOSE_STATS = false;
 
+// Performance metrics collection
+const perfMetrics = {
+  agenticCommands: { count: 0, totalTimeMS: 0, minTimeMS: Infinity, maxTimeMS: 0 },
+  workflowChains:  { count: 0, totalTimeMS: 0, minTimeMS: Infinity, maxTimeMS: 0 }
+};
+
 // Helper function to format log entries
 function formatLogEntry(level, message, additionalData = {}) {
   return {
@@ -183,12 +189,19 @@ export async function agenticHandler(payload) {
           throw new Error(errorMsg);
         }
         logInfo(`Agentic Handler: processing command ${substitutedCmd}`);
+        const execTime = Date.now() - commandStart;
         const response = {
           status: "success",
           processedCommand: substitutedCmd,
           timestamp: new Date().toISOString(),
-          executionTimeMS: Date.now() - commandStart
+          executionTimeMS: execTime
         };
+        // Update perf metrics
+        perfMetrics.agenticCommands.count++;
+        perfMetrics.agenticCommands.totalTimeMS += execTime;
+        perfMetrics.agenticCommands.minTimeMS = Math.min(perfMetrics.agenticCommands.minTimeMS, execTime);
+        perfMetrics.agenticCommands.maxTimeMS = Math.max(perfMetrics.agenticCommands.maxTimeMS, execTime);
+        
         responses.push(response);
         globalThis.callCount++;
       }
@@ -216,12 +229,19 @@ export async function agenticHandler(payload) {
       }
       
       logInfo(`Agentic Handler: processing command ${substitutedCommand}`);
+      const execTime = Date.now() - startTime;
       const response = {
         status: "success",
         processedCommand: substitutedCommand,
         timestamp: new Date().toISOString(),
-        executionTimeMS: Date.now() - startTime
+        executionTimeMS: execTime
       };
+      // Update perf metrics
+      perfMetrics.agenticCommands.count++;
+      perfMetrics.agenticCommands.totalTimeMS += execTime;
+      perfMetrics.agenticCommands.minTimeMS = Math.min(perfMetrics.agenticCommands.minTimeMS, execTime);
+      perfMetrics.agenticCommands.maxTimeMS = Math.max(perfMetrics.agenticCommands.maxTimeMS, execTime);
+      
       globalThis.callCount++;
       return response;
     }
@@ -255,6 +275,12 @@ export async function workflowChainHandler(payload) {
     results.push(result);
   }
   const totalTime = Date.now() - chainStartTime;
+  // Update perf metrics
+  perfMetrics.workflowChains.count++;
+  perfMetrics.workflowChains.totalTimeMS += totalTime;
+  perfMetrics.workflowChains.minTimeMS = Math.min(perfMetrics.workflowChains.minTimeMS, totalTime);
+  perfMetrics.workflowChains.maxTimeMS = Math.max(perfMetrics.workflowChains.maxTimeMS, totalTime);
+  
   return {
     status: "success",
     results,
@@ -390,7 +416,8 @@ export function cliUtilsHandler() {
     { command: "--apply-fix", description: "Apply automated fix and log success message" },
     { command: "--cli-utils", description: "Display a summary of available CLI commands with their descriptions." },
     { command: "--workflow-chain <jsonPayload>", description: "Process a chain of workflow commands sequentially. (Payload must have a 'chain' array property)" },
-    { command: "--verbose-stats", description: "When used with a valid command, outputs detailed statistics including callCount and uptime in JSON format." }
+    { command: "--verbose-stats", description: "When used with a valid command, outputs detailed statistics including callCount and uptime in JSON format." },
+    { command: "--perf-metrics", description: "Output aggregated performance metrics (counts, timings) in JSON format." }
   ];
   let output = chalk.bold("CLI Commands Summary:\n\n");
   cliCommands.forEach(cmd => {
@@ -439,7 +466,22 @@ Usage:
   --cli-utils                Display a summary of available CLI commands with their descriptions.
   --workflow-chain <jsonPayload>    Process a chain of workflow commands sequentially. (Payload must have a 'chain' array property)
   --verbose-stats            When used with a valid command, outputs detailed statistics including callCount and uptime in JSON format.
+  --perf-metrics             Output aggregated performance metrics (counts, timings) in JSON format.
 `;
+}
+
+// Process the --perf-metrics flag
+function processPerfMetrics(args) {
+  const index = args.indexOf("--perf-metrics");
+  if (index !== -1) {
+    const output = { ...perfMetrics };
+    if (VERBOSE_STATS) {
+      Object.assign(output, { callCount: globalThis.callCount, uptime: process.uptime() });
+    }
+    console.log(JSON.stringify(output));
+    process.exit(0);
+  }
+  return false;
 }
 
 // Asynchronously process the --simulate-delay flag
@@ -655,6 +697,8 @@ async function processAgentic(args) {
 // ---------------------------------------------------------------------------------------------------------------------
 
 export async function main(args = process.argv.slice(2)) {
+  // Perf metrics early check
+  processPerfMetrics(args);
   await processSimulateDelay(args);
   processVerboseStats(args);
   if (processSimulateLoad(args)) {
