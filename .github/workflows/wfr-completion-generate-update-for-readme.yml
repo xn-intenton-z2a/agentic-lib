@@ -653,7 +653,7 @@ jobs:
 
             const ResponseSchema = z.object({ 
               message: z.string(),
-              updatedFiles: z.record(z.string())
+              updatedFiles: z.object().catchall(z.string()).optional()
             });
 
             // Define the function schema for functional calling
