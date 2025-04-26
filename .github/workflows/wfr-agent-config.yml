@@ -29,10 +29,10 @@ on:
   workflow_call:
     inputs:
       configPath:
-        description: 'The the location of the agentic-lib configuration file. e.g. ".github/agentic-lib.yml"'
+        description: 'The the location of the agentic-lib configuration file. e.g. ".github/agents/agentic-lib.yml"'
         type: string
         required: false
-        default: '.github/agentic-lib.yml'
+        default: '.github/agents/agentic-lib.yml'
       defaultAttemptsPerIssue:
         description: 'The default number of attempts per issue.'
         type: string
@@ -198,7 +198,7 @@ jobs:
   agentic-lib:
     runs-on: ubuntu-latest
     env:
-      configPath: ${{ inputs.configPath || '.github/agentic-lib.yml' }}
+      configPath: ${{ inputs.configPath || '.github/agents/agentic-lib.yml' }}
       defaultAttemptsPerIssue: ${{ inputs.defaultAttemptsPerIssue || '2' }}
       defaultWriteableFilepaths: ${{ inputs.defaultWriteableFilepaths || '["docs/", "features/", "library/", "src/lib/", "tests/unit/", "package.json", "README.md", "SOURCES*.md"]' }}
       defaultSrcPath: ${{ inputs.defaultSrcPath || 'src/lib/' }}
@@ -285,21 +285,21 @@ jobs:
                 if (config.documentsLimit) {
                   documentsLimit = config.documentsLimit.toString();
                 } else {
-                  console.log(`Warning: documentsLimit not found in .github/agentic-lib.yml, using default value: ${documentsLimit}`);
+                  console.log(`Warning: documentsLimit not found in .github/agents/agentic-lib.yml, using default value: ${documentsLimit}`);
                 }
 
                 // Extract library path from writeableFilepaths
                 if (config.writeableFilepaths && config.writeableFilepaths.library) {
                   libraryDir = config.writeableFilepaths.library.replace(/"/g, '');
                 } else {
-                  console.log(`Warning: library path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${libraryDir}`);
+                  console.log(`Warning: library path not found in writeableFilepaths in .github/agents/agentic-lib.yml, using default value: ${libraryDir}`);
                 }
 
                 // Extract sources path from writeableFilepaths
                 if (config.writeableFilepaths && config.writeableFilepaths.sources) {
                   sourcesFile = config.writeableFilepaths.sources.replace(/"/g, '');
                 } else {
-                  console.log(`Warning: sources path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${sourcesFile}`);
+                  console.log(`Warning: sources path not found in writeableFilepaths in .github/agents/agentic-lib.yml, using default value: ${sourcesFile}`);
                   console.log(`Using default values: documentsLimit=${documentsLimit}, libraryDir=${libraryDir}, sourcesFile=${sourcesFile}`);
                 }
 
@@ -307,28 +307,28 @@ jobs:
                 if (config.attemptsPerIssue) {
                   attemptsPerIssue = config.attemptsPerIssue.toString();
                 } else {
-                  console.log(`Warning: attemptsPerIssue not found in .github/agentic-lib.yml, using default value: ${attemptsPerIssue}`);
+                  console.log(`Warning: attemptsPerIssue not found in .github/agents/agentic-lib.yml, using default value: ${attemptsPerIssue}`);
                 }
 
                 // Extract src path from writeableFilepaths
                 if (config.writeableFilepaths && config.writeableFilepaths.src) {
                   srcPath = config.writeableFilepaths.src.replace(/"/g, '');
                 } else {
-                  console.log(`Warning: src path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${srcPath}`);
+                  console.log(`Warning: src path not found in writeableFilepaths in .github/agents/agentic-lib.yml, using default value: ${srcPath}`);
                 }
 
                 // Extract tests path from writeableFilepaths
                 if (config.writeableFilepaths && config.writeableFilepaths.tests) {
                   testsPath = config.writeableFilepaths.tests.replace(/"/g, '');
                 } else {
-                  console.log(`Warning: tests path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${testsPath}`);
+                  console.log(`Warning: tests path not found in writeableFilepaths in .github/agents/agentic-lib.yml, using default value: ${testsPath}`);
                 }
 
                 // Extract docs path from writeableFilepaths
                 if (config.writeableFilepaths && config.writeableFilepaths.docs) {
                   docsPath = config.writeableFilepaths.docs.replace(/"/g, '');
                 } else {
-                  console.log(`Warning: docs path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${docsPath}`);
+                  console.log(`Warning: docs path not found in writeableFilepaths in .github/agents/agentic-lib.yml, using default value: ${docsPath}`);
                 }
 
                 // Extract all writeable filepaths
@@ -342,106 +342,106 @@ jobs:
                 if (config.sourcesLimit) {
                   sourcesLimit = config.sourcesLimit.toString();
                 } else {
-                  console.log(`Warning: sourcesLimit not found in .github/agentic-lib.yml, using default value: ${sourcesLimit}`);
+                  console.log(`Warning: sourcesLimit not found in .github/agents/agentic-lib.yml, using default value: ${sourcesLimit}`);
                 }
 
                 // Extract featureDevelopmentIssuesWipLimit
                 if (config.featureDevelopmentIssuesWipLimit) {
                   featureDevelopmentIssuesWipLimit = config.featureDevelopmentIssuesWipLimit.toString();
                 } else {
-                  console.log(`Warning: featureDevelopmentIssuesWipLimit not found in .github/agentic-lib.yml, using default value: ${featureDevelopmentIssuesWipLimit}`);
+                  console.log(`Warning: featureDevelopmentIssuesWipLimit not found in .github/agents/agentic-lib.yml, using default value: ${featureDevelopmentIssuesWipLimit}`);
                 }
 
                 // Extract maintenanceIssuesWipLimit
                 if (config.maintenanceIssuesWipLimit) {
                   maintenanceIssuesWipLimit = config.maintenanceIssuesWipLimit.toString();
                 } else {
-                  console.log(`Warning: maintenanceIssuesWipLimit not found in .github/agentic-lib.yml, using default value: ${maintenanceIssuesWipLimit}`);
+                  console.log(`Warning: maintenanceIssuesWipLimit not found in .github/agents/agentic-lib.yml, using default value: ${maintenanceIssuesWipLimit}`);
                 }
 
                 // Extract featuresWipLimit
                 if (config.featuresWipLimit) {
                   featuresWipLimit = config.featuresWipLimit.toString();
                 } else {
-                  console.log(`Warning: featuresWipLimit not found in .github/agentic-lib.yml, using default value: ${featuresWipLimit}`);
+                  console.log(`Warning: featuresWipLimit not found in .github/agents/agentic-lib.yml, using default value: ${featuresWipLimit}`);
                 }
 
                 // Extract missionFile from readOnlyFilepaths
                 if (config.readOnlyFilepaths && config.readOnlyFilepaths.missionFile) {
                   missionFile = config.readOnlyFilepaths.missionFile.replace(/"/g, '');
                 } else {
-                  console.log(`Warning: missionFile not found in readOnlyFilepaths in .github/agentic-lib.yml, using default value: ${missionFile}`);
+                  console.log(`Warning: missionFile not found in readOnlyFilepaths in .github/agents/agentic-lib.yml, using default value: ${missionFile}`);
                 }
 
                 // Extract contributingFile from readOnlyFilepaths
                 if (config.readOnlyFilepaths && config.readOnlyFilepaths.contributingFile) {
                   contributingFile = config.readOnlyFilepaths.contributingFile.replace(/"/g, '');
                 } else {
-                  console.log(`Warning: contributingFile not found in readOnlyFilepaths in .github/agentic-lib.yml, using default value: ${contributingFile}`);
+                  console.log(`Warning: contributingFile not found in readOnlyFilepaths in .github/agents/agentic-lib.yml, using default value: ${contributingFile}`);
                 }
 
                 // Extract formattingFile from readOnlyFilepaths
                 if (config.readOnlyFilepaths && config.readOnlyFilepaths.formattingFile) {
                   formattingFile = config.readOnlyFilepaths.formattingFile.replace(/"/g, '');
                 } else {
-                  console.log(`Warning: formattingFile not found in readOnlyFilepaths in .github/agentic-lib.yml, using default value: ${formattingFile}`);
+                  console.log(`Warning: formattingFile not found in readOnlyFilepaths in .github/agents/agentic-lib.yml, using default value: ${formattingFile}`);
                 }
 
                 // Extract lintingFile from readOnlyFilepaths
                 if (config.readOnlyFilepaths && config.readOnlyFilepaths.lintingFile) {
                   lintingFile = config.readOnlyFilepaths.lintingFile.replace(/"/g, '');
                 } else {
-                  console.log(`Warning: lintingFile not found in readOnlyFilepaths in .github/agentic-lib.yml, using default value: ${lintingFile}`);
+                  console.log(`Warning: lintingFile not found in readOnlyFilepaths in .github/agents/agentic-lib.yml, using default value: ${lintingFile}`);
                 }
 
                 // Extract buildScript from top level
                 if (config.buildScript) {
                   buildScript = config.buildScript.replace(/"/g, '');
                 } else {
-                  console.log(`Warning: buildScript not found in .github/agentic-lib.yml, using default value: ${buildScript}`);
+                  console.log(`Warning: buildScript not found in .github/agents/agentic-lib.yml, using default value: ${buildScript}`);
                 }
 
                 // Extract testScript from top level
                 if (config.testScript) {
                   testScript = config.testScript.replace(/"/g, '');
                 } else {
-                  console.log(`Warning: testScript not found in .github/agentic-lib.yml, using default value: ${testScript}`);
+                  console.log(`Warning: testScript not found in .github/agents/agentic-lib.yml, using default value: ${testScript}`);
                 }
 
                 // Extract mainScript from top level
                 if (config.mainScript) {
                   mainScript = config.mainScript.replace(/"/g, '');
                 } else {
-                  console.log(`Warning: mainScript not found in .github/agentic-lib.yml, using default value: ${mainScript}`);
+                  console.log(`Warning: mainScript not found in .github/agents/agentic-lib.yml, using default value: ${mainScript}`);
                 }
 
                 // Extract featuresPath from writeableFilepaths
                 if (config.writeableFilepaths && config.writeableFilepaths.features) {
                   featuresPath = config.writeableFilepaths.features.replace(/"/g, '');
                 } else {
-                  console.log(`Warning: features path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${featuresPath}`);
+                  console.log(`Warning: features path not found in writeableFilepaths in .github/agents/agentic-lib.yml, using default value: ${featuresPath}`);
                 }
 
                 // Extract dependenciesFile from writeableFilepaths
                 if (config.writeableFilepaths && config.writeableFilepaths.dependencies) {
                   dependenciesFile = config.writeableFilepaths.dependencies.replace(/"/g, '');
                 } else {
-                  console.log(`Warning: dependencies file not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${dependenciesFile}`);
+                  console.log(`Warning: dependencies file not found in writeableFilepaths in .github/agents/agentic-lib.yml, using default value: ${dependenciesFile}`);
                 }
 
                 // Extract readmeFile from writeableFilepaths
                 if (config.writeableFilepaths && config.writeableFilepaths.readme) {
                   readmeFile = config.writeableFilepaths.readme.replace(/"/g, '');
                 } else {
-                  console.log(`Warning: readme file not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${readmeFile}`);
+                  console.log(`Warning: readme file not found in writeableFilepaths in .github/agents/agentic-lib.yml, using default value: ${readmeFile}`);
                 }
 
               } catch (error) {
-                console.log(`Error parsing .github/agentic-lib.yml: ${error.message}`);
+                console.log(`Error parsing .github/agents/agentic-lib.yml: ${error.message}`);
                 console.log(`Using default values: attemptsPerIssue=${attemptsPerIssue}, srcPath=${srcPath}, testsPath=${testsPath}, docsPath=${docsPath}`);
               }
             } else {
-              console.log(`Warning: .github/agentic-lib.yml file not found, using default values: attemptsPerIssue=${attemptsPerIssue}, srcPath=${srcPath}, testsPath=${testsPath}, docsPath=${docsPath}`);
+              console.log(`Warning: .github/agents/agentic-lib.yml file not found, using default values: attemptsPerIssue=${attemptsPerIssue}, srcPath=${srcPath}, testsPath=${testsPath}, docsPath=${docsPath}`);
             }
 
             // Set outputs

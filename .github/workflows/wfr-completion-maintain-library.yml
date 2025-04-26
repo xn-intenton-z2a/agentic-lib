@@ -74,10 +74,9 @@ on:
         required: false
         default: ''
       promptFile:
-        description: 'The file containing the prompt text. e.g. "AGENT-MAINTAIN-LIBRARY.md"'
+        description: 'The file containing the prompt text. e.g. ".github/agents/agent-ready-issue.md"'
         type: string
-        required: false
-        default: 'AGENT-MAINTAIN-LIBRARY.md'
+        required: true
       writeableFilepaths:
         description: 'JSON array of filepath patterns that are allowed to be changed by agents. e.g. ["features/*", "library/*"]'
         type: string
@@ -87,7 +86,7 @@ on:
         description: 'The path to the agentic-lib.yml configuration file'
         type: string
         required: false
-        default: '.github/agentic-lib.yml'
+        default: '.github/agents/agentic-lib.yml'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -124,11 +123,11 @@ jobs:
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-      promptFile: ${{ inputs.promptFile || 'AGENT-MAINTAIN-LIBRARY.md' }}
+      promptFile: ${{ inputs.promptFile || '.github/agents/agent-maintain-library.md' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
       writeableFilepaths: ${{ inputs.writeableFilepaths || '["features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md"]' }}
-      agentConfigPath: ${{ inputs.agentConfigPath || '.github/agentic-lib.yml' }}
+      agentConfigPath: ${{ inputs.agentConfigPath || '.github/agents/agentic-lib.yml' }}
 
     steps:
       - uses: actions/checkout@v4

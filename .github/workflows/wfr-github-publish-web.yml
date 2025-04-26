@@ -115,14 +115,14 @@ jobs:
         id: engine
         shell: bash
         run: |
-          if [ -f ".github/agentic-lib.yml" ]; then
-            engine=$(grep '^schedule:' .github/agentic-lib.yml | awk '{print $2}')
+          if [ -f ".github/agents/agentic-lib.yml" ]; then
+            engine=$(grep '^schedule:' .github/agents/agentic-lib.yml | awk '{print $2}')
             echo "engine=${engine}"
             echo "engine=${engine}" >> $GITHUB_OUTPUT
           else
             echo "engine=default"
             echo "engine=default" >> $GITHUB_OUTPUT
-            echo "Warning: .github/agentic-lib.yml file not found, using default engine"
+            echo "Warning: .github/agents/agentic-lib.yml file not found, using default engine"
           fi
 
       - run: npm install

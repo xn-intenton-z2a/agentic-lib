@@ -661,8 +661,8 @@ Re-usable GitHub Actions Workflows:
 - [ ] [r0w-MVP] Set up repository0 to use a demo directory and reset every week and show case past projects.
 - [ ] [r0w-MVP] Set up plot-code-lib to use a single file and the readme as the documentation.
 - [ ] [r0w-MVP] Set up repository0-crucible to use multiple files
-- [ ] [r0w-Launch] Move AGENT- files to ./github/agentic-lib/agent-*.md
-- [ ] [r0w-Launch] Move agentic-lib.yml to ./github/agentic-lib/agentic-lib.yml
+- [~] [r0w-Launch] Move AGENT- files to ./github/agentic-lib/agent-*.md
+- [~] [r0w-Launch] Move agentic-lib.yml to ./github/agentic-lib/agentic-lib.yml
 - [ ] [r0w-Launch] Feature switch role: elaborator (sources, library, web publish, features, docs, web publish)
 - [ ] [r0w-Launch] Feature switch role: engineer (src, tests, docs, packages)
 - [ ] [r0w-Launch] Feature switch role: maintainer (pr+linting+updates+readme+docs)

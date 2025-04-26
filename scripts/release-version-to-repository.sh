@@ -136,4 +136,6 @@ cp -v public/all.html "${DEST_DIR}/../../public/."
 cp -v public/stats.html "${DEST_DIR}/../../public/."
 
 # Copy the AGENT prompt files
-cp -v AGENT-*.md "${DEST_DIR}/../../."
+mv -f "${DEST_DIR}/../../.github/agentic-lib.yml" "${DEST_DIR}/../../.github/agents/agentic-lib.yml"
+rm -f ${DEST_DIR}/../../AGENT-*.md
+cp -v AGENT-*.md "${DEST_DIR}/../../.github/agents/."

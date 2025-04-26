@@ -98,10 +98,9 @@ on:
         required: false
         default: 'npm'
       promptFile:
-        description: 'The file containing the prompt text. e.g. "AGENT-REVIEW-ISSUE.md"'
+        description: 'The file containing the prompt text. e.g. ".github/agents/agent-ready-issue.md"'
         type: string
-        required: false
-        default: 'AGENT-REVIEW-ISSUE.md'
+        required: true
       npmAuthOrganisation:
         description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
         type: string
@@ -121,7 +120,7 @@ on:
         description: 'The path to the agentic-lib.yml configuration file'
         type: string
         required: false
-        default: '.github/agentic-lib.yml'
+        default: '.github/agents/agentic-lib.yml'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -152,11 +151,11 @@ jobs:
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       cache: ${{ inputs.cache || 'npm' }}
-      promptFile: ${{ inputs.promptFile || 'AGENT-REVIEW-ISSUE.md' }}
+      promptFile: ${{ inputs.promptFile || '.github/agents/agent-review-issue.md' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
-      agentConfigPath: ${{ inputs.agentConfigPath || '.github/agentic-lib.yml' }}
+      agentConfigPath: ${{ inputs.agentConfigPath || '.github/agents/agentic-lib.yml' }}
 
     steps:
       - uses: actions/checkout@v4
