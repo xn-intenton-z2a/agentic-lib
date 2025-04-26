@@ -640,20 +640,56 @@ jobs:
             Answer strictly with a JSON object following this schema:
             {
               "message": "A short sentence explaining the changes applied (or why no changes were applied) suitable for a commit message or PR text.",
-              "updatedFiles": {
-                "README.md": "The entire new content of the README file, with all necessary changes applied, if any.",
-                "docs/USAGE.md": "The entire new content of the file, with all necessary changes applied, if any."
-              }
+              "updatedFile01Name": "README.md",
+              "updatedFile01Contents": "The entire new content of the README file, with all necessary changes applied, if any.",
+              "updatedFile02Name":  "docs/USAGE.md",
+              "updatedFile02Contents": "The entire new content of the file, with all necessary changes applied, if any."
             }
 
-            You can include any number of files in the updatedFiles object. Each file will be checked against the allowedFilepathPatterns before being written.
+            You can include up to 16 files using either:
+            1. The updatedFiles object where keys are file paths and values are file contents, or
+            2. The updatedFileXXName and updatedFileXXContents pairs (where XX is a number from 01 to 16)
+
+            All files will be checked against the allowedFilepathPatterns before being written.
 
             Ensure valid JSON.
             `;
 
             const ResponseSchema = z.object({ 
               message: z.string(),
-              updatedFiles: z.object().catchall(z.string()).optional()
+              updatedFiles: z.object().catchall(z.string()).optional(),
+              updatedFile01Name: z.string().optional(),
+              updatedFile01Contents: z.string().optional(),
+              updatedFile02Name: z.string().optional(),
+              updatedFile02Contents: z.string().optional(),
+              updatedFile03Name: z.string().optional(),
+              updatedFile03Contents: z.string().optional(),
+              updatedFile04Name: z.string().optional(),
+              updatedFile04Contents: z.string().optional(),
+              updatedFile05Name: z.string().optional(),
+              updatedFile05Contents: z.string().optional(),
+              updatedFile06Name: z.string().optional(),
+              updatedFile06Contents: z.string().optional(),
+              updatedFile07Name: z.string().optional(),
+              updatedFile07Contents: z.string().optional(),
+              updatedFile08Name: z.string().optional(),
+              updatedFile08Contents: z.string().optional(),
+              updatedFile09Name: z.string().optional(),
+              updatedFile09Contents: z.string().optional(),
+              updatedFile10Name: z.string().optional(),
+              updatedFile10Contents: z.string().optional(),
+              updatedFile11Name: z.string().optional(),
+              updatedFile11Contents: z.string().optional(),
+              updatedFile12Name: z.string().optional(),
+              updatedFile12Contents: z.string().optional(),
+              updatedFile13Name: z.string().optional(),
+              updatedFile13Contents: z.string().optional(),
+              updatedFile14Name: z.string().optional(),
+              updatedFile14Contents: z.string().optional(),
+              updatedFile15Name: z.string().optional(),
+              updatedFile15Contents: z.string().optional(),
+              updatedFile16Name: z.string().optional(),
+              updatedFile16Contents: z.string().optional()
             });
 
             // Define the function schema for functional calling
@@ -675,9 +711,137 @@ jobs:
                       additionalProperties: {
                         type: "string"
                       }
+                    },
+                    updatedFile01Name: {
+                      type: "string",
+                      description: "Path to the first file to update"
+                    },
+                    updatedFile01Contents: {
+                      type: "string",
+                      description: "The entire new content of the first file, with all necessary changes applied"
+                    },
+                    updatedFile02Name: {
+                      type: "string",
+                      description: "Path to the second file to update"
+                    },
+                    updatedFile02Contents: {
+                      type: "string",
+                      description: "The entire new content of the second file, with all necessary changes applied"
+                    },
+                    updatedFile03Name: {
+                      type: "string",
+                      description: "Path to the third file to update"
+                    },
+                    updatedFile03Contents: {
+                      type: "string",
+                      description: "The entire new content of the third file, with all necessary changes applied"
+                    },
+                    updatedFile04Name: {
+                      type: "string",
+                      description: "Path to the fourth file to update"
+                    },
+                    updatedFile04Contents: {
+                      type: "string",
+                      description: "The entire new content of the fourth file, with all necessary changes applied"
+                    },
+                    updatedFile05Name: {
+                      type: "string",
+                      description: "Path to the fifth file to update"
+                    },
+                    updatedFile05Contents: {
+                      type: "string",
+                      description: "The entire new content of the fifth file, with all necessary changes applied"
+                    },
+                    updatedFile06Name: {
+                      type: "string",
+                      description: "Path to the sixth file to update"
+                    },
+                    updatedFile06Contents: {
+                      type: "string",
+                      description: "The entire new content of the sixth file, with all necessary changes applied"
+                    },
+                    updatedFile07Name: {
+                      type: "string",
+                      description: "Path to the seventh file to update"
+                    },
+                    updatedFile07Contents: {
+                      type: "string",
+                      description: "The entire new content of the seventh file, with all necessary changes applied"
+                    },
+                    updatedFile08Name: {
+                      type: "string",
+                      description: "Path to the eighth file to update"
+                    },
+                    updatedFile08Contents: {
+                      type: "string",
+                      description: "The entire new content of the eighth file, with all necessary changes applied"
+                    },
+                    updatedFile09Name: {
+                      type: "string",
+                      description: "Path to the ninth file to update"
+                    },
+                    updatedFile09Contents: {
+                      type: "string",
+                      description: "The entire new content of the ninth file, with all necessary changes applied"
+                    },
+                    updatedFile10Name: {
+                      type: "string",
+                      description: "Path to the tenth file to update"
+                    },
+                    updatedFile10Contents: {
+                      type: "string",
+                      description: "The entire new content of the tenth file, with all necessary changes applied"
+                    },
+                    updatedFile11Name: {
+                      type: "string",
+                      description: "Path to the eleventh file to update"
+                    },
+                    updatedFile11Contents: {
+                      type: "string",
+                      description: "The entire new content of the eleventh file, with all necessary changes applied"
+                    },
+                    updatedFile12Name: {
+                      type: "string",
+                      description: "Path to the twelfth file to update"
+                    },
+                    updatedFile12Contents: {
+                      type: "string",
+                      description: "The entire new content of the twelfth file, with all necessary changes applied"
+                    },
+                    updatedFile13Name: {
+                      type: "string",
+                      description: "Path to the thirteenth file to update"
+                    },
+                    updatedFile13Contents: {
+                      type: "string",
+                      description: "The entire new content of the thirteenth file, with all necessary changes applied"
+                    },
+                    updatedFile14Name: {
+                      type: "string",
+                      description: "Path to the fourteenth file to update"
+                    },
+                    updatedFile14Contents: {
+                      type: "string",
+                      description: "The entire new content of the fourteenth file, with all necessary changes applied"
+                    },
+                    updatedFile15Name: {
+                      type: "string",
+                      description: "Path to the fifteenth file to update"
+                    },
+                    updatedFile15Contents: {
+                      type: "string",
+                      description: "The entire new content of the fifteenth file, with all necessary changes applied"
+                    },
+                    updatedFile16Name: {
+                      type: "string",
+                      description: "Path to the sixteenth file to update"
+                    },
+                    updatedFile16Contents: {
+                      type: "string",
+                      description: "The entire new content of the sixteenth file, with all necessary changes applied"
                     }
                   },
-                  required: ["message", "updatedFiles"],
+                  required: ["message"],
                   additionalProperties: true
                 },
                 strict: false
