@@ -678,7 +678,7 @@ jobs:
                     }
                   },
                   required: ["message", "updatedFiles"],
-                  additionalProperties: false
+                  additionalProperties: true
                 },
                 strict: false
               }

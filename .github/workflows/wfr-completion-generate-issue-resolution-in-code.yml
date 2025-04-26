@@ -663,7 +663,7 @@ jobs:
                   required: ["message", "updatedFiles"],
                   additionalProperties: false
                 },
-                strict: false
+                strict: true
               }
             }];
 
