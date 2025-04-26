@@ -619,7 +619,7 @@ jobs:
             Note that the README.md file is provided for context only - any documentation changes should be written to the documentation files.
             The source files, test files, and documentation files can be individual files or directories containing multiple files.
             Never truncate the files, when returning a file, always return the entire file content.
-            
+
             Answer strictly with a JSON object following this schema:
             {
               "message": "A short sentence explaining the change applied suitable for a commit message.",
