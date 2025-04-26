@@ -658,7 +658,7 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-Launch] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
 - [ ] [r0w-MVP] Set up s3-sqs-bridge to only do essential updates.
 - [ ] [r0w-MVP] Set up agentic-lib to only write to supplementary files (`./prototype`) and not to the main files.
-- [ ] [r0w-MVP] Set up repository0 to use a demo directory and reset every week.
+- [ ] [r0w-MVP] Set up repository0 to use a demo directory and reset every week and show case past projects.
 - [ ] [r0w-MVP] Set up plot-code-lib to use a single file and the readme as the documentation.
 - [ ] [r0w-MVP] Set up repository0-crucible to use multiple files
 - [ ] [r0w-Launch] Move AGENT- files to ./github/agentic-lib/agent-*.md
@@ -695,7 +695,7 @@ See: [ACTIONS_JS_STEPS.md](examples/archive-2025-04-20/ACTIONS_JS_STEPS.md)
 
 Repository0-web:
 - [ ] [r0w-MVP] New template for the repository0-web repository (without AWS).
-- [ ] [r0w-MVP] Reduce running of workflows to web publishing and node ci only.
+- [ ] [r0w-MVP] Reduce running of workflows to web publishing and node ci only. (role: elaborator)
 - [ ] [r0w-MVP] Create example templates using content from the library.
 - [ ] [r0w-MVP] Identify a range of means of accessing the library content (e.g. EJS, REST).
 - [ ] [r0w-MVP] Add owl tags to the library content.
