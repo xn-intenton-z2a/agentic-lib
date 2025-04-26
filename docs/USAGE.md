@@ -16,22 +16,22 @@ This document provides clear and concise usage details for the agentic-lib comma
 - **--verbose**: Enable detailed logging for debugging purposes.
 - **--diagnostics**: Output detailed diagnostics, including configuration and environment details.
 - **--status**: Display a runtime health summary in JSON format.
-- **--dry-run**: Execute a dry run without performing any actions.
+- **--dry-run**: Execute a dry run that simulates the command execution without performing any actions.
 - **--simulate-error**: Simulate an error scenario for testing purposes by immediately logging a simulated error and exiting with a non-zero status code.
 - **--simulate-delay <ms>**: Simulate processing delay for the specified duration in milliseconds.
 - **--simulate-load <ms>**: Simulate a heavy processing load by executing a CPU-intensive loop for the specified duration in milliseconds.
-- **--apply-fix**: Apply automated fix and log a success message indicating that the fix was applied.
-- **--cli-utils**: Displays a comprehensive summary of all CLI commands available along with brief descriptions.
+- **--apply-fix**: Apply automated fixes and log a success message indicating that the fix was applied.
+- **--cli-utils**: Display a comprehensive summary of available CLI commands along with a brief description for each.
 - **--workflow-chain <jsonPayload>**: Process a chain of workflow commands sequentially. (Payload must have a `chain` array property)
+- **--verbose-stats**: When used with a valid command, outputs additional runtime statistics including `callCount` (the number of successful command invocations) and `uptime` (the process uptime in seconds).
 - **--perf-metrics**: Display aggregated performance metrics for agentic commands and workflow chains in JSON format, including total count, average, minimum, and maximum execution times.
-- **--verbose-stats**: When used with a valid command, outputs additional runtime statistics in JSON format, including `callCount` (the number of successful command invocations) and `uptime` (the process uptime in seconds).
 
 ## Environment Variables
 
 The CLI behavior can be customized using the following environment variables:
 
 - **MAX_BATCH_COMMANDS**: Set this variable to limit the maximum number of commands that can be processed in a batch. If the number of commands exceeds this limit, the batch will be rejected with an error.
-- **COMMAND_ALIASES**: Provide a JSON string mapping aliases to full command strings. For example, setting `COMMAND_ALIASES='{"ls": "list", "rm": "remove"}'` will automatically substitute any occurrence of the alias with its corresponding command.
+- **COMMAND_ALIASES**: Provide a JSON string mapping aliases to full command strings. For example, setting `COMMAND_ALIASES='{"ls": "list", "rm": "remove"}'` will automatically substitute any occurrence of the alias with its corresponding command before processing.
 
 ## Enhanced Workflow Chain: Robust Chaining with Error Handling and Conditional Branching
 

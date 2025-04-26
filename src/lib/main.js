@@ -412,12 +412,12 @@ export function cliUtilsHandler() {
     { command: "--dry-run", description: "Execute a dry run with no side effects." },
     { command: "--simulate-error", description: "Simulate an error for testing purposes and exit." },
     { command: "--simulate-delay <ms>", description: "Simulate processing delay for the specified duration in milliseconds." },
-    { command: "--simulate-load <ms>", description: "Simulate a heavy processing load by executing a CPU-intensive loop for the specified duration in milliseconds." },
+    { command: "--simulate-load <ms>", description: "Simulate a heavy processing load for the specified duration in milliseconds." },
     { command: "--apply-fix", description: "Apply automated fix and log success message" },
     { command: "--cli-utils", description: "Display a summary of available CLI commands with their descriptions." },
     { command: "--workflow-chain <jsonPayload>", description: "Process a chain of workflow commands sequentially. (Payload must have a 'chain' array property)" },
     { command: "--verbose-stats", description: "When used with a valid command, outputs detailed statistics including callCount and uptime in JSON format." },
-    { command: "--perf-metrics", description: "Output aggregated performance metrics (counts, timings) in JSON format." }
+    { command: "--perf-metrics", description: "Display aggregated performance metrics for agentic commands and workflow chains in JSON format, including total count, average, minimum, and maximum execution times." }
   ];
   let output = chalk.bold("CLI Commands Summary:\n\n");
   cliCommands.forEach(cmd => {
@@ -466,7 +466,7 @@ Usage:
   --cli-utils                Display a summary of available CLI commands with their descriptions.
   --workflow-chain <jsonPayload>    Process a chain of workflow commands sequentially. (Payload must have a 'chain' array property)
   --verbose-stats            When used with a valid command, outputs detailed statistics including callCount and uptime in JSON format.
-  --perf-metrics             Output aggregated performance metrics (counts, timings) in JSON format.
+  --perf-metrics             Display aggregated performance metrics for agentic commands and workflow chains in JSON format, including total count, average, minimum, and maximum execution times.
 `;
 }
 
