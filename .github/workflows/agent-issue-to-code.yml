@@ -341,7 +341,8 @@ jobs:
       buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
       testScript: ${{ needs.agentic-lib.outputs.testScript }}
       mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
-      model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      #model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      model: 'o3-mini'
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
