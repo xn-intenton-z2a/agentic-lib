@@ -32,10 +32,6 @@ on:
         description: 'The pull request number. e.g. "123"'
         type: string
         required: true
-      branchPrefix:
-        description: 'The prefix for the issue branch. e.g. "agentic-lib-issue-".'
-        type: string
-        required: true
       issueNumber:
         description: 'The issue number to review. e.g. "123"'
         type: string
@@ -119,7 +115,6 @@ jobs:
           script: |
             const pullNumberStr = process.env.pullNumber;
             const issueNumber = process.env.issueNumber;
-            const branchPrefix = process.env.branchPrefix;
             const pullNumber = (parseInt(pullNumberStr) ? parseInt(pullNumberStr) : "");
             const owner = context.repo.owner;
             const repo = context.repo.repo;
@@ -131,7 +126,7 @@ jobs:
               pull_number: pullNumber,
             });
             const branchName = pullRequest.head.ref;
-            const commentBody = `The feature branch has been merged: ${(branchPrefix ? branchPrefix : "")}${branchName}`;
+            const commentBody = `The feature branch has been merged: ${branchName}`;
             if(removeAllLabels){
               core.info(`Removing all labels from issue #${issueNumber}`);
               await github.rest.issues.removeAllLabels({

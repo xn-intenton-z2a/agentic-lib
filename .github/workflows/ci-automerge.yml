@@ -223,7 +223,7 @@ jobs:
     needs:
       - merge-check
       - automerge
-    if: always() && ( needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber != '' )
+    if: always() && ( needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber != '' && needs.merge-check.outputs.issueNumber != '' )
     permissions:
       contents: write
       issues: write
@@ -232,7 +232,6 @@ jobs:
     with:
       pullNumber: ${{ needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber || '' }}
       issueNumber: '${{ needs.merge-check.outputs.issueNumber }}'
-      branchPrefix: 'agentic-lib-issue-'
 
   select-issue:
     permissions:
