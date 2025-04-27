@@ -658,8 +658,8 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-Launch] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
 - [x] [r0w-Launch] Move AGENT- files to ./github/agentic-lib/agent-*.md
 - [x] [r0w-Launch] Move agentic-lib.yml to ./github/agentic-lib/agentic-lib.yml
+- [~] [r0w-MVP] Set up agentic-lib to only write to supplementary files (`./sandbox`).
 - [ ] [r0w-MVP] Set up s3-sqs-bridge to only do essential updates.
-- [ ] [r0w-MVP] Set up agentic-lib to only write to supplementary files (`./prototype`) and not to the main files.
 - [ ] [r0w-MVP] Set up repository0 to use a demo directory and reset every week and show case past projects.
 - [ ] [r0w-MVP] Set up plot-code-lib to use a single file and the readme as the documentation.
 - [ ] [r0w-MVP] Set up repository0-crucible to use multiple files
@@ -671,6 +671,10 @@ Re-usable GitHub Actions Workflows:
 - [ ] [r0w-Launch] For all issue comments, add context to the comment such as: "After review, this issue was found to be already done."
 - [ ] [r0w-Launch] Pass and log a stamp on a current feature report for feature-to-issue if the feature is done.
 - [ ] [r0w-Launch] Pass and log a stamp on a current maintenance report for a maintenance-activity-to-issue if there is no value in making changes.
+- [ ] Feature lifecycle of: Elaboration, Delivery, Maintenance, Retirement, and Removal.
+- [ ] Use the archived projects to mine for features.
+- [ ] Build features in a modular way so that they can be reused in other projects.
+- [ ] Add the URL of the workflow run to every issue that is touched by the workflow.
 - [ ] Add role: Commentator (news feed sources, news feed updates, news feed commentary, web publish).
 - [ ] Support a more TDD / literate approach by starting a feature branch with a failing test then fix code should extract the issue details and be alerted to the test addition as TDD.
 - [ ] Add a PR review workflow with a reviewer and responder.

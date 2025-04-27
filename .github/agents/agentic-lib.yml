@@ -4,22 +4,22 @@ schedule: schedule-1
 # Mapping for read-only filepaths
 # These are used as defaults when invoking workflows
 readOnlyFilepaths:
-  mission: "MISSION.md"
-  contributing: "CONTRIBUTING.md"
+  mission:        "MISSION.md"
+  contributing:   "CONTRIBUTING.md"
+  dependencies:   "package.json"
+  readme:         "README.md"
   formattingFile: ".prettierrc"
-  lintingFile: "eslint.config.js"
+  lintingFile:    "eslint.config.js"
 
 # Mapping for writeable filepaths
 # These are used as defaults when invoking workflows and as allowed patterns for agents
 writeableFilepaths:
-  docs:         "docs/"
-  features:     "features/"
-  library:      "library/"
-  src:          "src/lib/"
-  tests:        "tests/unit/"
-  dependencies: "package.json"
-  readme:       "README.md"
-  sources:      "SOURCES*.md"
+  sources:  "SOURCES*.md"
+  library:  "library/"
+  features: "sandbox/features/"
+  src:      "sandbox/source/"
+  tests:    "sandbox/tests/"
+  docs:     "sandbox/docs/"
 
 # Execution commands
 buildScript: "npm run build"
@@ -38,8 +38,8 @@ featuresWipLimit: 2
 # TODO: Separate the concept of features in development and features in maintenance.
 # How many issues should be open to be picked up?
 featureDevelopmentIssuesWipLimit: 3
-maintenanceIssuesWipLimit: 2
+maintenanceIssuesWipLimit: 3
 
 # How many attempts should be made to work on an issue?
-attemptsPerBranch: 2
-attemptsPerIssue: 2
+attemptsPerBranch: 3
+attemptsPerIssue: 3
