@@ -24,7 +24,7 @@
   "author": "https://github.com/xn-intenton-z2a",
   "license": "GPL-3.0, MIT",
   "dependencies": {
-    "@aws-sdk/client-lambda": "^3.787.0",
+    "@aws-sdk/client-lambda": "^3.797.0",
     "@xn-intenton-z2a/s3-sqs-bridge": "^0.23.0",
     "chalk": "^5.4.1",
     "change-case": "^5.4.4",
