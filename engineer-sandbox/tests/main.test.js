@@ -13,6 +13,12 @@ describe('CLI Perf Metrics Flag - Single Command', () => {
     expect(response).toHaveProperty('maxTimeMS');
     expect(response).toHaveProperty('medianTimeMS');
 
+    // Additional enhanced metric properties
+    expect(response).toHaveProperty('averageExecutionTimeMS', response.averageTimeMS);
+    expect(response).toHaveProperty('minExecutionTimeMS', response.minTimeMS);
+    expect(response).toHaveProperty('maxExecutionTimeMS', response.maxTimeMS);
+    expect(response).toHaveProperty('medianExecutionTimeMS', response.medianTimeMS);
+
     // Since our simulated execution time is 0, all metrics should be 0
     expect(response.totalCommands).toBe(1);
     expect(response.averageTimeMS).toBe(0);
@@ -33,6 +39,12 @@ describe('CLI Perf Metrics Flag - Workflow Chain Invocation', () => {
     expect(response).toHaveProperty('chainSummary');
     expect(response.chainSummary).toHaveProperty('totalCommands', 2);
     expect(response.chainSummary).toHaveProperty('totalExecutionTimeMS');
+
+    // Additional enhanced metric properties for chain
+    expect(response).toHaveProperty('averageExecutionTimeMS', response.averageTimeMS);
+    expect(response).toHaveProperty('minExecutionTimeMS', response.minTimeMS);
+    expect(response).toHaveProperty('maxExecutionTimeMS', response.maxTimeMS);
+    expect(response).toHaveProperty('medianExecutionTimeMS', response.medianTimeMS);
 
     // All execution times are 0, so aggregated metrics should be 0
     expect(response.totalCommands).toBe(2);
