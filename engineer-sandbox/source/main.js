@@ -44,12 +44,26 @@ export function agenticHandler(payload) {
       totalExecutionTimeMS: executionTimes.reduce((a, b) => a + b, 0)
     };
     const metrics = computeMetrics(executionTimes);
-    return { status: 'success', results, chainSummary, ...metrics };
+    const enhancedMetrics = {
+      ...metrics,
+      averageExecutionTimeMS: metrics.averageTimeMS,
+      minExecutionTimeMS: metrics.minTimeMS,
+      maxExecutionTimeMS: metrics.maxTimeMS,
+      medianExecutionTimeMS: metrics.medianTimeMS
+    };
+    return { status: 'success', results, chainSummary, ...enhancedMetrics };
   } else if (payload.command) {
     const result = processCommand(payload.command);
     executionTimes.push(result.executionTimeMS);
     const metrics = computeMetrics(executionTimes);
-    return { ...result, ...metrics };
+    const enhancedMetrics = {
+      ...metrics,
+      averageExecutionTimeMS: metrics.averageTimeMS,
+      minExecutionTimeMS: metrics.minTimeMS,
+      maxExecutionTimeMS: metrics.maxTimeMS,
+      medianExecutionTimeMS: metrics.medianTimeMS
+    };
+    return { ...result, ...enhancedMetrics };
   } else {
     return { error: 'No valid command provided in payload' };
   }
@@ -71,8 +85,8 @@ function printHelp() {
   --apply-fix                Apply automated fix and log success message.
   --cli-utils                Display a summary of available CLI commands with their descriptions.
   --workflow-chain <jsonPayload>    Process a chain of workflow commands sequentially. (Payload must have a 'chain' array property)
-  --verbose-stats            Output detailed statistics including callCount and uptime in JSON format.
-  --perf-metrics             Display aggregated performance metrics for commands, including totalCommands, averageTimeMS, minTimeMS, maxTimeMS, medianTimeMS. For workflow chains, includes a chainSummary breakdown.
+  --verbose-stats            When used with a valid command, outputs detailed statistics including callCount and uptime in JSON format.
+  --perf-metrics             Display aggregated performance metrics for agentic commands and workflow chains in JSON format, including totalCommands, averageTimeMS, averageExecutionTimeMS, minTimeMS, minExecutionTimeMS, maxTimeMS, maxExecutionTimeMS, medianTimeMS, and medianExecutionTimeMS. For workflow chains, a chainSummary is also provided.
 `);
 }
 

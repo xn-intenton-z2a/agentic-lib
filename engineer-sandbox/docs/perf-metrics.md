@@ -6,10 +6,10 @@ The `--perf-metrics` CLI flag enhances the agentic-lib by reporting detailed agg
 When you use the `--perf-metrics` flag, the output JSON will include the following fields:
 
 - **totalCommands**: Total number of commands processed.
-- **averageTimeMS**: Average execution time in milliseconds across all processed commands.
-- **minTimeMS**: Minimum execution time in milliseconds recorded among the commands.
-- **maxTimeMS**: Maximum execution time in milliseconds recorded among the commands.
-- **medianTimeMS**: The median execution time in milliseconds, providing a robust measure of central tendency.
+- **averageTimeMS**: Average execution time in milliseconds across all processed commands. An alias **averageExecutionTimeMS** is also provided for clarity.
+- **minTimeMS**: Minimum execution time in milliseconds recorded among the commands. Also available as **minExecutionTimeMS**.
+- **maxTimeMS**: Maximum execution time in milliseconds recorded among the commands. Also available as **maxExecutionTimeMS**.
+- **medianTimeMS**: The median execution time in milliseconds, providing a robust measure of central tendency. Also available as **medianExecutionTimeMS**.
 
 For workflow chain invocations (i.e. when multiple commands are processed as a batch), an additional field is included:
 
@@ -37,9 +37,13 @@ Example Output:
   "executionTimeMS": 0,
   "totalCommands": 1,
   "averageTimeMS": 0,
+  "averageExecutionTimeMS": 0,
   "minTimeMS": 0,
+  "minExecutionTimeMS": 0,
   "maxTimeMS": 0,
-  "medianTimeMS": 0
+  "maxExecutionTimeMS": 0,
+  "medianTimeMS": 0,
+  "medianExecutionTimeMS": 0
 }
 ```
 
@@ -63,9 +67,13 @@ Example Output:
   "chainSummary": {"totalCommands": 2, "totalExecutionTimeMS": 0},
   "totalCommands": 2,
   "averageTimeMS": 0,
+  "averageExecutionTimeMS": 0,
   "minTimeMS": 0,
+  "minExecutionTimeMS": 0,
   "maxTimeMS": 0,
-  "medianTimeMS": 0
+  "maxExecutionTimeMS": 0,
+  "medianTimeMS": 0,
+  "medianExecutionTimeMS": 0
 }
 ```
 
@@ -73,4 +81,5 @@ Example Output:
 
 - The execution time is currently simulated and may appear as 0ms in testing environments.
 - In production, the actual processing time will vary based on the command complexity and execution environment.
+- Both naming conventions for the metrics are provided to support legacy integrations as well as new explicit naming.
 - Ensure that you supply a valid JSON payload when invoking the flag.
