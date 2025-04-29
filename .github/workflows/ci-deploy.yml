@@ -280,7 +280,9 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  select-issue:
+  select-next-issue:
+    needs:
+      - deploy
     permissions:
       issues: read
       id-token: write
@@ -293,7 +295,7 @@ jobs:
 
   stats:
     needs:
-      - select-issue
+      - select-next-issue
       - deploy
     if: ${{ always() }}
     permissions:

@@ -60,7 +60,9 @@ jobs:
       issueBody: ${{ needs.linting.outputs.scriptOutput }}
       issueLabels: 'maintenance, automated'
 
-  select-issue:
+  select-next-issue:
+    needs:
+      - create-issue
     permissions:
       issues: read
       id-token: write
@@ -73,7 +75,7 @@ jobs:
 
   stats:
     needs:
-      - select-issue
+      - select-next-issue
       - create-issue
     if: ${{ always() }}
     permissions:

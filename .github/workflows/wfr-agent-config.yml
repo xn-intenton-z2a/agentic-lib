@@ -33,6 +33,11 @@ on:
         type: string
         required: false
         default: '.github/agents/agentic-lib.yml'
+      defaultAttemptsPerBranch:
+        description: 'The default number of attempts per branch.'
+        type: string
+        required: false
+        default: '2'
       defaultAttemptsPerIssue:
         description: 'The default number of attempts per issue.'
         type: string
@@ -147,6 +152,8 @@ on:
       PERSONAL_ACCESS_TOKEN:
         required: false
     outputs:
+      attemptsPerBranch:
+        value: ${{ jobs.agentic-lib.outputs.attemptsPerBranch }}
       attemptsPerIssue:
         value: ${{ jobs.agentic-lib.outputs.attemptsPerIssue }}
       writeableFilepaths:
@@ -199,6 +206,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       configPath: ${{ inputs.configPath || '.github/agents/agentic-lib.yml' }}
+      defaultAttemptsPerBranch: ${{ inputs.defaultAttemptsPerBranch || '2' }}
       defaultAttemptsPerIssue: ${{ inputs.defaultAttemptsPerIssue || '2' }}
       defaultWriteableFilepaths: ${{ inputs.defaultWriteableFilepaths || '["docs/", "features/", "library/", "src/lib/", "tests/unit/", "package.json", "README.md", "SOURCES*.md"]' }}
       defaultSrcPath: ${{ inputs.defaultSrcPath || 'src/lib/' }}
@@ -250,6 +258,7 @@ jobs:
             const yaml = require('js-yaml');
 
             // Default values
+            let attemptsPerBranch = process.env.defaultAttemptsPerBranch;
             let attemptsPerIssue = process.env.defaultAttemptsPerIssue;
             let srcPath = process.env.defaultSrcPath;
             let testsPath = process.env.defaultTestsPath;
@@ -301,6 +310,13 @@ jobs:
                 } else {
                   console.log(`Warning: sources path not found in writeableFilepaths in .github/agents/agentic-lib.yml, using default value: ${sourcesFile}`);
                   console.log(`Using default values: documentsLimit=${documentsLimit}, libraryDir=${libraryDir}, sourcesFile=${sourcesFile}`);
+                }
+
+                // Extract attemptsPerBranch
+                if (config.attemptsPerBranch) {
+                  attemptsPerBranch = config.attemptsPerBranch.toString();
+                } else {
+                  console.log(`Warning: attemptsPerBranch not found in .github/agents/agentic-lib.yml, using default value: ${attemptsPerBranch}`);
                 }
 
                 // Extract attemptsPerIssue
@@ -438,13 +454,16 @@ jobs:
 
               } catch (error) {
                 console.log(`Error parsing .github/agents/agentic-lib.yml: ${error.message}`);
-                console.log(`Using default values: attemptsPerIssue=${attemptsPerIssue}, srcPath=${srcPath}, testsPath=${testsPath}, docsPath=${docsPath}`);
+                console.log(`Using default values: attemptsPerIssue=${attemptsPerIssue}, attemptsPerBranch=${attemptsPerBranch}, srcPath=${srcPath}, testsPath=${testsPath}, docsPath=${docsPath}`);
               }
             } else {
-              console.log(`Warning: .github/agents/agentic-lib.yml file not found, using default values: attemptsPerIssue=${attemptsPerIssue}, srcPath=${srcPath}, testsPath=${testsPath}, docsPath=${docsPath}`);
+              console.log(`Warning: .github/agents/agentic-lib.yml file not found, using default values: attemptsPerIssue=${attemptsPerIssue}, attemptsPerBranch=${attemptsPerBranch}, srcPath=${srcPath}, testsPath=${testsPath}, docsPath=${docsPath}`);
             }
 
             // Set outputs
+            console.log(`attemptsPerBranch=${attemptsPerBranch}`);
+            core.setOutput('attemptsPerBranch', attemptsPerBranch);
+            
             console.log(`attemptsPerIssue=${attemptsPerIssue}`);
             core.setOutput('attemptsPerIssue', attemptsPerIssue);
 

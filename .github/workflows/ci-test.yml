@@ -232,8 +232,13 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  select-issue:
-    needs: check-workflow-run
+  select-next-issue:
+    needs:
+      - npm-test
+      - npm-unit-test
+      - npm-build-test-and-run-main
+      - mvn-package-cdk-synth
+      - check-workflow-run
     permissions:
       issues: read
       id-token: write
@@ -246,7 +251,7 @@ jobs:
 
   stats:
     needs:
-      - select-issue
+      - select-next-issue
       - npm-test
       - npm-unit-test
       - npm-build-test-and-run-main

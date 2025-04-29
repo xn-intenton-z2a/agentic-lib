@@ -1,6 +1,77 @@
 # Which agentic-lib workflow schedule should be used?
 schedule: schedule-1
 
+# Mapping for from symbolic keys to filepaths for access by agentic-lib workflows with access permissions
+# The `paths` section is a work in progress.
+paths:
+  mission:
+    paths:
+      - "MISSION.md"
+    permissions:
+      - read
+  contributing:
+    paths:
+      - "CONTRIBUTING.md"
+    permissions:
+      - read
+  dependencies:
+    paths:
+      - "package.json"
+    permissions:
+      - read
+  readme:
+    paths:
+      - "README.md"
+    permissions:
+      - read
+  formattingFile:
+    paths:
+      - ".prettierrc"
+    permissions:
+      - read
+  lintingFile:
+    paths:
+      - "eslint.config.js"
+    permissions:
+      - read
+  sources:
+    paths:
+      - "SOURCES-WISHLIST.md"
+      - "elaborator-sandbox/sources/"
+    permissions:
+      - read
+      - write
+  library:
+    paths:
+      - "elaborator-sandbox/library/"
+    permissions:
+      - read
+      - write
+  features:
+    paths:
+      - "engineer-sandbox/features/"
+    permissions:
+      - read
+      - write
+  src:
+    paths:
+      - "engineer-sandbox/source/"
+    permissions:
+      - read
+      - write
+  tests:
+    paths:
+      - "engineer-sandbox/tests/"
+    permissions:
+      - read
+      - write
+  docs:
+    paths:
+      - "engineer-sandbox/docs/"
+    permissions:
+      - read
+      - write
+
 # Mapping for read-only filepaths, read access by agentic-lib workflows.
 readOnlyFilepaths:
   mission:        "MISSION.md"

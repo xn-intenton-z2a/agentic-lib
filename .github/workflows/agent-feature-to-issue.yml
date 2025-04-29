@@ -131,7 +131,9 @@ jobs:
       issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
       issueLabels: 'feature, automated'
 
-  select-issue:
+  select-next-issue:
+    needs:
+      - create-issue
     permissions:
       issues: read
       id-token: write
@@ -144,7 +146,7 @@ jobs:
 
   stats:
     needs:
-      - select-issue
+      - select-next-issue
       - create-issue
     if: ${{ always() }}
     permissions:

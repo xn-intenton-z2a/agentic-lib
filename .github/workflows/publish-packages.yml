@@ -206,7 +206,10 @@ jobs:
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  select-issue:
+  select-next-issue:
+    needs:
+      - publish-npm
+      - publish-mvn
     permissions:
       issues: read
       id-token: write
@@ -219,7 +222,7 @@ jobs:
 
   stats:
     needs:
-      - select-issue
+      - select-next-issue
       - publish-npm
       - publish-mvn
     if: ${{ always() }}

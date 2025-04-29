@@ -25,7 +25,7 @@ env:
 
 jobs:
 
-  select-issue:
+  select-next-issue:
     permissions:
       issues: read
       id-token: write
@@ -38,7 +38,7 @@ jobs:
 
   stats:
     needs:
-      - select-issue
+      - select-next-issue
     permissions:
       contents: write
       id-token: write

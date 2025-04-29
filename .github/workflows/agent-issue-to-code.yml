@@ -84,6 +84,32 @@ jobs:
         run: |
           echo "TODO: Check if this issue has been resolved already by examining the current state and recent commits"
 
+  check-branch:
+    needs:
+      - select-issue
+      - needs-resolution
+    if: ${{ needs.select-issue.outputs.issueNumber != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      branchPrefix: 'agentic-lib-'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - name: Ensure there isn't already a branch for this prefix
+        shell: bash
+        run: |
+          git fetch origin
+          if git branch -r | grep -q 'origin/${{ env.branchPrefix }}'; then
+            echo "A branch with the prefix '${{ env.branchPrefix }}' already exists."
+            exit 1
+          else
+            echo "No existing branch with the prefix found."
+          fi
+
   check-attempts-limit:
     needs:
       - agentic-lib
@@ -234,36 +260,6 @@ jobs:
           echo "always-auth=true" >> .npmrc
       - run: npm ci
       - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
-
-  check-branch:
-    needs:
-      - select-issue
-      - needs-resolution
-      - check-attempts-limit
-      - npm-test
-      - npm-build
-      - npm-run
-    if: ${{ needs.select-issue.outputs.issueNumber != '' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    env:
-      branchPrefix: 'agentic-lib-'
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-      - name: Ensure there isn't already a branch for this prefix
-        shell: bash
-        run: |
-          git fetch origin
-          if git branch -r | grep -q 'origin/${{ env.branchPrefix }}'; then
-            echo "A branch with the prefix '${{ env.branchPrefix }}' already exists."
-            exit 1
-          else
-            echo "No existing branch with the prefix found."
-          fi
 
   label-issue-before-attempt:
     needs:
@@ -516,9 +512,23 @@ jobs:
       gitCommitMessage: "${{ needs.apply-issue-resolution.outputs.message }} (working on #${{ needs.select-issue.outputs.issueNumber }})"
       label: 'automerge'
 
+  select-next-issue:
+    needs:
+      - apply-issue-resolution
+      - create-pr
+    permissions:
+      issues: read
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
+    with:
+      issueNumber: ''
+      selectionLabel: 'ready'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
   stats:
     needs:
-      - select-issue
+      - select-next-issue
       - apply-issue-resolution
       - create-pr
     if: ${{ always() }}

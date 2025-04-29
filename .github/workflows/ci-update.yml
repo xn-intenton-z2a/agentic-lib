@@ -66,6 +66,8 @@ jobs:
           fi
 
   pom-check:
+    needs:
+      - check-branch
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -116,7 +118,6 @@ jobs:
 
     outputs:
       pomXmlExists: ${{ steps.mvn.outputs.pomXmlExists }}
-
 
   update-npm:
     needs:
@@ -200,7 +201,11 @@ jobs:
       gitCommitMessage: 'chore: dependency updates'
       label: 'automerge'
 
-  select-issue:
+  select-next-issue:
+    needs:
+      - check-branch
+      - create-pr-npm
+      - create-pr-mvn
     permissions:
       issues: read
       id-token: write
@@ -213,7 +218,7 @@ jobs:
 
   stats:
     needs:
-      - select-issue
+      - select-next-issue
       - check-branch
       - create-pr-npm
       - create-pr-mvn

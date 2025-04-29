@@ -232,7 +232,11 @@ jobs:
       pullNumber: ${{ needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber || '' }}
       issueNumber: '${{ needs.merge-check.outputs.issueNumber }}'
 
-  select-issue:
+  select-next-issue:
+    needs:
+      - merge-check
+      - automerge
+      - label-issue-after-automerge
     permissions:
       issues: read
       id-token: write
@@ -245,7 +249,7 @@ jobs:
 
   stats:
     needs:
-      - select-issue
+      - select-next-issue
       - merge-check
       - automerge
       - label-issue-after-automerge
