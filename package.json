@@ -55,7 +55,7 @@
     "figlet": "^1.8.1",
     "markdown-it": "^14.1.0",
     "markdown-it-github": "^0.5.0",
-    "npm-check-updates": "^17.1.18",
+    "npm-check-updates": "^18.0.1",
     "prettier": "^3.5.3",
     "vitest": "^3.1.2"
   },
