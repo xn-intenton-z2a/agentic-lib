@@ -1,33 +1,39 @@
-# Performance Metrics Enhancement
+# Performance Metrics and Simulation Enhancement
 
-This feature introduces an aggregated performance metrics module for batch processing in the agentic CLI commands. The goal is to provide users with clear insights into the execution times of their commands when processing batches or workflow chains.
+This feature enhances the existing performance metrics capabilities by introducing simulation options that allow users to test and observe the behavior of the system under artificial processing delays and CPU load. In addition to aggregating performance metrics from batch command processing, the updated feature now supports new CLI flags to simulate delay (--simulate-delay) and load (--simulate-load), enabling more robust testing and diagnostics.
 
 ## Objectives
 
-- Aggregate individual execution times from batch processes and workflow chains.
-- Compute average, minimum, and maximum execution time values across processed commands.
-- Attach these metrics to the response object under the property "performanceMetrics" when a batch of commands is invoked via agenticHandler or workflowChainHandler.
-- Ensure that the performance metrics are visible when using verbose statistics (for example, via the --verbose-stats flag) to support debugging and performance evaluation.
+- Continue computing aggregated performance metrics for both single command and workflow chain invocations, including average, minimum, maximum, and median execution times.
+- Simulate a processing delay when the --simulate-delay flag is provided with a numerical value, delaying the command processing by the specified milliseconds.
+- Simulate a CPU-intensive load when the --simulate-load flag is provided with a numerical value, creating a heavy processing loop for the specified duration.
+- Ensure that the performance metrics accurately reflect the additional delay or load time introduced by these simulation flags.
+- Update the CLI help and documentation to indicate the new simulation options.
 
 ## Implementation Details
 
-- Update the agenticHandler function to, after processing a payload that contains a "commands" array, iterate over the results and compute the average, minimum, and maximum of the executionTimeMS values.
-- Add a new field, performanceMetrics, to the response object that encapsulates:
-  - averageExecutionTimeMS
-  - minExecutionTimeMS
-  - maxExecutionTimeMS
-  - totalBatchExecutionTimeMS (optional)
-- Similarly, consider updating the workflowChainHandler to compute and attach aggregated metrics from the chain processing results if applicable.
-- Modify the README to document that when batch processing is performed, an additional performanceMetrics object is returned, providing aggregated execution time statistics.
+- In the main source file (main.js), update the main() function to detect the --simulate-delay flag. When present, extract the following argument as a delay duration in milliseconds, and introduce an asynchronous pause before processing commands. Use a Promise-based sleep function (or setTimeout) to implement the delay.
+
+- Similarly, detect the --simulate-load flag and parse its value as the duration in milliseconds. Implement a CPU-intensive loop that runs for approximately the given time, ensuring that the overall execution time reflects the simulated load.
+
+- After applying the simulation (if any), proceed to process the payload (single command or commands array) and compute performance metrics as before.
+
+- Update the aggregated metrics to include the simulation delay/load so that the reported averageExecutionTimeMS, minExecutionTimeMS, maxExecutionTimeMS, and medianExecutionTimeMS acknowledge the extra processing time.
 
 ## Testing and Verification
 
-- Update unit tests in tests/unit/main.test.js to verify that when a batch of commands is processed, the returned object includes a performanceMetrics field with the correct computed values.
-- Ensure that the existing agenticHandler single command processing functionality remains unchanged.
-- Validate that verbose mode reporting (--verbose-stats) includes these aggregated metrics.
+- Update unit tests in tests/unit/main.test.js to include scenarios where the --simulate-delay flag is used. Verify that the execution time captured by the metrics increases by at least the specified delay.
+
+- Add tests for the --simulate-load flag to ensure that a CPU-intensive calculation runs for the expected duration and that the performance metrics are adjusted accordingly.
+
+- Verify that normal processing (without simulation flags) behaves exactly as before, maintaining backward compatibility with legacy CLI invocations.
+
+## Documentation
+
+- Update the README and corresponding CLI help text in main.js to document the new --simulate-delay and --simulate-load flags, including usage examples and explanation of how they affect performance metrics reporting.
 
 ## Success Criteria
 
-- When a batch of commands is processed through the agenticHandler, the response object contains a performanceMetrics object with accurate average, min, and max execution time values.
-- The performanceMetrics data is correctly integrated into both batch and workflow chain responses, providing users with an overview of command performance.
-- All unit tests pass successfully, including new or updated tests for the performance metrics feature.
+- The agenticHandler returns aggregated metrics that accurately reflect the processing time, including any added delay or load.
+- The command-line interface properly triggers simulation behavior when the --simulate-delay or --simulate-load flag is used.
+- All unit tests pass, including new tests verifying that simulation delays and load simulations impact execution timing as expected.
