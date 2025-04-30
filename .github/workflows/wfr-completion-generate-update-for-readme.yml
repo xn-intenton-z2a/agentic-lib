@@ -578,7 +578,7 @@ jobs:
             ${mainOutput}
             MAIN_OUTPUT_END    
 
-            Agent configuration file: ${agentConfigPath}
+            Agent configuration file:
             AGENT_CONFIG_FILE_START
             ${agentConfigContent}
             AGENT_CONFIG_FILE_END

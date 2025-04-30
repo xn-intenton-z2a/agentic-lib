@@ -451,7 +451,7 @@ jobs:
             ${sourceEntries.map((entry, index) => `Entry ${index + 1}: ${entry.name} (${entry.url})`).join('\n')}
             SOURCES_ENTRIES_END
 
-            Agent configuration file: ${agentConfigPath}
+            Agent configuration file:
             AGENT_CONFIG_FILE_START
             ${agentConfigContent}
             AGENT_CONFIG_FILE_END

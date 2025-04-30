@@ -567,7 +567,7 @@ jobs:
             ${lintingFilepathContent}
             LINTING_FILE_END
 
-            Agent configuration file (for context, read only): ${agentConfigPath}
+            Agent configuration file (for context, read only):
             AGENT_CONFIG_FILE_START
             ${agentConfigContent}
             AGENT_CONFIG_FILE_END

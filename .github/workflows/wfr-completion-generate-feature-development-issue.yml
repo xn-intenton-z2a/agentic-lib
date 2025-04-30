@@ -589,7 +589,7 @@ jobs:
             ${openIssueTitles}
             OPEN_ISSUE_TITLES_END
 
-            Agent configuration file: ${agentConfigPath}
+            Agent configuration file:
             AGENT_CONFIG_FILE_START
             ${agentConfigContent}
             AGENT_CONFIG_FILE_END
