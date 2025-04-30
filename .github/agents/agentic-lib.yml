@@ -31,6 +31,7 @@ paths:
       - engineer-sandbox/tests/
   targetTestsPath:
     path: engineer-sandbox/tests/
+    permissions:
       - write
   allSourcePaths:
     paths:
@@ -39,11 +40,13 @@ paths:
       - write
   targetSourcePath:
     path: engineer-sandbox/source/
+    permissions:
       - write
   dependenciesFilepath:
     path: package.json
   documentationPath:
     path: engineer-sandbox/docs/
+    permissions:
       - write
 
   # Filepaths for maintainer workflows
