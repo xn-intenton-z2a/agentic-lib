@@ -131,6 +131,16 @@ on:
         type: string
         required: false
         default: '.github/agents/agentic-lib.yml'
+      readableFilepaths:
+        description: 'Semicolon-separated list of file paths that can be read by the workflow. e.g. "MISSION.md;CONTRIBUTING.md;package.json;README.md;.prettierrc;eslint.config.js"'
+        type: string
+        required: false
+        default: ''
+      writeableFilepaths:
+        description: 'Semicolon-separated list of file paths that can be written by the workflow. e.g. "elaborator-sandbox/SOURCES.md;elaborator-sandbox/library/;engineer-sandbox/features/;engineer-sandbox/source/;engineer-sandbox/tests/;engineer-sandbox/docs/"'
+        type: string
+        required: false
+        default: ''
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false

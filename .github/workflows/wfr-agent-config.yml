@@ -156,6 +156,8 @@ on:
         value: ${{ jobs.agentic-lib.outputs.attemptsPerBranch }}
       attemptsPerIssue:
         value: ${{ jobs.agentic-lib.outputs.attemptsPerIssue }}
+      readableFilepaths:
+        value: ${{ jobs.agentic-lib.outputs.readableFilepaths }}
       writeableFilepaths:
         value: ${{ jobs.agentic-lib.outputs.writeableFilepaths }}
       srcPath:
@@ -263,7 +265,8 @@ jobs:
             let srcPath = process.env.defaultSrcPath;
             let testsPath = process.env.defaultTestsPath;
             let docsPath = process.env.defaultDocsPath;
-            let writeableFilepaths = JSON.parse(process.env.defaultWriteableFilepaths);
+            let readableFilepaths = "";
+            let writeableFilepaths = "";
             let documentsLimit = process.env.defaultDocumentsLimit;
             let libraryDir = process.env.defaultLibraryDir;
             let sourcesFile = process.env.defaultSourcesFile;
@@ -347,11 +350,66 @@ jobs:
                   console.log(`Warning: docs path not found in writeableFilepaths in .github/agents/agentic-lib.yml, using default value: ${docsPath}`);
                 }
 
-                // Extract all writeable filepaths
-                if (config.writeableFilepaths) {
-                  writeableFilepaths = Object.values(config.writeableFilepaths)
-                    .filter(value => value && value.trim() !== '')
-                    .map(value => value.replace(/"/g, ''));
+                // Extract paths from new structure
+                if (config.paths) {
+                  const readablePaths = [];
+                  const writablePaths = [];
+
+                  // Process each key in the paths structure
+                  for (const [key, value] of Object.entries(config.paths)) {
+                    if (value.paths && Array.isArray(value.paths) && value.permissions) {
+                      // Get all paths for this key
+                      const pathsForKey = value.paths.filter(p => p && p.trim() !== '');
+
+                      // If there are multiple paths, combine them into a semicolon-separated string
+                      const combinedPath = pathsForKey.join(';');
+
+                      // Check permissions and add to appropriate arrays
+                      if (value.permissions.includes('read')) {
+                        readablePaths.push(combinedPath);
+                      }
+
+                      if (value.permissions.includes('write')) {
+                        writablePaths.push(combinedPath);
+                      }
+
+                      // Set specific variables based on the key
+                      if (key === 'src' && pathsForKey.length > 0) {
+                        srcPath = combinedPath;
+                      } else if (key === 'tests' && pathsForKey.length > 0) {
+                        testsPath = combinedPath;
+                      } else if (key === 'docs' && pathsForKey.length > 0) {
+                        docsPath = combinedPath;
+                      } else if (key === 'library' && pathsForKey.length > 0) {
+                        libraryDir = combinedPath;
+                      } else if (key === 'sources' && pathsForKey.length > 0) {
+                        sourcesFile = combinedPath;
+                      } else if (key === 'mission' && pathsForKey.length > 0) {
+                        missionFile = combinedPath;
+                      } else if (key === 'contributing' && pathsForKey.length > 0) {
+                        contributingFile = combinedPath;
+                      } else if (key === 'formattingFile' && pathsForKey.length > 0) {
+                        formattingFile = combinedPath;
+                      } else if (key === 'lintingFile' && pathsForKey.length > 0) {
+                        lintingFile = combinedPath;
+                      } else if (key === 'features' && pathsForKey.length > 0) {
+                        featuresPath = combinedPath;
+                      } else if (key === 'dependencies' && pathsForKey.length > 0) {
+                        dependenciesFile = combinedPath;
+                      } else if (key === 'readme' && pathsForKey.length > 0) {
+                        readmeFile = combinedPath;
+                      }
+                    }
+                  }
+
+                  // Set the readable and writable filepaths
+                  readableFilepaths = readablePaths;
+
+                  // Combine all readable paths into a semicolon-separated string
+                  allReadableFilepaths = readablePaths.join(';');
+
+                  // Combine all writable paths into a semicolon-separated string
+                  writeableFilepaths = writablePaths.join(';');
                 }
 
                 // Extract sourcesLimit
@@ -463,7 +521,7 @@ jobs:
             // Set outputs
             console.log(`attemptsPerBranch=${attemptsPerBranch}`);
             core.setOutput('attemptsPerBranch', attemptsPerBranch);
-            
+
             console.log(`attemptsPerIssue=${attemptsPerIssue}`);
             core.setOutput('attemptsPerIssue', attemptsPerIssue);
 
@@ -476,8 +534,11 @@ jobs:
             console.log(`docsPath=${docsPath}`);
             core.setOutput('docsPath', docsPath);
 
-            console.log(`writeableFilepaths=${JSON.stringify(writeableFilepaths)}`);
-            core.setOutput('writeableFilepaths', JSON.stringify(writeableFilepaths));
+            console.log(`readableFilepaths=${readableFilepaths}`);
+            core.setOutput('readableFilepaths', readableFilepaths);
+
+            console.log(`writeableFilepaths=${writeableFilepaths}`);
+            core.setOutput('writeableFilepaths', writeableFilepaths);
 
             console.log(`documentsLimit=${documentsLimit}`);
             core.setOutput('documentsLimit', documentsLimit);
@@ -535,6 +596,7 @@ jobs:
 
     outputs:
       attemptsPerIssue: ${{ steps.agentic-lib.outputs.attemptsPerIssue }}
+      readableFilepaths: ${{ steps.agentic-lib.outputs.readableFilepaths }}
       writeableFilepaths: ${{ steps.agentic-lib.outputs.writeableFilepaths }}
       srcPath: ${{ steps.agentic-lib.outputs.srcPath }}
       testsPath: ${{ steps.agentic-lib.outputs.testsPath }}

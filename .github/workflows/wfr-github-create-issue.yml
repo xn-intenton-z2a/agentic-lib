@@ -127,4 +127,3 @@ jobs:
       issueTitle: ${{ steps.create-issue.outputs.issueTitle }}
       issueBody: ${{ steps.create-issue.outputs.issueBody }}
       issueNumber: ${{ steps.create-issue.outputs.issueNumber }}
-

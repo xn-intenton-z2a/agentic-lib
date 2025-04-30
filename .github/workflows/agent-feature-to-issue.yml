@@ -114,6 +114,8 @@ jobs:
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
       agentConfigPath: ${{ needs.agentic-lib.outputs.agentConfigPath }}
       promptFile: '.github/agents/agent-feature-issue.md'
+      readableFilepaths: ${{ needs.agentic-lib.outputs.readableFilepaths }}
+      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

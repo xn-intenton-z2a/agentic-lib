@@ -150,6 +150,16 @@ on:
         type: string
         required: false
         default: '.github/agents/agentic-lib.yml'
+      readableFilepaths:
+        description: 'Semicolon-separated list of file paths that can be read by the workflow. e.g. "MISSION.md;CONTRIBUTING.md;package.json;README.md;.prettierrc;eslint.config.js"'
+        type: string
+        required: false
+        default: ''
+      writeableFilepaths:
+        description: 'Semicolon-separated list of file paths that can be written by the workflow. e.g. "elaborator-sandbox/SOURCES.md;elaborator-sandbox/library/;engineer-sandbox/features/;engineer-sandbox/source/;engineer-sandbox/tests/;engineer-sandbox/docs/"'
+        type: string
+        required: false
+        default: ''
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -188,6 +198,8 @@ jobs:
       testsPath: ${{ inputs.testsPath || '' }}
       docsPath: ${{ inputs.docsPath || '' }}
       readmeFile: ${{ inputs.readmeFile || 'README.md' }}
+      readableFilepaths: ${{ inputs.readableFilepaths || '' }}
+      writeableFilepaths: ${{ inputs.writeableFilepaths || '' }}
       missionFile: ${{ inputs.missionFile || 'MISSION.md' }}
       contributingFile: ${{ inputs.contributingFile || 'CONTRIBUTING.md' }}
       dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
@@ -327,6 +339,7 @@ jobs:
             const mainScript = process.env.mainScript;
             const mainOutput = process.env.mainOutput;
             const allowedFilepathPatterns = JSON.parse(process.env.allowedFilepathPatterns || '["features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md"]');
+            const writeableFilepaths = process.env.writeableFilepaths ? process.env.writeableFilepaths.split(';') : [];
             const agentConfigPath = process.env.agentConfigPath;
 
             const fs = require('fs');
@@ -337,16 +350,37 @@ jobs:
             require('dotenv').config();
 
             // Function to check if a file path matches any of the allowed patterns
-            function isFilePathAllowed(filePath, writeableFilepaths) {
-              // Ensure writeableFilepaths is an array
-              const patterns = Array.isArray(writeableFilepaths) ? writeableFilepaths : String(writeableFilepaths).split(',');
-              core.info(`Checking if file path '${filePath}' is allowed in writeableFilepaths: ${patterns}`);
-              return patterns.some(pattern => (
+            function isFilePathAllowed(filePath, patterns) {
+              // First check against the allowedFilepathPatterns
+              const allowedPatterns = Array.isArray(patterns) ? patterns : String(patterns).split(',');
+              core.info(`Checking if file path '${filePath}' is allowed in patterns: ${allowedPatterns}`);
+
+              // Then check against the writeableFilepaths from the new structure
+              if (writeableFilepaths.length > 0) {
+                core.info(`Also checking against writeableFilepaths: ${writeableFilepaths}`);
+              }
+
+              // Check if the file path matches any of the allowed patterns
+              const isAllowed = allowedPatterns.some(pattern => (
                 minimatch(filePath, pattern.trim()) || 
                 minimatch(filePath, `${pattern.trim()}*`) || 
                 minimatch(filePath, `${pattern.trim()}**`) || 
                 minimatch(filePath, `${pattern.trim()}/**`)
               ));
+
+              // Check if the file path matches any of the writeable file paths
+              const isWriteable = writeableFilepaths.some(pattern => {
+                const trimmedPattern = pattern.trim();
+                if (!trimmedPattern) return false;
+                return (
+                  minimatch(filePath, trimmedPattern) || 
+                  minimatch(filePath, `${trimmedPattern}*`) || 
+                  minimatch(filePath, `${trimmedPattern}**`) || 
+                  minimatch(filePath, `${trimmedPattern}/**`)
+                );
+              });
+
+              return isAllowed || isWriteable;
             }
 
             if (!apiKey) { 
