@@ -42,7 +42,19 @@ jobs:
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+  uuid:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate UUID
+        id: uuid
+        shell: bash
+        run: echo "uuid=$(cat /proc/sys/kernel/random/uuid)" >> $GITHUB_ENV
+    outputs:
+      uuid: ${{ steps.uuid.outputs.uuid }}
+
   select-issue:
+    needs:
+      - uuid
     permissions:
       issues: read
       id-token: write
@@ -50,6 +62,7 @@ jobs:
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: 'merged'
+      filterLabel: ${{ needs.uuid.outputs.uuid }}
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
@@ -92,6 +105,7 @@ jobs:
     with:
       issueNumber: ''
       selectionLabel: 'ready'
+      filterLabel: 'in-progress'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 

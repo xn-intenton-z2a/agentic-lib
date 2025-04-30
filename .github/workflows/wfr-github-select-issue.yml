@@ -33,10 +33,15 @@ on:
         type: string
         required: true
       selectionLabel:
-        description: 'Label used to filter issues for review. e.g. "automated"'
+        description: 'Label used to select issues with this label. e.g. "automated"'
         required: false
         type: string
         default: 'automated'
+      filterLabel:
+        description: 'Label used to filter issues without this label. e.g. "in-progress"'
+        required: false
+        type: string
+        default: 'in-progress'
       cache:
         description: 'The cache to use for npm. e.g. "npm"'
         type: string
@@ -71,6 +76,7 @@ jobs:
     env:
       issueNumber: ${{ inputs.issueNumber }}
       selectionLabel: ${{ inputs.selectionLabel || 'automated' }}
+      filterLabel: ${{ inputs.filterLabel || 'in-progress' }}
       cache: ${{ inputs.cache || 'npm' }}
 
     steps:
@@ -91,6 +97,7 @@ jobs:
           script: |
             const issueNumberInput = process.env.issueNumber;
             const selectionLabel = process.env.selectionLabel;
+            const filterLabel = process.env.filterLabel;
             let issueNumberOutput;
             let issueTitleOutput;
             let issueDescriptionOutput;
@@ -120,9 +127,9 @@ jobs:
                 per_page: 10
               });
 
-              // Filter out issues with 'in-progress' label
+              // Filter out issues with filterLabel
               const filteredIssues = issues.filter(issue => 
-                !issue.labels.some(label => label.name === 'in-progress')
+                !issue.labels.some(label => label.name === filterLabel)
               );
 
               if (!filteredIssues || filteredIssues.length === 0) {
@@ -130,13 +137,13 @@ jobs:
                 issueTitleOutput = '';
                 issueDescriptionOutput = '';
                 issueLabelsOutput = '';
-                core.info(`No open issues found with label: "${selectionLabel}" that are not in-progress`);
+                core.info(`No open issues found with label: ${selectionLabel} that are not ${filterLabel}`);
               } else {
                 issueNumberOutput = filteredIssues[0].number;
                 issueTitleOutput = filteredIssues[0].title; 
                 issueDescriptionOutput = filteredIssues[0].body;
                 issueLabelsOutput = filteredIssues[0].labels.map(label => label.name).join(', ');
-                core.info(`Open issue '${issueNumberOutput}' found with label: '${selectionLabel}'`);
+                core.info(`Open issue '${issueNumberOutput}' found with label: ${selectionLabel} but not ${filterLabel}`);
               }
             }
 

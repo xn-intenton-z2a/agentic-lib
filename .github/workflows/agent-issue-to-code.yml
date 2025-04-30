@@ -58,6 +58,7 @@ jobs:
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: ${{ inputs.selectionLabel || 'ready' }}
+      filterLabel: 'in-progress'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
@@ -510,6 +511,7 @@ jobs:
     with:
       issueNumber: ''
       selectionLabel: 'ready'
+      filterLabel: 'in-progress'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
