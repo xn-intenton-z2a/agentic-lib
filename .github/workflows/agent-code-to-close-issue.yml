@@ -48,7 +48,9 @@ jobs:
       - name: Generate UUID
         id: uuid
         shell: bash
-        run: echo "uuid=$(cat /proc/sys/kernel/random/uuid)" >> $GITHUB_ENV
+        run: |
+          node -e 'console.log(`uuid=${require("uuid").v7()}`);' >> $GITHUB_OUTPUT
+
     outputs:
       uuid: ${{ steps.uuid.outputs.uuid }}
 
@@ -62,7 +64,7 @@ jobs:
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: 'merged'
-      filterLabel: ${{ needs.uuid.outputs.uuid }}
+      filterLabel: 'no-label-${{ needs.uuid.outputs.uuid }}'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 

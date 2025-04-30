@@ -667,7 +667,7 @@ Re-usable GitHub Actions Workflows:
 - [ ] [r0w-MVP] Set up repository0 to only write to demo files, reset every week.
 - [ ] [r0w-MVP] Set up plot-code-lib to use a single file outputs
 - [ ] [r0w-MVP] Set up repository0-crucible to use multiple file outputs
-- [ ] [r0w-Launch] Feature switch role: elaborator (sources, library, web publish, features, dweb publish)
+- [ ] [r0w-Launch] Feature switch role: elaborator (sources, library, web publish, features, web publish)
 - [ ] [r0w-Launch] Feature switch role: engineer (src, tests, docs, packages)
 - [ ] [r0w-Launch] Feature switch role: maintainer (pr+linting+updates+readme+docs)
 - [ ] [r0w-MVP] Set up s3-sqs-bridge to only do essential updates (maintainer role)
