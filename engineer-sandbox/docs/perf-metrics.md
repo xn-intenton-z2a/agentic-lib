@@ -30,25 +30,18 @@ The library supports batch throttling via the `MAX_BATCH_COMMANDS` environment v
 
 ## Event Audit Feature
 
-A new feature, **EVENT_AUDIT**, has been implemented to improve observability. The system now logs critical events during processing. The audit log is stored in a global array and includes records for:
+A new feature, **EVENT_AUDIT**, has been implemented to improve observability. The system now logs critical events during processing. Each audit record includes the following properties:
 
-- **SQS_RECORD_PROCESSED**: Logged for each SQS record processed by the digest handler. In case of errors (e.g., JSON parsing failure), error details are recorded.
+- **eventType**: The type of the event. Possible values include:
+  - `SQS_RECORD_PROCESSED`: Logged for each SQS record successfully processed.
+  - `SQS_RECORD_ERROR`: Logged when an SQS record fails to be processed (e.g., invalid JSON).
+  - `COMMAND_START`: Logged before processing each command, capturing the original command and any alias substitution.
+  - `COMMAND_COMPLETE`: Logged after processing each command, including the execution time and status.
+  - `WORKFLOW_CHAIN_COMPLETE`: Logged after a workflow chain is processed, summarizing the total commands and overall execution time.
+- **timestamp**: ISO formatted timestamp when the event was logged.
+- **details**: An object containing event-specific details (such as command processed, execution time, error messages, etc.).
 
-- **COMMAND_START** and **COMMAND_COMPLETE**: Logged by the agentic handler when processing individual commands. The start event records the initial command, while the complete event includes the execution time and status.
-
-- **WORKFLOW_CHAIN_COMPLETE**: Logged after a workflow chain is processed, summarizing the total number of commands executed and the overall execution time.
-
-Each audit record has the following structure:
-
-```json
-{
-  "eventType": "<TYPE>",
-  "timestamp": "<ISO Timestamp>",
-  "details": { /* relevant data fields such as command, executionTimeMS, status, error etc. */ }
-}
-```
-
-These logs can be used for debugging and performance analysis.
+You can inspect the audit log by accessing `globalThis.auditLog` in your application for debugging and performance analysis.
 
 ## Usage Examples
 
@@ -64,5 +57,12 @@ node engineer-sandbox/source/main.js --perf-metrics '{"command": "ping"}'
 node engineer-sandbox/source/main.js --perf-metrics '{"commands": ["cmdA", "cmdB"]}'
 ```
 
-### Viewing Audit Log (for debugging purposes)
-You can inspect the global audit log by printing `globalThis.auditLog` in your application.
+### Viewing Audit Log
+
+For debugging purposes, you can output the audit log:
+
+```js
+console.log(globalThis.auditLog);
+```
+
+This will display all audit entries logged during processing.
