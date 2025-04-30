@@ -109,7 +109,7 @@ jobs:
               base: process.env.baseBranch,
               state: 'open',
             });
-            if (existingPulls.length === 0) {
+            if (!existingPulls || existingPulls.length === 0) {
               const comparison = await github.rest.repos.compareCommits({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
@@ -162,5 +162,5 @@ jobs:
                 }
               }
             } else {
-              core.info('Pull request already exists for this branch.');
+              core.info(`Pull request already exists for this branch: ${JSON.stringify(existingPulls)}`);
             }

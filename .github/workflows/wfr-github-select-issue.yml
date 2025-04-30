@@ -125,7 +125,7 @@ jobs:
                 !issue.labels.some(label => label.name === 'in-progress')
               );
 
-              if (filteredIssues.length === 0) {
+              if (!filteredIssues || filteredIssues.length === 0) {
                 issueNumberOutput = '';
                 issueTitleOutput = '';
                 issueDescriptionOutput = '';

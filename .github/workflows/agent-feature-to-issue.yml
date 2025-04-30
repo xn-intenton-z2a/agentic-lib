@@ -73,7 +73,7 @@ jobs:
                 return fs.lstatSync(filePath).isFile();
               });
 
-              if (files.length === 0) {
+              if (!files || files.length === 0) {
                 core.setFailed('No prompt files found in the prompts directory.');
               } else {
                 // Select a random file

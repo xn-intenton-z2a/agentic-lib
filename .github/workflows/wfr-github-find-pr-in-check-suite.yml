@@ -96,7 +96,7 @@ jobs:
               commit_sha: headSha,
             });
 
-            if (prs.length === 0) {
+            if (!prs || prs.length === 0) {
               core.info('No pull requests associated with this check suite.');            
               pullNumber = '';
               shouldSkipMerge = 'true';
