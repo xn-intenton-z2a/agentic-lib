@@ -17,6 +17,22 @@ For workflow chain invocations (i.e. when multiple commands are processed as a b
   - **totalCommands**: Number of commands in the chain.
   - **totalExecutionTimeMS**: The sum of execution times in milliseconds for all commands within the chain.
 
+## Batch Command Throttling
+
+To improve system robustness, the library supports batch throttling via the environment variable **MAX_BATCH_COMMANDS**. When this variable is set, if the number of commands in the payload exceeds the specified limit, the command batch will be rejected, and an error response is returned with the following format:
+
+```
+{ error: 'Batch command limit exceeded: maximum <limit> allowed, received <actual_count>' }
+```
+
+For example, if you set `MAX_BATCH_COMMANDS=2` and submit a payload with three commands, the agenticHandler will return:
+
+```json
+{ "error": "Batch command limit exceeded: maximum 2 allowed, received 3" }
+```
+
+If the number of commands is within the limit, the payload is processed as usual and the performance metrics are reported.
+
 ## Usage Examples
 
 ### Single Command Invocation
@@ -83,3 +99,4 @@ Example Output:
 - In production, the actual processing time will vary based on the command complexity and execution environment.
 - Both naming conventions for the metrics are provided to support legacy integrations as well as new explicit naming.
 - Ensure that you supply a valid JSON payload when invoking the flag.
+- To enable batch throttling, set the **MAX_BATCH_COMMANDS** environment variable (e.g., `export MAX_BATCH_COMMANDS=2` in Unix systems).

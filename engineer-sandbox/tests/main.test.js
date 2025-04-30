@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import { agenticHandler } from '../../source/main.js';
 
 // Test for single agentic command invocation
@@ -52,5 +52,28 @@ describe('CLI Perf Metrics Flag - Workflow Chain Invocation', () => {
     expect(response.minTimeMS).toBe(0);
     expect(response.maxTimeMS).toBe(0);
     expect(response.medianTimeMS).toBe(0);
+  });
+});
+
+// New tests for MAX_BATCH_COMMANDS enforcement
+describe('Batch command limit enforcement', () => {
+  afterEach(() => {
+    delete process.env.MAX_BATCH_COMMANDS;
+  });
+
+  it('should return an error when batch limit is exceeded', () => {
+    process.env.MAX_BATCH_COMMANDS = '2';
+    const payload = { commands: ['cmd1', 'cmd2', 'cmd3'] };
+    const response = agenticHandler(payload);
+    expect(response).toEqual({ error: 'Batch command limit exceeded: maximum 2 allowed, received 3' });
+  });
+
+  it('should process batch normally when within limit', () => {
+    process.env.MAX_BATCH_COMMANDS = '3';
+    const payload = { commands: ['cmd1', 'cmd2'] };
+    const response = agenticHandler(payload);
+    expect(response).toHaveProperty('results');
+    expect(response.results.length).toBe(2);
+    expect(response).toHaveProperty('averageExecutionTimeMS', response.averageTimeMS);
   });
 });
