@@ -17,7 +17,27 @@ function computeMetrics(times) {
       medianTimeMS = sorted[Math.floor(totalCommands / 2)];
     }
   }
-  return { totalCommands, averageTimeMS, minTimeMS, maxTimeMS, medianTimeMS };
+  // Compute standard deviation: sqrt of the average of squared differences from the mean.
+  let standardDeviationTimeMS = 0;
+  if (totalCommands) {
+    const variance = times.reduce((acc, t) => acc + Math.pow(t - averageTimeMS, 2), 0) / totalCommands;
+    standardDeviationTimeMS = Math.sqrt(variance);
+  }
+  // Compute 90th percentile execution time.
+  let percentile90TimeMS = 0;
+  if (totalCommands) {
+    const idx = Math.ceil(0.9 * totalCommands) - 1;
+    percentile90TimeMS = sorted[idx];
+  }
+  return {
+    totalCommands,
+    averageTimeMS,
+    minTimeMS,
+    maxTimeMS,
+    medianTimeMS,
+    standardDeviationTimeMS,
+    "90thPercentileTimeMS": percentile90TimeMS
+  };
 }
 
 function processCommand(cmd) {
@@ -54,7 +74,9 @@ export function agenticHandler(payload) {
       averageExecutionTimeMS: metrics.averageTimeMS,
       minExecutionTimeMS: metrics.minTimeMS,
       maxExecutionTimeMS: metrics.maxTimeMS,
-      medianExecutionTimeMS: metrics.medianTimeMS
+      medianExecutionTimeMS: metrics.medianTimeMS,
+      standardDeviationTimeMS: metrics.standardDeviationTimeMS,
+      "90thPercentileTimeMS": metrics["90thPercentileTimeMS"]
     };
     return { status: 'success', results, chainSummary, ...enhancedMetrics };
   } else if (payload.command) {
@@ -66,7 +88,9 @@ export function agenticHandler(payload) {
       averageExecutionTimeMS: metrics.averageTimeMS,
       minExecutionTimeMS: metrics.minTimeMS,
       maxExecutionTimeMS: metrics.maxTimeMS,
-      medianExecutionTimeMS: metrics.medianTimeMS
+      medianExecutionTimeMS: metrics.medianTimeMS,
+      standardDeviationTimeMS: metrics.standardDeviationTimeMS,
+      "90thPercentileTimeMS": metrics["90thPercentileTimeMS"]
     };
     return { ...result, ...enhancedMetrics };
   } else {
@@ -91,7 +115,7 @@ function printHelp() {
   --cli-utils                Display a summary of available CLI commands with their descriptions.
   --workflow-chain <jsonPayload>    Process a chain of workflow commands sequentially. (Payload must have a 'chain' array property)
   --verbose-stats            When used with a valid command, outputs detailed statistics including callCount and uptime in JSON format.
-  --perf-metrics             Display aggregated performance metrics for agentic commands and workflow chains in JSON format, including totalCommands, averageTimeMS, averageExecutionTimeMS, minTimeMS, minExecutionTimeMS, maxTimeMS, maxExecutionTimeMS, medianTimeMS, and medianExecutionTimeMS. For workflow chains, a chainSummary is also provided.
+  --perf-metrics             Display aggregated performance metrics for agentic commands and workflow chains in JSON format, including totalCommands, averageTimeMS, averageExecutionTimeMS, minTimeMS, minExecutionTimeMS, maxTimeMS, maxExecutionTimeMS, medianTimeMS, medianExecutionTimeMS, standardDeviationTimeMS, and "90thPercentileTimeMS". For workflow chains, a chainSummary is also provided.
 `);
 }
 

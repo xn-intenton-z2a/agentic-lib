@@ -11,6 +11,19 @@ When you use the `--perf-metrics` flag, the output JSON will include the followi
 - **maxTimeMS**: Maximum execution time in milliseconds recorded among the commands. Also available as **maxExecutionTimeMS**.
 - **medianTimeMS**: The median execution time in milliseconds, providing a robust measure of central tendency. Also available as **medianExecutionTimeMS**.
 
+Additionally, two new statistical metrics have been introduced:
+
+- **standardDeviationTimeMS**: Represents the standard deviation of the execution times. It is calculated as the square root of the mean of the squared differences from the average execution time:
+  
+  Formula: standardDeviationTimeMS = sqrt( (1/N) * Σ (x_i - averageTimeMS)² )
+  
+  This metric provides insight into the variability and consistency of the command execution times.
+
+- **90thPercentileTimeMS**: Represents the 90th percentile execution time. This is determined by sorting the execution times and selecting the value below which 90% of the data falls. It offers insight into the upper bound of typical execution delays.
+  
+  Calculation: Sort the execution times, then take the element at the index given by ceil(0.9 * N) - 1 (where N is the total number of commands).
+
+## Workflow Chain Invocations
 For workflow chain invocations (i.e. when multiple commands are processed as a batch), an additional field is included:
 
 - **chainSummary**: An object providing a breakdown specific to chain invocations:
@@ -32,7 +45,7 @@ To enforce a maximum batch size, set the **MAX_BATCH_COMMANDS** environment vari
 export MAX_BATCH_COMMANDS=2
 ```
 
-If a payload is submitted with a `commands` array length greater than the limit, the agenticHandler will return an error response indicating the overflow. If the number of commands is within the specified limit, the payload is processed normally and performance metrics are reported.
+If a payload is submitted with a `commands` array length greater than the limit, the agenticHandler will return an error response detailing the allowed maximum and the actual number of commands submitted.
 
 ## Usage Examples
 
@@ -60,7 +73,9 @@ Example Output:
   "maxTimeMS": 0,
   "maxExecutionTimeMS": 0,
   "medianTimeMS": 0,
-  "medianExecutionTimeMS": 0
+  "medianExecutionTimeMS": 0,
+  "standardDeviationTimeMS": 0,
+  "90thPercentileTimeMS": 0
 }
 ```
 
@@ -90,7 +105,9 @@ Example Output:
   "maxTimeMS": 0,
   "maxExecutionTimeMS": 0,
   "medianTimeMS": 0,
-  "medianExecutionTimeMS": 0
+  "medianExecutionTimeMS": 0,
+  "standardDeviationTimeMS": 0,
+  "90thPercentileTimeMS": 0
 }
 ```
 
@@ -100,4 +117,4 @@ Example Output:
 - In production, the actual processing time will vary based on the command complexity and execution environment.
 - Both naming conventions for the metrics are provided to support legacy integrations as well as new explicit naming.
 - Ensure that you supply a valid JSON payload when invoking the flag.
-- To enable batch throttling, set the **MAX_BATCH_COMMANDS** environment variable as shown above. When exceeded, an error is returned detailing the allowed maximum and the actual number of commands submitted.
+- To enable batch throttling, set the **MAX_BATCH_COMMANDS** environment variable as shown above.
