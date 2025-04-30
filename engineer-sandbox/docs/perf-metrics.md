@@ -13,15 +13,9 @@ When you use the `--perf-metrics` flag, the output JSON will include the followi
 
 Additionally, two new statistical metrics have been introduced:
 
-- **standardDeviationTimeMS**: Represents the standard deviation of the execution times. It is calculated as the square root of the mean of the squared differences from the average execution time:
-  
-  Formula: standardDeviationTimeMS = sqrt( (1/N) * Σ (x_i - averageTimeMS)² )
-  
-  This metric provides insight into the variability and consistency of the command execution times.
+- **standardDeviationTimeMS**: Represents the standard deviation of the execution times. It is calculated as the square root of the mean of the squared differences from the average execution time.
 
-- **90thPercentileTimeMS**: Represents the 90th percentile execution time. This is determined by sorting the execution times and selecting the value below which 90% of the data falls. It offers insight into the upper bound of typical execution delays.
-  
-  Calculation: Sort the execution times, then take the element at the index given by ceil(0.9 * N) - 1 (where N is the total number of commands).
+- **90thPercentileTimeMS**: Represents the 90th percentile execution time, determined by sorting the execution times and selecting the value below which 90% of the data falls.
 
 ## Workflow Chain Invocations
 For workflow chain invocations (i.e. when multiple commands are processed as a batch), an additional field is included:
@@ -32,89 +26,43 @@ For workflow chain invocations (i.e. when multiple commands are processed as a b
 
 ## Batch Command Throttling
 
-To improve system robustness, the library supports batch throttling via the environment variable **MAX_BATCH_COMMANDS**. When this variable is set, if the number of commands in the payload exceeds the specified limit, the command batch will be rejected, and an error response is returned in the following format:
+The library supports batch throttling via the `MAX_BATCH_COMMANDS` environment variable. If the number of commands in the payload exceeds the set limit, the command batch will be rejected with an error message.
 
-```
-{ error: 'Batch command limit exceeded: maximum <limit> allowed, received <actual_count>' }
+## Event Audit Feature
+
+A new feature, **EVENT_AUDIT**, has been implemented to improve observability. The system now logs critical events during processing. The audit log is stored in a global array and includes records for:
+
+- **SQS_RECORD_PROCESSED**: Logged for each SQS record processed by the digest handler. In case of errors (e.g., JSON parsing failure), error details are recorded.
+
+- **COMMAND_START** and **COMMAND_COMPLETE**: Logged by the agentic handler when processing individual commands. The start event records the initial command, while the complete event includes the execution time and status.
+
+- **WORKFLOW_CHAIN_COMPLETE**: Logged after a workflow chain is processed, summarizing the total number of commands executed and the overall execution time.
+
+Each audit record has the following structure:
+
+```json
+{
+  "eventType": "<TYPE>",
+  "timestamp": "<ISO Timestamp>",
+  "details": { /* relevant data fields such as command, executionTimeMS, status, error etc. */ }
+}
 ```
 
-### Setting MAX_BATCH_COMMANDS
-To enforce a maximum batch size, set the **MAX_BATCH_COMMANDS** environment variable. For example, in a Unix shell you can use:
-
-```
-export MAX_BATCH_COMMANDS=2
-```
-
-If a payload is submitted with a `commands` array length greater than the limit, the agenticHandler will return an error response detailing the allowed maximum and the actual number of commands submitted.
+These logs can be used for debugging and performance analysis.
 
 ## Usage Examples
 
 ### Single Command Invocation
 
-Command:
-
 ```
 node engineer-sandbox/source/main.js --perf-metrics '{"command": "ping"}'
 ```
 
-Example Output:
-
-```json
-{
-  "status": "success",
-  "processedCommand": "ping",
-  "timestamp": "2025-04-28T00:40:27.416Z",
-  "executionTimeMS": 0,
-  "totalCommands": 1,
-  "averageTimeMS": 0,
-  "averageExecutionTimeMS": 0,
-  "minTimeMS": 0,
-  "minExecutionTimeMS": 0,
-  "maxTimeMS": 0,
-  "maxExecutionTimeMS": 0,
-  "medianTimeMS": 0,
-  "medianExecutionTimeMS": 0,
-  "standardDeviationTimeMS": 0,
-  "90thPercentileTimeMS": 0
-}
-```
-
 ### Workflow Chain Invocation
-
-Command:
 
 ```
 node engineer-sandbox/source/main.js --perf-metrics '{"commands": ["cmdA", "cmdB"]}'
 ```
 
-Example Output:
-
-```json
-{
-  "status": "success",
-  "results": [
-    {"status": "success", "processedCommand": "cmdA", "timestamp": "2025-04-28T00:40:27.418Z", "executionTimeMS": 0},
-    {"status": "success", "processedCommand": "cmdB", "timestamp": "2025-04-28T00:40:27.418Z", "executionTimeMS": 0}
-  ],
-  "chainSummary": {"totalCommands": 2, "totalExecutionTimeMS": 0},
-  "totalCommands": 2,
-  "averageTimeMS": 0,
-  "averageExecutionTimeMS": 0,
-  "minTimeMS": 0,
-  "minExecutionTimeMS": 0,
-  "maxTimeMS": 0,
-  "maxExecutionTimeMS": 0,
-  "medianTimeMS": 0,
-  "medianExecutionTimeMS": 0,
-  "standardDeviationTimeMS": 0,
-  "90thPercentileTimeMS": 0
-}
-```
-
-## Notes
-
-- The execution time is currently simulated and may appear as 0ms in testing environments.
-- In production, the actual processing time will vary based on the command complexity and execution environment.
-- Both naming conventions for the metrics are provided to support legacy integrations as well as new explicit naming.
-- Ensure that you supply a valid JSON payload when invoking the flag.
-- To enable batch throttling, set the **MAX_BATCH_COMMANDS** environment variable as shown above.
+### Viewing Audit Log (for debugging purposes)
+You can inspect the global audit log by printing `globalThis.auditLog` in your application.
