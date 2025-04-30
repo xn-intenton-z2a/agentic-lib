@@ -1,6 +1,6 @@
 {
   "name": "@xn-intenton-z2a/agentic-lib",
-  "version": "4.3.22-0",
+  "version": "4.3.22",
   "description": "Agentic-lib Agentic Coding Systems SDK powering automated GitHub workflows.",
   "type": "module",
   "main": "src/lib/main.js",
