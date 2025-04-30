@@ -260,9 +260,9 @@ jobs:
 
               // Filepaths for engineer workflows - Extract
               contributingFilepath = config.paths?.contributingFilepath?.path || contributingFilepath;
-              allTestsPaths = config.paths?.allTestsPaths?.paths?.join(', ') || allTestsPaths;
+              allTestsPaths = config.paths?.allTestsPaths?.paths?.join(';') || allTestsPaths;
               targetTestsPath = config.paths?.targetTestsPath?.path || targetTestsPath;
-              allSourcePaths = config.paths?.allSourcePaths?.paths?.join(', ') || allSourcePaths;
+              allSourcePaths = config.paths?.allSourcePaths?.paths?.join(';') || allSourcePaths;
               targetSourcePath = config.paths?.targetSourcePath?.path || targetSourcePath;
               dependenciesFilepath = config.paths?.dependenciesFilepath?.path || dependenciesFilepath;
               documentationPath = config.paths?.documentationPath?.path || documentationPath;
