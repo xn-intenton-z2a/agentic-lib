@@ -72,3 +72,8 @@ The official ESLint documentation provides extensive details on configuring and 
 ## https://nodejs.org/en/docs/guides/simple-profiling/
 This resource outlines practical techniques for profiling Node.js applications using built-in performance hooks, while also incorporating insights from the V8 JavaScript Engine documentation for a deeper understanding of runtime behavior. It details methods for simulating processing delays and CPU-intensive tasks, aligning with modern simulation flags. Updated in line with the latest Node.js LTS releases.
 ## License: MIT
+
+# Understanding Autonomous Agents
+## https://www.infoq.com/articles/autonomous-agents-systems/
+This article provides a deep dive into the principles and design strategies for building autonomous agents in software systems. It covers architectural patterns, communication protocols, and real-world case studies that illustrate how to implement agent-based systems effectively. The technical insights and detailed examples directly support implementations in agentic‑lib, especially in designing workflows that operate autonomously. Last confirmed update: 2023.
+## License: Not specified
