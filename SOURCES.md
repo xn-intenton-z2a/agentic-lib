@@ -73,7 +73,7 @@ A critical resource for understanding GitHub Actions workflow configuration, inc
 The official ESLint documentation provides extensive details on configuring and extending ESLint for modern JavaScript and TypeScript projects. It includes rules, customization options, best practices for code quality, and integration guides with various development environments. Updated regularly.
 ## License: MIT
 
-# Node.js Performance Profiling Guide
+# Node.js Performance Profiling & Simulation Techniques
 ## https://nodejs.org/en/docs/guides/simple-profiling/
-This guide offers practical techniques for profiling and monitoring Node.js applications. It covers the use of built-in performance hooks, profiling tools, and best practices to identify bottlenecks and optimize performance in production environments. Updated in line with Node.js LTS releases.
+This guide offers practical techniques for profiling and monitoring Node.js applications. It covers the use of built-in performance hooks, generating flamegraphs, and best practices for diagnosing performance bottlenecks. Notably, it also provides guidance on simulating delays using asynchronous timers (such as setTimeout and Promise-based sleep) and creating CPU-intensive load through controlled loops — techniques that align with simulation flags like --simulate-delay and --simulate-load. Updated in line with the latest Node.js LTS releases.
 ## License: MIT
