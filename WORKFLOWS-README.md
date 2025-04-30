@@ -658,17 +658,19 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-Launch] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
 - [x] [r0w-Launch] Move AGENT- files to ./github/agentic-lib/agent-*.md
 - [x] [r0w-Launch] Move agentic-lib.yml to ./github/agentic-lib/agentic-lib.yml
+- [~] [r0w-Launch] Find a better name for sources
+- [~] [r0w-Launch] Ensure every file path or external element referenced by the workflows, defaults to the value in agentic-lib.yml
 - [~] [r0w-MVP] Set up agentic-lib to only write to supplementary files (`./*-sandbox`).
-- [ ] [r0w-MVP] Set up s3-sqs-bridge to only do essential updates.
-- [ ] [r0w-MVP] Set up repository0 to use a demo directory and reset every week and show case past projects.
-- [ ] [r0w-MVP] Set up plot-code-lib to use a single file and the readme as the documentation.
-- [ ] [r0w-MVP] Set up repository0-crucible to use multiple files
+- [ ] [r0w-MVP] Set up repository0 to only write to demo files, reset every week.
+- [ ] [r0w-MVP] Set up plot-code-lib to use a single file outputs
+- [ ] [r0w-MVP] Set up repository0-crucible to use multiple file outputs
 - [ ] [r0w-Launch] Feature switch role: elaborator (sources, library, web publish, features, dweb publish)
 - [ ] [r0w-Launch] Feature switch role: engineer (src, tests, docs, packages)
 - [ ] [r0w-Launch] Feature switch role: maintainer (pr+linting+updates+readme+docs)
+- [ ] [r0w-MVP] Set up s3-sqs-bridge to only do essential updates (maintainer role)
+- [ ] [r0w-MVP] Set up repository0-web to documents only (elaboration role)
 - [ ] [r0w-Launch] Make the agent prompts match the top level workflow file names
 - [ ] [r0w-Launch] Make the reusable workflow names match the top level workflow file names
-- [~] [r0w-Launch] Ensure every file path or external element referenced by the workflows, defaults to the value in agentic-lib.yml
 - [ ] [r0w-Launch] When enhancing issues do not add duplicated documents
 - [ ] [r0w-Launch] When adding issue comments to a prompt, just add the last <configurable> comments.
 - [ ] [r0w-Launch] Label every issue that a worker touches with a unique label.
@@ -677,7 +679,7 @@ Re-usable GitHub Actions Workflows:
 - [ ] [r0w-Launch] For all issue comments, add context to the comment such as: "After review, this issue was found to be already done."
 - [ ] [r0w-Launch] Pass and log a stamp on a current feature report for feature-to-issue if the feature is done.
 - [ ] [r0w-Launch] Pass and log a stamp on a current maintenance report for a maintenance-activity-to-issue if there is no value in making changes.
-- [~] [r0w-Launch] Find a better name for sources
+- [ ] Harvest repositor0-* files into agentic-lib when reset and show case past results.
 - [ ] Feature lifecycle of: Elaboration, Delivery, Maintenance, Retirement, and Removal.
 - [ ] Use the archived projects to mine for features.
 - [ ] Build features in a modular way so that they can be reused in other projects.

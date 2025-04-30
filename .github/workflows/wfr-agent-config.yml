@@ -148,7 +148,7 @@ jobs:
       # How many attempts should be made to work on an issue?
       defaultAttemptsPerBranch: ${{ '2' }}
       defaultAttemptsPerIssue: ${{ '2' }}
-      
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -185,21 +185,21 @@ jobs:
             let libraryDocumentsLimit = process.env.defaultLibraryDocumentsLimit;
             let featuresPath = process.env.defaultFeaturesPath;
             let featuresLimit = process.env.defaultFeaturesLimit;
-      
+
             // Filepaths for engineer workflows - Default values
-            let contributingFile = process.env.defaultContributingFilepath;
+            let contributingFilepath = process.env.defaultContributingFilepath;
             let allTestsPaths = process.env.defaultAllTestsPaths;
             let targetTestsPath = process.env.defaultTargetTestsPath;
             let allSourcePaths = process.env.defaultAllSourcePaths;
             let targetSourcePath = process.env.defaultTargetSourcePath;
             let dependenciesFilepath = process.env.defaultDependenciesFilepath;
             let documentationPath = process.env.defaultDocumentationPath;
-      
+
             // Filepaths for maintainer workflows - Default values
             let formattingFilepath = process.env.defaultFormattingFilepath;
             let lintingFilepath = process.env.defaultLintingFilepath;
             let readmeFilepath = process.env.defaultReadmeFilepath;
-      
+
             // Filepath access permissions - Default values
             let readableFilepaths = process.env.defaultReadableFilepaths;
             let writeableFilepaths = process.env.defaultWriteableFilepaths;
@@ -209,7 +209,7 @@ jobs:
             if (!fs.existsSync(configPath)) {
               console.log("Warning: .github/agents/agentic-lib.yml file not found, using default values.");
             }
-            
+
             let config;
             try {
               // Read and parse the YAML file
@@ -218,69 +218,77 @@ jobs:
             } catch (error) {
               console.log(`Error parsing .github/agents/agentic-lib.yml: ${error.message}, using default values.`);
             }
-      
-            // Execution commands
-            let buildScript = config.buildScript || process.env.defaultBuildScript;
-            let testScript = config.testScript || process.env.defaultTestScript;
-            let mainScript = config.mainScript || process.env.defaultMainScript;
-      
-            // How many issues should be available to be picked up? 
-            let featureDevelopmentIssuesWipLimit = config.featureDevelopmentIssuesWipLimit || process.env.defaultFeatureDevelopmentIssuesWipLimit;
-            let maintenanceIssuesWipLimit = config.maintenanceIssuesWipLimit || process.env.defaultMaintenanceIssuesWipLimit;
-              
-            // How many attempts should be made to work on an issue? 
-            let attemptsPerBranch = config.attemptsPerBranch || process.env.defaultAttemptsPerBranch;
-            let attemptsPerIssue = config.attemptsPerIssue || process.env.defaultAttemptsPerIssue;
 
-            if (config.paths) {
-            
+            // Execution commands
+            let buildScript = config?.buildScript || process.env.defaultBuildScript;
+            let testScript = config?.testScript || process.env.defaultTestScript;
+            let mainScript = config?.mainScript || process.env.defaultMainScript;
+
+            // How many issues should be available to be picked up? 
+            let featureDevelopmentIssuesWipLimit = config?.featureDevelopmentIssuesWipLimit || process.env.defaultFeatureDevelopmentIssuesWipLimit;
+            let maintenanceIssuesWipLimit = config?.maintenanceIssuesWipLimit || process.env.defaultMaintenanceIssuesWipLimit;
+
+            // How many attempts should be made to work on an issue? 
+            let attemptsPerBranch = config?.attemptsPerBranch || process.env.defaultAttemptsPerBranch;
+            let attemptsPerIssue = config?.attemptsPerIssue || process.env.defaultAttemptsPerIssue;
+
+            if (config?.paths) {
+
               // Filepaths for elaborator workflows - Extract
-              missionFilepath = config.paths.missionFilepath || missionFilepath;
-              librarySourcesFilepath = config.paths.librarySourcesFilepath || librarySourcesFilepath;
-              librarySourcesLimit = config.paths.librarySourcesLimit || librarySourcesLimit;
-              libraryDocumentsPath = config.paths.libraryDocumentsPath || libraryDocumentsPath;
-              libraryDocumentsLimit = config.paths.libraryDocumentsLimit || libraryDocumentsLimit;
-              featuresPath = config.paths.featuresPath || featuresPath;
-              featuresLimit = config.paths.featuresLimit || featuresLimit;
-              
+              missionFilepath = config.paths?.missionFilepath?.path || missionFilepath;
+              librarySourcesFilepath = config.paths?.librarySourcesFilepath?.path || librarySourcesFilepath;
+              librarySourcesLimit = config.paths?.librarySourcesFilepath?.limit || librarySourcesLimit;
+              libraryDocumentsPath = config.paths?.libraryDocumentsPath?.path || libraryDocumentsPath;
+              libraryDocumentsLimit = config.paths?.libraryDocumentsPath?.limit || libraryDocumentsLimit;
+              featuresPath = config.paths?.featuresPath?.path || featuresPath;
+              featuresLimit = config.paths?.featuresPath?.limit || featuresLimit;
+
               // Filepaths for engineer workflows - Extract
-              contributingFile = config.paths.contributingFilepath || contributingFile;
-              allTestsPaths = config.paths.allTestsPaths || allTestsPaths;
-              targetTestsPath = config.paths.targetTestsPath || targetTestsPath;
-              allSourcePaths = config.paths.allSourcePaths || allSourcePaths;
-              targetSourcePath = config.paths.targetSourcePath || targetSourcePath;
-              dependenciesFilepath = config.paths.dependenciesFilepath || dependenciesFilepath;
-              documentationPath = config.paths.documentationPath || documentationPath;
-            
+              contributingFilepath = config.paths?.contributingFilepath?.path || contributingFilepath;
+              allTestsPaths = config.paths?.allTestsPaths?.paths?.join(', ') || allTestsPaths;
+              targetTestsPath = config.paths?.targetTestsPath?.path || targetTestsPath;
+              allSourcePaths = config.paths?.allSourcePaths?.paths?.join(', ') || allSourcePaths;
+              targetSourcePath = config.paths?.targetSourcePath?.path || targetSourcePath;
+              dependenciesFilepath = config.paths?.dependenciesFilepath?.path || dependenciesFilepath;
+              documentationPath = config.paths?.documentationPath?.path || documentationPath;
+
               // Filepaths for maintainer workflows - Extract
-              formattingFilepath = config.paths.formattingFilepath || formattingFilepath;
-              lintingFilepath = config.paths.lintingFilepath || lintingFilepath;
-              readmeFilepath = config.paths.readmeFilepath || readmeFilepath;
-  
+              formattingFilepath = config.paths?.formattingFilepath?.path || formattingFilepath;
+              lintingFilepath = config.paths?.lintingFilepath?.path || lintingFilepath;
+              readmeFilepath = config.paths?.readmeFilepath?.path || readmeFilepath;
+
               // Filepath readable access permissions - Extract
-              const readablePathSingles = config.paths
-                .filter(path => path.permissions.includes('read'))
-                .map(path => path.path);
-              const readablePathLists = config.paths
-                .filter(path => path.permissions.includes('read'))
-                .map(path => path.paths)
-                .flatten();
-              readableFilepaths = 
-                readablePathSingles.length > 0 || readablePathLists.length > 0
-                ? [...readablePathSingles, ...readablePathLists].join(', ')
+              let readablePathsArray = [];
+              let writeablePathsArray = [];
+
+              // Process each path entry to extract readable and writeable paths
+              for (const [key, pathObj] of Object.entries(config?.paths)) {
+                  if (pathObj?.permissions && pathObj.permissions.includes('read')) {
+                    if (pathObj?.path) {
+                      readablePathsArray.push(pathObj.path);
+                    }
+                    if (pathObj?.paths) {
+                      readablePathsArray = readablePathsArray.concat(pathObj.paths);
+                    }
+                  }
+
+                  if (pathObj?.permissions && pathObj.permissions.includes('write')) {
+                    if (pathObj?.path) {
+                      writeablePathsArray.push(pathObj.path);
+                    }
+                    if (pathObj?.paths) {
+                      writeablePathsArray = writeablePathsArray.concat(pathObj.paths);
+                    }
+                  }
+                }
+
+              // Set readable and writeable filepaths if we found any, otherwise use defaults
+              readableFilepaths = readablePathsArray.length > 0 
+                ? readablePathsArray.join(', ') 
                 : readableFilepaths;
 
-              // Filepath writeable access permissions - Extract
-              const writeablePathSingles = config.paths
-                .filter(path => path.permissions.includes('write'))
-                .map(path => path.path);
-              const writeablePathLists = config.paths
-                .filter(path => path.permissions.includes('write'))
-                .map(path => path.paths)
-                .flatten();
-              writeableFilepaths = 
-                writeablePathSingles.length > 0 || writeablePathLists.length > 0
-                ? [...writeablePathSingles, ...writeablePathLists].join(', ')
+              writeableFilepaths = writeablePathsArray.length > 0 
+                ? writeablePathsArray.join(', ') 
                 : writeableFilepaths;
             }
 
@@ -288,68 +296,68 @@ jobs:
             // Filepaths for elaborator workflows - Set outputs
             console.log(`missionFilepath=${missionFilepath}`);
             core.setOutput('missionFilepath', missionFilepath);
-            
+
             console.log(`librarySourcesFilepath=${librarySourcesFilepath}`);
             core.setOutput('librarySourcesFilepath', librarySourcesFilepath);
 
             console.log(`librarySourcesLimit=${librarySourcesLimit}`);
             core.setOutput('librarySourcesLimit', librarySourcesLimit);
-            
+
             console.log(`libraryDocumentsLimit=${libraryDocumentsLimit}`);
             core.setOutput('libraryDocumentsLimit', libraryDocumentsLimit);
 
             console.log(`libraryDocumentsPath=${libraryDocumentsPath}`);
             core.setOutput('libraryDocumentsPath', libraryDocumentsPath);
-            
+
             console.log(`featuresPath=${featuresPath}`);
             core.setOutput('featuresPath', featuresPath);
-            
+
             console.log(`featuresLimit=${featuresLimit}`);
             core.setOutput('featuresLimit', featuresLimit);
-            
-            
+
+
             // Filepaths for engineer workflows - Set outputs
-            console.log(`contributingFile=${contributingFile}`);
-            core.setOutput('contributingFile', contributingFile);
+            console.log(`contributingFilepath=${contributingFilepath}`);
+            core.setOutput('contributingFilepath', contributingFilepath);
 
             console.log(`allTestsPaths=${allTestsPaths}`);
             core.setOutput('allTestsPaths', allTestsPaths);
-            
+
             console.log(`targetTestsPath=${targetTestsPath}`);
             core.setOutput('targetTestsPath', targetTestsPath);
-            
+
             console.log(`allSourcePaths=${allSourcePaths}`);
             core.setOutput('allSourcePaths', allSourcePaths);
 
             console.log(`targetSourcePath=${targetSourcePath}`);
             core.setOutput('targetSourcePath', targetSourcePath);
-            
+
             console.log(`dependenciesFilepath=${dependenciesFilepath}`);
             core.setOutput('dependenciesFilepath', dependenciesFilepath);
 
             console.log(`documentationPath=${documentationPath}`);
             core.setOutput('documentationPath', documentationPath);
-            
-            
+
+
             // Filepaths for maintainer workflows - Set outputs
             console.log(`formattingFilepath=${formattingFilepath}`);
             core.setOutput('formattingFilepath', formattingFilepath);
 
             console.log(`lintingFilepath=${lintingFilepath}`);
             core.setOutput('lintingFilepath', lintingFilepath);
-            
+
             console.log(`readmeFilepath=${readmeFilepath}`);
             core.setOutput('readmeFilepath', readmeFilepath);
-            
-            
+
+
             // Filepath access permissions - Set outputs
             console.log(`readableFilepaths=${readableFilepaths}`);
             core.setOutput('readableFilepaths', readableFilepaths);
 
             console.log(`writeableFilepaths=${writeableFilepaths}`);
             core.setOutput('writeableFilepaths', writeableFilepaths);
-            
-            
+
+
             // Execution commands - Set outputs
             console.log(`buildScript=${buildScript}`);
             core.setOutput('buildScript', buildScript);
@@ -359,16 +367,16 @@ jobs:
 
             console.log(`mainScript=${mainScript}`);
             core.setOutput('mainScript', mainScript);
-            
-            
+
+
             // How many issues should be available to be picked up? - Set outputs
             console.log(`featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}`);
             core.setOutput('featureDevelopmentIssuesWipLimit', featureDevelopmentIssuesWipLimit);
-            
+
             console.log(`maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
             core.setOutput('maintenanceIssuesWipLimit', maintenanceIssuesWipLimit);
-            
-            
+
+
             // How many attempts should be made to work on an issue? - Set outputs
             console.log(`attemptsPerBranch=${attemptsPerBranch}`);
             core.setOutput('attemptsPerBranch', attemptsPerBranch);
@@ -416,4 +424,3 @@ jobs:
       # How many attempts should be made to work on an issue?
       attemptsPerBranch: ${{ steps.agentic-lib.outputs.attemptsPerBranch }}
       attemptsPerIssue: ${{ steps.agentic-lib.outputs.attemptsPerIssue }}
-
