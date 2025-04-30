@@ -432,7 +432,7 @@ jobs:
 
             // Handle multiple test files
             const testFiles = allTestsPaths.split(';');
-            let testFileContents = {};
+            let testsFileContents = {};
             for (const file of testFiles) {
               try {
                 const trimmedFile = file.trim();
@@ -444,14 +444,14 @@ jobs:
                     for (const subFile of files) {
                       const fullPath = path.join(trimmedFile, subFile);
                       if (fs.statSync(fullPath).isFile()) {
-                        testFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
-                        core.info(`Test file '${fullPath}' from directory has been loaded (length ${testFileContents[fullPath].length}).`);
+                        testsFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
+                        core.info(`Test file '${fullPath}' from directory has been loaded (length ${testsFileContents[fullPath].length}).`);
                       }
                     }
                   } else {
                     // It's a file, read it directly
-                    testFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
-                    core.info(`Test file '${trimmedFile}' has been loaded (length ${testFileContents[trimmedFile].length}).`);
+                    testsFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
+                    core.info(`Test file '${trimmedFile}' has been loaded (length ${testsFileContents[trimmedFile].length}).`);
                   }
                 } else {
                   core.warning(`Test file '${trimmedFile}' does not exist.`);
@@ -537,8 +537,15 @@ jobs:
               issueCommentsText = "No issue comments provided";
             }
 
-            const prompt = `
+            const chatGptPrompt = `
             ${promptContent}
+            
+            Only provide new or updated content for source files in ${targetSourceFiles}.
+            Only delete or update source files in ${targetSourceFiles}.
+            Only provide new or updated content for test files in ${targetTestsFiles}.
+            Only delete or update test files in ${targetTestsFiles}.
+            Only update dependency files in ${targetDependencyFiles}.
+            Only update documentation files in ${targetDocumentationFiles}.
 
             Consider the following when refining your response:
               * Current feature names and specifications in the repository
@@ -562,20 +569,17 @@ jobs:
             ${currentFeatures}
             CURRENT_FEATURES_END
 
-            Source files (to update if necessary):
-            SOURCE_FILES_START
-            ${Object.entries(sourceFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
-            SOURCE_FILES_END
+            Source files (to update those in ${targetSourceFiles} if necessary):
+            (Multiple files)
+            ${Object.entries(sourceFileContents).map(([file, content]) => `SOURCE_FILE_START Filepath: ${file}\n${content}\nSOURCE_FILE_END\n\n`).join('\n')}
 
-            Test files (to update if necessary):
-            TEST_FILES_START
-            ${Object.entries(testFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
-            TEST_FILES_END
-
-            Documentation files (to be updated if necessary):
-            DOCS_FILES_START
-            ${Object.entries(docsFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
-            DOCS_FILES_END
+            Test files (to update those in ${targetTestsFiles} if necessary):
+            (Multiple files)
+            ${Object.entries(testsFileContents).map(([file, content]) => `TEST_FILE_START File: ${file}\n${content}\nTEST_FILE_END\n\n`).join('\n')}
+            
+            Documentation files (to be updated in ${documentationPath} if necessary):
+            (Multiple files)
+            ${Object.entries(docsFileContents).map(([file, content]) => `DOCUMENTATION_FILE_START File: ${file}\n${content}\nDOCUMENTATION_FILE_END\n\n`).join('\n')}
 
             README file (for context, read only): ${readmeFilepath}
             README_FILE_START
@@ -689,7 +693,11 @@ jobs:
 
             Ensure valid JSON.
             `;
-
+            
+            core.info("prompt start: **********************************************");
+            core.info(`${chatGptPrompt}`);
+            core.info("prompt end:   **********************************************");
+            
             const ResponseSchema = z.object({ 
               message: z.string(),
               updatedFile01Name: z.string().optional(),
@@ -880,7 +888,7 @@ jobs:
               model,
               messages: [
                 { role: "system", content: "You are a code fixer that returns updated file contents to resolve a possible build or test problem. You can update multiple files by specifying their paths and contents in the updatedFiles object. The source files, test files, and documentation files can be individual files or directories containing multiple files. Answer strictly with a JSON object that adheres to the provided function schema." },
-                { role: "user", content: prompt }
+                { role: "user", content: chatGptPrompt }
               ],
               tools: applyIssueResolutionToSource
             });

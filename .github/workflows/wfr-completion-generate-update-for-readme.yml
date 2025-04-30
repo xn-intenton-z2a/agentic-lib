@@ -408,7 +408,7 @@ jobs:
 
             // Handle multiple test files (for context only)
             const testFiles = allTestsPaths.split(';');
-            let testFileContents = {};
+            let testsFileContents = {};
             for (const file of testFiles) {
               try {
                 const trimmedFile = file.trim();
@@ -420,14 +420,14 @@ jobs:
                     for (const subFile of files) {
                       const fullPath = path.join(trimmedFile, subFile);
                       if (fs.statSync(fullPath).isFile()) {
-                        testFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
-                        core.info(`Test file '${fullPath}' from directory has been loaded (length ${testFileContents[fullPath].length}).`);
+                        testsFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
+                        core.info(`Test file '${fullPath}' from directory has been loaded (length ${testsFileContents[fullPath].length}).`);
                       }
                     }
                   } else {
                     // It's a file, read it directly
-                    testFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
-                    core.info(`Test file '${trimmedFile}' has been loaded (length ${testFileContents[trimmedFile].length}).`);
+                    testsFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
+                    core.info(`Test file '${trimmedFile}' has been loaded (length ${testsFileContents[trimmedFile].length}).`);
                   }
                 } else {
                   core.warning(`Test file '${trimmedFile}' does not exist.`);
@@ -487,7 +487,7 @@ jobs:
             core.info(`Linting file '${lintingFilepath}' has been loaded (length ${lintingFilepathContent.length}).`);
             core.info(`Prompt file '${promptFilepath}' has been loaded (length ${promptContent.length}).`);
 
-            const prompt = `
+            const chatGptPrompt = `
             ${promptContent}
 
             Consider the following when refining your response:
@@ -520,7 +520,7 @@ jobs:
 
             Test files (for context only, DO NOT UPDATE):
             TEST_FILES_START
-            ${Object.entries(testFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
+            ${Object.entries(testsFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
             TEST_FILES_END
 
             Documentation files (to be updated if necessary):
@@ -636,6 +636,10 @@ jobs:
 
             Ensure valid JSON.
             `;
+
+            core.info("prompt start: **********************************************");
+            core.info(`${chatGptPrompt}`);
+            core.info("prompt end:   **********************************************");
 
             const ResponseSchema = z.object({ 
               message: z.string(),
@@ -827,7 +831,7 @@ jobs:
               model,
               messages: [
                 { role: "system", content: "You are a documentation updater that returns updated README and documentation file contents to ensure they accurately reflect the current state of the codebase. You can update multiple files by specifying their paths and contents in the updatedFiles object. Answer strictly with a JSON object that adheres to the provided function schema." },
-                { role: "user", content: prompt }
+                { role: "user", content: chatGptPrompt }
               ],
               tools: applyReadmeUpdate
             });

@@ -472,6 +472,10 @@ jobs:
             }
             Ensure valid JSON.
             `;
+            
+            core.info("prompt start: **********************************************");
+            core.info(`${chatGptPrompt}`);
+            core.info("prompt end:   **********************************************");
 
             const ResponseSchema = z.object({ 
               documentName: z.string(), 

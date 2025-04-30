@@ -318,7 +318,7 @@ jobs:
 
             // Handle multiple test files
             const testFiles = allTestsPaths.split(';');
-            let testFileContents = {};
+            let testsFileContents = {};
             for (const file of testFiles) {
               try {
                 const trimmedFile = file.trim();
@@ -330,14 +330,14 @@ jobs:
                     for (const subFile of files) {
                       const fullPath = path.join(trimmedFile, subFile);
                       if (fs.statSync(fullPath).isFile()) {
-                        testFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
-                        core.info(`Test file '${fullPath}' from directory has been loaded (length ${testFileContents[fullPath].length}).`);
+                        testsFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
+                        core.info(`Test file '${fullPath}' from directory has been loaded (length ${testsFileContents[fullPath].length}).`);
                       }
                     }
                   } else {
                     // It's a file, read it directly
-                    testFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
-                    core.info(`Test file '${trimmedFile}' has been loaded (length ${testFileContents[trimmedFile].length}).`);
+                    testsFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
+                    core.info(`Test file '${trimmedFile}' has been loaded (length ${testsFileContents[trimmedFile].length}).`);
                   }
                 } else {
                   core.warning(`Test file '${trimmedFile}' does not exist.`);
@@ -506,7 +506,7 @@ jobs:
 
             Test files:
             TEST_FILES_START
-            ${Object.entries(testFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
+            ${Object.entries(testsFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
             TEST_FILES_END
 
             Documentation files:
@@ -552,6 +552,10 @@ jobs:
             }
             Ensure valid JSON.
             `;
+
+            core.info("prompt start: **********************************************");
+            core.info(`${chatGptPrompt}`);
+            core.info("prompt end:   **********************************************");
 
             const ResponseSchema = z.object({ featureName: z.string(), featureSpec: z.string(), featureNamesToBeDeleted: z.string() });
 
