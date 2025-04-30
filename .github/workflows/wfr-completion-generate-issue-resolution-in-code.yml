@@ -514,10 +514,10 @@ jobs:
             const chatGptPrompt = `
             ${promptContent}
 
-            Only provide new or updated content for source files in ${targetSourceFiles}.
-            Only delete or update source files in ${targetSourceFiles}.
-            Only provide new or updated content for test files in ${targetTestsFiles}.
-            Only delete or update test files in ${targetTestsFiles}.
+            Only provide new or updated content for source files in ${targetSourcePath}.
+            Only delete or update source files in ${targetSourcePath}.
+            Only provide new or updated content for test files in ${targetTestsPath}.
+            Only delete or update test files in ${targetTestsPath}.
             Only update dependency files in ${targetDependencyFiles}.
             Only update documentation files in ${targetDocumentationFiles}.
 
@@ -544,11 +544,11 @@ jobs:
             ${currentFeatures}
             CURRENT_FEATURES_END
 
-            Source files (to update those in ${targetSourceFiles} if necessary):
+            Source files (to update those in ${targetSourcePath} if necessary):
             (Multiple files)
             ${Object.entries(sourceFileContents).map(([file, content]) => `SOURCE_FILE_START Filepath: ${file}\n${content}\nSOURCE_FILE_END\n\n`).join('\n')}
 
-            Test files (to update those in ${targetTestsFiles} if necessary):
+            Test files (to update those in ${targetTestsPath} if necessary):
             (Multiple files)
             ${Object.entries(testsFileContents).map(([file, content]) => `TEST_FILE_START File: ${file}\n${content}\nTEST_FILE_END\n\n`).join('\n')}
           
