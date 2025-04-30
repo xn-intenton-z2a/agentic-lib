@@ -102,10 +102,6 @@ on:
         type: string
         required: false
         default: ${{ github.ref }}
-      issueNumber:
-        description: 'The issue number to review. e.g. "123"'
-        type: string
-        required: true
       npmAuthOrganisation:
         description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
         type: string
@@ -208,7 +204,6 @@ jobs:
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       branch: ${{ inputs.branch || github.ref }}
-      issueNumber: ${{ inputs.issueNumber || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
       cache: ${{ inputs.cache || 'npm' }}
@@ -329,8 +324,6 @@ jobs:
             const lintingFile = process.env.lintingFile;
             const docsPath = process.env.docsPath;
             const model = process.env.model;
-            const issueNumberStr = process.env.issueNumber
-            const issueNumber = (parseInt(issueNumberStr) ? parseInt(issueNumberStr) : "");;
             const apiKey = process.env.chatgptApiSecretKey;
             const promptFile = process.env.promptFile;
             const installOutput = process.env.installOutput;
@@ -506,32 +499,6 @@ jobs:
             core.info(`Linting file '${lintingFile}' has been loaded (length ${lintingFileContent.length}).`);
             core.info(`Prompt file '${promptFile}' has been loaded (length ${promptContent.length}).`);
 
-            let issue;
-            let issueTitle;
-            let issueDescription;
-            let issueCommentsText;
-            if (issueNumber) {
-              issue = await github.rest.issues.get({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber
-              });
-              issueTitle = issue.data.title;
-              issueDescription = issue.data.body;
-              const issueComments = await github.rest.issues.listComments({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber
-              });
-              issueCommentsText = issueComments.data
-                .map(comment => `Author:${comment.user.login}, Created:${comment.created_at}, Comment: ${comment.body}`)
-                .join('\n');
-            } else {
-              issueTitle = `No issue number provided`;
-              issueDescription = "No issue description provided (${process.env.issueNumber} parsed to ${issueNumber})";
-              issueCommentsText = "No issue comments provided";
-            }
-
             const prompt = `
             ${promptContent}
 
@@ -607,15 +574,6 @@ jobs:
             DEPENDENCIES_INSTALL_START
             ${installOutput}
             DEPENDENCIES_INSTALL_END    
-
-            Issue details:
-            ISSUE_START
-            title: ${issueTitle}
-            description:
-            ${issueDescription}
-            comments:
-            ${issueCommentsText}
-            ISSUE_END
 
             Build output from command: ${buildScript}
             BUILD_OUTPUT_START

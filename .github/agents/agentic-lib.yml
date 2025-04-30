@@ -3,6 +3,7 @@ schedule: schedule-1
 
 # Mapping for from symbolic keys to filepaths for access by agentic-lib workflows with access permissions
 # The `paths` section is a work in progress.
+# TODO: Separate:
 paths:
   mission:
     paths:
