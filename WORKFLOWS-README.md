@@ -667,11 +667,11 @@ Re-usable GitHub Actions Workflows:
 - [ ] [r0w-MVP] Set up repository0 to only write to demo files, reset every week.
 - [ ] [r0w-MVP] Set up plot-code-lib to use a single file outputs
 - [ ] [r0w-MVP] Set up repository0-crucible to use multiple file outputs
-- [ ] [r0w-Launch] Feature switch role: elaborator (sources, library, web publish, features, web publish)
+- [ ] [r0w-MVP] Feature switch role: elaborator (sources, library, web publish, features, web publish)
+- [ ] [r0w-MVP] Set up s3-sqs-bridge to only do essential updates (maintainer role)
+- [ ] [r0w-MVP] Set up repository0-web to documents only (elaboration role), hand off to "Repository0-web" tasklist
 - [ ] [r0w-Launch] Feature switch role: engineer (src, tests, docs, packages)
 - [ ] [r0w-Launch] Feature switch role: maintainer (pr+linting+updates+readme+docs)
-- [ ] [r0w-MVP] Set up s3-sqs-bridge to only do essential updates (maintainer role)
-- [ ] [r0w-MVP] Set up repository0-web to documents only (elaboration role)
 - [ ] [r0w-Launch] Make the agent prompts match the top level workflow file names
 - [ ] [r0w-Launch] Make the reusable workflow names match the top level workflow file names
 - [ ] [r0w-Launch] When enhancing issues do not add duplicated documents
@@ -716,13 +716,13 @@ Repository0-web:
 - [ ] [r0w-MVP] New template for the repository0-web repository (without AWS).
 - [ ] [r0w-MVP] Reduce running of workflows to web publishing and node ci only. (role: elaborator)
 - [ ] [r0w-MVP] Create example templates using content from the library.
-- [ ] [r0w-MVP] Identify a range of means of accessing the library content (e.g. EJS, REST).
-- [ ] [r0w-MVP] Add owl tags to the library content.
-- [ ] [r0w-MVP] Extract owl from the library content into JSON and publish as content.
-- [ ] [r0w-MVP] Collect a library of assets downloaded from the crawls.
-- [ ] [r0w-MVP] Store and present license and content attribution information on the generated website.
 - [ ] [r0w-MVP] Create a generator script / action to create the mission from some supplied text.
-- [ ] [r0w-MVP] agent-discussions to be able to initialise the repository from a discussions post.
+- [ ] [r0w-MVP] agent-discussions to be able to re-initialise the repository from a discussions post.
+- [ ] [r0w-phase2] Identify a range of means of accessing the library content (e.g. EJS, REST).
+- [ ] [r0w-phase2] Add owl tags to the library content.
+- [ ] [r0w-phase2] Extract owl from the library content into JSON and publish as content.
+- [ ] [r0w-phase2] Collect a library of assets downloaded from the crawls.
+- [ ] [r0w-phase2] Store and present license and content attribution information on the generated website.
 - [ ] Hand off to supervisor:chat : (free) Orchestrate the creation of a repository0-web templated repository via GitHub Discussions Chat.
 - [ ] ./news Similar to ./library but event based news sources are scanned and new articles collected and catalogued.
 - [ ] ./analysis news articles reviewed in the context of v library topics
