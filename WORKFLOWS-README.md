@@ -661,7 +661,7 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-Launch] Find a better name for sources
 - [x] [r0w-Launch] Fix these examples to match the actual behaviour: 'Can include wildcards for multiple files. e.g. "SOURCES.md" or "SOURCES*.md"'
 - [x] [r0w-MVP] Check these to see that we do use semi-colon separation: allTestsPaths.split(';');
-- [~] [r0w-Launch] Check to make sure we check readability and writeability of the file before reading or writing.
+- [x] [r0w-Launch] Check to make sure we check writeability of the file before writing.
 - [~] [r0w-Launch] Ensure every file path or external element referenced by the workflows, defaults to the value in agentic-lib.yml
 - [~] [r0w-MVP] Set up agentic-lib to only write to supplementary files (`./*-sandbox`).
 - [ ] [r0w-MVP] Set up repository0 to only write to demo files, reset every week.

@@ -6,78 +6,53 @@ paths:
   # Filepaths for elaborator workflows
   missionFilepath:
     path: MISSION.md
-    permissions:
-      - read
   librarySourcesFilepath:
     path: SOURCES.md
     limit: 16
     permissions:
-      - read
       - write
   libraryDocumentsPath:
     path: elaborator-sandbox/library/
     limit: 8
     permissions:
-      - read
       - write
   featuresPath:
     path: engineer-sandbox/features/
     limit: 3
     permissions:
-      - read
       - write
 
   # Filepaths for engineer workflows
   contributingFilepath:
     path: CONTRIBUTING.md
-    permissions:
-      - read
   allTestsPaths:
     paths:
       - tests/unit/
       - engineer-sandbox/tests/
-    permissions:
-      - read
   targetTestsPath:
     path: engineer-sandbox/tests/
-    permissions:
-      - read
       - write
   allSourcePaths:
     paths:
       - src/lib/
       - engineer-sandbox/source/
-    permissions:
-      - read
       - write
   targetSourcePath:
     path: engineer-sandbox/source/
-    permissions:
-      - read
       - write
   dependenciesFilepath:
     path: package.json
-    permissions:
-      - read
   documentationPath:
     path: engineer-sandbox/docs/
-    permissions:
-      - read
       - write
 
   # Filepaths for maintainer workflows
   formattingFilepath:
     path: .prettierrc
-    permissions:
-      - read
   lintingFilepath:
     path: eslint.config.js
-    permissions:
-      - read
   readmeFilepath:
     path: README.md
-    permissions:
-      - read
 
 # Execution commands
 buildScript: npm run build

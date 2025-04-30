@@ -78,8 +78,6 @@ on:
         value: ${{ jobs.agentic-lib.outputs.readmeFilepath }}
 
       # Filepath access permissions
-      readableFilepaths:
-        value: ${{ jobs.agentic-lib.outputs.readableFilepaths }}
       writeableFilepaths:
         value: ${{ jobs.agentic-lib.outputs.writeableFilepaths }}
 
@@ -208,7 +206,6 @@ jobs:
             let readmeFilepath = process.env.defaultReadmeFilepath;
 
             // Filepath access permissions - Default values
-            let readableFilepaths = process.env.defaultReadableFilepaths;
             let writeableFilepaths = process.env.defaultWriteableFilepaths;
 
             // Use the configPath from input parameter
@@ -265,21 +262,11 @@ jobs:
               lintingFilepath = config.paths?.lintingFilepath?.path || lintingFilepath;
               readmeFilepath = config.paths?.readmeFilepath?.path || readmeFilepath;
 
-              // Filepath readable access permissions - Extract
-              let readablePathsArray = [];
+              // Filepath access permissions - Extract
               let writeablePathsArray = [];
 
-              // Process each path entry to extract readable and writeable paths
+              // Process each path entry to extract writeable paths
               for (const [key, pathObj] of Object.entries(config?.paths)) {
-                  if (pathObj?.permissions && pathObj.permissions.includes('read')) {
-                    if (pathObj?.path) {
-                      readablePathsArray.push(pathObj.path);
-                    }
-                    if (pathObj?.paths) {
-                      readablePathsArray = readablePathsArray.concat(pathObj.paths);
-                    }
-                  }
-
                   if (pathObj?.permissions && pathObj.permissions.includes('write')) {
                     if (pathObj?.path) {
                       writeablePathsArray.push(pathObj.path);
@@ -290,16 +277,10 @@ jobs:
                   }
                 }
 
-              // Set readable and writeable filepaths if we found any, otherwise use defaults
-              readableFilepaths = readablePathsArray.length > 0 
-                ? readablePathsArray.join(';') 
-                : readableFilepaths;
-
               writeableFilepaths = writeablePathsArray.length > 0 
                 ? writeablePathsArray.join(';') 
                 : writeableFilepaths;
             }
-
 
             // Filepaths for elaborator workflows - Set outputs
             console.log(`missionFilepath=${missionFilepath}`);
@@ -359,9 +340,6 @@ jobs:
 
 
             // Filepath access permissions - Set outputs
-            console.log(`readableFilepaths=${readableFilepaths}`);
-            core.setOutput('readableFilepaths', readableFilepaths);
-
             console.log(`writeableFilepaths=${writeableFilepaths}`);
             core.setOutput('writeableFilepaths', writeableFilepaths);
 
@@ -421,7 +399,6 @@ jobs:
       readmeFilepath: ${{ steps.agentic-lib.outputs.readmeFilepath }}
 
       # Filepath access permissions
-      readableFilepaths: ${{ steps.agentic-lib.outputs.readableFilepaths }}
       writeableFilepaths: ${{ steps.agentic-lib.outputs.writeableFilepaths }}
 
       # Execution commands

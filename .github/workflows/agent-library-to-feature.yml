@@ -66,7 +66,6 @@ jobs:
       missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
       contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
       dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
-      readableFilepaths: ${{ needs.agentic-lib.outputs.readableFilepaths }}
       writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}

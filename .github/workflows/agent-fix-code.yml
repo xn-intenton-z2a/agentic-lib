@@ -510,7 +510,6 @@ jobs:
       mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
       branch: ${{ needs.branch-for-fix.outputs.branch }}
       issueNumber: ${{ needs.select-branch.outputs.issueNumber }}
-      readableFilepaths: ${{ needs.agentic-lib.outputs.readableFilepaths }}
       writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}

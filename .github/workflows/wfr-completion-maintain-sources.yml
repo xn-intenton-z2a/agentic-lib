@@ -122,11 +122,6 @@ on:
         type: string
         required: false
         default: ''
-      readableFilepaths:
-        description: 'Semicolon-separated list of file paths that can be read by the workflow. e.g. "MISSION.md;CONTRIBUTING.md;package.json;README.md;.prettierrc;eslint.config.js"'
-        type: string
-        required: false
-        default: ''
       writeableFilepaths:
         description: 'Semicolon-separated list of file paths that can be written by the workflow. e.g. "elaborator-sandbox/SOURCES.md;elaborator-sandbox/library/;engineer-sandbox/features/;engineer-sandbox/source/;engineer-sandbox/tests/;engineer-sandbox/docs/"'
         type: string
@@ -166,6 +161,7 @@ jobs:
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
       agentConfigContent: ${{ inputs.agentConfigContent || '' }}
+      writeableFilepaths: ${{ inputs.writeableFilepaths || '' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -259,6 +255,7 @@ jobs:
             const promptFilepath = process.env.promptFilepath;
             const dependenciesListOutput = process.env.dependenciesListOutput;
             const agentConfigContent = process.env.agentConfigContent;
+            const writeableFilepaths = process.env.writeableFilepaths;
 
             const fs = require('fs');
             const path = require('path');
@@ -280,7 +277,19 @@ jobs:
             core.info(`missionFilepath: "${missionFilepath}"`);
             core.info(`contributingFilepath: "${contributingFilepath}"`);
             core.info(`dependenciesFilepath: "${dependenciesFilepath}"`);
-            core.info(`agentConfigPath: "${agentConfigPath}"`);
+            core.info(`agentConfigContent: "${agentConfigContent}"`);
+            core.info(`writeableFilepaths: "${writeableFilepaths}"`);
+            
+            function isWriteable(filepath) {
+              core.info(`Checking if writing to filepath '${filepath}' is allowed in writeableFilepaths: ${patterns}`);
+              const writeableFilepaths = writeableFilepaths.split(';').map(file => file.trim());
+              return writeableFilepaths.some(pattern => (
+                minimatch(filepath, pattern) || 
+                minimatch(filepath, `${pattern}*`) || 
+                minimatch(filepath, `${pattern}**`) || 
+                minimatch(filepath, `${pattern}/**`)
+              ));
+            }
 
             core.info(`Loading sources directory file(s) '${librarySourcesFilepath}'...`);
 

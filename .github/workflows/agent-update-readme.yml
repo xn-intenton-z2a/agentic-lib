@@ -163,7 +163,6 @@ jobs:
       testScript: ${{ needs.agentic-lib.outputs.testScript }}
       mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
       branch: ${{ needs.branch-for-update.outputs.branch }}
-      readableFilepaths: ${{ needs.agentic-lib.outputs.readableFilepaths }}
       writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}

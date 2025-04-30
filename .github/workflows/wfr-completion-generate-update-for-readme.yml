@@ -136,18 +136,8 @@ on:
         type: string
         required: false
         default: ''
-      allowedFilepathPatterns:
-        description: 'JSON array of filepath patterns that are allowed to be changed by agents. e.g. ["features/*", "library/*"]'
-        type: string
-        required: false
-        default: '["features/*", "library/*", "docs/*", "README.md"]'
       agentConfigContent:
         description: 'The content of the agent config file. e.g. Yaml read from "./github/agents/agent-config.yaml"'
-        type: string
-        required: false
-        default: ''
-      readableFilepaths:
-        description: 'Semicolon-separated list of file paths that can be read by the workflow. e.g. "MISSION.md;CONTRIBUTING.md;package.json;README.md;.prettierrc;eslint.config.js"'
         type: string
         required: false
         default: ''
@@ -210,8 +200,8 @@ jobs:
       promptFilepath: ${{ inputs.promptFilepath || '.github/agents/agent-update-readme.md' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
-      allowedFilepathPatterns: ${{ inputs.allowedFilepathPatterns || '["features/*", "library/*", "docs/*", "README.md"]' }}
       agentConfigContent: ${{ inputs.agentConfigContent || '' }}
+      writeableFilepaths: ${{ inputs.writeableFilepaths || '' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -334,8 +324,8 @@ jobs:
             const testOutput = process.env.testOutput;
             const mainScript = process.env.mainScript;
             const mainOutput = process.env.mainOutput;
-            const allowedFilepathPatterns = JSON.parse(process.env.allowedFilepathPatterns || '["features/*", "library/*", "docs/*", "README.md"]');
             const agentConfigContent = process.env.agentConfigContent;
+            const writeableFilepaths = process.env.writeableFilepaths;
 
             const fs = require('fs');
             const path = require('path');
@@ -371,7 +361,19 @@ jobs:
             core.info(`dependenciesFilepath: "${dependenciesFilepath}"`);
             core.info(`formattingFilepath: "${formattingFilepath}"`);
             core.info(`lintingFilepath: "${lintingFilepath}"`);
-            core.info(`agentConfigPath: "${agentConfigPath}"`);
+            core.info(`agentConfigContent: "${agentConfigContent}"`);
+            core.info(`writeableFilepaths: "${writeableFilepaths}"`);
+            
+            function isWriteable(filepath) {
+              core.info(`Checking if writing to filepath '${filepath}' is allowed in writeableFilepaths: ${patterns}`);
+              const writeableFilepaths = writeableFilepaths.split(';').map(file => file.trim());
+              return writeableFilepaths.some(pattern => (
+                minimatch(filepath, pattern) || 
+                minimatch(filepath, `${pattern}*`) || 
+                minimatch(filepath, `${pattern}**`) || 
+                minimatch(filepath, `${pattern}/**`)
+              ));
+            }
 
             // Handle multiple source files (for context only)
             const srcFiles = allSourcePaths.split(';');
@@ -631,8 +633,6 @@ jobs:
             You can include up to 16 files using the updatedFileXXName and updatedFileXXContents pairs (where XX is a number from 01 to 16)
             Where a file name and contents slot is not used, populate tha name with "unused" and the contents with "unused".
             Never truncate the files, when returning a file, always return the entire file content.
-            
-            All files will be checked against the allowedFilepathPatterns before being written.
 
             Ensure valid JSON.
             `;
@@ -884,7 +884,7 @@ jobs:
               // Process all file updates
               for (const [filePath, fileContent] of Object.entries(parsed.updatedFiles)) {
                 if (fileContent === "delete") {
-                  if (isFilePathAllowed(filePath, allowedFilepathPatterns)) {
+                  if (isWriteable(filePath)) {
                     if (fs.existsSync(filePath)) {
                       fs.unlinkSync(filePath);
                       updateApplied = true;
@@ -896,7 +896,7 @@ jobs:
                     core.warning(`File '${filePath}' is not in the allowed filepath patterns. Skipping deletion.`);
                   }
                 } else if (fileContent && fileContent != "unused" && fileContent.length > 1) {
-                  if (filePath && filePath != "unused" && isFilePathAllowed(filePath, allowedFilepathPatterns)) {
+                  if (filePath && filePath != "unused" && isWriteable(filePath)) {
                     // Create directory if it doesn't exist
                     const fileDir = path.dirname(filePath);
                     if (!fs.existsSync(fileDir)) {

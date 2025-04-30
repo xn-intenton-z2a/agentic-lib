@@ -53,7 +53,6 @@ jobs:
       librarySourcesFilepath: '${{ needs.agentic-lib.outputs.librarySourcesFilepath }}'
       libraryDocumentsPath: '${{ needs.agentic-lib.outputs.libraryDocumentsPath }}'
       libraryDocumentsLimit: '${{ needs.agentic-lib.outputs.libraryDocumentsLimit }}'
-      readableFilepaths: ${{ needs.agentic-lib.outputs.readableFilepaths }}
       writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}

@@ -82,11 +82,6 @@ on:
         type: string
         required: false
         default: ''
-      readableFilepaths:
-        description: 'Semicolon-separated list of file paths that can be read by the workflow. e.g. "MISSION.md;CONTRIBUTING.md;package.json;README.md;.prettierrc;eslint.config.js"'
-        type: string
-        required: false
-        default: ''
       writeableFilepaths:
         description: 'Semicolon-separated list of file paths that can be written by the workflow. e.g. "elaborator-sandbox/SOURCES.md;elaborator-sandbox/library/;engineer-sandbox/features/;engineer-sandbox/source/;engineer-sandbox/tests/;engineer-sandbox/docs/"'
         type: string
@@ -185,6 +180,7 @@ jobs:
             const dependenciesListOutput = process.env.dependenciesListOutput;
             const writeableFilepaths = JSON.parse(process.env.writeableFilepaths || '["features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md"]');
             const agentConfigContent = process.env.agentConfigContent;
+            const writeableFilepaths = process.env.writeableFilepaths;
 
             core.info(`document: "${document}"`);
             core.info(`libraryDocumentsPath: "${libraryDocumentsPath}"`);
@@ -196,7 +192,19 @@ jobs:
             core.info(`promptFilepath: "${promptFilepath}"`);
             core.info(`dependenciesListOutput: "${dependenciesListOutput}"`);
             core.info(`writeableFilepaths: "${writeableFilepaths}"`);
-            core.info(`agentConfigPath: "${agentConfigPath}"`);
+            core.info(`agentConfigContent: "${agentConfigContent}"`);
+            core.info(`writeableFilepaths: "${writeableFilepaths}"`);
+            
+            function isWriteable(filepath) {
+              core.info(`Checking if writing to filepath '${filepath}' is allowed in writeableFilepaths: ${patterns}`);
+              const writeableFilepaths = writeableFilepaths.split(';').map(file => file.trim());
+              return writeableFilepaths.some(pattern => (
+                minimatch(filepath, pattern) || 
+                minimatch(filepath, `${pattern}*`) || 
+                minimatch(filepath, `${pattern}**`) || 
+                minimatch(filepath, `${pattern}/**`)
+              ));
+            }
 
             const fs = require('fs');
             const path = require('path');
@@ -646,7 +654,7 @@ jobs:
                 // Save the raw crawl data to a text file
                 const rawCrawlFilePath = path.join(libraryDocumentsPath, `${parsed.documentName}_RAW_CRAWL.txt`);
                 try {
-                  if (isFilePathAllowed(rawCrawlFilePath, writeableFilepaths)) {
+                  if (isWriteable(rawCrawlFilePath)) {
                     fs.writeFileSync(rawCrawlFilePath, crawlResult.content);
                     core.info(`Raw crawl data saved to ${rawCrawlFilePath}`);
                   } else {
@@ -665,7 +673,7 @@ jobs:
               const documentFilePath = path.join(libraryDocumentsPath, `${documentName}.md`);
               try {
                 fs.mkdirSync(libraryDocumentsPath, { recursive: true });
-                if (isFilePathAllowed(documentFilePath, writeableFilepaths)) {
+                if (isWriteable(documentFilePath)) {
                   fs.writeFileSync(documentFilePath, documentContent);
                   core.info(`Document saved to ${documentFilePath}`);
                 } else {
@@ -687,7 +695,7 @@ jobs:
                 const documentPathToDelete = path.join(libraryDocumentsPath, documentNameToDelete);
                 try {
                   if (fs.existsSync(documentPathToDelete)) {
-                    if (isFilePathAllowed(documentPathToDelete, writeableFilepaths)) {
+                    if (isWriteable(documentPathToDelete)) {
                       core.info(`Deleting document: ${documentPathToDelete}`);
                       fs.unlinkSync(documentPathToDelete);
                     } else {
