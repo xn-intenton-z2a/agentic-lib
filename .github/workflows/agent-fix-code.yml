@@ -486,7 +486,9 @@ jobs:
       promptFilepath: '.github/agents/agent-apply-fix.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
       allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+      targetSourcePath: ${{ needs.agentic-lib.outputs.targetSourcePath }}
       allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
+      targetTestsPath: ${{ needs.agentic-lib.outputs.targetTestsPath }}
       readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
       documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
       missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}

@@ -38,8 +38,18 @@ on:
         type: string
         required: false
         default: 'src/lib/'
+      targetSourcePath:
+        description: 'The source file(s) to update. e.g. "src/lib/"'
+        type: string
+        required: false
+        default: 'src/lib/'
       allTestsPaths:
         description: 'The test file(s) to review. e.g. "tests/unit/" or multiple files separated by semicolons "tests/unit/;tests/utils/utils.test.js"'
+        type: string
+        required: false
+        default: 'tests/unit/'
+      targetTestsPath:
+        description: 'The test file(s) to update. e.g. "tests/unit/"'
         type: string
         required: false
         default: 'tests/unit/'
@@ -183,7 +193,9 @@ jobs:
     env:
       featuresPath: ${{ inputs.featuresPath || 'features/' }}
       allSourcePaths: ${{ inputs.allSourcePaths || '' }}
+      targetSourcePath: ${{ inputs.targetSourcePath || '' }}
       allTestsPaths: ${{ inputs.allTestsPaths || '' }}
+      targetTestsPath: ${{ inputs.targetTestsPath || '' }}
       documentationPath: ${{ inputs.documentationPath || '' }}
       readmeFilepath: ${{ inputs.readmeFilepath || 'README.md' }}
       missionFilepath: ${{ inputs.missionFilepath || 'MISSION.md' }}
@@ -311,7 +323,9 @@ jobs:
           script: |
             const currentFeatures = process.env.currentFeatures;
             const allSourcePaths = process.env.allSourcePaths;
+            const targetSourcePath = process.env.targetSourcePath;
             const allTestsPaths = process.env.allTestsPaths;
+            const targetTestsPath = process.env.targetTestsPath;
             const readmeFilepath = process.env.readmeFilepath;
             const missionFilepath = process.env.missionFilepath;
             const contributingFilepath = process.env.contributingFilepath;
@@ -362,7 +376,9 @@ jobs:
 
             core.info(`currentFeatures: "${currentFeatures}"`);
             core.info(`allSourcePaths: "${allSourcePaths}"`);
+            core.info(`targetSourcePath: "${targetSourcePath}"`);
             core.info(`allTestsPaths: "${allTestsPaths}"`);
+            core.info(`targetTestsPath: "${targetTestsPath}"`);
             core.info(`readmeFilepath: "${readmeFilepath}"`);
             core.info(`missionFilepath: "${missionFilepath}"`);
             core.info(`contributingFilepath: "${contributingFilepath}"`);
@@ -965,13 +981,13 @@ jobs:
           git config --local user.email '${{ env.gitUserEmail }}'
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
-          IFS=';' read -ra SRC_FILES <<< "${{ env.allSourcePaths }}"
+          IFS=';' read -ra SRC_FILES <<< "${{ env.targetSourcePaths }}"
           for file in "${SRC_FILES[@]}"; do
             echo "=== Git diff for source file: $file ==="
             git diff "$file" || true
             echo ""
           done
-          IFS=';' read -ra TEST_FILES <<< "${{ env.allTestsPaths }}"
+          IFS=';' read -ra TEST_FILES <<< "${{ env.targetTestsPaths }}"
           for file in "${TEST_FILES[@]}"; do
             echo "=== Git diff for test file: $file ==="
             git diff "$file" || true
