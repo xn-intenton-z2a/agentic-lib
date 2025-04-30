@@ -340,7 +340,6 @@ jobs:
             const testOutput = process.env.testOutput;
             const mainScript = process.env.mainScript;
             const mainOutput = process.env.mainOutput;
-            const writeableFilepaths = process.env.writeableFilepaths ? process.env.writeableFilepaths.split(';') : [];
             const agentConfigContent = process.env.agentConfigContent;
             const writeableFilepaths = process.env.writeableFilepaths;
 
@@ -371,9 +370,9 @@ jobs:
             core.info(`writeableFilepaths: "${writeableFilepaths}"`);
             
             function isWriteable(filepath) {
+              const patterns = writeableFilepaths.split(';').map(file => file.trim());
               core.info(`Checking if writing to filepath '${filepath}' is allowed in writeableFilepaths: ${patterns}`);
-              const writeableFilepaths = writeableFilepaths.split(';').map(file => file.trim());
-              return writeableFilepaths.some(pattern => (
+              return patterns.some(pattern => (
                 minimatch(filepath, pattern) || 
                 minimatch(filepath, `${pattern}*`) || 
                 minimatch(filepath, `${pattern}**`) || 

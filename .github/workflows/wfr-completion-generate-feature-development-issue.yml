@@ -331,17 +331,6 @@ jobs:
             core.info(`libraryDocumentsPath: "${libraryDocumentsPath}"`);
             core.info(`agentConfigContent: "${agentConfigContent}"`);
             core.info(`writeableFilepaths: "${writeableFilepaths}"`);
-            
-            function isWriteable(filepath) {
-              core.info(`Checking if writing to filepath '${filepath}' is allowed in writeableFilepaths: ${patterns}`);
-              const writeableFilepaths = writeableFilepaths.split(';').map(file => file.trim());
-              return writeableFilepaths.some(pattern => (
-                minimatch(filepath, pattern) || 
-                minimatch(filepath, `${pattern}*`) || 
-                minimatch(filepath, `${pattern}**`) || 
-                minimatch(filepath, `${pattern}/**`)
-              ));
-            }
 
             // Handle multiple source files
             const srcFiles = allSourcePaths.split(';');

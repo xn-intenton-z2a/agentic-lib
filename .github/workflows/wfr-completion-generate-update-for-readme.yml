@@ -365,9 +365,9 @@ jobs:
             core.info(`writeableFilepaths: "${writeableFilepaths}"`);
             
             function isWriteable(filepath) {
+              const patterns = writeableFilepaths.split(';').map(file => file.trim());
               core.info(`Checking if writing to filepath '${filepath}' is allowed in writeableFilepaths: ${patterns}`);
-              const writeableFilepaths = writeableFilepaths.split(';').map(file => file.trim());
-              return writeableFilepaths.some(pattern => (
+              return patterns.some(pattern => (
                 minimatch(filepath, pattern) || 
                 minimatch(filepath, `${pattern}*`) || 
                 minimatch(filepath, `${pattern}**`) || 
