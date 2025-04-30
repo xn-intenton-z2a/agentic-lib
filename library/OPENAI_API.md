@@ -120,16 +120,16 @@ SDK Integration Pattern:
 
 Configuration Options Summary:
 - schedule: schedule-1
-- sourcesLimit: 8
-- documentsLimit: 16
-- featuresWipLimit: 2
+- librarySourcesLimit: 8
+- libraryDocumentsLimit: 16
+- featuresLimit: 2
 - featureDevelopmentIssuesWipLimit: 3
 - maintenanceIssuesWipLimit: 2
 - attemptsPerBranch: 2
 - attemptsPerIssue: 2
 
 ## Information Dense Extract
-OpenAI API; Authentication: Bearer token; Endpoints: POST /v1/completions, /v1/chat/completions; Parameters: model (string), prompt/messages, temperature (float, default 1.0), max_tokens (int), n (optional int), stop (optional string/array); Response: id (string), created (int), choices (array{text, index, finish_reason, logprobs?}), usage (object with prompt_tokens, completion_tokens, total_tokens); SDK Signature: generateCompletion(apiKey: string, model: string, prompt: string, temperature: number, max_tokens: number, n?: number, stop?: string|string[]): Promise<Response>; Troubleshooting: Validate API key, use curl testing, check HTTP status codes; Config Options: schedule=schedule-1, sourcesLimit=8, documentsLimit=16, featuresWipLimit=2, attemptsPerBranch=2.
+OpenAI API; Authentication: Bearer token; Endpoints: POST /v1/completions, /v1/chat/completions; Parameters: model (string), prompt/messages, temperature (float, default 1.0), max_tokens (int), n (optional int), stop (optional string/array); Response: id (string), created (int), choices (array{text, index, finish_reason, logprobs?}), usage (object with prompt_tokens, completion_tokens, total_tokens); SDK Signature: generateCompletion(apiKey: string, model: string, prompt: string, temperature: number, max_tokens: number, n?: number, stop?: string|string[]): Promise<Response>; Troubleshooting: Validate API key, use curl testing, check HTTP status codes; Config Options: schedule=schedule-1, librarySourcesLimit=8, libraryDocumentsLimit=16, featuresLimit=2, attemptsPerBranch=2.
 
 ## Sanitised Extract
 TABLE OF CONTENTS:

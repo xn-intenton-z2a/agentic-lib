@@ -5,21 +5,21 @@ import path from "path";
 import { execSync } from "child_process";
 
 // Configuration
-const libraryDir = "./library/";
+const libraryDocumentsPath = "./library/";
 const outputFile = "./library-index.html";
 
 // Get the list of files in the library directory
 const getLibraryFiles = () => {
   try {
-    if (!fs.existsSync(libraryDir)) {
-      fs.mkdirSync(libraryDir, { recursive: true });
+    if (!fs.existsSync(libraryDocumentsPath)) {
+      fs.mkdirSync(libraryDocumentsPath, { recursive: true });
       return [];
     }
-    return fs.readdirSync(libraryDir)
+    return fs.readdirSync(libraryDocumentsPath)
       .filter(file => file.endsWith('.md'))
       .map(file => ({
         name: file,
-        path: path.join(libraryDir, file)
+        path: path.join(libraryDocumentsPath, file)
       }));
   } catch (error) {
     console.error(`Error reading library directory: ${error.message}`);
@@ -30,7 +30,7 @@ const getLibraryFiles = () => {
 // Get the output of ls -lath for the library directory
 const getLsOutput = () => {
   try {
-    return execSync(`ls -lath ${libraryDir}`).toString();
+    return execSync(`ls -lath ${libraryDocumentsPath}`).toString();
   } catch (error) {
     console.error(`Error executing ls command: ${error.message}`);
     return "Error executing ls command";

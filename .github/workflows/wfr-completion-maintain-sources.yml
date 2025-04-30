@@ -33,12 +33,12 @@ on:
         type: string
         required: false
         default: 'house choice'
-      sourcesFile:
+      librarySourcesFilepath:
         description: 'The file to create/update the sources in. Can include wildcards for multiple files. e.g. "SOURCES.md" or "SOURCES*.md"'
         type: string
         required: false
         default: 'SOURCES.md'
-      sourcesLimit:
+      librarySourcesLimit:
         description: 'The maximum number of sources to create. e.g. "3"'
         type: string
         required: false
@@ -48,37 +48,37 @@ on:
         type: string
         required: false
         default: 'features/'
-      srcPath:
+      allSourcePaths:
         description: 'The source file(s) to create the issue to change. e.g. "src/lib/main.js" or multiple files separated by semicolons "src/lib/main.js;src/lib/utils.js"'
         type: string
         required: false
         default: 'src/lib/'
-      testsPath:
+      allTestsPaths:
         description: 'The test file(s). e.g. "tests/unit/main.test.js" or multiple files separated by semicolons "tests/unit/main.test.js;tests/unit/utils.test.js"'
         type: string
         required: false
         default: 'tests/unit/'
-      docsPath:
+      documentationPath:
         description: 'The documentation file(s) to write to. e.g. "docs/" or multiple files separated by semicolons "docs/api;docs/API.md"'
         type: string
         required: false
         default: 'docs/'
-      readmeFile:
+      readmeFilepath:
         description: 'The README file. e.g. "README.md"'
         type: string
         required: false
         default: 'README.md'
-      missionFile:
+      missionFilepath:
         description: 'The MISSION statement file. e.g. "MISSION.md"'
         type: string
         required: false
         default: 'MISSION.md'
-      contributingFile:
+      contributingFilepath:
         description: 'The CONTRIBUTING file. e.g. "CONTRIBUTING.md"'
         type: string
         required: false
         default: 'CONTRIBUTING.md'
-      dependenciesFile:
+      dependenciesFilepath:
         description: 'The dependencies file. e.g. "package.json"'
         type: string
         required: false
@@ -87,7 +87,7 @@ on:
         description: 'The OpenAI model to use. e.g. "o3-mini"'
         type: string
         required: false
-        default: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+        default: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
       npmAuthOrganisation:
         description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
         type: string
@@ -147,17 +147,17 @@ jobs:
 
     env:
       source: ${{ inputs.source || '' }}
-      sourcesFile: ${{ inputs.sourcesFile || 'SOURCES.md' }}
-      sourcesLimit: ${{ inputs.sourcesLimit || '32' }}
+      librarySourcesFilepath: ${{ inputs.librarySourcesFilepath || 'SOURCES.md' }}
+      librarySourcesLimit: ${{ inputs.librarySourcesLimit || '32' }}
       featuresPath: ${{ inputs.featuresPath || 'features/' }}
-      srcPath: ${{ inputs.srcPath || '' }}
-      testsPath: ${{ inputs.testsPath || '' }}
-      docsPath: ${{ inputs.docsPath || '' }}
-      readmeFile: ${{ inputs.readmeFile || 'README.md' }}
-      missionFile: ${{ inputs.missionFile || 'MISSION.md' }}
-      contributingFile: ${{ inputs.contributingFile || 'CONTRIBUTING.md' }}
-      dependenciesFile: ${{ inputs.dependenciesFile || 'package.json' }}
-      model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      allSourcePaths: ${{ inputs.allSourcePaths || '' }}
+      allTestsPaths: ${{ inputs.allTestsPaths || '' }}
+      documentationPath: ${{ inputs.documentationPath || '' }}
+      readmeFilepath: ${{ inputs.readmeFilepath || 'README.md' }}
+      missionFilepath: ${{ inputs.missionFilepath || 'MISSION.md' }}
+      contributingFilepath: ${{ inputs.contributingFilepath || 'CONTRIBUTING.md' }}
+      dependenciesFilepath: ${{ inputs.dependenciesFilepath || 'package.json' }}
+      model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o4-mini' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
@@ -222,11 +222,11 @@ jobs:
         id: touch
         shell: bash
         run: |
-          # Check if sourcesFile contains a wildcard
-          if [[ "${{ env.sourcesFile }}" == *"*"* ]]; then
+          # Check if librarySourcesFilepath contains a wildcard
+          if [[ "${{ env.librarySourcesFilepath }}" == *"*"* ]]; then
             # Get the pattern and create the main file if it doesn't exist
             # For example, if pattern is SOURCES*.md, create SOURCES.md if it doesn't exist
-            mainFile=$(echo "${{ env.sourcesFile }}" | sed 's/\*//g')
+            mainFile=$(echo "${{ env.librarySourcesFilepath }}" | sed 's/\*//g')
             if [ ! -f "$mainFile" ]; then
               echo "Creating main sources file ${GITHUB_WORKSPACE}/$mainFile"
               touch "$mainFile"
@@ -240,20 +240,20 @@ jobs:
             fi
 
             # List all files matching the pattern
-            echo "Files matching pattern ${{ env.sourcesFile }}:"
-            ls -la ${{ env.sourcesFile }} 2>/dev/null || echo "No files found matching ${{ env.sourcesFile }}"
+            echo "Files matching pattern ${{ env.librarySourcesFilepath }}:"
+            ls -la ${{ env.librarySourcesFilepath }} 2>/dev/null || echo "No files found matching ${{ env.librarySourcesFilepath }}"
           else
             # Handle single file case
-            if [ ! -f "${{ env.sourcesFile }}" ]; then
-              echo "Creating sources file ${GITHUB_WORKSPACE}/${{ env.sourcesFile }}"
-              touch "${{ env.sourcesFile }}"
-              ls -lrt "${{ env.sourcesFile }}"
-              cat "${{ env.sourcesFile }}"
+            if [ ! -f "${{ env.librarySourcesFilepath }}" ]; then
+              echo "Creating sources file ${GITHUB_WORKSPACE}/${{ env.librarySourcesFilepath }}"
+              touch "${{ env.librarySourcesFilepath }}"
+              ls -lrt "${{ env.librarySourcesFilepath }}"
+              cat "${{ env.librarySourcesFilepath }}"
             else
-              echo "Touching sources file ${GITHUB_WORKSPACE}/${{ env.sourcesFile }}"
-              touch "${{ env.sourcesFile }}"
-              ls -lrt "${{ env.sourcesFile }}"
-              cat "${{ env.sourcesFile }}"
+              echo "Touching sources file ${GITHUB_WORKSPACE}/${{ env.librarySourcesFilepath }}"
+              touch "${{ env.librarySourcesFilepath }}"
+              ls -lrt "${{ env.librarySourcesFilepath }}"
+              cat "${{ env.librarySourcesFilepath }}"
             fi
           fi
 
@@ -267,16 +267,16 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const source = process.env.source;
-            const sourcesFile = process.env.sourcesFile;
-            const sourcesLimit = process.env.sourcesLimit;
+            const librarySourcesFilepath = process.env.librarySourcesFilepath;
+            const librarySourcesLimit = process.env.librarySourcesLimit;
             const currentFeatures = process.env.currentFeatures;
-            const srcPath = process.env.srcPath;
-            const testsPath = process.env.testsPath;
-            const docsPath = process.env.docsPath;
-            const readmeFile = process.env.readmeFile;
-            const missionFile = process.env.missionFile;
-            const contributingFile = process.env.contributingFile;
-            const dependenciesFile = process.env.dependenciesFile;
+            const allSourcePaths = process.env.allSourcePaths;
+            const allTestsPaths = process.env.allTestsPaths;
+            const documentationPath = process.env.documentationPath;
+            const readmeFilepath = process.env.readmeFilepath;
+            const missionFilepath = process.env.missionFilepath;
+            const contributingFilepath = process.env.contributingFilepath;
+            const dependenciesFilepath = process.env.dependenciesFilepath;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
             const promptFile = process.env.promptFile;
@@ -295,23 +295,23 @@ jobs:
             const openai = new OpenAI({ apiKey });
 
             core.info(`source: "${source}"`);
-            core.info(`sourcesFile: "${sourcesFile}"`);
+            core.info(`librarySourcesFilepath: "${librarySourcesFilepath}"`);
             core.info(`currentFeatures: "${currentFeatures}"`);
-            core.info(`srcPath: "${srcPath}"`);
-            core.info(`testsPath: "${testsPath}"`);
-            core.info(`readmeFile: "${readmeFile}"`);
-            core.info(`missionFile: "${missionFile}"`);
-            core.info(`contributingFile: "${contributingFile}"`);
-            core.info(`dependenciesFile: "${dependenciesFile}"`);
+            core.info(`allSourcePaths: "${allSourcePaths}"`);
+            core.info(`allTestsPaths: "${allTestsPaths}"`);
+            core.info(`readmeFilepath: "${readmeFilepath}"`);
+            core.info(`missionFilepath: "${missionFilepath}"`);
+            core.info(`contributingFilepath: "${contributingFilepath}"`);
+            core.info(`dependenciesFilepath: "${dependenciesFilepath}"`);
             core.info(`agentConfigPath: "${agentConfigPath}"`);
 
-            core.info(`Loading sources directory file(s) '${sourcesFile}'...`);
+            core.info(`Loading sources directory file(s) '${librarySourcesFilepath}'...`);
 
-            let sourcesFileContent = '';
+            let librarySourcesFilepathContent = '';
 
-            // If sourcesFile contains a wildcard, find all matching files
-            if (sourcesFile.includes('*')) {
-              const sourcesPattern = sourcesFile;
+            // If librarySourcesFilepath contains a wildcard, find all matching files
+            if (librarySourcesFilepath.includes('*')) {
+              const sourcesPattern = librarySourcesFilepath;
               const sourcesDir = path.dirname(sourcesPattern);
               const sourcesBasename = path.basename(sourcesPattern);
               const sourcesRegex = new RegExp('^' + sourcesBasename.replace(/\*/g, '.*') + '$');
@@ -330,19 +330,19 @@ jobs:
                 try {
                   const content = fs.readFileSync(file, 'utf8');
                   core.info(`Sources file '${file}' has been loaded (length ${content.length}).`);
-                  sourcesFileContent += content + '\n\n';
+                  librarySourcesFilepathContent += content + '\n\n';
                 } catch (e) {
                   core.warning(`Error reading sources file '${file}': ${e.message}`);
                 }
               }
             } else {
               // Load a single sources file
-              sourcesFileContent = fs.readFileSync(sourcesFile, 'utf8');
-              core.info(`Sources directory file '${sourcesFile}' has been loaded (length ${sourcesFileContent.length}).`);
+              librarySourcesFilepathContent = fs.readFileSync(librarySourcesFilepath, 'utf8');
+              core.info(`Sources directory file '${librarySourcesFilepath}' has been loaded (length ${librarySourcesFilepathContent.length}).`);
             }
 
             // Handle multiple source files
-            const srcFiles = srcPath.split(';');
+            const srcFiles = allSourcePaths.split(';');
             let sourceFileContents = {};
             for (const file of srcFiles) {
               try {
@@ -373,7 +373,7 @@ jobs:
             }
 
             // Handle multiple test files
-            const testFiles = testsPath.split(';');
+            const testFiles = allTestsPaths.split(';');
             let testFileContents = {};
             for (const file of testFiles) {
               try {
@@ -404,7 +404,7 @@ jobs:
             }
 
             // Handle multiple docs files
-            const docsFiles = docsPath.split(';');
+            const docsFiles = documentationPath.split(';');
             let docsFileContents = {};
             for (const file of docsFiles) {
               try {
@@ -440,10 +440,10 @@ jobs:
               }
             }
 
-            const readmeFileContent = fs.readFileSync(readmeFile, 'utf8');
-            const missionFileContent = fs.readFileSync(missionFile, 'utf8');
-            const contributingFileContent = fs.readFileSync(contributingFile, 'utf8');
-            const dependenciesFileContent = fs.readFileSync(dependenciesFile, 'utf8');
+            const readmeFilepathContent = fs.readFileSync(readmeFilepath, 'utf8');
+            const missionFilepathContent = fs.readFileSync(missionFilepath, 'utf8');
+            const contributingFilepathContent = fs.readFileSync(contributingFilepath, 'utf8');
+            const dependenciesFilepathContent = fs.readFileSync(dependenciesFilepath, 'utf8');
             const promptContent = fs.readFileSync(promptFile, 'utf8');
 
             // Read the agent config file
@@ -459,8 +459,8 @@ jobs:
               core.warning(`Error reading agent config file '${agentConfigPath}': ${e.message}`);
             }
 
-            core.info(`Readme file '${readmeFile}' has been loaded (length ${readmeFileContent.length}).`);
-            core.info(`Dependencies file '${dependenciesFile}' has been loaded (length ${dependenciesFileContent.length}).`);
+            core.info(`Readme file '${readmeFilepath}' has been loaded (length ${readmeFilepathContent.length}).`);
+            core.info(`Dependencies file '${dependenciesFilepath}' has been loaded (length ${dependenciesFilepathContent.length}).`);
             core.info(`Prompt file '${promptFile}' has been loaded (length ${promptContent.length}).`);
 
             // generate the source prompt either by using the supplied source prompt or by reviewing the current sources and full context
@@ -476,7 +476,7 @@ jobs:
 
             const chatGptPrompt = `
             ${promptContent}
-            If there are more than the maximum number of ${sourcesLimit} sources in the repository, you must merge similar sources into a single source.
+            If there are more than the maximum number of ${librarySourcesLimit} sources in the repository, you must merge similar sources into a single source.
 
             Consider the following when refining your response:
             * Source prompt details
@@ -499,7 +499,7 @@ jobs:
 
             Current sources file content:
             SOURCES_FILE_START
-            ${sourcesFileContent}
+            ${librarySourcesFilepathContent}
             SOURCES_FILE_END
 
             Current feature names and specifications:
@@ -522,24 +522,24 @@ jobs:
             ${Object.entries(docsFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
             DOCS_FILES_END
 
-            README file: ${readmeFile}
+            README file: ${readmeFilepath}
             README_FILE_START
-            ${readmeFileContent}
+            ${readmeFilepathContent}
             README_FILE_END
 
-            MISSION file: ${missionFile}
+            MISSION file: ${missionFilepath}
             MISSION_FILE_START
-            ${missionFileContent}
+            ${missionFilepathContent}
             MISSION_FILE_END
 
-            Contributing file: ${contributingFile}
+            Contributing file: ${contributingFilepath}
             CONTRIBUTING_FILE_START
-            ${contributingFileContent}
+            ${contributingFilepathContent}
             CONTRIBUTING_FILE_END
 
-            Dependencies file: ${dependenciesFile}
+            Dependencies file: ${dependenciesFilepath}
             DEPENDENCIES_FILE_START
-            ${dependenciesFileContent}
+            ${dependenciesFilepathContent}
             DEPENDENCIES_FILE_END
 
             Dependencies list from command: npm list
@@ -618,9 +618,9 @@ jobs:
               core.info(`sourcesDirectoryFileContent: "${parsed.sourcesDirectoryFileContent}"`);
 
               const sourcesDirectoryFileContent = parsed.sourcesDirectoryFileContent;
-              let sourcesDirectoryFilePath = process.env.sourcesFile || 'SOURCES.md';
+              let sourcesDirectoryFilePath = process.env.librarySourcesFilepath || 'SOURCES.md';
 
-              // If sourcesFile contains a wildcard, write to the main file (with the wildcard removed)
+              // If librarySourcesFilepath contains a wildcard, write to the main file (with the wildcard removed)
               if (sourcesDirectoryFilePath.includes('*')) {
                 sourcesDirectoryFilePath = sourcesDirectoryFilePath.replace(/\*/g, '');
                 core.info(`Writing to main sources file: ${sourcesDirectoryFilePath}`);
@@ -650,18 +650,18 @@ jobs:
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
 
-          # If sourcesFile contains a wildcard, add all matching files
-          if [[ "${{ env.sourcesFile }}" == *"*"* ]]; then
-            echo "Adding all files matching pattern ${{ env.sourcesFile }}"
-            git add -v --all ${{ env.sourcesFile }}
+          # If librarySourcesFilepath contains a wildcard, add all matching files
+          if [[ "${{ env.librarySourcesFilepath }}" == *"*"* ]]; then
+            echo "Adding all files matching pattern ${{ env.librarySourcesFilepath }}"
+            git add -v --all ${{ env.librarySourcesFilepath }}
             # Also add the main file (with the wildcard removed)
-            mainFile=$(echo "${{ env.sourcesFile }}" | sed 's/\*//g')
+            mainFile=$(echo "${{ env.librarySourcesFilepath }}" | sed 's/\*//g')
             git add -v --all "$mainFile"
-            git commit -m "Maintain sources files matching ${{ env.sourcesFile }}"
+            git commit -m "Maintain sources files matching ${{ env.librarySourcesFilepath }}"
           else
             # Add the specific file
-            git add -v --all '${{ env.sourcesFile }}'
-            git commit -m "Maintain ${{ env.sourcesFile }}"
+            git add -v --all '${{ env.librarySourcesFilepath }}'
+            git commit -m "Maintain ${{ env.librarySourcesFilepath }}"
           fi
 
           git status -v

@@ -48,26 +48,26 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@main'
     with:
+      promptFile: '.github/agents/agent-maintenance-issue.md'
       promptHint: ${{ inputs.prompt || 'house choice' }}
       maintenanceIssuesWipLimit: '${{ needs.agentic-lib.outputs.maintenanceIssuesWipLimit }}'
-      srcPath: ${{ needs.agentic-lib.outputs.srcPath }}
-      testsPath: ${{ needs.agentic-lib.outputs.testsPath }}
-      docsPath: ${{ needs.agentic-lib.outputs.docsPath }}
-      readmeFile: ${{ needs.agentic-lib.outputs.readmeFile }}
-      missionFile: ${{ needs.agentic-lib.outputs.missionFile }}
-      contributingFile: ${{ needs.agentic-lib.outputs.contributingFile }}
-      dependenciesFile: ${{ needs.agentic-lib.outputs.dependenciesFile }}
-      libraryDir: 'library/'
+      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
+      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
+      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
+      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
+      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
+      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
+      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.documentsLibraryPath }}
       buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
       testScript: ${{ needs.agentic-lib.outputs.testScript }}
       issueSelectionLabel: 'maintenance'
       mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
-      model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
-      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
-      agentConfigPath: ${{ needs.agentic-lib.outputs.agentConfigPath }}
-      promptFile: '.github/agents/agent-maintenance-issue.md'
       readableFilepaths: ${{ needs.agentic-lib.outputs.readableFilepaths }}
       writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
+      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
+      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+      agentConfigPath: ${{ needs.agentic-lib.outputs.agentConfigPath }}
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

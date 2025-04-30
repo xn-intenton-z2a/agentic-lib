@@ -42,8 +42,8 @@ Agent Configuration Details:
     contributing: 'CONTRIBUTING.md'
     dependencies: 'package.json'
     readme: 'README.md'
-    formattingFile: '.prettierrc'
-    lintingFile: 'eslint.config.js'
+    formattingFilepath: '.prettierrc'
+    lintingFilepath: 'eslint.config.js'
 - Writeable file paths:
     sources: 'SOURCES*.md'
     library: 'library/'
@@ -56,9 +56,9 @@ Agent Configuration Details:
     testScript: 'npm test'
     mainScript: 'npm run start'
 - Limits:
-    sourcesLimit: 8
-    documentsLimit: 16
-    featuresWipLimit: 2
+    librarySourcesLimit: 8
+    libraryDocumentsLimit: 16
+    featuresLimit: 2
     featureDevelopmentIssuesWipLimit: 3
     maintenanceIssuesWipLimit: 3
     attemptsPerBranch: 3

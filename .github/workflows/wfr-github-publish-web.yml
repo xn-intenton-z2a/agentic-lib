@@ -64,7 +64,7 @@ on:
         type: string
         required: false
         default: 'true'
-      libraryDir:
+      libraryDocumentsPath:
         description: 'The directory containing feature files. e.g. "library/"'
         type: string
         required: false
@@ -90,7 +90,7 @@ jobs:
       branchPrefix: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}
       nextIssue: ${{ inputs.nextIssue || '' }}
       publishToGitHubPages: ${{ inputs.publishToGitHubPages || 'true' }}
-      libraryDir: ${{ inputs.libraryDir || 'library/' }}
+      libraryDocumentsPath: ${{ inputs.libraryDocumentsPath || 'library/' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -147,7 +147,7 @@ jobs:
             echo "Creating a simple placeholder HTML file for each markdown file"
 
             # Find all markdown files in the library directory
-            find "${{ env.libraryDir }}" -maxdepth 2 -type f -name "*.md" | while read -r file; do
+            find "${{ env.libraryDocumentsPath }}" -maxdepth 2 -type f -name "*.md" | while read -r file; do
               # Get the filename without path and extension
               filename=$(basename "$file" .md)
               echo "Creating placeholder HTML for $file to ${{ env.public }}/$filename.html"
@@ -157,7 +157,7 @@ jobs:
             done
           else
             # Find all markdown files in the library directory
-            find "${{ env.libraryDir }}" -maxdepth 2 -type f -name "*.md" | while read -r file; do
+            find "${{ env.libraryDocumentsPath }}" -maxdepth 2 -type f -name "*.md" | while read -r file; do
               # Get the filename without path and extension
               filename=$(basename "$file" .md)
               echo "Converting $file to ${{ env.public }}/$filename.html"
@@ -172,7 +172,7 @@ jobs:
           article_list=""
 
           # First, find all markdown files in the library directory and extract information
-          find "${{ env.libraryDir }}" -maxdepth 2 -type f -name "*.md" | sort | while read -r md_file; do
+          find "${{ env.libraryDocumentsPath }}" -maxdepth 2 -type f -name "*.md" | sort | while read -r md_file; do
             filename=$(basename "$md_file" .md)
             html_filename="${filename}.html"
 

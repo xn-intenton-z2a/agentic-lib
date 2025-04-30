@@ -15,12 +15,12 @@ on:
         required: false
         type: string
         default: ''
-      srcPath:
+      allSourcePaths:
         description: 'The source file(s) whose content is used in the resolution prompt. e.g. "src/lib/main.js" or multiple files separated by semicolons "src/lib/main.js;src/lib/utils.js"'
         required: false
         type: string
         default: 'src/lib/'
-      testsPath:
+      allTestsPaths:
         description: 'The test file(s) to run to validate the resolution. e.g. "tests/unit/main.test.js" or multiple files separated by semicolons "tests/unit/main.test.js;tests/unit/utils.test.js"'
         required: false
         type: string
@@ -43,8 +43,8 @@ on:
 
 env:
   issueNumber: ${{ inputs.issueNumber || '' }}
-  srcPath: ${{ inputs.srcPath || '' }}
-  testsPath: ${{ inputs.testsPath || '' }}
+  allSourcePaths: ${{ inputs.allSourcePaths || '' }}
+  allTestsPaths: ${{ inputs.allTestsPaths || '' }}
   selectionLabel: ${{ inputs.selectionLabel || 'ready' }}
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
   public: ${{ vars.public || 'public' }}
@@ -323,28 +323,27 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-issue-resolution-in-code.yml@main'
     with:
+      promptFile: '.github/agents/agent-issue-resolution.md'
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
-      srcPath: ${{ inputs.srcPath || needs.agentic-lib.outputs.srcPath }}
-      testsPath: ${{ inputs.testsPath || needs.agentic-lib.outputs.testsPath }}
-      readmeFile: ${{ needs.agentic-lib.outputs.readmeFile }}
-      docsPath: ${{ needs.agentic-lib.outputs.docsPath }}
-      missionFile: ${{ needs.agentic-lib.outputs.missionFile }}
-      contributingFile: ${{ needs.agentic-lib.outputs.contributingFile }}
-      dependenciesFile: ${{ needs.agentic-lib.outputs.dependenciesFile }}
-      formattingFile: ${{ needs.agentic-lib.outputs.formattingFile }}
-      lintingFile: ${{ needs.agentic-lib.outputs.lintingFile }}
+      allSourcePaths: ${{ inputs.allSourcePaths || needs.agentic-lib.outputs.allSourcePaths }}
+      allTestsPaths: ${{ inputs.allTestsPaths || needs.agentic-lib.outputs.allTestsPaths }}
+      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
+      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
+      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
+      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
+      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
+      formattingFilepath: ${{ needs.agentic-lib.outputs.formattingFilepath }}
+      lintingFilepath: ${{ needs.agentic-lib.outputs.lintingFilepath }}
       branchPrefix: 'agentic-lib-issue-'
       buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
       testScript: ${{ needs.agentic-lib.outputs.testScript }}
       mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
-      model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      readableFilepaths: ${{ needs.agentic-lib.outputs.readableFilepaths }}
+      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
+      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
-      readableFilepaths: ${{ needs.agentic-lib.outputs.readableFilepaths }}
-      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
-      agentConfigPath: ${{ needs.agentic-lib.outputs.agentConfigPath }}
-      promptFile: '.github/agents/agent-issue-resolution.md'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

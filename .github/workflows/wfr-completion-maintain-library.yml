@@ -28,17 +28,17 @@ name: ∞ maintain-library
 on:
   workflow_call:
     inputs:
-      libraryDir:
+      libraryDocumentsPath:
         description: 'The directory to create/update the documents in. e.g. "library/"'
         type: string
         required: false
         default: 'library/'
-      sourcesFile:
+      librarySourcesFilepath:
         description: 'The file containing the sources to extract sections from. e.g. "SOURCES.md"'
         type: string
         required: false
         default: 'SOURCES.md'
-      documentsLimit:
+      libraryDocumentsLimit:
         description: 'The maximum number of documents to have in the library to create. e.g. "3"'
         type: string
         required: false
@@ -47,7 +47,7 @@ on:
         description: 'The OpenAI model to use. e.g. "o3-mini"'
         type: string
         required: false
-        default: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+        default: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
       npmAuthOrganisation:
         description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
         type: string
@@ -119,11 +119,11 @@ jobs:
 
     env:
       document: ${{ inputs.document || '' }}
-      libraryDir: ${{ inputs.libraryDir || 'library/' }}
-      sourcesFile: ${{ inputs.sourcesFile || 'SOURCES.md' }}
-      documentsLimit: ${{ inputs.documentsLimit || '3' }}
+      libraryDocumentsPath: ${{ inputs.libraryDocumentsPath || 'library/' }}
+      librarySourcesFilepath: ${{ inputs.librarySourcesFilepath || 'SOURCES.md' }}
+      libraryDocumentsLimit: ${{ inputs.libraryDocumentsLimit || '3' }}
       crawlResultCharacterLimit: 50000
-      model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o4-mini' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
       gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
@@ -175,9 +175,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const document = process.env.document;
-            const libraryDir = process.env.libraryDir;
-            const sourcesFile = process.env.sourcesFile;
-            const documentsLimit = process.env.documentsLimit;
+            const libraryDocumentsPath = process.env.libraryDocumentsPath;
+            const librarySourcesFilepath = process.env.librarySourcesFilepath;
+            const libraryDocumentsLimit = process.env.libraryDocumentsLimit;
             const crawlResultCharacterLimit = process.env.crawlResultCharacterLimit;
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
@@ -187,9 +187,9 @@ jobs:
             const agentConfigPath = process.env.agentConfigPath;
 
             core.info(`document: "${document}"`);
-            core.info(`libraryDir: "${libraryDir}"`);
-            core.info(`sourcesFile: "${sourcesFile}"`);
-            core.info(`documentsLimit: "${documentsLimit}"`);
+            core.info(`libraryDocumentsPath: "${libraryDocumentsPath}"`);
+            core.info(`librarySourcesFilepath: "${librarySourcesFilepath}"`);
+            core.info(`libraryDocumentsLimit: "${libraryDocumentsLimit}"`);
             core.info(`crawlResultCharacterLimit: "${crawlResultCharacterLimit}"`);
             core.info(`model: "${model}"`);
             core.info(`apiKey: "${apiKey}"`);
@@ -226,7 +226,7 @@ jobs:
             const openai = new OpenAI({ apiKey });
 
             // Load the sources files (support for multiple SOURCES*.md files)
-            let sourcesFileContent = '';
+            let librarySourcesFilepathContent = '';
             let promptContent = '';
 
             // Read the prompt file
@@ -246,9 +246,9 @@ jobs:
               core.warning(`Error reading agent config file '${agentConfigPath}': ${e.message}`);
             }
 
-            // If sourcesFile contains a wildcard, find all matching files
-            if (sourcesFile.includes('*')) {
-              const sourcesPattern = sourcesFile;
+            // If librarySourcesFilepath contains a wildcard, find all matching files
+            if (librarySourcesFilepath.includes('*')) {
+              const sourcesPattern = librarySourcesFilepath;
               const sourcesDir = path.dirname(sourcesPattern);
               const sourcesBasename = path.basename(sourcesPattern);
               const sourcesRegex = new RegExp('^' + sourcesBasename.replace(/\*/g, '.*') + '$');
@@ -267,38 +267,38 @@ jobs:
                 try {
                   const content = fs.readFileSync(file, 'utf8');
                   core.info(`Sources file '${file}' has been loaded (length ${content.length}).`);
-                  sourcesFileContent += content + '\n\n';
+                  librarySourcesFilepathContent += content + '\n\n';
                 } catch (e) {
                   core.warning(`Error reading sources file '${file}': ${e.message}`);
                 }
               }
             } else {
               // Load a single sources file
-              sourcesFileContent = fs.readFileSync(sourcesFile, 'utf8');
-              core.info(`Sources file '${sourcesFile}' has been loaded (length ${sourcesFileContent.length}).`);
+              librarySourcesFilepathContent = fs.readFileSync(librarySourcesFilepath, 'utf8');
+              core.info(`Sources file '${librarySourcesFilepath}' has been loaded (length ${librarySourcesFilepathContent.length}).`);
             }
 
             // Get list of existing library documents
             let existingDocuments = [];
             try {
-              if (fs.existsSync(libraryDir)) {
-                existingDocuments = fs.readdirSync(libraryDir)
+              if (fs.existsSync(libraryDocumentsPath)) {
+                existingDocuments = fs.readdirSync(libraryDocumentsPath)
                   .filter(file => file.endsWith('.md'))
-                  .map(file => path.join(libraryDir, file));
+                  .map(file => path.join(libraryDocumentsPath, file));
               } else {
-                fs.mkdirSync(libraryDir, { recursive: true });
+                fs.mkdirSync(libraryDocumentsPath, { recursive: true });
               }
             } catch (e) {
               core.warning(`Error reading library directory: ${e.message}`);
-              fs.mkdirSync(libraryDir, { recursive: true });
+              fs.mkdirSync(libraryDocumentsPath, { recursive: true });
             }
 
-            core.info(`Found ${existingDocuments.length} existing documents in ${libraryDir}`);
+            core.info(`Found ${existingDocuments.length} existing documents in ${libraryDocumentsPath}`);
 
             // Parse the sources file to extract sections
             // Each source entry starts with a level 1 heading (#) and contains URL, description, and license
             const sourceEntries = [];
-            const sourceLines = sourcesFileContent.split('\n');
+            const sourceLines = librarySourcesFilepathContent.split('\n');
             let currentEntry = null;
 
             for (let i = 0; i < sourceLines.length; i++) {
@@ -338,7 +338,7 @@ jobs:
               sourceEntries.push(currentEntry);
             }
 
-            core.info(`Parsed ${sourceEntries.length} source entries from ${sourcesFile}`);
+            core.info(`Parsed ${sourceEntries.length} source entries from ${librarySourcesFilepath}`);
 
             // Function to crawl a URL and its links for 16 seconds
             async function crawlUrl(url, maxTime = 16000) {
@@ -685,7 +685,7 @@ jobs:
                 documentContent += `## Retrieved\n${dateStr}\n`;
 
                 // Save the raw crawl data to a text file
-                const rawCrawlFilePath = path.join(libraryDir, `${parsed.documentName}_RAW_CRAWL.txt`);
+                const rawCrawlFilePath = path.join(libraryDocumentsPath, `${parsed.documentName}_RAW_CRAWL.txt`);
                 try {
                   if (isFilePathAllowed(rawCrawlFilePath, writeableFilepaths)) {
                     fs.writeFileSync(rawCrawlFilePath, crawlResult.content);
@@ -703,9 +703,9 @@ jobs:
 
               // Save the document to a file
               const documentName = parsed.documentName.replace(/ /g, "_").toUpperCase();
-              const documentFilePath = path.join(libraryDir, `${documentName}.md`);
+              const documentFilePath = path.join(libraryDocumentsPath, `${documentName}.md`);
               try {
-                fs.mkdirSync(libraryDir, { recursive: true });
+                fs.mkdirSync(libraryDocumentsPath, { recursive: true });
                 if (isFilePathAllowed(documentFilePath, writeableFilepaths)) {
                   fs.writeFileSync(documentFilePath, documentContent);
                   core.info(`Document saved to ${documentFilePath}`);
@@ -725,7 +725,7 @@ jobs:
 
               for (const name of documentNamesToBeDeleted) {
                 const documentNameToDelete = name.replace(/ /g, "_").toUpperCase().replace(/\.md$/, "") + ".md";
-                const documentPathToDelete = path.join(libraryDir, documentNameToDelete);
+                const documentPathToDelete = path.join(libraryDocumentsPath, documentNameToDelete);
                 try {
                   if (fs.existsSync(documentPathToDelete)) {
                     if (isFilePathAllowed(documentPathToDelete, writeableFilepaths)) {
@@ -758,7 +758,7 @@ jobs:
           git config --local user.email '${{ env.gitUserEmail }}'
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
-          git add -v --all '${{ env.libraryDir }}'
+          git add -v --all '${{ env.libraryDocumentsPath }}'
           git commit -m 'Maintain ${{ steps.maintain-library.outputs.documentName }}'
           git status -v
           git pull --ff-only origin ${{ github.ref }}
