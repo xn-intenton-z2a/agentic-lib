@@ -318,6 +318,7 @@ jobs:
           buildOutput: ${{ steps.build.outputs.output }}
           testOutput: ${{ steps.test.outputs.output }}
           mainOutput: ${{ steps.main.outputs.output }}
+          currentFeatures: ${{ steps.features.outputs.output }}
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
