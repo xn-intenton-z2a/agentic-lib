@@ -294,6 +294,7 @@ jobs:
             const issueSelectionLabel = process.env.issueSelectionLabel;
 
             const fs = require('fs');
+            const path = require('path');
             const OpenAI = require('openai').default;
             const { z } = require('zod');
             require('dotenv').config();
@@ -421,7 +422,7 @@ jobs:
                 core.info(`Docs file '${trimmedFile}' does not exist and will be created.`);
               }
             } catch (e) {
-              core.warning(`Error reading docs file '${file}': ${e.message}`);
+              core.warning(`Error reading docs file '${trimmedFile}': ${e.message}`);
             }
 
             const readmeFilepathContent = fs.readFileSync(readmeFilepath, 'utf8');
