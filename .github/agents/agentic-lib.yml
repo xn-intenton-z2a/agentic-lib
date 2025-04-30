@@ -37,7 +37,6 @@ paths:
     paths:
       - src/lib/
       - engineer-sandbox/source/
-      - write
   targetSourcePath:
     path: engineer-sandbox/source/
     permissions:
