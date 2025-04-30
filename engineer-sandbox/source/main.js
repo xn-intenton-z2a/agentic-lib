@@ -17,13 +17,13 @@ function computeMetrics(times) {
       medianTimeMS = sorted[Math.floor(totalCommands / 2)];
     }
   }
-  // compute standard deviation
+  // Compute standard deviation: sqrt of the average of squared differences from the mean.
   let standardDeviationTimeMS = 0;
   if (totalCommands) {
     const variance = times.reduce((acc, t) => acc + Math.pow(t - averageTimeMS, 2), 0) / totalCommands;
     standardDeviationTimeMS = Math.sqrt(variance);
   }
-  // compute 90th percentile
+  // Compute 90th percentile execution time.
   let percentile90TimeMS = 0;
   if (totalCommands) {
     const idx = Math.ceil(0.9 * totalCommands) - 1;

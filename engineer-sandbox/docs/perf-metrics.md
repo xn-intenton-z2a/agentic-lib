@@ -13,15 +13,15 @@ When you use the `--perf-metrics` flag, the output JSON will include the followi
 
 Additionally, two new statistical metrics have been introduced:
 
-- **standardDeviationTimeMS**: Represents the standard deviation of the execution times. It is calculated using the formula:
+- **standardDeviationTimeMS**: Represents the standard deviation of the execution times. It is calculated as the square root of the mean of the squared differences from the average execution time:
+  
+  Formula: standardDeviationTimeMS = sqrt( (1/N) * Σ (x_i - averageTimeMS)² )
+  
+  This metric provides insight into the variability and consistency of the command execution times.
 
-  ```
-  standardDeviationTimeMS = sqrt(mean((x_i - averageTimeMS)^2))
-  ```
-
-  This metric provides insight into the variability of the execution times.
-
-- **90thPercentileTimeMS**: Represents the 90th percentile execution time. To calculate this, the execution times are sorted, and the value below which 90% of the data falls is selected. This metric helps identify the upper bound of typical performance.
+- **90thPercentileTimeMS**: Represents the 90th percentile execution time. This is determined by sorting the execution times and selecting the value below which 90% of the data falls. It offers insight into the upper bound of typical execution delays.
+  
+  Calculation: Sort the execution times, then take the element at the index given by ceil(0.9 * N) - 1 (where N is the total number of commands).
 
 ## Workflow Chain Invocations
 For workflow chain invocations (i.e. when multiple commands are processed as a batch), an additional field is included:
@@ -118,10 +118,3 @@ Example Output:
 - Both naming conventions for the metrics are provided to support legacy integrations as well as new explicit naming.
 - Ensure that you supply a valid JSON payload when invoking the flag.
 - To enable batch throttling, set the **MAX_BATCH_COMMANDS** environment variable as shown above.
-
-## Additional Statistical Metrics
-
-The newly added metrics provide deeper insights into performance:
-
-- **standardDeviationTimeMS**: Calculated as the square root of the average squared deviation from the mean execution time. This reveals how consistent the command execution times are.
-- **90thPercentileTimeMS**: Determined by sorting execution times and selecting the value below which 90% of the data falls, offering insight into the upper bound of typical performance delays.
