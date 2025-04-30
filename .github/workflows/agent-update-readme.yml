@@ -18,7 +18,6 @@ on:
 env:
   branchPrefix: 'agentic-lib-'
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
-  public: ${{ vars.public || 'public' }}
   s3BucketUrl: ${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}
   s3WebsiteBucketUrl: ${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}
   iamActionsRoleArn: ${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}
@@ -149,7 +148,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-update-for-readme.yml@main'
     with:
       promptFilepath: '.github/agents/agent-update-readme.md'
-      agentConfigContent: '${{ needs.agentic-lib.outputs.agentConfigContent }}'
+      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
       allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
       allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
       readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
@@ -212,6 +211,7 @@ jobs:
       - select-next-issue
       - apply-update
       - create-pr
+      - agentic-lib
     if: ${{ always() }}
     permissions:
       contents: write
@@ -224,7 +224,7 @@ jobs:
       lastActivityName: "${{ github.workflow }}"
       lastActivityBranchName: "${{ github.ref_name }}"
       nextIssue: "[${{ needs.select-next-issue.outputs.issueNumber }}] ${{ needs.select-next-issue.outputs.issueTitle }} ${{ needs.select-next-issue.outputs.issueLabels }}"
-      public: 'public'
+      public: ${{ needs.agentic-lib.outputs.docRoot }}
       s3BucketUrl: "${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}"
       s3WebsiteBucketUrl: "${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}"
       iamActionsRoleArn: "${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}"

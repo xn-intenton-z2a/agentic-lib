@@ -19,6 +19,13 @@ env:
 
 jobs:
 
+  agentic-lib:
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@main'
+    with:
+      configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
   select-next-issue:
     permissions:
       issues: read
@@ -33,6 +40,7 @@ jobs:
   publish-web:
     needs:
       - select-next-issue
+      - agentic-lib
     permissions:
       contents: write
       id-token: write
@@ -44,7 +52,7 @@ jobs:
       lastActivityName: ${{ github.workflow }}
       lastActivityBranchName: ${{ github.ref_name }}
       nextIssue: "[${{ needs.select-issue.outputs.issueNumber }}] ${{ needs.select-issue.outputs.issueTitle }} ${{ needs.select-issue.outputs.issueLabels }}"
-      public: 'public'
+      public: ${{ needs.agentic-lib.outputs.docRoot }}
       publishToGitHubPages: 'true'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

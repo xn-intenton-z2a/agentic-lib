@@ -101,6 +101,10 @@ on:
       attemptsPerIssue:
         value: ${{ jobs.agentic-lib.outputs.attemptsPerIssue }}
 
+      # Web publishing
+      docRoot:
+        value: ${{ jobs.agentic-lib.outputs.docRoot }}
+
       # Contents of the agentic-lib.yml file
       agentConfigContent:
           value: ${{ jobs.agentic-lib.outputs.agentConfigContent }}
@@ -150,6 +154,9 @@ jobs:
       # How many attempts should be made to work on an issue?
       defaultAttemptsPerBranch: '2'
       defaultAttemptsPerIssue: '2'
+
+      # Web publishing
+      defaultDocRoot: 'docs/'
 
       # Agentic-lib configuration file contents
       defaultAgentConfigContent: ''
@@ -236,7 +243,10 @@ jobs:
             // How many attempts should be made to work on an issue? 
             let attemptsPerBranch = config?.attemptsPerBranch || process.env.defaultAttemptsPerBranch;
             let attemptsPerIssue = config?.attemptsPerIssue || process.env.defaultAttemptsPerIssue;
-
+          
+            // Web publishing
+            let docRoot = config?.docRoot || process.env.defaultDocRoot;
+          
             if (config?.paths) {
 
               // Filepaths for elaborator workflows - Extract
@@ -370,6 +380,11 @@ jobs:
             console.log(`attemptsPerIssue=${attemptsPerIssue}`);
             core.setOutput('attemptsPerIssue', attemptsPerIssue);
             
+            
+            # Web publishing - Set outputs
+            console.log(`docRoot=${docRoot}`);
+            core.setOutput('docRoot', docRoot);
+            
             // Contents of the agentic-lib.yml file
             console.log(`agentConfigContent=${agentConfigContent}`);
             core.setOutput('agentConfigContent', agentConfigContent);
@@ -413,6 +428,9 @@ jobs:
       # How many attempts should be made to work on an issue?
       attemptsPerBranch: ${{ steps.agentic-lib.outputs.attemptsPerBranch }}
       attemptsPerIssue: ${{ steps.agentic-lib.outputs.attemptsPerIssue }}
+
+      # Web publishing
+      docRoot: ${{ steps.agentic-lib.outputs.docRoot }}
 
       # Contents of the agentic-lib.yml file
       agentConfigContent: ${{ steps.agentic-lib.outputs.agentConfigContent }}

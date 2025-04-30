@@ -15,16 +15,6 @@ on:
         required: false
         type: string
         default: ''
-      allSourcePaths:
-        description: 'The source file(s) whose content is used in the resolution prompt. e.g. "src/lib/main.js" or multiple files separated by semicolons "src/lib/main.js;src/lib/utils.js"'
-        required: false
-        type: string
-        default: 'src/lib/'
-      allTestsPaths:
-        description: 'The test file(s) to run to validate the resolution. e.g. "tests/unit/main.test.js" or multiple files separated by semicolons "tests/unit/main.test.js;tests/unit/utils.test.js"'
-        required: false
-        type: string
-        default: 'tests/unit/'
       selectionLabel:
         description: 'Label used to filter issues for resolution. e.g. "ready"'
         required: false
@@ -43,11 +33,8 @@ on:
 
 env:
   issueNumber: ${{ inputs.issueNumber || '' }}
-  allSourcePaths: ${{ inputs.allSourcePaths || '' }}
-  allTestsPaths: ${{ inputs.allTestsPaths || '' }}
   selectionLabel: ${{ inputs.selectionLabel || 'ready' }}
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
-  public: ${{ vars.public || 'public' }}
   s3BucketUrl: ${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}
   s3WebsiteBucketUrl: ${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}
   iamActionsRoleArn: ${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}
@@ -324,10 +311,10 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-issue-resolution-in-code.yml@main'
     with:
       promptFilepath: '.github/agents/agent-issue-resolution.md'
-      agentConfigContent: '${{ needs.agentic-lib.outputs.agentConfigContent }}'
+      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
-      allSourcePaths: ${{ inputs.allSourcePaths || needs.agentic-lib.outputs.allSourcePaths }}
-      allTestsPaths: ${{ inputs.allTestsPaths || needs.agentic-lib.outputs.allTestsPaths }}
+      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
       readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
       documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
       missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
@@ -531,6 +518,7 @@ jobs:
       - select-next-issue
       - apply-issue-resolution
       - create-pr
+      - agentic-lib
     if: ${{ always() }}
     permissions:
       contents: write
@@ -543,7 +531,7 @@ jobs:
       lastActivityName: "${{ github.workflow }}"
       lastActivityBranchName: "${{ github.ref_name }}"
       nextIssue: "[${{ needs.select-next-issue.outputs.issueNumber }}] ${{ needs.select-next-issue.outputs.issueTitle }} ${{ needs.select-next-issue.outputs.issueLabels }}"
-      public: 'public'
+      public: ${{ needs.agentic-lib.outputs.docRoot }}
       s3BucketUrl: "${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}"
       s3WebsiteBucketUrl: "${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}"
       iamActionsRoleArn: "${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}"
