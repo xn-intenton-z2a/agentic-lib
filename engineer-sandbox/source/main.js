@@ -33,8 +33,8 @@ export function agenticHandler(payload) {
   let results = [];
   let executionTimes = [];
   if (payload.commands && Array.isArray(payload.commands)) {
-    // Check for MAX_BATCH_COMMANDS environment variable enforcement
-    const maxBatch = process.env.MAX_BATCH_COMMANDS ? Number(process.env.MAX_BATCH_COMMANDS) : undefined;
+    // Enforce MAX_BATCH_COMMANDS if set
+    const maxBatch = Number(process.env.MAX_BATCH_COMMANDS) || undefined;
     if (maxBatch && payload.commands.length > maxBatch) {
       return { error: `Batch command limit exceeded: maximum ${maxBatch} allowed, received ${payload.commands.length}` };
     }
