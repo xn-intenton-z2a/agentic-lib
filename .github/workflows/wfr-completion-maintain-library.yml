@@ -178,7 +178,6 @@ jobs:
             const apiKey = process.env.chatgptApiSecretKey;
             const promptFilepath = process.env.promptFilepath;
             const dependenciesListOutput = process.env.dependenciesListOutput;
-            const writeableFilepaths = JSON.parse(process.env.writeableFilepaths || '["features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md"]');
             const agentConfigContent = process.env.agentConfigContent;
             const writeableFilepaths = process.env.writeableFilepaths;
 
@@ -191,14 +190,12 @@ jobs:
             core.info(`apiKey: "${apiKey}"`);
             core.info(`promptFilepath: "${promptFilepath}"`);
             core.info(`dependenciesListOutput: "${dependenciesListOutput}"`);
-            core.info(`writeableFilepaths: "${writeableFilepaths}"`);
             core.info(`agentConfigContent: "${agentConfigContent}"`);
-            core.info(`writeableFilepaths: "${writeableFilepaths}"`);
-            
+
             function isWriteable(filepath) {
+              const patterns = writeableFilepaths.split(';').map(file => file.trim());
               core.info(`Checking if writing to filepath '${filepath}' is allowed in writeableFilepaths: ${patterns}`);
-              const writeableFilepaths = writeableFilepaths.split(';').map(file => file.trim());
-              return writeableFilepaths.some(pattern => (
+              return patterns.some(pattern => (
                 minimatch(filepath, pattern) || 
                 minimatch(filepath, `${pattern}*`) || 
                 minimatch(filepath, `${pattern}**`) || 

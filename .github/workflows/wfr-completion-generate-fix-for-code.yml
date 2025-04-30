@@ -371,11 +371,11 @@ jobs:
             core.info(`lintingFilepath: "${lintingFilepath}"`);
             core.info(`agentConfigContent: "${agentConfigContent}"`);
             core.info(`writeableFilepaths: "${writeableFilepaths}"`);
-            
+
             function isWriteable(filepath) {
+              const patterns = writeableFilepaths.split(';').map(file => file.trim());
               core.info(`Checking if writing to filepath '${filepath}' is allowed in writeableFilepaths: ${patterns}`);
-              const writeableFilepaths = writeableFilepaths.split(';').map(file => file.trim());
-              return writeableFilepaths.some(pattern => (
+              return patterns.some(pattern => (
                 minimatch(filepath, pattern) || 
                 minimatch(filepath, `${pattern}*`) || 
                 minimatch(filepath, `${pattern}**`) || 
@@ -566,11 +566,6 @@ jobs:
             ${readmeFilepathContent}
             README_FILE_END
 
-            Documentation files (to update if necessary):
-            DOCS_FILES_START
-            ${Object.entries(docsFileContents).map(([file, content]) => `File: ${file}\n${content}\n`).join('\n')}
-            DOCS_FILES_END
-
             MISSION file (for context, read only): ${missionFilepath}
             MISSION_FILE_START
             ${missionFilepathContent}
@@ -625,7 +620,7 @@ jobs:
             ${mainOutput}
             MAIN_OUTPUT_END    
 
-            Agent configuration file: ${agentConfigPath}
+            Agent configuration file:
             AGENT_CONFIG_FILE_START
             ${agentConfigContent}
             AGENT_CONFIG_FILE_END
