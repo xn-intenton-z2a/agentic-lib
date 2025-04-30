@@ -666,12 +666,14 @@ Re-usable GitHub Actions Workflows:
 - [ ] [r0w-Launch] Feature switch role: elaborator (sources, library, web publish, features, docs, web publish)
 - [ ] [r0w-Launch] Feature switch role: engineer (src, tests, docs, packages)
 - [ ] [r0w-Launch] Feature switch role: maintainer (pr+linting+updates+readme+docs)
-- [ ] [r0w-Launch] Make the agent prompts match the workflows
+- [ ] [r0w-Launch] Make the agent prompts match the top level workflow file names
+- [ ] [r0w-Launch] Make the reusable workflow names match the top level workflow file names
 - [~] [r0w-Launch] Ensure every file path or external element referenced by the workflows, defaults to the value in agentic-lib.yml
 - [ ] [r0w-Launch] When enhancing issues do not add duplicated documents
 - [ ] [r0w-Launch] When adding issue comments to a prompt, just add the last <configurable> comments.
 - [ ] [r0w-Launch] Label every issue that a worker touches with a unique label.
 - [ ] [r0w-Launch] Add a comment and put an issue for review if it is already done.
+- [ ] [r0w-Launch] Move branch pre-fix to agentic-lib.yml
 - [ ] [r0w-Launch] For all issue comments, add context to the comment such as: "After review, this issue was found to be already done."
 - [ ] [r0w-Launch] Pass and log a stamp on a current feature report for feature-to-issue if the feature is done.
 - [ ] [r0w-Launch] Pass and log a stamp on a current maintenance report for a maintenance-activity-to-issue if there is no value in making changes.

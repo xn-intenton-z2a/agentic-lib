@@ -124,6 +124,8 @@ jobs:
       - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
   branch-for-update:
+    needs:
+      - check-branch
     runs-on: ubuntu-latest
     env:
       branchPrefix: 'agentic-lib-'

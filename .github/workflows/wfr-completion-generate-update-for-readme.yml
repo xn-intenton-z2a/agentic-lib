@@ -862,7 +862,7 @@ jobs:
                     }
                   },
                   required: ["message", "updatedFile01Name", "updatedFile01Contents", "updatedFile02Name", "updatedFile02Contents", "updatedFile03Name", "updatedFile03Contents", "updatedFile04Name", "updatedFile04Contents", "updatedFile05Name", "updatedFile05Contents", "updatedFile06Name", "updatedFile06Contents", "updatedFile07Name", "updatedFile07Contents", "updatedFile08Name", "updatedFile08Contents", "updatedFile09Name", "updatedFile09Contents", "updatedFile10Name", "updatedFile10Contents", "updatedFile11Name", "updatedFile11Contents", "updatedFile12Name", "updatedFile12Contents", "updatedFile13Name", "updatedFile13Contents", "updatedFile14Name", "updatedFile14Contents", "updatedFile15Name", "updatedFile15Contents", "updatedFile16Name", "updatedFile16Contents"],
-                  additionalProperties: true
+                  additionalProperties: false
                 },
                 strict: true
               }
