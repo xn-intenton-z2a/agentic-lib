@@ -544,8 +544,8 @@ jobs:
             Only delete or update source files in ${targetSourcePath}.
             Only provide new or updated content for test files in ${targetTestsPath}.
             Only delete or update test files in ${targetTestsPath}.
-            Only update dependency files in ${targetDependencyFiles}.
-            Only update documentation files in ${targetDocumentationFiles}.
+            Only update dependency files in ${dependenciesFilepath}.
+            Only update documentation files in ${documentationPath}.
 
             Consider the following when refining your response:
               * Current feature names and specifications in the repository
