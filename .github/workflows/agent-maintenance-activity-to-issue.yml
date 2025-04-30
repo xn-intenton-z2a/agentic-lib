@@ -48,7 +48,8 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@main'
     with:
-      promptFile: '.github/agents/agent-maintenance-issue.md'
+      promptFilepath: '.github/agents/agent-maintenance-issue.md'
+      agentConfigContent: '${{ needs.agentic-lib.outputs.agentConfigContent }}'
       promptHint: ${{ inputs.prompt || 'house choice' }}
       maintenanceIssuesWipLimit: '${{ needs.agentic-lib.outputs.maintenanceIssuesWipLimit }}'
       allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}

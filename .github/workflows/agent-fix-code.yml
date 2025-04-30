@@ -494,7 +494,8 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@main'
     with:
-      promptFile: '.github/agents/agent-apply-fix.md'
+      promptFilepath: '.github/agents/agent-apply-fix.md'
+      agentConfigContent: '${{ needs.agentic-lib.outputs.agentConfigContent }}'
       allSourcePaths: ${{ inputs.allSourcePaths || needs.agentic-lib.outputs.allSourcePaths }}
       allTestsPaths: ${{ inputs.allTestsPaths || needs.agentic-lib.outputs.allTestsPaths }}
       readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}

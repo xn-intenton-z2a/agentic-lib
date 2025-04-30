@@ -658,7 +658,10 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-Launch] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
 - [x] [r0w-Launch] Move AGENT- files to ./github/agentic-lib/agent-*.md
 - [x] [r0w-Launch] Move agentic-lib.yml to ./github/agentic-lib/agentic-lib.yml
-- [~] [r0w-Launch] Find a better name for sources
+- [x] [r0w-Launch] Find a better name for sources
+- [x] [r0w-Launch] Fix these examples to match the actual behaviour: 'Can include wildcards for multiple files. e.g. "SOURCES.md" or "SOURCES*.md"'
+- [x] [r0w-MVP] Check these to see that we do use semi-colon separation: allTestsPaths.split(';');
+- [~] [r0w-Launch] Check to make sure we check readability and writeability of the file before reading or writing.
 - [~] [r0w-Launch] Ensure every file path or external element referenced by the workflows, defaults to the value in agentic-lib.yml
 - [~] [r0w-MVP] Set up agentic-lib to only write to supplementary files (`./*-sandbox`).
 - [ ] [r0w-MVP] Set up repository0 to only write to demo files, reset every week.
@@ -679,6 +682,8 @@ Re-usable GitHub Actions Workflows:
 - [ ] [r0w-Launch] For all issue comments, add context to the comment such as: "After review, this issue was found to be already done."
 - [ ] [r0w-Launch] Pass and log a stamp on a current feature report for feature-to-issue if the feature is done.
 - [ ] [r0w-Launch] Pass and log a stamp on a current maintenance report for a maintenance-activity-to-issue if there is no value in making changes.
+- [ ] Create one block per file for multiples of things like these: SOURCE_FILES_START
+- [ ] Pull any max file sizes into the agent config
 - [ ] Harvest repositor0-* files into agentic-lib when reset and show case past results.
 - [ ] Feature lifecycle of: Elaboration, Delivery, Maintenance, Retirement, and Removal.
 - [ ] Use the archived projects to mine for features.

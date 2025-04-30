@@ -323,7 +323,8 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-issue-resolution-in-code.yml@main'
     with:
-      promptFile: '.github/agents/agent-issue-resolution.md'
+      promptFilepath: '.github/agents/agent-issue-resolution.md'
+      agentConfigContent: '${{ needs.agentic-lib.outputs.agentConfigContent }}'
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       allSourcePaths: ${{ inputs.allSourcePaths || needs.agentic-lib.outputs.allSourcePaths }}
       allTestsPaths: ${{ inputs.allTestsPaths || needs.agentic-lib.outputs.allTestsPaths }}

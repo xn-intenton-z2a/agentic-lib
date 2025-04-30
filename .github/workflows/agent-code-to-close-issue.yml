@@ -65,7 +65,8 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-review-issue.yml@main'
     with:
-      promptFile: '.github/agents/agent-review-issue.md'
+      promptFilepath: '.github/agents/agent-review-issue.md'
+      agentConfigContent: '${{ needs.agentic-lib.outputs.agentConfigContent }}'
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
       readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}

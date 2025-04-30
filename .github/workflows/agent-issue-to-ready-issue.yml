@@ -73,7 +73,8 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@main'
     with:
-      promptFile: '.github/agents/agent-ready-issue.md'
+      promptFilepath: '.github/agents/agent-ready-issue.md'
+      agentConfigContent: '${{ needs.agentic-lib.outputs.agentConfigContent }}'
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
       libraryDocumentsPath: ${{ needs.agentic-lib.outputs.documentsLibraryPath }}

@@ -54,7 +54,8 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@main'
     with:
-      promptFile: '.github/agents/agent-maintain-features.md'
+      promptFilepath: '.github/agents/agent-maintain-features.md'
+      agentConfigContent: '${{ needs.agentic-lib.outputs.agentConfigContent }}'
       feature: ${{ inputs.feature }}
       featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
       featuresLimit: '${{ needs.agentic-lib.outputs.featuresLimit }}'

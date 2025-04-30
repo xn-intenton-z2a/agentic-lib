@@ -48,7 +48,8 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml@main'
     with:
-      promptFile: '.github/agents/agent-maintain-library.md'
+      promptFilepath: '.github/agents/agent-maintain-library.md'
+      agentConfigContent: '${{ needs.agentic-lib.outputs.agentConfigContent }}'
       librarySourcesFilepath: '${{ needs.agentic-lib.outputs.librarySourcesFilepath }}'
       libraryDocumentsPath: '${{ needs.agentic-lib.outputs.libraryDocumentsPath }}'
       libraryDocumentsLimit: '${{ needs.agentic-lib.outputs.libraryDocumentsLimit }}'

@@ -97,7 +97,7 @@ on:
         type: string
         required: false
         default: 'npm'
-      promptFile:
+      promptFilepath:
         description: 'The file containing the prompt text. e.g. ".github/agents/agent-ready-issue.md"'
         type: string
         required: true
@@ -116,11 +116,11 @@ on:
         type: string
         required: false
         default: ''
-      agentConfigPath:
-        description: 'The path to the agentic-lib.yml configuration file'
+      agentConfigContent:
+        description: 'The content of the agent config file. e.g. Yaml read from "./github/agents/agent-config.yaml"'
         type: string
         required: false
-        default: '.github/agents/agentic-lib.yml'
+        default: ''
       readableFilepaths:
         description: 'Semicolon-separated list of file paths that can be read by the workflow. e.g. "MISSION.md;CONTRIBUTING.md;package.json;README.md;.prettierrc;eslint.config.js"'
         type: string
@@ -161,11 +161,11 @@ jobs:
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o4-mini' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       cache: ${{ inputs.cache || 'npm' }}
-      promptFile: ${{ inputs.promptFile || '.github/agents/agent-review-issue.md' }}
+      promptFilepath: ${{ inputs.promptFilepath || '.github/agents/agent-review-issue.md' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
-      agentConfigPath: ${{ inputs.agentConfigPath || '.github/agents/agentic-lib.yml' }}
+      agentConfigContent: ${{ inputs.agentConfigContent || '' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -270,7 +270,7 @@ jobs:
             const apiKey = process.env.chatgptApiSecretKey;
             const issueNumberStr = process.env.issueNumber;
             const issueNumber = (parseInt(issueNumberStr) ? parseInt(issueNumberStr) : "");
-            const promptFile = process.env.promptFile;
+            const promptFilepath = process.env.promptFilepath;
             const dependenciesListOutput = process.env.dependenciesListOutput;
             const buildScript = process.env.buildScript;
             const buildOutput = process.env.buildOutput;
@@ -278,7 +278,7 @@ jobs:
             const testOutput = process.env.testOutput;
             const mainScript = process.env.mainScript;
             const mainOutput = process.env.mainOutput;
-            const agentConfigPath = process.env.agentConfigPath;
+            const agentConfigContent = process.env.agentConfigContent;
 
             const fs = require('fs');
             const path = require('path');
@@ -362,65 +362,51 @@ jobs:
               }
             }
 
-            // Handle multiple docs files
-            const docsFiles = documentationPath.split(';');
+            // Handle documents path to file or directory
             let docsFileContents = {};
-            for (const file of docsFiles) {
-              try {
-                const trimmedFile = file.trim();
-                if (fs.existsSync(trimmedFile)) {
-                  const stats = fs.statSync(trimmedFile);
-                  if (stats.isDirectory()) {
-                    // If it's a directory, read all files in the directory
-                    const files = fs.readdirSync(trimmedFile);
-                    for (const subFile of files) {
-                      const fullPath = path.join(trimmedFile, subFile);
-                      if (fs.statSync(fullPath).isFile()) {
-                        docsFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
-                        core.info(`Docs file '${fullPath}' from directory has been loaded (length ${docsFileContents[fullPath].length}).`);
-                      }
+            try {
+              const trimmedFile = documentationPath.trim();
+              if (fs.existsSync(trimmedFile)) {
+                const stats = fs.statSync(trimmedFile);
+                if (stats.isDirectory()) {
+                  // If it's a directory, read all files in the directory
+                  const files = fs.readdirSync(trimmedFile);
+                  for (const subFile of files) {
+                    const fullPath = path.join(trimmedFile, subFile);
+                    if (fs.statSync(fullPath).isFile()) {
+                      docsFileContents[fullPath] = fs.readFileSync(fullPath, 'utf8');
+                      core.info(`Docs file '${fullPath}' from directory has been loaded (length ${docsFileContents[fullPath].length}).`);
                     }
-                  } else {
-                    // It's a file, read it directly
-                    docsFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
-                    core.info(`Docs file '${trimmedFile}' has been loaded (length ${docsFileContents[trimmedFile].length}).`);
                   }
                 } else {
-                  // Create directory if it doesn't exist
-                  const docsDir = path.dirname(trimmedFile);
-                  if (!fs.existsSync(docsDir)) {
-                    fs.mkdirSync(docsDir, { recursive: true });
-                  }
-                  docsFileContents[trimmedFile] = '';
-                  core.info(`Docs file '${trimmedFile}' does not exist and will be created.`);
+                  // It's a file, read it directly
+                  docsFileContents[trimmedFile] = fs.readFileSync(trimmedFile, 'utf8');
+                  core.info(`Docs file '${trimmedFile}' has been loaded (length ${docsFileContents[trimmedFile].length}).`);
                 }
-              } catch (e) {
-                core.warning(`Error reading docs file '${file}': ${e.message}`);
+              } else {
+                // Create directory if it doesn't exist
+                const docsDir = path.dirname(trimmedFile);
+                if (!fs.existsSync(docsDir)) {
+                  fs.mkdirSync(docsDir, { recursive: true });
+                }
+                docsFileContents[trimmedFile] = '';
+                core.info(`Docs file '${trimmedFile}' does not exist and will be created.`);
               }
+            } catch (e) {
+              core.warning(`Error reading docs file '${file}': ${e.message}`);
             }
 
             const readmeFilepathContent = fs.readFileSync(readmeFilepath, 'utf8');
             const missionFilepathContent = fs.readFileSync(missionFilepath, 'utf8');
             const contributingFilepathContent = fs.readFileSync(contributingFilepath, 'utf8');
             const dependenciesFilepathContent = fs.readFileSync(dependenciesFilepath, 'utf8');
-            const promptContent = fs.readFileSync(promptFile, 'utf8');
-
-            // Read the agent config file
-            let agentConfigContent = '';
-            try {
-              if (fs.existsSync(agentConfigPath)) {
-                agentConfigContent = fs.readFileSync(agentConfigPath, 'utf8');
-                core.info(`Agent config file '${agentConfigPath}' has been loaded (length ${agentConfigContent.length}).`);
-              } else {
-                core.warning(`Agent config file '${agentConfigPath}' does not exist.`);
-              }
-            } catch (e) {
-              core.warning(`Error reading agent config file '${agentConfigPath}': ${e.message}`);
-            }
+            const promptContent = fs.readFileSync(promptFilepath, 'utf8');
 
             core.info(`Readme file '${readmeFilepath}' has been loaded (length ${readmeFilepathContent.length}).`);
+            core.info(`Mission file '${missionFilepath}' has been loaded (length ${missionFilepathContent.length}).`);
+            core.info(`Contributing file '${contributingFilepath}' has been loaded (length ${contributingFilepathContent.length}).`);
             core.info(`Dependencies file '${dependenciesFilepath}' has been loaded (length ${dependenciesFilepathContent.length}).`);
-            core.info(`Prompt file '${promptFile}' has been loaded (length ${promptContent.length}).`);
+            core.info(`Prompt file '${promptFilepath}' has been loaded (length ${promptContent.length}).`);
 
             core.info(`Retrieving issue ${issueNumber} details...`);
             const issue = await github.rest.issues.get({

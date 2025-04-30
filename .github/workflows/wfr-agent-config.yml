@@ -103,6 +103,10 @@ on:
       attemptsPerIssue:
         value: ${{ jobs.agentic-lib.outputs.attemptsPerIssue }}
 
+      # Contents of the agentic-lib.yml file
+      agentConfigContent:
+          value: ${{ jobs.agentic-lib.outputs.agentConfigContent }}
+
 jobs:
   agentic-lib:
     runs-on: ubuntu-latest
@@ -110,44 +114,47 @@ jobs:
       configPath: ${{ inputs.configPath || '.github/agents/agentic-lib.yml' }}
 
       # Filepaths for elaborator workflows
-      defaultMissionFilepath: ${{ 'MISSION.md' }}
-      defaultLibrarySourcesFilepath: ${{ 'SOURCES*.md' }}
-      defaultLibrarySourcesLimit: ${{ '16' }}
-      defaultLibraryDocumentsPath: ${{ 'library/' }}
-      defaultLibraryDocumentsLimit: ${{ '8' }}
-      defaultFeaturesPath: ${{ 'features/' }}
-      defaultFeaturesLimit: ${{ '3' }}
+      defaultMissionFilepath: 'MISSION.md'
+      defaultLibrarySourcesFilepath: 'SOURCES*.md'
+      defaultLibrarySourcesLimit: '16'
+      defaultLibraryDocumentsPath: 'library/'
+      defaultLibraryDocumentsLimit: '8'
+      defaultFeaturesPath: 'features/'
+      defaultFeaturesLimit: '3'
 
       # Filepaths for engineer workflows
-      defaultContributingFilepath: ${{ 'CONTRIBUTING.md' }}
-      defaultAllTestsPaths: ${{ '["tests/unit/"]' }}
-      defaultTargetTestsPath: ${{ 'tests/unit/' }}
-      defaultAllSourcePaths: ${{ '["src/lib/"]' }}
-      defaultTargetSourcePath: ${{ 'src/lib/' }}
-      defaultDependenciesFilepath: ${{ 'package.json' }}
-      defaultDocumentationPath: ${{ 'docs/' }}
+      defaultContributingFilepath: 'CONTRIBUTING.md'
+      defaultAllTestsPaths: '["tests/unit/"]'
+      defaultTargetTestsPath: 'tests/unit/'
+      defaultAllSourcePaths: '["src/lib/"]'
+      defaultTargetSourcePath: 'src/lib/'
+      defaultDependenciesFilepath: 'package.json'
+      defaultDocumentationPath: 'docs/'
 
       # Filepaths for maintainer workflows
-      defaultFormattingFilepath: ${{ '.prettierrc' }}
-      defaultLintingFilepath: ${{ 'eslint.config.js' }}
-      defaultReadmeFilepath: ${{ 'README.md' }}
+      defaultFormattingFilepath: '.prettierrc'
+      defaultLintingFilepath: 'eslint.config.js'
+      defaultReadmeFilepath: 'README.md'
 
       # Filepath access permissions
-      defaultReadableFilepaths: ${{ '["MISSION.md", "CONTRIBUTING.md", ".prettierrc", "eslint.config.js", "SOURCES.md" "library/", "features/", "tests/unit/", "src/lib/", "package.json", "docs/", "README.md"]' }}
-      defaultWriteableFilepaths: ${{ '["SOURCES.md" "library/", "features/", "tests/unit/", "src/lib/", "package.json", "docs/", "README.md"]' }}
+      defaultReadableFilepaths: 'MISSION.md;CONTRIBUTING.md;.prettierrc;eslint.config.js;SOURCES.md;library/;features/;tests/unit/;src/lib/;package.json;docs/;README.md'
+      defaultWriteableFilepaths: 'SOURCES.md;library/;features/;tests/unit/;src/lib/;package.json;docs/;README.md'
 
       # Execution commands
-      defaultBuildScript: ${{ 'npm run build' }}
-      defaultTestScript: ${{ 'npm test' }}
-      defaultMainScript: ${{ 'npm run start' }}
+      defaultBuildScript: 'npm run build'
+      defaultTestScript: 'npm test'
+      defaultMainScript: 'npm run start'
 
       # How many issues should be available to be picked up?
-      defaultFeatureDevelopmentIssuesWipLimit: ${{ '3' }}
-      defaultMaintenanceIssuesWipLimit: ${{ '3' }}
+      defaultFeatureDevelopmentIssuesWipLimit: '3'
+      defaultMaintenanceIssuesWipLimit: '3'
 
       # How many attempts should be made to work on an issue?
-      defaultAttemptsPerBranch: ${{ '2' }}
-      defaultAttemptsPerIssue: ${{ '2' }}
+      defaultAttemptsPerBranch: '2'
+      defaultAttemptsPerIssue: '2'
+
+      # Agentic-lib configuration file contents
+      defaultAgentConfigContent: ''
 
     steps:
       - name: Checkout
@@ -211,9 +218,10 @@ jobs:
             }
 
             let config;
+            let agentConfigContent = '';
             try {
               // Read and parse the YAML file
-              const fileContents = fs.readFileSync(configPath, 'utf8');
+              agentConfigContent = fs.readFileSync(configPath, 'utf8');
               config = yaml.load(fileContents);
             } catch (error) {
               console.log(`Error parsing .github/agents/agentic-lib.yml: ${error.message}, using default values.`);
@@ -284,11 +292,11 @@ jobs:
 
               // Set readable and writeable filepaths if we found any, otherwise use defaults
               readableFilepaths = readablePathsArray.length > 0 
-                ? readablePathsArray.join(', ') 
+                ? readablePathsArray.join(';') 
                 : readableFilepaths;
 
               writeableFilepaths = writeablePathsArray.length > 0 
-                ? writeablePathsArray.join(', ') 
+                ? writeablePathsArray.join(';') 
                 : writeableFilepaths;
             }
 
@@ -383,6 +391,10 @@ jobs:
 
             console.log(`attemptsPerIssue=${attemptsPerIssue}`);
             core.setOutput('attemptsPerIssue', attemptsPerIssue);
+            
+            // Contents of the agentic-lib.yml file
+            console.log(`agentConfigContent=${agentConfigContent}`);
+            core.setOutput('agentConfigContent', agentConfigContent);
 
     outputs:
       # Filepaths for elaborator workflows
@@ -424,3 +436,6 @@ jobs:
       # How many attempts should be made to work on an issue?
       attemptsPerBranch: ${{ steps.agentic-lib.outputs.attemptsPerBranch }}
       attemptsPerIssue: ${{ steps.agentic-lib.outputs.attemptsPerIssue }}
+
+      # Contents of the agentic-lib.yml file
+      agentConfigContent: ${{ steps.agentic-lib.outputs.agentConfigContent }}

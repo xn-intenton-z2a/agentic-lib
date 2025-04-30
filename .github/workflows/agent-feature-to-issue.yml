@@ -95,7 +95,8 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@main'
     with:
-      promptFile: '.github/agents/agent-feature-issue.md'
+      promptFilepath: '.github/agents/agent-feature-issue.md'
+      agentConfigContent: '${{ needs.agentic-lib.outputs.agentConfigContent }}'
       featureName: ${{ needs.select-feature.outputs.featureName }}
       featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
       libraryDocumentsPath: ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}

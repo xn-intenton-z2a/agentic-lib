@@ -148,7 +148,8 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-update-for-readme.yml@main'
     with:
-      promptFile: '.github/agents/agent-update-readme.md'
+      promptFilepath: '.github/agents/agent-update-readme.md'
+      agentConfigContent: '${{ needs.agentic-lib.outputs.agentConfigContent }}'
       allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
       allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
       readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
