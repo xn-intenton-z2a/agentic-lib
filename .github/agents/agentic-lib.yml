@@ -1,112 +1,90 @@
 # Which agentic-lib workflow schedule should be used?
 schedule: schedule-1
 
-# Mapping for from symbolic keys to filepaths for access by agentic-lib workflows with access permissions
-# The `paths` section is a work in progress.
-# TODO: Separate:
+# Mapping for from symbolic keys to filepaths for access by agentic-lib workflows with limits and access permissions
 paths:
-  mission:
-    paths:
-      - "MISSION.md"
+  # Filepaths for elaborator workflows
+  missionFilepath:
+    path: MISSION.md
     permissions:
       - read
-  contributing:
-    paths:
-      - "CONTRIBUTING.md"
-    permissions:
-      - read
-  dependencies:
-    paths:
-      - "package.json"
-    permissions:
-      - read
-  readme:
-    paths:
-      - "README.md"
-    permissions:
-      - read
-  formattingFile:
-    paths:
-      - ".prettierrc"
-    permissions:
-      - read
-  lintingFile:
-    paths:
-      - "eslint.config.js"
-    permissions:
-      - read
-  sources:
-    paths:
-      - "SOURCES-WISHLIST.md"
-      - "elaborator-sandbox/sources/"
+  librarySourcesFilepath:
+    path: SOURCES.md
+    limit: 16
     permissions:
       - read
       - write
-  library:
-    paths:
-      - "elaborator-sandbox/library/"
+  libraryDocumentsPath:
+    path: elaborator-sandbox/library/
+    limit: 8
     permissions:
       - read
       - write
-  features:
-    paths:
-      - "engineer-sandbox/features/"
-    permissions:
-      - read
-      - write
-  src:
-    paths:
-      - "engineer-sandbox/source/"
-    permissions:
-      - read
-      - write
-  tests:
-    paths:
-      - "engineer-sandbox/tests/"
-    permissions:
-      - read
-      - write
-  docs:
-    paths:
-      - "engineer-sandbox/docs/"
+  featuresPath:
+    path: engineer-sandbox/features/
+    limit: 3
     permissions:
       - read
       - write
 
-# Mapping for read-only filepaths, read access by agentic-lib workflows.
-readOnlyFilepaths:
-  mission:        "MISSION.md"
-  contributing:   "CONTRIBUTING.md"
-  dependencies:   "package.json"
-  readme:         "README.md"
-  formattingFile: ".prettierrc"
-  lintingFile:    "eslint.config.js"
+  # Filepaths for engineer workflows
+  contributingFilepath:
+    path: CONTRIBUTING.md
+    permissions:
+      - read
+  allTestsPaths:
+    paths:
+      - tests/unit/
+      - engineer-sandbox/tests/
+    permissions:
+      - read
+  targetTestsPath:
+    path: engineer-sandbox/tests/
+    permissions:
+      - read
+      - write
+  allSourcePaths:
+    paths:
+      - src/lib/
+      - engineer-sandbox/source/
+    permissions:
+      - read
+      - write
+  targetSourcePath:
+    path: engineer-sandbox/source/
+    permissions:
+      - read
+      - write
+  dependenciesFilepath:
+    path: package.json
+    permissions:
+      - read
+  documentationPath:
+    path: engineer-sandbox/docs/
+    permissions:
+      - read
+      - write
 
-# Mapping for writeable filepaths, read access by agentic-lib workflows and also automated changes may be made in these paths.
-writeableFilepaths:
-  sources:  "elaborator-sandbox/SOURCES.md"
-  library:  "elaborator-sandbox/library/"
-  features: "engineer-sandbox/features/"
-  src:      "engineer-sandbox/source/"
-  tests:    "engineer-sandbox/tests/"
-  docs:     "engineer-sandbox/docs/"
+  # Filepaths for maintainer workflows
+  formattingFilepath:
+    path: .prettierrc
+    permissions:
+      - read
+  lintingFilepath:
+    path: eslint.config.js
+    permissions:
+      - read
+  readmeFilepath:
+    path: README.md
+    permissions:
+      - read
 
 # Execution commands
-buildScript: "npm run build"
-testScript: "npm test"
-mainScript: "npm run start"
+buildScript: npm run build
+testScript: npm test
+mainScript: npm run start
 
-# How many sources should exist for document fetching?
-sourcesLimit: 16
-
-# How many documents should exist in the library?
-documentsLimit: 8
-
-# How many features should exist concurrently open for issue creation?
-featuresWipLimit: 3
-
-# TODO: Separate the concept of features in development and features in maintenance.
-# How many issues should be open to be picked up?
+# How many issues should be available to be picked up?
 featureDevelopmentIssuesWipLimit: 3
 maintenanceIssuesWipLimit: 3
 

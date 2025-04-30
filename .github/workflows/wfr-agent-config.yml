@@ -33,204 +33,122 @@ on:
         type: string
         required: false
         default: '.github/agents/agentic-lib.yml'
-      defaultAttemptsPerBranch:
-        description: 'The default number of attempts per branch.'
-        type: string
-        required: false
-        default: '2'
-      defaultAttemptsPerIssue:
-        description: 'The default number of attempts per issue.'
-        type: string
-        required: false
-        default: '2'
-      defaultWriteableFilepaths:
-        description: 'The default writeable filepaths.'
-        type: string
-        required: false
-        default: '["docs/", "features/", "library/", "src/lib/", "tests/unit/", "package.json", "README.md", "SOURCES*.md"]'
-      defaultSrcPath:
-        description: 'The default source path.'
-        type: string
-        required: false
-        default: 'src/lib/'
-      defaultTestsPath:
-        description: 'The default tests path.'
-        type: string
-        required: false
-        default: 'tests/unit/'
-      defaultDocsPath:
-        description: 'The default docs path.'
-        type: string
-        required: false
-        default: 'docs/'
-      defaultLibraryDir:
-        description: 'The default library directory.'
-        type: string
-        required: false
-        default: 'library/'
-      defaultSourcesFile:
-        description: 'The default sources file.'
-        type: string
-        required: false
-        default: 'SOURCES*.md'
-      defaultDocumentsLimit:
-        description: 'The default documents limit.'
-        type: string
-        required: false
-        default: '3'
-      defaultSourcesLimit:
-        description: 'The default sources limit.'
-        type: string
-        required: false
-        default: '8'
-      defaultFeatureDevelopmentIssuesWipLimit:
-        description: 'The default feature development issues WIP limit.'
-        type: string
-        required: false
-        default: '8'
-      defaultMaintenanceIssuesWipLimit:
-        description: 'The default maintenance issues WIP limit.'
-        type: string
-        required: false
-        default: '8'
-      defaultFeaturesWipLimit:
-        description: 'The default features WIP limit.'
-        type: string
-        required: false
-        default: '2'
-      defaultMissionFile:
-        description: 'The default mission file path.'
-        type: string
-        required: false
-        default: 'MISSION.md'
-      defaultContributingFile:
-        description: 'The default contributing file path.'
-        type: string
-        required: false
-        default: 'CONTRIBUTING.md'
-      defaultFormattingFile:
-        description: 'The default formatting file path.'
-        type: string
-        required: false
-        default: '.prettierrc'
-      defaultLintingFile:
-        description: 'The default linting file path.'
-        type: string
-        required: false
-        default: 'eslint.config.js'
-      defaultBuildScript:
-        description: 'The default build script.'
-        type: string
-        required: false
-        default: 'npm run build'
-      defaultTestScript:
-        description: 'The default test script.'
-        type: string
-        required: false
-        default: 'npm test'
-      defaultMainScript:
-        description: 'The default main script.'
-        type: string
-        required: false
-        default: 'npm run start'
-      defaultFeaturesPath:
-        description: 'The default features path.'
-        type: string
-        required: false
-        default: 'features/'
-      defaultDependenciesFile:
-        description: 'The default dependencies file path.'
-        type: string
-        required: false
-        default: 'package.json'
-      defaultReadmeFile:
-        description: 'The default readme file path.'
-        type: string
-        required: false
-        default: 'README.md'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
     outputs:
-      attemptsPerBranch:
-        value: ${{ jobs.agentic-lib.outputs.attemptsPerBranch }}
-      attemptsPerIssue:
-        value: ${{ jobs.agentic-lib.outputs.attemptsPerIssue }}
+      # Filepaths for elaborator workflows
+      missionFilepath:
+        value: ${{ jobs.agentic-lib.outputs.missionFilepath }}
+      librarySourcesFilepath:
+        value: ${{ jobs.agentic-lib.outputs.librarySourcesFilepath }}
+      librarySourcesLimit:
+        value: ${{ jobs.agentic-lib.outputs.librarySourcesLimit }}
+      libraryDocumentsPath:
+        value: ${{ jobs.agentic-lib.outputs.libraryDocumentsPath }}
+      libraryDocumentsLimit:
+        value: ${{ jobs.agentic-lib.outputs.libraryDocumentsLimit }}
+      featuresPath:
+        value: ${{ jobs.agentic-lib.outputs.featuresPath }}
+      featuresLimit:
+        value: ${{ jobs.agentic-lib.outputs.featuresLimit }}
+
+      # Filepaths for engineer workflows
+      contributingFilepath:
+        value: ${{ jobs.agentic-lib.outputs.contributingFilepath }}
+      allTestsPaths:
+        value: ${{ jobs.agentic-lib.outputs.allTestsPaths }}
+      targetTestsPath:
+        value: ${{ jobs.agentic-lib.outputs.targetTestsPath }}
+      allSourcePaths:
+        value: ${{ jobs.agentic-lib.outputs.allSourcePaths }}
+      targetSourcePath:
+        value: ${{ jobs.agentic-lib.outputs.targetSourcePath }}
+      dependenciesFilepath:
+        value: ${{ jobs.agentic-lib.outputs.dependenciesFilepath }}
+      documentationPath:
+        value: ${{ jobs.agentic-lib.outputs.documentationPath }}
+
+      # Filepaths for maintainer workflows
+      formattingFilepath:
+        value: ${{ jobs.agentic-lib.outputs.formattingFilepath }}
+      lintingFilepath:
+        value: ${{ jobs.agentic-lib.outputs.lintingFilepath }}
+      readmeFilepath:
+        value: ${{ jobs.agentic-lib.outputs.readmeFilepath }}
+
+      # Filepath access permissions
       readableFilepaths:
         value: ${{ jobs.agentic-lib.outputs.readableFilepaths }}
       writeableFilepaths:
         value: ${{ jobs.agentic-lib.outputs.writeableFilepaths }}
-      srcPath:
-        value: ${{ jobs.agentic-lib.outputs.srcPath }}
-      testsPath:
-        value: ${{ jobs.agentic-lib.outputs.testsPath }}
-      docsPath:
-        value: ${{ jobs.agentic-lib.outputs.docsPath }}
-      documentsLimit:
-        value: ${{ jobs.agentic-lib.outputs.documentsLimit }}
-      libraryDir:
-        value: ${{ jobs.agentic-lib.outputs.libraryDir }}
-      sourcesFile:
-        value: ${{ jobs.agentic-lib.outputs.sourcesFile }}
-      sourcesLimit:
-        value: ${{ jobs.agentic-lib.outputs.sourcesLimit }}
-      featureDevelopmentIssuesWipLimit:
-        value: ${{ jobs.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}
-      maintenanceIssuesWipLimit:
-        value: ${{ jobs.agentic-lib.outputs.maintenanceIssuesWipLimit }}
-      featuresWipLimit:
-        value: ${{ jobs.agentic-lib.outputs.featuresWipLimit }}
-      missionFile:
-        value: ${{ jobs.agentic-lib.outputs.missionFile }}
-      contributing:
-        value: ${{ jobs.agentic-lib.outputs.contributing }}
-      formattingFile:
-        value: ${{ jobs.agentic-lib.outputs.formattingFile }}
-      lintingFile:
-        value: ${{ jobs.agentic-lib.outputs.lintingFile }}
+
+      # Execution commands
       buildScript:
         value: ${{ jobs.agentic-lib.outputs.buildScript }}
       testScript:
         value: ${{ jobs.agentic-lib.outputs.testScript }}
       mainScript:
         value: ${{ jobs.agentic-lib.outputs.mainScript }}
-      featuresPath:
-        value: ${{ jobs.agentic-lib.outputs.featuresPath }}
-      dependenciesFile:
-        value: ${{ jobs.agentic-lib.outputs.dependenciesFile }}
-      readmeFile:
-        value: ${{ jobs.agentic-lib.outputs.readmeFile }}
-      agentConfigPath:
-        value: ${{ jobs.agentic-lib.outputs.agentConfigPath }}
+
+      # How many issues should be available to be picked up?
+      featureDevelopmentIssuesWipLimit:
+        value: ${{ jobs.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}
+      maintenanceIssuesWipLimit:
+        value: ${{ jobs.agentic-lib.outputs.maintenanceIssuesWipLimit }}
+
+      # How many attempts should be made to work on an issue?
+      attemptsPerBranch:
+        value: ${{ jobs.agentic-lib.outputs.attemptsPerBranch }}
+      attemptsPerIssue:
+        value: ${{ jobs.agentic-lib.outputs.attemptsPerIssue }}
 
 jobs:
   agentic-lib:
     runs-on: ubuntu-latest
     env:
       configPath: ${{ inputs.configPath || '.github/agents/agentic-lib.yml' }}
-      defaultAttemptsPerBranch: ${{ inputs.defaultAttemptsPerBranch || '2' }}
-      defaultAttemptsPerIssue: ${{ inputs.defaultAttemptsPerIssue || '2' }}
-      defaultWriteableFilepaths: ${{ inputs.defaultWriteableFilepaths || '["docs/", "features/", "library/", "src/lib/", "tests/unit/", "package.json", "README.md", "SOURCES*.md"]' }}
-      defaultSrcPath: ${{ inputs.defaultSrcPath || 'src/lib/' }}
-      defaultTestsPath: ${{ inputs.defaultTestsPath || 'tests/unit/' }}
-      defaultDocsPath: ${{ inputs.defaultDocsPath || 'docs/' }}
-      defaultLibraryDir: ${{ inputs.defaultLibraryDir || 'library/' }}
-      defaultSourcesFile: ${{ inputs.defaultSourcesFile || 'SOURCES*.md' }}
-      defaultDocumentsLimit: ${{ inputs.defaultDocumentsLimit || '3' }}
-      defaultSourcesLimit: ${{ inputs.defaultSourcesLimit || '8' }}
-      defaultFeatureDevelopmentIssuesWipLimit: ${{ inputs.defaultFeatureDevelopmentIssuesWipLimit || '8' }}
-      defaultMaintenanceIssuesWipLimit: ${{ inputs.defaultMaintenanceIssuesWipLimit || '8' }}
-      defaultFeaturesWipLimit: ${{ inputs.defaultFeaturesWipLimit || '2' }}
-      defaultMissionFile: ${{ inputs.defaultMission || 'MISSION.md' }}
-      defaultContributingFile: ${{ inputs.defaultContributingFile || 'CONTRIBUTING.md' }}
-      defaultFormattingFile: ${{ inputs.defaultFormattingFile || '.prettierrc' }}
-      defaultLintingFile: ${{ inputs.defaultLintingFile || 'eslint.config.js' }}
-      defaultBuildScript: ${{ inputs.defaultBuildScript || 'npm run build' }}
-      defaultTestScript: ${{ inputs.defaultTestScript || 'npm test' }}
-      defaultMainScript: ${{ inputs.defaultMainScript || 'npm run start' }}
-      defaultFeaturesPath: ${{ inputs.defaultFeaturesPath || 'features/' }}
-      defaultDependenciesFile: ${{ inputs.defaultDependenciesFile || 'package.json' }}
-      defaultReadmeFile: ${{ inputs.defaultReadmeFile || 'README.md' }}
+
+      # Filepaths for elaborator workflows
+      defaultMissionFilepath: ${{ 'MISSION.md' }}
+      defaultLibrarySourcesFilepath: ${{ 'SOURCES*.md' }}
+      defaultLibrarySourcesLimit: ${{ '16' }}
+      defaultLibraryDocumentsPath: ${{ 'library/' }}
+      defaultLibraryDocumentsLimit: ${{ '8' }}
+      defaultFeaturesPath: ${{ 'features/' }}
+      defaultFeaturesLimit: ${{ '3' }}
+
+      # Filepaths for engineer workflows
+      defaultContributingFilepath: ${{ 'CONTRIBUTING.md' }}
+      defaultAllTestsPaths: ${{ '["tests/unit/"]' }}
+      defaultTargetTestsPath: ${{ 'tests/unit/' }}
+      defaultAllSourcePaths: ${{ '["src/lib/"]' }}
+      defaultTargetSourcePath: ${{ 'src/lib/' }}
+      defaultDependenciesFilepath: ${{ 'package.json' }}
+      defaultDocumentationPath: ${{ 'docs/' }}
+
+      # Filepaths for maintainer workflows
+      defaultFormattingFilepath: ${{ '.prettierrc' }}
+      defaultLintingFilepath: ${{ 'eslint.config.js' }}
+      defaultReadmeFilepath: ${{ 'README.md' }}
+
+      # Filepath access permissions
+      defaultReadableFilepaths: ${{ '["MISSION.md", "CONTRIBUTING.md", ".prettierrc", "eslint.config.js", "SOURCES.md" "library/", "features/", "tests/unit/", "src/lib/", "package.json", "docs/", "README.md"]' }}
+      defaultWriteableFilepaths: ${{ '["SOURCES.md" "library/", "features/", "tests/unit/", "src/lib/", "package.json", "docs/", "README.md"]' }}
+
+      # Execution commands
+      defaultBuildScript: ${{ 'npm run build' }}
+      defaultTestScript: ${{ 'npm test' }}
+      defaultMainScript: ${{ 'npm run start' }}
+
+      # How many issues should be available to be picked up?
+      defaultFeatureDevelopmentIssuesWipLimit: ${{ '3' }}
+      defaultMaintenanceIssuesWipLimit: ${{ '3' }}
+
+      # How many attempts should be made to work on an issue?
+      defaultAttemptsPerBranch: ${{ '2' }}
+      defaultAttemptsPerIssue: ${{ '2' }}
+      
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -259,320 +177,180 @@ jobs:
             const path = require('path');
             const yaml = require('js-yaml');
 
-            // Default values
-            let attemptsPerBranch = process.env.defaultAttemptsPerBranch;
-            let attemptsPerIssue = process.env.defaultAttemptsPerIssue;
-            let srcPath = process.env.defaultSrcPath;
-            let testsPath = process.env.defaultTestsPath;
-            let docsPath = process.env.defaultDocsPath;
-            let readableFilepaths = "";
-            let writeableFilepaths = "";
-            let documentsLimit = process.env.defaultDocumentsLimit;
-            let libraryDir = process.env.defaultLibraryDir;
-            let sourcesFile = process.env.defaultSourcesFile;
-            let sourcesLimit = process.env.defaultSourcesLimit;
-            let featureDevelopmentIssuesWipLimit = process.env.defaultSourcesLimit;
-            let maintenanceIssuesWipLimit = process.env.defaultSourcesLimit;
-            let featuresWipLimit = process.env.defaultFeaturesWipLimit;
-            let missionFile = process.env.defaultMissionFile;
-            let contributingFile = process.env.defaultContributingFile;
-            let formattingFile = process.env.defaultFormattingFile;
-            let lintingFile = process.env.defaultLintingFile;
-            let buildScript = process.env.defaultBuildScript;
-            let testScript = process.env.defaultTestScript;
-            let mainScript = process.env.defaultMainScript;
+            // Filepaths for elaborator workflows - Default values
+            let missionFilepath = process.env.defaultMissionFilepath;
+            let librarySourcesFilepath = process.env.defaultLibrarySourcesFilepath;
+            let librarySourcesLimit = process.env.defaultLibrarySourcesLimit;            
+            let libraryDocumentsPath = process.env.defaultLibraryDocumentsPath;
+            let libraryDocumentsLimit = process.env.defaultLibraryDocumentsLimit;
             let featuresPath = process.env.defaultFeaturesPath;
-            let dependenciesFile = process.env.defaultDependenciesFile;
-            let readmeFile = process.env.defaultReadmeFile;
+            let featuresLimit = process.env.defaultFeaturesLimit;
+      
+            // Filepaths for engineer workflows - Default values
+            let contributingFile = process.env.defaultContributingFilepath;
+            let allTestsPaths = process.env.defaultAllTestsPaths;
+            let targetTestsPath = process.env.defaultTargetTestsPath;
+            let allSourcePaths = process.env.defaultAllSourcePaths;
+            let targetSourcePath = process.env.defaultTargetSourcePath;
+            let dependenciesFilepath = process.env.defaultDependenciesFilepath;
+            let documentationPath = process.env.defaultDocumentationPath;
+      
+            // Filepaths for maintainer workflows - Default values
+            let formattingFilepath = process.env.defaultFormattingFilepath;
+            let lintingFilepath = process.env.defaultLintingFilepath;
+            let readmeFilepath = process.env.defaultReadmeFilepath;
+      
+            // Filepath access permissions - Default values
+            let readableFilepaths = process.env.defaultReadableFilepaths;
+            let writeableFilepaths = process.env.defaultWriteableFilepaths;
 
             // Use the configPath from input parameter
             const configPath = process.env.configPath;
-            if (fs.existsSync(configPath)) {
-              try {
-                // Read and parse the YAML file
-                const fileContents = fs.readFileSync(configPath, 'utf8');
-                const config = yaml.load(fileContents);
+            if (!fs.existsSync(configPath)) {
+              console.log("Warning: .github/agents/agentic-lib.yml file not found, using default values.");
+            }
+            
+            let config;
+            try {
+              // Read and parse the YAML file
+              const fileContents = fs.readFileSync(configPath, 'utf8');
+              config = yaml.load(fileContents);
+            } catch (error) {
+              console.log(`Error parsing .github/agents/agentic-lib.yml: ${error.message}, using default values.`);
+            }
+      
+            // Execution commands
+            let buildScript = config.buildScript || process.env.defaultBuildScript;
+            let testScript = config.testScript || process.env.defaultTestScript;
+            let mainScript = config.mainScript || process.env.defaultMainScript;
+      
+            // How many issues should be available to be picked up? 
+            let featureDevelopmentIssuesWipLimit = config.featureDevelopmentIssuesWipLimit || process.env.defaultFeatureDevelopmentIssuesWipLimit;
+            let maintenanceIssuesWipLimit = config.maintenanceIssuesWipLimit || process.env.defaultMaintenanceIssuesWipLimit;
+              
+            // How many attempts should be made to work on an issue? 
+            let attemptsPerBranch = config.attemptsPerBranch || process.env.defaultAttemptsPerBranch;
+            let attemptsPerIssue = config.attemptsPerIssue || process.env.defaultAttemptsPerIssue;
 
-                // Extract documentsLimit
-                if (config.documentsLimit) {
-                  documentsLimit = config.documentsLimit.toString();
-                } else {
-                  console.log(`Warning: documentsLimit not found in .github/agents/agentic-lib.yml, using default value: ${documentsLimit}`);
-                }
+            if (config.paths) {
+            
+              // Filepaths for elaborator workflows - Extract
+              missionFilepath = config.paths.missionFilepath || missionFilepath;
+              librarySourcesFilepath = config.paths.librarySourcesFilepath || librarySourcesFilepath;
+              librarySourcesLimit = config.paths.librarySourcesLimit || librarySourcesLimit;
+              libraryDocumentsPath = config.paths.libraryDocumentsPath || libraryDocumentsPath;
+              libraryDocumentsLimit = config.paths.libraryDocumentsLimit || libraryDocumentsLimit;
+              featuresPath = config.paths.featuresPath || featuresPath;
+              featuresLimit = config.paths.featuresLimit || featuresLimit;
+              
+              // Filepaths for engineer workflows - Extract
+              contributingFile = config.paths.contributingFilepath || contributingFile;
+              allTestsPaths = config.paths.allTestsPaths || allTestsPaths;
+              targetTestsPath = config.paths.targetTestsPath || targetTestsPath;
+              allSourcePaths = config.paths.allSourcePaths || allSourcePaths;
+              targetSourcePath = config.paths.targetSourcePath || targetSourcePath;
+              dependenciesFilepath = config.paths.dependenciesFilepath || dependenciesFilepath;
+              documentationPath = config.paths.documentationPath || documentationPath;
+            
+              // Filepaths for maintainer workflows - Extract
+              formattingFilepath = config.paths.formattingFilepath || formattingFilepath;
+              lintingFilepath = config.paths.lintingFilepath || lintingFilepath;
+              readmeFilepath = config.paths.readmeFilepath || readmeFilepath;
+  
+              // Filepath readable access permissions - Extract
+              const readablePathSingles = config.paths
+                .filter(path => path.permissions.includes('read'))
+                .map(path => path.path);
+              const readablePathLists = config.paths
+                .filter(path => path.permissions.includes('read'))
+                .map(path => path.paths)
+                .flatten();
+              readableFilepaths = 
+                readablePathSingles.length > 0 || readablePathLists.length > 0
+                ? [...readablePathSingles, ...readablePathLists].join(', ')
+                : readableFilepaths;
 
-                // Extract library path from writeableFilepaths
-                if (config.writeableFilepaths && config.writeableFilepaths.library) {
-                  libraryDir = config.writeableFilepaths.library.replace(/"/g, '');
-                } else {
-                  console.log(`Warning: library path not found in writeableFilepaths in .github/agents/agentic-lib.yml, using default value: ${libraryDir}`);
-                }
-
-                // Extract sources path from writeableFilepaths
-                if (config.writeableFilepaths && config.writeableFilepaths.sources) {
-                  sourcesFile = config.writeableFilepaths.sources.replace(/"/g, '');
-                } else {
-                  console.log(`Warning: sources path not found in writeableFilepaths in .github/agents/agentic-lib.yml, using default value: ${sourcesFile}`);
-                  console.log(`Using default values: documentsLimit=${documentsLimit}, libraryDir=${libraryDir}, sourcesFile=${sourcesFile}`);
-                }
-
-                // Extract attemptsPerBranch
-                if (config.attemptsPerBranch) {
-                  attemptsPerBranch = config.attemptsPerBranch.toString();
-                } else {
-                  console.log(`Warning: attemptsPerBranch not found in .github/agents/agentic-lib.yml, using default value: ${attemptsPerBranch}`);
-                }
-
-                // Extract attemptsPerIssue
-                if (config.attemptsPerIssue) {
-                  attemptsPerIssue = config.attemptsPerIssue.toString();
-                } else {
-                  console.log(`Warning: attemptsPerIssue not found in .github/agents/agentic-lib.yml, using default value: ${attemptsPerIssue}`);
-                }
-
-                // Extract src path from writeableFilepaths
-                if (config.writeableFilepaths && config.writeableFilepaths.src) {
-                  srcPath = config.writeableFilepaths.src.replace(/"/g, '');
-                } else {
-                  console.log(`Warning: src path not found in writeableFilepaths in .github/agents/agentic-lib.yml, using default value: ${srcPath}`);
-                }
-
-                // Extract tests path from writeableFilepaths
-                if (config.writeableFilepaths && config.writeableFilepaths.tests) {
-                  testsPath = config.writeableFilepaths.tests.replace(/"/g, '');
-                } else {
-                  console.log(`Warning: tests path not found in writeableFilepaths in .github/agents/agentic-lib.yml, using default value: ${testsPath}`);
-                }
-
-                // Extract docs path from writeableFilepaths
-                if (config.writeableFilepaths && config.writeableFilepaths.docs) {
-                  docsPath = config.writeableFilepaths.docs.replace(/"/g, '');
-                } else {
-                  console.log(`Warning: docs path not found in writeableFilepaths in .github/agents/agentic-lib.yml, using default value: ${docsPath}`);
-                }
-
-                // Extract paths from new structure
-                if (config.paths) {
-                  const readablePaths = [];
-                  const writablePaths = [];
-
-                  // Process each key in the paths structure
-                  for (const [key, value] of Object.entries(config.paths)) {
-                    if (value.paths && Array.isArray(value.paths) && value.permissions) {
-                      // Get all paths for this key
-                      const pathsForKey = value.paths.filter(p => p && p.trim() !== '');
-
-                      // If there are multiple paths, combine them into a semicolon-separated string
-                      const combinedPath = pathsForKey.join(';');
-
-                      // Check permissions and add to appropriate arrays
-                      if (value.permissions.includes('read')) {
-                        readablePaths.push(combinedPath);
-                      }
-
-                      if (value.permissions.includes('write')) {
-                        writablePaths.push(combinedPath);
-                      }
-
-                      // Set specific variables based on the key
-                      if (key === 'src' && pathsForKey.length > 0) {
-                        srcPath = combinedPath;
-                      } else if (key === 'tests' && pathsForKey.length > 0) {
-                        testsPath = combinedPath;
-                      } else if (key === 'docs' && pathsForKey.length > 0) {
-                        docsPath = combinedPath;
-                      } else if (key === 'library' && pathsForKey.length > 0) {
-                        libraryDir = combinedPath;
-                      } else if (key === 'sources' && pathsForKey.length > 0) {
-                        sourcesFile = combinedPath;
-                      } else if (key === 'mission' && pathsForKey.length > 0) {
-                        missionFile = combinedPath;
-                      } else if (key === 'contributing' && pathsForKey.length > 0) {
-                        contributingFile = combinedPath;
-                      } else if (key === 'formattingFile' && pathsForKey.length > 0) {
-                        formattingFile = combinedPath;
-                      } else if (key === 'lintingFile' && pathsForKey.length > 0) {
-                        lintingFile = combinedPath;
-                      } else if (key === 'features' && pathsForKey.length > 0) {
-                        featuresPath = combinedPath;
-                      } else if (key === 'dependencies' && pathsForKey.length > 0) {
-                        dependenciesFile = combinedPath;
-                      } else if (key === 'readme' && pathsForKey.length > 0) {
-                        readmeFile = combinedPath;
-                      }
-                    }
-                  }
-
-                  // Set the readable and writable filepaths
-                  readableFilepaths = readablePaths;
-
-                  // Combine all readable paths into a semicolon-separated string
-                  allReadableFilepaths = readablePaths.join(';');
-
-                  // Combine all writable paths into a semicolon-separated string
-                  writeableFilepaths = writablePaths.join(';');
-                }
-
-                // Extract sourcesLimit
-                if (config.sourcesLimit) {
-                  sourcesLimit = config.sourcesLimit.toString();
-                } else {
-                  console.log(`Warning: sourcesLimit not found in .github/agents/agentic-lib.yml, using default value: ${sourcesLimit}`);
-                }
-
-                // Extract featureDevelopmentIssuesWipLimit
-                if (config.featureDevelopmentIssuesWipLimit) {
-                  featureDevelopmentIssuesWipLimit = config.featureDevelopmentIssuesWipLimit.toString();
-                } else {
-                  console.log(`Warning: featureDevelopmentIssuesWipLimit not found in .github/agents/agentic-lib.yml, using default value: ${featureDevelopmentIssuesWipLimit}`);
-                }
-
-                // Extract maintenanceIssuesWipLimit
-                if (config.maintenanceIssuesWipLimit) {
-                  maintenanceIssuesWipLimit = config.maintenanceIssuesWipLimit.toString();
-                } else {
-                  console.log(`Warning: maintenanceIssuesWipLimit not found in .github/agents/agentic-lib.yml, using default value: ${maintenanceIssuesWipLimit}`);
-                }
-
-                // Extract featuresWipLimit
-                if (config.featuresWipLimit) {
-                  featuresWipLimit = config.featuresWipLimit.toString();
-                } else {
-                  console.log(`Warning: featuresWipLimit not found in .github/agents/agentic-lib.yml, using default value: ${featuresWipLimit}`);
-                }
-
-                // Extract missionFile from readOnlyFilepaths
-                if (config.readOnlyFilepaths && config.readOnlyFilepaths.missionFile) {
-                  missionFile = config.readOnlyFilepaths.missionFile.replace(/"/g, '');
-                } else {
-                  console.log(`Warning: missionFile not found in readOnlyFilepaths in .github/agents/agentic-lib.yml, using default value: ${missionFile}`);
-                }
-
-                // Extract contributingFile from readOnlyFilepaths
-                if (config.readOnlyFilepaths && config.readOnlyFilepaths.contributingFile) {
-                  contributingFile = config.readOnlyFilepaths.contributingFile.replace(/"/g, '');
-                } else {
-                  console.log(`Warning: contributingFile not found in readOnlyFilepaths in .github/agents/agentic-lib.yml, using default value: ${contributingFile}`);
-                }
-
-                // Extract formattingFile from readOnlyFilepaths
-                if (config.readOnlyFilepaths && config.readOnlyFilepaths.formattingFile) {
-                  formattingFile = config.readOnlyFilepaths.formattingFile.replace(/"/g, '');
-                } else {
-                  console.log(`Warning: formattingFile not found in readOnlyFilepaths in .github/agents/agentic-lib.yml, using default value: ${formattingFile}`);
-                }
-
-                // Extract lintingFile from readOnlyFilepaths
-                if (config.readOnlyFilepaths && config.readOnlyFilepaths.lintingFile) {
-                  lintingFile = config.readOnlyFilepaths.lintingFile.replace(/"/g, '');
-                } else {
-                  console.log(`Warning: lintingFile not found in readOnlyFilepaths in .github/agents/agentic-lib.yml, using default value: ${lintingFile}`);
-                }
-
-                // Extract buildScript from top level
-                if (config.buildScript) {
-                  buildScript = config.buildScript.replace(/"/g, '');
-                } else {
-                  console.log(`Warning: buildScript not found in .github/agents/agentic-lib.yml, using default value: ${buildScript}`);
-                }
-
-                // Extract testScript from top level
-                if (config.testScript) {
-                  testScript = config.testScript.replace(/"/g, '');
-                } else {
-                  console.log(`Warning: testScript not found in .github/agents/agentic-lib.yml, using default value: ${testScript}`);
-                }
-
-                // Extract mainScript from top level
-                if (config.mainScript) {
-                  mainScript = config.mainScript.replace(/"/g, '');
-                } else {
-                  console.log(`Warning: mainScript not found in .github/agents/agentic-lib.yml, using default value: ${mainScript}`);
-                }
-
-                // Extract featuresPath from writeableFilepaths
-                if (config.writeableFilepaths && config.writeableFilepaths.features) {
-                  featuresPath = config.writeableFilepaths.features.replace(/"/g, '');
-                } else {
-                  console.log(`Warning: features path not found in writeableFilepaths in .github/agents/agentic-lib.yml, using default value: ${featuresPath}`);
-                }
-
-                // Extract dependenciesFile from writeableFilepaths
-                if (config.writeableFilepaths && config.writeableFilepaths.dependencies) {
-                  dependenciesFile = config.writeableFilepaths.dependencies.replace(/"/g, '');
-                } else {
-                  console.log(`Warning: dependencies file not found in writeableFilepaths in .github/agents/agentic-lib.yml, using default value: ${dependenciesFile}`);
-                }
-
-                // Extract readmeFile from writeableFilepaths
-                if (config.writeableFilepaths && config.writeableFilepaths.readme) {
-                  readmeFile = config.writeableFilepaths.readme.replace(/"/g, '');
-                } else {
-                  console.log(`Warning: readme file not found in writeableFilepaths in .github/agents/agentic-lib.yml, using default value: ${readmeFile}`);
-                }
-
-              } catch (error) {
-                console.log(`Error parsing .github/agents/agentic-lib.yml: ${error.message}`);
-                console.log(`Using default values: attemptsPerIssue=${attemptsPerIssue}, attemptsPerBranch=${attemptsPerBranch}, srcPath=${srcPath}, testsPath=${testsPath}, docsPath=${docsPath}`);
-              }
-            } else {
-              console.log(`Warning: .github/agents/agentic-lib.yml file not found, using default values: attemptsPerIssue=${attemptsPerIssue}, attemptsPerBranch=${attemptsPerBranch}, srcPath=${srcPath}, testsPath=${testsPath}, docsPath=${docsPath}`);
+              // Filepath writeable access permissions - Extract
+              const writeablePathSingles = config.paths
+                .filter(path => path.permissions.includes('write'))
+                .map(path => path.path);
+              const writeablePathLists = config.paths
+                .filter(path => path.permissions.includes('write'))
+                .map(path => path.paths)
+                .flatten();
+              writeableFilepaths = 
+                writeablePathSingles.length > 0 || writeablePathLists.length > 0
+                ? [...writeablePathSingles, ...writeablePathLists].join(', ')
+                : writeableFilepaths;
             }
 
-            // Set outputs
-            console.log(`attemptsPerBranch=${attemptsPerBranch}`);
-            core.setOutput('attemptsPerBranch', attemptsPerBranch);
 
-            console.log(`attemptsPerIssue=${attemptsPerIssue}`);
-            core.setOutput('attemptsPerIssue', attemptsPerIssue);
+            // Filepaths for elaborator workflows - Set outputs
+            console.log(`missionFilepath=${missionFilepath}`);
+            core.setOutput('missionFilepath', missionFilepath);
+            
+            console.log(`librarySourcesFilepath=${librarySourcesFilepath}`);
+            core.setOutput('librarySourcesFilepath', librarySourcesFilepath);
 
-            console.log(`srcPath=${srcPath}`);
-            core.setOutput('srcPath', srcPath);
+            console.log(`librarySourcesLimit=${librarySourcesLimit}`);
+            core.setOutput('librarySourcesLimit', librarySourcesLimit);
+            
+            console.log(`libraryDocumentsLimit=${libraryDocumentsLimit}`);
+            core.setOutput('libraryDocumentsLimit', libraryDocumentsLimit);
 
-            console.log(`testsPath=${testsPath}`);
-            core.setOutput('testsPath', testsPath);
+            console.log(`libraryDocumentsPath=${libraryDocumentsPath}`);
+            core.setOutput('libraryDocumentsPath', libraryDocumentsPath);
+            
+            console.log(`featuresPath=${featuresPath}`);
+            core.setOutput('featuresPath', featuresPath);
+            
+            console.log(`featuresLimit=${featuresLimit}`);
+            core.setOutput('featuresLimit', featuresLimit);
+            
+            
+            // Filepaths for engineer workflows - Set outputs
+            console.log(`contributingFile=${contributingFile}`);
+            core.setOutput('contributingFile', contributingFile);
 
-            console.log(`docsPath=${docsPath}`);
-            core.setOutput('docsPath', docsPath);
+            console.log(`allTestsPaths=${allTestsPaths}`);
+            core.setOutput('allTestsPaths', allTestsPaths);
+            
+            console.log(`targetTestsPath=${targetTestsPath}`);
+            core.setOutput('targetTestsPath', targetTestsPath);
+            
+            console.log(`allSourcePaths=${allSourcePaths}`);
+            core.setOutput('allSourcePaths', allSourcePaths);
 
+            console.log(`targetSourcePath=${targetSourcePath}`);
+            core.setOutput('targetSourcePath', targetSourcePath);
+            
+            console.log(`dependenciesFilepath=${dependenciesFilepath}`);
+            core.setOutput('dependenciesFilepath', dependenciesFilepath);
+
+            console.log(`documentationPath=${documentationPath}`);
+            core.setOutput('documentationPath', documentationPath);
+            
+            
+            // Filepaths for maintainer workflows - Set outputs
+            console.log(`formattingFilepath=${formattingFilepath}`);
+            core.setOutput('formattingFilepath', formattingFilepath);
+
+            console.log(`lintingFilepath=${lintingFilepath}`);
+            core.setOutput('lintingFilepath', lintingFilepath);
+            
+            console.log(`readmeFilepath=${readmeFilepath}`);
+            core.setOutput('readmeFilepath', readmeFilepath);
+            
+            
+            // Filepath access permissions - Set outputs
             console.log(`readableFilepaths=${readableFilepaths}`);
             core.setOutput('readableFilepaths', readableFilepaths);
 
             console.log(`writeableFilepaths=${writeableFilepaths}`);
             core.setOutput('writeableFilepaths', writeableFilepaths);
-
-            console.log(`documentsLimit=${documentsLimit}`);
-            core.setOutput('documentsLimit', documentsLimit);
-
-            console.log(`libraryDir=${libraryDir}`);
-            core.setOutput('libraryDir', libraryDir);
-
-            console.log(`sourcesFile=${sourcesFile}`);
-            core.setOutput('sourcesFile', sourcesFile);
-
-            console.log(`sourcesLimit=${sourcesLimit}`);
-            core.setOutput('sourcesLimit', sourcesLimit);
-
-            console.log(`featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}`);
-            core.setOutput('featureDevelopmentIssuesWipLimit', featureDevelopmentIssuesWipLimit);
-
-            console.log(`maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
-            core.setOutput('maintenanceIssuesWipLimit', maintenanceIssuesWipLimit);
-
-            console.log(`featuresWipLimit=${featuresWipLimit}`);
-            core.setOutput('featuresWipLimit', featuresWipLimit);
-
-            console.log(`missionFile=${missionFile}`);
-            core.setOutput('missionFile', missionFile);
-
-            console.log(`contributingFile=${contributingFile}`);
-            core.setOutput('contributingFile', contributingFile);
-
-            console.log(`formattingFile=${formattingFile}`);
-            core.setOutput('formattingFile', formattingFile);
-
-            console.log(`lintingFile=${lintingFile}`);
-            core.setOutput('lintingFile', lintingFile);
-
+            
+            
+            // Execution commands - Set outputs
             console.log(`buildScript=${buildScript}`);
             core.setOutput('buildScript', buildScript);
 
@@ -581,41 +359,61 @@ jobs:
 
             console.log(`mainScript=${mainScript}`);
             core.setOutput('mainScript', mainScript);
+            
+            
+            // How many issues should be available to be picked up? - Set outputs
+            console.log(`featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}`);
+            core.setOutput('featureDevelopmentIssuesWipLimit', featureDevelopmentIssuesWipLimit);
+            
+            console.log(`maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
+            core.setOutput('maintenanceIssuesWipLimit', maintenanceIssuesWipLimit);
+            
+            
+            // How many attempts should be made to work on an issue? - Set outputs
+            console.log(`attemptsPerBranch=${attemptsPerBranch}`);
+            core.setOutput('attemptsPerBranch', attemptsPerBranch);
 
-            console.log(`featuresPath=${featuresPath}`);
-            core.setOutput('featuresPath', featuresPath);
-
-            console.log(`dependenciesFile=${dependenciesFile}`);
-            core.setOutput('dependenciesFile', dependenciesFile);
-
-            console.log(`readmeFile=${readmeFile}`);
-            core.setOutput('readmeFile', readmeFile);
-
-            console.log(`agentConfigPath=${configPath}`);
-            core.setOutput('agentConfigPath', configPath);
+            console.log(`attemptsPerIssue=${attemptsPerIssue}`);
+            core.setOutput('attemptsPerIssue', attemptsPerIssue);
 
     outputs:
-      attemptsPerIssue: ${{ steps.agentic-lib.outputs.attemptsPerIssue }}
+      # Filepaths for elaborator workflows
+      missionFilepath: ${{ steps.agentic-lib.outputs.missionFilepath }}
+      librarySourcesFilepath: ${{ steps.agentic-lib.outputs.librarySourcesFilepath }}
+      librarySourcesLimit: ${{ steps.agentic-lib.outputs.librarySourcesLimit }}
+      libraryDocumentsPath: ${{ steps.agentic-lib.outputs.libraryDocumentsPath }}
+      libraryDocumentsLimit: ${{ steps.agentic-lib.outputs.libraryDocumentsLimit }}
+      featuresPath: ${{ steps.agentic-lib.outputs.featuresPath }}
+      featuresLimit: ${{ steps.agentic-lib.outputs.featuresLimit }}
+
+      # Filepaths for engineer workflows
+      contributingFilepath: ${{ steps.agentic-lib.outputs.contributingFilepath }}
+      allTestsPaths: ${{ steps.agentic-lib.outputs.allTestsPaths }}
+      targetTestsPath: ${{ steps.agentic-lib.outputs.targetTestsPath }}
+      allSourcePaths: ${{ steps.agentic-lib.outputs.allSourcePaths }}
+      targetSourcePath: ${{ steps.agentic-lib.outputs.targetSourcePath }}
+      dependenciesFilepath: ${{ steps.agentic-lib.outputs.dependenciesFilepath }}
+      documentationPath: ${{ steps.agentic-lib.outputs.documentationPath }}
+
+      # Filepaths for maintainer workflows
+      formattingFilepath: ${{ steps.agentic-lib.outputs.formattingFilepath }}
+      lintingFilepath: ${{ steps.agentic-lib.outputs.lintingFilepath }}
+      readmeFilepath: ${{ steps.agentic-lib.outputs.readmeFilepath }}
+
+      # Filepath access permissions
       readableFilepaths: ${{ steps.agentic-lib.outputs.readableFilepaths }}
       writeableFilepaths: ${{ steps.agentic-lib.outputs.writeableFilepaths }}
-      srcPath: ${{ steps.agentic-lib.outputs.srcPath }}
-      testsPath: ${{ steps.agentic-lib.outputs.testsPath }}
-      docsPath: ${{ steps.agentic-lib.outputs.docsPath }}
-      documentsLimit: ${{ steps.agentic-lib.outputs.documentsLimit }}
-      libraryDir: ${{ steps.agentic-lib.outputs.libraryDir }}
-      sourcesFile: ${{ steps.agentic-lib.outputs.sourcesFile }}
-      sourcesLimit: ${{ steps.agentic-lib.outputs.sourcesLimit }}
-      featureDevelopmentIssuesWipLimit: ${{ steps.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}
-      maintenanceIssuesWipLimit: ${{ steps.agentic-lib.outputs.maintenanceIssuesWipLimit }}
-      featuresWipLimit: ${{ steps.agentic-lib.outputs.featuresWipLimit }}
-      missionFile: ${{ steps.agentic-lib.outputs.missionFile }}
-      contributingFile: ${{ steps.agentic-lib.outputs.contributingFile }}
-      formattingFile: ${{ steps.agentic-lib.outputs.formattingFile }}
-      lintingFile: ${{ steps.agentic-lib.outputs.lintingFile }}
+
+      # Execution commands
       buildScript: ${{ steps.agentic-lib.outputs.buildScript }}
       testScript: ${{ steps.agentic-lib.outputs.testScript }}
       mainScript: ${{ steps.agentic-lib.outputs.mainScript }}
-      featuresPath: ${{ steps.agentic-lib.outputs.featuresPath }}
-      dependenciesFile: ${{ steps.agentic-lib.outputs.dependenciesFile }}
-      readmeFile: ${{ steps.agentic-lib.outputs.readmeFile }}
-      agentConfigPath: ${{ steps.agentic-lib.outputs.agentConfigPath }}
+
+      # How many issues should be available to be picked up?
+      featureDevelopmentIssuesWipLimit: ${{ steps.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}
+      maintenanceIssuesWipLimit: ${{ steps.agentic-lib.outputs.maintenanceIssuesWipLimit }}
+
+      # How many attempts should be made to work on an issue?
+      attemptsPerBranch: ${{ steps.agentic-lib.outputs.attemptsPerBranch }}
+      attemptsPerIssue: ${{ steps.agentic-lib.outputs.attemptsPerIssue }}
+
