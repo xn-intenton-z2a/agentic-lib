@@ -7,17 +7,17 @@ paths:
   missionFilepath:
     path: MISSION.md
   librarySourcesFilepath:
-    path: SOURCES.md
+    path: sandbox/SOURCES.md
     limit: 16
     permissions:
       - write
   libraryDocumentsPath:
-    path: elaborator-sandbox/library/
+    path: sandbox/library/
     limit: 8
     permissions:
       - write
   featuresPath:
-    path: engineer-sandbox/features/
+    path: sandbox/features/
     limit: 3
     permissions:
       - write
@@ -28,17 +28,17 @@ paths:
   allTestsPaths:
     paths:
       - tests/unit/
-      - engineer-sandbox/tests/
+      - sandbox/tests/
   targetTestsPath:
-    path: engineer-sandbox/tests/
+    path: sandbox/tests/
     permissions:
       - write
   allSourcePaths:
     paths:
       - src/lib/
-      - engineer-sandbox/source/
+      - sandbox/source/
   targetSourcePath:
-    path: engineer-sandbox/source/
+    path: sandbox/source/
     permissions:
       - write
   dependenciesFilepath:
