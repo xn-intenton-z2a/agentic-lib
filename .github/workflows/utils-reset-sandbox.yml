@@ -133,8 +133,6 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const perPage = 100;
-            let issuesRedacted = 0;
-            let commentsDeleted = 0;
 
             console.log(`Closing issues not updated in the last ${retentionDays} days (before ${cutoffDate.toISOString()})...`);
 
