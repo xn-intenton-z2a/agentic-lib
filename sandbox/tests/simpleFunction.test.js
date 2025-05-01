@@ -20,6 +20,11 @@ describe('simpleReverse function', () => {
     expect(result).toBe('olleH');
   });
 
+  test('returns reversed string with trimmed input for "  World  "', () => {
+    const result = simpleReverse('  World  ');
+    expect(result).toBe('dlroW');
+  });
+
   test('throws error on empty input', () => {
     expect(() => simpleReverse('   ')).toThrow("Invalid input: must be a non-empty string");
   });
