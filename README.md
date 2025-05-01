@@ -664,8 +664,9 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-Launch] Check to make sure we check writeability of the file before writing.
 - [x] [r0w-Launch] Ensure every file path or external element referenced by the workflows, defaults to the value in agentic-lib.yml
 - [x] [r0w-MVP] Set up agentic-lib to only write to supplementary files (`./sandbox`).
-- [~] [r0w-MVP] Set up repository0 to only write to sandbox files, reset every week by deleting the sandbox folder
-- [~] [r0w-MVP] Set up repository0-crucible to use multiple file outputs
+- [~] [r0w-MVP] Get the sandbox tests and code to run with the npm test command.
+- [~] [r0w-MVP] Set up repository0 to only write to sandbox files, reset every week by deleting the sandbox folder.
+- [~] [r0w-MVP] Set up repository0-crucible to use multiple file outputs and support initialisation from a seed.
 - [ ] [r0w-MVP] Set up plot-code-lib to use a single file outputs
 - [ ] [r0w-MVP] Set up s3-sqs-bridge to only do essential updates (maintainer role)
 - [ ] [r0w-MVP] Set up repository0-web to documents only (elaboration role), hand off to "Repository0-web" tasklist
