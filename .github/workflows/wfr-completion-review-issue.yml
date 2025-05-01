@@ -419,7 +419,7 @@ jobs:
               contributingFilepathContent = '';
             }
             
-            let dependenciesFilepathContent;
+             let dependenciesFilepathContent;
             try {
               dependenciesFilepathContent = fs.readFileSync(dependenciesFilepath, 'utf8');
             } catch (e) {

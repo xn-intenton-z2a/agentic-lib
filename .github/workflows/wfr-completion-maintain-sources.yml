@@ -407,7 +407,7 @@ jobs:
               core.warning(`Error reading CONTRIBUTING file '${contributingFilepath}': ${e.message}`);
               contributingFilepathContent = '';
             }
-           let dependenciesFilepathContent;
+            let dependenciesFilepathContent;
             try {
               dependenciesFilepathContent = fs.readFileSync(dependenciesFilepath, 'utf8');
             } catch (e) {
