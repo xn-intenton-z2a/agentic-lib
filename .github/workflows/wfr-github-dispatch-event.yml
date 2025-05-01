@@ -1,0 +1,116 @@
+# .github/workflows/wfr-github-dispatch-event.yml
+
+#
+# agentic-lib
+# Copyright (C) 2025 Polycode Limited
+#
+# This file is part of agentic-lib.
+#
+# agentic-lib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# IMPORTANT: Any derived work must include the following attribution:
+# "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+#
+
+name: ∞ github-dispatch-event
+
+on:
+  workflow_call:
+    inputs:
+      eventType:
+        description: 'The event type to dispatch. e.g. "event-pr-created"'
+        type: string
+        required: true
+      cache:
+        description: 'The cache to use for npm. e.g. "npm"'
+        type: string
+        required: false
+        default: 'npm'
+      s3BucketUrl:
+        description: 'The S3 bucket URL with prefix to use. e.g. "s3://my-bucket/prefix"'
+        type: string
+        required: false
+        default: ''
+      iamRoleArn:
+        description: 'The ARN of the IAM role to assume. e.g. "arn:aws:iam::123456789012:role/my-role"'
+        type: string
+        required: false
+        default: ''
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+
+jobs:
+  dispatch-event:
+    runs-on: ubuntu-latest
+
+    env:
+      cache: ${{ inputs.cache || 'npm' }}
+      s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
+      iamRoleArn: ${{ inputs.iamRoleArn || '' }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: ${{ env.cache }}
+
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - name: Dispatch repository event
+        id: dispatch-event
+        uses: actions/github-script@v7
+        env:
+          eventType: ${{ inputs.eventType }}
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const eventType = process.env.eventType;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            
+            core.info(`Dispatching repository event: ${eventType}`);
+            
+            try {
+              await github.rest.repos.createDispatchEvent({
+                owner,
+                repo,
+                event_type: eventType,
+                client_payload: {
+                  repository: repo,
+                  owner: owner,
+                  ref: context.ref,
+                  sha: context.sha,
+                  workflow: context.workflow
+                }
+              });
+              
+              core.info(`Successfully dispatched repository event: ${eventType}`);
+              core.setOutput('eventDispatched', 'true');
+            } catch (error) {
+              core.error(`Failed to dispatch repository event: ${error.message}`);
+              core.setOutput('eventDispatched', 'false');
+              core.setFailed(`Failed to dispatch repository event: ${error.message}`);
+            }
