@@ -691,6 +691,30 @@ jobs:
       gitCommitMessage: "${{ needs.apply-fix.outputs.message }} (working on #${{ needs.select-branch.outputs.issueNumber }})"
       label: 'automerge'
 
+  dispatch-pr-event-mvn:
+    needs:
+      - create-pr
+      - select-branch
+      - branch-for-fix
+      - npm-test
+      - npm-build
+      - npm-run
+      - apply-fix
+      - needs-fix
+      - npm-test-after-fix
+      - npm-build-after-fix
+      - npm-run-after-fix
+      - needs-fix-after-fix
+    if: ${{ always() && needs.branch-for-fix.outputs.branch != 'main' && needs.branch-for-fix.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
+    permissions:
+      contents: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-dispatch-event.yml@main'
+    with:
+      eventType: 'event-pr-created'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
   select-next-issue:
     needs:
       - apply-fix

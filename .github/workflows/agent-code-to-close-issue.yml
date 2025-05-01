@@ -14,11 +14,11 @@ on:
         required: false
         type: string
         default: ''
-  #workflow_run:
-  #  workflows:
-  #    - ci-automerge
-  #  types:
-  #    - completed
+  workflow_run:
+    workflows:
+      - ci-automerge
+    types:
+      - completed
   schedule:
     - cron: '20 */12 * * *' # schedule-1
     #- cron: '20 */4 * * *' # schedule-2
