@@ -106,6 +106,8 @@ rm -f "${DEST_DIR}/stats-to-web.yml" "${DEST_DIR}/stats-to-s3.yml"
 
 # Utility workflows
 
+cp -v .github/workflows/utils-reset-sandbox.yml "${DEST_DIR}/."
+
 rm -f "${DEST_DIR}/truncate-git-history.yml"
 cp -v .github/workflows/utils-truncate-issue-history.yml "${DEST_DIR}/."
 
