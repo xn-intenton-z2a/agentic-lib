@@ -28,9 +28,9 @@ For workflow chain invocations (i.e. when multiple commands are processed as a b
 
 The library supports batch throttling via the `MAX_BATCH_COMMANDS` environment variable. If the number of commands in the payload exceeds the set limit, the command batch will be rejected with an error message.
 
-## Event Audit Feature
+## EVENT_AUDIT Logging
 
-A new feature, **EVENT_AUDIT**, has been implemented to improve observability. The system now logs critical events during processing. Each audit record includes the following properties:
+A new feature, **EVENT_AUDIT**, has been implemented to improve observability. The system logs critical events during processing into a global audit log (`globalThis.auditLog`). Each audit record has the following structure:
 
 - **eventType**: The type of the event. Possible values include:
   - `SQS_RECORD_PROCESSED`: Logged for each SQS record successfully processed.
@@ -39,9 +39,17 @@ A new feature, **EVENT_AUDIT**, has been implemented to improve observability. T
   - `COMMAND_COMPLETE`: Logged after processing each command, including the execution time and status.
   - `WORKFLOW_CHAIN_COMPLETE`: Logged after a workflow chain is processed, summarizing the total commands and overall execution time.
 - **timestamp**: ISO formatted timestamp when the event was logged.
-- **details**: An object containing event-specific details (such as command processed, execution time, error messages, etc.).
+- **details**: An object containing event-specific details such as the command processed, execution time, error messages, raw input, etc.
 
-You can inspect the audit log by accessing `globalThis.auditLog` in your application for debugging and performance analysis.
+### Inspecting the Audit Log
+
+For debugging and performance analysis, you can examine the audit log by printing `globalThis.auditLog` in your application:
+
+```js
+console.log(globalThis.auditLog);
+```
+
+This will output an array of audit records with detailed event information.
 
 ## Usage Examples
 
@@ -59,10 +67,10 @@ node engineer-sandbox/source/main.js --perf-metrics '{"commands": ["cmdA", "cmdB
 
 ### Viewing Audit Log
 
-For debugging purposes, you can output the audit log:
+For detailed event logging, inspect the audit log:
 
 ```js
 console.log(globalThis.auditLog);
 ```
 
-This will display all audit entries logged during processing.
+This will display all audit records logged during processing, which can be used to trace the flow of events and diagnose processing issues.
