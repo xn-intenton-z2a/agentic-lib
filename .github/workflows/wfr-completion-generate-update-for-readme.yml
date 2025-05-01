@@ -867,6 +867,7 @@ jobs:
               core.info("raw response end: ************************************************");
               const parsed = ResponseSchema.parse(result);
               core.info(`parsed response: "${JSON.stringify(parsed)}"`);
+              
               // Sanitize commit message: retain only alphanumerics, spaces, and basic URL-safe punctuation (-, _, ., ~)
               const sanitizedMessage = parsed.message.replace(/[^A-Za-z0-9 \-\_\.\~]/g, '').replace(/\s+/g, ' ').trim();
               core.setOutput("message", sanitizedMessage);
@@ -885,14 +886,15 @@ jobs:
                   fileUpdates[parsed[nameKey]] = parsed[contentKey];
                 }
               }
+              core.info(`Updated files: "${JSON.stringify(fileUpdates)}"`);
 
               // Process all file updates
-              for (const [filePath, fileContent] of Object.entries(parsed.updatedFiles)) {
+              for (const [filePath, fileContent] of Object.entries(fileUpdates)) {
                 if (fileContent === "delete") {
                   if (isWriteable(filePath)) {
                     if (fs.existsSync(filePath)) {
                       fs.unlinkSync(filePath);
-                      updateApplied = true;
+                      fixApplied = true;
                       core.info(`File '${filePath}' has been deleted.`);
                     } else {
                       core.warning(`File '${filePath}' does not exist, cannot delete.`);
@@ -908,7 +910,7 @@ jobs:
                       fs.mkdirSync(fileDir, { recursive: true });
                     }
                     fs.writeFileSync(filePath, fileContent, 'utf8');
-                    updateApplied = true;
+                    fixApplied = true;
                     core.info(`File '${filePath}' has been updated (length ${fileContent.length}).`);
                   } else {
                     core.warning(`File '${filePath}' is not in the allowed filepath patterns. Skipping update.`);

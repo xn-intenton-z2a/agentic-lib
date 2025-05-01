@@ -942,6 +942,7 @@ jobs:
                   fileUpdates[parsed[nameKey]] = parsed[contentKey];
                 }
               }
+              core.info(`fileUpdates: "${JSON.stringify(fileUpdates)}"`);
 
               // Process all file updates
               for (const [filePath, fileContent] of Object.entries(fileUpdates)) {
