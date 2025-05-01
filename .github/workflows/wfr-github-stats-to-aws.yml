@@ -441,7 +441,7 @@ jobs:
       - name: Upload JSON stats artifact to GitHub
         uses: actions/upload-artifact@v4
         with:
-          name: stats-json
+          name: stats-json-${{ github.run_id }}
           path: ${{ steps.generate-json.outputs.jsonStatsPath }}
 
     outputs:
