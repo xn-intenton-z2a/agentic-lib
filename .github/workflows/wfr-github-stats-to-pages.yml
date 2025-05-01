@@ -320,10 +320,14 @@ jobs:
             core.info(`JSON stats generated at ${outputPath}.`);
             core.setOutput("jsonStatsPath", outputPath);
 
+      - name: Generate random suffix
+        id: random
+        run: echo "suffix=$(date +%s%N)" >> $GITHUB_OUTPUT
+
       - name: Upload JSON stats artifact to GitHub
         uses: actions/upload-artifact@v4
         with:
-          name: stats-json-${{ github.run_id }}
+          name: stats-json-${{ steps.random.outputs.suffix }}
           path: ${{ steps.generate-json.outputs.jsonStatsPath }}
 
       - run: npm install
