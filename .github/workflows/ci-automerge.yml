@@ -11,8 +11,6 @@ on:
   pull_request:
   check_suite:
   workflow_dispatch:
-  repository_dispatch:
-    types: [event-pr-created]
   workflow_call:
   #workflow_run:
   #  workflows:
