@@ -220,11 +220,13 @@ jobs:
         run: |
           if [ ! -f "${{ env.librarySourcesFilepath }}" ]; then
             echo "Creating sources file ${GITHUB_WORKSPACE}/${{ env.librarySourcesFilepath }}"
+            mkdir -p "$(dirname '${{ env.librarySourcesFilepath }}')"
             touch "${{ env.librarySourcesFilepath }}"
             ls -lrt "${{ env.librarySourcesFilepath }}"
             cat "${{ env.librarySourcesFilepath }}"
           else
             echo "Touching sources file ${GITHUB_WORKSPACE}/${{ env.librarySourcesFilepath }}"
+            mkdir -p "$(dirname '${{ env.librarySourcesFilepath }}')"
             touch "${{ env.librarySourcesFilepath }}"
             ls -lrt "${{ env.librarySourcesFilepath }}"
             cat "${{ env.librarySourcesFilepath }}"
