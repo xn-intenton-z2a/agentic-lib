@@ -1,39 +1,26 @@
-# Simple Echo Function
+# Simple Echo and Reverse Functions
 
-The `simpleEcho` function is a utility that takes a non-empty string input, trims it, and returns a greeting message.
+The `simpleEcho` function is a utility that takes a non-empty string input, trims it, and returns a greeting message. The `simpleReverse` function similarly trims a non-empty string input and returns the reversed string. Both functions log their operations using standard logging functions.
 
 ## Usage
 
-Import the functions from the source directory:
+Import the functions from the source module:
 
 ```js
-import { simpleEcho, simpleReverse } from './simpleFunction.js';
+import { simpleEcho, simpleReverse } from '../../sandbox/source/simpleFunction.js';
 
 const greeting = simpleEcho("World");
 console.log(greeting); // "Hello, World"
+
+const reversed = simpleReverse("  Hello  ");
+console.log(reversed); // "olleH"
 ```
 
-## simpleReverse Function
+## Error Handling
 
-The `simpleReverse` function takes a non-empty string input, trims it, and returns the input string reversed. This function logs its operations using the standard logging functions.
+Both functions will throw an error with the message "Invalid input: must be a non-empty string" if provided an empty or whitespace-only string.
 
-### Usage Example
-
-```js
-import { simpleReverse } from '../../sandbox/source/simpleFunction.js';
-
-const reversedHello = simpleReverse("  Hello  ");
-console.log(reversedHello); // "olleH"
-
-const reversedWorld = simpleReverse("  World  ");
-console.log(reversedWorld); // "dlroW"
-```
-
-### Error Handling
-
-Both functions will throw an error with the message "Invalid input: must be a non-empty string" when the input is not a non-empty string after trimming.
-
-#### Example
+Example:
 
 ```js
 try {
@@ -45,16 +32,4 @@ try {
 
 ## Logging
 
-These functions use the standard logging functions (`logInfo` and `logError`) from the main module to log their operations and any errors encountered.
-
-## Retry Logic
-
-When running CLI commands with the `--retry` flag (in combination with `--digest`), the operation is automatically retried if it fails due to a transient error. If an error message contains the text "TransientError", the `performWithRetry` function will reattempt the operation until it succeeds or the maximum number of retries (default 3, configurable via the `RETRY_ATTEMPTS` environment variable) is reached. An optional delay (default 1000ms) is used between retries.
-
-**Example Usage on CLI:**
-
-```bash
-node src/lib/main.js --digest --retry
-```
-
-This enables the retry logic for the digest processing operation. The retry parameters can be adjusted via environment variables as needed.
+Operations and errors in these functions are logged using the `logInfo` and `logError` functions from `src/lib/main.js`.
