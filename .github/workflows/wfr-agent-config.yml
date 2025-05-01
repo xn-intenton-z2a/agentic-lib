@@ -105,6 +105,12 @@ on:
       docRoot:
         value: ${{ jobs.agentic-lib.outputs.docRoot }}
 
+      # Sandbox maintenance
+      sandboxPath:
+        value: ${{ jobs.agentic-lib.outputs.sandboxPath }}
+      sandboxReset:
+        value: ${{ jobs.agentic-lib.outputs.sandboxReset }}
+
       # Contents of the agentic-lib.yml file
       agentConfigContent:
           value: ${{ jobs.agentic-lib.outputs.agentConfigContent }}
@@ -157,6 +163,10 @@ jobs:
 
       # Web publishing
       defaultDocRoot: 'docs/'
+
+      # Sandbox maintenance
+      defaultSandboxPath: 'sandbox'
+      defaultSandboxReset: 'false'
 
       # Agentic-lib configuration file contents
       defaultAgentConfigContent: ''
@@ -232,20 +242,24 @@ jobs:
             }
 
             // Execution commands
-            let buildScript = config?.buildScript || process.env.defaultBuildScript;
-            let testScript = config?.testScript || process.env.defaultTestScript;
-            let mainScript = config?.mainScript || process.env.defaultMainScript;
+            const buildScript = config?.buildScript || process.env.defaultBuildScript;
+            const testScript = config?.testScript || process.env.defaultTestScript;
+            const mainScript = config?.mainScript || process.env.defaultMainScript;
 
             // How many issues should be available to be picked up? 
-            let featureDevelopmentIssuesWipLimit = config?.featureDevelopmentIssuesWipLimit || process.env.defaultFeatureDevelopmentIssuesWipLimit;
-            let maintenanceIssuesWipLimit = config?.maintenanceIssuesWipLimit || process.env.defaultMaintenanceIssuesWipLimit;
+            const featureDevelopmentIssuesWipLimit = config?.featureDevelopmentIssuesWipLimit || process.env.defaultFeatureDevelopmentIssuesWipLimit;
+            const maintenanceIssuesWipLimit = config?.maintenanceIssuesWipLimit || process.env.defaultMaintenanceIssuesWipLimit;
 
             // How many attempts should be made to work on an issue? 
-            let attemptsPerBranch = config?.attemptsPerBranch || process.env.defaultAttemptsPerBranch;
-            let attemptsPerIssue = config?.attemptsPerIssue || process.env.defaultAttemptsPerIssue;
+            const attemptsPerBranch = config?.attemptsPerBranch || process.env.defaultAttemptsPerBranch;
+            const attemptsPerIssue = config?.attemptsPerIssue || process.env.defaultAttemptsPerIssue;
 
             // Web publishing
-            let docRoot = config?.docRoot || process.env.defaultDocRoot;
+            const docRoot = config?.docRoot || process.env.defaultDocRoot;
+            
+            // Sandbox maintenance
+            const sandboxPath = config?.sandboxPath || process.env.defaultSandboxPath;
+            const sandboxReset = config?.sandboxReset || process.env.defaultSandboxReset;
 
             if (config?.paths) {
 
@@ -385,6 +399,13 @@ jobs:
             console.log(`docRoot=${docRoot}`);
             core.setOutput('docRoot', docRoot);
 
+
+            // Sandbox maintenance - Set outputs
+            console.log(`sandboxPath=${sandboxPath}`);
+            core.setOutput('sandboxPath', sandboxPath);
+            console.log(`sandboxReset=${sandboxReset}`);
+            core.setOutput('sandboxReset', sandboxReset);
+
             // Contents of the agentic-lib.yml file
             console.log(`agentConfigContent=${agentConfigContent}`);
             core.setOutput('agentConfigContent', agentConfigContent);
@@ -431,6 +452,10 @@ jobs:
 
       # Web publishing
       docRoot: ${{ steps.agentic-lib.outputs.docRoot }}
+
+      # Sandbox maintenance
+      sandboxPath: ${{ steps.agentic-lib.outputs.sandboxPath }}
+      sandboxReset: ${{ steps.agentic-lib.outputs.sandboxReset }}
 
       # Contents of the agentic-lib.yml file
       agentConfigContent: ${{ steps.agentic-lib.outputs.agentConfigContent }}

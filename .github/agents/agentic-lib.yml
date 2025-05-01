@@ -62,3 +62,7 @@ attemptsPerIssue: 3
 
 # Web publishing
 docRoot: 'public'
+
+# Sandbox maintenance
+sandboxPath: 'sandbox'
+sandboxReset: 'true'

@@ -9,6 +9,11 @@ run-name: "agent update readme [${{ github.ref_name }}]"
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - reset-sandbox
+    types:
+      - completed
   schedule:
     - cron: '20 8 */28 * *' # schedule-1
     #- cron: '20 8 * * *' # schedule-2
