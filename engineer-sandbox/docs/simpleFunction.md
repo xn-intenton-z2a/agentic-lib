@@ -22,16 +22,27 @@ The `simpleReverse` function takes a non-empty string input, trims it, and retur
 ```js
 import { simpleReverse } from '../../sandbox/source/simpleFunction.js';
 
-const reversed = simpleReverse("  Hello World  ");
-console.log(reversed); // "dlroW olleH"
+const reversedHello = simpleReverse("  Hello  ");
+console.log(reversedHello); // "olleH"
+
+const reversedWorld = simpleReverse("  World  ");
+console.log(reversedWorld); // "dlroW"
 ```
 
-*Note:* For example, passing the string "  World  " will return "dlroW", demonstrating that the function correctly trims and reverses the input.
+### Error Handling
 
-## Error Handling
+Both functions will throw an error with the message "Invalid input: must be a non-empty string" when the input is not a non-empty string after trimming.
 
-If the input is not a non-empty string, both functions will throw an error.
+#### Example
+
+```js
+try {
+  simpleReverse("   ");
+} catch (error) {
+  console.error(error.message); // "Invalid input: must be a non-empty string"
+}
+```
 
 ## Logging
 
-These functions use the standard logging functions (`logInfo` and `logError`) from the main module to log their actions and any errors encountered.
+These functions use the standard logging functions (`logInfo` and `logError`) from the main module to log their operations and any errors encountered.
