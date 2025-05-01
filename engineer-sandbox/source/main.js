@@ -3,6 +3,17 @@ import { performance } from 'perf_hooks';
 // Global invocation counter
 globalThis.callCount = globalThis.callCount || 0;
 
+// Initialize global audit log for EVENT_AUDIT logging
+globalThis.auditLog = globalThis.auditLog || [];
+
+function auditEvent(eventType, details) {
+  globalThis.auditLog.push({
+    eventType,
+    timestamp: new Date().toISOString(),
+    details
+  });
+}
+
 function computeMetrics(times) {
   const totalCommands = times.length;
   const averageTimeMS = totalCommands ? times.reduce((a, b) => a + b, 0) / totalCommands : 0;
@@ -17,13 +28,11 @@ function computeMetrics(times) {
       medianTimeMS = sorted[Math.floor(totalCommands / 2)];
     }
   }
-  // Compute standard deviation: sqrt of the average of squared differences from the mean.
   let standardDeviationTimeMS = 0;
   if (totalCommands) {
     const variance = times.reduce((acc, t) => acc + Math.pow(t - averageTimeMS, 2), 0) / totalCommands;
     standardDeviationTimeMS = Math.sqrt(variance);
   }
-  // Compute 90th percentile execution time.
   let percentile90TimeMS = 0;
   if (totalCommands) {
     const idx = Math.ceil(0.9 * totalCommands) - 1;
@@ -41,11 +50,11 @@ function computeMetrics(times) {
 }
 
 function processCommand(cmd) {
-  // Simulate processing a command
+  auditEvent('COMMAND_START', { command: cmd });
   const start = performance.now();
-  // Here we would have real logic; we simulate minimal delay
   const executionTimeMS = Math.floor(performance.now() - start);
   globalThis.callCount++;
+  auditEvent('COMMAND_COMPLETE', { command: cmd, executionTimeMS, status: 'success' });
   return { status: 'success', processedCommand: cmd, timestamp: new Date().toISOString(), executionTimeMS };
 }
 
@@ -53,17 +62,17 @@ export function agenticHandler(payload) {
   let results = [];
   let executionTimes = [];
   if (payload.commands && Array.isArray(payload.commands)) {
-    // Enforce MAX_BATCH_COMMANDS if set
     const maxBatch = Number(process.env.MAX_BATCH_COMMANDS) || undefined;
     if (maxBatch && payload.commands.length > maxBatch) {
       return { error: `Batch command limit exceeded: maximum ${maxBatch} allowed, received ${payload.commands.length}` };
     }
     for (const cmd of payload.commands) {
+      auditEvent('COMMAND_START', { command: cmd });
       const result = processCommand(cmd);
       results.push(result);
       executionTimes.push(result.executionTimeMS);
+      auditEvent('COMMAND_COMPLETE', { command: cmd, executionTimeMS: result.executionTimeMS, status: 'success' });
     }
-    // For chain invocations, create a separate chain summary
     const chainSummary = {
       totalCommands: results.length,
       totalExecutionTimeMS: executionTimes.reduce((a, b) => a + b, 0)
@@ -80,6 +89,7 @@ export function agenticHandler(payload) {
     };
     return { status: 'success', results, chainSummary, ...enhancedMetrics };
   } else if (payload.command) {
+    auditEvent('COMMAND_START', { command: payload.command });
     const result = processCommand(payload.command);
     executionTimes.push(result.executionTimeMS);
     const metrics = computeMetrics(executionTimes);
@@ -92,6 +102,7 @@ export function agenticHandler(payload) {
       standardDeviationTimeMS: metrics.standardDeviationTimeMS,
       "90thPercentileTimeMS": metrics["90thPercentileTimeMS"]
     };
+    auditEvent('COMMAND_COMPLETE', { command: payload.command, executionTimeMS: result.executionTimeMS, status: 'success' });
     return { ...result, ...enhancedMetrics };
   } else {
     return { error: 'No valid command provided in payload' };
@@ -126,7 +137,7 @@ function main() {
     return;
   }
   if (args.includes('--version')) {
-    const pkg = { version: '4.3.18-0' }; // This would be imported from package.json in a real scenario
+    const pkg = { version: '4.3.18-0' };
     console.log(JSON.stringify({ version: pkg.version, timestamp: new Date().toISOString() }));
     return;
   }
@@ -141,7 +152,6 @@ function main() {
         process.exit(1);
       }
     } else {
-      // Default payload if none provided
       payload = { command: 'defaultCommand' };
     }
     const response = agenticHandler(payload);
@@ -165,7 +175,6 @@ function main() {
       process.exit(1);
     }
   }
-  // Additional CLI flags can be processed here
 
   console.log('No command argument supplied.');
   printHelp();

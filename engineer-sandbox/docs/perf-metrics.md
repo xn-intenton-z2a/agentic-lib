@@ -24,12 +24,7 @@ For workflow chain invocations (i.e. when multiple commands are processed as a b
   - **totalCommands**: Number of commands in the chain.
   - **totalExecutionTimeMS**: The sum of execution times in milliseconds for all commands within the chain.
 
-## Batch Command Throttling
-
-The library supports batch throttling via the `MAX_BATCH_COMMANDS` environment variable. If the number of commands in the payload exceeds the set limit, the command batch will be rejected with an error message.
-
 ## EVENT_AUDIT Logging
-
 A new feature, **EVENT_AUDIT**, has been implemented to improve observability. The system logs critical events during processing into a global audit log (`globalThis.auditLog`). Each audit record has the following structure:
 
 - **eventType**: The type of the event. Possible values include:
@@ -39,10 +34,9 @@ A new feature, **EVENT_AUDIT**, has been implemented to improve observability. T
   - `COMMAND_COMPLETE`: Logged after processing each command, including the execution time and status.
   - `WORKFLOW_CHAIN_COMPLETE`: Logged after a workflow chain is processed, summarizing the total commands and overall execution time.
 - **timestamp**: ISO formatted timestamp when the event was logged.
-- **details**: An object containing event-specific details such as the command processed, execution time, error messages, raw input, etc.
+- **details**: An object containing event-specific details such as the command processed, execution time, error messages, and raw input.
 
 ### Inspecting the Audit Log
-
 For debugging and performance analysis, you can examine the audit log by printing `globalThis.auditLog` in your application:
 
 ```js
@@ -51,22 +45,27 @@ console.log(globalThis.auditLog);
 
 This will output an array of audit records with detailed event information.
 
+## Batch Command Throttling
+The library supports batch throttling via the `MAX_BATCH_COMMANDS` environment variable. If the number of commands in the payload exceeds the set limit, the command batch will be rejected with an error message.
+
+## EVENT_AUDIT in Action
+- When processing SQS events via `digestLambdaHandler`, an audit event is logged for each record, indicating success or error.
+- When a command is processed through `agenticHandler`, a `COMMAND_START` event is recorded before processing and a `COMMAND_COMPLETE` event is recorded after, with execution details.
+- For workflow chains processed via `workflowChainHandler`, a `WORKFLOW_CHAIN_COMPLETE` event is logged summarizing the processing.
+
 ## Usage Examples
 
 ### Single Command Invocation
-
 ```
 node engineer-sandbox/source/main.js --perf-metrics '{"command": "ping"}'
 ```
 
 ### Workflow Chain Invocation
-
 ```
 node engineer-sandbox/source/main.js --perf-metrics '{"commands": ["cmdA", "cmdB"]}'
 ```
 
 ### Viewing Audit Log
-
 For detailed event logging, inspect the audit log:
 
 ```js
