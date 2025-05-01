@@ -32,6 +32,8 @@ on:
     #- cron: '20,50 */1 * * *' # schedule-4
 
 env:
+  gitUserEmail: 'action@github.com'
+  gitUserName: 'GitHub Actions[bot]'
   issueNumber: ${{ inputs.issueNumber || '' }}
   selectionLabel: ${{ inputs.selectionLabel || 'ready' }}
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
