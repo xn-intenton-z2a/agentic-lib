@@ -251,9 +251,14 @@ jobs:
             }
 
             // Load a single sources file
-            librarySourcesFilepathContent = fs.readFileSync(librarySourcesFilepath, 'utf8');
-            core.info(`Sources file '${librarySourcesFilepath}' has been loaded (length ${librarySourcesFilepathContent.length}).`);
-
+            try {
+              librarySourcesFilepathContent = fs.readFileSync(librarySourcesFilepath, 'utf8');
+              core.info(`Sources file '${librarySourcesFilepath}' has been loaded (length ${librarySourcesFilepathContent.length}).`);
+            } catch (e) {
+              core.warning(`Error reading sources file: ${e.message}`);
+              librarySourcesFilepathContent = '';
+            }
+            
             // Get list of existing library documents
             let existingDocuments = [];
             try {
