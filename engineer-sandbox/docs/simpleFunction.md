@@ -46,3 +46,15 @@ try {
 ## Logging
 
 These functions use the standard logging functions (`logInfo` and `logError`) from the main module to log their operations and any errors encountered.
+
+## Retry Logic
+
+When running CLI commands with the `--retry` flag (in combination with `--digest`), the operation is automatically retried if it fails due to a transient error. If an error message contains the text "TransientError", the `performWithRetry` function will reattempt the operation until it succeeds or the maximum number of retries (default 3, configurable via the `RETRY_ATTEMPTS` environment variable) is reached. An optional delay (default 1000ms) is used between retries.
+
+**Example Usage on CLI:**
+
+```bash
+node src/lib/main.js --digest --retry
+```
+
+This enables the retry logic for the digest processing operation. The retry parameters can be adjusted via environment variables as needed.
