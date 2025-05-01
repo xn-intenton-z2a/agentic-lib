@@ -143,6 +143,7 @@ jobs:
                 repo,
                 state: 'all',
                 per_page: perPage,
+                state: 'open',
                 page
               });
               const issues = issuesResponse.data;
