@@ -145,7 +145,7 @@ START_OF_OPENAI_FUNCTION_EXAMPLE_JS
               model,
               messages: [
                 { role: "system", content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema." },
-                { role: "user", content: prompt }
+                { role: "user", content: chatGptPrompt }
               ],
               tools: tools
             });
