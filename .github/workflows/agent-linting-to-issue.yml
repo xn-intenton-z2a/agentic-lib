@@ -31,9 +31,42 @@ jobs:
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+  extract-paths:
+    needs:
+      - agentic-lib
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract paths
+        id: extract-paths
+        uses: actions/github-script@v7
+        env:
+          allTestsPath: ${{ needs.agentic-lib.outputs.allTestsPath }}
+          targetTestsPath: ${{ needs.agentic-lib.outputs.targetTestsPath }}
+          allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+          targetSourcePath: ${{ needs.agentic-lib.outputs.targetSourcePath }}
+        with:
+          script: |
+            const allTestsPath = process.env.allTestsPath.split(';');
+            const targetTestsPath = process.env.targetTestsPath;
+            const allSourcePaths = process.env.allSourcePaths.split(';');
+            const targetSourcePath = process.env.targetSourcePath;
+
+            const allPaths = {
+              ...allTestsPath,
+              targetTestsPath,
+              ...allSourcePaths,
+              targetSourcePath
+            }.join(' ');
+
+            core.setOutput("allPaths", allPaths);
+            core.info(`allPaths: allPaths}`);
+    outputs:
+      allPaths: ${{ steps.extract-paths.outputs.allPaths }}
+
   linting:
     needs:
       - agentic-lib
+      - extract-paths
     permissions:
       contents: write
       packages: write
@@ -41,8 +74,8 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-run-script-and-commit-to-branch.yml@main'
     with:
       #script: 'npm run linting "." -- --max-warnings=10'
-      script: 'npm run linting ${{ needs.agentic-lib.outputs.targetSourcePath }} ${{ needs.agentic-lib.outputs.testsPath }}'
-      sarifScript: 'npm run linting-json --silent ${{ needs.agentic-lib.outputs.targetSourcePath }} ${{ needs.agentic-lib.outputs.testsPath }}'
+      script: 'npm run linting ${{ needs.extract-paths.outputs.allPaths }}'
+      sarifScript: 'npm run linting-json --silent ${{ needs.extract-paths.outputs.allPaths }}'
       testScript: ${{ needs.agentic-lib.outputs.testScript }}
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
     secrets:
