@@ -235,8 +235,13 @@ jobs:
             let promptContent = '';
 
             // Read the prompt file
-            promptContent = fs.readFileSync(promptFilepath, 'utf8');
-            core.info(`Prompt file '${promptFilepath}' has been loaded (length ${promptContent.length}).`);
+            try{
+              promptContent = fs.readFileSync(promptFilepath, 'utf8');
+              core.info(`Prompt file '${promptFilepath}' has been loaded (length ${promptContent.length}).`);
+            } catch (e) {
+                core.warning(`Error reading prompt file: ${e.message}`);
+                promptContent = '';
+            }
 
             // Load a single sources file
             librarySourcesFilepathContent = fs.readFileSync(librarySourcesFilepath, 'utf8');

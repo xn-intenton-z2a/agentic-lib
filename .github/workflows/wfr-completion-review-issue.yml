@@ -394,12 +394,46 @@ jobs:
             } catch (e) {
               core.warning(`Error reading docs file '${file}': ${e.message}`);
             }
-
-            const readmeFilepathContent = fs.readFileSync(readmeFilepath, 'utf8');
-            const missionFilepathContent = fs.readFileSync(missionFilepath, 'utf8');
-            const contributingFilepathContent = fs.readFileSync(contributingFilepath, 'utf8');
-            const dependenciesFilepathContent = fs.readFileSync(dependenciesFilepath, 'utf8');
-            const promptContent = fs.readFileSync(promptFilepath, 'utf8');
+            
+            let readmeFilepathContent;
+            try {
+              readmeFilepathContent = fs.readFileSync(readmeFilepath, 'utf8');
+            } catch (e) {
+              core.warning(`Error reading README file '${readmeFilepath}': ${e.message}`);
+              readmeFilepathContent = '';
+            }
+            
+            let missionFilepathContent;
+            try {
+              missionFilepathContent = fs.readFileSync(missionFilepath, 'utf8');
+            } catch (e) {
+                core.warning(`Error reading MISSION file '${missionFilepath}': ${e.message}`);
+                missionFilepathContent = '';
+            }
+            
+            let contributingFilepathContent;
+            try {
+              contributingFilepathContent = fs.readFileSync(contributingFilepath, 'utf8');
+            } catch (e) {
+              core.warning(`Error reading CONTRIBUTING file '${contributingFilepath}': ${e.message}`);
+              contributingFilepathContent = '';
+            }
+            
+            let dependenciesFilepathContent;
+            try {
+              dependenciesFilepathContent = fs.readFileSync(dependenciesFilepath, 'utf8');
+            } catch (e) {
+              core.warning(`Error reading dependencies file '${dependenciesFilepath}': ${e.message}`);
+              dependenciesFilepathContent = '';
+            }
+            
+            let promptContent;
+            try {
+              promptContent = fs.readFileSync(promptFilepath, 'utf8');
+            } catch (e) {
+              core.warning(`Error reading prompt file '${promptFilepath}': ${e.message}`);
+              promptContent = '';
+            }
 
             core.info(`Readme file '${readmeFilepath}' has been loaded (length ${readmeFilepathContent.length}).`);
             core.info(`Mission file '${missionFilepath}' has been loaded (length ${missionFilepathContent.length}).`);
