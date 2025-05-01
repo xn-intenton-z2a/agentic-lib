@@ -207,8 +207,8 @@ jobs:
       - apply-update
     permissions:
       contents: write
-      checks: write
       pull-requests: write
+      checks: write
       issues: write
       id-token: write
       pages: write

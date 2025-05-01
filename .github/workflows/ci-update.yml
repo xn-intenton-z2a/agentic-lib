@@ -195,6 +195,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      checks: write
       issues: write
       id-token: write
       pages: write
@@ -230,6 +231,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      checks: write
       issues: write
       id-token: write
       pages: write
