@@ -29,13 +29,13 @@ The `agentic-lib` provides a set of utilities including configuration logging, A
 
 ## Key Features
 
-- **Configuration Logging**: Logs configuration details (GITHUB_API_BASE_URL, OPENAI_API_KEY) upon initialization.
+- **Configuration Logging**: Logs configuration details (GITHUB_API_BASE_URL, OPENAI_API_KEY) upon initialization using [dotenv](https://github.com/motdotla/dotenv) and validates them via [zod](https://github.com/colinhacks/zod).
 - **AWS SQS Event Handling**: Includes a handler to process SQS events and simulate AWS Lambda invocations.
-- **Command Line Interface (CLI)**: Support for flags such as `--help`, `--version`, and `--digest` for quick access to usage information and functionality.
+- **Command Line Interface (CLI)**: Support for flags such as `--help`, `--version`, and `--digest` for quick access to usage information and functionality. All output logs are formatted in JSON for easy parsing and integration with logging systems.
 
 ## CLI Usage
 
-The CLI provides multiple commands that can be accessed via `node src/lib/main.js` or using the npm start script. Here are some common examples:
+The CLI can be accessed via:
 
 - **Help**: Display help information.
 
@@ -43,7 +43,7 @@ The CLI provides multiple commands that can be accessed via `node src/lib/main.j
   npm run start -- --help
   ```
 
-- **Version**: Display version information along with a timestamp.
+- **Version**: Display version information along with the current timestamp.
 
   ```sh
   npm run start -- --version
@@ -55,15 +55,23 @@ The CLI provides multiple commands that can be accessed via `node src/lib/main.j
   npm run start -- --digest
   ```
 
-If no command argument is supplied, the program will display the usage instructions.
+If no command argument is supplied, the application displays usage instructions and exits. This behavior ensures that users are always aware of the available commands.
 
 ## Configuration
 
-The configuration is loaded from environment variables or a `.env` file using the `dotenv` package. It validates the configuration using `zod` and logs the settings at startup.
+Configuration settings are loaded from environment variables or a `.env` file using [dotenv](https://github.com/motdotla/dotenv). The settings are validated with [zod](https://github.com/colinhacks/zod) to ensure that the necessary environment variables such as `GITHUB_API_BASE_URL` and `OPENAI_API_KEY` are correctly set. On startup, the configuration is logged in JSON format, providing transparency into the runtime settings.
+
+## Logging
+
+All log entries are output in JSON format which makes it easier to integrate with log aggregation and monitoring systems. The logs include a timestamp, log level, and descriptive messages to assist in debugging and monitoring.
 
 ## Testing
 
-The repository includes unit tests using Vitest. These tests ensure the integrity of the CLI commands and the AWS SQS processing.
+The repository includes unit tests managed by Vitest. These tests cover core functionality such as CLI commands and AWS SQS event handling. To run the tests, execute:
+
+```sh
+npm test
+```
 
 ## Contributing
 
@@ -71,4 +79,4 @@ Please refer to [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on how to c
 
 ## Additional Documentation
 
-For detailed usage examples and more information on CLI commands and configuration, please see the [USAGE documentation](docs/USAGE.md).
+For detailed usage examples and further information on the CLI commands and configuration, please see the [USAGE documentation](docs/USAGE.md).
