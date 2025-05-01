@@ -1,3 +1,5 @@
+START_OF_README_BEGINNING
+
 # intentïon agentic-lib
 
 You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/WORKFLOWS-README.md)
@@ -15,81 +17,60 @@ Mixed licensing:
 * This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 * This file is licensed under the MIT License. For details, see LICENSE-MIT
 
----
+END_OF_README_BEGINNING
 
 ## Overview
 
-The agentic-lib provides utility functions and a command line interface (CLI) that are designed for use in automated GitHub workflows, as well as within general JavaScript applications. Core functionalities include:
+The agentic-lib provides essential utility functions and a command line interface (CLI) designed for automated GitHub workflows and general JavaScript applications. It emphasizes streamlined text processing, centralized logging, and configuration management to support autonomous code maintenance.
 
-- **Text Processing Functions**: `simpleEcho` and `simpleReverse`, which trim input strings, log operations, and either greet or reverse the input.
-- **Logging & Configuration**: Centralized logging via `logInfo` and `logError`, and configuration via environment variables managed by dotenv.
-- **CLI Interface**: A CLI that processes flags such as `--help`, `--version`, and `--digest` to facilitate common operations like displaying help, showing version information, or simulating an AWS SQS digest event.
+## Core Features
 
-## Installation
+- **Text Processing Functions**: 
+  - `simpleEcho`: Trims a non-empty string and returns a greeting in the format "Hello, <input>".
+  - `simpleReverse`: Trims a non-empty string and returns its reversed form.
 
-Ensure you have Node.js (>=20) installed. Install the dependencies using:
+### Usage Examples
 
-```bash
-npm install
-```
-
-## Usage
-
-### As a Library
-
-Import the functions into your project:
+**simpleEcho Example:**
 
 ```js
-import { simpleEcho, simpleReverse } from './sandbox/source/simpleFunction.js';
+import { simpleEcho } from './sandbox/source/simpleFunction.js';
 
 const greeting = simpleEcho('  World  ');
-console.log(greeting); // "Hello, World"
-
-const reversed = simpleReverse('  Hello  ');
-console.log(reversed); // "olleH"
+console.log(greeting); // Expected output: "Hello, World"
 ```
 
-Refer to the [simpleFunction documentation](./docs/simpleFunction.md) for more detailed examples and error handling instructions.
+**simpleReverse Example:**
 
-### Command Line Interface (CLI)
+```js
+import { simpleReverse } from './sandbox/source/simpleFunction.js';
 
-The CLI is defined in `src/lib/main.js` and supports the following commands:
+const reversed = simpleReverse('  Hello  ');
+console.log(reversed); // Expected output: "olleH"
+```
 
-- **--help**: Displays usage instructions.
-- **--version**: Outputs the current version along with a timestamp.
-- **--digest**: Simulates an AWS SQS event using a predefined digest. 
+Both functions validate input and will throw an error with the message "Invalid input: must be a non-empty string" if provided an empty or whitespace-only string.
 
-Run the CLI using:
+## Command Line Interface (CLI)
+
+The CLI provided in `src/lib/main.js` supports the following commands:
+
+- `--help`: Displays detailed usage instructions and available commands.
+- `--version`: Outputs the current version along with a timestamp.
+- `--digest`: Simulates processing an AWS SQS event using a predefined digest to trigger workflow operations.
+
+Example usage:
 
 ```bash
 node src/lib/main.js --help
-# or
 node src/lib/main.js --version
-# or
 node src/lib/main.js --digest
 ```
 
-If no command argument is supplied, the CLI displays the usage instructions.
+If no command is provided, the CLI will display the usage instructions.
 
-## Testing
+## Repository Mission
 
-Run tests using:
+Inspired by our mission statement, agentic-lib is built to enable autonomous code maintenance through GitHub workflows that continuously review and evolve your repository. By integrating core utilities like text processing functions, robust logging, and a flexible CLI, the library supports real-time operational efficiency and code reliability.
 
-```bash
-npm test
-```
-
-This will execute unit tests for both the utility functions and the CLI interface.
-
-## Configuration
-
-Configuration is managed via environment variables, typically loaded from a `.env` file using the dotenv package. For example, you can set:
-
-- `GITHUB_API_BASE_URL`
-- `OPENAI_API_KEY`
-
-These are logged during initialization to confirm the configuration. Adjust the environment for development or testing as needed.
-
----
-
-This README will evolve as the project grows, but the core functionality and CLI usage described here reflect the current state of the codebase.
+For more details on our mission, please refer to [MISSION.md](../MISSION.md).
