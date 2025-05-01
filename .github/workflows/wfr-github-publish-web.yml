@@ -316,11 +316,14 @@ jobs:
           keep_files: true
           enable_jekyll: 'true'
 
+      - name: Generate random suffix
+        id: random
+        run: echo "suffix=$(date +%s%N | cut -b1-6)" >> $GITHUB_OUTPUT
+
       - name: Upload generated site as artifact
-        if: ${{ env.publishToGitHubPages == 'true' }}
         uses: actions/upload-artifact@v4
         with:
-          name: site-${{ github.run_id }}
+          name: site-${{ steps.random.outputs.suffix }}
           path: ${{ env.public }}
 
       - name: Output published github pages URLs
