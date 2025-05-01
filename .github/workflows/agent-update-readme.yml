@@ -44,7 +44,7 @@ jobs:
       contents: read
       id-token: write
     env:
-      branchPrefix: 'agentic-lib-'
+      branchPrefix: 'agentic-lib-update-readme'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -123,7 +123,7 @@ jobs:
       - check-branch
     runs-on: ubuntu-latest
     env:
-      branchPrefix: 'agentic-lib-'
+      branchPrefix: 'agentic-lib-update-readme'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -132,10 +132,10 @@ jobs:
       - name: create-branch
         id: create-branch
         run: |
-          echo 'Creating or force pushing to branch: ${{ env.branchPrefix }}update-readme'
-          git switch --force-create '${{ env.branchPrefix }}update-readme'
-          git push -v --force origin '${{ env.branchPrefix }}update-readme'
-          echo 'branch=${{ env.branchPrefix }}update-readme' >> $GITHUB_OUTPUT
+          echo 'Creating or force pushing to branch: ${{ env.branchPrefix }}'
+          git switch --force-create '${{ env.branchPrefix }}'
+          git push -v --force origin '${{ env.branchPrefix }}'
+          echo 'branch=${{ env.branchPrefix }}' >> $GITHUB_OUTPUT
     outputs:
       branch: ${{ steps.create-branch.outputs.branch }}
 
