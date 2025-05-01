@@ -664,10 +664,9 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-Launch] Check to make sure we check writeability of the file before writing.
 - [x] [r0w-Launch] Ensure every file path or external element referenced by the workflows, defaults to the value in agentic-lib.yml
 - [~] [r0w-MVP] Set up agentic-lib to only write to supplementary files (`./*-sandbox`).
-- [ ] [r0w-MVP] Set up repository0 to only write to demo files, reset every week.
+- [~] [r0w-MVP] Set up repository0 to only write to demo files, reset every week.
+- [~] [r0w-MVP] Set up repository0-crucible to use multiple file outputs
 - [ ] [r0w-MVP] Set up plot-code-lib to use a single file outputs
-- [ ] [r0w-MVP] Set up repository0-crucible to use multiple file outputs
-- [ ] [r0w-MVP] Feature switch role: elaborator (sources, library, web publish, features, web publish)
 - [ ] [r0w-MVP] Set up s3-sqs-bridge to only do essential updates (maintainer role)
 - [ ] [r0w-MVP] Set up repository0-web to documents only (elaboration role), hand off to "Repository0-web" tasklist
 - [ ] [r0w-Launch] Feature switch role: engineer (src, tests, docs, packages)
