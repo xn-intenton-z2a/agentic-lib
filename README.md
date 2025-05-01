@@ -667,7 +667,7 @@ Re-usable GitHub Actions Workflows:
 - [~] [r0w-MVP] Get the sandbox tests and code to run with the npm test command.
 - [~] [r0w-MVP] Set up repository0 to only write to sandbox files, reset every week by deleting the sandbox folder.
 - [~] [r0w-MVP] Set up repository0-crucible to use multiple file outputs and support initialisation from a seed.
-- [ ] [r0w-MVP] Set up plot-code-lib to use a single file outputs
+- [~] [r0w-MVP] Set up plot-code-lib to use a single file outputs
 - [ ] [r0w-MVP] Set up s3-sqs-bridge to only do essential updates (maintainer role)
 - [ ] [r0w-MVP] Set up repository0-web to documents only (elaboration role), hand off to "Repository0-web" tasklist
 - [ ] [r0w-Launch] Feature switch role: engineer (src, tests, docs, packages)
