@@ -3,73 +3,47 @@
 The `--perf-metrics` CLI flag enhances the agentic-lib by reporting detailed aggregated performance statistics for both single command and workflow chain invocations.
 
 ## Metrics Reported
-When you use the `--perf-metrics` flag, the output JSON will include the following fields:
+When you use the `--perf-metrics` flag, the output JSON will include two objects:
 
-- **totalCommands**: Total number of commands processed.
-- **averageTimeMS**: Average execution time in milliseconds across all processed commands. An alias **averageExecutionTimeMS** is also provided for clarity.
-- **minTimeMS**: Minimum execution time in milliseconds recorded among the commands. Also available as **minExecutionTimeMS**.
-- **maxTimeMS**: Maximum execution time in milliseconds recorded among the commands. Also available as **maxExecutionTimeMS**.
-- **medianTimeMS**: The median execution time in milliseconds, providing a robust measure of central tendency. Also available as **medianExecutionTimeMS**.
+- **agenticCommands**: Aggregated metrics for individual command invocations with the following fields:
+  - **count**: Total number of commands processed.
+  - **totalTimeMS**: Total execution time (in milliseconds) across all processed commands.
+  - **averageExecutionTimeMS**: The average execution time in milliseconds.
+  - **minExecutionTimeMS**: Minimum execution time recorded among the commands.
+  - **maxExecutionTimeMS**: Maximum execution time recorded among the commands.
+  - **medianExecutionTimeMS**: The median execution time, providing a robust measure of central tendency.
+  - **standardDeviationTimeMS**: The standard deviation of the execution times.
+  - **90thPercentileTimeMS**: The 90th percentile execution time, indicating the value below which 90% of the execution times fall.
 
-Additionally, two new statistical metrics have been introduced:
+- **workflowChains**: Aggregated metrics for workflow chain invocations with the same set of fields as above.
 
-- **standardDeviationTimeMS**: Represents the standard deviation of the execution times. It is calculated as the square root of the mean of the squared differences from the average execution time.
-
-- **90thPercentileTimeMS**: Represents the 90th percentile execution time, determined by sorting the execution times and selecting the value below which 90% of the data falls.
-
-## Workflow Chain Invocations
-For workflow chain invocations (i.e. when multiple commands are processed as a batch), an additional field is included:
-
-- **chainSummary**: An object providing a breakdown specific to chain invocations:
-  - **totalCommands**: Number of commands in the chain.
-  - **totalExecutionTimeMS**: The sum of execution times in milliseconds for all commands within the chain.
-
-## EVENT_AUDIT Logging
-A new feature, **EVENT_AUDIT**, has been implemented to improve observability. The system logs critical events during processing into a global audit log (`globalThis.auditLog`). Each audit record has the following structure:
-
-- **eventType**: The type of the event. Possible values include:
-  - `SQS_RECORD_PROCESSED`: Logged for each SQS record successfully processed.
-  - `SQS_RECORD_ERROR`: Logged when an SQS record fails to be processed (e.g., invalid JSON).
-  - `COMMAND_START`: Logged before processing each command, capturing the original command and any alias substitution.
-  - `COMMAND_COMPLETE`: Logged after processing each command, including the execution time and status.
-  - `WORKFLOW_CHAIN_COMPLETE`: Logged after a workflow chain is processed, summarizing the total commands and overall execution time.
-- **timestamp**: ISO formatted timestamp when the event was logged.
-- **details**: An object containing event-specific details such as the command processed, execution time, error messages, and raw input.
-
-### Inspecting the Audit Log
-For debugging and performance analysis, you can examine the audit log by printing `globalThis.auditLog` in your application:
-
-```js
-console.log(globalThis.auditLog);
-```
-
-This will output an array of audit records with detailed event information.
-
-## Batch Command Throttling
-The library supports batch throttling via the `MAX_BATCH_COMMANDS` environment variable. If the number of commands in the payload exceeds the set limit, the command batch will be rejected with an error message.
-
-## EVENT_AUDIT in Action
-- When processing SQS events via `digestLambdaHandler`, an audit event is logged for each record, indicating success or error.
-- When a command is processed through `agenticHandler`, a `COMMAND_START` event is recorded before processing and a `COMMAND_COMPLETE` event is recorded after, with execution details.
-- For workflow chains processed via `workflowChainHandler`, a `WORKFLOW_CHAIN_COMPLETE` event is logged summarizing the processing.
+When the `--verbose-stats` flag is active, additional fields such as `callCount` and `uptime` are included in the output to provide further insight into the runtime environment.
 
 ## Usage Examples
 
 ### Single Command Invocation
 ```
-node engineer-sandbox/source/main.js --perf-metrics '{"command": "ping"}'
+node src/lib/main.js --perf-metrics
 ```
 
 ### Workflow Chain Invocation
 ```
-node engineer-sandbox/source/main.js --perf-metrics '{"commands": ["cmdA", "cmdB"]}'
+node src/lib/main.js --workflow-chain '{"chain": ["cmdA", "cmdB"]}'
+node src/lib/main.js --perf-metrics
 ```
 
-### Viewing Audit Log
-For detailed event logging, inspect the audit log:
+## How Metrics Are Computed
 
-```js
-console.log(globalThis.auditLog);
-```
+The detailed metrics are computed by recording the execution times into global arrays:
 
-This will display all audit records logged during processing, which can be used to trace the flow of events and diagnose processing issues.
+- `globalThis.agenticExecutionTimes` for individual commands.
+- `globalThis.workflowExecutionTimes` for entire workflow chains.
+
+A helper function computes the following statistical measures from these arrays:
+
+- **averageExecutionTimeMS**: Average of all execution times.
+- **medianExecutionTimeMS**: The median value from the sorted list of execution times.
+- **standardDeviationTimeMS**: The square root of the average squared deviation from the mean.
+- **90thPercentileTimeMS**: The execution time at the 90th percentile.
+
+These metrics allow you to gain a comprehensive understanding of performance variations in your processing.
