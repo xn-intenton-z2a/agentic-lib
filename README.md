@@ -663,8 +663,8 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-MVP] Check these to see that we do use semi-colon separation: allTestsPaths.split(';');
 - [x] [r0w-Launch] Check to make sure we check writeability of the file before writing.
 - [x] [r0w-Launch] Ensure every file path or external element referenced by the workflows, defaults to the value in agentic-lib.yml
-- [~] [r0w-MVP] Set up agentic-lib to only write to supplementary files (`./sandbox`).
-- [~] [r0w-MVP] Set up repository0 to only write to demo files, reset every week by deleting the demo folder
+- [x] [r0w-MVP] Set up agentic-lib to only write to supplementary files (`./sandbox`).
+- [~] [r0w-MVP] Set up repository0 to only write to sandbox files, reset every week by deleting the sandbox folder
 - [~] [r0w-MVP] Set up repository0-crucible to use multiple file outputs
 - [ ] [r0w-MVP] Set up plot-code-lib to use a single file outputs
 - [ ] [r0w-MVP] Set up s3-sqs-bridge to only do essential updates (maintainer role)
