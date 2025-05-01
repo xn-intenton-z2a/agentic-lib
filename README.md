@@ -669,8 +669,8 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-MVP] Set up repository0 to only write to sandbox files, reset every week by deleting the sandbox folder.
 - [~] [r0w-MVP] Set up repository0-crucible to use multiple file outputs and support initialisation from a seed.
 - [~] [r0w-MVP] Set up plot-code-lib to use a single file outputs
-- [ ] [r0w-Launch] Diagram the workflow interactions.
 - [ ] [r0w-MVP] Set up repository0-web to documents only (elaboration role), hand off to "Repository0-web" tasklist
+- [ ] [r0w-Launch] Diagram the workflow interactions.
 - [ ] [r0w-Launch] Pull into agentic-lib.yml: startsWith("apply-fix-"));
 - [ ] [r0w-Launch] Pull into agentic-lib.yml: startsWith("issue-worker-"));
 - [ ] [r0w-Launch] Feature switch role: engineer (src, tests, docs, packages)
