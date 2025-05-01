@@ -4,19 +4,32 @@ The `simpleEcho` function is a utility that takes a non-empty string input, trim
 
 ## Usage
 
-Import the function from the source directory:
+Import the functions from the source directory:
 
 ```js
-import { simpleEcho } from '../../sandbox/source/simpleFunction.js';
+import { simpleEcho, simpleReverse } from '../../sandbox/source/simpleFunction.js';
 
 const greeting = simpleEcho("World");
 console.log(greeting); // "Hello, World"
 ```
 
+## simpleReverse Function
+
+The `simpleReverse` function takes a non-empty string input, trims it, and returns the input string reversed. This function logs its operations using the standard logging functions.
+
+### Usage Example
+
+```js
+import { simpleReverse } from '../../sandbox/source/simpleFunction.js';
+
+const reversed = simpleReverse("  Hello World  ");
+console.log(reversed); // "dlroW olleH"
+```
+
 ## Error Handling
 
-If the input is not a non-empty string, the function will throw an error.
+If the input is not a non-empty string, both functions will throw an error.
 
 ## Logging
 
-This function uses the standard logging functions (`logInfo` and `logError`) from the main module to log its actions and any errors encountered.
+These functions use the standard logging functions (`logInfo` and `logError`) from the main module to log their actions and any errors encountered.
