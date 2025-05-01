@@ -7,7 +7,7 @@ The `simpleEcho` function is a utility that takes a non-empty string input, trim
 Import the functions from the source directory:
 
 ```js
-import { simpleEcho, simpleReverse } from '../../sandbox/source/simpleFunction.js';
+import { simpleEcho, simpleReverse } from './simpleFunction.js';
 
 const greeting = simpleEcho("World");
 console.log(greeting); // "Hello, World"

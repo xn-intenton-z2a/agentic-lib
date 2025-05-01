@@ -126,9 +126,9 @@ jobs:
 
       # Filepaths for engineer workflows
       defaultContributingFilepath: 'CONTRIBUTING.md'
-      defaultAllTestsPaths: '["tests/unit/"]'
+      defaultOtherTestsPaths: '["tests/unit/"]'
       defaultTargetTestsPath: 'tests/unit/'
-      defaultAllSourcePaths: '["src/lib/"]'
+      defaultOtherSourcePaths: '["src/lib/"]'
       defaultTargetSourcePath: 'src/lib/'
       defaultDependenciesFilepath: 'package.json'
       defaultDocumentationPath: 'docs/'
@@ -200,10 +200,10 @@ jobs:
 
             // Filepaths for engineer workflows - Default values
             let contributingFilepath = process.env.defaultContributingFilepath;
-            let allTestsPaths = process.env.defaultAllTestsPaths;
             let targetTestsPath = process.env.defaultTargetTestsPath;
-            let allSourcePaths = process.env.defaultAllSourcePaths;
+            let otherTestsPaths = process.env.defaultOtherTestsPaths;
             let targetSourcePath = process.env.defaultTargetSourcePath;
+            let otherSourcePaths = process.env.defaultOtherSourcePaths;
             let dependenciesFilepath = process.env.defaultDependenciesFilepath;
             let documentationPath = process.env.defaultDocumentationPath;
 
@@ -260,10 +260,10 @@ jobs:
 
               // Filepaths for engineer workflows - Extract
               contributingFilepath = config.paths?.contributingFilepath?.path || contributingFilepath;
-              allTestsPaths = config.paths?.allTestsPaths?.paths?.join(';') || allTestsPaths;
               targetTestsPath = config.paths?.targetTestsPath?.path || targetTestsPath;
-              allSourcePaths = config.paths?.allSourcePaths?.paths?.join(';') || allSourcePaths;
+              allTestsPaths = [ targetTestsPath, ...(config.paths?.otherTestsPaths?.paths? || otherTestsPaths) ].join(';');
               targetSourcePath = config.paths?.targetSourcePath?.path || targetSourcePath;
+              allSourcePaths = [ targetSourcePath, ...(config.paths?.otherSourcePaths?.paths? || otherSourcePaths) ].join(';');
               dependenciesFilepath = config.paths?.dependenciesFilepath?.path || dependenciesFilepath;
               documentationPath = config.paths?.documentationPath?.path || documentationPath;
 
