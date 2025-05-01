@@ -155,52 +155,18 @@ jobs:
                 const updatedAt = new Date(issue.updated_at);
                 if (updatedAt < cutoffDate) {
                   try {
-                    // Update the issue's title and body to "redact" details.
+                    // Close the issue
                     await github.rest.issues.update({
                       owner,
                       repo,
                       issue_number: issue.number,
-                      title: "Redacted",
-                      body: "This issue has been redacted."
+                      state: 'closed',
                     });
-                    console.log(`Redacted issue #${issue.number} (last updated at ${issue.updated_at})`);
-                    issuesRedacted++;
-
-                    // List and delete all comments for the issue.
-                    let commentPage = 1;
-                    while (true) {
-                      const commentsResponse = await github.rest.issues.listComments({
-                        owner,
-                        repo,
-                        issue_number: issue.number,
-                        per_page: perPage,
-                        page: commentPage
-                      });
-                      const comments = commentsResponse.data;
-                      if (!comments || comments.length === 0) break;
-                      for (const comment of comments) {
-                        try {
-                          await github.rest.issues.deleteComment({
-                            owner,
-                            repo,
-                            comment_id: comment.id
-                          });
-                          console.log(`Deleted comment ${comment.id} on issue #${issue.number}`);
-                          commentsDeleted++;
-                        } catch (err) {
-                          console.error(`Failed to delete comment ${comment.id} on issue #${issue.number}: ${err.message}`);
-                        }
-                      }
-                      commentPage++;
-                    }
+                    core.info(`Closed issue #${issue.number} (${issue.title})`);
                   } catch (error) {
-                    console.error(`Failed to update issue #${issue.number}: ${error.message}`);
+                    console.error(`Failed to close issue #${issue.number}: ${error.message}`);
                   }
                 }
               }
               page++;
             }
-            console.log(`Total issues redacted: ${issuesRedacted}`);
-            console.log(`Total comments deleted: ${commentsDeleted}`);
-            return `Cleanup complete. Redacted ${issuesRedacted} issues and deleted ${commentsDeleted} comments.`;
-          result-encoding: string
