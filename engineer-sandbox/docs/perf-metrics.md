@@ -1,28 +1,41 @@
 # Performance Metrics (--perf-metrics Flag)
 
-The `--perf-metrics` CLI flag enhances the agentic-lib by reporting detailed aggregated performance statistics for both single command and workflow chain invocations.
+The `--perf-metrics` CLI flag now reports detailed aggregated performance statistics for both individual agentic commands and workflow chains.
 
 ## Metrics Reported
+
 When you use the `--perf-metrics` flag, the output JSON will include two objects:
 
 - **agenticCommands**: Aggregated metrics for individual command invocations with the following fields:
   - **count**: Total number of commands processed.
-  - **totalTimeMS**: Total execution time (in milliseconds) across all processed commands.
-  - **averageExecutionTimeMS**: The average execution time in milliseconds.
-  - **minExecutionTimeMS**: Minimum execution time recorded among the commands.
-  - **maxExecutionTimeMS**: Maximum execution time recorded among the commands.
+  - **totalTimeMS**: Total cumulative execution time (in milliseconds) for all processed commands.
+  - **averageExecutionTimeMS**: The average execution time in milliseconds (computed as totalTimeMS / count).
+  - **minTimeMS**: The minimum execution time recorded among the commands.
+  - **maxTimeMS**: The maximum execution time recorded among the commands.
   - **medianExecutionTimeMS**: The median execution time, providing a robust measure of central tendency.
   - **standardDeviationTimeMS**: The standard deviation of the execution times.
-  - **90thPercentileTimeMS**: The 90th percentile execution time, indicating the value below which 90% of the execution times fall.
+  - **90thPercentileTimeMS**: The execution time below which 90% of the commands fall.
 
-- **workflowChains**: Aggregated metrics for workflow chain invocations with the same set of fields as above.
+- **workflowChains**: Aggregated metrics for workflow chain invocations computed over the total chain execution time, with the same set of fields as above.
 
-When the `--verbose-stats` flag is active, additional fields such as `callCount` and `uptime` are included in the output to provide further insight into the runtime environment.
+When the `--verbose-stats` flag is active, additional fields such as `callCount` (the number of invocations) and `uptime` are also included in the output.
+
+## How Metrics Are Computed
+
+Execution times are recorded globally for each individual command processed and for each workflow chain invocation.
+
+A helper function computes the following statistical measures from these recorded times:
+
+- **averageExecutionTimeMS**: Sum of all execution times divided by the number of observations.
+- **medianExecutionTimeMS**: Middle value in the sorted list of execution times.
+- **standardDeviationTimeMS**: The square root of the variance of the execution times.
+- **90thPercentileTimeMS**: The execution time at the 90th percentile of the sorted list.
 
 ## Usage Examples
 
 ### Single Command Invocation
 ```
+node src/lib/main.js --agentic '{"command": "ping"}'
 node src/lib/main.js --perf-metrics
 ```
 
@@ -32,18 +45,4 @@ node src/lib/main.js --workflow-chain '{"chain": ["cmdA", "cmdB"]}'
 node src/lib/main.js --perf-metrics
 ```
 
-## How Metrics Are Computed
-
-The detailed metrics are computed by recording the execution times into global arrays:
-
-- `globalThis.agenticExecutionTimes` for individual commands.
-- `globalThis.workflowExecutionTimes` for entire workflow chains.
-
-A helper function computes the following statistical measures from these arrays:
-
-- **averageExecutionTimeMS**: Average of all execution times.
-- **medianExecutionTimeMS**: The median value from the sorted list of execution times.
-- **standardDeviationTimeMS**: The square root of the average squared deviation from the mean.
-- **90thPercentileTimeMS**: The execution time at the 90th percentile.
-
-These metrics allow you to gain a comprehensive understanding of performance variations in your processing.
+These commands will output a JSON object with detailed performance statistics for the respective invocations.
