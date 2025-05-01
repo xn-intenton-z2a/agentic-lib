@@ -26,6 +26,8 @@ const reversed = simpleReverse("  Hello World  ");
 console.log(reversed); // "dlroW olleH"
 ```
 
+*Note:* For example, passing the string "  World  " will return "dlroW", demonstrating that the function correctly trims and reverses the input.
+
 ## Error Handling
 
 If the input is not a non-empty string, both functions will throw an error.
