@@ -665,13 +665,13 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-Launch] Ensure every file path or external element referenced by the workflows, defaults to the value in agentic-lib.yml
 - [x] [r0w-MVP] Set up agentic-lib to only write to supplementary files (`./sandbox`).
 - [x] [r0w-MVP] Get the sandbox tests and code to run with the npm test command.
+- [x] [r0w-MVP] Set up s3-sqs-bridge to only do essential updates (maintainer role)
 - [x] [r0w-MVP] Set up repository0 to only write to sandbox files, reset every week by deleting the sandbox folder.
 - [~] [r0w-MVP] Set up repository0-crucible to use multiple file outputs and support initialisation from a seed.
 - [~] [r0w-MVP] Set up plot-code-lib to use a single file outputs
-- [ ] [r0w-MVP] Pull into agentic-lib.yml: startsWith("apply-fix-"));
-- [ ] [r0w-MVP] Pull into agentic-lib.yml: startsWith("issue-worker-"));
-- [ ] [r0w-MVP] Set up s3-sqs-bridge to only do essential updates (maintainer role)
 - [ ] [r0w-MVP] Set up repository0-web to documents only (elaboration role), hand off to "Repository0-web" tasklist
+- [ ] [r0w-Launch] Pull into agentic-lib.yml: startsWith("apply-fix-"));
+- [ ] [r0w-Launch] Pull into agentic-lib.yml: startsWith("issue-worker-"));
 - [ ] [r0w-Launch] Feature switch role: engineer (src, tests, docs, packages)
 - [ ] [r0w-Launch] Feature switch role: maintainer (pr+linting+updates+readme+docs)
 - [ ] [r0w-Launch] Make the agent prompts match the top level workflow file names
