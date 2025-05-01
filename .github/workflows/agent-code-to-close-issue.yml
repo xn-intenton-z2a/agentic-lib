@@ -14,11 +14,18 @@ on:
         required: false
         type: string
         default: ''
-  workflow_run:
-    workflows:
-      - ci-automerge
-    types:
-      - completed
+  workflow_call:
+    inputs:
+      issueNumber:
+        description: 'The issue number to review. If not provided, the workflow will select one based on label. e.g. "123"'
+        required: false
+        type: string
+        default: ''
+  #workflow_run:
+  #  workflows:
+  #    - ci-automerge
+  #  types:
+  #    - completed
   schedule:
     - cron: '20 */12 * * *' # schedule-1
     #- cron: '20 */4 * * *' # schedule-2

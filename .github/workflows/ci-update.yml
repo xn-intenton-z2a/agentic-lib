@@ -187,7 +187,7 @@ jobs:
       gitCommitMessage: 'chore: dependency updates'
       label: 'automerge'
 
-  dispatch-pr-event-npm:
+  automerge-pr-npm:
     needs:
       - create-pr-npm
       - update-npm
@@ -195,9 +195,7 @@ jobs:
     permissions:
       contents: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-dispatch-event.yml@main'
-    with:
-      eventType: 'event-pr-created'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@main'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -220,7 +218,7 @@ jobs:
       gitCommitMessage: 'chore: dependency updates'
       label: 'automerge'
 
-  dispatch-pr-event-mvn:
+  automerge-pr-mvn:
     needs:
       - create-pr-mvn
       - update-mvn
@@ -229,9 +227,7 @@ jobs:
     permissions:
       contents: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-dispatch-event.yml@main'
-    with:
-      eventType: 'event-pr-created'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@main'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
