@@ -444,7 +444,6 @@ jobs:
     needs:
       - select-branch
       - needs-fix
-    if: ${{ always() }}
     runs-on: ubuntu-latest
     env:
       branchPrefix: 'agentic-lib-'
@@ -677,7 +676,7 @@ jobs:
       - npm-build-after-fix
       - npm-run-after-fix
       - needs-fix-after-fix
-    if: ${{ always() && needs.branch-for-fix.outputs.branch != 'main' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
+    if: ${{ always() && needs.branch-for-fix.outputs.branch != 'main' && needs.branch-for-fix.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
     permissions:
       contents: write
       packages: write
