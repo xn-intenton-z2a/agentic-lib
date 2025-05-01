@@ -24,3 +24,26 @@ export function simpleEcho(input) {
     throw error;
   }
 }
+
+/**
+ * simpleReverse takes a non-empty string input, trims it, and returns the reversed string.
+ * Logs the input and any error using the standard logging functions.
+ * 
+ * @param {string} input - The input string to be reversed.
+ * @returns {string} The reversed string.
+ * @throws Will throw an error if the input is not a non-empty string.
+ */
+export function simpleReverse(input) {
+  try {
+    if (typeof input !== 'string' || input.trim() === '') {
+      throw new Error("Invalid input: must be a non-empty string");
+    }
+    const trimmed = input.trim();
+    logInfo(`simpleReverse called with input: ${trimmed}`);
+    const reversed = trimmed.split('').reverse().join('');
+    return reversed;
+  } catch (error) {
+    logError("Error in simpleReverse", error);
+    throw error;
+  }
+}

@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { simpleEcho } from '../../sandbox/source/simpleFunction.js';
+import { simpleEcho, simpleReverse } from '../../sandbox/source/simpleFunction.js';
 
 
 describe('simpleEcho function', () => {
@@ -10,5 +10,17 @@ describe('simpleEcho function', () => {
 
   test('throws error on empty input', () => {
     expect(() => simpleEcho('   ')).toThrow("Invalid input: must be a non-empty string");
+  });
+});
+
+
+describe('simpleReverse function', () => {
+  test('returns reversed string with trimmed input', () => {
+    const result = simpleReverse('  Hello  ');
+    expect(result).toBe('olleH');
+  });
+
+  test('throws error on empty input', () => {
+    expect(() => simpleReverse('   ')).toThrow("Invalid input: must be a non-empty string");
   });
 });
