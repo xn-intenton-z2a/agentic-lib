@@ -71,6 +71,7 @@ sandbox:
 # Repository seeding
 #seeding:
 #  repositoryReseed: 'true'
+#  missionFilepath: 'seeds/zero-MISSION.md'
 #  sourceFilepath: 'seeds/zero-main.js'
 #  testsFilepath: 'seeds/zero-tests.js'
 #  dependenciesFilepath: 'seeds/zero-package.json'
