@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-imp bug ort { main } from '../../src/lib/main.js';
+import { main } from '../../src/lib/main.js';
 
 // Test to ensure that the main function terminates without error
 // by simply awaiting its execution with an empty arguments array.
