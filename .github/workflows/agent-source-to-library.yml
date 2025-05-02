@@ -22,8 +22,8 @@ on:
   #schedule:
     #- cron: '15 4 */7 * *' # schedule-unused-see-workflow_run-1
     #- cron: '15 4 * * *' # schedule-unused-see-workflow_run-2
-    #- cron: '15 */1 * * *' # schedule-unused-see-workflow_run-3
-    #- cron: '15 * * * *' # schedule-unused-see-workflow_run-4
+    #- cron: '15 */6 * * *' # schedule-unused-see-workflow_run-3
+    #- cron: '15 */3 * * *' # schedule-unused-see-workflow_run-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
