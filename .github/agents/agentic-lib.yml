@@ -64,8 +64,14 @@ attemptsPerIssue: 3
 docRoot: 'public'
 
 # Sandbox configuration
-sandboxPath: 'sandbox'
-sandboxReset: 'true'
+sandbox:
+  sandboxReset: 'true'
+  sandboxPath: 'sandbox'
 
-# Repository configuration
-#repositoryReseed: 'true'
+# Repository seeding
+#seeding:
+#  repositoryReseed: 'true'
+#  sourceFilepath: 'seeds/zero-main.js'
+#  testsFilepath: 'seeds/zero-tests.js'
+#  dependenciesFilepath: 'seeds/zero-package.json'
+#  readmeFilepath: 'seeds/zero-README.md'

@@ -111,9 +111,17 @@ on:
       sandboxReset:
         value: ${{ jobs.agentic-lib.outputs.sandboxReset }}
 
-      # Repository configuration
+      # Repository seeding
       repositoryReseed:
         value: ${{ jobs.agentic-lib.outputs.repositoryReseed }}
+      repositoryReseedSourceFilepath:
+        value: ${{ jobs.agentic-lib.outputs.repositoryReseedSourceFilepath }}
+      repositoryReseedTestsFilepath:
+        value: ${{ jobs.agentic-lib.outputs.repositoryReseedTestsFilepath }}
+      repositoryReseedDependenciesFilepath:
+        value: ${{ jobs.agentic-lib.outputs.repositoryReseedDependenciesFilepath }}
+      repositoryReseedReadmeFilepath:
+        value: ${{ jobs.agentic-lib.outputs.repositoryReseedReadmeFilepath }}
 
       # Contents of the agentic-lib.yml file
       agentConfigContent:
@@ -172,8 +180,12 @@ jobs:
       defaultSandboxPath: 'sandbox'
       defaultSandboxReset: 'false'
 
-      # Repository configuration
+      # Repository seeding
       defaultRepositoryReseed: 'false'
+      defaultRepositoryReseedSourceFilepath: 'seeds/zero-main.js'
+      defaultRepositoryReseedTestsFilepath: 'seeds/zero-main.test.js'
+      defaultRepositoryReseedDependenciesFilepath: 'seeds/zero-package.json'
+      defaultRepositoryReseedReadmeFilepath: 'seeds/zero-README.md'
 
       # Agentic-lib configuration file contents
       defaultAgentConfigContent: ''
@@ -265,11 +277,15 @@ jobs:
             const docRoot = config?.docRoot || process.env.defaultDocRoot;
             
             // Sandbox configuration
-            const sandboxPath = config?.sandboxPath || process.env.defaultSandboxPath;
-            const sandboxReset = config?.sandboxReset || process.env.defaultSandboxReset;
+            const sandboxPath = config?.sandbox?.sandboxPath || process.env.defaultSandboxPath;
+            const sandboxReset = config?.sandbox?.sandboxReset || process.env.defaultSandboxReset;
             
-            // Repository configuration
-            const repositoryReseed = config?.repositoryReseed || process.env.defaultRepositoryReseed;
+            // Repository seeding
+            const repositoryReseed = config?.seeding?.repositoryReseed || process.env.defaultRepositoryReseed;
+            const repositoryReseedSourceFilepath = config?.seeding?.repositoryReseedSourceFilepath || process.env.defaultRepositoryReseedSourceFilepath;
+            const repositoryReseedTestsFilepath = config?.seeding?.repositoryReseedTestsFilepath || process.env.defaultRepositoryReseedTestsFilepath;
+            const repositoryReseedDependenciesFilepath = config?.seeding?.repositoryReseedDependenciesFilepath || process.env.defaultRepositoryReseedDependenciesFilepath;
+            const repositoryReseedReadmeFilepath = config?.seeding?.repositoryReseedReadmeFilepath || process.env.defaultRepositoryReseedReadmeFilepath;
 
             if (config?.paths) {
 
@@ -416,9 +432,21 @@ jobs:
             console.log(`sandboxReset=${sandboxReset}`);
             core.setOutput('sandboxReset', sandboxReset);
             
-            // Repository configuration - Set outputs
+            // Repository seeding - Set outputs
             console.log(`repositoryReseed=${repositoryReseed}`);
             core.setOutput('repositoryReseed', repositoryReseed);
+            
+            console.log(`repositoryReseedSourceFilepath=${repositoryReseedSourceFilepath}`);
+            core.setOutput('repositoryReseedSourceFilepath', repositoryReseedSourceFilepath);
+            
+            console.log(`repositoryReseedTestsFilepath=${repositoryReseedTestsFilepath}`);
+            core.setOutput('repositoryReseedTestsFilepath', repositoryReseedTestsFilepath);
+            
+            console.log(`repositoryReseedDependenciesFilepath=${repositoryReseedDependenciesFilepath}`);
+            core.setOutput('repositoryReseedDependenciesFilepath', repositoryReseedDependenciesFilepath);
+            
+            console.log(`repositoryReseedReadmeFilepath=${repositoryReseedReadmeFilepath}`);
+            core.setOutput('repositoryReseedReadmeFilepath', repositoryReseedReadmeFilepath);
 
             // Contents of the agentic-lib.yml file
             console.log(`agentConfigContent=${agentConfigContent}`);
@@ -471,8 +499,12 @@ jobs:
       sandboxPath: ${{ steps.agentic-lib.outputs.sandboxPath }}
       sandboxReset: ${{ steps.agentic-lib.outputs.sandboxReset }}
 
-      # Repository configuration
+      # Repository seeding
       repositoryReseed: ${{ steps.agentic-lib.outputs.repositoryReseed }}
+      repositoryReseedSourceFilepath: ${{ steps.agentic-lib.outputs.repositoryReseedSourceFilepath }}
+      repositoryReseedTestsFilepath: ${{ steps.agentic-lib.outputs.repositoryReseedTestsFilepath }}
+      repositoryReseedDependenciesFilepath: ${{ steps.agentic-lib.outputs.repositoryReseedDependenciesFilepath }}
+      repositoryReseedReadmeFilepath: ${{ steps.agentic-lib.outputs.repositoryReseedReadmeFilepath }}
 
       # Contents of the agentic-lib.yml file
       agentConfigContent: ${{ steps.agentic-lib.outputs.agentConfigContent }}
