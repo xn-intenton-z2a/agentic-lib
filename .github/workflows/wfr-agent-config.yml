@@ -116,10 +116,10 @@ on:
         value: ${{ jobs.agentic-lib.outputs.repositoryReseed }}
       repositoryReseedMissionFilepath:
         value: ${{ jobs.agentic-lib.outputs.repositoryReseedMissionFilepath }}
-      repositoryReseedSourceFilepath:
-        value: ${{ jobs.agentic-lib.outputs.repositoryReseedSourceFilepath }}
-      repositoryReseedTestsFilepath:
-        value: ${{ jobs.agentic-lib.outputs.repositoryReseedTestsFilepath }}
+      repositoryReseedSourcePath:
+        value: ${{ jobs.agentic-lib.outputs.repositoryReseedSourcePath }}
+      repositoryReseedTestsPath:
+        value: ${{ jobs.agentic-lib.outputs.repositoryReseedTestsPath }}
       repositoryReseedDependenciesFilepath:
         value: ${{ jobs.agentic-lib.outputs.repositoryReseedDependenciesFilepath }}
       repositoryReseedReadmeFilepath:
@@ -185,8 +185,8 @@ jobs:
       # Repository seeding
       defaultRepositoryReseed: 'false'
       defaultRepositoryReseedMissionFilepath: 'seeds/zero-MISSION.md'
-      defaultRepositoryReseedSourceFilepath: 'seeds/zero-main.js'
-      defaultRepositoryReseedTestsFilepath: 'seeds/zero-main.test.js'
+      defaultRepositoryReseedSourcePath: 'seeds/zero-main.js'
+      defaultRepositoryReseedTestsPath: 'seeds/zero-main.test.js'
       defaultRepositoryReseedDependenciesFilepath: 'seeds/zero-package.json'
       defaultRepositoryReseedReadmeFilepath: 'seeds/zero-README.md'
 
@@ -286,8 +286,8 @@ jobs:
             // Repository seeding
             const repositoryReseed = config?.seeding?.repositoryReseed || process.env.defaultRepositoryReseed;
             const repositoryReseedMissionFilepath = config?.seeding?.repositoryReseedMissionFilepath || process.env.defaultRepositoryReseedMissionFilepath;
-            const repositoryReseedSourceFilepath = config?.seeding?.repositoryReseedSourceFilepath || process.env.defaultRepositoryReseedSourceFilepath;
-            const repositoryReseedTestsFilepath = config?.seeding?.repositoryReseedTestsFilepath || process.env.defaultRepositoryReseedTestsFilepath;
+            const repositoryReseedSourcePath = config?.seeding?.repositoryReseedSourcePath || process.env.defaultRepositoryReseedSourcePath;
+            const repositoryReseedTestsPath = config?.seeding?.repositoryReseedTestsPath || process.env.defaultRepositoryReseedTestsPath;
             const repositoryReseedDependenciesFilepath = config?.seeding?.repositoryReseedDependenciesFilepath || process.env.defaultRepositoryReseedDependenciesFilepath;
             const repositoryReseedReadmeFilepath = config?.seeding?.repositoryReseedReadmeFilepath || process.env.defaultRepositoryReseedReadmeFilepath;
 
@@ -443,11 +443,11 @@ jobs:
             console.log(`repositoryReseedMissionFilepath=${repositoryReseedMissionFilepath}`);
             core.setOutput('repositoryReseedMissionFilepath', repositoryReseedMissionFilepath);
             
-            console.log(`repositoryReseedSourceFilepath=${repositoryReseedSourceFilepath}`);
-            core.setOutput('repositoryReseedSourceFilepath', repositoryReseedSourceFilepath);
+            console.log(`repositoryReseedSourcePath=${repositoryReseedSourcePath}`);
+            core.setOutput('repositoryReseedSourcePath', repositoryReseedSourcePath);
             
-            console.log(`repositoryReseedTestsFilepath=${repositoryReseedTestsFilepath}`);
-            core.setOutput('repositoryReseedTestsFilepath', repositoryReseedTestsFilepath);
+            console.log(`repositoryReseedTestsPath=${repositoryReseedTestsPath}`);
+            core.setOutput('repositoryReseedTestsPath', repositoryReseedTestsPath);
             
             console.log(`repositoryReseedDependenciesFilepath=${repositoryReseedDependenciesFilepath}`);
             core.setOutput('repositoryReseedDependenciesFilepath', repositoryReseedDependenciesFilepath);
@@ -509,8 +509,8 @@ jobs:
       # Repository seeding
       repositoryReseed: ${{ steps.agentic-lib.outputs.repositoryReseed }}
       repositoryReseedMissionFilepath: ${{ steps.agentic-lib.outputs.repositoryReseedMissionFilepath }}
-      repositoryReseedSourceFilepath: ${{ steps.agentic-lib.outputs.repositoryReseedSourceFilepath }}
-      repositoryReseedTestsFilepath: ${{ steps.agentic-lib.outputs.repositoryReseedTestsFilepath }}
+      repositoryReseedSourcePath: ${{ steps.agentic-lib.outputs.repositoryReseedSourcePath }}
+      repositoryReseedTestsPath: ${{ steps.agentic-lib.outputs.repositoryReseedTestsPath }}
       repositoryReseedDependenciesFilepath: ${{ steps.agentic-lib.outputs.repositoryReseedDependenciesFilepath }}
       repositoryReseedReadmeFilepath: ${{ steps.agentic-lib.outputs.repositoryReseedReadmeFilepath }}
 
