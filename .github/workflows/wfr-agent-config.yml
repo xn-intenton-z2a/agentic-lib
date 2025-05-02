@@ -105,11 +105,15 @@ on:
       docRoot:
         value: ${{ jobs.agentic-lib.outputs.docRoot }}
 
-      # Sandbox maintenance
+      # Sandbox configuration
       sandboxPath:
         value: ${{ jobs.agentic-lib.outputs.sandboxPath }}
       sandboxReset:
         value: ${{ jobs.agentic-lib.outputs.sandboxReset }}
+
+      # Repository configuration
+      repositoryReseed:
+        value: ${{ jobs.agentic-lib.outputs.repositoryReseed }}
 
       # Contents of the agentic-lib.yml file
       agentConfigContent:
@@ -164,9 +168,12 @@ jobs:
       # Web publishing
       defaultDocRoot: 'docs/'
 
-      # Sandbox maintenance
+      # Sandbox configuration
       defaultSandboxPath: 'sandbox'
       defaultSandboxReset: 'false'
+
+      # Repository configuration
+      defaultRepositoryReseed: 'false'
 
       # Agentic-lib configuration file contents
       defaultAgentConfigContent: ''
@@ -257,9 +264,12 @@ jobs:
             // Web publishing
             const docRoot = config?.docRoot || process.env.defaultDocRoot;
             
-            // Sandbox maintenance
+            // Sandbox configuration
             const sandboxPath = config?.sandboxPath || process.env.defaultSandboxPath;
             const sandboxReset = config?.sandboxReset || process.env.defaultSandboxReset;
+            
+            // Repository configuration
+            const repositoryReseed = config?.repositoryReseed || process.env.defaultRepositoryReseed;
 
             if (config?.paths) {
 
@@ -400,11 +410,15 @@ jobs:
             core.setOutput('docRoot', docRoot);
 
 
-            // Sandbox maintenance - Set outputs
+            // Sandbox configuration - Set outputs
             console.log(`sandboxPath=${sandboxPath}`);
             core.setOutput('sandboxPath', sandboxPath);
             console.log(`sandboxReset=${sandboxReset}`);
             core.setOutput('sandboxReset', sandboxReset);
+            
+            // Repository configuration - Set outputs
+            console.log(`repositoryReseed=${repositoryReseed}`);
+            core.setOutput('repositoryReseed', repositoryReseed);
 
             // Contents of the agentic-lib.yml file
             console.log(`agentConfigContent=${agentConfigContent}`);
@@ -453,9 +467,12 @@ jobs:
       # Web publishing
       docRoot: ${{ steps.agentic-lib.outputs.docRoot }}
 
-      # Sandbox maintenance
+      # Sandbox configuration
       sandboxPath: ${{ steps.agentic-lib.outputs.sandboxPath }}
       sandboxReset: ${{ steps.agentic-lib.outputs.sandboxReset }}
+
+      # Repository configuration
+      repositoryReseed: ${{ steps.agentic-lib.outputs.repositoryReseed }}
 
       # Contents of the agentic-lib.yml file
       agentConfigContent: ${{ steps.agentic-lib.outputs.agentConfigContent }}

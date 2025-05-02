@@ -21,6 +21,7 @@ on:
   workflow_run:
     workflows:
       - reset-sandbox
+      - seed-repository
     types:
       - completed
   schedule:

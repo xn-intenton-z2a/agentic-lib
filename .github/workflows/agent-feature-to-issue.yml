@@ -25,7 +25,7 @@ on:
       PERSONAL_ACCESS_TOKEN:
         required: false
       CHATGPT_API_SECRET_KEY:
-        required: false
+        required: true
     #workflows: (annotation only)
     #    - agent-library-to-feature
   schedule:
