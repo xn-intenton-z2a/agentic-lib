@@ -667,9 +667,12 @@ Re-usable GitHub Actions Workflows:
 - [x] [r0w-MVP] Get the sandbox tests and code to run with the npm test command.
 - [x] [r0w-MVP] Set up s3-sqs-bridge to only do essential updates (maintainer role)
 - [x] [r0w-MVP] Set up repository0 to only write to sandbox files, reset every week by deleting the sandbox folder.
-- [~] [r0w-MVP] Set up repository0-crucible to use multiple file outputs and support initialisation from a seed.
-- [~] [r0w-MVP] Set up plot-code-lib to use a single file outputs
+- [x] [r0w-MVP] Set up repository0-crucible to use multiple file outputs and support initialisation from a seed.
+- [~] [r0w-MVP] Set up plot-code-lib to use single file outputs
 - [ ] [r0w-MVP] Set up repository0-web to documents only (elaboration role), hand off to "Repository0-web" tasklist
+- [ ] [r0w-Launch] Review features and move to docs when done.
+- [ ] [r0w-Launch] Review mission and stop creating features when done.
+- [ ] [r0w-Launch] If no maintenance activity is found, then terminate succefully,
 - [ ] [r0w-Launch] Diagram the workflow interactions.
 - [ ] [r0w-Launch] Pull into agentic-lib.yml: startsWith("apply-fix-"));
 - [ ] [r0w-Launch] Pull into agentic-lib.yml: startsWith("issue-worker-"));
