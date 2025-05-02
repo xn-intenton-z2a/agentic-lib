@@ -106,6 +106,16 @@ on:
         type: string
         required: false
         default: ''
+      gitUserEmail:
+        description: 'The email to use for git commits. e.g. "action@github.com"'
+        type: string
+        required: false
+        default: 'action@github.com'
+      gitUserName:
+        description: 'The name to use for git commits. e.g. "GitHub Actions[bot]"'
+        type: string
+        required: false
+        default: 'GitHub Actions[bot]'
       s3BucketUrl:
         description: 'The S3 bucket URL with prefix to use. e.g. "s3://my-bucket/prefix"'
         type: string
@@ -158,6 +168,8 @@ jobs:
       cache: ${{ inputs.cache || 'npm' }}
       promptFilepath: ${{ inputs.promptFilepath || '.github/agents/agent-review-issue.md' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
+      gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
+      gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
       agentConfigContent: ${{ inputs.agentConfigContent || '' }}
@@ -165,6 +177,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

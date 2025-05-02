@@ -96,6 +96,21 @@ on:
         type: string
         required: false
         default: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
+      npmAuthOrganisation:
+        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
+        type: string
+        required: false
+        default: ''
+      gitUserEmail:
+        description: 'The email to use for git commits. e.g. "action@github.com"'
+        type: string
+        required: false
+        default: 'action@github.com'
+      gitUserName:
+        description: 'The name to use for git commits. e.g. "GitHub Actions[bot]"'
+        type: string
+        required: false
+        default: 'GitHub Actions[bot]'
       cache:
         description: 'The cache to use for npm. e.g. "npm"'
         type: string
@@ -105,11 +120,6 @@ on:
         description: 'The file containing the prompt text. e.g. ".github/agents/agent-ready-issue.md"'
         type: string
         required: true
-      npmAuthOrganisation:
-        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
-        type: string
-        required: false
-        default: ''
       s3BucketUrl:
         description: 'The S3 bucket URL with prefix to use. e.g. "s3://my-bucket/prefix"'
         type: string
@@ -165,10 +175,12 @@ jobs:
       mainScript: ${{ inputs.mainScript || 'npm run start' }}
       mainScriptTimeout: '5m'
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o4-mini' }}
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
+      gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
+      gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       cache: ${{ inputs.cache || 'npm' }}
       promptFilepath: ${{ inputs.promptFilepath || '.github/agents/agent-ready-issue.md' }}
-      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       s3BucketUrl: ${{ inputs.s3BucketUrl || '' }}
       iamRoleArn: ${{ inputs.iamRoleArn || '' }}
       agentConfigContent: ${{ inputs.agentConfigContent || '' }}
@@ -178,6 +190,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
