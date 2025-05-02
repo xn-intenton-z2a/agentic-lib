@@ -73,6 +73,6 @@ sandbox:
 #  repositoryReseed: 'true'
 #  missionFilepath: 'seeds/zero-MISSION.md'
 #  sourcePath: 'seeds/zero-main.js'
-#  testsPath: 'seeds/zero-tests.js'
+#  testsPath: 'seeds/zero-main.test.js'
 #  dependenciesFilepath: 'seeds/zero-package.json'
 #  readmeFilepath: 'seeds/zero-README.md'
