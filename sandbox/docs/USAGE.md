@@ -35,4 +35,24 @@ Run a full bucket replay simulating an SQS event:
 node src/lib/main.js --digest
 ```
 
+### 4. Runtime Stats
+
+Output enhanced runtime diagnostics as a JSON object. The output JSON contains the following keys:
+
+- callCount: The current global call count.
+- uptime: The current process uptime in seconds.
+- memoryUsage: Memory usage metrics, including at least the heapUsed property as a number.
+
+Example:
+
+```
+node src/lib/main.js --runtime-stats
+```
+
+Sample output:
+
+```
+{"callCount":0,"uptime":1.23456789,"memoryUsage":{"rss":...,"heapTotal":...,"heapUsed":1234567,...}}
+```
+
 For additional information and detailed documentation, please refer to the guides provided in this repository.
