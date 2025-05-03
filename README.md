@@ -705,8 +705,16 @@ Re-usable GitHub Actions Workflows:
 - [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
 - [ ] Generate API.md based on the source file.
 - [ ] Move check-attempts-limit into a reusable workflow.
+- [ ] Investigate MCP for exposing access to repository files.
+- [ ] Create an MCp sever for the repositor actions and pass to ChatGPT to act.
+- [ ] Add a list of all projects files to the context.
 
-- [ ] Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
+On GitHub Discussion creation: Reads title and description, seeds with that as the mission, saves a trace back to documenationPath with a file a URL pointing -> the GitHub Discussion from the event,
+On schedule: Summarises commits to main as discussion comments using the saved file comments (read commits added as comments) so only unread commits are summarised.
+Answers questions about the in the discussion thread.
+Refines the mission before getting the go-ahead to seed.
+Other bots chime in with view points (e.g. what exists already, what we have on this in the library, progress so far).
+Mission file and features can be refined based on these discussions during development.
 
 MVP user journey:
 - [ ] [r0w-MVP] On intentïon.com, user provides an intention which is posted as a new GitHub Discussions thread.
@@ -722,14 +730,16 @@ Cost model:
 - [ ] A / B test to measure value per feature.
 - [ ] Explore the differentiating factors that attribute costs to features. - insight into how to work with
 
-Marketplace GitHub Actions:
-- [x] [r0w-Launch] Review all the parameters where re-usable workflows are used and ensure that any parameters that are filepaths are stated explicitly in the calling workflow.
-- [x] [r0w-Launch] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-- [~] [r0w-Launch] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
-- [ ] [r0w-Launch] Switch from github script actions to `run: node` and have the action run against a moving 'latest' tag.
+Marketplace GitHub Actions [r0w-Launch] :
+- [ ] Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
+- [ ] Collect examples of demo output for the Actions documentation.
+- [x] Review all the parameters where re-usable workflows are used and ensure that any parameters that are filepaths are stated explicitly in the calling workflow.
+- [x] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+- [~] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
+- [ ] Switch from github script actions to `run: node` and have the action run against a moving 'latest' tag.
   See: [ACTIONS_JS_STEPS.md](examples/archive-2025-04-20/ACTIONS_JS_STEPS.md)
-- [ ] [r0w-Launch] Add tests for the actions library JS and organise the code.
-- [ ] [r0w-Launch] Move JS Steps to a GitHub distributed Action.
+- [ ] Add tests for the actions library JS and organise the code.
+- [ ] Move JS Steps to a GitHub distributed Action.
 - [ ] Convert the actions library JS to an SDK.
 - [ ] Make the SDK available as an API.
 - [ ] Make the API available as an MCP server.

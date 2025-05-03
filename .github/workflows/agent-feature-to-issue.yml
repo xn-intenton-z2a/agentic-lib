@@ -26,6 +26,12 @@ on:
   #   CHATGPT_API_SECRET_KEY:
   #     required: true
   workflow_call:
+    inputs:
+      featureName:
+        description: 'name of the feature to create an issue for (if "house choice", a currently random feature will be selected). e.g. "WEBSITE"'
+        required: false
+        type: string
+        default: 'house choice'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false

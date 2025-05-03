@@ -517,7 +517,7 @@ jobs:
 
             const chatGptPrompt = `
             Please generate the title and description of a GitHub issue to which will be used to further the development of the ${featureName} feature.
-            Examine the details named feature ${featureName} in the current feature names and specifications, and evaluate the current state of the repository to determine which changes will implement the feature and allow it's value to be realised.
+            Examine the details named feature ${featureName} in the current feature names and specifications if it's there, (if not imply the feature from the from the name), and evaluate the current state of the repository to determine which changes will implement the feature and allow it's value to be realised.
 
             ${promptContent}
             The maximum number of feature development issues that should be open at any one time is ${featureDevelopmentIssuesWipLimit}, if there are already ${featureDevelopmentIssuesWipLimit} open issues fail this request.

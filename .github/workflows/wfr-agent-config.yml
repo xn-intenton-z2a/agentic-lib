@@ -125,6 +125,10 @@ on:
       repositoryReseedReadmeFilepath:
         value: ${{ jobs.agentic-lib.outputs.repositoryReseedReadmeFilepath }}
 
+      # Discussions Bot
+      seedDiscussionFilepath:
+        value: ${{ jobs.agentic-lib.outputs.seedDiscussionFilepath }}
+
       # Contents of the agentic-lib.yml file
       agentConfigContent:
           value: ${{ jobs.agentic-lib.outputs.agentConfigContent }}
@@ -190,6 +194,9 @@ jobs:
       defaultRepositoryReseedDependenciesFilepath: 'seeds/zero-package.json'
       defaultRepositoryReseedReadmeFilepath: 'seeds/zero-README.md'
 
+      # Discussions Bot
+      defaultSeedDiscussionFilepath: 'SEED_DISCUSSION.md'
+
       # Agentic-lib configuration file contents
       defaultAgentConfigContent: ''
 
@@ -250,7 +257,7 @@ jobs:
             // Use the configPath from input parameter
             const configPath = process.env.configPath;
             if (!fs.existsSync(configPath)) {
-              console.log("Warning: .github/agents/agentic-lib.yml file not found, using default values.");
+              core.info("Warning: .github/agents/agentic-lib.yml file not found, using default values.");
             }
 
             let config;
@@ -260,7 +267,7 @@ jobs:
               agentConfigContent = fs.readFileSync(configPath, 'utf8');
               config = yaml.load(agentConfigContent);
             } catch (error) {
-              console.log(`Error parsing .github/agents/agentic-lib.yml: ${error.message}, using default values.`);
+              core.info(`Error parsing .github/agents/agentic-lib.yml: ${error.message}, using default values.`);
             }
 
             // Execution commands
@@ -290,6 +297,9 @@ jobs:
             const repositoryReseedTestsPath = config?.seeding?.repositoryReseedTestsPath || process.env.defaultRepositoryReseedTestsPath;
             const repositoryReseedDependenciesFilepath = config?.seeding?.repositoryReseedDependenciesFilepath || process.env.defaultRepositoryReseedDependenciesFilepath;
             const repositoryReseedReadmeFilepath = config?.seeding?.repositoryReseedReadmeFilepath || process.env.defaultRepositoryReseedReadmeFilepath;
+
+            // Discussions Bot
+            const seedDiscussionFilepath = config?.discussions?.seedDiscussionFilepath || process.env.defaultSeedDiscussionFilepath;
 
             if (config?.paths) {
 
@@ -337,126 +347,133 @@ jobs:
             }
 
             // Filepaths for elaborator workflows - Set outputs
-            console.log(`missionFilepath=${missionFilepath}`);
+            core.info(`missionFilepath=${missionFilepath}`);
             core.setOutput('missionFilepath', missionFilepath);
 
-            console.log(`librarySourcesFilepath=${librarySourcesFilepath}`);
+            core.info(`librarySourcesFilepath=${librarySourcesFilepath}`);
             core.setOutput('librarySourcesFilepath', librarySourcesFilepath);
 
-            console.log(`librarySourcesLimit=${librarySourcesLimit}`);
+            core.info(`librarySourcesLimit=${librarySourcesLimit}`);
             core.setOutput('librarySourcesLimit', librarySourcesLimit);
 
-            console.log(`libraryDocumentsLimit=${libraryDocumentsLimit}`);
+            core.info(`libraryDocumentsLimit=${libraryDocumentsLimit}`);
             core.setOutput('libraryDocumentsLimit', libraryDocumentsLimit);
 
-            console.log(`libraryDocumentsPath=${libraryDocumentsPath}`);
+            core.info(`libraryDocumentsPath=${libraryDocumentsPath}`);
             core.setOutput('libraryDocumentsPath', libraryDocumentsPath);
 
-            console.log(`featuresPath=${featuresPath}`);
+            core.info(`featuresPath=${featuresPath}`);
             core.setOutput('featuresPath', featuresPath);
 
-            console.log(`featuresLimit=${featuresLimit}`);
+            core.info(`featuresLimit=${featuresLimit}`);
             core.setOutput('featuresLimit', featuresLimit);
 
 
             // Filepaths for engineer workflows - Set outputs
-            console.log(`contributingFilepath=${contributingFilepath}`);
+            core.info(`contributingFilepath=${contributingFilepath}`);
             core.setOutput('contributingFilepath', contributingFilepath);
 
-            console.log(`allTestsPaths=${allTestsPaths}`);
+            core.info(`allTestsPaths=${allTestsPaths}`);
             core.setOutput('allTestsPaths', allTestsPaths);
 
-            console.log(`targetTestsPath=${targetTestsPath}`);
+            core.info(`targetTestsPath=${targetTestsPath}`);
             core.setOutput('targetTestsPath', targetTestsPath);
 
-            console.log(`allSourcePaths=${allSourcePaths}`);
+            core.info(`allSourcePaths=${allSourcePaths}`);
             core.setOutput('allSourcePaths', allSourcePaths);
 
-            console.log(`targetSourcePath=${targetSourcePath}`);
+            core.info(`targetSourcePath=${targetSourcePath}`);
             core.setOutput('targetSourcePath', targetSourcePath);
 
-            console.log(`dependenciesFilepath=${dependenciesFilepath}`);
+            core.info(`dependenciesFilepath=${dependenciesFilepath}`);
             core.setOutput('dependenciesFilepath', dependenciesFilepath);
 
-            console.log(`documentationPath=${documentationPath}`);
+            core.info(`documentationPath=${documentationPath}`);
             core.setOutput('documentationPath', documentationPath);
 
 
             // Filepaths for maintainer workflows - Set outputs
-            console.log(`formattingFilepath=${formattingFilepath}`);
+            core.info(`formattingFilepath=${formattingFilepath}`);
             core.setOutput('formattingFilepath', formattingFilepath);
 
-            console.log(`lintingFilepath=${lintingFilepath}`);
+            core.info(`lintingFilepath=${lintingFilepath}`);
             core.setOutput('lintingFilepath', lintingFilepath);
 
-            console.log(`readmeFilepath=${readmeFilepath}`);
+            core.info(`readmeFilepath=${readmeFilepath}`);
             core.setOutput('readmeFilepath', readmeFilepath);
 
 
             // Filepath access permissions - Set outputs
-            console.log(`writeableFilepaths=${writeableFilepaths}`);
+            core.info(`writeableFilepaths=${writeableFilepaths}`);
             core.setOutput('writeableFilepaths', writeableFilepaths);
 
 
             // Execution commands - Set outputs
-            console.log(`buildScript=${buildScript}`);
+            core.info(`buildScript=${buildScript}`);
             core.setOutput('buildScript', buildScript);
 
-            console.log(`testScript=${testScript}`);
+            core.info(`testScript=${testScript}`);
             core.setOutput('testScript', testScript);
 
-            console.log(`mainScript=${mainScript}`);
+            core.info(`mainScript=${mainScript}`);
             core.setOutput('mainScript', mainScript);
 
 
             // How many issues should be available to be picked up? - Set outputs
-            console.log(`featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}`);
+            core.info(`featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}`);
             core.setOutput('featureDevelopmentIssuesWipLimit', featureDevelopmentIssuesWipLimit);
 
-            console.log(`maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
+            core.info(`maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
             core.setOutput('maintenanceIssuesWipLimit', maintenanceIssuesWipLimit);
 
 
             // How many attempts should be made to work on an issue? - Set outputs
-            console.log(`attemptsPerBranch=${attemptsPerBranch}`);
+            core.info(`attemptsPerBranch=${attemptsPerBranch}`);
             core.setOutput('attemptsPerBranch', attemptsPerBranch);
 
-            console.log(`attemptsPerIssue=${attemptsPerIssue}`);
+            core.info(`attemptsPerIssue=${attemptsPerIssue}`);
             core.setOutput('attemptsPerIssue', attemptsPerIssue);
 
 
             // Web publishing - Set outputs
-            console.log(`docRoot=${docRoot}`);
+            core.info(`docRoot=${docRoot}`);
             core.setOutput('docRoot', docRoot);
 
 
             // Sandbox configuration - Set outputs
-            console.log(`sandboxPath=${sandboxPath}`);
+            core.info(`sandboxPath=${sandboxPath}`);
             core.setOutput('sandboxPath', sandboxPath);
-            console.log(`sandboxReset=${sandboxReset}`);
+            core.info(`sandboxReset=${sandboxReset}`);
             core.setOutput('sandboxReset', sandboxReset);
             
+            
             // Repository seeding - Set outputs
-            console.log(`repositoryReseed=${repositoryReseed}`);
+            core.info(`repositoryReseed=${repositoryReseed}`);
             core.setOutput('repositoryReseed', repositoryReseed);
             
-            console.log(`repositoryReseedMissionFilepath=${repositoryReseedMissionFilepath}`);
+            core.info(`repositoryReseedMissionFilepath=${repositoryReseedMissionFilepath}`);
             core.setOutput('repositoryReseedMissionFilepath', repositoryReseedMissionFilepath);
             
-            console.log(`repositoryReseedSourcePath=${repositoryReseedSourcePath}`);
+            core.info(`repositoryReseedSourcePath=${repositoryReseedSourcePath}`);
             core.setOutput('repositoryReseedSourcePath', repositoryReseedSourcePath);
             
-            console.log(`repositoryReseedTestsPath=${repositoryReseedTestsPath}`);
+            core.info(`repositoryReseedTestsPath=${repositoryReseedTestsPath}`);
             core.setOutput('repositoryReseedTestsPath', repositoryReseedTestsPath);
             
-            console.log(`repositoryReseedDependenciesFilepath=${repositoryReseedDependenciesFilepath}`);
+            core.info(`repositoryReseedDependenciesFilepath=${repositoryReseedDependenciesFilepath}`);
             core.setOutput('repositoryReseedDependenciesFilepath', repositoryReseedDependenciesFilepath);
             
-            console.log(`repositoryReseedReadmeFilepath=${repositoryReseedReadmeFilepath}`);
+            core.info(`repositoryReseedReadmeFilepath=${repositoryReseedReadmeFilepath}`);
             core.setOutput('repositoryReseedReadmeFilepath', repositoryReseedReadmeFilepath);
 
+
+            // Discussions Bot - Set outputs
+            core.info(`seedDiscussionFilepath=${seedDiscussionFilepath}`);
+            core.setOutput('seedDiscussionFilepath', seedDiscussionFilepath);
+
+
             // Contents of the agentic-lib.yml file
-            console.log(`agentConfigContent=${agentConfigContent}`);
+            core.info(`agentConfigContent=${agentConfigContent}`);
             core.setOutput('agentConfigContent', agentConfigContent);
 
     outputs:
@@ -513,6 +530,9 @@ jobs:
       repositoryReseedTestsPath: ${{ steps.agentic-lib.outputs.repositoryReseedTestsPath }}
       repositoryReseedDependenciesFilepath: ${{ steps.agentic-lib.outputs.repositoryReseedDependenciesFilepath }}
       repositoryReseedReadmeFilepath: ${{ steps.agentic-lib.outputs.repositoryReseedReadmeFilepath }}
+
+      # Discussions Bot
+      seedDiscussionFilepath: ${{ steps.agentic-lib.outputs.seedDiscussionFilepath }}
 
       # Contents of the agentic-lib.yml file
       agentConfigContent: ${{ steps.agentic-lib.outputs.agentConfigContent }}
