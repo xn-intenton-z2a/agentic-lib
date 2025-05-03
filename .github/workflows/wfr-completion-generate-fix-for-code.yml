@@ -623,16 +623,16 @@ jobs:
             ${currentFeatures}
             CURRENT_FEATURES_END
 
-            Source files (to update those in ${targetSourcePath} if necessary):
-            (Multiple files)
+            Source files (write new files or update files in ${targetSourcePath} as necessary):
+            (Multiple files from both in writable locations and not.)
             ${Object.entries(sourceFileContents).map(([file, content]) => `SOURCE_FILE_START Filepath: ${file}\n${content}\nSOURCE_FILE_END\n\n`).join('\n')}
 
-            Test files (to update those in ${targetTestsPath} if necessary):
-            (Multiple files)
+            Test files (write new files or update files in ${targetTestsPath} as necessary):
+            (Multiple files from both in writable locations and not.)
             ${Object.entries(testsFileContents).map(([file, content]) => `TEST_FILE_START File: ${file}\n${content}\nTEST_FILE_END\n\n`).join('\n')}
             
-            Documentation files (to be updated in ${documentationPath} if necessary):
-            (Multiple files)
+            Documentation files (write new files or update files in ${documentationPath} as necessary):
+            (Multiple files from both in writable locations and not.)
             ${Object.entries(docsFileContents).map(([file, content]) => `DOCUMENTATION_FILE_START File: ${file}\n${content}\nDOCUMENTATION_FILE_END\n\n`).join('\n')}
 
             README file (for context, read only): ${readmeFilepath}
