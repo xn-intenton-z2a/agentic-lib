@@ -112,7 +112,7 @@ cp -v .github/workflows/utils-truncate-issue-history.yml "${DEST_DIR}/."
 rm -f "${DEST_DIR}/truncate-workflow-history.yml"
 cp -v .github/workflows/utils-truncate-workflow-history.yml "${DEST_DIR}/."
 
-cp -v .github/workflows/utils-reset-sandbox.yml "${DEST_DIR}/."
+rm -f "${DEST_DIR}/utils-reset-sandbox.yml"
 
 cp -v .github/workflows/utils-seed-repository.yml "${DEST_DIR}/."
 
