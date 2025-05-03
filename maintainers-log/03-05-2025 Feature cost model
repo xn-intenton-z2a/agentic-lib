@@ -13,3 +13,7 @@ The focus at the moment is an MVP of something hooked into intentïon.com, then 
 
 I year ago something that could resolve eslint issues above the capabilities --fix, seemed ground breaking, today
 generating a whole app is a late entrant to the market. Handing over a self-directed coding system is more interesting.
+
+Also today, the first security incident. The secrets.env file (which only has read access to public repository),
+may have been disclosed and was not visible but used a well known file pattern and it should have remain secret. All
+potentially impacted repositories will be checked and all the keys rotated and the publication process examined.
