@@ -706,6 +706,22 @@ Re-usable GitHub Actions Workflows:
 - [ ] Generate API.md based on the source file.
 - [ ] Move check-attempts-limit into a reusable workflow.
 
+- [ ] Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
+
+MVP user journey:
+- [ ] [r0w-MVP] On intentïon.com, user provides an intention which is posted as a new GitHub Discussions thread.
+- [ ] [r0w-MVP] repository0-crucible seeds the repository with the mission and reports back with the intentïon branch.
+- [ ] [r0w-MVP] Updates periodically synchronised to a branch (which does not run the workflows) and summary reported to Discussions.
+- [ ] [r0w-MVP] Discussions updates also posted intentïon.com.
+- [ ] [r0w-MVP] intentïon.com posts: running experiment: <link to branch>
+- [ ] [r0w-MVP] TODO: How do users create a clone from a branch?
+
+Cost model:
+- [ ] Log costs assigned to features in OpenAI tokens, API minutes, GitHub Actions minutes, and AWS costs.
+- [ ] Optimise costs per feature against parameters in agentic-lib.yml, e.g. attemptsPerBranch or attemptsPerIssue.
+- [ ] A / B test to measure value per feature.
+- [ ] Explore the differentiating factors that attribute costs to features. - insight into how to work with
+
 Marketplace GitHub Actions:
 - [x] [r0w-Launch] Review all the parameters where re-usable workflows are used and ensure that any parameters that are filepaths are stated explicitly in the calling workflow.
 - [x] [r0w-Launch] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
