@@ -132,8 +132,9 @@ function generateUsage() {
   return `
 Usage:
   --help                     Show this help message and usage instructions.
-  --digest                   Run a full bucket replay simulating an SQS event.
   --version                  Show version information with current timestamp.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --custom-digest            Simulate a custom SQS event with additional digest fields.
 `;
 }
 
@@ -181,6 +182,23 @@ async function processDigest(args) {
   return false;
 }
 
+// Process the --custom-digest flag
+async function processCustomDigest(args) {
+  if (args.includes("--custom-digest")) {
+    const customDigest = {
+      key: "custom/events/1.json",
+      value: "custom-12345",
+      customFlag: true,
+      lastModified: new Date().toISOString()
+    };
+    const sqsEvent = createSQSEventFromDigest(customDigest);
+    await digestLambdaHandler(sqsEvent);
+    logInfo("Custom digest processed");
+    return true;
+  }
+  return false;
+}
+
 // Helper to log verbose stats once per command
 function logVerboseStats() {
   if (VERBOSE_STATS) {
@@ -203,6 +221,7 @@ async function tryCommand(commandFunc) {
 // ---------------------------------------------------------------------------------------------------------------------
 
 export async function main(args = process.argv.slice(2)) {
+  if (await tryCommand(() => processCustomDigest(args))) return;
   if (await tryCommand(() => processHelp(args))) return;
   if (await tryCommand(() => processVersion(args))) return;
   if (await tryCommand(() => processDigest(args))) return;
