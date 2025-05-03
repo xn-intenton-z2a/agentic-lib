@@ -37,11 +37,11 @@ node src/lib/main.js --digest
 
 ### 4. Runtime Stats
 
-Output enhanced runtime diagnostics as a JSON object. The output JSON contains the following keys:
+Output enhanced runtime diagnostics as a JSON object. The JSON object contains the following keys:
 
 - callCount: The current global call count.
 - uptime: The current process uptime in seconds.
-- memoryUsage: Memory usage metrics including at least the heapUsed property as a number.
+- memoryUsage: Memory usage metrics including at least the heapUsed property.
 
 Example:
 
