@@ -41,7 +41,7 @@ Output enhanced runtime diagnostics as a JSON object. The output JSON contains t
 
 - callCount: The current global call count.
 - uptime: The current process uptime in seconds.
-- memoryUsage: Memory usage metrics, including at least the heapUsed property as a number.
+- memoryUsage: Memory usage metrics including at least the heapUsed property as a number.
 
 Example:
 
@@ -54,5 +54,3 @@ Sample output:
 ```
 {"callCount":0,"uptime":1.23456789,"memoryUsage":{"rss":...,"heapTotal":...,"heapUsed":1234567,...}}
 ```
-
-For additional information and detailed documentation, please refer to the guides provided in this repository.
