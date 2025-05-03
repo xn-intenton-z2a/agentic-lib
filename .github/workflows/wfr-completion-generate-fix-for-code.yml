@@ -589,6 +589,11 @@ jobs:
             const chatGptPrompt = `
             ${promptContent}
             
+            
+            The target writable locations for your output are: ${targetSourcePath} ${targetTestsPath} ${documentationPath}
+            Other file will be supplied in the context but only the paths above should be written to, you can create new files in these directories.
+            
+            
             Only provide new or updated content for source files in ${targetSourcePath}.
             Only delete or update source files in ${targetSourcePath}.
             Only provide new or updated content for test files in ${targetTestsPath}.
