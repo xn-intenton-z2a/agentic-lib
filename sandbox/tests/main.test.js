@@ -28,3 +28,16 @@ describe("Main Module Import", () => {
     expect(loaded).not.toBeNull();
   });
 });
+
+// New test for the custom digest CLI flag
+describe("Custom Digest CLI Flag", () => {
+  test("should process custom digest when '--custom-digest' flag is provided", async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    await mainModule.main(["--custom-digest"]);
+    const logs = logSpy.mock.calls.map(call => call[0]);
+    // Check that one of the log messages contains 'Custom digest processed'
+    const containsCustomDigestMessage = logs.some(log => log.includes('Custom digest processed'));
+    expect(containsCustomDigestMessage).toBe(true);
+    logSpy.mockRestore();
+  });
+});
