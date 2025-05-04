@@ -257,6 +257,13 @@ jobs:
                 discussionsText += "\n---\n\n";
               }
 
+              // Strip conflicting directives by replacing START, END, ", ', ` with "?"
+              discussionsText = discussionsText.replace(/START/g, '?')
+                                             .replace(/END/g, '?')
+                                             .replace(/"/g, '?')
+                                             .replace(/'/g, '?')
+                                             .replace(/`/g, '?');
+
               core.setOutput('discussions', discussionsText);
             } catch (error) {
               core.warning(`Error fetching discussions: ${error.message}`);
@@ -270,7 +277,15 @@ jobs:
           script: |
             try {
               const { execSync } = require('child_process');
-              const commits = execSync('git log -n 50 --pretty=format:"Commit: %h%nAuthor: %an <%ae>%nDate: %ad%nMessage: %s%n%n"').toString();
+              let commits = execSync('git log -n 50 --pretty=format:"Commit: %h%nAuthor: %an <%ae>%nDate: %ad%nMessage: %s%n%n"').toString();
+
+              // Strip conflicting directives by replacing START, END, ", ', ` with "?"
+              commits = commits.replace(/START/g, '?')
+                              .replace(/END/g, '?')
+                              .replace(/"/g, '?')
+                              .replace(/'/g, '?')
+                              .replace(/`/g, '?');
+
               core.setOutput('commits', commits);
             } catch (error) {
               core.warning(`Error fetching commits: ${error.message}`);
