@@ -191,53 +191,44 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            // GraphQL query to fetch repository discussions
-            const query = `
-              query {
-                repository(owner: "${owner}", name: "${repo}") {
-                  discussions(first: 10, orderBy: {field: CREATED_AT, direction: DESC}) {
-                    nodes {
-                      title
-                      body
-                      url
-                      createdAt
-                      author {
-                        login
-                      }
-                      comments(first: 10) {
-                        nodes {
-                          author {
-                            login
-                          }
-                          body
-                          createdAt
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            `;
 
             try {
-              const result = await github.graphql(query);
-              const discussions = result.repository.discussions.nodes;
+              // Use the REST API to fetch repository discussions
+              const { data: discussions } = await github.rest.discussions.list({
+                owner: owner,
+                repo: repo,
+                per_page: 10,
+                direction: 'desc',
+                sort: 'created'
+              });
 
               let discussionsText = "";
               for (const discussion of discussions) {
                 discussionsText += `Discussion: ${discussion.title}\n`;
-                discussionsText += `Author: ${discussion.author ? discussion.author.login : 'Unknown'}\n`;
-                discussionsText += `Created: ${discussion.createdAt}\n`;
-                discussionsText += `URL: ${discussion.url}\n`;
+                discussionsText += `Author: ${discussion.user ? discussion.user.login : 'Unknown'}\n`;
+                discussionsText += `Created: ${discussion.created_at}\n`;
+                discussionsText += `URL: ${discussion.html_url}\n`;
                 discussionsText += `Body: ${discussion.body}\n`;
 
-                if (discussion.comments.nodes.length > 0) {
-                  discussionsText += "Comments:\n";
-                  for (const comment of discussion.comments.nodes) {
-                    discussionsText += `  Author: ${comment.author ? comment.author.login : 'Unknown'}\n`;
-                    discussionsText += `  Created: ${comment.createdAt}\n`;
-                    discussionsText += `  Body: ${comment.body}\n\n`;
+                // Fetch comments for each discussion
+                try {
+                  const { data: comments } = await github.rest.discussions.listComments({
+                    owner: owner,
+                    repo: repo,
+                    discussion_number: discussion.number,
+                    per_page: 10
+                  });
+
+                  if (comments.length > 0) {
+                    discussionsText += "Comments:\n";
+                    for (const comment of comments) {
+                      discussionsText += `  Author: ${comment.user ? comment.user.login : 'Unknown'}\n`;
+                      discussionsText += `  Created: ${comment.created_at}\n`;
+                      discussionsText += `  Body: ${comment.body}\n\n`;
+                    }
                   }
+                } catch (commentError) {
+                  core.warning(`Error fetching comments for discussion ${discussion.number}: ${commentError.message}`);
                 }
 
                 discussionsText += "\n---\n\n";

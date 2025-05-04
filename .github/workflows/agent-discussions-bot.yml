@@ -197,27 +197,21 @@ jobs:
             const discussionUrl = process.env.url;
             const reply = process.env.reply;
 
-            // If this was triggered by a discussion event, we can get the discussion ID directly
+            // If this was triggered by a discussion event, we can get the discussion number directly
             if (context.eventName === 'discussion' || context.eventName === 'discussion_comment') {
-              const discussionId = context.payload.discussion.node_id;
-              core.info(`Posting reply to discussion with ID: ${discussionId}`);
+              const discussionNumber = context.payload.discussion.number;
+              core.info(`Posting reply to discussion with number: ${discussionNumber}`);
 
-              // Use the GraphQL API to add a comment to the discussion
-              const response = await github.graphql(`
-                mutation {
-                  addDiscussionComment(input: {
-                    discussionId: "${discussionId}",
-                    body: "${reply.replace(/"/g, '\\"')}"
-                  }) {
-                    comment {
-                      id
-                    }
-                  }
-                }
-              `);
+              // Use the REST API to add a comment to the discussion
+              const response = await github.rest.discussions.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                discussion_number: discussionNumber,
+                body: reply
+              });
 
-              core.setOutput('response', JSON.stringify(response));
-              core.info(`Response: ${JSON.stringify(response)}`);
+              core.setOutput('response', JSON.stringify(response.data));
+              core.info(`Response: ${JSON.stringify(response.data)}`);
             } else if (discussionUrl) {
               // If we have a URL but not a direct event, try to extract the discussion number
               // Example URL: https://github.com/owner/repo/discussions/123
