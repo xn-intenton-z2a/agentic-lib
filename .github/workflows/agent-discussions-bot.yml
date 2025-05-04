@@ -181,7 +181,9 @@ jobs:
 
   post-reply:
     name: Post reply comment
-    needs: [process-discussion-post, generate-response]
+    needs:
+      - process-discussion-post
+      - generate-response
     if: ${{ needs.generate-response.outputs.action != 'nop' }}
     runs-on: ubuntu-latest
     permissions:
@@ -190,13 +192,18 @@ jobs:
     steps:
       - name: Post reply
         uses: actions/github-script@v7
+        env:
+          reply: ${{ needs.generate-response.outputs.reply }}
+          url: ${{ needs.process-discussion-post.outputs.url }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             // Grab the reply text and URL from the job outputs
-            const reply = `${{ needs.generate-response.outputs.reply }}`;
-            const url   = `${{ needs.process-discussion-post.outputs.url }}`;
-
+            const reply = process.env.reply;
+            const url = process.env.url;
+            const body = process.env.reply;  
+            const discussionId = context.payload.discussion.node_id;
+            
             // Determine discussion number
             let discussionNumber;
             if (context.eventName === 'discussion') {
@@ -212,16 +219,20 @@ jobs:
               }
             }
 
-            // Post a comment via the REST endpoint
-            const response = await github.request(
-              'POST /repos/{owner}/{repo}/discussions/{discussion_number}/comments',
-              {
-                owner:             context.repo.owner,
-                repo:              context.repo.repo,
-                discussion_number: discussionNumber,
-                body:              reply
-              }
-            );
+            const mutation = `
+            mutation ($discussionId: ID!, $body: String!) {
+               addDiscussionComment(input: {
+                 discussionId: $discussionId,
+                 body: $reply
+               }) {
+               comment { id htmlUrl }
+             }
+            }`;
+      
+            const result = await github.graphql(mutation, {
+              discussionId,
+              body
+            });
 
             core.info(`Comment posted at ${response.data.html_url}`);
 
@@ -367,4 +378,3 @@ jobs:
   # TODO: Job to drop down to maintenance mode if the discussion topic is resolved.
 
   # TODO: Post as the Bot's app account.
-
