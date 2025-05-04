@@ -220,13 +220,16 @@ jobs:
             }
 
             const mutation = `
-            mutation ($discussionId: ID!, $body: String!) {
-               addDiscussionComment(input: {
-                 discussionId: $discussionId,
-                 body: $reply
-               }) {
-               comment { id htmlUrl }
-             }
+              mutation ($discussionId: ID!, $body: String!) {
+                addDiscussionComment(input: {
+                  discussionId: $discussionId,
+                  body: $body
+                }) {
+                comment { 
+                  id 
+                  htmlUrl 
+                }
+              }
             }`;
       
             const result = await github.graphql(mutation, {
