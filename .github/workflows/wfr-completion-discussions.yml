@@ -262,14 +262,14 @@ jobs:
               core.setOutput('discussions', '');
             }
 
-      - name: Fetch last 10 commits
+      - name: Fetch last 50 commits
         id: commits
         uses: actions/github-script@v7
         with:
           script: |
             try {
               const { execSync } = require('child_process');
-              const commits = execSync('git log -n 10 --pretty=format:"Commit: %h%nAuthor: %an <%ae>%nDate: %ad%nMessage: %s%n%n"').toString();
+              const commits = execSync('git log -n 50 --pretty=format:"Commit: %h%nAuthor: %an <%ae>%nDate: %ad%nMessage: %s%n%n"').toString();
               core.setOutput('commits', commits);
             } catch (error) {
               core.warning(`Error fetching commits: ${error.message}`);
