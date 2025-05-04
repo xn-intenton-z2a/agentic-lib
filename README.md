@@ -715,9 +715,9 @@ Discussions Bot [MVP]:
 - [x] Mission file and features can be refined based on these discussions during development.
 - [~] On schedule: Summarises commits to main as discussion comments using the saved file comments (read commits added as comments) so only unread commits are summarised.
 - [ ] Pass user information to the bot.
-- [ ] Other bots chime in with view points (e.g. what exists already, what we have on this in the library, progress so far).
 - [ ] Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
 - [ ] Extract demo output to publish in the discussion thread and request feedback and next steps.
+- [ ] Other bots chime in with viewpoints (e.g. what exists already, what we have on this in the library, progress so far, what should we do next...)
 
 intentïon user journey [Launch]:
 - [ ] On intentïon.com, user provides an intention which is posted as a new GitHub Discussions thread.
