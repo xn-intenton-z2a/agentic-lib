@@ -1,0 +1,638 @@
+# .github/workflows/wfr-completion-discussions.yml
+#
+# agentic-lib
+# Copyright (C) 2025 Polycode Limited
+#
+# This file is part of agentic-lib.
+#
+# agentic-lib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License v3.0 (GPL‑3).
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# IMPORTANT: Any derived work must include the following attribution:
+# "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+#
+
+name: ∞ discussions-response
+
+on:
+  workflow_call:
+    inputs:
+      discussionTitle:
+        description: 'The title of the discussion'
+        required: true
+        type: string
+      discussionBody:
+        description: 'The body of the discussion'
+        required: true
+        type: string
+      discussionUrl:
+        description: 'The URL of the discussion'
+        required: false
+        type: string
+        default: ''
+      allSourcePaths:
+        description: 'The source file(s) to review. e.g. "src/lib/" or multiple files separated by semicolons "src/lib/;src/utils/utils.js"'
+        type: string
+        required: false
+        default: 'src/lib/'
+      allTestsPaths:
+        description: 'The test file(s) to review. e.g. "tests/unit/" or multiple files separated by semicolons "tests/unit/;tests/utils/utils.test.js"'
+        type: string
+        required: false
+        default: 'tests/unit/'
+      documentationPath:
+        description: 'The documentation file(s) to write to. e.g. "docs/" or multiple files separated by semicolons "docs/api;docs/API.md"'
+        type: string
+        required: false
+        default: 'docs/'
+      readmeFilepath:
+        description: 'The README file to review. e.g. "README.md"'
+        type: string
+        required: false
+        default: 'README.md'
+      missionFilepath:
+        description: 'The MISSION statement file. e.g. "MISSION.md"'
+        type: string
+        required: false
+        default: 'MISSION.md'
+      contributingFilepath:
+        description: 'The CONTRIBUTING file to review. e.g. "CONTRIBUTING.md"'
+        type: string
+        required: false
+        default: 'CONTRIBUTING.md'
+      dependenciesFilepath:
+        description: 'The dependencies file to review. e.g. "package.json"'
+        type: string
+        required: false
+        default: 'package.json'
+      model:
+        description: 'The OpenAI model to use. e.g. "o3-mini"'
+        type: string
+        required: false
+        default: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
+      promptFilepath:
+        description: 'The file containing the prompt text. e.g. ".github/agents/agent-discussion-bot.md"'
+        type: string
+        required: true
+      npmAuthOrganisation:
+        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
+        type: string
+        required: false
+        default: ''
+      gitUserEmail:
+        description: 'The email to use for git commits. e.g. "action@github.com"'
+        type: string
+        required: false
+        default: 'action@github.com'
+      gitUserName:
+        description: 'The name to use for git commits. e.g. "GitHub Actions[bot]"'
+        type: string
+        required: false
+        default: 'GitHub Actions[bot]'
+      agentConfigContent:
+        description: 'The content of the agent config file. e.g. Yaml read from "./github/agents/agent-config.yaml"'
+        type: string
+        required: false
+        default: ''
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
+    outputs:
+      action:
+        description: 'The action to take. Options: nop, reply-without-action, create-issue, create-feature, seed-repository'
+        value: ${{ jobs.generate-response.outputs.action }}
+      detail:
+        description: 'The detail of the action (such as the feature title)'
+        value: ${{ jobs.generate-response.outputs.detail }}
+      reply:
+        description: 'The reply to post'
+        value: ${{ jobs.generate-response.outputs.reply }}
+
+jobs:
+  generate-response:
+    runs-on: ubuntu-latest
+
+    env:
+      discussionTitle: ${{ inputs.discussionTitle }}
+      discussionBody: ${{ inputs.discussionBody }}
+      discussionUrl: ${{ inputs.discussionUrl }}
+      allSourcePaths: ${{ inputs.allSourcePaths || 'src/lib/' }}
+      allTestsPaths: ${{ inputs.allTestsPaths || 'tests/unit/' }}
+      documentationPath: ${{ inputs.documentationPath || 'docs/' }}
+      readmeFilepath: ${{ inputs.readmeFilepath || 'README.md' }}
+      missionFilepath: ${{ inputs.missionFilepath || 'MISSION.md' }}
+      contributingFilepath: ${{ inputs.contributingFilepath || 'CONTRIBUTING.md' }}
+      dependenciesFilepath: ${{ inputs.dependenciesFilepath || 'package.json' }}
+      model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o4-mini' }}
+      chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      promptFilepath: ${{ inputs.promptFilepath || '.github/agents/agent-discussion-bot.md' }}
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
+      gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
+      gitUserName: ${{ inputs.gitUserName || 'GitHub Actions[bot]' }}
+      agentConfigContent: ${{ inputs.agentConfigContent || '' }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Check GitHub authentication
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - run: npm ci
+
+      - name: Fetch repository discussions
+        id: discussions
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            // GraphQL query to fetch repository discussions
+            const query = `
+              query {
+                repository(owner: "${context.repo.owner}", name: "${context.repo.name}") {
+                  discussions(first: 10, orderBy: {field: CREATED_AT, direction: DESC}) {
+                    nodes {
+                      title
+                      body
+                      url
+                      createdAt
+                      author {
+                        login
+                      }
+                      comments(first: 10) {
+                        nodes {
+                          author {
+                            login
+                          }
+                          body
+                          createdAt
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            try {
+              const result = await github.graphql(query);
+              const discussions = result.repository.discussions.nodes;
+              
+              let discussionsText = "";
+              for (const discussion of discussions) {
+                discussionsText += `Discussion: ${discussion.title}\n`;
+                discussionsText += `Author: ${discussion.author ? discussion.author.login : 'Unknown'}\n`;
+                discussionsText += `Created: ${discussion.createdAt}\n`;
+                discussionsText += `URL: ${discussion.url}\n`;
+                discussionsText += `Body: ${discussion.body}\n`;
+                
+                if (discussion.comments.nodes.length > 0) {
+                  discussionsText += "Comments:\n";
+                  for (const comment of discussion.comments.nodes) {
+                    discussionsText += `  Author: ${comment.author ? comment.author.login : 'Unknown'}\n`;
+                    discussionsText += `  Created: ${comment.createdAt}\n`;
+                    discussionsText += `  Body: ${comment.body}\n\n`;
+                  }
+                }
+                
+                discussionsText += "\n---\n\n";
+              }
+              
+              core.setOutput('discussions', discussionsText);
+            } catch (error) {
+              core.warning(`Error fetching discussions: ${error.message}`);
+              core.setOutput('discussions', '');
+            }
+
+      - name: Fetch last 10 commits
+        id: commits
+        run: |
+          commits=$(git log -n 10 --pretty=format:"Commit: %h%nAuthor: %an <%ae>%nDate: %ad%nMessage: %s%n%n")
+          echo "commits<<EOF" >> $GITHUB_OUTPUT
+          echo "$commits" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: List source files
+        id: source_files
+        shell: bash
+        run: |
+          # Handle multiple source paths
+          IFS=';' read -ra SRC_PATHS <<< "${{ env.allSourcePaths }}"
+          output=""
+          
+          for path in "${SRC_PATHS[@]}"; do
+            trimmed_path=$(echo "$path" | xargs)
+            if [ -d "$trimmed_path" ]; then
+              # If it's a directory, list all files in it
+              files=$(find "$trimmed_path" -type f -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" -o -name "*.py" -o -name "*.java" -o -name "*.go" 2>/dev/null)
+              for file in $files; do
+                output+="File: $file\n"
+                output+="$(cat "$file")\n\n"
+              done
+            elif [ -f "$trimmed_path" ]; then
+              # If it's a file, read it directly
+              output+="File: $trimmed_path\n"
+              output+="$(cat "$trimmed_path")\n\n"
+            else
+              echo "Source path '$trimmed_path' does not exist."
+            fi
+          done
+          
+          echo "output<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$output" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: List test files
+        id: test_files
+        shell: bash
+        run: |
+          # Handle multiple test paths
+          IFS=';' read -ra TEST_PATHS <<< "${{ env.allTestsPaths }}"
+          output=""
+          
+          for path in "${TEST_PATHS[@]}"; do
+            trimmed_path=$(echo "$path" | xargs)
+            if [ -d "$trimmed_path" ]; then
+              # If it's a directory, list all files in it
+              files=$(find "$trimmed_path" -type f -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" -o -name "*.test.js" -o -name "*.test.ts" -o -name "*.spec.js" -o -name "*.spec.ts" 2>/dev/null)
+              for file in $files; do
+                output+="File: $file\n"
+                output+="$(cat "$file")\n\n"
+              done
+            elif [ -f "$trimmed_path" ]; then
+              # If it's a file, read it directly
+              output+="File: $trimmed_path\n"
+              output+="$(cat "$trimmed_path")\n\n"
+            else
+              echo "Test path '$trimmed_path' does not exist."
+            fi
+          done
+          
+          echo "output<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$output" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Read documentation files
+        id: docs_files
+        shell: bash
+        run: |
+          # Handle documentation path
+          trimmed_path=$(echo "${{ env.documentationPath }}" | xargs)
+          output=""
+          
+          if [ -d "$trimmed_path" ]; then
+            # If it's a directory, list all markdown files in it
+            files=$(find "$trimmed_path" -type f -name "*.md" 2>/dev/null)
+            for file in $files; do
+              output+="File: $file\n"
+              output+="$(cat "$file")\n\n"
+            done
+          elif [ -f "$trimmed_path" ]; then
+            # If it's a file, read it directly
+            output+="File: $trimmed_path\n"
+            output+="$(cat "$trimmed_path")\n\n"
+          else
+            echo "Documentation path '$trimmed_path' does not exist."
+          fi
+          
+          echo "output<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$output" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Read README file
+        id: readme
+        shell: bash
+        run: |
+          if [ -f "${{ env.readmeFilepath }}" ]; then
+            cat "${{ env.readmeFilepath }}" > readme.txt
+            echo "content<<EOF" >> $GITHUB_OUTPUT
+            cat readme.txt >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "README file '${{ env.readmeFilepath }}' does not exist."
+            echo "content=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Read MISSION file
+        id: mission
+        shell: bash
+        run: |
+          if [ -f "${{ env.missionFilepath }}" ]; then
+            cat "${{ env.missionFilepath }}" > mission.txt
+            echo "content<<EOF" >> $GITHUB_OUTPUT
+            cat mission.txt >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "MISSION file '${{ env.missionFilepath }}' does not exist."
+            echo "content=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Read CONTRIBUTING file
+        id: contributing
+        shell: bash
+        run: |
+          if [ -f "${{ env.contributingFilepath }}" ]; then
+            cat "${{ env.contributingFilepath }}" > contributing.txt
+            echo "content<<EOF" >> $GITHUB_OUTPUT
+            cat contributing.txt >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "CONTRIBUTING file '${{ env.contributingFilepath }}' does not exist."
+            echo "content=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Read dependencies file
+        id: dependencies
+        shell: bash
+        run: |
+          if [ -f "${{ env.dependenciesFilepath }}" ]; then
+            cat "${{ env.dependenciesFilepath }}" > dependencies.txt
+            echo "content<<EOF" >> $GITHUB_OUTPUT
+            cat dependencies.txt >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "Dependencies file '${{ env.dependenciesFilepath }}' does not exist."
+            echo "content=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Read prompt file
+        id: prompt
+        shell: bash
+        run: |
+          if [ -f "${{ env.promptFilepath }}" ]; then
+            cat "${{ env.promptFilepath }}" > prompt.txt
+            echo "content<<EOF" >> $GITHUB_OUTPUT
+            cat prompt.txt >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "Prompt file '${{ env.promptFilepath }}' does not exist."
+            echo "content=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate response
+        id: response
+        uses: actions/github-script@v7
+        env:
+          DISCUSSION_TITLE: ${{ env.discussionTitle }}
+          DISCUSSION_BODY: ${{ env.discussionBody }}
+          DISCUSSION_URL: ${{ env.discussionUrl }}
+          DISCUSSIONS: ${{ steps.discussions.outputs.discussions }}
+          COMMITS: ${{ steps.commits.outputs.commits }}
+          SOURCE_FILES: ${{ steps.source_files.outputs.output }}
+          TEST_FILES: ${{ steps.test_files.outputs.output }}
+          DOCS_FILES: ${{ steps.docs_files.outputs.output }}
+          README_CONTENT: ${{ steps.readme.outputs.content }}
+          MISSION_CONTENT: ${{ steps.mission.outputs.content }}
+          CONTRIBUTING_CONTENT: ${{ steps.contributing.outputs.content }}
+          DEPENDENCIES_CONTENT: ${{ steps.dependencies.outputs.content }}
+          PROMPT_CONTENT: ${{ steps.prompt.outputs.content }}
+          AGENT_CONFIG_CONTENT: ${{ env.agentConfigContent }}
+          MODEL: ${{ env.model }}
+          CHATGPT_API_SECRET_KEY: ${{ env.chatgptApiSecretKey }}
+        with:
+          script: |
+            const OpenAI = require('openai').default;
+            const { z } = require('zod');
+            require('dotenv').config();
+            
+            const apiKey = process.env.CHATGPT_API_SECRET_KEY;
+            if (!apiKey) { 
+              core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
+            }
+            const openai = new OpenAI({ apiKey });
+            
+            const discussionTitle = process.env.DISCUSSION_TITLE;
+            const discussionBody = process.env.DISCUSSION_BODY;
+            const discussionUrl = process.env.DISCUSSION_URL;
+            const discussions = process.env.DISCUSSIONS;
+            const commits = process.env.COMMITS;
+            const sourceFiles = process.env.SOURCE_FILES;
+            const testFiles = process.env.TEST_FILES;
+            const docsFiles = process.env.DOCS_FILES;
+            const readmeContent = process.env.README_CONTENT;
+            const missionContent = process.env.MISSION_CONTENT;
+            const contributingContent = process.env.CONTRIBUTING_CONTENT;
+            const dependenciesContent = process.env.DEPENDENCIES_CONTENT;
+            const promptContent = process.env.PROMPT_CONTENT;
+            const agentConfigContent = process.env.AGENT_CONFIG_CONTENT;
+            const model = process.env.MODEL;
+            
+            core.info(`Discussion title: ${discussionTitle}`);
+            core.info(`Discussion body: ${discussionBody}`);
+            core.info(`Discussion URL: ${discussionUrl}`);
+            
+            const chatGptPrompt = `
+            ${promptContent}
+            
+            Consider the following when generating your response:
+              * Current discussion
+              * Previous discussions and comments
+              * Recent commits
+              * Source file content
+              * Test file content
+              * Documentation file content
+              * README file content
+              * MISSION file content
+              * Contributing file content
+              * Dependencies file content
+              * Agent configuration file content
+            
+            Current discussion:
+            CURRENT_DISCUSSION_START
+            Title: ${discussionTitle}
+            Body: ${discussionBody}
+            URL: ${discussionUrl}
+            CURRENT_DISCUSSION_END
+            
+            Previous discussions and comments:
+            PREVIOUS_DISCUSSIONS_START
+            ${discussions}
+            PREVIOUS_DISCUSSIONS_END
+            
+            Recent commits:
+            RECENT_COMMITS_START
+            ${commits}
+            RECENT_COMMITS_END
+            
+            Source files:
+            SOURCE_FILES_START
+            ${sourceFiles}
+            SOURCE_FILES_END
+            
+            Test files:
+            TEST_FILES_START
+            ${testFiles}
+            TEST_FILES_END
+            
+            Documentation files:
+            DOCS_FILES_START
+            ${docsFiles}
+            DOCS_FILES_END
+            
+            README file:
+            README_FILE_START
+            ${readmeContent}
+            README_FILE_END
+            
+            MISSION file:
+            MISSION_FILE_START
+            ${missionContent}
+            MISSION_FILE_END
+            
+            Contributing file:
+            CONTRIBUTING_FILE_START
+            ${contributingContent}
+            CONTRIBUTING_FILE_END
+            
+            Dependencies file:
+            DEPENDENCIES_FILE_START
+            ${dependenciesContent}
+            DEPENDENCIES_FILE_END
+            
+            Agent configuration file:
+            AGENT_CONFIG_FILE_START
+            ${agentConfigContent}
+            AGENT_CONFIG_FILE_END
+            
+            Answer strictly with a JSON object following this schema:
+            {
+              "action": "reply-without-action", // One of: 'nop', 'reply-without-action', 'create-issue', 'create-feature', 'seed-repository'
+              "detail": "The detail of the action", // For example, the feature title or issue description
+              "reply": "The reply to post" // The reply to post in the discussion
+            }
+            Ensure valid JSON.
+            `;
+            
+            core.info("prompt start: **********************************************");
+            core.info(`${chatGptPrompt}`);
+            core.info("prompt end:   **********************************************");
+            
+            const ResponseSchema = z.object({ 
+              action: z.string(), 
+              detail: z.string(), 
+              reply: z.string() 
+            });
+            
+            // Define the function schema for function calling
+            const tools = [{
+              type: "function",
+              function: {
+                name: "generate_discussion_response",
+                description: "Generate a response to a discussion post with an appropriate action. Return an object with action, detail, and reply.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    action: { 
+                      type: "string", 
+                      description: "The action to take. One of: 'nop', 'reply-without-action', 'create-issue', 'create-feature', 'seed-repository'" 
+                    },
+                    detail: { 
+                      type: "string", 
+                      description: "The detail of the action (such as the feature title or issue description)" 
+                    },
+                    reply: { 
+                      type: "string", 
+                      description: "The reply to post in the discussion" 
+                    }
+                  },
+                  required: ["action", "detail", "reply"],
+                  additionalProperties: false
+                },
+                strict: true
+              }
+            }];
+            
+            // Call OpenAI using function calling format
+            const response = await openai.chat.completions.create({
+              model,
+              messages: [
+                { role: "system", content: "You are responding to a GitHub discussion as the voice of the repository. Answer strictly with a JSON object following the provided function schema." },
+                { role: "user", content: chatGptPrompt }
+              ],
+              tools: tools
+            });
+            
+            let result;
+            if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
+              try {
+                result = JSON.parse(response.choices[0].message.tool_calls[0].function.arguments);
+              } catch (e) {
+                core.setFailed(`Failed to parse function call arguments: ${e.message}`);
+              }
+            } else if (response.choices[0].message.content) {
+              try {
+                result = JSON.parse(response.choices[0].message.content);
+              } catch (e) {
+                core.setFailed(`Failed to parse response content: ${e.message}`);
+              }
+            } else {
+              core.setFailed("No valid response received from OpenAI.");
+            }
+            
+            try {
+              core.info("raw response start: **********************************************");
+              core.info(`raw response: "${JSON.stringify(result)}"`);
+              core.info("raw response end: ************************************************");
+              const parsed = ResponseSchema.parse(result);
+              core.info(`parsed response: "${JSON.stringify(parsed)}"`);
+              core.setOutput("action", parsed.action);
+              core.setOutput("detail", parsed.detail);
+              core.setOutput("reply", parsed.reply);
+              core.info(`action: "${parsed.action}"`);
+              core.info(`detail: "${parsed.detail}"`);
+              core.info(`reply: "${parsed.reply}"`);
+            } catch (e) {
+              core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
+            }
+            
+            core.setOutput("response", JSON.stringify(response));
+            core.setOutput("usage", JSON.stringify(response.usage));
+            core.info(`response: "${JSON.stringify(response)}"`);
+            core.info(`usage: "${JSON.stringify(response.usage)}"`);
+
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: rm -f .npmrc
+
+    outputs:
+      action: ${{ steps.response.outputs.action }}
+      detail: ${{ steps.response.outputs.detail }}
+      reply: ${{ steps.response.outputs.reply }}

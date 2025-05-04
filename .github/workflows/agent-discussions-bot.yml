@@ -132,29 +132,17 @@ jobs:
   generate-response:
     needs:
       - process-discussion-post
-    runs-on: ubuntu-latest
-    env:
-      discussion: '${{ needs.process-discussion-post.outputs.title }} ${{ needs.process-discussion-post.outputs.body }}'
-    steps:
-      - name: Choose response
-        id: response
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const action = 'create-issue';
-            const detail = process.env.discussion;
-            const reply = `This is a placeholder response. The action is: ${action}.`;
-            core.setOutput('action', action);
-            core.setOutput('detail', detail);
-            core.setOutput('reply', reply);
-            core.info(`action: ${action}`);
-            core.info(`detail: ${detail}`);
-            core.info(`reply: ${reply}`);
-    outputs:
-      # Options: 'nop', 'reply-without-action', 'create-issue', 'create-feature', 'seed-repository'
-      action: ${{ steps.response.outputs.action }}
-      detail: '${{ steps.response.outputs.detail }}'
-      reply: ${{ steps.response.outputs.reply }}
+      - agentic-lib
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@main'
+    with:
+      discussionTitle: ${{ needs.process-discussion-post.outputs.title }}
+      discussionBody: ${{ needs.process-discussion-post.outputs.body }}
+      discussionUrl: ${{ needs.process-discussion-post.outputs.url }}
+      promptFilepath: '.github/agents/agent-discussion-bot.md'
+      agentConfigContent: ${{ needs.agentic-lib.outputs.config }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
   post-reply:
     needs:
