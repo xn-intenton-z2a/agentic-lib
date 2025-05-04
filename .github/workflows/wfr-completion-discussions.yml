@@ -75,11 +75,11 @@ on:
         type: string
         required: false
         default: 'package.json'
-      workflowPath:
-        description: 'The path to the workflow files directory driving this repository. e.g. ".github/workflows/"'
+      workflowPathGlob:
+        description: 'The workflow path glob to review. e.g. ".github/workflows/agent-*.yml"'
         type: string
         required: false
-        default: '.github/workflows/'
+        default: '.github/workflows/agent-*.yml'
       model:
         description: 'The OpenAI model to use. e.g. "o3-mini"'
         type: string
