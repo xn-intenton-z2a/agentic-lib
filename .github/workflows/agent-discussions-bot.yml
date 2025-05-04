@@ -221,7 +221,7 @@ jobs:
                 core.setFailed(`Could not extract discussion number from URL: ${discussionUrl}`);
               }
             } else {
-              core.setFailed('No discussion ID or URL provided');
+              core.warning('No discussion ID or URL provided');
             }
 
   library-to-feature:
