@@ -20,6 +20,16 @@ on:
         required: false
       CHATGPT_API_SECRET_KEY:
         required: true
+  discussion_comment:
+    types:
+        - created
+        - edited
+        - deleted
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
   workflow_dispatch:
     inputs:
       discussionTitle:
@@ -95,6 +105,11 @@ jobs:
               title = context.payload.discussion.title;
               body = context.payload.discussion.body;
               url = context.payload.discussion.html_url;
+            } else if (context.eventName === 'discussion_comment') {
+              // For discussion comments, use the discussion title and comment body
+              title = context.payload.discussion.title;
+              body = context.payload.comment.body;
+              url = context.payload.comment.html_url;
             } else {
               title = context.payload.inputs.discussionTitle || '';
               body = context.payload.inputs.discussionBody || '';
@@ -183,7 +198,7 @@ jobs:
             const reply = process.env.reply;
 
             // If this was triggered by a discussion event, we can get the discussion ID directly
-            if (context.eventName === 'discussion') {
+            if (context.eventName === 'discussion' || context.eventName === 'discussion_comment') {
               const discussionId = context.payload.discussion.node_id;
               core.info(`Posting reply to discussion with ID: ${discussionId}`);
 
