@@ -718,6 +718,7 @@ Discussions Bot [MVP]:
 - [ ] Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
 - [ ] Extract demo output to publish in the discussion thread and request feedback and next steps.
 - [ ] Other bots chime in with viewpoints (e.g. what exists already, what we have on this in the library, progress so far, what should we do next...)
+- [ ] Supervisor bot: Picks next actions based on the discussion and the mission.
 
 intentïon user journey [Launch]:
 - [ ] On intentïon.com, user provides an intention which is posted as a new GitHub Discussions thread.
