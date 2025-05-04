@@ -124,7 +124,7 @@ jobs:
           echo "Documentation emptied from ${{ needs.agentic-lib.outputs.documentationPath }}."
 
       - name: seed-sandbox
-        if: ${{ needs.agentic-lib.outputs.repositoryReseed == 'true' }}
+        if: ${{ needs.agentic-lib.outputs.sandboxReset == 'true' }}
         shell: bash
         run: |          
           # If the mission is set, create a mission out of that text, else if the mission is not set use the config.

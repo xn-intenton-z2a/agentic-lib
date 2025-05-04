@@ -73,7 +73,7 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-sources.yml@main'
     with:
-      promptFilepath: '.github/agents/agent-maintain-missions.md'
+      promptFilepath: '.github/agents/agent-maintain-sources.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
       mission: ${{ inputs.mission }}
       missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
