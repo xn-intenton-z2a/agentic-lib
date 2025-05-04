@@ -136,6 +136,7 @@ jobs:
       contributingFilepath: ${{ inputs.contributingFilepath || 'CONTRIBUTING.md' }}
       dependenciesFilepath: ${{ inputs.dependenciesFilepath || 'package.json' }}
       model: ${{ inputs.model || 'o4-mini' }}
+      chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       promptFilepath: ${{ inputs.promptFilepath || '.github/agents/agent-discussion-bot.md' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
@@ -182,10 +183,13 @@ jobs:
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
+            const { context } = require('@actions/github');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
             // GraphQL query to fetch repository discussions
             const query = `
               query {
-                repository(owner: "${context.repo.owner}", name: "${context.repo.name}") {
+                repository(owner: "${owner}", name: "${repo}") {
                   discussions(first: 10, orderBy: {field: CREATED_AT, direction: DESC}) {
                     nodes {
                       title
