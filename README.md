@@ -634,67 +634,65 @@ Re-usable GitHub Actions Workflows:
 - [x] Dashboard metrics from github (e.g. GitHub Insights? commits by agents).
 - [x] apply-fix to add issue details to the completion request.
 - [x] semantic versioning for releasing versions.
-- [x] [r0w-MVP] Grab the issue comments when working on an issue or a fix or a review.
-- [x] [r0w-MVP] Extract prompt text to AGENT.md files.
-- [x] [r0w-MVP] Add an issue refiner that picks and issues either sets 'ready', improves the issue, or closes it if irrelevant. (Then change the issue worker to look for 'ready' issues.)
-- [x] [r0w-MVP] Mark in-progress issues as such, and change the issue worker to ignore 'in-progress' issues.
-- [x] [r0w-MVP] Add to agentic-lib.yml a list of filepath patterns which are allowed to be changed by agents (default: [ "features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md" ]) and have these checked before writing to a file.
-- [x] [r0w-MVP] Allow user supplied sources files for building the library.
-- [x] [r0w-MVP] Add to agentic-lib.yml a mapping for concepts such as src / tests / docs / sources / library  and use these as defaults when invoking the workflows and at any time a default is applied.
-- [x] [r0w-MVP] Why don't tests run after merge? (Possibly because it down stream of auto-merge PRs under a token of some kind .)
-- [x] [r0w-MVP] Why did the issue get closed right after the merge?
-- [x] [r0w-MVP] Fix (feature story): Enhance '${featureName}' CLI Command with Help Option and Usage Documentation #1653
-- [x] [r0w-MVP] Attach relevant context from the library to an issue during refinement (and stop sending the whole libary to the issue worker).
-- [x] [r0w-MVP] In the refiner replace the need to truncate like this ${libraryDocuments.substring(0, 10000)} by exacting the summary of each library document extracted from the markdown by extracting the summary
-- [x] [r0w-MVP] In the feature maintainer replace ${libraryDocuments.substring(0, 10000)} with a condensed form of the library documents (a new section to be added to the library)
-- [x] [r0w-MVP] Support creation, edit, and deletion of multiple files of each type (src, tests, docs) etc.
-- [x] [r0w-MVP] Change the fix code workflows to just write to docs and read the readme
-- [x] [r0w-MVP] Move the workflows except the fix code ones to read the docs and the readme.
-- [x] [r0w-MVP] Remove defaulting where agentic-lib has a default directory value.
-- [x] [r0w-MVP] Add a workflow to change the readme.
-- [x] [r0w-Launch] Create a readOnlyFilepaths alongside readWriteFilepaths
-- [x] [r0w-Launch] Support the deletion of files by specifying "delete" as the contents but ignore of it's just empty.
-- [x] [r0w-Launch] Find out why issues autoclose when the PR closes (because of fixes #123) and stop this to that the issue is closed when the review is done.
-- [x] [r0w-Launch] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
-- [x] [r0w-Launch] Move AGENT- files to ./github/agentic-lib/agent-*.md
-- [x] [r0w-Launch] Move agentic-lib.yml to ./github/agentic-lib/agentic-lib.yml
-- [x] [r0w-Launch] Find a better name for sources
-- [x] [r0w-Launch] Fix these examples to match the actual behaviour: 'Can include wildcards for multiple files. e.g. "SOURCES.md" or "SOURCES*.md"'
-- [x] [r0w-MVP] Check these to see that we do use semi-colon separation: allTestsPaths.split(';');
-- [x] [r0w-Launch] Check to make sure we check writeability of the file before writing.
-- [x] [r0w-Launch] Ensure every file path or external element referenced by the workflows, defaults to the value in agentic-lib.yml
-- [x] [r0w-MVP] Set up agentic-lib to only write to supplementary files (`./sandbox`).
-- [x] [r0w-MVP] Get the sandbox tests and code to run with the npm test command.
-- [x] [r0w-MVP] Set up s3-sqs-bridge to only do essential updates (maintainer role)
-- [x] [r0w-MVP] Set up repository0 to only write to sandbox files, reset every week by deleting the sandbox folder.
-- [x] [r0w-MVP] Set up repository0-crucible to use multiple file outputs and support initialisation from a seed.
-- [x] [r0w-MVP] Set up plot-code-lib to use single file outputs
-- [ ] [r0w-MVP] Set up repository0-web to documents only (elaboration role), hand off to "Repository0-web" tasklist
-- [ ] [r0w-Launch] Review features and move to docs when done.
-- [ ] [r0w-Launch] Review mission and stop creating features when done.
-- [ ] [r0w-Launch] If no maintenance activity is found, then terminate succefully,
-- [ ] [r0w-Launch] Diagram the workflow interactions.
-- [ ] [r0w-Launch] Pull into agentic-lib.yml: startsWith("apply-fix-"));
-- [ ] [r0w-Launch] Pull into agentic-lib.yml: startsWith("issue-worker-"));
-- [ ] [r0w-Launch] Feature switch role: engineer (src, tests, docs, packages)
-- [ ] [r0w-Launch] Feature switch role: maintainer (pr+linting+updates+readme+docs)
-- [ ] [r0w-Launch] Make the agent prompts match the top level workflow file names
-- [ ] [r0w-Launch] Make the reusable workflow names match the top level workflow file names
-- [ ] [r0w-Launch] When enhancing issues do not add duplicated documents
-- [ ] [r0w-Launch] When adding issue comments to a prompt, just add the last <configurable> comments.
-- [ ] [r0w-Launch] Label every issue that a worker touches with a unique label.
-- [ ] [r0w-Launch] Add a comment and put an issue for review if it is already done.
-- [ ] [r0w-Launch] Move branch pre-fix to agentic-lib.yml
-- [ ] [r0w-Launch] For all issue comments, add context to the comment such as: "After review, this issue was found to be already done."
-- [ ] [r0w-Launch] Pass and log a stamp on a current feature report for feature-to-issue if the feature is done.
-- [ ] [r0w-Launch] Pass and log a stamp on a current maintenance report for a maintenance-activity-to-issue if there is no value in making changes.
+- [x] [MVP] Grab the issue comments when working on an issue or a fix or a review.
+- [x] [MVP] Extract prompt text to AGENT.md files.
+- [x] [MVP] Add an issue refiner that picks and issues either sets 'ready', improves the issue, or closes it if irrelevant. (Then change the issue worker to look for 'ready' issues.)
+- [x] [MVP] Mark in-progress issues as such, and change the issue worker to ignore 'in-progress' issues.
+- [x] [MVP] Add to agentic-lib.yml a list of filepath patterns which are allowed to be changed by agents (default: [ "features/*", "library/*", "src/lib/*", "tests/unit/*", "package.json", "README.md" ]) and have these checked before writing to a file.
+- [x] [MVP] Allow user supplied sources files for building the library.
+- [x] [MVP] Add to agentic-lib.yml a mapping for concepts such as src / tests / docs / sources / library  and use these as defaults when invoking the workflows and at any time a default is applied.
+- [x] [MVP] Why don't tests run after merge? (Possibly because it down stream of auto-merge PRs under a token of some kind .)
+- [x] [MVP] Why did the issue get closed right after the merge?
+- [x] [MVP] Fix (feature story): Enhance '${featureName}' CLI Command with Help Option and Usage Documentation #1653
+- [x] [MVP] Attach relevant context from the library to an issue during refinement (and stop sending the whole libary to the issue worker).
+- [x] [MVP] In the refiner replace the need to truncate like this ${libraryDocuments.substring(0, 10000)} by exacting the summary of each library document extracted from the markdown by extracting the summary
+- [x] [MVP] In the feature maintainer replace ${libraryDocuments.substring(0, 10000)} with a condensed form of the library documents (a new section to be added to the library)
+- [x] [MVP] Support creation, edit, and deletion of multiple files of each type (src, tests, docs) etc.
+- [x] [MVP] Change the fix code workflows to just write to docs and read the readme
+- [x] [MVP] Move the workflows except the fix code ones to read the docs and the readme.
+- [x] [MVP] Remove defaulting where agentic-lib has a default directory value.
+- [x] [MVP] Add a workflow to change the readme.
+- [x] [Launch] Create a readOnlyFilepaths alongside readWriteFilepaths
+- [x] [Launch] Support the deletion of files by specifying "delete" as the contents but ignore of it's just empty.
+- [x] [Launch] Find out why issues autoclose when the PR closes (because of fixes #123) and stop this to that the issue is closed when the review is done.
+- [x] [Launch] Allow the reviewer to remove an 'in-progress' label and restore 'automated' if the issue is not resolved.
+- [x] [Launch] Move AGENT- files to ./github/agentic-lib/agent-*.md
+- [x] [Launch] Move agentic-lib.yml to ./github/agentic-lib/agentic-lib.yml
+- [x] [Launch] Find a better name for sources
+- [x] [Launch] Fix these examples to match the actual behaviour: 'Can include wildcards for multiple files. e.g. "SOURCES.md" or "SOURCES*.md"'
+- [x] [MVP] Check these to see that we do use semi-colon separation: allTestsPaths.split(';');
+- [x] [Launch] Check to make sure we check writeability of the file before writing.
+- [x] [Launch] Ensure every file path or external element referenced by the workflows, defaults to the value in agentic-lib.yml
+- [x] [MVP] Set up agentic-lib to only write to supplementary files (`./sandbox`).
+- [x] [MVP] Get the sandbox tests and code to run with the npm test command.
+- [x] [MVP] Set up s3-sqs-bridge to only do essential updates (maintainer role)
+- [x] [MVP] Set up repository0 to only write to sandbox files, reset every week by deleting the sandbox folder.
+- [x] [MVP] Set up repository0-crucible to use multiple file outputs and support initialisation from a seed.
+- [x] [MVP] Set up plot-code-lib to use single file outputs
+- [ ] [Launch] Review features and move to docs when done.
+- [ ] [Launch] Review mission and stop creating features when done.
+- [ ] [Launch] If no maintenance activity is found, then terminate succefully,
+- [ ] [Launch] Diagram the workflow interactions.
+- [ ] [Launch] Pull into agentic-lib.yml: startsWith("apply-fix-"));
+- [ ] [Launch] Pull into agentic-lib.yml: startsWith("issue-worker-"));
+- [ ] [Launch] Feature switch role: engineer (src, tests, docs, packages)
+- [ ] [Launch] Feature switch role: maintainer (pr+linting+updates+readme+docs)
+- [ ] [Launch] Make the agent prompts match the top level workflow file names
+- [ ] [Launch] Make the reusable workflow names match the top level workflow file names
+- [ ] [Launch] When enhancing issues do not add duplicated documents
+- [ ] [Launch] When adding issue comments to a prompt, just add the last <configurable> comments.
+- [ ] [Launch] Label every issue that a worker touches with a unique label.
+- [ ] [Launch] Add a comment and put an issue for review if it is already done.
+- [ ] [Launch] Move branch pre-fix to agentic-lib.yml
+- [ ] [Launch] For all issue comments, add context to the comment such as: "After review, this issue was found to be already done."
+- [ ] [Launch] Pass and log a stamp on a current feature report for feature-to-issue if the feature is done.
+- [ ] [Launch] Pass and log a stamp on a current maintenance report for a maintenance-activity-to-issue if there is no value in making changes.
 - [ ] Create one block per file for multiples of things like these: SOURCE_FILES_START
 - [ ] Pull any max file sizes into the agent config
 - [ ] Harvest repositor0-* files into agentic-lib when reset and show case past results.
 - [ ] Feature lifecycle of: Elaboration, Delivery, Maintenance, Retirement, and Removal.
 - [ ] Use the archived projects to mine for features.
 - [ ] Build features in a modular way so that they can be reused in other projects.
-- [ ] Capture costs of the features in API calls, actions minutes, and AWS costs.
 - [ ] Add the URL of the workflow run to every issue that is touched by the workflow.
 - [ ] Add role: Commentator (news feed sources, news feed updates, news feed commentary, web publish).
 - [ ] Support a more TDD / literate approach by starting a feature branch with a failing test then fix code should extract the issue details and be alerted to the test addition as TDD.
@@ -709,33 +707,28 @@ Re-usable GitHub Actions Workflows:
 - [ ] Create an MCp sever for the repositor actions and pass to ChatGPT to act.
 - [ ] Add a list of all projects files to the context.
 
-On GitHub Discussion creation: Reads title and description, seeds with that as the mission, saves a trace back to documenationPath with a file a URL pointing -> the GitHub Discussion from the event,
-On schedule: Summarises commits to main as discussion comments using the saved file comments (read commits added as comments) so only unread commits are summarised.
-Answers questions about the in the discussion thread.
-Refines the mission before getting the go-ahead to seed.
-Other bots chime in with view points (e.g. what exists already, what we have on this in the library, progress so far).
-Mission file and features can be refined based on these discussions during development.
+Discussions Bot [MVP]:
+- [~] On GitHub Discussions creation: Reads title and description, seeds with that as the mission, saves a trace back to documenationPath with a file a URL pointing -> the GitHub Discussion from the event,
+- [ ] On schedule: Summarises commits to main as discussion comments using the saved file comments (read commits added as comments) so only unread commits are summarised.
+- [ ] Answers questions about the in the discussion thread.
+- [ ] Refines the mission before getting the go-ahead to seed.
+- [ ] Other bots chime in with view points (e.g. what exists already, what we have on this in the library, progress so far).
+- [ ] Mission file and features can be refined based on these discussions during development.
 
-MVP user journey:
-- [ ] [r0w-MVP] On intentïon.com, user provides an intention which is posted as a new GitHub Discussions thread.
-- [ ] [r0w-MVP] repository0-crucible seeds the repository with the mission and reports back with the intentïon branch.
-- [ ] [r0w-MVP] Updates periodically synchronised to a branch (which does not run the workflows) and summary reported to Discussions.
-- [ ] [r0w-MVP] Discussions updates also posted intentïon.com.
-- [ ] [r0w-MVP] intentïon.com posts: running experiment: <link to branch>
-- [ ] [r0w-MVP] TODO: How do users create a clone from a branch?
+intentïon user journey [Launch]:
+- [ ] On intentïon.com, user provides an intention which is posted as a new GitHub Discussions thread.
+- [~] repository0-crucible seeds the repository with the mission and reports back with the intentïon branch.
+- [ ] Updates periodically synchronised to a branch (which does not run the workflows) and summary reported to Discussions.
+- [ ] Discussions updates also posted intentïon.com.
+- [ ] intentïon.com posts: running experiment: <link to branch>
+- [ ] TODO: How do users create a clone from a branch?
 
-Cost model:
-- [ ] Log costs assigned to features in OpenAI tokens, API minutes, GitHub Actions minutes, and AWS costs.
-- [ ] Optimise costs per feature against parameters in agentic-lib.yml, e.g. attemptsPerBranch or attemptsPerIssue.
-- [ ] A / B test to measure value per feature.
-- [ ] Explore the differentiating factors that attribute costs to features. - insight into how to work with
-
-Marketplace GitHub Actions [r0w-Launch] :
-- [ ] Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
-- [ ] Collect examples of demo output for the Actions documentation.
+Marketplace GitHub Actions [Launch]:
 - [x] Review all the parameters where re-usable workflows are used and ensure that any parameters that are filepaths are stated explicitly in the calling workflow.
 - [x] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
 - [~] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
+- [ ] Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
+- [ ] Collect examples of demo output for the Actions documentation.
 - [ ] Switch from github script actions to `run: node` and have the action run against a moving 'latest' tag.
   See: [ACTIONS_JS_STEPS.md](examples/archive-2025-04-20/ACTIONS_JS_STEPS.md)
 - [ ] Add tests for the actions library JS and organise the code.
@@ -744,23 +737,11 @@ Marketplace GitHub Actions [r0w-Launch] :
 - [ ] Make the SDK available as an API.
 - [ ] Make the API available as an MCP server.
 
-Repository0-web:
-- [ ] [r0w-MVP] New template for the repository0-web repository (without AWS).
-- [ ] [r0w-MVP] Reduce running of workflows to web publishing and node ci only. (role: elaborator)
-- [ ] [r0w-MVP] Create example templates using content from the library.
-- [ ] [r0w-MVP] Create a generator script / action to create the mission from some supplied text.
-- [ ] [r0w-MVP] agent-discussions to be able to re-initialise the repository from a discussions post.
-- [ ] [r0w-phase2] Identify a range of means of accessing the library content (e.g. EJS, REST).
-- [ ] [r0w-phase2] Add owl tags to the library content.
-- [ ] [r0w-phase2] Extract owl from the library content into JSON and publish as content.
-- [ ] [r0w-phase2] Collect a library of assets downloaded from the crawls.
-- [ ] [r0w-phase2] Store and present license and content attribution information on the generated website.
-- [ ] Hand off to supervisor:chat : (free) Orchestrate the creation of a repository0-web templated repository via GitHub Discussions Chat.
-- [ ] ./news Similar to ./library but event based news sources are scanned and new articles collected and catalogued.
-- [ ] ./analysis news articles reviewed in the context of v library topics
-- [ ] ./socials feed of commentary created from analysis articles
-- [ ] (paid) Post to socials
-- [ ] (paid) Responders suggestions of content in comments added to sources.
+Cost model:
+- [ ] Log costs assigned to features in OpenAI tokens, API minutes, GitHub Actions minutes, and AWS costs.
+- [ ] Optimise costs per feature against parameters in agentic-lib.yml, e.g. attemptsPerBranch or attemptsPerIssue.
+- [ ] A / B test to measure value per feature.
+- [ ] Explore the differentiating factors that attribute costs to features. - insight into how to work with
 
 supervisor:
 - [x] Deploy a s3-sqs-bridge Stack from the agentic-lib project.
@@ -823,6 +804,25 @@ Supervisor launch:
 - [ ] Animate raising PRs.
 - [ ] Include this in the repository0 template.
 - [ ] Run live mode with a real-time scrolling timeline.
+
+Repository0-web:
+- [ ] Set up repository0-web to documents only (elaboration role), hand off to "Repository0-web" tasklist
+- [ ] New template for the repository0-web repository (without AWS).
+- [ ] Reduce running of workflows to web publishing and node ci only. (role: elaborator)
+- [ ] Create example templates using content from the library.
+- [ ] Create a generator script / action to create the mission from some supplied text.
+- [ ] agent-discussions to be able to re-initialise the repository from a discussions post.
+- [ ] Identify a range of means of accessing the library content (e.g. EJS, REST).
+- [ ] Add owl tags to the library content.
+- [ ] Extract owl from the library content into JSON and publish as content.
+- [ ] Collect a library of assets downloaded from the crawls.
+- [ ] Store and present license and content attribution information on the generated website.
+- [ ] Hand off to supervisor:chat : (free) Orchestrate the creation of a repository0-web templated repository via GitHub Discussions Chat.
+- [ ] ./news Similar to ./library but event based news sources are scanned and new articles collected and catalogued.
+- [ ] ./analysis news articles reviewed in the context of v library topics
+- [ ] ./socials feed of commentary created from analysis articles
+- [ ] (paid) Post to socials
+- [ ] (paid) Responders suggestions of content in comments added to sources.
 
 ---
 
