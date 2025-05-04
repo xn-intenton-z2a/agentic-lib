@@ -180,84 +180,50 @@ jobs:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
   post-reply:
-    needs:
-      - process-discussion-post
-      - generate-response
-    if: ${{ needs.generate-response.outputs.action != 'nop' && needs.generate-response.outputs.reply != '' }}
+    name: Post reply comment
+    needs: [process-discussion-post, generate-response]
+    if: ${{ needs.generate-response.outputs.action != 'nop' }}
     runs-on: ubuntu-latest
+    permissions:
+      discussions: write
+
     steps:
       - name: Post reply
-        id: post-reply
         uses: actions/github-script@v7
-        env:
-          url: ${{ needs.process-discussion-post.outputs.url }}
-          reply: ${{ needs.generate-response.outputs.reply }}
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const discussionUrl = process.env.url;
-            const reply = process.env.reply;
+            // Grab the reply text and URL from the job outputs
+            const reply = `${{ needs.generate-response.outputs.reply }}`;
+            const url   = `${{ needs.process-discussion-post.outputs.url }}`;
 
-            // If this was triggered by a discussion event, we can get the discussion ID directly
+            // Determine discussion number
+            let discussionNumber;
             if (context.eventName === 'discussion') {
-            if (context.eventName === 'discussion' || context.eventName === 'discussion_comment') {
-              const discussionId = context.payload.discussion.node_id;
-              const body = reply;
-              core.info(`
-                Posting reply to discussion with ID: ${discussionId}
-                body is
-                START_BODY
-                ${body}
-                END_BODY
-              `);
-              const mutation = `
-                mutation($discussionId: ID!, $body: String!) {
-                      addDiscussionComment(input: {
-                        discussionId: $discussionId,
-                        body: $body
-                      }) {
-                      comment {
-                      id
-                    }
-                  }
-                }
-              `;
-                
-              // 4) call github.graphql with your mutation + variables
-              const response = await github.graphql(mutation, {
-                discussionId,
-                body
-              });
-              
-              core.info(`Posted comment, new comment ID = ${response.addDiscussionComment.comment.id}`);
-
-
-              core.setOutput('response', JSON.stringify(response));
-              core.info(`Response: ${JSON.stringify(response)}`);
-            } else if (discussionUrl) {
-              // If we have a URL but not a direct event, try to extract the discussion number
-              // Example URL: https://github.com/owner/repo/discussions/123
-              const urlParts = discussionUrl.split('/');
-              const discussionNumber = urlParts[urlParts.length - 1];
-
-              if (discussionNumber && !isNaN(discussionNumber)) {
-                core.info(`Extracted discussion number: ${discussionNumber}`);
-
-                // Use the REST API to add a comment to the discussion
-                const response = await github.rest.discussions.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  discussion_number: parseInt(discussionNumber),
-                  body: reply
-                });
-
-                core.setOutput('response', JSON.stringify(response.data));
-                core.info(`Response: ${JSON.stringify(response.data)}`);
-              } else {
-                core.setFailed(`Could not extract discussion number from URL: ${discussionUrl}`);
-              }
+              discussionNumber = context.payload.discussion.number;
+            } else if (context.eventName === 'discussion_comment') {
+              discussionNumber = context.payload.discussion.number;
             } else {
-              core.warning('No discussion ID or URL provided');
+              const parts = url.split('/');
+              discussionNumber = parseInt(parts.pop(), 10);
+              if (isNaN(discussionNumber)) {
+                core.setFailed(`Could not extract discussion number from URL: ${url}`);
+                return;
+              }
             }
+
+            // Post a comment via the REST endpoint
+            const response = await github.request(
+              'POST /repos/{owner}/{repo}/discussions/{discussion_number}/comments',
+              {
+                owner:             context.repo.owner,
+                repo:              context.repo.repo,
+                discussion_number: discussionNumber,
+                body:              reply
+              }
+            );
+
+            core.info(`Comment posted at ${response.data.html_url}`);
 
   library-to-feature:
     needs:
