@@ -10,11 +10,11 @@ run-name: "discussions bot"
 on:
   discussion:
     types:
-        - created
-        - edited
-        - answered
-        - unanswered
-        - deleted
+      - created
+      - edited
+      - answered
+      - unanswered
+      - deleted
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -22,9 +22,9 @@ on:
         required: true
   discussion_comment:
     types:
-        - created
-        - edited
-        - deleted
+      - created
+      - edited
+      - deleted
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -181,55 +181,49 @@ jobs:
 
   post-reply:
     needs:
-    - process-discussion-post
-    - generate-response
+      - process-discussion-post
+      - generate-response
     if: ${{ needs.generate-response.outputs.action != 'nop' && needs.generate-response.outputs.reply != '' }}
     runs-on: ubuntu-latest
-    permissions:
-      discussions: write
     steps:
-    - name: Post reply
-      id: post-reply
-      uses: actions/github-script@v7
-      env:
-         url: ${{ needs.process-discussion-post.outputs.url }}
-         reply: ${{ needs.generate-response.outputs.reply }}
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
+      - name: Post reply
+        id: post-reply
+        uses: actions/github-script@v7
+        env:
+          url: ${{ needs.process-discussion-post.outputs.url }}
+          reply: ${{ needs.generate-response.outputs.reply }}
+        with:
+          script: |
             const discussionUrl = process.env.url;
             const reply = process.env.reply;
 
-            // If this was triggered by a discussion event, we can get the discussion number directly
+            // If this was triggered by a discussion event, we can get the discussion ID directly
+            if (context.eventName === 'discussion') {
             if (context.eventName === 'discussion' || context.eventName === 'discussion_comment') {
-              const discussionNumber = context.payload.discussion.number;
-              core.info(`Posting reply to discussion with number: ${discussionNumber}`);
+              const discussionId = context.payload.discussion.node_id;
+              core.info(`Posting reply to discussion with ID: ${discussionId}`);
 
-              // Use the REST API to add a comment to the discussion
-              //const response = await github.rest.discussions.createComment({
-              //  owner: context.repo.owner,
-              //  repo: context.repo.repo,
-              //  discussions_number: discussionNumber,
-              //  body: reply
-              //});
-              const response = await github.request(
-                'POST /repos/{owner}/{repo}/discussions/{discussion_number}/comments',
-                {
-                  owner:             context.repo.owner,
-                  repo:              context.repo.repo,
-                  discussion_number: discussionNumber,
-                  body:              reply
+              // Use the GraphQL API to add a comment to the discussion
+              const response = await github.graphql(`
+                mutation {
+                  addDiscussionComment(input: {
+                    discussionId: "${discussionId}",
+                    body: "${reply.replace(/"/g, '\\"')}"
+                  }) {
+                    comment {
+                      id
+                    }
+                  }
                 }
-              );
+              `);
 
-              core.setOutput('response', JSON.stringify(response.data));
-              core.info(`Response: ${JSON.stringify(response.data)}`);
+              core.setOutput('response', JSON.stringify(response));
+              core.info(`Response: ${JSON.stringify(response)}`);
             } else if (discussionUrl) {
               // If we have a URL but not a direct event, try to extract the discussion number
               // Example URL: https://github.com/owner/repo/discussions/123
               const urlParts = discussionUrl.split('/');
               const discussionNumber = urlParts[urlParts.length - 1];
-              core.info(`Posting reply to discussion from url ${discussionUrl} with number: ${discussionNumber}`);
 
               if (discussionNumber && !isNaN(discussionNumber)) {
                 core.info(`Extracted discussion number: ${discussionNumber}`);
@@ -238,7 +232,7 @@ jobs:
                 const response = await github.rest.discussions.createComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  discussions_number: parseInt(discussionNumber),
+                  discussion_number: parseInt(discussionNumber),
                   body: reply
                 });
 
@@ -393,3 +387,4 @@ jobs:
   # TODO: Job to drop down to maintenance mode if the discussion topic is resolved.
 
   # TODO: Post as the Bot's app account.
+
