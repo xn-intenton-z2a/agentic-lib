@@ -103,7 +103,8 @@ jobs:
       url: ${{ steps.discussion.outputs.url }}
 
   # TODO: Delegate the response to a chat completion which uses the repository files and discussions as context
-  # Gather the same context as wfr-completion-review-issue.yml plus all the discussions and comments and the last 10 commits
+  # Create a new workflow which will gather the same context as wfr-completion-review-issue.yml plus all the discussions and comments and the last 10 commits
+  # Also use the same style for the called workflow as wfr-completion-review-issue.yml
   generate-response:
     needs:
       - process-discussion-post
