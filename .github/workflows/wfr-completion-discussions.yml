@@ -596,14 +596,14 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const glob = require('glob');
+            const globMatcher = require('glob');
 
             try {
               const workflowPathGlob = process.env.workflowPathGlob;
               let output = "";
 
               // Find all files matching the glob pattern
-              const files = glob.sync(workflowPathGlob);
+              const files = globMatcher.sync(workflowPathGlob);
 
               if (files.length === 0) {
                 core.warning(`No workflow files found matching pattern: ${workflowPathGlob}`);
