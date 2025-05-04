@@ -709,6 +709,8 @@ Re-usable GitHub Actions Workflows:
 
 Discussions Bot [MVP]:
 - [~] On GitHub Discussions creation: Reads title and description, seeds with that as the mission, saves a trace back to documenationPath with a file a URL pointing -> the GitHub Discussion from the event,
+Add workflow files to context
+
 - [ ] On schedule: Summarises commits to main as discussion comments using the saved file comments (read commits added as comments) so only unread commits are summarised.
 - [ ] Answers questions about the in the discussion thread.
 - [ ] Refines the mission before getting the go-ahead to seed.
