@@ -102,6 +102,33 @@ jobs:
       body: ${{ steps.discussion.outputs.body }}
       url: ${{ steps.discussion.outputs.url }}
 
+  generate-simple-response:
+    needs:
+      - process-discussion-post
+    runs-on: ubuntu-latest
+    env:
+      discussion: '${{ needs.process-discussion-post.outputs.title }} ${{ needs.process-discussion-post.outputs.body }}'
+    steps:
+      - name: Choose response
+        id: response
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const action = 'reply-without-action';
+            const detail = process.env.discussion;
+            const reply = `This is a placeholder response. The action is: ${action}.`;
+            core.setOutput('action', action);
+            core.setOutput('detail', detail);
+            core.setOutput('reply', reply);
+            core.info(`action: ${action}`);
+            core.info(`detail: ${detail}`);
+            core.info(`reply: ${reply}`);
+    outputs:
+      # Options: 'nop', 'reply-without-action', 'create-issue', 'create-feature', 'seed-repository'
+      action: ${{ steps.response.outputs.action }}
+      detail: '${{ steps.response.outputs.detail }}'
+      reply: ${{ steps.response.outputs.reply }}
+
   # TODO: Delegate the response to a chat completion which uses the repository files and discussions as context
   # Create a new workflow which will gather the same context as wfr-completion-review-issue.yml plus all the discussions and comments and the last 10 commits
   # Also use the same style for the called workflow as wfr-completion-review-issue.yml
