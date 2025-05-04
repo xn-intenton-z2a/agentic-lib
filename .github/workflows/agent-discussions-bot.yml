@@ -129,7 +129,7 @@ jobs:
       detail: '${{ steps.response.outputs.detail }}'
       reply: ${{ steps.response.outputs.reply }}
 
-  # TODO: Delegate the response to a chat completion which uses the repository files and discussions as context
+  # TODO: Delegate generate-response to a chat completion workflow which uses the repository files and discussions as context
   # Create a new workflow which will gather the same context as wfr-completion-review-issue.yml plus all the discussions and comments and the last 10 commits
   # Use the same style for the called workflow as wfr-completion-review-issue.yml and the prompt from agent-discussion-bot.md
   generate-response:
