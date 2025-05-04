@@ -210,11 +210,11 @@ jobs:
                 }
               }
             `;
-            
+
             try {
               const result = await github.graphql(query);
               const discussions = result.repository.discussions.nodes;
-              
+
               let discussionsText = "";
               for (const discussion of discussions) {
                 discussionsText += `Discussion: ${discussion.title}\n`;
@@ -222,7 +222,7 @@ jobs:
                 discussionsText += `Created: ${discussion.createdAt}\n`;
                 discussionsText += `URL: ${discussion.url}\n`;
                 discussionsText += `Body: ${discussion.body}\n`;
-                
+
                 if (discussion.comments.nodes.length > 0) {
                   discussionsText += "Comments:\n";
                   for (const comment of discussion.comments.nodes) {
@@ -231,10 +231,10 @@ jobs:
                     discussionsText += `  Body: ${comment.body}\n\n`;
                   }
                 }
-                
+
                 discussionsText += "\n---\n\n";
               }
-              
+
               core.setOutput('discussions', discussionsText);
             } catch (error) {
               core.warning(`Error fetching discussions: ${error.message}`);
@@ -256,7 +256,7 @@ jobs:
           # Handle multiple source paths
           IFS=';' read -ra SRC_PATHS <<< "${{ env.allSourcePaths }}"
           output=""
-          
+
           for path in "${SRC_PATHS[@]}"; do
             trimmed_path=$(echo "$path" | xargs)
             if [ -d "$trimmed_path" ]; then
@@ -274,7 +274,7 @@ jobs:
               echo "Source path '$trimmed_path' does not exist."
             fi
           done
-          
+
           echo "output<<EOF" >> $GITHUB_OUTPUT
           echo -e "$output" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -286,7 +286,7 @@ jobs:
           # Handle multiple test paths
           IFS=';' read -ra TEST_PATHS <<< "${{ env.allTestsPaths }}"
           output=""
-          
+
           for path in "${TEST_PATHS[@]}"; do
             trimmed_path=$(echo "$path" | xargs)
             if [ -d "$trimmed_path" ]; then
@@ -304,7 +304,7 @@ jobs:
               echo "Test path '$trimmed_path' does not exist."
             fi
           done
-          
+
           echo "output<<EOF" >> $GITHUB_OUTPUT
           echo -e "$output" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -316,7 +316,7 @@ jobs:
           # Handle documentation path
           trimmed_path=$(echo "${{ env.documentationPath }}" | xargs)
           output=""
-          
+
           if [ -d "$trimmed_path" ]; then
             # If it's a directory, list all markdown files in it
             files=$(find "$trimmed_path" -type f -name "*.md" 2>/dev/null)
@@ -331,7 +331,7 @@ jobs:
           else
             echo "Documentation path '$trimmed_path' does not exist."
           fi
-          
+
           echo "output<<EOF" >> $GITHUB_OUTPUT
           echo -e "$output" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -410,57 +410,57 @@ jobs:
         id: response
         uses: actions/github-script@v7
         env:
-          DISCUSSION_TITLE: ${{ env.discussionTitle }}
-          DISCUSSION_BODY: ${{ env.discussionBody }}
-          DISCUSSION_URL: ${{ env.discussionUrl }}
-          DISCUSSIONS: ${{ steps.discussions.outputs.discussions }}
-          COMMITS: ${{ steps.commits.outputs.commits }}
-          SOURCE_FILES: ${{ steps.source_files.outputs.output }}
-          TEST_FILES: ${{ steps.test_files.outputs.output }}
-          DOCS_FILES: ${{ steps.docs_files.outputs.output }}
-          README_CONTENT: ${{ steps.readme.outputs.content }}
-          MISSION_CONTENT: ${{ steps.mission.outputs.content }}
-          CONTRIBUTING_CONTENT: ${{ steps.contributing.outputs.content }}
-          DEPENDENCIES_CONTENT: ${{ steps.dependencies.outputs.content }}
-          PROMPT_CONTENT: ${{ steps.prompt.outputs.content }}
-          AGENT_CONFIG_CONTENT: ${{ env.agentConfigContent }}
-          MODEL: ${{ env.model }}
-          CHATGPT_API_SECRET_KEY: ${{ env.chatgptApiSecretKey }}
+          discussionTitle: ${{ env.discussionTitle }}
+          discussionBody: ${{ env.discussionBody }}
+          discussionUrl: ${{ env.discussionUrl }}
+          discussions: ${{ steps.discussions.outputs.discussions }}
+          commits: ${{ steps.commits.outputs.commits }}
+          sourceFiles: ${{ steps.source_files.outputs.output }}
+          testFiles: ${{ steps.test_files.outputs.output }}
+          docsFiles: ${{ steps.docs_files.outputs.output }}
+          readmeContent: ${{ steps.readme.outputs.content }}
+          missionContent: ${{ steps.mission.outputs.content }}
+          contributingContent: ${{ steps.contributing.outputs.content }}
+          dependenciesContent: ${{ steps.dependencies.outputs.content }}
+          promptContent: ${{ steps.prompt.outputs.content }}
+          agentConfigContent: ${{ env.agentConfigContent }}
+          model: ${{ env.model }}
+          chatgptApiSecretKey: ${{ env.chatgptApiSecretKey }}
         with:
           script: |
             const OpenAI = require('openai').default;
             const { z } = require('zod');
             require('dotenv').config();
-            
-            const apiKey = process.env.CHATGPT_API_SECRET_KEY;
+
+            const apiKey = process.env.chatgptApiSecretKey;
             if (!apiKey) { 
-              core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
+              core.setFailed("Missing chatgptApiSecretKey"); 
             }
             const openai = new OpenAI({ apiKey });
-            
-            const discussionTitle = process.env.DISCUSSION_TITLE;
-            const discussionBody = process.env.DISCUSSION_BODY;
-            const discussionUrl = process.env.DISCUSSION_URL;
-            const discussions = process.env.DISCUSSIONS;
-            const commits = process.env.COMMITS;
-            const sourceFiles = process.env.SOURCE_FILES;
-            const testFiles = process.env.TEST_FILES;
-            const docsFiles = process.env.DOCS_FILES;
-            const readmeContent = process.env.README_CONTENT;
-            const missionContent = process.env.MISSION_CONTENT;
-            const contributingContent = process.env.CONTRIBUTING_CONTENT;
-            const dependenciesContent = process.env.DEPENDENCIES_CONTENT;
-            const promptContent = process.env.PROMPT_CONTENT;
-            const agentConfigContent = process.env.AGENT_CONFIG_CONTENT;
-            const model = process.env.MODEL;
-            
+
+            const discussionTitle = process.env.discussionTitle;
+            const discussionBody = process.env.discussionBody;
+            const discussionUrl = process.env.discussionUrl;
+            const discussions = process.env.discussions;
+            const commits = process.env.commits;
+            const sourceFiles = process.env.sourceFiles;
+            const testFiles = process.env.testFiles;
+            const docsFiles = process.env.docsFiles;
+            const readmeContent = process.env.readmeContent;
+            const missionContent = process.env.missionContent;
+            const contributingContent = process.env.contributingContent;
+            const dependenciesContent = process.env.dependenciesContent;
+            const promptContent = process.env.promptContent;
+            const agentConfigContent = process.env.agentConfigContent;
+            const model = process.env.model;
+
             core.info(`Discussion title: ${discussionTitle}`);
             core.info(`Discussion body: ${discussionBody}`);
             core.info(`Discussion URL: ${discussionUrl}`);
-            
+
             const chatGptPrompt = `
             ${promptContent}
-            
+
             Consider the following when generating your response:
               * Current discussion
               * Previous discussions and comments
@@ -473,64 +473,64 @@ jobs:
               * Contributing file content
               * Dependencies file content
               * Agent configuration file content
-            
+
             Current discussion:
             CURRENT_DISCUSSION_START
             Title: ${discussionTitle}
             Body: ${discussionBody}
             URL: ${discussionUrl}
             CURRENT_DISCUSSION_END
-            
+
             Previous discussions and comments:
             PREVIOUS_DISCUSSIONS_START
             ${discussions}
             PREVIOUS_DISCUSSIONS_END
-            
+
             Recent commits:
             RECENT_COMMITS_START
             ${commits}
             RECENT_COMMITS_END
-            
+
             Source files:
             SOURCE_FILES_START
             ${sourceFiles}
             SOURCE_FILES_END
-            
+
             Test files:
             TEST_FILES_START
             ${testFiles}
             TEST_FILES_END
-            
+
             Documentation files:
             DOCS_FILES_START
             ${docsFiles}
             DOCS_FILES_END
-            
+
             README file:
             README_FILE_START
             ${readmeContent}
             README_FILE_END
-            
+
             MISSION file:
             MISSION_FILE_START
             ${missionContent}
             MISSION_FILE_END
-            
+
             Contributing file:
             CONTRIBUTING_FILE_START
             ${contributingContent}
             CONTRIBUTING_FILE_END
-            
+
             Dependencies file:
             DEPENDENCIES_FILE_START
             ${dependenciesContent}
             DEPENDENCIES_FILE_END
-            
+
             Agent configuration file:
             AGENT_CONFIG_FILE_START
             ${agentConfigContent}
             AGENT_CONFIG_FILE_END
-            
+
             Answer strictly with a JSON object following this schema:
             {
               "action": "reply-without-action", // One of: 'nop', 'reply-without-action', 'create-issue', 'create-feature', 'seed-repository'
@@ -539,17 +539,17 @@ jobs:
             }
             Ensure valid JSON.
             `;
-            
+
             core.info("prompt start: **********************************************");
             core.info(`${chatGptPrompt}`);
             core.info("prompt end:   **********************************************");
-            
+
             const ResponseSchema = z.object({ 
               action: z.string(), 
               detail: z.string(), 
               reply: z.string() 
             });
-            
+
             // Define the function schema for function calling
             const tools = [{
               type: "function",
@@ -578,7 +578,7 @@ jobs:
                 strict: true
               }
             }];
-            
+
             // Call OpenAI using function calling format
             const response = await openai.chat.completions.create({
               model,
@@ -588,7 +588,7 @@ jobs:
               ],
               tools: tools
             });
-            
+
             let result;
             if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
               try {
@@ -605,7 +605,7 @@ jobs:
             } else {
               core.setFailed("No valid response received from OpenAI.");
             }
-            
+
             try {
               core.info("raw response start: **********************************************");
               core.info(`raw response: "${JSON.stringify(result)}"`);
@@ -621,7 +621,7 @@ jobs:
             } catch (e) {
               core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
             }
-            
+
             core.setOutput("response", JSON.stringify(response));
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`response: "${JSON.stringify(response)}"`);

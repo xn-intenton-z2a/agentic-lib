@@ -9,7 +9,15 @@ run-name: "discussions bot"
 
 on:
   discussion:
-    types: [created, labeled]
+    types:
+        - created
+        - edited
+        - answered
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
   workflow_dispatch:
     inputs:
       discussionTitle:
@@ -47,6 +55,8 @@ on:
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
 
 env:
   gitUserEmail: 'action@github.com'
@@ -70,7 +80,6 @@ jobs:
   # TODO: Read the Bot's handle from a repository variable
 
   process-discussion-post:
-    if: ${{ (github.event_name == 'discussion' && github.event.discussion.labels != null && contains(github.event.discussion.labels.*.name, 'automated')) || github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - name: discussion
