@@ -1,3 +1,5 @@
+sandbox/features/CUSTOM_DIGEST.md
+# sandbox/features/CUSTOM_DIGEST.md
 # CUSTOM_DIGEST Feature
 
 This feature adds a new CLI flag called --custom-digest to allow users to provide their own digest payload as a JSON string. The CLI will parse the input JSON and then route it through the existing digestLambdaHandler. In case of JSON parsing errors or invalid payload formats, the system logs detailed error messages. This enhancement empowers users to test and simulate various SQS message scenarios without modifying the source code.

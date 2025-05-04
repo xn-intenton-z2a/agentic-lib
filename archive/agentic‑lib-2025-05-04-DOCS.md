@@ -1,3 +1,5 @@
+sandbox/docs/USAGE.md
+# sandbox/docs/USAGE.md
 # CLI Usage
 
 The agentic-lib provides a command-line interface with the following commands:
