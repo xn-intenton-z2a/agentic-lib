@@ -204,18 +204,36 @@ jobs:
               core.info(`Posting reply to discussion with ID: ${discussionId}`);
 
               // Use the GraphQL API to add a comment to the discussion
-              const response = await github.graphql(`
-                mutation {
-                  addDiscussionComment(input: {
-                    discussionId: "${discussionId}",
-                    body: "${reply.replace(/"/g, '\\"')}"
-                  }) {
-                    comment {
+              // inside your actions/github-script@v7 step
+              
+              // 1) grab the discussion’s Node ID (not the numeric “number”)
+              const discussionId = context.payload.discussion.node_id;
+              
+              // 2) prepare your comment text
+              const body = process.env.cleanedReply;
+              
+              // 3) write a mutation string that takes variables
+              const mutation = `
+                mutation($discussionId: ID!, $body: String!) {
+                      addDiscussionComment(input: {
+                        discussionId: $discussionId,
+                        body: $body
+                      }) {
+                      comment {
                       id
                     }
                   }
                 }
-              `);
+              `;
+                
+              // 4) call github.graphql with your mutation + variables
+              const response = await github.graphql(mutation, {
+                discussionId,
+                body
+              });
+              
+              core.info(`Posted comment, new comment ID = ${response.addDiscussionComment.comment.id}`);
+
 
               core.setOutput('response', JSON.stringify(response));
               core.info(`Response: ${JSON.stringify(response)}`);
