@@ -628,7 +628,7 @@ jobs:
             You may also include the detail of the action (such as the feature title).
             And you may reply asking for clarification or more information or stating that action has been taken.
             Explain which action you took and why.
-  -
+  
             Consider the following when generating your response:
               * Current discussion
               * Previous discussions and comments
