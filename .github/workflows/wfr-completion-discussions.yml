@@ -588,6 +588,52 @@ jobs:
               core.setOutput('content', '');
             }
 
+      - name: Read workflow files
+        id: workflow_files
+        uses: actions/github-script@v7
+        env:
+          workflowPathGlob: ${{ env.workflowPathGlob }}
+        with:
+          script: |
+            const fs = require('fs');
+            const glob = require('glob');
+
+            try {
+              const workflowPathGlob = process.env.workflowPathGlob;
+              let output = "";
+
+              // Find all files matching the glob pattern
+              const files = glob.sync(workflowPathGlob);
+
+              if (files.length === 0) {
+                core.warning(`No workflow files found matching pattern: ${workflowPathGlob}`);
+                core.setOutput('content', '');
+                return;
+              }
+
+              for (const file of files) {
+                try {
+                  let content = fs.readFileSync(file, 'utf8');
+
+                  // Strip conflicting directives by replacing START, END, ", ', ` with "?"
+                  content = content.replace(/START/g, '?')
+                                  .replace(/END/g, '?')
+                                  .replace(/"/g, '?')
+                                  .replace(/'/g, '?')
+                                  .replace(/`/g, '?');
+
+                  output += `File: ${file}\n${content}\n\n`;
+                } catch (error) {
+                  core.warning(`Error reading workflow file ${file}: ${error.message}`);
+                }
+              }
+
+              core.setOutput('content', output);
+            } catch (error) {
+              core.warning(`Error processing workflow files: ${error.message}`);
+              core.setOutput('content', '');
+            }
+
       - name: Generate response
         id: response
         uses: actions/github-script@v7
@@ -602,6 +648,7 @@ jobs:
           missionContent: ${{ steps.mission.outputs.content }}
           contributingContent: ${{ steps.contributing.outputs.content }}
           dependenciesContent: ${{ steps.dependencies.outputs.content }}
+          workflowFilesContent: ${{ steps.workflow_files.outputs.content }}
           promptContent: ${{ steps.prompt.outputs.content }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -629,6 +676,7 @@ jobs:
             const missionContent = process.env.missionContent;
             const contributingContent = process.env.contributingContent;
             const dependenciesContent = process.env.dependenciesContent;
+            const workflowFilesContent = process.env.workflowFilesContent;
             const promptContent = process.env.promptContent;
             const agentConfigContent = process.env.agentConfigContent;
             const model = process.env.model;
@@ -658,6 +706,7 @@ jobs:
               * Previous discussions and comments
               * Recent commits
               * Repository file paths
+              * Workflow files content
               * Source file content
               * Test file content
               * Documentation file content
@@ -688,6 +737,11 @@ jobs:
             REPOSITORY_FILES_START
             ${repoFiles}
             REPOSITORY_FILES_END
+
+            Workflow files:
+            WORKFLOW_FILES_START
+            ${workflowFilesContent}
+            WORKFLOW_FILES_END
 
             Source files:
             SOURCE_FILES_START
