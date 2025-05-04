@@ -21,8 +21,6 @@ on:
         required: false
         type: string
         default: ''
-    #workflows: (annotation only)
-    #  - ci-automerge
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false

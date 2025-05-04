@@ -80,16 +80,6 @@ on:
         type: string
         required: false
         default: '.github/workflows/'
-      agenticLibPath:
-        description: 'The path to the agentic-lib directory. e.g. ".github/agents/"'
-        type: string
-        required: false
-        default: '.github/agents/'
-      scriptsPath:
-        description: 'The path to the scripts directory. e.g. ".github/scripts/"'
-        type: string
-        required: false
-        default: '.github/scripts/'
       model:
         description: 'The OpenAI model to use. e.g. "o3-mini"'
         type: string
@@ -284,6 +274,23 @@ jobs:
             } catch (error) {
               core.warning(`Error fetching commits: ${error.message}`);
               core.setOutput('commits', '');
+            }
+
+      - name: List all repository files
+        id: repo_files
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              const { execSync } = require('child_process');
+              // List all tracked files in the repository, excluding node_modules
+              const files = execSync('git ls-files | grep -v "^node_modules/"').toString().trim();
+              const filesList = files.split('\n').join('\n- ');
+              const filesOutput = `# Repository Files\n- ${filesList}`;
+              core.setOutput('files', filesOutput);
+            } catch (error) {
+              core.warning(`Error listing repository files: ${error.message}`);
+              core.setOutput('files', '');
             }
 
       - name: List source files
@@ -643,7 +650,7 @@ jobs:
             You may also include the detail of the action (such as the feature title).
             And you may reply asking for clarification or more information or stating that action has been taken.
             Explain which action you took and why.
-  
+
             Consider the following when generating your response:
               * Current discussion
               * Previous discussions and comments

@@ -28,6 +28,18 @@ on:
         required: false
       CHATGPT_API_SECRET_KEY:
         required: true
+  workflow_call:
+    inputs:
+      source:
+        description: 'Text to drive the source creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Find out about using agents and LLMs."'
+        required: false
+        type: string
+        default: 'house choice'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
   schedule:
     - cron: '40 4 */7 * *' # schedule-1
     #- cron: '40 4 * * *' # schedule-2

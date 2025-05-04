@@ -37,8 +37,6 @@ on:
         required: false
       CHATGPT_API_SECRET_KEY:
         required: true
-    #workflows: (annotation only)
-    #    - agent-library-to-feature
   schedule:
     - cron: '20 4 */7 * *' # schedule-1
     #- cron: '20 4 * * *' # schedule-2
