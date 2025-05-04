@@ -185,6 +185,8 @@ jobs:
     - generate-response
     if: ${{ needs.generate-response.outputs.action != 'nop' && needs.generate-response.outputs.reply != '' }}
     runs-on: ubuntu-latest
+    permissions:
+      discussions: write
     steps:
     - name: Post reply
       id: post-reply
@@ -193,6 +195,7 @@ jobs:
          url: ${{ needs.process-discussion-post.outputs.url }}
          reply: ${{ needs.generate-response.outputs.reply }}
       with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
             const discussionUrl = process.env.url;
             const reply = process.env.reply;
@@ -206,7 +209,7 @@ jobs:
               const response = await github.rest.discussions.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: discussionNumber,
+                discussion_number: discussionNumber,
                 body: reply
               });
 
@@ -225,7 +228,7 @@ jobs:
                 const response = await github.rest.issues.createComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  issue_number: parseInt(discussionNumber),
+                  discussion_number: parseInt(discussionNumber),
                   body: reply
                 });
 
