@@ -713,7 +713,7 @@ Discussions Bot [MVP]:
 - [x] Answers questions about the repository in the discussion thread.
 - [x] Refines the mission before getting the go-ahead to seed.
 - [x] Mission file and features can be refined based on these discussions during development.
-- [ ] On schedule: Summarises commits to main as discussion comments using the saved file comments (read commits added as comments) so only unread commits are summarised.
+- [~] On schedule: Summarises commits to main as discussion comments using the saved file comments (read commits added as comments) so only unread commits are summarised.
 - [ ] Pass user information to the bot.
 - [ ] Other bots chime in with view points (e.g. what exists already, what we have on this in the library, progress so far).
 - [ ] Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
