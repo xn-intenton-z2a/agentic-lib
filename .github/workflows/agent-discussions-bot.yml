@@ -5,7 +5,7 @@
 
 name: discussions-bot
 concurrency: discussions-bot
-run-name: "discussion to seed repository"
+run-name: "discussions bot"
 
 on:
   discussion:
