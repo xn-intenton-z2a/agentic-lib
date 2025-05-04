@@ -711,12 +711,13 @@ Discussions Bot [MVP]:
 - [x] On GitHub Discussions creation: Reads title and description, seeds with that as the mission, saves a trace back to documenationPath with a file a URL pointing -> the GitHub Discussion from the event,
 - [x] Add workflow files to context
 - [x] Answers questions about the repository in the discussion thread.
+- [x] Refines the mission before getting the go-ahead to seed.
 - [x] Mission file and features can be refined based on these discussions during development.
-- [ ] Pass user information to the bot.
 - [ ] On schedule: Summarises commits to main as discussion comments using the saved file comments (read commits added as comments) so only unread commits are summarised.
-- [ ] Refines the mission before getting the go-ahead to seed.
+- [ ] Pass user information to the bot.
 - [ ] Other bots chime in with view points (e.g. what exists already, what we have on this in the library, progress so far).
 - [ ] Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
+- [ ] Extract demo output to publish in the discussion thread and request feedback and next steps.
 
 intentïon user journey [Launch]:
 - [ ] On intentïon.com, user provides an intention which is posted as a new GitHub Discussions thread.
