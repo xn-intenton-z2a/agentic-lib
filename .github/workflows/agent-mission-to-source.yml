@@ -13,7 +13,7 @@ on:
   #    - '**/*.yml'
   workflow_dispatch:
     inputs:
-      source:
+      mission:
         description: 'Text to drive the source creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Find out about using agents and LLMs."'
         required: false
         type: string
@@ -30,7 +30,7 @@ on:
         required: true
   workflow_call:
     inputs:
-      source:
+      mission:
         description: 'Text to drive the source creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Find out about using agents and LLMs."'
         required: false
         type: string
@@ -73,9 +73,9 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-sources.yml@main'
     with:
-      promptFilepath: '.github/agents/agent-maintain-sources.md'
+      promptFilepath: '.github/agents/agent-maintain-missions.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
-      source: ${{ inputs.source }}
+      mission: ${{ inputs.mission }}
       missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
       librarySourcesFilepath: ${{ needs.agentic-lib.outputs.librarySourcesFilepath }}
       librarySourcesLimit: '${{needs.agentic-lib.outputs.librarySourcesLimit }}'

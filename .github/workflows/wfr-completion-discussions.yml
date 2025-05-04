@@ -594,6 +594,7 @@ jobs:
         env:
           discussions: ${{ steps.discussions.outputs.discussions }}
           commits: ${{ steps.commits.outputs.commits }}
+          repoFiles: ${{ steps.repo_files.outputs.files }}
           sourceFiles: ${{ steps.source_files.outputs.output }}
           testFiles: ${{ steps.test_files.outputs.output }}
           docsFiles: ${{ steps.docs_files.outputs.output }}
@@ -620,6 +621,7 @@ jobs:
             const discussionUrl = process.env.discussionUrl;
             const discussions = process.env.discussions;
             const commits = process.env.commits;
+            const repoFiles = process.env.repoFiles;
             const sourceFiles = process.env.sourceFiles;
             const testFiles = process.env.testFiles;
             const docsFiles = process.env.docsFiles;
@@ -655,6 +657,7 @@ jobs:
               * Current discussion
               * Previous discussions and comments
               * Recent commits
+              * Repository file paths
               * Source file content
               * Test file content
               * Documentation file content
@@ -680,6 +683,11 @@ jobs:
             RECENT_COMMITS_START
             ${commits}
             RECENT_COMMITS_END
+
+            Repository files:
+            REPOSITORY_FILES_START
+            ${repoFiles}
+            REPOSITORY_FILES_END
 
             Source files:
             SOURCE_FILES_START

@@ -28,7 +28,7 @@ name: ∞ maintain-sources
 on:
   workflow_call:
     inputs:
-      source:
+      mission:
         description: 'Text to drive the source creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Add a source about agents."'
         type: string
         required: false
@@ -141,7 +141,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      source: ${{ inputs.source || '' }}
+      mission: ${{ inputs.mission || '' }}
       librarySourcesFilepath: ${{ inputs.librarySourcesFilepath || 'SOURCES.md' }}
       librarySourcesLimit: ${{ inputs.librarySourcesLimit || '32' }}
       featuresPath: ${{ inputs.featuresPath || 'features/' }}
@@ -248,7 +248,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const source = process.env.source;
+            const mission = process.env.mission;
             const librarySourcesFilepath = process.env.librarySourcesFilepath;
             const librarySourcesLimit = process.env.librarySourcesLimit;
             const currentFeatures = process.env.currentFeatures;
@@ -277,7 +277,7 @@ jobs:
             }
             const openai = new OpenAI({ apiKey });
 
-            core.info(`source: "${source}"`);
+            core.info(`mission: "${mission}"`);
             core.info(`librarySourcesFilepath: "${librarySourcesFilepath}"`);
             core.info(`currentFeatures: "${currentFeatures}"`);
             core.info(`allSourcePaths: "${allSourcePaths}"`);
@@ -434,8 +434,8 @@ jobs:
             core.info(`Prompt file '${promptFilepath}' has been loaded (length ${promptContent.length}).`);
 
             // generate the source prompt either by using the supplied source prompt or by reviewing the current sources and full context
-            let prompt = source;
-            if (source === 'house choice') {
+            let prompt = mission;
+            if (mission === 'house choice') {
               prompt = `Please review the current sources in the directory and either;
                 * add a new source to the repository, or
                 * extend an existing source to add a new aspect to it, or
