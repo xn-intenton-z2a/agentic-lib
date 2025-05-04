@@ -144,7 +144,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const action = 'reply-without-action';
+            const action = 'create-issue';
             const detail = process.env.discussion;
             const reply = `This is a placeholder response. The action is: ${action}.`;
             core.setOutput('action', action);
