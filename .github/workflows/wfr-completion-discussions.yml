@@ -75,6 +75,21 @@ on:
         type: string
         required: false
         default: 'package.json'
+      workflowPath:
+        description: 'The path to the workflow files directory driving this repository. e.g. ".github/workflows/"'
+        type: string
+        required: false
+        default: '.github/workflows/'
+      agenticLibPath:
+        description: 'The path to the agentic-lib directory. e.g. ".github/agents/"'
+        type: string
+        required: false
+        default: '.github/agents/'
+      scriptsPath:
+        description: 'The path to the scripts directory. e.g. ".github/scripts/"'
+        type: string
+        required: false
+        default: '.github/scripts/'
       model:
         description: 'The OpenAI model to use. e.g. "o3-mini"'
         type: string
