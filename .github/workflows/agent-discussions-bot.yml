@@ -142,13 +142,22 @@ jobs:
     needs:
       - process-discussion-post
       - agentic-lib
+    permissions:
+      contents: read
+      packages: read
+      discussions: read
+      id-token: read
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@main'
     with:
+      promptFilepath: '.github/agents/agent-discussion-bot.md'
+      agentConfigContent: ${{ needs.agentic-lib.outputs.config }}
       discussionTitle: ${{ needs.process-discussion-post.outputs.title }}
       discussionBody: ${{ needs.process-discussion-post.outputs.body }}
       discussionUrl: ${{ needs.process-discussion-post.outputs.url }}
-      promptFilepath: '.github/agents/agent-discussion-bot.md'
-      agentConfigContent: ${{ needs.agentic-lib.outputs.config }}
+      gitUserEmail: ${{ env.gitUserEmail }}
+      gitUserName: ${{ env.gitUserName }}
+      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
+      npmAuthOrganisation: ${{ env.npmAuthOrganisation }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
