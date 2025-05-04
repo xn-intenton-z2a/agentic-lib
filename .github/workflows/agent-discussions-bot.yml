@@ -339,7 +339,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/utils-seed-repository.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@main'
     with:
       mission: ${{ needs.generate-response.outputs.detail }}
     secrets:

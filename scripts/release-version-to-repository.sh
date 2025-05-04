@@ -60,6 +60,9 @@ rm -f "${DEST_DIR}/source-worker.yml"
 cp -v .github/workflows/agent-mission-to-source.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-mission-to-source.yml"
 
+cp -v .github/workflows/agent-seed-repository.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-seed-repository.yml"
+
 rm -f "${DEST_DIR}/library-worker.yml"
 cp -v .github/workflows/agent-source-to-library.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-source-to-library.yml"
@@ -113,6 +116,8 @@ rm -f "${DEST_DIR}/truncate-workflow-history.yml"
 cp -v .github/workflows/utils-truncate-workflow-history.yml "${DEST_DIR}/."
 
 rm -f "${DEST_DIR}/utils-reset-sandbox.yml"
+
+rm -f "${DEST_DIR}/utils-seed-repository.yml"
 
 cp -v .github/workflows/utils-seed-repository.yml "${DEST_DIR}/."
 
