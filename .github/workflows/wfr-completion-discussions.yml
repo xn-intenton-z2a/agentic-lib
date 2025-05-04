@@ -609,9 +609,12 @@ jobs:
                 core.warning(`No workflow files found matching pattern: ${workflowPathGlob}`);
                 core.setOutput('content', '');
                 return;
+              } else {
+                core.info(`Found workflow files matching pattern ${workflowPathGlob}: ${files.join(', ')}`);
               }
 
               for (const file of files) {
+                core.info(`Reading workflow file: ${file}`);
                 try {
                   let content = fs.readFileSync(file, 'utf8');
 
@@ -628,10 +631,11 @@ jobs:
                 }
               }
 
-              core.setOutput('content', output);
+              core.info(`Workflow files content read: ${output.length} characters`);
+              core.setOutput('workflowFilesContent', output);
             } catch (error) {
               core.warning(`Error processing workflow files: ${error.message}`);
-              core.setOutput('content', '');
+              core.setOutput('workflowFilesContent', '');
             }
 
       - name: Generate response
@@ -648,7 +652,7 @@ jobs:
           missionContent: ${{ steps.mission.outputs.content }}
           contributingContent: ${{ steps.contributing.outputs.content }}
           dependenciesContent: ${{ steps.dependencies.outputs.content }}
-          workflowFilesContent: ${{ steps.workflow_files.outputs.content }}
+          workflowFilesContent: ${{ steps.workflow_files.outputs.workflowFilesContent }}
           promptContent: ${{ steps.prompt.outputs.content }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
