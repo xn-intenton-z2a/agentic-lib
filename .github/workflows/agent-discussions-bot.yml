@@ -227,7 +227,7 @@ jobs:
                 }) {
                 comment { 
                   id 
-                  htmlUrl 
+                  url 
                 }
               }
             }`;
@@ -237,7 +237,7 @@ jobs:
               body
             });
 
-            core.info(`Comment posted at ${response.data.html_url}`);
+            core.info(`Comment posted.`);
 
   library-to-feature:
     needs:
