@@ -239,9 +239,28 @@ jobs:
 
             core.info(`Comment posted.`);
 
+  seed-repository:
+    needs:
+      - generate-response
+    if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@main'
+    with:
+      mission: ${{ needs.generate-response.outputs.detail }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
   mission-to-source:
     needs:
       - generate-response
+      - seed-repository
     if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
     permissions:
       contents: write
@@ -279,7 +298,7 @@ jobs:
     needs:
       - process-discussion-post
       - generate-response
-    if: ${{ needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' || needs.generate-response.outputs.action == 'create-issue' }}
+    if: ${{ needs.generate-response.outputs.action == 'create-issue' }}
     permissions:
       contents: write
       pull-requests: write
@@ -311,27 +330,11 @@ jobs:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
-  #issue-to-code:
-  #  needs:
-  #    - ready-issue
-  #    - generate-response
-  #  if: ${{ needs.generate-response.outputs.action == 'create-issue' }}
-  #  permissions:
-  #    contents: write
-  #    pull-requests: write
-  #    checks: write
-  #    issues: write
-  #    id-token: write
-  #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-code.yml@main'
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
-  seed-repository:
+  issue-to-code:
     needs:
+      - ready-issue
       - generate-response
-    if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
+    if: ${{ needs.generate-response.outputs.action == 'create-issue' }}
     permissions:
       contents: write
       pull-requests: write
@@ -339,9 +342,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@main'
-    with:
-      mission: ${{ needs.generate-response.outputs.detail }}
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-code.yml@main'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
