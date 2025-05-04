@@ -206,12 +206,21 @@ jobs:
               core.info(`Posting reply to discussion with number: ${discussionNumber}`);
 
               // Use the REST API to add a comment to the discussion
-              const response = await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issues_number: discussionNumber,
-                body: reply
-              });
+              //const response = await github.rest.discussions.createComment({
+              //  owner: context.repo.owner,
+              //  repo: context.repo.repo,
+              //  discussions_number: discussionNumber,
+              //  body: reply
+              //});
+              const response = await github.request(
+                'POST /repos/{owner}/{repo}/discussions/{discussion_number}/comments',
+                {
+                  owner:             context.repo.owner,
+                  repo:              context.repo.repo,
+                  discussion_number: discussionNumber,
+                  body:              reply
+                }
+              );
 
               core.setOutput('response', JSON.stringify(response.data));
               core.info(`Response: ${JSON.stringify(response.data)}`);
@@ -226,10 +235,10 @@ jobs:
                 core.info(`Extracted discussion number: ${discussionNumber}`);
 
                 // Use the REST API to add a comment to the discussion
-                const response = await github.rest.issues.createComment({
+                const response = await github.rest.discussions.createComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  issue_number: parseInt(discussionNumber),
+                  discussions_number: parseInt(discussionNumber),
                   body: reply
                 });
 
