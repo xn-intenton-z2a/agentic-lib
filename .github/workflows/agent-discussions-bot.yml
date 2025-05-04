@@ -206,10 +206,10 @@ jobs:
               core.info(`Posting reply to discussion with number: ${discussionNumber}`);
 
               // Use the REST API to add a comment to the discussion
-              const response = await github.rest.discussions.createComment({
+              const response = await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                discussion_number: discussionNumber,
+                issues_number: discussionNumber,
                 body: reply
               });
 
@@ -220,6 +220,7 @@ jobs:
               // Example URL: https://github.com/owner/repo/discussions/123
               const urlParts = discussionUrl.split('/');
               const discussionNumber = urlParts[urlParts.length - 1];
+              core.info(`Posting reply to discussion from url ${discussionUrl} with number: ${discussionNumber}`);
 
               if (discussionNumber && !isNaN(discussionNumber)) {
                 core.info(`Extracted discussion number: ${discussionNumber}`);
@@ -228,7 +229,7 @@ jobs:
                 const response = await github.rest.issues.createComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  discussion_number: parseInt(discussionNumber),
+                  issue_number: parseInt(discussionNumber),
                   body: reply
                 });
 
