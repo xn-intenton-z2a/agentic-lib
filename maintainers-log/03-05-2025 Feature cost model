@@ -17,3 +17,6 @@ generating a whole app is a late entrant to the market. Handing over a self-dire
 Also today, the first security incident. The secrets.env file (which only has read access to public repository),
 may have been disclosed and was not visible but used a well known file pattern and it should have remain secret. All
 potentially impacted repositories will be checked and all the keys rotated and the publication process examined.
+
+Update: it was a false positive, the secrets.env file was not in the repository just the local workspace sop when I
+switched to the pages branch it was visible locally but never remote and never disclosed. The keys were rotated before RCA.
