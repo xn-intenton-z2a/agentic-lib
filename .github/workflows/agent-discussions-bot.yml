@@ -203,7 +203,7 @@ jobs:
               core.info(`Posting reply to discussion with number: ${discussionNumber}`);
 
               // Use the REST API to add a comment to the discussion
-              const response = await github.rest.issues.createComment({
+              const response = await github.rest.discussions.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: discussionNumber,
