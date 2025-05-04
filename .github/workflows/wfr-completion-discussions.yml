@@ -145,6 +145,7 @@ jobs:
       missionFilepath: ${{ inputs.missionFilepath || 'MISSION.md' }}
       contributingFilepath: ${{ inputs.contributingFilepath || 'CONTRIBUTING.md' }}
       dependenciesFilepath: ${{ inputs.dependenciesFilepath || 'package.json' }}
+      workflowPathGlob: ${{ inputs.workflowPathGlob || '.github/workflows/agent-*.yml' }}
       model: ${{ inputs.model || 'o4-mini' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       cache: ${{ inputs.cache || 'npm' }}
