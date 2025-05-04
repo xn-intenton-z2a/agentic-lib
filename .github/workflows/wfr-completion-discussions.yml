@@ -135,8 +135,7 @@ jobs:
       missionFilepath: ${{ inputs.missionFilepath || 'MISSION.md' }}
       contributingFilepath: ${{ inputs.contributingFilepath || 'CONTRIBUTING.md' }}
       dependenciesFilepath: ${{ inputs.dependenciesFilepath || 'package.json' }}
-      model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o4-mini' }}
-      chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      model: ${{ inputs.model || 'o4-mini' }}
       promptFilepath: ${{ inputs.promptFilepath || '.github/agents/agent-discussion-bot.md' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
@@ -243,168 +242,312 @@ jobs:
 
       - name: Fetch last 10 commits
         id: commits
-        run: |
-          commits=$(git log -n 10 --pretty=format:"Commit: %h%nAuthor: %an <%ae>%nDate: %ad%nMessage: %s%n%n")
-          echo "commits<<EOF" >> $GITHUB_OUTPUT
-          echo "$commits" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              const { execSync } = require('child_process');
+              const commits = execSync('git log -n 10 --pretty=format:"Commit: %h%nAuthor: %an <%ae>%nDate: %ad%nMessage: %s%n%n"').toString();
+              core.setOutput('commits', commits);
+            } catch (error) {
+              core.warning(`Error fetching commits: ${error.message}`);
+              core.setOutput('commits', '');
+            }
 
       - name: List source files
         id: source_files
-        shell: bash
-        run: |
-          # Handle multiple source paths
-          IFS=';' read -ra SRC_PATHS <<< "${{ env.allSourcePaths }}"
-          output=""
+        uses: actions/github-script@v7
+        env:
+          allSourcePaths: ${{ env.allSourcePaths }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const { execSync } = require('child_process');
 
-          for path in "${SRC_PATHS[@]}"; do
-            trimmed_path=$(echo "$path" | xargs)
-            if [ -d "$trimmed_path" ]; then
-              # If it's a directory, list all files in it
-              files=$(find "$trimmed_path" -type f -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" -o -name "*.py" -o -name "*.java" -o -name "*.go" 2>/dev/null)
-              for file in $files; do
-                output+="File: $file\n"
-                output+="$(cat "$file")\n\n"
-              done
-            elif [ -f "$trimmed_path" ]; then
-              # If it's a file, read it directly
-              output+="File: $trimmed_path\n"
-              output+="$(cat "$trimmed_path")\n\n"
-            else
-              echo "Source path '$trimmed_path' does not exist."
-            fi
-          done
+            try {
+              const sourcePaths = process.env.allSourcePaths.split(';');
+              let output = "";
 
-          echo "output<<EOF" >> $GITHUB_OUTPUT
-          echo -e "$output" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+              for (const sourcePath of sourcePaths) {
+                const trimmedPath = sourcePath.trim();
+
+                try {
+                  const stats = fs.statSync(trimmedPath);
+
+                  if (stats.isDirectory()) {
+                    // If it's a directory, find all relevant files
+                    const fileExtensions = ['.js', '.ts', '.jsx', '.tsx', '.py', '.java', '.go'];
+                    const findCommand = `find "${trimmedPath}" -type f ${fileExtensions.map(ext => `-name "*${ext}"`).join(' -o ')} 2>/dev/null`;
+
+                    try {
+                      const files = execSync(findCommand).toString().split('\n').filter(Boolean);
+
+                      for (const file of files) {
+                        try {
+                          const content = fs.readFileSync(file, 'utf8');
+                          output += `File: ${file}\n${content}\n\n`;
+                        } catch (readError) {
+                          core.warning(`Error reading file ${file}: ${readError.message}`);
+                        }
+                      }
+                    } catch (findError) {
+                      core.warning(`Error finding files in directory ${trimmedPath}: ${findError.message}`);
+                    }
+                  } else if (stats.isFile()) {
+                    // If it's a file, read it directly
+                    try {
+                      const content = fs.readFileSync(trimmedPath, 'utf8');
+                      output += `File: ${trimmedPath}\n${content}\n\n`;
+                    } catch (readError) {
+                      core.warning(`Error reading file ${trimmedPath}: ${readError.message}`);
+                    }
+                  }
+                } catch (statError) {
+                  core.warning(`Source path '${trimmedPath}' does not exist or cannot be accessed.`);
+                }
+              }
+
+              core.setOutput('output', output);
+            } catch (error) {
+              core.warning(`Error processing source files: ${error.message}`);
+              core.setOutput('output', '');
+            }
 
       - name: List test files
         id: test_files
-        shell: bash
-        run: |
-          # Handle multiple test paths
-          IFS=';' read -ra TEST_PATHS <<< "${{ env.allTestsPaths }}"
-          output=""
+        uses: actions/github-script@v7
+        env:
+          allTestsPaths: ${{ env.allTestsPaths }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const { execSync } = require('child_process');
 
-          for path in "${TEST_PATHS[@]}"; do
-            trimmed_path=$(echo "$path" | xargs)
-            if [ -d "$trimmed_path" ]; then
-              # If it's a directory, list all files in it
-              files=$(find "$trimmed_path" -type f -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" -o -name "*.test.js" -o -name "*.test.ts" -o -name "*.spec.js" -o -name "*.spec.ts" 2>/dev/null)
-              for file in $files; do
-                output+="File: $file\n"
-                output+="$(cat "$file")\n\n"
-              done
-            elif [ -f "$trimmed_path" ]; then
-              # If it's a file, read it directly
-              output+="File: $trimmed_path\n"
-              output+="$(cat "$trimmed_path")\n\n"
-            else
-              echo "Test path '$trimmed_path' does not exist."
-            fi
-          done
+            try {
+              const testPaths = process.env.allTestsPaths.split(';');
+              let output = "";
 
-          echo "output<<EOF" >> $GITHUB_OUTPUT
-          echo -e "$output" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+              for (const testPath of testPaths) {
+                const trimmedPath = testPath.trim();
+
+                try {
+                  const stats = fs.statSync(trimmedPath);
+
+                  if (stats.isDirectory()) {
+                    // If it's a directory, find all relevant test files
+                    const fileExtensions = ['.js', '.ts', '.jsx', '.tsx', '.test.js', '.test.ts', '.spec.js', '.spec.ts'];
+                    const findCommand = `find "${trimmedPath}" -type f ${fileExtensions.map(ext => `-name "*${ext}"`).join(' -o ')} 2>/dev/null`;
+
+                    try {
+                      const files = execSync(findCommand).toString().split('\n').filter(Boolean);
+
+                      for (const file of files) {
+                        try {
+                          const content = fs.readFileSync(file, 'utf8');
+                          output += `File: ${file}\n${content}\n\n`;
+                        } catch (readError) {
+                          core.warning(`Error reading test file ${file}: ${readError.message}`);
+                        }
+                      }
+                    } catch (findError) {
+                      core.warning(`Error finding test files in directory ${trimmedPath}: ${findError.message}`);
+                    }
+                  } else if (stats.isFile()) {
+                    // If it's a file, read it directly
+                    try {
+                      const content = fs.readFileSync(trimmedPath, 'utf8');
+                      output += `File: ${trimmedPath}\n${content}\n\n`;
+                    } catch (readError) {
+                      core.warning(`Error reading test file ${trimmedPath}: ${readError.message}`);
+                    }
+                  }
+                } catch (statError) {
+                  core.warning(`Test path '${trimmedPath}' does not exist or cannot be accessed.`);
+                }
+              }
+
+              core.setOutput('output', output);
+            } catch (error) {
+              core.warning(`Error processing test files: ${error.message}`);
+              core.setOutput('output', '');
+            }
 
       - name: Read documentation files
         id: docs_files
-        shell: bash
-        run: |
-          # Handle documentation path
-          trimmed_path=$(echo "${{ env.documentationPath }}" | xargs)
-          output=""
+        uses: actions/github-script@v7
+        env:
+          documentationPath: ${{ env.documentationPath }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const { execSync } = require('child_process');
 
-          if [ -d "$trimmed_path" ]; then
-            # If it's a directory, list all markdown files in it
-            files=$(find "$trimmed_path" -type f -name "*.md" 2>/dev/null)
-            for file in $files; do
-              output+="File: $file\n"
-              output+="$(cat "$file")\n\n"
-            done
-          elif [ -f "$trimmed_path" ]; then
-            # If it's a file, read it directly
-            output+="File: $trimmed_path\n"
-            output+="$(cat "$trimmed_path")\n\n"
-          else
-            echo "Documentation path '$trimmed_path' does not exist."
-          fi
+            try {
+              const trimmedPath = process.env.documentationPath.trim();
+              let output = "";
 
-          echo "output<<EOF" >> $GITHUB_OUTPUT
-          echo -e "$output" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+              try {
+                const stats = fs.statSync(trimmedPath);
+
+                if (stats.isDirectory()) {
+                  // If it's a directory, find all markdown files
+                  const findCommand = `find "${trimmedPath}" -type f -name "*.md" 2>/dev/null`;
+
+                  try {
+                    const files = execSync(findCommand).toString().split('\n').filter(Boolean);
+
+                    for (const file of files) {
+                      try {
+                        const content = fs.readFileSync(file, 'utf8');
+                        output += `File: ${file}\n${content}\n\n`;
+                      } catch (readError) {
+                        core.warning(`Error reading documentation file ${file}: ${readError.message}`);
+                      }
+                    }
+                  } catch (findError) {
+                    core.warning(`Error finding documentation files in directory ${trimmedPath}: ${findError.message}`);
+                  }
+                } else if (stats.isFile()) {
+                  // If it's a file, read it directly
+                  try {
+                    const content = fs.readFileSync(trimmedPath, 'utf8');
+                    output += `File: ${trimmedPath}\n${content}\n\n`;
+                  } catch (readError) {
+                    core.warning(`Error reading documentation file ${trimmedPath}: ${readError.message}`);
+                  }
+                }
+              } catch (statError) {
+                core.warning(`Documentation path '${trimmedPath}' does not exist or cannot be accessed.`);
+              }
+
+              core.setOutput('output', output);
+            } catch (error) {
+              core.warning(`Error processing documentation files: ${error.message}`);
+              core.setOutput('output', '');
+            }
 
       - name: Read README file
         id: readme
-        shell: bash
-        run: |
-          if [ -f "${{ env.readmeFilepath }}" ]; then
-            cat "${{ env.readmeFilepath }}" > readme.txt
-            echo "content<<EOF" >> $GITHUB_OUTPUT
-            cat readme.txt >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          else
-            echo "README file '${{ env.readmeFilepath }}' does not exist."
-            echo "content=" >> $GITHUB_OUTPUT
-          fi
+        uses: actions/github-script@v7
+        env:
+          readmeFilepath: ${{ env.readmeFilepath }}
+        with:
+          script: |
+            const fs = require('fs');
+
+            try {
+              const readmeFilepath = process.env.readmeFilepath;
+
+              try {
+                const content = fs.readFileSync(readmeFilepath, 'utf8');
+                core.setOutput('content', content);
+              } catch (error) {
+                core.warning(`README file '${readmeFilepath}' does not exist or cannot be read: ${error.message}`);
+                core.setOutput('content', '');
+              }
+            } catch (error) {
+              core.warning(`Error processing README file: ${error.message}`);
+              core.setOutput('content', '');
+            }
 
       - name: Read MISSION file
         id: mission
-        shell: bash
-        run: |
-          if [ -f "${{ env.missionFilepath }}" ]; then
-            cat "${{ env.missionFilepath }}" > mission.txt
-            echo "content<<EOF" >> $GITHUB_OUTPUT
-            cat mission.txt >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          else
-            echo "MISSION file '${{ env.missionFilepath }}' does not exist."
-            echo "content=" >> $GITHUB_OUTPUT
-          fi
+        uses: actions/github-script@v7
+        env:
+          missionFilepath: ${{ env.missionFilepath }}
+        with:
+          script: |
+            const fs = require('fs');
+
+            try {
+              const missionFilepath = process.env.missionFilepath;
+
+              try {
+                const content = fs.readFileSync(missionFilepath, 'utf8');
+                core.setOutput('content', content);
+              } catch (error) {
+                core.warning(`MISSION file '${missionFilepath}' does not exist or cannot be read: ${error.message}`);
+                core.setOutput('content', '');
+              }
+            } catch (error) {
+              core.warning(`Error processing MISSION file: ${error.message}`);
+              core.setOutput('content', '');
+            }
 
       - name: Read CONTRIBUTING file
         id: contributing
-        shell: bash
-        run: |
-          if [ -f "${{ env.contributingFilepath }}" ]; then
-            cat "${{ env.contributingFilepath }}" > contributing.txt
-            echo "content<<EOF" >> $GITHUB_OUTPUT
-            cat contributing.txt >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          else
-            echo "CONTRIBUTING file '${{ env.contributingFilepath }}' does not exist."
-            echo "content=" >> $GITHUB_OUTPUT
-          fi
+        uses: actions/github-script@v7
+        env:
+          contributingFilepath: ${{ env.contributingFilepath }}
+        with:
+          script: |
+            const fs = require('fs');
+
+            try {
+              const contributingFilepath = process.env.contributingFilepath;
+
+              try {
+                const content = fs.readFileSync(contributingFilepath, 'utf8');
+                core.setOutput('content', content);
+              } catch (error) {
+                core.warning(`CONTRIBUTING file '${contributingFilepath}' does not exist or cannot be read: ${error.message}`);
+                core.setOutput('content', '');
+              }
+            } catch (error) {
+              core.warning(`Error processing CONTRIBUTING file: ${error.message}`);
+              core.setOutput('content', '');
+            }
 
       - name: Read dependencies file
         id: dependencies
-        shell: bash
-        run: |
-          if [ -f "${{ env.dependenciesFilepath }}" ]; then
-            cat "${{ env.dependenciesFilepath }}" > dependencies.txt
-            echo "content<<EOF" >> $GITHUB_OUTPUT
-            cat dependencies.txt >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          else
-            echo "Dependencies file '${{ env.dependenciesFilepath }}' does not exist."
-            echo "content=" >> $GITHUB_OUTPUT
-          fi
+        uses: actions/github-script@v7
+        env:
+          dependenciesFilepath: ${{ env.dependenciesFilepath }}
+        with:
+          script: |
+            const fs = require('fs');
+
+            try {
+              const dependenciesFilepath = process.env.dependenciesFilepath;
+
+              try {
+                const content = fs.readFileSync(dependenciesFilepath, 'utf8');
+                core.setOutput('content', content);
+              } catch (error) {
+                core.warning(`Dependencies file '${dependenciesFilepath}' does not exist or cannot be read: ${error.message}`);
+                core.setOutput('content', '');
+              }
+            } catch (error) {
+              core.warning(`Error processing dependencies file: ${error.message}`);
+              core.setOutput('content', '');
+            }
 
       - name: Read prompt file
         id: prompt
-        shell: bash
-        run: |
-          if [ -f "${{ env.promptFilepath }}" ]; then
-            cat "${{ env.promptFilepath }}" > prompt.txt
-            echo "content<<EOF" >> $GITHUB_OUTPUT
-            cat prompt.txt >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          else
-            echo "Prompt file '${{ env.promptFilepath }}' does not exist."
-            echo "content=" >> $GITHUB_OUTPUT
-          fi
+        uses: actions/github-script@v7
+        env:
+          promptFilepath: ${{ env.promptFilepath }}
+        with:
+          script: |
+            const fs = require('fs');
+
+            try {
+              const promptFilepath = process.env.promptFilepath;
+
+              try {
+                const content = fs.readFileSync(promptFilepath, 'utf8');
+                core.setOutput('content', content);
+              } catch (error) {
+                core.warning(`Prompt file '${promptFilepath}' does not exist or cannot be read: ${error.message}`);
+                core.setOutput('content', '');
+              }
+            } catch (error) {
+              core.warning(`Error processing prompt file: ${error.message}`);
+              core.setOutput('content', '');
+            }
 
       - name: Generate response
         id: response
