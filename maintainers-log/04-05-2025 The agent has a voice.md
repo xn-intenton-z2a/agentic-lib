@@ -11,3 +11,5 @@ And now captured when the repository is seeded:
 - **Title**: seed test for feedback
 - **URL**: https://github.com/xn-intenton-z2a/agentic-lib/discussions/1220#discussioncomment-13030478
 - **Created at**: 2025-05-04T14:02:55.040Z
+
+I just asked the repository to advise on the next steps to further items in the TODO lists in the README.md.
