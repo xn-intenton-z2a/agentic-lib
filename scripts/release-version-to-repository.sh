@@ -29,6 +29,9 @@ rm -f "${DEST_DIR}/issue-reviewer.yml"
 cp -v .github/workflows/agent-code-to-close-issue.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-code-to-close-issue.yml"
 
+cp -v .github/workflows/agent-discussions-bot.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-discussions-bot.yml"
+
 rm "${DEST_DIR}/feature-development-issue-creator.yml"
 cp -v .github/workflows/agent-feature-to-issue.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-feature-to-issue.yml"
