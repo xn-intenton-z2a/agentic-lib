@@ -145,10 +145,10 @@ jobs:
       - process-discussion-post
       - agentic-lib
     permissions:
-      contents: read
+      contents: write
       packages: read
-      discussions: read
-      id-token: read
+      discussions: write
+      id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@main'
     with:
       promptFilepath: '.github/agents/agent-discussion-bot.md'
