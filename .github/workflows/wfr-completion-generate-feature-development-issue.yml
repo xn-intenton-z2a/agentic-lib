@@ -167,7 +167,7 @@ jobs:
       testScript: ${{ inputs.testScript || 'npm test' }}
       mainScript: ${{ inputs.mainScript || 'npm run start' }}
       issueSelectionLabel: ${{ inputs.issueSelectionLabel || 'feature' }}
-      mainScriptTimeout: '5m'
+      mainScriptTimeout: '1m'
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o4-mini' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}

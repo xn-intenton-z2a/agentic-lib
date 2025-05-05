@@ -105,25 +105,56 @@ on:
         type: string
         required: false
         default: '.github/workflows/agent-*.yml'
+      buildScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
+        type: string
+        required: false
+        default: 'echo "No build script specified."'
+      testScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm test`'
+        type: string
+        required: false
+        default: 'npm test'
+      mainScript:
+        description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run start`'
+        type: string
+        required: false
+        default: 'npm run start'
       model:
         description: 'The OpenAI model to use. e.g. "o3-mini"'
         type: string
         required: false
         default: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
-      cache:
-        description: 'The cache to use for npm. e.g. "npm"'
-        type: string
-        required: false
-        default: 'npm'
       promptFilepath:
         description: 'The file containing the prompt text. e.g. ".github/agents/agent-discussion-bot.md"'
         type: string
         required: true
       npmAuthOrganisation:
-        description: 'The GitHub organisation to authenticate with for npm. e.g. "xn-intenton-z2a"'
+        description: 'The npm auth organisation to use. e.g. "@xn-intenton-z2a"'
         type: string
         required: false
-        default: ''
+      lastActivityName:
+        description: 'The name of the last activity. e.g. "stats"'
+        type: string
+        required: false
+      lastActivityBranchName:
+        description: 'The name of the last activity branch. e.g. "main"'
+        type: string
+        required: false
+      branchPrefix:
+        description: 'The prefix for the issue branch. e.g. "agentic-lib-issue-"'
+        type: string
+        required: false
+        default: 'agentic-lib-issue-'
+      nextIssue:
+        description: 'The next issue to review. e.g. "123 My issue automated"'
+        type: string
+        required: false
+      cache:
+        description: 'The cache to use for npm. e.g. "npm"'
+        type: string
+        required: false
+        default: 'npm'
       gitUserEmail:
         description: 'The email to use for git commits. e.g. "action@github.com"'
         type: string
@@ -156,9 +187,22 @@ on:
         value: ${{ jobs.generate-response.outputs.reply }}
 
 jobs:
-  generate-response:
-    runs-on: ubuntu-latest
+  generate-stats-json:
+    uses: xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-json.yml@main
+    with:
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
+      lastActivityName: ${{ inputs.lastActivityName || '' }}
+      lastActivityBranchName: ${{ inputs.lastActivityBranchName || '' }}
+      branchPrefix: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}
+      nextIssue: ${{ inputs.nextIssue || '' }}
+      cache: ${{ inputs.cache || 'npm' }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+  generate-response:
+    needs:
+      - generate-stats-json
+    runs-on: ubuntu-latest
     env:
       discussionTitle: ${{ inputs.discussionTitle }}
       discussionBody: ${{ inputs.discussionBody }}
@@ -176,6 +220,12 @@ jobs:
       contributingFilepath: ${{ inputs.contributingFilepath || 'CONTRIBUTING.md' }}
       dependenciesFilepath: ${{ inputs.dependenciesFilepath || 'package.json' }}
       workflowPathGlob: ${{ inputs.workflowPathGlob || '.github/workflows/agent-*.yml' }}
+      installScript: ${{ 'npm install' }}
+      buildScript: ${{ inputs.buildScript || 'echo "No build script specified."' }}
+      testScript: ${{ inputs.testScript || 'npm test' }}
+      mainScript: ${{ inputs.mainScript || 'npm run start' }}
+      mainScriptTimeout: '1m'
+      statsJson: ${{ needs.generate-stats-json.outputs.statsJson }}
       model: ${{ inputs.model || 'o4-mini' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       cache: ${{ inputs.cache || 'npm' }}
@@ -684,10 +734,64 @@ jobs:
               core.setOutput('workflowFilesContent', '');
             }
 
+      - name: Install dependencies
+        id: install
+        shell: bash
+        run: |
+          set +e
+          output=$(${{ env.installScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+          exit 0
+
+      - name: Build project
+        id: build
+        shell: bash
+        run: |
+          set +e
+          output=$(${{ env.buildScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+          exit 0
+
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: rm -f .npmrc
+
+      - name: Run tests
+        id: test
+        shell: bash
+        run: |
+          set +e
+          output=$(${{ env.testScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+          exit 0
+
+      - name: Run main
+        id: main
+        shell: bash
+        run: |
+          set +e
+          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+          exit 0
+
       - name: Generate response
         id: response
         uses: actions/github-script@v7
         env:
+          promptContent: ${{ steps.prompt.outputs.content }}
           discussions: ${{ steps.discussions.outputs.discussions }}
           commits: ${{ steps.commits.outputs.commits }}
           repoFiles: ${{ steps.repo_files.outputs.files }}
@@ -699,7 +803,11 @@ jobs:
           contributingContent: ${{ steps.contributing.outputs.content }}
           dependenciesContent: ${{ steps.dependencies.outputs.content }}
           workflowFilesContent: ${{ steps.workflow_files.outputs.workflowFilesContent }}
-          promptContent: ${{ steps.prompt.outputs.content }}
+          installOutput: ${{ steps.install.outputs.output }}
+          buildOutput: ${{ steps.build.outputs.output }}
+          testOutput: ${{ steps.test.outputs.output }}
+          mainOutput: ${{ steps.main.outputs.output }}
+          statsJson: ${{ needs.generate-stats-json.outputs.statsJson }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -732,6 +840,15 @@ jobs:
             const contributingContent = process.env.contributingContent;
             const dependenciesContent = process.env.dependenciesContent;
             const workflowFilesContent = process.env.workflowFilesContent;
+            const installScript = process.env.installScript;
+            const installOutput = process.env.installOutput;
+            const buildScript = process.env.buildScript;
+            const buildOutput = process.env.buildOutput;
+            const testScript = process.env.testScript;
+            const testOutput = process.env.testOutput;
+            const mainScript = process.env.mainScript;
+            const mainOutput = process.env.mainOutput;
+            const statsJson = process.env.statsJson;
             const promptContent = process.env.promptContent;
             const agentConfigContent = process.env.agentConfigContent;
             const model = process.env.model;
@@ -744,6 +861,15 @@ jobs:
             core.info(`Discussion user information: ${discussionUserInformation}`);
             core.info(`Discussion labels: ${discussionLabels}`);
             core.info(`Discussion reactions: ${discussionReactions}`);
+            core.info(`installScript: ${installScript}`);
+            core.info(`installOutput: ${installOutput}`);
+            core.info(`buildScript: ${buildScript}`);
+            core.info(`buildOutput: ${buildOutput}`);
+            core.info(`testScript: ${testScript}`);
+            core.info(`testOutput: ${testOutput}`);
+            core.info(`mainScript: ${mainScript}`);
+            core.info(`mainOutput: ${mainOutput}`);
+            core.info(`statsJson: ${statsJson}`);
 
             const chatGptPrompt = `
             ${promptContent}
@@ -775,6 +901,11 @@ jobs:
               * Contributing file content
               * Dependencies file content
               * Agent configuration file content
+              * Dependency install output
+              * Build output
+              * Test output
+              * Main execution output
+              * Stats JSON content
 
             Current discussion:
             CURRENT_DISCUSSION_START
@@ -847,6 +978,31 @@ jobs:
             AGENT_CONFIG_FILE_START
             ${agentConfigContent}
             AGENT_CONFIG_FILE_END
+            
+            Dependencies install from command: ${installScript}
+            DEPENDENCIES_INSTALL_START
+            ${installOutput}
+            DEPENDENCIES_INSTALL_END    
+            
+            Build output from command: ${buildScript}
+            BUILD_OUTPUT_START
+            ${buildOutput}
+            BUILD_OUTPUT_END      
+
+            Test output from command: ${testScript}
+            TEST_OUTPUT_START
+            ${testOutput}
+            TEST_OUTPUT_END            
+
+            Main execution output from command: ${mainScript}
+            MAIN_OUTPUT_START
+            ${mainOutput}
+            MAIN_OUTPUT_END
+            
+            Stats JSON content:
+            STATS_JSON_START
+            ${statsJson}
+            STATS_JSON_END
 
             Answer strictly with a JSON object following this schema:
             {

@@ -173,7 +173,7 @@ jobs:
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
       mainScript: ${{ inputs.mainScript || 'npm run start' }}
-      mainScriptTimeout: '5m'
+      mainScriptTimeout: '1m'
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o4-mini' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}

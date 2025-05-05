@@ -94,7 +94,7 @@ jobs:
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
       mainScript: ${{ inputs.mainScript || 'npm run start' }}
-      mainScriptTimeout: '5m'
+      mainScriptTimeout: '1m'
       upgradeTarget: ${{ inputs.upgradeTarget || 'minor' }}
       branch: ${{ inputs.branch || 'agentic-lib-update' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}

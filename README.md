@@ -715,11 +715,13 @@ Discussions Bot [MVP]:
 - [x] Mission file and features can be refined based on these discussions during development.
 - [~] Pass posting user information to the bot.
 - [~] Pass the stats to the bot to be used in the discussion.
-- [ ] Extract demo output to publish in the discussion thread and request feedback and next steps.
-- [ ] On schedule: Summarises commits to main as discussion comments using the saved file comments (read commits added as comments) so only unread commits are summarised.
-- [ ] On schedule: Call out recommended actions (later bots will pick these up IoC...)
+- [~] Pass build, main and test output to the bot to be used in the discussion.
+- [n] If not triggered by a discussion, use SEED_DISCUSSIONS to find the last discussion and use that to post the reply.
+- [n] On schedule: Summarise the current state of the repository and how we are tracking against the mission ad recommends next steps.
+- [n] On schedule: Summarise activity since the last update and share the current output.
 - [ ] Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
-- [ ] Other bots chime in with viewpoints  (e.g. what exists already, what we have on this in the library, progress so far, what should we do next...)
+- [ ] Extract demo output to publish in the discussion thread and request feedback and next steps.
+- [ ] Summarise and sanitize all the workflows so that they can be passed to the bot.
 - [ ] Bots to take actions within a stream (dev, elaboration, etc...) - existing workflows can scan discussions instead of 'house choice'
 - [ ] Schedule MVP demos
 
@@ -728,7 +730,7 @@ intentïon user journey [Launch]:
 - [~] repository0-crucible seeds the repository with the mission and reports back with the intentïon branch.
 - [ ] Updates periodically synchronised to a branch (which does not run the workflows) and summary reported to Discussions.
 - [ ] Discussions updates also posted intentïon.com.
-- [ ] intentïon.com posts: running experiment: <link to branch>
+- [ ] intentïon.com posts: running experiment: <link to branch> + <link to discussion>
 - [ ] TODO: How do users create a clone from a branch?
 
 Marketplace GitHub Actions [Launch]:

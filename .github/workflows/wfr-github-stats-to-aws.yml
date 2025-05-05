@@ -93,7 +93,21 @@ on:
         value: ${{ jobs.stats.outputs.thisRepositoryStatsUrl }}
 
 jobs:
+  generate-stats-json:
+    uses: xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-json.yml@main
+    with:
+      npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
+      lastActivityName: ${{ inputs.lastActivityName || '' }}
+      lastActivityBranchName: ${{ inputs.lastActivityBranchName || '' }}
+      branchPrefix: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}
+      nextIssue: ${{ inputs.nextIssue || '' }}
+      cache: ${{ inputs.cache || 'npm' }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
   stats:
+    needs:
+      - generate-stats-json
     runs-on: ubuntu-latest
 
     env:
@@ -137,209 +151,21 @@ jobs:
           echo "engine=${engine}"
           echo "engine=${engine}" >> $GITHUB_OUTPUT
 
-      - name: Generate raw JSON statistics file
+      - name: Write JSON statistics to file
         id: generate-json
         uses: actions/github-script@v7
         env:
-          engine: ${{ steps.engine.outputs.engine }}
-          lastActivityName: ${{ env.lastActivityName }}
-          lastActivityBranchName: ${{ env.lastActivityBranchName }}
-          nextIssue: ${{ env.nextIssue }}
-          branchPrefix: ${{ env.branchPrefix }}
           public: ${{ env.public }}
           repositoryName: ${{ github.event.repository.name }}
+          statsJson: ${{ needs.generate-stats-json.outputs.statsJson }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
             const path = require('path');
-            const now = new Date();
 
-            const { owner, repo } = context.repo;
-            const engine = process.env.engine;
-            const lastActivityName = process.env.lastActivityName;
-            const lastActivityBranchName = process.env.lastActivityBranchName;
-            const nextIssue = process.env.nextIssue;
-            const branchPrefix = process.env.branchPrefix;
-
-            // Open issues count
-            const { data: issuesResp } = await github.rest.issues.listForRepo({ owner, repo, state: "open", per_page: 256 });
-
-            // Issues closed in last hour and day
-            const sinceOneHour = new Date(now.getTime() - (60 * 60 * 1000)).toISOString();
-            const { data: closedHourResp } = await github.rest.issues.listForRepo({ owner, repo, state: "closed", since: sinceOneHour, per_page: 256 });
-            const sinceOneDay = new Date(now.getTime() - (24 * 60 * 60 * 1000)).toISOString();
-            const { data: closedDayResp } = await github.rest.issues.listForRepo({ owner, repo, state: "closed", since: sinceOneDay, per_page: 256 });
-
-            // Open pull requests with age in minutes
-            const { data: pullsResp } = await github.rest.pulls.list({ owner, repo, state: "open", per_page: 256 });
-            const prDetails = pullsResp.map(pr => {
-              const createdAt = new Date(pr.created_at);
-              const ageMinutes = Math.floor((now - createdAt) / (1000 * 60));
-              return { title: pr.title, ageMinutes };
-            });
-            const averagePRAge = prDetails.length > 0 ? Math.floor(prDetails.reduce((sum, pr) => sum + pr.ageMinutes, 0) / prDetails.length) : 0;
-
-            // Repository push details
-            const { data: repoResp } = await github.rest.repos.get({ owner, repo });
-            const pushedAt = new Date(repoResp.pushed_at);
-            const { data: mainBranchResp } = await github.rest.repos.getBranch({ owner, repo, branch: "main" });
-            const mainPushedAt = new Date(mainBranchResp.commit.commit.author.date);
-
-            // Commits in the last hour and day
-            const { data: commitsLastHourResp }  = await github.rest.repos.listCommits({ owner, repo, since: sinceOneHour, per_page: 256 });
-            const { data: commitsLastDayResp } = await github.rest.repos.listCommits({ owner, repo, since: sinceOneDay, per_page: 256 });
-
-            // Last 5 commits on main
-            const { data: lastFiveCommitsResp } = await github.rest.repos.listCommits({ owner, repo, sha: "main", per_page: 5 });
-            const lastFiveCommitMessages = lastFiveCommitsResp.map(commit => {
-              const commitDate = new Date(commit.commit.author.date);
-              const hh = commitDate.getHours().toString().padStart(2, '0');
-              const mm = commitDate.getMinutes().toString().padStart(2, '0');
-              const message = commit.commit.message.length > 64 ? commit.commit.message.substring(0, 64) + "..." : commit.commit.message;
-              return { time: `${hh}:${mm}`, message };
-            });
-
-            // Branches excluding "main" and "github-pages"
-            const { data: branchesResp } = await github.rest.repos.listBranches({ owner, repo, per_page: 256 });
-            const branchData = branchesResp.filter(branch => branch.name !== "main" && branch.name !== "github-pages");
-            const branchDetails = await Promise.all(branchData.map(async branch => {
-              const { data: branchResp } = await github.rest.repos.getBranch({ owner, repo, branch: branch.name });
-              const lastCommitDate = new Date(branchResp.commit.commit.author.date);
-              const minutesSinceLastCommit = Math.floor((now - lastCommitDate) / (1000 * 60));
-              let issueNumber = '';
-              let issueTitle = "";
-              let issueLabels = "";
-              const issueNumberMatch = branch.name.match(new RegExp(branchPrefix + "(\\d+)"));
-              if (issueNumberMatch && parseInt(issueNumberMatch[1])) {
-                issueNumber = issueNumberMatch[1];
-                const { data: issue } = await github.rest.issues.get({
-                  owner,
-                  repo,
-                  issue_number: parseInt(issueNumber)
-                });
-                if (issue) {
-                  issueTitle = issue.title;
-                  issueLabels = issue.labels.map(label => label.name).join(', ');
-                }
-              }  
-              return { branch: branch.name, issueNumber, issueTitle, issueLabels, minutesSinceLastCommit };
-            }));
-            const averageBranchAge = branchDetails.length > 0 ? Math.floor(branchDetails.reduce((sum, branch) => sum + branch.minutesSinceLastCommit, 0) / branchDetails.length) : 0;
-
-            let checks = [];
-            for (const branch of branchesResp) {
-              core.info(`Checking branch: ${branch.name}`);
-              try {
-                const { data: branchResp } = await github.rest.repos.getBranch({ owner, repo, branch: branch.name });
-                if( branchResp ) {
-                  const commitSha = branchResp.commit.sha;
-                  try {
-                    const { data: branchChecks } = await github.rest.checks.listForRef({
-                      owner,
-                      repo,
-                      ref: commitSha,
-                    });
-                    if (branchChecks && branchChecks.check_runs) {
-                      const checkRuns = branchChecks.check_runs.map(check => {
-                        return {
-                          ...check,
-                          branchName: branch.name,
-                          branch
-                        };
-                      });
-                      checks.push(...checkRuns);
-                    } else {
-                      core.info(`No check runs found for branch ${branch.name}.`);
-                    }
-                  } catch (checkError) {
-                    core.warning(`Error fetching check runs for branch ${branch.name}: ${checkError.message}`);
-                  }
-                } else {
-                  core.info(`Branch ${branch.name} not found.`);
-                }
-              } catch (branchError) {
-                core.warning(`Error fetching branch ${branch.name}: ${branchError.message}`);
-              }
-            }
-
-            const jsonData = { 
-              owner, 
-              repo,
-              engine,
-              agenticLib: {
-                schedule: engine
-              },
-              lastActivityName,
-              lastActivityBranchName,
-              repository: {
-                count: repoResp.length,
-                details: repoResp,
-                owner, 
-                repo,
-                lastActivityName,
-                lastActivityBranchName
-              },
-              nextIssue,
-              openIssues: issuesResp.length,
-              issuesClosedLastHour: closedHourResp.length,
-              issuesClosedLastDay: closedDayResp.length,
-              issues: {
-                open: {
-                  count: issuesResp.length, 
-                  details: issuesResp,
-                },
-                closed: {
-                  count: closedDayResp.length, 
-                  details: closedDayResp
-                },
-                nextIssue,
-                openIssues: issuesResp.length,
-                issuesClosedLastHour: closedHourResp.length,
-                issuesClosedLastDay: closedDayResp.length
-              },
-              openPRs: prDetails.length,
-              averagePRAge: averagePRAge,
-              prDetails: prDetails.map(pr => `[${pr.ageMinutes}m] ${pr.title}`),
-              diffMinutes: Math.floor((now - pushedAt) / (1000 * 60)),
-              diffMinutesMain: Math.floor((now - mainPushedAt) / (1000 * 60)),
-              prs: {
-                count: pullsResp.length, 
-                details: pullsResp,
-                openPRs: prDetails.length,
-                averagePRAge: averagePRAge,
-                prDetails: prDetails.map(pr => `[${pr.ageMinutes}m] ${pr.title}`),
-                diffMinutes: Math.floor((now - pushedAt) / (1000 * 60)),
-                diffMinutesMain: Math.floor((now - mainPushedAt) / (1000 * 60))
-              },
-              commitsLastHour: commitsLastHourResp.length,
-              commitsLastDay: commitsLastDayResp.length,
-              lastFiveCommitMessages: lastFiveCommitMessages.map(commit => `[${commit.time}] - ${commit.message}`),
-              commits: {
-                count: commitsLastDayResp.length, 
-                details: commitsLastDayResp,
-                commitsLastHour: commitsLastHourResp.length,
-                commitsLastDay: commitsLastDayResp.length,
-                lastFiveCommitMessages: lastFiveCommitMessages.map(commit => `[${commit.time}] - ${commit.message}`)
-              },
-              branches: { 
-                count: branchDetails.length, 
-                details: branchDetails.map(branch => `[${branch.minutesSinceLastCommit}m] ${branch.branch}`),
-                countRaw: branchesResp.length, 
-                detailsRaw: branchesResp,
-                branchIssueDetails: branchDetails.map(branch => `[${branch.issueNumber}] ${branch.issueTitle} ${branch.issueLabels}`),
-                averageBranchAge
-              },
-              checks: {
-                count: checks.length,
-                checks: checks,
-                testStatusOnBranch: "PASS - placeholder",
-                testsLastPassedMinutes: "15 - placeholder"
-              },
-              statsGeneratedAt: now.toISOString(),
-              context,
-              github
-            };
+            // Parse the JSON data from the reusable workflow output
+            const jsonData = JSON.parse(process.env.statsJson);
 
             // Write JSON file
             const outputDir = process.env.public;
@@ -347,7 +173,7 @@ jobs:
             const outputPath = path.join(outputDir, process.env.repositoryName + "-stats.json");
             fs.writeFileSync(outputPath, JSON.stringify(jsonData, null, 2), "utf8");
 
-            core.info(`JSON stats generated at ${outputPath}.`);
+            core.info(`JSON stats written to ${outputPath}.`);
             core.setOutput("jsonStatsPath", outputPath);
 
       - name: Configure AWS Credentials
