@@ -717,7 +717,7 @@ Discussions Bot [MVP]:
 - [~] Pass the stats to the bot to be used in the discussion.
 - [~] Pass build, main and test output to the bot to be used in the discussion.
 - [~] If not triggered by a discussion, use SEED_DISCUSSIONS to find the last discussion and use that to post the reply.
-- [ ] On schedule: Summarise the current state of the repository, activity since the last update and how we are tracking against the mission ad recommends next steps.
+- [~] On schedule, set a default body of: Summarise the current state of the repository, activity since the last update and how we are tracking against the mission ad recommends next steps.
 - [ ] Bots to take actions within a stream (dev, elaboration, etc...) - existing workflows can scan discussions instead of 'house choice'
 - [ ] [Later] Summarise and sanitize all the workflows so that they can be passed to the bot.
 - [ ] [Later] Summarise the features in the archive and mine these during feature development.
