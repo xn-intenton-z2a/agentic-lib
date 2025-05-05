@@ -717,13 +717,9 @@ Discussions Bot [MVP]:
 - [~] Pass the stats to the bot to be used in the discussion.
 - [~] Pass build, main and test output to the bot to be used in the discussion.
 - [~] If not triggered by a discussion, use SEED_DISCUSSIONS to find the last discussion and use that to post the reply.
-- [ ] On schedule: Summarise the current state of the repository and how we are tracking against the mission ad recommends next steps.
-- [ ] On schedule: Summarise activity since the last update and share the current output.
-- [ ] Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
-- [ ] Extract demo output to publish in the discussion thread and request feedback and next steps.
-- [ ] Summarise and sanitize all the workflows so that they can be passed to the bot.
+- [ ] On schedule: Summarise the current state of the repository, activity since the last update and how we are tracking against the mission ad recommends next steps.
 - [ ] Bots to take actions within a stream (dev, elaboration, etc...) - existing workflows can scan discussions instead of 'house choice'
-- [ ] Schedule MVP demos
+- [ ] Summarise and sanitize all the workflows so that they can be passed to the bot.
 
 intentïon user journey [Launch]:
 - [ ] On intentïon.com, user provides an intention which is posted as a new GitHub Discussions thread.
@@ -732,6 +728,8 @@ intentïon user journey [Launch]:
 - [ ] Discussions updates also posted intentïon.com.
 - [ ] intentïon.com posts: running experiment: <link to branch> + <link to discussion>
 - [ ] TODO: How do users create a clone from a branch?
+- [ ] Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
+- [ ] Extract demo output to publish in the discussion thread and request feedback and next steps.
 
 Marketplace GitHub Actions [Launch]:
 - [x] Review all the parameters where re-usable workflows are used and ensure that any parameters that are filepaths are stated explicitly in the calling workflow.
