@@ -716,9 +716,9 @@ Discussions Bot [MVP]:
 - [~] Pass posting user information to the bot.
 - [~] Pass the stats to the bot to be used in the discussion.
 - [~] Pass build, main and test output to the bot to be used in the discussion.
-- [n] If not triggered by a discussion, use SEED_DISCUSSIONS to find the last discussion and use that to post the reply.
-- [n] On schedule: Summarise the current state of the repository and how we are tracking against the mission ad recommends next steps.
-- [n] On schedule: Summarise activity since the last update and share the current output.
+- [~] If not triggered by a discussion, use SEED_DISCUSSIONS to find the last discussion and use that to post the reply.
+- [ ] On schedule: Summarise the current state of the repository and how we are tracking against the mission ad recommends next steps.
+- [ ] On schedule: Summarise activity since the last update and share the current output.
 - [ ] Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
 - [ ] Extract demo output to publish in the discussion thread and request feedback and next steps.
 - [ ] Summarise and sanitize all the workflows so that they can be passed to the bot.
