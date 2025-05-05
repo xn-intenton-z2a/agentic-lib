@@ -191,10 +191,6 @@ jobs:
     uses: xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-json.yml@main
     with:
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
-      lastActivityName: ${{ inputs.lastActivityName || '' }}
-      lastActivityBranchName: ${{ inputs.lastActivityBranchName || '' }}
-      branchPrefix: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}
-      nextIssue: ${{ inputs.nextIssue || '' }}
       cache: ${{ inputs.cache || 'npm' }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
