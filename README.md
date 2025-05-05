@@ -713,9 +713,9 @@ Discussions Bot [MVP]:
 - [x] Answers questions about the repository in the discussion thread.
 - [x] Refines the mission before getting the go-ahead to seed.
 - [x] Mission file and features can be refined based on these discussions during development.
-- [~] Pass posting user information to the bot.
-- [~] Pass the stats to the bot to be used in the discussion.
-- [~] Pass build, main and test output to the bot to be used in the discussion.
+- [x] Pass posting user information to the bot.
+- [x] Pass the stats to the bot to be used in the discussion.
+- [x] Pass build, main and test output to the bot to be used in the discussion.
 - [~] If not triggered by a discussion, use SEED_DISCUSSIONS to find the last discussion and use that to post the reply.
 - [~] On schedule, set a default body of: Summarise the current state of the repository, activity since the last update and how we are tracking against the mission ad recommends next steps.
 - [ ] Bots to take actions within a stream (dev, elaboration, etc...) - existing workflows can scan discussions instead of 'house choice'

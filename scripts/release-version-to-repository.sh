@@ -25,22 +25,18 @@ mkdir -p "${DEST_DIR}"
 
 # Agent workflows
 
-rm -f "${DEST_DIR}/issue-reviewer.yml"
 cp -v .github/workflows/agent-code-to-close-issue.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-code-to-close-issue.yml"
 
 cp -v .github/workflows/agent-discussions-bot.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-discussions-bot.yml"
 
-rm "${DEST_DIR}/feature-development-issue-creator.yml"
 cp -v .github/workflows/agent-feature-to-issue.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-feature-to-issue.yml"
 
-rm -f "${DEST_DIR}/apply-fix.yml"
 cp -v .github/workflows/agent-fix-code.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-fix-code.yml"
 
-rm -f "${DEST_DIR}/issue-worker.yml"
 cp -v .github/workflows/agent-issue-to-code.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-issue-to-code.yml"
 
@@ -51,22 +47,18 @@ rm -f "${DEST_DIR}/feature-worker.yml"
 cp -v .github/workflows/agent-library-to-feature.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-library-to-feature.yml"
 
-rm -f "${DEST_DIR}/issue-for-linting.yml"
 cp -v .github/workflows/agent-linting-to-issue.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-linting-to-issue.yml"
 
-rm -f "${DEST_DIR}/issue-creator.yml" "${DEST_DIR}/maintenance-issue-creator.yml" "${DEST_DIR}/agent-prompt-to-issue.yml"
 cp -v .github/workflows/agent-maintenance-activity-to-issue.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-maintenance-activity-to-issue.yml"
 
-rm -f "${DEST_DIR}/source-worker.yml"
 cp -v .github/workflows/agent-mission-to-source.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-mission-to-source.yml"
 
 cp -v .github/workflows/agent-seed-repository.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-seed-repository.yml"
 
-rm -f "${DEST_DIR}/library-worker.yml"
 cp -v .github/workflows/agent-source-to-library.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-source-to-library.yml"
 
@@ -75,52 +67,37 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-update-readme.yml"
 
 # CI workflows
 
-rm -f "${DEST_DIR}/automerge.yml"
 cp -v .github/workflows/ci-automerge.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-automerge.yml"
 
-rm -f "${DEST_DIR}/deploy.yml"
 cp -v .github/workflows/ci-deploy.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-deploy.yml"
 
-rm -f "${DEST_DIR}/formating.yml"
 cp -v .github/workflows/ci-formating.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-formating.yml"
 
-rm -f "${DEST_DIR}/test.yml"
 cp -v .github/workflows/ci-test.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-test.yml"
 
-rm -f "${DEST_DIR}/update.yml"
 cp -v .github/workflows/ci-update.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-update.yml"
 
 # Publish workflows
 
-rm -f "${DEST_DIR}/publish.yml"
 cp -v .github/workflows/publish-packages.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish-packages.yml"
 
 cp -v .github/workflows/publish-web.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish-web.yml"
 
-rm -f "${DEST_DIR}/stats.yml" "${DEST_DIR}/stats-to-aws.yml"
 cp -v .github/workflows/publish-stats.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish-stats.yml"
 
-rm -f "${DEST_DIR}/stats-to-web.yml" "${DEST_DIR}/stats-to-s3.yml"
-
 # Utility workflows
 
-rm -f "${DEST_DIR}/truncate-git-history.yml"
 cp -v .github/workflows/utils-truncate-issue-history.yml "${DEST_DIR}/."
 
-rm -f "${DEST_DIR}/truncate-workflow-history.yml"
 cp -v .github/workflows/utils-truncate-workflow-history.yml "${DEST_DIR}/."
-
-rm -f "${DEST_DIR}/utils-reset-sandbox.yml"
-
-rm -f "${DEST_DIR}/utils-seed-repository.yml"
 
 mkdir -p "${DEST_DIR}/../../scripts"
 
