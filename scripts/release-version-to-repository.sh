@@ -53,7 +53,7 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-linting-to-issue.yml"
 cp -v .github/workflows/agent-maintenance-activity-to-issue.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-maintenance-activity-to-issue.yml"
 
-cp -v .github/workflows/agent-mission-to-source.yml "${DEST_DIR}/."
+cp -v .github/workflows/agent-mission-to-source-to-library-to-feature.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-mission-to-source.yml"
 
 cp -v .github/workflows/agent-seed-repository.yml "${DEST_DIR}/."
@@ -62,7 +62,7 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-seed-repository.yml"
 cp -v .github/workflows/agent-source-to-library.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-source-to-library.yml"
 
-cp -v .github/workflows/agent-update-readme.yml "${DEST_DIR}/."
+cp -v .github/workflows/agent-update-readme-flow.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-update-readme.yml"
 
 # CI workflows
