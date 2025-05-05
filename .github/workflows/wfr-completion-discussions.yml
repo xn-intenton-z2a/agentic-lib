@@ -876,7 +876,6 @@ jobs:
             The action choices are:
               - nop
               - reply-without-action
-              - create-issue
               - create-feature
               - seed-repository
             You may also include the detail of the action (such as the feature title).
@@ -1030,7 +1029,7 @@ jobs:
                   properties: {
                     action: { 
                       type: "string", 
-                      description: "The action to take. One of: 'nop', 'reply-without-action', 'create-issue', 'create-feature', 'seed-repository'" 
+                      description: "The action to take. One of: 'nop', 'reply-without-action', 'create-feature', 'seed-repository'" 
                     },
                     detail: { 
                       type: "string", 
