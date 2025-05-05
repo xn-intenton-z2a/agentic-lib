@@ -1,10 +1,10 @@
-# .github/workflows/agent-issue-to-code.yml
+# .github/workflows/agent-transformation-issue-to-code.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: agent-issue-to-code
-concurrency: agentic-lib-commit-branch
+concurrency: agentic-lib-commit-main
 run-name: "agent issue to code [${{ github.ref_name }}]"
 
 on:
@@ -20,19 +20,19 @@ on:
         required: false
         type: string
         default: 'ready'
-  workflow_run:
-    workflows:
-      - agent-issue-to-ready-issue
-      - agent-library-to-feature
-      - agent-maintenance-activity-to-issue
-      - agent-linting-to-issue
-    types:
-      - completed
-    secrets:
-      PERSONAL_ACCESS_TOKEN:
-        required: false
-      CHATGPT_API_SECRET_KEY:
-        required: true
+  #workflow_run:
+  #  workflows:
+  #    - agent-issue-to-ready-issue
+  #    - agent-library-to-feature
+  #    - agent-maintenance-activity-to-issue
+  #    - agent-linting-to-issue
+  #  types:
+  #    - completed
+  #  secrets:
+  #    PERSONAL_ACCESS_TOKEN:
+  #      required: false
+  #    CHATGPT_API_SECRET_KEY:
+  #      required: true
   workflow_call:
     inputs:
       issueNumber:
@@ -51,10 +51,10 @@ on:
       CHATGPT_API_SECRET_KEY:
           required: false
   schedule:
-    - cron: '50 */12 * * *' # schedule-1
-    #- cron: '50 */4 * * *' # schedule-2
-    #- cron: '20,50 */1 * * *' # schedule-3
-    #- cron: '20,50 */1 * * *' # schedule-4
+    - cron: '39 4 */7 * *' # schedule-1
+    - cron: '39 4 * * *' # schedule-2
+    - cron: '39 * * * *' # schedule-3
+    - cron: '9,39 * * * *' # schedule-4
 
 env:
   gitUserEmail: 'action@github.com'
@@ -549,45 +549,3 @@ jobs:
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
-  select-next-issue:
-    needs:
-      - apply-issue-resolution
-      - create-pr
-    permissions:
-      issues: read
-      id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
-    with:
-      issueNumber: ''
-      selectionLabel: 'ready'
-      filterLabel: 'in-progress'
-    secrets:
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
-  stats:
-    needs:
-      - select-next-issue
-      - apply-issue-resolution
-      - create-pr
-      - agentic-lib
-    if: ${{ always() }}
-    permissions:
-      contents: write
-      id-token: write
-      pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@main'
-    with:
-      cache: 'npm'
-      npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
-      lastActivityName: "${{ github.workflow }}"
-      lastActivityBranchName: "${{ github.ref_name }}"
-      nextIssue: "[${{ needs.select-next-issue.outputs.issueNumber }}] ${{ needs.select-next-issue.outputs.issueTitle }} ${{ needs.select-next-issue.outputs.issueLabels }}"
-      public: ${{ needs.agentic-lib.outputs.docRoot }}
-      s3BucketUrl: "${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}"
-      s3WebsiteBucketUrl: "${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}"
-      iamActionsRoleArn: "${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}"
-      iamStatsBucketWriterRoleArn: "${{ vars.iamStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role' }}"
-      iamPublicWebsiteStatsBucketWriterRoleArn: "${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}"
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

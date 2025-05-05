@@ -1,11 +1,11 @@
-# .github/workflows/agent-feature-development-flow.yml
+# .github/workflows/agent-flow-feature-development.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: agent-feature-development
-concurrency: agent-feature-development
-run-name: "agent feature development"
+name: feature-development
+concurrency: agentic-lib-commit-main
+run-name: "feature development"
 
 on:
   #push:
@@ -40,11 +40,11 @@ on:
         required: false
       CHATGPT_API_SECRET_KEY:
         required: true
-  #schedule:
-    #- cron: '40 4 */7 * *' # schedule-unused-1
-    #- cron: '40 4 * * *' # schedule-unused-2
-    #- cron: '40 */4 * * *' # schedule-unused-3
-    #- cron: '40 */2 * * *' # schedule-unused-4
+  schedule:
+    - cron: '14 6 */28 * *' # schedule-1
+    - cron: '14 */4 * * *' # schedule-2
+    - cron: '14 */2 * * *' # schedule-3
+    - cron: '14 * * * *' # schedule-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
@@ -173,11 +173,45 @@ jobs:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  stats:
+  issue-to-code:
     needs:
       - create-issue
       - enhance-issue
+    if: ${{ needs.create-issue.outputs.issueNumber != '' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@main'
+    with:
+      issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  select-next-issue:
+    needs:
+      - issue-to-code
+    if: ${{ always() }}
+    permissions:
+      issues: read
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
+    with:
+      issueNumber: ''
+      selectionLabel: 'ready'
+      filterLabel: 'in-progress'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  stats:
+    needs:
+      - issue-to-code
       - agentic-lib
+      - select-next-issue
     if: ${{ always() }}
     permissions:
       contents: write
@@ -189,7 +223,7 @@ jobs:
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
       lastActivityName: "${{ github.workflow }}"
       lastActivityBranchName: "${{ github.ref_name }}"
-      nextIssue: "[${{ needs.create-issue.outputs.issueNumber }}] ${{ needs.create-issue.outputs.issueTitle }}"
+      nextIssue: "[${{ needs.select-next-issue.outputs.issueNumber }}] ${{ needs.select-next-issue.outputs.issueTitle }} ${{ needs.select-next-issue.outputs.issueLabels }}"
       public: ${{ needs.agentic-lib.outputs.docRoot }}
       s3BucketUrl: "${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}"
       s3WebsiteBucketUrl: "${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}"
@@ -198,23 +232,3 @@ jobs:
       iamPublicWebsiteStatsBucketWriterRoleArn: "${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}"
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-  issue-to-code:
-    needs:
-      - create-issue
-      - enhance-issue
-      - stats
-    if: ${{ needs.create-issue.outputs.issueNumber != '' }}
-    permissions:
-      contents: write
-      pull-requests: write
-      checks: write
-      issues: write
-      id-token: write
-      pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-code.yml@main'
-    with:
-      issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

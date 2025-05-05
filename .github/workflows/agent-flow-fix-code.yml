@@ -1,10 +1,10 @@
-# .github/workflows/agent-fix-code.yml
+# .github/workflows/agent-flow-fix-code.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: agent-fix-code
-concurrency: agentic-lib-commit-branch
+concurrency: agentic-lib-commit-main
 run-name: "agent fix code [${{ github.ref_name }}]"
 
 on:
@@ -25,21 +25,21 @@ on:
         required: false
         type: boolean
         default: false
-  workflow_run:
-    workflows:
-      - seed-repository
-    types:
-      - completed
-    secrets:
-      PERSONAL_ACCESS_TOKEN:
-        required: false
-      CHATGPT_API_SECRET_KEY:
-        required: true
+  #workflow_run:
+  #  workflows:
+  #    - seed-repository
+  #  types:
+  #    - completed
+  #  secrets:
+  #    PERSONAL_ACCESS_TOKEN:
+  #      required: false
+  #    CHATGPT_API_SECRET_KEY:
+  #      required: true
   schedule:
-    - cron: '15 */12 * * *' # schedule-1
-    #- cron: '15 */4 * * *' # schedule-2
-    #- cron: '15,45 */1 * * *' # schedule-3
-    #- cron: '15,45 */1 * * *' # schedule-4
+    - cron: '24 6 */28 * *' # schedule-1
+    - cron: '24 */4 * * *' # schedule-2
+    - cron: '24 */2 * * *' # schedule-3
+    - cron: '24 * * * *' # schedule-4
 
 env:
   gitUserEmail: 'action@github.com'
@@ -729,6 +729,7 @@ jobs:
       - apply-fix
       - needs-fix-after-fix
       - create-pr
+    if: ${{ always() }}
     permissions:
       issues: read
       id-token: write

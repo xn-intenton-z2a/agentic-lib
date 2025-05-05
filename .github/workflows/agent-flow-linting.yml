@@ -1,28 +1,29 @@
-# .github/workflows/agent-linting-to-issue.yml
+# .github/workflows/agent-transformation-linting-to-issue.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: agent-linting-to-issue
+concurrency: agentic-lib-commit-main
 run-name: "agent linting to issue [${{ github.ref_name }}]"
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows:
-      - seed-repository
-    types:
-      - completed
-    secrets:
-      PERSONAL_ACCESS_TOKEN:
-        required: false
-      CHATGPT_API_SECRET_KEY:
-        required: true
+  #workflow_run:
+  #  workflows:
+  #    - seed-repository
+  #  types:
+  #    - completed
+  #  secrets:
+  #    PERSONAL_ACCESS_TOKEN:
+  #      required: false
+  #    CHATGPT_API_SECRET_KEY:
+  #      required: true
   schedule:
-    - cron: '30 6 */14 * *' # schedule-1
-    #- cron: '30 6 */3 * *' # schedule-2
-    #- cron: '30 6 * * *' # schedule-3
-    #- cron: '30 6 * * *' # schedule-4
+    - cron: '24 4 */28 * *' # schedule-1
+    - cron: '24 4 * * *' # schedule-2
+    - cron: '24 4 * * *' # schedule-3
+    - cron: '24 */12 * * *' # schedule-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
@@ -119,9 +120,29 @@ jobs:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
-  select-next-issue:
+  issue-to-code:
     needs:
       - create-issue
+      - ready-issue
+    if: ${{ needs.create-issue.outputs.issueNumber != '' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@main'
+    with:
+      issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  select-next-issue:
+    needs:
+      - issue-to-code
+    if: ${{ always() }}
     permissions:
       issues: read
       id-token: write

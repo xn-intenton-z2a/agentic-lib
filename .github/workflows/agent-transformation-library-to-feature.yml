@@ -1,10 +1,10 @@
-# .github/workflows/agent-library-to-feature.yml
+# .github/workflows/agent-transformation-library-to-feature.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: agent-library-to-feature
-concurrency: agent-library-to-feature
+#concurrency: agent-library-to-feature
 run-name: "agent library to feature"
 
 on:
@@ -15,16 +15,16 @@ on:
         required: false
         type: string
         default: 'house choice'
-  workflow_run:
-    workflows:
-      - agent-source-to-library
-    types:
-      - completed
-    secrets:
-      PERSONAL_ACCESS_TOKEN:
-        required: false
-      CHATGPT_API_SECRET_KEY:
-        required: true
+  #workflow_run:
+  #  workflows:
+  #    - agent-source-to-library
+  #  types:
+  #    - completed
+  #  secrets:
+  #    PERSONAL_ACCESS_TOKEN:
+  #      required: false
+  #    CHATGPT_API_SECRET_KEY:
+  #      required: true
   workflow_call:
     inputs:
       feature:
@@ -38,10 +38,10 @@ on:
       CHATGPT_API_SECRET_KEY:
         required: true
   schedule:
-    - cron: '10 11 */7 * *' # schedule-1
-    #- cron: '10 */4 * * *' # schedule-2
-    #- cron: '10 */1 * * *' # schedule-3
-    #- cron: '10 */1 * * *' # schedule-4
+    - cron: '24 4 */7 * *' # schedule-1
+    - cron: '24 4 * * *' # schedule-2
+    - cron: '24 */2 * * *' # schedule-3
+    - cron: '24 * * * *' # schedule-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
@@ -101,7 +101,7 @@ jobs:
   #    issues: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-feature-to-issue.yml@main'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-feature-to-issue.yml@main'
   #  secrets:
   #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
@@ -116,7 +116,7 @@ jobs:
   #    issues: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-ready-issue.yml@main'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-ready-issue.yml@main'
   #  secrets:
   #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
@@ -131,7 +131,7 @@ jobs:
   #    issues: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-code.yml@main'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@main'
   #  secrets:
   #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
@@ -144,7 +144,7 @@ jobs:
   #    issues: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-code-to-close-issue.yml@main'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-merged-issue-to-closed-issue.yml@main'
   #  secrets:
   #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

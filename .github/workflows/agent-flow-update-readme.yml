@@ -1,29 +1,28 @@
-# .github/workflows/agent-update-readme-flow.yml
+# .github/workflows/agent-flow-update-readme.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: agent-update-readme
+name: update-readme
 concurrency: agentic-lib-commit-readme
-run-name: "agent update readme [${{ github.ref_name }}]"
-
+run-name: "update readme [${{ github.ref_name }}]"
 on:
   workflow_dispatch:
-  #workflow_run:
-  #  workflows:
-  #    - seed-repository
-  #  types:
-  #    - completed
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN:
-  #      required: false
-  #    CHATGPT_API_SECRET_KEY:
-  #      required: true
+  workflow_run:
+    workflows:
+      - seed-repository
+    types:
+      - completed
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
   schedule:
-    - cron: '20 8 */28 * *' # schedule-1
-    #- cron: '20 8 * * *' # schedule-2
-    #- cron: '20 8,16 * * *' # schedule-3
-    #- cron: '20 8,16 * * *' # schedule-4
+    - cron: '44 8 */28 * *' # schedule-1
+    - cron: '44 8 * * *' # schedule-2
+    - cron: '44 */4 * * *' # schedule-3
+    - cron: '44 * * * *' # schedule-4
 
 env:
   branchPrefix: 'agentic-lib-'
@@ -226,6 +225,7 @@ jobs:
     needs:
       - apply-update
       - create-pr
+    if: ${{ always() }}
     permissions:
       issues: read
       id-token: write

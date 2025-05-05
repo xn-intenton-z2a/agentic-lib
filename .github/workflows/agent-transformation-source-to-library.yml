@@ -1,29 +1,30 @@
-# .github/workflows/agent-source-to-library.yml
+# .github/workflows/agent-transformation-source-to-library.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: agent-source-to-library
-concurrency: agent-source-to-library
+#concurrency: agent-source-to-library
 run-name: "agent source to library"
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows:
-      - agent-mission-to-source
-    types:
-      - completed
-    secrets:
-      PERSONAL_ACCESS_TOKEN:
-        required: false
-      CHATGPT_API_SECRET_KEY:
-        required: true
-  #schedule:
-    #- cron: '15 4 */7 * *' # schedule-unused-see-workflow_run-1
-    #- cron: '15 4 * * *' # schedule-unused-see-workflow_run-2
-    #- cron: '15 */6 * * *' # schedule-unused-see-workflow_run-3
-    #- cron: '15 */3 * * *' # schedule-unused-see-workflow_run-4
+  #workflow_run:
+  #  workflows:
+  #    - agent-mission-to-source
+  #  types:
+  #    - completed
+  #  secrets:
+  #    PERSONAL_ACCESS_TOKEN:
+  #      required: false
+  #    CHATGPT_API_SECRET_KEY:
+  #      required: true
+  #
+  schedule:
+    - cron: '19 4 */7 * *' # schedule-1
+    - cron: '19 */6 * * *' # schedule-2
+    - cron: '19 */3 * * *' # schedule-3
+    - cron: '19 * * * *' # schedule-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}

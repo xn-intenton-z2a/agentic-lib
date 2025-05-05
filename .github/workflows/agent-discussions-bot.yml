@@ -50,10 +50,10 @@ on:
       CHATGPT_API_SECRET_KEY:
         required: true
   schedule:
-    - cron: '20 8 */28 * *' # schedule-1
-    #- cron: '20 8,16 * * *' # schedule-2
-    #- cron: '20 */2 * * *' # schedule-3
-    #- cron: '20 * * * *' # schedule-4
+    - cron: '4 8 */28 * *' # schedule-1
+    #- cron: '4 8,16 * * *' # schedule-2
+    #- cron: '4 */2 * * *' # schedule-3
+    #- cron: '4 * * * *' # schedule-4
 
 env:
   defaultDiscussionBody: 'Summarise the current state of the repository, activity since the last update and how we are tracking against the mission and recommends next steps.'
@@ -351,43 +351,6 @@ jobs:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
-  mission-to-source:
-    needs:
-      - generate-response
-      - seed-repository
-    if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
-    permissions:
-      contents: write
-      pull-requests: write
-      checks: write
-      issues: write
-      id-token: write
-      pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-mission-to-source.yml@main'
-    with:
-      mission: ${{ needs.generate-response.outputs.detail }}
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
-  library-to-feature:
-    needs:
-      - generate-response
-    if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
-    permissions:
-      contents: write
-      pull-requests: write
-      checks: write
-      issues: write
-      id-token: write
-      pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-library-to-feature.yml@main'
-    with:
-      feature: ${{ needs.generate-response.outputs.detail }}
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
   feature-development-flow:
     needs:
       - process-discussion-post
@@ -400,7 +363,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-feature-development-flow.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-development.yml@main'
     with:
       feature: ${{ needs.generate-response.outputs.detail }}
     secrets:
@@ -419,7 +382,7 @@ jobs:
   #    issues: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-feature-to-issue.yml@main'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-feature-to-issue.yml@main'
   #  with:
   #    featureName: ${{ needs.generate-response.outputs.detail }}
   #  secrets:
@@ -438,7 +401,7 @@ jobs:
   #    issues: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-ready-issue.yml@main'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-ready-issue.yml@main'
   #  secrets:
   #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
@@ -455,7 +418,7 @@ jobs:
   #    issues: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-code.yml@main'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@main'
   #  secrets:
   #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
