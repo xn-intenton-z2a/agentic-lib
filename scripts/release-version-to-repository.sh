@@ -122,8 +122,6 @@ rm -f "${DEST_DIR}/utils-reset-sandbox.yml"
 
 rm -f "${DEST_DIR}/utils-seed-repository.yml"
 
-cp -v .github/workflows/utils-seed-repository.yml "${DEST_DIR}/."
-
 mkdir -p "${DEST_DIR}/../../scripts"
 
 cp -v scripts/accept-release.sh "${DEST_DIR}/../../scripts/."
