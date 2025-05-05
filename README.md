@@ -721,6 +721,7 @@ Discussions Bot [MVP]:
 - [ ] Bots to take actions within a stream (dev, elaboration, etc...) - existing workflows can scan discussions instead of 'house choice'
 - [ ] [Later] Summarise and sanitize all the workflows so that they can be passed to the bot.
 - [ ] [Later] Summarise the features in the archive and mine these during feature development.
+- [ ] [Later] Post the cost of the response in each response.
 
 intentïon user journey [Launch]:
 - [ ] On intentïon.com, user provides an intention which is posted as a new GitHub Discussions thread.
