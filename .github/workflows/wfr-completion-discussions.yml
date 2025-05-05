@@ -40,6 +40,31 @@ on:
         required: false
         type: string
         default: ''
+      discussionState:
+        description: 'The state of the discussion'
+        required: false
+        type: string
+        default: ''
+      discussionCategoryName:
+        description: 'The category name of the discussion'
+        required: false
+        type: string
+        default: ''
+      discussionUserInformation:
+        description: 'Information about the discussion user'
+        required: false
+        type: string
+        default: ''
+      discussionLabels:
+        description: 'The labels of the discussion'
+        required: false
+        type: string
+        default: ''
+      discussionReactions:
+        description: 'The reactions to the discussion'
+        required: false
+        type: string
+        default: ''
       allSourcePaths:
         description: 'The source file(s) to review. e.g. "src/lib/" or multiple files separated by semicolons "src/lib/;src/utils/utils.js"'
         type: string
@@ -138,6 +163,11 @@ jobs:
       discussionTitle: ${{ inputs.discussionTitle }}
       discussionBody: ${{ inputs.discussionBody }}
       discussionUrl: ${{ inputs.discussionUrl }}
+      discussionState: ${{ inputs.discussionState }}
+      discussionCategoryName: ${{ inputs.discussionCategoryName }}
+      discussionUserInformation: ${{ inputs.discussionUserInformation }}
+      discussionLabels: ${{ inputs.discussionLabels }}
+      discussionReactions: ${{ inputs.discussionReactions }}
       allSourcePaths: ${{ inputs.allSourcePaths || 'src/lib/' }}
       allTestsPaths: ${{ inputs.allTestsPaths || 'tests/unit/' }}
       documentationPath: ${{ inputs.documentationPath || 'docs/' }}
@@ -686,6 +716,11 @@ jobs:
             const discussionTitle = process.env.discussionTitle;
             const discussionBody = process.env.discussionBody;
             const discussionUrl = process.env.discussionUrl;
+            const discussionState = process.env.discussionState;
+            const discussionCategoryName = process.env.discussionCategoryName;
+            const discussionUserInformation = process.env.discussionUserInformation;
+            const discussionLabels = process.env.discussionLabels;
+            const discussionReactions = process.env.discussionReactions;
             const discussions = process.env.discussions;
             const commits = process.env.commits;
             const repoFiles = process.env.repoFiles;
@@ -704,6 +739,11 @@ jobs:
             core.info(`Discussion title: ${discussionTitle}`);
             core.info(`Discussion body: ${discussionBody}`);
             core.info(`Discussion URL: ${discussionUrl}`);
+            core.info(`Discussion state: ${discussionState}`);
+            core.info(`Discussion category name: ${discussionCategoryName}`);
+            core.info(`Discussion user information: ${discussionUserInformation}`);
+            core.info(`Discussion labels: ${discussionLabels}`);
+            core.info(`Discussion reactions: ${discussionReactions}`);
 
             const chatGptPrompt = `
             ${promptContent}
@@ -741,6 +781,11 @@ jobs:
             Title: ${discussionTitle}
             Body: ${discussionBody}
             URL: ${discussionUrl}
+            State: ${discussionState}
+            Category: ${discussionCategoryName}
+            User: ${discussionUserInformation}
+            Labels: ${discussionLabels}
+            Reactions: ${discussionReactions}
             CURRENT_DISCUSSION_END
 
             Previous discussions and comments:
