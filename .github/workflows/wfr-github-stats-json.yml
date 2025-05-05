@@ -269,7 +269,7 @@ jobs:
               diffMinutesMain: Math.floor((now - mainPushedAt) / (1000 * 60)),
               prs: {
                 count: pullsResp.length, 
-                details: pullsResp,
+                //details: pullsResp,
                 openPRs: prDetails.length,
                 averagePRAge: averagePRAge,
                 prDetails: prDetails.map(pr => `[${pr.ageMinutes}m] ${pr.title}`),
@@ -281,7 +281,7 @@ jobs:
               lastFiveCommitMessages: lastFiveCommitMessages.map(commit => `[${commit.time}] - ${commit.message}`),
               commits: {
                 count: commitsLastDayResp.length, 
-                //details: commitsLastDayResp,
+                // details: commitsLastDayResp,
                 commitsLastHour: commitsLastHourResp.length,
                 commitsLastDay: commitsLastDayResp.length,
                 lastFiveCommitMessages: lastFiveCommitMessages.map(commit => `[${commit.time}] - ${commit.message}`)
@@ -290,13 +290,13 @@ jobs:
                 count: branchDetails.length, 
                 details: branchDetails.map(branch => `[${branch.minutesSinceLastCommit}m] ${branch.branch}`),
                 countRaw: branchesResp.length, 
-                //detailsRaw: branchesResp,
+                // detailsRaw: branchesResp,
                 branchIssueDetails: branchDetails.map(branch => `[${branch.issueNumber}] ${branch.issueTitle} ${branch.issueLabels}`),
                 averageBranchAge
               },
               checks: {
                 count: checks.length,
-                checks: checks,
+                // checks: checks,
                 testStatusOnBranch: "PASS - placeholder",
                 testsLastPassedMinutes: "15 - placeholder"
               },
