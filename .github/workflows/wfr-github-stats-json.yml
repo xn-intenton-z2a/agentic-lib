@@ -60,10 +60,10 @@ on:
     outputs:
       statsJson:
         description: 'The generated stats JSON data'
-        value: ${{ jobs.generate-stats.outputs.statsJson }}
+        value: ${{ jobs.generate-stats-json.outputs.statsJson }}
 
 jobs:
-  generate-stats:
+  generate-stats-json:
     runs-on: ubuntu-latest
 
     env:
@@ -306,4 +306,5 @@ jobs:
 
             // Set the JSON as an output
             core.setOutput("statsJson", JSON.stringify(jsonData));
-            core.info("JSON stats generated successfully.");
+            core.info("JSON stats generated successfully:");
+            core.info(JSON.stringify(jsonData, null, 2));

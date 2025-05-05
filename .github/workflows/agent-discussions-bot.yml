@@ -83,11 +83,11 @@ jobs:
             let url = ''; // discussion html_url
 
             let categoryName = ''; // discussion category name
-            
+
             let userName = '' // discussion user name
-            
-            let label = ''; // discussion labels.*
-            
+
+            let labels = ''; // discussion labels.*
+
             let reactions = ''; // discussion reactions confused + eyes + heart + hooray + laugh + rocket
 
             if (context.eventName === 'discussion') {
@@ -119,27 +119,116 @@ jobs:
                 .join(', ');
 
             } else {
-
+              // If not triggered by a discussion or comment, use inputs if available
               body = context.payload.inputs.discussionBody || '';
               title = context.payload.inputs.discussionTitle || '';
               url = context.payload.inputs.discussionUrl || '';
-              userName = context.payload.sender.login || context.payload.sender.name
-            
-              // Obtain the url from ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
-              // Then populate state, title, categoryName, labels, and reactions from the discussion
+              userName = context.payload.sender ? (context.payload.sender.login || context.payload.sender.name) : '';
 
+              // If URL is not provided, try to get it from SEED_DISCUSSION.md
+              if (!url) {
+                try {
+                  const fs = require('fs');
+                  const seedDiscussionPath = '${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}' || 'SEED_DISCUSSION.md';
+
+                  if (fs.existsSync(seedDiscussionPath)) {
+                    const seedDiscussionContent = fs.readFileSync(seedDiscussionPath, 'utf8');
+
+                    // Extract URL from the first line
+                    const firstLine = seedDiscussionContent.split('\n')[0].trim();
+                    if (firstLine.startsWith('http')) {
+                      url = firstLine;
+                      core.info(`Using URL from SEED_DISCUSSION.md: ${url}`);
+
+                      // Extract title from the content
+                      const titleMatch = seedDiscussionContent.match(/\*\*Title\*\*: (.*)/);
+                      if (titleMatch && titleMatch[1]) {
+                        title = titleMatch[1];
+                        core.info(`Using title from SEED_DISCUSSION.md: ${title}`);
+                      }
+
+                      // Try to fetch the discussion details using the URL
+                      const urlParts = url.split('/');
+                      const discussionNumber = parseInt(urlParts[urlParts.length - 1].split('#')[0], 10);
+
+                      if (!isNaN(discussionNumber)) {
+                        try {
+                          const { owner, repo } = context.repo;
+                          const query = `
+                            query($owner: String!, $repo: String!, $number: Int!) {
+                              repository(owner: $owner, name: $repo) {
+                                discussion(number: $number) {
+                                  title
+                                  body
+                                  category {
+                                    name
+                                  }
+                                  labels(first: 10) {
+                                    nodes {
+                                      name
+                                    }
+                                  }
+                                  reactions {
+                                    confused
+                                    eyes
+                                    heart
+                                    hooray
+                                    laugh
+                                    rocket
+                                    thumbsDown
+                                    thumbsUp
+                                  }
+                                  state
+                                }
+                              }
+                            }
+                          `;
+
+                          const result = await github.graphql(query, {
+                            owner,
+                            repo,
+                            number: discussionNumber
+                          });
+
+                          const discussion = result.repository.discussion;
+
+                          if (discussion) {
+                            // Update variables with fetched data
+                            title = discussion.title;
+                            body = discussion.body;
+                            state = discussion.state;
+                            categoryName = discussion.category.name;
+                            labels = discussion.labels.nodes.map(label => label.name).join(', ');
+                            reactions = Object.keys(discussion.reactions)
+                              .map(key => `${key}: ${discussion.reactions[key]}`)
+                              .join(', ');
+
+                            core.info(`Successfully fetched discussion details from GitHub API`);
+                          }
+                        } catch (error) {
+                          core.warning(`Error fetching discussion details: ${error.message}`);
+                        }
+                      }
+                    }
+                  } else {
+                    core.warning(`SEED_DISCUSSION.md file not found at ${seedDiscussionPath}`);
+                  }
+                } catch (error) {
+                  core.warning(`Error reading SEED_DISCUSSION.md: ${error.message}`);
+                }
+              }
             }
 
             core.setOutput('authorAssociation', authorAssociation);
-            core.setOutput('body', body);\
-            setOutput('state', state);
+            core.setOutput('body', body);
+            core.setOutput('state', state);
             core.setOutput('title', title);
             core.setOutput('url', url);
             core.setOutput('categoryName', categoryName);
             core.setOutput('userName', userName);
             core.setOutput('labels', labels);
             core.setOutput('reactions', reactions);
-            
+
             core.info(`authorAssociation: ${authorAssociation}`);
             core.info(`body: ${body}`);
             core.info(`state: ${state}`);
@@ -219,20 +308,53 @@ jobs:
             // Grab the reply text and URL from the job outputs
             const reply = process.env.reply;
             const url = process.env.url;
-            const body = process.env.reply;  
-            const discussionId = context.payload.discussion.node_id;
-            
-            // Determine discussion number
+            const body = process.env.reply;
+
+            // Determine discussion number and ID
             let discussionNumber;
+            let discussionId;
+
             if (context.eventName === 'discussion') {
               discussionNumber = context.payload.discussion.number;
+              discussionId = context.payload.discussion.node_id;
             } else if (context.eventName === 'discussion_comment') {
               discussionNumber = context.payload.discussion.number;
+              discussionId = context.payload.discussion.node_id;
             } else {
+              // Extract discussion number from URL
               const parts = url.split('/');
-              discussionNumber = parseInt(parts.pop(), 10);
+              const lastPart = parts[parts.length - 1];
+              // Handle URLs with comment anchors like "1220#discussioncomment-13030804"
+              discussionNumber = parseInt(lastPart.split('#')[0], 10);
+
               if (isNaN(discussionNumber)) {
                 core.setFailed(`Could not extract discussion number from URL: ${url}`);
+                return;
+              }
+
+              // Fetch the discussion ID using the discussion number
+              try {
+                const { owner, repo } = context.repo;
+                const query = `
+                  query($owner: String!, $repo: String!, $number: Int!) {
+                    repository(owner: $owner, name: $repo) {
+                      discussion(number: $number) {
+                        id
+                      }
+                    }
+                  }
+                `;
+
+                const result = await github.graphql(query, {
+                  owner,
+                  repo,
+                  number: discussionNumber
+                });
+
+                discussionId = result.repository.discussion.id;
+                core.info(`Fetched discussion ID: ${discussionId} for discussion number: ${discussionNumber}`);
+              } catch (error) {
+                core.setFailed(`Error fetching discussion ID: ${error.message}`);
                 return;
               }
             }
@@ -249,7 +371,7 @@ jobs:
                 }
               }
             }`;
-      
+
             const result = await github.graphql(mutation, {
               discussionId,
               body
