@@ -655,25 +655,19 @@ aws sqs get-queue-attributes \
 </ul>
 <p class="md-github">Discussions Bot [MVP]:</p>
 <ul class="md-github md-github__task-list">
-<li class="md-github">
-<p class="md-github">[~] On GitHub Discussions creation: Reads title and description, seeds with that as the mission, saves a trace back to documenationPath with a file a URL pointing -&gt; the GitHub Discussion from the event,
-Add workflow files to context</p>
-</li>
-<li class="md-github md-github__task-item">
-<p class="md-github"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> On schedule: Summarises commits to main as discussion comments using the saved file comments (read commits added as comments) so only unread commits are summarised.</p>
-</li>
-<li class="md-github md-github__task-item">
-<p class="md-github"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Answers questions about the in the discussion thread.</p>
-</li>
-<li class="md-github md-github__task-item">
-<p class="md-github"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Refines the mission before getting the go-ahead to seed.</p>
-</li>
-<li class="md-github md-github__task-item">
-<p class="md-github"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Other bots chime in with view points (e.g. what exists already, what we have on this in the library, progress so far).</p>
-</li>
-<li class="md-github md-github__task-item">
-<p class="md-github"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Mission file and features can be refined based on these discussions during development.</p>
-</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> On GitHub Discussions creation: Reads title and description, seeds with that as the mission, saves a trace back to documenationPath with a file a URL pointing -&gt; the GitHub Discussion from the event,</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> Add workflow files to context</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> Answers questions about the repository in the discussion thread.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> Refines the mission before getting the go-ahead to seed.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> Mission file and features can be refined based on these discussions during development.</li>
+<li class="md-github">[~] Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Extract demo output to publish in the discussion thread and request feedback and next steps.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> On schedule: Summarises commits to main as discussion comments using the saved file comments (read commits added as comments) so only unread commits are summarised.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> On schedule: Call out recommended actions (later bots will pick these up IoC...)</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Pass posting user information to the bot.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Other bots chime in with viewpoints  (e.g. what exists already, what we have on this in the library, progress so far, what should we do next...)</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Bots to take actions within a stream (dev, elaboration, etc...) - existing workflows can scan discussions instead of 'house choice'</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Schedule MVP demos</li>
 </ul>
 <p class="md-github">intentïon user journey [Launch]:</p>
 <ul class="md-github md-github__task-list">
@@ -689,7 +683,6 @@ Add workflow files to context</p>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> Review all the parameters where re-usable workflows are used and ensure that any parameters that are filepaths are stated explicitly in the calling workflow.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> Do this everywhere: echo &quot;${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com&quot; &gt;&gt; .npmrc</li>
 <li class="md-github">[~] Place all AWS config in repository variables and handle blank by skipping the steps if blank.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Collect examples of demo output for the Actions documentation.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Switch from github script actions to <code class="md-github">run: node</code> and have the action run against a moving 'latest' tag.
 See: <a href="examples/archive-2025-04-20/ACTIONS_JS_STEPS.md" class="md-github">ACTIONS_JS_STEPS.md</a></li>
@@ -819,7 +812,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-05-04T12:25:41.023Z</p>
+    <p>Generated on 2025-05-05T00:40:40.872Z</p>
   </footer>
 </body>
 </html>
