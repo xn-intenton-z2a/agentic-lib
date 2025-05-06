@@ -81,3 +81,15 @@ Last updated: 2024-02; Authority: Official Probot site.
 This library demonstrates event-driven bridging between S3 and SQS using AWS Lambda. The README outlines architecture, testing strategies, and error handling patterns—providing practical examples for constructing and validating SQS events in agentic-lib.
 Last updated: 2024-03; Authority: Official GitHub repo.
 ## MIT
+
+# AWS Lambda Node.js Function Handler
+## https://docs.aws.amazon.com/lambda/latest/dg/nodejs-handler.html
+The AWS Lambda Node.js developer guide covers how to author handler functions in Node.js, including the event and context parameters, callbacks, error handling, asynchronous patterns, runtime environment variables, and packaging best practices. It provides essential technical specifications for building, deploying, and debugging Lambda functions written in JavaScript, ensuring compliance with AWS runtime constraints and performance optimization.
+Last updated: 2024-04; Authority: Official AWS Documentation.
+## Apache 2.0
+
+# GitHub Actions Workflow Commands
+## https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
+This reference details the special workflow commands available in GitHub Actions, such as setting output variables, grouping logs, annotating errors and warnings, prioritizing troubleshooting, and masking secrets. It provides actionable examples and syntax for emitting commands directly from scripts or actions, enabling precise control over workflow behavior and reporting.
+Last updated: 2024-05; Authority: Official GitHub documentation.
+## CC BY 4.0
