@@ -25,7 +25,7 @@ mkdir -p "${DEST_DIR}"
 
 # Agent workflows
 
-rm -f "${DEST_DIR}/agent-*.yml"
+rm -f "${DEST_DIR}/agent-"*".yml"
 
 cp -v .github/workflows/agent-transformation-merged-issue-to-closed-issue.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-code-to-close-issue.yml"
