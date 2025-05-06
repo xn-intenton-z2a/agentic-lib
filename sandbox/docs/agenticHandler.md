@@ -1,47 +1,64 @@
-# agenticHandler
+# SQS Digest Handler & CLI
 
-Enables AI-driven agentic workflows by sending a prompt to the OpenAI API and returning structured JSON results.
+This document describes how to generate SQS events from digest objects, process them with the Lambda handler, and use the CLI entrypoint provided by the library.
 
-## Function Signature
+## createSQSEventFromDigest(digest)
+
+Generates an AWS SQS event containing a single record:
 
 ```js
-import { agenticHandler } from "@xn-intenton-z2a/agentic-lib";
+import { createSQSEventFromDigest } from "@xn-intenton-z2a/agentic-lib";
 
-async function agenticHandler(
-  prompt: string,
-  options?: { model?: string }
-): Promise<object>
+const digest = { key: "...", value: "...", lastModified: "..." };
+const sqsEvent = createSQSEventFromDigest(digest);
 ```
 
-### Parameters
+- `digest` (object): The message payload with the fields:
+  - `key` (string)
+  - `value` (string)
+  - `lastModified` (ISO timestamp string)
 
-- `prompt` (string): The user prompt to send to the AI.
-- `options.model` (string, optional): The OpenAI model to use (default: `"gpt-4"`).
+Returns an object matching the AWS SQS event schema with one record.
 
-### Returns
+## digestLambdaHandler(sqsEvent)
 
-A `Promise` that resolves to the parsed JSON object returned by the AI.
-
-### Errors
-
-- Throws an `Error` with message `Missing OPENAI_API_KEY` if the API key is not configured.
-- Throws an `Error` `Failed to parse JSON response: <raw>` if the API response is not valid JSON.
-
-## Example
+Lambda handler function to process SQS events with digests and report failures.
 
 ```js
-import { agenticHandler } from "@xn-intenton-z2a/agentic-lib";
+import { digestLambdaHandler } from "@xn-intenton-z2a/agentic-lib";
 
-async function run() {
-  try {
-    const result = await agenticHandler("Refine this text", { model: "gpt-4" });
-    console.log(result);
-  } catch (err) {
-    console.error(err);
-  }
-}
+const response = await digestLambdaHandler(sqsEvent);
+console.log(response);
+// { batchItemFailures: [...], handler: "src/lib/main.digestLambdaHandler" }
+```
 
-run();
-// Sample output:
-// { refinedText: "Refined version of this text", suggestions: [...] }
+- `sqsEvent` (object): AWS SQS event.
+
+Returns an object with:
+- `batchItemFailures`: Array of `{ itemIdentifier }` for records that failed parsing.
+- `handler`: String identifying the handler path.
+
+### Behavior
+
+- Logs each record's digest data in structured JSON format.
+- Invalid JSON bodies are caught, logged as errors, and reported back in `batchItemFailures` for retry.
+
+## CLI Entry Point
+
+The library provides a CLI interface via the `main` function. It supports the following flags:
+
+- `--help`: Display usage instructions.
+- `--digest`: Generate and process a sample digest event.
+- `--version`: Display version and timestamp.
+
+### Usage
+
+```bash
+node src/lib/main.js --help
+```
+
+or using `npx`:
+
+```bash
+npx agentic-lib --version
 ```
