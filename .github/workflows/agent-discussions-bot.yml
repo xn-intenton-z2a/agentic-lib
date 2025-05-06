@@ -361,6 +361,7 @@ jobs:
       pull-requests: write
       checks: write
       issues: write
+      packages: write
       id-token: write
       pages: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-development.yml@main'
