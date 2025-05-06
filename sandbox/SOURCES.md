@@ -18,22 +18,26 @@ Combined Lambda handler patterns and SQS event source configuration in Node.js, 
 Open-source library for bridging large payloads via S3 and SQS, providing utilities to upload objects to S3, send lightweight SQS notifications, and retrieve full payloads within Lambda. Includes configuration options for bucket policies, message batching, error backoffs, and cleanup routines. Critical for scalable SQS-driven workflows in agentic-lib. Latest release: v0.23.0; MIT License.
 ## License: MIT
 
-# Node.js URL Module (fileURLToPath)
+# Node.js ESM Path, Environment Configuration, and Schema Validation
 ## https://nodejs.org/api/url.html#url_fileurltopath_url
-Documentation for the URL module’s `fileURLToPath` utility in ESM contexts, explaining conversion of `import.meta.url` to filesystem paths. Essential for reliable CLI entry-point detection and cross-platform path resolution in ES modules. Last updated: Node.js v20; CC BY 4.0 (Node.js documentation).
-## License: CC BY 4.0
+Unified reference for core utilities used in agentic-lib:
+- ESM path resolution via `fileURLToPath(import.meta.url)` for reliable CLI entry-point detection and cross-platform compatibility.
+- Environment variable loading with `dotenv.config()`, detailing parsing rules, multiline values, and best practices for local development and CI environments.
+- Runtime schema validation using Zod, covering object parsing, transformations, and custom error reporting for strict enforcement of configuration and payload structures.
+Last updated: Node.js v20 docs (URL module); dotenv v16.5.0 (June 2024); Zod v3.24.4 (May 2024). Licenses: Node.js docs (CC BY 4.0); dotenv (BSD-2-Clause); Zod (MIT).
+## License: Multiple (CC BY 4.0, BSD-2-Clause, MIT)
 
 # OpenAI Node.js SDK
 ## https://github.com/openai/openai-node
 Official client library for the OpenAI API in Node.js, detailing configuration patterns, chat completion and streaming interfaces, rate limit handling, and error propagation. Includes code snippets for parsing JSON responses, customizing request parameters, and resilient retries, directly applicable to agenticHandler implementations. Latest release: v4.97.0 (June 2024); MIT License.
 ## License: MIT
 
-# Zod – TypeScript-first schema validation
-## https://github.com/colinhacks/zod
-Comprehensive guide to Zod’s runtime schema definitions, parsing, transformations, and error reporting in TypeScript and JavaScript. Covers environment variable validation, asynchronous refinements, and custom error formats, ensuring strict schema enforcement for `config` and payloads in agentic workflows. Latest version: 3.24.4 (May 2024); MIT License.
-## License: MIT
+# AWS SDK for JavaScript v3 SQS Client
+## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-sqs/index.html
+Detailed reference for the AWS SDK v3 SQS client in JavaScript/TypeScript, covering commands like `SendMessage`, `ReceiveMessage`, `DeleteMessage`, client configuration (regions, credentials, retry strategies), and error handling patterns. Essential for programmatically managing SQS queues and messages within custom Lambdas or CLI tools. Last updated: June 2024; official AWS documentation.
+## License: Apache-2.0
 
-# dotenv – Environment variable loader
-## https://github.com/motdotla/dotenv
-Standard library for loading `.env` files into `process.env`, detailing parsing rules, encoding support, multiline values, and security best practices. Guides robust environment configuration for local development, CI pipelines, and test isolation, aligning with patterns used in `main.js`. Version: 16.5.0 (June 2024); BSD-2-Clause License.
-## License: BSD-2-Clause
+# AWS Lambda Powertools for Node.js
+## https://docs.powertools.aws.dev/lambda-powertools-nodejs/latest/
+Best practices and utilities for building serverless applications in Node.js, including structured logging, distributed tracing, metrics collection, and idempotency helpers for SQS handlers. Promotes higher observability and reliability in agentic Lambdas with minimal instrumentation. Last updated: June 2024; maintained by AWS.
+## License: Apache-2.0
