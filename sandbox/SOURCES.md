@@ -1,39 +1,39 @@
 # GitHub REST API
 ## https://docs.github.com/en/rest
-Comprehensive reference for the GitHub REST API endpoints, including authentication, repository and issue management, and workflow dispatch. This documentation provides detailed request and response schemas, rate-limiting rules, and examples in cURL and octokit, enabling precise implementation of calls to trigger workflows, manage branches/issues, and collect repository metadata. Last updated continuously; authoritative as GitHub’s own documentation.
-## License: CC BY 4.0 (GitHub documentation)
+Comprehensive reference for the GitHub REST API endpoints, including authentication schemas, repository and issue management, workflow dispatch, and rate-limiting rules. Provides detailed request/response structures, example calls in cURL and Octokit, enabling precise implementation for triggering agentic workflows, branch management, and metadata collection. Last updated continuously; authoritative source as GitHub’s official documentation.
+## License: CC BY 4.0
 
-# AWS Lambda Node.js Handler Model
-## https://docs.aws.amazon.com/lambda/latest/dg/nodejs-handler.html
-Official guide to writing AWS Lambda functions in Node.js, covering handler signatures, context objects, error handling, and performance best practices. Explains asynchronous execution patterns and initialization outside the handler to optimize cold starts—critical for reliable SQS-driven workflows. Last published: June 2024; authoritative AWS documentation.
-## License: Public Domain (AWS documentation)
+# GitHub Actions workflow_call Event
+## https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call
+Official guidance on the `workflow_call` event used to invoke reusable GitHub Actions workflows programmatically. Covers input/output parameter definitions, permissions scoping, caller and called-workflow conventions, and security considerations, facilitating SDK-style chaining of agentic-lib workflows. Last updated: March 2024; authoritative GitHub documentation.
+## License: CC BY 4.0
 
-# AWS Lambda with Amazon SQS
+# AWS Lambda & SQS Integration
 ## https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html
-Describes configuring Lambda function event sources for Amazon SQS, including batch size, error handling, and the structure of SQS event payloads. Essential for setting up `digestLambdaHandler` to reliably process and retry messages, handling partial failures, and understanding `batchItemFailures`. Last updated: May 2024.
+Combined Lambda handler patterns and SQS event source configuration in Node.js, describing handler signatures, context objects, batch size tuning, error handling, and `batchItemFailures`. Explains asynchronous execution models, cold-start optimizations, and partial-failure retries to ensure robust processing of SQS messages in agentic Lambdas. Last updated: May 2024; official AWS documentation.
 ## License: Public Domain (AWS documentation)
 
-# AWS SDK for JavaScript v3 – SQS Client
-## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-sqs/index.html
-Reference for the SQS Client in AWS SDK v3, detailing method parameters, response shapes, and middleware customization. Useful for advanced use-cases like custom retry strategies, message attribute handling, and integration patterns with other AWS services. Last updated: April 2024; official AWS SDK docs.
-## License: Apache 2.0 (AWS SDK for JavaScript)
+# @xn-intenton-z2a/s3-sqs-bridge
+## https://github.com/xn-intenton-z2a/s3-sqs-bridge
+Open-source library for bridging large payloads via S3 and SQS, providing utilities to upload objects to S3, send lightweight SQS notifications, and retrieve full payloads within Lambda. Includes configuration options for bucket policies, message batching, error backoffs, and cleanup routines. Critical for scalable SQS-driven workflows in agentic-lib. Latest release: v0.23.0; MIT License.
+## License: MIT
+
+# Node.js URL Module (fileURLToPath)
+## https://nodejs.org/api/url.html#url_fileurltopath_url
+Documentation for the URL module’s `fileURLToPath` utility in ESM contexts, explaining conversion of `import.meta.url` to filesystem paths. Essential for reliable CLI entry-point detection and cross-platform path resolution in ES modules. Last updated: Node.js v20; CC BY 4.0 (Node.js documentation).
+## License: CC BY 4.0
 
 # OpenAI Node.js SDK
 ## https://github.com/openai/openai-node
-Source code and documentation for the official OpenAI Node.js client. Covers configuration patterns, creating chat completions, streaming responses, and error propagation. Includes code snippets for handling rate limits and customizing request parameters, directly applicable to refining AI-driven workflows. Latest release: v4.97.0 (June 2024). Licensed under MIT.
+Official client library for the OpenAI API in Node.js, detailing configuration patterns, chat completion and streaming interfaces, rate limit handling, and error propagation. Includes code snippets for parsing JSON responses, customizing request parameters, and resilient retries, directly applicable to agenticHandler implementations. Latest release: v4.97.0 (June 2024); MIT License.
 ## License: MIT
 
 # Zod – TypeScript-first schema validation
 ## https://github.com/colinhacks/zod
-Official repository for Zod, a TypeScript-focused runtime schema validator. Provides comprehensive examples of defining schemas, parsing environment variables, and error formatting. Critical for validating `config` and input payloads with clear error messages. Latest version: 3.24.4 (May 2024). Licensed under MIT.
+Comprehensive guide to Zod’s runtime schema definitions, parsing, transformations, and error reporting in TypeScript and JavaScript. Covers environment variable validation, asynchronous refinements, and custom error formats, ensuring strict schema enforcement for `config` and payloads in agentic workflows. Latest version: 3.24.4 (May 2024); MIT License.
 ## License: MIT
 
 # dotenv – Environment variable loader
 ## https://github.com/motdotla/dotenv
-Widely-adopted library for loading `.env` files into `process.env`. Covers parsing rules, multiline values, encoding, and security considerations. This documentation guides robust environment configuration in local and CI contexts, matching patterns used in `main.js`. Version: 16.5.0 (June 2024). Licensed under BSD-2-Clause.
+Standard library for loading `.env` files into `process.env`, detailing parsing rules, encoding support, multiline values, and security best practices. Guides robust environment configuration for local development, CI pipelines, and test isolation, aligning with patterns used in `main.js`. Version: 16.5.0 (June 2024); BSD-2-Clause License.
 ## License: BSD-2-Clause
-
-# GitHub Actions workflow_call Event
-## https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call
-Official guidance on the `workflow_call` event, including input/output parameters, permissions, and calling conventions across repositories. Enables composition of agentic workflows as SDK-style building blocks, describing how to define reusable workflows and pass data between them. Last updated: March 2024.
-## License: CC BY 4.0 (GitHub documentation)
