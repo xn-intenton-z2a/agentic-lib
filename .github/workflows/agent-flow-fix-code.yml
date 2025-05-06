@@ -38,8 +38,8 @@ on:
   schedule:
     #- cron: '24 6 */28 * *' # schedule-1
     #- cron: '24 */4 * * *' # schedule-2
-    - cron: '24 */2 * * *' # schedule-3
-    #- cron: '24 * * * *' # schedule-4
+    #- cron: '24 */2 * * *' # schedule-3
+    - cron: '24 * * * *' # schedule-4
 
 env:
   gitUserEmail: 'action@github.com'
