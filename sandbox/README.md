@@ -53,7 +53,7 @@ const sqsEvent = createSQSEventFromDigest(digest);
 })();
 ```
 
-### CLI Usage
+## CLI Usage
 
 Run via npx or directly with Node:
 
@@ -119,7 +119,7 @@ All logging utilities produce structured JSON entries with fields such as:
 
 ## Documentation
 
-For full API reference and advanced examples, see [SQS Digest Handler & CLI Documentation](docs/agenticHandler.md).
+For detailed API reference and advanced examples, see [API Documentation](docs/agenticHandler.md).
 
 ## Contributing
 

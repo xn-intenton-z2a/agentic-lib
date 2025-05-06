@@ -1,6 +1,6 @@
 # SQS Digest Handler & CLI Documentation
 
-This document provides detailed information on the core capabilities of `agentic-lib`, including structured logging, AWS SQS event generation, Lambda handlers, CLI usage, and AI-driven agentic workflows.
+This document provides detailed information on the core capabilities of `agentic-lib`, including structured logging, AWS SQS event generation, Lambda handlers, and CLI utilities.
 
 ## Logging Utilities
 
@@ -79,58 +79,12 @@ console.log(response);
 
 The library exposes a CLI via the `main` function in `src/lib/main.js`. On startup, it invokes `logConfig` to log the loaded configuration, then processes one of the following flags:
 
-- `--help`: Show usage instructions.
+- `--help`: Show usage instructions (calls `generateUsage`).
+- `--version`: Display version information and timestamp in JSON (reads `package.json`).
 - `--digest`: Generate and process a sample digest event.
-- `--version`: Display version information and timestamp in JSON.
 
-## agenticHandler(prompt, options)
-
-Core AI-driven handler invoking OpenAI, parsing JSON responses, tracking usage, and estimating cost.
-
-```js
-async function agenticHandler(
-  prompt: string,
-  options?: {
-    model?: string;
-    costRates?: { promptTokens?: number; completionTokens?: number };
-  }
-): Promise<{
-  result: object;
-  usage: { prompt_tokens: number; completion_tokens: number; total_tokens: number };
-  cost: number;
-}>;
+```bash
+npx @xn-intenton-z2a/agentic-lib --help
 ```
 
-**Parameters:**
-
-- `prompt` (string): the input prompt for the AI.
-- `options.model` (string): OpenAI model to use (default: `"gpt-4"`).
-- `options.costRates` (object): Optional cost rates:
-  - `promptTokens` (number, default `0.002`): cost per 1,000 prompt tokens.
-  - `completionTokens` (number, default `0.0025`): cost per 1,000 completion tokens.
-
-**Returns:**
-
-- `result` (object): Parsed JSON response from the AI.
-- `usage` (object): Token usage metrics:
-  - `prompt_tokens`, `completion_tokens`, `total_tokens`.
-- `cost` (number): Estimated cost based on usage and provided rates.
-
-**Errors:**
-
-Throws an `Error` if:
-
-- `OPENAI_API_KEY` is missing or invalid.
-- JSON parsing of AI response fails (error message includes raw response content).
-
-**Usage Example:**
-
-```js
-import { agenticHandler } from "@xn-intenton-z2a/agentic-lib";
-
-(async () => {
-  const { result, usage, cost } = await agenticHandler("Summarize the commit history.");
-  console.log(result);
-  console.log(`Tokens used: ${usage.total_tokens}, cost: $${cost.toFixed(4)}`);
-})();
-```
+When no flags are provided, the CLI displays the usage instructions.
