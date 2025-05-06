@@ -660,24 +660,28 @@ aws sqs get-queue-attributes \
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> Answers questions about the repository in the discussion thread.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> Refines the mission before getting the go-ahead to seed.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> Mission file and features can be refined based on these discussions during development.</li>
-<li class="md-github">[~] Pass posting user information to the bot.</li>
-<li class="md-github">[~] Pass the stats to the bot to be used in the discussion.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Extract demo output to publish in the discussion thread and request feedback and next steps.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> On schedule: Summarises commits to main as discussion comments using the saved file comments (read commits added as comments) so only unread commits are summarised.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> On schedule: Call out recommended actions (later bots will pick these up IoC...)</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Other bots chime in with viewpoints  (e.g. what exists already, what we have on this in the library, progress so far, what should we do next...)</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Bots to take actions within a stream (dev, elaboration, etc...) - existing workflows can scan discussions instead of 'house choice'</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Schedule MVP demos</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> Pass posting user information to the bot.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> Pass the stats to the bot to be used in the discussion.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> Pass build, main and test output to the bot to be used in the discussion.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> If not triggered by a discussion, use SEED_DISCUSSIONS to find the last discussion and use that to post the reply.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> On schedule, set a default body of: Summarise the current state of the repository, activity since the last update and how we are tracking against the mission ad recommends next steps.</li>
+<li class="md-github">[~] Bot to take actions within a stream (dev, seed, etc...)</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> The feature development flow should refine the features when the feature bank it at the limit (it looks like it fails).</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> if there is feature text and the feature limit is reached try and flex on of the features to accommodate the new feature request.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Later] Summarise and sanitize all the workflows so that they can be passed to the bot.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Later] Summarise the features in the archive and mine these during feature development.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Later] Post the cost of the response in each response.</li>
 </ul>
-<p class="md-github">intentïon user journey [Launch]:</p>
+<p class="md-github">intentïon user journey [Launch UX]:</p>
 <ul class="md-github md-github__task-list">
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> On intentïon.com, user provides an intention which is posted as a new GitHub Discussions thread.</li>
 <li class="md-github">[~] repository0-crucible seeds the repository with the mission and reports back with the intentïon branch.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Updates periodically synchronised to a branch (which does not run the workflows) and summary reported to Discussions.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Discussions updates also posted intentïon.com.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> intentïon.com posts: running experiment: <link to branch></li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> intentïon.com posts: running experiment: <link to branch> + <link to discussion></li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> TODO: How do users create a clone from a branch?</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Extract demo output to publish in the discussion thread and request feedback and next steps.</li>
 </ul>
 <p class="md-github">Marketplace GitHub Actions [Launch]:</p>
 <ul class="md-github md-github__task-list">
@@ -813,7 +817,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-05-05T12:25:57.909Z</p>
+    <p>Generated on 2025-05-06T04:39:07.199Z</p>
   </footer>
 </body>
 </html>
