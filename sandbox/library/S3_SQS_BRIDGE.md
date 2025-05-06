@@ -1,231 +1,333 @@
 # S3_SQS_BRIDGE
 
 ## Crawl Summary
-Env vars: BUCKET_NAME, OBJECT_PREFIX, REPLAY_QUEUE_URL, DIGEST_QUEUE_URL, OFFSETS_TABLE_NAME, PROJECTIONS_TABLE_NAME, SOURCE_LAMBDA_FUNCTION_NAME, AWS_ENDPOINT; Postgres: PG_CONNECTION_STRING(default postgres://user:pass@localhost:5432/db), GITHUB_PROJECTIONS_TABLE, GITHUB_EVENT_QUEUE_URL; Retry: PG_MAX_RETRIES=3, PG_RETRY_DELAY_MS=1000; Optional DEAD_LETTER_QUEUE_URL; Metrics: totalEvents, successfulEvents, skippedEvents, dbFailures, dbRetryCount, deadLetterEvents; Express endpoints /metrics and /status; CLI: source-projection, replay-projection, replay, healthcheck, metrics, status-endpoint; Local: npm start, npm run healthcheck, npm run replay; Testing: npm test with Vitest.
+s3-sqs-bridge integrates S3 PUT event routing to SQS and Lambda with versioned replay and PostgreSQL upsert projection. Uses Node.js handler with signature exports.handler(event:SQSEvent,context:Context):Promise<{statusCode:200}>. Configured via ENV vars: BUCKET_NAME, OBJECT_PREFIX, REPLAY_QUEUE_URL, DIGEST_QUEUE_URL, OFFSETS_TABLE_NAME, PROJECTIONS_TABLE_NAME, SOURCE_LAMBDA_FUNCTION_NAME, AWS_ENDPOINT; PG_CONNECTION_STRING, GITHUB_PROJECTIONS_TABLE, GITHUB_EVENT_QUEUE_URL; PG_MAX_RETRIES(3), PG_RETRY_DELAY_MS(1000), DEAD_LETTER_QUEUE_URL. Implements exponential backoff retry, Zod-based schema validation, in-memory metrics (totalEvents, successfulEvents, skippedEvents, dbFailures, dbRetryCount, deadLetterEvents), Express endpoints (/metrics, /status) on METRICS_PORT(3000), STATUS_PORT(3000). CLI via npm scripts: start, healthcheck, replay, test and flags --source-projection, --replay-projection, --replay, --healthcheck, --metrics, --status-endpoint.
 
 ## Normalised Extract
 Table of Contents:
-1. Configuration
-2. PostgreSQL Connection & Retry
-3. Dead-Letter Queue
-4. Metrics Collection
-5. HTTP Health & Metrics API
-6. CLI Commands
-7. Local Development Scripts
-8. Testing
+1 Lambda Handler Interface
+2 Environment Variables and Defaults
+3 PostgreSQL Retry Configuration
+4 In-Memory Metrics
+5 CLI Operations
 
-1. Configuration
-Environment variables control behavior. Set BUCKET_NAME, OBJECT_PREFIX, REPLAY_QUEUE_URL, DIGEST_QUEUE_URL, OFFSETS_TABLE_NAME, PROJECTIONS_TABLE_NAME, SOURCE_LAMBDA_FUNCTION_NAME, AWS_ENDPOINT. Defaults apply when unset.
+1 Lambda Handler Interface
+  Signature
+    exports.handler(event:SQSEvent,context:Context):Promise<{statusCode:200}>
+  Event Record Structure
+    event.Records is array of { messageId:string, receiptHandle:string, body:string, messageAttributes:Record<string,any> }
+  Returns
+    { statusCode:200 } on success
 
-2. PostgreSQL Connection & Retry
-PG_CONNECTION_STRING: default postgres://user:pass@localhost:5432/db
-PG_MAX_RETRIES: default 3
-PG_RETRY_DELAY_MS: default 1000ms
-3 retry attempts with exponential backoff: delay=PG_RETRY_DELAY_MS*(2**attempt).
+2 Environment Variables and Defaults
+  BUCKET_NAME           required            S3 bucket
+  OBJECT_PREFIX         default ''         key prefix filter
+  REPLAY_QUEUE_URL      required           SQS URL for replay
+  DIGEST_QUEUE_URL      required           SQS URL for digest
+  OFFSETS_TABLE_NAME    default 'offsets'   table for offsets
+  PROJECTIONS_TABLE_NAME default 'projections' table for projections
+  SOURCE_LAMBDA_FUNCTION_NAME required       Lambda function name
+  AWS_ENDPOINT          optional           override AWS endpoint
+  PG_CONNECTION_STRING  default 'postgres://user:pass@localhost:5432/db'
+  GITHUB_PROJECTIONS_TABLE default 'github_event_projections'
+  GITHUB_EVENT_QUEUE_URL default 'https://test/000000000000/github-event-queue-test'
+  PG_MAX_RETRIES        default 3         max DB retries
+  PG_RETRY_DELAY_MS     default 1000      ms between retries
+  DEAD_LETTER_QUEUE_URL optional           SQS URL for DLQ
+  METRICS_PORT          default 3000      HTTP metrics port
+  STATUS_PORT           default 3000      HTTP status port
 
-3. Dead-Letter Queue
-Set DEAD_LETTER_QUEUE_URL to route failed records after retries. Handler calls sqs.sendMessage for each dead-letter event.
+3 PostgreSQL Retry Configuration
+  On connect/query failures do up to PG_MAX_RETRIES
+  Delay between attempts = PG_RETRY_DELAY_MS ms (exponential backoff)
 
-4. Metrics Collection
-In-memory counters: totalEvents, successfulEvents, skippedEvents, dbFailures, dbRetryCount, deadLetterEvents. Expose via getMetrics(): { totalEvents, ... }.
+4 In-Memory Metrics
+  Counters:
+    totalEvents, successfulEvents, skippedEvents, dbFailures, dbRetryCount, deadLetterEvents
+  Access
+    getMetrics(): { totalEvents:number, successfulEvents:number, skippedEvents:number, dbFailures:number, dbRetryCount:number, deadLetterEvents:number }
 
-5. HTTP Health & Metrics API
-Express setup:
- app.get('/status', (_, res) => res.sendStatus(200));
- app.get('/metrics', (_, res) => res.json(getMetrics()));
-Ports: STATUS_PORT default 3000, METRICS_PORT default 3000.
-
-6. CLI Commands
-Supported flags:
- --source-projection: invoke handler on S3 events
- --replay-projection: invoke handler on replayed events
- --replay: iterate S3 versions in order
- --healthcheck: start express /status on port 8080
- --metrics: start express /metrics on METRICS_PORT
- --status-endpoint: alias for --healthcheck with custom port
-
-7. Local Development Scripts
- npm start (runs handler)
- npm run healthcheck (starts /status server)
- npm run replay (invokes replay logic)
-
-8. Testing
- Vitest configuration in vitest.config.js
- Unit tests in tests/unit using `npm test`
+5 CLI Operations
+  npm start             runs src/lib/main.js
+  npm run healthcheck   starts HTTP /status on STATUS_PORT
+  npm run replay        replays S3 versions
+  npm test              runs unit tests
+  Flags:
+    --help
+    --source-projection
+    --replay-projection
+    --replay
+    --healthcheck
+    --metrics
+    --status-endpoint
 
 ## Supplementary Details
-Zod Schema:
-zod.object({
-  id: z.string(),
-  type: z.string(),
-  payload: z.record(z.any())
-}).strict()
+Deployment Steps:
+1 Configure AWS credentials via AWS CLI: aws configure
+2 Deploy CDK stack:
+   cd aws/cdk
+   npm install
+   npx cdk deploy --profile your-profile
+3 Grant Lambda IAM permissions: SQS ReceiveMessage, SQS DeleteMessage, S3 GetObject, S3 ListBucket, RDS/PostgreSQL connect
+4 Set environment variables in Lambda console or via CDK context
+5 Ensure network access: Lambda VPC with subnet and SG allowing egress to RDS
+6 Verify PostgreSQL schema:
+   CREATE TABLE github_event_projections ( id SERIAL PRIMARY KEY, event_id TEXT UNIQUE, payload JSONB, created_at TIMESTAMPTZ DEFAULT now() );
+7 For local run, use LocalStack endpoint: AWS_ENDPOINT=http://localhost:4566
 
-AWS SQS Client:
- const sqs = new SQSClient({ endpoint: AWS_ENDPOINT });
-
-Postgres Client Retry Pattern:
- async function connectWithRetry() {
-  for (let i = 0; i < PG_MAX_RETRIES; i++) {
-    try {
-      await client.connect();
-      return;
-    } catch (e) {
-      await new Promise(r => setTimeout(r, PG_RETRY_DELAY_MS * 2 ** i));
-    }
-  }
-  throw new Error('Failed to connect after retries');
- }
-
-Dead-Letter send:
- await sqs.send(new SendMessageCommand({ QueueUrl: DEAD_LETTER_QUEUE_URL, MessageBody: JSON.stringify(record) }));
+Logging and Masking:
+Use built-in logger:
+logger.info({ eventId, repository }, 'Processing event')
+Mask sensitive fields:
+logger.mask('requestMetadata.password')
 
 ## Reference Details
-AWS SDK SQSClient:
- constructor(config: { region?: string; endpoint?: string; credentials?: AWSCredentials });
- send(command: SendMessageCommand): Promise<SendMessageCommandOutput>;
+AWS.SQS.sendMessage
+Signature:
+  sendMessage(params: {
+    QueueUrl: string;
+    MessageBody: string;
+    MessageAttributes?: Record<string,{ DataType:string; StringValue:string }>;
+    DelaySeconds?: number;
+  }): Promise<{ MessageId: string; MD5OfMessageBody: string }>
+Example:
+  await sqs.sendMessage({ QueueUrl: process.env.REPLAY_QUEUE_URL, MessageBody: JSON.stringify(payload) })
 
-SendMessageCommandInput:
- interface SendMessageCommandInput { QueueUrl: string; MessageBody: string; DelaySeconds?: number; }
-SendMessageCommandOutput: { MD5OfMessageBody: string; MessageId: string; }
+PostgreSQL Connection with retry:
+```js
+import { Client } from 'pg';
+async function connectWithRetry() {
+  let attempts = 0;
+  while (attempts < Number(process.env.PG_MAX_RETRIES)) {
+    try {
+      const client = new Client({ connectionString: process.env.PG_CONNECTION_STRING });
+      await client.connect();
+      return client;
+    } catch (err) {
+      attempts++;
+      await new Promise(r => setTimeout(r, Number(process.env.PG_RETRY_DELAY_MS) * Math.pow(2, attempts -1)));
+    }
+  }
+  throw new Error('PostgreSQL connection failed after retries');
+}
+```
 
-PostgreSQL pg.Client:
- constructor(config: { connectionString: string });
- connect(): Promise<void>;
- query(query: string, values?: any[]): Promise<{ rows: any[]; rowCount: number; };
- end(): Promise<void>;
+Zod Validation:
+```js
+import { z } from 'zod';
+const EventSchema = z.object({
+  action: z.string(),
+  repository: z.object({ id: z.number(), full_name: z.string() }),
+  sender: z.object({ id: z.number(), login: z.string() }),
+});
+const event = EventSchema.parse(JSON.parse(record.body));
+```
 
-Express API:
- app.get(path: string, handler: (req: Request, res: Response) => void): Express;
- listen(port: number, callback?: () => void): Server;
+Express Endpoints:
+```js
+import express from 'express';
+const app = express();
+app.get('/metrics', (req,res) => res.json(getMetrics()));
+app.get('/status', (req,res) => res.sendStatus(200));
+app.listen(process.env.STATUS_PORT);
+```
 
-Commander.js CLI:
- program.command(name: string)
-   .description(text: string)
-   .action(fn: () => Promise<void>)
-
-Example best practice:
- program
-   .command('replay')
-   .description('Replay all S3 versions')
-   .action(async () => { await replayAll(); });
+Best Practices:
+- Validate input with Zod before DB operations
+- Mask sensitive fields in logs
+- Use exponential backoff for DB retries
+- Route failed records to DLQ after retries
 
 Troubleshooting:
- aws sqs send-message --queue-url $REPLAY_QUEUE_URL --message-body '{}' --profile default
- Expected: { MD5OfMessageBody: "..", MessageId: "..." }
+1 View Lambda logs:
+   aws logs tail /aws/lambda/SOURCE_LAMBDA_FUNCTION_NAME --follow
+2 Test local handler:
+   node -e "require('./src/lib/main').handler({ Records: [] }, {})"
+   Expect { statusCode:200 }
+3 Check SQS queue:
+   aws sqs get-queue-attributes --queue-url REPLAY_QUEUE_URL --attribute-names ApproximateNumberOfMessages
+4 Validate PostgreSQL connectivity:
+   psql process.env.PG_CONNECTION_STRING -c '\dt'
 
-Local health check:
- curl http://localhost:8080/status
- Expected: HTTP/1.1 200 OK
 
 ## Information Dense Extract
-BUCKET_NAME,OBJECT_PREFIX,REPLAY_QUEUE_URL,DIGEST_QUEUE_URL,OFFSETS_TABLE_NAME,PROJECTIONS_TABLE_NAME,SOURCE_LAMBDA_FUNCTION_NAME,AWS_ENDPOINT;PG_CONNECTION_STRING(default postgres://user:pass@localhost:5432/db),GITHUB_PROJECTIONS_TABLE, GITHUB_EVENT_QUEUE_URL;PG_MAX_RETRIES=3,PG_RETRY_DELAY_MS=1000;DEAD_LETTER_QUEUE_URL optional;Metrics: totalEvents,successfulEvents,skippedEvents,dbFailures,dbRetryCount,deadLetterEvents;Express /status (port STATUS_PORT=3000)/metrics (port METRICS_PORT=3000);CLI flags: --source-projection,--replay-projection,--replay,--healthcheck,--metrics,--status-endpoint;npm start,npm run healthcheck,npm run replay;npm test (Vitest).
+handler(event:SQSEvent,context:Context):Promise<{statusCode:200}>
+Env vars:BUCKET_NAME(required),OBJECT_PREFIX(default ''),REPLAY_QUEUE_URL, DIGEST_QUEUE_URL, OFFSETS_TABLE_NAME(default 'offsets'), PROJECTIONS_TABLE_NAME(default 'projections'), SOURCE_LAMBDA_FUNCTION_NAME, AWS_ENDPOINT, PG_CONNECTION_STRING(default 'postgres://user:pass@localhost:5432/db'), GITHUB_PROJECTIONS_TABLE(default 'github_event_projections'), GITHUB_EVENT_QUEUE_URL(default 'https://test/000000000000/github-event-queue-test'), PG_MAX_RETRIES(default 3), PG_RETRY_DELAY_MS(default 1000), DEAD_LETTER_QUEUE_URL, METRICS_PORT(default 3000), STATUS_PORT(default 3000)
+Retry: exponential backoff, max attempts PG_MAX_RETRIES, base delay PG_RETRY_DELAY_MS
+Metrics:getMetrics():{ totalEvents,successfulEvents,skippedEvents,dbFailures,dbRetryCount,deadLetterEvents }
+AWS.SQS.sendMessage({QueueUrl,MessageBody,MessageAttributes?,DelaySeconds?}):Promise<{MessageId,MD5OfMessageBody}>
+connectWithRetry():Client or throw
+Zod schema: EventSchema.parse(JSON.parse(body))
+CLI:npm start, npm run healthcheck, npm run replay, npm test; flags --source-projection,--replay-projection,--replay,--healthcheck,--metrics,--status-endpoint
+Express endpoints: /metrics and /status on ports METRICS_PORT and STATUS_PORT
+Troubleshoot: aws logs tail, psql -c '\dt', aws sqs get-queue-attributes
 
 ## Sanitised Extract
 Table of Contents:
-1. Configuration
-2. PostgreSQL Connection & Retry
-3. Dead-Letter Queue
-4. Metrics Collection
-5. HTTP Health & Metrics API
-6. CLI Commands
-7. Local Development Scripts
-8. Testing
+1 Lambda Handler Interface
+2 Environment Variables and Defaults
+3 PostgreSQL Retry Configuration
+4 In-Memory Metrics
+5 CLI Operations
 
-1. Configuration
-Environment variables control behavior. Set BUCKET_NAME, OBJECT_PREFIX, REPLAY_QUEUE_URL, DIGEST_QUEUE_URL, OFFSETS_TABLE_NAME, PROJECTIONS_TABLE_NAME, SOURCE_LAMBDA_FUNCTION_NAME, AWS_ENDPOINT. Defaults apply when unset.
+1 Lambda Handler Interface
+  Signature
+    exports.handler(event:SQSEvent,context:Context):Promise<{statusCode:200}>
+  Event Record Structure
+    event.Records is array of { messageId:string, receiptHandle:string, body:string, messageAttributes:Record<string,any> }
+  Returns
+    { statusCode:200 } on success
 
-2. PostgreSQL Connection & Retry
-PG_CONNECTION_STRING: default postgres://user:pass@localhost:5432/db
-PG_MAX_RETRIES: default 3
-PG_RETRY_DELAY_MS: default 1000ms
-3 retry attempts with exponential backoff: delay=PG_RETRY_DELAY_MS*(2**attempt).
+2 Environment Variables and Defaults
+  BUCKET_NAME           required            S3 bucket
+  OBJECT_PREFIX         default ''         key prefix filter
+  REPLAY_QUEUE_URL      required           SQS URL for replay
+  DIGEST_QUEUE_URL      required           SQS URL for digest
+  OFFSETS_TABLE_NAME    default 'offsets'   table for offsets
+  PROJECTIONS_TABLE_NAME default 'projections' table for projections
+  SOURCE_LAMBDA_FUNCTION_NAME required       Lambda function name
+  AWS_ENDPOINT          optional           override AWS endpoint
+  PG_CONNECTION_STRING  default 'postgres://user:pass@localhost:5432/db'
+  GITHUB_PROJECTIONS_TABLE default 'github_event_projections'
+  GITHUB_EVENT_QUEUE_URL default 'https://test/000000000000/github-event-queue-test'
+  PG_MAX_RETRIES        default 3         max DB retries
+  PG_RETRY_DELAY_MS     default 1000      ms between retries
+  DEAD_LETTER_QUEUE_URL optional           SQS URL for DLQ
+  METRICS_PORT          default 3000      HTTP metrics port
+  STATUS_PORT           default 3000      HTTP status port
 
-3. Dead-Letter Queue
-Set DEAD_LETTER_QUEUE_URL to route failed records after retries. Handler calls sqs.sendMessage for each dead-letter event.
+3 PostgreSQL Retry Configuration
+  On connect/query failures do up to PG_MAX_RETRIES
+  Delay between attempts = PG_RETRY_DELAY_MS ms (exponential backoff)
 
-4. Metrics Collection
-In-memory counters: totalEvents, successfulEvents, skippedEvents, dbFailures, dbRetryCount, deadLetterEvents. Expose via getMetrics(): { totalEvents, ... }.
+4 In-Memory Metrics
+  Counters:
+    totalEvents, successfulEvents, skippedEvents, dbFailures, dbRetryCount, deadLetterEvents
+  Access
+    getMetrics(): { totalEvents:number, successfulEvents:number, skippedEvents:number, dbFailures:number, dbRetryCount:number, deadLetterEvents:number }
 
-5. HTTP Health & Metrics API
-Express setup:
- app.get('/status', (_, res) => res.sendStatus(200));
- app.get('/metrics', (_, res) => res.json(getMetrics()));
-Ports: STATUS_PORT default 3000, METRICS_PORT default 3000.
-
-6. CLI Commands
-Supported flags:
- --source-projection: invoke handler on S3 events
- --replay-projection: invoke handler on replayed events
- --replay: iterate S3 versions in order
- --healthcheck: start express /status on port 8080
- --metrics: start express /metrics on METRICS_PORT
- --status-endpoint: alias for --healthcheck with custom port
-
-7. Local Development Scripts
- npm start (runs handler)
- npm run healthcheck (starts /status server)
- npm run replay (invokes replay logic)
-
-8. Testing
- Vitest configuration in vitest.config.js
- Unit tests in tests/unit using 'npm test'
+5 CLI Operations
+  npm start             runs src/lib/main.js
+  npm run healthcheck   starts HTTP /status on STATUS_PORT
+  npm run replay        replays S3 versions
+  npm test              runs unit tests
+  Flags:
+    --help
+    --source-projection
+    --replay-projection
+    --replay
+    --healthcheck
+    --metrics
+    --status-endpoint
 
 ## Original Source
-S3 Payload Handling & Library
-https://github.com/xn-intenton-z2a/s3-sqs-bridge
+S3-SQS Bridge Middleware
+https://github.com/xn-intenton-z2a/s3-sqs-bridge#readme
 
 ## Digest of S3_SQS_BRIDGE
 
-# S3-SQS Bridge Configuration
-Date Retrieved: 2024-06-18
-Data Size: 563229 bytes
+# S3-SQS Bridge Middleware Detailed Digest
+Retrieved on 2024-06-03
+Data Size: 565681 bytes
 
-# Environment Variables
-BUCKET_NAME: name of S3 bucket to watch
-OBJECT_PREFIX: prefix filter for S3 keys
-REPLAY_QUEUE_URL: SQS URL for object replay queue
-DIGEST_QUEUE_URL: SQS URL for digest queue
-OFFSETS_TABLE_NAME: DynamoDB/Postgres table for offsets
-PROJECTIONS_TABLE_NAME: Postgres table for projections
-SOURCE_LAMBDA_FUNCTION_NAME: Lambda logical name in CDK
-AWS_ENDPOINT: Custom AWS endpoint (for LocalStack)
+## Architecture Overview
 
-# PostgreSQL Connection
-PG_CONNECTION_STRING: postgres://user:pass@localhost:5432/db (default)
-GITHUB_PROJECTIONS_TABLE: github_event_projections (default)
-GITHUB_EVENT_QUEUE_URL: https://test/000000000000/github-event-queue-test
+s3-sqs-bridge connects Amazon S3 PUT events to AWS SQS with versioned replay support and real-time processing via AWS Lambda and PostgreSQL:
 
-# Retry Configuration
-PG_MAX_RETRIES: 3
-PG_RETRY_DELAY_MS: 1000
+- AWS S3 bucket with event notification to SQS (standard queue or FIFO).
+- AWS SQS queue forwarding to Lambda handler.
+- Lambda (Node.js) processes SQSEvent (github event payloads).
+- PostgreSQL projection table for upserts with retry and exponential backoff.
+- In-memory metrics and Express HTTP endpoints for /metrics and /status.
+- Optional Dead-Letter Queue routing on failure.
 
-# Dead-Letter Queue
-DEAD_LETTER_QUEUE_URL: optional SQS queue URL for failed records
+## Lambda Handler Signature
 
-# Metrics Collected
-totalEvents, successfulEvents, skippedEvents, dbFailures, dbRetryCount, deadLetterEvents
+```js
+// src/lib/main.js
+exports.handler = async function(event, context) {
+  // event: { Records: Array<{ body: string; messageAttributes: Record<string, any>; }> }
+  // context: AWS Lambda Context object
+  // returns: Promise<{ statusCode: 200 }>
+}
+```
 
-# HTTP Endpoints
-/metrics (port METRICS_PORT default 3000)
-/status (port STATUS_PORT default 3000)
+## Configuration Variables
 
-# CLI Commands
---help, --source-projection, --replay-projection, --replay, --healthcheck, --metrics, --status-endpoint
+Environment variables and defaults:
 
-# Local Scripts
-npm start, npm run healthcheck, npm run replay
+BUCKET_NAME               (required)          S3 bucket name
+OBJECT_PREFIX             (default empty)     S3 key prefix filter
+REPLAY_QUEUE_URL          (required)          SQS URL for replay operations
+DIGEST_QUEUE_URL          (required)          SQS URL for digest operations
+OFFSETS_TABLE_NAME        (default: offsets)  DynamoDB/PostgreSQL offsets table
+PROJECTIONS_TABLE_NAME    (default: projections) PostgreSQL projections table
+SOURCE_LAMBDA_FUNCTION_NAME (required)        Name of source Lambda
+AWS_ENDPOINT              (optional)          Custom AWS endpoint
 
-# Testing
-Vitest: npm test
+PostgreSQL:
+PG_CONNECTION_STRING      (default: postgres://user:pass@localhost:5432/db)
+GITHUB_PROJECTIONS_TABLE  (default: github_event_projections)
+GITHUB_EVENT_QUEUE_URL    (default: https://test/000000000000/github-event-queue-test)
+
+Retry:
+PG_MAX_RETRIES            (default: 3)
+PG_RETRY_DELAY_MS         (default: 1000)
+
+Dead-Letter:
+DEAD_LETTER_QUEUE_URL     (optional)
+
+Metrics HTTP ports:
+METRICS_PORT              (default: 3000)
+STATUS_PORT               (default: 3000)
+
+## Retry Logic
+
+- Exponential backoff on PostgreSQL connect/query:
+  - Retries: PG_MAX_RETRIES
+  - Delay: PG_RETRY_DELAY_MS ms
+
+## Metrics Collection
+
+In-memory counters:
+- totalEvents
+- successfulEvents
+- skippedEvents
+- dbFailures
+- dbRetryCount
+- deadLetterEvents
+
+Interface:
+```js
+const metrics = getMetrics()
+// returns { totalEvents: number, successfulEvents: number, skippedEvents: number, dbFailures: number, dbRetryCount: number, deadLetterEvents: number }
+```
+
+## CLI Commands
+
+npm scripts and CLI flags:
+
+- npm start                  Run Lambda handler (src/lib/main.js)
+- npm run healthcheck         Start /status server on STATUS_PORT
+- npm run replay              Replay S3 versions
+- npm test                    Run Vitest tests
+
+Flags:
+--help
+--source-projection
+--replay-projection
+--replay
+--healthcheck
+--metrics
+--status-endpoint
 
 ## Attribution
-- Source: S3 Payload Handling & Library
-- URL: https://github.com/xn-intenton-z2a/s3-sqs-bridge
-- License: License: MIT (library), Public Domain (AWS documentation)
-- Crawl Date: 2025-05-06T09:29:23.712Z
-- Data Size: 563229 bytes
-- Links Found: 4638
+- Source: S3-SQS Bridge Middleware
+- URL: https://github.com/xn-intenton-z2a/s3-sqs-bridge#readme
+- License: License: MIT
+- Crawl Date: 2025-05-06T22:27:59.380Z
+- Data Size: 565681 bytes
+- Links Found: 4731
 
 ## Retrieved
 2025-05-06

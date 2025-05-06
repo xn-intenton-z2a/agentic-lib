@@ -408,9 +408,10 @@ Additional navigation options
 
 
 
+
   
   
-      mainBranchesTagsGo to fileCodeFolders and filesNameNameLast commit messageLast commit dateLatest commit History505 Commits.github.github  .mvn/wrapper.mvn/wrapper  archivearchive  awsaws  docsdocs  exportsexports  featuresfeatures  librarylibrary  publicpublic  scriptsscripts  srcsrc  tests/unittests/unit  .dockerignore.dockerignore  .gitignore.gitignore  .prettierignore.prettierignore  .prettierrc.prettierrc  CONTRIBUTING.mdCONTRIBUTING.md  DEBUGGING.mdDEBUGGING.md  DockerfileDockerfile  LICENSELICENSE  LOCALSTACK.mdLOCALSTACK.md  MISSION.mdMISSION.md  README.mdREADME.md  S3_OOTB_BROKER.mdS3_OOTB_BROKER.md  SETUP.mdSETUP.md  SOURCES.mdSOURCES.md  cdk.context.jsoncdk.context.json  cdk.jsoncdk.json  compose.ymlcompose.yml  eslint.config.jseslint.config.js  jsconfig.jsonjsconfig.json  mvnwmvnw  mvnw.cmdmvnw.cmd  package-lock.jsonpackage-lock.json  package.jsonpackage.json  pom.xmlpom.xml  s3-sqs-bridge.imls3-sqs-bridge.iml  vitest.config.jsvitest.config.js  View all filesRepository files navigationREADMEMIT licenses3-sqs-bridge (Versioned Amazon S3 Object Put Event replay capable queuing to SQS)
+      mainBranchesTagsGo to fileCodeFolders and filesNameNameLast commit messageLast commit dateLatest commit History506 Commits.github.github  .mvn/wrapper.mvn/wrapper  archivearchive  awsaws  docsdocs  exportsexports  featuresfeatures  librarylibrary  publicpublic  scriptsscripts  srcsrc  tests/unittests/unit  .dockerignore.dockerignore  .gitignore.gitignore  .prettierignore.prettierignore  .prettierrc.prettierrc  CONTRIBUTING.mdCONTRIBUTING.md  DEBUGGING.mdDEBUGGING.md  DockerfileDockerfile  LICENSELICENSE  LOCALSTACK.mdLOCALSTACK.md  MISSION.mdMISSION.md  README.mdREADME.md  S3_OOTB_BROKER.mdS3_OOTB_BROKER.md  SETUP.mdSETUP.md  SOURCES.mdSOURCES.md  cdk.context.jsoncdk.context.json  cdk.jsoncdk.json  compose.ymlcompose.yml  eslint.config.jseslint.config.js  jsconfig.jsonjsconfig.json  mvnwmvnw  mvnw.cmdmvnw.cmd  package-lock.jsonpackage-lock.json  package.jsonpackage.json  pom.xmlpom.xml  s3-sqs-bridge.imls3-sqs-bridge.iml  vitest.config.jsvitest.config.js  View all filesRepository files navigationREADMEMIT licenses3-sqs-bridge (Versioned Amazon S3 Object Put Event replay capable queuing to SQS)
 s3-sqs-bridge integrates Amazon S3 with AWS SQS to enable versioned event replay and real-time processing using Lambda backed by a resilient PostgreSQL projection system. The GitHub Event Projections Lambda handler now features robust connection retries, enhanced logging with sensitive data masking, strict schema validation using Zod, basic in-memory metrics collection to track event processing performance, and optional dead-letter queue support for failed records.
 This repository includes:
 
@@ -1126,9 +1127,10 @@ Additional navigation options
 
 
 
+
   
   
-      mainBranchesTagsGo to fileCodeFolders and filesNameNameLast commit messageLast commit dateLatest commit History505 Commits.github.github  .mvn/wrapper.mvn/wrapper  archivearchive  awsaws  docsdocs  exportsexports  featuresfeatures  librarylibrary  publicpublic  scriptsscripts  srcsrc  tests/unittests/unit  .dockerignore.dockerignore  .gitignore.gitignore  .prettierignore.prettierignore  .prettierrc.prettierrc  CONTRIBUTING.mdCONTRIBUTING.md  DEBUGGING.mdDEBUGGING.md  DockerfileDockerfile  LICENSELICENSE  LOCALSTACK.mdLOCALSTACK.md  MISSION.mdMISSION.md  README.mdREADME.md  S3_OOTB_BROKER.mdS3_OOTB_BROKER.md  SETUP.mdSETUP.md  SOURCES.mdSOURCES.md  cdk.context.jsoncdk.context.json  cdk.jsoncdk.json  compose.ymlcompose.yml  eslint.config.jseslint.config.js  jsconfig.jsonjsconfig.json  mvnwmvnw  mvnw.cmdmvnw.cmd  package-lock.jsonpackage-lock.json  package.jsonpackage.json  pom.xmlpom.xml  s3-sqs-bridge.imls3-sqs-bridge.iml  vitest.config.jsvitest.config.js  View all filesRepository files navigationREADMEMIT licenses3-sqs-bridge (Versioned Amazon S3 Object Put Event replay capable queuing to SQS)
+      mainBranchesTagsGo to fileCodeFolders and filesNameNameLast commit messageLast commit dateLatest commit History506 Commits.github.github  .mvn/wrapper.mvn/wrapper  archivearchive  awsaws  docsdocs  exportsexports  featuresfeatures  librarylibrary  publicpublic  scriptsscripts  srcsrc  tests/unittests/unit  .dockerignore.dockerignore  .gitignore.gitignore  .prettierignore.prettierignore  .prettierrc.prettierrc  CONTRIBUTING.mdCONTRIBUTING.md  DEBUGGING.mdDEBUGGING.md  DockerfileDockerfile  LICENSELICENSE  LOCALSTACK.mdLOCALSTACK.md  MISSION.mdMISSION.md  README.mdREADME.md  S3_OOTB_BROKER.mdS3_OOTB_BROKER.md  SETUP.mdSETUP.md  SOURCES.mdSOURCES.md  cdk.context.jsoncdk.context.json  cdk.jsoncdk.json  compose.ymlcompose.yml  eslint.config.jseslint.config.js  jsconfig.jsonjsconfig.json  mvnwmvnw  mvnw.cmdmvnw.cmd  package-lock.jsonpackage-lock.json  package.jsonpackage.json  pom.xmlpom.xml  s3-sqs-bridge.imls3-sqs-bridge.iml  vitest.config.jsvitest.config.js  View all filesRepository files navigationREADMEMIT licenses3-sqs-bridge (Versioned Amazon S3 Object Put Event replay capable queuing to SQS)
 s3-sqs-bridge integrates Amazon S3 with AWS SQS to enable versioned event replay and real-time processing using Lambda backed by a resilient PostgreSQL projection system. The GitHub Event Projections Lambda handler now features robust connection retries, enhanced logging with sensitive data masking, strict schema validation using Zod, basic in-memory metrics collection to track event processing performance, and optional dead-letter queue support for failed records.
 This repository includes:
 
@@ -4747,7 +4749,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
   
     
   
-    Read more about 3M's customer story
+    Read more about Pinterest's customer story
     
       
         
@@ -4758,8 +4760,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     3M
-    3M transforms its software toolchain to bring cutting-edge science to customers, faster.
+     Pinterest
+    A fixture in the open source community, Pinterest has relied on GitHub from the start.
     
       Read story 
 
@@ -4769,7 +4771,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Adobe's customer story
+    Read more about SPH Media's customer story
     
       
         
@@ -4780,8 +4782,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Adobe
-    Adobe’s family of technology services finds common ground in GitHub.
+     SPH Media
+    SPH Media tames tool sprawl and secures code with GitHub.
     
       Read story 
 
@@ -4791,7 +4793,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Ahold Delhaize's customer story
+    Read more about DAZN's customer story
     
       
         
@@ -4801,14 +4803,9 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
   
 
       
-        
-          
-            
-          
-        
     
-     Ahold Delhaize
-    Ahold Delhaize keeps engineers focused on code through automation with GitHub Enterprise and Actions.
+     DAZN
+    From DevOps to recruitment, GitHub supports DAZN’s fast-growing enterprise.
     
       Read story 
 
@@ -4818,7 +4815,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Anaplan's customer story
+    Read more about Media Assembly's customer story
     
       
         
@@ -4829,8 +4826,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Anaplan
-    Big data can lead to compliance headaches for regulated industries. Discover how Anaplan is growing their team while staying secure with GitHub Enterprise.
+     Media Assembly
+    Discover how every team at Media Assembly is adopting open source ideology and social sharing with GitHub.
     
       Read story 
 
@@ -4840,7 +4837,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Arduino's customer story
+    Read more about Meta's customer story
     
       
         
@@ -4851,8 +4848,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Arduino
-    Millions of makers leverage Arduino and GitHub’s open source community to create interactive, innovative projects.
+     Meta
+    Meta finds its community in GitHub and open source.
     
       Read story 
 
@@ -4862,7 +4859,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Autodesk's customer story
+    Read more about The New York Times's customer story
     
       
         
@@ -4873,8 +4870,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Autodesk
-    Autodesk leverages GitHub to drive a culture of collaboration.
+     The New York Times
+    The New York Times uses GitHub to keep developers focused on code, not checklists.
     
       Read story 
 
@@ -5551,7 +5548,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
   
     
   
-    Read more about Netdata's customer story
+    Read more about Buffer's customer story
     
       
         
@@ -5562,8 +5559,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Netdata
-    Netdata accelerates their developer workflow with built-in security and open source.
+     Buffer
+    Buffer goes from siloed to synced for better production releases.
     
       Read story 
 
@@ -5573,7 +5570,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Peak Money's customer story
+    Read more about Cesium's customer story
     
       
         
@@ -5584,8 +5581,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Peak Money
-    Peak Money collaborates across tools, teams, and time zones with GitHub Team.
+     Cesium
+    Cesium leverages an open source community to support the development of 3D geospatial applications.
     
       Read story 
 
@@ -5617,6 +5614,28 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
+    Read more about Knock's customer story
+    
+      
+        
+  
+  
+  
+  
+
+      
+    
+     Knock
+    Knock pivots to new products, with the help of GitHub’s fast, flexible developer workflows.
+    
+      Read story 
+
+    
+  
+
+
+    
+  
     Read more about Modsy's customer story
     
       
@@ -5639,7 +5658,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Sketch's customer story
+    Read more about Netdata's customer story
     
       
         
@@ -5650,30 +5669,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Sketch
-    Sketch streamlines their workflows to provide teams with a comprehensive digital design editor.
-    
-      Read story 
-
-    
-  
-
-
-    
-  
-    Read more about Tray.io's customer story
-    
-      
-        
-  
-  
-  
-  
-
-      
-    
-     Tray.io
-    GitHub Team helps the general automation platform build, package, and deploy code faster than ever.
+     Netdata
+    Netdata accelerates their developer workflow with built-in security and open source.
     
       Read story 
 
@@ -7121,9 +7118,9 @@ The ReadME Project
     
         
       
-        HTML
+        Jekyll
       
-      HTML is the fundamental markup language for webpages.
+      Jekyll is a simple, blog-aware static site generator.
     
   
 
@@ -7137,9 +7134,9 @@ The ReadME Project
     
         
       
-        The Julia Language
+        R
       
-      Julia is a high-level, high-performance dynamic programming language for numerical computing.
+      R is a free programming language and software environment for statistical computing and graphics.
     
   
 
@@ -7153,9 +7150,9 @@ The ReadME Project
     
         
       
-        IPFS
+        Android
       
-      IPFS is a peer-to-peer protocol for content-addressed sharing of data via a distributed file system.
+      Android is an operating system built by Google designed for mobile devices.
     
   
 
@@ -7742,12 +7739,12 @@ The ReadME Project
           
           
             
-  nodejs
+  javascript
 
           
           
             
-  javascript
+  css
 
           
           
@@ -7762,17 +7759,17 @@ The ReadME Project
           
           
             
+  machine-learning
+
+          
+          
+            
   typescript
 
           
           
             
-  ai
-
-          
-          
-            
-  reactjs
+  practice
 
           
           
@@ -7791,25 +7788,25 @@ The ReadME Project
     
 
       
-        hacksider /
+        GoogleCloudPlatform /
 
-      Deep-Live-Cam  
+      kubectl-ai  
 
     
-      real time face swap and one-click video deepfake with only a single image
+      AI powered Kubernetes Assistant
     
 
   
       
   
-  Python
+  Go
 
 
 
       
-        63,497
+        1,737
       
-        8,798
+        128
       
         Built by
 
@@ -7821,7 +7818,7 @@ The ReadME Project
 
       
         
-        1,869 stars today
+        486 stars today
   
 
   
@@ -7854,9 +7851,9 @@ The ReadME Project
 
 
       
-        38,985
+        39,598
       
-        1,629
+        1,652
       
         Built by
 
@@ -7868,7 +7865,7 @@ The ReadME Project
 
       
         
-        285 stars today
+        516 stars today
   
 
   
@@ -7893,25 +7890,25 @@ The ReadME Project
     
 
       
-        EbookFoundation /
+        521xueweihan /
 
-      free-programming-books  
+      HelloGitHub  
 
     
-      📚 Freely available programming books
+       分享 GitHub 上有趣、入门级的开源项目。Share interesting, entry-level open source projects on GitHub.
     
 
   
       
   
-  HTML
+  Python
 
 
 
       
-        356,743
+        105,127
       
-        63,311
+        9,940
       
         Built by
 
@@ -7923,7 +7920,7 @@ The ReadME Project
 
       
         
-        281 stars today
+        799 stars today
   
 
   
@@ -7940,25 +7937,25 @@ The ReadME Project
     
 
       
-        koreader /
+        awslabs /
 
-      koreader  
+      agent-squad  
 
     
-      An ebook reader application supporting PDF, DjVu, EPUB, FB2 and many more formats, running on Cervantes, Kindle, Kobo, PocketBook and Android devices
+      Flexible and powerful framework for managing multiple AI agents and handling complex conversations
     
 
   
       
   
-  Lua
+  Python
 
 
 
       
-        21,179
+        5,061
       
-        1,432
+        423
       
         Built by
 
@@ -7970,148 +7967,7 @@ The ReadME Project
 
       
         
-        39 stars today
-  
-
-  
-
-      
-            
-        
-          Star
-
-
-  
-
-  
-    
-
-      
-        microsoft /
-
-      ai-agents-for-beginners  
-
-    
-      10 Lessons to Get Started Building AI Agents
-    
-
-  
-      
-  
-  Jupyter Notebook
-
-
-
-      
-        19,064
-      
-        4,846
-      
-        Built by
-
-          
-          
-          
-          
-          
-
-      
-        
-        133 stars today
-  
-
-  
-
-      
-            
-        
-          Star
-
-
-  
-
-  
-    
-
-      
-        GoogleCloudPlatform /
-
-      kubectl-ai  
-
-    
-      AI powered Kubernetes Assistant
-    
-
-  
-      
-  
-  Go
-
-
-
-      
-        944
-      
-        81
-      
-        Built by
-
-          
-          
-          
-          
-          
-
-      
-        
-        131 stars today
-  
-
-  
-
-      
-            
-        
-          Star
-
-
-  
-
-  
-    
-
-      
-        Atmosphere-NX /
-
-      Atmosphere  
-
-    
-      Atmosphère is a work-in-progress customized firmware for the Nintendo Switch.
-    
-
-  
-      
-  
-  C++
-
-
-
-      
-        16,081
-      
-        1,282
-      
-        Built by
-
-          
-          
-          
-          
-          
-
-      
-        
-        38 stars today
+        85 stars today
   
 
   
@@ -8144,9 +8000,9 @@ The ReadME Project
 
 
       
-        58,019
+        58,371
       
-        2,902
+        2,911
       
         Built by
 
@@ -8158,7 +8014,7 @@ The ReadME Project
 
       
         
-        623 stars today
+        583 stars today
   
 
   
@@ -8175,12 +8031,12 @@ The ReadME Project
     
 
       
-        Shubhamsaboo /
+        hacksider /
 
-      awesome-llm-apps  
+      Deep-Live-Cam  
 
     
-      Collection of awesome LLM apps with AI Agents and RAG using OpenAI, Anthropic, Gemini and opensource models.
+      real time face swap and one-click video deepfake with only a single image
     
 
   
@@ -8191,9 +8047,9 @@ The ReadME Project
 
 
       
-        30,984
+        64,173
       
-        3,480
+        8,880
       
         Built by
 
@@ -8205,10 +8061,18 @@ The ReadME Project
 
       
         
-        153 stars today
+        1,960 stars today
   
 
   
+        
+    
+    
+      Sponsor
+    
+  
+
+
 
       
             
@@ -8222,12 +8086,12 @@ The ReadME Project
     
 
       
-        juanfont /
+        glanceapp /
 
-      headscale  
+      glance  
 
     
-      An open source, self-hosted implementation of the Tailscale control server
+      A self-hosted dashboard that puts all your feeds in one place
     
 
   
@@ -8238,9 +8102,9 @@ The ReadME Project
 
 
       
-        28,064
+        23,592
       
-        1,509
+        888
       
         Built by
 
@@ -8252,7 +8116,7 @@ The ReadME Project
 
       
         
-        172 stars today
+        219 stars today
   
 
   
@@ -8269,25 +8133,25 @@ The ReadME Project
     
 
       
-        aipotheosis-labs /
+        containerd /
 
-      aci  
+      containerd  
 
     
-      ACI.dev is the open source platform that connects your AI agents to 600+ tool integrations with multi-tenant auth, granular permissions, and access through direct function calling or a unified MCP server.
+      An open and reliable container runtime
     
 
   
       
   
-  Python
+  Go
 
 
 
       
-        2,724
+        18,443
       
-        188
+        3,535
       
         Built by
 
@@ -8299,7 +8163,195 @@ The ReadME Project
 
       
         
-        349 stars today
+        7 stars today
+  
+
+  
+
+      
+            
+        
+          Star
+
+
+  
+
+  
+    
+
+      
+        n8n-io /
+
+      n8n  
+
+    
+      Fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
+    
+
+  
+      
+  
+  TypeScript
+
+
+
+      
+        89,584
+      
+        24,582
+      
+        Built by
+
+          
+          
+          
+          
+          
+
+      
+        
+        521 stars today
+  
+
+  
+
+      
+            
+        
+          Star
+
+
+  
+
+  
+    
+
+      
+        koreader /
+
+      koreader  
+
+    
+      An ebook reader application supporting PDF, DjVu, EPUB, FB2 and many more formats, running on Cervantes, Kindle, Kobo, PocketBook and Android devices
+    
+
+  
+      
+  
+  Lua
+
+
+
+      
+        21,246
+      
+        1,435
+      
+        Built by
+
+          
+          
+          
+          
+          
+
+      
+        
+        192 stars today
+  
+
+  
+
+      
+            
+        
+          Star
+
+
+  
+
+  
+    
+
+      
+        huggingface /
+
+      agents-course  
+
+    
+      This repository contains the Hugging Face Agents Course. 
+    
+
+  
+      
+  
+  Jupyter Notebook
+
+
+
+      
+        17,500
+      
+        1,149
+      
+        Built by
+
+          
+          
+          
+          
+          
+
+      
+        
+        149 stars today
+  
+
+  
+
+      
+            
+        
+          Star
+
+
+  
+
+  
+    
+
+      
+        jj-vcs /
+
+      jj  
+
+    
+      A Git-compatible VCS that is both simple and powerful
+    
+
+  
+      
+  
+  Rust
+
+
+
+      
+        13,882
+      
+        494
+      
+        Built by
+
+          
+          
+          
+          
+          
+
+      
+        
+        194 stars today
   
 
   
@@ -8332,64 +8384,9 @@ The ReadME Project
 
 
       
-        8,592
+        8,803
       
-        480
-      
-        Built by
-
-          
-          
-          
-          
-          
-
-      
-        
-        145 stars today
-  
-
-  
-        
-    
-    
-      Sponsor
-    
-  
-
-
-
-      
-            
-        
-          Star
-
-
-  
-
-  
-    
-
-      
-        iluwatar /
-
-      java-design-patterns  
-
-    
-      Design patterns implemented in Java
-    
-
-  
-      
-  
-  Java
-
-
-
-      
-        91,602
-      
-        26,960
+        486
       
         Built by
 
@@ -8401,7 +8398,7 @@ The ReadME Project
 
       
         
-        32 stars today
+        500 stars today
   
 
   
@@ -8418,25 +8415,25 @@ The ReadME Project
     
 
       
-        donnemartin /
+        expo /
 
-      system-design-primer  
+      expo  
 
     
-      Learn how to design large-scale systems. Prep for the system design interview. Includes Anki flashcards.
+      An open-source framework for making universal native apps with React. Expo runs on Android, iOS, and the web.
     
 
   
       
   
-  Python
+  TypeScript
 
 
 
       
-        298,466
+        39,795
       
-        49,560
+        6,824
       
         Built by
 
@@ -8448,7 +8445,7 @@ The ReadME Project
 
       
         
-        258 stars today
+        87 stars today
   
 
   
@@ -8465,25 +8462,25 @@ The ReadME Project
     
 
       
-        commaai /
+        microsoft /
 
-      openpilot  
+      PowerToys  
 
     
-      openpilot is an operating system for robotics. Currently, it upgrades the driver assistance system on 300+ supported cars.
+      Windows system utilities to maximize productivity
     
 
   
       
   
-  Python
+  C#
 
 
 
       
-        53,533
+        118,164
       
-        9,702
+        6,980
       
         Built by
 
@@ -8495,7 +8492,7 @@ The ReadME Project
 
       
         
-        37 stars today
+        39 stars today
   
 
   
@@ -8512,25 +8509,20 @@ The ReadME Project
     
 
       
-        Stirling-Tools /
+        ruanyf /
 
-      Stirling-PDF  
+      weekly  
 
     
-      #1 Locally hosted web application that allows you to perform various operations on PDF files
+      科技爱好者周刊，每周五发布
     
 
   
-      
-  
-  Java
-
-
 
       
-        57,897
+        57,871
       
-        4,854
+        3,249
       
         Built by
 
@@ -8542,101 +8534,7 @@ The ReadME Project
 
       
         
-        112 stars today
-  
-
-  
-
-      
-            
-        
-          Star
-
-
-  
-
-  
-    
-
-      
-        sunnypilot /
-
-      sunnypilot  
-
-    
-      sunnypilot is an open source driver assistance system. sunnypilot offers the user a unique driving experience for over 300 supported car makes and models with modified behaviors of driving assist engagements. sunnypilot complies with the safety policy from comma.ai's openpilot as accurately as possible.
-    
-
-  
-      
-  
-  Python
-
-
-
-      
-        1,316
-      
-        861
-      
-        Built by
-
-          
-          
-          
-          
-          
-
-      
-        
-        17 stars today
-  
-
-  
-
-      
-            
-        
-          Star
-
-
-  
-
-  
-    
-
-      
-        home-assistant /
-
-      core  
-
-    
-      🏡 Open source home automation that puts local control and privacy first.
-    
-
-  
-      
-  
-  Python
-
-
-
-      
-        78,700
-      
-        33,546
-      
-        Built by
-
-          
-          
-          
-          
-          
-
-      
-        
-        47 stars today\n\nExplore
+        1,009 stars today\n\nExplore
 
       Topics
 
@@ -10710,25 +10608,25 @@ The ReadME Project
     
 
       
-        hacksider /
+        GoogleCloudPlatform /
 
-      Deep-Live-Cam  
+      kubectl-ai  
 
     
-      real time face swap and one-click video deepfake with only a single image
+      AI powered Kubernetes Assistant
     
 
   
       
   
-  Python
+  Go
 
 
 
       
-        63,497
+        1,737
       
-        8,798
+        128
       
         Built by
 
@@ -10740,7 +10638,7 @@ The ReadME Project
 
       
         
-        1,869 stars today
+        486 stars today
   
 
 
@@ -10775,9 +10673,9 @@ The ReadME Project
 
 
       
-        38,985
+        39,598
       
-        1,629
+        1,652
       
         Built by
 
@@ -10789,7 +10687,7 @@ The ReadME Project
 
       
         
-        285 stars today
+        516 stars today
   
 
 
@@ -10816,25 +10714,25 @@ The ReadME Project
     
 
       
-        EbookFoundation /
+        521xueweihan /
 
-      free-programming-books  
+      HelloGitHub  
 
     
-      📚 Freely available programming books
+       分享 GitHub 上有趣、入门级的开源项目。Share interesting, entry-level open source projects on GitHub.
     
 
   
       
   
-  HTML
+  Python
 
 
 
       
-        356,743
+        105,127
       
-        63,311
+        9,940
       
         Built by
 
@@ -10846,7 +10744,7 @@ The ReadME Project
 
       
         
-        281 stars today
+        799 stars today
   
 
 
@@ -10865,25 +10763,25 @@ The ReadME Project
     
 
       
-        koreader /
+        awslabs /
 
-      koreader  
+      agent-squad  
 
     
-      An ebook reader application supporting PDF, DjVu, EPUB, FB2 and many more formats, running on Cervantes, Kindle, Kobo, PocketBook and Android devices
+      Flexible and powerful framework for managing multiple AI agents and handling complex conversations
     
 
   
       
   
-  Lua
+  Python
 
 
 
       
-        21,179
+        5,061
       
-        1,432
+        423
       
         Built by
 
@@ -10895,154 +10793,7 @@ The ReadME Project
 
       
         
-        39 stars today
-  
-
-
-          
-  
-
-      
-            
-        
-          Star
-
-
-  
-
-  
-    
-
-      
-        microsoft /
-
-      ai-agents-for-beginners  
-
-    
-      10 Lessons to Get Started Building AI Agents
-    
-
-  
-      
-  
-  Jupyter Notebook
-
-
-
-      
-        19,064
-      
-        4,846
-      
-        Built by
-
-          
-          
-          
-          
-          
-
-      
-        
-        133 stars today
-  
-
-
-          
-  
-
-      
-            
-        
-          Star
-
-
-  
-
-  
-    
-
-      
-        GoogleCloudPlatform /
-
-      kubectl-ai  
-
-    
-      AI powered Kubernetes Assistant
-    
-
-  
-      
-  
-  Go
-
-
-
-      
-        944
-      
-        81
-      
-        Built by
-
-          
-          
-          
-          
-          
-
-      
-        
-        131 stars today
-  
-
-
-          
-  
-
-      
-            
-        
-          Star
-
-
-  
-
-  
-    
-
-      
-        Atmosphere-NX /
-
-      Atmosphere  
-
-    
-      Atmosphère is a work-in-progress customized firmware for the Nintendo Switch.
-    
-
-  
-      
-  
-  C++
-
-
-
-      
-        16,081
-      
-        1,282
-      
-        Built by
-
-          
-          
-          
-          
-          
-
-      
-        
-        38 stars today
+        85 stars today
   
 
 
@@ -11077,9 +10828,9 @@ The ReadME Project
 
 
       
-        58,019
+        58,371
       
-        2,902
+        2,911
       
         Built by
 
@@ -11091,7 +10842,7 @@ The ReadME Project
 
       
         
-        623 stars today
+        583 stars today
   
 
 
@@ -11110,12 +10861,12 @@ The ReadME Project
     
 
       
-        Shubhamsaboo /
+        hacksider /
 
-      awesome-llm-apps  
+      Deep-Live-Cam  
 
     
-      Collection of awesome LLM apps with AI Agents and RAG using OpenAI, Anthropic, Gemini and opensource models.
+      real time face swap and one-click video deepfake with only a single image
     
 
   
@@ -11126,9 +10877,9 @@ The ReadME Project
 
 
       
-        30,984
+        64,173
       
-        3,480
+        8,880
       
         Built by
 
@@ -11140,12 +10891,20 @@ The ReadME Project
 
       
         
-        153 stars today
+        1,960 stars today
   
 
 
           
   
+        
+    
+    
+      Sponsor
+    
+  
+
+
 
       
             
@@ -11159,12 +10918,12 @@ The ReadME Project
     
 
       
-        juanfont /
+        glanceapp /
 
-      headscale  
+      glance  
 
     
-      An open source, self-hosted implementation of the Tailscale control server
+      A self-hosted dashboard that puts all your feeds in one place
     
 
   
@@ -11175,9 +10934,9 @@ The ReadME Project
 
 
       
-        28,064
+        23,592
       
-        1,509
+        888
       
         Built by
 
@@ -11189,7 +10948,7 @@ The ReadME Project
 
       
         
-        172 stars today
+        219 stars today
   
 
 
@@ -11208,25 +10967,25 @@ The ReadME Project
     
 
       
-        aipotheosis-labs /
+        containerd /
 
-      aci  
+      containerd  
 
     
-      ACI.dev is the open source platform that connects your AI agents to 600+ tool integrations with multi-tenant auth, granular permissions, and access through direct function calling or a unified MCP server.
+      An open and reliable container runtime
     
 
   
       
   
-  Python
+  Go
 
 
 
       
-        2,724
+        18,443
       
-        188
+        3,535
       
         Built by
 
@@ -11238,7 +10997,203 @@ The ReadME Project
 
       
         
-        349 stars today
+        7 stars today
+  
+
+
+          
+  
+
+      
+            
+        
+          Star
+
+
+  
+
+  
+    
+
+      
+        n8n-io /
+
+      n8n  
+
+    
+      Fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
+    
+
+  
+      
+  
+  TypeScript
+
+
+
+      
+        89,584
+      
+        24,582
+      
+        Built by
+
+          
+          
+          
+          
+          
+
+      
+        
+        521 stars today
+  
+
+
+          
+  
+
+      
+            
+        
+          Star
+
+
+  
+
+  
+    
+
+      
+        koreader /
+
+      koreader  
+
+    
+      An ebook reader application supporting PDF, DjVu, EPUB, FB2 and many more formats, running on Cervantes, Kindle, Kobo, PocketBook and Android devices
+    
+
+  
+      
+  
+  Lua
+
+
+
+      
+        21,246
+      
+        1,435
+      
+        Built by
+
+          
+          
+          
+          
+          
+
+      
+        
+        192 stars today
+  
+
+
+          
+  
+
+      
+            
+        
+          Star
+
+
+  
+
+  
+    
+
+      
+        huggingface /
+
+      agents-course  
+
+    
+      This repository contains the Hugging Face Agents Course. 
+    
+
+  
+      
+  
+  Jupyter Notebook
+
+
+
+      
+        17,500
+      
+        1,149
+      
+        Built by
+
+          
+          
+          
+          
+          
+
+      
+        
+        149 stars today
+  
+
+
+          
+  
+
+      
+            
+        
+          Star
+
+
+  
+
+  
+    
+
+      
+        jj-vcs /
+
+      jj  
+
+    
+      A Git-compatible VCS that is both simple and powerful
+    
+
+  
+      
+  
+  Rust
+
+
+
+      
+        13,882
+      
+        494
+      
+        Built by
+
+          
+          
+          
+          
+          
+
+      
+        
+        194 stars today
   
 
 
@@ -11273,66 +11228,9 @@ The ReadME Project
 
 
       
-        8,592
+        8,803
       
-        480
-      
-        Built by
-
-          
-          
-          
-          
-          
-
-      
-        
-        145 stars today
-  
-
-
-          
-  
-        
-    
-    
-      Sponsor
-    
-  
-
-
-
-      
-            
-        
-          Star
-
-
-  
-
-  
-    
-
-      
-        iluwatar /
-
-      java-design-patterns  
-
-    
-      Design patterns implemented in Java
-    
-
-  
-      
-  
-  Java
-
-
-
-      
-        91,602
-      
-        26,960
+        486
       
         Built by
 
@@ -11344,7 +11242,7 @@ The ReadME Project
 
       
         
-        32 stars today
+        500 stars today
   
 
 
@@ -11363,25 +11261,25 @@ The ReadME Project
     
 
       
-        donnemartin /
+        expo /
 
-      system-design-primer  
+      expo  
 
     
-      Learn how to design large-scale systems. Prep for the system design interview. Includes Anki flashcards.
+      An open-source framework for making universal native apps with React. Expo runs on Android, iOS, and the web.
     
 
   
       
   
-  Python
+  TypeScript
 
 
 
       
-        298,466
+        39,795
       
-        49,560
+        6,824
       
         Built by
 
@@ -11393,7 +11291,7 @@ The ReadME Project
 
       
         
-        258 stars today
+        87 stars today
   
 
 
@@ -11412,25 +11310,25 @@ The ReadME Project
     
 
       
-        commaai /
+        microsoft /
 
-      openpilot  
+      PowerToys  
 
     
-      openpilot is an operating system for robotics. Currently, it upgrades the driver assistance system on 300+ supported cars.
+      Windows system utilities to maximize productivity
     
 
   
       
   
-  Python
+  C#
 
 
 
       
-        53,533
+        118,164
       
-        9,702
+        6,980
       
         Built by
 
@@ -11442,7 +11340,7 @@ The ReadME Project
 
       
         
-        37 stars today
+        39 stars today
   
 
 
@@ -11461,25 +11359,20 @@ The ReadME Project
     
 
       
-        Stirling-Tools /
+        ruanyf /
 
-      Stirling-PDF  
+      weekly  
 
     
-      #1 Locally hosted web application that allows you to perform various operations on PDF files
+      科技爱好者周刊，每周五发布
     
 
   
-      
-  
-  Java
-
-
 
       
-        57,897
+        57,871
       
-        4,854
+        3,249
       
         Built by
 
@@ -11491,105 +11384,7 @@ The ReadME Project
 
       
         
-        112 stars today
-  
-
-
-          
-  
-
-      
-            
-        
-          Star
-
-
-  
-
-  
-    
-
-      
-        sunnypilot /
-
-      sunnypilot  
-
-    
-      sunnypilot is an open source driver assistance system. sunnypilot offers the user a unique driving experience for over 300 supported car makes and models with modified behaviors of driving assist engagements. sunnypilot complies with the safety policy from comma.ai's openpilot as accurately as possible.
-    
-
-  
-      
-  
-  Python
-
-
-
-      
-        1,316
-      
-        861
-      
-        Built by
-
-          
-          
-          
-          
-          
-
-      
-        
-        17 stars today
-  
-
-
-          
-  
-
-      
-            
-        
-          Star
-
-
-  
-
-  
-    
-
-      
-        home-assistant /
-
-      core  
-
-    
-      🏡 Open source home automation that puts local control and privacy first.
-    
-
-  
-      
-  
-  Python
-
-
-
-      
-        78,700
-      
-        33,546
-      
-        Built by
-
-          
-          
-          
-          
-          
-
-      
-        
-        47 stars today\n\n\n\n#
+        1,009 stars today\n\n\n\n#
     
 
     
@@ -11799,9 +11594,9 @@ The ReadME Project
 
         
   
-      
-    Learn to Code
-    Resources to help people learn to code
+      #
+    Game Engines
+    Frameworks for building games across multiple platforms.
   
 
 
@@ -23634,21 +23429,23 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
   
     
       
-        agentic-lib
+        repository0-crucible
         
           Public
 
 
+          
+            A lab for seeding agentic workflows using CONTRIBUTING.md
 
       
           
-  xn-intenton-z2a/agentic-lib’s past year of commit activity
+  xn-intenton-z2a/repository0-crucible’s past year of commit activity
 
     
 
         
   
-  Java
+  JavaScript
 
 
 
@@ -23656,16 +23453,16 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
           0
 
         
-          GPL-3.0
+          MIT
 
         
           0
 
       
-        6
+        5
 
       
-        0
+        1
       
           Updated May 6, 2025
 
@@ -23716,6 +23513,46 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
   
     
       
+        agentic-lib
+        
+          Public
+
+
+
+      
+          
+  xn-intenton-z2a/agentic-lib’s past year of commit activity
+
+    
+
+        
+  
+  Java
+
+
+
+        
+          0
+
+        
+          GPL-3.0
+
+        
+          0
+
+      
+        6
+
+      
+        0
+      
+          Updated May 6, 2025
+
+
+                  
+  
+    
+      
         repository0
         
           Public template
@@ -23746,48 +23583,6 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
 
       
         6
-
-      
-        0
-      
-          Updated May 6, 2025
-
-
-                  
-  
-    
-      
-        repository0-crucible
-        
-          Public
-
-
-          
-            A lab for seeding agentic workflows using CONTRIBUTING.md
-
-      
-          
-  xn-intenton-z2a/repository0-crucible’s past year of commit activity
-
-    
-
-        
-  
-  JavaScript
-
-
-
-        
-          0
-
-        
-          MIT
-
-        
-          0
-
-      
-        5
 
       
         0
@@ -23885,7 +23680,726 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
   
     
       Most used topics
-      Loading…\n\n\n\nSign in to GitHub
+      Loading…\n\n\n\ns3-sqs-bridge (Versioned Amazon S3 Object Put Event replay capable queuing to SQS)
+s3-sqs-bridge integrates Amazon S3 with AWS SQS to enable versioned event replay and real-time processing using Lambda backed by a resilient PostgreSQL projection system. The GitHub Event Projections Lambda handler now features robust connection retries, enhanced logging with sensitive data masking, strict schema validation using Zod, basic in-memory metrics collection to track event processing performance, and optional dead-letter queue support for failed records.
+This repository includes:
+
+AWS CloudFormation/CDK stacks for setting up the necessary AWS infrastructure.
+A Node.js Lambda function for processing S3 events forwarded to SQS.
+A GitHub Event Projections Lambda handler implemented in src/lib/main.js that processes GitHub event messages from a dedicated SQS queue, validates them, and creates/upserts projections in PostgreSQL with detailed logging, retry logic, metrics collection, and dead-letter queue routing.
+A comprehensive CLI for event replay, projection processing, and health checks.
+
+For the full mission statement, see MISSION.md. For contribution guidelines, please refer to CONTRIBUTING.md. Setup instructions are provided in [SETUP.md], and licensing details in LICENSE.
+Additionally, visit the intentïon agentic-lib on GitHub: agentic-lib.
+Key Features
+
+Dead-Letter Queue Support: Failed GitHub event records after all retry attempts can be routed to an SQS dead-letter queue (when configured via DEAD_LETTER_QUEUE_URL).
+Robust Defaults: Sensible default values prevent misconfiguration.
+Enhanced Retry Logic: Exponential backoff retry strategy for PostgreSQL connections and queries.
+Strict Validation: Input validation using Zod for GitHub event payloads.
+In-Memory Metrics: Tracks total events, successes, skips, DB failures, retry attempts, and dead-lettered events.
+HTTP Endpoints: /metrics and /status endpoints for real-time metrics and health checks using Express.
+High Availability: Designed for scalable deployment on AWS Fargate Spot.
+
+Configuration
+Environment variables configure AWS services and PostgreSQL parameters. Defaults are used if variables are not set:
+
+BUCKET_NAME
+OBJECT_PREFIX
+REPLAY_QUEUE_URL
+DIGEST_QUEUE_URL
+OFFSETS_TABLE_NAME
+PROJECTIONS_TABLE_NAME
+SOURCE_LAMBDA_FUNCTION_NAME
+AWS_ENDPOINT
+
+PostgreSQL specific variables:
+
+PG_CONNECTION_STRING: PostgreSQL connection string (default: postgres://user:pass@localhost:5432/db)
+GITHUB_PROJECTIONS_TABLE: Table for GitHub event projections (default: github_event_projections)
+GITHUB_EVENT_QUEUE_URL: SQS URL for GitHub events (default: https://test/000000000000/github-event-queue-test)
+
+Retry configuration for PostgreSQL:
+
+PG_MAX_RETRIES: Maximum retry attempts (default: 3)
+PG_RETRY_DELAY_MS: Delay in milliseconds between retries (default: 1000)
+
+Dead-letter queue configuration:
+
+DEAD_LETTER_QUEUE_URL: SQS queue URL for dead-lettering failed GitHub event projections (optional)
+
+Metrics
+The GitHub Event Projection handler now collects basic in-memory metrics during event processing:
+
+totalEvents: Total number of events received.
+successfulEvents: Number of events processed successfully.
+skippedEvents: Number of events skipped due to invalid JSON or failed validation.
+dbFailures: Number of events that encountered database query failures after retry attempts.
+dbRetryCount: Total number of database retry attempts.
+deadLetterEvents: Number of events routed to the dead-letter queue after exhausting retries.
+
+Metrics are logged after processing and can be accessed programmatically via the exported getMetrics() function.
+Usage
+CLI Options
+
+--help: Show usage instructions.
+--source-projection: Run the Lambda handler for processing source S3 events.
+--replay-projection: Run the Lambda handler for replayed events.
+--replay: Replay all S3 object versions in order.
+--healthcheck: Start an HTTP health check server on port 8080.
+--metrics: Start HTTP metrics endpoint on port defined by METRICS_PORT (default 3000).
+--status-endpoint: Start HTTP status endpoint on port defined by STATUS_PORT (default 3000).
+
+Running Locally
+Use the following npm scripts:
+
+npm start to run the GitHub event projection handler (located in src/lib/main.js).
+npm run healthcheck to start the health check server.
+npm run replay to replay S3 events.
+
+Note: When running locally with a dummy event (i.e. no records), the handler will short-circuit and return success without attempting a database connection.
+Testing
+This project uses Vitest for unit testing. Run the tests with:
+npm test
+License
+Distributed under the MIT License. See LICENSE for details.\n\nxn-intenton-z2a
+    
+    /
+    
+      s3-sqs-bridge
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+        
+          
+        
+
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    0
+
+  
+
+  
+        
+            
+          Star
+          0
+
+  
+
+
+
+        
+      
+
+        
+      
+
+    
+      License
+  
+    
+      
+     MIT license
+    
+  
+
+
+    
+        
+          
+          0
+          stars
+        
+          
+          0
+          forks
+        
+          
+          Branches
+        
+          
+          Tags
+        
+          
+          Activity
+    
+
+      
+        
+            
+            
+          Star
+
+
+        
+        
+                    Notifications
+    You must be signed in to change notification settings
+
+        
+        
+          
+
+        
+      
+  
+
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          0
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          0
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Projects
+          0
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Projects
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights
+      
+
+  
+
+    
+
+
+
+
+      
+  
+
+
+
+  
+
+  
+
+
+
+
+    
+    
+
+
+
+    
+      
+  xn-intenton-z2a/s3-sqs-bridge
+  
+    
+
+  
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+      mainBranchesTagsGo to fileCodeFolders and filesNameNameLast commit messageLast commit dateLatest commit History506 Commits.github.github  .mvn/wrapper.mvn/wrapper  archivearchive  awsaws  docsdocs  exportsexports  featuresfeatures  librarylibrary  publicpublic  scriptsscripts  srcsrc  tests/unittests/unit  .dockerignore.dockerignore  .gitignore.gitignore  .prettierignore.prettierignore  .prettierrc.prettierrc  CONTRIBUTING.mdCONTRIBUTING.md  DEBUGGING.mdDEBUGGING.md  DockerfileDockerfile  LICENSELICENSE  LOCALSTACK.mdLOCALSTACK.md  MISSION.mdMISSION.md  README.mdREADME.md  S3_OOTB_BROKER.mdS3_OOTB_BROKER.md  SETUP.mdSETUP.md  SOURCES.mdSOURCES.md  cdk.context.jsoncdk.context.json  cdk.jsoncdk.json  compose.ymlcompose.yml  eslint.config.jseslint.config.js  jsconfig.jsonjsconfig.json  mvnwmvnw  mvnw.cmdmvnw.cmd  package-lock.jsonpackage-lock.json  package.jsonpackage.json  pom.xmlpom.xml  s3-sqs-bridge.imls3-sqs-bridge.iml  vitest.config.jsvitest.config.js  View all filesRepository files navigationREADMEMIT licenses3-sqs-bridge (Versioned Amazon S3 Object Put Event replay capable queuing to SQS)
+s3-sqs-bridge integrates Amazon S3 with AWS SQS to enable versioned event replay and real-time processing using Lambda backed by a resilient PostgreSQL projection system. The GitHub Event Projections Lambda handler now features robust connection retries, enhanced logging with sensitive data masking, strict schema validation using Zod, basic in-memory metrics collection to track event processing performance, and optional dead-letter queue support for failed records.
+This repository includes:
+
+AWS CloudFormation/CDK stacks for setting up the necessary AWS infrastructure.
+A Node.js Lambda function for processing S3 events forwarded to SQS.
+A GitHub Event Projections Lambda handler implemented in src/lib/main.js that processes GitHub event messages from a dedicated SQS queue, validates them, and creates/upserts projections in PostgreSQL with detailed logging, retry logic, metrics collection, and dead-letter queue routing.
+A comprehensive CLI for event replay, projection processing, and health checks.
+
+For the full mission statement, see MISSION.md. For contribution guidelines, please refer to CONTRIBUTING.md. Setup instructions are provided in [SETUP.md], and licensing details in LICENSE.
+Additionally, visit the intentïon agentic-lib on GitHub: agentic-lib.
+Key Features
+
+Dead-Letter Queue Support: Failed GitHub event records after all retry attempts can be routed to an SQS dead-letter queue (when configured via DEAD_LETTER_QUEUE_URL).
+Robust Defaults: Sensible default values prevent misconfiguration.
+Enhanced Retry Logic: Exponential backoff retry strategy for PostgreSQL connections and queries.
+Strict Validation: Input validation using Zod for GitHub event payloads.
+In-Memory Metrics: Tracks total events, successes, skips, DB failures, retry attempts, and dead-lettered events.
+HTTP Endpoints: /metrics and /status endpoints for real-time metrics and health checks using Express.
+High Availability: Designed for scalable deployment on AWS Fargate Spot.
+
+Configuration
+Environment variables configure AWS services and PostgreSQL parameters. Defaults are used if variables are not set:
+
+BUCKET_NAME
+OBJECT_PREFIX
+REPLAY_QUEUE_URL
+DIGEST_QUEUE_URL
+OFFSETS_TABLE_NAME
+PROJECTIONS_TABLE_NAME
+SOURCE_LAMBDA_FUNCTION_NAME
+AWS_ENDPOINT
+
+PostgreSQL specific variables:
+
+PG_CONNECTION_STRING: PostgreSQL connection string (default: postgres://user:pass@localhost:5432/db)
+GITHUB_PROJECTIONS_TABLE: Table for GitHub event projections (default: github_event_projections)
+GITHUB_EVENT_QUEUE_URL: SQS URL for GitHub events (default: https://test/000000000000/github-event-queue-test)
+
+Retry configuration for PostgreSQL:
+
+PG_MAX_RETRIES: Maximum retry attempts (default: 3)
+PG_RETRY_DELAY_MS: Delay in milliseconds between retries (default: 1000)
+
+Dead-letter queue configuration:
+
+DEAD_LETTER_QUEUE_URL: SQS queue URL for dead-lettering failed GitHub event projections (optional)
+
+Metrics
+The GitHub Event Projection handler now collects basic in-memory metrics during event processing:
+
+totalEvents: Total number of events received.
+successfulEvents: Number of events processed successfully.
+skippedEvents: Number of events skipped due to invalid JSON or failed validation.
+dbFailures: Number of events that encountered database query failures after retry attempts.
+dbRetryCount: Total number of database retry attempts.
+deadLetterEvents: Number of events routed to the dead-letter queue after exhausting retries.
+
+Metrics are logged after processing and can be accessed programmatically via the exported getMetrics() function.
+Usage
+CLI Options
+
+--help: Show usage instructions.
+--source-projection: Run the Lambda handler for processing source S3 events.
+--replay-projection: Run the Lambda handler for replayed events.
+--replay: Replay all S3 object versions in order.
+--healthcheck: Start an HTTP health check server on port 8080.
+--metrics: Start HTTP metrics endpoint on port defined by METRICS_PORT (default 3000).
+--status-endpoint: Start HTTP status endpoint on port defined by STATUS_PORT (default 3000).
+
+Running Locally
+Use the following npm scripts:
+
+npm start to run the GitHub event projection handler (located in src/lib/main.js).
+npm run healthcheck to start the health check server.
+npm run replay to replay S3 events.
+
+Note: When running locally with a dummy event (i.e. no records), the handler will short-circuit and return success without attempting a database connection.
+Testing
+This project uses Vitest for unit testing. Run the tests with:
+npm test
+License
+Distributed under the MIT License. See LICENSE for details.
+   
+
+
+      
+
+        
+
+      
+        
+          
+            
+  About
+
+      
+        No description, website, or topics provided.
+      
+
+
+    Resources
+    
+      
+        
+        Readme
+    
+
+  
+    License
+  
+    
+      
+     MIT license
+    
+  
+
+
+
+
+  
+
+  
+    
+      Activity  
+
+    
+      
+        Custom properties    
+
+  Stars
+  
+    
+      0
+      stars  
+
+  Watchers
+  
+    
+      0
+      watching  
+
+  Forks
+  
+    
+      0
+      forks  
+
+
+    
+      
+          Report repository
+    
+
+
+          
+        
+
+        
+            
+              
+                
+  Releases
+      27
+
+  
+    
+    
+      
+        Release 0.23.0
+        
+          Latest
+      
+      Apr 4, 2025
+    
+    
+      + 26 releases
+              
+            
+
+        
+            
+              
+                
+Sponsor this project
+
+        
+        
+
+              
+            
+
+        
+            
+              
+                
+  
+    
+  Packages
+      0
+
+
+        
+          
+           
+        
+        
+          
+           
+        
+        
+          
+           
+        
+
+
+
+              
+            
+
+        
+            
+              
+                
+
+              
+            
+
+        
+            
+              
+                
+  Contributors
+      5
+
+
+    
+      
+          
+            
+          
+          
+            
+          
+          
+            
+          
+          
+            
+          
+          
+            
+          
+      
+
+
+
+              
+            
+
+        
+        
+            
+              
+                Languages
+
+  
+    
+    
+    
+    
+    
+
+
+    
+        
+          
+          JavaScript
+          52.9%
+        
+    
+    
+        
+          
+          Java
+          25.8%
+        
+    
+    
+        
+          
+          Shell
+          15.1%
+        
+    
+    
+        
+          
+          HTML
+          5.9%
+        
+    
+    
+        
+          
+          Dockerfile
+          0.3%\n\n\n\nSign in to GitHub
     
 
 
@@ -26768,7 +27282,7 @@ Additional navigation options
   
   
   ProTip!
-  no:milestone will show everything without a milestone.\n\n\n\nxn-intenton-z2a
+  Follow long discussions with comments:>50.\n\n\n\nxn-intenton-z2a
     
     /
     
@@ -27409,7 +27923,7 @@ Additional navigation options
   
   
   ProTip!
-  Type g i on any issue or pull request to go back to the issue listing page.\n\n\n\nxn-intenton-z2a
+  Exclude everything labeled bug with -label:bug.\n\n\n\nxn-intenton-z2a
     
     /
     
@@ -28043,7 +28557,7 @@ Additional navigation options
 
   
     
-      604 workflow runs
+      607 workflow runs
     
   
 
@@ -28051,7 +28565,7 @@ Additional navigation options
   
     
         
-          604 workflow runs
+          607 workflow runs
         
     
     
@@ -28391,6 +28905,259 @@ Additional navigation options
 
 
     
+  
+    
+      
+          
+
+    
+
+
+          
+            publish stats [main] []
+          
+        
+
+      
+        publish-stats
+        #33:
+
+        
+            Scheduled
+
+        
+      
+
+      
+        
+  
+  May 6, 2025 12:46
+
+
+            
+      
+      
+        58s
+      
+    
+
+          main
+      
+    
+
+    
+        main
+    
+
+    
+      
+        
+          
+  
+  May 6, 2025 12:46
+
+
+              
+      
+      
+        58s
+      
+    
+
+        
+
+        
+            
+                    
+
+              
+
+
+                  
+                    
+                      View workflow file
+                    
+                  
+
+
+              
+            
+        
+      
+    
+  
+
+
+  
+    
+      
+          
+
+    
+
+
+          
+            ci test [main] [Update from agentic-lib]
+          
+        
+
+      
+        ci-test
+        #292:
+
+        
+            Commit c3acc97
+
+            pushed
+            by
+              Antony-at-Polycode
+              
+        
+      
+
+      
+        
+  
+  May 6, 2025 10:40
+
+
+            
+      
+      
+        1m 2s
+      
+    
+
+          main
+      
+    
+
+    
+        main
+    
+
+    
+      
+        
+          
+  
+  May 6, 2025 10:40
+
+
+              
+      
+      
+        1m 2s
+      
+    
+
+        
+
+        
+            
+                    
+
+              
+
+
+                  
+                    
+                      View workflow file
+                    
+                  
+
+
+              
+            
+        
+      
+    
+  
+
+
+  
+    
+      
+          
+
+    
+
+
+          
+            publish web [main] []
+          
+        
+
+      
+        publish-web
+        #40:
+
+        
+            Scheduled
+
+        
+      
+
+      
+        
+  
+  May 6, 2025 10:37
+
+
+            
+      
+      
+        38s
+      
+    
+
+          main
+      
+    
+
+    
+        main
+    
+
+    
+      
+        
+          
+  
+  May 6, 2025 10:37
+
+
+              
+      
+      
+        38s
+      
+    
+
+        
+
+        
+            
+                    
+
+              
+
+
+                  
+                    
+                      View workflow file
+                    
+                  
+
+
+              
+            
+        
+      
+    
+  
+
+
   
     
       
@@ -30262,271 +31029,6 @@ Bump eslint from 9.25.1 to 9.26.0]
   
 
 
-  
-    
-      
-          
-
-    
-
-
-          
-            ci test [main] [Merge pull request #88 from xn-intenton-z2a/dependabot/npm_and_yarn/supertest-7.1.0
-
-Bump supertest from 6.3.4 to 7.1.0]
-          
-        
-
-      
-        ci-test
-        #280:
-
-        
-            Commit 32c3be7
-
-            pushed
-            by
-              antonycc
-              
-        
-      
-
-      
-        
-  
-  May 5, 2025 15:37
-
-
-            
-      
-      
-        2m 15s
-      
-    
-
-          main
-      
-    
-
-    
-        main
-    
-
-    
-      
-        
-          
-  
-  May 5, 2025 15:37
-
-
-              
-      
-      
-        2m 15s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            ci test [main] [Merge pull request #90 from xn-intenton-z2a/dependabot/npm_and_yarn/zod-3.24.4
-
-Bump zod from 3.24.3 to 3.24.4]
-          
-        
-
-      
-        ci-test
-        #279:
-
-        
-            Commit ff647c8
-
-            pushed
-            by
-              antonycc
-              
-        
-      
-
-      
-        
-  
-  May 5, 2025 15:37
-
-
-            
-      
-      
-        2m 21s
-      
-    
-
-          main
-      
-    
-
-    
-        main
-    
-
-    
-      
-        
-          
-  
-  May 5, 2025 15:37
-
-
-              
-      
-      
-        2m 21s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            ci test [main] [Update from agentic-lib]
-          
-        
-
-      
-        ci-test
-        #278:
-
-        
-            Commit f007343
-
-            pushed
-            by
-              Antony-at-Polycode
-              
-        
-      
-
-      
-        
-  
-  May 5, 2025 14:16
-
-
-            
-      
-      
-        2m 5s
-      
-    
-
-          main
-      
-    
-
-    
-        main
-    
-
-    
-      
-        
-          
-  
-  May 5, 2025 14:16
-
-
-              
-      
-      
-        2m 5s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
 
 
 
@@ -31521,7 +32023,7 @@ Insights: xn-intenton-z2a/s3-sqs-bridge
                 
           
           
-            13
+            8
             Active pull requests
           
         
@@ -31543,7 +32045,7 @@ Insights: xn-intenton-z2a/s3-sqs-bridge
               
                 
                   
-                  13
+                  8
                 
                 Merged pull requests
               
@@ -31606,7 +32108,7 @@ Insights: xn-intenton-z2a/s3-sqs-bridge
     
       
         
-        13
+        8
         Pull requests merged by
         2 people
       
@@ -31681,51 +32183,6 @@ Insights: xn-intenton-z2a/s3-sqs-bridge
           Fix invalid regex in maskConnectionString to avoid syntax error (working on #74)
           
             #77 merged Apr 30, 2025
-          
-        
-      
-      
-        
-        
-          Bump dotenv from 16.4.7 to 16.5.0
-          
-            #71 merged Apr 29, 2025
-          
-        
-      
-      
-        
-        
-          Bump esbuild from 0.25.2 to 0.25.3
-          
-            #72 merged Apr 29, 2025
-          
-        
-      
-      
-        
-        
-          Bump pg from 8.14.1 to 8.15.6
-          
-            #73 merged Apr 29, 2025
-          
-        
-      
-      
-        
-        
-          Bump @aws-sdk/client-sqs from 3.782.0 to 3.798.0
-          
-            #76 merged Apr 29, 2025
-          
-        
-      
-      
-        
-        
-          Bump aws-cdk from 2.1010.0 to 2.1012.0
-          
-            #69 merged Apr 29, 2025
           
         
       
@@ -32072,1152 +32529,7 @@ Additional navigation options
 
   
   
-    CommitsBranch selector mainUser selectorAll usersDatepickerAll timeCommit HistoryCommits on May 6, 2025Update from agentic-libAntony-at-Polycodecommitted8c5327dCopy full SHA for 8c5327dUpdate from agentic-libAntony-at-Polycodecommitted917e511Copy full SHA for 917e511Update from agentic-libAntony-at-Polycodecommitted61cfde1Copy full SHA for 61cfde1Update from agentic-libAntony-at-Polycodecommittedf63ee82Copy full SHA for f63ee82Remove unused GitHub workflow filesShow description for 22703ccAntony-at-Polycodecommitted22703ccCopy full SHA for 22703ccCommits on May 5, 2025Update from agentic-libAntony-at-Polycodecommitted75db5a0Copy full SHA for 75db5a0Update from agentic-libAntony-at-Polycodecommittedfce8f1aCopy full SHA for fce8f1aUpdate from agentic-libAntony-at-Polycodecommittedf97f6afCopy full SHA for f97f6afUpdate from agentic-libAntony-at-Polycodecommitted13ff107Copy full SHA for 13ff107Update from agentic-libAntony-at-Polycodecommitted1c48c1cCopy full SHA for 1c48c1cMerge pull request #89 from xn-intenton-z2a/dependabot/npm_and_yarn/eslint-9.26.0Show description for c77e91aantonyccauthoredc77e91aCopy full SHA for c77e91aMerge pull request #88 from xn-intenton-z2a/dependabot/npm_and_yarn/supertest-7.1.0Show description for 32c3be7antonyccauthored32c3be7Copy full SHA for 32c3be7Merge pull request #90 from xn-intenton-z2a/dependabot/npm_and_yarn/zod-3.24.4Show description for ff647c8antonyccauthoredff647c8Copy full SHA for ff647c8Update from agentic-libAntony-at-Polycodecommittedf007343Copy full SHA for f007343Bump zod from 3.24.3 to 3.24.4Show description for 19a91efdependabot[bot]authored19a91efCopy full SHA for 19a91efBump eslint from 9.25.1 to 9.26.0Show description for c5333e8dependabot[bot]authoredc5333e8Copy full SHA for c5333e8Bump supertest from 6.3.4 to 7.1.0Show description for 1c27a3bdependabot[bot]authored1c27a3bCopy full SHA for 1c27a3bCommits on May 4, 2025Update from agentic-libAntony-at-Polycodecommittedad43952Copy full SHA for ad43952Update from agentic-libAntony-at-Polycodecommitted17095d8Copy full SHA for 17095d8Update from agentic-libAntony-at-Polycodecommitted8469ca0Copy full SHA for 8469ca0Remove reset-sandbox workflow from repositoryShow description for 2ec7804Antony-at-Polycodecommitted2ec7804Copy full SHA for 2ec7804Update from agentic-libAntony-at-Polycodecommitted26343deCopy full SHA for 26343deCommits on May 3, 2025Remove reset-sandbox workflow from repositoryShow description for 2f46e4bAntony-at-Polycodecommitted2f46e4bCopy full SHA for 2f46e4bUpdate from agentic-libAntony-at-Polycodecommitted5af9ca7Copy full SHA for 5af9ca7Update from agentic-libAntony-at-Polycodecommitted3e04b81Copy full SHA for 3e04b81Commits on May 2, 2025Update from agentic-libAntony-at-Polycodecommittedfd55d32Copy full SHA for fd55d32Maintain DIAGNOSTICSactions-usercommittede4a688fCopy full SHA for e4a688fUpdate from agentic-libAntony-at-Polycodecommitted6453541Copy full SHA for 6453541chore: dependency updates (#86)Show description for a8a1fa4 github-actions[bot]andactions-userauthoreda8a1fa4Copy full SHA for a8a1fa4Maintain SOURCES.mdactions-usercommittede6f1d18Copy full SHA for e6f1d18Update from agentic-libAntony-at-Polycodecommitted91e71d0Copy full SHA for 91e71d0Update from agentic-libAntony-at-Polycodecommittedd0bef65Copy full SHA for d0bef65Update from agentic-libAntony-at-Polycodecommitted99e3dd6Copy full SHA for 99e3dd6Maintain EXPRESS_MIDDLEWAREactions-usercommitted4c97561Copy full SHA for 4c97561Maintain SOURCES.mdactions-usercommitted0f0a94aCopy full SHA for 0f0a94aPaginationPreviousNext\n\n\n\nxn-intenton-z2a
-    
-    /
-    
-      s3-sqs-bridge
-    
-
-    Public
-  
-
-
-        
-
-        
-            
-    
-        
-          
-        
-
-      
-
-  
-                Notifications
-    You must be signed in to change notification settings
-
-  
-
-  
-              Fork
-    0
-
-  
-
-  
-        
-            
-          Star
-          0
-
-  
-
-
-
-        
-      
-
-        
-
-
-
-          
-
-  
-      
-  
-    
-              
-        Code
-          
-
-
-    
-
-      
-  
-    
-              
-        Issues
-          0
-
-
-    
-
-      
-  
-    
-              
-        Pull requests
-          0
-
-
-    
-
-      
-  
-    
-              
-        Actions
-          
-
-
-    
-
-      
-  
-    
-              
-        Projects
-          0
-
-
-    
-
-      
-  
-    
-              
-        Security
-          
-
-    
-
-      
-  
-    
-              
-        Insights
-          
-
-
-    
-
-
-          
-  
-      
-Additional navigation options
-
-
-
-  
-    
-                
-  
-    
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Code
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Issues
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Pull requests
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Actions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Projects
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Security
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Insights\n\n\n\nxn-intenton-z2a
-    
-    /
-    
-      s3-sqs-bridge
-    
-
-    Public
-  
-
-
-        
-
-        
-            
-    
-        
-          
-        
-
-      
-
-  
-                Notifications
-    You must be signed in to change notification settings
-
-  
-
-  
-              Fork
-    0
-
-  
-
-  
-        
-            
-          Star
-          0
-
-  
-
-
-
-        
-      
-
-        
-
-
-
-          
-
-  
-      
-  
-    
-              
-        Code
-          
-
-
-    
-
-      
-  
-    
-              
-        Issues
-          0
-
-
-    
-
-      
-  
-    
-              
-        Pull requests
-          0
-
-
-    
-
-      
-  
-    
-              
-        Actions
-          
-
-
-    
-
-      
-  
-    
-              
-        Projects
-          0
-
-
-    
-
-      
-  
-    
-              
-        Security
-          
-
-    
-
-      
-  
-    
-              
-        Insights
-          
-
-
-    
-
-
-          
-  
-      
-Additional navigation options
-
-
-
-  
-    
-                
-  
-    
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Code
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Issues
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Pull requests
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Actions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Projects
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Security
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Insights\n\n\n\nxn-intenton-z2a
-    
-    /
-    
-      s3-sqs-bridge
-    
-
-    Public
-  
-
-
-        
-
-        
-            
-    
-        
-          
-        
-
-      
-
-  
-                Notifications
-    You must be signed in to change notification settings
-
-  
-
-  
-              Fork
-    0
-
-  
-
-  
-        
-            
-          Star
-          0
-
-  
-
-
-
-        
-      
-
-        
-
-
-
-          
-
-  
-      
-  
-    
-              
-        Code
-          
-
-
-    
-
-      
-  
-    
-              
-        Issues
-          0
-
-
-    
-
-      
-  
-    
-              
-        Pull requests
-          0
-
-
-    
-
-      
-  
-    
-              
-        Actions
-          
-
-
-    
-
-      
-  
-    
-              
-        Projects
-          0
-
-
-    
-
-      
-  
-    
-              
-        Security
-          
-
-    
-
-      
-  
-    
-              
-        Insights
-          
-
-
-    
-
-
-          
-  
-      
-Additional navigation options
-
-
-
-  
-    
-                
-  
-    
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Code
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Issues
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Pull requests
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Actions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Projects
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Security
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Insights\n\n\n\nxn-intenton-z2a
-    
-    /
-    
-      s3-sqs-bridge
-    
-
-    Public
-  
-
-
-        
-
-        
-            
-    
-        
-          
-        
-
-      
-
-  
-                Notifications
-    You must be signed in to change notification settings
-
-  
-
-  
-              Fork
-    0
-
-  
-
-  
-        
-            
-          Star
-          0
-
-  
-
-
-
-        
-      
-
-        
-
-
-
-          
-
-  
-      
-  
-    
-              
-        Code
-          
-
-
-    
-
-      
-  
-    
-              
-        Issues
-          0
-
-
-    
-
-      
-  
-    
-              
-        Pull requests
-          0
-
-
-    
-
-      
-  
-    
-              
-        Actions
-          
-
-
-    
-
-      
-  
-    
-              
-        Projects
-          0
-
-
-    
-
-      
-  
-    
-              
-        Security
-          
-
-    
-
-      
-  
-    
-              
-        Insights
-          
-
-
-    
-
-
-          
-  
-      
-Additional navigation options
-
-
-
-  
-    
-                
-  
-    
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Code
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Issues
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Pull requests
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Actions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Projects
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Security
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Insights\n\n\n\nxn-intenton-z2a
-    
-    /
-    
-      s3-sqs-bridge
-    
-
-    Public
-  
-
-
-        
-
-        
-            
-    
-        
-          
-        
-
-      
-
-  
-                Notifications
-    You must be signed in to change notification settings
-
-  
-
-  
-              Fork
-    0
-
-  
-
-  
-        
-            
-          Star
-          0
-
-  
-
-
-
-        
-      
-
-        
-
-
-
-          
-
-  
-      
-  
-    
-              
-        Code
-          
-
-
-    
-
-      
-  
-    
-              
-        Issues
-          0
-
-
-    
-
-      
-  
-    
-              
-        Pull requests
-          0
-
-
-    
-
-      
-  
-    
-              
-        Actions
-          
-
-
-    
-
-      
-  
-    
-              
-        Projects
-          0
-
-
-    
-
-      
-  
-    
-              
-        Security
-          
-
-    
-
-      
-  
-    
-              
-        Insights
-          
-
-
-    
-
-
-          
-  
-      
-Additional navigation options
-
-
-
-  
-    
-                
-  
-    
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Code
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Issues
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Pull requests
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Actions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Projects
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Security
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Insights\n\n\n\nxn-intenton-z2a
+    CommitsBranch selector mainUser selectorAll usersDatepickerAll timeCommit HistoryCommits on May 6, 2025Update from agentic-libAntony-at-Polycodecommittedc3acc97Copy full SHA for c3acc97Update from agentic-libAntony-at-Polycodecommitted8c5327dCopy full SHA for 8c5327dUpdate from agentic-libAntony-at-Polycodecommitted917e511Copy full SHA for 917e511Update from agentic-libAntony-at-Polycodecommitted61cfde1Copy full SHA for 61cfde1Update from agentic-libAntony-at-Polycodecommittedf63ee82Copy full SHA for f63ee82Remove unused GitHub workflow filesShow description for 22703ccAntony-at-Polycodecommitted22703ccCopy full SHA for 22703ccCommits on May 5, 2025Update from agentic-libAntony-at-Polycodecommitted75db5a0Copy full SHA for 75db5a0Update from agentic-libAntony-at-Polycodecommittedfce8f1aCopy full SHA for fce8f1aUpdate from agentic-libAntony-at-Polycodecommittedf97f6afCopy full SHA for f97f6afUpdate from agentic-libAntony-at-Polycodecommitted13ff107Copy full SHA for 13ff107Update from agentic-libAntony-at-Polycodecommitted1c48c1cCopy full SHA for 1c48c1cMerge pull request #89 from xn-intenton-z2a/dependabot/npm_and_yarn/eslint-9.26.0Show description for c77e91aantonyccauthoredc77e91aCopy full SHA for c77e91aMerge pull request #88 from xn-intenton-z2a/dependabot/npm_and_yarn/supertest-7.1.0Show description for 32c3be7antonyccauthored32c3be7Copy full SHA for 32c3be7Merge pull request #90 from xn-intenton-z2a/dependabot/npm_and_yarn/zod-3.24.4Show description for ff647c8antonyccauthoredff647c8Copy full SHA for ff647c8Update from agentic-libAntony-at-Polycodecommittedf007343Copy full SHA for f007343Bump zod from 3.24.3 to 3.24.4Show description for 19a91efdependabot[bot]authored19a91efCopy full SHA for 19a91efBump eslint from 9.25.1 to 9.26.0Show description for c5333e8dependabot[bot]authoredc5333e8Copy full SHA for c5333e8Bump supertest from 6.3.4 to 7.1.0Show description for 1c27a3bdependabot[bot]authored1c27a3bCopy full SHA for 1c27a3bCommits on May 4, 2025Update from agentic-libAntony-at-Polycodecommittedad43952Copy full SHA for ad43952Update from agentic-libAntony-at-Polycodecommitted17095d8Copy full SHA for 17095d8Update from agentic-libAntony-at-Polycodecommitted8469ca0Copy full SHA for 8469ca0Remove reset-sandbox workflow from repositoryShow description for 2ec7804Antony-at-Polycodecommitted2ec7804Copy full SHA for 2ec7804Update from agentic-libAntony-at-Polycodecommitted26343deCopy full SHA for 26343deCommits on May 3, 2025Remove reset-sandbox workflow from repositoryShow description for 2f46e4bAntony-at-Polycodecommitted2f46e4bCopy full SHA for 2f46e4bUpdate from agentic-libAntony-at-Polycodecommitted5af9ca7Copy full SHA for 5af9ca7Update from agentic-libAntony-at-Polycodecommitted3e04b81Copy full SHA for 3e04b81Commits on May 2, 2025Update from agentic-libAntony-at-Polycodecommittedfd55d32Copy full SHA for fd55d32Maintain DIAGNOSTICSactions-usercommittede4a688fCopy full SHA for e4a688fUpdate from agentic-libAntony-at-Polycodecommitted6453541Copy full SHA for 6453541chore: dependency updates (#86)Show description for a8a1fa4 github-actions[bot]andactions-userauthoreda8a1fa4Copy full SHA for a8a1fa4Maintain SOURCES.mdactions-usercommittede6f1d18Copy full SHA for e6f1d18Update from agentic-libAntony-at-Polycodecommitted91e71d0Copy full SHA for 91e71d0Update from agentic-libAntony-at-Polycodecommittedd0bef65Copy full SHA for d0bef65Update from agentic-libAntony-at-Polycodecommitted99e3dd6Copy full SHA for 99e3dd6Maintain EXPRESS_MIDDLEWAREactions-usercommitted4c97561Copy full SHA for 4c97561PaginationPreviousNext\n\n\n\nxn-intenton-z2a
     
     /
     
