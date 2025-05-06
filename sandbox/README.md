@@ -12,7 +12,7 @@ The intentïon `agentic-lib` is a Node.js library for AWS SQS-based digest workf
 - CLI: `main` function with flags:
   - `--help`: Show usage instructions
   - `--version`: Output JSON with version & timestamp
-  - `--digest`: Simulate digest processing via SQS event
+  - `--digest`: Generate and process a sample digest event via SQS
 
 ## Installation
 
