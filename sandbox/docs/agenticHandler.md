@@ -9,7 +9,7 @@ The library exports helper functions for structured JSON logging:
 ```js
 import { logConfig, logInfo, logError } from "@xn-intenton-z2a/agentic-lib";
 
-// Log loaded configuration (automatically called on import)
+// Automatically logs loaded configuration on import
 logConfig();
 
 // Log informational messages
@@ -37,7 +37,21 @@ const sqsEvent = createSQSEventFromDigest(digest);
   - `value` (string)
   - `lastModified` (ISO timestamp string)
 
-Returns an object matching the AWS SQS event schema with one record.
+Returns an object matching the AWS SQS event schema with one record, for example:
+
+```json
+{
+  "Records": [
+    {
+      "eventVersion": "2.0",
+      "eventSource": "aws:sqs",
+      "eventTime": "2025-05-06T03:52:49.140Z",
+      "eventName": "SendMessage",
+      "body": "{ \"key\": \"...\", \"value\": \"...\", \"lastModified\": \"...\" }"
+    }
+  ]
+}
+```
 
 ## digestLambdaHandler(sqsEvent)
 
@@ -60,7 +74,7 @@ Returns an object with:
 ### Behavior
 
 - Logs each record's digest data in structured JSON format.
-- Invalid JSON bodies are caught, logged as errors, and reported back in `batchItemFailures` for retry.
+- Invalid JSON bodies are caught, logged as errors (including raw message), and reported back in `batchItemFailures` for retry.
 
 ## CLI Entry Point
 
@@ -68,16 +82,41 @@ The library provides a CLI interface via the `main` function. It supports the fo
 
 - `--help`: Display usage instructions.
 - `--digest`: Generate and process a sample digest event.
-- `--version`: Display version and timestamp.
+- `--version`: Display version and timestamp information in JSON.
 
 ### Usage
 
+Using Node:
 ```bash
 node src/lib/main.js --help
 ```
 
-or using `npx`:
+```plaintext
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+```
 
+Or using npx:
+```bash
+npx agentic-lib --digest
+```
+
+### Simulate a Digest Processing
+```bash
+npx agentic-lib --digest
+```
+
+### Version Information
 ```bash
 npx agentic-lib --version
+```
+
+Outputs:
+```json
+{
+  "version": "6.2.1-0",
+  "timestamp": "2025-05-06T03:52:49.140Z"
+}
 ```
