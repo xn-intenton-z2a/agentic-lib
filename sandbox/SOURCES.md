@@ -6,7 +6,7 @@ Comprehensive reference for GitHub's programming interfaces, combining both REST
 
 # GitHub Actions workflow_call Event
 ## https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call
-Official guidance on the `workflow_call` event for invoking and composing reusable GitHub Actions workflows programmatically. Covers input/output parameter definitions, permissions scoping, caller/called-workflow conventions, and security considerations—critical for building SDK-style agentic workflow chains. Last updated March 2024; authoritative GitHub documentation.
+Official guidance on the `workflow_call` event for invoking and composing reusable GitHub Actions workflows programmatically. Covers input/output parameter definitions, permissions scoping, caller/called-workflow conventions, secure secret handling, and cross-repository calls—critical for building SDK-style agentic workflow chains. Last updated March 2024; authoritative GitHub documentation.
 ## License: CC BY 4.0
 
 # AWS Lambda & SQS Integration
@@ -29,10 +29,10 @@ Comprehensive reference for core Node.js utilities used in agentic-lib: converti
 Complete specification of the OpenAI Chat Completions endpoint, including HTTP authentication with Bearer tokens, request body schemas for single and streaming modes, parameters such as `temperature`, `max_tokens`, and `functions`, plus response formats, error codes, rate-limit headers, and recommended retry strategies. Essential for implementing robust chat interactions and streaming pipelines in agentic-lib. Last updated June 2024; authoritative OpenAI documentation.
 ## License: CC BY 4.0
 
-# AWS SDK for JavaScript v3 SQS Client
-## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-sqs/index.html
-Detailed reference for the AWS SDK v3 SQS client in JavaScript/TypeScript, covering commands such as `SendMessage`, `ReceiveMessage`, `DeleteMessage`, client configuration (regions, credentials, retry strategies), middleware customization, and error handling patterns. Essential for programmatic queue management within Lambdas and CLI tools. Last updated June 2024; official AWS documentation.
-## License: Apache-2.0
+# OpenAI Function Calling Guide
+## https://platform.openai.com/docs/guides/function-calling
+Detailed guide on defining and invoking functions via the OpenAI Chat API. Covers JSON schema-based function parameter declarations, best practices for naming and structuring function signatures, automatic function selection by the model, and handling returned JSON payloads. Includes examples in Node.js using the `functions` parameter, error behaviors, and debugging strategies. Vital for integrating deterministic function executions within conversational agents. Last updated June 2024; authoritative OpenAI documentation.
+## License: CC BY 4.0
 
 # AWS S3 Pre-signed URLs
 ## https://docs.aws.amazon.com/AmazonS3/latest/userguide/PresignedUrlUploadObject.html
