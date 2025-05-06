@@ -1,19 +1,18 @@
 # intentïon agentic-lib
 
-The **intentïon `agentic-lib`** is a JavaScript/Node.js library that powers AWS SQS-based digest workflows and provides a CLI interface for simulating and processing events. It includes utilities for generating SQS events, Lambda handlers for processing JSON digests, and structured logging to simplify debugging and monitoring.
+[![npm version](https://img.shields.io/npm/v/@xn-intenton-z2a/agentic-lib.svg)](https://www.npmjs.com/package/@xn-intenton-z2a/agentic-lib)
 
-## Getting Started
-
-For detailed usage and examples, see the [SQS Digest Handler & CLI Documentation](docs/agenticHandler.md).
+The intentïon `agentic-lib` is a Node.js library for AWS SQS-based digest workflows, structured JSON logging, and CLI utilities. It helps you generate SQS events from digest objects, process them with a Lambda handler, and integrate into your Node.js applications or CI/CD pipelines.
 
 ## Features
 
-- Environment-configured logging and error handling
-- Utility to create AWS SQS events from digest objects (`createSQSEventFromDigest`)
-- Lambda handler for digest processing (`digestLambdaHandler`) with batch failure reporting
-- CLI commands for help (`--help`), version info (`--version`), and digest simulation (`--digest`)
-- CLI version command outputs JSON with version and timestamp
-- Configuration via environment variables or `.env` file
+- Structured JSON logging utilities: `logConfig`, `logInfo`, `logError`
+- Utility: `createSQSEventFromDigest(digest)` for AWS SQS event generation
+- Lambda handler: `digestLambdaHandler(sqsEvent)` with batch failure reporting
+- CLI: `main` function with flags:
+  - `--help`: Show usage instructions
+  - `--version`: Output JSON with version & timestamp
+  - `--digest`: Simulate digest processing via SQS event
 
 ## Installation
 
@@ -21,117 +20,106 @@ For detailed usage and examples, see the [SQS Digest Handler & CLI Documentation
 npm install @xn-intenton-z2a/agentic-lib
 ```
 
-## Environment Variables
+## Quick Start
 
-- `GITHUB_API_BASE_URL` (optional): Base URL for GitHub API (default in development/test: https://api.github.com.test/)
-- `OPENAI_API_KEY` (optional): API key for OpenAI (used in tests/development)
-
-Create a `.env` file to set these variables:
-
-```env
-OPENAI_API_KEY=your_openai_api_key
-GITHUB_API_BASE_URL=https://api.github.com/
-```
-
-## Logging Utilities
-
-The library provides structured JSON logging helpers to standardize logs across your application:
+### Programmatic Usage
 
 ```js
-import { logConfig, logInfo, logError } from "@xn-intenton-z2a/agentic-lib";
+import {
+  createSQSEventFromDigest,
+  digestLambdaHandler,
+  logConfig,
+  logInfo,
+  logError
+} from "@xn-intenton-z2a/agentic-lib";
 
-// Log the loaded configuration (automatically called on import)
+// Load and log configuration
 logConfig();
 
-// Log informational messages
-logInfo("User login successful");
+// Generate an SQS event from a digest object
+const digest = {
+  key: "events/1.json",
+  value: "12345",
+  lastModified: new Date().toISOString(),
+};
+const sqsEvent = createSQSEventFromDigest(digest);
 
-// Log errors with optional error object or message
-logError("Failed to process request", new Error("Invalid data"));
+// Process with the Lambda handler
+(async () => {
+  const result = await digestLambdaHandler(sqsEvent);
+  console.log(result);
+  // { batchItemFailures: [], handler: "src/lib/main.digestLambdaHandler" }
+})();
 ```
 
-These functions produce logs in JSON format, for example:
+### CLI Usage
 
-- `logConfig`:
-  ```json
-  { "level": "info", "timestamp": "2025-05-06T03:52:49.140Z", "message": "Configuration loaded", "config": { ... } }
-  ```
-- `logInfo`:
-  ```json
-  { "level": "info", "timestamp": "2025-05-06T03:52:49.141Z", "message": "…" }
-  ```
-- `logError`:
-  ```json
-  { "level": "error", "timestamp": "2025-05-06T03:52:49.142Z", "message": "…", "error": "Error: …" }
-  ```
-
-## CLI Usage
-
-After installation (or using `npx`):
+Run via npx or directly with Node:
 
 ```bash
 npx agentic-lib --help
+# or
+node src/lib/main.js --help
 ```
 
-Output:
-
-```plaintext
+**Output:**
+```
 Usage:
   --help                     Show this help message and usage instructions.
   --digest                   Run a full bucket replay simulating an SQS event.
   --version                  Show version information with current timestamp.
 ```
 
-Simulate a digest processing:
-
+**Simulate a digest processing:**
 ```bash
 npx agentic-lib --digest
 ```
-
-Output (example):
+**Example Output:**
 ```json
-{"level":"info","timestamp":"2025-05-06T03:52:49.143Z","message":"Configuration loaded","config":{}}
-{"level":"info","timestamp":"2025-05-06T03:52:49.144Z","message":"Digest Lambda received event: { ... }"}
-...
+{ "level": "info", "timestamp": "2025-05-06T12:00:00.000Z", "message": "Configuration loaded", "config": {} }
+{ "level": "info", "timestamp": "2025-05-06T12:00:00.001Z", "message": "Digest Lambda received event: { ... }" }
 ```
 
-Show version:
-
+**Show version information:**
 ```bash
 npx agentic-lib --version
 ```
-
-Output (example):
-
+**Example Output:**
 ```json
-{"version":"6.2.1-0","timestamp":"2025-05-06T03:52:49.145Z"}
+{ "level": "info", "timestamp": "2025-05-06T12:00:00.000Z", "message": "Configuration loaded", "config": {} }
+{ "version": "6.2.1-0", "timestamp": "2025-05-06T12:00:00.002Z" }
 ```
 
-## Programmatic Usage
+## Configuration
 
-Import and use the library in your Node.js code:
+The library reads environment variables (optionally via a `.env` file) for configuration:
 
-```js
-import { createSQSEventFromDigest, digestLambdaHandler } from "@xn-intenton-z2a/agentic-lib";
+- `GITHUB_API_BASE_URL` (optional)
+- `OPENAI_API_KEY` (optional)
 
-const digest = {
-  key: "events/1.json",
-  value: "12345",
-  lastModified: new Date().toISOString(),
-};
-
-const sqsEvent = createSQSEventFromDigest(digest);
-
-(async () => {
-  const result = await digestLambdaHandler(sqsEvent);
-  console.log(result);
-})();
+Example `.env`:
+```env
+OPENAI_API_KEY=your_openai_api_key
+GITHUB_API_BASE_URL=https://api.github.com/
 ```
+
+## Logging
+
+All logging utilities produce structured JSON entries with fields such as:
+
+- `level`: log level (`info`, `error`)
+- `timestamp`: ISO timestamp
+- `message`: descriptive message
+- optional details: error stack, config data, etc.
+
+## Documentation
+
+For full API reference and advanced examples, see [SQS Digest Handler & CLI Documentation](docs/agenticHandler.md).
 
 ## Contributing
 
-Please see [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on contributions.
+Please see [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on contributing, testing, and documentation updates.
 
 ## License
 
-This project is licensed under [GPL-3.0](https://opensource.org/licenses/GPL-3.0) (or MIT in parts). See `package.json` for details.
+Dual-licensed under GPL-3.0 and MIT. See [LICENSE](../LICENSE) for details.
