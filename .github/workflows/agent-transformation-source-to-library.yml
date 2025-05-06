@@ -3,9 +3,9 @@
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: agent-source-to-library
-#concurrency: agent-source-to-library
-run-name: "agent source to library"
+name: source-to-library
+#concurrency: source-to-library
+run-name: "source to library"
 
 on:
   workflow_dispatch:

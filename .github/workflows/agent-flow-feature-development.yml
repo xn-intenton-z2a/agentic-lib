@@ -3,9 +3,9 @@
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: feature-development
+name: flow-feature-development
 concurrency: agentic-lib-commit-main
-run-name: "feature development"
+run-name: "flow feature development"
 
 on:
   #push:
