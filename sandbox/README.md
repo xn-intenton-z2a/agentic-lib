@@ -1,8 +1,10 @@
 # intentïon agentic-lib
 
-You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/WORKFLOWS-README.md)
-
 The **intentïon `agentic-lib`** is a JavaScript/Node.js library that powers AWS SQS-based digest workflows and provides a CLI interface for simulating and processing events. It includes utilities for generating SQS events, Lambda handlers for processing JSON digests, and structured logging to simplify debugging and monitoring.
+
+## Getting Started
+
+For detailed usage and examples, see the [SQS Digest Handler & CLI Documentation](docs/agenticHandler.md).
 
 ## Features
 
