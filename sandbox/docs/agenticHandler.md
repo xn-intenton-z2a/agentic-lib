@@ -1,10 +1,10 @@
-# SQS Digest Handler & CLI
+# SQS Digest Handler & CLI Documentation
 
-This document describes how to generate SQS events from digest objects, process them with the Lambda handler, and use the CLI entrypoint provided by the library.
+This document provides detailed information on the core capabilities of `agentic-lib`, including structured logging, AWS SQS event generation, Lambda handlers, and CLI usage.
 
 ## Logging Utilities
 
-The library exports helper functions for structured JSON logging:
+You can import and use structured JSON logging helpers to standardize logs across your application:
 
 ```js
 import { logConfig, logInfo, logError } from "@xn-intenton-z2a/agentic-lib";
@@ -19,108 +19,105 @@ logInfo("This is an informational message");
 logError("An error occurred", new Error("Something went wrong"));
 ```
 
-These functions output JSON logs with fields such as `level`, `timestamp`, `message`, and optional `error` or `stack` information.
+Each helper outputs a JSON object with fields such as:
+
+- `level`: `info` or `error`
+- `timestamp`: ISO 8601 timestamp
+- `message`: descriptive text
+- optional fields: `config`, `error`, `stack`, `verbose` flags
 
 ## createSQSEventFromDigest(digest)
 
-Generates an AWS SQS event containing a single record:
+Generates an AWS SQS event containing a single record from a digest object:
 
 ```js
 import { createSQSEventFromDigest } from "@xn-intenton-z2a/agentic-lib";
 
-const digest = { key: "...", value: "...", lastModified: "..." };
+const digest = {
+  key: "events/1.json",
+  value: "12345",
+  lastModified: new Date().toISOString(),
+};
 const sqsEvent = createSQSEventFromDigest(digest);
 ```
 
-- `digest` (object): The message payload with the fields:
+- `digest` (object): must include:
   - `key` (string)
   - `value` (string)
   - `lastModified` (ISO timestamp string)
 
-Returns an object matching the AWS SQS event schema with one record, for example:
-
-```json
-{
-  "Records": [
-    {
-      "eventVersion": "2.0",
-      "eventSource": "aws:sqs",
-      "eventTime": "2025-05-06T03:52:49.140Z",
-      "eventName": "SendMessage",
-      "body": "{ \"key\": \"...\", \"value\": \"...\", \"lastModified\": \"...\" }"
-    }
-  ]
-}
-```
+**Returns:** An object matching the AWS SQS event schema with one record.
 
 ## digestLambdaHandler(sqsEvent)
 
-Lambda handler function to process SQS events with digests and report failures.
+Lambda handler function to process SQS events containing digest messages and report parsing failures:
 
 ```js
 import { digestLambdaHandler } from "@xn-intenton-z2a/agentic-lib";
 
 const response = await digestLambdaHandler(sqsEvent);
 console.log(response);
-// { batchItemFailures: [...], handler: "src/lib/main.digestLambdaHandler" }
+// {
+//   batchItemFailures: [...],
+//   handler: "src/lib/main.digestLambdaHandler"
+// }
 ```
 
-- `sqsEvent` (object): AWS SQS event.
+- **Parameters:**
+  - `sqsEvent` (object): AWS SQS event with one or more `Records`.
+- **Returns:**
+  - `batchItemFailures`: Array of `{ itemIdentifier }` for records that failed JSON parsing.
+  - `handler`: string identifier for the handler path.
 
-Returns an object with:
-- `batchItemFailures`: Array of `{ itemIdentifier }` for records that failed parsing.
-- `handler`: String identifying the handler path.
+**Behavior:**
 
-### Behavior
-
-- Logs each record's digest data in structured JSON format.
-- Invalid JSON bodies are caught and logged as errors, including the raw message.
-- If a record is missing a `messageId`, a fallback identifier is generated in the format `fallback-{index}-{timestamp}-{randomString}` to ensure retries.
-- Reports failed records in `batchItemFailures` for SQS to attempt reprocessing.
+- Logs each record’s digest data with `logInfo`.
+- Catches invalid JSON payloads, logs an error via `logError` (including raw message), and generates a fallback `itemIdentifier` when `messageId` is missing.
+- Returns failed record identifiers so AWS SQS can retry them.
 
 ## CLI Entry Point
 
-The library provides a CLI interface via the `main` function. It supports the following flags:
+The library exposes a CLI via the `main` function in `src/lib/main.js`. On startup, it invokes `logConfig` to log the loaded configuration, then processes one of the following flags:
 
-- `--help`: Display usage instructions.
+- `--help`: Show usage instructions.
 - `--digest`: Generate and process a sample digest event.
-- `--version`: Display version and timestamp information in JSON.
+- `--version`: Display version information and timestamp in JSON.
 
-### Usage
+### Usage Examples
 
-Using Node:
 ```bash
-node src/lib/main.js --help
+# Show help
+npx agentic-lib --help
 ```
-
-```plaintext
+```
 Usage:
   --help                     Show this help message and usage instructions.
   --digest                   Run a full bucket replay simulating an SQS event.
   --version                  Show version information with current timestamp.
 ```
 
-Or using npx:
 ```bash
+# Simulate digest processing
 npx agentic-lib --digest
 ```
-
-### Simulate a Digest Processing
-
-```bash
-npx agentic-lib --digest
+**Example Output:**
+```json
+{ "level": "info", "timestamp": "2025-05-06T12:00:00.000Z", "message": "Configuration loaded", "config": {} }
+{ "level": "info", "timestamp": "2025-05-06T12:00:00.001Z", "message": "Digest Lambda received event: {...}" }
 ```
 
-### Version Information
-
 ```bash
+# Show version information
 npx agentic-lib --version
 ```
-
-Outputs:
+**Example Output:**
 ```json
-{
-  "version": "6.2.1-0",
-  "timestamp": "2025-05-06T03:52:49.140Z"
-}
+{ "level": "info", "timestamp": "2025-05-06T12:00:00.000Z", "message": "Configuration loaded", "config": {} }
+{ "version": "6.2.1-0", "timestamp": "2025-05-06T12:00:00.002Z" }
 ```
+
+## See Also
+
+- [Programmatic Usage](../README.md)
+- [Contributing Guide](../../CONTRIBUTING.md)
+
