@@ -719,6 +719,8 @@ Discussions Bot [MVP]:
 - [x] If not triggered by a discussion, use SEED_DISCUSSIONS to find the last discussion and use that to post the reply.
 - [x] On schedule, set a default body of: Summarise the current state of the repository, activity since the last update and how we are tracking against the mission ad recommends next steps.
 - [~] Bot to take actions within a stream (dev, elaboration, etc...) - existing workflows can scan discussions instead of 'house choice'
+- [ ] The feature development flow should refine the features when the feature bank it at the limit (it looks like it fails).
+- [ ] if there is feature text and the feature limit is reached try and flex on of the features to accommodate the new feature request.
 - [ ] [Later] Summarise and sanitize all the workflows so that they can be passed to the bot.
 - [ ] [Later] Summarise the features in the archive and mine these during feature development.
 - [ ] [Later] Post the cost of the response in each response.
