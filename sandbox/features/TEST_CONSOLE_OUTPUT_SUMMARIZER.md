@@ -1,53 +1,28 @@
 # Purpose
-Add a CI integrated test console output summarizer command to run the test suite and emit a structured JSON report in a single invocation.
+Add a CLI command to run the test suite and emit a structured JSON summary of test results for CI integration and local usage.
 
 # Value Proposition
-Allow continuous integration pipelines to execute tests and automatically generate machine readable summaries with pass, fail, skip counts, unique error messages and timing metrics, and to fail the CI step on test failures without additional scripting.
+This feature enables automated systems and developers to run the test suite in one step and receive a machine readable report with pass, fail, skip counts, unique error messages, and optional timing metrics. It simplifies CI configurations and local debugging by providing a single command to execute tests and parse outputs without extra scripting.
 
 # Success Criteria & Requirements
-* The existing summarizeTestConsoleOutput function continues to parse raw test output and return an object with total, passed, failed, skipped, errors and metrics fields.
-* A new CLI helper processCiSummarizeTests detects the flag --ci-summarize-tests and an optional --metrics flag.
-* When --ci-summarize-tests is supplied, spawn the configured test script (npm test) as a child process, capture its stdout and stderr streams until the process completes.
-* After the test process exits, invoke summarizeTestConsoleOutput with includeMetrics true if --metrics was supplied, otherwise false.
-* Print the JSON summary to standard output in a single JSON object format.
-* If the summary.failed count is greater than zero, exit the process with a non-zero exit code to signal CI failure; otherwise continue or return normally.
-* Increment globalThis.callCount exactly once per --ci-summarize-tests invocation.
-* processCiSummarizeTests must be called at the very start of main before any other CLI handlers.
-* Update README.md under CLI Usage to document the new --ci-summarize-tests flag with examples showing invocation and sample output.
-* Add Vitest unit tests in tests/unit/main.test.js mocking the child process invocation, simulating passing and failing tests, verifying summary output, exit code behavior, and callCount increment.
+* Expose function summarizeTestConsoleOutput that accepts raw test output and an options object and returns an object with fields total, passed, failed, skipped, errors, and metrics containing durationTotal and durationAverage when enabled.
+* Introduce CLI flag --ci-summarize-tests that spawns the test runner, captures stdout and stderr, and passes the combined output to summarizeTestConsoleOutput.
+* Support optional --metrics flag to enable timing metrics in the summary.
+* Print the summary as a single JSON object to standard output and exit with a non zero code if failed count is greater than zero or test runner exit code is non zero.
+* Increment globalThis.callCount exactly once per invocation of the CLI helper.
+* Ensure processCiSummarizeTests is called at the very start of the main function so that summarization takes priority over other CLI flags.
 
 # Implementation Details
-1. In src/lib/main.js import spawn from "child_process" near existing imports.
-2. After processSummarizeTests definition add:
-   async function processCiSummarizeTests(args) {
-     if args includes --ci-summarize-tests then
-       const includeMetrics = args includes --metrics
-       spawn the test script using spawn('npm', ['test'], { stdio: ['ignore','pipe','pipe'] })
-       collect stdout and stderr data into a string rawOutput
-       await child process close event to get exitCode
-       const summary = summarizeTestConsoleOutput(rawOutput, { metrics: includeMetrics })
-       console.log(JSON.stringify(summary))
-       globalThis.callCount++
-       if summary.failed > 0 or exitCode not zero then process.exit with code 1
-       return true
-     return false
-   }
-3. In main(args) at the very top insert:
-   if await processCiSummarizeTests(args) then return
-4. Update README.md under CLI Usage to add:
-   --ci-summarize-tests [--metrics]
-     Run the test suite and print a JSON summary of results and metrics if requested
-   Example:
-     npx agentic-lib --ci-summarize-tests --metrics
-   Sample Output:
-     {"total":10,"passed":8,"failed":2,"skipped":0,"errors":["edge case"],"metrics":{"durationTotal":12.3,"durationAverage":1.23}}
-5. Add Vitest tests in tests/unit/main.test.js:
-   - Mock spawn to emit predefined test output and exit codes
-   - Verify processCiSummarizeTests returns true, prints correct JSON to console.log, increments callCount, and exits with code 1 on failures
-   - Verify includeMetrics controls metrics fields in summary
+1. In src/lib/main.js import spawn from child_process.
+2. Define function summarizeTestConsoleOutput that splits raw output into lines, counts lines indicating test pass, fail, and skip, extracts unique error messages, and computes duration metrics when requested.
+3. Define async function processCiSummarizeTests that checks for --ci-summarize-tests in args, determines includeMetrics based on presence of --metrics, spawns the test script using spawn, collects output streams into rawOutput, awaits process close event, invokes summarizeTestConsoleOutput, logs JSON summary, increments callCount, and calls process.exit with code 1 when failures exist.
+4. In main(args) invoke processCiSummarizeTests before all other CLI handlers and return when it handles the flag.
+5. Update README.md under CLI Usage to document both flags with examples showing invocation and sample output of the JSON summary.
+6. Add vitest unit tests in tests/unit/main.test.js mocking spawn to simulate passing and failing tests, verifying console output, callCount increment, exit behavior, and metrics inclusion.
 
 # Verification & Acceptance
-* Running npm test should execute new tests and existing tests without regression.
-* Manual invocation of npx agentic-lib --ci-summarize-tests should run tests, emit JSON summary, and exit with non-zero code on failures.
-* Metrics flag should enable timing metrics in the summary.
-* Code style and formatting must conform to existing patterns.
+* Running npm test passes all new and existing tests.
+* Manual invocation of npx agentic-lib --ci-summarize-tests emits a JSON summary object and sets exit code to 1 on failures and 0 on success.
+* Metrics appear only when --metrics is specified and are null or omitted otherwise.
+* globalThis.callCount increases by one each time the command is run.
+* README.md renders the new CLI section correctly without formatting errors.
