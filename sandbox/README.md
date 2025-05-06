@@ -10,6 +10,7 @@ The **intentïon `agentic-lib`** is a JavaScript/Node.js library that powers AWS
 - Utility to create AWS SQS events from digest objects (`createSQSEventFromDigest`)
 - Lambda handler for digest processing (`digestLambdaHandler`) with batch failure reporting
 - CLI commands for help (`--help`), version info (`--version`), and digest simulation (`--digest`)
+- CLI version command outputs JSON with version and timestamp
 - Configuration via environment variables or `.env` file
 
 ## Installation
@@ -49,9 +50,18 @@ logError("Failed to process request", new Error("Invalid data"));
 
 These functions produce logs in JSON format, for example:
 
-- `logConfig`: `{ level: "info", message: "Configuration loaded", config: { ... } }`
-- `logInfo`: `{ level: "info", message: "…", timestamp: "…" }`
-- `logError`: `{ level: "error", message: "…", error: "Error: …" }`
+- `logConfig`:
+  ```json
+  { "level": "info", "timestamp": "2025-05-06T03:52:49.140Z", "message": "Configuration loaded", "config": { ... } }
+  ```
+- `logInfo`:
+  ```json
+  { "level": "info", "timestamp": "2025-05-06T03:52:49.141Z", "message": "…" }
+  ```
+- `logError`:
+  ```json
+  { "level": "error", "timestamp": "2025-05-06T03:52:49.142Z", "message": "…", "error": "Error: …" }
+  ```
 
 ## CLI Usage
 
@@ -60,6 +70,8 @@ After installation (or using `npx`):
 ```bash
 npx agentic-lib --help
 ```
+
+Output:
 
 ```plaintext
 Usage:
@@ -74,10 +86,23 @@ Simulate a digest processing:
 npx agentic-lib --digest
 ```
 
+Output (example):
+```json
+{"level":"info","timestamp":"2025-05-06T03:52:49.143Z","message":"Configuration loaded","config":{}}
+{"level":"info","timestamp":"2025-05-06T03:52:49.144Z","message":"Digest Lambda received event: { ... }"}
+...
+```
+
 Show version:
 
 ```bash
 npx agentic-lib --version
+```
+
+Output (example):
+
+```json
+{"version":"6.2.1-0","timestamp":"2025-05-06T03:52:49.145Z"}
 ```
 
 ## Programmatic Usage
