@@ -63,7 +63,11 @@ npx @xn-intenton-z2a/agentic-lib --help
 node src/lib/main.js --help
 ```
 
-**Output:**
+**Example Output:**
+
+```json
+{ "level": "info", "timestamp": "2025-05-06T12:00:00.000Z", "message": "Configuration loaded", "config": {} }
+```
 ```
 Usage:
   --help                     Show this help message and usage instructions.

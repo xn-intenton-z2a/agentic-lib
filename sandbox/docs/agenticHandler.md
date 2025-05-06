@@ -83,11 +83,17 @@ The library exposes a CLI via the `main` function in `src/lib/main.js`. On start
 - `--digest`: Generate and process a sample digest event.
 - `--version`: Display version information and timestamp in JSON.
 
-### Usage Examples
+## Usage Examples
 
 ```bash
 # Show help
 npx @xn-intenton-z2a/agentic-lib --help
+```
+
+**Example Output:**
+
+```json
+{ "level": "info", "timestamp": "2025-05-06T12:00:00.000Z", "message": "Configuration loaded", "config": {} }
 ```
 ```
 Usage:
