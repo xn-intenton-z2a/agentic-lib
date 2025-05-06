@@ -1,49 +1,51 @@
 # Purpose
-Add a new CLI command --stats to src/lib/main.js that generates and prints a JSON summary of repository metrics including uptime, callCount, commitCount, and fileCount.
+Add a new CLI flag --stats to src/lib/main.js that prints a machine-readable summary of repository and runtime metrics as JSON.
 
 # Value Proposition
-Offer users a quick, machine-readable summary of key repository metrics directly from the CLI, facilitating monitoring, reporting, and integration into CI/CD pipelines without external tooling.
+Provide users and automation systems with a quick, unified, and scriptable way to retrieve key metrics—uptime, call count, commit count, and file count—directly from the CLI, simplifying monitoring, reporting, and integration into CI/CD pipelines.
 
 # Success Criteria & Requirements
-* Introduce function generateStatsSummary(options?) exported from src/lib/main.js
-  - Returns an object { uptime, callCount, commitCount, fileCount }
-  - uptime: process.uptime() in seconds
-  - callCount: globalThis.callCount
-  - commitCount: number of commits via git rev-list --count HEAD
-  - fileCount: total number of files in the repository (recursively counted)
-* Add CLI helper processStats(args) in src/lib/main.js
-  - Detects --stats flag
-  - Invokes generateStatsSummary and prints JSON.stringify(summary, null, 2)
-  - Increments callCount for the CLI invocation
-  - Returns true when handled, false otherwise
-* Update main(args) to call processStats before existing handlers
-* Update README.md under CLI Usage to document --stats with example invocation and sample JSON output
-* Add Vitest tests in tests/unit/main.test.js mocking child_process and fs to verify metrics and CLI behavior
-* No new dependencies beyond Node built-ins (fs/promises, path, child_process)
+* Export an async function generateStatsSummary(options?) from src/lib/main.js that returns an object with:
+  - uptime: number of seconds from process.uptime()
+  - callCount: globalThis.callCount value
+  - commitCount: result of running git rev-list --count HEAD
+  - fileCount: total number of files in the repository counted recursively
+* Add a CLI helper async function processStats(args) in src/lib/main.js that:
+  - Detects the presence of --stats in args
+  - Calls generateStatsSummary()
+  - Prints JSON.stringify(summary, null, 2) to standard output
+  - Increments globalThis.callCount exactly once for the CLI invocation
+  - Returns true when --stats is handled, false otherwise
+* Integrate processStats into main(args) before existing handlers (help, version, digest) so that --stats takes priority
+* On error (for example, git command failure or file system access error), call logError and exit with code 1
+* No new dependencies beyond Node built-ins (fs/promises, child_process)
 
 # Implementation Details
-1. In src/lib/main.js import fs from "fs/promises" and execSync from "child_process".
-2. Define async function generateStatsSummary(options = {}) below existing utilities:
-   - Compute uptime via process.uptime()
-   - Read globalThis.callCount
-   - Compute commitCount by executing execSync('git rev-list --count HEAD').toString().trim()
-   - Recursively traverse the repository root to count files using fs.readdir and fs.stat
-   - Return metrics object
-3. Define async function processStats(args) that:
-   - If args includes "--stats":
-     * Call generateStatsSummary
-     * console.log JSON.stringify(summary, null, 2)
-     * Increment globalThis.callCount
-     * Return true
-   - Otherwise return false
-   - On errors, call logError and process.exit(1)
-4. In main(args), before help/version/digest handlers insert:
-   if (await processStats(args)) { if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() })); return; }
-5. Modify README.md under "CLI Usage" to add:
+1. At the top of src/lib/main.js import execSync from child_process and fs from fs/promises
+2. Beneath existing utilities, define:
+   async function generateStatsSummary(options = {}) {
+     // uptime via process.uptime()
+     // callCount from globalThis.callCount
+     // commitCount via execSync('git rev-list --count HEAD')
+     // fileCount by recursively traversing the project root with fs.readdir and fs.stat
+     // Return an object { uptime, callCount, commitCount, fileCount }
+   }
+3. Define:
+   async function processStats(args) {
+     if args includes --stats then
+       const summary = await generateStatsSummary()
+       console.log(JSON.stringify(summary, null, 2))
+       globalThis.callCount++
+       return true
+     return false
+   }
+4. In main(args), insert at the very top:
+   if await processStats(args) then return
+5. Update README.md under CLI Usage to document:
    --stats
-     Print repository metrics summary as JSON
+     Print JSON summary of uptime, callCount, commitCount, and fileCount
    Example:
-     npx @xn-intenton-z2a/agentic-lib --stats
+     npx agentic-lib --stats
    Sample Output:
      {
        "uptime": 12.34,
@@ -51,16 +53,14 @@ Offer users a quick, machine-readable summary of key repository metrics directly
        "commitCount": 42,
        "fileCount": 128
      }
-6. Add Vitest tests in tests/unit/main.test.js:
-   - Mock execSync to return a known commit count
-   - Mock fs.readdir and fs.stat to simulate a fixed file structure
-   - Test generateStatsSummary returns expected values
-   - Test processStats prints JSON on flag and increments callCount
-   - Test error path in git command triggers logError and exit code 1
+6. Add Vitest tests in tests/unit/main.test.js that:
+   - Mock execSync to return a known commit count string
+   - Mock fs.readdir and fs.stat to simulate a fixed file hierarchy and count
+   - Verify generateStatsSummary returns expected values
+   - Spy on console.log and globalThis.callCount for processStats when --stats is supplied
+   - Test that missing git or fs errors trigger logError and exit code 1
 
 # Verification & Acceptance
-* Run npm test to confirm new tests pass and existing tests remain unaffected
-* Verify generateStatsSummary returns correct metrics with mocked dependencies
-* Confirm --stats flag prints formatted JSON and increments callCount
-* Validate error handling logs errors and exits with code 1 on failures
-* Ensure README.md updates render correctly without formatting issues
+* Run npm test to ensure new tests pass and no existing tests fail
+* Manually invoke npx agentic-lib --stats and confirm correct JSON output and callCount increment
+* Confirm code style, linting, and formatting remain consistent
