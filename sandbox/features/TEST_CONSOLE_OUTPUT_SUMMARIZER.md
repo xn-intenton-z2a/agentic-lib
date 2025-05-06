@@ -1,64 +1,54 @@
 # Purpose
-Add a core function summarizeTestConsoleOutput to src/lib/main.js that parses raw test runner console output and generates concise summaries for CLI and programmatic use.
+Add CLI flag --summarize-tests to output aggregated test results in structured JSON.
 
 # Value Proposition
-Provide a reusable utility that transforms verbose test output into clear metrics and error details. This enhances developer productivity and automation by highlighting test results without manual parsing, supporting both human-readable text and JSON formats.
+Provide developers and automation scripts with structured test result data, enabling easy consumption in CI pipelines and reporting systems.
 
 # Success Criteria & Requirements
-* Expose an exported async function summarizeTestConsoleOutput(output, options?) in src/lib/main.js.
-* Accept parameters:
-  * output (string): raw test runner console output
-  * options.format ("text"|"json"): desired summary format, defaulting to "text".
-* Parse the output to compute:
-  * total number of tests run
-  * passed count
-  * failed count
-  * skipped count
-  * an array of error messages for each failed test
-* For text format:
-  * Return a multi-line string:
-      Total: X tests run
-      Passed: Y
-      Failed: Z
-      Skipped: W
-      Errors:
-        ● <error message 1>
-        ● <error message 2>
-* For JSON format:
-  * Return a JavaScript object:
-      {
-        total: X,
-        passed: Y,
-        failed: Z,
-        skipped: W,
-        errors: ["message1","message2"]
-      }
-* Increment globalThis.callCount on each invocation.
+* Detect the --summarize-tests flag in the CLI entry point.
+* Accept a file path argument immediately following --summarize-tests or read from stdin if no path is provided.
+* Upon invocation, read raw test output from the specified file or stdin and call summarizeTestConsoleOutput(output, { format: 'json' }).
+* Console.log the returned object serialized with JSON.stringify(summary, null, 2).
+* Increment globalThis.callCount for the CLI invocation.
+* Preserve existing CLI flags and behavior when --summarize-tests is not present.
 
 # Implementation Details
-1. In src/lib/main.js, after existing CLI helpers, import fs/promises if not already.
-2. Define async function summarizeTestConsoleOutput(output, options = {}) {
-     * Initialize counters and error list.
-     * Split output into lines and detect test status lines using simple patterns (e.g., ✓, ✕, skipped keywords).
-     * Extract error messages by locating lines starting with error markers (e.g., Error:, ●).
-     * Build summary data and increment globalThis.callCount.
-     * If options.format === 'json' return the summary object.
-     * Otherwise format a text string matching the CLI examples.
+1. In src/lib/main.js, import fs from "fs/promises" if not already imported.
+2. Below existing CLI helper functions, define async function processSummarizeTests(args) {
+   * Check if args includes "--summarize-tests".
+   * Determine the next argument as file path; if absent, read from process.stdin until end.
+   * For file path: await fs.readFile(path, 'utf8'); for stdin: collect data chunks and await end.
+   * Call summarizeTestConsoleOutput(output, { format: 'json' }).
+   * Console.log JSON.stringify(summary, null, 2).
+   * Increment globalThis.callCount.
+   * Return true to indicate the flag was handled.
+   * On errors (file not found, parse errors), call logError and exit with code 1.
+}
+3. In main(args), before falling back to default output, insert:
+   if (await processSummarizeTests(args)) {
+     if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+     return;
    }
-3. Export summarizeTestConsoleOutput alongside other utilities in main.js.
-4. In the existing processSummarizerCLI function:
-   * Import summarizeTestConsoleOutput.
-   * After reading file content, call summarizeTestConsoleOutput(content, { format }).
-   * If JSON format, console.log JSON.stringify(summary, null, 2).
-   * Else, console.log the summary string.
-   * Increment globalThis.callCount again only for CLI invocation logic if desired.
+4. Update README.md under CLI Usage to include:
+   ## Summarize Tests
+   Add description for --summarize-tests flag.
+   Example invocation:
+     npx @xn-intenton-z2a/agentic-lib --summarize-tests path/to/test-output.txt
+   Sample output:
+     {
+       "total": 10,
+       "passed": 8,
+       "failed": 1,
+       "skipped": 1,
+       "errors": ["Error message details"]
+     }
+5. Add Vitest tests in tests/unit/main.test.js for processSummarizeTests:
+   * Mock fs.readFile to return a sample output string and verify console.log is called with expected JSON summary.
+   * Mock process.stdin to provide sample output when no file path is given and verify behavior.
+   * Test error handling when file path is invalid; expect logError and process.exit(1).
 
 # Verification & Acceptance
-* Add Vitest tests in tests/unit/main.test.js:
-  * Unit tests for summarizeTestConsoleOutput parsing:
-    - A sample output string with passed, failed, skipped and error messages; verify returned text and JSON variants.
-  * CLI tests in processSummarizerCLI:
-    - Mock fs.promises.readFile to return sample output; verify console.log called with expected text or JSON.
-    - Confirm processSummarizerCLI returns true and globalThis.callCount increments correctly.
 * Run npm test to ensure all new and existing tests pass.
-* Confirm that README.md under CLI Usage includes the "Summarize Test Console Output" section with accurate examples.
+* Confirm that invoking --summarize-tests produces valid JSON output with correct counts and errors array.
+* Verify that callCount increments correctly for both programmatic and CLI invocations.
+* Ensure no regressions in existing CLI behavior and tests.
