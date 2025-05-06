@@ -17,34 +17,36 @@ In-depth patterns for integrating AWS Lambda with Amazon SQS in Node.js, detaili
 Last updated May 2024; official AWS documentation.
 ## License: Public Domain (AWS documentation)
 
-# @xn-intenton-z2a/s3-sqs-bridge
+# S3 Payload Handling & Library
+## https://docs.aws.amazon.com/AmazonS3/latest/userguide/PresignedUrlUploadObject.html
 ## https://github.com/xn-intenton-z2a/s3-sqs-bridge
-Open-source utility library for offloading large message payloads to Amazon S3 with lightweight SQS notifications. Includes helpers for uploading to S3, generating pre-signed URLs, batching, error backoff, and cleanup routines. Critical for implementing high-throughput, payload-heavy SQS workflows in agentic-lib.
-Latest release: v0.23.0; MIT License.
-## License: MIT
+Combined documentation for generating AWS S3 pre-signed URLs and using the s3-sqs-bridge library to offload large payloads to S3 with lightweight SQS notifications. The AWS guide covers URL signing processes, expiration settings, security best practices, permission scopes, and Node.js SDK examples. The open-source library provides helpers for uploading to S3, generating pre-signed URLs, message batching, exponential backoff, error handling, and cleanup routines—critical for implementing robust, high-throughput, payload-heavy SQS workflows.
+Last updated April 2024 (AWS, public domain) and v0.23.0 release; MIT License for library.
+## License: MIT (library), Public Domain (AWS documentation)
 
 # Node.js ESM Utilities
 ## https://nodejs.org/api/url.html#url_fileurltopath_url
-Comprehensive reference for core Node.js utilities used in agentic-lib: converting ES Module URLs to file system paths via `fileURLToPath(import.meta.url)` and cross-platform CLI entry-point detection. Details import.meta.url behavior, file URL handling, and best practices for ESM module resolution in Node.js environments.
+Comprehensive reference for core Node.js ESM utilities, including converting ES Module `import.meta.url` to file system paths via `fileURLToPath()`. Details how `URL` objects work, cross-platform file path resolution, dynamic imports, and best practices for ESM module loading in Node.js.
 Last updated May–June 2024; official Node.js documentation.
 ## License: CC BY 4.0
 
 # Environment Configuration & Validation
 ## https://github.com/motdotla/dotenv#readme
 ## https://zod.dev
-Detailed guide covering loading environment variables with dotenv (configuration options, file loading, variable expansion, and error handling) and schema validation with Zod (defining schemas, parsing strategies, custom refinements, and formatted error reporting). Crucial for robust, type-safe configuration management in Node.js applications, ensuring reliable defaults and runtime safety.
-Last updated June 2024; dotenv (MIT License), Zod (MIT License).
+Detailed guide covering environment variable management and validation: loading `.env` files, variable expansion, fallback strategies, error handling with dotenv; combined with schema definitions, parsing strategies, custom refinements, and type-safe error reporting via Zod. Essential for robust, type-safe configuration management in Node.js applications.
+Last updated June 2024; MIT License.
 ## License: MIT
 
 # OpenAI Chat API & Function Calling
 ## https://platform.openai.com/docs/api-reference/chat/create
 ## https://platform.openai.com/docs/guides/function-calling
-Combined reference for the OpenAI Chat Completions endpoint and the function calling guide. Covers HTTP authentication, request body schemas (single and streaming modes), supported parameters (`temperature`, `max_tokens`, `functions`), JSON schema-based function definitions, automatic function invocation by the model, and handling returned payloads. Essential for building deterministic, function-enabled conversational agents with robust error handling and retry strategies.
+Combined reference for the OpenAI Chat Completions endpoint and the function calling mechanism. Covers authentication, request/response schemas, streaming and non-streaming modes, `temperature` & `max_tokens` options, defining JSON schema-based functions, handling model-invoked function calls, and structured response processing. Crucial for deterministic, function-enabled conversational agents.
 Last updated June 2024; authoritative OpenAI documentation.
 ## License: CC BY 4.0
 
-# AWS S3 Pre-signed URLs
-## https://docs.aws.amazon.com/AmazonS3/latest/userguide/PresignedUrlUploadObject.html
-Official AWS S3 documentation for generating and using pre-signed URLs to upload and download objects. Covers the signing process, URL expiration, security best practices, permission scopes, and SDK examples in Node.js. Vital for offloading large payloads to S3 in SQS workflows, enabling secure, time-limited upload and download links.
-Last updated April 2024; official AWS documentation.
-## License: Public Domain (AWS documentation)
+# Vitest Testing & Mocking
+## https://vitest.dev/guide/
+## https://vitest.dev/guide/mocking.html
+Official Vitest guide covering test configuration, writing and organizing tests, and mocking modules/functions. Specifically details `vi.mock()`, spy creation, lifecycle hooks, and dynamic imports to ensure test isolation and accurate module mocking. Directly informs best practices for testing the agentic-lib codebase and handling default and override mocks in Vitest.
+Last updated May 2024; MIT License (Vitest).
+## License: MIT
