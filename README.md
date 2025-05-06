@@ -718,14 +718,14 @@ Discussions Bot [MVP]:
 - [x] Pass build, main and test output to the bot to be used in the discussion.
 - [x] If not triggered by a discussion, use SEED_DISCUSSIONS to find the last discussion and use that to post the reply.
 - [x] On schedule, set a default body of: Summarise the current state of the repository, activity since the last update and how we are tracking against the mission ad recommends next steps.
-- [~] Bot to take actions within a stream (dev, elaboration, etc...) - existing workflows can scan discussions instead of 'house choice'
+- [~] Bot to take actions within a stream (dev, seed, etc...)
 - [ ] The feature development flow should refine the features when the feature bank it at the limit (it looks like it fails).
 - [ ] if there is feature text and the feature limit is reached try and flex on of the features to accommodate the new feature request.
 - [ ] [Later] Summarise and sanitize all the workflows so that they can be passed to the bot.
 - [ ] [Later] Summarise the features in the archive and mine these during feature development.
 - [ ] [Later] Post the cost of the response in each response.
 
-intentïon user journey [Launch]:
+intentïon user journey [Launch UX]:
 - [ ] On intentïon.com, user provides an intention which is posted as a new GitHub Discussions thread.
 - [~] repository0-crucible seeds the repository with the mission and reports back with the intentïon branch.
 - [ ] Updates periodically synchronised to a branch (which does not run the workflows) and summary reported to Discussions.
