@@ -136,6 +136,7 @@ jobs:
       checks: write
       issues: write
       id-token: write
+      packages: write
       pages: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@main'
     with:
