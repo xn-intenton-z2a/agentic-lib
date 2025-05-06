@@ -30,7 +30,8 @@ import {
   digestLambdaHandler,
   logConfig,
   logInfo,
-  logError
+  logError,
+  main
 } from "@xn-intenton-z2a/agentic-lib";
 
 // Load and log configuration
@@ -57,7 +58,7 @@ const sqsEvent = createSQSEventFromDigest(digest);
 Run via npx or directly with Node:
 
 ```bash
-npx agentic-lib --help
+npx @xn-intenton-z2a/agentic-lib --help
 # or
 node src/lib/main.js --help
 ```
@@ -72,7 +73,7 @@ Usage:
 
 **Simulate a digest processing:**
 ```bash
-npx agentic-lib --digest
+npx @xn-intenton-z2a/agentic-lib --digest
 ```
 **Example Output:**
 ```json
@@ -82,7 +83,7 @@ npx agentic-lib --digest
 
 **Show version information:**
 ```bash
-npx agentic-lib --version
+npx @xn-intenton-z2a/agentic-lib --version
 ```
 **Example Output:**
 ```json
