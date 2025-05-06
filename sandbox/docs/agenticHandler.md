@@ -106,7 +106,9 @@ Usage:
 # Simulate digest processing
 npx @xn-intenton-z2a/agentic-lib --digest
 ```
+
 **Example Output:**
+
 ```json
 { "level": "info", "timestamp": "2025-05-06T12:00:00.000Z", "message": "Configuration loaded", "config": {} }
 { "level": "info", "timestamp": "2025-05-06T12:00:00.001Z", "message": "Digest Lambda received event: {...}" }
@@ -116,7 +118,9 @@ npx @xn-intenton-z2a/agentic-lib --digest
 # Show version information
 npx @xn-intenton-z2a/agentic-lib --version
 ```
+
 **Example Output:**
+
 ```json
 { "level": "info", "timestamp": "2025-05-06T12:00:00.000Z", "message": "Configuration loaded", "config": {} }
 { "version": "6.2.1-0", "timestamp": "2025-05-06T12:00:00.002Z" }
