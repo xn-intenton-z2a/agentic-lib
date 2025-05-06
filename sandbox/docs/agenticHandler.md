@@ -74,7 +74,9 @@ Returns an object with:
 ### Behavior
 
 - Logs each record's digest data in structured JSON format.
-- Invalid JSON bodies are caught, logged as errors (including raw message), and reported back in `batchItemFailures` for retry.
+- Invalid JSON bodies are caught and logged as errors, including the raw message.
+- If a record is missing a `messageId`, a fallback identifier is generated in the format `fallback-{index}-{timestamp}-{randomString}` to ensure retries.
+- Reports failed records in `batchItemFailures` for SQS to attempt reprocessing.
 
 ## CLI Entry Point
 
@@ -104,11 +106,13 @@ npx agentic-lib --digest
 ```
 
 ### Simulate a Digest Processing
+
 ```bash
 npx agentic-lib --digest
 ```
 
 ### Version Information
+
 ```bash
 npx agentic-lib --version
 ```
