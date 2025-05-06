@@ -87,7 +87,7 @@ The library exposes a CLI via the `main` function in `src/lib/main.js`. On start
 
 ```bash
 # Show help
-npx agentic-lib --help
+npx @xn-intenton-z2a/agentic-lib --help
 ```
 ```
 Usage:
@@ -98,7 +98,7 @@ Usage:
 
 ```bash
 # Simulate digest processing
-npx agentic-lib --digest
+npx @xn-intenton-z2a/agentic-lib --digest
 ```
 **Example Output:**
 ```json
@@ -108,7 +108,7 @@ npx agentic-lib --digest
 
 ```bash
 # Show version information
-npx agentic-lib --version
+npx @xn-intenton-z2a/agentic-lib --version
 ```
 **Example Output:**
 ```json
