@@ -2,6 +2,25 @@
 
 This document describes how to generate SQS events from digest objects, process them with the Lambda handler, and use the CLI entrypoint provided by the library.
 
+## Logging Utilities
+
+The library exports helper functions for structured JSON logging:
+
+```js
+import { logConfig, logInfo, logError } from "@xn-intenton-z2a/agentic-lib";
+
+// Log loaded configuration (automatically called on import)
+logConfig();
+
+// Log informational messages
+logInfo("This is an informational message");
+
+// Log errors with optional error object
+logError("An error occurred", new Error("Something went wrong"));
+```
+
+These functions output JSON logs with fields such as `level`, `timestamp`, `message`, and optional `error` or `stack` information.
+
 ## createSQSEventFromDigest(digest)
 
 Generates an AWS SQS event containing a single record:

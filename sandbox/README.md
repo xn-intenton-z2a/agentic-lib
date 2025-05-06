@@ -30,6 +30,29 @@ OPENAI_API_KEY=your_openai_api_key
 GITHUB_API_BASE_URL=https://api.github.com/
 ```
 
+## Logging Utilities
+
+The library provides structured JSON logging helpers to standardize logs across your application:
+
+```js
+import { logConfig, logInfo, logError } from "@xn-intenton-z2a/agentic-lib";
+
+// Log the loaded configuration (automatically called on import)
+logConfig();
+
+// Log informational messages
+logInfo("User login successful");
+
+// Log errors with optional error object or message
+logError("Failed to process request", new Error("Invalid data"));
+```
+
+These functions produce logs in JSON format, for example:
+
+- `logConfig`: `{ level: "info", message: "Configuration loaded", config: { ... } }`
+- `logInfo`: `{ level: "info", message: "…", timestamp: "…" }`
+- `logError`: `{ level: "error", message: "…", error: "Error: …" }`
+
 ## CLI Usage
 
 After installation (or using `npx`):
@@ -38,7 +61,7 @@ After installation (or using `npx`):
 npx agentic-lib --help
 ```
 
-```
+```plaintext
 Usage:
   --help                     Show this help message and usage instructions.
   --digest                   Run a full bucket replay simulating an SQS event.
