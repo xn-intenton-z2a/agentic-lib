@@ -5,7 +5,9 @@
 The `agentic-lib` library loads environment variables via dotenv. Supported variables:
 
 - `OPENAI_API_KEY` (string): OpenAI API key.
-- `GITHUB_API_BASE_URL` (string): Base URL for GitHub API (defaults to `https://api.github.com` or `.test` in development).
+- `GITHUB_API_BASE_URL` (string): Base URL for GitHub API. Defaults to:
+  - `https://api.github.com` in production
+  - `https://api.github.com.test/` when running tests (`VITEST`) or in development (`NODE_ENV=development`)
 
 ## Logging Utilities
 
@@ -80,7 +82,7 @@ console.log(response);
 ```
 
 - **Parameters:**
-  - `sqsEvent` (object): AWS SQS event with `Records` array or a single record.
+  - `sqsEvent` (object): AWS SQS event with a `Records` array or a single record.
 - **Returns:**
   - `batchItemFailures`: Array of objects with `itemIdentifier` for records that failed JSON parsing.
   - `handler`: string path of the handler.
@@ -98,7 +100,7 @@ The library provides a CLI via the `main` function in `src/lib/main.js`. On star
 
 - `--help`: Show usage instructions.
 - `--version`: Display version info and timestamp.
-- `--digest`: Generate and process a sample digest event.
+- `--digest`: Generate and process a sample digest event via `digestLambdaHandler`.
 
 ```bash
 npx @xn-intenton-z2a/agentic-lib --help
