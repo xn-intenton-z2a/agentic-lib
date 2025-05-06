@@ -9,15 +9,15 @@ paths:
   librarySourcesFilepath:
     path: 'sandbox/SOURCES.md'
     permissions: [ 'write' ]
-    limit: 16
+    limit: 8
   libraryDocumentsPath:
     path: 'sandbox/library/'
     permissions: [ 'write' ]
-    limit: 8
+    limit: 32
   featuresPath:
     path: 'sandbox/features/'
     permissions: [ 'write' ]
-    limit: 3
+    limit: 100
 
   # Filepaths for engineer workflows
   contributingFilepath:
