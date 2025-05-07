@@ -1,61 +1,61 @@
 # Objective and Scope
-Expand the existing discussion summary feature to include both test output context and a comprehensive workflow reference section in the project documentation. This feature will:
+Expand the existing discussion summary feature to include both GitHub issue or pull request discussion context, optional CI/CD workflow reference, and detailed test console output summary. This feature will:
 
-• Generate AI-powered summaries of GitHub issue or pull request discussions with optional CI/CD workflow and test console output context.
-• Provide maintainers with a consolidated reference to all agentic-lib workflows, their purpose, inputs, outputs, and usage examples directly in the README.
+- Generate AI-powered summaries of discussion threads with context on workflow runs and test failures.
+- Provide a consolidated reference to all agentic-lib workflows, CLI commands, and AWS Lambda handlers in the README.
 
 # Value Proposition
 Provide developers and maintainers with:
 
-• Concise, context-rich summaries of discussion threads that surface test failures and anomalies.
-• A single, authoritative reference for all supported workflows and CLI commands, reducing discovery time and context switching.
+- Concise, context-rich summaries that surface test failures, anomalies, and workflow purpose.
+- A single authoritative reference for workflows and CLI commands, reducing discovery time and context switching.
 
 # Requirements
 
 ## CLI Integration
 
-• Extend existing flags:
-  – --summarize-discussion <discussionNumber> alias --sd
-  – --include-context alias --ic
-  – --sanitize-workflows alias --sw
-  – --include-tests alias --it to toggle test console summarization
+- Extend existing flags:
+  - --summarize-discussion <number> alias --sd
+  - --include-context alias --ic
+  - --sanitize-workflows alias --sw to toggle workflow sanitization
+  - --include-tests alias --it to toggle test console summarization
 
-• Update async function summarizeDiscussion(discussionNumber, includeContext, sanitizeWorkflows, includeTests) to accept includeTests and include test summary when true.
+- Update summarizeDiscussion(discussionNumber, includeContext, sanitizeWorkflows, includeTests) to accept includeTests and include test summary when true.
 
 ## Summary Generation
 
-• When includeTests is true, call fetchTestConsoleOutput(owner, repo, workflowRunId) and integrate returned summary in the discussion prompt under TestConsoleSummary.
+- When includeTests is true, use fetchTestConsoleOutput(owner, repo, runId) to retrieve and summarize logs via octokit.actions.downloadJobLogs and OpenAI.createChatCompletion.
+- Integrate sanitized workflows context when sanitizeWorkflows is true by filtering sensitive fields.
+- Insert a TestConsoleSummary section before discussion comments when includeTests is enabled.
 
-## Workflow Context and Test Output Fetch
+## Workflow Reference and Documentation
 
-• Maintain fetchWorkflowContext(owner, repo) for workflow run context.
-• Implement fetchTestConsoleOutput(owner, repo, runId) to download logs via octokit.actions.downloadJobLogs, extract key test failures and anomalies, and summarize via OpenAI.createChatCompletion.
-
-## Prompt Assembly
-
-• Insert TestConsoleSummary section before discussion comments when includeTests is enabled.
+- Maintain fetchWorkflowContext(owner, repo) to gather workflow names, inputs, outputs, and usage examples.
+- Update README.md to include a top-level "Workflow Reference" section listing:
+  - All supported CLI commands, flags, and examples
+  - AWS Lambda handlers and utility functions with input signatures and samples
+  - Sanitized workflow definitions when sanitizeWorkflows is true
 
 ## Logging and Error Handling
 
-• Use logInfo and logError around fetchTestConsoleOutput start, success, and failure.
-• On failure to fetch logs, proceed without test summary and log a warning.
+- Use logInfo and logError to track fetchTestConsoleOutput start, success, and failure.
+- On failure to fetch logs, proceed without test summary and log a warning.
 
-# Tests
+# Dependencies and Constraints
 
-• Unit tests mocking octokit.actions.downloadJobLogs and openai to verify fetchTestConsoleOutput and summarizeDiscussion behavior when includeTests is true.
-• CLI test invoking: node src/lib/main.js --summarize-discussion 42 --include-context --sanitize-workflows --include-tests and verifying JSON output includes testConsoleSummary.
+- Depends on openai for AI summarization and @octokit/rest for workflow context and log retrieval.
+- Requires GitHub API read permissions for logs and workflows.
+- Must operate within a single repository without adding new files.
 
-# Documentation Updates
+# User Scenarios and Examples
 
-• Update README.md to document the new --include-tests flag with usage example.
-• Add a consolidated "Workflow Reference" section in README.md listing:
-  – All supported CLI commands (--help, --version, --digest, --summarize-discussion) with descriptions and examples.
-  – AWS Lambda handlers and utility functions (createSQSEventFromDigest, digestLambdaHandler) with input signature and sample code.
-  – Links to API reference for config, logConfig, logInfo, logError.
-• Ensure the consolidated reference is under a top-level heading "Workflow Reference" and appears after the CLI Usage section.
+1. Developer reviews CI failures by running:
+   npx agentic-lib --summarize-discussion 42 --include-context --include-tests
+
+2. Maintainer consults workflow reference in README to discover CLI commands and Lambda handlers.
 
 # Verification and Acceptance
 
-• All existing and new unit tests pass.
-• Manual verification: run node src/lib/main.js --summarize-discussion 123 --include-context --sanitize-workflows --include-tests and confirm output includes summary, workflowContext, sanitizedWorkflows, and testConsoleSummary.
-• Confirm README.md includes the new Workflow Reference section with accurate command listings and examples.
+- Unit tests mock octokit and openai to verify summary, workflow context, sanitized workflows, and test console summarization when includeTests is true.
+- CLI test for node src/lib/main.js --summarize-discussion 42 --include-context --sanitize-workflows --include-tests verifies JSON output includes discussionSummary, workflowContext, sanitizedWorkflows, and testConsoleSummary.
+- Manual verification confirms README.md contains a "Workflow Reference" section with accurate entries.
