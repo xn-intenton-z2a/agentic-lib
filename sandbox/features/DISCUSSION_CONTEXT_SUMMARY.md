@@ -1,68 +1,61 @@
 # Objective and Scope
-Extend the CLI toolkit to generate AI-powered summaries for GitHub issue or pull request discussions, enriched not only with recent workflow run context and sanitized workflows, but now also with summarized test console output when requested. This enhancement supports scheduled discussion summaries that include both discussion and test result insights.
+Expand the existing discussion summary feature to include both test output context and a comprehensive workflow reference section in the project documentation. This feature will:
+
+• Generate AI-powered summaries of GitHub issue or pull request discussions with optional CI/CD workflow and test console output context.
+• Provide maintainers with a consolidated reference to all agentic-lib workflows, their purpose, inputs, outputs, and usage examples directly in the README.
 
 # Value Proposition
-Provide maintainers with concise, context-aware overviews of discussion threads that include:
+Provide developers and maintainers with:
 
-- Recent CI/CD workflow run identifiers, statuses, and conclusions
-- Sanitized workflow definitions
-- Summarized test console output (logs and errors)
-
-Reducing context switching, revealing test failures or flaky behavior directly in discussion summaries, and safeguarding sensitive information.
+• Concise, context-rich summaries of discussion threads that surface test failures and anomalies.
+• A single, authoritative reference for all supported workflows and CLI commands, reducing discovery time and context switching.
 
 # Requirements
 
 ## CLI Integration
 
-- Extend existing flags:  
-  • --summarize-discussion <discussionNumber> alias --sd  
-  • --include-context alias --ic  
-  • --sanitize-workflows alias --sw  
-  • **--include-tests alias --it** to toggle test console summarization
-- Process --include-tests before summary generation and include test context in the prompt when enabled.
+• Extend existing flags:
+  – --summarize-discussion <discussionNumber> alias --sd
+  – --include-context alias --ic
+  – --sanitize-workflows alias --sw
+  – --include-tests alias --it to toggle test console summarization
+
+• Update async function summarizeDiscussion(discussionNumber, includeContext, sanitizeWorkflows, includeTests) to accept includeTests and include test summary when true.
 
 ## Summary Generation
 
-- Update `async function summarizeDiscussion(discussionNumber, includeContext, sanitizeWorkflows, includeTests)` to:
-  - Accept `includeTests` boolean argument.
-  - When includeTests is true, call `fetchTestConsoleOutput(owner, repo, workflowRunId)` and include returned summary in the assembled prompt before comments.
+• When includeTests is true, call fetchTestConsoleOutput(owner, repo, workflowRunId) and integrate returned summary in the discussion prompt under TestConsoleSummary.
 
-## Workflow Context Fetch
+## Workflow Context and Test Output Fetch
 
-- Retain `fetchWorkflowContext(owner, repo)` implementation to list the latest N workflow runs and format context.
-- Supply a `workflowRunId` from the latest workflow context for test log retrieval.
-
-## Test Console Output Fetch
-
-- Implement `async function fetchTestConsoleOutput(owner, repo, runId)` that:
-  - Uses GitHub Actions API via `octokit` to download logs for the specified runId.
-  - Extracts relevant test output (console logs, errors, stack traces) up to a configurable size limit.
-  - Calls `OpenAI.createChatCompletion` with a prompt summarizing test execution, failures, and anomalies, returning a concise summary string.
+• Maintain fetchWorkflowContext(owner, repo) for workflow run context.
+• Implement fetchTestConsoleOutput(owner, repo, runId) to download logs via octokit.actions.downloadJobLogs, extract key test failures and anomalies, and summarize via OpenAI.createChatCompletion.
 
 ## Prompt Assembly
 
-- When includeTests is true, inject a new section `TestConsoleSummary:` in the summarization prompt before aggregating discussion comments.
+• Insert TestConsoleSummary section before discussion comments when includeTests is enabled.
 
 ## Logging and Error Handling
 
-- Reuse `logInfo` and `logError` around `fetchTestConsoleOutput` start, success, and failure.
-- On failure to fetch logs, proceed without test summary and log a warning.
+• Use logInfo and logError around fetchTestConsoleOutput start, success, and failure.
+• On failure to fetch logs, proceed without test summary and log a warning.
 
 # Tests
 
-- Add unit tests mocking `octokit.actions.downloadJobLogs` and `openai` to verify:
-  - `fetchTestConsoleOutput` returns a parsed summary when logs contain sample failures.
-  - `summarizeDiscussion` includes `TestConsoleSummary` field in returned JSON when includeTests=true.
-- Add CLI test invoking:
-  node src/lib/main.js --summarize-discussion 42 --include-context --sanitize-workflows --include-tests
-  and verify JSON output includes `testConsoleSummary` alongside summary and workflowContext.
+• Unit tests mocking octokit.actions.downloadJobLogs and openai to verify fetchTestConsoleOutput and summarizeDiscussion behavior when includeTests is true.
+• CLI test invoking: node src/lib/main.js --summarize-discussion 42 --include-context --sanitize-workflows --include-tests and verifying JSON output includes testConsoleSummary.
 
 # Documentation Updates
 
-- Update README to document new `--include-tests` flag and usage example.
-- Provide sample snippet showing programmatic use of `fetchTestConsoleOutput` and `summarizeDiscussion` with includeTests.
+• Update README.md to document the new --include-tests flag with usage example.
+• Add a consolidated "Workflow Reference" section in README.md listing:
+  – All supported CLI commands (--help, --version, --digest, --summarize-discussion) with descriptions and examples.
+  – AWS Lambda handlers and utility functions (createSQSEventFromDigest, digestLambdaHandler) with input signature and sample code.
+  – Links to API reference for config, logConfig, logInfo, logError.
+• Ensure the consolidated reference is under a top-level heading "Workflow Reference" and appears after the CLI Usage section.
 
 # Verification and Acceptance
 
-- All new and existing unit tests pass.
-- Manual test: run node src/lib/main.js --summarize-discussion 123 --include-context --sanitize-workflows --include-tests and confirm output includes summary, workflowContext, sanitizedWorkflows, and testConsoleSummary.
+• All existing and new unit tests pass.
+• Manual verification: run node src/lib/main.js --summarize-discussion 123 --include-context --sanitize-workflows --include-tests and confirm output includes summary, workflowContext, sanitizedWorkflows, and testConsoleSummary.
+• Confirm README.md includes the new Workflow Reference section with accurate command listings and examples.
