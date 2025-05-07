@@ -18,16 +18,17 @@ Last updated March 2024; authoritative official GitHub documentation.
 ## https://docs.aws.amazon.com/AmazonS3/latest/userguide/PresignedUrlUploadObject.html
 ## https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_lambda_event_sources-readme.html
 ## https://www.serverless.com/framework/docs/providers/aws/events/sqs
-End-to-end reference for building serverless, message-driven architectures with AWS SQS and Lambda. Covers event source mapping, batch processing, `batchItemFailures`, visibility timeouts, retry strategies, and payload offloading via S3 pre-signed URLs. Includes SDK v3 command usage in TypeScript, AWS CDK patterns for IaC-based deployment, and Serverless Framework YAML examples for quick setup. Highlights middleware customization, dead-letter queues, IAM role configurations, and best practices for scalability, observability, and error handling.
-Last updated April–June 2024; AWS documentation public domain, AWS SDK & CDK libraries Apache 2.0, Serverless Framework under MIT.
-## License: Public Domain (AWS docs), Apache 2.0 (SDK & CDK), MIT (Serverless)
+## https://github.com/xn-intenton-z2a/s3-sqs-bridge#readme
+End-to-end reference for building serverless, message-driven architectures with AWS SQS and Lambda. Covers event source mapping, batch processing, `batchItemFailures`, visibility timeouts, retry strategies, and payload offloading via S3 pre-signed URLs. Includes SDK v3 command usage in TypeScript, AWS CDK patterns for IaC-based deployment, Serverless Framework YAML examples, and S3-SQS Bridge Middleware integration for large-payload handling. Highlights middleware customization, dead-letter patterns, IAM role configurations, and best practices for scalability, observability, and error handling.
+Last updated April–June 2024; AWS documentation public domain, AWS SDK & CDK Apache 2.0, Serverless Framework MIT, S3-SQS Bridge MIT.
+## License: Public Domain (AWS docs), Apache 2.0, MIT
 
 # Node.js ESM & Vitest Testing
 ## https://nodejs.org/api/url.html#url_fileurltopath_url
 ## https://vitest.dev/guide/
 ## https://vitest.dev/guide/mocking.html
 Combined reference for Node.js ESM utilities and Vitest testing framework. The Node.js URL module section details `fileURLToPath()`, dynamic imports, and cross-platform path resolution. Vitest guides cover configuration, test isolation, mocking strategies (`vi.mock()`, spies), lifecycle hooks, and coverage reporting. Essential for writing, testing, and bundling ESM-based Node.js libraries with robust mocking and CI-friendly outputs.
-Last updated May–June 2024; Node.js docs CC BY 4.0, Vitest under MIT.
+Last updated May–June 2024; Node.js docs CC BY 4.0, Vitest MIT.
 ## License: CC BY 4.0 (Node.js), MIT (Vitest)
 
 # Environment Configuration & Validation
@@ -50,8 +51,8 @@ Authoritative toolkit for enhancing AWS Lambda functions with structured logging
 Last updated June 2024; Apache 2.0.
 ## License: Apache 2.0
 
-# S3-SQS Bridge Middleware
-## https://github.com/xn-intenton-z2a/s3-sqs-bridge#readme
-Middleware library for seamless payload offloading between Amazon S3 and SQS to handle large messages. Automatically uploads oversized payloads to S3, sends SQS messages with object references, and retrieves full payloads on consumption. Includes TypeScript examples, AWS SDK middleware integration, and best practices for atomic operations, retry handling, and cost-efficient message processing.
-Last updated May 2024; MIT.
-## License: MIT
+# AWS SQS Dead-Letter Queues & Poison Message Handling
+## https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html
+Comprehensive guide to configuring and handling dead-letter queues for AWS SQS. Explains redrive policies, `maxReceiveCount`, recognizing poison messages, and monitoring via CloudWatch. Includes implementation details for automating DLQ workflows, integrating with Lambda for failure notifications, and best practices for error isolation and recovery.
+Last updated May 2024; authoritative official AWS documentation.
+## License: Public Domain
