@@ -5,9 +5,7 @@
 The `agentic-lib` library loads environment variables via dotenv. Supported variables:
 
 - `OPENAI_API_KEY` (string): OpenAI API key.
-- `GITHUB_API_BASE_URL` (string): Base URL for GitHub API. Defaults to:
-  - `https://api.github.com` in production
-  - `https://api.github.com.test/` when running tests (`VITEST`) or in development (`NODE_ENV=development`)
+- `GITHUB_API_BASE_URL` (string, optional): Base URL for GitHub API. _undefined_ by default in production; when running tests (`VITEST`) or in development (`NODE_ENV=development`), defaults to `https://api.github.com.test/`.
 
 ## Logging Utilities
 
