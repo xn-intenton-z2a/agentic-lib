@@ -280,7 +280,7 @@ jobs:
             core.info(`dependenciesFilepath: "${dependenciesFilepath}"`);
             core.info(`agentConfigContent: "${agentConfigContent}"`);
             core.info(`writeableFilepaths: "${writeableFilepaths}"`);
-            
+
             // Handle multiple source files
             const srcFiles = allSourcePaths.split(';');
             let sourceFileContents = {};

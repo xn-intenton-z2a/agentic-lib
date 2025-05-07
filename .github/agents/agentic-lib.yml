@@ -17,7 +17,7 @@ paths:
   featuresPath:
     path: 'sandbox/features/'
     permissions: [ 'write' ]
-    limit: 100
+    limit: 1
 
   # Filepaths for engineer workflows
   contributingFilepath:
@@ -53,12 +53,12 @@ testScript: 'npm test'
 mainScript: 'npm run start'
 
 # How many issues should be available to be picked up?
-featureDevelopmentIssuesWipLimit: 3
-maintenanceIssuesWipLimit: 3
+featureDevelopmentIssuesWipLimit: 2
+maintenanceIssuesWipLimit: 1
 
 # How many attempts should be made to work on an issue?
-attemptsPerBranch: 3
-attemptsPerIssue: 3
+attemptsPerBranch: 2
+attemptsPerIssue: 1
 
 # Web publishing
 docRoot: 'public'
