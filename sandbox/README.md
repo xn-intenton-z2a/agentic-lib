@@ -23,10 +23,10 @@ npm install @xn-intenton-z2a/agentic-lib
 
 Load optional environment variables via a `.env` file or your environment:
 
-| Variable               | Description                         | Default                                         |
-|------------------------|-------------------------------------|-------------------------------------------------|
-| `OPENAI_API_KEY`       | API key for OpenAI calls            | _undefined_                                     |
-| `GITHUB_API_BASE_URL`  | Base URL for GitHub API             | `https://api.github.com` (or `.test` in dev)    |
+| Variable               | Description                          | Default                                                                            |
+|------------------------|--------------------------------------|------------------------------------------------------------------------------------|
+| `OPENAI_API_KEY`       | API key for OpenAI calls             | _undefined_ (must be provided for OpenAI-related functionality)                    |
+| `GITHUB_API_BASE_URL`  | Base URL for GitHub API              | _undefined_; in development or tests (`VITEST` or `NODE_ENV=development`), defaults to `https://api.github.com.test/` |
 
 Example `.env`:
 
@@ -49,7 +49,7 @@ import {
   main
 } from "@xn-intenton-z2a/agentic-lib";
 
-// Automatically logs configuration on import
+// Logs configuration on import
 logConfig();
 
 // Generate an SQS event from a digest object
