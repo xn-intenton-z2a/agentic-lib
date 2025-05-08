@@ -763,13 +763,7 @@ jobs:
             core.setOutput("relevantLibraryDocuments", JSON.stringify(parsed.relevantLibraryDocuments || []));
 
             // Get current issue labels
-            core.info(`Retrieving issue ${issueNumber} details...`);
-            const { data: issue } = await github.rest.issues.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber
-            });
-            const hasInProgressLabel = issue.labels.some(label => label.name === 'in-progress');
+            const hasInProgressLabel = issue.data.labels.some(label => label.name === 'in-progress');
 
             // Remove 'in progress' label if it exists
             if (hasInProgressLabel) {
