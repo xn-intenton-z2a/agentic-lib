@@ -696,7 +696,7 @@ jobs:
             Answer strictly with a JSON object following this schema:
             {
               "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text.",
-              "updatedFile01Name": "${targetSourcePath}orderParser.js",
+              "updatedFile01Name": "${targetSourcePath}/orderParser.js",
               "updatedFile01Contents": "The entire new content of the source file, with all necessary changes applied, if any.",
               "updatedFile02Name":  "${targetTestsPath}/orderParser.test.js",
               "updatedFile02Contents": "The entire new content of the test file, with all necessary changes applied, if any.",
