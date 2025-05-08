@@ -1,3 +1,5 @@
+sandbox/docs/METRICS.md
+# sandbox/docs/METRICS.md
 # Metrics Persistence (Experimental)
 
 > Note: Metrics tracking and the associated CLI flags (`--stats`, `--verbose-stats`) are under development and not yet available in the current sandbox release.

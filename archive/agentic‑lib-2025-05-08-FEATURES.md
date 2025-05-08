@@ -1,65 +1,55 @@
-sandbox/features/CLI_SUMMARIZER.md
-# sandbox/features/CLI_SUMMARIZER.md
-# Objective and Scope
+sandbox/features/WORKFLOW_DIAGRAM.md
+# sandbox/features/WORKFLOW_DIAGRAM.md
+# Purpose & Scope
 
-Extend the CLI to provide a unified summarizer command that supports two distinct modes:
-
-- A workflow diagram summarization mode that reads one or more GitHub Actions workflow YAML files and outputs a Mermaid graph or JSON model of job dependencies.
-- A repository stats and status summary mode that inspects the current project directory and reports key metrics such as file counts, dependency versions, latest Git commit, test coverage status, and CLI command availability.
-
-This feature consolidates the existing workflow diagram summarizer and the new summary command into one cohesive CLI summarization tool.
+Extend the CLI with a dedicated flag to generate a clear visual representation of core command and event interactions. The diagram will illustrate commands, branching logic, and handler invocations to help users and automation scripts understand the workflow structure.
 
 # Value Proposition
 
-- Developers gain a single entrypoint to extract both workflow interaction diagrams and high-level repository health metrics.
-- Reduces context switching by integrating two essential diagnostics into a single CLI command.
-- Enhances onboarding and maintenance by automating extraction of both CI workflow visuals and repository status reports.
+- Accelerates onboarding by visualizing pipelines without reading code.
+- Streamlines documentation by exporting diagrams in standard formats.
+- Enhances debugging and CI/CD integration through machine-readable outputs.
 
-# Requirements
+# Success Criteria & Requirements
 
-## CLI Integration
+## Flag Definition
+- --workflow-diagram prints the diagram and exits with code 0
+- --diagram-format=<mermaid|ascii> selects output style (default: mermaid)
+- --workflow-diagram --json wraps output in JSON with fields format and diagram
 
-- Introduce a new flag `--summary [mode]` where mode defaults to `repo` and can be set to `workflow` for the existing diagram summarizer functionality.
-- Recognize both `--summarize-workflow-diagram [path]` (legacy flag) and `--summary workflow [path]` as synonyms.
-- When mode is `repo`, scan the repository root for:
-  - Total number of source files under `src/lib` and tests under `tests/unit`.
-  - List of direct dependencies and their versions as defined in `package.json`.
-  - Latest Git commit hash, author, and date, falling back to `git rev-parse` commands.
-  - Test results summary by invoking `npm test -- --reporter json` or reading coverage report file if present.
-- Output the repository summary as a JSON object via `logInfo` and exit code 0.
-- Errors (e.g., missing git, test failures, file read errors) must call `logError` and exit code 1.
+## Workflow Modeling
+- Represent commands help, version, digest, and lambda handler as nodes
+- Model edges for invocation order, conditional branches, and error flows
+- Support custom labels and grouping for complex flows
 
-## Source File Updates
+## Diagram Generation
+- Produce valid Mermaid flowchart syntax matching the workflow graph
+- Convert Mermaid to ASCII art for terminal-friendly view without external dependencies
 
-- In `src/lib/main.js`, implement `processSummaryCommand(args)`:
-  - Parse `--summary` arguments to determine `repo` or `workflow` mode.
-  - For `workflow`, delegate to the existing `processWorkflowDiagramSummarizer` logic.
-  - For `repo`, use `fs`, `child_process.execSync`, and JSON parsing of `package.json` and test reports.
-- Update `main` to invoke `processSummaryCommand` before other flags.
+## Output and Integration
+- Write diagram to stdout by default; no file writes
+- JSON mode outputs a JSON object to stdout
+- Allow piping to files or other CLI tools
 
-## Test File Updates
+## Testing
+- Unit tests covering flag parsing scenarios and invalid formats
+- Snapshot tests for mermaid, ascii, and JSON outputs
+- Integration test simulating CLI invocation and validating output structure
 
-- Add tests in `tests/unit/cliSummarizer.test.js`:
-  - Mock `fs.readdirSync` and `fs.readFileSync` for repo file counts and dependency versions.
-  - Mock `child_process.execSync` to return fake git commit info.
-  - Mock a JSON test reporter output to simulate test pass/fail summary.
-  - Invoke `main` with `--summary`, `--summary repo`, and `--summary workflow` and verify correct `logInfo` or `logError` calls and exit codes.
-- Retain existing tests for `--summarize-workflow-diagram` to ensure backward compatibility.
+# User Scenarios
 
-## README Updates
+1. A new contributor runs node src/lib/main.js --workflow-diagram to view a Mermaid flowchart.
+2. In a CI job, node src/lib/main.js --workflow-diagram --json generates JSON for automated docs.
+3. On a text-only console, node src/lib/main.js --diagram-format=ascii shows an ASCII art diagram.
 
-- Under CLI Usage, add:
-```
---summary [mode] [path]
-    Generate a summary report. Mode can be "repo" (default) for repository metrics or "workflow" for workflow diagram. Defaults to current repo and .github/workflows directory.
-```
-- Provide examples:
-```
-npx agentic-lib --summary
-npx agentic-lib --summary repo
-npx agentic-lib --summary workflow .github/workflows
-```
+# Verification & Acceptance
 
-## Dependencies
+- npm test completes with all tests passing and coverage thresholds met
+- Manual verification confirms example invocations produce expected outputs
+- JSON output schema conforms to the specified format
 
-- No new dependencies. Use existing `fs`, `child_process`, and `js-yaml` modules.
+# Dependencies & Constraints
+
+- Implement diagram templates with in-code string generation; no external diagram libraries
+- Maintain compatibility with Node 20 ESM environment
+- Confine changes to src/lib/main.js, tests, README, and package.json dependencies

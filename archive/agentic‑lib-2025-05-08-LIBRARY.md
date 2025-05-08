@@ -1,433 +1,576 @@
-sandbox/library/DOTENV.md
-# sandbox/library/DOTENV.md
-# DOTENV
+sandbox/library/OPENAI_NODE_SDK.md
+# sandbox/library/OPENAI_NODE_SDK.md
+# OPENAI_NODE_SDK
 
 ## Crawl Summary
-Installation commands: npm, yarn, bun. .env file location: project root. Loading methods: require('dotenv').config(options), import 'dotenv/config'. Supported multiline values with raw breaks or \n for private keys. Comment rules: skip # lines and inline comments; wrap values with # in quotes. Parsing: dotenv.parse(input, { debug }) returns Record<string,string>. Preload via node -r dotenv/config with CLI options dotenv_config_path, dotenv_config_debug, or environment variables DOTENV_CONFIG_PATH, DOTENV_CONFIG_DEBUG. API functions: config(options) returns parsed and error, parse(src, options) returns parsed object, populate(target, source, options) populates target. ESM: import 'dotenv/config' before other imports. Troubleshooting: debug mode, correct path, REACT_APP_ prefix for React, polyfills for Webpack.
+Install via npm or deno. Initialize OpenAI client with options apiKey(default env), timeout(default600000ms), maxRetries(default2), fetch override, httpAgent, dangerouslyAllowBrowser. Key APIs: responses.create, chat.completions.create with exact param types and return types or AsyncIterable on stream. File uploads accept ReadStream|File|Response|toFile helper. Errors: subclasses of APIError mapped to status codes, retried errors, default retry logic with exponential backoff, timeout default10min configurable. Request IDs via _request_id and withResponse. Auto-pagination via for await, manual paging methods. Realtime WebSocket API. AzureOpenAI client init. Advanced raw response methods .asResponse() and .withResponse(). Custom HTTP verbs client.get/post for undocumented endpoints. Fetch client override. HTTP(S) agent config for proxies. Requirements: TS>=4.5, Node18+, Deno1.28+, Bun1+, Workers, Edge, Jest28+
 
 ## Normalised Extract
 Table of Contents
- 1 Installation
- 2 Usage
- 3 Configuration Options
- 4 Multiline Values
- 5 Comments
- 6 Parsing Engine
- 7 Preloading
- 8 API Methods
- 9 ESM Import Pitfall
- 10 Troubleshooting
 
 1 Installation
- Run npm install dotenv --save
- or yarn add dotenv
- or bun add dotenv
+2 Client Initialization
+3 Responses API
+4 Chat Completions API
+5 Streaming Responses
+6 File Uploads
+7 Error Handling
+8 Retries & Backoff
+9 Timeouts
+10 Request IDs
+11 Auto-Pagination
+12 Realtime API Beta
+13 Azure OpenAI
+14 Advanced Usage
+15 Custom Requests
+16 Fetch Client Customization
+17 HTTP(S) Agent Configuration
+18 Semantic Versioning & Requirements
 
-2 Usage
- Place a file named .env in the application working directory
- Format each line as KEY=VALUE
- Load variables at startup using require('dotenv').config() or import 'dotenv/config'
- Access values via process.env.KEY
+1 Installation
+Commands:
+  npm install openai
+  deno add jsr:@openai/openai
 
-3 Configuration Options
- option      default                      type               effect
- path        [process.cwd]/.env           string or string[] path to .env file or files
- encoding    utf8                          string             file encoding
- debug       false                         boolean            enable debug logs
- override    false                         boolean            overwrite existing env vars
- processEnv  process.env                   object             target object to populate
+2 Client Initialization
+Signature:
+  new OpenAI(options?: {
+    apiKey?: string       // default env OPENAI_API_KEY
+    timeout?: number      // default 600000 ms
+    maxRetries?: number   // default 2
+    fetch?: (url, init) => Promise<Response>
+    httpAgent?: Agent     // for proxy or keepAlive config
+    dangerouslyAllowBrowser?: boolean // default false
+  })
 
-4 Multiline Values
- Supported in Node.js v15+
- Use double-quoted string with embedded newlines
- Or encode line breaks with \n
+3 Responses API
+Method:
+  client.responses.create(
+    params: { model: string; instructions?: string; input?: string; stream?: boolean },
+    options?: { timeout?: number; maxRetries?: number }
+  )
+Returns:
+  Promise<{ output_text: string; _request_id: string }>
+  OR AsyncIterable<{ data: string; done: boolean }>
 
-5 Comments
- Lines starting with # are ignored
- Inline comments: KEY=value # comment
- If value includes # wrap in quotes
+4 Chat Completions API
+Method:
+  client.chat.completions.create(
+    params: { model: string; messages: Array<{ role: string; content: string }>; stream?: boolean },
+    options?: { timeout?: number; maxRetries?: number }
+  )
+Returns:
+  Promise<{ choices: Array<{ message: { role: string; content: string } }>; _request_id: string }>
+  OR AsyncIterable<{ delta: string; index: number; finish_reason: string }>
 
-6 Parsing Engine
- Input type: string or Buffer
- parse applies these rules:
-  - skip empty lines
-  - ignore lines beginning with #
-  - split at first =
-  - trim unquoted values
-  - remove surrounding quotes from quoted values
-  - expand \n in double-quoted values
-  - support backtick-wrapped values
- Returns Record<string,string>
+5 Streaming Responses
+Enable with stream: true in params. Receive events via for await.
 
-7 Preloading
- Use Node require hook: node -r dotenv/config your_script.js
- CLI options: dotenv_config_path, dotenv_config_debug as CLI args override env vars
- Environment variables: DOTENV_CONFIG_PATH, DOTENV_CONFIG_DEBUG, DOTENV_CONFIG_ENCODING, DOTENV_CONFIG_DEBUG
- Precedence: CLI args > env vars > defaults
+6 File Uploads
+Method:
+  client.files.create(
+    params: { file: ReadStream | File | Response | Awaited<ReturnType<typeof toFile>>; purpose: 'fine-tune' }
+  )
+Returns:
+  Promise<{ id: string; object: 'file'; bytes: number; created_at: number; filename: string; purpose: string }>
 
-8 API Methods
- config(options?) -> { parsed?: Record<string,string>; error?: Error }
- parse(src, options?) -> Record<string,string>
- populate(target, source, options?) -> void
+7 Error Handling
+Threw subclass of APIError on 4xx/5xx or connection issue.
+Mapping:
+ 400 BadRequestError
+ 401 AuthenticationError
+ 403 PermissionDeniedError
+ 404 NotFoundError
+ 422 UnprocessableEntityError
+ 429 RateLimitError
+ >=500 InternalServerError
+ Connection failures APIConnectionError
 
-9 ESM Import Pitfall
- Avoid importing dotenv or calling config after other imports
- Always use import 'dotenv/config' as the first import in ESM modules
- Or preload via --require
+8 Retries & Backoff
+Default maxRetries: 2. Retried errors: network, 408, 409, 429, >=500. Configure via maxRetries in client or per request.
 
-10 Troubleshooting
- Enable debug:true in config to log parsing errors and file path issues
- Ensure .env path is correct or specify custom path
- For React, prefix env variables with REACT_APP_
- For Webpack front-end, install node-polyfill-webpack-plugin and configure DefinePlugin or use dotenv-webpack
+9 Timeouts
+Default timeout: 600000 ms. Throws APIConnectionTimeoutError on expiry. Override via timeout in client or per request.
+
+10 Request IDs
+Response objects include _request_id. Method withResponse returns { data, response, request_id }.
+
+11 Auto-Pagination
+List methods return AsyncIterable. Use for await. Manual pagination via .list({ limit }).page.data and page.hasNextPage()/page.getNextPage().
+
+12 Realtime API Beta
+Class OpenAIRealtimeWebSocket({ model: string }). Event types: 'response.text.delta', etc.
+
+13 Azure OpenAI
+Class AzureOpenAI({ azureADTokenProvider: Provider; apiVersion: string }).chat.completions.create(signature as above).
+
+14 Advanced Usage
+.asResponse() returns raw fetch Response. .withResponse() returns { data, response }.
+
+15 Custom Requests
+client.get(path: string, options?: { query?: any; headers?: any });
+client.post(path: string, options?: { body?: any; query?: any; headers?: any });
+
+16 Fetch Client Customization
+Pass fetch override in client options to inspect/alter requests.
+
+17 HTTP(S) Agent Configuration
+Pass httpAgent in client or per-request options for proxy or keepAlive control.
+
+18 Semantic Versioning & Requirements
+Package follows SemVer. Requirements: TypeScript>=4.5, Node.js>=18 LTS, Deno>=1.28, Bun>=1.0, Cloudflare Workers, Vercel Edge, Jest>=28 node env.
 
 ## Supplementary Details
-• Version support: multiline values and comments inside quotes available from v15.0.0 onward
-• Environment variable expansion requires dotenv-expand plugin
-• CLI preload supports values: dotenv_config_path, dotenv_config_encoding, dotenv_config_debug
-• Environment variable parallels: DOTENV_CONFIG_PATH, DOTENV_CONFIG_ENCODING, DOTENV_CONFIG_DEBUG, DOTENV_CONFIG_OVERRIDE
-• Order of loading multiple files: provided order in options.path array; default merge behavior: first wins unless override=true
-• Recommended file structure: place .env at project root or specify path
+Configuration Options
 
+client options:
+  apiKey: string        // default process.env.OPENAI_API_KEY
+  timeout: number       // default 600000 ms
+  maxRetries: number    // default 2
+  fetch: function       // override fetch client
+  httpAgent: Agent      // http/https agent
+  dangerouslyAllowBrowser: boolean // disable browser runtime protection
+
+per-request options:
+  timeout: number       // override client default
+  maxRetries: number    // override client default
+  httpAgent: Agent      // override client default
+
+File parameter types:
+  fs.ReadStream       // use fs.createReadStream(path)
+  File                // Web File API
+  fetch Response      // fetch(url)
+  toFile(helper)      // toFile(Buffer|Uint8Array, filename)
+
+Error Classes:
+  OpenAI.APIError: base
+    BadRequestError extends APIError
+    AuthenticationError
+    PermissionDeniedError
+    NotFoundError
+    UnprocessableEntityError
+    RateLimitError
+    InternalServerError
+    APIConnectionError
+    APIConnectionTimeoutError
+
+Retryable status codes: 408, 409, 429, >=500
+
+Timeout Error: APIConnectionTimeoutError
+
+Request methods list:
+  client.responses
+  client.chat.completions
+  client.files
+  client.models
+  client.fineTuning.jobs
+
+WebSocket usage:
+  import OpenAIRealtimeWebSocket from 'openai/beta/realtime/websocket'
+  events: 'response.text.delta', 'response.audio.chunk', 'response.function.call'
+
+AzureOpenAI differences: uses azureADTokenProvider and apiVersion in client options
+
+Manual pagination:
+  let page = await client.fineTuning.jobs.list({ limit: number })
+  page.data: Array<Job>
+  page.hasNextPage(): boolean
+  page.getNextPage(): Promise<Page>
+
+Advanced fetch methods:
+  .asResponse(): Promise<Response>
+  .withResponse(): Promise<{ data: any; response: Response; request_id: string }>
+
+Custom HTTP methods:
+  client.get(path, options)
+  client.post(path, options)
+  client.put, patch, delete similar
+
+Fetch override signature:
+  (url: RequestInfo, init?: RequestInit) => Promise<Response>
+
+HTTP(S) Agent example:
+  import { HttpsProxyAgent } from 'https-proxy-agent'
+  new OpenAI({ httpAgent: new HttpsProxyAgent(process.env.PROXY_URL) })
 
 ## Reference Details
-TypeScript Method Signatures
+1. Client Initialization
+Signature:
+ new OpenAI(options?: {
+   apiKey?: string;
+   timeout?: number;
+   maxRetries?: number;
+   fetch?: (url: RequestInfo, init?: RequestInit) => Promise<Response>;
+   httpAgent?: Agent;
+   dangerouslyAllowBrowser?: boolean;
+ });
 
-```ts
-interface DotenvConfigOptions {
-  path?: string | string[]                   // default path.resolve(process.cwd(), '.env')
-  encoding?: string                          // default 'utf8'
-  debug?: boolean                            // default false
-  override?: boolean                         // default false
-  processEnv?: Record<string, string>        // default process.env
-}
+2. Responses API
+Method signature:
+ client.responses.create(
+   params: { model: string; instructions?: string; input?: string; stream?: boolean },
+   options?: { timeout?: number; maxRetries?: number }
+ ): Promise<{ output_text: string; _request_id: string }>
+  | AsyncIterable<{ data: string; done: boolean }>;
 
-type DotenvConfigOutput = {
-  parsed?: Record<string, string>
-  error?: Error
-}
+Example:
+ const response = await client.responses.create({ model: 'gpt-4o', input: 'Hello' });
+ console.log(response.output_text);
 
-export function config(options?: DotenvConfigOptions): DotenvConfigOutput
+Streaming example:
+ const stream = await client.responses.create({ model: 'gpt-4o', input: 'Hi', stream: true });
+ for await (const event of stream) console.log(event.data);
 
-export function parse(
-  src: string | Buffer,
-  options?: { debug?: boolean }
-): Record<string, string>
+3. Chat Completions API
+Signature:
+ client.chat.completions.create(
+   params: { model: string; messages: Array<{ role: 'system'|'user'|'assistant'; content: string }>; stream?: boolean },
+   options?: { timeout?: number; maxRetries?: number }
+ ): Promise<{ choices: Array<{ message: { role: string; content: string } }>; _request_id: string }>
+  | AsyncIterable<{ delta: string; index: number; finish_reason: string }>;
 
-export function populate(
-  target: Record<string, unknown>,
-  source: Record<string, string>,
-  options?: { override?: boolean; debug?: boolean }
-): void
-```
+4. File Uploads API
+Signature:
+ client.files.create(
+   params: { file: ReadStream|File|Response|Awaited<ReturnType<typeof toFile>>; purpose: 'fine-tune' }
+ ): Promise<{ id: string; object: 'file'; bytes: number; created_at: number; filename: string; purpose: string }>;
 
-Code Examples
+5. Raw Response Methods
+.asResponse(): Promise<Response>
+.withResponse(): Promise<{ data: any; response: Response; request_id: string }>;
 
-```js
-// Load .env with custom path and override enabled
-const result = require('dotenv').config({
-  path: './config/.env',
-  encoding: 'latin1',
-  debug: true,
-  override: true,
-  processEnv: {}
-});
-if (result.error) throw result.error;
-console.log(result.parsed);
+6. Custom Request Methods
+client.get(path: string, options?: { query?: any; headers?: any }): Promise<any>;
+client.post(path: string, options?: { body?: any; query?: any; headers?: any }): Promise<any>;
 
-// Parse a buffer manually
-const dotenv = require('dotenv');
-const buf = Buffer.from('HOST=localhost\nPORT=3000');
-const configObj = dotenv.parse(buf, { debug: true });
-console.log(configObj.HOST, configObj.PORT);
+7. Error Classes & Mapping
+class APIError extends Error { request_id: string; status: number; headers: Record<string,string> }
+class BadRequestError extends APIError
+class AuthenticationError extends APIError
+class PermissionDeniedError extends APIError
+class NotFoundError extends APIError
+class UnprocessableEntityError extends APIError
+class RateLimitError extends APIError
+class InternalServerError extends APIError
+class APIConnectionError extends APIError
+class APIConnectionTimeoutError extends APIError
 
-// Populate a custom target object
-const target = {};
-const source = { NODE_ENV: 'production' };
-dotenv.populate(target, source, { override: false, debug: true });
-console.log(target.NODE_ENV);
-```
+8. Configuration Defaults & Effects
+maxRetries default 2 applies exponential backoff on retryable errors
+timeout default 600000 ms aborts request and raises APIConnectionTimeoutError, retried twice
+httpAgent reuse TCP, disable via keepAlive false
 
-CLI Preload Patterns
+9. Best Practices
+• reuse client instance
+• catch OpenAI.APIError to inspect request_id, status, name, headers
+• configure maxRetries for critical operations
+• set timeout to bound request duration
+• use .withResponse() for advanced logging
+• use auto-pagination for list methods
 
-```
-# Preload default .env
-node -r dotenv/config server.js
-
-# Set custom path and enable debug via CLI args
-node -r dotenv/config server.js dotenv_config_path=./.env.development dotenv_config_debug=true
-
-# Set via environment variables
-DOTENV_CONFIG_PATH=./.env.test DOTENV_CONFIG_DEBUG=true node -r dotenv/config test.js
-```
-
-Webpack Front-end Integration
-
-```js
-// webpack.config.js
-require('dotenv').config();
-const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
-const webpack = require('webpack');
-module.exports = {
-  plugins: [
-    new NodePolyfillPlugin(),
-    new webpack.DefinePlugin({
-      'process.env': JSON.stringify({
-        API_URL: process.env.API_URL
-      })
-    })
-  ]
-};
-```
-
-Troubleshooting Commands
-
-```
-# Enable debug logs
-require('dotenv').config({ debug: true });
-# Expected output if file missing
-[dotenv][DEBUG] ENOENT: no such file or directory, open '/path/to/.env'
-```
+10. Troubleshooting Procedures
+Command: node script.js  // run code
+If network error:
+  retry default 2 times
+If stuck on streaming:
+  verify SSE events via console log
+If file upload fails:
+  ensure correct file parameter type, check helper toFile usage
+If missing API key:
+  set env OPENAI_API_KEY or pass apiKey in client options
 
 
 ## Information Dense Extract
-config options path:string|string[]=cwd+/.env encoding:string=utf8 debug:boolean=false override:boolean=false processEnv:object=parse target
-parse input:string|Buffer options.debug:boolean returns Record<string,string>
-populate target:object source:Record<string,string> options.override:boolean debug:boolean
-install via npm/yarn/bun load via require('dotenv').config() or import 'dotenv/config'
-preload CLI node -r dotenv/config with dotenv_config_path, dotenv_config_debug args or DOTENV_CONFIG_PATH, DOTENV_CONFIG_DEBUG env vars
-multiline values in double quotes raw or \n comments skip lines starting # inline comments wrap values containing #
-EMM: import 'dotenv/config' before other imports
-troubleshoot: config({debug:true, path}) logs ENOENT errors React: prefix REACT_APP_ Webpack: polyfills or dotenv-webpack
+install npm install openai; init new OpenAI({apiKey?,timeout=600000,maxRetries=2,fetch?,httpAgent?,dangerouslyAllowBrowser=false}); responses.create({model:string,instructions?:string,input?:string,stream?:boolean},options?:{timeout?,maxRetries?})→Promise<{output_text:string,_request_id:string}>|AsyncIterable<{data:string,done:boolean}>; chat.completions.create({model:string,messages:Array<{role:string,content:string}>,stream?:boolean},options?)→Promise<{choices:Array<{message:{role:string,content:string}}>,_request_id:string}>|AsyncIterable<{delta:string,index:number,finish_reason:string}>; files.create({file:ReadStream|File|Response|toFile, purpose:'fine-tune'})→Promise<{id:string,object:'file',bytes:number,created_at:number,filename:string,purpose:string}>; errors: APIError subclasses mapping 400→BadRequestError,401→AuthenticationError,403→PermissionDeniedError,404→NotFoundError,422→UnprocessableEntityError,429→RateLimitError,>=500→InternalServerError,network→APIConnectionError,timeout→APIConnectionTimeoutError; retries default2 on network,408,409,429,>=500; timeouts default600000ms; request_id via _request_id or withResponse(); auto-pagination via for await or page.getNextPage(); realtime WebSocket via OpenAIRealtimeWebSocket; AzureOpenAI({azureADTokenProvider,apiVersion}); advanced .asResponse(), .withResponse(); custom client.get/post; override fetch; httpAgent for proxy; TS>=4.5, Node>=18,Deno>=1.28,Bun>=1.0,Workers,Edge,Jest>=28 node
 
 ## Sanitised Extract
 Table of Contents
- 1 Installation
- 2 Usage
- 3 Configuration Options
- 4 Multiline Values
- 5 Comments
- 6 Parsing Engine
- 7 Preloading
- 8 API Methods
- 9 ESM Import Pitfall
- 10 Troubleshooting
 
 1 Installation
- Run npm install dotenv --save
- or yarn add dotenv
- or bun add dotenv
+2 Client Initialization
+3 Responses API
+4 Chat Completions API
+5 Streaming Responses
+6 File Uploads
+7 Error Handling
+8 Retries & Backoff
+9 Timeouts
+10 Request IDs
+11 Auto-Pagination
+12 Realtime API Beta
+13 Azure OpenAI
+14 Advanced Usage
+15 Custom Requests
+16 Fetch Client Customization
+17 HTTP(S) Agent Configuration
+18 Semantic Versioning & Requirements
 
-2 Usage
- Place a file named .env in the application working directory
- Format each line as KEY=VALUE
- Load variables at startup using require('dotenv').config() or import 'dotenv/config'
- Access values via process.env.KEY
+1 Installation
+Commands:
+  npm install openai
+  deno add jsr:@openai/openai
 
-3 Configuration Options
- option      default                      type               effect
- path        [process.cwd]/.env           string or string[] path to .env file or files
- encoding    utf8                          string             file encoding
- debug       false                         boolean            enable debug logs
- override    false                         boolean            overwrite existing env vars
- processEnv  process.env                   object             target object to populate
+2 Client Initialization
+Signature:
+  new OpenAI(options?: {
+    apiKey?: string       // default env OPENAI_API_KEY
+    timeout?: number      // default 600000 ms
+    maxRetries?: number   // default 2
+    fetch?: (url, init) => Promise<Response>
+    httpAgent?: Agent     // for proxy or keepAlive config
+    dangerouslyAllowBrowser?: boolean // default false
+  })
 
-4 Multiline Values
- Supported in Node.js v15+
- Use double-quoted string with embedded newlines
- Or encode line breaks with 'n
+3 Responses API
+Method:
+  client.responses.create(
+    params: { model: string; instructions?: string; input?: string; stream?: boolean },
+    options?: { timeout?: number; maxRetries?: number }
+  )
+Returns:
+  Promise<{ output_text: string; _request_id: string }>
+  OR AsyncIterable<{ data: string; done: boolean }>
 
-5 Comments
- Lines starting with # are ignored
- Inline comments: KEY=value # comment
- If value includes # wrap in quotes
+4 Chat Completions API
+Method:
+  client.chat.completions.create(
+    params: { model: string; messages: Array<{ role: string; content: string }>; stream?: boolean },
+    options?: { timeout?: number; maxRetries?: number }
+  )
+Returns:
+  Promise<{ choices: Array<{ message: { role: string; content: string } }>; _request_id: string }>
+  OR AsyncIterable<{ delta: string; index: number; finish_reason: string }>
 
-6 Parsing Engine
- Input type: string or Buffer
- parse applies these rules:
-  - skip empty lines
-  - ignore lines beginning with #
-  - split at first =
-  - trim unquoted values
-  - remove surrounding quotes from quoted values
-  - expand 'n in double-quoted values
-  - support backtick-wrapped values
- Returns Record<string,string>
+5 Streaming Responses
+Enable with stream: true in params. Receive events via for await.
 
-7 Preloading
- Use Node require hook: node -r dotenv/config your_script.js
- CLI options: dotenv_config_path, dotenv_config_debug as CLI args override env vars
- Environment variables: DOTENV_CONFIG_PATH, DOTENV_CONFIG_DEBUG, DOTENV_CONFIG_ENCODING, DOTENV_CONFIG_DEBUG
- Precedence: CLI args > env vars > defaults
+6 File Uploads
+Method:
+  client.files.create(
+    params: { file: ReadStream | File | Response | Awaited<ReturnType<typeof toFile>>; purpose: 'fine-tune' }
+  )
+Returns:
+  Promise<{ id: string; object: 'file'; bytes: number; created_at: number; filename: string; purpose: string }>
 
-8 API Methods
- config(options?) -> { parsed?: Record<string,string>; error?: Error }
- parse(src, options?) -> Record<string,string>
- populate(target, source, options?) -> void
+7 Error Handling
+Threw subclass of APIError on 4xx/5xx or connection issue.
+Mapping:
+ 400 BadRequestError
+ 401 AuthenticationError
+ 403 PermissionDeniedError
+ 404 NotFoundError
+ 422 UnprocessableEntityError
+ 429 RateLimitError
+ >=500 InternalServerError
+ Connection failures APIConnectionError
 
-9 ESM Import Pitfall
- Avoid importing dotenv or calling config after other imports
- Always use import 'dotenv/config' as the first import in ESM modules
- Or preload via --require
+8 Retries & Backoff
+Default maxRetries: 2. Retried errors: network, 408, 409, 429, >=500. Configure via maxRetries in client or per request.
 
-10 Troubleshooting
- Enable debug:true in config to log parsing errors and file path issues
- Ensure .env path is correct or specify custom path
- For React, prefix env variables with REACT_APP_
- For Webpack front-end, install node-polyfill-webpack-plugin and configure DefinePlugin or use dotenv-webpack
+9 Timeouts
+Default timeout: 600000 ms. Throws APIConnectionTimeoutError on expiry. Override via timeout in client or per request.
+
+10 Request IDs
+Response objects include _request_id. Method withResponse returns { data, response, request_id }.
+
+11 Auto-Pagination
+List methods return AsyncIterable. Use for await. Manual pagination via .list({ limit }).page.data and page.hasNextPage()/page.getNextPage().
+
+12 Realtime API Beta
+Class OpenAIRealtimeWebSocket({ model: string }). Event types: 'response.text.delta', etc.
+
+13 Azure OpenAI
+Class AzureOpenAI({ azureADTokenProvider: Provider; apiVersion: string }).chat.completions.create(signature as above).
+
+14 Advanced Usage
+.asResponse() returns raw fetch Response. .withResponse() returns { data, response }.
+
+15 Custom Requests
+client.get(path: string, options?: { query?: any; headers?: any });
+client.post(path: string, options?: { body?: any; query?: any; headers?: any });
+
+16 Fetch Client Customization
+Pass fetch override in client options to inspect/alter requests.
+
+17 HTTP(S) Agent Configuration
+Pass httpAgent in client or per-request options for proxy or keepAlive control.
+
+18 Semantic Versioning & Requirements
+Package follows SemVer. Requirements: TypeScript>=4.5, Node.js>=18 LTS, Deno>=1.28, Bun>=1.0, Cloudflare Workers, Vercel Edge, Jest>=28 node env.
 
 ## Original Source
-dotenv – Environment Configuration
-https://github.com/motdotla/dotenv#readme
+OpenAI Node.js SDK Reference
+https://github.com/openai/openai-node
 
-## Digest of DOTENV
+## Digest of OPENAI_NODE_SDK
 
-# Install
+# Installation
 
-npm install dotenv --save
+• Command Line
+  npm install openai
+  deno add jsr:@openai/openai
+  npx jsr add @openai/openai
 
-yarn add dotenv
-bun add dotenv
+# Client Initialization
 
-# Usage (.env)
-
-Create a file named .env in your project root with KEY=VALUE pairs, for example:
-
-```
-S3_BUCKET="YOURS3BUCKET"
-SECRET_KEY="YOURSECRETKEYGOESHERE"
-```
-
-In your application entry point, as early as possible, load environment variables:
-
-```
-// CommonJS
-require('dotenv').config()
-
-// ES Module
-import 'dotenv/config'
+```typescript
+new OpenAI(options?: {
+  apiKey?: string           // default from env OPENAI_API_KEY
+  timeout?: number          // default 600000 ms
+  maxRetries?: number       // default 2
+  fetch?: (url: RequestInfo, init?: RequestInit) => Promise<Response>
+  httpAgent?: Agent         // http or https agent for proxy/config
+  dangerouslyAllowBrowser?: boolean // default false
+})
 ```
 
-After loading, process.env contains all defined variables.
+# Responses API (Text Generation)
 
-# Multiline Values
-
-Supported for Node.js >= v15.0.0. Use raw line breaks inside double quotes:
-
-```
-PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
-...line2
-...line3
------END RSA PRIVATE KEY-----"
-```
-
-Or encode newlines with \n:
-
-```
-PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----\n"
-```
-
-# Comments
-
-- Lines beginning with # are skipped.
-- Inline comments are allowed after value: `KEY=value # comment`.
-- If value contains # wrap it in quotes.
-
-# Parsing Engine
-
-```js
-const dotenv = require('dotenv')
-const buf = Buffer.from('BASIC=basic')
-const parsed = dotenv.parse(buf)
-console.log(parsed) // { BASIC: 'basic' }
+```typescript
+client.responses.create(
+  params: {
+    model: string,
+    instructions?: string,
+    input?: string,
+    stream?: boolean
+  },
+  options?: {
+    timeout?: number,
+    maxRetries?: number
+  }
+):
+  Promise<{ output_text: string; _request_id: string }>
+  | AsyncIterable<{ data: string; done: boolean }>
 ```
 
-# Preload
+# Chat Completions API
 
-Use the Node.js require hook to preload:
-
-```
-node -r dotenv/config your_script.js
-```
-
-Supported CLI options:
-
-```
-node -r dotenv/config your_script.js dotenv_config_path=/custom/.env dotenv_config_debug=true
-```
-
-Or via environment variables:
-
-```
-DOTENV_CONFIG_PATH=/custom/.env DOTENV_CONFIG_DEBUG=true node -r dotenv/config your_script.js
+```typescript
+client.chat.completions.create(
+  params: {
+    model: string,
+    messages: Array<{ role: 'system'|'developer'|'user'|'assistant'; content: string }>;
+    stream?: boolean
+  },
+  options?: { timeout?: number; maxRetries?: number }
+):
+  Promise<{ choices: Array<{ message: { role: string; content: string } }>; _request_id: string }>
+  | AsyncIterable<{ delta: string; index: number; finish_reason: string }>
 ```
 
-# API Reference
+# Streaming Responses
 
-## config(options?)
+• Pass stream: true in params
+to receive AsyncIterable events
 
-Reads .env file(s), parses contents, assigns to process.env, returns:
+# File Uploads
 
-```ts
-type DotenvConfigOptions = {
-  path?: string | string[]
-  encoding?: string
-  debug?: boolean
-  override?: boolean
-  processEnv?: Record<string,string>
-}
-
-type DotenvConfigOutput = {
-  parsed?: Record<string,string>
-  error?: Error
-}
-
-function config(options?: DotenvConfigOptions): DotenvConfigOutput
+```typescript
+client.files.create(
+  params: {
+    file: ReadStream | File | Response | Awaited<ReturnType<typeof toFile>>;
+    purpose: 'fine-tune'
+  }
+): Promise<{
+  id: string;
+  object: 'file';
+  bytes: number;
+  created_at: number;
+  filename: string;
+  purpose: string;
+}>
 ```
 
-## parse(src, options?)
+# Error Handling
 
-Parses a string or Buffer and returns an object:
+• Thrown subclass of OpenAI.APIError on 4xx/5xx or connection failure
 
-```ts
-function parse(src: string | Buffer, options?: { debug?: boolean }): Record<string,string>
+Status Code → Error Class:
+400 → BadRequestError
+401 → AuthenticationError
+403 → PermissionDeniedError
+404 → NotFoundError
+422 → UnprocessableEntityError
+429 → RateLimitError
+>=500 → InternalServerError
+Network issues → APIConnectionError
+
+# Retries & Backoff
+
+default maxRetries: 2
+errors retried: connection errors, 408, 409, 429, >=500
+override via options or client config
+
+# Timeouts
+
+default timeout: 600000 ms
+throws APIConnectionTimeoutError on expiry
+configurable per request or client
+
+# Request IDs
+
+• property _request_id on response objects
+• method withResponse() returns { data, response, request_id }
+
+# Auto-pagination
+
+• for await … of list methods
+default page size via limit param
+automatic fetch of next pages
+
+# Realtime API Beta
+
+```typescript
+import { OpenAIRealtimeWebSocket } from 'openai/beta/realtime/websocket';
+const rt = new OpenAIRealtimeWebSocket({ model: string });
+rt.on('response.text.delta', (event) => {});
 ```
 
-## populate(target, source, options?)
+# Microsoft Azure OpenAI
 
-Populates target object with source variables:
-
-```ts
-function populate(
-  target: Record<string,unknown>,
-  source: Record<string,string>,
-  options?: { override?: boolean; debug?: boolean }
-): void
+```typescript
+new AzureOpenAI({
+  azureADTokenProvider: Provider,
+  apiVersion: string
+}).chat.completions.create(params, options)
 ```
 
-# ESM Import Pitfall
+# Advanced Usage
 
-Do not import dotenv after other modules. Instead:
+• .asResponse() to get raw fetch Response
+• .withResponse() to get parsed data plus raw Response
 
-```js
-import 'dotenv/config'
-import otherModule from './module.js'
+# Custom/Undocumented Requests
+
+```typescript
+client.get(path: string, options?: { query?: Record<string,any>; headers?: Record<string,any> });
+client.post(path: string, options?: { body?: any; query?: any; headers?: any });
 ```
 
-# Troubleshooting
+# Fetch Client Customization
 
-- If .env not found: use `config({ path: '/full/path/.env', debug: true })` to see ENOENT errors.
-- For React apps: prefix variables with REACT_APP_.
-- For Webpack: install node-polyfill-webpack-plugin and configure DefinePlugin or use dotenv-webpack.
+• Override global fetch via client option fetch
 
+# HTTP(S) Agent Configuration
+
+```typescript
+new OpenAI({ httpAgent: agentInstance });
+client.models.list(params, { httpAgent: agentInstance });
+```
+
+# Semantic Versioning & Requirements
+
+• Typescript >=4.5
+• Node.js >=18 LTS, Deno >=v1.28, Bun >=1.0, Cloudflare Workers, Vercel Edge, Jest >=28 "node"
+• browser support disabled unless dangerouslyAllowBrowser: true
 
 ## Attribution
-- Source: dotenv – Environment Configuration
-- URL: https://github.com/motdotla/dotenv#readme
-- License: BSD-2-Clause
-- Crawl Date: 2025-05-07T03:35:22.834Z
-- Data Size: 899400 bytes
-- Links Found: 5873
+- Source: OpenAI Node.js SDK Reference
+- URL: https://github.com/openai/openai-node
+- License: License: MIT
+- Crawl Date: 2025-05-08T03:36:03.699Z
+- Data Size: 597618 bytes
+- Links Found: 4789
 
 ## Retrieved
-2025-05-07
+2025-05-08
