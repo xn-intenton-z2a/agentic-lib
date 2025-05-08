@@ -12,8 +12,8 @@ The guidelines below apply to human or automated contributions:
     - Clear descriptions and reproducible steps are highly appreciated.
 
 2. **Submit Pull Requests:**
-    - Fork the repository and create a feature branch.
-    - Implement your changes, ensuring you follow the existing coding style and standards.
+    - Implement your changes and push them to a new branch, ensuring you follow the 
+      existing coding style and standards.
     - Add tests to cover any new functionality.
     - Update documentation if your changes affect usage or workflow behavior.
     - Submit your pull request for review.
@@ -49,31 +49,22 @@ The guidelines below apply to human or automated contributions:
     - Where the source stands-up an HTTP endpoint, consider that part of the API of the library and document it in the readme.
     - Include usage examples including inline code usage and CLI and HTTP invocation, API references.
 
-- **README:**
-    - Ensure README.md begins like this:
+## Sandbox mode
 
-START_OF_README_BEGINNING
-
-# intentïon agentic-lib
-
-You probably want to start with the workflow documentation here: [WORKFLOWS-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/WORKFLOWS-README.md)
-
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
-repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and
-issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
-GitHub’s `workflow_call` event, so they can be composed together like an SDK.
-
-[Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
-
-[Also on GitHub Pages](https://xn-intenton-z2a.github.io/agentic-lib/index.html)
-
-[See the latest repository stats](https://xn-intenton-z2a.github.io/agentic-lib/latest.html)
-
-Mixed licensing:
-* This project is licensed under the GNU General Public License (GPL).
-* This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
-* This file is licensed under the MIT License. For details, see LICENSE-MIT
-
-This README file will evolve as the test experiment within this repository evolves but the above links remain stable.
-
-END_OF_README_BEGINNING
+Please note that the automation features of this repository are in sandbox mode. This means that
+automated changes should only be applied to the sandbox paths which are shown below:
+```yaml
+paths:
+  targetTestsPath:
+    path: 'sandbox/tests/'
+    permissions: [ 'write' ]
+  targetSourcePath:
+    path: 'sandbox/source/'
+    permissions: [ 'write' ]
+  documentationPath:
+    path: 'sandbox/docs/'
+    permissions: [ 'write' ]
+  readmeFilepath:
+    path: 'sandbox/README.md'
+    permissions: [ 'write' ]
+```
