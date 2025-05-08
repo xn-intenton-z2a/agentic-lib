@@ -1,12 +1,12 @@
 # Purpose & Scope
 
-Integrate structured console reporting across test summary, streaming events, coverage metrics, and persistent workflow metrics into a unified CLI feature.
+Integrate structured console reporting and HTML report generation across test summary, streaming events, coverage metrics, and persistent workflow metrics into a unified CLI feature.
 
 # Value Proposition
 
-- Consolidated insights: view test results, real-time test events, code coverage percentages, and persisted pipeline metrics in one invocation.
-- Workflow metrics persistence: track and report total issues and successful commits across CLI invocations with minimal overhead.
-- Flexible output formats and theming: support json, table, and yaml outputs with light/dark themes and optional color.
+- Consolidated insights: view test results, real-time test events, code coverage percentages, and persisted pipeline metrics in one invocation or as a comprehensive HTML dashboard.
+- Workflow metrics persistence: track and report total issues and successful commits across CLI invocations.
+- Flexible output formats and theming for console, and customizable HTML report templates.
 - Streamlined CI and developer feedback loops with combined and standalone modes for each report type.
 
 # Success Criteria & Requirements
@@ -33,31 +33,33 @@ Integrate structured console reporting across test summary, streaming events, co
    - Standalone mode: display only coverage summary when used alone.
    - Combined mode: append coverage summary after test summary, events, or metrics outputs.
 
-5. Flag Integration and Precedence
+5. HTML Report Generation
+   - Flag --html-report-output <filepath> to generate a self-contained HTML report summarizing metrics, test summary, events, and coverage.
+   - Option --html-template <templatePath> to specify an EJS template; fallback to default built-in template if not provided.
+   - Generated HTML must include timestamp, colored status indicators, summary tables, and collapsible sections for event streams.
+   - Overwrite existing report file or create parent directories as needed.
+
+6. Flag Integration and Precedence
    - Each format, theme, and color option applies only to its respective report type.
-   - Define precedence: metrics flags apply first in combined output when --stats is standalone, otherwise metrics appear last with --verbose-stats.
+   - Define precedence: metrics flags apply first in combined console output; HTML generation occurs after all console output when --html-report-output is present.
 
 # Dependencies & Constraints
 
-- Use child_process.spawn to capture Vitest JSON output, fs to read/write .agentic_metrics.json, chalk for coloring, js-yaml for yaml formatting.
+- Use child_process.spawn to capture Vitest JSON output, fs for file operations, chalk for coloring, js-yaml for yaml formatting, and EJS for HTML templating.
 - Maintain Node 20 ESM compatibility and existing test mocks.
 
 # User Scenarios & Examples
 
-Scenario: Run digest, update metrics, and display all reports in table format
+Scenario: Run digest, update metrics, display console reports in table format and generate an HTML dashboard
 
-  node src/lib/main.js --digest --stats --test-summary --coverage-summary --test-summary-format table --coverage-summary-format table
+  node src/lib/main.js --digest --stats --test-summary --coverage-summary --test-summary-format table --coverage-summary-format table --html-report-output reports/dashboard.html
 
-Scenario: JSON metrics and coverage only without color
+Scenario: Generate HTML report with custom template without console output
 
-  node src/lib/main.js --coverage-summary --coverage-summary-format json --coverage-summary-color false --stats
-
-Scenario: Stream test events with dark theme and append metrics
-
-  node src/lib/main.js --stream-test-events --stream-test-events-theme dark --verbose-stats
+  node src/lib/main.js --html-report-output reports/summary.html --html-template templates/custom.ejs
 
 # Verification & Acceptance
 
-- Unit tests mocking fs and child_process.spawn to verify metrics file creation, parsing of test and coverage JSON, and formatting.
-- Integration tests for combinations of --stats, --verbose-stats, --test-summary, --stream-test-events, --coverage-summary flags asserting correct output order, formats, and exit codes.
-- Manual tests in TTY and non-TTY to confirm color handling, themes, file creation and update semantics.
+- Unit tests mocking fs, child_process.spawn, and EJS rendering to verify HTML file creation, parsing of test and coverage JSON, correct template usage, and formatting.
+- Integration tests for combinations of console flags and --html-report-output asserting correct console output order and HTML report content structure.
+- Manual tests opening the generated HTML in a browser to confirm styling, collapsible sections, and data accuracy.
