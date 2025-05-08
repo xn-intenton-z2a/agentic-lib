@@ -1116,18 +1116,22 @@ jobs:
             const repository = process.env.GITHUB_REPOSITORY;
             const branchUrl = `https://github.com/${repository}/tree/${branchName}`;
             const body = `${branchUrl}`;
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              body: body
-            });
-            await github.rest.issues.addAssignees({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              assignees: [ context.actor ]
-            });
+            if (!issueNumber) {
+              core.warning(`Invalid issue number: ${issueNumberStr} for branch ${branchName} from ${issueNumberStr}`);
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: body
+              });
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                assignees: [ context.actor ]
+              });
+            }
 
       - name: Extract Results
         if: always()
