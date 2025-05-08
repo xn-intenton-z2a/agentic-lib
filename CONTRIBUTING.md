@@ -49,6 +49,11 @@ The guidelines below apply to human or automated contributions:
     - Where the source stands-up an HTTP endpoint, consider that part of the API of the library and document it in the readme.
     - Include usage examples including inline code usage and CLI and HTTP invocation, API references.
 
+- **README:**
+    - The README should begin with something inspired by the mission statement and describe the current state of the repository (rather than the journey)
+    - The README should include a link to MISSION.md, CONTRIBUTING.md, LICENSE.md.
+    - The README should include a link to the intentïon `agentic-lib` GitHub Repository which is https://github.com/xn-intenton-z2a/agentic-lib.
+
 ## Sandbox mode
 
 Please note that the automation features of this repository are in sandbox mode. This means that
