@@ -56,3 +56,23 @@ console.log(getCapturedOutput());
 stopConsoleCapture();
 console.log('Back to normal');
 ```
+
+## Vitest Console Capture Integration
+
+You can opt-in for grouped console output per test when running tests with Vitest by setting the `VITEST_CONSOLE_CAPTURE` environment variable to a truthy value (e.g., `true`).
+
+Example:
+
+```bash
+VITEST_CONSOLE_CAPTURE=true npm test
+```
+
+When enabled, after each test, a header with the test name and JSON-formatted log entries will be printed:
+
+```
+[Console Capture] <test name>
+{"level":"info","timestamp":"...","message":"..."}
+{"level":"error","timestamp":"...","message":"..."}
+```
+
+The buffer is cleared after each test to ensure fresh capture cycles.
