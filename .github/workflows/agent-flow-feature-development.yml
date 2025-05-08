@@ -145,7 +145,7 @@ jobs:
     needs:
       - create-issue
       - agentic-lib
-    if: ${{ always() && needs.create-issue.outputs.issueNumber != '' }}
+    if: always()
     permissions:
       contents: read
       issues: write
@@ -178,7 +178,7 @@ jobs:
     needs:
       - create-issue
       - enhance-issue
-    if: ${{ always() && needs.create-issue.outputs.issueNumber != '' }}
+    if: always()
     permissions:
       contents: write
       pull-requests: write

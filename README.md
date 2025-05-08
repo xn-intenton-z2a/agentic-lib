@@ -679,8 +679,8 @@ Re-usable GitHub Actions Workflows:
 - [ ] [Launch] Feature switch role: maintainer (pr+linting+updates+readme+docs)
 - [ ] [Launch] Make the agent prompts match the top level workflow file names
 - [ ] [Launch] Make the reusable workflow names match the top level workflow file names
-- [~] [Launch] When enhancing issues do not add duplicated documents
-- [~] Recover stuck issues that are in-progress but not being worked on.
+- [x] [Launch] When enhancing issues do not add duplicated documents
+- [x] Recover stuck issues that are in-progress but not being worked on.
 - [ ] [Launch] When adding issue comments to a prompt, just add the last <configurable> comments.
 - [ ] [Launch] Label every issue that a worker touches with a unique label.
 - [ ] [Launch] Add a comment and put an issue for review if it is already done.
