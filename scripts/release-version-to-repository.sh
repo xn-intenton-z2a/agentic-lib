@@ -51,8 +51,8 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-seed-repository.yml"
 cp -v .github/workflows/agent-transformation-feature-to-issue.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-feature-to-issue.yml"
 
-cp -v .github/workflows/agent-transformation-in-progress-issue-to-issue.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-in-progress-issue-to-issue.yml"
+cp -v .github/workflows/agent-transformation-in-progress-issue-to-ready-issue.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-in-progress-issue-to-ready-issue.yml"
 
 cp -v .github/workflows/agent-transformation-issue-to-code.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-issue-to-code.yml"
