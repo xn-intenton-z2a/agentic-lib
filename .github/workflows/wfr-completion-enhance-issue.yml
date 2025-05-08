@@ -767,12 +767,16 @@ jobs:
 
             // Remove 'in progress' label if it exists
             if (hasInProgressLabel) {
-              await github.rest.issues.removeLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                name: 'in progress'
-              });
+              try{ 
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  name: 'in progress'
+                });
+              } catch (e) {
+                core.warning(`Failed to remove 'in progress' label: ${e.message}`);
+              }
             }
 
             if (parsed.action === "enhance") {
