@@ -568,6 +568,11 @@ jobs:
 
             const chatGptPrompt = `
             ${promptContent}
+            
+            Only include the library documents in relevantLibraryDocuments not the others and in particular not CONTRIBUTING.md.
+            Documents not from the library directory won't be found later when attaching documents to the issue so don't include them.
+            If enough documents are already summarised as comments on the issues don't add more.
+            
             Consider the following when making your decision:
             * Issue details (title, description, comments)
             * Mission statement
@@ -580,8 +585,6 @@ jobs:
             * Library documents
             * Repository structure and dependencies
             * Agent configuration file content
-            Only include the library documents in relevantLibraryDocuments not the others and in particular not CONTRIBUTING.md.
-            Documents not from the library directory won't be found later when attaching documents to the issue so don't include them.
 
             Current feature names and specifications:
             CURRENT_FEATURES_START
@@ -775,6 +778,14 @@ jobs:
                   repo: context.repo.repo,
                   issue_number: issueNumber,
                   labels: ['ready']
+                });
+            
+                // Remove 'in progress' label if it exists
+                await github.rest.issues.removeLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  name: 'in progress'
                 });
 
                 // Add relevant library documents as comments

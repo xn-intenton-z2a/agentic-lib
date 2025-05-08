@@ -1,11 +1,11 @@
-# .github/workflows/agent-transformation-issue-to-ready-issue
+# .github/workflows/agent-transformation-in-progress-issue-to-ready-issue
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: issue-to-ready-issue
+name: in-progress-issue-to-ready-issue
 #concurrency: issue-to-ready-issue
-run-name: "issue to ready issue"
+run-name: "in progress issue to ready issue"
 
 on:
   workflow_dispatch:
@@ -16,10 +16,10 @@ on:
         type: string
         default: ''
       selectionLabel:
-        description: 'Label used to filter issues for resolution. e.g. "automated"'
+        description: 'Label used to filter issues for resolution. e.g. "in-progress"'
         required: false
         type: string
-        default: 'automated'
+        default: 'in-progress'
   workflow_call:
     inputs:
       issueNumber:
@@ -28,10 +28,10 @@ on:
         type: string
         default: ''
       selectionLabel:
-        description: 'Label used to filter issues for resolution. e.g. "automated"'
+        description: 'Label used to filter issues for resolution. e.g. "in-progress"'
         required: false
         type: string
-        default: 'automated'
+        default: 'in-progress'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -79,15 +79,41 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
-      selectionLabel: ${{ inputs.selectionLabel || 'automated' }}
-      filterLabel: 'ready'
+      selectionLabel: 'in-progress'
+      filterLabel: 'merged'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
-  enhance-issue:
+  check-branch:
     needs:
       - select-issue
+    if: ${{ needs.select-issue.outputs.issueNumber != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      branchPrefix: 'agentic-lib-issue-'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - name: Ensure there isn't already a branch for this prefix
+        shell: bash
+        run: |
+          git fetch origin
+          if git branch -r | grep -q 'origin/${{ env.branchPrefix }}'; then
+            echo "A branch with the prefix '${{ env.branchPrefix }}' already exists issue in progress but not merged."
+            exit 1
+          else
+            echo "No existing branch with the prefix found."
+          fi
+
+  enhance-issue:
+    needs:
       - agentic-lib
+      - select-issue
+      - check-branch
     if: ${{ needs.select-issue.outputs.issueNumber != '' }}
     permissions:
       contents: read
