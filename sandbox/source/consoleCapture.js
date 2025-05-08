@@ -1,0 +1,78 @@
+/*
+ Console Capture Utility
+
+ Provides programmatic capture of console.log and console.error output.
+*/
+
+function formatLogEntry(level, message) {
+  return {
+    level,
+    timestamp: new Date().toISOString(),
+    message,
+  };
+}
+
+let _originalConsoleLog = null;
+let _originalConsoleError = null;
+let _captureBuffer = [];
+let _isCapturing = false;
+
+/**
+ * Start capturing console.log and console.error calls.
+ * Subsequent calls are buffered and not emitted.
+ */
+export function startConsoleCapture() {
+  if (_isCapturing) {
+    // Already capturing: reset buffer
+    _captureBuffer = [];
+    return;
+  }
+  _originalConsoleLog = console.log;
+  _originalConsoleError = console.error;
+  _captureBuffer = [];
+  _isCapturing = true;
+
+  console.log = (...args) => {
+    const message = args.map(String).join(' ');
+    const entry = formatLogEntry('info', message);
+    _captureBuffer.push(entry);
+  };
+
+  console.error = (...args) => {
+    const message = args.map(String).join(' ');
+    const entry = formatLogEntry('error', message);
+    _captureBuffer.push(entry);
+  };
+}
+
+/**
+ * Stop capturing and restore original console methods.
+ */
+export function stopConsoleCapture() {
+  if (!_isCapturing) {
+    return;
+  }
+  if (_originalConsoleLog) {
+    console.log = _originalConsoleLog;
+  }
+  if (_originalConsoleError) {
+    console.error = _originalConsoleError;
+  }
+  _isCapturing = false;
+}
+
+/**
+ * Get an ordered array of buffered log entries.
+ * Each entry has { level, timestamp, message }.
+ * @returns {Array<{level: string, timestamp: string, message: string}>}
+ */
+export function getCapturedOutput() {
+  return [..._captureBuffer];
+}
+
+/**
+ * Clear the internal buffer of captured entries.
+ */
+export function clearCapturedOutput() {
+  _captureBuffer = [];
+}
