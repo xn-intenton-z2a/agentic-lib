@@ -1,41 +1,47 @@
 # Purpose & Scope
 
-Enhance the existing CLI reporting feature to support verbose and verbose-stats modes alongside streaming test events, mission alignment, coverage, and metrics. Introduce a new Dashboard Mode to generate an automated mission progress dashboard summarizing mission statuses and key workflow metrics.
+Introduce a new CLI mode to execute the test suite and produce a concise summary of test results alongside existing workflow metrics. This enables quick health checks of both code correctness and persisted metrics in one command.
 
 # Value Proposition
 
-- **Verbose Mode** (--verbose) enables detailed debug-level entries on logInfo and logError, including internal state and stack traces when errors occur, aiding rapid troubleshooting.
-- **Verbose-Stats Mode** (--verbose-stats) appends current workflow metrics (call count, uptime, totalTests, passedTests, failedTests) after primary CLI outputs such as help, version, digest, and reporting streams.
-- **Dashboard Mode** (--dashboard) generates a mission progress dashboard that presents missionProgress summary (totalMissions, completedMissions, pendingMissions) alongside other persisted metrics, enabling at-a-glance tracking of ongoing mission status.
-- Unify flag handling so developers can combine verbose, verbose-stats, and dashboard modes with other reporting flags seamlessly.
-- Maintain machine-readable JSON output for integrations, while preserving human-friendly formats.
+- Provides immediate insight into test suite health by reporting total, passed, failed, and skipped tests and overall duration.
+- Combines code validation and metrics visibility, reducing the need for separate commands and manual file inspection.
+- Supports integration in CI/CD pipelines for fast feedback and exit codes reflecting test success.
+- Maintains both human-friendly and machine-readable outputs for diverse consumption scenarios.
 
 # Success Criteria & Requirements
 
 1. Flag Definitions
-   - --verbose: toggles global VERBOSE_MODE to true.
-   - --verbose-stats: toggles global VERBOSE_STATS to true.
-   - --dashboard: toggles DASHBOARD_MODE to true.
-   - Existing flags (--help, --version, --digest, --stream-test-events, --mission-report, --coverage-summary) remain supported.
+   - --test-summary: triggers execution of the Vitest test runner in JSON reporter mode and outputs a summary of test results.
+   - --json: when combined with --test-summary, emits output as a single JSON object with testSummary and metrics fields.
+   - Existing flags (--help, --version, --digest, --verbose, --verbose-stats, --dashboard) remain supported and can be combined.
 
-2. Behavior in Dashboard Mode
-   - When DASHBOARD_MODE is true, after processing other flags (help, version, digest, etc.), output a JSON object with:
-     - missionProgress:
-       - totalMissions: obtained from the .agentic_metrics.json file or zero if missing.
-       - completedMissions: value from .agentic_metrics.json or zero if missing.
-       - pendingMissions: computed as totalMissions minus completedMissions.
-     - metrics: all other top-level fields from .agentic_metrics.json (e.g., totalIssues, successfulCommits).
-   - If .agentic_metrics.json is missing or malformed, log an error entry and exit with code 1.
+2. Test Execution and Parsing
+   - Programmatically invoke the Vitest runner API to execute all tests under tests/unit and sandbox/tests paths.
+   - Collect result data: totalTests, passedTests, failedTests, skippedTests, durationMs.
+   - Exit the process with code 0 if failedTests is zero; otherwise, exit with code equal to number of failed tests.
 
-3. Integration & Combined Modes
-   - Support combining --dashboard with --verbose and --verbose-stats flags.
-   - Ensure output order: primary functionality, then dashboard (if --dashboard), then verbose diagnostics (if --verbose), then metrics dump (if --verbose-stats).
+3. Metrics Integration
+   - After summarizing test results, attempt to read .agentic_metrics.json from project root using fs/promises.
+   - If file exists and is valid JSON, include its fields (for example totalIssues, successfulCommits, totalMissions, completedMissions) under a metrics section.
+   - If the file is missing or malformed, log an error entry and omit the metrics section without failing the test summary command.
+
+4. Output Format
+   - Human-readable mode: display bullet or table format listing testSummary fields followed by metrics if present.
+   - JSON mode: output a single JSON object:
+     {
+       testSummary: { totalTests, passedTests, failedTests, skippedTests, durationMs },
+       metrics: { ... }
+     }
+
+5. Integration & Combined Modes
+   - Support combining --test-summary with --verbose to append debug diagnostics, --verbose-stats to append workflow metrics after primary output, and --dashboard to include mission progress dashboard.
+   - Ensure consistent output order: test summary, dashboard, verbose diagnostics, verbose-stats metrics.
 
 # Dependencies & Constraints
 
-- Use fs/promises to read the .agentic_metrics.json file from the project root.
-- Use existing formatLogEntry for structured log entries and error reporting.
-- Introduce a new global DASHBOARD_MODE flag initialized from CLI arguments.
+- Add vitest as a dev dependency and use its programmatic Runner API.
+- Use fs/promises to read .agentic_metrics.json.
 - Maintain ESM compatibility on Node 20.
-- Write unit tests to cover: parsing of --dashboard flag, successful dashboard output, error handling when metrics file is invalid, and combined flag behavior.
-- Update README CLI section and METRICS.md to document the new --dashboard flag and expected output structure.
+- Include unit tests covering: flag parsing, correct invocation of Vitest runner, parsing of JSON results, metrics file present and absent scenarios, output formats, and exit codes.
+- Update sandbox/README.md CLI Features section and docs/METRICS.md to document the new --test-summary command and JSON output structure.
