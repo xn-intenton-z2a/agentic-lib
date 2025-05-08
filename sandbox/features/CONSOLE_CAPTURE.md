@@ -1,31 +1,45 @@
 # Objective
-Add a CLI option to agentic-lib that enables or disables runtime console output capture, extending the existing Console Capture Utility beyond Vitest integration to all CLI commands.
+Extend the existing console capture facility to include detailed capture metrics in the CLI summary when console capture is enabled.
 
 # Scope
-Intercept and buffer console.log and console.error calls when running agentic-lib CLI with a new flag. Support the same capture API used in tests, and emit grouped logs after command execution or on demand.
+When users run the agentic-lib CLI with console capture enabled, intercept and buffer all console.log and console.error calls, then after command execution:
+
+1. Emit the captured logs as before under the header "Captured Console Output:".
+2. Compute and emit a metrics summary under the header "Console Capture Metrics:".
+
+Metrics include total number of entries, count by level (info vs error), and captured session duration in milliseconds computed from the first and last timestamps.
 
 # Requirements
-- Introduce a new CLI flag `--capture-console` in `src/lib/main.js`.
-- Support an environment variable `AGENTIC_CAPTURE_CONSOLE` as an alternative toggle.
-- When capture is enabled, invoke `startConsoleCapture()` before any command logic and `stopConsoleCapture()` after command execution.
-- After stopping capture, print a header `Captured Console Output:` followed by JSON-formatted entries for each buffered log.
-- Preserve existing behavior: capture disabled by default; no impact on commands when flag is absent.
-- Ensure compatibility with existing Vitest console capture setup and preserve timestamps, levels, and messages.
+- Detect the existing `--capture-console` CLI flag or `AGENTIC_CAPTURE_CONSOLE` environment variable in `src/lib/main.js` and trigger capture start/end as before.
+- After `stopConsoleCapture()` and printing buffered entries:
+  - Retrieve entries from `getCapturedOutput()`.
+  - Compute:
+    - totalEntries: total number of buffered entries.
+    - infoCount: count of entries where level is "info".
+    - errorCount: count of entries where level is "error".
+    - durationMs: difference in milliseconds between the first and last entry timestamps (zero if only one or none).
+  - Print the header `Console Capture Metrics:` followed by a single JSON object with these metrics.
+- Preserve existing capture behavior: no impact when capture disabled; default remains disabled.
+- Timestamps remain ISO-8601 strings and used for duration calculation.
 
 # Success Criteria
-- Running `agentic-lib --capture-console --digest` captures all logs produced by the digest command and prints them after execution.
-- Environment variable toggle works: `AGENTIC_CAPTURE_CONSOLE=true agentic-lib --digest` yields the same result as the flag.
-- No logs are buffered or suppressed when capture is not enabled.
+- Running `agentic-lib --capture-console --digest` yields:
+  1. Header `Captured Console Output:` with JSON lines for each log entry.
+  2. Header `Console Capture Metrics:` with JSON summarizing totalEntries, infoCount, errorCount, durationMs.
+- Environment variable toggle works equivalently: `AGENTIC_CAPTURE_CONSOLE=true agentic-lib --digest`.
+- No additional output when capture is not enabled.
 
 # Design
-1. Update CLI argument parsing in `src/lib/main.js` to detect `--capture-console`.
-2. If enabled, call `startConsoleCapture()` at the very start of `main` and schedule `stopConsoleCapture()` after each command runs.
-3. After `stopConsoleCapture()`, retrieve buffered entries via `getCapturedOutput()`, print a header, then iterate entries and `console.log(JSON.stringify(entry))` for each.
-4. Add fallback using `process.env.AGENTIC_CAPTURE_CONSOLE` if flag is not provided.
-5. Write minimal glue code so that core capture logic remains in `sandbox/source/consoleCapture.js` and tests continue to work.
+1. In `src/lib/main.js`, extend the logic after `stopConsoleCapture()` to compute metrics from `getCapturedOutput()`.
+2. Implement a helper function `computeCaptureMetrics(entries)` that returns the metrics object.
+3. Print metrics with `console.log(JSON.stringify(metrics))` under the metrics header.
+4. Keep capture glue code in `sandbox/source/consoleCapture.js` unchanged; rely on its API.
 
 # Testing and Verification
-- Unit tests for `main` to simulate invocation with and without the flag. Use `vi.spyOn` on `startConsoleCapture` and `stopConsoleCapture` to confirm calls.
-- Integration test: mock console output in a dummy CLI command and verify the captured logs appear after header when running with the flag.
-- E2E test: spawn a child process running the CLI with `--capture-console` and inspect stdout for header and JSON logs.
-- Verify environment variable toggle, clearing and restoring capture buffer between runs.
+- Unit Tests:
+  - Spy on `console.log` and `console.error` in a dummy CLI command run with `--capture-console`. Verify headers, raw entries, and metrics JSON printed in correct order.
+  - Validate `computeCaptureMetrics()` for no entries, single entry, multiple entries.
+- Integration Test:
+  - Mock a CLI command that logs two info and one error. Run with capture flag and assert metric counts and duration computation.
+- E2E Test:
+  - Spawn a child process with `agentic-lib --capture-console --digest`, inspect stdout for both headers and correct JSON values.
