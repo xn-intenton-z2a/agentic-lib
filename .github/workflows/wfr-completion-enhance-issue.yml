@@ -762,6 +762,25 @@ jobs:
             core.setOutput("enhancedDescription", parsed.enhancedDescription || "");
             core.setOutput("relevantLibraryDocuments", JSON.stringify(parsed.relevantLibraryDocuments || []));
 
+            // Get current issue labels
+            core.info(`Retrieving issue ${issueNumber} details...`);
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            const hasInProgressLabel = issue.labels.some(label => label.name === 'in-progress');
+
+            // Remove 'in progress' label if it exists
+            if (hasInProgressLabel) {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                name: 'in progress'
+              });
+            }
+
             if (parsed.action === "enhance") {
               try {
                 // Update issue description
@@ -771,21 +790,13 @@ jobs:
                   issue_number: issueNumber,
                   body: parsed.enhancedDescription
                 });
-
+            
                 // Add 'ready' label
                 await github.rest.issues.addLabels({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issueNumber,
                   labels: ['ready']
-                });
-            
-                // Remove 'in progress' label if it exists
-                await github.rest.issues.removeLabels({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issueNumber,
-                  name: 'in progress'
                 });
 
                 // Add relevant library documents as comments
