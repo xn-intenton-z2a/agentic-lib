@@ -625,7 +625,8 @@ aws sqs get-queue-attributes \
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Feature switch role: maintainer (pr+linting+updates+readme+docs)</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Make the agent prompts match the top level workflow file names</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Make the reusable workflow names match the top level workflow file names</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] When enhancing issues do not add duplicated documents</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] When enhancing issues do not add duplicated documents</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> Recover stuck issues that are in-progress but not being worked on.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] When adding issue comments to a prompt, just add the last <configurable> comments.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Label every issue that a worker touches with a unique label.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Add a comment and put an issue for review if it is already done.</li>
@@ -679,7 +680,7 @@ aws sqs get-queue-attributes \
 <ul class="md-github md-github__task-list">
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> On intentïon.com, user provides an intention which is posted as a new GitHub Discussions thread.</li>
 <li class="md-github">[~] repository0-crucible seeds the repository with the mission and reports back with the intentïon branch.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Updates periodically synchronised to a branch (which does not run the workflows) and summary reported to Discussions.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Archive workflow periodically pushed to an intentïon-<v7uuid> branch (which does not run the workflows) with branch URL and summary reported to Discussions.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Discussions updates also posted intentïon.com.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> intentïon.com posts: running experiment: <link to branch> + <link to discussion></li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> TODO: How do users create a clone from a branch?</li>
@@ -706,6 +707,7 @@ See: <a href="examples/archive-2025-04-20/ACTIONS_JS_STEPS.md" class="md-github"
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Optimise costs per feature against parameters in agentic-lib.yml, e.g. attemptsPerBranch or attemptsPerIssue.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> A / B test to measure value per feature.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Explore the differentiating factors that attribute costs to features. - insight into how to work with</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Scan archived branches for implemented features which can be re-cycled.</li>
 </ul>
 <p class="md-github">supervisor:</p>
 <ul class="md-github md-github__task-list">
@@ -820,7 +822,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-05-08T16:40:59.448Z</p>
+    <p>Generated on 2025-05-08T20:37:39.277Z</p>
   </footer>
 </body>
 </html>
