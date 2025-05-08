@@ -1,3 +1,5 @@
+sandbox/features/CLI_SUMMARIZER.md
+# sandbox/features/CLI_SUMMARIZER.md
 # Objective and Scope
 
 Extend the CLI to provide a unified summarizer command that supports two distinct modes:
