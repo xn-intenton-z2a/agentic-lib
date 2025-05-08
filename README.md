@@ -732,10 +732,10 @@ Discussions Bot [MVP]:
 intentïon user journey [Launch UX]:
 - [ ] On intentïon.com, user provides an intention which is posted as a new GitHub Discussions thread.
 - [~] repository0-crucible seeds the repository with the mission and reports back with the intentïon branch.
-- [ ] Updates periodically synchronised to a branch (which does not run the workflows) and summary reported to Discussions.
+- [ ] Archive workflow periodically pushed to an intentïon-<v7uuid> branch (which does not run the workflows) with branch URL and summary reported to Discussions.
 - [ ] Discussions updates also posted intentïon.com.
 - [ ] intentïon.com posts: running experiment: <link to branch> + <link to discussion>
-- [ ] TODO: How do users create a clone from a branch?
+- [ ] TODO: How do users create a clone from a branch? 
 - [ ] Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
 - [ ] Extract demo output to publish in the discussion thread and request feedback and next steps.
 
