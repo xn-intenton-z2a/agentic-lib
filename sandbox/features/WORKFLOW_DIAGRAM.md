@@ -1,47 +1,53 @@
 # Purpose & Scope
 
-Enhance the CLI with a dedicated flag that outputs a clear, interactive diagram of the core workflows in agentic-lib. The diagram will illustrate the sequence, branching, and data exchanges between commands (help, version, digest, test-summary), enabling users and automation scripts to understand how each mode interconnects and triggers downstream handlers.
+Extend the CLI with a dedicated flag to generate a clear visual representation of core command and event interactions. The diagram will illustrate commands, branching logic, and handler invocations to help users and automation scripts understand the workflow structure.
 
 # Value Proposition
 
-- Accelerates onboarding by letting users visualize workflows without reading code.
-- Eases debugging and documentation by exporting diagrams directly into Markdown or ASCII art.
-- Supports integration into CI/CD pipelines and wikis with JSON-wrapped outputs.
+- Accelerates onboarding by visualizing pipelines without reading code.
+- Streamlines documentation by exporting diagrams in standard formats.
+- Enhances debugging and CI/CD integration through machine-readable outputs.
 
 # Success Criteria & Requirements
 
 ## Flag Definition
+- --workflow-diagram prints the diagram and exits with code 0
+- --diagram-format=<mermaid|ascii> selects output style (default: mermaid)
+- --workflow-diagram --json wraps output in JSON with fields format and diagram
 
-- `--workflow-diagram` prints the diagram and exits 0.
-- `--diagram-format:<mermaid|ascii>` selects output style (default: mermaid).
-- `--workflow-diagram --json` wraps output in JSON with fields `format` and `diagram`.
+## Workflow Modeling
+- Represent commands help, version, digest, and lambda handler as nodes
+- Model edges for invocation order, conditional branches, and error flows
+- Support custom labels and grouping for complex flows
 
 ## Diagram Generation
-
-- Model core commands and handlers as nodes and edges.
-- Produce valid Mermaid flowchart syntax describing nodes for help, version, digest, test-summary, and their invocation order.
-- Convert Mermaid to ASCII flowchart for terminal-friendly view without external dependencies.
+- Produce valid Mermaid flowchart syntax matching the workflow graph
+- Convert Mermaid to ASCII art for terminal-friendly view without external dependencies
 
 ## Output and Integration
-
-- Write diagram to stdout; no file writes by default.
-- JSON mode emits `{ "format": string, "diagram": string }` to stdout.
-- Non-JSON mode prints raw diagram.
+- Write diagram to stdout by default; no file writes
+- JSON mode outputs a JSON object to stdout
+- Allow piping to files or other CLI tools
 
 ## Testing
-
-- Unit tests for flag parsing combinations: alone, with format, with JSON.
-- Snapshot tests for mermaid and ascii outputs.
-- Error path when an invalid format is provided must exit 1 and log a descriptive error.
+- Unit tests covering flag parsing scenarios and invalid formats
+- Snapshot tests for mermaid, ascii, and JSON outputs
+- Integration test simulating CLI invocation and validating output structure
 
 # User Scenarios
 
-- A new contributor runs `node src/lib/main.js --workflow-diagram` to see a flowchart in Mermaid.
-- In a CI job, `node src/lib/main.js --workflow-diagram --json` generates JSON for automated documentation updates.
-- On a text-only console, `--diagram-format:ascii` provides an immediate ASCII diagram.
+1. A new contributor runs node src/lib/main.js --workflow-diagram to view a Mermaid flowchart.
+2. In a CI job, node src/lib/main.js --workflow-diagram --json generates JSON for automated docs.
+3. On a text-only console, node src/lib/main.js --diagram-format=ascii shows an ASCII art diagram.
+
+# Verification & Acceptance
+
+- npm test completes with all tests passing and coverage thresholds met
+- Manual verification confirms example invocations produce expected outputs
+- JSON output schema conforms to the specified format
 
 # Dependencies & Constraints
 
-- Implement diagram templates with string generation; avoid heavy diagram libraries.
-- Maintain compatibility with Node 20 ESM environment.
-- No additional files; updates confined to main source, tests, README, and package.json dependencies.
+- Implement diagram templates with in-code string generation; no external diagram libraries
+- Maintain compatibility with Node 20 ESM environment
+- Confine changes to src/lib/main.js, tests, README, and package.json dependencies
