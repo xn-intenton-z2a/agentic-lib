@@ -1,27 +1,31 @@
-# Metrics Persistence
+# Metrics Persistence (Experimental)
 
-The agentic-lib tracks key workflow metrics across CLI invocations, storing them in a JSON file for persistence.
+> Note: Metrics tracking and the associated CLI flags (`--stats`, `--verbose-stats`) are under development and not yet available in the current sandbox release.
 
-## Metrics File
+## Intended Design
 
-- Location: `.agentic_metrics.json` in the project root.
-- Format:
+The `agentic-lib` sandbox aims to track key workflow metrics across CLI invocations by storing them in a JSON file at `.agentic_metrics.json` in the project root.
+
+### Metrics File
+
+- Location: `.agentic_metrics.json`
+- Structure:
   ```json
   {
-    "totalIssues": 2,
-    "successfulCommits": 2
+    "totalIssues": 0,
+    "successfulCommits": 0
   }
   ```
 
-## CLI Flags
+### Planned CLI Flags
 
 - `--stats`  
-  Print the current metrics JSON to stdout without modifying counts.
-  
-- `--verbose-stats`  
-  When used with other flags (`--help`, `--version`, `--digest`), append the metrics JSON after the primary output.
+  Print current metric values without modifying counts.
 
-## Examples
+- `--verbose-stats`  
+  Append metric JSON after primary CLI outputs when used with `--help`, `--version`, or `--digest`.
+
+## Examples (Future Release)
 
 ```bash
 $ node src/lib/main.js --stats
@@ -29,11 +33,9 @@ $ node src/lib/main.js --stats
 
 $ node src/lib/main.js --help --verbose-stats
 Usage:
-  --help                     Show this help message and usage instructions.
-  --digest                   Run a full bucket replay simulating an SQS event.
-  --version                  Show version information with current timestamp.
-  --stats                    Show metrics statistics (totalIssues, successfulCommits).
-  --verbose-stats            Append metrics statistics after primary command output.
-
+  --help                     Show help message.
+  --digest                   Run a sample digest event.
+  --version                  Show version info.
+  
 {"totalIssues":2,"successfulCommits":2}
 ```
