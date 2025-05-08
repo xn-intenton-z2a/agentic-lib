@@ -1,40 +1,47 @@
 # Agentic-lib Sandbox
 
-This sandbox environment demonstrates the metrics tracking and reporting features added to **agentic-lib**.
+This sandbox environment provides a lightweight demonstration of the core CLI features of **agentic-lib**. It is designed for experimentation and does not include full metrics tracking or AWS integrations.
 
-**Metrics Persistence**
+Links:
+- Mission: [`MISSION.md`](../MISSION.md)
+- Contributing: [`CONTRIBUTING.md`](../CONTRIBUTING.md)
+- License: [`LICENSE.md`](../LICENSE.md)
+- GitHub: https://github.com/xn-intenton-z2a/agentic-lib
 
-- Metrics are stored in `.agentic_metrics.json` at the project root.
-- Metrics tracked: `totalIssues` and `successfulCommits`.
-- On first `--digest` invocation, the metrics file is created with:
-  ```json
-  { "totalIssues": 1, "successfulCommits": 1 }
-  ```
-- Subsequent `--digest` invocations increment both counts by 1:
-  ```bash
-  $ node src/lib/main.js --digest
-  # Creates metrics file: {"totalIssues":1,"successfulCommits":1}
+## CLI Features
 
-  $ node src/lib/main.js --digest
-  # Updates metrics file: {"totalIssues":2,"successfulCommits":2}
-  ```
+- `--help`  
+  Show usage information.
 
-**CLI Usage**
+- `--version`  
+  Output the package version and a timestamp.
+
+- `--digest`  
+  Simulate an SQS event message, invoking the `digestLambdaHandler` in `src/lib/main.js`. Useful for testing and debugging.
+
+## Environment Variables
+
+- `GITHUB_API_BASE_URL`  
+  Base URL for GitHub API requests (defaults to `https://api.github.com.test/` in development).
+
+- `OPENAI_API_KEY`  
+  API key for OpenAI usage (defaults to `key-test` in development).
+
+Load variables from a `.env` file or your environment.
+
+## Usage Examples
 
 ```bash
---help             Show this help message and usage instructions.
---digest           Simulate an SQS event and increment metrics.
---version          Show version information with timestamp.
---stats            Show metrics statistics (totalIssues, successfulCommits).
---verbose-stats    Append metrics statistics after primary command output.
+# Show help
+node src/lib/main.js --help
+
+# Show version
+node src/lib/main.js --version
+
+# Simulate digest event
+node src/lib/main.js --digest
 ```
 
-**Usage Examples**
+## Metrics (Experimental)
 
-```bash
-node src/lib/main.js --stats
-node src/lib/main.js --digest --stats
-node src/lib/main.js --help --verbose-stats
-```
-
-For more details on metrics implementation, see [`docs/METRICS.md`](docs/METRICS.md).
+Metrics persistence is planned but not yet implemented in this sandbox. For more information, see [`docs/METRICS.md`](docs/METRICS.md).
