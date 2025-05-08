@@ -772,7 +772,7 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issueNumber,
-                  name: 'in progress'
+                  name: 'in-progress'
                 });
               } catch (e) {
                 core.warning(`Failed to remove 'in progress' label: ${e.message}`);
