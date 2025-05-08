@@ -1,19 +1,18 @@
 # Purpose & Scope
 
-Implement a unified structured summary capability in the CLI to provide two kinds of post-run reports:
+Implement a unified structured summary and event streaming capability in the CLI to provide three kinds of post-run reports:
 
 1. Persistent workflow metrics summary (totalIssues, successfulCommits, conversionRate) as before.
 2. Test run results summary parsed from Vitest JSON reporter output, showing total tests, passed, failed, skipped, and duration.
-
-All summaries support customizable output formats and theming, and can be enabled independently or combined.
+3. Structured test event output streaming individual test case events parsed in real time from Vitest JSON reporter, including file path, test title, status, and duration.
 
 # Value Proposition
 
-By consolidating both metrics and test reporting into a single CLI feature, users can:
+By consolidating metrics, summaries, and detailed test events into a single CLI feature, users can:
 
-- Gain immediate insight into workflow health and conversion metrics.
-- Get an at-a-glance summary of test suite outcomes without switching tools.
-- Choose their preferred summary format (json, table, yaml) and theme (light, dark) for readability or integration.
+- Gain immediate insight into workflow health and conversion metrics and test suite outcomes without switching tools.
+- Stream detailed, structured events for each test case, enabling integration with external dashboards or log aggregation systems.
+- Choose output formats (json, table, yaml) and themes (light, dark) for each report type independently.
 - Enable or disable colored output based on environment (CI, TTY).
 
 # Success Criteria & Requirements
@@ -23,50 +22,49 @@ By consolidating both metrics and test reporting into a single CLI feature, user
    - Increment counters on each `--digest` invocation.
    - Expose `--stats` and `--verbose-stats` with `--stats-format`, `--stats-theme`, and `--stats-color` flags as documented.
 
-2. Test Summary
-   - New CLI flag `--test-summary` to spawn a Vitest run under the hood using `vitest run --reporter=json`.
+2. Test Summary (existing)
+   - New CLI flag `--test-summary` to spawn Vitest run under the hood using `vitest run --reporter=json`.
    - Parse Vitest JSON output to extract summary fields: total, passed, failed, skipped, durationMs.
-   - Support formatting flags:
-     - `--test-summary-format <json|table|yaml>` (default: json)
-     - `--test-summary-theme <light|dark>` (default: light)
-     - `--test-summary-color <true|false>` (default: true in TTY)
-   - When `--test-summary` is used alone, show only test summary and exit; when combined with other flags or commands, append after primary output.
-   - Error out with non-zero code on Vitest execution failures or JSON parse errors.
+   - Support formatting flags: `--test-summary-format <json|table|yaml>`, `--test-summary-theme <light|dark>`, `--test-summary-color <true|false>`.
+   - When `--test-summary` is used alone, show only test summary and exit; when combined, append after primary output.
+   - Exit with non-zero code on Vitest execution failures or parse errors.
 
-3. Flag Integration and Precedence
-   - Format and theme flags for metrics and tests must only apply to their respective summaries.
-   - `--verbose-stats` and `--verbose-test-summary` both supported: each can be appended after other CLI outputs.
+3. Structured Test Events
+   - New CLI flag `--stream-test-events` to spawn Vitest using `vitest run --reporter json` in streaming mode.
+   - Use `child_process.spawn` to capture Vitest stdout line by line.
+   - For each JSON event line, parse and log a structured JSON object with fields: file, title, status, durationMs, timestamp.
+   - Support `--stream-test-events-format <json|table|yaml>` to output a summary table or detailed list after streaming completes.
+   - Support `--stream-test-events-theme <light|dark>` and `--stream-test-events-color <true|false>`.
+   - When combined with other flags, interleave or append event logs according to invocation order.
+   - Exit code reflects Vitest run status; stream errors on parse or execution failures.
+
+4. Flag Integration and Precedence
+   - Format and theme flags must apply only to their respective report type.
+   - `--verbose-stats`, `--verbose-test-summary`, and `--verbose-stream-test-events` all supported for appending after primary output.
 
 # Dependencies & Constraints
 
-- Use Node built-in `child_process` to execute Vitest and capture stdout.
-- Use `fs/promises` to read/write `.agentic_metrics.json` atomically.
+- Use `child_process.spawn` for streaming JSON output from Vitest.
+- Continue to use `fs/promises` for metrics persistence.
 - Use `chalk` for coloring, `js-yaml` for YAML formatting, and simple string alignment for tables.
-- Must remain compatible with Node 20, ESM, and existing test mocking.
+- Maintain compatibility with Node 20, ESM, and existing test mocking.
 
 # User Scenarios & Examples
 
-Scenario 1: Table-formatted metrics and test summary after digest
+Scenario: Stream detailed test events with summary
 ```
-node src/lib/main.js --digest --verbose-stats --verbose-test-summary --stats-format table --test-summary-format table
-``` 
-Outputs digest logs, then a metrics table, then a test summary table.
+node src/lib/main.js --digest --verbose-stats --stream-test-events --stream-test-events-format table
+```
+Outputs digest logs, metrics table, then streams each test event as JSON, and finally a formatted table summary of events.
 
-Scenario 2: YAML test summary only
+Scenario: JSON stream only
 ```
-node src/lib/main.js --test-summary --test-summary-format yaml --test-summary-color false
+node src/lib/main.js --stream-test-events --stream-test-events-color false
 ```
-Outputs:
-```
-total: 50
-passed: 48
-failed: 2
-skipped: 0
-durationMs: 1234
-```
+Outputs each test event line as JSON and exits with Vitest exit code.
 
 # Verification & Acceptance
 
-- Unit tests mock `child_process.exec` and verify correct parsing and formatting of Vitest JSON.
-- Integration test runs both `--stats` and `--test-summary` and asserts combined outputs.
-- Manual CLI tests in TTY and non-TTY environments confirm color and theme behavior.
+- Unit tests must mock `child_process.spawn` and simulate JSON lines to verify event parsing and output formatting.
+- Integration test runs `--stream-test-events` and asserts correct structured logs and exit code.
+- Manual CLI tests in TTY and non-TTY confirm flag behavior and color handling.
