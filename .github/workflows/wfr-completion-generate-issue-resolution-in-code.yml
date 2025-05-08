@@ -282,8 +282,8 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
 
-      - name: Build project
-        id: build
+      - name: build-before-update
+        id: build-before-update
         shell: bash
         run: |
           output=$(${{ env.buildScript }} 2>&1)
@@ -292,8 +292,8 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
 
-      - name: Run tests
-        id: test
+      - name: test-before-update
+        id: test-before-update
         shell: bash
         run: |
           output=$(${{ env.testScript }} 2>&1)
@@ -302,8 +302,8 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
 
-      - name: Run main
-        id: main
+      - name: main-before-update
+        id: main-before-update
         shell: bash
         run: |
           output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
@@ -570,15 +570,24 @@ jobs:
             const chatGptPrompt = `
             ${promptContent}
 
+            You must only add, remove, or change the files in the target writable locations. You can update multiple
+            files by specifying their paths and contents in the enumerated updatedFile01Name updatedFile02Contents response
+            attribute, a second file would use updatedFile01Name updatedFile02Contents and so on to 16. Each file will
+            be checked against the write permission in the Agent configuration file before being written. Feel free to
+            add new files as long as they are in the target writable locations. You can also remove files, but only if
+            they are in the target writable locations. To delete a file, set the updated file contents to "delete".
+            
             The target writable locations for your output are: ${targetSourcePath} ${targetTestsPath} ${documentationPath}
-            Other file will be supplied in the context but only the paths above should be written to, you can create new files in these directories.
+            Other file will be supplied in the context but only the paths above should be written to.
+            
+            Only provide new or updated content for the target source files in ${targetSourcePath}.
+            Only delete or update the target source files in ${targetSourcePath}.
+            Only provide new or updated content for the target test files in ${targetTestsPath}.
+            Only delete or update the target test files in ${targetTestsPath}.
+            Only update dependency file ${dependenciesFilepath}.
+            Only update the target documentation files in ${documentationPath}.
 
-            Only provide new or updated content for source files in ${targetSourcePath}.
-            Only delete or update source files in ${targetSourcePath}.
-            Only provide new or updated content for test files in ${targetTestsPath}.
-            Only delete or update test files in ${targetTestsPath}.
-            Only update dependency files in ${dependenciesFilepath}.
-            Only update documentation files in ${documentationPath}.
+            Follow the attached Formatting file content and Linting file content.
 
             Consider the following when refining your response:
             * Current feature names and specifications in the repository
@@ -686,15 +695,15 @@ jobs:
 
             Answer strictly with a JSON object following this schema:
             {
-              "message": "A short sentence explaining the change applied suitable for a commit message.",
-              "updatedFile01Name": "src/orderParser.js",
-              "updatedFile01Contents": "The entire new content of the file, with all necessary changes applied.",
-              "updatedFile02Name":  "tests/orderParser.test.js",
-              "updatedFile02Contents": "The entire new content of the file, with all necessary changes applied.",
-              "updatedFile03Name": "docs/USAGE.md",
-              "updatedFile03Contents": "The entire new content of the file, with all necessary changes applied.",
-              "updatedFile04Name": "unused",
-              "updatedFile04Contents": "unused",
+              "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text.",
+              "updatedFile01Name": "${targetSourcePath}orderParser.js",
+              "updatedFile01Contents": "The entire new content of the source file, with all necessary changes applied, if any.",
+              "updatedFile02Name":  "${targetTestsPath}/orderParser.test.js",
+              "updatedFile02Contents": "The entire new content of the test file, with all necessary changes applied, if any.",
+              "updatedFile03Name": "${documentationPath}/docs/USAGE.md",
+              "updatedFile03Contents": "The entire new content of the documentation file, with all necessary changes applied, if any.",
+              "updatedFile04Name": "docs/A_FILE_WE_DONT_WANT.md",
+              "updatedFile04Contents": "delete",
               "updatedFile05Name": "unused",
               "updatedFile05Contents": "unused",
               "updatedFile06Name": "unused",
@@ -723,6 +732,8 @@ jobs:
 
             You can include up to 16 files using the updatedFileXXName and updatedFileXXContents pairs (where XX is a number from 01 to 16)
             Where a file name and contents slot is not used, populate tha name with "unused" and the contents with "unused".
+            Where a file is to be deleted, set the name to the file path and the contents to "delete".
+            Never truncate the files, when returning a file, always return the entire file content.
 
             Ensure valid JSON.
             `;
@@ -782,131 +793,131 @@ jobs:
                     },
                     updatedFile01Name: {
                       type: "string",
-                      description: "Path to the first file to update"
+                      description: "Path to the first file to update or 'unused'."
                     },
                     updatedFile01Contents: {
                       type: "string",
-                      description: "The entire new content of the first file, with all necessary changes applied"
+                      description: "The entire new content of the first file, with all necessary changes applied or 'delete' or 'unused'."
                     },
                     updatedFile02Name: {
                       type: "string",
-                      description: "Path to the second file to update"
+                      description: "Path to the second file to update or 'unused'."
                     },
                     updatedFile02Contents: {
                       type: "string",
-                      description: "The entire new content of the second file, with all necessary changes applied"
+                      description: "The entire new content of the second file, with all necessary changes applied or 'delete' or 'unused'."
                     },
                     updatedFile03Name: {
                       type: "string",
-                      description: "Path to the third file to update"
+                      description: "Path to the third file to update or 'unused'."
                     },
                     updatedFile03Contents: {
                       type: "string",
-                      description: "The entire new content of the third file, with all necessary changes applied"
+                      description: "The entire new content of the third file, with all necessary changes applied or 'delete' or 'unused'."
                     },
                     updatedFile04Name: {
                       type: "string",
-                      description: "Path to the fourth file to update"
+                      description: "Path to the fourth file to update or 'unused'."
                     },
                     updatedFile04Contents: {
                       type: "string",
-                      description: "The entire new content of the fourth file, with all necessary changes applied"
+                      description: "The entire new content of the fourth file, with all necessary changes applied or 'delete' or 'unused'."
                     },
                     updatedFile05Name: {
                       type: "string",
-                      description: "Path to the fifth file to update"
+                      description: "Path to the fifth file to update or 'unused'."
                     },
                     updatedFile05Contents: {
                       type: "string",
-                      description: "The entire new content of the fifth file, with all necessary changes applied"
+                      description: "The entire new content of the fifth file, with all necessary changes applied or 'delete' or 'unused'."
                     },
                     updatedFile06Name: {
                       type: "string",
-                      description: "Path to the sixth file to update"
+                      description: "Path to the sixth file to update or 'unused'."
                     },
                     updatedFile06Contents: {
                       type: "string",
-                      description: "The entire new content of the sixth file, with all necessary changes applied"
+                      description: "The entire new content of the sixth file, with all necessary changes applied or 'delete' or 'unused'."
                     },
                     updatedFile07Name: {
                       type: "string",
-                      description: "Path to the seventh file to update"
+                      description: "Path to the seventh file to update or 'unused'."
                     },
                     updatedFile07Contents: {
                       type: "string",
-                      description: "The entire new content of the seventh file, with all necessary changes applied"
+                      description: "The entire new content of the seventh file, with all necessary changes applied or 'delete' or 'unused'."
                     },
                     updatedFile08Name: {
                       type: "string",
-                      description: "Path to the eighth file to update"
+                      description: "Path to the eighth file to update or 'unused'."
                     },
                     updatedFile08Contents: {
                       type: "string",
-                      description: "The entire new content of the eighth file, with all necessary changes applied"
+                      description: "The entire new content of the eighth file, with all necessary changes applied or 'delete' or 'unused'."
                     },
                     updatedFile09Name: {
                       type: "string",
-                      description: "Path to the ninth file to update"
+                      description: "Path to the ninth file to update or 'unused'."
                     },
                     updatedFile09Contents: {
                       type: "string",
-                      description: "The entire new content of the ninth file, with all necessary changes applied"
+                      description: "The entire new content of the ninth file, with all necessary changes applied or 'delete' or 'unused'."
                     },
                     updatedFile10Name: {
                       type: "string",
-                      description: "Path to the tenth file to update"
+                      description: "Path to the tenth file to update or 'unused'."
                     },
                     updatedFile10Contents: {
                       type: "string",
-                      description: "The entire new content of the tenth file, with all necessary changes applied"
+                      description: "The entire new content of the tenth file, with all necessary changes applied or 'delete' or 'unused'."
                     },
                     updatedFile11Name: {
                       type: "string",
-                      description: "Path to the eleventh file to update"
+                      description: "Path to the eleventh file to update or 'unused'."
                     },
                     updatedFile11Contents: {
                       type: "string",
-                      description: "The entire new content of the eleventh file, with all necessary changes applied"
+                      description: "The entire new content of the eleventh file, with all necessary changes applied or 'delete' or 'unused'."
                     },
                     updatedFile12Name: {
                       type: "string",
-                      description: "Path to the twelfth file to update"
+                      description: "Path to the twelfth file to update or 'unused'."
                     },
                     updatedFile12Contents: {
                       type: "string",
-                      description: "The entire new content of the twelfth file, with all necessary changes applied"
+                      description: "The entire new content of the twelfth file, with all necessary changes applied or 'delete' or 'unused'."
                     },
                     updatedFile13Name: {
                       type: "string",
-                      description: "Path to the thirteenth file to update"
+                      description: "Path to the thirteenth file to update or 'unused'."
                     },
                     updatedFile13Contents: {
                       type: "string",
-                      description: "The entire new content of the thirteenth file, with all necessary changes applied"
+                      description: "The entire new content of the thirteenth file, with all necessary changes applied or 'delete' or 'unused'."
                     },
                     updatedFile14Name: {
                       type: "string",
-                      description: "Path to the fourteenth file to update"
+                      description: "Path to the fourteenth file to update or 'unused'."
                     },
                     updatedFile14Contents: {
                       type: "string",
-                      description: "The entire new content of the fourteenth file, with all necessary changes applied"
+                      description: "The entire new content of the fourteenth file, with all necessary changes applied or 'delete' or 'unused'."
                     },
                     updatedFile15Name: {
                       type: "string",
-                      description: "Path to the fifteenth file to update"
+                      description: "Path to the fifteenth file to update or 'unused'."
                     },
                     updatedFile15Contents: {
                       type: "string",
-                      description: "The entire new content of the fifteenth file, with all necessary changes applied"
+                      description: "The entire new content of the fifteenth file, with all necessary changes applied or 'delete' or 'unused'."
                     },
                     updatedFile16Name: {
                       type: "string",
-                      description: "Path to the sixteenth file to update"
+                      description: "Path to the sixteenth file to update or 'unused'."
                     },
                     updatedFile16Contents: {
                       type: "string",
-                      description: "The entire new content of the sixteenth file, with all necessary changes applied"
+                      description: "The entire new content of the sixteenth file, with all necessary changes applied or 'delete' or 'unused'."
                     }
                   },
                   required: ["message", "updatedFile01Name", "updatedFile01Contents", "updatedFile02Name", "updatedFile02Contents", "updatedFile03Name", "updatedFile03Contents", "updatedFile04Name", "updatedFile04Contents", "updatedFile05Name", "updatedFile05Contents", "updatedFile06Name", "updatedFile06Contents", "updatedFile07Name", "updatedFile07Contents", "updatedFile08Name", "updatedFile08Contents", "updatedFile09Name", "updatedFile09Contents", "updatedFile10Name", "updatedFile10Contents", "updatedFile11Name", "updatedFile11Contents", "updatedFile12Name", "updatedFile12Contents", "updatedFile13Name", "updatedFile13Contents", "updatedFile14Name", "updatedFile14Contents", "updatedFile15Name", "updatedFile15Contents", "updatedFile16Name", "updatedFile16Contents"],
@@ -1032,19 +1043,19 @@ jobs:
           IFS=';' read -ra SRC_FILES <<< "${{ env.targetSourcePaths }}"
           for file in "${SRC_FILES[@]}"; do
             echo "=== Git diff for source file: $file ==="
-            git diff "$file" || true
+            git diff -- "$file" || true
             echo ""
           done
           IFS=';' read -ra TEST_FILES <<< "${{ env.targetTestsPaths }}"
           for file in "${TEST_FILES[@]}"; do
             echo "=== Git diff for test file: $file ==="
-            git diff "$file" || true
+            git diff -- "$file" || true
             echo ""
           done
           IFS=';' read -ra DOCS_FILES <<< "${{ env.documentationPath }}"
           for file in "${DOCS_FILES[@]}"; do
             echo "=== Git diff for docs file: $file ==="
-            git diff "$file" || true
+            git diff -- "$file" || true
             echo ""
           done
 
