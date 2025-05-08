@@ -58,7 +58,7 @@ maintenanceIssuesWipLimit: 1
 
 # How many attempts should be made to work on an issue?
 attemptsPerBranch: 2
-attemptsPerIssue: 1
+attemptsPerIssue: 2
 
 # Web publishing
 docRoot: 'public'
