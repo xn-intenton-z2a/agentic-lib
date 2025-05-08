@@ -757,6 +757,7 @@ Cost model:
 - [ ] Optimise costs per feature against parameters in agentic-lib.yml, e.g. attemptsPerBranch or attemptsPerIssue.
 - [ ] A / B test to measure value per feature.
 - [ ] Explore the differentiating factors that attribute costs to features. - insight into how to work with
+- [ ] Scan archived branches for implemented features which can be re-cycled.
 
 supervisor:
 - [x] Deploy a s3-sqs-bridge Stack from the agentic-lib project.
