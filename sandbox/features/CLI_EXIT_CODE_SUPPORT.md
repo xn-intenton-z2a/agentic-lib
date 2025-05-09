@@ -1,31 +1,38 @@
 # Objective
-Provide standardized exit codes for the CLI commands to improve scriptability and error handling when invoking the tool in automated workflows.
+Extend the existing CLI exit-code support to include a new dashboard visualization mode for repository metrics.
 
 # Value Proposition
-Ensuring consistent exit codes allows calling processes and CI pipelines to detect success or failure conditions programmatically. Users can rely on exit codes for integrating the CLI into larger automation, monitoring, and deployment scripts.
+Providing an interactive dashboard allows developers and DevOps engineers to visualize key repository metrics (open issues, pull requests, stars, forks) in real time without leaving the terminal environment. This enhances monitoring, debugging, and decision-making workflows by offering immediate insights into repository health and activity.
 
 # Scope
-- Modify src/lib/main.js to explicitly call process.exit with appropriate codes after processing --help, --version, and --digest flags.
-- Introduce exit code 0 for successful handling of help, version, and digest commands.
-- Introduce exit code 1 for unrecognized commands or error conditions (for example, failure reading package.json or JSON parse errors in digest processing).
-- Add new tests in tests/unit/cliExitCode.test.js to verify exit code behavior for each flag and error scenario.
-- Update sandbox/README.md and root README to document the exit code semantics for CLI users.
+- Update src/lib/main.js:
+  - Introduce a new processDashboard(args) handler that triggers when --dashboard is provided.
+  - Extend generateUsage() to list the --dashboard flag with usage instructions.
+  - Read repository owner and name from package.json’s repository field to construct API calls.
+  - Use Node 20’s global fetch and config.GITHUB_API_BASE_URL to call /repos/:owner/:repo and retrieve metrics.
+  - Spin up an HTTP server on default port 8080 (configurable via DASHBOARD_PORT environment variable).
+  - Serve two routes:
+    - GET /metrics: returns a JSON object with open_issues_count, stargazers_count, forks_count.
+    - GET /: returns a simple HTML page that fetches /metrics and displays a table or chart.
+- Update sandbox/tests/consoleCapture.test.js:
+  - Add tests for processDashboard by mocking fetch and verifying server responses on /metrics and /.
+- Update sandbox/README.md:
+  - Document the --dashboard flag, environment variables, default port, and how to view the dashboard.
+- Ensure all exit-code semantics remain intact: dashboard server startup exits with code 0 on success or 1 on error.
 
 # Requirements
-- processHelp, processVersion, and processDigest handlers must call process.exit(0) after logging their outputs (when executed directly from the CLI).
-- main must call process.exit(1) when no supported flag is provided or when an internal error occurs.
-- In error catch blocks (e.g., version file read failure), call process.exit(1) after logging the error.
-- Tests should spawn the CLI as a child process or mock process.exit to assert the code returned.
-- Maintain existing ESM module format and Node 20+ compatibility.
+- Default port is 8080, overridable via DASHBOARD_PORT.
+- Error handling: if fetch fails or server cannot bind, log error and exit with code 1.
+- Tests must mock global fetch and HTTP requests without real network calls.
+- Maintain ESM format and Node 20+ compatibility.
 
 # Success Criteria
-- Demonstrated exit code 0 for --help, --version, and --digest via automated tests.
-- Demonstrated exit code 1 for unrecognized flags and simulated error in version retrieval.
-- Updated documentation clearly explains exit codes for each scenario.
+- Running node src/lib/main.js --dashboard starts a server, and GET /metrics returns valid JSON of metrics.
+- GET / returns an HTML page containing embedded script to fetch and display metrics.
+- Automated tests validate both endpoints under mocked conditions.
 
 # Verification
-1. Run `node src/lib/main.js --help` and verify the process exits with code 0.
-2. Run `node src/lib/main.js --version` and verify the process exits with code 0.
-3. Run `node src/lib/main.js --digest` and verify the process exits with code 0.
-4. Run `node src/lib/main.js --unknown` and verify the process exits with code 1.
-5. Simulate version retrieval error (e.g., corrupt package.json) and verify exit code 1.
+1. npm test should include new dashboard tests and pass.
+2. node src/lib/main.js --dashboard should log server listening and exit with 0 if PID detached.
+3. curl http://localhost:8080/metrics returns a JSON object with numeric metrics.
+4. curl http://localhost:8080/ returns HTML with a script tag that references /metrics.
