@@ -1,64 +1,45 @@
 # Test Runner CLI Command
 
 # Overview
-
-Implement a new CLI flag `--run-tests` that invokes Vitest programmatically from within the main application. When this flag is supplied, the CLI will execute all unit tests in `tests/unit/` and `sandbox/tests/`, capture their results, and output a structured JSON summary of test suite names, test case names, pass/fail status, and any console output emitted during tests.
+Implement a new CLI flag --run-tests that programmatically invokes Vitest to execute unit tests inside tests/unit and sandbox/tests. The CLI captures suite names, test case results, console output, and outputs a structured JSON report.
 
 # Objectives & Scope
-
-- Provide a built-in way to run the project's test suite via the library’s CLI without requiring users to call `npm test` separately.
-- Collect test results and console output into a consistent JSON stream to facilitate automation and reporting.
-- Ensure tests still run correctly under Vitest when invoked normally.
+- Provide a built-in test execution command in the CLI without requiring an external script.
+- Support optional filter by pattern to run subsets of tests.
+- Enable verbose mode to include console logs emitted by tests.
+- Maintain compatibility with normal Vitest CLI invocation.
 
 # Value Proposition
-
-- Simplifies developer workflows by enabling tests to be executed through a single CLI binary.
-- Enables downstream automation (CI pipelines or other tools) to consume test results as structured JSON.
-- Integrates test reporting into the same logging and error patterns already used by the library.
+- Streamlines developer workflows by consolidating test execution into a single command.
+- Facilitates CI/CD integration by producing machine-readable JSON test reports.
+- Offers filtering and verbosity options to target specific test groups or troubleshoot failures.
 
 # Requirements & Success Criteria
-
-1. Add a `--run-tests` option to the CLI’s argument processor.
-2. Use Vitest’s Node API (`runVitest` or equivalent) to load and execute tests programmatically.
-3. Capture test suite results including:
+1. Add a --run-tests flag to the CLI argument parser.
+2. Accept optional --pattern <glob> to filter test files by path or name.
+3. Accept optional --verbose-logs flag to include console output in results.
+4. Use Vitest Node API to programmatically load and run matching tests.
+5. Capture the following for each suite and test:
    - Suite name
-   - Test case names
-   - Pass/fail status
-   - Error messages and stack traces for failures
-   - Any console logs emitted by tests
-4. Output a single JSON object summarizing all suites and test results to STDOUT.
-5. Return a nonzero exit code if any tests fail, and zero if all pass.
-6. Write or update unit tests to cover:
-   - Invocation of `main(["--run-tests"])` triggers test execution
-   - JSON structure meets schema expectations
-   - Exit code behavior on pass/fail
-7. Update `package.json` dependencies if needed to use Vitest’s API.
-8. Document the new flag and JSON schema in `README.md` under CLI Usage.
+   - Test case name
+   - Pass or fail status
+   - Error message and stack trace for failures
+   - Captured console outputs when verbose mode is enabled
+6. Output a single JSON object with:
+   {
+     suites: [ ... ],
+     summary: { total: number, passed: number, failed: number }
+   }
+7. Exit with code 0 if all tests pass, or 1 if any fail.
+8. Add unit tests under tests/unit to verify flag parsing, filtering, verbosity, JSON schema, and exit codes.
+9. Update README.md to document the --run-tests, --pattern, and --verbose-logs flags and the JSON report schema.
 
 # User Scenarios & Examples
-
-Scenario: A developer wants to include tests as part of another toolchain.
-1. On the command line, the developer runs:
-   node src/lib/main.js --run-tests
-2. The CLI executes all tests and prints:
-   {
-     "suites": [
-       {
-         "name": "Main Module Import",
-         "tests": [
-           {"name": "should be non-null","status": "passed","logs": []},
-           ...
-         ]
-       },
-       ...
-     ],
-     "summary": {"total": 10,"passed": 9,"failed": 1}
-   }
-3. If any test fails, the process exits with code 1.
+- A developer runs `node src/lib/main.js --run-tests` and sees a JSON report for all tests.
+- A developer runs `node src/lib/main.js --run-tests --pattern user*` to run only user-related tests.
+- A CI pipeline executes the command and parses the JSON to report in its dashboard.
 
 # Verification & Acceptance
-
-- Unit tests must be added under `tests/unit/` or `sandbox/tests/` to verify the behavior of `--run-tests`.
-- Manual test: running the CLI with and without failures should produce expected JSON and exit codes.
-- Automated pipelines should parse the JSON output and detect pass/fail status.
-- Peer review should ensure code style matches existing patterns and tests do not interfere with other CLI flags.
+- Unit tests cover core scenarios and edge cases.
+- Manual validation shows correct JSON output and exit codes.
+- Documentation in README.md accurately describes usage and options.
