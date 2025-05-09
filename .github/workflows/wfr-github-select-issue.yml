@@ -178,7 +178,7 @@ jobs:
               });
               const mainHeadUrl = branchData.commit.html_url
               core.info(`mainHeadUrl: ${mainHeadUrl}`);
-              const commentBody = `Workflow run URL: ${workflowName}\n${workflowRunUrl}\nWorkflow event: ${workflowEvent}\nWorkflow inputs: ${workflowInputs}\nHEAD of main URL: ${mainHeadUrl}`;
+              const commentBody = `Workflow name: ${workflowName}\nWorkflow run URL: ${workflowRunUrl}\nWorkflow event: ${workflowEvent}\nWorkflow inputs: ${workflowInputs}\nHEAD of main URL: ${mainHeadUrl}`;
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
