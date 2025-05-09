@@ -1,40 +1,42 @@
 # Objective
 
-Implement a new SQS Lambda handler to process user feedback on discussion summaries.
+Implement a summary feedback workflow for console-captured test output, enabling developers to generate concise summaries of their buffered logs, surface key metrics, and record user or automated feedback on those summaries.
 
 # Value Proposition
 
-Allow automated workflows to collect and surface feedback on generated discussion summaries, enabling continuous improvement and quality tracking in end-to-end autonomous pipelines.
+By providing a quick, structured summary of console output and a feedback mechanism, developers gain faster insights into test behaviors, spot error trends, and collect targeted feedback for improving test quality and clarity—all without leaving the console capture context.
 
 # Scope
 
-- Modify src/lib/main.js to add and export an async function named feedbackLambdaHandler.
-  - Accept the same shape of sqsEvent input as digestLambdaHandler.
-  - For each record in sqsEvent.Records:
-    - Parse JSON from record.body to an object with summaryId (string), feedbackText (string), submittedBy (string).
-    - Validate the parsed object against a zod schema: all three properties required and non-empty.
-    - On valid payloads, call logInfo with a message indicating receipt of feedback and include summaryId and submittedBy in additionalData.
-    - On JSON parse errors or schema validation failures, call logError with details, generate a record identifier (record.messageId or fallback), and add it to batchItemFailures.
-  - Return an object with batchItemFailures array and handler identifying feedbackLambdaHandler.
+- Modify sandbox/source/consoleCapture.js:
+  - Add export function summarizeCapturedOutput():
+    - Returns an object with totalEntries, infoCount, errorCount, firstMessages (array of up to 3 message strings).
+  - Add export function submitSummaryFeedback(summaryId, feedbackText):
+    - Accepts summaryId and feedbackText strings.
+    - Calls logInfo with message "Received summary feedback" and additionalData { summaryId, feedbackText }.
 
-- Add tests in tests/unit/main.feedbackLambdaHandler.test.js:
-  - Test a valid feedback message: expect no batch failures and verify logInfo captured the correct structure.
-  - Test an invalid JSON payload: expect one batch failure with the correct identifier and that logError was called.
+- Update sandbox/tests/consoleCapture.test.js:
+  - Add tests for summarizeCapturedOutput:
+    - Buffer known entries via startConsoleCapture, produce entries, call summarizeCapturedOutput, and verify counts and previews.
+  - Add tests for submitSummaryFeedback:
+    - Mock logInfo, call submitSummaryFeedback, and assert logInfo receives correct parameters.
+
+- Update sandbox/docs/CONSOLE_CAPTURE.md:
+  - Document new APIs summarizeCapturedOutput and submitSummaryFeedback under a new section "Summary Feedback API" with usage examples.
 
 - Update sandbox/README.md:
-  - Under the Core Utilities section, insert a new subsection titled Discussion Summary Feedback Handler.
-  - Describe the purpose of feedbackLambdaHandler, its input shape, return value, and how to invoke it via an SQS event example.
+  - Under Core Utilities, append a subsection "Console Capture Summary Feedback" describing the new functions, their purpose, and basic invocation examples.
 
 # Requirements
 
-- Use existing logInfo and logError functions for consistency.
-- Leverage the zod dependency already present for payload validation.
+- Use existing formatLogEntry and logInfo implementations.
 - Maintain ESM module exports and Node 20 compatibility.
-- Ensure all new tests use Vitest and respect existing mock conventions.
+- All new tests must use Vitest and follow existing mock conventions.
+- No additional dependencies beyond those already present.
 
 # Success Criteria
 
-1. src/lib/main.js exports feedbackLambdaHandler with the documented behavior.
-2. Tests in tests/unit/main.feedbackLambdaHandler.test.js pass without errors.
-3. sandbox/README.md includes a clear usage description for the new handler.
-4. No new dependencies beyond zod and existing utilities are added.
+1. sandbox/source/consoleCapture.js exports summarizeCapturedOutput and submitSummaryFeedback with the documented behavior.
+2. Tests in sandbox/tests/consoleCapture.test.js pass without errors for the new summary and feedback functions.
+3. sandbox/docs/CONSOLE_CAPTURE.md and sandbox/README.md include clear usage and guidance for the new APIs.
+4. No new dependencies are introduced.
