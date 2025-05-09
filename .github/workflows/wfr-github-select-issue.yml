@@ -93,7 +93,7 @@ jobs:
         id: select-issue
         uses: actions/github-script@v7
         env:
-          workflowRunUrl: ${{ github.run_url }}
+          workflowRunId: ${{ github.run_id }}
           workflowEvent: ${{ github.event_name }}
           workflowInputs: ${{ toJson(github.event.inputs) }}
         with:
@@ -102,7 +102,7 @@ jobs:
             const issueNumberInput = process.env.issueNumber;
             const selectionLabel = process.env.selectionLabel;
             const filterLabel = process.env.filterLabel;
-            const workflowRunUrl = process.env.workflowRunUrl;
+            const workflowRunUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.workflowRunId}`;
             const workflowEvent = process.env.workflowEvent;
             const workflowInputs = process.env.workflowInputs;
 
