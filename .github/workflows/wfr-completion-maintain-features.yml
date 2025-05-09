@@ -698,7 +698,7 @@ jobs:
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
           git add -v --all '${{ env.featuresPath }}'
-          git commit -m 'Maintain ${{ steps.maintain-features.outputs.featureName }}'
+          git commit -m 'Maintain features ${{ steps.maintain-features.outputs.featureName }}'
           git status -v
           git pull --ff-only origin ${{ github.ref }}
           git push -v origin ${{ github.ref }}

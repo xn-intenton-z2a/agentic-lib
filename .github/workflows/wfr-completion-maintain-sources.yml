@@ -626,7 +626,7 @@ jobs:
 
           # Add the specific file
           git add -v --all '${{ env.librarySourcesFilepath }}'
-          git commit -m "Maintain ${{ env.librarySourcesFilepath }}"
+          git commit -m "Maintain sources ${{ env.librarySourcesFilepath }}"
 
           git status -v
           git pull --ff-only origin ${{ github.ref }}

@@ -751,7 +751,7 @@ jobs:
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
           git add -v --all '${{ env.libraryDocumentsPath }}'
-          git commit -m 'Maintain ${{ steps.maintain-library.outputs.documentName }}'
+          git commit -m 'Maintain library ${{ steps.maintain-library.outputs.documentName }}'
           git status -v
           git pull --ff-only origin ${{ github.ref }}
           git push -v origin ${{ github.ref }}
