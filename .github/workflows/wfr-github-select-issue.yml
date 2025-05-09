@@ -148,6 +148,24 @@ jobs:
                 core.info(`Open issue '${issueNumberOutput}' found with label: ${selectionLabel} but not ${filterLabel}`);
               }
             }
+            
+            // Add the workflow run URL as an issue comment along with the workflow event and inputs and environment 
+            // variables and link to the repository's main branch at this commit.
+            if(issueNumberOutput) {
+              const workflowRunUrl = process.env.GITHUB_RUN_URL;
+              const workflowEvent = process.env.GITHUB_EVENT_NAME;
+              const workflowInputs = JSON.stringify(process.env, null, 2);
+              const workflowEnv = JSON.stringify(process.env, null, 2);
+              const commitUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/commit/${process.env.GITHUB_SHA}`;
+              const commentBody = `Workflow run URL: ${workflowRunUrl}\nWorkflow event: ${workflowEvent}\nWorkflow inputs: ${workflowInputs}\nWorkflow env: ${workflowEnv}\nCommit URL: ${commitUrl}`;
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumberOutput,
+                body: commentBody
+              });
+            }
 
             core.setOutput("issueNumber", issueNumberOutput);
             core.setOutput("issueTitle", issueTitleOutput);
