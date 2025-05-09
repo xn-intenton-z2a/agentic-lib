@@ -105,7 +105,7 @@ jobs:
       - create-issue
     if: always()
     permissions:
-      issues: read
+      issues: write
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
     with:
@@ -140,7 +140,7 @@ jobs:
       - ready-issue
     if: always()
     permissions:
-      issues: read
+      issues: write
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
     with:
@@ -191,7 +191,7 @@ jobs:
       - issue-to-code
     if: always()
     permissions:
-      issues: read
+      issues: write
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
     with:

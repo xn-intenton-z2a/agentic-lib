@@ -74,7 +74,7 @@ jobs:
 
   select-issue:
     permissions:
-      issues: read
+      issues: write
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
     with:
