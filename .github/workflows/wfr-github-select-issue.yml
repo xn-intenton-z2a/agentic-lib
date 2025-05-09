@@ -92,12 +92,30 @@ jobs:
       - name: select-issue
         id: select-issue
         uses: actions/github-script@v7
+        env:
+          workflowRunUrl: ${{ github.run_url }}
+          commitUrl: ${{ github.event.head_commit.url }}
+          workflowEvent: ${{ github.event_name }}
+          workflowInputs: ${{ toJson(github.event.inputs) }}
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
             const issueNumberInput = process.env.issueNumber;
             const selectionLabel = process.env.selectionLabel;
             const filterLabel = process.env.filterLabel;
+            const workflowRunUrl = process.env.runUrl;
+            const commitUrl = process.env.commitUrl;
+            const workflowEvent = process.env.workflowEvent;
+            const workflowInputs = process.env.workflowInputs;
+
+            core.info(`issueNumberInput: ${issueNumberInput}`);
+            core.info(`selectionLabel: ${selectionLabel}`);
+            core.info(`filterLabel: ${filterLabel}`);
+            core.info(`workflowRunUrl: ${workflowRunUrl}`);
+            core.info(`commitUrl: ${commitUrl}`);
+            core.info(`workflowEvent: ${workflowEvent}`);
+            core.info(`workflowInputs: ${workflowInputs}`);
+
             let issueNumberOutput;
             let issueTitleOutput;
             let issueDescriptionOutput;
@@ -152,12 +170,12 @@ jobs:
             // Add the workflow run URL as an issue comment along with the workflow event and inputs and environment 
             // variables and link to the repository's main branch at this commit.
             if(issueNumberOutput) {
-              const workflowRunUrl = process.env.GITHUB_RUN_URL;
-              const workflowEvent = process.env.GITHUB_EVENT_NAME;
-              const workflowInputs = JSON.stringify(process.env, null, 2);
-              const workflowEnv = JSON.stringify(process.env, null, 2);
-              const commitUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/commit/${process.env.GITHUB_SHA}`;
-              const commentBody = `Workflow run URL: ${workflowRunUrl}\nWorkflow event: ${workflowEvent}\nWorkflow inputs: ${workflowInputs}\nWorkflow env: ${workflowEnv}\nCommit URL: ${commitUrl}`;
+              const commentBody = `Workflow run URL: ${workflowRunUrl}
+              Workflow event: ${workflowEvent}
+              Workflow inputs: ${workflowInputs}
+              Workflow env: ${workflowEnv}
+              Commit URL: ${commitUrl}
+              `;
               
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
