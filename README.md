@@ -706,6 +706,7 @@ Re-usable GitHub Actions Workflows:
 - [ ] Create an MCp sever for the repositor actions and pass to ChatGPT to act.
 - [ ] Add a list of all projects files to the context.
 - [ ] Clean the paths to avoid //
+- [ ] Separate out writable annd non-writable file paths in the prompt
 
 Discussions Bot [MVP]:
 - [x] On GitHub Discussions creation: Reads title and description, seeds with that as the mission, saves a trace back to documenationPath with a file a URL pointing -> the GitHub Discussion from the event,
@@ -720,7 +721,6 @@ Discussions Bot [MVP]:
 - [x] On schedule, set a default body of: Summarise the current state of the repository, activity since the last update and how we are tracking against the mission ad recommends next steps.
 - [x] Bot to take actions within a stream (dev, seed, etc...)
 - [~] When an LLM tries to write to an unwritable folder error out (ignoring creates an opportunity for a failed build.)
-- [ ] Separate out writable annd non-writable file paths in the prompt
 - [ ] [Later] Summarise and sanitize all the workflows so that they can be passed to the bot.
 - [ ] [Later] Summarise the features in the archive and mine these during feature development.
 - [ ] [Later] Post the cost of the response in each response.
