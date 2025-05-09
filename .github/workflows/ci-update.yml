@@ -181,7 +181,7 @@ jobs:
   create-pr-npm:
     needs:
       - update-npm
-    if: ${{ needs.update-npm.outputs.updatedFiles == 'true' }}
+    if: needs.update-npm.outputs.updatedFiles == 'true'
     permissions:
       contents: write
       packages: write
@@ -200,7 +200,7 @@ jobs:
     needs:
       - create-pr-npm
       - update-npm
-    if: ${{ needs.update-npm.outputs.updatedFiles == 'true' }}
+    if: needs.update-npm.outputs.updatedFiles == 'true'
     permissions:
       contents: write
       pull-requests: write
@@ -217,7 +217,7 @@ jobs:
     needs:
       - update-mvn
       - pom-check
-    if: ${{ needs.update-mvn.outputs.updatedFiles == 'true' && needs.pom-check.outputs.pomXmlExists == 'true' }}
+    if: needs.update-mvn.outputs.updatedFiles == 'true' && needs.pom-check.outputs.pomXmlExists == 'true'
     permissions:
       contents: write
       packages: write
@@ -237,7 +237,7 @@ jobs:
       - create-pr-mvn
       - update-mvn
       - pom-check
-    if: ${{ needs.update-mvn.outputs.updatedFiles == 'true' && needs.pom-check.outputs.pomXmlExists == 'true' }}
+    if: needs.update-mvn.outputs.updatedFiles == 'true' && needs.pom-check.outputs.pomXmlExists == 'true'
     permissions:
       contents: write
       pull-requests: write

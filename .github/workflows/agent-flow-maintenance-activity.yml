@@ -68,7 +68,7 @@ jobs:
       missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
       contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
       dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
-      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.documentsLibraryPath }}
+      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}
       buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
       testScript: ${{ needs.agentic-lib.outputs.testScript }}
       issueSelectionLabel: 'maintenance'
@@ -92,10 +92,26 @@ jobs:
       issueBody: ${{ needs.generate-maintenance-issue.outputs.issueDescription }}
       issueLabels: 'maintenance, automated'
 
+  select-issue-to-enhance:
+    needs:
+      - create-issue
+    if: always()
+    permissions:
+      issues: read
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
+    with:
+      issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+      selectionLabel: 'automated'
+      filterLabel: 'in-progress'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
   enhance-issue:
     needs:
       - create-issue
       - agentic-lib
+      - select-issue-to-enhance
     if: always()
     permissions:
       contents: read
@@ -105,9 +121,9 @@ jobs:
     with:
       promptFilepath: '.github/agents/agent-ready-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
-      issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+      issueNumber: ${{ needs.select-issue-to-enhance.outputs.issueNumber }}
       featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
-      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.documentsLibraryPath }}
+      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}
       allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
       allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
       documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
@@ -125,10 +141,27 @@ jobs:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+  select-issue-to-code:
+    needs:
+      - create-issue
+      - enhance-issue
+    if: always()
+    permissions:
+      issues: read
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
+    with:
+      issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+      selectionLabel: 'ready'
+      filterLabel: 'in-progress'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
   issue-to-code:
     needs:
       - create-issue
       - enhance-issue
+      - select-issue-to-code
     if: always()
     permissions:
       contents: write
@@ -140,7 +173,7 @@ jobs:
       pages: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@main'
     with:
-      issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+      issueNumber: ${{ needs.select-issue-to-code.outputs.issueNumber }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

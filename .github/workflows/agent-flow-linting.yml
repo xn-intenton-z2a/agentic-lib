@@ -105,9 +105,25 @@ jobs:
       issueBody: ${{ needs.linting.outputs.scriptOutput }}
       issueLabels: 'maintenance, automated'
 
+  select-issue-to-ready:
+    needs:
+      - create-issue
+    if: always()
+    permissions:
+      issues: read
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
+    with:
+      issueNumber:  ${{ needs.create-issue.outputs.issueNumber }}
+      selectionLabel: 'ready'
+      filterLabel: 'in-progress'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
   ready-issue:
     needs:
       - create-issue
+      - select-issue-to-ready
     if: always()
     permissions:
       contents: write
@@ -117,14 +133,33 @@ jobs:
       id-token: write
       pages: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-ready-issue.yml@main'
+    with:
+      issueNumber: ${{ needs.select-issue-to-ready.outputs.issueNumber }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  select-issue-to-code:
+    needs:
+      - create-issue
+      - ready-issue
+    if: always()
+    permissions:
+      issues: read
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
+    with:
+      issueNumber:  ${{ needs.create-issue.outputs.issueNumber || needs.ready-issue.outputs.issueNumber }}
+      selectionLabel: 'ready'
+      filterLabel: 'in-progress'
+    secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
   issue-to-code:
     needs:
       - create-issue
       - ready-issue
+      - select-issue-to-code
     if: always()
     permissions:
       contents: write
@@ -135,7 +170,7 @@ jobs:
       pages: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@main'
     with:
-      issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+      issueNumber: ${{ needs.select-issue-to-code.outputs.issueNumber }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

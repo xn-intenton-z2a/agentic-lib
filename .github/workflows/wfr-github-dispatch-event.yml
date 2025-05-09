@@ -113,4 +113,5 @@ jobs:
               core.error(`Failed to dispatch repository event: ${error.message}`);
               core.setOutput('eventDispatched', 'false');
               core.setFailed(`Failed to dispatch repository event: ${error.message}`);
+              return;
             }

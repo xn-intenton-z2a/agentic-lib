@@ -349,7 +349,8 @@ jobs:
             }
 
             if (!apiKey) { 
-              core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
+              core.setFailed("Missing CHATGPT_API_SECRET_KEY");
+              return;
             }
             const openai = new OpenAI({ apiKey });
 
@@ -864,6 +865,7 @@ jobs:
               } catch (e) {
                 updateApplied = false;
                 core.setFailed(`Failed to parse function call arguments: ${e.message}`);
+                return;
               }
             } else if (response.choices[0].message.content) {
               try {
@@ -871,10 +873,12 @@ jobs:
               } catch (e) {
                 updateApplied = false;
                 core.setFailed(`Failed to parse response content: ${e.message}`);
+                return;
               }
             } else {
               updateApplied = false;
               core.setFailed("No valid response received from OpenAI.");
+              return;
             }
 
             try {
@@ -932,6 +936,7 @@ jobs:
                     core.info(`File '${filePath}' has been updated (length ${fileContent.length}).`);
                   } else {
                     core.setFailed(`File '${filePath}' is not in the allowed filepath patterns. Skipping update.`);
+                    return;
                   }
                 }
               }
@@ -939,6 +944,7 @@ jobs:
             } catch (e) {
               updateApplied = false;
               core.setFailed(`Failed to validate or process the response: ${e.message}`);
+              return;
             }
 
             core.setOutput("updateApplied", updateApplied);

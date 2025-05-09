@@ -107,8 +107,19 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
           echo "always-auth=true" >> .npmrc
 
+      - id: validate-issue-number
+        run: |
+          issueNumber="${{ env.issueNumber }}"
+          if [[ -n "$issueNumber" && "$ISSUE_NUMBER" =~ [0-9] ]]; then
+            echo "[$issueNumber] is a valid issue number."
+            echo "isValid=true" >> $GITHUB_OUTPUT
+          else
+            echo "[$issueNumber] is not a valid issue number."
+            echo "isValid=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Add "merged" label and comment on issue
-        if: env.issueNumber != ''
+        if: ${{ steps.validate-issue-number.outputs.isValid == 'true' }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}

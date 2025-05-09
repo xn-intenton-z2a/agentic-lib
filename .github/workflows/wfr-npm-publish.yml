@@ -150,7 +150,7 @@ jobs:
 
       - name: released
         id: released
-        if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
+        if: env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch'
         shell: bash
         run: |
           unset PERSONAL_ACCESS_TOKEN
@@ -165,7 +165,7 @@ jobs:
         #  PERSONAL_ACCESS_TOKEN: ""
 
       - name: Create GitHub Release
-        if: ${{ inputs.githubRelease == 'true' || env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
+        if: inputs.githubRelease == 'true' || env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch'
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ steps.released.outputs.releasedVersion }}
@@ -173,13 +173,13 @@ jobs:
           body: ${{ env.releaseNotes }}
 
       - name: Rotate to next prepatch version from a released version
-        if: ${{ env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch' }}
+        if: env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch'
         shell: bash
         run: |
           npm version --no-git-tag-version prepatch
 
       - name: Rotate to next [premajor|preminor|prepatch|prerelease] version
-        if: ${{ env.versionIncrement == 'premajor' || env.versionIncrement == 'preminor' || env.versionIncrement == 'prepatch' || env.versionIncrement == 'prerelease' }}
+        if: env.versionIncrement == 'premajor' || env.versionIncrement == 'preminor' || env.versionIncrement == 'prepatch' || env.versionIncrement == 'prerelease'
         shell: bash
         run: |
           npm version --no-git-tag-version ${{ env.versionIncrement }}

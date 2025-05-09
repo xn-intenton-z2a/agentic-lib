@@ -105,6 +105,7 @@ jobs:
 
               if (!files || files.length === 0) {
                 core.setFailed('No prompt files found in the prompts directory.');
+                return;
               } else {
                 // Select a random file
                 const randomFile = files[Math.floor(Math.random() * files.length)];

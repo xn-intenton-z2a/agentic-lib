@@ -111,7 +111,7 @@ jobs:
   create-pr:
     needs:
       - formatting
-    if: ${{ needs.formatting.outputs.updatedFiles == 'true' }}
+    if: needs.formatting.outputs.updatedFiles == 'true'
     permissions:
       contents: write
       packages: write
@@ -130,7 +130,7 @@ jobs:
     needs:
       - create-pr
       - formatting
-    if: ${{ needs.formatting.outputs.updatedFiles == 'true' }}
+    if: needs.formatting.outputs.updatedFiles == 'true'
     permissions:
       contents: write
       pull-requests: write

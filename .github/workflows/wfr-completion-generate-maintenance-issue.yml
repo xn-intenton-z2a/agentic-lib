@@ -331,10 +331,12 @@ jobs:
             core.info(`Open issue titles: ${openIssueTitles}`);
             if (openIssues.data.length >= maintenanceIssuesWipLimit) {
               core.setFailed(`There are already ${maintenanceIssuesWipLimit} open issues with the label '${issueSelectionLabel}'.`);
+              return;
             }
 
             if (!apiKey) { 
-              core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
+              core.setFailed("Missing CHATGPT_API_SECRET_KEY");
+              return;
             }
             const openai = new OpenAI({ apiKey });
 
@@ -640,15 +642,18 @@ jobs:
                 result = JSON.parse(response.choices[0].message.tool_calls[0].function.arguments);
               } catch (e) {
                 core.setFailed(`Failed to parse function call arguments: ${e.message}`);
+                return;
               }
             } else if (response.choices[0].message.content) {
               try {
                 result = JSON.parse(response.choices[0].message.content);
               } catch (e) {
                 core.setFailed(`Failed to parse response content: ${e.message}`);
+                return;
               }
             } else {
               core.setFailed("No valid response received from OpenAI.");
+              return;
             }
 
             try {
@@ -666,6 +671,7 @@ jobs:
 
             } catch (e) {
               core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
+              return;
             }
 
             core.setOutput("response", JSON.stringify(response));

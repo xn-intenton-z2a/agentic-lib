@@ -220,7 +220,7 @@ jobs:
   automerge:
     needs:
       - merge-check
-    if: always() && needs.merge-check.outputs.shouldSkipMerge != 'true' && needs.merge-check.outputs.pullNumber != ''
+    if: ${{ always() && needs.merge-check.outputs.shouldSkipMerge != 'true' && needs.merge-check.outputs.pullNumber != '' }}
     permissions:
       contents: write
       pull-requests: write
@@ -229,11 +229,30 @@ jobs:
     with:
       pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
 
+  validate-issue-number:
+    needs:
+      - merge-check
+    runs-on: ubuntu-latest
+    steps:
+      - id: validate-issue-number
+        run: |
+          issueNumber="${{ needs.merge-check.outputs.issueNumber }}"
+          if [[ -n "$issueNumber" && "$ISSUE_NUMBER" =~ [0-9] ]]; then
+            echo "[$issueNumber] is a valid issue number."
+            echo "isValid=true" >> $GITHUB_OUTPUT
+          else
+            echo "[$issueNumber] is not a valid issue number."
+            echo "isValid=false" >> $GITHUB_OUTPUT
+          fi
+    outputs:
+      isValid: ${{ steps.validate-issue-number.outputs.isValid }}
+
   label-issue-after-automerge:
     needs:
       - merge-check
       - automerge
-    if: always() && ( needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber != '' && needs.merge-check.outputs.issueNumber != '' )
+      - validate-issue-number
+    if: ${{ always() && ( needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber != '' && needs.validate-issue-number.outputs.isValid == 'true' ) }}
     permissions:
       contents: write
       issues: write

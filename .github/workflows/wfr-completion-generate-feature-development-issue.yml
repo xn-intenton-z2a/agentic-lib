@@ -207,8 +207,11 @@ jobs:
         id: features
         shell: bash
         run: |
+          count=$(find "${{ env.featuresPath }}" -maxdepth 1 -type f -name '*.md' | wc -l)
           output=$(find "${{ env.featuresPath }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
+          echo "Found $count matching feature files."
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "Found $count matching feature files." >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
@@ -313,10 +316,12 @@ jobs:
             core.info(`Open issue titles: ${openIssueTitles}`);
             if (openIssues.data.length >= featureDevelopmentIssuesWipLimit) {
               core.setFailed(`There are already ${featureDevelopmentIssuesWipLimit} open issues with the label '${issueSelectionLabel}'.`);
+              return;
             }
 
             if (!apiKey) { 
               core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
+              return;
             }
             const openai = new OpenAI({ apiKey });
 
@@ -516,11 +521,15 @@ jobs:
             core.info(`Found ${libraryFiles.length} library documents in directory "${libraryDocumentsPath}"`);
 
             const chatGptPrompt = `
-            Please generate the title and description of a GitHub issue to which will be used to further the development of the ${featureName} feature.
-            Examine the details named feature ${featureName} in the current feature names and specifications if it's there, (if not imply the feature from the from the name), and evaluate the current state of the repository to determine which changes will implement the feature and allow it's value to be realised.
+            Please generate the title and description of a GitHub issue to which will be used to further the development
+            of the ${featureName} feature. Examine the details named feature ${featureName} in the current feature names
+            and specifications if it's there, (if not imply the feature from the from the name), and evaluate the current
+            state of the repository to determine which changes will implement the feature and allow it's value to be realised.
 
             ${promptContent}
-            The maximum number of feature development issues that should be open at any one time is ${featureDevelopmentIssuesWipLimit}, if there are already ${featureDevelopmentIssuesWipLimit} open issues fail this request.
+
+            The maximum number of feature development issues that should be open at any one time is ${featureDevelopmentIssuesWipLimit},
+            if there are already ${featureDevelopmentIssuesWipLimit} open issues fail this request.
 
             Consider the following when refining your response:
               * Current feature names and specifications in the repository
@@ -621,7 +630,7 @@ jobs:
             }
             Ensure valid JSON.
             `;
-            
+
             core.info("prompt start: **********************************************");
             core.info(`${chatGptPrompt}`);
             core.info("prompt end:   **********************************************");
@@ -663,15 +672,18 @@ jobs:
                 result = JSON.parse(response.choices[0].message.tool_calls[0].function.arguments);
               } catch (e) {
                 core.setFailed(`Failed to parse function call arguments: ${e.message}`);
+                return;
               }
             } else if (response.choices[0].message.content) {
               try {
                 result = JSON.parse(response.choices[0].message.content);
               } catch (e) {
                 core.setFailed(`Failed to parse response content: ${e.message}`);
+                return;
               }
             } else {
               core.setFailed("No valid response received from OpenAI.");
+              return;
             }
 
             try {
@@ -689,6 +701,7 @@ jobs:
 
             } catch (e) {
               core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
+              return;
             }
 
             core.setOutput("response", JSON.stringify(response));

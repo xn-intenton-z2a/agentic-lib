@@ -318,7 +318,8 @@ jobs:
             require('dotenv').config();
 
             if (!apiKey) { 
-              core.setFailed("Missing CHATGPT_API_SECRET_KEY"); 
+              core.setFailed("Missing CHATGPT_API_SECRET_KEY");
+              return;
             }
             const openai = new OpenAI({ apiKey });
 
@@ -738,15 +739,18 @@ jobs:
                 result = JSON.parse(response.choices[0].message.tool_calls[0].function.arguments);
               } catch (e) {
                 core.setFailed(`Failed to parse function call arguments: ${e.message}`);
+                return;
               }
             } else if (response.choices[0].message.content) {
               try {
                 result = JSON.parse(response.choices[0].message.content);
               } catch (e) {
                 core.setFailed(`Failed to parse response content: ${e.message}`);
+                return;
               }
             } else {
               core.setFailed("No valid response received from OpenAI.");
+              return;
             }
 
             let parsed;
@@ -756,6 +760,7 @@ jobs:
               core.setOutput("action", parsed.action);
             } catch (e) {
               core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
+              return;
             }
             core.info(`enhancedDescription: "${parsed.enhancedDescription}"`);
             core.info(`relevantLibraryDocuments: ${JSON.stringify(parsed.relevantLibraryDocuments)}`);
@@ -834,6 +839,7 @@ jobs:
                 });
               } catch (e) {
                 core.setFailed(`Failed to update issue and add comments: ${e.message}`);
+                return;
               }
             } else if (parsed.action === "close") {
               try {
@@ -858,6 +864,7 @@ jobs:
                 });
               } catch (e) {
                 core.setFailed(`Failed to close issue or update issue description: ${e.message}`);
+                return;
               }
             } else if (parsed.action === "nop") {
               core.info(`action: "nop"`);

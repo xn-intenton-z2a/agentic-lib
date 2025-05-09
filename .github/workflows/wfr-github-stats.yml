@@ -370,7 +370,7 @@ jobs:
             core.setOutput("jsonStatsPath", outputPath);
 
       - name: Configure AWS Credentials
-        if: ${{ env.publishToAWS == 'true' }}
+        if: env.publishToAWS == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.iamActionsRoleArn }}
@@ -382,10 +382,10 @@ jobs:
           retry-max-attempts: 3
 
       - run: aws sts get-caller-identity
-        if: ${{ env.publishToAWS == 'true' }}
+        if: env.publishToAWS == 'true'
 
       - name: Configure AWS Credentials
-        if: ${{ env.publishToAWS == 'true' }}
+        if: env.publishToAWS == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.iamStatsBucketWriterRoleArn }}
@@ -397,7 +397,7 @@ jobs:
           retry-max-attempts: 3
 
       - name: Upload JSON stats artifact to S3
-        if: ${{ env.publishToAWS == 'true' }}
+        if: env.publishToAWS == 'true'
         shell: bash
         run: |
           aws s3 cp \
@@ -406,10 +406,10 @@ jobs:
           ;
 
       - run: aws s3 ls ${{ env.s3BucketUrl }} --summarize
-        if: ${{ env.publishToAWS == 'true' }}
+        if: env.publishToAWS == 'true'
 
       - name: Configure AWS Credentials (resetting back from the stats bucket writer role)
-        if: ${{ env.publishToAWS == 'true' }}
+        if: env.publishToAWS == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.iamActionsRoleArn }}
@@ -421,10 +421,10 @@ jobs:
           retry-max-attempts: 3
 
       - run: aws sts get-caller-identity
-        if: ${{ env.publishToAWS == 'true' }}
+        if: env.publishToAWS == 'true'
 
       - name: Configure AWS Credentials
-        if: ${{ env.publishToAWS == 'true' }}
+        if: env.publishToAWS == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.iamPublicWebsiteStatsBucketWriterRoleArn }}
