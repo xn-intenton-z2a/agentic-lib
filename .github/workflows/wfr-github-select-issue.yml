@@ -103,7 +103,7 @@ jobs:
             const issueNumberInput = process.env.issueNumber;
             const selectionLabel = process.env.selectionLabel;
             const filterLabel = process.env.filterLabel;
-            const workflowRunUrl = process.env.runUrl;
+            const workflowRunUrl = process.env.workflowRunUrl;
             const commitUrl = process.env.commitUrl;
             const workflowEvent = process.env.workflowEvent;
             const workflowInputs = process.env.workflowInputs;
@@ -170,12 +170,13 @@ jobs:
             // Add the workflow run URL as an issue comment along with the workflow event and inputs and environment 
             // variables and link to the repository's main branch at this commit.
             if(issueNumberOutput) {
-              const commentBody = `Workflow run URL: ${workflowRunUrl}
-              Workflow event: ${workflowEvent}
-              Workflow inputs: ${workflowInputs}
-              Commit URL: ${commitUrl}
-              `;
-              
+              const { data: branchData } = await github.rest.repos.getBranch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                branch: 'main'
+              });
+            
+              const commentBody = `Workflow run URL: ${workflowRunUrl}\nWorkflow event: ${workflowEvent}\nWorkflow inputs: ${workflowInputs}\nCommit URL: ${commitUrl}`;
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
