@@ -93,6 +93,7 @@ jobs:
         id: select-issue
         uses: actions/github-script@v7
         env:
+          workflowName: ${{ github.workflow }}
           workflowRunId: ${{ github.run_id }}
           workflowEvent: ${{ github.event_name }}
           workflowInputs: ${{ toJson(github.event.inputs) }}
@@ -102,6 +103,7 @@ jobs:
             const issueNumberInput = process.env.issueNumber;
             const selectionLabel = process.env.selectionLabel;
             const filterLabel = process.env.filterLabel;
+            const workflowName = process.env.workflowName;
             const workflowRunUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.workflowRunId}`;
             const workflowEvent = process.env.workflowEvent;
             const workflowInputs = process.env.workflowInputs;
@@ -109,6 +111,7 @@ jobs:
             core.info(`issueNumberInput: ${issueNumberInput}`);
             core.info(`selectionLabel: ${selectionLabel}`);
             core.info(`filterLabel: ${filterLabel}`);
+            core.info(`workflowName: ${workflowName}`);
             core.info(`workflowRunUrl: ${workflowRunUrl}`);
             core.info(`workflowEvent: ${workflowEvent}`);
             core.info(`workflowInputs: ${workflowInputs}`);
@@ -175,7 +178,7 @@ jobs:
               });
               const mainHeadUrl = branchData.commit.html_url
               core.info(`mainHeadUrl: ${mainHeadUrl}`);
-              const commentBody = `Workflow run URL: ${workflowRunUrl}\nWorkflow event: ${workflowEvent}\nWorkflow inputs: ${workflowInputs}\nHEAD of main URL: ${mainHeadUrl}`;
+              const commentBody = `Workflow run URL: ${workflowName}\n${workflowRunUrl}\nWorkflow event: ${workflowEvent}\nWorkflow inputs: ${workflowInputs}\nHEAD of main URL: ${mainHeadUrl}`;
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
