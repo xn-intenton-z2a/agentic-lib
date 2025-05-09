@@ -1,45 +1,34 @@
 # Test Runner CLI Command
 
 # Overview
-Implement a new CLI flag --run-tests that programmatically invokes Vitest to execute unit tests inside tests/unit and sandbox/tests. The CLI captures suite names, test case results, console output, and outputs a structured JSON report.
+Extend the existing test runner to aggregate console output by test suite in the JSON report. Provide an option to group logs under each suite and deliver a clear, organized structure of test results and logs.
 
 # Objectives & Scope
-- Provide a built-in test execution command in the CLI without requiring an external script.
-- Support optional filter by pattern to run subsets of tests.
-- Enable verbose mode to include console logs emitted by tests.
-- Maintain compatibility with normal Vitest CLI invocation.
+- Enhance the --run-tests command to support consolidated log aggregation at the suite level.
+- Introduce a new flag --aggregate-logs to toggle grouping of console output under each suite.
+- Maintain existing features: pattern filtering, verbose logging, JSON report structure, exit codes, and Vitest compatibility.
 
 # Value Proposition
-- Streamlines developer workflows by consolidating test execution into a single command.
-- Facilitates CI/CD integration by producing machine-readable JSON test reports.
-- Offers filtering and verbosity options to target specific test groups or troubleshoot failures.
+- Improves readability of large test reports by grouping related log entries with their suite context.
+- Simplifies CI/CD diagnostics by providing a structured JSON object that maps each suite to its logs and test outcomes.
+- Retains backward compatibility for users who do not require log aggregation.
 
 # Requirements & Success Criteria
-1. Add a --run-tests flag to the CLI argument parser.
-2. Accept optional --pattern <glob> to filter test files by path or name.
-3. Accept optional --verbose-logs flag to include console output in results.
-4. Use Vitest Node API to programmatically load and run matching tests.
-5. Capture the following for each suite and test:
-   - Suite name
-   - Test case name
-   - Pass or fail status
-   - Error message and stack trace for failures
-   - Captured console outputs when verbose mode is enabled
-6. Output a single JSON object with:
-   {
-     suites: [ ... ],
-     summary: { total: number, passed: number, failed: number }
-   }
+1. Add a new CLI flag --aggregate-logs (boolean) to the argument parser.
+2. When --aggregate-logs is enabled, capture console output from tests and group entries under their corresponding suite name in the JSON report.
+3. Preserve existing flags: --run-tests, --pattern <glob>, and --verbose-logs, and ensure they work in combination with --aggregate-logs.
+4. Use Vitest Node API to programmatically load and run matching tests, capturing suite names, test names, statuses, error details, and console logs.
+5. Update the JSON schema to include a logs array under each suite object, containing timestamped log entries.
+6. Default behavior (without --aggregate-logs) remains unchanged, with logs attached per test when --verbose-logs is used.
 7. Exit with code 0 if all tests pass, or 1 if any fail.
-8. Add unit tests under tests/unit to verify flag parsing, filtering, verbosity, JSON schema, and exit codes.
-9. Update README.md to document the --run-tests, --pattern, and --verbose-logs flags and the JSON report schema.
+8. Add unit tests in tests/unit to verify the new flag parsing, log grouping logic, updated JSON schema, and exit codes.
+9. Update README.md to document the --aggregate-logs flag and illustrate the updated JSON report structure.
 
 # User Scenarios & Examples
-- A developer runs `node src/lib/main.js --run-tests` and sees a JSON report for all tests.
-- A developer runs `node src/lib/main.js --run-tests --pattern user*` to run only user-related tests.
-- A CI pipeline executes the command and parses the JSON to report in its dashboard.
+- A developer runs node src/lib/main.js --run-tests --aggregate-logs and receives a JSON report where each suite object contains its own array of log entries.
+- A CI pipeline executes the command with --run-tests --pattern user* and --aggregate-logs, then parses the grouped logs to display per-suite diagnostics.
 
 # Verification & Acceptance
-- Unit tests cover core scenarios and edge cases.
-- Manual validation shows correct JSON output and exit codes.
-- Documentation in README.md accurately describes usage and options.
+- Unit tests cover flag parsing combinations, correct grouping of console outputs, and JSON schema validation.
+- Manual review confirms the report groups logs by suite and retains existing filtering and verbosity behavior.
+- Documentation in README.md accurately describes usage, flags, and the updated JSON schema.
