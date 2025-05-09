@@ -299,7 +299,7 @@ jobs:
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
             const issueNumberStr = process.env.issueNumber
-            const issueNumber = (parseInt(issueNumberStr) ? parseInt(issueNumberStr) : "");;
+            const issueNumber = (parseInt(issueNumberStr) ? parseInt(issueNumberStr) : "");
             const promptFilepath = process.env.promptFilepath;
             const dependenciesListOutput = process.env.dependenciesListOutput;
             const buildScript = process.env.buildScript;
@@ -428,7 +428,7 @@ jobs:
                 core.info(`Docs file '${trimmedFile}' does not exist and will be created.`);
               }
             } catch (e) {
-              core.warning(`Error reading docs file '${file}': ${e.message}`);
+              core.warning(`Error reading docs file '${documentationPath}': ${e.message}`);
             }
 
             let readmeFilepathContent;
@@ -569,11 +569,11 @@ jobs:
 
             const chatGptPrompt = `
             ${promptContent}
-            
+
             Only include the library documents in relevantLibraryDocuments not the others and in particular not CONTRIBUTING.md.
             Documents not from the library directory won't be found later when attaching documents to the issue so don't include them.
             If enough documents are already summarised as comments on the issues don't add more.
-            
+
             Consider the following when making your decision:
             * Issue details (title, description, comments)
             * Mission statement
@@ -653,9 +653,9 @@ jobs:
             DEPENDENCIES_LIST_END    
 
             Build output from command: ${buildScript}
-            TEST_OUTPUT_START
+            BUILD_OUTPUT_START
             ${buildOutput}
-            TEST_OUTPUT_END      
+            BUILD_OUTPUT_END
 
             Test output from command: ${testScript}
             TEST_OUTPUT_START
@@ -676,7 +676,7 @@ jobs:
             }
             Ensure valid JSON.
             `;
-            
+
             core.info("prompt start: **********************************************");
             core.info(`${chatGptPrompt}`);
             core.info("prompt end:   **********************************************");
@@ -793,7 +793,7 @@ jobs:
                   issue_number: issueNumber,
                   body: parsed.enhancedDescription
                 });
-            
+
                 // Add 'ready' label
                 await github.rest.issues.addLabels({
                   owner: context.repo.owner,

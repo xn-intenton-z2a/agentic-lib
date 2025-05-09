@@ -20,11 +20,6 @@ on:
   #    - seed-repository
   #  types:
   #    - completed
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN:
-  #      required: false
-  #    CHATGPT_API_SECRET_KEY:
-  #      required: true
   schedule:
     #- cron: '34 6 */28 * *' # schedule-1
     #- cron: '34 */4 * * *' # schedule-2

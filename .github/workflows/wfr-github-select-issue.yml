@@ -159,7 +159,7 @@ jobs:
       - id: validate-issue-number
         run: |
           issueNumber="${{ steps.select-issue.outputs.issueNumber }}"
-          if [[ -n "$issueNumber" && "$ISSUE_NUMBER" =~ [0-9] ]]; then
+          if [[ -n "$issueNumber" && "$issueNumber" =~ [0-9] ]]; then
             echo "[$issueNumber] is a valid issue number."
             echo "isValid=true" >> $GITHUB_OUTPUT
           else

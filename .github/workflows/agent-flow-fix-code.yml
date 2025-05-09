@@ -30,11 +30,6 @@ on:
   #    - seed-repository
   #  types:
   #    - completed
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN:
-  #      required: false
-  #    CHATGPT_API_SECRET_KEY:
-  #      required: true
   schedule:
     #- cron: '24 6 */28 * *' # schedule-1
     #- cron: '24 */4 * * *' # schedule-2
@@ -231,7 +226,7 @@ jobs:
       - id: validate-issue-number
         run: |
           issueNumber="${{ env.issueNumber }}"
-          if [[ -n "$issueNumber" && "$ISSUE_NUMBER" =~ [0-9] ]]; then
+          if [[ -n "$issueNumber" && "$issueNumber" =~ [0-9] ]]; then
             echo "[$issueNumber] is a valid issue number."
             echo "isValid=true" >> $GITHUB_OUTPUT
           else
@@ -419,8 +414,8 @@ jobs:
     steps:
       - id: validate-issue-number
         run: |
-          issueNumber="${{ needs.select-issue.outputs.issueNumber }}"
-          if [[ -n "$issueNumber" && "$ISSUE_NUMBER" =~ [0-9] ]]; then
+          issueNumber="${{ needs.select-branch.outputs.issueNumber }}"
+          if [[ -n "$issueNumber" && "$issueNumber" =~ [0-9] ]]; then
             echo "[$issueNumber] is a valid issue number."
             echo "isValid=true" >> $GITHUB_OUTPUT
           else

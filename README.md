@@ -724,7 +724,7 @@ Discussions Bot [MVP]:
 - [~] The feature development flow should refine the features when the feature bank it at the limit (it looks like it fails).
 - [~] if there is feature text and the feature limit is reached try and flex on of the features to accommodate the new feature request.
 - [~] When an LLM tries to write to an unwritable folder error out (ignoring creates an opportunity for a failed build.)
-- Separate out writable annd non-writable file paths in the prompt.
+- [ ] Separate out writable annd non-writable file paths in the prompt
 - [ ] [Later] Summarise and sanitize all the workflows so that they can be passed to the bot.
 - [ ] [Later] Summarise the features in the archive and mine these during feature development.
 - [ ] [Later] Post the cost of the response in each response.

@@ -14,11 +14,6 @@ on:
   #    - seed-repository
   #  types:
   #    - completed
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN:
-  #      required: false
-  #    CHATGPT_API_SECRET_KEY:
-  #      required: true
   schedule:
     #- cron: '24 4 */28 * *' # schedule-1
     #- cron: '24 4 * * *' # schedule-2
@@ -70,7 +65,7 @@ jobs:
             ].join(' ');
 
             core.setOutput("allPaths", allPaths);
-            core.info(`allPaths: allPaths}`);
+            core.info(`allPaths: ${allPaths}`);
     outputs:
       allPaths: ${{ steps.extract-paths.outputs.allPaths }}
 

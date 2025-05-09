@@ -182,9 +182,9 @@ on:
       commitOutcome:
         value: ${{ jobs.apply-fix.outputs.commitOutcome }}
       postResolutionCommentOutcome:
-        value: ${{ jobs.start-issue.outputs.postResolutionCommentOutcome }}
+        value: ${{ jobs.apply-fix.outputs.postResolutionCommentOutcome }}
       allValidationStepsSuccessful:
-        value: ${{ jobs.start-issue.outputs.allValidationStepsSuccessful }}
+        value: ${{ jobs.apply-fix.outputs.allValidationStepsSuccessful }}
 
 jobs:
   apply-fix:
@@ -336,7 +336,7 @@ jobs:
             const documentationPath = process.env.documentationPath;
             const model = process.env.model;
             const issueNumberStr = process.env.issueNumber
-            const issueNumber = (parseInt(issueNumberStr) ? parseInt(issueNumberStr) : "");;
+            const issueNumber = (parseInt(issueNumberStr) ? parseInt(issueNumberStr) : "");
             const apiKey = process.env.chatgptApiSecretKey;
             const promptFilepath = process.env.promptFilepath;
             const installOutput = process.env.installOutput;
@@ -502,9 +502,9 @@ jobs:
                 core.info(`Docs file '${trimmedFile}' does not exist and will be created.`);
               }
             } catch (e) {
-              core.warning(`Error reading docs file '${file}': ${e.message}`);
+              core.warning(`Error reading docs file '${documentationPath}': ${e.message}`);
             }
-            
+
             let missionFilepathContent;
             try {
               missionFilepathContent = fs.readFileSync(missionFilepath, 'utf8');
@@ -512,7 +512,7 @@ jobs:
                 core.warning(`Error reading MISSION file '${missionFilepath}': ${e.message}`);
                 missionFilepathContent = '';
             }
-            
+
             let contributingFilepathContent;
             try {
               contributingFilepathContent = fs.readFileSync(contributingFilepath, 'utf8');
@@ -520,7 +520,7 @@ jobs:
               core.warning(`Error reading CONTRIBUTING file '${contributingFilepath}': ${e.message}`);
               contributingFilepathContent = '';
             }
-            
+
              let dependenciesFilepathContent;
             try {
               dependenciesFilepathContent = fs.readFileSync(dependenciesFilepath, 'utf8');
@@ -528,7 +528,7 @@ jobs:
               core.warning(`Error reading dependencies file '${dependenciesFilepath}': ${e.message}`);
               dependenciesFilepathContent = '';
             }
-            
+
             let formattingFilepathContent;
             try {
               formattingFilepathContent = fs.readFileSync(formattingFilepath, 'utf8');
@@ -536,7 +536,7 @@ jobs:
               core.warning(`Error reading formatting file '${formattingFilepath}': ${e.message}`);
               formattingFilepathContent = '';
             }
-            
+
             let lintingFilepathContent;
             try {
               lintingFilepathContent = fs.readFileSync(lintingFilepath, 'utf8');
@@ -544,7 +544,7 @@ jobs:
               core.warning(`Error reading linting file '${lintingFilepath}': ${e.message}`);
               lintingFilepathContent = '';
             }
-            
+
             let promptContent;
             try {
               promptContent = fs.readFileSync(promptFilepath, 'utf8');
@@ -583,27 +583,27 @@ jobs:
                 .join('\n');
             } else {
               issueTitle = `No issue number provided`;
-              issueDescription = "No issue description provided (${process.env.issueNumber} parsed to ${issueNumber})";
+              issueDescription = `No issue description provided (${process.env.issueNumber} parsed to ${issueNumber})`;
               issueCommentsText = "No issue comments provided";
             }
 
             const chatGptPrompt = `
             ${promptContent}
-            
+
             Examine the "Build output from command","Test output from command", and "Main execution output from command" 
             to determine if there are any problems with the code to fix such as failing tests or output 
             not matching the features, README or other documentation.
-            
+
             You must only add, remove, or change the files in the target writable locations. You can update multiple
             files by specifying their paths and contents in the enumerated updatedFile01Name updatedFile02Contents response
             attribute, a second file would use updatedFile01Name updatedFile02Contents and so on to 16. Each file will
             be checked against the write permission in the Agent configuration file before being written. Feel free to
             add new files as long as they are in the target writable locations. You can also remove files, but only if
             they are in the target writable locations. To delete a file, set the updated file contents to "delete".
-            
+
             The target writable locations for your output are: ${targetSourcePath} ${targetTestsPath} ${documentationPath}
             Other file will be supplied in the context but only the paths above should be written to.
-            
+
             Only provide new or updated content for the target source files in ${targetSourcePath}.
             Only delete or update the target source files in ${targetSourcePath}.
             Only provide new or updated content for the target test files in ${targetTestsPath}.
@@ -612,7 +612,7 @@ jobs:
             Only update the target documentation files in ${documentationPath}.
 
             Follow the attached Formatting file content and Linting file content.
-    
+
             Consider the following when refining your response:
               * Current feature names and specifications in the repository
               * Source file content
@@ -642,7 +642,7 @@ jobs:
             Test files (write new files or update files in ${targetTestsPath} as necessary):
             (Multiple files from both in writable locations and not.)
             ${Object.entries(testsFileContents).map(([file, content]) => `TEST_FILE_START File: ${file}\n${content}\nTEST_FILE_END\n\n`).join('\n')}
-            
+
             Documentation files (write new files or update files in ${documentationPath} as necessary):
             (Multiple files from both in writable locations and not.)
             ${Object.entries(docsFileContents).map(([file, content]) => `DOCUMENTATION_FILE_START File: ${file}\n${content}\nDOCUMENTATION_FILE_END\n\n`).join('\n')}
@@ -760,11 +760,11 @@ jobs:
 
             Ensure valid JSON.
             `;
-            
+
             core.info("prompt start: **********************************************");
             core.info(`${chatGptPrompt}`);
             core.info("prompt end:   **********************************************");
-            
+
             const ResponseSchema = z.object({ 
               message: z.string(),
               updatedFile01Name: z.string().optional(),
@@ -1062,13 +1062,13 @@ jobs:
           git config --local user.email '${{ env.gitUserEmail }}'
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
-          IFS=';' read -ra SRC_FILES <<< "${{ env.targetSourcePaths }}"
+          IFS=';' read -ra SRC_FILES <<< "${{ env.targetSourcePath }}"
           for file in "${SRC_FILES[@]}"; do
             echo "=== Git diff for source file: $file ==="
             git diff -- "$file" || true
             echo ""
           done
-          IFS=';' read -ra TEST_FILES <<< "${{ env.targetTestsPaths }}"
+          IFS=';' read -ra TEST_FILES <<< "${{ env.targetTestsPath }}"
           for file in "${TEST_FILES[@]}"; do
             echo "=== Git diff for test file: $file ==="
             git diff -- "$file" || true
@@ -1149,6 +1149,7 @@ jobs:
             const mainAfterUpdateOutcome = process.env.mainAfterUpdateOutcome;
             const commitOutcome = process.env.commitOutcome;
             const allValidationStepsSuccessful = installAfterUpdateOutcome === "success" && ciAfterUpdateOutcome === "success" && testAfterUpdateOutcome === "success" && mainAfterUpdateOutcome === "success" && commitOutcome === "success";
+            const postResolutionCommentOutcome = "success"; // Default to success since we don't have a specific step for this
             core.setOutput('fixApplied', fixApplied);
             core.setOutput('message', message);
             core.setOutput('installAfterUpdateOutcome', installAfterUpdateOutcome);
@@ -1156,6 +1157,7 @@ jobs:
             core.setOutput('testAfterUpdateOutcome', testAfterUpdateOutcome);
             core.setOutput('mainAfterUpdateOutcome', mainAfterUpdateOutcome);
             core.setOutput('commitOutcome', commitOutcome);
+            core.setOutput('postResolutionCommentOutcome', postResolutionCommentOutcome);
             core.setOutput('allValidationStepsSuccessful', allValidationStepsSuccessful);
             core.info(`fixApplied: "${fixApplied}"`);
             core.info(`message: "${message}"`);
@@ -1164,6 +1166,7 @@ jobs:
             core.info(`testAfterUpdateOutcome: "${testAfterUpdateOutcome}"`);
             core.info(`mainAfterUpdateOutcome: "${mainAfterUpdateOutcome}"`);
             core.info(`commitOutcome: "${commitOutcome}"`);
+            core.info(`postResolutionCommentOutcome: "${postResolutionCommentOutcome}"`);
             core.info(`allValidationStepsSuccessful: "${allValidationStepsSuccessful}"`);
 
     outputs:
@@ -1175,3 +1178,4 @@ jobs:
       mainAfterUpdateOutcome: ${{ steps.results.outputs.mainAfterUpdateOutcome }}
       commitOutcome: ${{ steps.results.outputs.commitOutcome }}
       allValidationStepsSuccessful: ${{ steps.results.outputs.allValidationStepsSuccessful }}
+      postResolutionCommentOutcome: ${{ steps.results.outputs.postResolutionCommentOutcome }}
