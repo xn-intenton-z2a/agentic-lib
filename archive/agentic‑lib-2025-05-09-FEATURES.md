@@ -1,48 +1,50 @@
-sandbox/features/TEST_RUNNER.md
-# sandbox/features/TEST_RUNNER.md
-# Test Runner CLI Command with Structured Console Output Demo
-
-# Overview
-Extend the existing test runner to aggregate console output by test suite in the JSON report and include a sandbox example demonstrating structured console output from Vitest tests. Provide clear guidance and tests in sandbox/tests to show developers how structured logs appear and can be consumed.
-
-# Objectives & Scope
-
-- Enhance the --run-tests command to support:
-  - Consolidated log aggregation at the suite level in JSON output.
-  - A sandbox demonstration suite under sandbox/tests illustrating structured console logs.
-- Introduce a new flag --aggregate-logs to toggle grouping of console output under each suite.
-- Maintain existing flags and behaviors: pattern filtering, verbose logging, JSON report structure, exit codes, and Vitest compatibility.
-- Provide example Vitest tests in sandbox/tests that produce JSON log entries for info and error levels.
+sandbox/features/PUBLISH_DIGEST.md
+# sandbox/features/PUBLISH_DIGEST.md
+# Purpose
+Enable bidirectional interaction with AWS SQS for digest payloads via the CLI, allowing users both to send digest messages to a queue and to receive and process messages from a queue, simulating Lambda invocation.
 
 # Value Proposition
+Providing end-to-end SQS integration directly from the CLI streamlines development and debugging of workflows consuming and producing SQS events. Users can publish test payloads, retrieve live messages, and exercise the digestLambdaHandler in situ, reducing friction in testing and deployment.
 
-- Improves readability of large test reports by grouping related log entries with their suite context.
-- Supplies a reference implementation in sandbox/tests so developers can see how to write and parse structured logs.
-- Simplifies CI/CD diagnostics by providing a structured JSON object that maps each suite to its logs and test outcomes.
-- Ensures backward compatibility for users who do not require log aggregation.
+# Success Criteria & Requirements
+- Maintain existing --send functionality for publishing digest messages to SQS.
+- Introduce a new --receive flag that accepts a valid SQS queue URL and optional parameters.
+- Support the following CLI options for receiving:
+  - --receive <queueUrl> [--max-messages N] to poll up to N messages (default 10).
+  - Validate queue URL format before AWS calls.
+- On receiving messages, parse each body as JSON digest, and invoke digestLambdaHandler for each record.
+- On successful processing of a message, delete it from the queue via AWS SDK SQSClient.deleteMessage.
+- Collect and log failures without halting processing of remaining messages.
+- Exit with status code 0 if all messages processed successfully, non-zero if any failures.
 
-# Requirements & Success Criteria
+# Implementation Details
+1. Extend CLI in main():
+   - Detect --receive flag and parse queue URL and optional --max-messages value.
+   - Instantiate SQSClient and call receiveMessage with MaxNumberOfMessages.
+   - For each Message returned:
+     - Call digestLambdaHandler with eventRecords containing the message body.
+     - On successful handling (empty batchItemFailures), call deleteMessage with ReceiptHandle.
+     - Collect failures and log via logError.
+2. Refactor sendDigestToSQS logic remains unchanged.
+3. Ensure proper error handling and logging using logInfo and logError.
+4. Support verbose stats if VERBOSE_STATS is enabled.
 
-1. Add a new CLI flag --aggregate-logs (boolean) to the argument parser in src/lib/main.js.
-2. When --aggregate-logs is enabled, capture console output from tests and group entries under their corresponding suite name in the JSON report.
-3. Preserve existing flags: --run-tests, --pattern <glob>, and --verbose-logs, ensuring compatibility with --aggregate-logs.
-4. Use Vitest Node API to programmatically load and run matching tests, capturing suite names, test names, statuses, error details, and console logs.
-5. Update the JSON schema to include a logs array under each suite object, containing timestamped log entries with level and message fields.
-6. Create sandbox/tests/structured-logs.test.js containing example tests that call console.log and console.error with JSON-formatted entries and verify their appearance in the report.
-7. Default behavior (without --aggregate-logs) remains unchanged, with logs attached per test when --verbose-logs is used.
-8. Exit with code 0 if all tests pass, or 1 if any fail.
-9. Add unit tests in tests/unit to verify the new flag parsing, log grouping logic, updated JSON schema, and exit codes.
-10. Update sandbox/README.md to document the sandbox example test suite usage and illustrate structured output expected.
+# CLI Usage
+agentic-lib --send https://sqs.region.amazonaws.com/123456789012/my-queue ./digest.json
+agentic-lib --send https://sqs.region.amazonaws.com/123456789012/my-queue '{"key":"events/1.json","value":"12345"}'
+agentic-lib --receive https://sqs.region.amazonaws.com/123456789012/my-queue --max-messages 5
 
-# User Scenarios & Examples
+# Testability & Acceptance
+- Mock @aws-sdk/client-sqs to simulate:
+  - Sending a message and returning a MessageId.
+  - Receiving multiple messages, both valid and invalid JSON payloads.
+  - Deletion of messages and handling deletion failures.
+- Unit tests should cover:
+  - Successful send and receive flows with correct logging.
+  - Invalid queue URL detection.
+  - Invalid JSON bodies in received messages and failure logging.
+  - Handling of AWS SDK errors during receiveMessage and deleteMessage.
 
-- Developer runs node src/lib/main.js --run-tests --aggregate-logs and receives a JSON report where each suite object contains its own array of log entries.
-- Developer opens sandbox/tests/structured-logs.test.js to see tests that produce JSON log entries, then runs node src/lib/main.js --run-tests --pattern sandbox/tests/structured-logs.test.js --aggregate-logs to inspect the structured output.
-- In CI pipeline, the command with --aggregate-logs produces a concise report consumed by log parsers to display per-suite diagnostics.
-
-# Verification & Acceptance
-
-- Unit tests cover flag parsing combinations, correct grouping of console outputs, JSON schema validation, and exit codes.
-- Manual review confirms the report groups logs by suite and retains existing filtering and verbosity behavior.
-- sandbox/tests/structured-logs.test.js runs successfully and produces log entries in the expected JSON structure.
-- Documentation in sandbox/README.md accurately describes usage, example tests, flags, and the updated JSON schema.
+# Documentation Updates
+- Update README with sections for --receive flag usage and examples.
+- Document new functions: receiveDigestsFromSQS(queueUrl, maxMessages) and associated behavior.

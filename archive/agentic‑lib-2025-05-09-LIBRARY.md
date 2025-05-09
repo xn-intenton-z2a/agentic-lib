@@ -1,286 +1,312 @@
-sandbox/library/CHAT_COMPLETIONS.md
-# sandbox/library/CHAT_COMPLETIONS.md
-# CHAT_COMPLETIONS
+sandbox/library/SQS_EVENT_SOURCE_MAPPING.md
+# sandbox/library/SQS_EVENT_SOURCE_MAPPING.md
+# SQS_EVENT_SOURCE_MAPPING
 
 ## Crawl Summary
-POST https://api.openai.com/v1/chat/completions with JSON body. Required: model (string), messages (array of {role,content}). Optional: temperature (number 0–2, default 1), top_p (number 0–1, default 1), n (int, default 1), stream (bool, default false), stop (string|array), max_tokens (int), presence_penalty (–2 to 2, default 0), frequency_penalty (–2 to 2, default 0), logit_bias (map int to –100–100), user (string). Response: id, object, created, usage {prompt_tokens,completion_tokens,total_tokens}, choices [{index,message{role,content},finish_reason}]. Common errors: 400,401,429,500.
+Lambda polls SQS queues, invokes functions with batches, deletes on success. Batching controlled by BatchSize (1–10), MaximumBatchingWindowInSeconds (0–300), and payload limit 6 MB. On errors, entire batch retries; use ReportBatchItemFailures or manual DeleteMessage. Key parameters: EventSourceArn, FunctionName, Enabled, BatchSize, MaximumBatchingWindowInSeconds, FunctionResponseTypes, MaximumConcurrency. Default floor batch window wait is 20 s for low traffic. Idempotent code required.
 
 ## Normalised Extract
-Table of Contents
-1 Endpoint Definition
-2 Authentication
-3 Core Request Parameters
-4 Response Structure
-5 Error Responses
+Table of Contents:
+1. Setup Event Source Mapping
+2. Polling and Batching Behavior
+3. Error Handling Strategies
+4. SDK Configuration Parameters
+5. IAM Permissions
+6. Best Practice Code Patterns
+7. Troubleshooting Procedures
 
-1 Endpoint Definition
- Path: /v1/chat/completions
- Method: POST
+1. Setup Event Source Mapping
+Input parameters:
+ EventSourceArn: ARN of SQS queue
+ FunctionName: Lambda function name/ARN
+ Enabled: true|false
+ BatchSize: integer 1–10
+ MaximumBatchingWindowInSeconds: integer 0–300
+ FunctionResponseTypes: list ["ReportBatchItemFailures"]
+ MaximumConcurrency: integer (optional)
+ Use CreateEventSourceMapping API: method CreateEventSourceMappingCommand(input)
 
-2 Authentication
- Header: Authorization: Bearer <API_KEY>
+2. Polling and Batching Behavior
+ Polls up to 10 messages per request
+ VisibilityTimeout: queue-level (default 30s)
+ Trigger invocation when BatchSize reached or window expired or payload ≥6MB
+ When MaximumBatchingWindowInSeconds>0, minimum wait up to 20s in low traffic
 
-3 Core Request Parameters
- model: string
-   Allowed values: gpt-3.5-turbo, gpt-4, etc.
- messages: array of Message
-   Message object: role: user|assistant|system, content: string
- temperature: number [0.0,2.0], default 1.0
- top_p: number [0.0,1.0], default 1.0
- n: integer >=1, default 1
- stream: boolean, default false
- stop: string or array of strings
- max_tokens: integer >0
- presence_penalty: number [-2.0,2.0], default 0.0
- frequency_penalty: number [-2.0,2.0], default 0.0
- logit_bias: object mapping token_id to bias [-100,100]
- user: string up to 64 chars
+3. Error Handling Strategies
+ Default retry: all messages reappear after visibility timeout
+ Option A: enable partial failure reporting via FunctionResponseTypes
+ Option B: inside handler use DeleteMessage API upon individual successful process
+ Handler must be idempotent
 
-4 Response Structure
- id: string
- object: chat.completion
- created: integer (UNIX timestamp)
- usage:
-   prompt_tokens: integer
-   completion_tokens: integer
-   total_tokens: integer
- choices: array of {
-   index: integer
-   message: { role: string, content: string }
-   finish_reason: stop|length|function_call
- }
+4. SDK Configuration Parameters
+ AWS SDK for JavaScript v3:
+  client: LambdaClient({ region })
+  command: CreateEventSourceMappingCommand(input)
 
-5 Error Responses
- 400: Bad Request – invalid or missing parameters
- 401: Unauthorized – invalid API key
- 429: Too Many Requests – rate limit exceeded
- 500: Internal Server Error
+5. IAM Permissions
+ lambda:CreateEventSourceMapping
+ sqs:GetQueueUrl
+ sqs:GetQueueAttributes
+ lambda:InvokeFunction
+
+6. Best Practice Code Patterns
+ async handler(event):
+  iterate Records
+  skip already processed IDs
+  process record
+  mark processed
+  return { batchItemFailures: [] }
+
+7. Troubleshooting Procedures
+ List mappings: aws lambda list-event-source-mappings --function-name <fn>
+ Check DLQ configuration in SQS console
+ Inspect CloudWatch logs for error stacks
+ Adjust visibility timeout if repeated retries too fast
 
 
 ## Supplementary Details
-Installation and Setup
-1 Install OpenAI SDK: npm install openai
-2 Set environment variable: export OPENAI_API_KEY=your_key
-
-Initialization (Node.js)
-import OpenAI from 'openai'
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-
-Call Pattern
-const response = await openai.chat.completions.create({
-  model: 'gpt-4',
-  messages: [
-    { role: 'system', content: 'You are helpful.' },
-    { role: 'user', content: 'Translate this text.' }
-  ],
-  temperature: 0.7,
-  max_tokens: 100
-})
-
-Streaming
-const stream = await openai.chat.completions.create(
-  { model: 'gpt-4', messages, stream: true },
-  { responseType: 'stream' }
-)
-stream.on('data', chunk => process.stdout.write(chunk))
-
-Configuration Options
-HTTP timeout: 60s
-Retries: 3 (exponential backoff)
+Provisioned mode: set MaximumConcurrency to reserve pollers. Batch window increments of 1s. JSON attribute mapping in Java: annotate cased fields with @JsonProperty("Records"). Configure DLQ ARNs in CreateEventSourceMapping input DeadLetterConfig.TargetArn. Use AWS CLI:
+ aws lambda create-event-source-mapping --event-source-arn <arn> --function-name <fn> --batch-size 5 --maximum-batching-window-in-seconds 60 --function-response-types ReportBatchItemFailures --dead-letter-config TargetArn=<dlqArn>
 
 
 ## Reference Details
-API Endpoint: POST /v1/chat/completions
-Headers:
-  Authorization: Bearer <API_KEY>
-  Content-Type: application/json
+API: CreateEventSourceMapping (Lambda)
+Parameters:
+ EventSourceArn String required
+ FunctionName String required
+ Enabled Boolean
+ BatchSize Integer Minimum:1 Maximum:10
+ MaximumBatchingWindowInSeconds Integer Min:0 Max:300
+ FunctionResponseTypes List<String> valid: [ReportBatchItemFailures]
+ MaximumConcurrency Integer Min:1
+ DestinationConfig Object {OnSuccess{Destination:string},OnFailure{Destination:string}}
+ DeadLetterConfig Object {TargetArn:string}
+Return:
+ UUID String
+ State String (Creating, Enabled, etc.)
+ LastModified DateTime
+ FunctionArn String
+ StartingPosition String (TRIM_HORIZON, LATEST) [for streams]
 
-Request Body Schema:
-{
-  model: string,
-  messages: [ { role: 'user'|'assistant'|'system', content: string } ],
-  temperature?: number,
-  top_p?: number,
-  n?: number,
-  stream?: boolean,
-  stop?: string|string[],
-  max_tokens?: number,
-  presence_penalty?: number,
-  frequency_penalty?: number,
-  logit_bias?: { [token_id: number]: number },
-  user?: string
-}
+SDK Method Signature (Java):
+ CreateEventSourceMappingRequest request = CreateEventSourceMappingRequest.builder()
+     .eventSourceArn("arn:...")
+     .functionName("MyFunction")
+     .enabled(true)
+     .batchSize(10)
+     .maximumBatchingWindowInSeconds(30)
+     .functionResponseTypes("ReportBatchItemFailures")
+     .deadLetterConfig(DeadLetterConfig.builder().targetArn("arn:...").build())
+     .build();
+ CreateEventSourceMappingResponse response = lambdaClient.createEventSourceMapping(request);
 
-Response Body Schema:
-{
-  id: string,
-  object: string,
-  created: number,
-  usage: { prompt_tokens: number, completion_tokens: number, total_tokens: number },
-  choices: [
-    { index: number,
-      message: { role: string, content: string },
-      finish_reason: string
-    }
-  ]
-}
-
-Node.js SDK Method Signature:
-openai.chat.completions.create(
-  options: {
-    model: string,
-    messages: { role: string, content: string }[],
-    temperature?: number,
-    top_p?: number,
-    n?: number,
-    stream?: boolean,
-    stop?: string|string[],
-    max_tokens?: number,
-    presence_penalty?: number,
-    frequency_penalty?: number,
-    logit_bias?: Record<number, number>,
-    user?: string
-  }, httpOptions?: { responseType: 'json'|'stream', timeout?: number, retries?: number }
-): Promise<{ id: string, object: string, created: number, usage: { prompt_tokens: number, completion_tokens: number, total_tokens: number }, choices: { index: number, message: { role: string, content: string }, finish_reason: string }[] }>
-
-Best Practices
-• Use streaming for large outputs to reduce latency.
-• Handle rate limit (429) by exponential backoff: wait 1s, 2s, 4s.
-• Set max_tokens to control cost and output size.
-
-Troubleshooting
-Curl Test:
-curl https://api.openai.com/v1/chat/completions \
-  -H 'Authorization: Bearer $OPENAI_API_KEY' \
-  -H 'Content-Type: application/json' \
-  -d '{"model":"gpt-4","messages":[{"role":"user","content":"Hi"}]}'
-
-Expected Response: HTTP 200 with JSON id, object, choices
-
-Error Response Example:
-HTTP/1.1 401 Unauthorized
-{
-  "error": {"message":"Invalid API key","type":"authentication_error"}
-}
-
-## Information Dense Extract
-POST /v1/chat/completions  Authorization: Bearer API_KEY  Body{model:string,messages:[{role:string,content:string}],temperature:number(0–2)=1,top_p:number(0–1)=1,n:int=1,stream:bool=false,stop:string|string[],max_tokens:int,presence_penalty:-2–2=0,frequency_penalty:-2–2=0,logit_bias:{token_id:number=>-100–100},user:string}  Response{id:string,object:string,created:int,usage:{prompt_tokens:int,completion_tokens:int,total_tokens:int},choices:[{index:int,message:{role:string,content:string},finish_reason:string}]}  SDK: openai.chat.completions.create(options,httpOptions)⇒Promise<response>  Best practices: streaming, backoff on 429, set max_tokens, timeout=60s,retries=3
-
-## Sanitised Extract
-Table of Contents
-1 Endpoint Definition
-2 Authentication
-3 Core Request Parameters
-4 Response Structure
-5 Error Responses
-
-1 Endpoint Definition
- Path: /v1/chat/completions
- Method: POST
-
-2 Authentication
- Header: Authorization: Bearer <API_KEY>
-
-3 Core Request Parameters
- model: string
-   Allowed values: gpt-3.5-turbo, gpt-4, etc.
- messages: array of Message
-   Message object: role: user|assistant|system, content: string
- temperature: number [0.0,2.0], default 1.0
- top_p: number [0.0,1.0], default 1.0
- n: integer >=1, default 1
- stream: boolean, default false
- stop: string or array of strings
- max_tokens: integer >0
- presence_penalty: number [-2.0,2.0], default 0.0
- frequency_penalty: number [-2.0,2.0], default 0.0
- logit_bias: object mapping token_id to bias [-100,100]
- user: string up to 64 chars
-
-4 Response Structure
- id: string
- object: chat.completion
- created: integer (UNIX timestamp)
- usage:
-   prompt_tokens: integer
-   completion_tokens: integer
-   total_tokens: integer
- choices: array of {
-   index: integer
-   message: { role: string, content: string }
-   finish_reason: stop|length|function_call
- }
-
-5 Error Responses
- 400: Bad Request  invalid or missing parameters
- 401: Unauthorized  invalid API key
- 429: Too Many Requests  rate limit exceeded
- 500: Internal Server Error
-
-## Original Source
-OpenAI Chat Completions API Reference
-https://platform.openai.com/docs/api-reference/chat/create
-
-## Digest of CHAT_COMPLETIONS
-
-# OpenAI Chat Completions API Reference
-
-Date Retrieved: 2024-06-04
-
-## Endpoint
-POST https://api.openai.com/v1/chat/completions
-
-## HTTP Headers
-  Authorization: Bearer <YOUR_API_KEY>
-  Content-Type: application/json
-
-## Request Parameters
-  model            string       required. ID of model to use, e.g. gpt-4.
-  messages         Message[]    required. Array of message objects with fields role and content.
-  temperature      number       optional. 0 to 2. Default 1. Higher values increase randomness.
-  top_p            number       optional. 0 to 1. Default 1. controls nucleus sampling.
-  n                integer      optional. Number of completions to generate. Default 1.
-  stream           boolean      optional. If true, partial message deltas will be sent as server-sent events. Default false.
-  stop             string|array optional. Up to 4 sequences where API will stop generating further tokens.
-  max_tokens       integer      optional. Maximum number of tokens to generate. Default infimum based on model.
-  presence_penalty number       optional. -2.0 to 2.0. Default 0.
-  frequency_penalty number     optional. -2.0 to 2.0. Default 0.
-  logit_bias       object       optional. map from token to bias value between -100 and 100.
-  user             string       optional. Unique identifier for end user.
-
-## Example Request
-```json
-{
-  "model": "gpt-4",
-  "messages": [{"role":"user","content":"Hello!"}],
-  "max_tokens": 150,
-  "temperature": 0
-}
+Full Node.js Example:
+```javascript
+import { LambdaClient, CreateEventSourceMappingCommand } from '@aws-sdk/client-lambda';
+(async ()=>{
+  const client = new LambdaClient({ region:'us-east-2' });
+  const params = {
+    EventSourceArn:'arn:aws:sqs:us-east-2:123456789012:my-queue',
+    FunctionName:'MyFunction',
+    Enabled:true,
+    BatchSize:10,
+    MaximumBatchingWindowInSeconds:60,
+    FunctionResponseTypes:['ReportBatchItemFailures'],
+    DeadLetterConfig:{TargetArn:'arn:aws:sqs:us-east-2:123456789012:my-dlq'}
+  };
+  const cmd = new CreateEventSourceMappingCommand(params);
+  const res = await client.send(cmd);
+  console.log(res.UUID);
+})();
 ```
 
-## Response Schema
-  id       string  unique id of completion
-  object   string  "chat.completion"
-  created  integer timestamp
-  usage    object  prompt_tokens, completion_tokens, total_tokens
-  choices  array   of Choice {
-                index, message {role, content}, finish_reason
-              }
+Best Practice: Idempotent handler and partial failure:
+```javascript
+exports.handler = async event =>{
+  const failures=[];
+  for(const r of event.Records){
+    try{ await processMessage(r); }
+    catch(e){ failures.push({itemIdentifier:r.messageId}); }
+  }
+  return { batchItemFailures: failures };
+};
+```
 
-## Errors
-  400 Bad Request: invalid parameters
-  401 Unauthorized: invalid API key
-  429 Rate Limit Exceeded
-  500 Internal Server Error
+Troubleshooting CLI Commands:
+ aws lambda list-event-source-mappings --function-name MyFunction
+ aws lambda update-event-source-mapping --uuid <uuid> --batch-size 5
+ aws lambda delete-event-source-mapping --uuid <uuid>
+ aws sqs get-queue-attributes --queue-url <url> --attribute-names All
+
+
+## Information Dense Extract
+EventSourceMapping: CreateEventSourceMapping API: EventSourceArn, FunctionName, Enabled, BatchSize(1–10), MaximumBatchingWindowInSeconds(0–300s, 1s increments), FunctionResponseTypes[ReportBatchItemFailures], MaximumConcurrency. Polls up to 10 msgs, visibility timeout (queue default). Triggers on size, time, payload≥6MB. Default window minimum wait=20s. Partial failures via Return {batchItemFailures:[{itemIdentifier:id}]}. Idempotent handler recommended. CLI: aws lambda create-event-source-mapping, list-, update-, delete-event-source-mapping. Java SDK builder: builder().eventSourceArn().functionName().batchSize().maximumBatchingWindowInSeconds().functionResponseTypes().deadLetterConfig().build(). Node.js v3: new CreateEventSourceMappingCommand(params) -> client.send(cmd). Permissions: lambda:CreateEventSourceMapping, sqs:GetQueueUrl, sqs:GetQueueAttributes, lambda:InvokeFunction. Troubleshoot: aws lambda list-event-source-mappings, aws sqs get-queue-attributes.
+
+## Sanitised Extract
+Table of Contents:
+1. Setup Event Source Mapping
+2. Polling and Batching Behavior
+3. Error Handling Strategies
+4. SDK Configuration Parameters
+5. IAM Permissions
+6. Best Practice Code Patterns
+7. Troubleshooting Procedures
+
+1. Setup Event Source Mapping
+Input parameters:
+ EventSourceArn: ARN of SQS queue
+ FunctionName: Lambda function name/ARN
+ Enabled: true|false
+ BatchSize: integer 110
+ MaximumBatchingWindowInSeconds: integer 0300
+ FunctionResponseTypes: list ['ReportBatchItemFailures']
+ MaximumConcurrency: integer (optional)
+ Use CreateEventSourceMapping API: method CreateEventSourceMappingCommand(input)
+
+2. Polling and Batching Behavior
+ Polls up to 10 messages per request
+ VisibilityTimeout: queue-level (default 30s)
+ Trigger invocation when BatchSize reached or window expired or payload 6MB
+ When MaximumBatchingWindowInSeconds>0, minimum wait up to 20s in low traffic
+
+3. Error Handling Strategies
+ Default retry: all messages reappear after visibility timeout
+ Option A: enable partial failure reporting via FunctionResponseTypes
+ Option B: inside handler use DeleteMessage API upon individual successful process
+ Handler must be idempotent
+
+4. SDK Configuration Parameters
+ AWS SDK for JavaScript v3:
+  client: LambdaClient({ region })
+  command: CreateEventSourceMappingCommand(input)
+
+5. IAM Permissions
+ lambda:CreateEventSourceMapping
+ sqs:GetQueueUrl
+ sqs:GetQueueAttributes
+ lambda:InvokeFunction
+
+6. Best Practice Code Patterns
+ async handler(event):
+  iterate Records
+  skip already processed IDs
+  process record
+  mark processed
+  return { batchItemFailures: [] }
+
+7. Troubleshooting Procedures
+ List mappings: aws lambda list-event-source-mappings --function-name <fn>
+ Check DLQ configuration in SQS console
+ Inspect CloudWatch logs for error stacks
+ Adjust visibility timeout if repeated retries too fast
+
+## Original Source
+AWS Lambda with SQS Triggers
+https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html
+
+## Digest of SQS_EVENT_SOURCE_MAPPING
+
+# SQS Event Source Mappings for AWS Lambda
+
+## Overview
+
+Use SQS queues as event sources for Lambda functions. Supports both standard and FIFO queues. Lambda polls queues, retrieves batches, and invokes functions synchronously. Functions must handle at-least-once delivery and potential duplicates.
+
+## Specifications
+
+### Polling Behavior
+- Default polling concurrency: automatic scaling
+- Messages per poll: up to `MaxNumberOfMessages` (default 10)
+- Poll interval: immediate until batch conditions met
+- Visibility Timeout: queue-level setting (default 30s)
+
+### Batching
+- BatchSize (`BatchSize` parameter): integer, 1–10 (standard), 1–10 (FIFO)
+- MaximumBatchingWindowInSeconds: 0–300s (increments of 1s); default 0s
+- Batch window default floor: 20s minimum wait when using batch window
+- Invocation triggers when: BatchSize reached OR Window expired OR Payload ≥6 MB
+
+### Error Handling
+- Default: On error, all messages reappear after Visibility Timeout
+- Idempotency must be ensured by function code
+- Options: 
+  - Report partial batch failures (`FunctionResponseTypes` includes `ReportBatchItemFailures`)
+  - Manual deletion via `DeleteMessage` API
+
+## SDK Method Signatures (Node.js v3)
+
+```javascript
+import { LambdaClient, CreateEventSourceMappingCommand } from '@aws-sdk/client-lambda';
+
+const client = new LambdaClient({ region: 'us-east-2' });
+const input = {
+  EventSourceArn: 'arn:aws:sqs:us-east-2:123456789012:my-queue',
+  FunctionName: 'MyLambdaFunction',
+  Enabled: true,
+  BatchSize: 10,
+  MaximumBatchingWindowInSeconds: 0,
+  FunctionResponseTypes: ['ReportBatchItemFailures']
+};
+const command = new CreateEventSourceMappingCommand(input);
+const response = await client.send(command);
+```
+
+## Configuration Parameters
+- EventSourceArn (string) – ARN of SQS queue
+- FunctionName (string) – Lambda function name or ARN
+- Enabled (boolean) – enable/disable mapping
+- BatchSize (integer) – records per batch
+- MaximumBatchingWindowInSeconds (integer) – buffering window
+- FunctionResponseTypes (list) – `ReportBatchItemFailures`
+- MaximumConcurrency (integer, optional) – provisioned mode minimum concurrency
+
+## IAM Permissions
+- lambda:CreateEventSourceMapping
+- sqs:GetQueueAttributes
+- sqs:GetQueueUrl
+- lambda:InvokeFunction
+
+## Best Practices
+1. Ensure idempotency in Lambda handler:
+
+```javascript
+exports.handler = async event => {
+  for (const record of event.Records) {
+    const id = record.messageId;
+    if (await hasProcessed(id)) continue;
+    await process(record);
+    await markProcessed(id);
+  }
+  return { batchItemFailures: [] };
+};
+```
+
+2. Use `ReportBatchItemFailures` to isolate failed messages.
+3. Tune BatchSize and Window based on throughput.
+
+## Troubleshooting
+
+### Stuck Messages
+1. Check Dead-Letter Queue configuration on SQS.
+2. Inspect Lambda CloudWatch Logs for error patterns.
+3. Use AWS CLI to describe mappings:
+
+```bash
+aws lambda list-event-source-mappings --function-name MyLambdaFunction
+```  
+
+### JSON Deserialization Errors in Java
+- Ensure correct casing: use `@JsonProperty("Records")`
+
 
 
 ## Attribution
-- Source: OpenAI Chat Completions API Reference
-- URL: https://platform.openai.com/docs/api-reference/chat/create
-- License: License: Proprietary (see OpenAI Terms of Service)
-- Crawl Date: 2025-05-09T03:35:07.407Z
-- Data Size: 0 bytes
-- Links Found: 0
+- Source: AWS Lambda with SQS Triggers
+- URL: https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html
+- License: License: CC BY 4.0
+- Crawl Date: 2025-05-09T23:01:06.812Z
+- Data Size: 1293095 bytes
+- Links Found: 3161
 
 ## Retrieved
 2025-05-09
