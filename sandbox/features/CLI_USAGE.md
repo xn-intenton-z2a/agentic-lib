@@ -1,33 +1,38 @@
 # Objective
-Populate docs/USAGE.md with detailed CLI usage examples and instructions and integrate CLI documentation into sandbox/README.md.
+Extend the command-line interface to include a new --health-summary flag that computes and outputs a mission health summary based on the repository’s mission file and runtime environment.
 
 # Value Proposition
-Providing comprehensive, example-driven documentation for all CLI commands enhances developer onboarding and reduces friction when using the tool. Clear usage examples for help, version, digest, and summary commands empower users to adopt the CLI efficiently and avoid trial-and-error.
+Providing a mission health summary via the CLI enables maintainers to quickly verify the integrity and completeness of the current mission, ensuring workflows remain aligned with the mission statement. This helps detect missing fields, invalid formats, or outdated content without manual inspection.
 
 # Scope
-- Create or update `sandbox/docs/USAGE.md` to include:
-  - Overview of CLI purpose and requirements.
-  - Sectioned examples for each command (`--help`, `--version`, `--digest`, `--summary`).
-  - Sample invocations and expected outputs (JSON or plain text as appropriate).
-  - Environment variable settings for commands needing configuration.
-- Update `sandbox/README.md` under "Command Line Interface" to:
-  - Link to `docs/USAGE.md` for detailed examples.
-  - Add a brief summary of usage and a pointer to full documentation.
-- Ensure consistency of examples with current implementation in `src/lib/main.js`.
+- Modify src/lib/main.js to:
+  - Add a processHealthSummary function that:
+    - Reads the MISSION.md file.
+    - Parses key sections (title, description, invocation patterns).
+    - Generates a summary object with counts of headings, links, and defined workflows.
+    - Outputs the summary as JSON to stdout.
+  - Integrate processHealthSummary into main(), handling the --health-summary flag analogously to existing flags.
+- Create sandbox/tests/missionHealthSummary.test.js to:
+  - Mock reading MISSION.md with sample content.
+  - Invoke main(["--health-summary"]) and verify the JSON structure and values.
+- Update sandbox/docs/USAGE.md:
+  - Add a new section under level 1 heading for --health-summary with example invocation and output.
+- Update sandbox/README.md:
+  - In the CLI section, add a bullet for --health-summary with a brief description.
 
 # Requirements
-- USAGE.md must be a markdown file with level 1 headings and code blocks for examples.
-- Examples must not include escaped JSON strings; present raw JSON blocks.
-- README must reference USAGE.md and include at least one inline example.
-- No changes to source code behavior or tests, only documentation files.
+- The new flag must be documented in usage and readme with raw JSON examples.
+- The implementation must use only built-in fs/promises for reading the mission file.
+- Tests must cover missing or malformed MISSION.md scenarios and verify error-handling logs.
+- Do not introduce new top-level files; place the test in sandbox/tests.
 
 # Success Criteria
-- Users can open `docs/USAGE.md` and follow examples to run each CLI command successfully.
-- CI linting checks pass on the updated markdown files.
-- README links resolve correctly and display usage sections.
+1. Running node src/lib/main.js --health-summary outputs a valid JSON object summarizing mission content.
+2. Tests pass: missionHealthSummary test verifies summary metrics and error-handling.
+3. USAGE.md and README references resolve and demonstrate the new flag.
+4. CI linting and formatting checks pass.
 
 # Verification
-1. Open `sandbox/docs/USAGE.md` and confirm presence of examples for all CLI flags.
-2. Run each example command in a terminal and verify output matches documented samples.
-3. Review the `sandbox/README.md` to ensure the CLI section points to the new USAGE.md.
-4. Execute `npm test` to verify no test regressions and markdown linting is satisfied.
+1. Add a sample MISSION.md in tests and confirm the CLI output matches expected summary metrics.
+2. Run node src/lib/main.js --health-summary in a real repository and inspect JSON.
+3. Ensure npm test passes without regressions and documentation lint succeeds.
