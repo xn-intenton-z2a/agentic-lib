@@ -239,13 +239,13 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const feature = process.env.feature;
-            const featuresPath = process.env.featuresPath;
+            const featuresPath = process.env.featuresPath.replace(/\/+$/, '');
             const featuresLimit = process.env.featuresLimit;
             const currentFeatures = process.env.currentFeatures;
             const rejectedFeatures = process.env.rejectedFeatures;
             const allSourcePaths = process.env.allSourcePaths;
             const allTestsPaths = process.env.allTestsPaths;
-            const documentationPath = process.env.documentationPath;
+            const documentationPath = process.env.documentationPath.replace(/\/+$/, '');
             const readmeFilepath = process.env.readmeFilepath;
             const missionFilepath = process.env.missionFilepath;
             const contributingFilepath = process.env.contributingFilepath;

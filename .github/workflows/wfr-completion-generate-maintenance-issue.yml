@@ -293,12 +293,12 @@ jobs:
             const maintenanceIssuesWipLimit = process.env.maintenanceIssuesWipLimit;
             const allSourcePaths = process.env.allSourcePaths;
             const allTestsPaths = process.env.allTestsPaths;
-            const documentationPath = process.env.documentationPath;
+            const documentationPath = process.env.documentationPath.replace(/\/+$/, '');
             const readmeFilepath = process.env.readmeFilepath;
             const missionFilepath = process.env.missionFilepath;
             const contributingFilepath = process.env.contributingFilepath;
             const dependenciesFilepath = process.env.dependenciesFilepath;
-            const libraryDocumentsPath = process.env.libraryDocumentsPath;
+            const libraryDocumentsPath = process.env.libraryDocumentsPath.replace(/\/+$/, '');
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
             let promptHint;

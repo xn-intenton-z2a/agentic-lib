@@ -313,7 +313,7 @@ jobs:
             const dependenciesFilepath = process.env.dependenciesFilepath;
             const formattingFilepath = process.env.formattingFilepath;
             const lintingFilepath = process.env.lintingFilepath;
-            const documentationPath = process.env.documentationPath;
+            const documentationPath = process.env.documentationPath.replace(/\/+$/, '');
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
             const promptFilepath = process.env.promptFilepath;
@@ -613,40 +613,42 @@ jobs:
 
             If there are no changes required, please provide the original content and state that no changes are necessary in the message.
 
+            Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: ${writeableFilepaths}
+
             Answer strictly with a JSON object following this schema:
             {
               "message": "A short sentence explaining the changes applied (or why no changes were applied) suitable for a commit message or PR text.",
-              "updatedFile01Name": "README.md",
+              "updatedFile01Filepath": "${readmeFilepath}",
               "updatedFile01Contents": "The entire new content of the README file, with all necessary changes applied, if any.",
-              "updatedFile02Name":  "docs/USAGE.md",
+              "updatedFile02Filepath":  "${documentationPath}/USAGE.md",
               "updatedFile02Contents": "The entire new content of the file, with all necessary changes applied, if any.",
-              "updatedFile03Name": "unused",
+              "updatedFile03Filepath": "unused",
               "updatedFile03Contents": "unused",
-              "updatedFile04Name": "unused",
+              "updatedFile04Filepath": "unused",
               "updatedFile04Contents": "unused",
-              "updatedFile05Name": "unused",
+              "updatedFile05Filepath": "unused",
               "updatedFile05Contents": "unused",
-              "updatedFile06Name": "unused",
+              "updatedFile06Filepath": "unused",
               "updatedFile06Contents": "unused",
-              "updatedFile07Name": "unused",
+              "updatedFile07Filepath": "unused",
               "updatedFile07Contents": "unused",
-              "updatedFile08Name": "unused",
+              "updatedFile08Filepath": "unused",
               "updatedFile08Contents": "unused",
-              "updatedFile09Name": "unused",
+              "updatedFile09Filepath": "unused",
               "updatedFile09Contents": "unused",
-              "updatedFile10Name": "unused",
+              "updatedFile10Filepath": "unused",
               "updatedFile10Contents": "unused",
-              "updatedFile11Name": "unused",
+              "updatedFile11Filepath": "unused",
               "updatedFile11Contents": "unused",
-              "updatedFile12Name": "unused",
+              "updatedFile12Filepath": "unused",
               "updatedFile12Contents": "unused",
-              "updatedFile13Name": "unused",
+              "updatedFile13Filepath": "unused",
               "updatedFile13Contents": "unused",
-              "updatedFile14Name": "unused",
+              "updatedFile14Filepath": "unused",
               "updatedFile14Contents": "unused",
-              "updatedFile15Name": "unused",
+              "updatedFile15Filepath": "unused",
               "updatedFile15Contents": "unused",
-              "updatedFile16Name": "unused",
+              "updatedFile16Filepath": "unused",
               "updatedFile16Contents": "unused"
             }
 
@@ -663,37 +665,37 @@ jobs:
 
             const ResponseSchema = z.object({ 
               message: z.string(),
-              updatedFile01Name: z.string().optional(),
+              updatedFile01Filepath: z.string().optional(),
               updatedFile01Contents: z.string().optional(),
-              updatedFile02Name: z.string().optional(),
+              updatedFile02Filepath: z.string().optional(),
               updatedFile02Contents: z.string().optional(),
-              updatedFile03Name: z.string().optional(),
+              updatedFile03Filepath: z.string().optional(),
               updatedFile03Contents: z.string().optional(),
-              updatedFile04Name: z.string().optional(),
+              updatedFile04Filepath: z.string().optional(),
               updatedFile04Contents: z.string().optional(),
-              updatedFile05Name: z.string().optional(),
+              updatedFile05Filepath: z.string().optional(),
               updatedFile05Contents: z.string().optional(),
-              updatedFile06Name: z.string().optional(),
+              updatedFile06Filepath: z.string().optional(),
               updatedFile06Contents: z.string().optional(),
-              updatedFile07Name: z.string().optional(),
+              updatedFile07Filepath: z.string().optional(),
               updatedFile07Contents: z.string().optional(),
-              updatedFile08Name: z.string().optional(),
+              updatedFile08Filepath: z.string().optional(),
               updatedFile08Contents: z.string().optional(),
-              updatedFile09Name: z.string().optional(),
+              updatedFile09Filepath: z.string().optional(),
               updatedFile09Contents: z.string().optional(),
-              updatedFile10Name: z.string().optional(),
+              updatedFile10Filepath: z.string().optional(),
               updatedFile10Contents: z.string().optional(),
-              updatedFile11Name: z.string().optional(),
+              updatedFile11Filepath: z.string().optional(),
               updatedFile11Contents: z.string().optional(),
-              updatedFile12Name: z.string().optional(),
+              updatedFile12Filepath: z.string().optional(),
               updatedFile12Contents: z.string().optional(),
-              updatedFile13Name: z.string().optional(),
+              updatedFile13Filepath: z.string().optional(),
               updatedFile13Contents: z.string().optional(),
-              updatedFile14Name: z.string().optional(),
+              updatedFile14Filepath: z.string().optional(),
               updatedFile14Contents: z.string().optional(),
-              updatedFile15Name: z.string().optional(),
+              updatedFile15Filepath: z.string().optional(),
               updatedFile15Contents: z.string().optional(),
-              updatedFile16Name: z.string().optional(),
+              updatedFile16Filepath: z.string().optional(),
               updatedFile16Contents: z.string().optional()
             });
 
@@ -710,7 +712,7 @@ jobs:
                       type: "string",
                       description: "A short sentence explaining the changes applied (or why no changes were applied) suitable for a commit message or PR text."
                     },
-                    updatedFile01Name: {
+                    updatedFile01Filepath: {
                       type: "string",
                       description: "Path to the first file to update"
                     },
@@ -718,7 +720,7 @@ jobs:
                       type: "string",
                       description: "The entire new content of the first file, with all necessary changes applied"
                     },
-                    updatedFile02Name: {
+                    updatedFile02Filepath: {
                       type: "string",
                       description: "Path to the second file to update"
                     },
@@ -726,7 +728,7 @@ jobs:
                       type: "string",
                       description: "The entire new content of the second file, with all necessary changes applied"
                     },
-                    updatedFile03Name: {
+                    updatedFile03Filepath: {
                       type: "string",
                       description: "Path to the third file to update"
                     },
@@ -734,7 +736,7 @@ jobs:
                       type: "string",
                       description: "The entire new content of the third file, with all necessary changes applied"
                     },
-                    updatedFile04Name: {
+                    updatedFile04Filepath: {
                       type: "string",
                       description: "Path to the fourth file to update"
                     },
@@ -742,7 +744,7 @@ jobs:
                       type: "string",
                       description: "The entire new content of the fourth file, with all necessary changes applied"
                     },
-                    updatedFile05Name: {
+                    updatedFile05Filepath: {
                       type: "string",
                       description: "Path to the fifth file to update"
                     },
@@ -750,7 +752,7 @@ jobs:
                       type: "string",
                       description: "The entire new content of the fifth file, with all necessary changes applied"
                     },
-                    updatedFile06Name: {
+                    updatedFile06Filepath: {
                       type: "string",
                       description: "Path to the sixth file to update"
                     },
@@ -758,7 +760,7 @@ jobs:
                       type: "string",
                       description: "The entire new content of the sixth file, with all necessary changes applied"
                     },
-                    updatedFile07Name: {
+                    updatedFile07Filepath: {
                       type: "string",
                       description: "Path to the seventh file to update"
                     },
@@ -766,7 +768,7 @@ jobs:
                       type: "string",
                       description: "The entire new content of the seventh file, with all necessary changes applied"
                     },
-                    updatedFile08Name: {
+                    updatedFile08Filepath: {
                       type: "string",
                       description: "Path to the eighth file to update"
                     },
@@ -774,7 +776,7 @@ jobs:
                       type: "string",
                       description: "The entire new content of the eighth file, with all necessary changes applied"
                     },
-                    updatedFile09Name: {
+                    updatedFile09Filepath: {
                       type: "string",
                       description: "Path to the ninth file to update"
                     },
@@ -782,7 +784,7 @@ jobs:
                       type: "string",
                       description: "The entire new content of the ninth file, with all necessary changes applied"
                     },
-                    updatedFile10Name: {
+                    updatedFile10Filepath: {
                       type: "string",
                       description: "Path to the tenth file to update"
                     },
@@ -790,7 +792,7 @@ jobs:
                       type: "string",
                       description: "The entire new content of the tenth file, with all necessary changes applied"
                     },
-                    updatedFile11Name: {
+                    updatedFile11Filepath: {
                       type: "string",
                       description: "Path to the eleventh file to update"
                     },
@@ -798,7 +800,7 @@ jobs:
                       type: "string",
                       description: "The entire new content of the eleventh file, with all necessary changes applied"
                     },
-                    updatedFile12Name: {
+                    updatedFile12Filepath: {
                       type: "string",
                       description: "Path to the twelfth file to update"
                     },
@@ -806,7 +808,7 @@ jobs:
                       type: "string",
                       description: "The entire new content of the twelfth file, with all necessary changes applied"
                     },
-                    updatedFile13Name: {
+                    updatedFile13Filepath: {
                       type: "string",
                       description: "Path to the thirteenth file to update"
                     },
@@ -814,7 +816,7 @@ jobs:
                       type: "string",
                       description: "The entire new content of the thirteenth file, with all necessary changes applied"
                     },
-                    updatedFile14Name: {
+                    updatedFile14Filepath: {
                       type: "string",
                       description: "Path to the fourteenth file to update"
                     },
@@ -822,7 +824,7 @@ jobs:
                       type: "string",
                       description: "The entire new content of the fourteenth file, with all necessary changes applied"
                     },
-                    updatedFile15Name: {
+                    updatedFile15Filepath: {
                       type: "string",
                       description: "Path to the fifteenth file to update"
                     },
@@ -830,7 +832,7 @@ jobs:
                       type: "string",
                       description: "The entire new content of the fifteenth file, with all necessary changes applied"
                     },
-                    updatedFile16Name: {
+                    updatedFile16Filepath: {
                       type: "string",
                       description: "Path to the sixteenth file to update"
                     },
@@ -839,7 +841,7 @@ jobs:
                       description: "The entire new content of the sixteenth file, with all necessary changes applied"
                     }
                   },
-                  required: ["message", "updatedFile01Name", "updatedFile01Contents", "updatedFile02Name", "updatedFile02Contents", "updatedFile03Name", "updatedFile03Contents", "updatedFile04Name", "updatedFile04Contents", "updatedFile05Name", "updatedFile05Contents", "updatedFile06Name", "updatedFile06Contents", "updatedFile07Name", "updatedFile07Contents", "updatedFile08Name", "updatedFile08Contents", "updatedFile09Name", "updatedFile09Contents", "updatedFile10Name", "updatedFile10Contents", "updatedFile11Name", "updatedFile11Contents", "updatedFile12Name", "updatedFile12Contents", "updatedFile13Name", "updatedFile13Contents", "updatedFile14Name", "updatedFile14Contents", "updatedFile15Name", "updatedFile15Contents", "updatedFile16Name", "updatedFile16Contents"],
+                  required: ["message", "updatedFile01Filepath", "updatedFile01Contents", "updatedFile02Filepath", "updatedFile02Contents", "updatedFile03Filepath", "updatedFile03Contents", "updatedFile04Filepath", "updatedFile04Contents", "updatedFile05Filepath", "updatedFile05Contents", "updatedFile06Filepath", "updatedFile06Contents", "updatedFile07Filepath", "updatedFile07Contents", "updatedFile08Filepath", "updatedFile08Contents", "updatedFile09Filepath", "updatedFile09Contents", "updatedFile10Filepath", "updatedFile10Contents", "updatedFile11Filepath", "updatedFile11Contents", "updatedFile12Filepath", "updatedFile12Contents", "updatedFile13Filepath", "updatedFile13Contents", "updatedFile14Filepath", "updatedFile14Contents", "updatedFile15Filepath", "updatedFile15Contents", "updatedFile16Filepath", "updatedFile16Contents"],
                   additionalProperties: false
                 },
                 strict: true

@@ -177,7 +177,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const document = process.env.document;
-            const libraryDocumentsPath = process.env.libraryDocumentsPath;
+            const libraryDocumentsPath = process.env.libraryDocumentsPath.replace(/\/+$/, '');
             const librarySourcesFilepath = process.env.librarySourcesFilepath;
             const libraryDocumentsLimit = process.env.libraryDocumentsLimit;
             const crawlResultCharacterLimit = process.env.crawlResultCharacterLimit;
