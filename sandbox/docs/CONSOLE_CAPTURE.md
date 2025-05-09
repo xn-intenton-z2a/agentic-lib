@@ -76,3 +76,15 @@ When enabled, after each test, a header with the test name and JSON-formatted lo
 ```
 
 The buffer is cleared after each test to ensure fresh capture cycles.
+
+**Note:** For Vitest to load the setup file, ensure your test scripts include the `--setupFiles=sandbox/tests/consoleCapture.vitest.setup.js` flag. For example:
+
+```bash
+vitest --setupFiles=sandbox/tests/consoleCapture.vitest.setup.js tests/unit/*.test.js sandbox/tests/*.test.js
+```
+
+Optionally, you can include coverage support:
+
+```bash
+vitest --coverage --setupFiles=sandbox/tests/consoleCapture.vitest.setup.js tests/unit/*.test.js sandbox/tests/*.test.js
+```
