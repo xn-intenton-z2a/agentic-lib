@@ -33,6 +33,9 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-discussions-bot.yml"
 cp -v .github/workflows/agent-flow-feature-development.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-feature-development.yml"
 
+cp -v .github/workflows/agent-flow-feature-maintenance.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-feature-maintenance.yml"
+
 cp -v .github/workflows/agent-flow-fix-code.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-fix-code.yml"
 
