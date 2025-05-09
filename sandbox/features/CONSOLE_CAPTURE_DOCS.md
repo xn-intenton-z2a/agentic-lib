@@ -1,24 +1,37 @@
-# Console Capture Documentation in README
-
 # Objective
-Add comprehensive examples and step-by-step instructions for the Console Capture Utility directly in the sandbox README to improve discoverability and reduce context switching for users.
+
+Enhance the Usage section in sandbox/README.md with comprehensive, runnable examples for the Console Capture Utility so that users can copy and paste a complete workflow without context switching.
 
 # Value Proposition
-Embedding usage snippets and expected outputs in the main README enables new users to quickly understand and adopt the console capture API without navigating to external docs, speeding onboarding and reducing friction.
+
+By embedding a dedicated Usage section in the main README, developers gain immediate insight into how to start, retrieve, clear, and stop console captures with matching expected JSON output. This minimizes friction and boosts adoption of the Console Capture API.
 
 # Scope
-- Modify sandbox/README.md under the Core Utilities section:
-  - In the Console Capture entry, add a code block showing:
-    - startConsoleCapture, console.log('message'), stopConsoleCapture, getCapturedOutput, clearCapturedOutput.
-  - Include an example of the buffered output array with sample timestamped entries.
-  - Show how to enable Vitest integration using VITEST_CONSOLE_CAPTURE and reference the setup file.
+
+- Modify sandbox/README.md under a new top-level heading titled "Usage"
+  - Add a subsection "Console Capture Usage" with step-by-step instructions:
+    1. Import and start capture
+    2. Emit logs and errors
+    3. Stop capture and retrieve buffered entries
+    4. Clear buffer for fresh cycles
+  - Provide full code blocks that demonstrate:
+    - startConsoleCapture
+    - console.log and console.error calls
+    - getCapturedOutput returning timestamped entries
+    - clearCapturedOutput usage
+    - stopConsoleCapture behavior
+  - Show example JSON output arrays with level, timestamp, and message fields.
+- Ensure the new Usage section appears immediately after the Quick Start code snippet.
 
 # Requirements
-- Examples must match the API signatures exactly as implemented in sandbox/source/consoleCapture.js.
-- Output examples should illustrate JSON entries with level, timestamp, and message fields.
-- Maintain existing README formatting conventions, code fencing, and indentation.
+
+- Examples must match sandbox/source/consoleCapture.js API exactly.
+- Sample timestamps must use ISO-8601 format in examples.
+- Preserve existing README indentation, code fencing, and style conventions.
+- All markdown formatting and linting checks must pass.
 
 # Success Criteria
-1. The sandbox/README.md file contains a complete usage example for console capture, including code blocks and expected output.
-2. Users copying the example can run it and verify logs are captured as shown.
-3. README linter and formatting checks pass with no errors.
+
+1. sandbox/README.md contains a "Usage" heading with a "Console Capture Usage" subsection and runnable examples.
+2. Developers copying the snippet can run it locally and see logs captured as shown.
+3. README formatting and markdown lint checks pass with zero errors.
