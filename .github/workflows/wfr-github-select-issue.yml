@@ -110,7 +110,6 @@ jobs:
             core.info(`selectionLabel: ${selectionLabel}`);
             core.info(`filterLabel: ${filterLabel}`);
             core.info(`workflowRunUrl: ${workflowRunUrl}`);
-            core.info(`commitUrl: ${commitUrl}`);
             core.info(`workflowEvent: ${workflowEvent}`);
             core.info(`workflowInputs: ${workflowInputs}`);
 
@@ -121,11 +120,12 @@ jobs:
 
             let issue;
             if (parseInt(issueNumberInput)) {
-              const { data: issue } = await github.rest.issues.get({
+              const response = await github.rest.issues.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: parseInt(issueNumberInput)
               });
+              issue = response.data;
             }
             
             if (issue) {
@@ -173,7 +173,7 @@ jobs:
                 repo: context.repo.repo,
                 branch: 'main'
               });
-              const mainHeadUrl = ${branchData.commit.html_url}
+              const mainHeadUrl = branchData.commit.html_url
               core.info(`mainHeadUrl: ${mainHeadUrl}`);
               const commentBody = `Workflow run URL: ${workflowRunUrl}\nWorkflow event: ${workflowEvent}\nWorkflow inputs: ${workflowInputs}\nHEAD of main URL: ${mainHeadUrl}`;
               await github.rest.issues.createComment({
