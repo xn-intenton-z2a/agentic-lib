@@ -365,7 +365,7 @@ jobs:
             core.info(`lintingFilepath: "${lintingFilepath}"`);
             core.info(`agentConfigContent: "${agentConfigContent}"`);
             core.info(`writeableFilepaths: "${writeableFilepaths}"`);
-            
+
             function isWriteable(filepath) {
               const patterns = writeableFilepaths.split(';').map(file => file.trim());
               core.info(`Checking if writing to filepath '${filepath}' is allowed in writeableFilepaths: ${patterns}`);
@@ -480,7 +480,7 @@ jobs:
             } catch (e) {
               core.warning(`Error reading docs file '${file}': ${e.message}`);
             }
-            
+
             let missionFilepathContent;
             try {
               missionFilepathContent = fs.readFileSync(missionFilepath, 'utf8');
@@ -488,7 +488,7 @@ jobs:
                 core.warning(`Error reading MISSION file '${missionFilepath}': ${e.message}`);
                 missionFilepathContent = '';
             }
-            
+
             let contributingFilepathContent;
             try {
               contributingFilepathContent = fs.readFileSync(contributingFilepath, 'utf8');
@@ -496,7 +496,7 @@ jobs:
               core.warning(`Error reading CONTRIBUTING file '${contributingFilepath}': ${e.message}`);
               contributingFilepathContent = '';
             }
-            
+
              let dependenciesFilepathContent;
             try {
               dependenciesFilepathContent = fs.readFileSync(dependenciesFilepath, 'utf8');
@@ -504,7 +504,7 @@ jobs:
               core.warning(`Error reading dependencies file '${dependenciesFilepath}': ${e.message}`);
               dependenciesFilepathContent = '';
             }
-            
+
             let promptContent;
             try {
               promptContent = fs.readFileSync(promptFilepath, 'utf8');
@@ -889,7 +889,7 @@ jobs:
               core.info("raw response end: ************************************************");
               const parsed = ResponseSchema.parse(result);
               core.info(`parsed response: "${JSON.stringify(parsed)}"`);
-              
+
               // Sanitize commit message: retain only alphanumerics, spaces, and basic URL-safe punctuation (-, _, ., ~)
               const sanitizedMessage = parsed.message.replace(/[^A-Za-z0-9 \-\_\.\~]/g, '').replace(/\s+/g, ' ').trim();
               core.setOutput("message", sanitizedMessage);
@@ -916,7 +916,7 @@ jobs:
                   if (isWriteable(filePath)) {
                     if (fs.existsSync(filePath)) {
                       fs.unlinkSync(filePath);
-                      fixApplied = true;
+                      updateApplied = true;
                       core.info(`File '${filePath}' has been deleted.`);
                     } else {
                       core.warning(`File '${filePath}' does not exist, cannot delete.`);
@@ -932,7 +932,7 @@ jobs:
                       fs.mkdirSync(fileDir, { recursive: true });
                     }
                     fs.writeFileSync(filePath, fileContent, 'utf8');
-                    fixApplied = true;
+                    updateApplied = true;
                     core.info(`File '${filePath}' has been updated (length ${fileContent.length}).`);
                   } else {
                     core.setFailed(`File '${filePath}' is not in the allowed filepath patterns. Skipping update.`);

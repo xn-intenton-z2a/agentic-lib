@@ -138,6 +138,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       configPath: ${{ inputs.configPath || '.github/agents/agentic-lib.yml' }}
+      npmAuthOrganisation: '@xn-intenton-z2a'
 
       # Filepaths for elaborator workflows
       defaultMissionFilepath: 'MISSION.md'
@@ -285,11 +286,11 @@ jobs:
 
             // Web publishing
             const docRoot = config?.docRoot || process.env.defaultDocRoot;
-            
+
             // Sandbox configuration
             const sandboxPath = config?.sandbox?.sandboxPath || process.env.defaultSandboxPath;
             const sandboxReset = config?.sandbox?.sandboxReset || process.env.defaultSandboxReset;
-            
+
             // Repository seeding
             const repositoryReseed = config?.seeding?.repositoryReseed || process.env.defaultRepositoryReseed;
             const repositoryReseedMissionFilepath = config?.seeding?.repositoryReseedMissionFilepath || process.env.defaultRepositoryReseedMissionFilepath;
@@ -445,24 +446,24 @@ jobs:
             core.setOutput('sandboxPath', sandboxPath);
             core.info(`sandboxReset=${sandboxReset}`);
             core.setOutput('sandboxReset', sandboxReset);
-            
-            
+
+
             // Repository seeding - Set outputs
             core.info(`repositoryReseed=${repositoryReseed}`);
             core.setOutput('repositoryReseed', repositoryReseed);
-            
+
             core.info(`repositoryReseedMissionFilepath=${repositoryReseedMissionFilepath}`);
             core.setOutput('repositoryReseedMissionFilepath', repositoryReseedMissionFilepath);
-            
+
             core.info(`repositoryReseedSourcePath=${repositoryReseedSourcePath}`);
             core.setOutput('repositoryReseedSourcePath', repositoryReseedSourcePath);
-            
+
             core.info(`repositoryReseedTestsPath=${repositoryReseedTestsPath}`);
             core.setOutput('repositoryReseedTestsPath', repositoryReseedTestsPath);
-            
+
             core.info(`repositoryReseedDependenciesFilepath=${repositoryReseedDependenciesFilepath}`);
             core.setOutput('repositoryReseedDependenciesFilepath', repositoryReseedDependenciesFilepath);
-            
+
             core.info(`repositoryReseedReadmeFilepath=${repositoryReseedReadmeFilepath}`);
             core.setOutput('repositoryReseedReadmeFilepath', repositoryReseedReadmeFilepath);
 
