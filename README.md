@@ -669,37 +669,35 @@ Re-usable GitHub Actions Workflows:
 - [x] [MVP] Set up repository0 to only write to sandbox files, reset every week by deleting the sandbox folder.
 - [x] [MVP] Set up repository0-crucible to use multiple file outputs and support initialisation from a seed.
 - [x] [MVP] Set up plot-code-lib to use single file outputs
+- [x] Create one block per file for multiples of things like these: SOURCE_FILES_START
+- [x] Add the URL of the workflow run to every issue that is touched by the workflow.
+- [x] Add In-progress issue sweeper.
+- [x] Recover stuck issues that are in-progress but not being worked on.
+- [x] [Launch] When enhancing issues do not add duplicated documents
+- [x] [Launch] Comment every issue that a worker touches with the workflow information.
 - [ ] [Launch] Review features and move to docs when done.
 - [ ] [Launch] Review mission and stop creating features when done.
 - [ ] [Launch] If no maintenance activity is found, then terminate succefully,
 - [ ] [Launch] Diagram the workflow interactions.
 - [ ] [Launch] Pull into agentic-lib.yml: startsWith("apply-fix-"));
 - [ ] [Launch] Pull into agentic-lib.yml: startsWith("issue-worker-"));
-- [ ] [Launch] Feature switch role: engineer (src, tests, docs, packages)
-- [ ] [Launch] Feature switch role: maintainer (pr+linting+updates+readme+docs)
 - [ ] [Launch] Make the agent prompts match the top level workflow file names
 - [ ] [Launch] Make the reusable workflow names match the top level workflow file names
-- [x] [Launch] When enhancing issues do not add duplicated documents
-- [x] Recover stuck issues that are in-progress but not being worked on.
 - [ ] [Launch] When adding issue comments to a prompt, just add the last <configurable> comments.
-- [ ] [Launch] Label every issue that a worker touches with a unique label.
 - [ ] [Launch] Add a comment and put an issue for review if it is already done.
 - [ ] [Launch] Move branch pre-fix to agentic-lib.yml
 - [ ] [Launch] For all issue comments, add context to the comment such as: "After review, this issue was found to be already done."
 - [ ] [Launch] Pass and log a stamp on a current feature report for feature-to-issue if the feature is done.
 - [ ] [Launch] Pass and log a stamp on a current maintenance report for a maintenance-activity-to-issue if there is no value in making changes.
-- [ ] Create one block per file for multiples of things like these: SOURCE_FILES_START
 - [ ] Pull any max file sizes into the agent config
-- [ ] Harvest repositor0-* files into agentic-lib when reset and show case past results.
+- [ ] Recycle: Harvest repositor0-* files into agentic-lib when reset and show case past results.
 - [ ] Feature lifecycle of: Elaboration, Delivery, Maintenance, Retirement, and Removal.
-- [ ] Use the archived projects to mine for features.
-- [ ] Build features in a modular way so that they can be reused in other projects.
-- [ ] Add the URL of the workflow run to every issue that is touched by the workflow.
+- [ ] Recycle: Use the archived projects to mine for features.
+- [ ] Recycle: Build features in a modular way so that they can be reused in other projects.
 - [ ] Add role: Commentator (news feed sources, news feed updates, news feed commentary, web publish).
 - [ ] Support a more TDD / literate approach by starting a feature branch with a failing test then fix code should extract the issue details and be alerted to the test addition as TDD.
 - [ ] Add a PR review workflow with a reviewer and responder.
 - [ ] Add branch sweeper.
-- [ ] Add issue sweeper.
 - [ ] Record and escalate sweeping incidents.
 - [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
 - [ ] Generate API.md based on the source file.
@@ -721,8 +719,6 @@ Discussions Bot [MVP]:
 - [x] If not triggered by a discussion, use SEED_DISCUSSIONS to find the last discussion and use that to post the reply.
 - [x] On schedule, set a default body of: Summarise the current state of the repository, activity since the last update and how we are tracking against the mission ad recommends next steps.
 - [x] Bot to take actions within a stream (dev, seed, etc...)
-- [~] The feature development flow should refine the features when the feature bank it at the limit (it looks like it fails).
-- [~] if there is feature text and the feature limit is reached try and flex on of the features to accommodate the new feature request.
 - [~] When an LLM tries to write to an unwritable folder error out (ignoring creates an opportunity for a failed build.)
 - [ ] Separate out writable annd non-writable file paths in the prompt
 - [ ] [Later] Summarise and sanitize all the workflows so that they can be passed to the bot.
@@ -730,9 +726,9 @@ Discussions Bot [MVP]:
 - [ ] [Later] Post the cost of the response in each response.
 
 intentïon user journey [Launch UX]:
+- [~] repository0-crucible seeds the repository with the mission and reports back with the intentïon branch.
 - [ ] Floating box logs into github and gives you an embedded formatted discussions thread.
 - [ ] On intentïon.com, user provides an intention which is posted as a new GitHub Discussions thread.
-- [~] repository0-crucible seeds the repository with the mission and reports back with the intentïon branch.
 - [ ] Archive workflow periodically pushed to an intentïon-<v7uuid> branch (which does not run the workflows) with branch URL and summary reported to Discussions.
 - [ ] Discussions updates also posted intentïon.com.
 - [ ] intentïon.com posts: running experiment: <link to branch> + <link to discussion>
@@ -743,7 +739,7 @@ intentïon user journey [Launch UX]:
 Marketplace GitHub Actions [Launch]:
 - [x] Review all the parameters where re-usable workflows are used and ensure that any parameters that are filepaths are stated explicitly in the calling workflow.
 - [x] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-- [~] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
+- [ ] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
 - [ ] Collect examples of demo output for the Actions documentation.
 - [ ] Switch from github script actions to `run: node` and have the action run against a moving 'latest' tag.
   See: [ACTIONS_JS_STEPS.md](examples/archive-2025-04-20/ACTIONS_JS_STEPS.md)
