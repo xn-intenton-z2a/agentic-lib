@@ -269,8 +269,8 @@ jobs:
           echo "output=${output}"
           exit 0
 
-      - name: Build project
-        id: build
+      - name: build-before-update
+        id: build-before-update
         shell: bash
         run: |
           set +e
@@ -286,8 +286,8 @@ jobs:
         shell: bash
         run: rm -f .npmrc
 
-      - name: Run tests
-        id: test
+      - name: test-before-update
+        id: test-before-update
         shell: bash
         run: |
           set +e
@@ -298,8 +298,8 @@ jobs:
           echo "output=${output}"
           exit 0
 
-      - name: Run main
-        id: main
+      - name: main-before-update
+        id: main-before-update
         shell: bash
         run: |
           set +e
@@ -315,9 +315,9 @@ jobs:
         uses: actions/github-script@v7
         env:
           installOutput: ${{ steps.install.outputs.output }}
-          buildOutput: ${{ steps.build.outputs.output }}
-          testOutput: ${{ steps.test.outputs.output }}
-          mainOutput: ${{ steps.main.outputs.output }}
+          buildOutput: ${{ steps.build-before-update.outputs.output }}
+          testOutput: ${{ steps.test-before-update.outputs.output }}
+          mainOutput: ${{ steps.main-before-update.outputs.output }}
           currentFeatures: ${{ steps.features.outputs.output }}
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
@@ -1034,7 +1034,7 @@ jobs:
                     fixApplied = true;
                     core.info(`File '${filePath}' has been updated (length ${fileContent.length}).`);
                   } else {
-                    core.warning(`File '${filePath}' is not in the allowed filepath patterns. Skipping update.`);
+                    core.setFailed(`File '${filePath}' is not in the allowed filepath patterns. Skipping update.`);
                   }
                 }
               }

@@ -317,9 +317,9 @@ jobs:
         uses: actions/github-script@v7
         env:
           dependenciesListOutput: ${{ steps.list.outputs.output }}
-          buildOutput: ${{ steps.build.outputs.output }}
-          testOutput: ${{ steps.test.outputs.output }}
-          mainOutput: ${{ steps.main.outputs.output }}
+          buildOutput: ${{ steps.build-before-update.outputs.output }}
+          testOutput: ${{ steps.test-before-update.outputs.output }}
+          mainOutput: ${{ steps.main-before-update.outputs.output }}
           currentFeatures: ${{ steps.features.outputs.output }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -372,6 +372,12 @@ jobs:
             core.info(`missionFilepath: "${missionFilepath}"`);
             core.info(`contributingFilepath: "${contributingFilepath}"`);
             core.info(`dependenciesFilepath: "${dependenciesFilepath}"`);
+            core.info(`buildScript: "${buildScript}"`);
+            core.info(`buildOutput: "${buildOutput}"`);
+            core.info(`testScript: "${testScript}"`);
+            core.info(`testOutput: "${testOutput}"`);
+            core.info(`mainScript: "${mainScript}"`);
+            core.info(`mainOutput: "${mainOutput}"`);
             core.info(`formattingFilepath: "${formattingFilepath}"`);
             core.info(`lintingFilepath: "${lintingFilepath}"`);
             core.info(`agentConfigContent: "${agentConfigContent}"`);
@@ -1012,7 +1018,7 @@ jobs:
                     fixApplied = true;
                     core.info(`File '${filePath}' has been updated (length ${fileContent.length}).`);
                   } else {
-                    core.warning(`File '${filePath}' is not in the allowed filepath patterns. Skipping update.`);
+                    core.setFailed(`File '${filePath}' is not in the allowed filepath patterns. Skipping update.`);
                   }
                 }
               }

@@ -931,7 +931,7 @@ jobs:
                     fixApplied = true;
                     core.info(`File '${filePath}' has been updated (length ${fileContent.length}).`);
                   } else {
-                    core.warning(`File '${filePath}' is not in the allowed filepath patterns. Skipping update.`);
+                    core.setFailed(`File '${filePath}' is not in the allowed filepath patterns. Skipping update.`);
                   }
                 }
               }

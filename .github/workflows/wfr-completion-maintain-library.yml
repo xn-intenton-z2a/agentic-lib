@@ -676,7 +676,7 @@ jobs:
                     fs.writeFileSync(rawCrawlFilePath, crawlResult.content);
                     core.info(`Raw crawl data saved to ${rawCrawlFilePath}`);
                   } else {
-                    core.warning(`Raw crawl file path '${rawCrawlFilePath}' is not in the allowed filepath patterns. Skipping update.`);
+                    core.setFailed(`Raw crawl file path '${rawCrawlFilePath}' is not in the allowed filepath patterns. Skipping update.`);
                   }
                 } catch (e) {
                   core.warning(`Failed to save raw crawl data: ${e.message}`);
@@ -695,7 +695,6 @@ jobs:
                   fs.writeFileSync(documentFilePath, documentContent);
                   core.info(`Document saved to ${documentFilePath}`);
                 } else {
-                  core.warning(`Document file path '${documentFilePath}' is not in the allowed filepath patterns. Skipping update.`);
                   core.setFailed(`Cannot save document to '${documentFilePath}' as it is not in the allowed filepath patterns.`);
                 }
               } catch (e) {
