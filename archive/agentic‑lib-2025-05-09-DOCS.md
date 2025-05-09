@@ -1,3 +1,5 @@
+sandbox/docs/CONSOLE_CAPTURE.md
+# sandbox/docs/CONSOLE_CAPTURE.md
 # Console Capture Utility
 
 The **Console Capture Utility** provides a simple API for programmatically capturing `console.log` and `console.error` output within your application or unit tests. This allows you to buffer logs, inspect them, and clear or restore normal console behavior without external dependencies.

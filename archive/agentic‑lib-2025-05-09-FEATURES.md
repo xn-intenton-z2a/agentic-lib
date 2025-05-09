@@ -1,3 +1,5 @@
+sandbox/features/CONSOLE_CAPTURE_INTEGRATION.md
+# sandbox/features/CONSOLE_CAPTURE_INTEGRATION.md
 # Objective
 
 Integrate the existing sandbox console capture utility into the public API of agentic-lib so that consumers can import and use console capture functions directly from the package root.

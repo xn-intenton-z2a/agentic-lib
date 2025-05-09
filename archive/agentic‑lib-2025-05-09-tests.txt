@@ -1,3 +1,5 @@
+sandbox/tests/consoleCapture.test.js
+# sandbox/tests/consoleCapture.test.js
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   startConsoleCapture,
@@ -76,4 +78,31 @@ describe('Console Capture API', () => {
     expect(newEntries[0].level).toBe('error');
     stopConsoleCapture();
   });
+});
+sandbox/tests/consoleCapture.vitest.setup.js
+# sandbox/tests/consoleCapture.vitest.setup.js
+import { startConsoleCapture, stopConsoleCapture, getCapturedOutput, clearCapturedOutput } from "../source/consoleCapture.js";
+import { beforeEach, afterEach, expect } from "vitest";
+
+const enableCapture = Boolean(process.env.VITEST_CONSOLE_CAPTURE);
+
+beforeEach(() => {
+  if (enableCapture) {
+    startConsoleCapture();
+  }
+});
+
+afterEach(() => {
+  if (enableCapture) {
+    stopConsoleCapture();
+    const logs = getCapturedOutput();
+    if (logs.length > 0) {
+      const testName = expect.getState().currentTestName;
+      console.log(`[Console Capture] ${testName}`);
+      logs.forEach((entry) => {
+        console.log(JSON.stringify(entry));
+      });
+    }
+    clearCapturedOutput();
+  }
 });
