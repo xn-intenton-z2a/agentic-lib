@@ -173,7 +173,6 @@ jobs:
               const commentBody = `Workflow run URL: ${workflowRunUrl}
               Workflow event: ${workflowEvent}
               Workflow inputs: ${workflowInputs}
-              Workflow env: ${workflowEnv}
               Commit URL: ${commitUrl}
               `;
               
