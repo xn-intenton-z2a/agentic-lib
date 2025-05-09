@@ -173,9 +173,9 @@ jobs:
                 repo: context.repo.repo,
                 branch: 'main'
               });
-              const commitUrl = ${branchData.commit.html_url}
-              core.info(`commitUrl: ${commitUrl}`);
-              const commentBody = `Workflow run URL: ${workflowRunUrl}\nWorkflow event: ${workflowEvent}\nWorkflow inputs: ${workflowInputs}\nCommit URL: ${commitUrl}`;
+              const mainHeadUrl = ${branchData.commit.html_url}
+              core.info(`mainHeadUrl: ${mainHeadUrl}`);
+              const commentBody = `Workflow run URL: ${workflowRunUrl}\nWorkflow event: ${workflowEvent}\nWorkflow inputs: ${workflowInputs}\nHEAD of main URL: ${mainHeadUrl}`;
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
