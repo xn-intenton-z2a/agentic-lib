@@ -71,12 +71,6 @@ describe("generateFeaturesOverview", () => {
     fs.writeFileSync(path.join(archivedDir, "TestFeature2.md"), "Second feature summary goes here.");
   });
 
-  // Clean up fixtures
-  afterAll(() => {
-    const featuresDir = path.join(__dirname, "..", "features");
-    fs.rmSync(featuresDir, { recursive: true, force: true });
-  });
-
   test("returns markdown overview by default", async () => {
     const md = await generateFeaturesOverview();
     expect(md).toContain('## TestFeature1');
