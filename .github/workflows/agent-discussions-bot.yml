@@ -478,5 +478,5 @@ jobs:
           git add .github/workflows/
           git commit -m "Declare status with ${{ needs.generate-response.outputs.action }} and halt workflows"
           git push
-        with:
+        env:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
