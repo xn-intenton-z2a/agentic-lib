@@ -469,41 +469,6 @@ jobs:
         env:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  resume:
-    needs:
-      - process-discussion-post
-      - generate-response
-      - agentic-lib
-    if: always() && needs.generate-response.outputs.action == 'resume'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.ref }}
-
-      - name: Get latest from remote
-        run: |
-          git config --local user.email "${{ env.gitUserEmail }}"
-          git config --local user.name "${{ env.gitUserName }}"
-          git pull --ff-only origin ${{ github.ref }}
-
-      - name: Log the declaration in the seed discussion file (intentïon) file.
-        run: |
-          echo "" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
-          echo "${{ needs.generate-response.outputs.action }} at $(date)" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
-          echo "RESUME" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
-
-      - name: Commit changes
-        run: |
-          git config --local user.email "${{ env.gitUserEmail }}"
-          git config --local user.name "${{ env.gitUserName }}"
-          git add ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
-          git commit -m "Declare status with ${{ needs.generate-response.outputs.action }} and resume agentic-lib workflows"
-          git push
-        env:
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
   select-next-issue:
     needs:
       - process-discussion-post
@@ -511,7 +476,6 @@ jobs:
       - seed-repository
       - agentic-lib
       - feature-development-flow
-      - resume
       - declare-status-and-halt
     if: always()
     permissions:
@@ -532,7 +496,6 @@ jobs:
       - seed-repository
       - agentic-lib
       - feature-development-flow
-      - resume
       - declare-status-and-halt
       - select-next-issue
     if: always()
