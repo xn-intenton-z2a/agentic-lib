@@ -308,6 +308,16 @@ async function processDigest(args) {
 // ---------------------------------------------------------------------------------------------------------------------
 
 export async function main(args = process.argv.slice(2)) {
+  // Combined JSON output for both diagram and features-overview
+  const formatArg = args.find((a) => a.startsWith("--format="));
+  const format = formatArg ? formatArg.split("=")[1] : undefined;
+  if (args.includes("--diagram") && args.includes("--features-overview") && format === "json") {
+    const diagram = generateDiagram("json");
+    const featuresOverview = await generateFeaturesOverview("json");
+    console.log(JSON.stringify({ ...diagram, featuresOverview }));
+    return;
+  }
+
   if (processHelp(args)) {
     if (VERBOSE_STATS) {
       console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));

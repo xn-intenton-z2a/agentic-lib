@@ -15,7 +15,8 @@ import {
   generateDiagram,
   processDiagram,
   generateFeaturesOverview,
-  processFeaturesOverview
+  processFeaturesOverview,
+  main
 } from "../source/main.js";
 
 describe("generateDiagram", () => {
@@ -91,12 +92,9 @@ describe("processFeaturesOverview", () => {
 });
 
 describe("integration: main handles both flags together", () => {
-  import { main } from '../source/main.js';
-
   test("main logs combined JSON output and returns without fallback", async () => {
     vi.mocked(console.log).mockClear();
     await main(['--diagram', '--features-overview', '--format=json']);
-    // expect a single JSON object with both keys
     const logged = console.log.mock.calls[0][0];
     expect(logged).toContain('nodes');
     expect(logged).toContain('featuresOverview');
