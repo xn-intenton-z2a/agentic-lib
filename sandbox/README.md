@@ -1,23 +1,41 @@
 # agentic-lib
 
-Agentic-lib is a JavaScript SDK designed to power automated GitHub workflows with an "agentic" approach, enabling autonomous workflows to communicate through issues and pull requests. It provides CLI utilities, AWS Lambda handlers, and integration tools for seamless orchestration.
+agentic-lib is a JavaScript library designed to power automated GitHub Actions workflows with an "agentic" approach, enabling autonomous workflows to communicate through issues and pull requests. For full mission details, see [MISSION.md](../MISSION.md).
 
-For full mission details, see [MISSION.md](../../MISSION.md).
+## Mission Progress
+
+- Version: 6.3.9-0
+- Latest release date: 2025-05-10
 
 ## CLI Toolkit
 
-The CLI supports the following new flags:
+The CLI supports the following flags:
 
-- `--diagram [--format=json|markdown]`: Generate a workflow interaction diagram describing CLI → SQS Lambda handler steps.
-- `--features-overview [--format=json|markdown]`: Generate an overview of archived feature documents under `sandbox/features/archived/`.
-- `--digest`: Simulate an SQS event for a full bucket replay.
-- `--version`: Display CLI version and timestamp.
-- `--help`: Show help and usage instructions.
+- `--help`
+- `--diagram [--format=json|markdown]`
+- `--features-overview [--format=json|markdown]`
+- `--digest`
+- `--version`
 
-### Examples
+## Usage Examples
+
+### Help
+
+```bash
+$ node sandbox/source/main.js --help
+Usage:
+  --help                     Show this help message and usage instructions.
+  --diagram [--format=json|markdown]          Generate a workflow interaction diagram describing CLI → SQS Lambda handler steps.
+  --features-overview [--format=json|markdown] Generate a consolidated overview of archived feature documents under sandbox/features/archived/.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+```
+
+### Diagram (Markdown)
 
 ```bash
 $ node sandbox/source/main.js --diagram
+```
 ```mermaid
 flowchart LR
   CLI --> main
@@ -27,22 +45,47 @@ flowchart LR
   processFeaturesOverview --> generateFeaturesOverview
 ```
 
+### Diagram (JSON)
+
 ```bash
-$ node sandbox/source/main.js --features-overview --format=json
-[{"name":"TestFeature1","summary":"This is the first test feature summary."},
- {"name":"TestFeature2","summary":"Second feature summary goes here."}]
+$ node sandbox/source/main.js --diagram --format=json
+{"nodes":["CLI","main","processDiagram","generateDiagram","processFeaturesOverview","generateFeaturesOverview"],"links":[{"from":"CLI","to":"main"},{"from":"main","to":"processDiagram"},{"from":"processDiagram","to":"generateDiagram"},{"from":"main","to":"processFeaturesOverview"},{"from":"processFeaturesOverview","to":"generateFeaturesOverview"}]}
 ```
 
-See [docs/CLI_TOOLKIT.md](docs/CLI_TOOLKIT.md) for more details.
+### Features Overview (Markdown)
 
-## Contributing
+```bash
+$ node sandbox/source/main.js --features-overview
+## TestFeature1
 
-See [CONTRIBUTING.md](../../CONTRIBUTING.md).
+This is the first test feature summary.
 
-## License
+## TestFeature2
 
-Licensed under GPL-3.0 and MIT. See [LICENSE](../../LICENSE.md).
+Second feature summary goes here.
+```
 
-## Repository
+### Features Overview (JSON)
 
-https://github.com/xn-intenton-z2a/agentic-lib
+```bash
+$ node sandbox/source/main.js --features-overview --format=json
+[{"name":"TestFeature1","summary":"This is the first test feature summary."},{"name":"TestFeature2","summary":"Second feature summary goes here."}]
+```
+
+### Digest Simulation
+
+```bash
+$ node sandbox/source/main.js --digest
+{"batchItemFailures":[],"handler":"sandbox/source/main.digestLambdaHandler"}
+```
+
+### Version
+
+```bash
+$ node sandbox/source/main.js --version
+{"version":"6.3.9-0","timestamp":"2025-05-10T16:26:50.335Z"}
+```
+
+---
+
+[Contributing](../CONTRIBUTING.md) | [License](../LICENSE.md) | [GitHub](https://github.com/xn-intenton-z2a/agentic-lib)

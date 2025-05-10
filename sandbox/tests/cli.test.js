@@ -100,3 +100,44 @@ describe("integration: main handles both flags together", () => {
     expect(logged).toContain('featuresOverview');
   });
 });
+
+// Tests for README content
+describe("README content", () => {
+  let content;
+  beforeAll(() => {
+    const readPath = path.resolve(process.cwd(), 'sandbox/README.md');
+    content = fs.readFileSync(readPath, 'utf8');
+  });
+  test("contains mission link and header", () => {
+    expect(content).toContain('../MISSION.md');
+    expect(content).toContain('## Mission Progress');
+  });
+  test("contains version pattern", () => {
+    expect(content).toMatch(/\d+\.\d+\.\d+/);
+  });
+  test("contains all CLI flags", () => {
+    ['`--help`','`--diagram [--format=json|markdown]`','`--features-overview [--format=json|markdown]`','`--digest`','`--version`'].forEach(flag => {
+      expect(content).toContain(flag);
+    });
+  });
+  test("contains usage examples with code fences", () => {
+    const examples = [
+      `$ node sandbox/source/main.js --help`,
+      `$ node sandbox/source/main.js --diagram`,
+      `$ node sandbox/source/main.js --diagram --format=json`,
+      `$ node sandbox/source/main.js --features-overview`,
+      `$ node sandbox/source/main.js --features-overview --format=json`,
+      `$ node sandbox/source/main.js --digest`,
+      `$ node sandbox/source/main.js --version`
+    ];
+    examples.forEach(cmd => {
+      const regex = new RegExp('```bash[\s\S]*' + cmd.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[\s\S]*```');
+      expect(content).toMatch(regex);
+    });
+  });
+  test("contains footer links", () => {
+    expect(content).toContain('../CONTRIBUTING.md');
+    expect(content).toContain('..LICENSE.md' || '../LICENSE.md'); // ensure LICENSE link
+    expect(content).toContain('https://github.com/xn-intenton-z2a/agentic-lib');
+  });
+});
