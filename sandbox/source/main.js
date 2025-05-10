@@ -177,4 +177,113 @@ export function generateDiagram(format = "markdown") {
  * @param {string} format - 'json' or 'markdown'
  * @returns {Promise<string|Array>}
  */
-// ... rest unchanged
+export async function generateFeaturesOverview(format = "markdown") {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const archivedDir = path.join(__dirname, "..", "features", "archived");
+  let files;
+  try {
+    files = await fs.readdir(archivedDir);
+  } catch (err) {
+    logError("Failed to read archived features directory", err);
+    return format === "json" ? [] : "";
+  }
+  const items = [];
+  for (const file of files) {
+    if (file.endsWith(".md")) {
+      const name = path.basename(file, ".md");
+      try {
+        const content = await fs.readFile(path.join(archivedDir, file), "utf8");
+        const summary = content.trim();
+        items.push({ name, summary });
+      } catch (err) {
+        logError(`Failed to read feature file ${file}`, err);
+      }
+    }
+  }
+  if (format === "json") {
+    return items;
+  }
+  return items.map((i) => `## ${i.name}\n\n${i.summary}`).join("\n\n");
+}
+
+/**
+ * Process the --diagram flag.
+ * @param {string[]} args
+ * @returns {Promise<boolean>}
+ */
+export async function processDiagram(args) {
+  if (args.includes("--diagram")) {
+    const format = args.includes("--format=json") ? "json" : "markdown";
+    const diag = generateDiagram(format);
+    if (format === "json") {
+      console.log(JSON.stringify(diag));
+    } else {
+      console.log(diag);
+    }
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Process the --features-overview flag.
+ * @param {string[]} args
+ * @returns {Promise<boolean>}
+ */
+export async function processFeaturesOverview(args) {
+  if (args.includes("--features-overview")) {
+    const format = args.includes("--format=json") ? "json" : "markdown";
+    const overview = await generateFeaturesOverview(format);
+    if (format === "json") {
+      console.log(JSON.stringify(overview));
+    } else {
+      console.log(overview);
+    }
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Function to generate CLI usage instructions.
+ * @returns {string}
+ */
+function generateUsage() {
+  return `
+Usage:
+  --diagram [--format=json|markdown]       Generate workflow interaction diagram.
+  --features-overview [--format=json|markdown]  Generate features overview.
+`;
+}
+
+/**
+ * Main CLI entry point
+ * @param {string[]} args
+ */
+export async function main(args = process.argv.slice(2)) {
+  const showDiagram = args.includes("--diagram");
+  const showFeatures = args.includes("--features-overview");
+  const formatJson = args.includes("--format=json");
+  if (showDiagram && showFeatures) {
+    if (formatJson) {
+      const diag = generateDiagram("json");
+      const features = await generateFeaturesOverview("json");
+      const combined = { ...diag, featuresOverview: features };
+      console.log(JSON.stringify(combined));
+    } else {
+      const md1 = generateDiagram();
+      const md2 = await generateFeaturesOverview();
+      console.log(`${md1}\n\n${md2}`);
+    }
+    return;
+  }
+  if (await processDiagram(args)) {
+    return;
+  }
+  if (await processFeaturesOverview(args)) {
+    return;
+  }
+  console.log("No command argument supplied.");
+  console.log(generateUsage());
+}
