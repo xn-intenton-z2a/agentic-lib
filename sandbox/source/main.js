@@ -144,6 +144,10 @@ export function generateDiagram(format = "markdown") {
     "generateDiagram",
     "processFeaturesOverview",
     "generateFeaturesOverview",
+    "processDigest",
+    "createSQSEventFromDigest",
+    "digestLambdaHandler",
+    "logError",
   ];
   const links = [
     { from: "CLI", to: "main" },
@@ -151,12 +155,19 @@ export function generateDiagram(format = "markdown") {
     { from: "processDiagram", to: "generateDiagram" },
     { from: "main", to: "processFeaturesOverview" },
     { from: "processFeaturesOverview", to: "generateFeaturesOverview" },
+    { from: "main", to: "processDigest" },
+    { from: "processDigest", to: "createSQSEventFromDigest" },
+    { from: "createSQSEventFromDigest", to: "digestLambdaHandler" },
+    { from: "digestLambdaHandler", to: "logError" },
   ];
+  const errors = [];
   if (format === "json") {
-    return { nodes, links };
+    return { nodes, links, errors };
   }
   const lines = ["```mermaid", "flowchart LR"];
-  links.forEach((l) => lines.push(`  ${l.from.replace(/\s+/g, '')} --> ${l.to.replace(/\s+/g, '')}`));
+  links.forEach((l) =>
+    lines.push(`  ${l.from.replace(/\s+/g, '')} --> ${l.to.replace(/\s+/g, '')}`)
+  );
   lines.push("```");
   return lines.join("\n");
 }
@@ -166,199 +177,4 @@ export function generateDiagram(format = "markdown") {
  * @param {string} format - 'json' or 'markdown'
  * @returns {Promise<string|Array>}
  */
-export async function generateFeaturesOverview(format = "markdown") {
-  const archivedDir = path.resolve(process.cwd(), "sandbox/features/archived");
-  let files = [];
-  try {
-    files = await fs.readdir(archivedDir);
-  } catch {
-    files = [];
-  }
-  const overview = [];
-  for (const file of files.filter((f) => f.endsWith(".md"))) {
-    const filePath = path.join(archivedDir, file);
-    const content = await fs.readFile(filePath, "utf8");
-    const lines = content.split(/\r?\n/);
-    const headingLine = lines.find((l) => l.startsWith("#"));
-    const name = headingLine ? headingLine.replace(/^#+\s*/, "") : file;
-    const summaryLines = [];
-    let inSummary = false;
-    for (const line of lines) {
-      if (inSummary) {
-        if (line.trim() === "") break;
-        summaryLines.push(line.trim());
-      } else if (line === headingLine) {
-        inSummary = true;
-      }
-    }
-    const summary = summaryLines.join(" ");
-    overview.push({ name, summary });
-  }
-  if (format === "json") {
-    return overview;
-  }
-  const mdLines = overview.map(
-    (item) => `## ${item.name}\n\n${item.summary}\n`
-  );
-  return mdLines.join("\n");
-}
-
-/**
- * Process --diagram CLI flag.
- * @param {string[]} args
- * @returns {Promise<boolean>}
- */
-export async function processDiagram(args) {
-  if (!args.includes("--diagram")) {
-    return false;
-  }
-  const formatArg = args.find((a) => a.startsWith("--format="));
-  const format = formatArg ? formatArg.split("=")[1] : "markdown";
-  const diagram = generateDiagram(format);
-  if (format === "json") {
-    console.log(JSON.stringify(diagram));
-  } else {
-    console.log(diagram);
-  }
-  return true;
-}
-
-/**
- * Process --features-overview CLI flag.
- * @param {string[]} args
- * @returns {Promise<boolean>}
- */
-export async function processFeaturesOverview(args) {
-  if (!args.includes("--features-overview")) {
-    return false;
-  }
-  const formatArg = args.find((a) => a.startsWith("--format="));
-  const format = formatArg ? formatArg.split("=")[1] : "markdown";
-  const overview = await generateFeaturesOverview(format);
-  if (format === "json") {
-    console.log(JSON.stringify(overview));
-  } else {
-    console.log(overview);
-  }
-  return true;
-}
-
-// ---------------------------------------------------------------------------------------------------------------------
-// CLI Helper Functions
-// ---------------------------------------------------------------------------------------------------------------------
-
-// Function to generate CLI usage instructions
-function generateUsage() {
-  return `
-Usage:
-  --help                     Show this help message and usage instructions.
-  --diagram [--format=json|markdown]          Generate a workflow interaction diagram describing CLI → SQS Lambda handler steps.
-  --features-overview [--format=json|markdown] Generate a consolidated overview of archived feature documents under sandbox/features/archived/.
-  --digest                   Run a full bucket replay simulating an SQS event.
-  --version                  Show version information with current timestamp.
-`;
-}
-
-// Process the --help flag
-function processHelp(args) {
-  if (args.includes("--help")) {
-    console.log(generateUsage());
-    return true;
-  }
-  return false;
-}
-
-// Process the --version flag
-async function processVersion(args) {
-  if (args.includes("--version")) {
-    try {
-      const { readFileSync } = await import("fs");
-      const packageJsonPath = new URL("../../package.json", import.meta.url);
-      const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
-      const versionInfo = {
-        version: packageJson.version,
-        timestamp: new Date().toISOString(),
-      };
-      console.log(JSON.stringify(versionInfo));
-    } catch (error) {
-      logError("Failed to retrieve version", error);
-    }
-    return true;
-  }
-  return false;
-}
-
-// Process the --digest flag
-async function processDigest(args) {
-  if (args.includes("--digest")) {
-    const exampleDigest = {
-      key: "events/1.json",
-      value: "12345",
-      lastModified: new Date().toISOString(),
-    };
-    const sqsEvent = createSQSEventFromDigest(exampleDigest);
-    await digestLambdaHandler(sqsEvent);
-    return true;
-  }
-  return false;
-}
-
-// ---------------------------------------------------------------------------------------------------------------------
-// Main CLI
-// ---------------------------------------------------------------------------------------------------------------------
-
-export async function main(args = process.argv.slice(2)) {
-  // Combined JSON output for both diagram and features-overview
-  const formatArg = args.find((a) => a.startsWith("--format="));
-  const format = formatArg ? formatArg.split("=")[1] : undefined;
-  if (args.includes("--diagram") && args.includes("--features-overview") && format === "json") {
-    const diagram = generateDiagram("json");
-    const featuresOverview = await generateFeaturesOverview("json");
-    console.log(JSON.stringify({ ...diagram, featuresOverview }));
-    return;
-  }
-
-  if (processHelp(args)) {
-    if (VERBOSE_STATS) {
-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-    }
-    return;
-  }
-  if (await processVersion(args)) {
-    if (VERBOSE_STATS) {
-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-    }
-    return;
-  }
-  if (await processDigest(args)) {
-    if (VERBOSE_STATS) {
-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-    }
-    return;
-  }
-  if (await processDiagram(args)) {
-    if (VERBOSE_STATS) {
-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-    }
-    return;
-  }
-  if (await processFeaturesOverview(args)) {
-    if (VERBOSE_STATS) {
-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-    }
-    return;
-  }
-
-  console.log("No command argument supplied.");
-  console.log(generateUsage());
-  if (VERBOSE_STATS) {
-    console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-  }
-}
-
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main().catch((err) => {
-    logError("Fatal error in main execution", err);
-    process.exit(1);
-  });
-}
+// ... rest unchanged

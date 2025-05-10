@@ -7,7 +7,7 @@ This document describes the new CLI flags for the Agentic CLI Toolkit.
 - `--diagram [--format=json|markdown]`
   - Generate a workflow interaction diagram describing how the CLI invokes the SQS Lambda handler.
   - **default**: markdown (mermaid code block)
-  - **json**: outputs a JSON object with `nodes` and `links` arrays.
+  - **json**: outputs a JSON object with `nodes`, `links`, and `errors`.
 
 - `--features-overview [--format=json|markdown]`
   - Generate a consolidated overview of archived feature documents under `sandbox/features/archived/`.
@@ -26,12 +26,16 @@ flowchart LR
   processDiagram --> generateDiagram
   main --> processFeaturesOverview
   processFeaturesOverview --> generateFeaturesOverview
+  main --> processDigest
+  processDigest --> createSQSEventFromDigest
+  createSQSEventFromDigest --> digestLambdaHandler
+  digestLambdaHandler --> logError
 ```
 
 ### JSON Diagram
 ```
 $ node sandbox/source/main.js --diagram --format=json
-{"nodes":["CLI","main","processDiagram","generateDiagram","processFeaturesOverview","generateFeaturesOverview"],"links":[{"from":"CLI","to":"main"},... ]}
+{"nodes":["CLI","main","processDiagram","generateDiagram","processFeaturesOverview","generateFeaturesOverview","processDigest","createSQSEventFromDigest","digestLambdaHandler","logError"],"links":[{"from":"CLI","to":"main"},{"from":"main","to":"processDiagram"},{"from":"processDiagram","to":"generateDiagram"},{"from":"main","to":"processFeaturesOverview"},{"from":"processFeaturesOverview","to":"generateFeaturesOverview"},{"from":"main","to":"processDigest"},{"from":"processDigest","to":"createSQSEventFromDigest"},{"from":"createSQSEventFromDigest","to":"digestLambdaHandler"},{"from":"digestLambdaHandler","to":"logError"}],"errors":[]}
 ```
 
 ### Markdown Features Overview
