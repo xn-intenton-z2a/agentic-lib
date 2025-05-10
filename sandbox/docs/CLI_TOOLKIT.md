@@ -55,3 +55,28 @@ Second feature summary goes here.
 $ node sandbox/source/main.js --features-overview --format=json
 [{"name":"TestFeature1","summary":"This is the first test feature summary."},{"name":"TestFeature2","summary":"Second feature summary goes here."}]
 ```
+
+### Combined Markdown Output
+```
+$ node sandbox/source/main.js --diagram --features-overview
+```
+```mermaid
+flowchart LR
+  CLI --> main
+  main --> processDiagram
+  processDiagram --> generateDiagram
+  main --> processFeaturesOverview
+  processFeaturesOverview --> generateFeaturesOverview
+  main --> processDigest
+  processDigest --> createSQSEventFromDigest
+  createSQSEventFromDigest --> digestLambdaHandler
+  digestLambdaHandler --> logError
+```
+
+## TestFeature1
+
+This is the first test feature summary.
+
+## TestFeature2
+
+Second feature summary goes here.
