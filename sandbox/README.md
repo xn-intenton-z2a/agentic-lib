@@ -18,6 +18,7 @@ The CLI supports the following new flags:
 
 ```bash
 $ node sandbox/source/main.js --diagram
+```
 ```mermaid
 flowchart LR
   CLI --> main
@@ -25,24 +26,20 @@ flowchart LR
   processDiagram --> generateDiagram
   main --> processFeaturesOverview
   processFeaturesOverview --> generateFeaturesOverview
+  main --> processDigest
+  processDigest --> createSQSEventFromDigest
+  createSQSEventFromDigest --> digestLambdaHandler
+  digestLambdaHandler --> logError
+```
+
+```bash
+$ node sandbox/source/main.js --diagram --format=json
+{"nodes":["CLI","main","processDiagram","generateDiagram","processFeaturesOverview","generateFeaturesOverview","processDigest","createSQSEventFromDigest","digestLambdaHandler","logError"],"links":[{"from":"CLI","to":"main"},{"from":"main","to":"processDiagram"},{"from":"processDiagram","to":"generateDiagram"},{"from":"main","to":"processFeaturesOverview"},{"from":"processFeaturesOverview","to":"generateFeaturesOverview"},{"from":"main","to":"processDigest"},{"from":"processDigest","to":"createSQSEventFromDigest"},{"from":"createSQSEventFromDigest","to":"digestLambdaHandler"},{"from":"digestLambdaHandler","to":"logError"}],"errors":[]}
 ```
 
 ```bash
 $ node sandbox/source/main.js --features-overview --format=json
-[{"name":"TestFeature1","summary":"This is the first test feature summary."},
- {"name":"TestFeature2","summary":"Second feature summary goes here."}]
+[{"name":"TestFeature1","summary":"This is the first test feature summary."}, {"name":"TestFeature2","summary":"Second feature summary goes here."}]
 ```
 
 See [docs/CLI_TOOLKIT.md](docs/CLI_TOOLKIT.md) for more details.
-
-## Contributing
-
-See [CONTRIBUTING.md](../../CONTRIBUTING.md).
-
-## License
-
-Licensed under GPL-3.0 and MIT. See [LICENSE](../../LICENSE.md).
-
-## Repository
-
-https://github.com/xn-intenton-z2a/agentic-lib

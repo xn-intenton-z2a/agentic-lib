@@ -32,6 +32,12 @@ describe("generateDiagram", () => {
     expect(Array.isArray(obj.nodes)).toBe(true);
     expect(Array.isArray(obj.links)).toBe(true);
   });
+
+  test("includes errors array in JSON output", () => {
+    const obj = generateDiagram('json');
+    expect(obj).toHaveProperty('errors');
+    expect(Array.isArray(obj.errors)).toBe(true);
+  });
 });
 
 describe("processDiagram", () => {
@@ -47,6 +53,7 @@ describe("processDiagram", () => {
     const handled = await processDiagram(['--diagram', '--format=json']);
     expect(handled).toBe(true);
     expect(console.log).toHaveBeenCalledWith(expect.stringContaining('"nodes"'));
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('"errors"'));
   });
 
   test("returns false when not triggered", async () => {
@@ -98,5 +105,6 @@ describe("integration: main handles both flags together", () => {
     const logged = console.log.mock.calls[0][0];
     expect(logged).toContain('nodes');
     expect(logged).toContain('featuresOverview');
+    expect(logged).toContain('"errors"');
   });
 });
