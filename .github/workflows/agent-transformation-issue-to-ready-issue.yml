@@ -3,9 +3,9 @@
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: issue-to-ready-issue
+name: transformation-05-issue-to-ready-issue
 #concurrency: issue-to-ready-issue
-run-name: "issue to ready issue"
+run-name: "issue >> issue@ready"
 
 on:
   workflow_dispatch:
