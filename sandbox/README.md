@@ -23,6 +23,9 @@ The CLI supports the following flags:
 
 ```bash
 $ node sandbox/source/main.js --help
+```
+
+```bash
 Usage:
   --help                     Show this help message and usage instructions.
   --diagram [--format=json|markdown]          Generate a workflow interaction diagram describing CLI → SQS Lambda handler steps.
@@ -56,6 +59,9 @@ $ node sandbox/source/main.js --diagram --format=json
 
 ```bash
 $ node sandbox/source/main.js --features-overview
+```
+
+```bash
 ## TestFeature1
 
 This is the first test feature summary.
@@ -88,4 +94,4 @@ $ node sandbox/source/main.js --version
 
 ---
 
-[Contributing](../CONTRIBUTING.md) | [License](../LICENSE.md) | [GitHub](https://github.com/xn-intenton-z2a/agentic-lib)
+[Contributing](../CONTRIBUTING.md) | [License](..LICENSE.md) | [GitHub](https://github.com/xn-intenton-z2a/agentic-lib)
