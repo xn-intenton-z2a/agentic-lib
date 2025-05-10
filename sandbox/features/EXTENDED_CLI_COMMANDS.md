@@ -1,37 +1,65 @@
 # Purpose
 
-Extend the unified CLI entrypoint and JSON test reporting to support a verbose mode for detailed JSON logs across commands and test output.
+Extend the unified CLI entrypoint and JSON test reporting to support verbose mode and add a new discussion summarizer command that includes build status and test metrics.
 
 # Specification
 
 ## CLI Integration
 
-- Recognize a new flag --verbose or -v in CLI arguments. When this flag is present, enable runtime verbose mode.
-- At startup, parse the --verbose flag before processing other commands, set VERBOSE_MODE and VERBOSE_STATS to true, and remove the flag from the argument list.
-- Ensure all logging functions include additional fields when verbose mode is active, including verbose indicators and stack traces for errors.
-- Apply verbose behavior to help, version, digest, validate-config, bridge, and playback commands so that detailed JSON log entries appear in stdout or stderr as appropriate.
+- Recognize flags `--verbose` or `-v`. When present, enable runtime verbose mode and include detailed JSON logs with additional fields.
+- Introduce a new flag `--summarize-discussion` or `-s` followed by a discussion identifier or URL. When present, pause other commands and run the discussion summarizer.
+- Parse flags in order: verbose flags first to set `VERBOSE_MODE` and `VERBOSE_STATS`, then summary or other commands.
 
 ## Dynamic Verbose Mode Implementation
 
-- Replace static VERBOSE_MODE and VERBOSE_STATS constants with variables initialized based on CLI flags.
-- In the main entrypoint, detect the verbose flag, activate verbose mode, then proceed to process other flags and commands.
+- Replace static `VERBOSE_MODE` and `VERBOSE_STATS` constants with variables initialized based on CLI flags.
+- Ensure verbose mode applies across help, version, digest, playback, and summarize-discussion commands, producing detailed JSON entries when enabled.
 
 ## JSON Test Reporter Integration
 
-- Introduce a new npm script test:json:verbose that runs vitest with reporter json and verbose output on tests in both tests/unit and sandbox/tests.
-- Ensure the verbose JSON test output includes individual test logs at debug level in addition to the standard summary.
+- Retain the `test:json:verbose` script to run Vitest with JSON reporter and verbose logging.
+- Ensure JSON test output includes per-test debug entries alongside summary metrics.
+
+## Discussion Summarizer Integration
+
+- Implement a new function `summarizeDiscussionHandler` in `main.js`:
+  - Use GitHub REST API to fetch discussion metadata, initial post, and comments for the given discussion identifier.
+  - Aggregate content and generate a concise summary using existing summarization utilities or a lightweight algorithm.
+  - Format summary as a field `discussionSummary` in the output JSON.
+
+## Build Status and Test Metrics Integration
+
+- After fetching discussion content, call GitHub Checks API to retrieve the latest workflow run status for the related branch or commit:
+  - Capture status (success, failure, pending), conclusion, timestamp, and duration.
+  - Include this under `buildStatus` in the summary JSON.
+- Parse the latest JSON test report (from `test:json` output) to extract metrics: total tests, passed, failed, coverage percentage.
+  - Include these metrics under `testMetrics` in the summary JSON.
+
+## Output Format
+
+- The `--summarize-discussion` command prints a single JSON object with fields:
+  - `discussionSummary`: string
+  - `buildStatus`: object
+  - `testMetrics`: object
+  - `verbose`: boolean (if verbose mode enabled)
+  - `stats`: object with `callCount` and `uptime` (if stats enabled)
 
 ## Dependencies File Changes
 
-- Under scripts in package.json, add:
-  "test:json:verbose": "vitest --reporter=json --verbose tests/unit/*.test.js sandbox/tests/*.test.js"
+- Add `@octokit/rest` to dependencies for GitHub API integration.
+- Under `scripts`, add examples for the `--summarize-discussion` flag usage.
 
 ## README Updates
 
-- Document the purpose and usage of the --verbose flag for both CLI and test runner.
-- Provide example invocations for CLI verbose mode (for example npm start -- --verbose) and for npm run test:json:verbose.
+- Document the purpose and usage of the `--summarize-discussion` flag, with examples:
+  npm start -- --summarize-discussion 42
+- Explain JSON output structure and how build status and test metrics are represented.
 
 ## Testing and Verification
 
-- Running the CLI with --verbose before any command should emit a top-level verbose log entry at startup that includes verbose=true and, if requested, statistics.
-- Running npm run test:json:verbose should exit with the same exit code as test:json and print a valid JSON object with detailed per-test debug entries.
+- Add unit tests for `summarizeDiscussionHandler` mocking GitHub API responses to verify:
+  - Correct fields in summary JSON.
+  - Proper handling of missing or malformed discussion identifiers.
+- Add end-to-end CLI tests for the `--summarize-discussion` flag with mocked environment:
+  - Ensure exit code matches expectations.
+  - Validate combined JSON output with build and test metrics.
