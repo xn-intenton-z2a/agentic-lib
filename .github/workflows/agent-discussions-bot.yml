@@ -441,10 +441,10 @@ jobs:
       - agentic-lib
     if: always() && (needs.generate-response.outputs.action == 'mark-complete' || needs.generate-response.outputs.action == 'stop')
     runs-on: ubuntu-latest
-    permissions:
+    #permissions:
       #actions: write
       #contents: write
-      workflows: write
+      #workflows: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -478,3 +478,5 @@ jobs:
           git add .github/workflows/
           git commit -m "Declare status with ${{ needs.generate-response.outputs.action }} and halt workflows"
           git push
+        with:
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
