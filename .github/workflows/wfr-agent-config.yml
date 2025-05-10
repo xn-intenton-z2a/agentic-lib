@@ -206,7 +206,7 @@ jobs:
       defaultRepositoryReseedReadmeFilepath: 'seeds/zero-README.md'
 
       # Discussions Bot
-      defaultSeedDiscussionFilepath: 'SEED_DISCUSSION.md'
+      defaultSeedDiscussionFilepath: 'intentïon.md'
 
       # Agentic-lib configuration file contents
       defaultAgentConfigContent: ''

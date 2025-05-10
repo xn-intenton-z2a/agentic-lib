@@ -147,12 +147,12 @@ jobs:
               body = process.env.discussionBody;
               userName = process.env.userName;
 
-              // If URL is not provided, try to get it from SEED_DISCUSSION.md
+              // If URL is not provided, try to get it from intentïon.md
               if (!url) {
                 try {
                   const fs = require('fs');
                   const seedDiscussionPath = process.env.seedDiscussionFilepath;
-                  core.info(`Looking for SEED_DISCUSSION.md at ${seedDiscussionPath}`);
+                  core.info(`Looking for intentïon.md at ${seedDiscussionPath}`);
 
                   if (fs.existsSync(seedDiscussionPath)) {
                     const seedDiscussionContent = fs.readFileSync(seedDiscussionPath, 'utf8');
@@ -161,15 +161,15 @@ jobs:
                     const firstLine = seedDiscussionContent.split('\n')[0].trim();
                     if (firstLine.startsWith('http')) {
                       url = firstLine;
-                      core.info(`Using URL from SEED_DISCUSSION.md: ${url}`);
+                      core.info(`Using URL from intentïon.md: ${url}`);
                     } else { 
-                        core.warning(`First line of SEED_DISCUSSION.md does not contain a valid URL: ${firstLine}`);
+                        core.warning(`First line of intentïon.md does not contain a valid URL: ${firstLine}`);
                     }
                   } else {
-                    core.warning(`SEED_DISCUSSION.md file not found at ${seedDiscussionPath}`);
+                    core.warning(`intentïon.md file not found at ${seedDiscussionPath}`);
                   }
                 } catch (error) {
-                  core.warning(`Error reading SEED_DISCUSSION.md: ${error.message}`);
+                  core.warning(`Error reading intentïon.md: ${error.message}`);
                 }
               }
             }
