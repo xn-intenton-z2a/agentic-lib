@@ -115,4 +115,12 @@ describe("integration: main handles both flags together", () => {
     expect(logged).toContain('featuresOverview');
     expect(logged).toContain('"errors"');
   });
+
+  test("main logs combined markdown output when both flags provided", async () => {
+    vi.mocked(console.log).mockClear();
+    await main(['--diagram', '--features-overview']);
+    const logged = console.log.mock.calls[0][0];
+    expect(logged).toMatch(/^```mermaid/);
+    expect(logged).toContain('## TestFeature1');
+  });
 });

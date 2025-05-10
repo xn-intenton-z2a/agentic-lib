@@ -162,7 +162,7 @@ export function generateDiagram(format = "markdown") {
   ];
   const errors = [];
   if (format === "json") {
-    return { nodes, links, errors };
+    return { nodes, links, errors };  
   }
   const lines = ["```mermaid", "flowchart LR"];
   links.forEach((l) =>
@@ -252,8 +252,9 @@ export async function processFeaturesOverview(args) {
 function generateUsage() {
   return `
 Usage:
-  --diagram [--format=json|markdown]       Generate workflow interaction diagram.
-  --features-overview [--format=json|markdown]  Generate features overview.
+  --diagram [--format=json]                       Generate workflow interaction diagram.
+  --features-overview [--format=json|markdown]    Generate features overview.
+  --diagram --features-overview [--format=json|markdown]  Generate both workflow diagram and features overview combined.
 `;
 }
 
