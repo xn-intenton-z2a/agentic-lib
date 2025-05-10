@@ -1,43 +1,46 @@
 # Objective & Scope
+Extend the unified command-line interface to support new operational flags:
 
-Extend the unified command-line interface to support a new --health flag that performs environment and connectivity health checks for required services.
+• --health: performs environment and connectivity health checks for required services.
+• --release-notes: generates draft release notes for a specified version in markdown format.
 
 # Value Proposition
-
-• Provide users and CI pipelines with a quick verification tool to confirm that environment variables and external services are reachable before executing workflows.
-• Surface missing or misconfigured settings early, reducing time spent debugging runtime failures.
+• Provide quick environment validation and proactive health verification before workflows run.
+• Automate the generation of consistent, standardized release notes, reducing manual effort and errors.
 
 # Success Criteria & Requirements
-
-• Invocation of --health returns exit code zero when all checks pass and non-zero when any check fails.
-• Health report output includes a JSON or human-readable summary of each check, indicating pass or fail and any error messages.
-• Users may pass --health --format=json to receive a structured JSON document with fields for each health check.
-• CLI help usage text updated to document --health and --format flags.
-• Achieve at least 90% line coverage in main.js covering processHealth logic and error handling.
+• Invocation of --health returns exit code zero if all checks pass and non-zero otherwise.
+• Health report output supports human-readable and JSON (--format=json) modes.
+• Invocation of --release-notes --version X.Y.Z outputs draft release notes in markdown to STDOUT or a file when --output is provided.
+• Generated release notes include version header, release date, and categorized lists of new features, fixes, and breaking changes by parsing CHANGELOG.md or Git tags.
+• CLI help usage text updated to document --health, --format, --release-notes, --version, and --output flags.
+• Achieve at least 90% line coverage in main.js covering both new logic paths.
 
 # Implementation Details
-
-1. Add processHealth(args) helper in main.js:
-   • Detect --health flag and optional --format=json flag.
-   • Verify that config.GITHUB_API_BASE_URL and config.OPENAI_API_KEY are defined; log error for any missing variable.
-   • Perform simple fetch HEAD requests to GITHUB_API_BASE_URL and OPENAI API base endpoint; handle network errors and timeouts.
-   • Aggregate results into a healthReport object listing each check name, status, and error message if applicable.
-   • If format is json, output JSON string of healthReport; otherwise output formatted text summary.
-   • Return true and exit code zero when all checks pass; otherwise log errors and return false or non-zero code.
-2. Export processHealth for direct testing.
-3. Update generateUsage() to include --health and --format flags in help text.
-4. Invoke processHealth(args) in main() prior to the fallback usage and exit handling.
+1. processHealth(args) helper in src/lib/main.js (existing behavior):
+   • Detect --health and optional --format=json flag.
+   • Verify required environment variables; perform HEAD requests; aggregate results.
+2. processReleaseNotes(args) helper in src/lib/main.js:
+   • Detect --release-notes and require --version flag; validate version format.
+   • Parse CHANGELOG.md or call Git commands to extract entries since last tag.
+   • Build a markdown document with:
+     – Version header and ISO date
+     – Sections: Features, Fixes, Breaking Changes
+   • If --output=file provided, write file; otherwise print to STDOUT.
+   • Return true on success; exit non-zero and log errors on failure.
+3. Export both processHealth and processReleaseNotes for testing.
+4. Update generateUsage() to include descriptions for all flags.
+5. Invoke processReleaseNotes(args) and processHealth(args) in main() before default help and exit logic.
 
 # Testing & Verification
-
-• Create Vitest tests under tests/unit for:
-  – processHealth([--health]) returns true and logs a summary string when all checks mock succeed.
-  – processHealth([--health,--format=json]) returns an object matching the healthReport schema.
-  – Missing environment variables triggers error logs and non-zero exit code.
-  – Simulated network failure for fetch results in failed status for the corresponding check.
-• Mock global fetch and environment variables to verify behavior.
+• Vitest tests for processHealth (existing tests).
+• New Vitest tests under tests/unit for processReleaseNotes:
+  – Valid scenario with mocked CHANGELOG generates expected markdown string.
+  – Missing or invalid --version flag yields error log and non-zero return.
+  – File write scenario with --output flag writes to fs mock correctly.
+• Mock filesystem and Git commands to isolate logic.
 
 # Documentation Updates
-
-• Update sandbox/README.md usage section to include examples for --health and --format=json outputs.
-• Document list of health checks, expected statuses, and CI integration examples.
+• Update sandbox/README.md usage section with examples for both --health and --release-notes commands.
+• Document release notes format and example output in sandbox/docs/.
+• Link to CHANGELOG.md conventions and CI integration examples.
