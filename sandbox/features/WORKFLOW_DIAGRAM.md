@@ -1,47 +1,39 @@
 # Objective & Scope
 
-Extend the CLI toolkit to generate an interaction diagram of GitHub Actions workflows defined in the repository. The CLI should parse YAML files under .github/workflows, extract jobs and dependency relationships, and produce a visual representation of the workflow graph.
+Enhance the CLI toolkit to generate a diagram illustrating the interaction between the CLI entry point and the SQS Lambda digest handler. The feature adds a new command flag to the existing sandbox source and does not introduce new files or remove existing functionality.
 
 # Value Proposition
 
-Provides development teams with an automated way to visualize CI/CD pipelines and how jobs depend on each other. This improves maintainability, onboarding, and documentation by enabling clear insights into workflow structure without manual diagramming.
+Provide users with a clear visual map of how the CLI commands invoke processing functions and the SQS Lambda handler. This improves understanding of the internal workflow, accelerates onboarding, and aids debugging by exposing call relationships in both markdown and JSON formats.
 
 # Success Criteria & Requirements
 
-- Add a new CLI flag --workflow-diagram with optional --format=json or --format=markdown.  
-- Default format is markdown output as a Mermaid flowchart code block.  
-- JSON format returns an object with nodes (job names) and links (edges from job to its needs).  
-- Parse all .github/workflows/*.yml files using js-yaml to identify jobs and their needs arrays.  
-- Support repositories with multiple workflow files, merging all jobs into a single graph.  
-- Handle circular dependencies gracefully by including them in the errors array of JSON output.
+- Add new CLI flag --diagram to sandbox/source/main.js
+- Support optional --format=json or --format=markdown; default is markdown
+- In markdown mode, output a mermaid flowchart code block describing nodes and links
+- In JSON mode, output an object with arrays nodes, links, and errors
+- Use the existing generateDiagram utility to assemble nodes and links
+- Ensure processDiagram handles --diagram and that main integrates with other flags correctly
+- Support combined invocation of --diagram and --features-overview, producing merged output in both formats
+- Ensure circular relationships or errors appear in the errors array for JSON output
 
 # User Scenarios & Examples
 
-Scenario: A user wants to understand the CI pipeline. They run:
+Scenario: A developer wants to see the CLI to Lambda handler workflow. They run:
+  node sandbox/source/main.js --diagram
+They receive a mermaid flowchart showing each function transition in the workflow.
 
-node sandbox/source/main.js --workflow-diagram
+Scenario: A developer wants machine-readable output. They run:
+  node sandbox/source/main.js --diagram --format=json
+They receive a JSON object with nodes, links, and errors.
 
-This outputs a Mermaid flowchart, for example:
-```mermaid
-flowchart LR
-  build --> test
-  test --> deploy
-```
-
-With JSON format:
-
-node sandbox/source/main.js --workflow-diagram --format=json
-
-Returns:
-{
-  nodes: ["build", "test", "deploy"],
-  links: [{ from: "build", to: "test" }, { from: "test", to: "deploy" }],
-  errors: []
-}
+Scenario: A developer wants a combined overview. They run:
+  node sandbox/source/main.js --diagram --features-overview --format=json
+They receive a merged JSON object containing diagram data and features overview.
 
 # Verification & Acceptance
 
-- Unit tests provide sample workflow YAML fixtures and validate both markdown and JSON output.  
-- Tests cover cases with missing needs fields, single-job workflows, multiple workflows, and cycles.  
-- Integration tests ensure the CLI flag triggers the feature and does not affect existing flags.  
-- Documentation updates in README and sandbox/docs to illustrate usage.
+- Unit tests for generateDiagram cover default markdown and JSON output structures
+- processDiagram tests ensure correct console logging and return values for triggered and non-triggered cases
+- Integration tests for main confirm combined flag handling does not fall back to usage printout
+- Documentation in README and sandbox/docs updated to reference --diagram flag and examples
