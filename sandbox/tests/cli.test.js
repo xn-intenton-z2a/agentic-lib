@@ -63,6 +63,14 @@ describe("processDiagram", () => {
 });
 
 describe("generateFeaturesOverview", () => {
+  // Setup fixture files
+  beforeAll(() => {
+    const archivedDir = path.join(__dirname, "..", "features", "archived");
+    fs.mkdirSync(archivedDir, { recursive: true });
+    fs.writeFileSync(path.join(archivedDir, "TestFeature1.md"), "This is the first test feature summary.");
+    fs.writeFileSync(path.join(archivedDir, "TestFeature2.md"), "Second feature summary goes here.");
+  });
+
   test("returns markdown overview by default", async () => {
     const md = await generateFeaturesOverview();
     expect(md).toContain('## TestFeature1');
