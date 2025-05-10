@@ -37,6 +37,13 @@ on:
       PERSONAL_ACCESS_TOKEN:
         required: false
     outputs:
+
+      # Schedule information
+      schedule:
+        value: ${{ jobs.agentic-lib.outputs.schedule }}
+      scheduleNumber:
+        value: ${{ jobs.agentic-lib.outputs.scheduleNumber }}
+
       # Filepaths for elaborator workflows
       missionFilepath:
         value: ${{ jobs.agentic-lib.outputs.missionFilepath }}
@@ -139,6 +146,9 @@ jobs:
     env:
       configPath: ${{ inputs.configPath || '.github/agents/agentic-lib.yml' }}
       npmAuthOrganisation: '@xn-intenton-z2a'
+
+      # Schedule information
+      defaultSchedule: 'schedule-1'
 
       # Filepaths for elaborator workflows
       defaultMissionFilepath: 'MISSION.md'
@@ -347,6 +357,22 @@ jobs:
                 : writeableFilepaths;
             }
 
+            // Schedule information
+            const schedule = config?.schedule || defaultSchedule;
+            core.info(`schedule=${schedule}`);
+            core.setOutput('schedule', schedule);
+
+            // Extract scheduleNumber - the string of digits after the last non-digit
+            let scheduleNumber = '';
+            if (schedule) {
+              const match = schedule.match(/[^0-9]*([0-9]+)$/);
+              if (match && match[1]) {
+                scheduleNumber = match[1];
+              }
+            }
+            core.info(`scheduleNumber=${scheduleNumber}`);
+            core.setOutput('scheduleNumber', scheduleNumber);
+
             // Filepaths for elaborator workflows - Set outputs
             core.info(`missionFilepath=${missionFilepath}`);
             core.setOutput('missionFilepath', missionFilepath);
@@ -478,6 +504,11 @@ jobs:
             core.setOutput('agentConfigContent', agentConfigContent);
 
     outputs:
+
+      # Schedule information
+      schedule: ${{ steps.agentic-lib.outputs.schedule }}
+      scheduleNumber: ${{ steps.agentic-lib.outputs.scheduleNumber }}
+
       # Filepaths for elaborator workflows
       missionFilepath: ${{ steps.agentic-lib.outputs.missionFilepath }}
       librarySourcesFilepath: ${{ steps.agentic-lib.outputs.librarySourcesFilepath }}

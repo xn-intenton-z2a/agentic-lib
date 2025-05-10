@@ -177,7 +177,7 @@ on:
         required: true
     outputs:
       action:
-        description: 'The action to take. Options: nop, reply-without-action, create-issue, create-feature, seed-repository'
+        description: 'The action to take. Options: nop, reply-without-action, create-feature, seed-repository'
         value: ${{ jobs.generate-response.outputs.action }}
       detail:
         description: 'The detail of the action (such as the feature title)'
@@ -873,18 +873,30 @@ jobs:
 
             Based on the post that you are responding to and in the context of the current GitHub Discussions thread,
             please decide which action to take or none. The discussion contents may be an unmoderated conversation,
-            so please use your best judgment to determine the most appropriate action which maybe to ignore the discussion.
+            so please use your best judgment to determine the most appropriate action which may be to ignore the discussion.
             The action choices are:
               - nop
               - reply-without-action
               - create-feature
               - seed-repository
-            You may also include the detail of the action (such as the feature title).
+              - mission-complete
+              - stop
+            The detail can be blank if we are re-seeding without changing the mission or the mission statement or a 
+            sentence describing the feature.
+            
             And you may reply asking for clarification or more information or stating that action has been taken.
-            Explain which action you took and why.
+            Explain which action you took and why. If the repository seems to making good progress you may suggest
+            waiting (and estimate the time). If the suggested mission or feature is not practical given the capabilities 
+            of this repository, please explain why and suggest a more practical mission or feature. If the discussion
+            post is non-sensical or spam, please ignore it and take no action by replying with "nop".
+            
+            If the goals of the mission have been met you may declare "mission-complete" by choosing the action "mission-complete".
+            Similarly, if the repository is not progressing towards the mission you may declare "stop" by choosing the action "stop".
+            
+            If the repository has been in a stagnant state for a while, you may suggest to "seed-repository" by choosing the action "seed-repository".
 
             Consider the following when generating your response:
-              * Current discussion
+              * Current discussion <- this is the discussion you are responding to.
               * Previous discussions and comments
               * Recent commits
               * Repository file paths
@@ -1002,9 +1014,9 @@ jobs:
 
             Answer strictly with a JSON object following this schema:
             {
-              "action": "One of: nop, reply-without-action, create-issue, create-feature, seed-repository", // Pick one
-              "detail": "The detail of the action", // For example, the feature title or issue description
-              "reply": "The reply to post" // The reply to post in the discussion
+              "action": "One of: nop, reply-without-action, create-feature, seed-repository, mission-complete, stop", // Pick one
+              "detail": "", // Blank if we are re-seeding without changing the mission or the mission statement or a sentence describing the feature.
+              "reply": "The text of the reply to post" // The reply to post in the discussion
             }
             Ensure valid JSON.
             `;
@@ -1030,11 +1042,11 @@ jobs:
                   properties: {
                     action: { 
                       type: "string", 
-                      description: "The action to take. One of: 'nop', 'reply-without-action', 'create-feature', 'seed-repository'" 
+                      description: "The action to take. One of: nop, reply-without-action, create-feature, seed-repository, mission-complete, stop" 
                     },
                     detail: { 
                       type: "string", 
-                      description: "The detail of the action (such as the feature title or issue description)" 
+                      description: "Blank if we are re-seeding without changing the mission or the mission statement or a sentence describing the feature." 
                     },
                     reply: { 
                       type: "string", 
@@ -1080,10 +1092,10 @@ jobs:
 
             try {
               core.info("raw response start: **********************************************");
-              core.info(`raw response: "${JSON.stringify(result)}"`);
+              core.info(`raw response as JSON: "${JSON.stringify(result, null, 2)}"`);
               core.info("raw response end: ************************************************");
               const parsed = ResponseSchema.parse(result);
-              core.info(`parsed response: "${JSON.stringify(parsed)}"`);
+              core.info(`parsed response: "${JSON.stringify(parsed, null, 2)}"`);
               core.setOutput("action", parsed.action);
               core.setOutput("detail", parsed.detail);
               core.setOutput("reply", parsed.reply);

@@ -675,9 +675,8 @@ Re-usable GitHub Actions Workflows:
 - [x] Recover stuck issues that are in-progress but not being worked on.
 - [x] [Launch] When enhancing issues do not add duplicated documents
 - [x] [Launch] Comment every issue that a worker touches with the workflow information.
-- [ ] [Launch] Review features and move to docs when done.
-- [ ] [Launch] Review mission and stop creating features when done.
-- [ ] [Launch] If no maintenance activity is found, then terminate succefully,
+- [~] [Launch] Review mission and stop when done or failing to progress.
+- [~] [Launch] Review repository and reseed if stale.
 - [ ] [Launch] Diagram the workflow interactions.
 - [ ] [Launch] Pull into agentic-lib.yml: startsWith("apply-fix-"));
 - [ ] [Launch] Pull into agentic-lib.yml: startsWith("issue-worker-"));
@@ -687,8 +686,8 @@ Re-usable GitHub Actions Workflows:
 - [ ] [Launch] Add a comment and put an issue for review if it is already done.
 - [ ] [Launch] Move branch pre-fix to agentic-lib.yml
 - [ ] [Launch] For all issue comments, add context to the comment such as: "After review, this issue was found to be already done."
-- [ ] [Launch] Pass and log a stamp on a current feature report for feature-to-issue if the feature is done.
-- [ ] [Launch] Pass and log a stamp on a current maintenance report for a maintenance-activity-to-issue if there is no value in making changes.
+- [x] Clean the paths to avoid //
+- [ ] Separate out writable annd non-writable file paths in the prompt
 - [ ] Pull any max file sizes into the agent config
 - [ ] Recycle: Harvest repositor0-* files into agentic-lib when reset and show case past results.
 - [ ] Feature lifecycle of: Elaboration, Delivery, Maintenance, Retirement, and Removal.
@@ -705,8 +704,6 @@ Re-usable GitHub Actions Workflows:
 - [ ] Investigate MCP for exposing access to repository files.
 - [ ] Create an MCp sever for the repositor actions and pass to ChatGPT to act.
 - [ ] Add a list of all projects files to the context.
-- [ ] Clean the paths to avoid //
-- [ ] Separate out writable annd non-writable file paths in the prompt
 
 Discussions Bot [MVP]:
 - [x] On GitHub Discussions creation: Reads title and description, seeds with that as the mission, saves a trace back to documenationPath with a file a URL pointing -> the GitHub Discussion from the event,
@@ -720,13 +717,13 @@ Discussions Bot [MVP]:
 - [x] If not triggered by a discussion, use SEED_DISCUSSIONS to find the last discussion and use that to post the reply.
 - [x] On schedule, set a default body of: Summarise the current state of the repository, activity since the last update and how we are tracking against the mission ad recommends next steps.
 - [x] Bot to take actions within a stream (dev, seed, etc...)
-- [~] When an LLM tries to write to an unwritable folder error out (ignoring creates an opportunity for a failed build.)
-- [ ] [Later] Summarise and sanitize all the workflows so that they can be passed to the bot.
+- [x] When an LLM tries to write to an unwritable folder error out (ignoring creates an opportunity for a failed build.)
+- [ ] [Later, JS port] Summarise and sanitize all the workflows so that they can be passed to the bot.
 - [ ] [Later] Summarise the features in the archive and mine these during feature development.
 - [ ] [Later] Post the cost of the response in each response.
 
 intentïon user journey [Launch UX]:
-- [~] repository0-crucible seeds the repository with the mission and reports back with the intentïon branch.
+- [x] repository0-crucible seeds the repository with the mission and reports back with the intentïon branch.
 - [ ] Floating box logs into github and gives you an embedded formatted discussions thread.
 - [ ] On intentïon.com, user provides an intention which is posted as a new GitHub Discussions thread.
 - [ ] Archive workflow periodically pushed to an intentïon-<v7uuid> branch (which does not run the workflows) with branch URL and summary reported to Discussions.

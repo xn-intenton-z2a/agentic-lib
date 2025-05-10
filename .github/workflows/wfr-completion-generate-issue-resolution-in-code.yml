@@ -975,10 +975,10 @@ jobs:
               core.info("raw response start: **********************************************");
               core.info(`raw response (${(result ? result.length : "undefined")} characters): "${result}"`);
               core.info("raw response mid: ================================================");
-              core.info(`raw response as JSON: "${JSON.stringify(result)}"`);
+              core.info(`raw response as JSON: "${JSON.stringify(result, null, 2)}"`);
               core.info("raw response end: ************************************************");
               const parsed = ResponseSchema.parse(result);
-              core.info(`parsed response: "${JSON.stringify(parsed)}"`);
+              core.info(`parsed response: "${JSON.stringify(parsed, null, 2)}"`);
               // Sanitize commit message: retain only alphanumerics, spaces, and basic URL-safe punctuation (-, _, ., ~)
               const sanitizedMessage = parsed.message.replace(/[^A-Za-z0-9 \-\_\.\~]/g, '').replace(/\s+/g, ' ').trim();
               core.setOutput("message", sanitizedMessage);
