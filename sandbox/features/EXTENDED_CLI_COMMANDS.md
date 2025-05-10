@@ -1,48 +1,37 @@
 # Purpose
 
-Extend the unified CLI entrypoint to include new operational commands for diagnostics, local testing, and integration with CI workflows, and introduce a JSON test reporter to emit structured test results for automated pipelines.
+Extend the unified CLI entrypoint and JSON test reporting to support a verbose mode for detailed JSON logs across commands and test output.
 
 # Specification
 
 ## CLI Integration
 
-Recognize the following flags in CLI arguments:
+- Recognize a new flag --verbose or -v in CLI arguments. When this flag is present, enable runtime verbose mode.
+- At startup, parse the --verbose flag before processing other commands, set VERBOSE_MODE and VERBOSE_STATS to true, and remove the flag from the argument list.
+- Ensure all logging functions include additional fields when verbose mode is active, including verbose indicators and stack traces for errors.
+- Apply verbose behavior to help, version, digest, validate-config, bridge, and playback commands so that detailed JSON log entries appear in stdout or stderr as appropriate.
 
-- `--help`: Show usage instructions and exit.
-- `--version`: Print version information with a timestamp in JSON format and exit.
-- `--digest`: Simulate an SQS event by generating a sample digest payload and invoking the digestLambdaHandler.
-- `--validate-config`: Parse and validate environment configuration using zod. On success, output the parsed config as JSON; on failure, log errors and exit with a nonzero code.
-- `--bridge`: Use the s3-sqs-bridge library to simulate or perform an S3-to-SQS bridging operation, reading from a configured S3 bucket and sending messages to a configured SQS queue.
-- `--playback <file>`: Read the specified JSON file containing a serialized SQS event or array of events; parse and invoke digestLambdaHandler with the payload; log start, payload details, and completion or error.
+## Dynamic Verbose Mode Implementation
+
+- Replace static VERBOSE_MODE and VERBOSE_STATS constants with variables initialized based on CLI flags.
+- In the main entrypoint, detect the verbose flag, activate verbose mode, then proceed to process other flags and commands.
 
 ## JSON Test Reporter Integration
 
-Provide a dedicated test script that uses Vitest’s built-in JSON reporter to produce structured test reports suitable for CI systems:
+- Introduce a new npm script test:json:verbose that runs vitest with reporter json and verbose output on tests in both tests/unit and sandbox/tests.
+- Ensure the verbose JSON test output includes individual test logs at debug level in addition to the standard summary.
 
-- Add a new npm script `test:json` that runs:
-  `vitest --reporter=json tests/unit/*.test.js sandbox/tests/*.test.js`
-- Ensure the JSON reporter outputs a single JSON object summarizing:
-  - Total tests run, passed, failed, skipped.
-  - Individual test case results with names, durations, and status.
-  - Aggregate error messages for failures.
+## Dependencies File Changes
 
-## Dependencies File Changes in package.json
+- Under scripts in package.json, add:
+  "test:json:verbose": "vitest --reporter=json --verbose tests/unit/*.test.js sandbox/tests/*.test.js"
 
-- Under the `scripts` section, add:
-  ```json
-  "test:json": "vitest --reporter=json tests/unit/*.test.js sandbox/tests/*.test.js"
-  ```
-- Ensure devDependencies include Vitest; no additional packages are required for JSON reporting.
+## README Updates
 
-## Documentation Updates in sandbox/README.md
+- Document the purpose and usage of the --verbose flag for both CLI and test runner.
+- Provide example invocations for CLI verbose mode (for example npm start -- --verbose) and for npm run test:json:verbose.
 
-- Add a section **JSON Test Reporting**:
-  - Describe the purpose: produce machine-readable test output for CI.
-  - Show example invocation: `npm run test:json`.
-  - Describe expected output format, e.g. a JSON object with keys `summary` and `tests`.
+## Testing and Verification
 
-## Testing & Verification
-
-- Running `npm run test:json` should exit with code `0` and print a valid JSON object to stdout.
-- When tests fail, the JSON output must include failed test entries and the process should exit with a nonzero code.
-- Ensure existing test scripts (`test`, `test:unit`) remain unaffected and produce their standard reports.
+- Running the CLI with --verbose before any command should emit a top-level verbose log entry at startup that includes verbose=true and, if requested, statistics.
+- Running npm run test:json:verbose should exit with the same exit code as test:json and print a valid JSON object with detailed per-test debug entries.
