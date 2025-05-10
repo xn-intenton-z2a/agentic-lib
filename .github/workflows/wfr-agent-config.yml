@@ -326,9 +326,34 @@ jobs:
               // Filepaths for engineer workflows - Extract
               contributingFilepath = config.paths?.contributingFilepath?.path || contributingFilepath;
               targetTestsPath = config.paths?.targetTestsPath?.path || targetTestsPath;
-              allTestsPaths = [ targetTestsPath, ...(config.paths?.otherTestsPaths?.paths || otherTestsPaths) ].join(';');
+
+              // Parse otherTestsPaths as JSON if it's a string
+              let parsedOtherTestsPaths = otherTestsPaths;
+              try {
+                if (typeof otherTestsPaths === 'string') {
+                  parsedOtherTestsPaths = JSON.parse(otherTestsPaths);
+                }
+              } catch (error) {
+                core.warning(`Failed to parse otherTestsPaths as JSON: ${error.message}`);
+                parsedOtherTestsPaths = [];
+              }
+
+              allTestsPaths = [ targetTestsPath, ...(config.paths?.otherTestsPaths?.paths || parsedOtherTestsPaths) ].join(';');
+
               targetSourcePath = config.paths?.targetSourcePath?.path || targetSourcePath;
-              allSourcePaths = [ targetSourcePath, ...(config.paths?.otherSourcePaths?.paths || otherSourcePaths) ].join(';');
+
+              // Parse otherSourcePaths as JSON if it's a string
+              let parsedOtherSourcePaths = otherSourcePaths;
+              try {
+                if (typeof otherSourcePaths === 'string') {
+                  parsedOtherSourcePaths = JSON.parse(otherSourcePaths);
+                }
+              } catch (error) {
+                core.warning(`Failed to parse otherSourcePaths as JSON: ${error.message}`);
+                parsedOtherSourcePaths = [];
+              }
+
+              allSourcePaths = [ targetSourcePath, ...(config.paths?.otherSourcePaths?.paths || parsedOtherSourcePaths) ].join(';');
               dependenciesFilepath = config.paths?.dependenciesFilepath?.path || dependenciesFilepath;
               documentationPath = config.paths?.documentationPath?.path || documentationPath;
 

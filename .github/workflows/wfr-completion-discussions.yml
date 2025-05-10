@@ -754,11 +754,6 @@ jobs:
           echo "output=${output}"
           exit 0
 
-      - name: Tear down .npmrc
-        if: ${{ env.npmAuthOrganisation != '' }}
-        shell: bash
-        run: rm -f .npmrc
-
       - name: Run tests
         id: test
         shell: bash
@@ -883,16 +878,16 @@ jobs:
               - stop
             The detail can be blank if we are re-seeding without changing the mission or the mission statement or a 
             sentence describing the feature.
-            
+
             And you may reply asking for clarification or more information or stating that action has been taken.
             Explain which action you took and why. If the repository seems to making good progress you may suggest
             waiting (and estimate the time). If the suggested mission or feature is not practical given the capabilities 
             of this repository, please explain why and suggest a more practical mission or feature. If the discussion
             post is non-sensical or spam, please ignore it and take no action by replying with "nop".
-            
+
             If the goals of the mission have been met you may declare "mission-complete" by choosing the action "mission-complete".
             Similarly, if the repository is not progressing towards the mission you may declare "stop" by choosing the action "stop".
-            
+
             If the repository has been in a stagnant state for a while, you may suggest to "seed-repository" by choosing the action "seed-repository".
 
             Consider the following when generating your response:
@@ -986,12 +981,12 @@ jobs:
             AGENT_CONFIG_FILE_START
             ${agentConfigContent}
             AGENT_CONFIG_FILE_END
-            
+
             Dependencies install from command: ${installScript}
             DEPENDENCIES_INSTALL_START
             ${installOutput}
             DEPENDENCIES_INSTALL_END    
-            
+
             Build output from command: ${buildScript}
             BUILD_OUTPUT_START
             ${buildOutput}
@@ -1006,7 +1001,7 @@ jobs:
             MAIN_OUTPUT_START
             ${mainOutput}
             MAIN_OUTPUT_END
-            
+
             Stats JSON content:
             STATS_JSON_START
             ${statsJson}
