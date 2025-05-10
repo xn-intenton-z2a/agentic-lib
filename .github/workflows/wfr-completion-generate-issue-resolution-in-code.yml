@@ -990,7 +990,7 @@ jobs:
               // Handle updated files from the new format
               for (let i = 1; i <= 16; i++) {
                 const numStr = i.toString().padStart(2, '0');
-                const nameKey = `updatedFile${numStr}Name`;
+                const nameKey = `updatedFile${numStr}Filepath`;
                 const contentKey = `updatedFile${numStr}Contents`;
 
                 if (parsed[nameKey] && parsed[contentKey]) {
