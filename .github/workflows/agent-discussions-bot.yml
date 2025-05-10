@@ -441,6 +441,10 @@ jobs:
       - agentic-lib
     if: always() && (needs.generate-response.outputs.action == 'mark-complete' || needs.generate-response.outputs.action == 'stop')
     runs-on: ubuntu-latest
+    permissions:
+      #actions: write
+      #contents: write
+      workflows: write
     steps:
       - uses: actions/checkout@v4
         with:
