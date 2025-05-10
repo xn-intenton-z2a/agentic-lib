@@ -1,10 +1,12 @@
 # Purpose
 
-Extend the unified CLI entrypoint and JSON test reporting with:
+Extend the unified CLI entrypoint and JSON reporting with:
 
 - Verbose mode for detailed runtime logs
 - Discussion summarizer command with build status and test metrics
 - A new health-check command to validate connectivity to AWS SQS, GitHub API, and OpenAI API
+- Workflow summarizer command to produce concise overviews of GitHub Actions workflows
+- Workflow sanitizer command to strip sensitive or extraneous data from workflows for safe bot context
 
 # Specification
 
@@ -12,64 +14,67 @@ Extend the unified CLI entrypoint and JSON test reporting with:
 
 - Recognize flags:
   - `--verbose` or `-v` to enable runtime verbose mode and include detailed JSON logs
-  - `--summarize-discussion` or `-s` followed by a discussion identifier or URL to pause other commands and run the discussion summarizer
-  - `--health-check` or `-c` to pause other commands and run a comprehensive service health check
-- Parse flags in order: verbose flags first, then summarizer or health-check, then other commands
+  - `--summarize-discussion` or `-s` followed by a discussion identifier or URL to run the discussion summarizer
+  - `--health-check` or `-c` to run a comprehensive service health check
+  - `--summarize-workflow` or `-w` followed by a file path or URL of a workflow YAML file
+  - `--sanitize-workflow` or `-z` followed by a file path or URL of a workflow YAML file
+- Parse flags in this order: verbose flags first, then any one of summarize-discussion, health-check, summarize-workflow, sanitize-workflow, then other commands
 
-## Dynamic Verbose Mode Implementation
+## Workflow Sanitizer Implementation
 
-- Replace static `VERBOSE_MODE` and `VERBOSE_STATS` constants with variables initialized based on CLI flags
-- Ensure verbose mode applies across help, version, digest, summarize-discussion, and health-check commands, producing detailed JSON entries when enabled
+- Add function `sanitizeWorkflowHandler` in `src/lib/main.js`:
+  - Accept a path or URL to a GitHub Actions workflow YAML file
+  - Fetch content from local filesystem or HTTP(S) endpoint
+  - Parse YAML using `js-yaml` and remove or redact:
+    - All `env` entries that reference secrets or tokens
+    - Any `secrets` sections or `with` parameters named `token`, `password`, or similar
+    - Comments and metadata fields not required by `workflow_call`
+  - Optionally remove extraneous fields (e.g. `name`, `runs-on`, `concurrency`) leaving only steps and their key actions
+  - Output a sanitized YAML string or equivalent JSON structure under `sanitizedWorkflow`
 
-## JSON Test Reporter Integration
+## Workflow Summarizer Implementation
 
-- Retain the `test:json:verbose` script to run Vitest with JSON reporter and verbose logging
-- Ensure JSON test output includes per-test debug entries alongside summary metrics
-
-## Discussion Summarizer Integration
-
-- Add function `summarizeDiscussionHandler` in `src/lib/main.js`:
-  - Use `@octokit/rest` to fetch discussion metadata, initial post, and comments for the given identifier
-  - Aggregate content and generate a concise summary using existing summarization utilities or a lightweight algorithm
-  - Format summary as `discussionSummary` in the output JSON
-- After fetching discussion content, retrieve the latest workflow run via GitHub Checks API and parse the latest JSON test report to include under `buildStatus` and `testMetrics`
-
-## Health Check Integration
-
-- Add function `healthCheckHandler` in `src/lib/main.js`:
-  - Validate SQS integration by simulating a queue operation or listing queues via AWS SDK
-  - Validate GitHub API connectivity by requesting the API root or rate limit endpoint via `@octokit/rest`
-  - Validate OpenAI API connectivity by sending a lightweight test request using `openai` client
-  - Measure response status, latency, and capture any error messages per service
-  - Aggregate results into a `healthStatus` object
+- Add function `summarizeWorkflowHandler` in `src/lib/main.js`:
+  - Accept same inputs as sanitizer
+  - After sanitization, traverse steps and jobs to extract:
+    - Job names
+    - Step names and key actions
+    - Overall triggers (e.g. push, pull_request)
+  - Generate a concise text summary of the high-level workflow structure
+  - Format summary as `workflowSummary` in the output JSON
+  - Optionally leverage existing summarization utilities to refine narrative
 
 ## Output Format
 
-- The `--summarize-discussion` command prints a JSON object with fields:
-  - `discussionSummary`: string
-  - `buildStatus`: object
-  - `testMetrics`: object
+- Both `--sanitize-workflow` and `--summarize-workflow` commands print a JSON object with fields:
+  - `sanitizedWorkflow`: string or object (for sanitize)
+  - `workflowSummary`: string (for summarize)
   - `verbose`: boolean (if verbose mode enabled)
   - `stats`: object with `callCount` and `uptime` (if stats enabled)
-- The `--health-check` command prints a JSON object with field `healthStatus`, containing per-service status, latency, and error message if any
 
 ## Dependencies File Changes
 
-- Add `@octokit/rest` to dependencies for GitHub API integration
-- Add or ensure existing `openai` and AWS SDK dependencies cover health-check requirements
-- Under `scripts`, add usage examples for the `--health-check` flag
+- Ensure `js-yaml` is listed as a dependency (already present)
+- No new dependencies required for core functionality
 
 ## README Updates
 
-- Document usage of new `--health-check` flag:
-  npm start -- --health-check
-- Explain JSON output structure for health status, discussion summary, build status, and test metrics
+- Document usage of new flags:
+  npm start -- --sanitize-workflow path/to/workflow.yml
+  npm start -- --summarize-workflow https://raw.githubusercontent.com/owner/repo/.github/workflows/ci.yml
+- Explain JSON output structure for workflow sanitization and summarization
 
 ## Testing and Verification
 
-- Add unit tests for `summarizeDiscussionHandler` and `healthCheckHandler` mocking GitHub, AWS, and OpenAI API responses to verify:
-  - Correct fields in summary and health JSON
-  - Proper handling of missing credentials or unreachable services
-- Add end-to-end CLI tests for `--summarize-discussion` and `--health-check` flags with mocked environments:
-  - Ensure exit codes match expectations
-  - Validate combined JSON output structure and field accuracy
+- Add unit tests for `sanitizeWorkflowHandler` and `summarizeWorkflowHandler` mocking file reads and HTTP fetches:
+  - Verify sensitive fields are removed or redacted
+  - Verify the summary includes correct job and step listings
+- Add end-to-end CLI tests invoking `--sanitize-workflow` and `--summarize-workflow` with sample fixtures:
+  - Validate exit codes and JSON schema
+  - Confirm verbose and stats flags propagate correctly
+
+# Success Criteria
+
+- Sanitized workflow outputs contain no secrets or comments
+- Summaries accurately reflect workflow structure and triggers
+- CLI integration works alongside existing commands without conflicts
