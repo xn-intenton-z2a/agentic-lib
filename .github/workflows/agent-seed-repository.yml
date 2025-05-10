@@ -180,15 +180,6 @@ jobs:
               echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedMissionFilepath }} to ${{ needs.agentic-lib.outputs.missionFilepath }}'
             fi
 
-      - name: Set schedule from agentic-lib for all workflows
-        shell: bash
-        run: |
-          ./scripts/deactivate-schedule.sh 1
-          ./scripts/deactivate-schedule.sh 2
-          ./scripts/deactivate-schedule.sh 3
-          ./scripts/deactivate-schedule.sh 4
-          ./scripts/activate-schedule.sh ${{ needs.agentic-lib.outputs.scheduleNumber }}
-
       - name: Commit and push
         id: commit
         continue-on-error: true

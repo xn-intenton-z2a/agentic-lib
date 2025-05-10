@@ -312,6 +312,23 @@ jobs:
             // Discussions Bot
             const seedDiscussionFilepath = config?.discussions?.seedDiscussionFilepath || process.env.defaultSeedDiscussionFilepath;
 
+            // Check if the seed discussion file exists and read its last line
+            if (fs.existsSync(seedDiscussionFilepath)) {
+              try {
+                const fileContent = fs.readFileSync(seedDiscussionFilepath, 'utf8');
+                const lines = fileContent.split('\n');
+                const lastLine = lines[lines.length - 1].trim();
+
+                // Check if the last line contains HALT (in caps)
+                if (lastLine.includes('HALT')) {
+                  core.setFailed(`HALT detected in the last line of ${seedDiscussionFilepath}. Stopping execution.`);
+                  return;
+                }
+              } catch (error) {
+                core.warning(`Error reading ${seedDiscussionFilepath}: ${error.message}`);
+              }
+            }
+
             if (config?.paths) {
 
               // Filepaths for elaborator workflows - Extract
