@@ -1,3 +1,5 @@
+sandbox/docs/CLI_TOOLKIT.md
+# sandbox/docs/CLI_TOOLKIT.md
 # CLI Toolkit Guide
 
 This document describes the new CLI flags for the Agentic CLI Toolkit.

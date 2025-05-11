@@ -1,3 +1,5 @@
+sandbox/tests/cli.test.js
+# sandbox/tests/cli.test.js
 import { describe, test, expect, vi, beforeAll, afterAll } from "vitest";
 import path from "path";
 import fs from "fs";

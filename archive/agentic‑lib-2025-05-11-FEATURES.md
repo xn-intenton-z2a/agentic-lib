@@ -1,3 +1,9 @@
+sandbox/features/archived/TestFeature2.md
+# sandbox/features/archived/TestFeature2.md
+Second feature summary goes here.sandbox/features/archived/TestFeature1.md
+# sandbox/features/archived/TestFeature1.md
+This is the first test feature summary.sandbox/features/WORKFLOW_DIAGRAM.md
+# sandbox/features/WORKFLOW_DIAGRAM.md
 # Objective & Scope
 
 Expand the CLI toolkit feature to unify workflow visualization, advanced cost modeling with threshold alerts, archived features overview, SQS event simulation, version metadata reporting, and interactive help instructions in a single, cohesive interface.
