@@ -1,56 +1,50 @@
 # Simulate and Compare Workflows
 
 ## Purpose
-Provide a unified engine to perform dry-run simulation of GitHub Actions workflows and compare two workflow definitions side by side.  Users can enumerate triggers, jobs, and calls of a single workflow or generate a structured diff between two versions to identify changes before running in CI.
+Provide a unified engine for dry-run simulation of GitHub Actions workflows and structured comparison between two workflow definitions, enabling users to explore triggers, jobs, dependencies, and reusable calls before running in CI.
 
 ## Value Proposition
-
-- Allow full recursive resolution of reusable workflows, matrix expansion, and graph visualizations.
-- Enable side-by-side comparison of workflows to highlight added, removed, or modified triggers, jobs, and reusable calls.
-- Support both JSON and human-readable diff formats in CLI and HTTP API interfaces.
-- Maintain backward compatibility with existing simulateWorkflow behavior while extending into comparison.
+- Extract triggers, jobs, and reusable workflow calls without executing steps
+- Support recursive resolution of reusable workflows and matrix expansion for accurate planning
+- Offer visual representations of execution graphs in DOT or Mermaid formats
+- Enable side-by-side and structured diff of two workflow versions to identify added, removed, or modified elements
+- Accessible via CLI and HTTP API for integration in diverse tooling and automation pipelines
 
 ## Success Criteria
-
-1. The function simulateWorkflow(filePath, options) remains available with options fields:
-   - recursive (boolean, default false)
-   - expandMatrix (boolean, default false)
-   - graphFormat (string, default dot, values dot or mermaid)
-2. Introduce compareWorkflows signature compareWorkflows(filePathA, filePathB, options) where options include:
-   - diffFormat (string, default json, values json or text)
-3. compareWorkflows returns an object:
-   {
-     base: { triggers, jobs, calls, graph?},
-     head: { triggers, jobs, calls, graph?},
-     diff: { triggers: { added, removed }, jobs: { added, removed, changed }, calls: { added, removed } }
-   }
-4. CLI flags added:
-   - --compare-workflows <fileA> <fileB>
-   - --diff-format <json|text>
-   - --text (alias for --diff-format text)
-   compare outputs JSON or formatted text diff.
-5. HTTP API endpoint GET /compare-workflows supports query parameters fileA, fileB, diffFormat. Responds with JSON including base, head, diff fields. Errors return HTTP 400/500 with descriptive JSON errors.
-6. All existing simulateWorkflow tests remain passing; new tests cover compareWorkflows pure function, CLI invocations for comparison flags, and HTTP API for compare.
+1. Export simulateWorkflow(path, options) with options:
+   - recursive: boolean (default false)
+   - expandMatrix: boolean (default false)
+   - graphFormat: string (default none, values dot, mermaid)
+2. Export compareWorkflows(pathA, pathB, options) with options:
+   - diffFormat: string (default json, values json, text)
+   - inherit simulateWorkflow options for graph output in base and head
+3. CLI enhancements:
+   - --simulate-workflow <file> [--recursive] [--expand-matrix] [--graph-format <dot|mermaid>]
+   - --compare-workflows <fileA> <fileB> [--diff-format <json|text>] plus graph flags
+   - Output JSON or formatted text to stdout, exit code 0 on success, 1 on error
+4. HTTP API endpoints:
+   - GET /simulate-workflow?file=<path>&recursive=&expandMatrix=&graphFormat=
+   - GET /compare-workflows?fileA=&fileB=&diffFormat=&recursive=&expandMatrix=&graphFormat=
+   - Respond with JSON bodies containing parsed data, graphs, and diffs; return HTTP 400/500 on errors
+5. Maintain backward compatibility: existing simulateWorkflow(path) calls and tests continue to pass unchanged
 
 ## Implementation Details
-
-1. Expand sandbox/source/main.js:
-   - Add compareWorkflows function that calls simulateWorkflow for each file and computes diff.
-   - Enhance CLI parser to detect --compare-workflows and pass arguments to compareWorkflows, printing JSON or text.
-   - Register HTTP route /compare-workflows alongside /simulate-workflow in startSimulationServer, parsing query params and returning comparison result.
-2. Use existing graph generators generateDotGraph and generateMermaidGraph when options.graphFormat is provided in compare output for base and head.
-3. Compute job changes by comparing names and needs arrays; mark changed when needs differ.
-4. Avoid new dependencies beyond built-ins, js-yaml, lodash.
+1. In sandbox/source/main.js:
+   - Extend simulateWorkflow signature to accept options object and implement matrix expansion and graph generation using existing or new helpers
+   - Implement compareWorkflows by invoking simulateWorkflow on each file and computing added, removed, and changed triggers, jobs, and calls
+   - Enhance CLI argument parser to recognize new flags and dispatch to simulate or compare logic
+2. Introduce a lightweight HTTP server (e.g., using native http or a minimal framework) to serve the two new endpoints, parsing query parameters and returning JSON
+3. Add or extend utility functions for generating DOT and Mermaid graphs from the job dependency graph
+4. Ensure error handling returns clear messages in both CLI and HTTP contexts
+5. No new file paths beyond sandbox/source, sandbox/tests, sandbox/docs, sandbox/README.md, and sandbox/package.json modifications
 
 ## Testing
-
-- Add tests in sandbox/tests/compareWorkflows.test.js covering:
-  - compareWorkflows on simple workflows showing correct added/removed triggers, jobs, calls.
-  - CLI: --compare-workflows pair of YAML files returning correct diffFormat=json and diffFormat=text outputs and exit codes.
-  - HTTP API GET /compare-workflows responding with correct JSON structure and error status codes.
+- Update sandbox/tests/simulateWorkflow.test.js to cover options parsing, matrix expansion, and graphFormat outputs
+- Create sandbox/tests/compareWorkflows.test.js to validate diff results in both JSON and text formats and error scenarios
+- Add tests for CLI flags in sandbox/tests/cli.test.js simulating process.argv and capturing stdout/stderr
+- Add HTTP API tests in sandbox/tests/api.test.js using a simple HTTP client to call endpoints and validate JSON responses and status codes
 
 ## Documentation
-
-- Update sandbox/README.md with CLI and HTTP examples for comparison mode, illustrating json and text formats.
-- Enhance sandbox/docs/SIMULATE_WORKFLOW.md with new section "Compare Workflows Example" showing sample responses for diffFormat json and text.
-- Reference compareWorkflows in API usage examples.
+- Update sandbox/docs/SIMULATE_WORKFLOW.md with usage examples for new CLI flags and HTTP endpoints, showing sample outputs
+- Add a “Compare Workflows” section illustrating diffFormat=json and diffFormat=text
+- Update sandbox/README.md with overview of features, CLI usage, HTTP API reference, and links to MISSION.md and CONTRIBUTING.md
