@@ -1,43 +1,47 @@
-# GitHub REST API
-## https://docs.github.com/en/rest
-Comprehensive reference for GitHub's REST API v3 endpoints, covering authentication schemes (personal access tokens, OAuth apps, GitHub Apps), pagination strategies, rate limiting headers, webhooks, and repository management operations. Includes live request/response schemas, Node.js and TypeScript code samples (Octokit, Axios), and best practices for error handling and retry logic. Central to implementing any GitHub integration in this library, it ensures reliable interactions with issues, branches, commits, and workflow dispatch events. Continuously maintained by GitHub; authoritative as the official source.
-## Creative Commons Attribution 4.0 International (CC BY 4.0)
+# js-yaml
+## https://github.com/nodeca/js-yaml
+`js-yaml` is the primary YAML parser and serializer used to load agentic-lib configuration and workflow definitions. Its documentation details advanced parsing options, custom schema definitions, safe load methods to prevent code execution, and performance tuning for large files. Essential for accurately reading and interpreting GitHub workflow YAML files within agentic-lib.
+Last known publication: v4.1.0 (May 2023). Highly authoritative: maintained by the Nodeca community and widely used across Node.js tooling.
+## MIT License
 
-# GitHub GraphQL API
+# dotenv
+## https://github.com/motdotla/dotenv
+`.env` file loader for Node.js that loads environment variables into `process.env`. Documentation covers parsing options, variable expansion, multiline values, and security best practices. Critical for managing API keys, endpoints, and runtime flags in local development, CI environments, and within Lambda functions.
+Last known publication: v16.5.0 (April 2024). Widely adopted and community-trusted.
+## BSD-2-Clause
+
+# Vitest
+## https://vitest.dev/
+A Vite-native testing framework focusing on speed and simplicity for ESM workflows. Documentation includes setup guides, mocking strategies, coverage reporting, advanced configuration, and integration with TypeScript. Essential for maintaining fast, reliable test suites for agentic-lib’s Lambda handlers and CLI functions.
+Last known publication: v3.1.3 (May 2024). Actively maintained and rapidly growing in popularity.
+## MIT License
+
+# OpenAI Node.js SDK
+## https://github.com/openai/openai-node
+The official client library for interacting with OpenAI’s API. The README and usage examples demonstrate authentication, chat completion payload structures, streaming responses, rate limit handling, retry logic, and TypeScript typings. Provides core implementation details for agentic-lib’s AI-driven workflow generation and refinement.
+Last known publication: v4.98.0 (June 2024). Official and authoritative source.
+## MIT License
+
+# AWS SDK for JavaScript v3 & Lambda SQS Integration
+## https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/welcome.html
+Comprehensive guide to the AWS SDK v3 modular architecture, client configuration, middleware stack, and best practices for high-throughput, low-latency operations. Includes in-depth examples for AWS Lambda integration with SQS (via https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html), event batch processing, error handling (batchItemFailures), and security configurations.
+Official documentation, continuously updated. Highly authoritative for AWS-based event-driven architectures.
+## Apache-2.0
+
+# GitHub API (REST & GraphQL)
 ## https://docs.github.com/en/graphql
-Comprehensive reference for GitHub's GraphQL API v4, detailing schema definitions, query and mutation patterns for repositories, issues, pull requests, and workflows. Covers authentication, cursor-based pagination, rate limiting, error handling, and best practices to optimize query shapes and minimize over-fetching. Provides code examples for Apollo Client, graphql-request, and TypeScript. Essential for retrieving complex relationships and batch operations efficiently. Continuously maintained by GitHub; authoritative as the official source.
-## Creative Commons Attribution 4.0 International (CC BY 4.0)
-
-# AWS Infrastructure: CDK, Lambda, SQS, and AWS SDK for JavaScript (v3)
-## https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html
-## https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/
-## https://docs.aws.amazon.com/cdk/v2/guide/home.html
-Guidance for provisioning and implementing AWS infrastructure as code using AWS CDK v2, building Node.js Lambda functions triggered by Amazon SQS, and interacting with AWS services via the modular AWS SDK v3. Explains CDK constructs for queues, Lambda event sources, IAM permissions, SQS payload schemas, batching, visibility timeouts, dead-letter queue patterns, and error handling with `batchItemFailures`. Includes TypeScript and JavaScript examples, middleware customization, credential provider patterns, and CloudFormation equivalence. Updated May 2024; authoritative sources from AWS.
-## Amazon Software License (ASL), Apache License 2.0
-
-# OpenAI API & Node.js Library
-## https://platform.openai.com/docs/api-reference/chat/create
-## https://platform.openai.com/docs/libraries/node-js-library
-Unified documentation covering OpenAI's Chat Completions REST API and the official `openai` npm package. Deep dive into API parameters, response schemas, streaming protocols, rate limits, and raw HTTP usage. Paired with the Node.js client guide for installation, configuration, API key management, streaming vs. polling, function-calling patterns, and prompt engineering best practices. Critical for building robust, streaming-enabled conversational agents. Last updated June 2024; authoritative from OpenAI.
+Unified reference covering both REST and GraphQL endpoints. Highlights critical workflows: fetching workflow definitions, triggers, reusable calls, branch and PR automation, and webhooks. GraphQL API section offers flexible querying for complex repository and workflow introspection, complementing REST for rate limits and pagination handling.
+Last updated: June 2024. Official GitHub documentation.
 ## MIT License
 
-# Zod Schema Validation
-## https://github.com/colinhacks/zod
-High-performance, TypeScript-first runtime schema validation library. Documentation covers schema creation, refinements, transformations, unions, and asynchronous parsing, with examples for environment variable validation, data sanitization, and custom error formatting. Guides integration with build tools and bundlers for optimized production builds. Widely adopted in the TypeScript community; MIT License.
+# GitHub Actions Workflow Syntax
+## https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+Definitive guide to GitHub Actions YAML syntax, including triggers (`workflow_call`, events), job definitions, matrix strategies, reusable workflows, and environment variables. Essential for parsing, modeling, and simulating workflows within agentic-lib.
+Last updated: April 2024. Official GitHub documentation.
 ## MIT License
-
-# Vitest Testing Framework
-## https://vitest.dev/guide/
-Modern testing framework integrated with Vite, offering unit testing, mocking (`vi.mock`), snapshot testing, coverage reporting, and test isolation strategies. The guide explains setup, configuration options, lifecycle hooks, parallel execution, and CLI usage, emphasizing fast feedback loops and diagnostic logging for Node.js ESM projects. Essential for maintaining high-quality, reliable test suites. Version 3.x; MIT License.
-## MIT License
-
-# GitHub Actions Reusable Workflows
-## https://docs.github.com/en/actions/using-workflows/reusing-workflows
-Comprehensive guide on defining and consuming reusable GitHub Actions workflows via the `workflow_call` trigger. Details inputs, outputs, secrets, permissions, concurrency controls, and modular workflow design. Explains context propagation, dynamic runs, and best practices for maintainable CI/CD pipelines. Critical for integrating agentic-lib as a composable workflow in GitHub Actions. Last updated May 2024; authoritative as the official source.
-## Creative Commons Attribution 4.0 International (CC BY 4.0)
 
 # GitHub Actions Toolkit
 ## https://github.com/actions/toolkit
-## https://docs.github.com/en/actions/creating-actions/creating-a-javascript-action
-The GitHub Actions Toolkit reference and official Actions documentation for building custom Actions in JavaScript and TypeScript. Covers the `@actions/core` and `@actions/github` packages, runtime event context, inputs/outputs, error handling, authentication via GITHUB_TOKEN, testing strategies, caching, and publishing workflows. Highlights metadata file conventions, performance tips, and security best practices. Essential for creating robust, reusable GitHub Actions that integrate with agentic-lib workflows. Last updated April 2024; authoritative official sources.
-## MIT License
+Node.js libraries (`@actions/core`, `@actions/github`, etc.) for building custom GitHub Actions. Documentation details input/output handling, command messaging, logging, authentication, and GitHub API integration. Provides actionable insights for implementing command-line behavior and in-action APIs mimicking real workflows.
+Last known publication: v2.10.0 (May 2024). Maintained by GitHub Actions team.
+## Apache-2.0

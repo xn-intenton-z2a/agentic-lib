@@ -1,128 +1,76 @@
-sandbox/tests/cli.test.js
-# sandbox/tests/cli.test.js
-import { describe, test, expect, vi, beforeAll, afterAll } from "vitest";
-import path from "path";
+sandbox/tests/summarize.test.js
+# sandbox/tests/summarize.test.js
+import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import fs from "fs";
+import * as libMain from "../../src/lib/main.js";
 
-// spy on console.log and clear mocks
-beforeAll(() => {
-  vi.spyOn(console, 'log').mockImplementation(() => {});
+// Mock OpenAI for tests
+vi.mock("openai", () => {
+  return {
+    Configuration: class {},
+    OpenAIApi: class {
+      async createChatCompletion() {
+        return {
+          data: { choices: [{ message: { content: "Mock summary" } }] }
+        };
+      }
+    }
+  };
 });
 
-afterAll(() => {
-  vi.restoreAllMocks();
-});
+// Import after mocking
+import { summarizeDigest, processSummarize } from "../source/main.js";
 
-import {
-  generateDiagram,
-  processDiagram,
-  generateFeaturesOverview,
-  processFeaturesOverview,
-  main
-} from "../source/main.js";
-
-describe("generateDiagram", () => {
-  test("returns markdown mermaid diagram by default", () => {
-    const md = generateDiagram();
-    expect(md).toMatch(/^```mermaid[\s\S]+```$/);
-  });
-
-  test("returns JSON object when format=json", () => {
-    const obj = generateDiagram('json');
-    expect(obj).toHaveProperty('nodes');
-    expect(obj).toHaveProperty('links');
-    expect(Array.isArray(obj.nodes)).toBe(true);
-    expect(Array.isArray(obj.links)).toBe(true);
-  });
-
-  test("includes errors array in JSON output", () => {
-    const obj = generateDiagram('json');
-    expect(obj).toHaveProperty('errors');
-    expect(Array.isArray(obj.errors)).toBe(true);
+describe("summarizeDigest", () => {
+  test("returns summary from OpenAI", async () => {
+    const digest = { foo: "bar" };
+    const summary = await summarizeDigest(digest);
+    expect(summary).toBe("Mock summary");
   });
 });
 
-describe("processDiagram", () => {
-  test("logs markdown diagram and returns true", async () => {
-    vi.mocked(console.log).mockClear();
-    const handled = await processDiagram(['--diagram']);
-    expect(handled).toBe(true);
-    expect(console.log).toHaveBeenCalled();
+describe("processSummarize", () => {
+  let consoleLogSpy;
+  let exitSpy;
+  let logErrorSpy;
+
+  beforeEach(() => {
+    consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`process.exit:${code}`); });
+    logErrorSpy = vi.spyOn(libMain, "logError").mockImplementation(() => {});
   });
 
-  test("logs JSON diagram when format=json", async () => {
-    vi.mocked(console.log).mockClear();
-    const handled = await processDiagram(['--diagram', '--format=json']);
-    expect(handled).toBe(true);
-    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('"nodes"'));
-    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('"errors"'));
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
-  test("returns false when not triggered", async () => {
-    const handled = await processDiagram([]);
-    expect(handled).toBe(false);
-  });
-});
-
-describe("generateFeaturesOverview", () => {
-  // Setup fixture files
-  beforeAll(() => {
-    const archivedDir = path.join(__dirname, "..", "features", "archived");
-    fs.mkdirSync(archivedDir, { recursive: true });
-    fs.writeFileSync(path.join(archivedDir, "TestFeature1.md"), "This is the first test feature summary.");
-    fs.writeFileSync(path.join(archivedDir, "TestFeature2.md"), "Second feature summary goes here.");
+  test("handles inline JSON and prints summary", async () => {
+    const args = ["--summarize", '{"foo":"bar"}'];
+    const result = await processSummarize(args);
+    expect(result).toBe(true);
+    expect(consoleLogSpy).toHaveBeenCalledWith("Mock summary");
   });
 
-  test("returns markdown overview by default", async () => {
-    const md = await generateFeaturesOverview();
-    expect(md).toContain('## TestFeature1');
-    expect(md).toContain('This is the first test feature summary.');
+  test("handles file path JSON and prints summary", async () => {
+    // Mock file existence and content
+    vi.spyOn(fs, "existsSync").mockReturnValue(true);
+    vi.spyOn(fs, "readFileSync").mockReturnValue('{"foo":"baz"}');
+    const args = ["--summarize", "dummy.json"];
+    const result = await processSummarize(args);
+    expect(result).toBe(true);
+    expect(consoleLogSpy).toHaveBeenCalledWith("Mock summary");
   });
 
-  test("returns JSON array when format=json", async () => {
-    const arr = await generateFeaturesOverview('json');
-    expect(Array.isArray(arr)).toBe(true);
-    const names = arr.map(item => item.name);
-    expect(names).toEqual(expect.arrayContaining(['TestFeature1', 'TestFeature2']));
-  });
-});
-
-describe("processFeaturesOverview", () => {
-  test("logs markdown overview and returns true", async () => {
-    vi.mocked(console.log).mockClear();
-    const handled = await processFeaturesOverview(['--features-overview']);
-    expect(handled).toBe(true);
-    expect(console.log).toHaveBeenCalled();
+  test("errors on missing argument and exits", async () => {
+    const args = ["--summarize"];
+    expect(() => processSummarize(args)).rejects.toThrow("process.exit:1");
+    expect(logErrorSpy).toHaveBeenCalledWith("Missing argument for --summarize");
   });
 
-  test("logs JSON overview when format=json", async () => {
-    vi.mocked(console.log).mockClear();
-    const handled = await processFeaturesOverview(['--features-overview', '--format=json']);
-    expect(handled).toBe(true);
-    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('"name"'));
-  });
-
-  test("returns false when not triggered", async () => {
-    const handled = await processFeaturesOverview([]);
-    expect(handled).toBe(false);
-  });
-});
-
-describe("integration: main handles both flags together", () => {
-  test("main logs combined JSON output and returns without fallback", async () => {
-    vi.mocked(console.log).mockClear();
-    await main(['--diagram', '--features-overview', '--format=json']);
-    const logged = console.log.mock.calls[0][0];
-    expect(logged).toContain('nodes');
-    expect(logged).toContain('featuresOverview');
-    expect(logged).toContain('"errors"');
-  });
-
-  test("main logs combined markdown output when both flags provided", async () => {
-    vi.mocked(console.log).mockClear();
-    await main(['--diagram', '--features-overview']);
-    const logged = console.log.mock.calls[0][0];
-    expect(logged).toMatch(/^```mermaid/);
-    expect(logged).toContain('## TestFeature1');
+  test("errors on invalid JSON and exits", async () => {
+    const args = ["--summarize", "notjson"];
+    vi.spyOn(fs, "existsSync").mockReturnValue(false);
+    expect(() => processSummarize(args)).rejects.toThrow("process.exit:1");
+    expect(logErrorSpy).toHaveBeenCalledWith("Failed to summarize digest", expect.any(Error));
   });
 });
