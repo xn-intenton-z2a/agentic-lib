@@ -162,7 +162,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      featureName: ${{ inputs.featureName || 'Refer to mission' }}
+      featureName: ${{ inputs.featureName || '(No features refer to mission)' }}
       featuresPath: ${{ inputs.featuresPath || 'features/' }}
       libraryDocumentsPath: ${{ inputs.libraryDocumentsPath || 'library/' }}
       featureDevelopmentIssuesWipLimit: ${{ inputs.featureDevelopmentIssuesWipLimit || '5' }}
