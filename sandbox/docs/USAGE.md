@@ -63,7 +63,6 @@ Validates that `sandbox/README.md` includes links to `MISSION.md`, `CONTRIBUTING
   ```json
   {"level":"error","message":"README missing reference: <reference>"}
   ```
-  and exits with code 1.
 
 ## --fix-features
 
@@ -86,3 +85,16 @@ Error Path (write failure):
 ```
 
 Exits with code 1 on error.
+
+## --features-overview
+
+Generates a markdown summary of all sandbox CLI flags and their descriptions. Writes to `sandbox/docs/FEATURES_OVERVIEW.md` and prints a JSON info log:
+
+```bash
+node sandbox/source/main.js --features-overview
+```
+
+Logs:
+```json
+{"level":"info","featuresOverview":"<markdown string>"}
+```
