@@ -8,6 +8,21 @@ run-name: "publish stats [${{ github.ref_name }}] [${{ github.event.head_commit.
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - flow-feature-development
+      - flow-feature-maintenance
+      - flow-fix-code
+      - flow-linting-to-issue
+      - flow-maintenance-activity-to-issue
+      - seed-repository
+    types:
+      - completed
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
   schedule:
     #- cron: '29 */12 * * *' # schedule-1
     #- cron: '29 */4 * * *' # schedule-2
