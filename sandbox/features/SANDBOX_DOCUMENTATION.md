@@ -1,5 +1,5 @@
 # Objective
-Provide a unified CLI tool in sandbox mode that validates key repository artifacts and generates interactive examples in the README, ensuring consistency with mission, contributing, and licensing guidelines.
+Provide a unified CLI tool in sandbox mode that validates key repository artifacts, generates interactive examples in the README, and ensures documentation for sandbox commands remains consistent and complete.
 
 # Specification
 
@@ -29,15 +29,18 @@ Provide a unified CLI tool in sandbox mode that validates key repository artifac
  • Log a warning and exit status 0 if no blocks found
  • Log errors and exit status 1 on rendering failures
 
+## --validate-docs
+ • Scan sandbox/source/main.js for used CLI flags by matching args.includes patterns
+ • Read sandbox/docs/USAGE.md and confirm that each sandbox CLI flag has a corresponding section or example with correct syntax
+ • Read sandbox/README.md and ensure each sandbox CLI flag is mentioned under the Usage section with a code invocation
+ • Report missing or mismatched documentation entries listing file path, flag name, and exit status 1 on failures
+ • Log info and exit status 0 on success when all CLI flags are documented consistently
+
 # Logging Format
 All log entries must be JSON objects with level, timestamp, message, and relevant metadata. Validation flags run in order when combined before example generation.
 
 # File Changes
-• sandbox/source/main.js: implement flag handlers, combined invocation flow, exit codes, and JSON logging
-• sandbox/tests/validate-features.test.js: verify invalid and valid cases for feature reference
-• sandbox/tests/validate-readme.test.js: test missing summary, links, and success path
-• sandbox/tests/validate-package.test.js: test missing fields, invalid engine version, and success path
-• sandbox/tests/generate-interactive-examples.test.js: test rendering success, idempotency, warning path, and error path
-• sandbox/docs/USAGE.md: update usage instructions with new flags and combined invocation
-• sandbox/README.md: add mission-inspired summary, placeholders for mermaid-workflow blocks, and Examples section
-• package.json: add markdown-it and markdown-it-github dependencies
+ • sandbox/source/main.js: add handler for --validate-docs with scanning, validation logic, exit codes, and JSON logging
+ • sandbox/tests/validate-docs.test.js: tests for missing and valid documentation coverage cases
+ • sandbox/docs/USAGE.md: update usage instructions to include --validate-docs flag
+ • sandbox/README.md: update Usage section to document --validate-docs flag
