@@ -1,53 +1,56 @@
-# Simulate Workflow
+# Simulate and Compare Workflows
 
 ## Purpose
-Enhance the dry-run engine to support recursive evaluation of reusable workflows, matrix job expansion, and generate workflow visualizations in both Graphviz DOT and Mermaid formats alongside the existing CLI, library, and HTTP API interfaces.
+Provide a unified engine to perform dry-run simulation of GitHub Actions workflows and compare two workflow definitions side by side.  Users can enumerate triggers, jobs, and calls of a single workflow or generate a structured diff between two versions to identify changes before running in CI.
 
 ## Value Proposition
-- Resolve nested reusable workflows automatically, providing complete execution plans across all levels.
-- Expand matrix jobs into individual job entries for each matrix combination, enabling accurate simulation of parallel job variants.
-- Produce both DOT and Mermaid graph outputs for integration with documentation, wikis, and developer tools.
-- Extend programmatic access via HTTP endpoint and CLI with minimal disruption to existing flags and behavior.
-- Maintain backward compatibility with current flags and behaviors while offering richer visualization options.
+
+- Allow full recursive resolution of reusable workflows, matrix expansion, and graph visualizations.
+- Enable side-by-side comparison of workflows to highlight added, removed, or modified triggers, jobs, and reusable calls.
+- Support both JSON and human-readable diff formats in CLI and HTTP API interfaces.
+- Maintain backward compatibility with existing simulateWorkflow behavior while extending into comparison.
 
 ## Success Criteria
-1. The function simulateWorkflow accepts signature (filePath, options) with options fields:
+
+1. The function simulateWorkflow(filePath, options) remains available with options fields:
    - recursive (boolean, default false)
    - expandMatrix (boolean, default false)
-   - graphFormat (string, default "dot", allowed values "dot" or "mermaid").
-2. When recursive is true, nested workflow files referenced via step uses are located, parsed, and merged into triggers, jobs, and calls lists.
-3. When expandMatrix is true, for each job with a strategy.matrix definition, simulateWorkflow generates separate job entries for all combinations of matrix variables, appending combination identifiers to job names and preserving dependencies.
-4. When graphFormat is "dot", produce a valid Graphviz DOT string reflecting jobs as nodes and needs relationships as directed edges, including expanded matrix job nodes. When graphFormat is "mermaid", produce valid Mermaid graph syntax for the same structure.
-5. CLI supports flags:
-   - --simulate-workflow <file>
-   - --recursive
-   - --expand-matrix
-   - --graph-format <dot|mermaid>
-   - --mermaid (alias for --graph-format mermaid)
-   - --serve-api [port]
-   without altering existing flag behavior.
-6. A new export startSimulationServer(port) starts an HTTP server exposing GET /simulate-workflow with query parameters file, recursive, expandMatrix, graphFormat; response JSON includes triggers, jobs, calls, and a graph field containing either a dot or mermaid string.
-7. File read or YAML parse errors return HTTP 400 with descriptive JSON error; unexpected errors return HTTP 500.
-8. All legacy tests remain passing; new tests cover matrix expansion, recursive resolution, DOT graph output, Mermaid graph output, and HTTP API with recursive, expandMatrix, and graphFormat options.
+   - graphFormat (string, default dot, values dot or mermaid)
+2. Introduce compareWorkflows signature compareWorkflows(filePathA, filePathB, options) where options include:
+   - diffFormat (string, default json, values json or text)
+3. compareWorkflows returns an object:
+   {
+     base: { triggers, jobs, calls, graph?},
+     head: { triggers, jobs, calls, graph?},
+     diff: { triggers: { added, removed }, jobs: { added, removed, changed }, calls: { added, removed } }
+   }
+4. CLI flags added:
+   - --compare-workflows <fileA> <fileB>
+   - --diff-format <json|text>
+   - --text (alias for --diff-format text)
+   compare outputs JSON or formatted text diff.
+5. HTTP API endpoint GET /compare-workflows supports query parameters fileA, fileB, diffFormat. Responds with JSON including base, head, diff fields. Errors return HTTP 400/500 with descriptive JSON errors.
+6. All existing simulateWorkflow tests remain passing; new tests cover compareWorkflows pure function, CLI invocations for comparison flags, and HTTP API for compare.
 
 ## Implementation Details
-1. Update simulateWorkflow signature in sandbox/source/main.js to accept (filePath, options).
-2. Implement a recursive loader that resolves local workflow paths or reusable workflow references when recursive is true.
-3. Implement a matrix expander for jobs with strategy.matrix definitions when expandMatrix is true.
-4. Build two graph generators:
-   - generateDotGraph(jobs) returns Graphviz DOT notation string.
-   - generateMermaidGraph(jobs) returns Mermaid graph syntax string.
-5. In sandbox/source/main.js, parse new CLI flags --graph-format and alias --mermaid, pass options into simulateWorkflow; print JSON when no graphFormat, raw DOT when graphFormat dot, raw Mermaid when graphFormat mermaid.
-6. Export startSimulationServer in sandbox/source/main.js using a minimal HTTP server to handle /simulate-workflow requests and respond according to graphFormat.
-7. Avoid introducing new dependencies beyond built-ins, js-yaml, and lodash.
+
+1. Expand sandbox/source/main.js:
+   - Add compareWorkflows function that calls simulateWorkflow for each file and computes diff.
+   - Enhance CLI parser to detect --compare-workflows and pass arguments to compareWorkflows, printing JSON or text.
+   - Register HTTP route /compare-workflows alongside /simulate-workflow in startSimulationServer, parsing query params and returning comparison result.
+2. Use existing graph generators generateDotGraph and generateMermaidGraph when options.graphFormat is provided in compare output for base and head.
+3. Compute job changes by comparing names and needs arrays; mark changed when needs differ.
+4. Avoid new dependencies beyond built-ins, js-yaml, lodash.
 
 ## Testing
-- Create tests under sandbox/tests for:
-  - Mermaid output generation matching expected syntax for simple and expanded workflows.
-  - CLI invocations with --graph-format dot and --mermaid producing correct outputs and exit codes.
-  - HTTP API GET /simulate-workflow calls with graphFormat parameters verifying dot and mermaid fields.
-- Ensure existing simulateWorkflow tests remain unchanged and pass.
+
+- Add tests in sandbox/tests/compareWorkflows.test.js covering:
+  - compareWorkflows on simple workflows showing correct added/removed triggers, jobs, calls.
+  - CLI: --compare-workflows pair of YAML files returning correct diffFormat=json and diffFormat=text outputs and exit codes.
+  - HTTP API GET /compare-workflows responding with correct JSON structure and error status codes.
 
 ## Documentation
-- Update sandbox/README.md to include usage examples for --graph-format and --mermaid flags.
-- Enhance sandbox/docs/SIMULATE_WORKFLOW.md with sections on Mermaid output, sample CLI and HTTP responses for both DOT and Mermaid formats.
+
+- Update sandbox/README.md with CLI and HTTP examples for comparison mode, illustrating json and text formats.
+- Enhance sandbox/docs/SIMULATE_WORKFLOW.md with new section "Compare Workflows Example" showing sample responses for diffFormat json and text.
+- Reference compareWorkflows in API usage examples.
