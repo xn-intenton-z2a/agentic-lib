@@ -33,6 +33,11 @@ on:
         type: string
         required: false
         default: '.github/agents/agentic-lib.yml'
+      haltSignal:
+        description: 'A signal to stop the workflow. e.g. "HALT"'
+        type: string
+        required: false
+        default: 'HALT'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -145,6 +150,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       configPath: ${{ inputs.configPath || '.github/agents/agentic-lib.yml' }}
+      haltSignal: ${{ inputs.haltSignal || 'HALT' }}
       npmAuthOrganisation: '@xn-intenton-z2a'
 
       # Schedule information
@@ -238,6 +244,8 @@ jobs:
             const fs = require('fs');
             const path = require('path');
             const yaml = require('js-yaml');
+            
+            const haltSignal = process.env.haltSignal;
 
             // Filepaths for elaborator workflows - Default values
             let missionFilepath = process.env.defaultMissionFilepath;
@@ -313,15 +321,16 @@ jobs:
             const seedDiscussionFilepath = config?.discussions?.seedDiscussionFilepath || process.env.defaultSeedDiscussionFilepath;
 
             // Check if the seed discussion file exists and read its last line
+            core.info(`Checking for halt signal "${haltSignal}" in last non-blank line of ${seedDiscussionFilepath}`);
             if (fs.existsSync(seedDiscussionFilepath)) {
               try {
                 const fileContent = fs.readFileSync(seedDiscussionFilepath, 'utf8');
                 const lines = fileContent.split('\n').filter(line => line.trim() !== ''); // Filter out empty lines
                 const lastLine = lines[lines.length - 1].trim();
 
-                // Check if the last line contains HALT (in caps)
-                if (lastLine.includes('HALT')) {
-                  core.setFailed(`HALT detected in the last line of ${seedDiscussionFilepath}. Stopping execution.`);
+                // Check if the last line contains the halt signal (in caps)
+                if (lastLine.includes(haltSignal)) {
+                  core.setFailed(`${haltSignal} detected in the last line of ${seedDiscussionFilepath}. Stopping execution.`);
                   return;
                 } else {
                   core.info(`Last line of ${seedDiscussionFilepath}: ${lastLine} - proceeding with execution`);
