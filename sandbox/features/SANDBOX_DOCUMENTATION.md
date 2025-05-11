@@ -1,6 +1,6 @@
 # Objective
 
-Provide a unified CLI tool in sandbox mode that validates key repository artifacts, generates interactive examples in the README, and ensures documentation for sandbox commands remains consistent and complete, including package manifest validation.
+Provide a unified CLI tool in sandbox mode that validates key repository artifacts, generates interactive examples in the README, finalizes an automated features overview summary, and ensures documentation for sandbox commands remains consistent and complete, including package manifest validation.
 
 # Specification
 
@@ -41,9 +41,18 @@ Provide a unified CLI tool in sandbox mode that validates key repository artifac
  • If no blocks found, log warning and exit status 0
  • On rendering or file I/O errors, log error and exit status 1
 
+## --features-overview
+
+ • Inspect the CLI’s registered flags and their descriptions from the source file
+ • Generate a markdown summary listing each flag, its usage pattern, and a brief description
+ • Print the summary to stdout in JSON log with level info and key `featuresOverview` containing the markdown
+ • Write or update sandbox/docs/FEATURES_OVERVIEW.md with the same markdown summary, replacing any existing content
+ • Exit status 0 on success
+ • On I/O or processing errors, log error with details and exit status 1
+
 # File Changes
 
- • sandbox/source/main.js: add handler for --validate-package with scanning, validation logic, exit codes, and JSON logging; ensure validate-features, validate-readme, fix-features, and generate-interactive-examples are invoked in main
- • sandbox/tests/validate-package.test.js: add tests for valid and invalid package.json configurations
- • sandbox/docs/USAGE.md: update usage instructions to include --validate-package flag and examples
- • sandbox/README.md: update Usage section to document --validate-package flag, including example invocation and expected output
+ • sandbox/source/main.js: add handler for --features-overview before the default case, implement summary generation and file write logic
+ • sandbox/tests/features-overview.test.js: add tests covering success, overwrite behavior, and error handling
+ • sandbox/docs/USAGE.md: add documentation for --features-overview with example invocation and expected output
+ • sandbox/README.md: update Links and Usage sections to include --features-overview
