@@ -45,8 +45,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo "uuid: $(uuidgen)"
-          echo "uuid=$(uuidgen)" >> $GITHUB_OUTPUTS
+          uuid=$(uuidgen)
+          echo "uuid: ${uuid}"
+          echo "uuid=${uuid}" >> $GITHUB_OUTPUT
 
   agentic-lib:
     needs:
