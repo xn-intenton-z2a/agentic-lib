@@ -22,9 +22,15 @@ Provide a unified CLI tool in sandbox mode that validates key repository artifac
 ## --validate-package
 
  • Read root package.json
- • Confirm required fields name, version, description, main, scripts.test, engines.node >=20.0.0
- • Log detailed errors with field names and exit status 1 on invalid or missing fields
- • Log info and exit status 0 on success
+ • Parse its JSON and confirm required fields:
+   - name
+   - version
+   - description
+   - main
+   - scripts.test
+   - engines.node >=20.0.0
+ • For each missing or invalid field, log a JSON error with field name and exit status 1
+ • On success, log an info JSON message and exit status 0
 
 ## --fix-features
 
@@ -39,7 +45,7 @@ Provide a unified CLI tool in sandbox mode that validates key repository artifac
  • Render each block to an interactive HTML snippet using markdown-it and markdown-it-github
  • Remove any existing Examples section, then insert a new idempotent `## Examples` section with rendered snippets
  • If no blocks found, log warning and exit status 0
- • On rendering or file I/O errors, log error and exit status 1
+ • On rendering or file I/O errors, log error with details and exit status 1
 
 ## --features-overview
 
@@ -52,7 +58,7 @@ Provide a unified CLI tool in sandbox mode that validates key repository artifac
 
 # File Changes
 
- • sandbox/source/main.js: add handler for --features-overview before the default case, implement summary generation and file write logic
- • sandbox/tests/features-overview.test.js: add tests covering success, overwrite behavior, and error handling
- • sandbox/docs/USAGE.md: add documentation for --features-overview with example invocation and expected output
- • sandbox/README.md: update Links and Usage sections to include --features-overview
+ • sandbox/source/main.js: add handler for --validate-package before the default case, implement parsing of package.json, field checks, error and info logging, exit logic
+ • sandbox/tests/validate-package.test.js: add tests covering success, missing fields, invalid version, and error handling
+ • sandbox/docs/USAGE.md: add documentation for --validate-package with example invocation and expected output
+ • sandbox/README.md: update Links and Usage sections to include --validate-package
