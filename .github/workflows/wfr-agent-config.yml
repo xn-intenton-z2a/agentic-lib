@@ -323,10 +323,14 @@ jobs:
                 if (lastLine.includes('HALT')) {
                   core.setFailed(`HALT detected in the last line of ${seedDiscussionFilepath}. Stopping execution.`);
                   return;
+                } else {
+                  core.info(`Last line of ${seedDiscussionFilepath}: ${lastLine} - proceeding with execution`);
                 }
               } catch (error) {
                 core.warning(`Error reading ${seedDiscussionFilepath}: ${error.message}`);
               }
+            } else {
+              core.warning(`Warning: ${seedDiscussionFilepath} file not found.`);
             }
 
             if (config?.paths) {
