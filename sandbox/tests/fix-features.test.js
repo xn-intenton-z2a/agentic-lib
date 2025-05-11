@@ -53,7 +53,7 @@ describe("processFixFeatures", () => {
     const writtenPath = writeFileMock.mock.calls[0][0];
     const writtenContent = writeFileMock.mock.calls[0][1];
     expect(writtenPath).toContain("sandbox/features/file2.md");
-    expect(writtenContent.startsWith("> See our [Mission Statement](../MISSION.md)\n\n")).toBe(true);
+    expect(writtenContent.startsWith("> See our [Mission Statement](../../MISSION.md)\n\n")).toBe(true);
 
     expect(consoleLogMock).toHaveBeenCalledWith(
       expect.stringContaining(
