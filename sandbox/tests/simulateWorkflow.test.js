@@ -58,14 +58,11 @@ jobs:
 
   test("throws error on missing file", async () => {
     readFile.mockRejectedValue(new Error("file not found"));
-    await expect(simulateWorkflow("missing.yml")).rejects.toThrow(
-      "Failed to read file missing.yml: file not found"
-    );
+    await expect(simulateWorkflow("missing.yml")).rejects.toThrow("Failed to read file missing.yml: file not found");
   });
 
   test("throws error on invalid YAML", async () => {
     readFile.mockResolvedValue("not: [invalid");
-    await expect(simulateWorkflow("workflow.yml")).rejects.toThrow(
-      /Failed to parse YAML/);
+    await expect(simulateWorkflow("workflow.yml")).rejects.toThrow(/Failed to parse YAML/);
   });
 });

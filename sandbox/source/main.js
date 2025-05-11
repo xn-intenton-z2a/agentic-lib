@@ -11,6 +11,7 @@ import yaml from "js-yaml";
 export async function simulateWorkflow(filePath) {
   let content;
   try {
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
     content = await readFile(filePath, "utf8");
   } catch (err) {
     throw new Error(`Failed to read file ${filePath}: ${err.message}`);
@@ -27,25 +28,31 @@ export async function simulateWorkflow(filePath) {
     throw new Error(`Invalid workflow format in ${filePath}`);
   }
 
-  // Extract triggers
-  const onField = data.on;
-  let triggers = [];
-  if (typeof onField === "string") {
-    triggers = [onField];
-  } else if (Array.isArray(onField)) {
-    triggers = onField;
-  } else if (typeof onField === "object" && onField !== null) {
-    triggers = Object.keys(onField);
-  }
+  const triggers = extractTriggers(data.on);
+  const jobs = extractJobs(data.jobs, filePath);
+  const calls = extractCalls(data.jobs);
 
-  // Extract jobs
-  const jobsObj = data.jobs;
+  return { triggers, jobs, calls };
+}
+
+function extractTriggers(onField) {
+  if (typeof onField === "string") {
+    return [onField];
+  }
+  if (Array.isArray(onField)) {
+    return onField;
+  }
+  if (onField && typeof onField === "object") {
+    return Object.keys(onField);
+  }
+  return [];
+}
+
+function extractJobs(jobsObj, filePath) {
   if (!jobsObj || typeof jobsObj !== "object") {
     throw new Error(`No jobs found in workflow ${filePath}`);
   }
-
-  const jobs = [];
-  for (const [name, job] of Object.entries(jobsObj)) {
+  return Object.entries(jobsObj).map(([name, job]) => {
     const needsRaw = job.needs;
     let needs = [];
     if (typeof needsRaw === "string") {
@@ -53,24 +60,26 @@ export async function simulateWorkflow(filePath) {
     } else if (Array.isArray(needsRaw)) {
       needs = needsRaw;
     }
-    jobs.push({ name, needs });
-  }
+    return { name, needs };
+  });
+}
 
-  // Extract reusable workflow calls
+function extractCalls(jobsObj) {
   const callsSet = new Set();
-  for (const job of Object.values(jobsObj)) {
+  if (!jobsObj || typeof jobsObj !== "object") {
+    return [];
+  }
+  Object.values(jobsObj).forEach((job) => {
     const steps = job.steps;
     if (Array.isArray(steps)) {
-      for (const step of steps) {
+      steps.forEach((step) => {
         if (step.uses && typeof step.uses === "string") {
           callsSet.add(step.uses);
         }
-      }
+      });
     }
-  }
-
-  const calls = Array.from(callsSet);
-  return { triggers, jobs, calls };
+  });
+  return Array.from(callsSet);
 }
 
 /**
