@@ -1,39 +1,39 @@
 # GitHub Actions Workflow Syntax
 ## https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
-This page provides the official specification for defining workflows in GitHub Actions, covering triggers, jobs, steps, matrices, reusable workflows, and advanced features like concurrency and environment variables. It is essential for implementing the core parsing and simulation engine in agentic-lib, as it enumerates every property and behavior that workflows can exhibit. Last known update: November 2023. Authoritative: maintained by GitHub.
+This page provides the official specification for defining workflows in GitHub Actions, covering triggers (`on`), jobs, steps, matrices, reusable workflows, advanced features like concurrency, environment variables, and conditional execution. It enumerates every property and behavior a workflow can exhibit, making it essential for implementing agentic-lib’s dry-run parsing and simulation engine. Last updated: November 2023. Authoritative: maintained and versioned by GitHub.
 ## License: Creative Commons Attribution 4.0 International (CC BY 4.0)
 
 # GitHub REST API
 ## https://docs.github.com/en/rest
-The comprehensive reference for GitHub’s REST API, including endpoints for workflows (dispatch, runs), issues, pull requests, and repository management. Critical for agentic-lib’s SDK to interact with the GitHub platform programmatically, handling authentication, pagination, rate limits, and error responses. Last updated: October 2023. Authoritative: official GitHub documentation.
+The comprehensive reference for GitHub’s REST API, including endpoints for workflows (`dispatch`, `runs`), issues, pull requests, branches, and repository management. Detailed coverage of authentication schemes, pagination, rate limits, error responses, and pagination patterns is critical for agentic-lib’s SDK integration and CI/CD orchestration. Last updated: October 2023. Authoritative: official GitHub documentation.
+## License: GitHub Terms of Service
+
+# GitHub GraphQL API
+## https://docs.github.com/en/graphql
+Official documentation for GitHub’s GraphQL API, providing schema definitions, query and mutation examples, pagination with `nodes` and `edges`, and rate limit handling. Offers more efficient, flexible data retrieval compared to REST, which can be leveraged in agentic-lib for advanced workflow analysis and metadata queries. Last updated: January 2024. Authoritative: maintained by GitHub.
 ## License: GitHub Terms of Service
 
 # Creating JavaScript Actions
 ## https://docs.github.com/en/actions/creating-actions/creating-actions/creating-a-javascript-action
-Guides on authoring JavaScript-based GitHub Actions, detailing action metadata (`action.yml`), Toolkit libraries, packaging, and best practices for secure and efficient execution. Provides practical insights for implementing drop-in JavaScript replacements for GitHub Script steps, aligning directly with agentic-lib’s mission to substitute workflow steps with code. Last updated: December 2023.
+Guides on authoring JavaScript-based GitHub Actions, detailing action metadata (`action.yml`), Toolkit libraries (`@actions/core`, `@actions/github`), packaging strategies, secure environment variable management, and best practices for efficient execution. Directly informs how agentic-lib can generate drop-in JS replacements for `actions/github-script` steps and reusable workflows. Last updated: December 2023.
 ## License: Creative Commons Attribution 4.0 International (CC BY 4.0)
 
 # AWS Lambda with Amazon SQS
 ## https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html
-Official AWS documentation explaining how Lambda integrates with SQS, including event payload structure, batch window configuration, error handling patterns (e.g., `batchItemFailures`), and scaling considerations. Vital for implementing correct SQS event simulations and Lambda handlers in agentic-lib. Last updated: August 2023.
+Official AWS documentation explaining the integration of Lambda and SQS, including event payload structure, batch window configuration, partial batch failure handling (`batchItemFailures`), retry logic, and scaling considerations. Vital for implementing accurate SQS event simulations, error recovery strategies, and handler design in agentic-lib. Last updated: August 2023.
 ## License: Apache License 2.0
 
 # AWS SDK for JavaScript v3
 ## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/index.html
-Reference for the modular AWS SDK for JavaScript (v3), covering client instantiation (e.g., `@aws-sdk/client-lambda`), middleware stack, retries, and TypeScript support. Essential for developing agentic-lib’s AWS integrations and mocking strategies in tests. Last updated: September 2023.
+Reference for the modular AWS SDK for JavaScript (v3), covering client instantiation (e.g., `@aws-sdk/client-lambda`, `@aws-sdk/client-sqs`), middleware stacks, retry strategies, TypeScript type definitions, and performance optimizations. Essential for building and mocking AWS integrations within agentic-lib and ensuring consistent behavior in tests. Last updated: September 2023.
 ## License: Apache License 2.0
 
 # OpenAI Node.js API Reference
 ## https://platform.openai.com/docs/libraries/node-js-reference
-Official Node.js reference documentation for the OpenAI library, including configuration (`Configuration`, `OpenAIApi`), methods for chat completions, streaming, error handling, rate limits, and authentication. Central for implementing AI-driven refinements within agentic-lib. Last updated: January 2024.
-## License: MIT License
-
-# Zod Schema Validation
-## https://github.com/colinhacks/zod
-Zod’s GitHub repository and documentation, outlining schema definitions, parsing strategies, type inference, and error formatting. Crucial for robust configuration validation in agentic-lib (e.g., `.env` parsing) and ensuring runtime safety. Last updated: February 2024.
+Official Node.js API reference for the OpenAI library, including configuration (`Configuration`, `OpenAIApi`), methods for chat completions, streaming, error handling, rate limiting, and authentication. Central for implementing AI-driven workflow refinements, error summarization, and natural language insights within agentic-lib. Last updated: January 2024.
 ## License: MIT License
 
 # act: Run GitHub Actions Locally
 ## https://github.com/nektos/act#readme
-Documentation for `act`, a CLI tool that emulates GitHub Actions runtime locally, detailing event simulation, matrix configurations, and output mapping. Serves as a reference for validating local workflow execution and debugging strategies when developing agentic-lib’s simulation engine. Last updated: November 2023.
+Documentation for `act`, a CLI tool that emulates the GitHub Actions runtime locally, detailing event simulation, matrix strategy testing, environment variable mapping, and output formatting. Serves as a reference for validating and debugging agentic-lib’s local workflow simulations before CI execution. Last updated: November 2023.
 ## License: MIT License
