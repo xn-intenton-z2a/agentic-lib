@@ -121,6 +121,83 @@ export async function processGenerateInteractiveExamples(
 }
 
 /**
+ * Processes the --fix-features flag by injecting mission statement references into any markdown
+ * files under sandbox/features that are missing one.
+ * @param {string[]} args - CLI arguments
+ * @returns {Promise<boolean>} - True if flag processed, false otherwise
+ */
+export async function processFixFeatures(
+  args = process.argv.slice(2),
+) {
+  if (!args.includes("--fix-features")) {
+    return false;
+  }
+
+  const featuresDir = path.resolve("sandbox/features");
+  let files;
+  try {
+    files = await readdir(featuresDir);
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        level: "error",
+        message: "Failed to read features directory",
+        error: error.message,
+      }),
+    );
+    process.exit(1);
+  }
+
+  const mdFiles = files.filter((file) => file.endsWith(".md"));
+  const modifiedFiles = [];
+
+  for (const file of mdFiles) {
+    const filePath = path.join(featuresDir, file);
+    let content;
+    try {
+      content = await readFile(filePath, "utf8");
+    } catch (error) {
+      console.error(
+        JSON.stringify({
+          level: "error",
+          message: "Failed to read feature file",
+          file: filePath,
+          error: error.message,
+        }),
+      );
+      process.exit(1);
+    }
+    if (content.includes("MISSION.md") || content.includes("# Mission")) {
+      continue;
+    }
+    const referenceLine = "> See our [Mission Statement](../MISSION.md)\n\n";
+    const newContent = referenceLine + content;
+    try {
+      await writeFile(filePath, newContent, "utf8");
+    } catch (error) {
+      console.error(
+        JSON.stringify({
+          level: "error",
+          message: "Failed to fix feature files",
+          error: error.message,
+        }),
+      );
+      process.exit(1);
+    }
+    modifiedFiles.push(file);
+  }
+
+  console.log(
+    JSON.stringify({
+      level: "info",
+      message: "Fixed feature files to include mission reference",
+      filesModified: modifiedFiles,
+    }),
+  );
+  process.exit(0);
+}
+
+/**
  * Processes the --validate-features flag by ensuring each markdown file in sandbox/features
  * references the mission statement (MISSION.md or # Mission).
  * @param {string[]} args - CLI arguments
@@ -226,10 +303,7 @@ export async function processValidateReadme(args = process.argv.slice(2)) {
   if (missing.length > 0) {
     for (const ref of missing) {
       console.error(
-        JSON.stringify({
-          level: "error",
-          message: `README missing reference: ${ref}`,
-        }),
+        JSON.stringify({ level: "error", message: `README missing reference: ${ref}` }),
       );
     }
     process.exit(1);
@@ -247,6 +321,9 @@ export async function processValidateReadme(args = process.argv.slice(2)) {
  */
 export async function main(args = process.argv.slice(2)) {
   if (await processGenerateInteractiveExamples(args)) {
+    return;
+  }
+  if (await processFixFeatures(args)) {
     return;
   }
   const featureHandled = await processValidateFeatures(args);
