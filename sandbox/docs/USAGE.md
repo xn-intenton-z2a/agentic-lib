@@ -7,7 +7,7 @@ If any files are missing the reference, errors will be logged and the process wi
 
 Example:
 
-```
+```bash
 node sandbox/source/main.js --validate-features
 ```
 
@@ -66,7 +66,7 @@ Validates that `sandbox/README.md` includes links to `MISSION.md`, `CONTRIBUTING
 
 ## --fix-features
 
-Auto-inserts a mission statement reference into markdown files under `sandbox/features/` that are missing one. It scans all `.md` files and prepends the reference line to those lacking it.
+Auto-inserts a mission statement reference (`> See our [Mission Statement](../../MISSION.md)`) into markdown files under `sandbox/features/` that are missing one. It scans all `.md` files and prepends this reference line to those lacking it.
 
 Example:
 
@@ -77,11 +77,6 @@ node sandbox/source/main.js --fix-features
 Logs on success:
 ```json
 {"level":"info","message":"Fixed feature files to include mission reference","filesModified":["file1.md"]}
-```
-
-Error Path (write failure):
-```json
-{"level":"error","message":"Failed to fix feature files","error":"<details>"}
 ```
 
 ## --features-overview

@@ -170,7 +170,7 @@ export async function processFixFeatures(
     if (content.includes("MISSION.md") || content.includes("# Mission")) {
       continue;
     }
-    const referenceLine = "> See our [Mission Statement](../MISSION.md)\n\n";
+    const referenceLine = "> See our [Mission Statement](../../MISSION.md)\n\n";
     const newContent = referenceLine + content;
     try {
       await writeFile(filePath, newContent, "utf8");
@@ -320,7 +320,7 @@ export async function processValidateReadme(args = process.argv.slice(2)) {
  * @param {string[]} args - CLI arguments
  * @returns {Promise<boolean>} - True if flag processed, false otherwise
  */
-export async function processFeaturesOverview(args = process.argv.slice(2)) {
+export async function processFeaturesOverview(args =process.argv.slice(2)) {
   if (!args.includes("--features-overview")) {
     return false;
   }
