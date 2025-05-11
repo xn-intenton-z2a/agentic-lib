@@ -226,11 +226,8 @@ jobs:
         id: features
         shell: bash
         run: |
-          count=$(find "${{ env.featuresPath }}" -maxdepth 1 -type f -name '*.md' | wc -l || echo '0')
           output=$(find "${{ env.featuresPath }}" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; 2>&1 || echo 'none')
-          echo "Found $count matching feature files."
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
-          echo "Found $count matching feature files." >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"

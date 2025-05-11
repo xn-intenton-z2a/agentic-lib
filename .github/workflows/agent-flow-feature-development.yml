@@ -152,12 +152,31 @@ jobs:
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
+  validate-issue-number:
+    needs:
+      - select-issue-to-enhance
+    runs-on: ubuntu-latest
+    steps:
+      - id: validate-issue-number
+        run: |
+          issueNumber="${{ needs.select-issue.outputs.issueNumber }}"
+          if [[ -n "$issueNumber" && "$issueNumber" =~ [0-9] ]]; then
+            echo "[$issueNumber] is a valid issue number."
+            echo "isValid=true" >> $GITHUB_OUTPUT
+          else
+            echo "[$issueNumber] is not a valid issue number."
+            echo "isValid=false" >> $GITHUB_OUTPUT
+          fi
+    outputs:
+      isValid: ${{ steps.validate-issue-number.outputs.isValid }}
+
   enhance-issue:
     needs:
       - create-issue
       - agentic-lib
       - select-issue-to-enhance
-    if: always()
+      - validate-issue-number
+    if: ${{ always() && needs.validate-issue-number.outputs.isValid == 'true' }}
     permissions:
       contents: read
       issues: write
