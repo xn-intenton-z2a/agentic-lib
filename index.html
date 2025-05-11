@@ -621,9 +621,8 @@ aws sqs get-queue-attributes \
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> Recover stuck issues that are in-progress but not being worked on.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] When enhancing issues do not add duplicated documents</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Comment every issue that a worker touches with the workflow information.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Review features and move to docs when done.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Review mission and stop creating features when done.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] If no maintenance activity is found, then terminate succefully,</li>
+<li class="md-github">[~] [Launch] Review mission and stop when done or failing to progress.</li>
+<li class="md-github">[~] [Launch] Review repository and reseed if stale.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Diagram the workflow interactions.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Pull into agentic-lib.yml: startsWith(&quot;apply-fix-&quot;));</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Pull into agentic-lib.yml: startsWith(&quot;issue-worker-&quot;));</li>
@@ -633,8 +632,8 @@ aws sqs get-queue-attributes \
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Add a comment and put an issue for review if it is already done.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Move branch pre-fix to agentic-lib.yml</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] For all issue comments, add context to the comment such as: &quot;After review, this issue was found to be already done.&quot;</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Pass and log a stamp on a current feature report for feature-to-issue if the feature is done.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Pass and log a stamp on a current maintenance report for a maintenance-activity-to-issue if there is no value in making changes.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> Clean the paths to avoid //</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Separate out writable annd non-writable file paths in the prompt</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Pull any max file sizes into the agent config</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Recycle: Harvest repositor0-* files into agentic-lib when reset and show case past results.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Feature lifecycle of: Elaboration, Delivery, Maintenance, Retirement, and Removal.</li>
@@ -651,8 +650,6 @@ aws sqs get-queue-attributes \
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Investigate MCP for exposing access to repository files.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Create an MCp sever for the repositor actions and pass to ChatGPT to act.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Add a list of all projects files to the context.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Clean the paths to avoid //</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Separate out writable annd non-writable file paths in the prompt</li>
 </ul>
 <p class="md-github">Discussions Bot [MVP]:</p>
 <ul class="md-github md-github__task-list">
@@ -667,14 +664,14 @@ aws sqs get-queue-attributes \
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> If not triggered by a discussion, use SEED_DISCUSSIONS to find the last discussion and use that to post the reply.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> On schedule, set a default body of: Summarise the current state of the repository, activity since the last update and how we are tracking against the mission ad recommends next steps.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> Bot to take actions within a stream (dev, seed, etc...)</li>
-<li class="md-github">[~] When an LLM tries to write to an unwritable folder error out (ignoring creates an opportunity for a failed build.)</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Later] Summarise and sanitize all the workflows so that they can be passed to the bot.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> When an LLM tries to write to an unwritable folder error out (ignoring creates an opportunity for a failed build.)</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Later, JS port] Summarise and sanitize all the workflows so that they can be passed to the bot.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Later] Summarise the features in the archive and mine these during feature development.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Later] Post the cost of the response in each response.</li>
 </ul>
 <p class="md-github">intentïon user journey [Launch UX]:</p>
 <ul class="md-github md-github__task-list">
-<li class="md-github">[~] repository0-crucible seeds the repository with the mission and reports back with the intentïon branch.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> repository0-crucible seeds the repository with the mission and reports back with the intentïon branch.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Floating box logs into github and gives you an embedded formatted discussions thread.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> On intentïon.com, user provides an intention which is posted as a new GitHub Discussions thread.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Archive workflow periodically pushed to an intentïon-<v7uuid> branch (which does not run the workflows) with branch URL and summary reported to Discussions.</li>
@@ -819,7 +816,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-05-10T20:35:32.353Z</p>
+    <p>Generated on 2025-05-11T00:50:17.901Z</p>
   </footer>
 </body>
 </html>
