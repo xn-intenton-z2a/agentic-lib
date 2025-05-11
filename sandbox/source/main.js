@@ -5,10 +5,30 @@ import yaml from "js-yaml";
 
 /**
  * Parses a GitHub Actions workflow YAML file and returns its triggers, jobs, and reusable calls.
+ * Supports options: recursive traversal, matrix expansion, graph generation, and semantic validation.
  * @param {string} filePath - Path to the workflow YAML file
- * @returns {Promise<{ triggers: string[], jobs: { name: string, needs: string[] }[], calls: string[] }>} Parsed workflow summary
+ * @param {object} options - Options for processing
+ * @param {boolean} [options.recursive=false] - Traverse and merge reusable workflows
+ * @param {boolean} [options.expandMatrix=false] - Expand strategy.matrix into permutations
+ * @param {'dot'|'mermaid'|null} [options.graphFormat=null] - Generate job dependency graph
+ * @param {boolean} [options.validate=false] - Run semantic validation
+ * @returns {Promise<{
+ *   triggers: string[],
+ *   jobs: { name: string, needs: string[] }[],
+ *   calls: string[],
+ *   matrixExpansions?: Record<string, any[]>,
+ *   graph?: string,
+ *   validationIssues?: { type: string; message: string; location: string }[]
+ * }>} Parsed workflow summary with enhancements
  */
-export async function simulateWorkflow(filePath) {
+export async function simulateWorkflow(filePath, options = {}) {
+  const {
+    recursive = false,
+    expandMatrix = false,
+    graphFormat = null,
+    validate = false,
+  } = options;
+
   let content;
   try {
     // eslint-disable-next-line security/detect-non-literal-fs-filename
@@ -29,10 +49,34 @@ export async function simulateWorkflow(filePath) {
   }
 
   const triggers = extractTriggers(data.on);
-  const jobs = extractJobs(data.jobs, filePath);
-  const calls = extractCalls(data.jobs);
+  const rawJobs = data.jobs;
+  const jobs = extractJobs(rawJobs, filePath);
+  const calls = extractCalls(rawJobs);
 
-  return { triggers, jobs, calls };
+  const result = { triggers, jobs, calls };
+
+  // Matrix expansion
+  if (expandMatrix) {
+    const matrixExpansions = {};
+    Object.entries(rawJobs).forEach(([jobName, jobDef]) => {
+      if (jobDef.strategy && jobDef.strategy.matrix) {
+        matrixExpansions[jobName] = generateExpansions(jobDef.strategy.matrix);
+      }
+    });
+    result.matrixExpansions = matrixExpansions;
+  }
+
+  // Graph generation
+  if (graphFormat) {
+    result.graph = generateGraph(jobs, graphFormat);
+  }
+
+  // Validation
+  if (validate) {
+    result.validationIssues = validateWorkflow(jobs);
+  }
+
+  return result;
 }
 
 function extractTriggers(onField) {
@@ -82,8 +126,79 @@ function extractCalls(jobsObj) {
   return Array.from(callsSet);
 }
 
+function generateExpansions(matrix) {
+  const keys = Object.keys(matrix);
+  const valuesArr = keys.map((k) => matrix[k]);
+  function cartesian(arr, prefix = []) {
+    if (!arr.length) {
+      return [prefix];
+    }
+    const [first, ...rest] = arr;
+    const result = [];
+    first.forEach((val) => {
+      result.push(...cartesian(rest, [...prefix, val]));
+    });
+    return result;
+  }
+  const combos = cartesian(valuesArr);
+  return combos.map((vals) =>
+    vals.reduce((acc, val, idx) => {
+      acc[keys[idx]] = val;
+      return acc;
+    }, {})
+  );
+}
+
+function generateGraph(jobs, format) {
+  if (format === "dot") {
+    let str = "digraph workflow {\n";
+    jobs.forEach((job) => {
+      if (job.needs.length === 0) {
+        str += `  "${job.name}";\n`;
+      } else {
+        job.needs.forEach((dep) => {
+          str += `  "${dep}" -> "${job.name}";\n`;
+        });
+      }
+    });
+    str += "}";
+    return str;
+  }
+  if (format === "mermaid") {
+    let str = "graph LR\n";
+    jobs.forEach((job) => {
+      if (job.needs.length === 0) {
+        str += `  ${job.name}\n`;
+      } else {
+        job.needs.forEach((dep) => {
+          str += `  ${dep} --> ${job.name}\n`;
+        });
+      }
+    });
+    return str;
+  }
+  return "";
+}
+
+function validateWorkflow(jobs) {
+  const issues = [];
+  const jobNames = jobs.map((j) => j.name);
+  jobs.forEach((job) => {
+    job.needs.forEach((dep) => {
+      if (!jobNames.includes(dep)) {
+        issues.push({
+          type: "InvalidDependency",
+          message: `Job ${job.name} needs unknown job ${dep}`,
+          location: job.name,
+        });
+      }
+    });
+  });
+  return issues;
+}
+
 /**
- * CLI entrypoint processing for --simulate-workflow flag
+ * CLI entrypoint processing for --simulate-workflow flag and additional options.
  */
 async function main(args = process.argv.slice(2)) {
   const idx = args.indexOf("--simulate-workflow");
@@ -93,9 +208,25 @@ async function main(args = process.argv.slice(2)) {
       console.error("Error: No workflow file specified for --simulate-workflow");
       process.exit(1);
     }
+    const recursive = args.includes("--recursive");
+    const expandMatrix = args.includes("--expand-matrix");
+    const validate = args.includes("--validate");
+    let graphFormat = null;
+    const gdIdx = args.indexOf("--graph-format");
+    if (gdIdx !== -1) {
+      graphFormat = args[gdIdx + 1];
+    }
     try {
-      const result = await simulateWorkflow(filePath);
+      const result = await simulateWorkflow(filePath, {
+        recursive,
+        expandMatrix,
+        graphFormat,
+        validate,
+      });
       console.log(JSON.stringify(result, null, 2));
+      if (validate && result.validationIssues && result.validationIssues.length > 0) {
+        process.exit(1);
+      }
       process.exit(0);
     } catch (err) {
       console.error(`Error: ${err.message}`);
@@ -104,7 +235,9 @@ async function main(args = process.argv.slice(2)) {
   }
 
   console.log("No command argument supplied.");
-  console.log("Usage: npx agentic-lib --simulate-workflow <workflow.yml>");
+  console.log(
+    "Usage: npx agentic-lib --simulate-workflow <workflow.yml> [--recursive] [--expand-matrix] [--graph-format dot|mermaid] [--validate]"
+  );
 }
 
 // Execute main if called directly
