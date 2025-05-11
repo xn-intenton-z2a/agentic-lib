@@ -23,11 +23,11 @@ Provide a unified CLI tool in sandbox mode that validates key repository artifac
 
  • Read root package.json
  • Parse its JSON and confirm required fields:
-   - name
-   - version
-   - description
-   - main
-   - scripts.test
+   - name (non-empty string)
+   - version (semver compliant)
+   - description (non-empty string)
+   - main (path to entrypoint)
+   - scripts.test defined
    - engines.node >=20.0.0
  • For each missing or invalid field, log a JSON error with field name and exit status 1
  • On success, log an info JSON message and exit status 0
@@ -58,7 +58,7 @@ Provide a unified CLI tool in sandbox mode that validates key repository artifac
 
 # File Changes
 
- • sandbox/source/main.js: add handler for --validate-package before the default case, implement parsing of package.json, field checks, error and info logging, exit logic
+ • sandbox/source/main.js: add handler for --validate-package before the default case, implement parsing of package.json, field checks, JSON error and info logging, and exit logic
  • sandbox/tests/validate-package.test.js: add tests covering success, missing fields, invalid version, and error handling
  • sandbox/docs/USAGE.md: add documentation for --validate-package with example invocation and expected output
  • sandbox/README.md: update Links and Usage sections to include --validate-package
