@@ -1,6 +1,6 @@
 # GitHub Actions Official Documentation
 ## https://docs.github.com/en/actions
-Comprehensive guide to configuring and running GitHub Actions workflows, covering workflow syntax (`on`, `jobs`, `steps`), expressions & contexts, environment files, concurrency controls, caching strategies, retention settings, and reusable workflows via `workflow_call`. Includes details on inputs/outputs, secrets propagation, permissions, composite actions, version pinning, parameter validation, and debugging tips. Essential for agentic-lib’s simulation engine to accurately parse and validate complex workflow definitions, nested calls, conditional execution, and parameter flows. Last updated: November 2023. Authoritative: GitHub.
+Comprehensive guide to configuring and running GitHub Actions workflows, covering workflow syntax (`on`, `jobs`, `steps`), expressions & contexts including functions and context objects (`github`, `env`, `job`, `steps`, `inputs`, `secrets`), environment files, concurrency controls, caching strategies, retention settings, reusable workflows via `workflow_call`, inputs/outputs, secrets propagation, permissions, composite actions, version pinning, parameter validation, and debugging tips. Essential for agentic-lib’s simulation engine to accurately parse and validate complex workflow definitions, nested calls, conditional execution, and parameter flows. Last updated: November 2023. Authoritative: GitHub.
 ## License: GitHub Terms of Service
 
 # GitHub API Reference
@@ -28,12 +28,12 @@ Official AWS guide for event source mapping of SQS-triggered Lambda functions, d
 Official OpenAI API client documentation for Node.js, covering the `Configuration` class, `OpenAIApi` methods (chat, completions, edits), streaming APIs, error handling strategies, rate limiting, retry patterns, and TypeScript type definitions. Essential for leveraging AI-powered code generation and dynamic content refinement in agentic-lib workflows. Last updated: April 2024. Authoritative: OpenAI.
 ## License: MIT License
 
-# Vitest Testing Framework
-## https://vitest.dev
-Vite-powered test runner offering first-class TypeScript support, snapshot testing, mocking capabilities (`vi`), and integrated coverage metrics with v8 coverage. Documentation details configuration options, lifecycle hooks, mocking APIs, performance tuning, and plugin support—directly applicable to designing reliable and maintainable test suites for agentic-lib. Last updated: March 2024. Authoritative: Vitest maintainers.
-## License: MIT License
+# GitHub Actions Workflow Syntax
+## https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+Detailed reference on GitHub Actions workflow syntax, including triggers, permissions, concurrency, jobs settings (`runs-on`, `env`, `strategy.matrix`), services, container options, artifacts, and workflow-level `on` events. Provides essential technical specifications for accurately modeling and validating workflow definitions in agentic-lib’s simulation engine. Last updated: November 2023. Authoritative: GitHub.
+## License: GitHub Terms of Service
 
-# GitHub Actions Expressions & Contexts
-## https://docs.github.com/en/actions/learn-github-actions/expressions
-Detailed reference on GitHub Actions expressions and context objects, covering syntax, functions (string, math, format), contexts (`github`, `env`, `job`, `steps`, `inputs`, `secrets`), conditional workflows, and evaluation order. Provides essential insight for agentic-lib’s future enhancements to parse and simulate conditional step execution and context-dependent logic. Last updated: November 2023. Authoritative: GitHub.
+# Reusing Workflows (Reusable Workflows)
+## https://docs.github.com/en/actions/using-workflows/reusing-workflows
+In-depth guide to creating and invoking reusable workflows using `workflow_call`, detailing input/output parameter definitions, default values, `secrets`, and caller permissions. Includes best practices for versioning, composability, and debugging reusable workflows. Crucial for agentic-lib to support seamless simulation of nested and dependent workflow calls. Last updated: October 2023. Authoritative: GitHub.
 ## License: GitHub Terms of Service
