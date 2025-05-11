@@ -1,32 +1,46 @@
 # Simulate Workflow
 
 ## Purpose
-Extend the existing dry-run engine to support recursive resolution of reusable workflows and optional generation of a visual execution graph. Users can preview complete execution plans including nested workflows and output a Graphviz DOT representation for visualization.
+Extend the existing dry-run engine to expose a lightweight HTTP API endpoint for workflow simulation, enabling programmatic access over HTTP as well as the existing CLI and library interfaces.
 
 ## Value Proposition
-- Provide full insight into multi-level workflows by tracing reusable workflow calls across repositories.
-- Empower users to validate and document end-to-end execution paths before CI runs.
-- Facilitate architecture reviews by exporting workflow dependency graphs in DOT format for external visualization tools.
+- Allow other services and dashboards to integrate workflow simulation without invoking CLI or embedding code.
+- Support interactive web clients or automation systems to fetch simulation plans or Graphviz DOT graphs.
+- Maintain backward compatibility with existing CLI and library usages while adding an HTTP layer.
 
 ## Success Criteria
-1. simulateWorkflow API accepts an options object with flags `recursive` and `graph`.
-2. When `recursive` is true, simulateWorkflow loads and merges all referenced reusable workflows, preserving triggers, jobs, and inter-workflow dependencies in the returned plan.
-3. When `graph` is true, simulateWorkflow returns an additional `dot` field containing a valid Graphviz DOT description of the full execution plan.
-4. CLI supports new flags `--recursive` and `--graph` alongside `--simulate-workflow`, printing JSON with optional dot output when requested.
-5. Comprehensive tests cover single and multi-level reusable workflows, missing or invalid nested files, and graph output structure.
+1. A new HTTP server can be started via a `--serve-api [port]` CLI flag or by calling a new `startSimulationServer(port)` export.
+2. The server listens on the specified port and exposes a GET `/simulate-workflow` endpoint.
+3. The endpoint accepts query parameters:
+   - `file` (required): path to workflow YAML file.
+   - `recursive` (optional, boolean, default false): whether to resolve nested reusable workflows.
+   - `graph` (optional, boolean, default false): whether to return Graphviz DOT representation.
+4. The endpoint returns HTTP 200 with a JSON body containing the same keys as the library API (`triggers`, `jobs`, `calls`) and, if requested, an additional `dot` field.
+5. Errors (file read or parse failures) return HTTP 400 with a JSON error message and HTTP 500 for unexpected failures.
+6. Existing CLI flags `--simulate-workflow`, `--recursive`, and `--graph` continue to work unchanged.
+7. Tests cover server startup, valid simulation requests, missing parameters, error responses, and graph output paths.
 
 ## Implementation Details
-- Update simulateWorkflow signature to `simulateWorkflow(filePath, options)` where options.recursive and options.graph default to false.
-- For recursive resolution, detect `uses` references pointing to local file paths, load those YAML files, parse and merge their jobs and calls into the main plan.
-- Construct a directed graph of jobs and nested workflow calls; serialize it into DOT format when graph flag is set.
-- Extend CLI entrypoint to parse `--recursive` and `--graph` flags and pass into simulateWorkflow.
-- Use js-yaml for parsing and a simple DOT generation routine; no new dependencies beyond js-yaml.
+1. Add a dependency on Express or use Node.js built-in `http` module to spawn a server in `sandbox/source/main.js` alongside the CLI logic.
+2. Implement and export `startSimulationServer(port: number): Promise<http.Server>` that:
+   - Initializes the HTTP server,
+   - Registers the `/simulate-workflow` route,
+   - Parses query parameters,
+   - Invokes the existing `simulateWorkflow(filePath, { recursive, graph })` (update signature to accept an options object) to retrieve results,
+   - Serializes the result or error into JSON responses with appropriate status codes.
+3. Update `simulateWorkflow` signature to accept an optional options object `{ recursive?, graph? }` (default false) for use in both CLI and HTTP layers.
+4. Update CLI entrypoint to parse a new `--serve-api [port]` flag; if present, call `startSimulationServer(port)` and log a startup message, then keep the process running.
+5. Retain JSON logging format for errors and info, adjusting log levels for HTTP requests.
 
 ## Testing
-- Add tests in sandbox/tests/simulate-workflow-recursive.test.js verifying nested workflow parsing and combined plan output.
-- Add tests for graph output matching expected DOT syntax for simple and multi-layer workflows.
-- Mock filesystem reads for nested YAML files and ensure error handling when nested file is missing or invalid.
+- Create new tests in `sandbox/tests/simulate-workflow-api.test.js` using built-in Node.js HTTP client or a lightweight testing helper:
+  - Verify that GET `/simulate-workflow?file=...` returns expected JSON for a simple workflow.
+  - Test recursive and graph flags in query string.
+  - Test missing `file` parameter returns HTTP 400 with error message.
+  - Simulate file read errors and invalid YAML to confirm HTTP 400 or 500 codes.
+- Mock filesystem reads with Vitest mocks for nested workflows and error conditions.
 
 ## Documentation
-- Update sandbox/docs/SIMULATE_WORKFLOW.md to describe new options, API signature, and example of DOT output.
-- Update sandbox/README.md with CLI usage examples for recursive simulation and graph export.
+- Update `sandbox/docs/SIMULATE_WORKFLOW.md` with an **HTTP API** section describing the new endpoint, parameters, and example responses.
+- Update `sandbox/README.md` to include instructions for the new `--serve-api` flag and code snippet for using `startSimulationServer` in a Node.js project.
+- Ensure all new API surfaces are documented with examples and acceptance criteria.
