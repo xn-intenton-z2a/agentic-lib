@@ -84,8 +84,6 @@ Error Path (write failure):
 {"level":"error","message":"Failed to fix feature files","error":"<details>"}
 ```
 
-Exits with code 1 on error.
-
 ## --features-overview
 
 Generates a markdown summary of all sandbox CLI flags and their descriptions. Writes to `sandbox/docs/FEATURES_OVERVIEW.md` and prints a JSON info log:
@@ -98,3 +96,33 @@ Logs:
 ```json
 {"level":"info","featuresOverview":"<markdown string>"}
 ```
+
+## --validate-package
+
+Parses and validates the root `package.json`, ensuring required fields exist and meet constraints:
+
+- `name` (string)
+- `version` (valid semver)
+- `description` (string)
+- `main` (string)
+- `scripts.test` (string)
+- `engines.node` (>=20.0.0)
+
+Example:
+
+```bash
+node sandbox/source/main.js --validate-package
+```
+
+- Success Path:
+  ```json
+  {"level":"info","message":"Package manifest validation passed"}
+  ```
+- Failure Path (missing or invalid fields):
+  ```json
+  {"level":"error","message":"Package manifest missing or invalid field","field":"<field>"}
+  ```
+- I/O Error Path:
+  ```json
+  {"level":"error","message":"Failed to read package.json","error":"<details>"}
+  ```

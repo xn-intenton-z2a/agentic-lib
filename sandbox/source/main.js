@@ -271,7 +271,7 @@ export async function processValidateFeatures(args = process.argv.slice(2)) {
  * Processes the --validate-readme flag by ensuring sandbox/README.md contains critical references.
  * @param {string[]} args - CLI arguments
  * @returns {Promise<boolean>} - True if flag processed, false otherwise
- */
+ />
 export async function processValidateReadme(args = process.argv.slice(2)) {
   if (!args.includes("--validate-readme")) {
     return false;
@@ -371,6 +371,69 @@ export async function processFeaturesOverview(args = process.argv.slice(2)) {
 }
 
 /**
+ * Processes the --validate-package flag by reading and validating root package.json
+ * @param {string[]} args - CLI arguments
+ * @returns {Promise<boolean>} - True if flag processed, false otherwise
+ */
+export async function processValidatePackage(
+  args = process.argv.slice(2),
+) {
+  if (!args.includes("--validate-package")) {
+    return false;
+  }
+  const pkgPath = path.resolve("package.json");
+  let content;
+  try {
+    content = await readFile(pkgPath, "utf8");
+  } catch (error) {
+    console.error(
+      JSON.stringify({ level: "error", message: "Failed to read package.json", error: error.message }),
+    );
+    process.exit(1);
+  }
+  let pkg;
+  try {
+    pkg = JSON.parse(content);
+  } catch (error) {
+    console.error(
+      JSON.stringify({ level: "error", message: "Failed to parse package.json", error: error.message }),
+    );
+    process.exit(1);
+  }
+  const errors = [];
+  if (typeof pkg.name !== "string" || pkg.name.trim() === "") {
+    errors.push({ level: "error", message: "Package manifest missing or invalid field", field: "name" });
+  }
+  const semverRegex = /^\d+\.\d+\.\d+(-[\w\.\+]+)?(\+[\w\.\+]+)?$/;
+  if (typeof pkg.version !== "string" || !semverRegex.test(pkg.version)) {
+    errors.push({ level: "error", message: "Package manifest missing or invalid field", field: "version" });
+  }
+  if (typeof pkg.description !== "string" || pkg.description.trim() === "") {
+    errors.push({ level: "error", message: "Package manifest missing or invalid field", field: "description" });
+  }
+  if (typeof pkg.main !== "string" || pkg.main.trim() === "") {
+    errors.push({ level: "error", message: "Package manifest missing or invalid field", field: "main" });
+  }
+  if (!pkg.scripts || typeof pkg.scripts.test !== "string" || pkg.scripts.test.trim() === "") {
+    errors.push({ level: "error", message: "Package manifest missing or invalid field", field: "scripts.test" });
+  }
+  if (!pkg.engines || typeof pkg.engines.node !== "string") {
+    errors.push({ level: "error", message: "Package manifest missing or invalid field", field: "engines.node" });
+  } else {
+    const enginesRegex = /^>=\s*20(\.\d+){0,2}$/;
+    if (!enginesRegex.test(pkg.engines.node)) {
+      errors.push({ level: "error", message: "Package manifest missing or invalid field", field: "engines.node" });
+    }
+  }
+  if (errors.length > 0) {
+    errors.forEach((err) => console.error(JSON.stringify(err)));
+    process.exit(1);
+  }
+  console.log(JSON.stringify({ level: "info", message: "Package manifest validation passed" }));
+  process.exit(0);
+}
+
+/**
  * Main CLI entrypoint for sandbox mode
  * @param {string[]} args - CLI arguments
  */
@@ -382,6 +445,9 @@ export async function main(args = process.argv.slice(2)) {
     return;
   }
   if (await processFeaturesOverview(args)) {
+    return;
+  }
+  if (await processValidatePackage(args)) {
     return;
   }
   const featureHandled = await processValidateFeatures(args);
@@ -399,11 +465,7 @@ if (
 ) {
   main().catch((error) => {
     console.error(
-      JSON.stringify({
-        level: "error",
-        message: "Fatal error in sandbox CLI",
-        error: error.message,
-      }),
+      JSON.stringify({ level: "error", message: "Fatal error in sandbox CLI", error: error.message }),
     );
     process.exit(1);
   });
