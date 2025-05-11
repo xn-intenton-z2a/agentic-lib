@@ -352,10 +352,9 @@ export async function processFeaturesOverview(args = process.argv.slice(2)) {
   const rows = flags.map(([f, d]) => `| ${f} | ${d} |`);
   const markdown = ["# Features Overview", "", header, separator, ...rows].join("\n");
   const docsPath = path.resolve("sandbox/docs/FEATURES_OVERVIEW.md");
+
   try {
     await writeFile(docsPath, markdown + "\n", "utf8");
-    console.log(JSON.stringify({ level: "info", featuresOverview: markdown }));
-    process.exit(0);
   } catch (error) {
     console.error(
       JSON.stringify({
@@ -366,6 +365,9 @@ export async function processFeaturesOverview(args = process.argv.slice(2)) {
     );
     process.exit(1);
   }
+
+  console.log(JSON.stringify({ level: "info", featuresOverview: markdown }));
+  process.exit(0);
 }
 
 /**
