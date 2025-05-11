@@ -208,7 +208,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      packages: write
       checks: write
       issues: write
       id-token: write
