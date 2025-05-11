@@ -1,4 +1,5 @@
 # Objective
+
 Provide a unified CLI tool in sandbox mode that validates key repository artifacts, generates interactive examples in the README, and ensures documentation for sandbox commands remains consistent and complete.
 
 # Specification
@@ -37,10 +38,12 @@ Provide a unified CLI tool in sandbox mode that validates key repository artifac
  • Log info and exit status 0 on success when all CLI flags are documented consistently
 
 # Logging Format
+
 All log entries must be JSON objects with level, timestamp, message, and relevant metadata. Validation flags run in order when combined before example generation.
 
 # File Changes
- • sandbox/source/main.js: add handler for --validate-docs with scanning, validation logic, exit codes, and JSON logging
- • sandbox/tests/validate-docs.test.js: tests for missing and valid documentation coverage cases
- • sandbox/docs/USAGE.md: update usage instructions to include --validate-docs flag
- • sandbox/README.md: update Usage section to document --validate-docs flag
+
+ • sandbox/source/main.js: add handler for --validate-package with scanning, validation logic, exit codes, and JSON logging
+ • sandbox/tests/validate-package.test.js: add tests for valid and invalid package.json configurations
+ • sandbox/docs/USAGE.md: update usage instructions to include --validate-package flag
+ • sandbox/README.md: update Usage section to document --validate-package flag
