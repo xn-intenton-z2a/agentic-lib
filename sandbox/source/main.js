@@ -316,6 +316,61 @@ export async function processValidateReadme(args = process.argv.slice(2)) {
 }
 
 /**
+ * Processes the --features-overview flag by generating a markdown summary of all sandbox CLI flags.
+ * @param {string[]} args - CLI arguments
+ * @returns {Promise<boolean>} - True if flag processed, false otherwise
+ */
+export async function processFeaturesOverview(args = process.argv.slice(2)) {
+  if (!args.includes("--features-overview")) {
+    return false;
+  }
+  const flags = [
+    [
+      "--generate-interactive-examples",
+      "Scans sandbox/README.md for ```mermaid-workflow``` fenced code blocks and generates interactive HTML snippets in an Examples section.",
+    ],
+    [
+      "--fix-features",
+      "Injects mission statement references into markdown files under sandbox/features missing one.",
+    ],
+    [
+      "--validate-features",
+      "Ensures markdown files in sandbox/features reference mission statement.",
+    ],
+    [
+      "--validate-readme",
+      "Ensures sandbox/README.md contains references to MISSION.md, CONTRIBUTING.md, LICENSE.md, and the repository URL.",
+    ],
+    [
+      "--features-overview",
+      "Generates a markdown summary of all sandbox CLI flags and their descriptions.",
+    ],
+  ];
+  // Build markdown table
+  const header = "| Flag | Description |";
+  const separator = "| --- | --- |";
+  const rows = flags.map(([f, d]) => `| ${f} | ${d} |`);
+  const markdown = ["# Features Overview", "", header, separator, ...rows].join("\n");
+  const docsPath = path.resolve("sandbox/docs/FEATURES_OVERVIEW.md");
+
+  try {
+    await writeFile(docsPath, markdown + "\n", "utf8");
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        level: "error",
+        message: "Failed to generate features overview",
+        error: error.message,
+      }),
+    );
+    process.exit(1);
+  }
+
+  console.log(JSON.stringify({ level: "info", featuresOverview: markdown }));
+  process.exit(0);
+}
+
+/**
  * Main CLI entrypoint for sandbox mode
  * @param {string[]} args - CLI arguments
  */
@@ -324,6 +379,9 @@ export async function main(args = process.argv.slice(2)) {
     return;
   }
   if (await processFixFeatures(args)) {
+    return;
+  }
+  if (await processFeaturesOverview(args)) {
     return;
   }
   const featureHandled = await processValidateFeatures(args);
