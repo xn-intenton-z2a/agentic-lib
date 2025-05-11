@@ -1,51 +1,51 @@
 # Purpose
-Provide a unified engine for dry-run simulation and semantic validation of GitHub Actions workflows, along with structured comparison between two workflow definitions. Enable users to explore triggers, jobs, dependencies, reusable calls, and detect workflow definition issues before running in CI/CD.
+Enhance the existing workflow simulation engine to provide configurable matrix expansion, execution graph generation, semantic validation, structured diff comparisons, and a lightweight HTTP API alongside the CLI. This empowers users to fully analyze, compare, and validate GitHub Actions workflows without executing them.
 
 # Value Proposition
-- Extract triggers, jobs, dependencies without executing steps
-- Resolve reusable workflows recursively and expand matrix configurations for accurate planning
-- Visualize execution graphs in DOT and Mermaid formats to aid understanding
-- Compare two workflows side-by-side with JSON and text diff formats to highlight changes
-- Validate workflow semantics: detect missing job dependencies, circular dependencies, unsupported trigger types, and duplicate job names
-- Accessible via CLI and HTTP API to integrate into automation pipelines and custom tooling
+- Allow users to expand matrix job configurations for accurate planning.
+- Generate execution graphs in DOT and Mermaid formats to visualize job dependencies.
+- Perform semantic validation to catch missing needs, circular dependencies, unsupported triggers, and duplicate job names before CI/CD runs.
+- Compare two workflow definitions side-by-side, highlighting structural and semantic changes in JSON or text diff formats.
+- Expose HTTP endpoints for programmatic integration in automation pipelines and custom tooling.
 
 # Success Criteria
-1. simulateWorkflow(filePath, options) signature supports:
+1. simulateWorkflow(filePath, options) accepts:
    - recursive: boolean (default false)
    - expandMatrix: boolean (default false)
    - graphFormat: 'dot' | 'mermaid' | none
-   - validate: boolean (default false) to enable semantic validation
-2. validateWorkflow(filePath, options) returns:
-   - issues: array of { type, message, location } for each detected problem
-3. compareWorkflows(fileA, fileB, options) returns structured diffs and reuses simulateWorkflow and validateWorkflow options
-4. CLI enhancements:
-   - --simulate-workflow <file> [--recursive] [--expand-matrix] [--graph-format <dot|mermaid>] [--validate]
+   - validate: boolean (default false)
+   and returns triggers, jobs, calls, plus optional graph and validation issues.
+2. validateWorkflow(filePath) returns array of issues { type, message, location }.
+3. compareWorkflows(fileA, fileB, options) returns:
+   - summary diff of triggers, jobs, calls
+   - optional graph for each version
+   - validation issues for each version
+   - JSON or text diff output based on options.diffFormat.
+4. CLI commands:
    - --validate-workflow <file> [--recursive] [--expand-matrix] [--graph-format <dot|mermaid>]
-   - --compare-workflows <fileA> <fileB> [--diff-format <json|text>] plus graph and validate flags
-   - Exit code 0 on success, 1 on errors or validation issues
-5. HTTP API endpoints:
+   - --compare-workflows <fileA> <fileB> [--diff-format <json|text>] plus recursive, expandMatrix, graphFormat, validate flags
+   - Exit codes: 0 on success, 1 on error or validation issues.
+5. HTTP API endpoints in sandbox/source/main.js:
    - GET /simulate-workflow?file=&recursive=&expandMatrix=&graphFormat=&validate=
    - GET /validate-workflow?file=&recursive=&expandMatrix=&graphFormat=
    - GET /compare-workflows?fileA=&fileB=&diffFormat=&recursive=&expandMatrix=&graphFormat=&validate=
-   - Return JSON with parsed data, graphs, diffs, and validation issues; HTTP 400 on bad input, 500 on server error
+   Respond with JSON body and status 200 on success, 400 on invalid input, 500 on server error.
 
 # Implementation Details
-1. Extend simulateWorkflow in sandbox/source/main.js to accept an options object and implement matrix expansion, graph generation, and validation invocation
-2. Implement validateWorkflow in sandbox/source/main.js that:
-   - Parses the workflow
-   - Runs semantic checks: missingNeeds, circularDependencies, unsupportedTriggers, duplicateJobNames
-   - Returns an array of issue objects with type, message, and location details
-3. Enhance compareWorkflows to invoke validateWorkflow on each version and include issues in diff report
-4. Update CLI argument parser in sandbox/source/main.js to recognize new flags (--validate-workflow and --validate) and dispatch appropriately
-5. Add HTTP routes in sandbox/source/main.js for /validate-workflow that parse query parameters and return JSON validation results
-6. Introduce utility functions for validation rules and reuse existing YAML parsing logic
+- Extend simulateWorkflow to support options and integrate matrix expansion, graph generation, and validation.
+- Implement validateWorkflow using existing YAML parser and new rule functions for needs, circular dependencies, triggers, duplicate names.
+- Enhance compareWorkflows to reuse simulateWorkflow and validateWorkflow, merge results, compute diffs using a JSON diff library (e.g., lodash).
+- Update CLI parser to handle new flags and dispatch to appropriate functions, formatting output and exit codes.
+- Add HTTP routes to sandbox/source/main.js using a lightweight server (e.g., Express or built-in http module) to map query parameters to function calls.
 
 # Testing
-- Create sandbox/tests/validateWorkflow.test.js to cover valid and invalid workflows, checking issue types and messages
-- Update sandbox/tests/simulateWorkflow.test.js to include scenarios with --validate flag
-- Extend sandbox/tests/cli.test.js to simulate --validate-workflow and --validate usage and verify exit codes, stdout, and stderr
-- Add sandbox/tests/api.test.js to call /validate-workflow endpoints and assert JSON structure and HTTP status codes
+- Add sandbox/tests/validateWorkflow.test.js for valid and invalid workflows, verifying issue arrays.
+- Update sandbox/tests/simulateWorkflow.test.js for expandMatrix, graphFormat, and validate options.
+- Create sandbox/tests/compareWorkflows.test.js covering diff formats, graphs, and validation in compareWorkflows.
+- Extend sandbox/tests/cli.test.js to cover --validate-workflow and --compare-workflows, checking exit codes and output.
+- Add sandbox/tests/api.test.js to call each HTTP endpoint, assert JSON structure and HTTP status codes.
 
 # Documentation
-- Revise sandbox/docs/SIMULATE_WORKFLOW.md with new Validation section and examples for both CLI and HTTP API
-- Update sandbox/README.md to document --validate-workflow, --validate flags, and validation endpoint details
+- Update sandbox/docs/SIMULATE_WORKFLOW.md with sections for Validation, Comparison, and HTTP API examples.
+- Modify sandbox/README.md to document --validate-workflow, --compare-workflows flags and API endpoints.
+- Ensure README links to MISSION.md, CONTRIBUTING.md, and sandbox/docs/SIMULATE_WORKFLOW.md.
