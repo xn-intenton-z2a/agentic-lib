@@ -1,81 +1,65 @@
 # agentic-lib
 
-[![npm version](https://img.shields.io/npm/v/@xn-intenton-z2a/agentic-lib)](https://www.npmjs.com/package/@xn-intenton-z2a/agentic-lib)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
-[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE.md)
+agentic-lib is a JavaScript SDK that enables autonomous GitHub workflows by providing reusable functions and handlers. It can be used as a drop-in implementation or replacement for steps, jobs, and workflows in your GitHub Actions, empowering continuous code review, fixes, and evolution.
 
-Agentic-lib is a JavaScript SDK for simulating and orchestrating GitHub Actions workflows, enabling you to perform dry-run analysis, manage SQS events, and integrate into your CI/CD pipelines in an “agentic” manner.
+Key benefits include:
 
-Refer to the [Mission Statement](../MISSION.md) to learn more about the vision and goals of this project.
-
-Repository: https://github.com/xn-intenton-z2a/agentic-lib
-
-## Key Features
-
-- **Workflow Simulation**  
-  Parse GitHub Actions workflow YAML files to extract triggers, jobs, and reusable workflow calls without executing steps.  
-- **SQS Utilities**  
-  Create and process AWS SQS events for Lambda functions:  
-  - `createSQSEventFromDigest(digest)`  
-  - `digestLambdaHandler(event)`  
-- **Command-Line Interface (CLI)**  
-  Use the CLI to access core functionality:  
-  - `--simulate-workflow <path>`: Dry-run a workflow and output JSON summary.  
-  - `--digest`: Simulate processing of a sample SQS digest event.  
-  - `--version`: Show library version and timestamp.  
-  - `--help`: Display usage instructions.
+- Drop-in SDK for GitHub Actions workflows
+- Autonomous processing of SQS digest events
+- Structured JSON logging for observability
+- Easy CLI and programmatic integrations
 
 ## Installation
+
+Install via npm:
 
 ```bash
 npm install @xn-intenton-z2a/agentic-lib
 ```
 
-Or, run directly with npx:
-
-```bash
-npx agentic-lib --simulate-workflow path/to/workflow.yml
-```
-
 ## Usage
 
-### API
-
-```javascript
-import { simulateWorkflow, createSQSEventFromDigest, digestLambdaHandler } from '@xn-intenton-z2a/agentic-lib';
-
-(async () => {
-  // Workflow simulation
-  const result = await simulateWorkflow('.github/workflows/ci.yml');
-  console.log(result);
-
-  // SQS event generation and handling
-  const digest = { key: 'events/1.json', value: '12345', lastModified: new Date().toISOString() };
-  const sqsEvent = createSQSEventFromDigest(digest);
-  const handlerResult = await digestLambdaHandler(sqsEvent);
-  console.log(handlerResult);
-})();
-```
-
-### CLI
+### CLI Usage
 
 ```bash
-npx agentic-lib --simulate-workflow .github/workflows/ci.yml
-npx agentic-lib --digest
-npx agentic-lib --version
-npx agentic-lib --help
+# Show help and usage instructions
+npm run start -- --help
+
+# Show version with timestamp
+npm run start -- --version
+
+# Simulate a digest Lambda execution
+npm run start -- --digest
 ```
 
-## Documentation
+### Programmatic Usage
 
-- Detailed workflow simulation: [Simulate Workflow](docs/SIMULATE_WORKFLOW.md)  
-- Contributing guidelines: [CONTRIBUTING.md](../CONTRIBUTING.md)  
-- License information: [LICENSE.md](../LICENSE.md)
+```js
+import { main, digestLambdaHandler, createSQSEventFromDigest, logInfo } from 'agentic-lib';
 
-## Contributing
+// Log an informational message
+logInfo('Hello from agentic-lib');
 
-We welcome contributions! Please read our [Contributing Guidelines](../CONTRIBUTING.md) before submitting PRs.
+// Create an SQS event from a digest object and invoke the handler
+const digest = { key: 'events/1.json', value: '12345', lastModified: new Date().toISOString() };
+const event = createSQSEventFromDigest(digest);
+await digestLambdaHandler(event);
+```
 
-## License
+## API Reference
 
-This project is dual-licensed under the MIT and GPL-3.0 licenses. See [LICENSE.md](../LICENSE.md) for details.
+| Function                   | Description                                                                 |
+|----------------------------|-----------------------------------------------------------------------------|
+| main(args)                 | CLI entry point; processes flags (`--help`, `--version`, `--digest`).       |
+| digestLambdaHandler(event) | AWS Lambda SQS handler for processing digest messages.                       |
+| createSQSEventFromDigest   | Creates a mock SQS event from a digest object.                              |
+| logInfo(message)           | Logs an info-level message in JSON format.                                   |
+| logError(message, error)   | Logs an error-level message in JSON format, including error details.         |
+| logConfig()                | Logs the loaded configuration values.                                        |
+
+## Links
+
+- [Mission Statement](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/MISSION.md)
+- [Contributing Guidelines](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/CONTRIBUTING.md)
+- [License](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/LICENSE.md)
+- [GitHub Repository](https://github.com/xn-intenton-z2a/agentic-lib)

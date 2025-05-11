@@ -1,55 +1,42 @@
-sandbox/features/SUMMARY_OUTPUT.md
-# sandbox/features/SUMMARY_OUTPUT.md
-# Objective
+sandbox/features/VERBOSE_FLAGS.md
+# sandbox/features/VERBOSE_FLAGS.md
+# Feature Overview
 
-Implement unified CLI flags to expose runtime metrics and feature overview directly from the command line. Users will be able to retrieve performance metrics independently or alongside a full feature list in machine-readable or human-readable formats.
+Add new CLI flags to control logging verbosity and runtime statistics at execution time. Introduce two flags: `--verbose` to enable detailed debug output in each log entry, and `--stats` to print call count and uptime after command execution. These flags allow users to diagnose behavior and monitor performance without changing environment variables or modifying code.
 
 # Value Proposition
 
-- Enables quick inspection of callCount and uptime through a dedicated --stats flag.
-- Provides a combined view of runtime metrics and available features via --summary (alias --features-overview).
-- Supports both JSON and Markdown outputs for seamless integration into CI pipelines and documentation.
+  • Users gain runtime control over logging detail for troubleshooting and monitoring.
+  • Facilitates debugging in local and CI environments without code changes.
+  • Provides quick visibility into invocation count and process uptime for performance insights.
 
-# Requirements & Success Criteria
+# Requirements
 
-1. Extend CLI to support the following flags:
-   - --stats: Outputs only runtime metrics (callCount and uptime in seconds). Default JSON output.
-   - --summary (alias --features-overview): Outputs a combined summary of metrics and feature overview.
-   - --format option: When combined with --stats or --summary, accepts json (default) or md.
+  1. Extend the existing CLI parser in `main` to recognize `--verbose` and `--stats`.
+  2. When `--verbose` is present, set the global `VERBOSE_MODE` flag to true.
+  3. When `--stats` is present, set the global `VERBOSE_STATS` flag to true.
+  4. Ensure that downstream calls to `logInfo` and `logError` include extra fields when `VERBOSE_MODE` is true.
+  5. After processing any supported command (`--help`, `--version`, `--digest` or default), if `VERBOSE_STATS` is true, print JSON with `callCount` and `uptime`.
+  6. Update the usage instructions in `generateUsage` to document the new flags.
+  7. Add unit tests covering both flags in combination with existing commands.
+  8. Update README to describe new CLI options and illustrate usage examples.
 
-2. Ensure existing flags (--help, --version, --digest) remain functional. When combined with --stats or --summary, run their logic first then emit the requested metrics or summary.
+# Success Criteria & Requirements
 
-3. Update generateUsage() to include descriptions for --stats, --summary, and --format.
-
-4. Integrate usage examples into sandbox/docs/USAGE.md:
-   - node src/lib/main.js --stats  
-   - node src/lib/main.js --stats --format=md  
-   - node src/lib/main.js --summary  
-   - node src/lib/main.js --summary --format=md
-
-5. Add unit tests covering:
-   - main(["--stats"]) outputs valid JSON with keys callCount and uptime.
-   - main(["--stats","--format=md"]) outputs Markdown with h1 Metrics section.
-   - main(["--summary"]) outputs JSON with metrics and features array.
-   - Combining --digest or --version with --stats or --summary emits expected behavior.
+  - Passing `--verbose` produces additional `verbose: true` in log output objects.
+  - Passing `--stats` after a command prints a JSON object with `callCount` and `uptime`.
+  - Flags can work together or independently.
+  - Tests assert correct behavior under all combinations of flags and commands.
+  - Documentation reflects the new options and example invocations.
 
 # User Scenarios & Examples
 
-- As a CI engineer, I run node src/lib/main.js --stats to fetch performance metrics programmatically.
-- As a release manager, I run node src/lib/main.js --summary --format=md to embed a feature overview in release notes.
-- As a developer, I chain node src/lib/main.js --digest --summary to process events and audit performance in one command.
+1. Developer runs `node src/lib/main.js --verbose --digest` in local mode and sees log entries with verbose details.
+2. CI pipeline runs `npm start -- --stats` and captures call count and uptime metrics after version display.
+3. Combined use: `npm start -- --verbose --stats --version` yields version info, verbose log of retrieval, then stats JSON.
 
 # Verification & Acceptance
 
-- Vitest unit tests confirm JSON and Markdown outputs match expected schemas.
-- USAGE.md updated with clear examples.
-- Manual test of node src/lib/main.js --stats prints:
-  {
-    "callCount": 42,
-    "uptime": 1.23
-  }
-- Manual test of node src/lib/main.js --summary prints:
-  {
-    "metrics": { "callCount": 42, "uptime": 1.23 },
-    "features": [ { "name": "digest", "description": "Simulate SQS event replay" }, { "name": "help", "description": "Display usage instructions" } ]
-  }
+  - Unit tests for flag parsing, toggling of global flags, and correct output are implemented in `tests/unit/main.test.js`.
+  - Manual test scenario with `--verbose` and `--stats` flags executed in sandbox and logged in CI.
+  - README updated with new flag descriptions under CLI Usage section.
