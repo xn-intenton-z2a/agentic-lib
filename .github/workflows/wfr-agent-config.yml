@@ -234,7 +234,7 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci || npm install
 
       - name: agentic-lib
         id: agentic-lib

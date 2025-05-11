@@ -218,7 +218,7 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
           echo "always-auth=true" >> .npmrc
 
-      - run: npm ci
+      - run: npm ci || npm install
 
       - name: List current features
         id: features

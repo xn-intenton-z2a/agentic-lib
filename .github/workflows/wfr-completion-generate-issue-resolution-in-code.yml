@@ -260,7 +260,7 @@ jobs:
           git config --local user.name "${{ env.gitUserName }}"
           git pull --ff-only origin ${{ github.ref }}
 
-      - run: npm ci
+      - run: npm ci || npm install
 
       - name: List current features
         id: features
@@ -1082,7 +1082,7 @@ jobs:
       - name: ci-after-update
         id: ci-after-update
         continue-on-error: true
-        run: npm ci
+        run: npm ci || npm install
 
       - name: Tear down .npmrc
         continue-on-error: true

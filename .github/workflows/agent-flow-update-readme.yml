@@ -76,7 +76,7 @@ jobs:
           echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
           echo "always-auth=true" >> .npmrc
-      - run: npm ci
+      - run: npm ci || npm install
       - run: npm run test:unit
 
   npm-build:
@@ -95,7 +95,7 @@ jobs:
           echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
           echo "always-auth=true" >> .npmrc
-      - run: npm ci
+      - run: npm ci || npm install
       - run: npm run build
 
   npm-run:
@@ -114,7 +114,7 @@ jobs:
           echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
           echo "always-auth=true" >> .npmrc
-      - run: npm ci
+      - run: npm ci || npm install
       - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
   branch-for-update:

@@ -136,7 +136,7 @@ jobs:
           git config --local user.name "${{ env.gitUserName }}"
           git pull --ff-only origin ${{ github.ref }}
 
-      - run: npm ci
+      - run: npm ci || npm install
 
       - name: script
         id: script
