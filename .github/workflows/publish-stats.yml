@@ -11,10 +11,6 @@ on:
   workflow_run:
     workflows:
       - flow-feature-development
-      - flow-feature-maintenance
-      - flow-fix-code
-      - flow-linting-to-issue
-      - flow-maintenance-activity-to-issue
       - seed-repository
     types:
       - completed
