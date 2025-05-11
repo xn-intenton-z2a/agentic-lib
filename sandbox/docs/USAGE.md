@@ -41,3 +41,26 @@ Scans `sandbox/README.md` for ```mermaid-workflow``` fenced code blocks, renders
   ```json
   {"level":"error","message":"Failed to render mermaid-workflow","error":"<details>"}
   ```
+
+## --validate-readme
+
+Validates that `sandbox/README.md` includes links to `MISSION.md`, `CONTRIBUTING.md`, `LICENSE.md`, and our GitHub repository URL.
+
+- Success Path:
+  ```bash
+  node sandbox/source/main.js --validate-readme
+  ```
+  Logs:
+  ```json
+  {"level":"info","message":"README validation passed"}
+  ```
+
+- Error Path:
+  ```bash
+  node sandbox/source/main.js --validate-readme
+  ```
+  Logs:
+  ```json
+  {"level":"error","message":"README missing reference: <reference>"}
+  ```
+  and exits with code 1.
