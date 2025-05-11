@@ -465,7 +465,7 @@ jobs:
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git add ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
-          git commit -m "Declare status with ${{ needs.generate-response.outputs.action }} and halt agentic-lib workflows"
+          git commit -m "HALT with ${{ needs.generate-response.outputs.action }}"
           git push
         env:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
