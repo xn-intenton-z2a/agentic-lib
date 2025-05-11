@@ -17,21 +17,20 @@ describe("processValidateFeatures", () => {
     vi.doMock("fs/promises", () => ({
       readdir: vi.fn(async () => ["file1.md", "file2.md"]),
       readFile: vi.fn(async (filePath) =>
-        filePath.endsWith("file1.md") ? "Contains MISSION.md" : "No reference",
+        filePath.endsWith("file1.md") ? "Contains MISSION.md" : "No reference"
       ),
     }));
+
     const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => {
       throw new Error(`EXIT:${code}`);
     });
-    const consoleErrorSpy = vi
-default.mockImplementation(() => {});
-    vi.doMock("fs/promises");
-
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
     const { processValidateFeatures } = await import("../source/main.js");
+
     await expect(
       processValidateFeatures(["--validate-features"]),
     ).rejects.toThrow("EXIT:1");
+
     expect(consoleError).toHaveBeenCalledWith(
       expect.stringContaining("Feature file missing mission reference"),
     );
@@ -43,14 +42,18 @@ default.mockImplementation(() => {});
       readdir: vi.fn(async () => ["file1.md"]),
       readFile: vi.fn(async () => "Some content # Mission"),
     }));
+
     const consoleLogSpy = vi
       .spyOn(console, "log")
       .mockImplementation(() => {});
     const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {});
     const { processValidateFeatures } = await import("../source/main.js");
     const result = await processValidateFeatures(["--validate-features"]);
+
     expect(consoleLogSpy).toHaveBeenCalledWith(
-      expect.stringContaining("All feature files reference mission statement"),
+      expect.stringContaining(
+        "All feature files reference mission statement",
+      ),
     );
     expect(result).toBe(true);
     exitSpy.mockRestore();
