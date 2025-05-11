@@ -1,7 +1,8 @@
 import { readdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import MarkdownIt from "markdown-it";
-import markdownItGithub from "markdown-it-github";
+import { createRequire } from "module";
+const requireModule = createRequire(import.meta.url);
 
 /**
  * Processes the --generate-interactive-examples flag by scanning README for
@@ -52,7 +53,8 @@ export async function processGenerateInteractiveExamples(
   let md;
   try {
     md = new MarkdownIt();
-    md.use(markdownItGithub);
+    const plugin = requireModule("markdown-it-github");
+    md.use(plugin);
   } catch (error) {
     console.error(
       JSON.stringify({
