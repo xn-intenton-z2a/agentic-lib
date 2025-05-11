@@ -33,7 +33,7 @@ on:
     #- cron: '53 4 */7 * *' # schedule-1
     #- cron: '53 */4 * * *' # schedule-2
     #- cron: '53 * * * *' # schedule-3
-    - cron: '8,23,38,53 * * * *' # schedule-4
+    - cron: '23,53 * * * *' # schedule-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
