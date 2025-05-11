@@ -33,6 +33,28 @@ Expected failure output (exit code 1):
 {"level":"error","message":"Feature file missing mission reference","file":"sandbox/features/your-feature.md"}
 ```
 
+### --fix-features
+
+Auto-inserts a mission statement reference into markdown files under `sandbox/features/` that are missing one. It scans all `.md` files and prepends the reference line.
+
+Example invocation:
+
+```bash
+node sandbox/source/main.js --fix-features
+```
+
+Expected success output:
+
+```json
+{"level":"info","message":"Fixed feature files to include mission reference","filesModified":["file1.md"]}
+```
+
+Expected error output (exit code 1):
+
+```json
+{"level":"error","message":"Failed to fix feature files","error":"<details>"}
+```
+
 ### --generate-interactive-examples
 
 Scans `sandbox/README.md` for ```mermaid-workflow``` fenced code blocks, renders each block into interactive HTML snippets, and injects or updates an idempotent `## Examples` section at the end of the README.
@@ -59,6 +81,28 @@ Expected error on render failure (exit code 1):
 
 ```json
 {"level":"error","message":"Failed to render mermaid-workflow","error":"<details>"}
+```
+
+### --validate-readme
+
+Validates that `sandbox/README.md` includes links to `MISSION.md`, `CONTRIBUTING.md`, `LICENSE.md`, and our GitHub repository URL.
+
+Example invocation:
+
+```bash
+node sandbox/source/main.js --validate-readme
+```
+
+Expected success output:
+
+```json
+{"level":"info","message":"README validation passed"}
+```
+
+Expected failure output (exit code 1):
+
+```json
+{"level":"error","message":"README missing reference: <reference>"}
 ```
 
 ## More Information

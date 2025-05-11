@@ -13,7 +13,7 @@ node sandbox/source/main.js --validate-features
 
 ## --generate-interactive-examples
 
-Scans `sandbox/README.md` for ```mermaid-workflow``` fenced code blocks, renders each block into an interactive HTML snippet, and maintains a single, idempotent `## Examples` section at the end of the README.
+Scans `sandbox/README.md` for ```mermaid-workflow``` fenced code blocks, renders each block into interactive HTML snippets, and maintains a single, idempotent `## Examples` section at the end of the README.
 
 - Success Path (blocks found):
   ```bash
@@ -64,3 +64,25 @@ Validates that `sandbox/README.md` includes links to `MISSION.md`, `CONTRIBUTING
   {"level":"error","message":"README missing reference: <reference>"}
   ```
   and exits with code 1.
+
+## --fix-features
+
+Auto-inserts a mission statement reference into markdown files under `sandbox/features/` that are missing one. It scans all `.md` files and prepends the reference line to those lacking it.
+
+Example:
+
+```bash
+node sandbox/source/main.js --fix-features
+```
+
+Logs on success:
+```json
+{"level":"info","message":"Fixed feature files to include mission reference","filesModified":["file1.md"]}
+```
+
+Error Path (write failure):
+```json
+{"level":"error","message":"Failed to fix feature files","error":"<details>"}
+```
+
+Exits with code 1 on error.
