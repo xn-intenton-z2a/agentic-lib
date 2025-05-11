@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { fileURLToPath } from "url";
-imp bug ort { readFile } from "fs/promises";
+import { readFile } from "fs/promises";
 import yaml from "js-yaml";
 
 /**
