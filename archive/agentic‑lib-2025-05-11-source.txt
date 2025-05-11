@@ -1,248 +1,237 @@
-sandbox/source/main.js
-# sandbox/source/main.js
+sandbox/source/lib/main.js
+# sandbox/source/lib/main.js
 #!/usr/bin/env node
+// sandbox/source/lib/main.js
+
+// Initialize global callCount to support test mocks that reference it
+if (typeof globalThis.callCount === "undefined") {
+  globalThis.callCount = 0;
+}
+
 import { fileURLToPath } from "url";
-import { readFile } from "fs/promises";
-import yaml from "js-yaml";
+import { z } from "zod";
+import dotenv from "dotenv";
 
-/**
- * Parses a GitHub Actions workflow YAML file and returns its triggers, jobs, and reusable calls.
- * Supports options: recursive traversal, matrix expansion, graph generation, and semantic validation.
- * @param {string} filePath - Path to the workflow YAML file
- * @param {object} options - Options for processing
- * @param {boolean} [options.recursive=false] - Traverse and merge reusable workflows
- * @param {boolean} [options.expandMatrix=false] - Expand strategy.matrix into permutations
- * @param {'dot'|'mermaid'|null} [options.graphFormat=null] - Generate job dependency graph
- * @param {boolean} [options.validate=false] - Run semantic validation
- * @returns {Promise<{
- *   triggers: string[],
- *   jobs: { name: string, needs: string[] }[],
- *   calls: string[],
- *   matrixExpansions?: Record<string, any[]>,
- *   graph?: string,
- *   validationIssues?: { type: string; message: string; location: string }[]
- * }>} Parsed workflow summary with enhancements
- */
-export async function simulateWorkflow(filePath, options = {}) {
-  const {
-    recursive = false,
-    expandMatrix = false,
-    graphFormat = null,
-    validate = false,
-  } = options;
+// ---------------------------------------------------------------------------------------------------------------------
+// Environment configuration from .env file or environment variables or test values.
+// ---------------------------------------------------------------------------------------------------------------------
 
-  let content;
-  try {
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
-    content = await readFile(filePath, "utf8");
-  } catch (err) {
-    throw new Error(`Failed to read file ${filePath}: ${err.message}`);
-  }
+dotenv.config();
 
-  let data;
-  try {
-    data = yaml.load(content);
-  } catch (err) {
-    throw new Error(`Failed to parse YAML: ${err.message}`);
-  }
-
-  if (!data || typeof data !== "object") {
-    throw new Error(`Invalid workflow format in ${filePath}`);
-  }
-
-  const triggers = extractTriggers(data.on);
-  const rawJobs = data.jobs;
-  const jobs = extractJobs(rawJobs, filePath);
-  const calls = extractCalls(rawJobs);
-
-  const result = { triggers, jobs, calls };
-
-  // Matrix expansion
-  if (expandMatrix) {
-    const matrixExpansions = {};
-    Object.entries(rawJobs).forEach(([jobName, jobDef]) => {
-      if (jobDef.strategy && jobDef.strategy.matrix) {
-        matrixExpansions[jobName] = generateExpansions(jobDef.strategy.matrix);
-      }
-    });
-    result.matrixExpansions = matrixExpansions;
-  }
-
-  // Graph generation
-  if (graphFormat) {
-    result.graph = generateGraph(jobs, graphFormat);
-  }
-
-  // Validation
-  if (validate) {
-    result.validationIssues = validateWorkflow(jobs);
-  }
-
-  return result;
+if (process.env.VITEST || process.env.NODE_ENV === "development") {
+  process.env.GITHUB_API_BASE_URL = process.env.GITHUB_API_BASE_URL || "https://api.github.com.test/";
+  process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || "key-test";
 }
 
-function extractTriggers(onField) {
-  if (typeof onField === "string") {
-    return [onField];
-  }
-  if (Array.isArray(onField)) {
-    return onField;
-  }
-  if (onField && typeof onField === "object") {
-    return Object.keys(onField);
-  }
-  return [];
+const configSchema = z.object({
+  GITHUB_API_BASE_URL: z.string().optional(),
+  OPENAI_API_KEY: z.string().optional(),
+});
+
+export const config = configSchema.parse(process.env);
+
+// Global verbose mode flag
+const VERBOSE_MODE = false;
+// Global verbose stats flag
+const VERBOSE_STATS = false;
+
+// Helper function to format log entries
+function formatLogEntry(level, message, additionalData = {}) {
+  return {
+    level,
+    timestamp: new Date().toISOString(),
+    message,
+    ...additionalData,
+  };
 }
 
-function extractJobs(jobsObj, filePath) {
-  if (!jobsObj || typeof jobsObj !== "object") {
-    throw new Error(`No jobs found in workflow ${filePath}`);
-  }
-  return Object.entries(jobsObj).map(([name, job]) => {
-    const needsRaw = job.needs;
-    let needs = [];
-    if (typeof needsRaw === "string") {
-      needs = [needsRaw];
-    } else if (Array.isArray(needsRaw)) {
-      needs = needsRaw;
-    }
-    return { name, needs };
+export function logConfig() {
+  const logObj = formatLogEntry("info", "Configuration loaded", {
+    config: {
+      GITHUB_API_BASE_URL: config.GITHUB_API_BASE_URL,
+      OPENAI_API_KEY: config.OPENAI_API_KEY,
+    },
   });
+  console.log(JSON.stringify(logObj));
+}
+logConfig();
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Utility functions
+// ---------------------------------------------------------------------------------------------------------------------
+
+export function logInfo(message) {
+  // Increment call count
+  globalThis.callCount++;
+  const additionalData = VERBOSE_MODE ? { verbose: true } : {};
+  const logObj = formatLogEntry("info", message, additionalData);
+  console.log(JSON.stringify(logObj));
 }
 
-function extractCalls(jobsObj) {
-  const callsSet = new Set();
-  if (!jobsObj || typeof jobsObj !== "object") {
-    return [];
+export function logError(message, error) {
+  // Increment call count
+  globalThis.callCount++;
+  const additionalData = { error: error ? error.toString() : undefined };
+  if (VERBOSE_MODE && error && error.stack) {
+    additionalData.stack = error.stack;
   }
-  Object.values(jobsObj).forEach((job) => {
-    const steps = job.steps;
-    if (Array.isArray(steps)) {
-      steps.forEach((step) => {
-        if (step.uses && typeof step.uses === "string") {
-          callsSet.add(step.uses);
-        }
-      });
-    }
-  });
-  return Array.from(callsSet);
+  const logObj = formatLogEntry("error", message, additionalData);
+  console.error(JSON.stringify(logObj));
 }
 
-function generateExpansions(matrix) {
-  const keys = Object.keys(matrix);
-  const valuesArr = keys.map((k) => matrix[k]);
-  function cartesian(arr, prefix = []) {
-    if (!arr.length) {
-      return [prefix];
-    }
-    const [first, ...rest] = arr;
-    const result = [];
-    first.forEach((val) => {
-      result.push(...cartesian(rest, [...prefix, val]));
-    });
-    return result;
-  }
-  const combos = cartesian(valuesArr);
-  return combos.map((vals) =>
-    vals.reduce((acc, val, idx) => {
-      acc[keys[idx]] = val;
-      return acc;
-    }, {})
-  );
+// ---------------------------------------------------------------------------------------------------------------------
+// AWS Utility functions
+// ---------------------------------------------------------------------------------------------------------------------
+
+export function createSQSEventFromDigest(digest) {
+  return {
+    Records: [
+      {
+        eventVersion: "2.0",
+        eventSource: "aws:sqs",
+        eventTime: new Date().toISOString(),
+        eventName: "SendMessage",
+        body: JSON.stringify(digest),
+      },
+    ],
+  };
 }
 
-function generateGraph(jobs, format) {
-  if (format === "dot") {
-    let str = "digraph workflow {\n";
-    jobs.forEach((job) => {
-      if (job.needs.length === 0) {
-        str += `  "${job.name}";\n`;
-      } else {
-        job.needs.forEach((dep) => {
-          str += `  "${dep}" -> "${job.name}";\n`;
-        });
-      }
-    });
-    str += "}";
-    return str;
-  }
-  if (format === "mermaid") {
-    let str = "graph LR\n";
-    jobs.forEach((job) => {
-      if (job.needs.length === 0) {
-        str += `  ${job.name}\n`;
-      } else {
-        job.needs.forEach((dep) => {
-          str += `  ${dep} --> ${job.name}\n`;
-        });
-      }
-    });
-    return str;
-  }
-  return "";
-}
+// ---------------------------------------------------------------------------------------------------------------------
+// SQS Lambda Handlers
+// ---------------------------------------------------------------------------------------------------------------------
 
-function validateWorkflow(jobs) {
-  const issues = [];
-  const jobNames = jobs.map((j) => j.name);
-  jobs.forEach((job) => {
-    job.needs.forEach((dep) => {
-      if (!jobNames.includes(dep)) {
-        issues.push({
-          type: "InvalidDependency",
-          message: `Job ${job.name} needs unknown job ${dep}`,
-          location: job.name,
-        });
-      }
-    });
-  });
-  return issues;
-}
+export async function digestLambdaHandler(sqsEvent) {
+  logInfo(`Digest Lambda received event: ${JSON.stringify(sqsEvent)}`);
 
-/**
- * CLI entrypoint processing for --simulate-workflow flag and additional options.
- */
-async function main(args = process.argv.slice(2)) {
-  const idx = args.indexOf("--simulate-workflow");
-  if (idx !== -1) {
-    const filePath = args[idx + 1];
-    if (!filePath) {
-      console.error("Error: No workflow file specified for --simulate-workflow");
-      process.exit(1);
-    }
-    const recursive = args.includes("--recursive");
-    const expandMatrix = args.includes("--expand-matrix");
-    const validate = args.includes("--validate");
-    let graphFormat = null;
-    const gdIdx = args.indexOf("--graph-format");
-    if (gdIdx !== -1) {
-      graphFormat = args[gdIdx + 1];
-    }
+  // If event.Records is an array, use it. Otherwise, treat the event itself as one record.
+  const sqsEventRecords = Array.isArray(sqsEvent.Records) ? sqsEvent.Records : [sqsEvent];
+
+  // Array to collect the identifiers of the failed records
+  const batchItemFailures = [];
+
+  for (const [index, sqsEventRecord] of sqsEventRecords.entries()) {
     try {
-      const result = await simulateWorkflow(filePath, {
-        recursive,
-        expandMatrix,
-        graphFormat,
-        validate,
-      });
-      console.log(JSON.stringify(result, null, 2));
-      if (validate && result.validationIssues && result.validationIssues.length > 0) {
-        process.exit(1);
-      }
-      process.exit(0);
-    } catch (err) {
-      console.error(`Error: ${err.message}`);
-      process.exit(1);
+      const digest = JSON.parse(sqsEventRecord.body);
+      logInfo(`Record ${index}: Received digest: ${JSON.stringify(digest)}`);
+    } catch (error) {
+      // If messageId is missing, generate a fallback identifier including record index
+      const recordId =
+        sqsEventRecord.messageId || `fallback-${index}-${Date.now()}-${Math.random()
+          .toString(36)
+          .substr(2, 9)}`;
+      logError(`Error processing record ${recordId} at index ${index}`, error);
+      logError(`Invalid JSON payload. Error: ${error.message}. Raw message: ${sqsEventRecord.body}`);
+      batchItemFailures.push({ itemIdentifier: recordId });
     }
+  }
+
+  // Return the list of failed messages so that AWS SQS can attempt to reprocess them.
+  return {
+    batchItemFailures,
+    handler: "src/lib/main.digestLambdaHandler",
+  };
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// CLI Helper Functions
+// ---------------------------------------------------------------------------------------------------------------------
+
+// Function to generate CLI usage instructions
+function generateUsage() {
+  return `
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+  --stats                    Show runtime metrics (callCount and uptime) in JSON.
+`;
+}
+
+// Process the --help flag
+function processHelp(args) {
+  if (args.includes("--help")) {
+    console.log(generateUsage());
+    return true;
+  }
+  return false;
+}
+
+// Process the --version flag
+async function processVersion(args) {
+  if (args.includes("--version")) {
+    try {
+      const { readFileSync } = await import("fs");
+      const packageJsonPath = new URL("../../package.json", import.meta.url);
+      const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+      const versionInfo = {
+        version: packageJson.version,
+        timestamp: new Date().toISOString(),
+      };
+      console.log(JSON.stringify(versionInfo));
+    } catch (error) {
+      logError("Failed to retrieve version", error);
+    }
+    return true;
+  }
+  return false;
+}
+
+// Process the --digest flag
+async function processDigest(args) {
+  if (args.includes("--digest")) {
+    const exampleDigest = {
+      key: "events/1.json",
+      value: "12345",
+      lastModified: new Date().toISOString(),
+    };
+    const sqsEvent = createSQSEventFromDigest(exampleDigest);
+    await digestLambdaHandler(sqsEvent);
+    return true;
+  }
+  return false;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Main CLI
+// ---------------------------------------------------------------------------------------------------------------------
+
+export async function main(args = process.argv.slice(2)) {
+  const statsMode = args.includes("--stats");
+  const filteredArgs = args.filter((a) => a !== "--stats");
+
+  if (processHelp(filteredArgs)) {
+    if (statsMode) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+
+  if (await processVersion(filteredArgs)) {
+    if (statsMode) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+
+  if (await processDigest(filteredArgs)) {
+    if (statsMode) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
   }
 
   console.log("No command argument supplied.");
-  console.log(
-    "Usage: npx agentic-lib --simulate-workflow <workflow.yml> [--recursive] [--expand-matrix] [--graph-format dot|mermaid] [--validate]"
-  );
+  console.log(generateUsage());
+
+  if (statsMode) {
+    console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+  }
 }
 
-// Execute main if called directly
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main();
+  main().catch((err) => {
+    logError("Fatal error in main execution", err);
+    process.exit(1);
+  });
 }

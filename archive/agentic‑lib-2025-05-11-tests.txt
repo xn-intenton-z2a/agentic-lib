@@ -1,239 +1,57 @@
-sandbox/tests/simulateWorkflow.test.js
-# sandbox/tests/simulateWorkflow.test.js
+sandbox/tests/unit/stats_flag.test.js
+# sandbox/tests/unit/stats_flag.test.js
 import { describe, test, expect, vi, beforeEach } from "vitest";
-import { readFile } from "fs/promises";
+import { main, logInfo } from "../../src/lib/main.js";
 
-vi.mock("fs/promises", () => ({
-  readFile: vi.fn(),
-}));
-
-import { simulateWorkflow } from "../source/main.js";
-
-describe("simulateWorkflow", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  test("parses simple workflow", async () => {
-    const yamlContent = `
-on: push
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-`;
-    readFile.mockResolvedValue(yamlContent);
-    const result = await simulateWorkflow("workflow.yml");
-    expect(result).toEqual({
-      triggers: ["push"],
-      jobs: [{ name: "build", needs: [] }],
-      calls: ["actions/checkout@v2"],
-    });
-  });
-
-  test("parses multi-job workflow with needs and array triggers", async () => {
-    const yamlContent = `
-on:
-  - push
-  - pull_request
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps: []
-  test:
-    needs: build
-    steps:
-      - uses: ./reusable/workflow.yml
-`;
-    readFile.mockResolvedValue(yamlContent);
-    const result = await simulateWorkflow("workflow.yml");
-    expect(result).toEqual({
-      triggers: ["push", "pull_request"],
-      jobs: [
-        { name: "build", needs: [] },
-        { name: "test", needs: ["build"] },
-      ],
-      calls: ["./reusable/workflow.yml"],
-    });
-  });
-
-  test("throws error on missing file", async () => {
-    readFile.mockRejectedValue(new Error("file not found"));
-    await expect(simulateWorkflow("missing.yml")).rejects.toThrow("Failed to read file missing.yml: file not found");
-  });
-
-  test("throws error on invalid YAML", async () => {
-    readFile.mockResolvedValue("not: [invalid");
-    await expect(simulateWorkflow("workflow.yml")).rejects.toThrow(/Failed to parse YAML/);
-  });
-
-  test("matrix expansion when expandMatrix is true", async () => {
-    const yamlContent = `
-on: push
-jobs:
-  job1:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        os: [ubuntu, windows]
-        node: [14, 16]
-    steps: []
-`;
-    readFile.mockResolvedValue(yamlContent);
-    const result = await simulateWorkflow("workflow.yml", { expandMatrix: true });
-    expect(result.matrixExpansions).toEqual({
-      job1: [
-        { os: "ubuntu", node: 14 },
-        { os: "ubuntu", node: 16 },
-        { os: "windows", node: 14 },
-        { os: "windows", node: 16 },
-      ],
-    });
-  });
-
-  test("graph generation for dot format", async () => {
-    const yamlContent = `
-on: push
-jobs:
-  job1:
-    runs-on: ubuntu-latest
-    steps: []
-  job2:
-    needs: job1
-    runs-on: ubuntu-latest
-    steps: []
-`;
-    readFile.mockResolvedValue(yamlContent);
-    const result = await simulateWorkflow("workflow.yml", { graphFormat: "dot" });
-    expect(result.graph.trim().startsWith("digraph workflow")).toBe(true);
-    expect(result.graph).toContain('"job1" -> "job2"');
-  });
-
-  test("graph generation for mermaid format", async () => {
-    const yamlContent = `
-on: push
-jobs:
-  job1:
-    runs-on: ubuntu-latest
-    steps: []
-  job2:
-    needs: job1
-    runs-on: ubuntu-latest
-    steps: []
-`;
-    readFile.mockResolvedValue(yamlContent);
-    const result = await simulateWorkflow("workflow.yml", { graphFormat: "mermaid" });
-    expect(result.graph.trim().startsWith("graph LR")).toBe(true);
-    expect(result.graph).toContain("job1 --> job2");
-  });
-
-  test("validation collects issues for invalid dependencies", async () => {
-    const yamlContent = `
-on: push
-jobs:
-  a:
-    runs-on: ubuntu-latest
-    steps: []
-  b:
-    needs: c
-    runs-on: ubuntu-latest
-    steps: []
-`;
-    readFile.mockResolvedValue(yamlContent);
-    const result = await simulateWorkflow("workflow.yml", { validate: true });
-    expect(result.validationIssues).toEqual([
-      { type: "InvalidDependency", message: "Job b needs unknown job c", location: "b" },
-    ]);
-  });
-
-  test("validation returns empty array for valid workflows", async () => {
-    const yamlContent = `
-on: push
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps: []
-`;
-    readFile.mockResolvedValue(yamlContent);
-    const result = await simulateWorkflow("workflow.yml", { validate: true });
-    expect(result.validationIssues).toEqual([]);
-  });
+beforeEach(() => {
+  globalThis.callCount = 0;
+  vi.restoreAllMocks();
 });
-sandbox/tests/sqsHandler.test.js
-# sandbox/tests/sqsHandler.test.js
-import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
-import { createSQSEventFromDigest, digestLambdaHandler } from "../../src/lib/main.js";
 
-describe("SQS Utility and Handler", () => {
-  beforeEach(() => {
-    vi.restoreAllMocks();
+describe("Stats Flag CLI", () => {
+  test("Zero Logs: --stats outputs only metrics JSON", async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    await main(["--stats"]);
+    expect(logSpy).toHaveBeenCalledTimes(1);
+    const output = logSpy.mock.calls[0][0];
+    const obj = JSON.parse(output);
+    expect(obj).toHaveProperty('callCount', 0);
+    expect(typeof obj.uptime).toBe('number');
   });
 
-  afterEach(() => {
-    vi.resetAllMocks();
+  test("With Logs: after one logInfo, --stats outputs incremented callCount", async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    logInfo('test');
+    await main(["--stats"]);
+    expect(logSpy).toHaveBeenCalledTimes(1);
+    const obj = JSON.parse(logSpy.mock.calls[0][0]);
+    expect(obj.callCount).toBe(1);
+    expect(obj.uptime).toBeGreaterThanOrEqual(0);
   });
 
-  test("createSQSEventFromDigest produces correct event", () => {
-    const digest = { key: "foo", value: "bar" };
-    const event = createSQSEventFromDigest(digest);
-    expect(event).toHaveProperty("Records");
-    expect(Array.isArray(event.Records)).toBe(true);
-    expect(event.Records).toHaveLength(1);
-    const record = event.Records[0];
-    expect(record.body).toBe(JSON.stringify(digest));
-    expect(record.eventSource).toBe("aws:sqs");
-    expect(record.eventName).toBe("SendMessage");
+  test("Help + Stats: outputs help then metrics JSON", async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    await main(["--help", "--stats"]);
+    expect(logSpy).toHaveBeenCalledTimes(2);
+    const usageOutput = logSpy.mock.calls[0][0];
+    expect(usageOutput).toContain('--stats');
+    const statsOutput = logSpy.mock.calls[1][0];
+    const obj = JSON.parse(statsOutput);
+    expect(obj.callCount).toBe(0);
+    expect(typeof obj.uptime).toBe('number');
   });
 
-  test("digestLambdaHandler processes valid payload without errors", async () => {
-    const digest = { key: "k", value: "v" };
-    const event = createSQSEventFromDigest(digest);
-    const errorSpy = vi.spyOn(console, "error");
-    const result = await digestLambdaHandler(event);
-    expect(result).toEqual({
-      batchItemFailures: [],
-      handler: "src/lib/main.digestLambdaHandler",
-    });
-    expect(errorSpy).not.toHaveBeenCalled();
-  });
-
-  test("digestLambdaHandler reports failure for invalid JSON without messageId", async () => {
-    const event = { Records: [{ body: "not valid json" }] };
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const result = await digestLambdaHandler(event);
-    expect(result.handler).toBe("src/lib/main.digestLambdaHandler");
-    expect(result.batchItemFailures).toHaveLength(1);
-    const [failure] = result.batchItemFailures;
-    expect(failure).toHaveProperty("itemIdentifier");
-    expect(failure.itemIdentifier).toMatch(/^fallback-0-\d+-[a-z0-9]{9}$/);
-    // Should log two errors
-    expect(errorSpy).toHaveBeenCalledTimes(2);
-  });
-
-  test("digestLambdaHandler reports failure for invalid JSON with messageId", async () => {
-    const event = { Records: [{ messageId: "msg-123", body: "{{bad}}" }] };
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const result = await digestLambdaHandler(event);
-    expect(result.handler).toBe("src/lib/main.digestLambdaHandler");
-    expect(result.batchItemFailures).toEqual([{ itemIdentifier: "msg-123" }]);
-    expect(errorSpy).toHaveBeenCalled();
-    // ensure messageId in logging
-    const logCalls = errorSpy.mock.calls.map((call) => call.join(" "));
-    const joined = logCalls.join(" ");
-    expect(joined).toContain("msg-123");
-    expect(joined).toContain("{{bad}}");
-  });
-
-  test("end-to-end integration: valid event yields no failures", async () => {
-    const digest = { k: 1, lastModified: "date" };
-    const event = createSQSEventFromDigest(digest);
-    const errorSpy = vi.spyOn(console, "error");
-    const result = await digestLambdaHandler(event);
-    expect(result).toEqual({
-      batchItemFailures: [],
-      handler: "src/lib/main.digestLambdaHandler",
-    });
-    expect(errorSpy).not.toHaveBeenCalled();
+  test("Version + Stats: outputs version then metrics JSON", async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    await main(["--version", "--stats"]);
+    expect(logSpy).toHaveBeenCalledTimes(2);
+    const versionOutputRaw = logSpy.mock.calls[0][0];
+    const versionObj = JSON.parse(versionOutputRaw);
+    expect(versionObj).toHaveProperty('version');
+    expect(typeof versionObj.timestamp).toBe('string');
+    const statsOutput = logSpy.mock.calls[1][0];
+    const statsObj = JSON.parse(statsOutput);
+    expect(statsObj).toHaveProperty('callCount');
+    expect(typeof statsObj.uptime).toBe('number');
   });
 });
