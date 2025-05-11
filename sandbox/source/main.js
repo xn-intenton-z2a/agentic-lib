@@ -271,7 +271,7 @@ export async function processValidateFeatures(args = process.argv.slice(2)) {
  * Processes the --validate-readme flag by ensuring sandbox/README.md contains critical references.
  * @param {string[]} args - CLI arguments
  * @returns {Promise<boolean>} - True if flag processed, false otherwise
- />
+ */
 export async function processValidateReadme(args = process.argv.slice(2)) {
   if (!args.includes("--validate-readme")) {
     return false;
