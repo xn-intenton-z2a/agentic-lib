@@ -1,40 +1,72 @@
-sandbox/features/SUMMARIZE_CONTENT.md
-# sandbox/features/SUMMARIZE_CONTENT.md
-# Summarize Content
-
-This feature extends the CLI summarization capabilities to support both SQS digest payloads and GitHub pull request diffs. With a single `--summarize` command mode, users can generate concise, AI-powered summaries of event data or code changes without manual inspection.
+sandbox/features/CORE_CAPABILITIES.md
+# sandbox/features/CORE_CAPABILITIES.md
+# Purpose
+Extend and unify the core functionality of agentic-lib to support workflow simulation, validation, comparison, HTTP API, AWS SQS utilities, documentation export, and a comprehensive CLI in a single cohesive feature.
 
 # Value Proposition
-
-A unified summarization command helps developers and CI systems quickly grasp the essence of raw SQS events and pull request diffs. This reduces context-switching, accelerates code reviews, and improves documentation quality by providing human-readable summaries automatically.
+- Provide a complete dry-run analysis of GitHub Actions workflows with matrix expansion and execution graph generation.
+- Offer structured semantic validation to surface missing needs, circular dependencies, unsupported triggers, and duplicate job names before CI/CD runs.
+- Enable side-by-side workflow comparison with JSON or text diffs and optional graph outputs.
+- Generate workflow documentation in Markdown or HTML with embedded visual graphs, job summaries, and dependency tables for easy sharing and review.
+- Expose HTTP endpoints for programmatic integration of simulate, validate, compare, and documentation export operations.
+- Deliver AWS SQS utilities for generating and processing digest events via Lambda, ensuring robust message handling.
+- Present a unified CLI interface covering simulation, validation, comparison, documentation export, SQS operations, version info, and help.
 
 # Success Criteria
+1. simulateWorkflow(filePath, options) supports:
+   - recursive: boolean (default false)
+   - expandMatrix: boolean (default false)
+   - graphFormat: 'dot' | 'mermaid' | none
+   - validate: boolean (default false)
+   and returns triggers, jobs, calls, plus optional matrix expansions, graph, validation issues.
+2. validateWorkflow(filePath) returns an array of issues { type, message, location }.
+3. compareWorkflows(fileA, fileB, options) returns:
+   - summary diff of triggers, jobs, calls
+   - optional graph for each version
+   - validation issues per version
+   - JSON or text diff based on diffFormat option.
+4. exportWorkflowDoc(filePath, options) supports:
+   - graphFormat: 'dot' | 'mermaid' | none
+   - outputFormat: 'markdown' | 'html'
+   and returns a string containing formatted documentation including sections for triggers, jobs, calls, dependency tables, and an embedded graph.
+5. HTTP API in sandbox/source/main.js:
+   - GET /simulate-workflow?file=&recursive=&expandMatrix=&graphFormat=&validate=
+   - GET /validate-workflow?file=
+   - GET /compare-workflows?fileA=&fileB=&diffFormat=&recursive=&expandMatrix=&graphFormat=&validate=
+   - GET /export-workflow-doc?file=&graphFormat=&outputFormat=
+   Respond with JSON or HTML body, status codes 200 on success, 400 on invalid input, 500 on server error.
+6. AWS SQS utilities in src/lib/main.js:
+   - createSQSEventFromDigest(digest) outputs a valid SQS Records array.
+   - digestLambdaHandler(event) logs each record, collects batchItemFailures with correct itemIdentifier, and returns { batchItemFailures, handler }.
+7. CLI commands in sandbox/source/main.js and src/lib/main.js support:
+   - --simulate-workflow <file> [--recursive] [--expand-matrix] [--graph-format <dot|mermaid>] [--validate]
+   - --validate-workflow <file>
+   - --compare-workflows <fileA> <fileB> [--diff-format <json|text>] [--recursive] [--expand-matrix] [--graph-format <dot|mermaid>] [--validate]
+   - --export-doc <file> [--graph-format <dot|mermaid>] [--output-format <markdown|html>] [--output <path>]
+   - --digest
+   - --version
+   - --help
+   Exit codes: 0 on success; 1 on error or validation issues.
+8. Documentation and examples updated for all capabilities including exportWorkflowDoc usage.
 
-- CLI accepts `--summarize-digest` with a JSON file path or inline JSON and prints a clear summary to standard output.
-- CLI accepts `--summarize-pr` with a repository identifier and pull request number in the form `owner/repo#number`.
-- On `--summarize-pr`, the tool fetches the PR diff via the GitHub API and calls OpenAI's `createChatCompletion` to generate a summary of changes.
-- Errors in API calls to GitHub or OpenAI are logged via `logError`, and the CLI exits with a non-zero status.
-- Tests mock both OpenAI and GitHub API clients to verify correct request parameters and handling of success and failure scenarios.
+# Implementation Details
+- Extend sandbox/source/main.js to add exportWorkflowDoc function that parses workflows, builds a dependency table, and uses Graphviz or Mermaid to generate diagrams, then formats a Markdown or HTML document.
+- Update HTTP server to handle /export-workflow-doc route, invoking exportWorkflowDoc and returning the result with appropriate content-type.
+- Enhance CLI argument parsing to handle --export-doc, format output to stdout or write to file if --output is specified.
+- Leverage existing simulateWorkflow, validateWorkflow, compareWorkflows utilities and lodash for data formatting.
+- Use markdown-it or a lightweight templating approach for HTML output when requested.
+- Retain existing logging utilities and error handling patterns.
 
-# Requirements
+# Testing
+- Update sandbox/tests/simulateWorkflow.test.js to cover expandMatrix, graphFormat, and validate options.
+- Add sandbox/tests/validateWorkflow.test.js for semantic validation scenarios.
+- Create sandbox/tests/compareWorkflows.test.js covering diff formats, graph outputs, and validation.
+- Add sandbox/tests/exportWorkflowDoc.test.js covering Markdown and HTML output, embedded graph, and dependency tables.
+- Extend sandbox/tests/cli.test.js for --validate-workflow, --compare-workflows, and --export-doc flags, checking stdout, file output, exit codes, and errors.
+- Add sandbox/tests/api.test.js to exercise each HTTP endpoint and assert JSON, markdown, or HTML structure and HTTP status codes.
+- Ensure tests in tests/unit/ cover createSQSEventFromDigest and digestLambdaHandler behaviors, as well as CLI flags --digest, --version, and --help.
 
-- In `src/lib/main.js`, implement two new functions: `summarizeDigest` (existing behavior) and `summarizePrDiff` to fetch PR diffs and invoke OpenAI summarization.
-- Update CLI argument parsing in `main` to detect `--summarize-digest` and `--summarize-pr` flags and route to the appropriate summarization function.
-- Use `@octokit/rest` or native `fetch` against `config.GITHUB_API_BASE_URL` for PR diff retrieval.
-- Add Vitest tests in `sandbox/tests` to:
-  - Mock OpenAI client responses for summary generation.
-  - Mock GitHub API responses for PR diffs.
-  - Assert that the CLI flags invoke correct functions and output expected summaries.
-- Update `sandbox/README.md` with usage examples for both summarization modes.
-
-# User Scenarios
-
-1. A developer runs `agentic-lib --summarize-digest event.json` to obtain a human-readable summary of an SQS digest before diagnosing a production issue.
-2. A reviewer runs `agentic-lib --summarize-pr xn-org/repo#42` to quickly understand the scope of code changes in a pull request without reading the full diff.
-3. A CI workflow invokes `agentic-lib --summarize-pr owner/repo#123` and posts the summary to a pull request comment for automated context provisioning.
-
-# Verification & Acceptance
-
-- **Unit Tests**: Vitest mocks for OpenAI and GitHub API clients should cover success and error paths for both digest and PR summarization.
-- **Integration Tests**: A sample JSON file and a recorded PR diff fixture should be used to verify end-to-end CLI output against known summaries.
-- **Manual Acceptance**: Run both summarization commands against real SQS payloads and live GitHub PRs, review summary accuracy, and error handling.
+# Documentation
+- Update sandbox/docs/SIMULATE_WORKFLOW.md to reference new HTTP API exports.
+- Create sandbox/docs/EXPORT_WORKFLOW_DOC.md detailing exportWorkflowDoc usage, examples for Markdown and HTML, graph embedding, and section layouts.
+- Modify sandbox/README.md to document new CLI flags, API endpoints, and export workflow documentation feature, linking to MISSION.md and CONTRIBUTING.md.

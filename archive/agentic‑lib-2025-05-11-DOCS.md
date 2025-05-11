@@ -1,84 +1,81 @@
-sandbox/docs/CLI_TOOLKIT.md
-# sandbox/docs/CLI_TOOLKIT.md
-# CLI Toolkit Guide
+sandbox/docs/SIMULATE_WORKFLOW.md
+# sandbox/docs/SIMULATE_WORKFLOW.md
+# Simulate Workflow
 
-This document describes the new CLI flags for the Agentic CLI Toolkit.
+Detailed specification for the `simulateWorkflow` feature.
 
-## Flags
+## Overview
 
-- `--diagram [--format=json|markdown]`
-  - Generate a workflow interaction diagram describing how the CLI invokes the SQS Lambda handler.
-  - **default**: markdown (mermaid code block)
-  - **json**: outputs a JSON object with `nodes`, `links`, and `errors`.
+The `simulateWorkflow` API provides a dry-run enumeration of a GitHub Actions workflow, extracting key metadata without executing any steps.
 
-- `--features-overview [--format=json|markdown]`
-  - Generate a consolidated overview of archived feature documents under `sandbox/features/archived/`.
-  - **default**: markdown (headings and summaries)
-  - **json**: outputs a JSON array of `{ name, summary }` objects.
+## API Usage
 
-## Usage Examples
+```javascript
+import { simulateWorkflow } from '@xn-intenton-z2a/agentic-lib';
 
-### Markdown Diagram
-```
-$ node sandbox/source/main.js --diagram
-```mermaid
-flowchart LR
-  CLI --> main
-  main --> processDiagram
-  processDiagram --> generateDiagram
-  main --> processFeaturesOverview
-  processFeaturesOverview --> generateFeaturesOverview
-  main --> processDigest
-  processDigest --> createSQSEventFromDigest
-  createSQSEventFromDigest --> digestLambdaHandler
-  digestLambdaHandler --> logError
-```
-
-### JSON Diagram
-```
-$ node sandbox/source/main.js --diagram --format=json
-{"nodes":["CLI","main","processDiagram","generateDiagram","processFeaturesOverview","generateFeaturesOverview","processDigest","createSQSEventFromDigest","digestLambdaHandler","logError"],"links":[{"from":"CLI","to":"main"},{"from":"main","to":"processDiagram"},{"from":"processDiagram","to":"generateDiagram"},{"from":"main","to":"processFeaturesOverview"},{"from":"processFeaturesOverview","to":"generateFeaturesOverview"},{"from":"main","to":"processDigest"},{"from":"processDigest","to":"createSQSEventFromDigest"},{"from":"createSQSEventFromDigest","to":"digestLambdaHandler"},{"from":"digestLambdaHandler","to":"logError"}],"errors":[]}
+const options = {
+  recursive: true,
+  expandMatrix: true,
+  graphFormat: 'mermaid',
+  validate: true,
+};
+const result = await simulateWorkflow('.github/workflows/ci.yml', options);
+// result -> {
+//   triggers: ['push', 'pull_request'],
+//   jobs: [
+//     { name: 'build', needs: [] },
+//     { name: 'test', needs: ['build'] },
+//   ],
+//   calls: ['actions/checkout@v2', './reusable/workflow.yml'],
+//   matrixExpansions: {
+//     build: [...],
+//     test: [...],
+//   },
+//   graph: '<string>',
+//   validationIssues: [],
+// }
 ```
 
-### Markdown Features Overview
-```
-$ node sandbox/source/main.js --features-overview
-## TestFeature1
+## CLI Usage
 
-This is the first test feature summary.
-
-## TestFeature2
-
-Second feature summary goes here.
+```bash
+npx agentic-lib --simulate-workflow <workflow.yml> [--recursive] [--expand-matrix] [--graph-format dot|mermaid] [--validate]
 ```
 
-### JSON Features Overview
-```
-$ node sandbox/source/main.js --features-overview --format=json
-[{"name":"TestFeature1","summary":"This is the first test feature summary."},{"name":"TestFeature2","summary":"Second feature summary goes here."}]
-```
+### Flags
 
-### Combined Markdown Output
-```
-$ node sandbox/source/main.js --diagram --features-overview
-```
-```mermaid
-flowchart LR
-  CLI --> main
-  main --> processDiagram
-  processDiagram --> generateDiagram
-  main --> processFeaturesOverview
-  processFeaturesOverview --> generateFeaturesOverview
-  main --> processDigest
-  processDigest --> createSQSEventFromDigest
-  createSQSEventFromDigest --> digestLambdaHandler
-  digestLambdaHandler --> logError
+- `--recursive` : Traverse and merge any referenced reusable workflows recursively.
+- `--expand-matrix` : Expand each job’s `strategy.matrix` into full permutations.
+- `--graph-format <dot|mermaid>` : Generate a job dependency graph in the specified format.
+- `--validate` : Run semantic validation to detect issues (e.g., missing dependencies).
+
+#### Example
+
+```bash
+npx agentic-lib --simulate-workflow .github/workflows/ci.yml --expand-matrix --graph-format mermaid --validate
 ```
 
-## TestFeature1
+This prints a JSON document to stdout with the following structure:
 
-This is the first test feature summary.
+- `triggers`: array of event names that trigger the workflow.
+- `jobs`: list of job definitions with `name` and normalized `needs` dependencies.
+- `calls`: list of all `uses` references for reusable workflows.
+- `matrixExpansions` _(optional)_: object mapping job names to an array of permutations of matrix variables.
+- `graph` _(optional)_: string representing the job dependency graph in the selected format.
+- `validationIssues` _(optional)_: array of detected semantic issues with `type`, `message`, and `location`.
 
-## TestFeature2
+## Error Handling
 
-Second feature summary goes here.
+- **Missing file**: throws an error with message `Failed to read file <path>: <error>`.
+- **Invalid YAML**: throws an error with message `Failed to parse YAML: <error>`.
+
+## Acceptance Criteria
+
+1. **Triggers**: Support string, array, and object forms for the `on` field.
+2. **Jobs**: Extract each job `name` and normalize `needs` into arrays.
+3. **Calls**: Detect all reusable workflow `uses` references.
+4. **Matrix Expansion**: When `--expand-matrix` is used, include `matrixExpansions` mapping job names to permutations.
+5. **Graph Generation**: When `--graph-format` is provided, include `graph` in the specified format (`dot` or `mermaid`).
+6. **Validation**: When `--validate` is used, include `validationIssues` listing semantic issues.
+7. **CLI**: Recognize new flags and output extended JSON.
+8. **Errors**: Provide descriptive messages for missing files and parsing failures.

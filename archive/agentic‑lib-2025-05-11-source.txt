@@ -1,64 +1,248 @@
 sandbox/source/main.js
 # sandbox/source/main.js
 #!/usr/bin/env node
-import fs from "fs";
-import { Configuration, OpenAIApi } from "openai";
-import { config, logError } from "../../src/lib/main.js";
+import { fileURLToPath } from "url";
+import { readFile } from "fs/promises";
+import yaml from "js-yaml";
 
 /**
- * Summarize an SQS digest object using OpenAI Chat Completion API.
- *
- * @param {object} digest The digest object to summarize.
- * @returns {Promise<string>} The summary text.
+ * Parses a GitHub Actions workflow YAML file and returns its triggers, jobs, and reusable calls.
+ * Supports options: recursive traversal, matrix expansion, graph generation, and semantic validation.
+ * @param {string} filePath - Path to the workflow YAML file
+ * @param {object} options - Options for processing
+ * @param {boolean} [options.recursive=false] - Traverse and merge reusable workflows
+ * @param {boolean} [options.expandMatrix=false] - Expand strategy.matrix into permutations
+ * @param {'dot'|'mermaid'|null} [options.graphFormat=null] - Generate job dependency graph
+ * @param {boolean} [options.validate=false] - Run semantic validation
+ * @returns {Promise<{
+ *   triggers: string[],
+ *   jobs: { name: string, needs: string[] }[],
+ *   calls: string[],
+ *   matrixExpansions?: Record<string, any[]>,
+ *   graph?: string,
+ *   validationIssues?: { type: string; message: string; location: string }[]
+ * }>} Parsed workflow summary with enhancements
  */
-export async function summarizeDigest(digest) {
-  const openai = new OpenAIApi(new Configuration({ apiKey: config.OPENAI_API_KEY }));
-  const prompt = `Summarize the following SQS digest JSON into a concise human-readable summary:\n${JSON.stringify(digest, null, 2)}`;
-  const response = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo",
-    messages: [
-      { role: "system", content: "You are a helpful assistant." },
-      { role: "user", content: prompt }
-    ]
-  });
-  const content = response.data.choices?.[0]?.message?.content;
-  if (!content) {
-    throw new Error("Invalid response from OpenAI API: missing content");
+export async function simulateWorkflow(filePath, options = {}) {
+  const {
+    recursive = false,
+    expandMatrix = false,
+    graphFormat = null,
+    validate = false,
+  } = options;
+
+  let content;
+  try {
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
+    content = await readFile(filePath, "utf8");
+  } catch (err) {
+    throw new Error(`Failed to read file ${filePath}: ${err.message}`);
   }
-  return content.trim();
+
+  let data;
+  try {
+    data = yaml.load(content);
+  } catch (err) {
+    throw new Error(`Failed to parse YAML: ${err.message}`);
+  }
+
+  if (!data || typeof data !== "object") {
+    throw new Error(`Invalid workflow format in ${filePath}`);
+  }
+
+  const triggers = extractTriggers(data.on);
+  const rawJobs = data.jobs;
+  const jobs = extractJobs(rawJobs, filePath);
+  const calls = extractCalls(rawJobs);
+
+  const result = { triggers, jobs, calls };
+
+  // Matrix expansion
+  if (expandMatrix) {
+    const matrixExpansions = {};
+    Object.entries(rawJobs).forEach(([jobName, jobDef]) => {
+      if (jobDef.strategy && jobDef.strategy.matrix) {
+        matrixExpansions[jobName] = generateExpansions(jobDef.strategy.matrix);
+      }
+    });
+    result.matrixExpansions = matrixExpansions;
+  }
+
+  // Graph generation
+  if (graphFormat) {
+    result.graph = generateGraph(jobs, graphFormat);
+  }
+
+  // Validation
+  if (validate) {
+    result.validationIssues = validateWorkflow(jobs);
+  }
+
+  return result;
+}
+
+function extractTriggers(onField) {
+  if (typeof onField === "string") {
+    return [onField];
+  }
+  if (Array.isArray(onField)) {
+    return onField;
+  }
+  if (onField && typeof onField === "object") {
+    return Object.keys(onField);
+  }
+  return [];
+}
+
+function extractJobs(jobsObj, filePath) {
+  if (!jobsObj || typeof jobsObj !== "object") {
+    throw new Error(`No jobs found in workflow ${filePath}`);
+  }
+  return Object.entries(jobsObj).map(([name, job]) => {
+    const needsRaw = job.needs;
+    let needs = [];
+    if (typeof needsRaw === "string") {
+      needs = [needsRaw];
+    } else if (Array.isArray(needsRaw)) {
+      needs = needsRaw;
+    }
+    return { name, needs };
+  });
+}
+
+function extractCalls(jobsObj) {
+  const callsSet = new Set();
+  if (!jobsObj || typeof jobsObj !== "object") {
+    return [];
+  }
+  Object.values(jobsObj).forEach((job) => {
+    const steps = job.steps;
+    if (Array.isArray(steps)) {
+      steps.forEach((step) => {
+        if (step.uses && typeof step.uses === "string") {
+          callsSet.add(step.uses);
+        }
+      });
+    }
+  });
+  return Array.from(callsSet);
+}
+
+function generateExpansions(matrix) {
+  const keys = Object.keys(matrix);
+  const valuesArr = keys.map((k) => matrix[k]);
+  function cartesian(arr, prefix = []) {
+    if (!arr.length) {
+      return [prefix];
+    }
+    const [first, ...rest] = arr;
+    const result = [];
+    first.forEach((val) => {
+      result.push(...cartesian(rest, [...prefix, val]));
+    });
+    return result;
+  }
+  const combos = cartesian(valuesArr);
+  return combos.map((vals) =>
+    vals.reduce((acc, val, idx) => {
+      acc[keys[idx]] = val;
+      return acc;
+    }, {})
+  );
+}
+
+function generateGraph(jobs, format) {
+  if (format === "dot") {
+    let str = "digraph workflow {\n";
+    jobs.forEach((job) => {
+      if (job.needs.length === 0) {
+        str += `  "${job.name}";\n`;
+      } else {
+        job.needs.forEach((dep) => {
+          str += `  "${dep}" -> "${job.name}";\n`;
+        });
+      }
+    });
+    str += "}";
+    return str;
+  }
+  if (format === "mermaid") {
+    let str = "graph LR\n";
+    jobs.forEach((job) => {
+      if (job.needs.length === 0) {
+        str += `  ${job.name}\n`;
+      } else {
+        job.needs.forEach((dep) => {
+          str += `  ${dep} --> ${job.name}\n`;
+        });
+      }
+    });
+    return str;
+  }
+  return "";
+}
+
+function validateWorkflow(jobs) {
+  const issues = [];
+  const jobNames = jobs.map((j) => j.name);
+  jobs.forEach((job) => {
+    job.needs.forEach((dep) => {
+      if (!jobNames.includes(dep)) {
+        issues.push({
+          type: "InvalidDependency",
+          message: `Job ${job.name} needs unknown job ${dep}`,
+          location: job.name,
+        });
+      }
+    });
+  });
+  return issues;
 }
 
 /**
- * Process the --summarize flag in CLI arguments.
- *
- * @param {string[]} args Command line arguments.
- * @returns {Promise<boolean>} True if flag was processed.
+ * CLI entrypoint processing for --simulate-workflow flag and additional options.
  */
-export async function processSummarize(args) {
-  const idx = args.indexOf("--summarize");
-  if (idx === -1) {
-    return false;
-  }
-  const nextArg = args[idx + 1];
-  if (!nextArg) {
-    logError("Missing argument for --summarize");
-    process.exit(1);
-    return true;
-  }
-  try {
-    let raw;
-    if (fs.existsSync(nextArg)) {
-      raw = fs.readFileSync(nextArg, "utf-8");
-    } else {
-      raw = nextArg;
+async function main(args = process.argv.slice(2)) {
+  const idx = args.indexOf("--simulate-workflow");
+  if (idx !== -1) {
+    const filePath = args[idx + 1];
+    if (!filePath) {
+      console.error("Error: No workflow file specified for --simulate-workflow");
+      process.exit(1);
     }
-    const digest = JSON.parse(raw);
-    const summary = await summarizeDigest(digest);
-    console.log(summary);
-    return true;
-  } catch (error) {
-    logError("Failed to summarize digest", error);
-    process.exit(1);
-    return true;
+    const recursive = args.includes("--recursive");
+    const expandMatrix = args.includes("--expand-matrix");
+    const validate = args.includes("--validate");
+    let graphFormat = null;
+    const gdIdx = args.indexOf("--graph-format");
+    if (gdIdx !== -1) {
+      graphFormat = args[gdIdx + 1];
+    }
+    try {
+      const result = await simulateWorkflow(filePath, {
+        recursive,
+        expandMatrix,
+        graphFormat,
+        validate,
+      });
+      console.log(JSON.stringify(result, null, 2));
+      if (validate && result.validationIssues && result.validationIssues.length > 0) {
+        process.exit(1);
+      }
+      process.exit(0);
+    } catch (err) {
+      console.error(`Error: ${err.message}`);
+      process.exit(1);
+    }
   }
+
+  console.log("No command argument supplied.");
+  console.log(
+    "Usage: npx agentic-lib --simulate-workflow <workflow.yml> [--recursive] [--expand-matrix] [--graph-format dot|mermaid] [--validate]"
+  );
+}
+
+// Execute main if called directly
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
 }
