@@ -457,6 +457,7 @@ jobs:
         run: |
           echo "" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
           echo "${{ needs.generate-response.outputs.action }} at $(date)" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          echo "" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
           echo "HALT" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
 
       - name: Commit changes
