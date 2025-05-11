@@ -31,7 +31,7 @@ paths:
     path: 'sandbox/source/'
     permissions: [ 'write' ]
   otherSourcePaths:
-    paths: [ 'src/lib/', '.github/workflows', '.github/agents', 'scripts' ]
+    paths: [ 'src/lib/' ]
   dependenciesFilepath:
     path: 'package.json'
   documentationPath:
