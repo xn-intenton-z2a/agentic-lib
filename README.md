@@ -694,10 +694,6 @@ Re-usable GitHub Actions Workflows:
 - [ ] Separate out writable annd non-writable file paths in the prompt
 - [ ] Diagram the workflow interactions.
 - [ ] Pull any max file sizes into the agent config
-- [ ] Recycle: Harvest repositor0-* files into agentic-lib when reset and show case past results.
-- [ ] Recycle: Use the archived projects to mine for features.
-- [ ] Recycle: Build features in a modular way so that they can be reused in other projects.
-- [ ] Recycle: Bot to summarise the features in the archive and mine these during feature development.
 - [ ] Commentator: news feed sources, news feed updates, news feed commentary, web publish.
 - [ ] Literate: Support a more TDD / literate approach by starting a feature branch with a failing test then fix code should extract the issue details and be alerted to the test addition as TDD.
 - [ ] Add a PR review workflow with a reviewer and responder.
@@ -747,7 +743,11 @@ Marketplace GitHub Actions [Launch]:
 - [ ] Make the SDK available as an API.
 - [ ] Make the API available as an MCP server.
 
-Cost model:
+Recycle with cost model:
+- [ ] Harvest repositor0-* files into agentic-lib when reset and show case past results.
+- [ ] Use the archived projects to mine for features.
+- [ ] Build features in a modular way so that they can be reused in other projects.
+- [ ] Bot to summarise the features in the archive and mine these during feature development.
 - [ ] Log costs assigned to features in OpenAI tokens, API minutes, GitHub Actions minutes, and AWS costs.
 - [ ] Optimise costs per feature against parameters in agentic-lib.yml, e.g. attemptsPerBranch or attemptsPerIssue.
 - [ ] A / B test to measure value per feature.
