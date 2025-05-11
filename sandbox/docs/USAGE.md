@@ -10,3 +10,34 @@ Example:
 ```
 node sandbox/source/main.js --validate-features
 ```
+
+## --generate-interactive-examples
+
+Scans `sandbox/README.md` for ```mermaid-workflow``` fenced code blocks, renders each block into an interactive HTML snippet, and maintains a single, idempotent `## Examples` section at the end of the README.
+
+- Success Path (blocks found):
+  ```bash
+  node sandbox/source/main.js --generate-interactive-examples
+  ```
+  Logs:
+  ```json
+  {"level":"info","message":"Interactive examples generated","updatedBlocks":<number>}
+  ```
+
+- Warning Path (no blocks found):
+  ```bash
+  node sandbox/source/main.js --generate-interactive-examples
+  ```
+  Logs:
+  ```json
+  {"level":"warn","message":"No mermaid-workflow blocks found"}
+  ```
+
+- Error Path (render failure):
+  ```bash
+  node sandbox/source/main.js --generate-interactive-examples
+  ```
+  Logs:
+  ```json
+  {"level":"error","message":"Failed to render mermaid-workflow","error":"<details>"}
+  ```
