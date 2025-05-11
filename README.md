@@ -672,12 +672,17 @@ Re-usable GitHub Actions Workflows:
 - [x] Create one block per file for multiples of things like these: SOURCE_FILES_START
 - [x] Add the URL of the workflow run to every issue that is touched by the workflow.
 - [x] Add In-progress issue sweeper.
+- [x] Clean the paths to avoid //
 - [x] Recover stuck issues that are in-progress but not being worked on.
+- [x] Add branch sweeper.
+- [x] Add a list of all projects files to the context.
 - [x] [Launch] When enhancing issues do not add duplicated documents
 - [x] [Launch] Comment every issue that a worker touches with the workflow information.
 - [~] [Launch] Review mission and stop when done or failing to progress.
 - [~] [Launch] Review repository and reseed if stale.
-- [ ] [Launch] Diagram the workflow interactions.
+- [ ] [Launch] Add intentïon.md to the context.
+- [ ] [Launch] Label issues with the related feature.
+- [ ] [Launch] Log successfully merged issues to intentïon.md and reference the feature.
 - [ ] [Launch] Pull into agentic-lib.yml: startsWith("apply-fix-"));
 - [ ] [Launch] Pull into agentic-lib.yml: startsWith("issue-worker-"));
 - [ ] [Launch] Make the agent prompts match the top level workflow file names
@@ -686,24 +691,21 @@ Re-usable GitHub Actions Workflows:
 - [ ] [Launch] Add a comment and put an issue for review if it is already done.
 - [ ] [Launch] Move branch pre-fix to agentic-lib.yml
 - [ ] [Launch] For all issue comments, add context to the comment such as: "After review, this issue was found to be already done."
-- [x] Clean the paths to avoid //
 - [ ] Separate out writable annd non-writable file paths in the prompt
+- [ ] Diagram the workflow interactions.
 - [ ] Pull any max file sizes into the agent config
 - [ ] Recycle: Harvest repositor0-* files into agentic-lib when reset and show case past results.
-- [ ] Feature lifecycle of: Elaboration, Delivery, Maintenance, Retirement, and Removal.
 - [ ] Recycle: Use the archived projects to mine for features.
 - [ ] Recycle: Build features in a modular way so that they can be reused in other projects.
-- [ ] Add role: Commentator (news feed sources, news feed updates, news feed commentary, web publish).
-- [ ] Support a more TDD / literate approach by starting a feature branch with a failing test then fix code should extract the issue details and be alerted to the test addition as TDD.
+- [ ] Recycle: Bot to summarise the features in the archive and mine these during feature development.
+- [ ] Commentator: news feed sources, news feed updates, news feed commentary, web publish.
+- [ ] Literate: Support a more TDD / literate approach by starting a feature branch with a failing test then fix code should extract the issue details and be alerted to the test addition as TDD.
 - [ ] Add a PR review workflow with a reviewer and responder.
-- [ ] Add branch sweeper.
-- [ ] Record and escalate sweeping incidents.
 - [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
 - [ ] Generate API.md based on the source file.
 - [ ] Move check-attempts-limit into a reusable workflow.
 - [ ] Investigate MCP for exposing access to repository files.
-- [ ] Create an MCp sever for the repositor actions and pass to ChatGPT to act.
-- [ ] Add a list of all projects files to the context.
+- [ ] Create an MCP sever for the repositor actions and pass to ChatGPT to act.
 
 Discussions Bot [MVP]:
 - [x] On GitHub Discussions creation: Reads title and description, seeds with that as the mission, saves a trace back to documenationPath with a file a URL pointing -> the GitHub Discussion from the event,
@@ -719,7 +721,6 @@ Discussions Bot [MVP]:
 - [x] Bot to take actions within a stream (dev, seed, etc...)
 - [x] When an LLM tries to write to an unwritable folder error out (ignoring creates an opportunity for a failed build.)
 - [ ] [Later, JS port] Summarise and sanitize all the workflows so that they can be passed to the bot.
-- [ ] [Later] Summarise the features in the archive and mine these during feature development.
 - [ ] [Later] Post the cost of the response in each response.
 
 intentïon user journey [Launch UX]:
