@@ -71,7 +71,7 @@ export async function processGenerateInteractiveExamples(
   try {
     renderedSnippets = blocks.map(
       (block) =>
-        `<div class="interactive-example">\n${md.render(
+        `<div class=\"interactive-example\">\n${md.render(
           "```mermaid-workflow\n" + block + "\n```",
         )}</div>`,
     );
@@ -191,6 +191,57 @@ export async function processValidateFeatures(args = process.argv.slice(2)) {
 }
 
 /**
+ * Processes the --validate-readme flag by ensuring sandbox/README.md contains critical references.
+ * @param {string[]} args - CLI arguments
+ * @returns {Promise<boolean>} - True if flag processed, false otherwise
+ */
+export async function processValidateReadme(args = process.argv.slice(2)) {
+  if (!args.includes("--validate-readme")) {
+    return false;
+  }
+
+  const readmePath = path.resolve("sandbox/README.md");
+  let content;
+  try {
+    content = await readFile(readmePath, "utf8");
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        level: "error",
+        message: "Failed to read README.md",
+        error: error.message,
+      }),
+    );
+    process.exit(1);
+  }
+
+  const references = [
+    "MISSION.md",
+    "CONTRIBUTING.md",
+    "LICENSE.md",
+    "https://github.com/xn-intenton-z2a/agentic-lib",
+  ];
+  const missing = references.filter((ref) => !content.includes(ref));
+
+  if (missing.length > 0) {
+    for (const ref of missing) {
+      console.error(
+        JSON.stringify({
+          level: "error",
+          message: `README missing reference: ${ref}`,
+        }),
+      );
+    }
+    process.exit(1);
+  }
+
+  console.log(
+    JSON.stringify({ level: "info", message: "README validation passed" }),
+  );
+  return true;
+}
+
+/**
  * Main CLI entrypoint for sandbox mode
  * @param {string[]} args - CLI arguments
  */
@@ -198,10 +249,12 @@ export async function main(args = process.argv.slice(2)) {
   if (await processGenerateInteractiveExamples(args)) {
     return;
   }
-  if (await processValidateFeatures(args)) {
+  const featureHandled = await processValidateFeatures(args);
+  const readmeHandled = await processValidateReadme(args);
+  if (featureHandled || readmeHandled) {
     return;
   }
-  console.log("No validate-features flag supplied.");
+  console.log("No validate-features or validate-readme flag supplied.");
 }
 
 // Auto-execute when run directly
