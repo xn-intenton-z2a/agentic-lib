@@ -9,3 +9,6 @@ invoked using GitHub’s `workflow_call` event, so they can be composed together
 Build a JavaScript-based dry-run workflow simulation engine that parses and recursively traces GitHub Actions 
 workflows—enumerating triggers, jobs, and reusable calls—to produce execution plans and visualizations, empowering
 contributors to explore and document any execution path before running it in CI/CD.
+
+Use the GitHub Actions supplied as source files and create JS files based on the contents of the YAML files. 
+Create drop in replacement JS for the GitHub Script steps and create exported functions which match the reusable workflows
