@@ -55,7 +55,7 @@ describe("SQS Utility and Handler", () => {
     expect(result.batchItemFailures).toEqual([{ itemIdentifier: "msg-123" }]);
     expect(errorSpy).toHaveBeenCalled();
     // ensure messageId in logging
-    const logCalls = errorSpy.mock.calls.map(call => call.join(" "));
+    const logCalls = errorSpy.mock.calls.map((call) => call.join(" "));
     const joined = logCalls.join(" ");
     expect(joined).toContain("msg-123");
     expect(joined).toContain("{{bad}}");
