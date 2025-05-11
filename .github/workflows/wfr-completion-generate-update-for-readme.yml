@@ -188,8 +188,9 @@ jobs:
       lintingFilepath: ${{ inputs.lintingFilepath || 'eslint.config.js' }}
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
+      testScriptTimeout: '5m'
       mainScript: ${{ inputs.mainScript || 'npm run start' }}
-      mainScriptTimeout: '1m'
+      mainScriptTimeout: '5m'
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o4-mini' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
@@ -273,7 +274,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          output=$(${{ env.testScript }} 2>&1)
+          output=$(timeout ${{ env.testScriptTimeout }} ${{ env.testScript }} 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"

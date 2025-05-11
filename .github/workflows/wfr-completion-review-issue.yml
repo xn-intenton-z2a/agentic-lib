@@ -161,8 +161,9 @@ jobs:
       dependenciesFilepath: ${{ inputs.dependenciesFilepath || 'package.json' }}
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
+      testScriptTimeout: '5m'
       mainScript: ${{ inputs.mainScript || 'npm run start' }}
-      mainScriptTimeout: '1m'
+      mainScriptTimeout: '5m'
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o4-mini' }}
       chatgptApiSecretKey: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       cache: ${{ inputs.cache || 'npm' }}
@@ -248,7 +249,7 @@ jobs:
         id: test
         shell: bash
         run: |
-          output=$(${{ env.testScript }} 2>&1)
+          output=$(timeout ${{ env.testScriptTimeout }} ${{ env.testScript }} 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
