@@ -725,7 +725,7 @@ Discussions Bot [MVP]:
 
 intentïon user journey [Launch UX]:
 - [x] repository0-crucible seeds the repository with the mission and reports back with the intentïon branch.
-- [ ] Floating box logs into github and gives you an embedded formatted discussions thread.
+- [~] Floating box logs into github and gives you an embedded formatted discussions thread.
 - [ ] On intentïon.com, user provides an intention which is posted as a new GitHub Discussions thread.
 - [ ] Archive workflow periodically pushed to an intentïon-<v7uuid> branch (which does not run the workflows) with branch URL and summary reported to Discussions.
 - [ ] Discussions updates also posted intentïon.com.
