@@ -105,6 +105,41 @@ Expected failure output (exit code 1):
 {"level":"error","message":"README missing reference: <reference>"}
 ```
 
+### --validate-package
+
+Validates the root `package.json` for required fields:
+
+- `name`
+- `version` (semver)
+- `description`
+- `main`
+- `scripts.test`
+- `engines.node` >=20.0.0
+
+Example invocation:
+
+```bash
+node sandbox/source/main.js --validate-package
+```
+
+Expected success output:
+
+```json
+{"level":"info","message":"Package manifest validation passed"}
+```
+
+Expected failure output:
+
+```json
+{"level":"error","message":"Package manifest missing or invalid field","field":"<field>"}
+```
+
+Expected I/O error output:
+
+```json
+{"level":"error","message":"Failed to read package.json","error":"<details>"}
+```
+
 ## More Information
 
 For detailed CLI usage and flags, see the [USAGE guide](docs/USAGE.md).
