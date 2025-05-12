@@ -128,8 +128,24 @@ Expected failure output:
 {"level":"error","message":"Package manifest missing or invalid field","field":"<field>"}
 ```
 
-Expected I/O error output:
+### --audit-dependencies
+
+Audits npm dependencies for security vulnerabilities at or above the severity threshold (`AUDIT_SEVERITY`, default moderate).
+
+Example invocation:
+
+```bash
+node sandbox/source/main.js --audit-dependencies
+```
+
+Expected success output:
 
 ```json
-{"level":"error","message":"Failed to read package.json","error":"<details>"}
+{"level":"info","message":"Dependency audit passed","counts":{"critical":0,"high":0,"moderate":0,"low":0}}
+```
+
+Expected failure output:
+
+```json
+{"level":"error","module":"<module>","severity":"<severity>","title":"<title>","vulnerableVersions":"<versions>","patchedVersions":"<versions>","url":"<url>"}
 ```

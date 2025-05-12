@@ -31,6 +31,7 @@ describe("processFeaturesOverview", () => {
     const [pathArg, contentArg] = writeFileMock.mock.calls[0];
     expect(pathArg).toContain("sandbox/docs/FEATURES_OVERVIEW.md");
     expect(contentArg).toContain("| Flag | Description |");
+    expect(contentArg).toContain("| --audit-dependencies |");
     expect(consoleLogMock).toHaveBeenCalledWith(
       expect.stringContaining('"level":"info"'),
     );

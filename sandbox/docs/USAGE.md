@@ -113,10 +113,12 @@ node sandbox/source/main.js --validate-package
   ```json
   {"level":"info","message":"Package manifest validation passed"}
   ```
+
 - Failure Path (missing or invalid fields):
   ```json
   {"level":"error","message":"Package manifest missing or invalid field","field":"<field>"}
   ```
+
 - I/O Error Path:
   ```json
   {"level":"error","message":"Failed to read package.json","error":"<details>"}
@@ -195,4 +197,27 @@ node sandbox/source/main.js --validate-license
 - Failure Path:
   ```json
   {"level":"error","message":"License missing or invalid SPDX identifier"}
+  ```
+
+## --audit-dependencies
+
+Audits npm dependencies for vulnerabilities using `npm audit` and enforces a configurable severity threshold via the `AUDIT_SEVERITY` environment variable (default: moderate). For each vulnerability at or above the threshold, an error log is emitted and the process exits with code 1.
+
+Example:
+```bash
+node sandbox/source/main.js --audit-dependencies
+```
+
+- Success Path:
+  ```json
+  {"level":"info","message":"Dependency audit passed","counts":{"critical":0,"high":0,"moderate":0,"low":0}}
+  ```
+
+- Failure Path:
+  ```json
+  node sandbox/source/main.js --audit-dependencies
+  ```
+  Logs each issue:
+  ```json
+  {"level":"error","module":"<module>","severity":"<severity>","title":"<title>","vulnerableVersions":"<versions>","patchedVersions":"<versions>","url":"<url>"}
   ```
