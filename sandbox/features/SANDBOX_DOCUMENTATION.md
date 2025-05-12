@@ -1,6 +1,8 @@
+# sandbox/features/SANDBOX_DOCUMENTATION.md
+
 # Objective
 
-Provide a unified CLI tool in sandbox mode that validates key repository artifacts including documentation, interactive examples, package manifest, linting, test coverage, license files, and ensures consistency with the mission.
+Provide a unified CLI tool in sandbox mode that validates key repository artifacts including documentation, interactive examples, package manifest, linting, test coverage, license files, dependency security, and ensures consistency with the mission.
 
 # Specification
 
@@ -56,7 +58,7 @@ Provide a unified CLI tool in sandbox mode that validates key repository artifac
 
 ## --validate-lint
  • Locate ESLint configuration
- • Run ESLint against sandbox/source/ and src/lib/ using child process
+ • Run ESLint against sandbox/source/ and sandbox/tests/ using child process
  • Capture stdout and stderr from lint run
  • If ESLint exits with non-zero code, parse output and log JSON errors for each finding including file path, line, column, ruleId, and message, then exit status 1
  • On zero exit code, log a JSON info message indicating lint passed and exit status 0
@@ -64,6 +66,16 @@ Provide a unified CLI tool in sandbox mode that validates key repository artifac
 ## --validate-license
  • Read LICENSE.md in project root
  • Verify the file exists and is non-empty
- • Confirm the first non-empty line matches a valid SPDX license identifier pattern (for example MIT, ISC, Apache-2.0, GPL-3.0)
+ • Confirm the first non-empty line matches a valid SPDX license identifier pattern (MIT, ISC, Apache-2.0, GPL-3.0)
  • On failure, log a JSON error with message License missing or invalid SPDX identifier and exit status 1
  • On success, log a JSON info message License validation passed and exit status 0
+
+## --audit-dependencies
+ • Run npm audit --json in project root using a child process
+ • Parse the JSON output of the audit command
+ • Group vulnerabilities by severity (low, moderate, high, critical)
+ • Default threshold is moderate; configurable via environment variable AUDIT_SEVERITY
+ • For each vulnerability at or above threshold, log a JSON error including module name, severity, title, vulnerable versions, patched versions, and advisory URL
+ • If any such vulnerabilities exist, exit status 1
+ • If no vulnerabilities at or above threshold, log a JSON info message summarizing counts by severity and exit status 0
+
