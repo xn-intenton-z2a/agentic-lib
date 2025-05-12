@@ -680,6 +680,7 @@ Re-usable GitHub Actions Workflows:
 - [x] [Launch] Comment every issue that a worker touches with the workflow information.
 - [~] [Launch] Review mission and stop when done or failing to progress.
 - [~] [Launch] Review repository and reseed if stale.
+- [~] [Launch] Update packages during reseed.
 - [ ] [Launch] Add intentïon.md to the context.
 - [ ] [Launch] Label issues with the related feature.
 - [ ] [Launch] Log successfully merged issues to intentïon.md and reference the feature.
@@ -726,7 +727,7 @@ intentïon user journey [Launch UX]:
 - [ ] Archive workflow periodically pushed to an intentïon-<v7uuid> branch (which does not run the workflows) with branch URL and summary reported to Discussions.
 - [ ] Discussions updates also posted intentïon.com.
 - [ ] intentïon.com posts: running experiment: <link to branch> + <link to discussion>
-- [ ] TODO: How do users create a clone from a branch? 
+- [ ] Create a repository from main via a button. 
 - [ ] Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
 - [ ] Extract demo output to publish in the discussion thread and request feedback and next steps.
 
