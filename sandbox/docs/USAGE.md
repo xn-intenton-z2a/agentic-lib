@@ -119,11 +119,6 @@ node sandbox/source/main.js --validate-package
   {"level":"error","message":"Package manifest missing or invalid field","field":"<field>"}
   ```
 
-- I/O Error Path:
-  ```json
-  {"level":"error","message":"Failed to read package.json","error":"<details>"}
-  ```
-
 ## --validate-tests
 
 Reads the coverage summary JSON from `coverage/coverage-summary.json` and validates that statements, branches, functions, and lines coverage are all at least 80%.
@@ -220,23 +215,4 @@ node sandbox/source/main.js --audit-dependencies
   Logs each issue:
   ```json
   {"level":"error","module":"<module>","severity":"<severity>","title":"<title>","vulnerableVersions":"<versions>","patchedVersions":"<versions>","url":"<url>"}
-  ```
-
-## --bridge-s3-sqs
-
-Uploads payload to S3 and sends an SQS message with the object location and optional attributes via the s3-sqs-bridge library.
-
-Example:
-```bash
-node sandbox/source/main.js --bridge-s3-sqs --bucket my-bucket --key path/to/object.json --payload-file ./data.json --message-attributes '{"foo":"bar"}'
-```
-
-- Success Path:
-  ```json
-  {"level":"info","message":"Bridge succeeded","bucket":"my-bucket","key":"path/to/object.json","messageId":"<id>"}
-  ```
-
-- Error Path (missing args):
-  ```json
-  {"level":"error","message":"Missing required arguments: --bucket and --key"}
   ```
