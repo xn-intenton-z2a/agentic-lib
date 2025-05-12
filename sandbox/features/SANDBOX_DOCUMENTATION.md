@@ -1,7 +1,7 @@
 # SANDBOX CLI Documentation
 
 ## Overview
-Provide a unified CLI tool in sandbox mode that validates key repository artifacts (documentation, examples, manifest, linting, test coverage, license, dependencies), enables bridging from S3 to SQS, and supports an HTTP API server for remote workflow invocation and health monitoring.
+Provide a unified CLI tool in sandbox mode that validates key repository artifacts (documentation, examples, manifest, linting, test coverage, license, dependencies), enables bridging from S3 to SQS, and supports an HTTP API server for remote workflow invocation, metrics reporting, and health monitoring.
 
 ## --validate-features
  • Ensure every markdown file under `sandbox/features/` contains a reference to the mission statement (`MISSION.md` or `# Mission`).
@@ -66,3 +66,9 @@ Provide a unified CLI tool in sandbox mode that validates key repository artifac
  • Respond HTTP 200 with { success: true, output: [<JSON log entries>] } if exit code is 0.
  • Respond HTTP 500 with { success: false, error: <error details>, output: [<JSON logs>] } if exit code is non-zero.
  • Ensure no terminal exit occurs; the server remains running.
+
+### GET /metrics
+ • Respond with HTTP 200 and JSON { uptime: <number>, totalRequests: <number>, successCount: <number>, failureCount: <number> }.
+ • Maintain in-memory counters for total requests, successes, and failures across /health and /execute endpoints.
+ • Increment counters on each incoming request and classify successes and failures based on response codes.
+ • Do not terminate the server on metrics requests.
