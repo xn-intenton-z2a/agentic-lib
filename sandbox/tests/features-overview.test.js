@@ -32,6 +32,7 @@ describe("processFeaturesOverview", () => {
     expect(pathArg).toContain("sandbox/docs/FEATURES_OVERVIEW.md");
     expect(contentArg).toContain("| Flag | Description |");
     expect(contentArg).toContain("| --audit-dependencies |");
+    expect(contentArg).toContain("| --bridge-s3-sqs |");
     expect(consoleLogMock).toHaveBeenCalledWith(
       expect.stringContaining('"level":"info"'),
     );
