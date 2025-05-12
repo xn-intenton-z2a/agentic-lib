@@ -35,7 +35,7 @@ Expected failure output (exit code 1):
 
 ### --fix-features
 
-Auto-inserts a mission statement reference into markdown files under `sandbox/features/` that are missing one. It scans all `.md` files and prepends the reference line.
+Auto-inserts a mission statement reference (`> See our [Mission Statement](../../MISSION.md)`) into markdown files under `sandbox/features/` that are missing one. It scans all `.md` files and prepends this reference line.
 
 Example invocation:
 
@@ -47,12 +47,6 @@ Expected success output:
 
 ```json
 {"level":"info","message":"Fixed feature files to include mission reference","filesModified":["file1.md"]}
-```
-
-Expected error output (exit code 1):
-
-```json
-{"level":"error","message":"Failed to fix feature files","error":"<details>"}
 ```
 
 ### --generate-interactive-examples
@@ -139,7 +133,3 @@ Expected I/O error output:
 ```json
 {"level":"error","message":"Failed to read package.json","error":"<details>"}
 ```
-
-## More Information
-
-For detailed CLI usage and flags, see the [USAGE guide](docs/USAGE.md).
