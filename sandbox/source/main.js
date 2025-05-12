@@ -343,6 +343,10 @@ export async function processFeaturesOverview(args =process.argv.slice(2)) {
       "Generates a markdown summary of all sandbox CLI flags and their descriptions.",
     ],
     [
+      "--audit-dependencies",
+      "Audits npm dependencies for vulnerabilities at or above the configured severity threshold (AUDIT_SEVERITY).",
+    ],
+    [
       "--validate-package",
       "Parses and validates the root package.json for required fields.",
     ],
@@ -384,61 +388,132 @@ export async function processFeaturesOverview(args =process.argv.slice(2)) {
 }
 
 /**
- * Processes the --validate-package flag by reading and validating root package.json
+ * Processes the --audit-dependencies flag by running npm audit and enforcing a severity threshold.
  * @param {string[]} args - CLI arguments
+ * @returns {Promise<boolean>} - True if flag processed, false otherwise
  */
-export async function processValidatePackage(
-  args = process.argv.slice(2),
-) {
+export async function processAuditDependencies(args = process.argv.slice(2)) {
+  if (!args.includes("--audit-dependencies")) {
+    return false;
+  }
+  const severityEnv = process.env.AUDIT_SEVERITY;
+  const allowed = ["low", "moderate", "high", "critical"];
+  const threshold = allowed.includes(severityEnv) ? severityEnv : "moderate";
+  let result;
+  try {
+    result = spawnSync("npm", ["audit", "--json"], { encoding: "utf8" });
+  } catch (error) {
+    console.error(
+      JSON.stringify({ level: "error", message: "Failed to run or parse npm audit", error: error.message }),
+    );
+    process.exit(1);
+  }
+  if (result.error) {
+    console.error(
+      JSON.stringify({ level: "error", message: "Failed to run or parse npm audit", error: result.error.message }),
+    );
+    process.exit(1);
+  }
+  let audit;
+  try {
+    audit = JSON.parse(result.stdout);
+  } catch (error) {
+    console.error(
+      JSON.stringify({ level: "error", message: "Failed to run or parse npm audit", error: error.message }),
+    );
+    process.exit(1);
+  }
+  const { metadata, advisories } = audit;
+  const vulnCounts = (metadata && metadata.vulnerabilities) || { low: 0, moderate: 0, high: 0, critical: 0 };
+  const severityOrder = ["low", "moderate", "high", "critical"];
+  const thresholdIndex = severityOrder.indexOf(threshold);
+  const items = Object.values(advisories || {});
+  const filtered = items.filter((a) => severityOrder.indexOf(a.severity) >= thresholdIndex);
+  if (filtered.length > 0) {
+    filtered.forEach((a) => {
+      console.error(
+        JSON.stringify({
+          level: "error",
+          module: a.module_name,
+          severity: a.severity,
+          title: a.title,
+          vulnerableVersions: a.vulnerable_versions,
+          patchedVersions: a.patched_versions,
+          url: a.url,
+        }),
+      );
+    });
+    process.exit(1);
+  }
+  console.log(
+    JSON.stringify({ level: "info", message: "Dependency audit passed", counts: vulnCounts }),
+  );
+  process.exit(0);
+}
+
+// New validation functions
+/**
+ * Processes the --validate-package flag by validating package.json fields.
+ * @param {string[]} args - CLI arguments
+ * @returns {Promise<boolean>} - True if flag processed, false otherwise
+ */
+export async function processValidatePackage(args = process.argv.slice(2)) {
   if (!args.includes("--validate-package")) {
     return false;
   }
   const pkgPath = path.resolve("package.json");
-  let content;
+  let data;
   try {
-    content = await readFile(pkgPath, "utf8");
+    data = await readFile(pkgPath, "utf8");
   } catch (error) {
-    console.error(
-      JSON.stringify({ level: "error", message: "Failed to read package.json", error: error.message }),
-    );
+    console.error(JSON.stringify({ level: "error", message: "Failed to read package.json", error: error.message }));
     process.exit(1);
   }
   let pkg;
   try {
-    pkg = JSON.parse(content);
+    pkg = JSON.parse(data);
   } catch (error) {
-    console.error(
-      JSON.stringify({ level: "error", message: "Failed to parse package.json", error: error.message }),
-    );
+    console.error(JSON.stringify({ level: "error", message: "Failed to parse package.json", error: error.message }));
     process.exit(1);
   }
-  const errors = [];
+  let errors = 0;
+  // Validate name
   if (typeof pkg.name !== "string" || pkg.name.trim() === "") {
-    errors.push({ level: "error", message: "Package manifest missing or invalid field", field: "name" });
+    console.error(JSON.stringify({ level: "error", message: "Package manifest missing or invalid field", field: "name" }));
+    errors++;
   }
-  const semverRegex = /^\d+\.\d+\.\d+(-[\w\.\+]+)?(\+[\w\.\+]+)?$/;
-  if (typeof pkg.version !== "string" || !semverRegex.test(pkg.version)) {
-    errors.push({ level: "error", message: "Package manifest missing or invalid field", field: "version" });
+  // Validate version
+  if (typeof pkg.version !== "string" || !/^\d+\.\d+\.\d+(?:-.+)?$/.test(pkg.version)) {
+    console.error(JSON.stringify({ level: "error", message: "Package manifest missing or invalid field", field: "version" }));
+    errors++;
   }
+  // Validate description
   if (typeof pkg.description !== "string" || pkg.description.trim() === "") {
-    errors.push({ level: "error", message: "Package manifest missing or invalid field", field: "description" });
+    console.error(JSON.stringify({ level: "error", message: "Package manifest missing or invalid field", field: "description" }));
+    errors++;
   }
+  // Validate main
   if (typeof pkg.main !== "string" || pkg.main.trim() === "") {
-    errors.push({ level: "error", message: "Package manifest missing or invalid field", field: "main" });
+    console.error(JSON.stringify({ level: "error", message: "Package manifest missing or invalid field", field: "main" }));
+    errors++;
   }
+  // Validate scripts.test
   if (!pkg.scripts || typeof pkg.scripts.test !== "string" || pkg.scripts.test.trim() === "") {
-    errors.push({ level: "error", message: "Package manifest missing or invalid field", field: "scripts.test" });
+    console.error(JSON.stringify({ level: "error", message: "Package manifest missing or invalid field", field: "scripts.test" }));
+    errors++;
   }
-  if (!pkg.engines || typeof pkg.engines.node !== "string") {
-    errors.push({ level: "error", message: "Package manifest missing or invalid field", field: "engines.node" });
+  // Validate engines.node
+  if (!pkg.engines || typeof pkg.engines.node !== "string" || !pkg.engines.node.startsWith(">=")) {
+    console.error(JSON.stringify({ level: "error", message: "Package manifest missing or invalid field", field: "engines.node" }));
+    errors++;
   } else {
-    const enginesRegex = /^>=\s*20(\.\d+){0,2}$/;
-    if (!enginesRegex.test(pkg.engines.node)) {
-      errors.push({ level: "error", message: "Package manifest missing or invalid field", field: "engines.node" });
+    const minVer = pkg.engines.node.slice(2).split(".").map(Number);
+    if (minVer[0] < 20) {
+      console.error(JSON.stringify({ level: "error", message: "Package manifest missing or invalid field", field: "engines.node" }));
+      errors++;
     }
   }
-  if (errors.length > 0) {
-    errors.forEach((err) => console.error(JSON.stringify(err)));
+  if (errors > 0) {
     process.exit(1);
   }
   console.log(JSON.stringify({ level: "info", message: "Package manifest validation passed" }));
@@ -446,7 +521,7 @@ export async function processValidatePackage(
 }
 
 /**
- * Processes the --validate-tests flag by reading coverage summary JSON and validating coverage thresholds.
+ * Processes the --validate-tests flag by validating coverage metrics.
  * @param {string[]} args - CLI arguments
  * @returns {Promise<boolean>} - True if flag processed, false otherwise
  */
@@ -455,49 +530,39 @@ export async function processValidateTests(args = process.argv.slice(2)) {
     return false;
   }
   const summaryPath = path.resolve("coverage/coverage-summary.json");
-  let content;
+  let data;
   try {
-    content = await readFile(summaryPath, "utf8");
+    data = await readFile(summaryPath, "utf8");
   } catch (error) {
-    console.error(
-      JSON.stringify({ level: "error", message: "Failed to read coverage summary", error: error.message }),
-    );
+    console.error(JSON.stringify({ level: "error", message: "Failed to read coverage summary", error: error.message }));
     process.exit(1);
   }
   let summary;
   try {
-    summary = JSON.parse(content);
+    summary = JSON.parse(data);
   } catch (error) {
-    console.error(
-      JSON.stringify({ level: "error", message: "Failed to parse coverage summary", error: error.message }),
-    );
+    console.error(JSON.stringify({ level: "error", message: "Failed to parse coverage summary", error: error.message }));
     process.exit(1);
   }
   const thresholds = { statements: 80, branches: 80, functions: 80, lines: 80 };
-  const failed = [];
-  const coverageOutput = {};
-  Object.keys(thresholds).forEach((metric) => {
-    const data = summary[metric];
-    const actual = data && typeof data.pct === 'number' ? data.pct : 0;
-    coverageOutput[metric] = actual;
-    if (actual < thresholds[metric]) {
-      console.error(
-        JSON.stringify({ level: "error", metric, threshold: thresholds[metric], actual }),
-      );
-      failed.push(metric);
+  for (const metric of Object.keys(thresholds)) {
+    const actual = summary[metric]?.pct;
+    if (typeof actual !== "number" || actual < thresholds[metric]) {
+      console.error(JSON.stringify({ level: "error", metric, threshold: thresholds[metric], actual }));
+      process.exit(1);
     }
-  });
-  if (failed.length > 0) {
-    process.exit(1);
   }
-  console.log(
-    JSON.stringify({ level: "info", message: "Test coverage validation passed", coverage: coverageOutput }),
-  );
+  console.log(JSON.stringify({ level: "info", message: "Test coverage validation passed", coverage: {
+    statements: summary.statements.pct,
+    branches: summary.branches.pct,
+    functions: summary.functions.pct,
+    lines: summary.lines.pct
+  } }));
   process.exit(0);
 }
 
 /**
- * Processes the --validate-lint flag by running ESLint and reporting violations.
+ * Processes the --validate-lint flag by running ESLint on source and tests.
  * @param {string[]} args - CLI arguments
  * @returns {Promise<boolean>} - True if flag processed, false otherwise
  */
@@ -507,31 +572,25 @@ export async function processValidateLint(args = process.argv.slice(2)) {
   }
   let result;
   try {
-    result = spawnSync("eslint", ["sandbox/source/", "sandbox/tests/"], { encoding: "utf8" });
+    result = spawnSync("eslint", ["--max-warnings=0", "sandbox/source/", "sandbox/tests/"], { encoding: "utf8" });
   } catch (error) {
-    console.error(
-      JSON.stringify({ level: "error", message: "Lint process failed", error: error.message }),
-    );
-    process.exit(1);
-  }
-  if (result.error) {
-    console.error(
-      JSON.stringify({ level: "error", message: "Lint process failed", error: result.error.message }),
-    );
+    console.error(JSON.stringify({ level: "error", message: "Lint process failed", error: error.message }));
     process.exit(1);
   }
   if (result.status !== 0) {
-    const output = `${result.stdout || ''}${result.stderr || ''}`;
+    const output = result.stdout || "";
     const lines = output.split("\n").filter((l) => l.trim());
-    lines.forEach((line) => {
-      const m = line.match(/^(.*?):(\d+):(\d+)\s+(.*?)\s+\[(.*?)\]$/);
-      if (m) {
-        const [, file, lineNum, colNum, msg, ruleId] = m;
-        console.error(
-          JSON.stringify({ level: "error", file, line: Number(lineNum), column: Number(colNum), ruleId, message: msg }),
-        );
-      }
-    });
+    for (const line of lines) {
+      const parts = line.split(":");
+      const file = parts[0];
+      const lineNum = parseInt(parts[1], 10);
+      const colNum = parseInt(parts[2], 10);
+      const rest = parts.slice(3).join(":").trim();
+      const ruleMatch = rest.match(/\[([^\]]+)\]/);
+      const ruleId = ruleMatch ? ruleMatch[1] : "";
+      const message = rest.replace(/\[[^\]]+\]/, "").trim();
+      console.error(JSON.stringify({ level: "error", file, line: lineNum, column: colNum, ruleId, message }));
+    }
     process.exit(1);
   }
   console.log(JSON.stringify({ level: "info", message: "Lint validation passed" }));
@@ -539,7 +598,7 @@ export async function processValidateLint(args = process.argv.slice(2)) {
 }
 
 /**
- * Processes the --validate-license flag by ensuring LICENSE.md exists and has valid SPDX identifier.
+ * Processes the --validate-license flag by ensuring LICENSE.md exists and has a valid SPDX identifier.
  * @param {string[]} args - CLI arguments
  * @returns {Promise<boolean>} - True if flag processed, false otherwise
  */
@@ -548,31 +607,24 @@ export async function processValidateLicense(args = process.argv.slice(2)) {
     return false;
   }
   const licensePath = path.resolve("LICENSE.md");
-  let content;
+  let data;
   try {
-    content = await readFile(licensePath, "utf8");
+    data = await readFile(licensePath, "utf8");
   } catch (error) {
-    console.error(
-      JSON.stringify({ level: "error", message: "Failed to read license file", error: error.message }),
-    );
+    console.error(JSON.stringify({ level: "error", message: "Failed to read license file", error: error.message }));
     process.exit(1);
   }
-  const lines = content
-    .split("\n")
-    .map((l) => l.trim())
-    .filter((l) => l);
-  if (lines.length === 0) {
-    console.error(
-      JSON.stringify({ level: "error", message: "License missing or invalid SPDX identifier" }),
-    );
-    process.exit(1);
+  const lines = data.split("\n");
+  let firstLine = "";
+  for (const line of lines) {
+    if (line.trim()) {
+      firstLine = line.trim();
+      break;
+    }
   }
-  const first = lines[0];
-  const valid = /^(MIT|ISC|Apache-2\.0|GPL-3\.0)/.test(first);
-  if (!valid) {
-    console.error(
-      JSON.stringify({ level: "error", message: "License missing or invalid SPDX identifier" }),
-    );
+  const validSpdx = /^(MIT|ISC|Apache-2\.0|GPL-3\.0)/;
+  if (!firstLine || !validSpdx.test(firstLine)) {
+    console.error(JSON.stringify({ level: "error", message: "License missing or invalid SPDX identifier" }));
     process.exit(1);
   }
   console.log(JSON.stringify({ level: "info", message: "License validation passed" }));
@@ -591,6 +643,9 @@ export async function main(args = process.argv.slice(2)) {
     return;
   }
   if (await processFeaturesOverview(args)) {
+    return;
+  }
+  if (await processAuditDependencies(args)) {
     return;
   }
   if (await processValidatePackage(args)) {
