@@ -1,6 +1,6 @@
 # Objective
 
-Provide a unified CLI tool in sandbox mode that validates key repository artifacts including documentation, interactive examples, package manifest, and test coverage.
+Provide a unified CLI tool in sandbox mode that validates key repository artifacts including documentation, interactive examples, package manifest, linting, and test coverage.
 
 # Specification
 
@@ -63,3 +63,11 @@ Provide a unified CLI tool in sandbox mode that validates key repository artifac
  • If any coverage metric is below threshold, log a JSON error with metric name, threshold, and actual value, then exit status 1
  • On success when all metrics meet or exceed threshold, log a JSON info message indicating coverage details and exit status 0
  • On spawn or parsing errors, log a JSON error with details and exit status 1
+
+## --validate-lint
+
+ • Locate ESLint configuration from project root
+ • Run ESLint against sandbox/source/ and src/lib/ using child process
+ • Capture stdout and stderr from lint run
+ • If ESLint exits with non-zero code, parse output and log JSON errors for each lint finding including file path, line, column, ruleId, and message, then exit status 1
+ • On zero exit code, log a JSON info message indicating lint passed and exit status 0
