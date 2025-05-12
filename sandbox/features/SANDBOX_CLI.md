@@ -1,63 +1,59 @@
 # Overview
-Provide a single, unified sandbox CLI and HTTP API for validation, maintenance, example generation, auditing, and remote invocation. This feature replaces separate validation entrypoints with one coherent tool that supports both direct CLI usage and an embeddable server mode.
+Extend the unified sandbox CLI and HTTP API to support API key based authentication for secure remote invocation, while retaining all existing validation, maintenance, example generation, and auditing commands. Provide commands to generate and validate tokens and enforce token checks on all protected endpoints.
 
 # CLI Flags
-• --validate-features
-  Ensure every markdown file under sandbox/features includes a mission reference. Logs missing files and fails on any errors.
+• --generate-interactive-examples  Scan sandbox/README.md for mermaid-workflow blocks and render interactive HTML Examples section.
 
-• --validate-readme
-  Verify sandbox/README.md contains links to MISSION.md, CONTRIBUTING.md, LICENSE.md, and the agentic-lib repository URL. Reports missing references and exits with failure.
+• --fix-features                  Inject mission statement references into sandbox/features markdown files missing one.
 
-• --validate-package
-  Parse package.json and validate required fields (name, semver version, description, main, scripts.test, engines.node >=20). Emits JSON errors for any invalid or missing fields.
+• --validate-features             Ensure sandbox/features markdown files reference the mission statement, fail on missing.
 
-• --validate-tests
-  Run tests with coverage, parse coverage-summary.json, and enforce at least 80% on statements, branches, functions, and lines. Logs failures in JSON.
+• --validate-readme               Verify sandbox/README.md contains links to MISSION.md, CONTRIBUTING.md, LICENSE.md, and repository URL.
 
-• --validate-lint
-  Run ESLint on sandbox/source and sandbox/tests, emit JSON errors on violations.
+• --validate-package              Parse and validate package.json for required fields (name, version semver, description, main, scripts.test, engines.node >=20). Emit JSON errors.
 
-• --validate-license
-  Ensure LICENSE.md exists, is non-empty, and its first non-empty line matches an approved SPDX identifier.
+• --validate-tests                Run coverage summary check, enforce at least 80% for statements, branches, functions, and lines.
 
-• --audit-dependencies
-  Execute npm audit --json with configurable severity threshold (AUDIT_SEVERITY). Report vulnerabilities at or above threshold in JSON.
+• --validate-lint                 Run ESLint on sandbox/source and sandbox/tests, report JSON errors on violations.
 
-• --generate-interactive-examples
-  Scan sandbox/README.md for mermaid-workflow code blocks, render each to HTML with markdown-it and the GitHub plugin, maintain an idempotent ## Examples section, and report updated block count.
+• --validate-license              Ensure LICENSE.md exists, non-empty, and first non-empty line matches approved SPDX identifier.
 
-• --fix-features
-  Inject mission references into sandbox/features markdown files missing one, logging modified filenames.
+• --audit-dependencies            Run npm audit --json, enforce severity threshold from AUDIT_SEVERITY, report JSON errors for vulnerabilities.
 
-• --features-overview
-  Generate a markdown summary of all CLI flags and write to sandbox/docs/FEATURES_OVERVIEW.md, then log the content.
+• --features-overview             Generate a markdown summary of all CLI flags to sandbox/docs/FEATURES_OVERVIEW.md, log JSON info.
 
-• --validate-all
-  Run all validation and audit routines in sequence (--validate-features, --validate-readme, --validate-package, --validate-tests, --validate-lint, --validate-license, --audit-dependencies). Aggregate outputs into a final JSON summary and exit with overall status.
+• --validate-all                  Run all validation and audit routines in sequence and emit a final JSON summary.
 
-• --bridge-s3-sqs
-  Upload payload to S3 and dispatch an SQS message via s3-sqs-bridge. Requires --bucket and --key, accepts --payload-file or --payload inline, optional --message-attributes.
+• --bridge-s3-sqs                 Upload payload to S3 and send SQS message with given bucket, key, payload, and optional attributes.
 
-• --branch-sweeper
-  Auto-prune inactive Git branches based on configuration or inline overrides. Support days-inactive, branch-prefix, and dry-run.
+• --branch-sweeper                Auto-prune inactive Git branches based on configuration or inline overrides.
+
+• --generate-api-token            Create a new API key token with configurable TTL (default 24h). Logs JSON with token and expiry timestamp.
+
+• --validate-api-token            Validate a supplied API token (--token <value>) against stored secrets, log JSON status and expiry.
+
+• --api-token <token>             Global flag or environment variable SANDBOX_API_TOKEN to supply a token for authenticated operations.
 
 # HTTP API Server
-When invoked with --serve or HTTP_MODE=server, start an HTTP server on --port (default 3000) with CORS enabled:
+When invoked with --serve or HTTP_MODE=server, start an HTTP server on --port (default 3000) with CORS enabled. All endpoints except /health require a valid Bearer token matching SANDBOX_API_TOKEN or generated tokens store:
 
 GET /health
-  Respond with 200 and { status: "ok" }.
+  Respond with 200 and { status: "ok" } without authentication.
 
 POST /execute
-  Accept { command: string, args: string[] }, validate against supported flags, invoke corresponding CLI logic, and return logs and exit code in JSON (200 on success, 500 on failure).
+  Require Authorization: Bearer <token>. Accept { command: string, args: string[] }. Validate flag support, run corresponding CLI logic, return { logs, exitCode } in JSON. Return 401 if token missing or invalid.
 
 GET /metrics
-  Maintain in-memory counters for total requests, successes, and failures. Respond with { uptime, totalRequests, successCount, failureCount }.
+  Require Authorization: Bearer <token>. Return { uptime, totalRequests, successCount, failureCount } from in-memory counters. Increment counters per request.
 
 # Success Criteria
-- All CLI flags operate as described and produce JSON logs on stdout or stderr.
-- HTTP server mode supports health, execute, and metrics endpoints with correct behavior and status codes.
-- Tests cover each flag and end-to-end server responses.
+- All existing CLI flags operate unchanged and produce correct JSON logs.
+- New token management flags generate and validate tokens correctly, with TTL enforcement.
+- HTTP endpoints enforce authentication on protected routes, returning 401 on missing or invalid token.
+- Health endpoint remains open for basic liveness checks.
+- Tests cover token generation, validation, missing or invalid token scenarios, and protected endpoint behavior.
 
 # Dependencies & Constraints
 - No new files created or deleted; changes limited to sandbox/source/main.js, sandbox/tests, sandbox/README.md, sandbox/docs, and package.json dependencies.
-- Must remain compatible with Node 20, ESM modules, and existing test framework (vitest).
+- Store tokens in-memory or simple JSON file under sandbox/source for TTL management; no external database.
+- Remain compatible with Node 20 ESM, vitest tests, and existing sandbox mode constraints.
