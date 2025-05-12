@@ -121,3 +121,78 @@ node sandbox/source/main.js --validate-package
   ```json
   {"level":"error","message":"Failed to read package.json","error":"<details>"}
   ```
+
+## --validate-tests
+
+Reads the coverage summary JSON from `coverage/coverage-summary.json` and validates that statements, branches, functions, and lines coverage are all at least 80%.
+
+- Success Path:
+  ```bash
+  node sandbox/source/main.js --validate-tests
+  ```
+  Logs:
+  ```json
+  {"level":"info","message":"Test coverage validation passed","coverage":{"statements":<pct>,"branches":<pct>,"functions":<pct>,"lines":<pct>}}
+  ```
+
+- Failure Path:
+  ```bash
+  node sandbox/source/main.js --validate-tests
+  ```
+  Logs for each failing metric:
+  ```json
+  {"level":"error","metric":"<metricName>","threshold":80,"actual":<value>}
+  ```
+
+- Error Path (I/O or parse error):
+  ```json
+  {"level":"error","message":"Failed to read coverage summary","error":"<details>"}
+  ```
+  or
+  ```json
+  {"level":"error","message":"Failed to parse coverage summary","error":"<details>"}
+  ```
+
+## --validate-lint
+
+Runs ESLint on `sandbox/source/` and `sandbox/tests/`, reporting any lint violations.
+
+Example:
+```bash
+node sandbox/source/main.js --validate-lint
+```
+
+- Success Path:
+  ```json
+  {"level":"info","message":"Lint validation passed"}
+  ```
+
+- Failure Path:
+  Logs each violation:
+  ```json
+  {"level":"error","file":"<path>","line":<number>,"column":<number>,"ruleId":"<rule>","message":"<description>"}
+  ```
+
+- Error Path (spawn failure):
+  ```json
+  {"level":"error","message":"Lint process failed","error":"<details>"}
+  ```
+
+## --validate-license
+
+Validates that `LICENSE.md` exists, is non-empty, and its first non-empty line starts with a valid SPDX identifier (e.g., MIT, ISC, Apache-2.0, GPL-3.0).
+
+Example:
+```bash
+node sandbox/source/main.js --validate-license
+```
+
+- Success Path:
+  ```json
+  {"level":"info","message":"License validation passed"}
+  ```
+
+- Failure Path:
+  ```json
+  {"level":"error","message":"License missing or invalid SPDX identifier"}
+  ```

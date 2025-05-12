@@ -2,6 +2,7 @@ import { readdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import MarkdownIt from "markdown-it";
 import { createRequire } from "module";
+import { spawnSync } from "child_process";
 const requireModule = createRequire(import.meta.url);
 
 /**
@@ -283,11 +284,7 @@ export async function processValidateReadme(args = process.argv.slice(2)) {
     content = await readFile(readmePath, "utf8");
   } catch (error) {
     console.error(
-      JSON.stringify({
-        level: "error",
-        message: "Failed to read README.md",
-        error: error.message,
-      }),
+      JSON.stringify({ level: "error", message: "Failed to read README.md", error: error.message }),
     );
     process.exit(1);
   }
@@ -345,6 +342,22 @@ export async function processFeaturesOverview(args =process.argv.slice(2)) {
       "--features-overview",
       "Generates a markdown summary of all sandbox CLI flags and their descriptions.",
     ],
+    [
+      "--validate-package",
+      "Parses and validates the root package.json for required fields.",
+    ],
+    [
+      "--validate-tests",
+      "Validates test coverage metrics (statements, branches, functions, lines) meet the 80% threshold.",
+    ],
+    [
+      "--validate-lint",
+      "Runs ESLint on sandbox source and tests, reporting any lint violations.",
+    ],
+    [
+      "--validate-license",
+      "Ensures LICENSE.md exists and has a valid SPDX license identifier.",
+    ],
   ];
   // Build markdown table
   const header = "| Flag | Description |";
@@ -373,7 +386,6 @@ export async function processFeaturesOverview(args =process.argv.slice(2)) {
 /**
  * Processes the --validate-package flag by reading and validating root package.json
  * @param {string[]} args - CLI arguments
- * @returns {Promise<boolean>} - True if flag processed, false otherwise
  */
 export async function processValidatePackage(
   args = process.argv.slice(2),
@@ -434,6 +446,140 @@ export async function processValidatePackage(
 }
 
 /**
+ * Processes the --validate-tests flag by reading coverage summary JSON and validating coverage thresholds.
+ * @param {string[]} args - CLI arguments
+ * @returns {Promise<boolean>} - True if flag processed, false otherwise
+ */
+export async function processValidateTests(args = process.argv.slice(2)) {
+  if (!args.includes("--validate-tests")) {
+    return false;
+  }
+  const summaryPath = path.resolve("coverage/coverage-summary.json");
+  let content;
+  try {
+    content = await readFile(summaryPath, "utf8");
+  } catch (error) {
+    console.error(
+      JSON.stringify({ level: "error", message: "Failed to read coverage summary", error: error.message }),
+    );
+    process.exit(1);
+  }
+  let summary;
+  try {
+    summary = JSON.parse(content);
+  } catch (error) {
+    console.error(
+      JSON.stringify({ level: "error", message: "Failed to parse coverage summary", error: error.message }),
+    );
+    process.exit(1);
+  }
+  const thresholds = { statements: 80, branches: 80, functions: 80, lines: 80 };
+  const failed = [];
+  const coverageOutput = {};
+  Object.keys(thresholds).forEach((metric) => {
+    const data = summary[metric];
+    const actual = data && typeof data.pct === 'number' ? data.pct : 0;
+    coverageOutput[metric] = actual;
+    if (actual < thresholds[metric]) {
+      console.error(
+        JSON.stringify({ level: "error", metric, threshold: thresholds[metric], actual }),
+      );
+      failed.push(metric);
+    }
+  });
+  if (failed.length > 0) {
+    process.exit(1);
+  }
+  console.log(
+    JSON.stringify({ level: "info", message: "Test coverage validation passed", coverage: coverageOutput }),
+  );
+  process.exit(0);
+}
+
+/**
+ * Processes the --validate-lint flag by running ESLint and reporting violations.
+ * @param {string[]} args - CLI arguments
+ * @returns {Promise<boolean>} - True if flag processed, false otherwise
+ */
+export async function processValidateLint(args = process.argv.slice(2)) {
+  if (!args.includes("--validate-lint")) {
+    return false;
+  }
+  let result;
+  try {
+    result = spawnSync("eslint", ["sandbox/source/", "sandbox/tests/"], { encoding: "utf8" });
+  } catch (error) {
+    console.error(
+      JSON.stringify({ level: "error", message: "Lint process failed", error: error.message }),
+    );
+    process.exit(1);
+  }
+  if (result.error) {
+    console.error(
+      JSON.stringify({ level: "error", message: "Lint process failed", error: result.error.message }),
+    );
+    process.exit(1);
+  }
+  if (result.status !== 0) {
+    const output = `${result.stdout || ''}${result.stderr || ''}`;
+    const lines = output.split("\n").filter((l) => l.trim());
+    lines.forEach((line) => {
+      const m = line.match(/^(.*?):(\d+):(\d+)\s+(.*?)\s+\[(.*?)\]$/);
+      if (m) {
+        const [, file, lineNum, colNum, msg, ruleId] = m;
+        console.error(
+          JSON.stringify({ level: "error", file, line: Number(lineNum), column: Number(colNum), ruleId, message: msg }),
+        );
+      }
+    });
+    process.exit(1);
+  }
+  console.log(JSON.stringify({ level: "info", message: "Lint validation passed" }));
+  process.exit(0);
+}
+
+/**
+ * Processes the --validate-license flag by ensuring LICENSE.md exists and has valid SPDX identifier.
+ * @param {string[]} args - CLI arguments
+ * @returns {Promise<boolean>} - True if flag processed, false otherwise
+ */
+export async function processValidateLicense(args = process.argv.slice(2)) {
+  if (!args.includes("--validate-license")) {
+    return false;
+  }
+  const licensePath = path.resolve("LICENSE.md");
+  let content;
+  try {
+    content = await readFile(licensePath, "utf8");
+  } catch (error) {
+    console.error(
+      JSON.stringify({ level: "error", message: "Failed to read license file", error: error.message }),
+    );
+    process.exit(1);
+  }
+  const lines = content
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l);
+  if (lines.length === 0) {
+    console.error(
+      JSON.stringify({ level: "error", message: "License missing or invalid SPDX identifier" }),
+    );
+    process.exit(1);
+  }
+  const first = lines[0];
+  const valid = /^(MIT|ISC|Apache-2\.0|GPL-3\.0)/.test(first);
+  if (!valid) {
+    console.error(
+      JSON.stringify({ level: "error", message: "License missing or invalid SPDX identifier" }),
+    );
+    process.exit(1);
+  }
+  console.log(JSON.stringify({ level: "info", message: "License validation passed" }));
+  process.exit(0);
+}
+
+/**
  * Main CLI entrypoint for sandbox mode
  * @param {string[]} args - CLI arguments
  */
@@ -448,6 +594,15 @@ export async function main(args = process.argv.slice(2)) {
     return;
   }
   if (await processValidatePackage(args)) {
+    return;
+  }
+  if (await processValidateTests(args)) {
+    return;
+  }
+  if (await processValidateLint(args)) {
+    return;
+  }
+  if (await processValidateLicense(args)) {
     return;
   }
   const featureHandled = await processValidateFeatures(args);
