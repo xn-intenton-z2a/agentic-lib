@@ -49,6 +49,12 @@ Expected success output:
 {"level":"info","message":"Fixed feature files to include mission reference","filesModified":["file1.md"]}
 ```
 
+Expected error on write failure (exit code 1):
+
+```json
+{"level":"error","message":"Failed to fix feature files","error":"<details>"}
+```
+
 ### --generate-interactive-examples
 
 Scans `sandbox/README.md` for ```mermaid-workflow``` fenced code blocks, renders each block into interactive HTML snippets, and injects or updates an idempotent `## Examples` section at the end of the README.
@@ -130,7 +136,7 @@ Expected failure output:
 
 ### --audit-dependencies
 
-Audits npm dependencies for security vulnerabilities at or above the severity threshold (`AUDIT_SEVERITY`, default moderate).
+Audits npm dependencies for vulnerabilities at or above the severity threshold (`AUDIT_SEVERITY`, default: moderate).
 
 Example invocation:
 
@@ -148,4 +154,136 @@ Expected failure output:
 
 ```json
 {"level":"error","module":"<module>","severity":"<severity>","title":"<title>","vulnerableVersions":"<versions>","patchedVersions":"<versions>","url":"<url>"}
+```
+
+### --features-overview
+
+Generates a markdown summary of all sandbox CLI flags and their descriptions. Writes to `sandbox/docs/FEATURES_OVERVIEW.md` and prints a JSON info log.
+
+Example invocation:
+
+```bash
+node sandbox/source/main.js --features-overview
+```
+
+Expected success output:
+
+```json
+{"level":"info","featuresOverview":"<markdown string>"}
+```
+
+Expected failure output (exit code 1):
+
+```json
+{"level":"error","message":"Failed to generate features overview","error":"<details>"}
+```
+
+### --bridge-s3-sqs
+
+Uploads payload to S3 and sends an SQS message with the object location and optional attributes.
+
+Example invocation:
+
+```bash
+node sandbox/source/main.js --bridge-s3-sqs --bucket my-bucket --key path/to/object.json --payload-file ./data.json --message-attributes '{"foo":"bar"}'
+```
+
+Expected success output:
+
+```json
+{"level":"info","message":"Bridge succeeded","bucket":"my-bucket","key":"path/to/object.json","messageId":"<id>"}
+```
+
+Expected error on missing arguments (exit code 1):
+
+```json
+{"level":"error","message":"Missing required arguments: --bucket and --key"}
+```
+
+### --validate-tests
+
+Reads coverage summary from `coverage/coverage-summary.json` and ensures statements, branches, functions, and lines coverage all meet the 80% threshold.
+
+Example invocation:
+
+```bash
+node sandbox/source/main.js --validate-tests
+```
+
+Expected success output:
+
+```json
+{"level":"info","message":"Test coverage validation passed","coverage":{"statements":<pct>,"branches":<pct>,"functions":<pct>,"lines":<pct>}}
+```
+
+Expected failure output:
+
+```json
+{"level":"error","metric":"<metricName>","threshold":80,"actual":<value>}
+```
+
+Expected error on read or parse failure:
+
+```json
+{"level":"error","message":"Failed to read coverage summary","error":"<details>"}
+```
+or
+```json
+{"level":"error","message":"Failed to parse coverage summary","error":"<details>"}
+```
+
+### --validate-lint
+
+Runs ESLint on `sandbox/source/` and `sandbox/tests/`, reporting any lint violations.
+
+Example invocation:
+
+```bash
+node sandbox/source/main.js --validate-lint
+```
+
+Expected success output:
+
+```json
+{"level":"info","message":"Lint validation passed"}
+```
+
+Expected failure output:
+
+```json
+{"level":"error","file":"<path>","line":<number>,"column":<number>,"ruleId":"<rule>","message":"<description>"}
+```
+
+Expected error on spawn failure:
+
+```json
+{"level":"error","message":"Lint process failed","error":"<details>"}
+```
+
+### --validate-license
+
+Validates that `LICENSE.md` exists and its first non-empty line starts with a valid SPDX identifier (e.g., MIT, ISC, Apache-2.0, GPL-3.0).
+
+Example invocation:
+
+```bash
+node sandbox/source/main.js --validate-license
+```
+
+Expected success output:
+
+```json
+{"level":"info","message":"License validation passed"}
+```
+
+Expected failure on invalid SPDX (exit code 1):
+
+```json
+{"level":"error","message":"License missing or invalid SPDX identifier"}
+```
+
+Expected failure on missing file (exit code 1):
+
+```json
+{"level":"error","message":"Failed to read license file","error":"<details>"}
 ```
