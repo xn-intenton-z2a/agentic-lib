@@ -12,21 +12,16 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-cd ..
-echo "repository0..."
-cd repository0
-./scripts/accept-release.sh "$1"
-cd ..
-echo "repository0-crucible..."
-cd repository0-crucible
-./scripts/accept-release.sh "$1"
-cd ..
-echo "repository0-plot-code-lib..."
-cd repository0-plot-code-lib
-./scripts/accept-release.sh "$1"
-cd ..
-echo "s3-sqs-bridge..."
-cd s3-sqs-bridge
-./scripts/accept-release.sh "$1"
-cd ..
-cd agentic-lib
+# For each repository named in target-repositories.txt run accept-release.sh with the tag version
+while IFS= read -r repo; do
+  # Check if the directory exists
+  if [ -d "${repo?}" ]; then
+    echo "Accepting $repo..."
+    cd "../${repo?}" || exit
+    ./scripts/accept-release.sh "$1"
+    cd ../agentic-lib
+  else
+    echo "Directory $repo does not exist. Skipping..."
+  fi
+  echo ""
+done < target-repositories.txt
