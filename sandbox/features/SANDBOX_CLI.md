@@ -1,7 +1,7 @@
 # Sandbox CLI
 
 ## Overview
-The sandbox CLI provides automated commands to validate, generate, and maintain key project artifacts in sandbox mode. It ensures consistency with the mission statement, enriches documentation with interactive examples, audits dependencies, and enforces code quality and coverage standards.
+The sandbox CLI provides automated commands to validate, generate, and maintain key project artifacts in sandbox mode. It ensures consistency with the mission statement, enriches documentation with interactive examples, audits dependencies, supports workflow scaffolding, and enforces code quality and coverage standards.
 
 ## Commands
 
@@ -22,6 +22,8 @@ The sandbox CLI provides automated commands to validate, generate, and maintain 
 - **--features-overview**: Generates a markdown summary table of all sandbox CLI flags and their descriptions, writes it to sandbox/docs/FEATURES_OVERVIEW.md atomically, logs a JSON-formatted info entry including the generated markdown, and exits with code 0; logs a JSON-formatted error and exits with code 1 on write failure.
 
 - **--audit-dependencies**: Runs `npm audit --json`, parses the output, compares advisory severities against the `AUDIT_SEVERITY` threshold (default: moderate), logs JSON-formatted error entries for each vulnerability at or above the threshold and exits with code 1 if any exist; logs a JSON-formatted info entry with vulnerability counts and exits with code 0 on clean audit.
+
+- **--generate-workflow-template**: Outputs a GitHub Actions workflow_call YAML template to stdout. Accepts optional parameters `--workflow-name` to name the workflow file and `--job-id` to set the primary job identifier in the template. Logs a JSON-formatted info entry with the generated template length and default values used, then exits with code 0. Logs a JSON-formatted error entry and exits with code 1 on invalid option values.
 
 - **--bridge-s3-sqs**: Requires `--bucket` and `--key` arguments; reads JSON payload from `--payload-file` or inline `--payload`, parses optional `--message-attributes`, calls `uploadAndSendMessage`, logs a JSON-formatted info entry with bucket, key, and messageId on success and exits with code 0; logs a JSON-formatted error and exits with code 1 on failures or missing arguments.
 
