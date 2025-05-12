@@ -23,14 +23,14 @@ fi
 # For each repository named in target-repositories.txt run release-version-to-repository.sh and activate-schedule.sh.
 while IFS= read -r repo; do
   # Check if the directory exists
-  if [ -d "${repo?}" ]; then
-    echo "Releasing $repo..."
+  if [ -d "../${repo?}" ]; then
+    echo "Releasing ${repo?}..."
     ./scripts/release-version-to-repository.sh "$1" "../${repo?}/.github/workflows"
     cd "../${repo?}" || exit
     ./scripts/accept-release.sh "$1"
     cd ../agentic-lib
   else
-    echo "Directory $repo does not exist. Skipping..."
+    echo "Directory ../${repo?} does not exist. Skipping..."
   fi
   echo ""
 done < target-repositories.txt

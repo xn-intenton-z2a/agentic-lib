@@ -15,13 +15,13 @@ fi
 # For each repository named in target-repositories.txt run accept-release.sh with the tag version
 while IFS= read -r repo; do
   # Check if the directory exists
-  if [ -d "${repo?}" ]; then
-    echo "Accepting $repo..."
+  if [ -d "../${repo?}" ]; then
+    echo "Accepting ${repo?}..."
     cd "../${repo?}" || exit
     ./scripts/accept-release.sh "$1"
     cd ../agentic-lib
   else
-    echo "Directory $repo does not exist. Skipping..."
+    echo "Directory ../${repo?} does not exist. Skipping..."
   fi
   echo ""
 done < target-repositories.txt
