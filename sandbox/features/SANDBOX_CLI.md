@@ -2,8 +2,7 @@
 
 # SANDBOX CLI
 
-Detailed information about the sandbox CLI commands provided in this repository.  
-Use the commands below to interact with the sandbox environment:
+Detailed information about the sandbox CLI commands provided in this repository. Use the commands below to interact with the sandbox environment:
 
 - **--validate-features**: Ensure all feature files in `sandbox/features/` reference the mission statement.
 - **--fix-features**: Add missing mission statement references to feature files in `sandbox/features/`.
@@ -15,3 +14,5 @@ Use the commands below to interact with the sandbox environment:
 - **--validate-tests**: Check that test coverage metrics meet the 80% threshold.
 - **--validate-lint**: Run ESLint on sandbox source and tests.
 - **--validate-license**: Verify `LICENSE.md` exists and contains a valid SPDX identifier.
+- **--validate-readme**: Check that `sandbox/README.md` contains critical references including MISSION.md, CONTRIBUTING.md, LICENSE.md, and the repository URL.
+- **--validate-dependency-licenses**: Scan all installed npm dependencies to ensure each has a valid SPDX license identifier. Log errors for any dependencies with missing or invalid license fields and optionally generate a markdown summary report at `sandbox/docs/DEPENDENCY_LICENSES.md` summarizing each dependency and its license.
