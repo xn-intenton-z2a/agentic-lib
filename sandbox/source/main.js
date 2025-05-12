@@ -3,6 +3,7 @@ import path from "path";
 import MarkdownIt from "markdown-it";
 import { createRequire } from "module";
 import { spawnSync } from "child_process";
+import { uploadAndSendMessage } from "@xn-intenton-z2a/s3-sqs-bridge";
 const requireModule = createRequire(import.meta.url);
 
 /**
@@ -347,6 +348,10 @@ export async function processFeaturesOverview(args =process.argv.slice(2)) {
       "Audits npm dependencies for vulnerabilities at or above the configured severity threshold (AUDIT_SEVERITY).",
     ],
     [
+      "--bridge-s3-sqs",
+      "Uploads payload to S3 and dispatches an SQS message with the object location and optional attributes.",
+    ],
+    [
       "--validate-package",
       "Parses and validates the root package.json for required fields.",
     ],
@@ -449,6 +454,99 @@ export async function processAuditDependencies(args = process.argv.slice(2)) {
     JSON.stringify({ level: "info", message: "Dependency audit passed", counts: vulnCounts }),
   );
   process.exit(0);
+}
+
+/**
+ * Processes the --bridge-s3-sqs flag by uploading to S3 and sending an SQS message.
+ * @param {string[]} args - CLI arguments
+ * @returns {Promise<boolean>} - True if flag processed, false otherwise
+ */
+export async function processBridgeS3Sqs(args = process.argv.slice(2)) {
+  if (!args.includes("--bridge-s3-sqs")) {
+    return false;
+  }
+  // Parse required bucket and key
+  const bucketIndex = args.indexOf("--bucket");
+  const keyIndex = args.indexOf("--key");
+  if (
+    bucketIndex === -1 ||
+    keyIndex === -1 ||
+    !args[bucketIndex + 1] ||
+    !args[keyIndex + 1]
+  ) {
+    console.error(
+      JSON.stringify({ level: "error", message: "Missing required arguments: --bucket and --key" }),
+    );
+    process.exit(1);
+  }
+  const bucket = args[bucketIndex + 1];
+  const key = args[keyIndex + 1];
+
+  // Parse payload from file or inline
+  let payload;
+  const payloadFileIndex = args.indexOf("--payload-file");
+  if (payloadFileIndex !== -1 && args[payloadFileIndex + 1]) {
+    try {
+      const fileContent = await readFile(
+        path.resolve(args[payloadFileIndex + 1]),
+        "utf8",
+      );
+      payload = JSON.parse(fileContent);
+    } catch (error) {
+      console.error(
+        JSON.stringify({ level: "error", message: "Failed to read or parse payload-file", error: error.message }),
+      );
+      process.exit(1);
+    }
+  } else {
+    const payloadIndex = args.indexOf("--payload");
+    if (payloadIndex !== -1 && args[payloadIndex + 1]) {
+      try {
+        payload = JSON.parse(args[payloadIndex + 1]);
+      } catch (error) {
+        console.error(
+          JSON.stringify({ level: "error", message: "Failed to parse payload JSON", error: error.message }),
+        );
+        process.exit(1);
+      }
+    } else {
+      payload = {};
+    }
+  }
+
+  // Parse message attributes
+  let messageAttributes;
+  const attrIndex = args.indexOf("--message-attributes");
+  if (attrIndex !== -1 && args[attrIndex + 1]) {
+    try {
+      messageAttributes = JSON.parse(args[attrIndex + 1]);
+    } catch (error) {
+      console.error(
+        JSON.stringify({ level: "error", message: "Failed to parse message-attributes JSON", error: error.message }),
+      );
+      process.exit(1);
+    }
+  }
+
+  // Perform the bridge
+  try {
+    const messageId = await uploadAndSendMessage({ bucket, key, payload, messageAttributes });
+    console.log(
+      JSON.stringify({
+        level: "info",
+        message: "Bridge succeeded",
+        bucket,
+        key,
+        messageId,
+      }),
+    );
+    process.exit(0);
+  } catch (error) {
+    console.error(
+      JSON.stringify({ level: "error", message: "Bridge failed", error: error.message }),
+    );
+    process.exit(1);
+  }
 }
 
 // New validation functions
@@ -636,6 +734,9 @@ export async function processValidateLicense(args = process.argv.slice(2)) {
  * @param {string[]} args - CLI arguments
  */
 export async function main(args = process.argv.slice(2)) {
+  if (await processBridgeS3Sqs(args)) {
+    return;
+  }
   if (await processGenerateInteractiveExamples(args)) {
     return;
   }

@@ -214,10 +214,29 @@ node sandbox/source/main.js --audit-dependencies
   ```
 
 - Failure Path:
-  ```json
+  ```bash
   node sandbox/source/main.js --audit-dependencies
   ```
   Logs each issue:
   ```json
   {"level":"error","module":"<module>","severity":"<severity>","title":"<title>","vulnerableVersions":"<versions>","patchedVersions":"<versions>","url":"<url>"}
+  ```
+
+## --bridge-s3-sqs
+
+Uploads payload to S3 and sends an SQS message with the object location and optional attributes via the s3-sqs-bridge library.
+
+Example:
+```bash
+node sandbox/source/main.js --bridge-s3-sqs --bucket my-bucket --key path/to/object.json --payload-file ./data.json --message-attributes '{"foo":"bar"}'
+```
+
+- Success Path:
+  ```json
+  {"level":"info","message":"Bridge succeeded","bucket":"my-bucket","key":"path/to/object.json","messageId":"<id>"}
+  ```
+
+- Error Path (missing args):
+  ```json
+  {"level":"error","message":"Missing required arguments: --bucket and --key"}
   ```
