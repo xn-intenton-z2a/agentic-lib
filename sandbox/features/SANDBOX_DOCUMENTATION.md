@@ -1,8 +1,5 @@
-# sandbox/features/SANDBOX_DOCUMENTATION.md
-
 # Objective
-
-Provide a unified CLI tool in sandbox mode that validates key repository artifacts including documentation, interactive examples, package manifest, linting, test coverage, license files, dependency security, and ensures consistency with the mission.
+Provide a unified CLI tool in sandbox mode that validates key repository artifacts including documentation, interactive examples, package manifest, linting, test coverage, license files, dependency security, and ensures consistency with the mission. Additionally, enable bridging from S3 to SQS using the s3-sqs-bridge library for autonomous event dispatch.
 
 # Specification
 
@@ -79,3 +76,10 @@ Provide a unified CLI tool in sandbox mode that validates key repository artifac
  • If any such vulnerabilities exist, exit status 1
  • If no vulnerabilities at or above threshold, log a JSON info message summarizing counts by severity and exit status 0
 
+## --bridge-s3-sqs
+ • Parse CLI arguments for bucket, key, optional --payload-file path, and optional --message-attributes JSON
+ • Use the s3-sqs-bridge library to upload the payload to the specified S3 bucket under the given key
+ • After successful upload, send an SQS message with the S3 object location and provided message attributes
+ • On missing or invalid arguments, log a JSON error with argument details and exit status 1
+ • On AWS SDK or bridge errors, log a JSON error with error details and exit status 1
+ • On success, log a JSON info message with bucket, key, and SQS message ID and exit status 0
