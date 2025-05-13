@@ -4,45 +4,67 @@
 
 ## Overview
 
-The Sandbox CLI provides a unified command-line and HTTP interface for automating repository maintenance tasks in the sandbox environment. It supports feature validation, example generation, dependency auditing, and more to ensure compliance with the mission of autonomous, agentic workflows.
+The Sandbox CLI provides a unified command-line and HTTP interface for automating repository maintenance and sandbox environment tasks. It consolidates feature validation, example generation, dependency auditing, and mission compliance into a single tool with both CLI and remote invocation capabilities.
 
-## Value Proposition
+## HTTP API Support
 
-Automates repetitive maintenance operations, enforces project standards, and accelerates development by integrating core quality checks, documentation updates, and remote-triggerable HTTP endpoints into a single, easy-to-use tool.
+The CLI can run an HTTP server to expose its commands as RESTful endpoints, enabling integration with external automation tools and CI/CD pipelines. It must support:
 
-## Scope
+- **GET /health**
+  - Returns HTTP 200 OK with JSON `{ status: "ok" }` to signal service availability.
 
-Includes the following commands and modes:
+- **POST /run**
+  - Accepts JSON body `{ command: string, args?: string[] }`.
+  - Invokes the corresponding CLI command internally and streams a structured JSON result including `level`, `message`, and any command-specific data.
+  - Handles invalid commands with HTTP 400 and error details.
 
-- --generate-interactive-examples: Injects rendered HTML examples into README from mermaid-workflow blocks.
-- --fix-features: Prepends mission references to feature markdown files missing them.
-- --validate-features: Verifies feature markdown files reference the mission statement.
-- --validate-readme: Ensures README contains links to MISSION.md, CONTRIBUTING.md, LICENSE.md, and the repo URL.
-- --features-overview: Generates a markdown summary of all CLI flags under sandbox/docs.
-- --audit-dependencies: Runs npm audit with configurable severity threshold.
-- --bridge-s3-sqs: Uploads to S3 and dispatches an SQS message for payloads.
-- --validate-package: Validates root package.json fields against schema requirements.
-- --validate-tests: Checks code coverage metrics meet 80% thresholds.
-- --validate-lint: Runs ESLint on source and tests, reporting any violations.
-- --validate-license: Confirms LICENSE.md exists and contains a valid SPDX identifier.
-- --serve-http: Starts an HTTP server exposing endpoints to trigger any of the above commands remotely.
-  - GET /health: Returns 200 OK JSON status.
-  - POST /run: Accepts JSON body { command: string, args: string[] } to invoke corresponding CLI processing and returns structured JSON result.
+## Commands
+
+- `--generate-interactive-examples`
+  Scans `sandbox/README.md` for ```mermaid-workflow``` blocks, renders each to interactive HTML, and maintains an idempotent `## Examples` section.
+
+- `--fix-features`
+  Ensures markdown files in `sandbox/features/` include a mission reference, prepending one to those missing it.
+
+- `--validate-features`
+  Verifies all `sandbox/features/*.md` reference the mission statement.
+
+- `--validate-readme`
+  Checks `sandbox/README.md` for links to `MISSION.md`, `CONTRIBUTING.md`, `LICENSE.md`, and the repository URL.
+
+- `--audit-dependencies`
+  Runs `npm audit --json`, filters vulnerabilities by `AUDIT_SEVERITY`, and reports or fails based on threshold.
+
+- `--validate-package`
+  Validates required fields in `package.json` meet schema and version constraints.
+
+- `--validate-tests`
+  Reads `coverage/coverage-summary.json` and enforces at least 80% for statements, branches, functions, and lines.
+
+- `--validate-lint`
+  Executes ESLint on source and tests, reporting violations and enforcing zero warnings.
+
+- `--validate-license`
+  Ensures `LICENSE.md` exists and its first non-empty line matches a valid SPDX identifier.
+
+- `--serve-http`
+  Starts an HTTP server exposing the above commands via REST API on a configurable port.
 
 ## Requirements
 
 - Node 20+ runtime with ESM support.
-- Breadth of file system permissions for sandbox paths: source, tests, docs, features, README.
-- Dependencies: markdown-it, markdown-it-github, zod, child_process, fs/promises, http (built-in).
+- File system write permissions for sandbox paths: `sandbox/source/`, `sandbox/tests/`, `sandbox/docs/`, and `sandbox/features/`.
+- Dependencies: `markdown-it`, `markdown-it-github`, `zod`, `child_process`, `fs/promises`, built-in `http`.
 
 ## User Scenarios
 
-1. A maintainer runs `node sandbox/source/main.js --serve-http` and invokes POST /run with `{ command: "--validate-features" }` from an external automation tool.
-2. A contributor updates README workflows and regenerates examples via an HTTP request instead of manual CLI invocation.
-3. The CI pipeline triggers dependency audits via HTTP hooks to centralize logs in a monitoring dashboard.
+1. A CI job invokes `POST /run` at `http://localhost:3000/run` with `{ command: "--audit-dependencies" }` to centralize audit logs.
+2. A maintainer uses `GET /health` to verify the CLI service is available before triggering automated workflows.
+3. A contributor triggers `POST /run` with `{ command: "--generate-interactive-examples" }` to update examples without a local CLI install.
 
 ## Verification & Acceptance
 
-- Unit tests cover the new --serve-http flag, health check, and POST /run endpoint normal, error, and edge cases in sandbox/tests.
-- README usage section demonstrates HTTP endpoint usage with sample cURL commands and outputs.
-- Automated CI job starts the HTTP server, runs endpoint tests, and confirms exit codes and log formats.
+- Unit tests cover HTTP server startup, `/health` and `/run` endpoints, including success, invalid command, and internal error cases.
+- CLI tests ensure each flag behavior remains unchanged under direct invocation.
+- Documentation in `sandbox/README.md` and `sandbox/docs/USAGE.md` includes examples for HTTP API usage with `curl`.
+- CI pipeline executes HTTP endpoint tests and verifies correct exit codes and JSON formats.
