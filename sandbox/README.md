@@ -227,7 +227,9 @@ Expected error on read or parse failure:
 ```json
 {"level":"error","message":"Failed to read coverage summary","error":"<details>"}
 ```
+
 or
+
 ```json
 {"level":"error","message":"Failed to parse coverage summary","error":"<details>"}
 ```
@@ -276,14 +278,14 @@ Expected success output:
 {"level":"info","message":"License validation passed"}
 ```
 
-Expected failure on invalid SPDX (exit code 1):
-
-```json
-{"level":"error","message":"License missing or invalid SPDX identifier"}
-```
-
 Expected failure on missing file (exit code 1):
 
 ```json
 {"level":"error","message":"Failed to read license file","error":"<details>"}
+```
+
+Expected failure on invalid SPDX (exit code 1):
+
+```json
+{"level":"error","message":"License missing or invalid SPDX identifier"}
 ```
