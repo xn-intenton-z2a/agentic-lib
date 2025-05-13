@@ -1,80 +1,38 @@
 # Overview
 
-The Sandbox CLI serves as a unified tool for automating repository maintenance and sandbox environment operations in both local and remote contexts. It provides a comprehensive set of commands for formatting, validation, auditing, dependency management, AWS integration, interactive example generation, and more. Commands can be invoked via CLI flags or exposed via an embedded HTTP server.
-
-# HTTP API Endpoints
-
-Configurations:
-• Port: SANDBOX_PORT environment variable (default 3000)
-• Base path: /
-
-Endpoints:
-GET /health: Returns 200 OK with JSON { status: "ok" }.
-POST /run: Accepts JSON { command: string, args?: string[] }, validates the command, invokes it, and streams structured JSON logs with level, message, and optional data.
+The Sandbox CLI is a unified command-line tool for automating sandbox environment maintenance tasks. It provides a suite of repository checks, documentation updates, dependency audits, and AWS integrations, all executable via simple flags. It operates directly on sandbox paths.
 
 # Commands
 
-• --format-code
-Formats JavaScript, TypeScript, and Markdown files in sandbox/source, sandbox/tests, and sandbox/docs using Prettier. Returns JSON logs with level, message, and a list of formatted files.
-
 • --generate-interactive-examples
-Scans sandbox/README.md for mermaid-workflow code blocks, renders interactive HTML snippets, and maintains a single, idempotent ## Examples section.
+  Scans sandbox/README.md for mermaid-workflow fenced code blocks. Renders each block into interactive HTML snippets using markdown-it and the GitHub plugin. Maintains a single, idempotent Examples section at the end of README.
 
 • --fix-features
-Injects mission statement references into markdown files under sandbox/features missing one.
+  Scans markdown files under sandbox/features. Prepends a mission statement reference line (> See our [Mission Statement](../../MISSION.md)) to any file missing MISSION.md or # Mission.
 
 • --validate-features
-Ensures markdown files in sandbox/features reference the mission statement (MISSION.md or # Mission).
+  Ensures all markdown files in sandbox/features include a reference to the mission statement (MISSION.md or # Mission). Emits errors for missing references and exits non-zero.
 
 • --validate-readme
-Validates that sandbox/README.md contains links to MISSION.md, CONTRIBUTING.md, LICENSE.md, and the repository URL.
-
-• --audit-dependencies
-Runs npm audit --json, filters by AUDIT_SEVERITY, and fails on vulnerabilities meeting or exceeding the threshold.
-
-• --update-dependencies [--interactive] [--install]
-Scans package.json for outdated dependencies, prompts for upgrades if interactive, updates package.json, and optionally installs new versions.
-
-• --validate-package
-Validates required fields in package.json: name, version (semver), description, main, scripts.test, engines.node >=20.0.0.
-
-• --validate-tests
-Enforces at least 80% coverage for statements, branches, functions, and lines based on coverage-summary.json.
-
-• --validate-lint
-Executes ESLint on sandbox/source and sandbox/tests, enforcing zero warnings and errors.
-
-• --validate-license
-Ensures LICENSE.md exists and its first non-empty line matches a valid SPDX identifier (MIT, ISC, Apache-2.0, GPL-3.0, etc.).
+  Verifies sandbox/README.md contains links to MISSION.md, CONTRIBUTING.md, LICENSE.md, and the repository URL. Logs missing reference errors and exits non-zero.
 
 • --features-overview
-Generates a markdown summary of all Sandbox CLI flags and writes to sandbox/docs/FEATURES_OVERVIEW.md.
+  Generates a FEATURES_OVERVIEW.md by summarizing each supported CLI flag and its description in a markdown table. Writes to sandbox/docs/FEATURES_OVERVIEW.md.
+
+• --audit-dependencies
+  Runs npm audit --json, filters vulnerabilities at or above AUDIT_SEVERITY (low|moderate|high|critical, default moderate), and fails on matches. Logs structured error entries or a success summary.
 
 • --bridge-s3-sqs
-Uploads payload to S3 and sends an SQS message with the object location and optional attributes.
+  Uploads a payload to S3 and dispatches an SQS message with the object location. Requires --bucket and --key. Payload and message attributes can be provided inline or via file flags.
 
-• --invoke-lambda
-Invokes an AWS Lambda function with configurable function name, payload, and qualifier, streaming JSON logs for each step.
+# Verification & Testing
 
-• --serve-http
-Starts an HTTP server exposing GET /health and POST /run endpoints.
-
-• --validate-all
-Executes all validation commands in sequence and stops on the first failure.
+- Unit tests mock fs/promises and child_process to verify each flag’s behavior, error handling, and exit codes.
+- Integration tests ensure end-to-end processing of mermaid-workflow rendering, mission reference injection, features overview generation, and dependency audit flow.
 
 # Requirements
 
-• Node.js 20+ runtime with ESM support.
-• Dev dependencies: prettier (for formatting), npm-check-updates (for dependency scanning).
-• AWS SDK for JavaScript client-lambda for Lambda invocations.
-• Permissions to write sandbox/source, sandbox/tests, sandbox/docs, sandbox/features, and sandbox/README.md.
-• Environment variables:
-  - AUDIT_SEVERITY: low|moderate|high|critical (default: moderate)
-  - AWS_REGION: region for AWS operations
-  - SANDBOX_PORT: HTTP server port (default: 3000)
-
-# Verification & Acceptance
-
-• Unit tests cover the --format-code command by mocking Prettier API and validating JSON logs and exit codes.
-• Integration tests ensure POST /run correctly routes the format-code command and other flags, returning structured responses.
-• CI pipeline includes end-to-end tests for code formatting, HTTP endpoint health checks, and the full validation workflow.
+• Node.js 20+ with ESM support.
+• Dev dependencies: prettier, npm-check-updates, vitest.
+• AWS credentials and region configured via AWS_REGION for S3/SQS bridge.
+• Environment variable AUDIT_SEVERITY to configure audit threshold.
