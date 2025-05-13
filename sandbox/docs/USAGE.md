@@ -74,6 +74,8 @@ Example:
 node sandbox/source/main.js --fix-features
 ```
 
+Note: This command is useful for repairing existing or legacy feature documentation files to ensure they reference the mission statement and maintain consistency across all feature docs.
+
 Logs on success:
 ```json
 {"level":"info","message":"Fixed feature files to include mission reference","filesModified":["file1.md"]}
