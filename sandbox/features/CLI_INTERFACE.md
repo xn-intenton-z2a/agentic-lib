@@ -1,94 +1,83 @@
 # Overview
 
-Unified CLI interface consolidating sandbox environment utilities and core agentic-lib features into a single command-line tool. Provides maintenance workflows, validation checks, dependency management, AWS integrations, autonomous event handling, HTTP server mode for local event ingestion, and a consolidated status reporting command.
+Unified command-line interface for sandbox utilities, consolidating core agentic-lib workflows into a single CLI tool. Enables project maintenance, documentation enhancements, dependency audits, AWS integrations, automated validation, and interactive examples for workflow diagrams.
 
 # Commands
 
-• --help
+--help
   Show usage instructions and available command-line options.
 
-• --version
+--version
   Display current version information and timestamp.
 
-• --digest
-  Simulate an AWS SQS event for a digest workflow, invoking the digestLambdaHandler with a sample payload.
+--digest
+  Simulate an AWS SQS event for the digest workflow, invoking the digestLambdaHandler with a sample payload.
 
-• --generate-interactive-examples
-  Scan sandbox/README.md for mermaid-workflow blocks and render them into interactive HTML snippets in an idempotent Examples section.
+--generate-interactive-examples
+  Scan the sandbox README for mermaid-workflow code blocks and render each block into interactive HTML snippets. Maintain or update an idempotent Examples section in README with embedded interactive examples for workflow diagrams.
 
-• --fix-features
-  Inject mission statement references into markdown files under sandbox/features that lack one.
+--fix-features
+  Inject mission statement references into feature markdown files missing one under sandbox/features.
 
-• --validate-features
-  Ensure all markdown files in sandbox/features reference the mission statement, failing on any missing references.
+--validate-features
+  Ensure every markdown file in sandbox/features references the mission statement, failing on any missing references.
 
-• --validate-readme
+--validate-readme
   Verify sandbox/README.md contains links to MISSION.md, CONTRIBUTING.md, LICENSE.md, and the repository URL.
 
-• --features-overview
-  Generate a FEATURES_OVERVIEW.md summarizing each supported CLI flag with descriptions.
+--features-overview
+  Generate a FEATURES_OVERVIEW.md that summarizes each supported CLI option with descriptions in a markdown table.
 
-• --audit-dependencies
-  Run npm audit with a configurable severity threshold and fail on vulnerabilities at or above that level.
+--audit-dependencies
+  Run npm audit with a configurable severity threshold, failing on vulnerabilities at or above that level.
 
-• --bridge-s3-sqs
-  Upload payloads to S3 and dispatch an SQS message with the object location and optional message attributes.
+--bridge-s3-sqs
+  Upload payloads to S3 and dispatch an SQS message containing the object location and optional message attributes.
 
-• --validate-package
-  Parse and validate the root package.json for required fields including name, version, description, main, scripts.test, and engines.node >=20.0.0.
+--validate-package
+  Parse and validate package.json for required fields: name, version, description, main entry point, test script, and Node engine version >= 20.
 
-• --validate-tests
-  Read coverage/coverage-summary.json and ensure statements, branches, functions, and lines metrics each meet at least 80% coverage.
+--validate-tests
+  Read coverage/coverage-summary.json and ensure coverage metrics meet minimum thresholds: statements, branches, functions, and lines each at least 80%.
 
-• --validate-lint
-  Run ESLint on sandbox source and tests, reporting any violations and failing on errors or warnings.
+--validate-lint
+  Run ESLint on source and test code, reporting any violations and failing on errors or warnings.
 
-• --validate-license
-  Confirm LICENSE.md exists and its first non-empty line begins with a valid SPDX identifier (MIT, ISC, Apache-2.0, GPL-3.0).
+--validate-license
+  Confirm LICENSE.md exists and its first non-empty line begins with a valid SPDX identifier (MIT, ISC, Apache-2.0, or GPL-3.0).
 
-• --serve-http
-  Start an HTTP server exposing endpoints for local event ingestion and health checks.
+--serve-http
+  Start an HTTP server exposing endpoints for local event ingestion (POST /events) and health checks (GET /health), with graceful shutdown handling.
 
-• --status-report
-  Run a full project health check by sequentially executing audit-dependencies, validate-lint, validate-tests, validate-package, validate-readme, and validate-features commands. Aggregate results into a single JSON report. Supports --output-file <path> to write the report to a file.
+--status-report
+  Perform a full project health check by running audit-dependencies, validate-lint, validate-tests, validate-package, validate-readme, and validate-features. Aggregate results into a JSON report with optional --output-file to write to disk.
 
-# HTTP Server Mode
+# Interactive Examples Generation
 
-When invoked with --serve-http, the CLI will:
+This command processes mermaid-workflow blocks in README and generates interactive HTML examples:
 
-• Listen on a configurable port (default 3000) or environment variable HTTP_PORT.
-
-• Expose POST /events to accept AWS SQS event payloads and invoke digestLambdaHandler for each record.
-
-• Expose GET /health to return HTTP 200 and a JSON body {"status":"ok"} to indicate the server is running.
-
-• Log incoming requests, responses, and errors at appropriate log levels.
-
-• Handle graceful shutdown on SIGINT and SIGTERM, closing the HTTP server and logging shutdown events.
+1. Read sandbox/README.md and identify all code fences labeled mermaid-workflow.
+2. Use markdown-it with GitHub plugin to render each block into HTML, wrapped in a container allowing interactive features (zoom, pan).
+3. Strip any pre-existing ## Examples section and append a new Examples section containing all generated snippets.
+4. Ensure idempotency by replacing the old Examples section rather than appending duplicates.
+5. Log warnings if no blocks found and errors if rendering fails.
 
 # Requirements
 
-• Node.js 20 or higher with ESM support.
-• Git CLI for release operations.
-• AWS credentials and region for S3/SQS bridge.
-• Free port for HTTP server (default 3000) or set HTTP_PORT.
+- Node.js 20 or higher with ESM support.
+- Git CLI for repository operations.
+- AWS credentials configured for S3/SQS bridge features.
+- A free port or HTTP_PORT environment variable for server mode.
 
-# Verification & Testing
+# Testing & Verification
 
-Unit tests should:
+Unit tests must:
+- Mock filesystem operations to simulate README with and without mermaid-workflow blocks.
+- Verify correct extraction of blocks and rendering of HTML snippets.
+- Assert proper removal and regeneration of the Examples section.
+- Simulate rendering errors to confirm error handling and exit codes.
 
-• Mock HTTP server creation to verify correct port binding and route handlers.
-
-• Simulate POST /events requests with valid and invalid SQS event payloads to confirm digestLambdaHandler invocation, logging, and error handling.
-
-• Simulate GET /health requests to confirm HTTP 200 and JSON response.
-
-• Simulate shutdown signals and verify graceful server termination and logging.
-
-Integration tests should:
-
-• Start the CLI with --serve-http, send HTTP requests via HTTP client, and assert response codes and body content.
-
-• Verify logs for event processing, errors, and shutdown.
-
-• Ensure no unhandled promise rejections or uncaught exceptions occur during server runtime.
+Integration tests must:
+- Use a temporary workspace with a sample README containing mermaid-workflow diagrams.
+- Run the CLI with --generate-interactive-examples and inspect the updated README content.
+- Validate logs for info, warn, and error paths.
