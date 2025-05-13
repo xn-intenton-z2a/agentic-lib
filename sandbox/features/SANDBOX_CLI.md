@@ -4,7 +4,7 @@
 
 ## Overview
 
-The Sandbox CLI provides a unified command-line and HTTP interface for automating repository maintenance and sandbox environment tasks. It consolidates feature validation, example generation, dependency auditing, and mission compliance into a single tool with both CLI and remote invocation capabilities.
+The Sandbox CLI provides a unified command-line and HTTP interface for automating repository maintenance and sandbox environment tasks. It consolidates feature validation, example generation, dependency auditing, dependency updates, and mission compliance into a single tool with both CLI and remote invocation capabilities.
 
 ## HTTP API Support
 
@@ -14,7 +14,7 @@ The CLI can run an HTTP server to expose its commands as RESTful endpoints, enab
   - Returns HTTP 200 OK with JSON `{ status: "ok" }` to signal service availability.
 
 - **POST /run**
-  - Accepts JSON body `{ command: string, args?: string[] }`.
+  - Accepts a JSON body `{ command: string, args?: string[] }`.
   - Invokes the corresponding CLI command internally and streams a structured JSON result including `level`, `message`, and any command-specific data.
   - Handles invalid commands with HTTP 400 and error details.
 
@@ -35,6 +35,9 @@ The CLI can run an HTTP server to expose its commands as RESTful endpoints, enab
 - `--audit-dependencies`
   Runs `npm audit --json`, filters vulnerabilities by `AUDIT_SEVERITY`, and reports or fails based on threshold.
 
+- `--update-dependencies [--interactive] [--install]`
+  Scans the root `package.json` for outdated dependencies using npm-check-updates, updates dependency versions in `package.json`. With `--interactive`, prompts the user to confirm each upgrade. With `--install`, runs `npm install` after updating to apply changes.
+
 - `--validate-package`
   Validates required fields in `package.json` meet schema and version constraints.
 
@@ -53,18 +56,20 @@ The CLI can run an HTTP server to expose its commands as RESTful endpoints, enab
 ## Requirements
 
 - Node 20+ runtime with ESM support.
+- Dev dependency: `npm-check-updates` for scanning and updating dependencies.
 - File system write permissions for sandbox paths: `sandbox/source/`, `sandbox/tests/`, `sandbox/docs/`, and `sandbox/features/`.
-- Dependencies: `markdown-it`, `markdown-it-github`, `zod`, `child_process`, `fs/promises`, built-in `http`.
+- Dependencies: `markdown-it`, `markdown-it-github`, `ncu` (npm-check-updates), `child_process`, `fs/promises`, built-in `http`.
 
 ## User Scenarios
 
 1. A CI job invokes `POST /run` at `http://localhost:3000/run` with `{ command: "--audit-dependencies" }` to centralize audit logs.
 2. A maintainer uses `GET /health` to verify the CLI service is available before triggering automated workflows.
 3. A contributor triggers `POST /run` with `{ command: "--generate-interactive-examples" }` to update examples without a local CLI install.
+4. A maintainer runs `node sandbox/source/main.js --update-dependencies --install` to automatically bump dependency versions in `package.json` and install them in one step.
 
 ## Verification & Acceptance
 
-- Unit tests cover HTTP server startup, `/health` and `/run` endpoints, including success, invalid command, and internal error cases.
-- CLI tests ensure each flag behavior remains unchanged under direct invocation.
-- Documentation in `sandbox/README.md` and `sandbox/docs/USAGE.md` includes examples for HTTP API usage with `curl`.
-- CI pipeline executes HTTP endpoint tests and verifies correct exit codes and JSON formats.
+- Unit tests cover the `--update-dependencies` flag for interactive and install modes, ensuring correct prompts and final state.
+- CLI tests ensure each existing flag behavior remains unchanged under direct invocation.
+- Documentation in `sandbox/README.md` and `sandbox/docs/USAGE.md` includes examples for the `--update-dependencies` command.
+- CI pipeline executes update-dependencies tests and verifies correct `package.json` updates, installation behavior, and exit codes.
