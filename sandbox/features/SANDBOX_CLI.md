@@ -1,86 +1,93 @@
-# Sandbox CLI
+# Overview
 
-> See our [Mission Statement](../../MISSION.md)
+The Sandbox CLI serves as a unified tool for automating repository maintenance and sandbox environment operations in both local and remote contexts. It offers a comprehensive set of commands for formatting, validation, auditing, dependency management, interactive example generation, and more, accessible via CLI flags or RESTful HTTP endpoints.
 
-## Overview
+# HTTP API Endpoints
 
-The Sandbox CLI provides a unified command-line and HTTP interface for automating repository maintenance and sandbox environment tasks. It consolidates feature validation, example generation, dependency auditing, dependency updates, code formatting, mission compliance, and comprehensive validation workflows into a single tool with both CLI and remote invocation capabilities.
+The CLI can run an embedded HTTP server to expose its commands as a service. Configuration:
 
-## HTTP API Support
+• Port: configurable via SANDBOX_PORT environment variable (default 3000)
+• Base path: /
 
-The CLI can run an HTTP server to expose its commands as RESTful endpoints, enabling integration with external automation tools and CI/CD pipelines. It must support:
+Endpoints:
 
-- GET /health
-  - Returns HTTP 200 OK with JSON { status: "ok" } to signal service availability.
+## GET /health
+Returns 200 OK with JSON { status: "ok" } to signal service availability.
 
-- POST /run
-  - Accepts a JSON body { command: string, args?: string[] }.
-  - Invokes the corresponding CLI command internally and streams a structured JSON result including level, message, and any command-specific data.
-  - Handles invalid commands with HTTP 400 and error details.
+## POST /run
+Accepts JSON { command: string, args?: string[] }.
 
-## Commands
+• Validates that the `command` corresponds to a supported CLI flag (without the leading dashes).
+• Invokes the flag internally and streams a JSON response with fields:
+  - level: info|warn|error
+  - message: human-readable description
+  - data: any command-specific details (e.g., updated counts)
 
-- --format-code
-  Formats JavaScript, TypeScript, and Markdown files in sandbox/source/, sandbox/tests/, and sandbox/docs/ using Prettier according to project configuration.
+Error handling:
 
-- --generate-interactive-examples
-  Scans sandbox/README.md for mermaid-workflow fenced code blocks, renders each to interactive HTML, and maintains an idempotent ## Examples section.
+• Unknown commands return 400 BAD REQUEST with JSON { level: "error", message: "Unsupported command" }.
+• Server errors return 500 INTERNAL SERVER ERROR with error details.
 
-- --fix-features
-  Ensures markdown files in sandbox/features/ include a mission statement reference.
+# Commands
 
-- --validate-features
-  Verifies all sandbox/features/*.md reference the mission statement.
+All commands support both direct CLI invocation and remote HTTP calls. Flags:
 
-- --validate-readme
-  Checks sandbox/README.md for links to MISSION.md, CONTRIBUTING.md, LICENSE.md, and the repository URL.
+• --format-code
+  Formats JavaScript, TypeScript, and Markdown files in sandbox/source, sandbox/tests, sandbox/docs using Prettier.
 
-- --audit-dependencies
-  Runs npm audit --json, filters vulnerabilities by AUDIT_SEVERITY, and reports or fails based on threshold.
+• --generate-interactive-examples
+  Scans sandbox/README.md for mermaid-workflow fenced code blocks, renders interactive HTML snippets, and maintains a single, idempotent ## Examples section.
 
-- --update-dependencies [--interactive] [--install]
-  Scans root package.json for outdated dependencies using npm-check-updates and updates versions. With --interactive prompts each upgrade; with --install applies changes.
+• --fix-features
+  Injects mission statement references into markdown files under sandbox/features missing one.
 
-- --validate-package
-  Validates required fields in package.json meet schema and version constraints.
+• --validate-features
+  Verifies markdown files in sandbox/features reference the mission statement.
 
-- --validate-tests
-  Reads coverage/coverage-summary.json and enforces at least 80% for statements, branches, functions, and lines.
+• --validate-readme
+  Ensures sandbox/README.md contains links to MISSION.md, CONTRIBUTING.md, LICENSE.md, and the repository URL.
 
-- --validate-lint
-  Executes ESLint on sandbox/source/ and sandbox/tests/, reporting violations and enforcing zero warnings.
+• --audit-dependencies
+  Runs npm audit --json, filters by AUDIT_SEVERITY (env var), and fails if any vulnerabilities meet or exceed threshold.
 
-- --validate-license
+• --update-dependencies [--interactive] [--install]
+  Scans root package.json for outdated dependencies, prompts for upgrades if interactive, updates package.json, and optionally installs.
+
+• --validate-package
+  Validates required fields in package.json (name, version, description, main, scripts.test, engines.node >=20).
+
+• --validate-tests
+  Reads coverage/coverage-summary.json, enforcing at least 80% for statements, branches, functions, and lines.
+
+• --validate-lint
+  Executes ESLint on sandbox/source and sandbox/tests, enforcing zero warnings and errors.
+
+• --validate-license
   Ensures LICENSE.md exists and its first non-empty line matches a valid SPDX identifier.
 
-- --features-overview
-  Generates a markdown summary of all sandbox CLI flags in sandbox/docs/FEATURES_OVERVIEW.md and logs it.
+• --features-overview
+  Generates a markdown summary of all sandbox CLI flags in sandbox/docs/FEATURES_OVERVIEW.md and logs the result.
 
-- --bridge-s3-sqs
-  Uploads payload to S3 and dispatches an SQS message with the object location and optional attributes.
+• --bridge-s3-sqs
+  Uploads payload to S3 and sends an SQS message with the object location and optional attributes.
 
-- --serve-http
-  Starts an HTTP server exposing the above commands via REST API on a configurable port.
+• --serve-http
+  Starts an HTTP server exposing the above commands via GET /health and POST /run on the configured port.
 
-- --validate-all
-  Runs all validation-related commands in sequence: validate-features, validate-readme, validate-package, validate-tests, validate-lint, validate-license, and audit-dependencies. Stops on first failure and exits with a non-zero status if any validation fails, otherwise exits with status zero. Logs individual results and a summary of validation outcomes.
+• --validate-all
+  Executes all validation commands in sequence: validate-features, validate-readme, validate-package, validate-tests, validate-lint, validate-license, audit-dependencies. Stops on first failure and returns a consolidated exit code.
 
-## Requirements
+# Requirements
 
-- Node 20+ runtime with ESM support.
-- Dev dependency: prettier for formatting, npm-check-updates for dependency scanning.
-- File system write permissions for sandbox paths: sandbox/source/, sandbox/tests/, sandbox/docs/, and sandbox/features/.
-- Dependencies: markdown-it, markdown-it-github, ncu, prettier, child_process, fs/promises, built-in http.
+• Node 20+ runtime with ESM support.
+• Dev dependencies: prettier, npm-check-updates for formatting and dependency scanning.
+• Permissions to write sandbox/source, sandbox/tests, sandbox/docs, sandbox/features, and sandbox/README.md.
+• Environment variables:
+  - AUDIT_SEVERITY: low|moderate|high|critical (default moderate)
+  - SANDBOX_PORT: TCP port for HTTP server (default 3000)
 
-## User Scenarios
+# Verification & Acceptance
 
-1. A maintainer runs format-code to ensure consistent styling across source, tests, and documentation:
-   node sandbox/source/main.js --format-code
-2. A CI job invokes POST /run with { command: "--validate-all" } to perform a complete validation workflow in a single step.
-
-## Verification & Acceptance
-
-- Unit tests cover the --validate-all flag by mocking each underlying validation command and verifying aggregated exit codes and logs.
-- CLI tests ensure the validate-all command exits with code 0 when all validations pass and exits with code 1 on the first failure, logging detailed information.
-- Documentation in sandbox/README.md and sandbox/docs/USAGE.md includes examples for the --validate-all command.
-- CI pipeline executes validation tests, verifies early exit behavior, and correct logging for both success and failure scenarios.
+• Unit tests cover all command flags, including HTTP server endpoints, by mocking underlying operations and validating JSON responses and exit codes.
+• Integration tests ensure POST /run correctly routes commands and streams structured logs.
+• CI pipeline includes HTTP endpoint health checks and complete validation workflow via both CLI and REST API.
