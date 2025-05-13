@@ -1,6 +1,6 @@
 # Overview
 
-The CLI_INTERFACE feature unifies sandbox utilities into a single command-line tool, enabling local event simulation, project validation, documentation generation, dependency audits, AWS integrations, and HTTP service hosting. It centralizes core workflows to streamline development and maintenance in sandbox mode, ensuring consistent behavior across automated and manual operations.
+The CLI_INTERFACE feature unifies sandbox utilities into a single command-line tool, enabling local event simulation, project validation, documentation generation, dependency audits, AWS integrations, HTTP service hosting, and environment configuration checks. It centralizes core workflows to streamline development and maintenance in sandbox mode, ensuring consistent behavior across automated and manual operations.
 
 # Commands
 
@@ -12,6 +12,9 @@ The CLI_INTERFACE feature unifies sandbox utilities into a single command-line t
 
 --digest
   Simulate an AWS SQS event for the digest workflow, invoking digestLambdaHandler with a sample payload.
+
+--env-check
+  Validate environment variables against the defined configuration schema. List any missing required variables or any extraneous variables. On missing variables, log a JSON report with level "error" and exit with code 1. On extra variables, log a JSON warning. On success, log a JSON info message summarizing the validated variables.
 
 --generate-interactive-examples
   Scan the sandbox README for mermaid-workflow code blocks and render each block into interactive HTML snippets. Maintain or update an idempotent Examples section in README with embedded interactive examples for workflow diagrams.
@@ -53,17 +56,13 @@ The CLI_INTERFACE feature unifies sandbox utilities into a single command-line t
   Support graceful shutdown on SIGINT and SIGTERM, ensuring in-flight requests complete before exit.
 
 --status-report
-  Perform a full project health check by running audit-dependencies, validate-lint, validate-tests, validate-package, validate-readme, and validate-features. Aggregate results into a JSON report with optional --output-file to write to disk.
+  Perform a full project health check by running audit-dependencies, validate-lint, validate-tests, validate-package, validate-readme, validate-features, and env-check. Aggregate results into a single JSON report with optional --output-file to write to disk. Exit with code 0 if all checks pass, or code 1 if any fail.
 
 --generate-openapi
   Analyze the HTTP server handler definitions and generate an OpenAPI v3 specification. By default write openapi.json to sandbox/docs/, or to a path specified by --output-file. Ensure idempotent generation and validate the spec before writing.
 
 --generate-badges
-  Generate project status badges for coverage, lint, dependency audit, feature validation, and version. Read coverage summary, lint results, audit output, and validation statuses. Construct shield.io badge markdown and insert or update a Badges section in the README or specified documentation file.
-
-# HTTP Server Details
-
-The --serve-http command uses an embedded Express or native HTTP server to handle requests. It should listen on a port defined by the environment variable HTTP_PORT or default to 3000. Logging for each request must follow the structured JSON format used elsewhere in the CLI. Errors should be logged and return appropriate HTTP error codes.
+  Generate project status badges for coverage, lint, dependency audit, feature validation, environment check, and version. Read coverage summary, lint results, audit output, validation statuses, and env-check logs. Construct shield.io badge markdown and insert or update a Badges section in the README or specified documentation file.
 
 # Requirements
 
@@ -71,4 +70,10 @@ Node.js 20 or higher. File system write permissions for sandbox/README.md and sa
 
 # Testing & Verification
 
-Unit tests must simulate HTTP requests to /health and /events, mocking digestLambdaHandler to return success and failure scenarios. Verify response codes, JSON bodies, and correct logging. Integration tests should launch the CLI with --serve-http, send HTTP requests to both endpoints, and confirm end-to-end behavior and graceful shutdown.
+Unit tests should cover:
+- Env-check flag behavior: missing/extra variables, success path
+- Status-report aggregation logic with mocked flags
+- Serve-http endpoints for /health and /events
+- Logging structure for the new commands
+
+Integration tests should simulate CLI invocation for --env-check and --status-report, and confirm exit codes and JSON output.
