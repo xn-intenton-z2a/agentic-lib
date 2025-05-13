@@ -76,8 +76,6 @@ node sandbox/source/main.js --fix-features
 
 Note: This command is useful for repairing existing or legacy feature documentation files to ensure they reference the mission statement and maintain consistency across all feature docs.
 
-Legacy feature documentation files can be repaired with `--fix-features`.
-
 Logs on success:
 ```json
 {"level":"info","message":"Fixed feature files to include mission reference","filesModified":["file1.md"]}
@@ -95,6 +93,26 @@ Logs:
 ```json
 {"level":"info","featuresOverview":"<markdown string>"}
 ```
+
+## --bridge-s3-sqs
+
+Uploads payload to S3 and sends an SQS message with the object location and optional attributes.
+
+Example:
+
+```bash
+node sandbox/source/main.js --bridge-s3-sqs --bucket my-bucket --key path/to/object.json --payload-file ./data.json --message-attributes '{"foo":"bar"}'
+```
+
+- Success Path:
+  ```json
+  {"level":"info","message":"Bridge succeeded","bucket":"my-bucket","key":"path/to/object.json","messageId":"<id>"}
+  ```
+
+- Failure Path (missing required arguments):
+  ```json
+  {"level":"error","message":"Missing required arguments: --bucket and --key"}
+  ```
 
 ## --validate-package
 
@@ -137,7 +155,7 @@ Reads the coverage summary JSON from `coverage/coverage-summary.json` and valida
   ```
 
 - Failure Path:
-  ```bash
+  ```json
   node sandbox/source/main.js --validate-tests
   ```
   Logs for each failing metric:
@@ -181,7 +199,7 @@ node sandbox/source/main.js --validate-lint
 
 ## --validate-license
 
-Validates that `LICENSE.md` exists, is non-empty, and its first non-empty line starts with a valid SPDX identifier (e.g., MIT, ISC, Apache-2.0, GPL-3.0).
+Validates that `LICENSE.md` exists and its first non-empty line starts with a valid SPDX identifier (e.g., MIT, ISC, Apache-2.0, GPL-3.0).
 
 Example:
 ```bash
@@ -193,30 +211,12 @@ node sandbox/source/main.js --validate-license
   {"level":"info","message":"License validation passed"}
   ```
 
-- Failure Path:
+- Failure Path (missing file):
+  ```json
+  {"level":"error","message":"Failed to read license file","error":"<details>"}
+  ```
+
+- Failure Path (invalid SPDX):
   ```json
   {"level":"error","message":"License missing or invalid SPDX identifier"}
-  ```
-
-## --audit-dependencies
-
-Audits npm dependencies for vulnerabilities using `npm audit` and enforces a configurable severity threshold via the `AUDIT_SEVERITY` environment variable (default: moderate). For each vulnerability at or above the threshold, an error log is emitted and the process exits with code 1.
-
-Example:
-```bash
-node sandbox/source/main.js --audit-dependencies
-```
-
-- Success Path:
-  ```json
-  {"level":"info","message":"Dependency audit passed","counts":{"critical":0,"high":0,"moderate":0,"low":0}}
-  ```
-
-- Failure Path:
-  ```bash
-  node sandbox/source/main.js --audit-dependencies
-  ```
-  Logs each issue:
-  ```json
-  {"level":"error","module":"<module>","severity":"<severity>","title":"<title>","vulnerableVersions":"<versions>","patchedVersions":"<versions>","url":"<url>"}
   ```
