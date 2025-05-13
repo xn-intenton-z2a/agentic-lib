@@ -1,6 +1,6 @@
 # Overview
 
-The Sandbox CLI is a unified command-line tool for automating sandbox environment maintenance tasks and exposing sandbox workflows as an HTTP service. It provides a suite of repository checks, documentation updates, dependency audits, AWS integrations, automated dependency upgrades, semantic release automation, and a lightweight HTTP endpoint for processing SQS-like events.
+The Sandbox CLI is a unified command-line tool for automating sandbox environment maintenance tasks and exposing sandbox workflows as an HTTP service. It provides a suite of repository checks, documentation updates, dependency audits, AWS integrations, automated dependency upgrades, semantic release automation, workflow configuration validation, and a lightweight HTTP endpoint for processing SQS-like events.
 
 # Commands
 
@@ -37,6 +37,9 @@ The Sandbox CLI is a unified command-line tool for automating sandbox environmen
 • --validate-license
   Ensures LICENSE.md exists and has a valid SPDX license identifier (MIT, ISC, Apache-2.0, GPL-3.0).
 
+• --validate-workflows
+  Scans the .github/workflows directory for YAML workflow files. For each file, parses the YAML using js-yaml, and ensures the on.workflow_call trigger is defined. Checks that inputs or uses sections reference agentic-lib workflows or expected inputs. Logs errors for missing or invalid workflow_call configurations and exits non-zero.
+
 • --upgrade-dependencies [--target minor|greatest]
   Automates dependency maintenance by invoking npm-check-updates. Scans package.json, upgrades dependencies according to the specified target level, writes the updated manifest, and runs npm install.
 
@@ -51,16 +54,17 @@ The Sandbox CLI is a unified command-line tool for automating sandbox environmen
 • Node.js 20+ with ESM support.
 • Git CLI available in PATH for release operations.
 • Dev dependency: npm-check-updates (already present).
+• Dev dependency: js-yaml for workflow validation.
 • No additional dependencies for HTTP and git operations.
 • AWS credentials and region for S3/SQS bridge flags.
 
 # Verification & Testing
 
-Unit tests should mock fs/promises, child_process.spawnSync, HTTP server methods, and Lambda handler. Specifically for release command tests should:
+Unit tests should mock fs/promises, child_process.spawnSync, js-yaml parsing, HTTP server methods, and Lambda handler. Specifically for workflow validation tests, they should:
 
-- Mock git describe and git log to return a tag and commit messages.
-- Verify that processRelease updates package.json version correctly.
-- Verify CHANGELOG.md is created or updated with an entry matching the new version and date.
-- Simulate write failures to ensure errors are logged and the process exits with code 1.
+- Mock readdir and readFile to return sample YAML files.
+- Mock js-yaml.load to simulate valid and invalid workflow_call entries.
+- Verify that processValidateWorkflows logs errors for missing workflow_call triggers and exits with code 1.
+- Verify success path when all workflows include correct workflow_call definitions.
 
-Integration tests can use real git repositories in a temp folder to run --release and inspect generated files. Ensure all existing tests for other CLI flags continue passing.
+Integration tests can use a temporary directory with sample .github/workflows files to run --validate-workflows and inspect console output and exit codes.
