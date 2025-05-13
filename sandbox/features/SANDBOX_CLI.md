@@ -1,6 +1,6 @@
 # Overview
 
-The Sandbox CLI is a unified command-line tool for automating sandbox environment maintenance tasks. It provides a suite of repository checks, documentation updates, dependency audits, AWS integrations, and automated dependency upgrades, all executable via simple flags. It operates directly on sandbox paths.
+The Sandbox CLI is a unified command-line tool for automating sandbox environment maintenance tasks and exposing sandbox workflows as an HTTP service. It provides a suite of repository checks, documentation updates, dependency audits, AWS integrations, automated dependency upgrades, and a lightweight HTTP endpoint for processing SQS-like events.
 
 # Commands
 
@@ -38,21 +38,25 @@ The Sandbox CLI is a unified command-line tool for automating sandbox environmen
   Ensures LICENSE.md exists and has a valid SPDX license identifier.
 
 • --upgrade-dependencies [--target minor|greatest]
-  Automates dependency maintenance by invoking npm-check-updates. Scans package.json, upgrades dependencies according to the specified target level (minor or greatest), writes the updated package manifest, and runs npm install to apply updates. Defaults to minor upgrades when no target is provided.
+  Automates dependency maintenance by invoking npm-check-updates. Scans package.json, upgrades dependencies according to the specified target level, writes the updated package manifest, and runs npm install to apply updates. Defaults to minor upgrades when no target is provided.
+
+• --serve-http [--port <port>]
+  Starts a lightweight HTTP server on the specified port (default 3000). Exposes a POST /events endpoint that accepts a JSON payload matching an AWS SQS event format. Invokes the digestLambdaHandler from src/lib/main.js for incoming requests and returns a JSON response with batchItemFailures and handler identity.
 
 # Requirements
 
 • Node.js 20+ with ESM support.
 • Dev dependency: npm-check-updates (already present in devDependencies).
-• Environment variable AUDIT_SEVERITY to configure audit threshold.
-• AWS credentials and region for S3/SQS bridge.
+• AWS credentials and region for S3/SQS bridge flags.
+• No additional dependencies for HTTP --serve-http (uses Node built-in http).
 
 # Verification & Testing
 
-- Unit tests should mock fs/promises, child_process (spawnSync), and file operations. Verify:
-  - Flag not provided returns false.
-  - --upgrade-dependencies without target spawns npm-check-updates with default minor flags and installs dependencies.
-  - --upgrade-dependencies --target greatest spawns npm-check-updates with greatest flags.
-  - Errors from npm-check-updates or npm install are logged and cause exit code 1.
-  - Successful upgrade logs structured info and exits code 0.
-- Integration tests can simulate package.json fixtures to assert file updates and install invocation.
+- Unit tests should mock fs/promises, child_process (spawnSync), HTTP server methods, and Lambda handler behavior. Verify:
+  - --serve-http without port starts server on default port and responds to POST /events with valid JSON output.
+  - Invalid JSON bodies to /events return 400 with error log and payload on console.error.
+  - Server logs startup info and gracefully shuts down on SIGINT.
+
+- Integration tests can use http request mocks to simulate /events calls and assert correct invocation of digestLambdaHandler and response structure.
+
+- Ensure all existing tests for CLI flags continue passing unchanged.
