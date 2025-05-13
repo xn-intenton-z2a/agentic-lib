@@ -47,15 +47,48 @@ Unified CLI interface consolidating sandbox environment utilities and core agent
   Confirm LICENSE.md exists and its first non-empty line begins with a valid SPDX identifier (MIT, ISC, Apache-2.0, GPL-3.0).
 
 • --serve-http
-  Start a lightweight HTTP server exposing a POST /events endpoint that accepts AWS SQS event payloads and invokes the digestLambdaHandler.
+  Start an HTTP server exposing endpoints for local event ingestion and health checks.
 
 • --status-report
-  Run a full project health check by sequentially executing audit-dependencies, validate-lint, validate-tests, validate-package, validate-readme, and validate-features commands. Aggregate results into a single JSON report. Exit with code 0 if all checks pass, or non-zero if any check fails. Supports --output-file <path> to write the report to a file.
+  Run a full project health check by sequentially executing audit-dependencies, validate-lint, validate-tests, validate-package, validate-readme, and validate-features commands. Aggregate results into a single JSON report. Supports --output-file <path> to write the report to a file.
+
+# HTTP Server Mode
+
+When invoked with --serve-http, the CLI will:
+
+• Listen on a configurable port (default 3000) or environment variable HTTP_PORT.
+
+• Expose POST /events to accept AWS SQS event payloads and invoke digestLambdaHandler for each record.
+
+• Expose GET /health to return HTTP 200 and a JSON body {"status":"ok"} to indicate the server is running.
+
+• Log incoming requests, responses, and errors at appropriate log levels.
+
+• Handle graceful shutdown on SIGINT and SIGTERM, closing the HTTP server and logging shutdown events.
 
 # Requirements
 
-Node.js 20 or higher with ESM support. Git CLI for release operations. AWS credentials and region for S3/SQS bridge. Free port for HTTP server (default 3000).
+• Node.js 20 or higher with ESM support.
+• Git CLI for release operations.
+• AWS credentials and region for S3/SQS bridge.
+• Free port for HTTP server (default 3000) or set HTTP_PORT.
 
 # Verification & Testing
 
-Unit tests should simulate each underlying command flag, mock filesystem and child_process calls, capture JSON logs, and verify status-report aggregates correct pass/fail statuses. Integration tests can invoke the CLI with --status-report and optional --output-file to ensure report structure, exit codes, and file writing behavior are correct.
+Unit tests should:
+
+• Mock HTTP server creation to verify correct port binding and route handlers.
+
+• Simulate POST /events requests with valid and invalid SQS event payloads to confirm digestLambdaHandler invocation, logging, and error handling.
+
+• Simulate GET /health requests to confirm HTTP 200 and JSON response.
+
+• Simulate shutdown signals and verify graceful server termination and logging.
+
+Integration tests should:
+
+• Start the CLI with --serve-http, send HTTP requests via HTTP client, and assert response codes and body content.
+
+• Verify logs for event processing, errors, and shutdown.
+
+• Ensure no unhandled promise rejections or uncaught exceptions occur during server runtime.
