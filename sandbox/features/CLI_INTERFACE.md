@@ -1,6 +1,6 @@
 # Overview
 
-Unified command-line interface for sandbox utilities, consolidating core agentic-lib workflows into a single CLI tool. Enables project maintenance, documentation enhancements, dependency audits, AWS integrations, automated validation, and interactive examples for workflow diagrams.
+Unified command-line interface for sandbox utilities, consolidating core agentic-lib workflows into a single CLI tool. Enables project maintenance, documentation enhancements, dependency audits, AWS integrations, automated validation, interactive examples for workflow diagrams, HTTP event ingestion, status reporting, and OpenAPI specification generation.
 
 # Commands
 
@@ -52,32 +52,35 @@ Unified command-line interface for sandbox utilities, consolidating core agentic
 --status-report
   Perform a full project health check by running audit-dependencies, validate-lint, validate-tests, validate-package, validate-readme, and validate-features. Aggregate results into a JSON report with optional --output-file to write to disk.
 
-# Interactive Examples Generation
+--generate-openapi
+  Analyze the HTTP server handler definitions and generate an OpenAPI v3 specification. By default write openapi.json to sandbox/docs/, or to a path specified by --output-file. Ensure idempotent generation and validate the spec before writing.
 
-This command processes mermaid-workflow blocks in README and generates interactive HTML examples:
+# OpenAPI Specification Generation
 
-1. Read sandbox/README.md and identify all code fences labeled mermaid-workflow.
-2. Use markdown-it with GitHub plugin to render each block into HTML, wrapped in a container allowing interactive features (zoom, pan).
-3. Strip any pre-existing ## Examples section and append a new Examples section containing all generated snippets.
-4. Ensure idempotency by replacing the old Examples section rather than appending duplicates.
-5. Log warnings if no blocks found and errors if rendering fails.
+This command inspects the internal mapping of HTTP endpoints and constructs a compliant OpenAPI v3 document.
+
+1. Read the definitions for POST /events and GET /health from the serve-http implementation.
+2. Compose an OpenAPI document with paths, request and response schemas, content types, and operation identifiers.
+3. Allow overriding the output path via --output-file <path>. Default path is sandbox/docs/openapi.json.
+4. Validate the generated document structure. Fail with error if validation fails.
+5. Overwrite existing spec file to maintain idempotency.
+6. Log info on success with number of endpoints described and output path.
 
 # Requirements
 
 - Node.js 20 or higher with ESM support.
-- Git CLI for repository operations.
-- AWS credentials configured for S3/SQS bridge features.
-- A free port or HTTP_PORT environment variable for server mode.
+- JSON schema validation library available or use built-in checks.
+- File system write permissions for sandbox/docs/.
 
 # Testing & Verification
 
 Unit tests must:
-- Mock filesystem operations to simulate README with and without mermaid-workflow blocks.
-- Verify correct extraction of blocks and rendering of HTML snippets.
-- Assert proper removal and regeneration of the Examples section.
-- Simulate rendering errors to confirm error handling and exit codes.
+- Mock the serve-http handler definitions and verify correct extraction of endpoints.
+- Simulate generation with default and custom output paths and assert file writing calls with valid JSON content.
+- Verify idempotent behavior by running twice without changes to inputs.
+- Simulate specification validation failures and assert proper error logging and exit codes.
 
 Integration tests must:
-- Use a temporary workspace with a sample README containing mermaid-workflow diagrams.
-- Run the CLI with --generate-interactive-examples and inspect the updated README content.
-- Validate logs for info, warn, and error paths.
+- Spin up the CLI with --serve-http in test mode to expose endpoint definitions.
+- Run CLI with --generate-openapi and inspect sandbox/docs/openapi.json for valid OpenAPI structure.
+- Validate logs for info and error paths.
