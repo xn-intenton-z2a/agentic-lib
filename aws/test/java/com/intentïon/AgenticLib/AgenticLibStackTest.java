@@ -13,6 +13,7 @@ public class AgenticLibStackTest {
         AgenticLibStack stack = AgenticLibStack.Builder.create(app, "S3SqsBridgeConfigureAndBuildStack")
                 .githubActionsArnPrinciple("arn:aws:iam::123456789012:user/test")
                 .s3BucketName("agentic-lib-telemetry-bucket-test")
+                .cloudTrailEnabled(true)
                 .s3ObjectPrefix("test/")
                 .s3UseExistingBucket(false)
                 .s3RetainBucket(false)

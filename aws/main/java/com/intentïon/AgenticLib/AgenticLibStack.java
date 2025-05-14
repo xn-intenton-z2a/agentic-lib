@@ -55,6 +55,7 @@ public class AgenticLibStack extends Stack {
         public StackProps props;
         public String githubActionsArnPrinciple;
         public String s3BucketName;
+        public boolean cloudTrailEnabled;
         public String s3ObjectPrefix;
         public boolean s3UseExistingBucket;
         public boolean s3RetainBucket;
@@ -96,6 +97,11 @@ public class AgenticLibStack extends Stack {
 
         public Builder s3BucketName(String s3BucketName) {
             this.s3BucketName = s3BucketName;
+            return this;
+        }
+
+        public Builder cloudTrailEnabled(boolean cloudTrailEnabled) {
+            this.cloudTrailEnabled = cloudTrailEnabled;
             return this;
         }
 
@@ -213,6 +219,7 @@ public class AgenticLibStack extends Stack {
 
         this.githubActionsArnPrinciple = this.getConfigValue(builder.githubActionsArnPrinciple, "githubActionsArnPrinciple");
         this.s3BucketName = this.getConfigValue(builder.s3BucketName, "s3BucketName");
+        boolean cloudTrailEnabled = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.cloudTrailEnabled), "cloudTrailEnabled"));
         this.s3ObjectPrefix = this.getConfigValue(builder.s3ObjectPrefix, "s3ObjectPrefix");
         this.s3UseExistingBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3UseExistingBucket), "s3UseExistingBucket"));
         this.s3RetainBucket = Boolean.parseBoolean(this.getConfigValue(Boolean.toString(builder.s3RetainBucket), "s3RetainBucket"));
@@ -240,6 +247,9 @@ public class AgenticLibStack extends Stack {
                     .removalPolicy(s3RetainBucket ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY)
                     .autoDeleteObjects(!s3RetainBucket)
                     .build();
+        }
+
+        if (cloudTrailEnabled) {
             this.eventsBucketLogGroup = LogGroup.Builder.create(this, "EventsBucketLogGroup")
                     .logGroupName("/aws/s3/" + this.eventsBucket.getBucketName())
                     .retention(RetentionDays.THREE_DAYS)
@@ -298,6 +308,9 @@ public class AgenticLibStack extends Stack {
                     .removalPolicy(s3RetainWebsiteBucket ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY)
                     .autoDeleteObjects(!s3RetainWebsiteBucket)
                     .build();
+        }
+
+        if( cloudTrailEnabled ) {
             this.websiteBucketLogGroup = LogGroup.Builder.create(this, "WebsiteBucketLogGroup")
                     .logGroupName("/aws/s3/" + this.websiteBucket.getBucketName())
                     .retention(RetentionDays.THREE_DAYS)

@@ -14,6 +14,7 @@ public class AgenticLibApp {
         AgenticLibStack agenticLibStack = AgenticLibStack.Builder.create(app, "AgenticLibStack")
                 .githubActionsArnPrinciple(System.getenv("S3_GITHUB_ACTIONS_ARN_PRINCIPLE"))
                 .s3BucketName(System.getenv("BUCKET_NAME"))
+                .cloudTrailEnabled(Boolean.parseBoolean(System.getenv("CLOUD_TRAIL_ENABLED")))
                 .s3ObjectPrefix(System.getenv("OBJECT_PREFIX"))
                 .s3UseExistingBucket(Boolean.parseBoolean(System.getenv("USE_EXISTING_BUCKET")))
                 .s3RetainBucket(Boolean.parseBoolean(System.getenv("RETAIN_BUCKET")))

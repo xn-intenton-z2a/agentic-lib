@@ -5,6 +5,7 @@
   "context": {
     "githubActionsArnPrinciple": "arn:aws:iam::541134664601:role/agentic-lib-github-actions-role",
     "s3BucketName": "agentic-lib-telemetry-bucket",
+    "cloudTrailEnabled": "false",
     "s3ObjectPrefix": "events/",
     "s3UseExistingBucket": "false",
     "s3RetainBucket": "false",
