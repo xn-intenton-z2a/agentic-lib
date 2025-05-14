@@ -24,19 +24,19 @@ paths:
     path: 'CONTRIBUTING.md'
   targetTestsPath:
     path: 'sandbox/tests/'
-    permissions: [ 'write' ]
+    permissions: [ 'wrXite' ]
   otherTestsPaths:
     paths: [ 'tests/unit/' ]
   targetSourcePath:
     path: 'sandbox/source/'
-    permissions: [ 'write' ]
+    permissions: [ 'wrXite' ]
   otherSourcePaths:
     paths: [ 'src/lib/' ]
   dependenciesFilepath:
     path: 'package.json'
   documentationPath:
     path: 'sandbox/docs/'
-    permissions: [ 'write' ]
+    permissions: [ 'wrXite' ]
 
   # Filepaths for maintainer workflows
   formattingFilepath:

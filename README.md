@@ -678,12 +678,12 @@ Re-usable GitHub Actions Workflows:
 - [x] Add a list of all projects files to the context.
 - [x] [Launch] When enhancing issues do not add duplicated documents
 - [x] [Launch] Comment every issue that a worker touches with the workflow information.
-- [~] [Launch] Review mission and stop when done or failing to progress.
-- [~] [Launch] Review repository and reseed if stale.
-- [~] [Launch] Update packages during reseed.
 - [x] [Launch] Don't run the completion jobs when there is no chatGPT key
 - [~] [Launch] Don't run the contents updating jobs when there are no writable files
+- [~] [Launch] Review repository and reseed if stale.
+- [~] [Launch] Review mission and stop when done or failing to progress.
 - [ ] [Launch] Stop updating features when the features would deliver the mission.
+- [ ] [Launch] Update packages during reseed.
 - [ ] [Launch] Add intentïon.md to the context.
 - [ ] [Launch] Label issues with the related feature.
 - [ ] [Launch] Log successfully merged issues to intentïon.md and reference the feature.
@@ -786,7 +786,7 @@ supervisor:
 - [ ] Invoke agentic-lib workflows based on GitHub telemetry projections (e.g. build broken => apply fix) and relabel "engine" to "schedule".
 
 supervisor: chat-pro
-- [ ] (free) Orchestrate the creation of a repository0-web templated repository via GitHub Discussions Chat.
+- [~] (free) Orchestrate the creation of a repository0-web templated repository via GitHub Discussions Chat.
 - [ ] (paid) Guide and receive feedback from a repository0-web templated repository via a Slack bot or GitHub Discussions
 - [ ] (capped) Join the AI repositories about their features to talk about their features on Slack.
 - [ ] Re-occurring billing platform integration.
