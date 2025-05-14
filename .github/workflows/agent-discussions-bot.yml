@@ -209,7 +209,7 @@ jobs:
     needs:
       - process-discussion-post
       - agentic-lib
-    if: always()
+    if: ${{ !cancelled() }}
     permissions:
       contents: write
       packages: read
@@ -360,7 +360,7 @@ jobs:
       - generate-response
       - seed-repository
       - agentic-lib
-    if: ${{ always() && needs.generate-response.outputs.action == 'seed-repository' }}
+    if: ${{ !cancelled() && needs.generate-response.outputs.action == 'seed-repository' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -419,7 +419,7 @@ jobs:
       - generate-response
       - seed-repository
       - agentic-lib
-    if: ${{ always() && needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' }}
+    if: ${{ !cancelled() && needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' }}
     permissions:
       contents: write
       pull-requests: write
@@ -442,7 +442,7 @@ jobs:
   #    - generate-response
   #    - seed-repository
   #    - agentic-lib
-  #  if: ${{ always() && needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' }}
+  #  if: ${{ !cancelled() && needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' }}
   #  permissions:
   #    contents: write
   #    pull-requests: write
@@ -464,7 +464,7 @@ jobs:
       - generate-response
       - agentic-lib
       - feature-maintenance-flow
-    if: always() && (needs.generate-response.outputs.action == 'mark-complete' || needs.generate-response.outputs.action == 'stop')
+    if: ${{ !cancelled() }} && (needs.generate-response.outputs.action == 'mark-complete' || needs.generate-response.outputs.action == 'stop')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -504,7 +504,7 @@ jobs:
   #    - feature-development-flow
   #    - feature-maintenance-flow
   #    - declare-status-and-halt
-  #  if: always()
+  #  if: ${{ !cancelled() }}
   #  permissions:
   #    issues: write
   #    id-token: write
@@ -525,7 +525,7 @@ jobs:
   #    - feature-development-flow
   #    - declare-status-and-halt
   #    - select-next-issue
-  #  if: always()
+  #  if: ${{ !cancelled() }}
   #  permissions:
   #    contents: write
   #    id-token: write

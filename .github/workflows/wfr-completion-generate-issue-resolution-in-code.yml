@@ -1149,7 +1149,7 @@ jobs:
             }
 
       - name: Extract Results
-        if: always()
+        if: ${{ !cancelled() }}
         id: results
         uses: actions/github-script@v7
         env:

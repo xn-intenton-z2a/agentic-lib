@@ -382,7 +382,7 @@ jobs:
       - npm-build
       - npm-run
     if: >
-      ${{ always() &&
+      ${{ !cancelled() &&
          (
            needs.npm-test.result != 'success' ||
            needs.npm-build.result != 'success' ||
@@ -433,7 +433,7 @@ jobs:
       - npm-run
       - needs-fix
       - validate-issue-number
-    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' && needs.validate-issue-number.outputs.isValid == 'true' }}
+    if: ${{ !cancelled() && needs.needs-fix.outputs.needsFix == 'true' && needs.validate-issue-number.outputs.isValid == 'true' }}
     permissions:
       contents: write
       issues: write
@@ -474,7 +474,7 @@ jobs:
     needs:
       - select-branch
       - needs-fix
-    if: always()
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     env:
       branchPrefix: 'agentic-lib-issue-'
@@ -506,7 +506,7 @@ jobs:
       - npm-build
       - npm-run
       - needs-fix
-    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
+    if: ${{ !cancelled() && needs.needs-fix.outputs.needsFix == 'true' }}
     permissions:
       contents: write
       issues: write
@@ -548,7 +548,7 @@ jobs:
       - npm-run
       - needs-fix
       - apply-fix
-    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
+    if: ${{ !cancelled() && needs.needs-fix.outputs.needsFix == 'true' }}
     name: 'npm test with coverage'
     runs-on: ubuntu-latest
     steps:
@@ -583,7 +583,7 @@ jobs:
       - npm-run
       - needs-fix
       - apply-fix
-    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
+    if: ${{ !cancelled() && needs.needs-fix.outputs.needsFix == 'true' }}
     name: 'npm run build'
     runs-on: ubuntu-latest
     steps:
@@ -618,7 +618,7 @@ jobs:
       - npm-run
       - needs-fix
       - apply-fix
-    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
+    if: ${{ !cancelled() && needs.needs-fix.outputs.needsFix == 'true' }}
     name: 'npm run start'
     runs-on: ubuntu-latest
     steps:
@@ -657,7 +657,7 @@ jobs:
       - npm-build-after-fix
       - npm-run-after-fix
     runs-on: ubuntu-latest
-    if: always()
+    if: ${{ !cancelled() }}
     steps:
       - name: set-needs-fix
         id: set-needs-fix
@@ -707,7 +707,7 @@ jobs:
       - npm-build-after-fix
       - npm-run-after-fix
       - needs-fix-after-fix
-    if: ${{ always() && needs.branch-for-fix.outputs.branch != 'main' && needs.branch-for-fix.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
+    if: ${{ !cancelled() && needs.branch-for-fix.outputs.branch != 'main' && needs.branch-for-fix.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
     permissions:
       contents: write
       packages: write
@@ -736,7 +736,7 @@ jobs:
       - npm-build-after-fix
       - npm-run-after-fix
       - needs-fix-after-fix
-    if: ${{ always() && needs.branch-for-fix.outputs.branch != 'main' && needs.branch-for-fix.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
+    if: ${{ !cancelled() && needs.branch-for-fix.outputs.branch != 'main' && needs.branch-for-fix.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
     permissions:
       contents: write
       pull-requests: write

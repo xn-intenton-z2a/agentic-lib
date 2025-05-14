@@ -154,7 +154,7 @@ jobs:
       pullNumber: ${{ steps.get-pull.outputs.pullNumber }}
 
   merge-check:
-    if: always()
+    if: ${{ !cancelled() }}
     needs:
       - pr
       - cs
@@ -220,7 +220,7 @@ jobs:
   automerge:
     needs:
       - merge-check
-    if: ${{ always() && needs.merge-check.outputs.shouldSkipMerge != 'true' && needs.merge-check.outputs.pullNumber != '' }}
+    if: ${{ !cancelled() && needs.merge-check.outputs.shouldSkipMerge != 'true' && needs.merge-check.outputs.pullNumber != '' }}
     permissions:
       contents: write
       pull-requests: write
@@ -252,7 +252,7 @@ jobs:
       - merge-check
       - automerge
       - validate-issue-number
-    if: ${{ always() && ( needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber != '' && needs.validate-issue-number.outputs.isValid == 'true' ) }}
+    if: ${{ !cancelled() && ( needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber != '' && needs.validate-issue-number.outputs.isValid == 'true' ) }}
     permissions:
       contents: write
       issues: write
@@ -276,7 +276,7 @@ jobs:
   #    - automerge
   #    - validate-issue-number
   #    - label-issue-after-automerge
-  #  if: always()
+  #  if: ${{ !cancelled() }}
   #  permissions:
   #    issues: write
   #    id-token: write
@@ -295,7 +295,7 @@ jobs:
   #    - validate-issue-number
   #    - label-issue-after-automerge
   #    - select-next-issue
-  #  if: always()
+  #  if: ${{ !cancelled() }}
   #  permissions:
   #    contents: write
   #    id-token: write

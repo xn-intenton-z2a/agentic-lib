@@ -103,7 +103,7 @@ jobs:
   select-issue-to-ready:
     needs:
       - create-issue
-    if: always()
+    if: ${{ !cancelled() }}
     permissions:
       issues: write
       id-token: write
@@ -119,7 +119,7 @@ jobs:
     needs:
       - create-issue
       - select-issue-to-ready
-    if: always()
+    if: ${{ !cancelled() }}
     permissions:
       contents: write
       pull-requests: write
@@ -138,7 +138,7 @@ jobs:
     needs:
       - create-issue
       - ready-issue
-    if: always()
+    if: ${{ !cancelled() }}
     permissions:
       issues: write
       id-token: write
@@ -155,7 +155,7 @@ jobs:
       - create-issue
       - ready-issue
       - select-issue-to-code
-    if: always()
+    if: ${{ !cancelled() }}
     permissions:
       contents: write
       pull-requests: write
@@ -174,7 +174,7 @@ jobs:
   automerge-pr:
     needs:
       - issue-to-code
-    if: always()
+    if: ${{ !cancelled() }}
     permissions:
       contents: write
       pull-requests: write

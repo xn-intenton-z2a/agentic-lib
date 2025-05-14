@@ -90,7 +90,7 @@ jobs:
   select-issue-to-enhance:
     needs:
       - create-issue
-    if: always()
+    if: ${{ !cancelled() }}
     permissions:
       issues: write
       id-token: write
@@ -107,7 +107,7 @@ jobs:
       - create-issue
       - agentic-lib
       - select-issue-to-enhance
-    if: always()
+    if: ${{ !cancelled() }}
     permissions:
       contents: read
       issues: write
@@ -140,7 +140,7 @@ jobs:
     needs:
       - create-issue
       - enhance-issue
-    if: always()
+    if: ${{ !cancelled() }}
     permissions:
       issues: write
       id-token: write
@@ -157,7 +157,7 @@ jobs:
       - create-issue
       - enhance-issue
       - select-issue-to-code
-    if: always()
+    if: ${{ !cancelled() }}
     permissions:
       contents: write
       pull-requests: write
@@ -176,7 +176,7 @@ jobs:
   automerge-pr:
     needs:
       - issue-to-code
-    if: always()
+    if: ${{ !cancelled() }}
     permissions:
       contents: write
       pull-requests: write

@@ -505,7 +505,7 @@ jobs:
       - npm-build-after-issue-resolution
       - npm-run-after-issue-resolution
     if: >
-      ${{ always() &&
+      ${{ !cancelled() &&
          (
            needs.npm-test-after-issue-resolution.result != 'success' ||
            needs.npm-build-after-issue-resolution.result != 'success' ||
