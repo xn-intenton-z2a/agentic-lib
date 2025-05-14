@@ -56,17 +56,52 @@ env:
 
 jobs:
 
+  check-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if CHATGPT_API_SECRET_KEY is available
+        run: |
+          if [ -z "${{ secrets.CHATGPT_API_SECRET_KEY }}" ]; then
+            echo "::error::CHATGPT_API_SECRET_KEY is not available. Stopping workflow."
+            exit 1
+          fi
+          echo "CHATGPT_API_SECRET_KEY is available."
+
   agentic-lib:
+    needs:
+      - check-secrets
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@main'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+  # GitHub Script job which checks if the target path starts with one of writeableFilepaths and fails out if not
+  check-writeable-filepaths:
+    needs:
+      - agentic-lib
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if librarySourcesFilepath is writeable
+        id: check-writeable-filepaths
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const writeableFilepaths = '${{ needs.agentic-lib.outputs.writeableFilepaths }}'.split(';');
+            const librarySourcesFilepath = '${{ needs.agentic-lib.outputs.librarySourcesFilepath }}';
+            if (!writeableFilepaths.some(path => librarySourcesFilepath.startsWith(path))) {
+              core.setFailed(`librarySourcesFilepath "${librarySourcesFilepath}" is not in the list of writeable filepaths.`);
+              return;
+            } else {
+              core.info(`librarySourcesFilepath "${librarySourcesFilepath}" is in the list of writeable filepaths.`);
+            }
+            return librarySourcesFilepath;
+
   # If the feature is "house choice", the repository will be assessed an action chosen, otherwise the supplied text will be used to generate a new feature.
   maintain-sources:
     needs:
       - agentic-lib
+      - check-writeable-filepaths
     permissions:
       contents: write
       issues: write

@@ -8,7 +8,7 @@ paths:
     path: 'MISSION.md'
   librarySourcesFilepath:
     path: 'sandbox/SOURCES.md'
-    permissions: [ 'write' ]
+    permissions: [ 'read' ]
     limit: 8
   libraryDocumentsPath:
     path: 'sandbox/library/'

@@ -681,8 +681,8 @@ Re-usable GitHub Actions Workflows:
 - [~] [Launch] Review mission and stop when done or failing to progress.
 - [~] [Launch] Review repository and reseed if stale.
 - [~] [Launch] Update packages during reseed.
-- [ ] [Launch] Don't run the completion jobs when there is no chatGPT key
-- [ ] [Launch] Don't run the contents updating jobs when there are no writable files
+- [x] [Launch] Don't run the completion jobs when there is no chatGPT key
+- [~] [Launch] Don't run the contents updating jobs when there are no writable files
 - [ ] [Launch] Stop updating features when the features would deliver the mission.
 - [ ] [Launch] Add intentïon.md to the context.
 - [ ] [Launch] Label issues with the related feature.

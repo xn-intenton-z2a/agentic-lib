@@ -68,7 +68,20 @@ env:
   # TODO: Post as the Bot's app account.
 
 jobs:
+  check-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if CHATGPT_API_SECRET_KEY is available
+        run: |
+          if [ -z "${{ secrets.CHATGPT_API_SECRET_KEY }}" ]; then
+            echo "::error::CHATGPT_API_SECRET_KEY is not available. Stopping workflow."
+            exit 1
+          fi
+          echo "CHATGPT_API_SECRET_KEY is available."
+
   agentic-lib:
+    needs:
+      - check-secrets
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@main'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
@@ -77,6 +90,7 @@ jobs:
 
   process-discussion-post:
     needs:
+      - check-secrets
       - agentic-lib
     runs-on: ubuntu-latest
     steps:
@@ -464,7 +478,7 @@ jobs:
       - generate-response
       - agentic-lib
       - feature-maintenance-flow
-    if: ${{ !cancelled() }} && (needs.generate-response.outputs.action == 'mark-complete' || needs.generate-response.outputs.action == 'stop')
+    if: ${{ !cancelled() && (needs.generate-response.outputs.action == 'mark-complete' || needs.generate-response.outputs.action == 'stop') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
