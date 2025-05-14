@@ -82,20 +82,23 @@ jobs:
       - agentic-lib
     runs-on: ubuntu-latest
     steps:
-      - name: Check if librarySourcesFilepath is writeable
+      - name: Check if target is writeable
         id: check-writeable-filepaths
         uses: actions/github-script@v7
+        env:
+          targetFilepath: ${{ needs.agentic-lib.outputs.librarySourcesFilepath }}
+          writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
         with:
           script: |
-            const writeableFilepaths = '${{ needs.agentic-lib.outputs.writeableFilepaths }}'.split(';');
-            const librarySourcesFilepath = '${{ needs.agentic-lib.outputs.librarySourcesFilepath }}';
-            if (!writeableFilepaths.some(path => librarySourcesFilepath.startsWith(path))) {
-              core.setFailed(`librarySourcesFilepath "${librarySourcesFilepath}" is not in the list of writeable filepaths.`);
+            const writeableFilepaths = process.env.writeableFilepaths.split(';');
+            let targetFilepath;
+            targetFilepath = process.env.targetFilepath;
+            if (!writeableFilepaths.some(path => targetFilepath.startsWith(path))) {
+              core.setFailed(`targetFilepath "${targetFilepath}" is not in the list of writeable filepaths.`);
               return;
             } else {
-              core.info(`librarySourcesFilepath "${librarySourcesFilepath}" is in the list of writeable filepaths.`);
+              core.info(`targetFilepath "${targetFilepath}" is in the list of writeable filepaths.`);
             }
-            return librarySourcesFilepath;
 
   # If the feature is "house choice", the repository will be assessed an action chosen, otherwise the supplied text will be used to generate a new feature.
   maintain-sources:
