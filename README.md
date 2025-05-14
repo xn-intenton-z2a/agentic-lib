@@ -679,7 +679,7 @@ Re-usable GitHub Actions Workflows:
 - [x] [Launch] When enhancing issues do not add duplicated documents
 - [x] [Launch] Comment every issue that a worker touches with the workflow information.
 - [x] [Launch] Don't run the completion jobs when there is no chatGPT key
-- [~] [Launch] Don't run the contents updating jobs when there are no writable files
+- [x] [Launch] Don't run the contents updating jobs when there are no writable files
 - [~] [Launch] Review repository and reseed if stale.
 - [~] [Launch] Review mission and stop when done or failing to progress.
 - [ ] [Launch] Stop updating features when the features would deliver the mission.
