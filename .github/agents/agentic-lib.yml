@@ -12,7 +12,7 @@ paths:
     limit: 8
   libraryDocumentsPath:
     path: 'sandbox/library/'
-    permissions: [ 'read' ]
+    permissions: [ 'write' ]
     limit: 32
   featuresPath:
     path: 'sandbox/features/'
