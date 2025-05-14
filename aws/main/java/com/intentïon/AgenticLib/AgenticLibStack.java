@@ -374,8 +374,10 @@ public class AgenticLibStack extends Stack {
 
         this.digestLambda = DockerImageFunction.Builder.create(this, "DigestLambda")
                 .code(DockerImageCode.fromImageAsset(".", AssetImageCodeProps.builder()
-                        .buildArgs(Map.of("HANDLER", lambdaEntry + digestLambdaHandlerFunctionName))
-                        .buildArgs(Map.of("PERSONAL_ACCESS_TOKEN", personalAccessToken))
+                        .buildArgs(Map.of(
+                            "HANDLER", lambdaEntry + digestLambdaHandlerFunctionName,
+                            "PERSONAL_ACCESS_TOKEN", personalAccessToken
+                        ))
                         .build()))
                 .environment(Map.of(
                         "GITHUB_API_BASE_URL", githubAPIBaseUrl
@@ -415,4 +417,3 @@ public class AgenticLibStack extends Stack {
         return customValue;
     }
 }
-
