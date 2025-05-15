@@ -725,13 +725,19 @@ Discussions Bot [MVP]:
 
 intentïon user journey [Launch UX]:
 - [x] repository0-crucible seeds the repository with the mission and reports back with the intentïon branch.
-- [~] Floating box logs into github and gives you an embedded formatted discussions thread.
-- [ ] On intentïon.com, user provides an intention which is posted as a new GitHub Discussions thread.
-- [ ] Archive workflow periodically pushed to an intentïon-<v7uuid> branch (which does not run the workflows) with branch URL and summary reported to Discussions.
-- [ ] Discussions updates also posted intentïon.com.
-- [ ] intentïon.com posts: running experiment: <link to branch> + <link to discussion>
-- [ ] Create a repository from main via a button. 
-- [ ] Demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
+- [x] Floating box logs into github and gives you an embedded formatted discussions thread.
+- [x] Discussions updates also posted intentïon.com.
+- [x] On intentïon.com, user provides an intention which is posted on GitHub Discussions thread.
+- [~] Archive workflow periodically pushed to an intentïon-<v7uuid> branch (which does not run the workflows)
+- [ ] Add branch URL to intentïon.md
+- [ ] intentïon.com fades in with: running experiment: mission summary & <link to branch>
+- [ ] Create a repository from main via a button.
+- [ ] Script the process from request to cloning the repository and setting it up to run the workflows.
+- [ ] Screen capture the scripted flow.
+- [ ] Request a promotional video.
+- [ ] Activity report to maintainers log.
+- [ ] Update intentïon.md with the current state of the repository.
+- [ ] Automated demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
 - [ ] Extract demo output to publish in the discussion thread and request feedback and next steps.
 
 Marketplace GitHub Actions [Launch]:
