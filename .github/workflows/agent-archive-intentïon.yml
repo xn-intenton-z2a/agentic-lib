@@ -71,7 +71,7 @@ jobs:
             let branchUrl = ''; // branch URL
             try {
               const fs = require('fs');
-              const { v7: uuidv7 } = require('uuidv7');
+              const uuid = require('uuid');
               const seedDiscussionFilepath = process.env.seedDiscussionFilepath;
               core.info(`Looking for lines likely to be branches in intentïon.md at ${seedDiscussionFilepath}`);
         
@@ -104,9 +104,10 @@ jobs:
             }
   
             if(!branchUrl) {
-              // Create a branch URL where the branch will be of the form `intention-${v7uuid}`
-              const uuid = uuidv7();
-              const branchName = `intention-${uuid}`;
+              // Create a branch URL where the branch will be of the form `intention-${date}-${v7uuid}`
+              const uuid = uuid.v4();
+              const date = new Date().toISOString().split('T')[0];
+              const branchName = `intention-${date}-${uuid}`;
               branchUrl = `https://github.com/${owner}/${repo}/tree/${branchName}`;
               core.info(`Created branch URL: ${branchUrl}`);
             }
