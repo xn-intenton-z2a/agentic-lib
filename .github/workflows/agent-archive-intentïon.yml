@@ -29,7 +29,10 @@ jobs:
   uuid:
     runs-on: ubuntu-latest
     steps:
-      - run: |
+      - id: uuid
+        name: uuid
+        shell: bash
+        run: |
           uuid=$(uuidgen)
           echo "uuid: ${uuid}"
           echo "uuid=${uuid}" >> $GITHUB_OUTPUT
