@@ -731,6 +731,7 @@ intentïon user journey [Launch UX]:
 - [x] Add branch URL to intentïon.md
 - [x] Archive workflow periodically pushed to an intentïon-<date> branch (which does not run the workflows)
 - [~] intentïon.com shows: Running experiment:  <link to branch>
+- [ ] Rename (discussionBot, seedDiscussionFilepath) to (intentïonBot, intentïonFilepath)
 - [ ] Put every commit comment into intentïon.md plus some none commit activities. (copy trace-discussion from the bot)
 - [ ] intentïon.com shows: Running experiment:  <link to branch> + scrolling lines from intentïon.md
 - [ ] intentïon.com shows: past experiments: <link to branch> + mission and status.
