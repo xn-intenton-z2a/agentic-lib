@@ -47,6 +47,7 @@ jobs:
   intention:
     needs:
       - agentic-lib
+      - uuid
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -175,7 +176,7 @@ jobs:
       - name: Log seed in the intentïon file.
         run: |
           echo "" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
-          echo "Arching intentïon to branch ${{ needs.agentic-lib.intention.branchUrl }} at $(date)" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          echo "Arching intentïon to branch ${{ needs.intention.intention.branchUrl }} at $(date)" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
 
       - name: Commit and push
         id: commit
