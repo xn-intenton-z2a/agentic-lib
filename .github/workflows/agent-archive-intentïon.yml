@@ -33,6 +33,8 @@ jobs:
           uuid=$(uuidgen)
           echo "uuid: ${uuid}"
           echo "uuid=${uuid}" >> $GITHUB_OUTPUT
+    outputs:
+      uuid: ${{ steps.uuid.outputs.uuid }}
 
   agentic-lib:
     needs:
