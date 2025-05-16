@@ -56,7 +56,7 @@ on:
     #- cron: '4,34 * * * *' # schedule-4
 
 env:
-  defaultDiscussionBody: 'Summarise the current state of the repository, activity since the last update and how we are tracking against the mission and recommends next steps.'
+  defaultDiscussionBody: 'Summarise the activity since the last update in terms of how we are tracking against the mission and recommends next steps in fewer than 100 words.'
   gitUserEmail: 'action@github.com'
   gitUserName: 'GitHub Actions[bot]'
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
@@ -165,22 +165,31 @@ jobs:
               if (!url) {
                 try {
                   const fs = require('fs');
-                  const seedDiscussionPath = process.env.seedDiscussionFilepath;
-                  core.info(`Looking for intentïon.md at ${seedDiscussionPath}`);
+                  const seedDiscussionFilepath = process.env.seedDiscussionFilepath;
+                  core.info(`Looking for last */discussions/* in intentïon.md at ${seedDiscussionFilepath}`);
 
-                  if (fs.existsSync(seedDiscussionPath)) {
-                    const seedDiscussionContent = fs.readFileSync(seedDiscussionPath, 'utf8');
+                  if (fs.existsSync(seedDiscussionFilepath)) {
+                    const seedDiscussionContent = fs.readFileSync(seedDiscussionFilepath, 'utf8');
+                    const lines = seedDiscussionContent.split('\n');
 
-                    // Extract URL from the first line
-                    const firstLine = seedDiscussionContent.split('\n')[0].trim();
-                    if (firstLine.startsWith('http')) {
-                      url = firstLine;
-                      core.info(`Using URL from intentïon.md: ${url}`);
-                    } else { 
-                        core.warning(`First line of intentïon.md does not contain a valid URL: ${firstLine}`);
+                    // Filter to lines matching ^*https://.*/discussions/*$ and extract the last matching line.
+                    const discussionsUrlLines = lines.filter(line => line.match(/^\s*https:\/\/.*\/discussions\/.*$/));
+                    if (discussionsUrlLines.length === 0) {
+                      core.warning(`No matching GitHub Discussions URL found in intentïon.md`);
+                    } else {
+                      const lastUrlLine = discussionsUrlLines[discussionsUrlLines.length - 1];
+              
+                      // Extract URL by ignoring anything before the first https:// and up to the first non-url character.
+                      const urlMatch = lastUrlLine.match(/https:\/\/[^ ]+/);
+                      if (urlMatch) {
+                        url = urlMatch[0];
+                        core.info(`Using URL from intentïon.md: ${url}`);
+                      } else {
+                        core.warning(`No matching GitHub Discussions URL found in intentïon.md: ${lastUrlLine}`);
+                      }
                     }
                   } else {
-                    core.warning(`intentïon.md file not found at ${seedDiscussionPath}`);
+                    core.warning(`intentïon.md file not found at ${seedDiscussionFilepath}`);
                   }
                 } catch (error) {
                   core.warning(`Error reading intentïon.md: ${error.message}`);

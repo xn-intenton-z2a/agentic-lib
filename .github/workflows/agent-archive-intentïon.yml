@@ -1,0 +1,155 @@
+# .github/workflows/agent-archive-intentïon.yml
+#
+# This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+name: archive-intentïon
+concurrency: archive-intentïon
+run-name: "archive intentïon"
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+  #schedule:
+    #- cron: '49 8 */28 * *' # schedule-not-ready-1
+    #- cron: '49 8,16 * * *' # schedule-not-ready-2
+    #- cron: '49 */4 * * *' # schedule-not-ready-3
+    #- cron: '49,34 * * * *' # schedule-not-ready-4
+
+env:
+  gitUserEmail: 'action@github.com'
+  gitUserName: 'GitHub Actions[bot]'
+  archivePath: 'archive/'
+
+jobs:
+
+  uuid:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          uuid=$(uuidgen)
+          echo "uuid: ${uuid}"
+          echo "uuid=${uuid}" >> $GITHUB_OUTPUT
+
+  agentic-lib:
+    needs:
+      - uuid
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@main'
+    with:
+      configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
+      haltSignal: "dont-halt-${{ needs.uuid.outputs.uuid }}"
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  intention:
+    needs:
+      - agentic-lib
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+      - name: intention
+        id: intention
+        uses: actions/github-script@v7
+        env:
+          seedDiscussionFilepath: ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+        with:
+          script: |
+            let branchUrl = ''; // branch URL
+            try {
+              const fs = require('fs');
+              const seedDiscussionFilepath = process.env.seedDiscussionFilepath;
+              core.info(`Looking for last */discussions/* in intentïon.md at ${seedDiscussionFilepath}`);
+        
+              if (fs.existsSync(seedDiscussionFilepath)) {
+                const seedDiscussionContent = fs.readFileSync(seedDiscussionFilepath, 'utf8');
+                const lines = seedDiscussionContent.split('\n');
+        
+                // Filter to lines matching ^*https://.*/discussions/*$ and extract the last matching line.
+                const discussionsUrlLines = lines.filter(line => line.match(/^\s*https:\/\/.*\/discussions\/.*$/));
+                if (discussionsUrlLines.length === 0) {
+                  core.warning(`No matching GitHub Discussions URL found in intentïon.md`);
+                } else {
+                  const lastUrlLine = discussionsUrlLines[discussionsUrlLines.length - 1];
+        
+                  // Extract URL by ignoring anything before the first https:// and up to the first non-url character.
+                  const urlMatch = lastUrlLine.match(/https:\/\/[^ ]+/);
+                  if (urlMatch) {
+                    url = urlMatch[0];
+                    core.info(`Using URL from intentïon.md: ${url}`);
+                  } else {
+                    core.warning(`No matching GitHub Discussions URL found in intentïon.md: ${lastUrlLine}`);
+                  }
+                }
+              } else {
+                core.warning(`intentïon.md file not found at ${seedDiscussionFilepath}`);
+              }
+            } catch (error) {
+              core.warning(`Error reading intentïon.md: ${error.message}`);
+            }
+          }
+
+            core.setOutput('authorAssociation', authorAssociation);
+            core.setOutput('body', body);
+            core.setOutput('state', state);
+            core.setOutput('title', title);
+            core.setOutput('url', url);
+            core.setOutput('categoryName', categoryName);
+            core.setOutput('userName', userName);
+            core.setOutput('labels', labels);
+            core.setOutput('reactions', reactions);
+
+            core.info(`authorAssociation: ${authorAssociation}`);
+            core.info(`body: ${body}`);
+            core.info(`state: ${state}`);
+            core.info(`title: ${title}`);
+            core.info(`url: ${url}`);
+            core.info(`categoryName: ${categoryName}`);
+            core.info(`userName: ${userName}`);
+            core.info(`labels: ${labels}`);
+            core.info(`reactions: ${reactions}`);
+
+
+  archive-intention:
+    needs:
+      - agentic-lib
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: Log seed in the intentïon file.
+        run: |
+          echo "" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          echo "archived intentïon at $(date)" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+
+      - name: Commit and push
+        id: commit
+        continue-on-error: true
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git add -v --all
+          git diff
+          git commit -m 'Reseed repository' --allow-empty
+          git push -v
+          git status -v

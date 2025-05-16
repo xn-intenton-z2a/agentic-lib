@@ -729,6 +729,12 @@ intentïon user journey [Launch UX]:
 - [x] Discussions updates also posted intentïon.com.
 - [x] On intentïon.com, user provides an intention which is posted on GitHub Discussions thread.
 - [~] Archive workflow periodically pushed to an intentïon-<v7uuid> branch (which does not run the workflows)
+
+Read current branch from intention.md if it's not there create it and put it there. Just scan for a line with a matching URL.
+Push to branch.
+
+Also change the discussions URL look-up to pick the first line matching the discussions URL format.
+
 - [ ] Add branch URL to intentïon.md
 - [ ] intentïon.com fades in with: running experiment: mission summary & <link to branch>
 - [ ] Create a repository from main via a button.
