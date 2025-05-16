@@ -123,39 +123,10 @@ jobs:
             core.setOutput('branchUrl', branchUrl);
             core.info(`branchUrl: ${branchUrl}`);
 
-  # Idempotently create the branch matching the branch URL if it doesn't exist or succeed silently if it does.
-  create-branch:
-    needs:
-      - intention
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-          fetch-depth: 0
-
-      - name: Get latest from remote
-        run: |
-          git config --local user.email "${{ env.gitUserEmail }}"
-          git config --local user.name "${{ env.gitUserName }}"
-          git pull --ff-only origin ${{ github.ref }}
-
-      - name: create-branch-if-required-and-push
-        id: create-branch-if-required-and-push
-        run: |
-          if [[ '${{ needs.intention.outputs.branchUrl }}' != *main' ]] ; then
-            echo 'Creating or force pushing to branch: ${{ needs.intention.outputs.branchUrl }}'
-            git switch --force-create '${{ needs.intention.outputs.branchUrl }}'
-            git push -v --force origin '${{ needs.intention.outputs.branch }}'
-          else
-            echo 'Will not push to main looking target: ${{ needs.intention.outputs.branch }}'
-          fi
-
-  archive-intention:
+  update-intention:
     needs:
       - agentic-lib
       - intention
-      - create-branch
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -183,14 +154,44 @@ jobs:
           git status -v
           git add -v --all
           git diff
-          git commit -m 'Reseed repository' --allow-empty
+          git commit -m 'Log archive to branch ${{ needs.intention.intention.branchUrl }}'
           git push -v
           git status -v
 
-      - name: Push the current state of main to ${{ needs.agentic-lib.intention.branchUrl }}
-        id: push-to-branch
+  # Idempotently create the branch matching the branch URL if it doesn't exist or succeed silently if it does.
+  create-branch-and-push:
+    needs:
+      - intention
+      - update-intention
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Get latest from remote
         run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git push -v origin HEAD:${{ needs.agentic-lib.intention.branchUrl }}
-          git status -v
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: create-branch-if-required-and-push
+        id: create-branch-if-required-and-push
+        run: |
+          echo 'Checking branch: ${{ needs.intention.outputs.branchUrl }}'
+          if [[ '${{ needs.intention.outputs.branchUrl }}' != *main' ]] ; then
+            echo 'Creating or force pushing to branch: ${{ needs.intention.outputs.branchUrl }}'
+            git switch --force-create '${{ needs.intention.outputs.branchUrl }}'
+            git push -v --force origin '${{ needs.intention.outputs.branchUrl }}'
+          else
+            echo 'Will not push to main looking target: ${{ needs.intention.outputs.branchUrl }}'
+          fi
+
+      #- name: Push the current state of main to ${{ needs.agentic-lib.intention.branchUrl }}
+      #  id: push-to-branch
+      #  run: |
+      #    git config --local user.email '${{ env.gitUserEmail }}'
+      #    git config --local user.name '${{ env.gitUserName }}'
+      #    git push -v origin HEAD:${{ needs.agentic-lib.intention.branchUrl }}
+      #    git status -v
