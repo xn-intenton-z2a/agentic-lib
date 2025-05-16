@@ -65,13 +65,14 @@ jobs:
         uses: actions/github-script@v7
         env:
           seedDiscussionFilepath: ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          uuid: ${{ needs.uuid.outputs.uuid }}
         with:
           script: |
             const { owner, repo } = context.repo;
             let branchUrl = ''; // branch URL
             try {
               const fs = require('fs');
-              const uuid = require('uuid');
+              const uuid = process.env.uuid;
               const seedDiscussionFilepath = process.env.seedDiscussionFilepath;
               core.info(`Looking for lines likely to be branches in intentïon.md at ${seedDiscussionFilepath}`);
         
@@ -104,8 +105,7 @@ jobs:
             }
   
             if(!branchUrl) {
-              // Create a branch URL where the branch will be of the form `intention-${date}-${v7uuid}`
-              const uuid = uuid.v4();
+              // Create a branch URL where the branch will be of the form intention-<date>-<uuid>
               const date = new Date().toISOString().split('T')[0];
               const branchName = `intention-${date}-${uuid}`;
               branchUrl = `https://github.com/${owner}/${repo}/tree/${branchName}`;
