@@ -65,6 +65,11 @@ on:
         required: false
         type: string
         default: ''
+      discussionLabelFilter:
+        description: 'Filter discussions by this label'
+        required: false
+        type: string
+        default: 'automated'
       allSourcePaths:
         description: 'The source file(s) to review. e.g. "src/lib/" or multiple files separated by semicolons "src/lib/;src/utils/utils.js"'
         type: string
@@ -208,6 +213,7 @@ jobs:
       discussionUserInformation: ${{ inputs.discussionUserInformation }}
       discussionLabels: ${{ inputs.discussionLabels }}
       discussionReactions: ${{ inputs.discussionReactions }}
+      discussionLabelFilter: ${{ inputs.discussionLabelFilter || 'automated' }}
       allSourcePaths: ${{ inputs.allSourcePaths || 'src/lib/' }}
       allTestsPaths: ${{ inputs.allTestsPaths || 'tests/unit/' }}
       documentationPath: ${{ inputs.documentationPath || 'docs/' }}
@@ -269,57 +275,114 @@ jobs:
       - name: Fetch repository discussions
         id: discussions
         uses: actions/github-script@v7
+        env:
+          discussionLabelFilter: ${{ env.discussionLabelFilter }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const maxPostsPerDiscussion = 10; // Limit the number of posts per discussion
+            const maxCommentsPerDiscussion = 256; // Limit the number of comments per discussion
+            const maxDiscussionsPerPage = 16; // Maximum discussions per page in GitHub API
+            const labelFilter = process.env.discussionLabelFilter || 'automated';
+
+            core.info(`Filtering discussions by label: ${labelFilter}`);
 
             try {
-              // Use GraphQL API to fetch repository discussions with comments
-              const query = `
-                query(${owner}: String!, ${repo}: String!) {
-                  repository(owner: ${owner}, name: ${repo}) {
-                    discussions(first: ${maxPostsPerDiscussion}, orderBy: {field: CREATED_AT, direction: DESC}) {
-                      nodes {
-                        title
-                        number
-                        author {
-                          login
+              let allDiscussions = [];
+              let hasNextPage = true;
+              let endCursor = null;
+
+              // Use pagination to fetch all discussions
+              while (hasNextPage) {
+                // GraphQL query with cursor-based pagination
+                const query = `
+                  query($owner: String!, $repo: String!, $cursor: String) {
+                    repository(owner: $owner, name: $repo) {
+                      discussions(first: ${maxDiscussionsPerPage}, after: $cursor, orderBy: {field: CREATED_AT, direction: DESC}) {
+                        pageInfo {
+                          hasNextPage
+                          endCursor
                         }
-                        createdAt
-                        url
-                        body
-                        comments(first: ${maxPostsPerDiscussion}) {
-                          nodes {
-                            author {
-                              login
+                        nodes {
+                          title
+                          number
+                          author {
+                            login
+                          }
+                          createdAt
+                          url
+                          body
+                          labels(first: 10) {
+                            nodes {
+                              name
                             }
-                            createdAt
-                            body
+                          }
+                          comments(first: ${maxCommentsPerDiscussion}) {
+                            nodes {
+                              author {
+                                login
+                              }
+                              createdAt
+                              body
+                            }
                           }
                         }
                       }
                     }
                   }
+                `;
+
+                const variables = {
+                  owner: owner,
+                  repo: repo,
+                  cursor: endCursor
+                };
+
+                const result = await github.graphql(query, variables);
+
+                const pageInfo = result.repository.discussions.pageInfo;
+                const discussions = result.repository.discussions.nodes;
+
+                // Filter discussions by label
+                const filteredDiscussions = discussions.filter(discussion => {
+                  if (!discussion.labels || !discussion.labels.nodes) {
+                    return false;
+                  }
+
+                  const labels = discussion.labels.nodes.map(label => label.name);
+                  return labels.includes(labelFilter);
+                });
+
+                core.info(`Filtered ${discussions.length} discussions to ${filteredDiscussions.length} with label '${labelFilter}'`);
+
+                allDiscussions = allDiscussions.concat(filteredDiscussions);
+
+                hasNextPage = pageInfo.hasNextPage;
+                endCursor = pageInfo.endCursor;
+
+                // Log progress
+                core.info(`Fetched ${discussions.length} discussions, filtered to ${filteredDiscussions.length}. Total so far: ${allDiscussions.length}`);
+
+                // Break if we've fetched all discussions or reached a reasonable limit
+                if (!hasNextPage || allDiscussions.length >= 1000) {
+                  break;
                 }
-              `;
-
-              const result = await github.graphql(query, {
-                owner: owner,
-                repo: repo
-              });
-
-              const discussions = result.repository.discussions.nodes;
+              }
 
               let discussionsText = "";
-              for (const discussion of discussions) {
+              for (const discussion of allDiscussions) {
                 discussionsText += `Discussion: ${discussion.title}\n`;
                 discussionsText += `Author: ${discussion.author ? discussion.author.login : 'Unknown'}\n`;
                 discussionsText += `Created: ${discussion.createdAt}\n`;
                 discussionsText += `URL: ${discussion.url}\n`;
                 discussionsText += `Body: ${discussion.body}\n`;
+
+                // Add labels information
+                if (discussion.labels && discussion.labels.nodes) {
+                  const labels = discussion.labels.nodes.map(label => label.name).join(', ');
+                  discussionsText += `Labels: ${labels}\n`;
+                }
 
                 // Process comments from GraphQL response
                 const comments = discussion.comments.nodes;
@@ -334,6 +397,8 @@ jobs:
 
                 discussionsText += "\n---\n\n";
               }
+
+              core.info(`Total discussions fetched and filtered by label '${labelFilter}': ${allDiscussions.length}`);
 
               // Strip conflicting directives by replacing START, END, ", ', ` with "?"
               discussionsText = discussionsText.replace(/START/g, '?')
