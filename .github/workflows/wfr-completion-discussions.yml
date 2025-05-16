@@ -272,147 +272,6 @@ jobs:
 
       - run: npm ci || npm install
 
-      - name: Fetch repository discussions
-        id: discussions
-        uses: actions/github-script@v7
-        env:
-          discussionLabelFilter: ${{ env.discussionLabelFilter }}
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const maxCommentsPerDiscussion = 100; // Limit the number of comments per discussion
-            const maxDiscussionsPerPage = 100; // Maximum discussions per page in GitHub API
-            const labelFilter = process.env.discussionLabelFilter || 'automated';
-
-            core.info(`Filtering discussions by label: ${labelFilter}`);
-
-            try {
-              let allDiscussions = [];
-              let hasNextPage = true;
-              let endCursor = null;
-
-              // Use pagination to fetch all discussions
-              while (hasNextPage) {
-                // GraphQL query with cursor-based pagination
-                const query = `
-                  query($owner: String!, $repo: String!, $cursor: String) {
-                    repository(owner: $owner, name: $repo) {
-                      discussions(first: ${maxDiscussionsPerPage}, after: $cursor, orderBy: {field: CREATED_AT, direction: DESC}) {
-                        pageInfo {
-                          hasNextPage
-                          endCursor
-                        }
-                        nodes {
-                          title
-                          number
-                          author {
-                            login
-                          }
-                          createdAt
-                          url
-                          body
-                          labels(first: 10) {
-                            nodes {
-                              name
-                            }
-                          }
-                          comments(first: ${maxCommentsPerDiscussion}) {
-                            nodes {
-                              author {
-                                login
-                              }
-                              createdAt
-                              body
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                `;
-
-                const variables = {
-                  owner: owner,
-                  repo: repo,
-                  cursor: endCursor
-                };
-
-                const result = await github.graphql(query, variables);
-
-                const pageInfo = result.repository.discussions.pageInfo;
-                const discussions = result.repository.discussions.nodes;
-
-                // Filter discussions by label
-                const filteredDiscussions = discussions.filter(discussion => {
-                  if (!discussion.labels || !discussion.labels.nodes) {
-                    return false;
-                  }
-
-                  const labels = discussion.labels.nodes.map(label => label.name);
-                  return labels.includes(labelFilter);
-                });
-
-                core.info(`Filtered ${discussions.length} discussions to ${filteredDiscussions.length} with label '${labelFilter}'`);
-
-                allDiscussions = allDiscussions.concat(filteredDiscussions);
-
-                hasNextPage = pageInfo.hasNextPage;
-                endCursor = pageInfo.endCursor;
-
-                // Log progress
-                core.info(`Fetched ${discussions.length} discussions, filtered to ${filteredDiscussions.length}. Total so far: ${allDiscussions.length}`);
-
-                // Break if we've fetched all discussions or reached a reasonable limit
-                if (!hasNextPage || allDiscussions.length >= 1000) {
-                  break;
-                }
-              }
-
-              let discussionsText = "";
-              for (const discussion of allDiscussions) {
-                discussionsText += `Discussion: ${discussion.title}\n`;
-                discussionsText += `Author: ${discussion.author ? discussion.author.login : 'Unknown'}\n`;
-                discussionsText += `Created: ${discussion.createdAt}\n`;
-                discussionsText += `URL: ${discussion.url}\n`;
-                discussionsText += `Body: ${discussion.body}\n`;
-
-                // Add labels information
-                if (discussion.labels && discussion.labels.nodes) {
-                  const labels = discussion.labels.nodes.map(label => label.name).join(', ');
-                  discussionsText += `Labels: ${labels}\n`;
-                }
-
-                // Process comments from GraphQL response
-                const comments = discussion.comments.nodes;
-                if (comments.length > 0) {
-                  discussionsText += "Comments:\n";
-                  for (const comment of comments) {
-                    discussionsText += `  Author: ${comment.author ? comment.author.login : 'Unknown'}\n`;
-                    discussionsText += `  Created: ${comment.createdAt}\n`;
-                    discussionsText += `  Body: ${comment.body}\n\n`;
-                  }
-                }
-
-                discussionsText += "\n---\n\n";
-              }
-
-              core.info(`Total discussions fetched and filtered by label '${labelFilter}': ${allDiscussions.length}`);
-
-              // Strip conflicting directives by replacing START, END, ", ', ` with "?"
-              discussionsText = discussionsText.replace(/START/g, '?')
-                                             .replace(/END/g, '?')
-                                             .replace(/"/g, '?')
-                                             .replace(/'/g, '?')
-                                             .replace(/`/g, '?');
-
-              core.setOutput('discussions', discussionsText);
-            } catch (error) {
-              core.warning(`Error fetching discussions: ${error.message}`);
-              core.setOutput('discussions', '');
-            }
-
       - name: Fetch last 50 commits
         id: commits
         uses: actions/github-script@v7
@@ -850,7 +709,7 @@ jobs:
         uses: actions/github-script@v7
         env:
           promptContent: ${{ steps.prompt.outputs.content }}
-          discussions: ${{ steps.discussions.outputs.discussions }}
+          discussionLabelFilter: ${{ env.discussionLabelFilter }}
           commits: ${{ steps.commits.outputs.commits }}
           repoFiles: ${{ steps.repo_files.outputs.files }}
           sourceFiles: ${{ steps.source_files.outputs.output }}
@@ -888,7 +747,6 @@ jobs:
             const discussionUserInformation = process.env.discussionUserInformation;
             const discussionLabels = process.env.discussionLabels;
             const discussionReactions = process.env.discussionReactions;
-            const discussions = process.env.discussions;
             const commits = process.env.commits;
             const repoFiles = process.env.repoFiles;
             const sourceFiles = process.env.sourceFiles;
@@ -929,6 +787,142 @@ jobs:
             core.info(`mainScript: ${mainScript}`);
             core.info(`mainOutput: ${mainOutput}`);
             core.info(`statsJson: ${statsJson}`);
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const maxCommentsPerDiscussion = 100; // Limit the number of comments per discussion
+            const maxDiscussionsPerPage = 100; // Maximum discussions per page in GitHub API
+            const labelFilter = process.env.discussionLabelFilter || 'automated';
+
+            core.info(`Filtering discussions by label: ${labelFilter}`);
+
+            let allDiscussionsText;
+            try {
+              let allDiscussions = [];
+              let hasNextPage = true;
+              let endCursor = null;
+
+              // Use pagination to fetch all discussions
+              while (hasNextPage) {
+                // GraphQL query with cursor-based pagination
+                const query = `
+                  query($owner: String!, $repo: String!, $cursor: String) {
+                    repository(owner: $owner, name: $repo) {
+                      discussions(first: ${maxDiscussionsPerPage}, after: $cursor, orderBy: {field: CREATED_AT, direction: DESC}) {
+                        pageInfo {
+                          hasNextPage
+                          endCursor
+                        }
+                        nodes {
+                          title
+                          number
+                          author {
+                            login
+                          }
+                          createdAt
+                          url
+                          body
+                          labels(first: 10) {
+                            nodes {
+                              name
+                            }
+                          }
+                          comments(first: ${maxCommentsPerDiscussion}) {
+                            nodes {
+                              author {
+                                login
+                              }
+                              createdAt
+                              body
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                `;
+
+                const variables = {
+                  owner: owner,
+                  repo: repo,
+                  cursor: endCursor
+                };
+
+                const result = await github.graphql(query, variables);
+
+                const pageInfo = result.repository.discussions.pageInfo;
+                const discussions = result.repository.discussions.nodes;
+
+                // Filter discussions by label
+                const filteredDiscussions = discussions.filter(discussion => {
+                  if (!discussion.labels || !discussion.labels.nodes) {
+                    return false;
+                  }
+
+                  const labels = discussion.labels.nodes.map(label => label.name);
+                  return labels.includes(labelFilter);
+                });
+
+                core.info(`Filtered ${discussions.length} discussions to ${filteredDiscussions.length} with label '${labelFilter}'`);
+
+                allDiscussions = allDiscussions.concat(filteredDiscussions);
+
+                hasNextPage = pageInfo.hasNextPage;
+                endCursor = pageInfo.endCursor;
+
+                // Log progress
+                core.info(`Fetched ${discussions.length} discussions, filtered to ${filteredDiscussions.length}. Total so far: ${allDiscussions.length}`);
+
+                // Break if we've fetched all discussions or reached a reasonable limit
+                if (!hasNextPage || allDiscussions.length >= 1000) {
+                  break;
+                }
+              }
+
+              let discussionsText = "";
+              for (const discussion of allDiscussions) {
+                discussionsText += `Discussion: ${discussion.title}\n`;
+                discussionsText += `Author: ${discussion.author ? discussion.author.login : 'Unknown'}\n`;
+                discussionsText += `Created: ${discussion.createdAt}\n`;
+                discussionsText += `URL: ${discussion.url}\n`;
+                discussionsText += `Body: ${discussion.body}\n`;
+
+                // Add labels information
+                if (discussion.labels && discussion.labels.nodes) {
+                  const labels = discussion.labels.nodes.map(label => label.name).join(', ');
+                  discussionsText += `Labels: ${labels}\n`;
+                }
+
+                // Process comments from GraphQL response
+                const comments = discussion.comments.nodes;
+                if (comments.length > 0) {
+                  discussionsText += "Comments:\n";
+                  for (const comment of comments) {
+                    discussionsText += `  Author: ${comment.author ? comment.author.login : 'Unknown'}\n`;
+                    discussionsText += `  Created: ${comment.createdAt}\n`;
+                    discussionsText += `  Body: ${comment.body}\n\n`;
+                  }
+                }
+
+                discussionsText += "\n---\n\n";
+              }
+
+              core.info(`Total discussions fetched and filtered by label '${labelFilter}': ${allDiscussions.length}`);
+
+              // Strip conflicting directives by replacing START, END, ", ', ` with "?"
+              discussionsText = discussionsText.replace(/START/g, '?')
+                                             .replace(/END/g, '?')
+                                             .replace(/"/g, '?')
+                                             .replace(/'/g, '?')
+                                             .replace(/`/g, '?');
+
+              core.setOutput('allDiscussionsText', discussionsText);
+              allDiscussionsText = discussionsText;
+            } catch (error) {
+              core.warning(`Error fetching discussions: ${error.message}`);
+              core.setOutput('allDiscussionsText', '');
+              allDiscussionsText = '';
+            }
 
             const chatGptPrompt = `
             ${promptContent}
@@ -991,7 +985,7 @@ jobs:
 
             Previous discussions and comments:
             PREVIOUS_DISCUSSIONS_START
-            ${discussions}
+            ${allDiscussionsText}
             PREVIOUS_DISCUSSIONS_END
 
             Recent commits:
