@@ -115,8 +115,8 @@ jobs:
   
             if(!branchUrl) {
               // Create a branch URL where the branch will be of the form intention-<date>-<uuid>
-              const date = new Date().toISOString().split('T')[0];
-              const branchName = `intention-${date}-${uuid}`;
+              const date = new Date().toISOString()
+              const branchName = `intention-${date}`;
               branchUrl = `https://github.com/${owner}/${repo}/tree/${branchName}`;
               core.info(`Created branch URL: ${branchUrl}`);
             }
