@@ -82,7 +82,7 @@ jobs:
             const seedDiscussionFilepath = process.env.seedDiscussionFilepath;
             
             let branchUrl = ''; // branch URL
-            const branchName = '';
+            let branchName = '';
             try {
               core.info(`Looking for lines likely to be branches in intentïon.md at ${seedDiscussionFilepath}`);
         
@@ -121,6 +121,16 @@ jobs:
               branchName = `intention-${date}`;
               branchUrl = `https://github.com/${owner}/${repo}/tree/${branchName}`;
               core.info(`Created branch URL: ${branchUrl}`);
+            } else {
+              // Extract the branch name from the URL
+              const urlParts = branchUrl.split('/');
+              const branchIndex = urlParts.indexOf('tree') + 1;
+              if (branchIndex < urlParts.length) {
+                branchName = urlParts[branchIndex];
+                core.info(`Extracted branch name: ${branchName}`);
+              } else {
+                core.warning(`Branch name not found in URL: ${branchUrl}`);
+              }
             }
             
             core.info(`branchName: ${branchName}`);
