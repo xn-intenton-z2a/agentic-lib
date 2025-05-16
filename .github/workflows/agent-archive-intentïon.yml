@@ -13,11 +13,11 @@ on:
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
-  #schedule:
-    #- cron: '49 8 */28 * *' # schedule-not-ready-1
-    #- cron: '49 8,16 * * *' # schedule-not-ready-2
-    #- cron: '49 */4 * * *' # schedule-not-ready-3
-    #- cron: '49,34 * * * *' # schedule-not-ready-4
+  schedule:
+    - cron: '57 8 * * 4' # schedule-1
+    #- cron: '57 8,16 * * *' # schedule-2
+    #- cron: '57 */4 * * *' # schedule-3
+    #- cron: '57,27 * * * *' # schedule-4
 
 env:
   gitUserEmail: 'action@github.com'

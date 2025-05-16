@@ -729,8 +729,11 @@ intentïon user journey [Launch UX]:
 - [x] Discussions updates also posted intentïon.com.
 - [x] On intentïon.com, user provides an intention which is posted on GitHub Discussions thread.
 - [x] Add branch URL to intentïon.md
-- [~] Archive workflow periodically pushed to an intentïon-<date> branch (which does not run the workflows)
-- [ ] intentïon.com fades in with: running experiment: mission summary & <link to branch>
+- [x] Archive workflow periodically pushed to an intentïon-<date> branch (which does not run the workflows)
+- [~] intentïon.com shows: Running experiment:  <link to branch>
+- [ ] Put every commit comment into intentïon.md plus some none commit activities. (copy trace-discussion from the bot)
+- [ ] intentïon.com shows: Running experiment:  <link to branch> + scrolling lines from intentïon.md
+- [ ] intentïon.com shows: past experiments: <link to branch> + mission and status.
 - [ ] Create a repository from main via a button.
 - [ ] Script the process from request to cloning the repository and setting it up to run the workflows.
 - [ ] Screen capture the scripted flow.

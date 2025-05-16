@@ -27,6 +27,9 @@ mkdir -p "${DEST_DIR}"
 
 rm -f "${DEST_DIR}/agent-"*".yml"
 
+cp -v .github/workflows/agent-archive-intentïon.yml "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-archive-intentïon.yml"
+
 cp -v .github/workflows/agent-discussions-bot.yml "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-discussions-bot.yml"
 

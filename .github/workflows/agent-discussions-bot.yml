@@ -359,8 +359,26 @@ jobs:
 
             core.info(`Comment posted.`);
 
+  archive-intention:
+    needs:
+      - generate-response
+    if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@main'
+    with:
+      mission: ${{ needs.generate-response.outputs.detail }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
   seed-repository:
     needs:
+      - archive-intention
       - generate-response
     if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
     permissions:
@@ -424,7 +442,7 @@ jobs:
               fs.mkdirSync(path.dirname(seedDiscussionFilepath), { recursive: true });
             }
             const traceContent = `${url}\n\n# Discussion Seed Trace\n\nThis repository was seeded from a GitHub Discussion.\n\n- **Title**: ${title}\n- **URL**: ${url}\n- **Created at**: ${new Date().toISOString()}\n`;
-            fs.writeFileSync(seedDiscussionFilepath, traceContent);
+            fs.appendFileSync(seedDiscussionFilepath, traceContent);
 
             core.info(`Trace file saved to ${seedDiscussionFilepath}`);
 
@@ -435,6 +453,26 @@ jobs:
           git add  ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
           git commit -m "Add discussion seed trace" || echo "No changes to commit"
           git push
+
+  archive-seeded-intention:
+    needs:
+      - generate-response
+      - seed-repository
+      - agentic-lib
+      - trace-discussion
+    if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@main'
+    with:
+      mission: ${{ needs.generate-response.outputs.detail }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   feature-maintenance-flow:
     needs:
