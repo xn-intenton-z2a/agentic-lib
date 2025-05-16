@@ -69,12 +69,14 @@ jobs:
           uuid: ${{ needs.uuid.outputs.uuid }}
         with:
           script: |
+            const fs = require('fs');
             const { owner, repo } = context.repo;
+            
+            const uuid = process.env.uuid;
+            const seedDiscussionFilepath = process.env.seedDiscussionFilepath;
+            
             let branchUrl = ''; // branch URL
             try {
-              const fs = require('fs');
-              const uuid = process.env.uuid;
-              const seedDiscussionFilepath = process.env.seedDiscussionFilepath;
               core.info(`Looking for lines likely to be branches in intentïon.md at ${seedDiscussionFilepath}`);
         
               if (fs.existsSync(seedDiscussionFilepath)) {
