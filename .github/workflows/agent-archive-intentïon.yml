@@ -181,7 +181,7 @@ jobs:
         id: create-branch-if-required-and-push
         run: |
           echo 'Checking branch: ${{ needs.intention.outputs.branchUrl }}'
-          if [[ '${{ needs.intention.outputs.branchUrl }}' != *main' ]] ; then
+          if [[ '${{ needs.intention.outputs.branchUrl }}' != *main ]] ; then
             echo 'Creating or force pushing to branch: ${{ needs.intention.outputs.branchUrl }}'
             git switch --force-create '${{ needs.intention.outputs.branchUrl }}'
             git push -v --force origin '${{ needs.intention.outputs.branchUrl }}'
