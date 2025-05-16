@@ -53,11 +53,13 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.ref }}
+
       - name: Get latest from remote
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git pull --ff-only origin ${{ github.ref }}
+
       - name: intention
         id: intention
         uses: actions/github-script@v7
@@ -65,30 +67,33 @@ jobs:
           seedDiscussionFilepath: ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
         with:
           script: |
+            const { owner, repo } = context.repo;
             let branchUrl = ''; // branch URL
             try {
               const fs = require('fs');
+              const { v7: uuidv7 } = require('uuidv7');
               const seedDiscussionFilepath = process.env.seedDiscussionFilepath;
-              core.info(`Looking for last */discussions/* in intentïon.md at ${seedDiscussionFilepath}`);
+              core.info(`Looking for lines likely to be branches in intentïon.md at ${seedDiscussionFilepath}`);
         
               if (fs.existsSync(seedDiscussionFilepath)) {
                 const seedDiscussionContent = fs.readFileSync(seedDiscussionFilepath, 'utf8');
                 const lines = seedDiscussionContent.split('\n');
         
-                // Filter to lines matching ^*https://.*/discussions/*$ and extract the last matching line.
-                const discussionsUrlLines = lines.filter(line => line.match(/^\s*https:\/\/.*\/discussions\/.*$/));
-                if (discussionsUrlLines.length === 0) {
-                  core.warning(`No matching GitHub Discussions URL found in intentïon.md`);
+                // Filter to lines matching ^*https://.*/ some branch path fragments /*$ and extract the last matching line.
+                const branchUrlPattern = /^\s*https:\/\/github\.com\/[^\/\s]+\/[^\/\s]+\/(tree|blob|edit|new|upload|commits)\/[^\s]+|https:\/\/github\.com\/[^\/\s]+\/[^\/\s]+\/compare\/[^.\/]+\.{3}[^\/\s]+/;                  
+                const branchUrlLines = lines.filter(line => branchUrlPattern.test(line));
+                if (branchUrlLines.length === 0) {
+                  core.warning(`No matching GitHub branch URL found in intentïon.md`);
                 } else {
-                  const lastUrlLine = discussionsUrlLines[discussionsUrlLines.length - 1];
+                  const lastUrlLine = branchUrlLines[branchUrlLines.length - 1];
         
                   // Extract URL by ignoring anything before the first https:// and up to the first non-url character.
                   const urlMatch = lastUrlLine.match(/https:\/\/[^ ]+/);
                   if (urlMatch) {
-                    url = urlMatch[0];
+                    branchUrl = urlMatch[0];
                     core.info(`Using URL from intentïon.md: ${url}`);
                   } else {
-                    core.warning(`No matching GitHub Discussions URL found in intentïon.md: ${lastUrlLine}`);
+                    core.warning(`No matching GitHub branch URL found in intentïon.md: ${lastUrlLine}`);
                   }
                 }
               } else {
@@ -97,32 +102,62 @@ jobs:
             } catch (error) {
               core.warning(`Error reading intentïon.md: ${error.message}`);
             }
-          }
+  
+            if(!branchUrl) {
+              // Create a branch URL where the branch will be of the form `intention-${v7uuid}`
+              const uuid = uuidv7();
+              const branchName = `intention-${uuid}`;
+              branchUrl = `https://github.com/${owner}/${repo}/tree/${branchName}`;
+              core.info(`Created branch URL: ${branchUrl}`);
+            }
+            
+            core.setOutput('branchUrl', branchUrl);
+            core.info(`branchUrl: ${branchUrl}`);
 
-            core.setOutput('authorAssociation', authorAssociation);
-            core.setOutput('body', body);
-            core.setOutput('state', state);
-            core.setOutput('title', title);
-            core.setOutput('url', url);
-            core.setOutput('categoryName', categoryName);
-            core.setOutput('userName', userName);
-            core.setOutput('labels', labels);
-            core.setOutput('reactions', reactions);
-
-            core.info(`authorAssociation: ${authorAssociation}`);
-            core.info(`body: ${body}`);
-            core.info(`state: ${state}`);
-            core.info(`title: ${title}`);
-            core.info(`url: ${url}`);
-            core.info(`categoryName: ${categoryName}`);
-            core.info(`userName: ${userName}`);
-            core.info(`labels: ${labels}`);
-            core.info(`reactions: ${reactions}`);
-
+  # Idempotently create the branch matching the branch URL if it doesn't exist or succeed silently if it does.
+  create-branch:
+    needs:
+      - intention
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create branch if it doesn't exist
+        id: create-branch
+        uses: actions/github-script@v7
+        env:
+          branchUrl: ${{ needs.intention.outputs.branchUrl }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const branchUrl = process.env.branchUrl;
+            const branchName = branchUrl.split('/').pop();
+            const ref = `refs/heads/${branchName}`;
+            try {
+              await github.git.getRef({
+                owner,
+                repo,
+                ref,
+              });
+              core.info(`Branch ${branchName} already exists.`);
+            } catch (error) {
+              if (error.status === 404) {
+                core.info(`Branch ${branchName} does not exist. Creating...`);
+                await github.git.createRef({
+                  owner,
+                  repo,
+                  ref,
+                  sha: context.sha,
+                });
+                core.info(`Branch ${branchName} created.`);
+              } else {
+                throw error;
+              }
+            }
 
   archive-intention:
     needs:
       - agentic-lib
+      - intention
+      - create-branch
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -139,7 +174,7 @@ jobs:
       - name: Log seed in the intentïon file.
         run: |
           echo "" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
-          echo "archived intentïon at $(date)" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          echo "Arching intentïon to branch ${{ needs.agentic-lib.intention.branchUrl }} at $(date)" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
 
       - name: Commit and push
         id: commit
@@ -152,4 +187,12 @@ jobs:
           git diff
           git commit -m 'Reseed repository' --allow-empty
           git push -v
+          git status -v
+
+      - name: Push the current state of main to ${{ needs.agentic-lib.intention.branchUrl }}
+        id: push-to-branch
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git push -v origin HEAD:${{ needs.agentic-lib.intention.branchUrl }}
           git status -v
