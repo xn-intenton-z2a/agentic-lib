@@ -283,7 +283,7 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const maxCommentsPerDiscussion = 256; // Limit the number of comments per discussion
-            const maxDiscussionsPerPage = 16; // Maximum discussions per page in GitHub API
+            const maxDiscussionsPerPage = 256; // Maximum discussions per page in GitHub API
             const labelFilter = process.env.discussionLabelFilter || 'automated';
 
             core.info(`Filtering discussions by label: ${labelFilter}`);
