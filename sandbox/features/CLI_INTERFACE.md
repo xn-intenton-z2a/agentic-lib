@@ -1,9 +1,11 @@
 # Overview
-The CLI_INTERFACE feature provides a unified command-line experience for both sandbox utilities and the core library. It streamlines developer workflows by exposing sandbox-specific validation, documentation, and AWS bridging commands alongside global library commands for help, versioning, and event simulation.
+
+The CLI_INTERFACE feature provides a unified command-line experience for both sandbox utilities and the core library. It streamlines developer workflows by exposing sandbox-specific validation, documentation, AWS integrations, and global library commands for help, versioning, and event simulation. This update enhances the existing interface by adding a new discussion-stats command to deliver statistical insights on GitHub discussions or issues.
 
 # Commands
 
 ## Sandbox Commands
+
 --help
   Show usage instructions and available options for sandbox mode.
 
@@ -31,19 +33,38 @@ The CLI_INTERFACE feature provides a unified command-line experience for both sa
 --bridge-s3-sqs
   Upload a payload to S3 and send an SQS message containing the object location and optional message attributes. Require --bucket and --key parameters.
 
---validate-package
-  Parse and validate root package.json fields: name, version, description, main, test script, and Node engine version >=20. Fail on missing or invalid fields.
+--discussion-stats
+  Compute and output statistical insights for GitHub discussions or issues.
 
---validate-tests
-  Read coverage/coverage-summary.json and enforce minimum thresholds (80%) for statements, branches, functions, and lines. Log deficits and exit code 1 on failures.
+### --discussion-stats
 
---validate-lint
-  Run ESLint on sandbox source and tests, fail on any errors or warnings. Report violations with file, line, column, ruleId, and message.
+**Description:**
+Fetch comments from a specified GitHub discussion (or issue) and compute usage metrics including comment count, unique participants, time range, and average comment length.
 
---validate-license
-  Confirm LICENSE.md exists and its first non-empty line begins with a valid SPDX identifier. Fail on missing file or invalid identifier.
+**Usage:**
+node sandbox/source/main.js --discussion-stats --owner <owner> --repo <repo> --discussion-number <number>
+
+**Behavior:**
+1. Validate presence of --owner, --repo, and --discussion-number flags. If missing, log an error and exit code 1.
+2. Authenticate with GitHub API using GITHUB_TOKEN or default credentials; use GITHUB_API_BASE_URL if configured.
+3. Retrieve all comments from the specified discussion via GitHub API.
+4. Calculate metrics:
+   - totalComments: total number of comments retrieved.
+   - uniqueParticipants: count of distinct comment authors.
+   - firstCommentTimestamp: ISO timestamp of the earliest comment.
+   - lastCommentTimestamp: ISO timestamp of the latest comment.
+   - durationMs: time difference in milliseconds between first and last comment.
+   - averageCommentLength: mean character length of comment bodies.
+5. Log an info-level JSON object:
+   {
+     level: "info",
+     message: "Discussion stats computed",
+     discussionStats: { totalComments, uniqueParticipants, firstCommentTimestamp, lastCommentTimestamp, durationMs, averageCommentLength }
+   }
+6. On API errors or parsing failures, log an error-level JSON with details and exit code 1.
 
 ## Library Commands
+
 --help
   Show usage instructions for the core library CLI, including available flags under src/lib/main.js.
 
@@ -54,13 +75,20 @@ The CLI_INTERFACE feature provides a unified command-line experience for both sa
   Simulate an AWS SQS event by generating a sample digest, invoking the digestLambdaHandler, and logging record processing output.
 
 # Requirements
+
 - Node.js 20 or higher
+- Environment variable GITHUB_TOKEN for GitHub API authentication
+- Optional GITHUB_API_BASE_URL override
+- Network permissions for HTTP calls to GitHub
 - File system write permissions for sandbox paths and documentation
-- Network permissions for AWS or HTTP integrations used by commands
 
 # Testing & Verification
-- Unit tests for each sandbox command covering success, warning, and error paths
-- Unit tests for library CLI commands (--help returns usage, --version resolves version JSON, --digest invokes handler)
-- Integration tests for end-to-end CLI invocation in sandbox and library contexts
-- Coverage should meet minimum thresholds for statements, branches, functions, and lines
-- Lint validation ensuring no new ESLint violations are introduced
+
+- Unit tests for --discussion-stats covering:
+  - flag absence returns false
+  - missing or invalid arguments logs error and exit code 1
+  - GitHub API error handling
+  - correct metric calculations on mock comment data
+- Integration tests invoking CLI with --discussion-stats against a mock GitHub server
+- Maintain existing unit and integration tests for other commands
+- Ensure coverage thresholds and lint rules continue to pass
