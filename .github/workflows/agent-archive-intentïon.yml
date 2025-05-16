@@ -129,38 +129,27 @@ jobs:
       - intention
     runs-on: ubuntu-latest
     steps:
-      - name: Create branch if it doesn't exist
-        id: create-branch
-        uses: actions/github-script@v7
-        env:
-          branchUrl: ${{ needs.intention.outputs.branchUrl }}
+      - uses: actions/checkout@v4
         with:
-          script: |
-            const { owner, repo } = context.repo;
-            const branchUrl = process.env.branchUrl;
-            const branchName = branchUrl.split('/').pop();
-            const ref = `refs/heads/${branchName}`;
-            try {
-              await github.git.getRef({
-                owner,
-                repo,
-                ref,
-              });
-              core.info(`Branch ${branchName} already exists.`);
-            } catch (error) {
-              if (error.status === 404) {
-                core.info(`Branch ${branchName} does not exist. Creating...`);
-                await github.git.createRef({
-                  owner,
-                  repo,
-                  ref,
-                  sha: context.sha,
-                });
-                core.info(`Branch ${branchName} created.`);
-              } else {
-                throw error;
-              }
-            }
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: create-branch-if-required-and-push
+        id: create-branch-if-required-and-push
+        run: |
+          if [[ '${{ needs.intention.outputs.branchUrl }}' != *main' ]] ; then
+            echo 'Creating or force pushing to branch: ${{ needs.intention.outputs.branchUrl }}'
+            git switch --force-create '${{ needs.intention.outputs.branchUrl }}'
+            git push -v --force origin '${{ needs.intention.outputs.branch }}'
+          else
+            echo 'Will not push to main looking target: ${{ needs.intention.outputs.branch }}'
+          fi
 
   archive-intention:
     needs:
