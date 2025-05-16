@@ -82,6 +82,7 @@ jobs:
             const seedDiscussionFilepath = process.env.seedDiscussionFilepath;
             
             let branchUrl = ''; // branch URL
+            const branchName = '';
             try {
               core.info(`Looking for lines likely to be branches in intentïon.md at ${seedDiscussionFilepath}`);
         
@@ -116,14 +117,16 @@ jobs:
             if(!branchUrl) {
               // Create a branch URL where the branch will be of the form intention-<date>-<uuid>
               const isoDateParts = new Date().toISOString().split(':');
-              const date = `${isoDateParts[0]}-${isoDateParts[1]}`;
-              const branchName = `intention-${date}`;
+              const date = `${isoDateParts[0]}-${isoDateParts[1]}Z`;
+              branchName = `intention-${date}`;
               branchUrl = `https://github.com/${owner}/${repo}/tree/${branchName}`;
               core.info(`Created branch URL: ${branchUrl}`);
             }
             
-            core.setOutput('branchUrl', branchUrl);
+            core.info(`branchName: ${branchName}`);
+            core.setOutput('branchName', branchName);
             core.info(`branchUrl: ${branchUrl}`);
+            core.setOutput('branchUrl', branchUrl);
 
   update-intention:
     needs:
@@ -181,13 +184,13 @@ jobs:
       - name: create-branch-if-required-and-push
         id: create-branch-if-required-and-push
         run: |
-          echo 'Checking branch: ${{ needs.intention.outputs.branchUrl }}'
-          if [[ '${{ needs.intention.outputs.branchUrl }}' != *main ]] ; then
-            echo 'Creating or force pushing to branch: ${{ needs.intention.outputs.branchUrl }}'
-            git switch --force-create '${{ needs.intention.outputs.branchUrl }}'
-            git push -v --force origin '${{ needs.intention.outputs.branchUrl }}'
+          echo 'Checking branch: ${{ needs.intention.outputs.branchName }}'
+          if [[ '${{ needs.intention.outputs.branchName }}' != *main ]] ; then
+            echo 'Creating or force pushing to branch: ${{ needs.intention.outputs.branchName }}'
+            git switch --force-create '${{ needs.intention.outputs.branchName }}'
+            git push -v --force origin '${{ needs.intention.outputs.branchName }}'
           else
-            echo 'Will not push to main looking target: ${{ needs.intention.outputs.branchUrl }}'
+            echo 'Will not push to main looking target: ${{ needs.intention.outputs.branchName }}'
           fi
 
       #- name: Push the current state of main to ${{ needs.agentic-lib.intention.branchUrl }}

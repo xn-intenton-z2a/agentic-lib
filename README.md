@@ -728,8 +728,8 @@ intentïon user journey [Launch UX]:
 - [x] Floating box logs into github and gives you an embedded formatted discussions thread.
 - [x] Discussions updates also posted intentïon.com.
 - [x] On intentïon.com, user provides an intention which is posted on GitHub Discussions thread.
-- [~] Archive workflow periodically pushed to an intentïon-<v7uuid> branch (which does not run the workflows)
-- [~] Add branch URL to intentïon.md
+- [x] Add branch URL to intentïon.md
+- [~] Archive workflow periodically pushed to an intentïon-<date> branch (which does not run the workflows)
 - [ ] intentïon.com fades in with: running experiment: mission summary & <link to branch>
 - [ ] Create a repository from main via a button.
 - [ ] Script the process from request to cloning the repository and setting it up to run the workflows.
