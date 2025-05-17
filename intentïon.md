@@ -49,3 +49,5 @@
 
 2025-05-17T14:58:50.255Z - Maintained feature EVENT_PROCESSING.
 
+2025-05-17T15:27:42.369Z - Digested SSE-SQS default or SSE-KMS via KmsMasterKeyId. Standard: at-least-once; FIFO: exactly-once+high-throughput. MessageRetentionPeriod=60–1209600s (default345600s) via SetQueueAttributes. VisibilityTimeout controls invisibility; DeleteMessage removes. Payload>256KB → S3/DynamoDB pointer. DLQ: define RedrivePolicy={deadLetterTargetArn,maxReceiveCount}. Control via RedriveAllowPolicy={allowPolicyType,queueArns}. Standard DLQ retention based on original timestamp; FIFO resets on move. Ensure DLQ retention>source retention..
+
