@@ -546,12 +546,12 @@ jobs:
             };
             const requestFilePath = 'request.json';
             fs.writeFileSync(requestFilePath, JSON.stringify(request, null, 2));
-            setOutput("requestFilePath", requestFilePath);
+            core.setOutput("requestFilePath", requestFilePath);
             core.info("requestFilePath: " + requestFilePath);
             const response = await openai.chat.completions.create(request);
             const responseFilePath = 'response.json';
             fs.writeFileSync(responseFilePath, response);
-            setOutput("responseFilePath", responseFilePath);
+            core.setOutput("responseFilePath", responseFilePath);
             core.info("responseFilePath: " + responseFilePath);
 
             let result;
