@@ -159,7 +159,7 @@ jobs:
 
       - name: Log seed in the intentïon file.
         run: |
-          echo "$(date) - Archiving intentïon to branch ${{ needs.intention.outputs.branchUrl }}" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          echo "$(date -u +"%Y-%m-%dT%H:%M:%SZ") - Archiving intentïon to branch ${{ needs.intention.outputs.branchUrl }}" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
           echo "" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
 
       - name: Commit and push
