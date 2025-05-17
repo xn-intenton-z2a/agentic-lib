@@ -1,53 +1,48 @@
 # Objective & Scope
-Extend the library’s core event handling capabilities to include a lightweight HTTP API interface alongside existing CLI support. Provide a consistent foundation for SQS event simulation, discussion statistics retrieval, and HTTP endpoints for integration within automated workflows and local development.
+Extend library core event handler to include agentic AI driven code analysis and suggestion alongside existing CLI support and HTTP endpoints
 
 # Value Proposition
-- Simplify integration into CI/CD pipelines and GitHub workflow_call events via HTTP endpoints.
-- Maintain existing CLI workflows for local debugging and ad-hoc analysis.
-- Enable HTTP-based event replay and discussion metrics retrieval for external tools or orchestrators.
-- Ensure consistent JSON logging across CLI, Lambda handler, and HTTP server for observability.
+- Enable autonomous analysis and suggestion flows triggered by GitHub issues or pull requests via CLI or HTTP
+- Simplify integration into CI pipelines and workflow calls
+- Maintain consistent JSON logging across CLI HTTP and lambda handlers for observability
 
 # Success Criteria & Requirements
-
 ## Event Handler
-- createSQSEventFromDigest: generate a valid AWS SQS Records array from a digest object.
-- digestLambdaHandler: process SQS event records, parse JSON bodies, log info, collect and return batchItemFailures.
+- createSQSEventFromDigest generate aws sqs records from digest
+- digestLambdaHandler process sqs event records parse JSON bodies log info collect and return batch failures
 
-## GitHub Discussion Statistics
-- fetchDiscussionComments(input): retrieve all comments via GitHub API using configured base URL and authentication token.
-- analyzeDiscussionStatistics(comments): compute total comment count, unique author count, average comment length, optional sentiment summary via OpenAI API.
+## Agentic Handler
+- agenticHandler accept event payload containing issueUrl or id fetch issue details via GitHub api use openai createChatCompletion call with system and user messages return structured suggestions including message refinement summary
+- handle errors return error code and message identifier
 
 ## CLI Commands
-- --help: display usage instructions and exit.
-- --version: output package version and timestamp as JSON.
-- --digest: simulate an SQS digest event and dispatch to digestLambdaHandler.
-- --stats <discussion-url|id>: fetch and compute discussion metrics, output structured JSON.
+- help display usage instructions
+- version output version timestamp as JSON
+- digest simulate sqs digest event call digestLambdaHandler
+- agentic accept issueUrl or id call agenticHandler output suggestions as JSON
 
-## HTTP API Endpoints
-- POST /digest
-  * Accept JSON body as digest object, convert to SQS event via createSQSEventFromDigest, invoke digestLambdaHandler, respond with batchItemFailures and handler identifier.
-- POST /stats
-  * Accept JSON body with discussionUrl or id, run fetchDiscussionComments and analyzeDiscussionStatistics, respond with metrics JSON.
-- GET /health
-  * Return a simple JSON payload with service name and uptime.
+## HTTP Endpoints
+- POST /digest accept JSON body as digest convert to sqs event invoke digestLambdaHandler respond with batch failures and handler metadata
+- POST /stats accept JSON body with discussionUrl or id run statistics retrieval respond with metrics
+- POST /agentic accept JSON body with issueUrl or id invoke agenticHandler respond with suggestion JSON
+- GET /health return service name uptime and callCount
 
 # Testability & Stability
-- Unit tests for HTTP handlers, ensuring valid responses, error handling for invalid payloads, network failures, and missing parameters.
-- Integration tests for HTTP endpoints using built-in http module or supertest mocks to validate JSON responses and status codes.
-- Retain and extend existing unit and integration tests for CLI, event handler, and discussion utilities.
+- unit tests for agenticHandler mocking openai and github apis validate success and error paths
+- integration tests for CLI agentic command validate output status codes and JSON schema
+- supertest mocks for HTTP endpoints verify correct responses and error handling
 
 # Dependencies & Constraints
-- Node 20 and ESM module standard.
-- Use built-in http module; no new external dependencies required.
-- HTTP server entrypoint integrated into src/lib/main.js, toggled by flag or environment variable (e.g., HTTP_PORT).
-- Configurable via environment variables: HTTP_PORT, GITHUB_API_BASE_URL, OPENAI_API_KEY.
+- Node 20 esm module standard
+- use openai client no additional dependencies
+- configurable via environment variables GITHUB_API_BASE_URL GITHUB_TOKEN OPENAI_API_KEY HTTP_PORT
+- use built in http module and zod for input validation
 
 # User Scenarios & Examples
-- Run HTTP server: HTTP_PORT=3000 node src/lib/main.js --serve
-- Replay SQS digest via HTTP: POST http://localhost:3000/digest with JSON body { key: "events/1.json", value: "12345", lastModified: "..." }
-- Retrieve discussion stats via HTTP: POST http://localhost:3000/stats with JSON body { discussionUrl: "https://github.com/.../discussions/456" }
+- CLI run agentic with issueUrl value prints suggestions
+- HTTP POST /agentic with JSON body containing issueUrl returns suggestion JSON
 
 # Verification & Acceptance
-- npm test passes all existing and new tests, covering CLI, HTTP endpoints, event handlers, and statistics utilities.
-- HTTP endpoints respond with correct status codes (200 for success, 400 for invalid input, 500 for server errors) and JSON payloads matching defined schemas.
-- No unhandled exceptions or process crashes during CLI or HTTP invocation.
+- npm test passes tests covering agentic flows and existing features
+- endpoints respond with 200 success 400 bad request 500 server error as defined
+- no unhandled exceptions or crashes across CLI HTTP or lambda handlers
