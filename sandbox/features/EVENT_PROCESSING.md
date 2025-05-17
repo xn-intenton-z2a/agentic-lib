@@ -1,87 +1,57 @@
 # Objective & Scope
-Extend the existing event-processing framework in a single ESM binary to provide a self-hosted HTTP server supporting secure webhook ingestion, background queue management, dead-letter queue (DLQ) controls, health, metrics, and status endpoints, interactive API documentation, and AI-driven payload summarization. Include corresponding CLI flags for local simulation, event digest, summarization, DLQ replay, and status reporting using OpenAI and AWS SDK.
+Extend the existing event ingestion and processing framework in a single ESM binary to provide a self-hosted HTTP server and CLI enhancements. The HTTP server must support secure webhook ingestion, generic payload ingestion, background queue management, dead-letter queue controls, health checks, metrics, status reporting, interactive API documentation, and AI-driven payload summarization. CLI flags must enable local simulation of SQS events, payload summarization, dead-letter queue operations, and status reporting.
 
 # Value Proposition
-
-- Deliver a one-stop binary that handles event ingestion, queueing, monitoring, documentation, DLQ management, payload summarization, and runtime status reporting without external frameworks.
-- Empower users to inspect, replay, purge dead-lettered messages, and query service status directly via HTTP or CLI, improving operational resilience, debugging, and observability.
-- Provide real-time metrics and status including uptime, memory usage, and invocation counts for rapid incident response.
-- Leverage existing AWS SDK and OpenAI credentials to provide queue operations and AI capabilities without introducing new dependencies.
-- Maintain minimal dependencies by using built-in http, zod, crypto, markdown-it, markdown-it-github, and the installed OpenAI SDK.
+- All-in-one binary for event ingestion, queue management, DLQ operations, monitoring, and AI summarization without external frameworks.
+- Secure webhook and generic ingestion workflows with GitHub signature validation.
+- Real-time health, status, and metrics endpoints for improved observability and operational resilience.
+- Interactive OpenAPI documentation and CLI tools for on-demand testing and debugging.
+- Leverage existing AWS SDK and OpenAI SDK credentials without adding dependencies.
 
 # Success Criteria & Requirements
-
 ## HTTP Server Implementation
-- Use Node.js built-in http module; do not introduce additional frameworks.
-- CLI flag `--serve` starts server on `PORT` or default 3000; when active, ignore other flags.
-- Log startup information: port, enabled routes, CORS origins, rate limit, AI endpoint availability.
+- Use Node.js built-in http module; no new frameworks.
+- CLI flag --serve starts server on PORT or default 3000; ignores other flags when serving.
+- Log startup info: port, enabled routes, CORS origins, rate limits, AI availability.
 
 ### Exposed Endpoints
-- GET /status
-  - Return JSON containing process uptime (seconds), memory usage (rss, heapTotal, heapUsed), and global callCount.
-  - Respond with 200 and JSON on success.
-- POST /webhook
-  - Validate GitHub signature, JSON payload, and enqueue to SQS as before.
-- POST /ingest
-  - Validate generic payload and enqueue to SQS.
-- POST /summarize
-  - Accept any JSON payload in body.
-  - Forward payload to OpenAI chat completion with a system prompt to generate a concise summary.
-  - Respond with JSON `{ summary: string }` or 502 on AI errors.
-- GET /health, GET /metrics, POST /dlq/purge, GET /openapi.json, GET /docs as specified.
+- GET /status: return JSON { uptime, memoryUsage, callCount }.
+- GET /health: return status 200 or 503 on failure.
+- GET /metrics: expose Prometheus-style metrics for uptime, invocation counts, error rates.
+- POST /webhook: validate GitHub signature, JSON payload, enqueue to SQS.
+- POST /ingest: validate generic JSON payload, enqueue to SQS.
+- POST /summarize: accept JSON payload, forward to OpenAI chat completion, return { summary } or 502 on AI errors.
+- GET /dlq: peek DLQ messages, return array of { messageId, body, timestamp }.
+- POST /dlq/replay: replay specified or all DLQ messages, return { replayedCount, failedCount }.
+- POST /dlq/purge: purge DLQ messages, return { purgedCount }.
+- GET /dlq/stats: return { totalMessages, oldestMessageAgeSeconds }.
+- GET /openapi.json: return OpenAPI spec.
+- GET /docs: return interactive API documentation.
 
-#### Dead-Letter Queue Management
-- GET /dlq
-  - Return a JSON array of messages currently in the DLQ with `messageId`, `body`, `timestamp`.
-  - Use AWS SDK to peek DLQ messages without removing them.
-- POST /dlq/replay
-  - Accept optional JSON listing `messageIds`; if omitted, replay all.
-  - Send selected messages back to main SQS queue, then remove from DLQ.
-  - Respond with `{ replayedCount: number, failedCount: number }`.
-- GET /dlq/stats
-  - Return `{ totalMessages: number, oldestMessageAgeSeconds: number }`.
+### CLI Extensions
+- --status: print JSON status with uptime, memory usage, callCount.
+- --digest: simulate SQS digest event.
+- --summarize [file]: summarize payload from file or STDIN.
+- --replay-dlq [ids]: replay specified or all DLQ messages.
+- --help, --version remain unchanged.
 
-## CLI Extensions
-- `--status`
-  - Print JSON to stdout containing uptime (seconds), memory usage, and callCount.
-- `--digest`
-  - Simulate SQS digest event as before.
-- `--summarize [file]`
-  - Summarize JSON payload from file or STDIN via OpenAI; print summary.
-- `--replay-dlq [ids]`
-  - Replay specified DLQ messages or all; print JSON result.
-- `--help` and `--version` remain unchanged.
+# Testability & Stability
+- Unit tests with vitest and supertest covering all HTTP endpoints and CLI flags.
+- Mock AWS SDK SQS client for DLQ operations and OpenAI API for summarization.
+- Integration tests launching --serve and validating endpoints and CLI commands.
+- Maintain coverage above 90%.
 
-## OpenAI Integration
-- Use existing openai SDK and `OPENAI_API_KEY` from environment.
-- Send chat completion requests with model `gpt-3.5-turbo` or fallback to default.
-- Apply a Zod schema to validate response contains `choices[0].message.content`.
+# Dependencies & Constraints
+- No new dependencies beyond existing AWS SDK and OpenAI SDK.
+- Compatible with Node 20, ESM standards, existing linting and formatting rules.
 
-## Security, CORS & Rate Limiting
-- Same CORS, rate limiting, and basic auth requirements apply to new endpoints including /status.
+# User Scenarios & Examples
+- Start server: npx agentic-lib --serve
+- Query status: curl http://localhost:3000/status
+- Summarize file: npx agentic-lib --summarize payload.json
+- Replay DLQ: echo '{}' | npx agentic-lib --replay-dlq
 
-## Testability & Stability
-- Add unit tests with vitest and supertest for GET /status, CLI `--status`, new DLQ endpoints, and CLI replay functionality.
-  - Mock AWS SDK SQS client to return fixed DLQ messages.
-  - Verify HTTP status codes, JSON shapes, error handling, CORS headers, and CLI output.
-- Add integration tests launching `--serve` and testing GET /status, GET /dlq, POST /dlq/replay, and GET /dlq/stats with a real server instance.
-- Maintain overall coverage above 90%.
-
-## Dependencies & Constraints
-- Do not introduce new dependencies beyond the existing AWS SDK and OpenAI SDK.
-- Ensure compatibility with Node 20, ESM, existing linting, and formatting.
-
-## User Scenarios & Examples
-- Query runtime status via CLI:
-  npx agentic-lib --status
-- Query HTTP status endpoint:
-  curl http://localhost:3000/status
-- Local CLI replay all DLQ messages:
-  echo '{}' | npx agentic-lib --replay-dlq
-- HTTP peek DLQ:
-  curl http://localhost:3000/dlq
-
-## Verification & Acceptance
-- Run `npm test` covering new unit and integration tests.
-- Manually start server; test /status, DLQ endpoints and confirm expected JSON responses.
-- Confirm no regressions in existing endpoints or CLI flags.
+# Verification & Acceptance
+- All tests pass with npm test.
+- Manual end-to-end validation of HTTP server and CLI operations.
+- No regressions in existing CLI flags and digestLambdaHandler functionality.
