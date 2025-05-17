@@ -734,7 +734,6 @@ intentïon user journey [Launch UX]:
 - [x] intentïon.com shows: Running experiment:  <link to branch> + random lines from intentïon.md
 - [x] Put every commit comment into intentïon.md plus some none commit activities. (copy trace-discussion from the bot)
 - [x] Rename (intentionBot, intentionFilepath) to (intentionBot, intentionFilepath)
-- [ ] Access links to experiments from the intention logo which appears by the hamburger menu.
 - [ ] intentïon.com shows: past experiments: <link to branch> + mission and status.
 - [ ] intentïon.com shows: past experiments as websites (see comment in .com project): <link to branch> + mission and status.
 - [ ] Create a repository from main via a button.
