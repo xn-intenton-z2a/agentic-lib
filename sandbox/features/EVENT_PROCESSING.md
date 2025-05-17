@@ -1,48 +1,39 @@
 # Objective & Scope
-Extend library core event handler to include agentic AI driven code analysis and suggestion alongside existing CLI support and HTTP endpoints
+Implement an HTTP server in the main CLI library to expose event processing handlers via REST endpoints, complementing existing AWS Lambda and CLI flows.
 
 # Value Proposition
-- Enable autonomous analysis and suggestion flows triggered by GitHub issues or pull requests via CLI or HTTP
-- Simplify integration into CI pipelines and workflow calls
-- Maintain consistent JSON logging across CLI HTTP and lambda handlers for observability
+- Provide a single, self-contained HTTP API for event-driven and agentic workflows, simplifying integration into webhooks and applications.
+- Ensure consistent structured JSON logging for all endpoints using existing logInfo and logError utilities.
+- Maintain reuse of digestLambdaHandler and agenticHandler logic for easy maintenance and observability.
 
 # Success Criteria & Requirements
-## Event Handler
-- createSQSEventFromDigest generate aws sqs records from digest
-- digestLambdaHandler process sqs event records parse JSON bodies log info collect and return batch failures
+## HTTP Server Setup
+- Listen on port from environment variable HTTP_PORT or default to 3000.
+- Increment globalThis.callCount for each incoming request before routing.
+- Gracefully handle server errors and log using logError.
 
-## Agentic Handler
-- agenticHandler accept event payload containing issueUrl or id fetch issue details via GitHub api use openai createChatCompletion call with system and user messages return structured suggestions including message refinement summary
-- handle errors return error code and message identifier
-
-## CLI Commands
-- help display usage instructions
-- version output version timestamp as JSON
-- digest simulate sqs digest event call digestLambdaHandler
-- agentic accept issueUrl or id call agenticHandler output suggestions as JSON
-
-## HTTP Endpoints
-- POST /digest accept JSON body as digest convert to sqs event invoke digestLambdaHandler respond with batch failures and handler metadata
-- POST /stats accept JSON body with discussionUrl or id run statistics retrieval respond with metrics
-- POST /agentic accept JSON body with issueUrl or id invoke agenticHandler respond with suggestion JSON
-- GET /health return service name uptime and callCount
+## Routing & Endpoints
+- POST /digest
+  - Validate JSON body schema: must include key, value, lastModified fields.
+  - Invoke digestLambdaHandler with created event payload.
+  - Respond with 200 and JSON containing batchItemFailures and handler metadata.
+- POST /stats
+  - No request body required.
+  - Compute and return JSON with current callCount and uptime (seconds).
+- POST /agentic
+  - Validate JSON body schema: must include issueUrl or id.
+  - Invoke agenticHandler with payload.
+  - Return 200 and JSON with suggestion details or appropriate error code.
+- GET /health
+  - Respond with service name, current uptime, and total callCount.
 
 # Testability & Stability
-- unit tests for agenticHandler mocking openai and github apis validate success and error paths
-- integration tests for CLI agentic command validate output status codes and JSON schema
-- supertest mocks for HTTP endpoints verify correct responses and error handling
+- Add supertest-based integration tests for each endpoint, covering success responses and error conditions (invalid JSON, missing fields).
+- Ensure unit tests mock express-like request objects or HTTP server to verify routing and handler invocation.
+- Validate that all endpoints return correct HTTP status codes: 200, 400 for bad request, 500 for server error.
 
 # Dependencies & Constraints
-- Node 20 esm module standard
-- use openai client no additional dependencies
-- configurable via environment variables GITHUB_API_BASE_URL GITHUB_TOKEN OPENAI_API_KEY HTTP_PORT
-- use built in http module and zod for input validation
-
-# User Scenarios & Examples
-- CLI run agentic with issueUrl value prints suggestions
-- HTTP POST /agentic with JSON body containing issueUrl returns suggestion JSON
-
-# Verification & Acceptance
-- npm test passes tests covering agentic flows and existing features
-- endpoints respond with 200 success 400 bad request 500 server error as defined
-- no unhandled exceptions or crashes across CLI HTTP or lambda handlers
+- Use Node.js built-in http module; no new external HTTP frameworks.
+- Use zod for input validation of request bodies.
+- Configure server port via environment variable HTTP_PORT.
+- Maintain Node 20 ESM compatibility.
