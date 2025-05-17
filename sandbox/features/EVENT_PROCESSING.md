@@ -1,57 +1,55 @@
 # Objective & Scope
-Extend the existing event ingestion and processing framework in a single ESM binary to provide a self-hosted HTTP server and CLI enhancements. The HTTP server must support secure webhook ingestion, generic payload ingestion, background queue management, dead-letter queue controls, health checks, metrics, status reporting, interactive API documentation, and AI-driven payload summarization. CLI flags must enable local simulation of SQS events, payload summarization, dead-letter queue operations, and status reporting.
+Extend the existing event ingestion and processing framework to include a dedicated CLI metrics command that surfaces runtime statistics on demand. Maintain all current HTTP server capabilities and CLI tools while adding a new --stats flag to support quick diagnostics.
 
 # Value Proposition
-- All-in-one binary for event ingestion, queue management, DLQ operations, monitoring, and AI summarization without external frameworks.
-- Secure webhook and generic ingestion workflows with GitHub signature validation.
-- Real-time health, status, and metrics endpoints for improved observability and operational resilience.
-- Interactive OpenAPI documentation and CLI tools for on-demand testing and debugging.
-- Leverage existing AWS SDK and OpenAI SDK credentials without adding dependencies.
+- Provides immediate insight into the application’s internal metrics without running the HTTP server.
+- Empowers operators and automation scripts to gather runtime data programmatically.
+- Complements existing observability endpoints with a lightweight CLI interface.
 
 # Success Criteria & Requirements
 ## HTTP Server Implementation
-- Use Node.js built-in http module; no new frameworks.
-- CLI flag --serve starts server on PORT or default 3000; ignores other flags when serving.
-- Log startup info: port, enabled routes, CORS origins, rate limits, AI availability.
+- All existing endpoints from the prior implementation remain unchanged.
 
 ### Exposed Endpoints
-- GET /status: return JSON { uptime, memoryUsage, callCount }.
-- GET /health: return status 200 or 503 on failure.
-- GET /metrics: expose Prometheus-style metrics for uptime, invocation counts, error rates.
-- POST /webhook: validate GitHub signature, JSON payload, enqueue to SQS.
-- POST /ingest: validate generic JSON payload, enqueue to SQS.
-- POST /summarize: accept JSON payload, forward to OpenAI chat completion, return { summary } or 502 on AI errors.
-- GET /dlq: peek DLQ messages, return array of { messageId, body, timestamp }.
-- POST /dlq/replay: replay specified or all DLQ messages, return { replayedCount, failedCount }.
-- POST /dlq/purge: purge DLQ messages, return { purgedCount }.
-- GET /dlq/stats: return { totalMessages, oldestMessageAgeSeconds }.
-- GET /openapi.json: return OpenAPI spec.
-- GET /docs: return interactive API documentation.
+- GET /status
+- GET /health
+- GET /metrics
+- POST /webhook
+- POST /ingest
+- POST /summarize
+- DLQ management endpoints
+- GET /openapi.json
+- GET /docs
 
-### CLI Extensions
-- --status: print JSON status with uptime, memory usage, callCount.
-- --digest: simulate SQS digest event.
-- --summarize [file]: summarize payload from file or STDIN.
-- --replay-dlq [ids]: replay specified or all DLQ messages.
-- --help, --version remain unchanged.
+## CLI Extensions
+- --help: show usage instructions and exit.
+- --version: show version and timestamp and exit.
+- --digest: simulate SQS digest event using createSQSEventFromDigest and digestLambdaHandler.
+- --status: print JSON status containing uptime, memoryUsage, callCount.
+- --stats: alias for --status, explicitly surfaces callCount, uptime, and memoryUsage in structured JSON format.
 
 # Testability & Stability
-- Unit tests with vitest and supertest covering all HTTP endpoints and CLI flags.
-- Mock AWS SDK SQS client for DLQ operations and OpenAI API for summarization.
-- Integration tests launching --serve and validating endpoints and CLI commands.
+- Add unit tests for the new --stats flag following existing patterns with vitest.
+- Reuse mocks for AWS SDK SQS client and OpenAI API to ensure no external calls.
+- Integration test invoking CLI with --stats and validating output contains expected keys and numeric values.
 - Maintain coverage above 90%.
 
 # Dependencies & Constraints
 - No new dependencies beyond existing AWS SDK and OpenAI SDK.
-- Compatible with Node 20, ESM standards, existing linting and formatting rules.
+- Continue compatibility with Node 20, ESM, and existing linting and formatting rules.
 
 # User Scenarios & Examples
-- Start server: npx agentic-lib --serve
-- Query status: curl http://localhost:3000/status
-- Summarize file: npx agentic-lib --summarize payload.json
-- Replay DLQ: echo '{}' | npx agentic-lib --replay-dlq
+- Retrieve runtime metrics without server:
+```
+npx agentic-lib --stats
+```
+- Scripted monitoring:
+```
+const output = JSON.parse(execSync('npx agentic-lib --stats').toString());
+console.log(output.uptime, output.callCount);
+```
 
 # Verification & Acceptance
-- All tests pass with npm test.
-- Manual end-to-end validation of HTTP server and CLI operations.
-- No regressions in existing CLI flags and digestLambdaHandler functionality.
+- All tests pass under npm test.
+- Manual invocation of --stats prints valid JSON with uptime, memoryUsage, and callCount.
+- No regressions in existing CLI flags or HTTP server endpoints.
