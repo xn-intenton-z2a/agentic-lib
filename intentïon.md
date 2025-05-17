@@ -47,3 +47,5 @@
 
 2025-05-17T14:40:28.500Z - Enhanced issue 1445.
 
+2025-05-17T14:58:50.255Z - Maintained feature EVENT_PROCESSING.
+
