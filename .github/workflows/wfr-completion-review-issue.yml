@@ -588,6 +588,11 @@ jobs:
             core.info(`${chatGptPrompt}`);
             core.info("prompt end:   **********************************************");
 
+            const promptFilePath = 'prompt.txt';
+            fs.writeFileSync(promptFilePath, chatGptPrompt);
+            core.setOutput("promptFilePath", promptFilePath);
+            core.info("promptFilePath: " + promptFilePath);
+
             const ResponseSchema = z.object({ fixed: z.string(), message: z.string(), refinement: z.string() });
 
             // Define the function schema for function calling
@@ -611,7 +616,7 @@ jobs:
             }];
 
             // Call OpenAI using function calling format
-            const response = await openai.chat.completions.create({
+            const request = {
               model,
               messages: [
                 { role: "system", content: "You are evaluating whether an issue has been resolved in the supplied source code. Answer strictly with a JSON object following the provided function schema." },
@@ -619,6 +624,17 @@ jobs:
               ],
               tools: tools
             });
+            
+            const requestFilePath = 'request.json';
+            fs.writeFileSync(requestFilePath, JSON.stringify(request, null, 2));
+            core.setOutput("requestFilePath", requestFilePath);
+            core.info("requestFilePath: " + requestFilePath);
+            const response = await openai.chat.completions.create(request);
+            
+            const responseFilePath = 'response.json';
+            fs.writeFileSync(responseFilePath, JSON.stringify(response, null, 2));
+            core.setOutput("responseFilePath", responseFilePath);
+            core.info("responseFilePath: " + responseFilePath);
 
             let result;
             if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
@@ -641,13 +657,18 @@ jobs:
             }
 
             try {
-              core.info("raw response start: **********************************************");
-              core.info(`raw response (${(result ? result.length : "undefined")} characters): "${result}"`);
-              core.info("raw response mid: ================================================");
-              core.info(`raw response as JSON: "${JSON.stringify(result, null, 2)}"`);
-              core.info("raw response end: ************************************************");
-              const parsed = ResponseSchema.parse(result);
-              core.info(`parsed response: "${JSON.stringify(parsed, null, 2)}"`);
+              let parsed;
+              try {
+                parsed = ResponseSchema.parse(result);
+                const resultFilePath = 'result.json';
+                fs.writeFileSync(resultFilePath, JSON.stringify(parsed, null, 2));
+                core.setOutput("resultFilePath", resultFilePath);
+                core.info("resultFilePath: " + resultFilePath);
+              } catch (e) {
+                core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
+                return;
+              }
+            
               core.setOutput("fixed", parsed.fixed);
               core.setOutput("message", parsed.message);
               core.setOutput("refinement", parsed.refinement);
@@ -677,6 +698,38 @@ jobs:
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`response: "${JSON.stringify(response)}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
+
+      - name: Upload prompt file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-prompt.txt
+          path: ${{ steps.verify.outputs.promptFilePath }}
+          retention-days: 7
+
+      - name: Upload request file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-request.json
+          path: ${{ steps.verify.outputs.requestFilePath }}
+          retention-days: 7
+
+      - name: Upload response file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-response.json
+          path: ${{ steps.verify.outputs.responseFilePath }}
+          retention-days: 7
+
+      - name: Upload result file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-result.json
+          path: ${{ steps.verify.outputs.resultFilePath }}
+
       - name: Handle issue labels and status
         id: handle-issue
         uses: actions/github-script@v7

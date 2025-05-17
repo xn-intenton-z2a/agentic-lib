@@ -652,6 +652,11 @@ jobs:
             core.info(`${chatGptPrompt}`);
             core.info("prompt end:   **********************************************");
 
+            const promptFilePath = 'prompt.txt';
+            fs.writeFileSync(promptFilePath, chatGptPrompt);
+            core.setOutput("promptFilePath", promptFilePath);
+            core.info("promptFilePath: " + promptFilePath);
+
             const ResponseSchema = z.object({ issueTitle: z.string(), issueDescription: z.string() });
 
             // Define the function schema for function calling
@@ -674,7 +679,7 @@ jobs:
             }];
 
             // Call OpenAI using function calling format
-            const response = await openai.chat.completions.create({
+            const request = {
               model,
               messages: [
                 { role: "system", content: "You are raising a GitHub issue which will be processed by an LLM with a token limit of 200,000 tokens in order to manifest a specific named feature as code, tests or documentation. You will respond to the intention of the prompt using a detailed assessment of the current state of the repository, the current feature set and the mission statement. Answer strictly with a JSON object following the provided function schema." },
@@ -682,6 +687,17 @@ jobs:
               ],
               tools: tools
             });
+            
+            const requestFilePath = 'request.json';
+            fs.writeFileSync(requestFilePath, JSON.stringify(request, null, 2));
+            core.setOutput("requestFilePath", requestFilePath);
+            core.info("requestFilePath: " + requestFilePath);
+            const response = await openai.chat.completions.create(request);
+            
+            const responseFilePath = 'response.json';
+            fs.writeFileSync(responseFilePath, JSON.stringify(response, null, 2));
+            core.setOutput("responseFilePath", responseFilePath);
+            core.info("responseFilePath: " + responseFilePath);
 
             let result;
             if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
@@ -704,13 +720,18 @@ jobs:
             }
 
             try {
-              core.info("raw response start: **********************************************");
-              core.info(`raw response (${(result ? result.length : "undefined")} characters): "${result}"`);
-              core.info("raw response mid: ================================================");
-              core.info(`raw response as JSON: "${JSON.stringify(result, null, 2)}"`);
-              core.info("raw response end: ************************************************");
-              const parsed = ResponseSchema.parse(result);
-              core.info(`parsed response: "${JSON.stringify(parsed, null, 2)}"`);
+              let parsed;
+              try {
+                parsed = ResponseSchema.parse(result);
+                const resultFilePath = 'result.json';
+                fs.writeFileSync(resultFilePath, JSON.stringify(parsed, null, 2));
+                core.setOutput("resultFilePath", resultFilePath);
+                core.info("resultFilePath: " + resultFilePath);
+              } catch (e) {
+                core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
+                return;
+              }
+            
               core.setOutput("issueTitle", parsed.issueTitle);
               core.setOutput("issueDescription", parsed.issueDescription);
               core.info(`issueTitle: "${parsed.issueTitle}"`);
@@ -725,6 +746,38 @@ jobs:
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`response: "${JSON.stringify(response)}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
+
+      - name: Upload prompt file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: generate-feature-development-issue-prompt.txt
+          path: ${{ steps.generate-feature-development-issue.outputs.promptFilePath }}
+          retention-days: 7
+
+      - name: Upload request file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: generate-feature-development-issue-request.json
+          path: ${{ steps.generate-feature-development-issue.outputs.requestFilePath }}
+          retention-days: 7
+
+      - name: Upload response file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: generate-feature-development-issue-response.json
+          path: ${{ steps.generate-feature-development-issue.outputs.responseFilePath }}
+          retention-days: 7
+
+      - name: Upload result file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: generate-feature-development-issue-result.json
+          path: ${{ steps.generate-feature-development-issue.outputs.resultFilePath }}
+
     outputs:
       issueTitle: ${{ steps.generate-feature-development-issue.outputs.issueTitle }}
       issueDescription: ${{ steps.generate-feature-development-issue.outputs.issueDescription }}

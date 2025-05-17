@@ -587,6 +587,11 @@ jobs:
             core.info(`${chatGptPrompt}`);
             core.info("prompt end:   **********************************************");
 
+            const promptFilePath = 'prompt.txt';
+            fs.writeFileSync(promptFilePath, chatGptPrompt);
+            core.setOutput("promptFilePath", promptFilePath);
+            core.info("promptFilePath: " + promptFilePath);
+
             const ResponseSchema = z.object({ featureName: z.string(), featureSpec: z.string(), featureNamesToBeDeleted: z.string() });
 
             // Define the function schema for function calling
@@ -610,14 +615,25 @@ jobs:
             }];
 
             // Call OpenAI using function calling format
-            const response = await openai.chat.completions.create({
+            const request = {
               model,
               messages: [
                 { role: "system", content: "You are maintaining a feature set by providing expert contemporary insight into both the product market and you will perform a detailed analysis of the current state of the repository and current feature set in search of value opportunities and unique selling points. Answer strictly with a JSON object following the provided function schema." },
                 { role: "user", content: chatGptPrompt }
               ],
               tools: tools
-            });
+            };
+            
+            const requestFilePath = 'request.json';
+            fs.writeFileSync(requestFilePath, JSON.stringify(request, null, 2));
+            core.setOutput("requestFilePath", requestFilePath);
+            core.info("requestFilePath: " + requestFilePath);
+            const response = await openai.chat.completions.create(request);
+            
+            const responseFilePath = 'response.json';
+            fs.writeFileSync(responseFilePath, JSON.stringify(response, null, 2));
+            core.setOutput("responseFilePath", responseFilePath);
+            core.info("responseFilePath: " + responseFilePath);
 
             let result;
             if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
@@ -640,13 +656,18 @@ jobs:
             }
 
             try {
-              core.info("raw response start: **********************************************");
-              core.info(`raw response (${(result ? result.length : "undefined")} characters): "${result}"`);
-              core.info("raw response mid: ================================================");
-              core.info(`raw response as JSON: "${JSON.stringify(result, null, 2)}"`);
-              core.info("raw response end: ************************************************");
-              const parsed = ResponseSchema.parse(result);
-              core.info(`parsed response: "${JSON.stringify(parsed, null, 2)}"`);
+              let parsed;
+              try {
+                parsed = ResponseSchema.parse(result);
+                const resultFilePath = 'result.json';
+                fs.writeFileSync(resultFilePath, JSON.stringify(parsed, null, 2));
+                core.setOutput("resultFilePath", resultFilePath);
+                core.info("resultFilePath: " + resultFilePath);
+              } catch (e) {
+                core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
+                return;
+              }
+            
               core.setOutput("featureName", parsed.featureName);
               core.setOutput("featureSpec", parsed.featureSpec);
               core.setOutput("featureNamesToBeDeleted", parsed.featureNamesToBeDeleted);
@@ -706,6 +727,38 @@ jobs:
           git pull --ff-only origin ${{ github.ref }}
           git push -v origin ${{ github.ref }}
           git status -v
+
+      - name: Upload prompt file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: maintain-features-prompt.txt
+          path: ${{ steps.maintain-features.outputs.promptFilePath }}
+          retention-days: 7
+
+      - name: Upload request file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: maintain-features-request.json
+          path: ${{ steps.maintain-features.outputs.requestFilePath }}
+          retention-days: 7
+
+      - name: Upload response file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: maintain-features-response.json
+          path: ${{ steps.maintain-features.outputs.responseFilePath }}
+          retention-days: 7
+
+      - name: Upload result file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: maintain-features-result.json
+          path: ${{ steps.maintain-features.outputs.resultFilePath }}
+
 
     outputs:
       featureName: ${{ steps.maintain-features.outputs.featureName }}
