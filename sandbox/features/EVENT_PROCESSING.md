@@ -1,52 +1,55 @@
 # Objective & Scope
-Implement an HTTP server in the main CLI library to expose event processing handlers via REST endpoints for digesting events, retrieving stats, agentic actions, and health checks. This API will reuse existing logic (digestLambdaHandler and agenticHandler) and structured logging utilities.
+Enhance the existing HTTP server and CLI library to fully implement AI-driven suggestions via an agenticHandler, alongside secure event ingestion and operational endpoints. This feature covers:
+
+- Implementing agenticHandler using OpenAI ChatCompletion API, parsing and returning structured suggestions.
+- Integrating agenticHandler into the HTTP REST endpoints and CLI flags.
+- Reusing existing logging utilities and configuration.
 
 # Value Proposition
-- Enables low-latency, HTTP-based integration for webhooks and external services.
-- Provides consistent structured JSON logging across REST and existing flows.
-- Simplifies deployment by bundling HTTP handling into the existing CLI library with no additional frameworks.
+
+- Empowers users with automated, contextual AI-generated suggestions for GitHub issues or identifiers.
+- Unifies event processing and AI-driven workflows under a single, lightweight HTTP and CLI-based interface.
+- Maintains low-dependency footprint by using built-in http, zod, and the openai SDK.
 
 # Success Criteria & Requirements
-## HTTP Server Setup
-- Use Node.js built-in http module to listen on port from HTTP_PORT or default 3000.
-- Increment globalThis.callCount for each request before routing.
-- Gracefully handle and log server errors via logError.
 
-## Endpoints & Behavior
-### POST /digest
-- Validate JSON body with zod schema: key (string), value (string), lastModified (ISO 8601 string).
-- Invoke digestLambdaHandler with constructed SQS event.
-- Return 200 with JSON: { batchItemFailures, handler }.
-- Return 400 for body validation errors and 500 for handler exceptions.
+## Agentic Handler Implementation
+- Add an async function agenticHandler(payload) in src/lib/main.js.
+- Initialize OpenAIApi client with OPENAI_API_KEY from config.
+- Call createChatCompletion with a prompt schema wrapping payload.issueUrl or payload.id.
+- Parse the assistant response as JSON; expect fields: suggestion, refinement, metadata.
+- Return an object: { suggestion, refinement, metadata, handler } referencing the function path.
+- On invalid JSON or API errors, throw with descriptive messages.
 
-### POST /stats
-- No request body required.
-- Respond 200 with JSON: { callCount, uptime }.
+## CLI Integration
+- Introduce processAgentic(args) complementing processDigest.
+- Recognize a --agentic flag with parameters: --issueUrl or --id.
+- Construct payload from args and invoke agenticHandler.
+- Log results via logInfo and return true to signal handling.
+- Update main() to call processAgentic in the CLI flow before default usage output.
 
-### POST /agentic
-- Validate JSON body with zod schema: issueUrl (string) or id (string or number).
-- Invoke agenticHandler with payload.
-- Return 200 with suggestion JSON or 400/500 on errors.
-
-### GET /health
-- Respond 200 with JSON: { service: name, uptime, callCount }.
+## HTTP Endpoint
+- In the built-in HTTP server, add POST /agentic validating body with zod: issueUrl (string) or id (string or number).
+- Invoke agenticHandler with validated payload.
+- Return 200 with JSON: { suggestion, refinement, metadata, handler } on success.
+- Return 400 for validation errors and 500 for handler exceptions, with structured logs.
 
 # Testability & Stability
-- Add integration tests using supertest to cover success and error cases for each endpoint.
-- Mock HTTP requests in unit tests to verify routing logic and handler invocation.
-- Ensure 200, 400, and 500 status codes are correctly returned.
+- Unit tests for agenticHandler: mock OpenAIApi to return valid and malformed JSON; assert correct parsing and error paths.
+- Unit tests for processAgentic(): mock args and agenticHandler; verify CLI flow and logging.
+- Integration tests with supertest covering /agentic endpoint success, 400 validation, and 500 errors.
+- Maintain overall coverage > 90% for new code paths.
 
 # Dependencies & Constraints
-- Only use built-in http module and zod for validation.
-- Maintain Node 20 ESM compatibility.
-- No additional external HTTP frameworks.
+- Use openai SDK version aligned with package.json.
+- Continue Node 20 ESM compatibility; no additional HTTP frameworks beyond built-in http.
+- Reuse zod for schema validation and existing logInfo/logError utilities.
 
 # User Scenarios & Examples
-- Webhook sender posts digest events to /digest for real-time processing.
-- Monitoring system polls /stats and /health for uptime and usage metrics.
-- CI workflow triggers agentic suggestions via /agentic endpoint.
+- CLI: npx agentic-lib --agentic --issueUrl https://github.com/org/repo/issues/123 generates AI suggestions in terminal logs.
+- HTTP: POST /agentic with { issueUrl: string } returns structured AI suggestion payload.
 
 # Verification & Acceptance
-- Manual test: start server locally, exercise each endpoint with curl or HTTP client.
-- Automated tests pass with coverage > 90% for new code paths.
-- Review logs to confirm structured JSON output and error handling.
+- Run unit and integration tests with npm test; all pass.
+- Manual test: start HTTP server locally; exercise POST /agentic with curl; inspect JSON response and logs.
+- Review logs for structured JSON entries at info and error levels.
