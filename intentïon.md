@@ -25,3 +25,5 @@
 
 2025-05-17T12:51:33.663Z - Updated issue .
 
+2025-05-17T12:55:50.697Z - Worked to resolve issue Add sandbox source tests for CLI flags and SQS handler and usage documentation. Add sandbox source tests for CLI flags and SQS handler and usage documentation.
+
