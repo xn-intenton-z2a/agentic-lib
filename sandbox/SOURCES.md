@@ -2,7 +2,7 @@
 
 ## https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/Welcome.html
 
-Detailed API reference for Amazon SQS, covering request parameters, response structures, error codes, and detailed examples for all core operations (SendMessage, ReceiveMessage, DeleteMessage, Queue attribute management). Essential for implementing precise AWS SQS interactions and understanding quotas, limits, and payload sizes. Last updated January 2024; authored and maintained by AWS.
+Detailed API reference for Amazon SQS, covering all core operations (SendMessage, ReceiveMessage, DeleteMessage), queue attribute management, error codes, and detailed examples. Includes precise request/response schemas, quotas, and payload size limits. Vital for ensuring correct message handling and understanding SQS behavior under various conditions. Last updated January 2024; maintained by AWS.  
 
 ## License if known
 
@@ -12,47 +12,27 @@ Proprietary – see AWS Documentation Terms.
 
 ## https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html
 
-Comprehensive guide on configuring AWS Lambda to process SQS events as an asynchronous event source. Includes JSON schema of SQS event payloads, batch windowing, error handling patterns, and best practices for visibility timeouts, batchItemFailures, and throughput optimization. Updated March 2024; authoritative AWS Lambda Developer Guide.
+Comprehensive guide to configuring AWS Lambda as an asynchronous SQS event consumer. Provides JSON schema of SQS event payloads, batch windowing configuration, error handling with batchItemFailures, and best practices for visibility timeouts and throughput tuning. Crucial for deploying and managing reliable Lambda-based consumers. Updated March 2024; authoritative AWS Lambda Developer Guide.  
 
 ## License if known
 
 Proprietary – see AWS Documentation Terms.
 
-# AWS SDK for JavaScript (v3) Developer Guide
-
-## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/index.html
-
-Covers modular client architecture, credentials resolution, middleware stack, pagination helpers, and performance best practices in AWS SDK v3 for Node.js. Demonstrates how to instantiate SQS client, handle retries, and integrate with TypeScript and ESM. Updated February 2024; official AWS SDK documentation under Apache-2.0.
-
-## License if known
-
-Apache-2.0
-
 # Zod: TypeScript-first Schema Validation
 
 ## https://github.com/colinhacks/zod
 
-Official repository and documentation for Zod, focusing on schema declaration, parsing, error handling, and TypeScript inference. Provides examples for environment variable validation, custom refinements, and integration with Node.js. Well-maintained, MIT-licensed, last commit May 2024.
+Official Zod documentation for declarative schema definitions, parsing, error reporting, and TypeScript inference. Demonstrates environment variable validation patterns, custom refinements, and integration with Node.js applications. Ensures robust runtime type safety for configuration and payloads. Well-maintained; last commit May 2024.  
 
 ## License if known
 
 MIT
 
-# dotenv: Zero-Dependency Environment Variable Loader
-
-## https://github.com/motdotla/dotenv
-
-Documentation for dotenv, illustrating how to safely load and manage environment variables in Node.js, .env file precedence, variable expansion, and security considerations. Plain-to-follow usage patterns for development and CI/CD pipelines. Last updated June 2023; BSD-2-Clause license.
-
-## License if known
-
-BSD-2-Clause
-
 # OpenAI Node.js SDK Reference
 
 ## https://github.com/openai/openai-node
 
-Comprehensive guide to the official OpenAI Node.js SDK, covering configuration, rate limits, request and response models for Chat, Completion, and Error handling. Includes best practices for streaming responses, pagination, and retry strategies. Updated April 2024; MIT license.
+Comprehensive guide to the official OpenAI Node.js SDK, covering setup, authentication, rate limit management, Chat and Completion endpoints, streaming responses, pagination, and retry strategies. Includes request/response models with real-world examples. Updated April 2024; maintained by OpenAI.  
 
 ## License if known
 
@@ -62,18 +42,38 @@ MIT
 
 ## https://docs.github.com/en/rest
 
-Official GitHub REST API reference with detailed endpoint specifications for issues, pull requests, authentication, and rate limiting. Includes JSON payload examples, parameter descriptions, and usage patterns for programmatic GitHub interactions. Updated ongoing; content under CC BY 4.0.
+Official GitHub REST API reference with detailed endpoint specifications for issues, pull requests, authentication flows, webhooks, and rate limiting. Provides JSON payload examples, query parameter details, and pagination strategies. Essential for automating GitHub workflows and programmatically managing repository state. Continuously updated; content under CC BY 4.0.  
 
 ## License if known
 
 CC BY 4.0
 
-# yargs: Command-Line Arguments Parser Guide
+# @xn-intenton-z2a/s3-sqs-bridge Documentation
 
-## https://github.com/yargs/yargs/blob/main/docs/api.md
+## https://github.com/xn-intenton-z2a/s3-sqs-bridge
 
-In-depth documentation for yargs, demonstrating argument parsing, commands, middleware, and help generation for Node.js CLI applications. Addresses best practices for flags, positional arguments, configuration files, and testing strategies. Last revised April 2024; MIT license.
+Documentation for the S3-to-SQS Bridge library, describing configuration of S3 bucket notifications, batch processing settings, event deduplication logic, and error handling patterns. Includes guided examples for seamless integration between S3 and SQS, enabling efficient large object processing workflows. Last updated May 2024; maintained by XN-Intenton-Z2A.  
 
 ## License if known
 
 MIT
+
+# Vitest Testing Framework Documentation
+
+## https://vitest.dev/
+
+Comprehensive documentation for Vitest, including configuration options, mocking and spying APIs, coverage reporting (via V8), and ESM module support. Illustrates best practices for unit and integration testing in modern JavaScript/TypeScript projects, test isolation, and plugin ecosystem. Updated April 2024; maintained by Vitest team.  
+
+## License if known
+
+MIT
+
+# Node.js ECMAScript Modules (ESM) Specification
+
+## https://nodejs.org/api/esm.html
+
+Authoritative guide on using ECMAScript Modules in Node.js environments. Covers import/export syntax, file extensions, package.json "type" field, interoperability with CommonJS, dynamic imports, URL-based imports, and utilities like fileURLToPath. Essential for understanding module resolution and writing modern ESM-compliant Node 20+ codebases. Continuously updated; content under CC BY 4.0.  
+
+## License if known
+
+CC BY 4.0
