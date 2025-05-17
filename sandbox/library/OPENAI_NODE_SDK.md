@@ -1,436 +1,394 @@
 # OPENAI_NODE_SDK
 
 ## Crawl Summary
-Installation: npm install openai; deno add jsr:@openai/openai. Client config options: apiKey, maxRetries( default 2), timeout(default 600000ms), fetch, httpAgent, dangerouslyAllowBrowser, azureADTokenProvider, apiVersion. Methods: responses.create(params, opts) → Promise<{output_text, _request_id}> or AsyncIterable<SSEEvent>; chat.completions.create(params, opts) → Promise<{choices,message}[]> or stream. File uploads via client.files.create with fs.ReadStream|File|Response|toFile. Error handling via OpenAI.APIError subclasses mapped to HTTP status codes. Retries: default 2 on connection errors, 408,409,429,≥500. Timeouts: default 10min, configurable; throws APIConnectionTimeoutError. Request ID in `_request_id` and `.withResponse()`. Auto-pagination for list methods. Realtime API uses WebSocket events. Azure support via AzureOpenAI. Advanced: .asResponse(), .withResponse(). Custom HTTP verbs: client.get/post. Custom fetch middleware. HTTP(S) agent support. SemVer conventions. Supported runtimes and browser option.
+Installed via npm or JSR. Constructor options: apiKey, maxRetries, timeout, fetch, httpAgent, dangerouslyAllowBrowser. Key methods: responses.create, chat.completions.create, client.files.create. Streaming via SSE on stream:true. File uploads accept fs.ReadStream, File, Response, toFile. Errors: APIError subclasses with status and request_id. Retries: default 2 for network and specific status codes; configurable via maxRetries. Timeouts: default 600000ms, configurable; throws APIConnectionTimeoutError. All responses expose _request_id and .withResponse(). Auto-pagination via for await on list methods or page methods. Beta realtime via OpenAIRealtimeWebSocket. Azure uses AzureOpenAI with azureADTokenProvider and apiVersion. Advanced: raw access via .asResponse()/.withResponse(), undocumented via client.get/post, environment shims, logging via fetch override or DEBUG, httpAgent config. Requirements: TS>=4.5, Node18+, Deno1.28+, Bun1+, Cloudflare, Vercel, Jest28+, Nitro2.6+, browser support opt-in.
 
 ## Normalised Extract
 Table of Contents
-1 Installation
-2 Constructor Options
-3 Responses API
-4 Chat Completions API
-5 Streaming Responses
-6 File Uploads
-7 Error Handling
-8 Retries & Backoff
-9 Timeouts
-10 Request IDs
-11 Auto-pagination
-12 Realtime API Beta
-13 Azure OpenAI
-14 Advanced Usage
-15 Custom Requests
-16 Fetch Middleware
-17 HTTP(S) Agent
-18 Semantic Versioning
-19 Requirements
+1 Client Initialization
+2 Text Generation API
+3 Chat Completions API
+4 Streaming Responses
+5 File Uploads
+6 Error Types and Properties
+7 Retry Policy
+8 Timeout Configuration
+9 Request ID Handling
+10 Pagination Patterns
+11 Realtime WebSocket API
+12 Azure OpenAI Integration
+13 Raw Response Methods
+14 Undocumented HTTP Methods
+15 Environment Shims
+16 Logging and Middleware
+17 HTTP Agent Usage
+18 Supported Runtimes
 
-1 Installation
-• npm install openai
-• deno add jsr:@openai/openai
-• npx jsr add @openai/openai
+1 Client Initialization
+Options:
+  apiKey: string                 Environment variable OPENAI_API_KEY if omitted
+  maxRetries: number             Defaults to 2
+  timeout: number                Defaults to 600000 (ms)
+  fetch: (url, init) => Promise<Response>
+  httpAgent: Agent               Node http.Agent or https.Agent
+  dangerouslyAllowBrowser: boolean Defaults to false
 
-2 Constructor Options
-• apiKey?: string (env OPENAI_API_KEY)
-• maxRetries: number = 2
-• timeout: number = 600000
-• fetch?: (url, init?) => Promise<Response>
-• httpAgent?: http.Agent | HttpsProxyAgent
-• dangerouslyAllowBrowser?: boolean
-• azureADTokenProvider?: TokenProvider
-• apiVersion?: string
+2 Text Generation API
+Method Signature:
+  responses.create(
+    params: { model: string; input?: string; instructions?: string; stream?: boolean },
+    options?: { maxRetries?: number; timeout?: number; httpAgent?: Agent }
+  ) => Promise<{ output_text: string; _request_id: string }> | AsyncIterable<{ data:any; _request_id:string }>
 
-3 Responses API
-Signature:
-client.responses.create(
-  params: { model: string; input: string; instructions?: string; stream?: boolean },
-  opts?: { maxRetries?: number; timeout?: number; httpAgent?: Agent }
-): Promise<{ output_text: string; _request_id: string }> | AsyncIterable<SSEEvent>
+3 Chat Completions API
+Method Signature:
+  chat.completions.create(
+    params: {
+      model: string;
+      messages: { role: 'system'|'user'|'assistant'|'developer'; content:string }[];
+      temperature?: number;
+      max_tokens?: number;
+      stream?: boolean;
+    },
+    options?: { maxRetries?: number; timeout?: number }
+  ) => Promise<{ choices:{ message:{ role:string; content:string }}[]; _request_id:string }>
 
-4 Chat Completions API
-Signature:
-client.chat.completions.create(
-  params: { model: string; messages: { role: 'system'|'developer'|'user'|'assistant'; content: string }[]; stream?: boolean; functions?: any[] },
-  opts?: RequestOptions
-): Promise<{ choices: { message: { role: string; content: string } }[]; _request_id: string }> | AsyncIterable<ChatStreamEvent>
+4 Streaming Responses
+  Set params.stream=true; iterate returned AsyncIterable<event>.
 
-5 Streaming Responses
-• stream: true returns AsyncIterable events following SSE spec
+5 File Uploads
+Allowed file types:
+  fs.ReadStream
+  Web File
+  fetch.Response
+  toFile(data: Buffer|Uint8Array, filename:string)
+Usage:
+  files.create({ file, purpose:'fine-tune' }): Promise<{ id:string; object:string }>
 
-6 File Uploads
-Signature:
-client.files.create(
-  params: { file: fs.ReadStream | File | Response | ReturnType<typeof toFile>; purpose: 'fine-tune' }
-): Promise<{ id: string; object: string; bytes: number; _request_id: string }>
+6 Error Types and Properties
+Error subclasses thrown:
+  BadRequestError(400), AuthenticationError(401), PermissionDeniedError(403), NotFoundError(404), UnprocessableEntityError(422), RateLimitError(429), InternalServerError(>=500), APIConnectionError
+Error instance properties:
+  request_id: string, status: number, name: string, headers: Record<string,string>
 
-7 Error Handling
-Type: OpenAI.APIError
-Properties: request_id: string, status: number, name: string, headers: Record<string,string>
-Subclasses by status code:
-400: BadRequestError
-401: AuthenticationError
-403: PermissionDeniedError
-404: NotFoundError
-422: UnprocessableEntityError
-429: RateLimitError
->=500: InternalServerError
-N/A: APIConnectionError
+7 Retry Policy
+Defaults: maxRetries=2 for network errors, 408,409,429,>=500
+Override globally or per-request via maxRetries option
 
-8 Retries & Backoff
-Default retries: 2
-Retry on: connection errors, 408, 409, 429, >=500
-Configure: maxRetries globally or per-request
+8 Timeout Configuration
+Defaults: timeout=600000ms
+Override globally or per-request via timeout option
+On timeout throws APIConnectionTimeoutError
 
-9 Timeouts
-Default: 600000ms
-Per-request override via opts.timeout
-On timeout: throws APIConnectionTimeoutError
+9 Request ID Handling
+All methods return _request_id from x-request-id
+.withResponse() yields { data, request_id }
 
-10 Request IDs
-_all responses include _request_id from X-Request-Id
-.withResponse() → { data: T; request_id: string }
+10 Pagination Patterns
+List methods return Page object:
+  data: T[]; hasNextPage(): boolean; getNextPage(): Promise<Page<T>>
+Use for await...of to auto-paginate
 
-11 Auto-pagination
-Use for await … of on list methods
-list(params: { limit: number }) → Page<T>
-Page<T>.data: T[]
-Page<T>.hasNextPage(): boolean
-Page<T>.getNextPage(): Promise<Page<T>>
+11 Realtime WebSocket API
+Import:
+  import { OpenAIRealtimeWebSocket } from 'openai/beta/realtime/websocket'
+Usage:
+  new OpenAIRealtimeWebSocket({ model:string })
+  .on('response.text.delta', (event:{ delta:string }) => {})
 
-12 Realtime API Beta
-new OpenAIRealtimeWebSocket({ model: string })
-on events: 'response.text.delta', 'response.audio.delta', etc
+12 Azure OpenAI Integration
+Import:
+  import { AzureOpenAI } from 'openai'; import { getBearerTokenProvider, DefaultAzureCredential } from '@azure/identity'
+Initialization:
+  new AzureOpenAI({ azureADTokenProvider:TokenProvider, apiVersion:string })
+Use identical chat.completions.create API
 
-13 Azure OpenAI
-new AzureOpenAI({ azureADTokenProvider: TokenProvider, apiVersion: string })
-Chat completions same signature under azureOpenAI.chat.completions.create
-
-14 Advanced Usage
+13 Raw Response Methods
 .asResponse(): Promise<Response>
-.withResponse(): Promise<{ data: T; response: Response }>
+.withResponse(): Promise<{ data:any; response:Response }>
 
-15 Custom Requests
-client.get(path: string, opts: { query?: any; headers?: any }): Promise<any>
-client.post(path: string, opts: { body?: any; query?: any; headers?: any }): Promise<any>
+14 Undocumented HTTP Methods
+client.get(path:string, options), client.post(path:string,{ body:any; query:any; headers:any })
 
-16 Fetch Middleware
-Provide fetch in constructor: logs or modifies RequestInit
+15 Environment Shims
+import 'openai/shims/web' to use global fetch in Node
+import 'openai/shims/node' to use node-fetch
 
-17 HTTP(S) Agent
-Constructor: httpAgent: Agent
-Per-request: opts.httpAgent
+16 Logging and Middleware
+Provide fetch override in constructor to log requests and responses
+DEBUG=true auto-logs all
 
-18 Semantic Versioning
-Follows SemVer; minor releases may include type-only changes
+17 HTTP Agent Usage
+Pass httpAgent globally or per-request to control TCP/TLS behavior
 
-19 Requirements
-TypeScript >=4.5
-Node.js >=18 LTS
-Deno >=1.28
-Bun >=1.0
-Cloudflare Workers
-Vercel Edge Runtime
-Nitro >=2.6
-Jest >=28 (node environment)
-Browser support disabled; enable via dangerouslyAllowBrowser:true
+18 Supported Runtimes
+TypeScript>=4.5, Node>=18, Deno>=1.28, Bun>=1.0, Cloudflare Workers, Vercel Edge, Jest>=28 (node), Nitro>=2.6, Browsers (dangerouslyAllowBrowser=true)
+
 
 ## Supplementary Details
-Constructor default values:
-• maxRetries = 2
-• timeout = 600000
-• apiKey default reads process.env.OPENAI_API_KEY
-
-Default retry backoff: exponential, base delay ~100ms
-
-toFile helper signature:
-export function toFile(bytes: Buffer | Uint8Array, filename: string): Promise<{ data: Buffer; filename: string }>
-
-SSEEvent type:
-interface SSEEvent { type: string; id?: string; data: string }
-
-ChatStreamEvent type:
-interface ChatStreamEvent { delta: string; role?: string; function_call?: { name: string; arguments: string } }
-
-Agent types:
-http.Agent from 'http'
-HttpsProxyAgent from 'https-proxy-agent'
-
-TokenProvider for Azure:
-type TokenProvider = () => Promise<{ token: string; expiresOnTimestamp: number }>
-
-Environment variable:
-• DEBUG=true enables automatic request/response logging
-
-File upload max size: governed by API limits (default file size <=100MB)
-
-Error headers include retry-after for rate limits
+- apiKey: string | undefined, obtained from process.env.OPENAI_API_KEY if not provided
+- maxRetries: number, default 2
+- timeout: number, default 600000
+- httpAgent: http.Agent or https.Agent, reused across all requests unless overridden per-request
+- fetch: custom fetch implementation signature (url: RequestInfo, init?: RequestInit) => Promise<Response>
+- dangerouslyAllowBrowser: boolean, default false; when true, enables SDK in browser environments
+- toFile(input: Buffer|Uint8Array|string, filename: string) => FileLike object for uploads
+- File uploads: purpose must be one of ['fine-tune', 'answers', 'classifications', 'search', 'summaries']
+- SSE streaming: uses EventSource; events emitted are objects with fields { data: any; event: string }
+- RequestOptions: interface { maxRetries?: number; timeout?: number; httpAgent?: Agent }
+- Error retry on codes: 408,409,429,>=500 and on APIConnectionError
+- APIConnectionTimeoutError extends APIConnectionError, thrown on timeout
+- .withResponse() returns Tuple<{ data: T; response: Response; request_id: string }>
+- Auto-pagination: interface Paged<T> { data: T[]; hasNextPage(): boolean; getNextPage(): Promise<Paged<T>> }
+- Realtime WebSocket events: response.text.delta, response.text, response.audio.data, response.function_call
+- AzureOpenAI apiVersion: semantic version string, e.g. '2024-10-01-preview'
 
 
 ## Reference Details
-OpenAI Constructor
+1. API Client Constructor
 Signature:
-new OpenAI(options?: {
-  apiKey?: string
-  maxRetries?: number
-  timeout?: number
-  fetch?: (url: RequestInfo, init?: RequestInit) => Promise<Response>
-  httpAgent?: http.Agent | HttpsProxyAgent
-  dangerouslyAllowBrowser?: boolean
-})
-Description: Instantiates client, applies fetch, retries, timeout, agent
+  constructor(options?: {
+    apiKey?: string;
+    maxRetries?: number;
+    timeout?: number;
+    fetch?: (url: RequestInfo, init?: RequestInit) => Promise<Response>;
+    httpAgent?: Agent;
+    dangerouslyAllowBrowser?: boolean;
+  })
+Behavior: stores options, applies defaults, and uses them on every request.
 
-Responses API
-Method: client.responses.create
-Params interface:
-interface ResponsesCreateParams {
-  model: string
-  input: string
-  instructions?: string
-  stream?: boolean
-}
-Options interface:
-interface RequestOptions { maxRetries?: number; timeout?: number; httpAgent?: Agent }
-Return types:
-Promise<{ output_text: string; _request_id: string }>
-AsyncIterable<SSEEvent> when stream=true
+2. responses.create
+Signature:
+  create(
+    params: {
+      model: string;
+      input?: string;
+      instructions?: string;
+      stream?: boolean;
+    },
+    options?: { maxRetries?: number; timeout?: number; httpAgent?: Agent }
+  ): Promise<{ output_text: string; _request_id: string }> | AsyncIterable<{ data: any; _request_id: string }>
+Example:
+  const { output_text } = await client.responses.create({ model:'gpt-4o', input:'Hello' });
+  for await (const event of await client.responses.create({ model:'gpt-4o', input:'Hello', stream:true })) console.log(event)
 
-Code example:
-const response = await client.responses.create({ model: 'gpt-4o', instructions: 'You are a pirate', input: 'Semicolons?' });
-console.log(response.output_text);
+3. chat.completions.create
+Signature:
+  create(
+    params: {
+      model: string;
+      messages: { role:'system'|'user'|'assistant'|'developer'; content:string }[];
+      temperature?: number;
+      max_tokens?: number;
+      stream?: boolean;
+    },
+    options?: { maxRetries?: number; timeout?: number }
+  ): Promise<{ choices:{ message:{ role:string; content:string } }[]; _request_id:string }>
+Example:
+  const completion = await client.chat.completions.create({ model:'gpt-4o', messages:[{ role:'user', content:'Hi' }], temperature:0.7, max_tokens:100 });
 
-Chat Completions API
-Method: client.chat.completions.create
-Params interface:
-interface ChatCompletionCreateParams {
-  model: string
-  messages: Array<{ role: 'system'|'developer'|'user'|'assistant'; content: string }>
-  stream?: boolean
-  functions?: Array<{ name:string; parameters:object }>
-}
-Return types:
-Promise<{ choices: Array<{ message: { role:string; content:string } }>; _request_id: string }>
-AsyncIterable<ChatStreamEvent> when stream=true
+4. files.create
+Signature:
+  create(
+    params: { file: ReadStream|File|Response; purpose: 'fine-tune'|'answers'|'search'|'classifications'|'summaries' },
+    options?: { maxRetries?: number; timeout?: number }
+  ): Promise<{ id:string; object:string; _request_id:string }>
+Example:
+  const fileObj = await toFile(Buffer.from('data'), 'data.jsonl');
+  const response = await client.files.create({ file:fileObj, purpose:'fine-tune' });
 
-Code example:
-const completion = await client.chat.completions.create({ model:'gpt-4o', messages:[{role:'user',content:'Tell pirate jokes'}] });
-console.log(completion.choices[0].message.content);
+5. Error Handling
+Throws instance of OpenAI.APIError (abstract) or one of:
+  BadRequestError, AuthenticationError, PermissionDeniedError, NotFoundError, UnprocessableEntityError, RateLimitError, InternalServerError, APIConnectionError
+Properties:
+  err.request_id: string
+  err.status: number
+  err.name: string
+  err.headers: Record<string,string>
 
-Streaming Responses
-Behavior: SSE events emitted, use for await. Each event: { type: 'event', data: JSON }
+6. Retry Behavior
+Default maxRetries = 2
+Automatic retry on network errors, status codes 408,409,429,>=500
+Override via maxRetries in constructor or per request
 
-File Uploads
-Method: client.files.create
-Params:
-interface FilesCreateParams { file: FileInput; purpose: 'fine-tune' }
-type FileInput = fs.ReadStream | File | Response | ReturnType<typeof toFile>
-Return: Promise<{ id: string; object: string; bytes: number; _request_id: string }>
+7. Timeout Behavior
+Default timeout = 600000 ms
+Override via timeout in constructor or per request
+On timeout throws APIConnectionTimeoutError
 
-Error Handling
-APIError base:
-class APIError extends Error { request_id: string; status: number; headers: Record<string,string> }
-Subclasses mapping HTTP codes
+8. Request ID Extraction
+All parsed responses contain _request_id string
+withResponse(): returns { data: T; response: Response; request_id: string }
 
-Retries
-Default retry count =2
-Retryable codes: Connection errors, 408, 409, 429, >=500
-Global override in constructor; per-request via opts.maxRetries
+9. Pagination
+list methods signature:
+  list(params: { limit?: number; page?: string }, options?): Promise<{ data:T[]; hasNextPage():boolean; getNextPage():Promise<Page<T>>; _request_id:string }>
+Use for await (const item of client.resource.list({limit:20}))
 
-Timeouts
-Default timeout=600000ms
-Override via opts.timeout
-Throws APIConnectionTimeoutError on timeout
+10. Realtime WebSocket
+new OpenAIRealtimeWebSocket(opts: { model: string }): instance emits events: 'open','close','error','response.text.delta','response.audio.data'
 
-Request IDs
-Access via response._request_id
-.withResponse(): returns request_id separate
+11. AzureOpenAI
+constructor(opts: { azureADTokenProvider:TokenProvider; apiVersion:string; maxRetries?:number; timeout?:number; httpAgent?:Agent }): instance methods identical to OpenAI except request path includes /azure/openai/{apiVersion}
 
-Auto-pagination
-list methods return Page<T>
-interface Page<T> { data: T[]; hasNextPage(): boolean; getNextPage(): Promise<Page<T>> }
+12. Raw Response Methods
+.asResponse(): Promise<Response>
+.withResponse(): Promise<{ data:T; response:Response; request_id:string }>
 
-Realtime API Beta
-Class: OpenAIRealtimeWebSocket
-Constructor opts: { model: string }
-Events: 'response.text.delta', 'response.audio.delta', 'function_call'}
+13. Undocumented HTTP Requests
+client.get(path:string, options?:{ query?:Record<string,string>; headers?:Record<string,string> }): Promise<Response>
+client.post(path:string, options:{ body:any; query?:Record<string,string>; headers?:Record<string,string> }): Promise<Response>
 
-Azure OpenAI
-Constructor: new AzureOpenAI({ azureADTokenProvider: TokenProvider; apiVersion: string })
-Methods identical under azure chat/completions
+14. Shims
+Add import 'openai/shims/web' before OpenAI imports to use global fetch
+Add import 'openai/shims/node' to enforce node-fetch
 
-Advanced Usage
-.asResponse(): returns raw Response from fetch
-.withResponse(): returns { data, response }
+15. Logging
+Pass fetch override in constructor to log request URL, init and response
+Set DEBUG=true to enable automatic console logging of requests and responses
 
-Custom/Undocumented Requests
-client.get(path:string, { query?, headers? })
-client.post(path:string, { body?, query?, headers? })
+16. HTTP Agent
+Pass httpAgent: new HttpsProxyAgent(url) for proxies
+Override per-request via options.httpAgent
 
-Custom Fetch
-Provide fetch fn to constructor
+17. Best Practices
+Use environment variable OPENAI_API_KEY
+Manage retries and timeouts according to network conditions
+Stream large completions to reduce memory
+Use auto-pagination for listing resources
+Use .withResponse() for debugging headers and status
+Use toFile helper for browser-agnostic file uploads
 
-HTTP(S) Agent
-Provide httpAgent in constructor or per-request
-
-Best Practices
-• Use fs.createReadStream for large files
-• Inspect err.request_id for support
-• Set DEBUG=true for logs
-
-Troubleshooting:
+18. Troubleshooting
 Command: DEBUG=true node app.js
-Expected: logs of URL, init, response
-Error status handling: log err.status, err.name, err.request_id
+Expected output: logs of each request URL, init options, and response status
+On network failure: APIConnectionError thrown, retry attempts visible in logs
+On rate limit: RateLimitError thrown after retries
 
-Configuration Effects
-maxRetries=0 disables retries
-timeout small values abort early
-httpAgent customizes TCP connections
 
 ## Information Dense Extract
-OpenAI({apiKey?:string, maxRetries:number=2, timeout:number=600000, fetch?(url,init?):Promise<Response>, httpAgent?:Agent, dangerouslyAllowBrowser?:boolean})
-responses.create({model:string,input:string,instructions?:string,stream?:boolean}, {maxRetries?:number,timeout?:number,httpAgent?:Agent}): Promise<{output_text:string,_request_id:string}>|AsyncIterable<SSEEvent>
-chat.completions.create({model:string,messages:{role:string,content:string}[],stream?:boolean,functions?:any[]}, RequestOptions): Promise<{choices:{message:{role:string,content:string}}[],_request_id:string}>|AsyncIterable<ChatStreamEvent>
-files.create({file:fs.ReadStream|File|Response|toFile(Buffer|Uint8Array,filename:string),purpose:'fine-tune'}):Promise<{id:string,object:string,bytes:number,_request_id:string}>
-Error subclasses: BadRequestError(400),AuthenticationError(401),PermissionDeniedError(403),NotFoundError(404),UnprocessableEntityError(422),RateLimitError(429),InternalServerError(>=500),APIConnectionError
-Default retries=2 on conn errors,408,409,429,>=500; override via maxRetries
-Default timeout=600000ms; override via timeout; throws APIConnectionTimeoutError
-.withResponse():{data,response}; .asResponse():Response
-Auto-pagination: for await … of on list(); page.data, page.hasNextPage(), page.getNextPage()
-OpenAIRealtimeWebSocket({model:string}) on 'response.text.delta'
-AzureOpenAI({azureADTokenProvider,apiVersion})
-client.get/post(path,{body?,query?,headers?})
-Requirements: TS>=4.5, Node>=18, Deno>=1.28,Bun>=1.0,Cloudflare,VercelEdge,Nitro>=2.6,Jest>=28; browser support via dangerouslyAllowBrowser:true
+OpenAI constructor options: apiKey(string),maxRetries(2),timeout(600000),fetch(fn),httpAgent(Agent),dangerouslyAllowBrowser(false). Key methods: responses.create({model:string,input?,instructions?,stream?},opts)->Promise<{output_text,string}>|AsyncIterable; chat.completions.create({model:string,messages:Message[],temperature?,max_tokens?,stream?},opts)->Promise<{choices:Message[]}>, files.create({file:ReadStream|File|Response|toFile, purpose:'fine-tune'|'answers'|'search'|'classifications'|'summaries'},opts)->Promise<{id,object}>. Streaming via stream:true yields AsyncIterable events. File: fs.ReadStream,Web File,fetch.Response,toFile(data, filename). Errors: APIError subclasses by status code with request_id,status,name,headers. Retries default on network,408,409,429,>=500; maxRetries override. Timeout default 600000ms; override; throws APIConnectionTimeoutError. Request ID in _request_id; .withResponse()->{data,response,request_id}. Pagination: list(params)->Page{data,hasNextPage(),getNextPage()}. Realtime WebSocket via OpenAIRealtimeWebSocket({model}). AzureOpenAI similar with azureADTokenProvider,apiVersion. .asResponse() returns raw fetch Response. Undocumented: client.get/post. Shims: import 'openai/shims/web' or 'node'. Logging: fetch override or DEBUG=true. HTTP Agent: global or per-request. Requirements: TS>=4.5, Node>=18, Deno>=1.28, Bun>=1, Cloudflare, Vercel, Jest>=28,node, Nitro>=2.6, Browser opt-in.
 
 ## Sanitised Extract
 Table of Contents
-1 Installation
-2 Constructor Options
-3 Responses API
-4 Chat Completions API
-5 Streaming Responses
-6 File Uploads
-7 Error Handling
-8 Retries & Backoff
-9 Timeouts
-10 Request IDs
-11 Auto-pagination
-12 Realtime API Beta
-13 Azure OpenAI
-14 Advanced Usage
-15 Custom Requests
-16 Fetch Middleware
-17 HTTP(S) Agent
-18 Semantic Versioning
-19 Requirements
+1 Client Initialization
+2 Text Generation API
+3 Chat Completions API
+4 Streaming Responses
+5 File Uploads
+6 Error Types and Properties
+7 Retry Policy
+8 Timeout Configuration
+9 Request ID Handling
+10 Pagination Patterns
+11 Realtime WebSocket API
+12 Azure OpenAI Integration
+13 Raw Response Methods
+14 Undocumented HTTP Methods
+15 Environment Shims
+16 Logging and Middleware
+17 HTTP Agent Usage
+18 Supported Runtimes
 
-1 Installation
- npm install openai
- deno add jsr:@openai/openai
- npx jsr add @openai/openai
+1 Client Initialization
+Options:
+  apiKey: string                 Environment variable OPENAI_API_KEY if omitted
+  maxRetries: number             Defaults to 2
+  timeout: number                Defaults to 600000 (ms)
+  fetch: (url, init) => Promise<Response>
+  httpAgent: Agent               Node http.Agent or https.Agent
+  dangerouslyAllowBrowser: boolean Defaults to false
 
-2 Constructor Options
- apiKey?: string (env OPENAI_API_KEY)
- maxRetries: number = 2
- timeout: number = 600000
- fetch?: (url, init?) => Promise<Response>
- httpAgent?: http.Agent | HttpsProxyAgent
- dangerouslyAllowBrowser?: boolean
- azureADTokenProvider?: TokenProvider
- apiVersion?: string
+2 Text Generation API
+Method Signature:
+  responses.create(
+    params: { model: string; input?: string; instructions?: string; stream?: boolean },
+    options?: { maxRetries?: number; timeout?: number; httpAgent?: Agent }
+  ) => Promise<{ output_text: string; _request_id: string }> | AsyncIterable<{ data:any; _request_id:string }>
 
-3 Responses API
-Signature:
-client.responses.create(
-  params: { model: string; input: string; instructions?: string; stream?: boolean },
-  opts?: { maxRetries?: number; timeout?: number; httpAgent?: Agent }
-): Promise<{ output_text: string; _request_id: string }> | AsyncIterable<SSEEvent>
+3 Chat Completions API
+Method Signature:
+  chat.completions.create(
+    params: {
+      model: string;
+      messages: { role: 'system'|'user'|'assistant'|'developer'; content:string }[];
+      temperature?: number;
+      max_tokens?: number;
+      stream?: boolean;
+    },
+    options?: { maxRetries?: number; timeout?: number }
+  ) => Promise<{ choices:{ message:{ role:string; content:string }}[]; _request_id:string }>
 
-4 Chat Completions API
-Signature:
-client.chat.completions.create(
-  params: { model: string; messages: { role: 'system'|'developer'|'user'|'assistant'; content: string }[]; stream?: boolean; functions?: any[] },
-  opts?: RequestOptions
-): Promise<{ choices: { message: { role: string; content: string } }[]; _request_id: string }> | AsyncIterable<ChatStreamEvent>
+4 Streaming Responses
+  Set params.stream=true; iterate returned AsyncIterable<event>.
 
-5 Streaming Responses
- stream: true returns AsyncIterable events following SSE spec
+5 File Uploads
+Allowed file types:
+  fs.ReadStream
+  Web File
+  fetch.Response
+  toFile(data: Buffer|Uint8Array, filename:string)
+Usage:
+  files.create({ file, purpose:'fine-tune' }): Promise<{ id:string; object:string }>
 
-6 File Uploads
-Signature:
-client.files.create(
-  params: { file: fs.ReadStream | File | Response | ReturnType<typeof toFile>; purpose: 'fine-tune' }
-): Promise<{ id: string; object: string; bytes: number; _request_id: string }>
+6 Error Types and Properties
+Error subclasses thrown:
+  BadRequestError(400), AuthenticationError(401), PermissionDeniedError(403), NotFoundError(404), UnprocessableEntityError(422), RateLimitError(429), InternalServerError(>=500), APIConnectionError
+Error instance properties:
+  request_id: string, status: number, name: string, headers: Record<string,string>
 
-7 Error Handling
-Type: OpenAI.APIError
-Properties: request_id: string, status: number, name: string, headers: Record<string,string>
-Subclasses by status code:
-400: BadRequestError
-401: AuthenticationError
-403: PermissionDeniedError
-404: NotFoundError
-422: UnprocessableEntityError
-429: RateLimitError
->=500: InternalServerError
-N/A: APIConnectionError
+7 Retry Policy
+Defaults: maxRetries=2 for network errors, 408,409,429,>=500
+Override globally or per-request via maxRetries option
 
-8 Retries & Backoff
-Default retries: 2
-Retry on: connection errors, 408, 409, 429, >=500
-Configure: maxRetries globally or per-request
+8 Timeout Configuration
+Defaults: timeout=600000ms
+Override globally or per-request via timeout option
+On timeout throws APIConnectionTimeoutError
 
-9 Timeouts
-Default: 600000ms
-Per-request override via opts.timeout
-On timeout: throws APIConnectionTimeoutError
+9 Request ID Handling
+All methods return _request_id from x-request-id
+.withResponse() yields { data, request_id }
 
-10 Request IDs
-_all responses include _request_id from X-Request-Id
-.withResponse()  { data: T; request_id: string }
+10 Pagination Patterns
+List methods return Page object:
+  data: T[]; hasNextPage(): boolean; getNextPage(): Promise<Page<T>>
+Use for await...of to auto-paginate
 
-11 Auto-pagination
-Use for await  of on list methods
-list(params: { limit: number })  Page<T>
-Page<T>.data: T[]
-Page<T>.hasNextPage(): boolean
-Page<T>.getNextPage(): Promise<Page<T>>
+11 Realtime WebSocket API
+Import:
+  import { OpenAIRealtimeWebSocket } from 'openai/beta/realtime/websocket'
+Usage:
+  new OpenAIRealtimeWebSocket({ model:string })
+  .on('response.text.delta', (event:{ delta:string }) => {})
 
-12 Realtime API Beta
-new OpenAIRealtimeWebSocket({ model: string })
-on events: 'response.text.delta', 'response.audio.delta', etc
+12 Azure OpenAI Integration
+Import:
+  import { AzureOpenAI } from 'openai'; import { getBearerTokenProvider, DefaultAzureCredential } from '@azure/identity'
+Initialization:
+  new AzureOpenAI({ azureADTokenProvider:TokenProvider, apiVersion:string })
+Use identical chat.completions.create API
 
-13 Azure OpenAI
-new AzureOpenAI({ azureADTokenProvider: TokenProvider, apiVersion: string })
-Chat completions same signature under azureOpenAI.chat.completions.create
-
-14 Advanced Usage
+13 Raw Response Methods
 .asResponse(): Promise<Response>
-.withResponse(): Promise<{ data: T; response: Response }>
+.withResponse(): Promise<{ data:any; response:Response }>
 
-15 Custom Requests
-client.get(path: string, opts: { query?: any; headers?: any }): Promise<any>
-client.post(path: string, opts: { body?: any; query?: any; headers?: any }): Promise<any>
+14 Undocumented HTTP Methods
+client.get(path:string, options), client.post(path:string,{ body:any; query:any; headers:any })
 
-16 Fetch Middleware
-Provide fetch in constructor: logs or modifies RequestInit
+15 Environment Shims
+import 'openai/shims/web' to use global fetch in Node
+import 'openai/shims/node' to use node-fetch
 
-17 HTTP(S) Agent
-Constructor: httpAgent: Agent
-Per-request: opts.httpAgent
+16 Logging and Middleware
+Provide fetch override in constructor to log requests and responses
+DEBUG=true auto-logs all
 
-18 Semantic Versioning
-Follows SemVer; minor releases may include type-only changes
+17 HTTP Agent Usage
+Pass httpAgent globally or per-request to control TCP/TLS behavior
 
-19 Requirements
-TypeScript >=4.5
-Node.js >=18 LTS
-Deno >=1.28
-Bun >=1.0
-Cloudflare Workers
-Vercel Edge Runtime
-Nitro >=2.6
-Jest >=28 (node environment)
-Browser support disabled; enable via dangerouslyAllowBrowser:true
+18 Supported Runtimes
+TypeScript>=4.5, Node>=18, Deno>=1.28, Bun>=1.0, Cloudflare Workers, Vercel Edge, Jest>=28 (node), Nitro>=2.6, Browsers (dangerouslyAllowBrowser=true)
 
 ## Original Source
 OpenAI Node.js SDK Reference
@@ -438,155 +396,166 @@ https://github.com/openai/openai-node
 
 ## Digest of OPENAI_NODE_SDK
 
-# Installation
+# OpenAI Node.js SDK Reference
 
-• npm install openai
-• deno add jsr:@openai/openai
-• npx jsr add @openai/openai
+Date Retrieved: 2024-06-07
+Data Size: 642645 bytes
 
-# Client Configuration
+## Installation
 
-```ts
-new OpenAI({
-  apiKey?: string,              // default: process.env.OPENAI_API_KEY
-  maxRetries?: number,         // default: 2
-  timeout?: number,            // default: 600000 ms (10 minutes)
-  fetch?: (url: RequestInfo, init?: RequestInit) => Promise<Response>,
-  httpAgent?: http.Agent | HttpsProxyAgent,
-  dangerouslyAllowBrowser?: boolean,
-  azureADTokenProvider?: TokenProvider,
-  apiVersion?: string
-})
-```
+npm install openai
 
-# Responses API
+deno add jsr:@openai/openai
+npx jsr add @openai/openai
 
-```ts
-client.responses.create(
-  { model: string; input: string; instructions?: string; stream?: boolean },
-  { maxRetries?: number; timeout?: number; httpAgent?: Agent }
-): Promise<{ output_text: string; _request_id: string }>
-```
+## Client Initialization
 
-# Chat Completions API
-
-```ts
-client.chat.completions.create(
-  { model: string; messages: Array<{ role: 'system'|'developer'|'user'|'assistant'; content: string }>; stream?: boolean; functions?: any[] },
-  RequestOptions
-): Promise<{ choices: Array<{ message: { role: string; content: string } }>; _request_id: string }>
-```
-
-# Streaming Responses
-
-• server-sent events: When `stream: true`, returns `AsyncIterable<SSEEvent>`
-
-# File Uploads
-
-```ts
-client.files.create(
-  { file: fs.ReadStream|File|Response|toFile(Buffer|Uint8Array, filename: string); purpose: 'fine-tune' }
-): Promise<{ id: string; object: string; bytes: number; _request_id: string }>
-```
-
-# Error Handling
-
-```ts
-if (err instanceof OpenAI.APIError) {
-  err.request_id: string
-  err.status: number
-  err.name: string
-  err.headers: Record<string,string>
+```typescript
+new OpenAI(options?: {
+  apiKey?: string               // default from environment OPENAI_API_KEY
+  maxRetries?: number           // default 2, controls retry count
+  timeout?: number              // default 600000 ms (10 min)
+  fetch?: (url: RequestInfo, init?: RequestInit) => Promise<Response>
+  httpAgent?: Agent             // Node http(s) agent for all requests
+  dangerouslyAllowBrowser?: boolean // default false
 }
+```  
+
+## Text Generation (Responses API)
+
+```typescript
+client.responses.create(params: {
+  model: string
+  input?: string
+  instructions?: string
+  stream?: boolean
+}, requestOptions?: {
+  maxRetries?: number
+  timeout?: number
+  httpAgent?: Agent
+}): Promise<{ output_text: string; _request_id: string } | AsyncIterable<{ data: any; _request_id: string }>>
 ```
 
-APIError subclasses:
-• 400 → BadRequestError
-• 401 → AuthenticationError
-• 403 → PermissionDeniedError
-• 404 → NotFoundError
-• 422 → UnprocessableEntityError
-• 429 → RateLimitError
-• ≥500 → InternalServerError
-• N/A → APIConnectionError
+## Chat Completions
 
-# Retries and Backoff
-
-• Default: 2 retries on connection errors, 408, 409, 429, ≥500
-• Configure: `maxRetries` globally or per-request
-
-# Timeouts
-
-• Default: 600000 ms
-• Override globally or per-request via `timeout` option
-• On timeout: throws APIConnectionTimeoutError
-
-# Request IDs
-
-• All responses attach `_request_id` from X-Request-Id header
-• `.withResponse()` returns `{ data, request_id }`
-
-# Auto-pagination
-
-```ts
-for await (const item of client.fineTuning.jobs.list({ limit: number })) { /*...*/ }
-```
-• `page = await list(...); page.data[]`; `while(page.hasNextPage()) page = await page.getNextPage()`
-
-# Realtime API Beta
-
-```ts
-import { OpenAIRealtimeWebSocket } from 'openai/beta/realtime/websocket';
-const rt = new OpenAIRealtimeWebSocket({ model: string });
-rt.on('response.text.delta', (event) => event.delta);
+```typescript
+client.chat.completions.create(params: {
+  model: string
+  messages: { role: 'system' | 'user' | 'assistant' | 'developer'; content: string }[]
+  temperature?: number
+  max_tokens?: number
+  stream?: boolean
+}, requestOptions?: { maxRetries?: number; timeout?: number }): Promise<{ choices: { message: { role: string; content: string } }[]; _request_id: string }>
 ```
 
-# Microsoft Azure OpenAI
+## Streaming Responses
 
-```ts
-new AzureOpenAI({ azureADTokenProvider: TokenProvider, apiVersion: string });
+Enable SSE streaming by setting stream: true. Returns AsyncIterable of events.
+
+## File Uploads
+
+Supported input types for file parameter:
+- fs.ReadStream
+- File API instance
+- fetch Response
+- toFile(Buffer|string|Uint8Array, filename)
+
+```typescript
+client.files.create({ file: ReadStream|File|Response, purpose: 'fine-tune' }): Promise<{ id: string; object: string }>
 ```
 
-# Advanced Usage
+## Error Handling
 
-• `.asResponse()`: raw Response
-• `.withResponse()`: `{ data, response }`
+Throws subclasses of APIError on failure:  
+BadRequestError(400), AuthenticationError(401), PermissionDeniedError(403), NotFoundError(404), UnprocessableEntityError(422), RateLimitError(429), InternalServerError(>=500), APIConnectionError
 
-# Custom Requests
+Error object properties:
+- request_id: string
+- status: number
+- name: string
+- headers: Record<string,string>
 
-```ts
-await client.post(path: string, { body?: any; query?: Record<string,any>; headers?: Record<string,string> });
-``` 
+## Retries
 
-# Custom Fetch & Middleware
+Default retries: 2 for connection errors, 408,409,429,>=500.  
+Override with maxRetries option globally or per-request.
 
-• Provide `fetch` in constructor to inspect/alter requests
-• `DEBUG=true` logs all requests and responses
+## Timeouts
 
-# HTTP(S) Agent Configuration
+Default timeout: 600000 ms.  
+Override with timeout option globally or per-request.  
+On timeout throws APIConnectionTimeoutError.
 
-```ts
-new OpenAI({ httpAgent: new HttpsProxyAgent(url) });
-client.models.list({ httpAgent: new http.Agent({ keepAlive: false }) });
+## Request IDs
+
+All responses include _request_id from x-request-id header.  
+Use .withResponse() to retrieve raw Response and request_id.
+
+## Auto-pagination
+
+List methods return pages with data: T[] and methods hasNextPage(), getNextPage().  
+Use for await...of to iterate all items.
+
+## Realtime API (Beta)
+
+```typescript
+new OpenAIRealtimeWebSocket({ model: string })
+rt.on('response.text.delta', (event: { delta: string }) => {})
 ```
 
-# Semantic Versioning
+## Azure OpenAI
 
-• Follows SemVer; minor releases may contain type-only or internal changes
+```typescript
+new AzureOpenAI({ azureADTokenProvider: TokenProvider, apiVersion: string })
+openai.chat.completions.create({ model: string; messages: [...] })
+```
 
-# Requirements
+## Advanced Usage
 
-• TypeScript ≥4.5
-• Node.js ≥18 LTS, Deno ≥1.28, Bun ≥1.0, Cloudflare Workers, Vercel Edge, Nitro ≥2.6, Jest ≥28 (node env)
-• Browser support disabled by default; enable via `dangerouslyAllowBrowser: true`
+### Raw Response Access
+
+- .asResponse(): returns raw fetch Response
+- .withResponse(): returns { data, response }
+
+### Undocumented Requests
+
+- client.get(path: string, options)
+- client.post(path: string, { body, query, headers })
+
+### Environment Shims
+
+- import 'openai/shims/web' to use global fetch in Node
+- import 'openai/shims/node' to force node-fetch polyfill
+
+### Logging and Middleware
+
+Pass fetch override to OpenAI constructor to intercept requests and responses.  
+Set DEBUG=true for automatic logging.
+
+### HTTP Agent Configuration
+
+Pass httpAgent: Agent globally or per-request to customize TCP/TLS behavior.
+
+## Requirements
+
+- TypeScript >=4.5
+- Node.js >=18 LTS
+- Deno >=1.28.0
+- Bun >=1.0
+- Cloudflare Workers
+- Vercel Edge Runtime
+- Jest >=28 (node env)
+- Nitro >=2.6
+- Browsers (dangerouslyAllowBrowser must be true)
+
 
 ## Attribution
 - Source: OpenAI Node.js SDK Reference
 - URL: https://github.com/openai/openai-node
 - License: License if known
-- Crawl Date: 2025-05-17T22:27:09.705Z
-- Data Size: 642566 bytes
-- Links Found: 5163
+- Crawl Date: 2025-05-17T22:38:07.723Z
+- Data Size: 642645 bytes
+- Links Found: 5192
 
 ## Retrieved
 2025-05-17

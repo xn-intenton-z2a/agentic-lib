@@ -1282,50 +1282,80 @@ See the contributing documentation.
 
 
     
+  
+    
       
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
+        
       
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+
+
+
 
 
   
@@ -2647,50 +2677,80 @@ See the contributing documentation.
 
 
     
+  
+    
       
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
-          
-            
-          
+        
       
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+    
+      
+        
+      
+    
+
+
+
 
 
   
@@ -6041,7 +6101,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
   
     
   
-    Read more about Aevi's customer story
+    Read more about Plaid's customer story
     
       
         
@@ -6052,8 +6112,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Aevi
-    Aevi delivers developer happiness with GitHub Enterprise.
+     Plaid
+    Plaid’s Developer Efficiency team speeds up workflows with developer happiness—and GitHub—at the heart of their operation.
     
       Read story 
 
@@ -6063,7 +6123,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Braintree's customer story
+    Read more about InfoTrack's customer story
     
       
         
@@ -6074,8 +6134,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Braintree
-    Braintree brings their customers closer to their development and release processes with GitHub.
+     InfoTrack
+    GitHub gives InfoTrack's global team of developers a common language.
     
       Read story 
 
@@ -6085,7 +6145,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Coinbase's customer story
+    Read more about DLR Institute of Robotics's customer story
     
       
         
@@ -6096,8 +6156,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Coinbase
-    Coinbase creates a culture of empowerment while maintaining security or compliance.
+     DLR Institute of Robotics
+    Learn why the DLR Robotics Institute chose to roll out GitHub Enterprise when it saw an organic rise in Git usage across the organization.
     
       Read story 
 
@@ -6107,7 +6167,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Deutsche Börse Group's customer story
+    Read more about Spotify's customer story
     
       
         
@@ -6117,9 +6177,14 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
   
 
       
+        
+          
+            
+          
+        
     
-     Deutsche Börse Group
-    With code and collaboration in one place, Deutsche Börse Group innovates faster with GitHub Enterprise.
+     Spotify
+    Spotify developers meet 217 million monthly listeners where they are with seamless collaboration, continuous integration, and GitHub Enterprise.
     
       Read story 
 
@@ -6129,7 +6194,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Deutsche Vermögensberatung's customer story
+    Read more about Mercari's customer story
     
       
         
@@ -6140,9 +6205,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Deutsche Vermögensberatung
-    DVAG puts customers first by optimizing developer efficiency on GitHub Enterprise.
-
+     Mercari
+    Mercari simplifies its security and CI/CD with GitHub Advanced Security and Actions.
     
       Read story 
 
@@ -6152,7 +6216,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Dow Jones's customer story
+    Read more about Anaplan's customer story
     
       
         
@@ -6163,8 +6227,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Dow Jones
-    Dow Jones delivers the day’s headlines with a secure and news-ready platform developers and readers can rely on: GitHub Enterprise.
+     Anaplan
+    Big data can lead to compliance headaches for regulated industries. Discover how Anaplan is growing their team while staying secure with GitHub Enterprise.
     
       Read story 
 
@@ -8411,9 +8475,9 @@ The ReadME Project
     
         
       
-        Kubernetes
+        Minecraft
       
-      Kubernetes is an open source system for automating deployment, scaling, and management of containerized applications.
+      Minecraft is a sandbox video game.
     
   
 
@@ -8427,9 +8491,9 @@ The ReadME Project
     
         
       
-        GraphQL
+        SpaceVim
       
-      GraphQL is a query language for APIs and a runtime for fulfilling those queries with your existing data.
+      SpaceVim is a community-driven distribution of the vim editor that allows managing your plugins in layers.
     
   
 
@@ -8443,9 +8507,9 @@ The ReadME Project
     
         
       
-        Pixel Art
+        PWA
       
-      Pixel art is a form of digital art where images are created and edited at the pixel level.
+      Progressive Web Apps are traditional web sites that are enhanced with native like features.
     
   
 
@@ -9062,7 +9126,7 @@ The ReadME Project
           
           
             
-  nextjs
+  csharp
 
           
           
@@ -9097,7 +9161,7 @@ The ReadME Project
 
 
       
-        22,262
+        22,263
       
         4,440
       
@@ -9141,7 +9205,7 @@ The ReadME Project
 
 
       
-        341,544
+        341,553
       
         35,995
       
@@ -9188,7 +9252,7 @@ The ReadME Project
 
 
       
-        27,907
+        27,908
       
         4,837
       
@@ -9235,7 +9299,7 @@ The ReadME Project
 
 
       
-        31,140
+        31,141
       
         3,011
       
@@ -9290,7 +9354,7 @@ The ReadME Project
 
 
       
-        124,672
+        124,673
       
         16,670
       
@@ -9337,7 +9401,7 @@ The ReadME Project
 
 
       
-        1,695
+        1,696
       
         173
       
@@ -9384,7 +9448,7 @@ The ReadME Project
 
 
       
-        7,315
+        7,316
       
         291
       
@@ -9431,9 +9495,9 @@ The ReadME Project
 
 
       
-        10,079
+        10,082
       
-        774
+        775
       
         Built by
 
@@ -9572,9 +9636,9 @@ The ReadME Project
 
 
       
-        20,190
+        20,191
       
-        1,051
+        1,052
       
         Built by
 
@@ -9713,7 +9777,7 @@ The ReadME Project
 
 
       
-        17,766
+        17,768
       
         616
       
@@ -9807,7 +9871,7 @@ The ReadME Project
 
 
       
-        19,087
+        19,089
       
         2,695
       
@@ -11913,7 +11977,7 @@ The ReadME Project
 
 
       
-        22,262
+        22,263
       
         4,440
       
@@ -11959,7 +12023,7 @@ The ReadME Project
 
 
       
-        341,544
+        341,553
       
         35,995
       
@@ -12008,7 +12072,7 @@ The ReadME Project
 
 
       
-        27,907
+        27,908
       
         4,837
       
@@ -12057,7 +12121,7 @@ The ReadME Project
 
 
       
-        31,140
+        31,141
       
         3,011
       
@@ -12114,7 +12178,7 @@ The ReadME Project
 
 
       
-        124,672
+        124,673
       
         16,670
       
@@ -12163,7 +12227,7 @@ The ReadME Project
 
 
       
-        1,695
+        1,696
       
         173
       
@@ -12212,7 +12276,7 @@ The ReadME Project
 
 
       
-        7,315
+        7,316
       
         291
       
@@ -12261,9 +12325,9 @@ The ReadME Project
 
 
       
-        10,079
+        10,082
       
-        774
+        775
       
         Built by
 
@@ -12408,9 +12472,9 @@ The ReadME Project
 
 
       
-        20,190
+        20,191
       
-        1,051
+        1,052
       
         Built by
 
@@ -12555,7 +12619,7 @@ The ReadME Project
 
 
       
-        17,766
+        17,768
       
         616
       
@@ -12653,7 +12717,7 @@ The ReadME Project
 
 
       
-        19,087
+        19,089
       
         2,695
       
@@ -12869,9 +12933,17 @@ The ReadME Project
     
         
   
-      #
-    Game Engines
-    Frameworks for building games across multiple platforms.
+      
+    Made in Brazil
+    Open source projects built in or receiving significant contributions from Brazil :brazil:
+  
+
+
+        
+  
+      
+    Pixel Art Tools
+    Creating pixel art for fun or animated sprites for a game? The digital artist in you will love these apps and tools!
   
 
 
@@ -12880,14 +12952,6 @@ The ReadME Project
       
     Learn to Code
     Resources to help people learn to code
-  
-
-
-        
-  
-      
-    Made in Brazil
-    Open source projects built in or receiving significant contributions from Brazil :brazil:
   
 
 
@@ -24906,14 +24970,14 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
 
 
         
-          23,301
+          23,303
         
           Apache-2.0
 
         
-          2,341
+          2,343
       
-        206
+        205
         (1 issue needs help)
       
         68
@@ -24988,7 +25052,7 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
 
 
         
-          93
+          94
 
         
           15
@@ -32279,7 +32343,7 @@ Additional navigation options
   
   
   ProTip!
-  Follow long discussions with comments:>50.\n\n\n\nopenai
+  Updated in the last three days: updated:>2025-05-14.\n\n\n\nopenai
     
     /
     
@@ -34085,7 +34149,7 @@ Additional navigation options
   
   
   ProTip!
-  Mix and match filters to narrow down what you’re looking for.\n\n\n\nopenai
+  Exclude everything labeled bug with -label:bug.\n\n\n\nopenai
     
     /
     
