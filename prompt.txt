@@ -1,0 +1,1114 @@
+
+You are providing updates to the README.md file and other documentation files to ensure they accurately reflect the current state of the codebase and emphasize content that delivers substantial user value and addresses core implementation needs.
+
+The README is the primary focus, but other documentation files can be updated as well if needed. Source files (srcFiles) and test files (testFiles) should NOT be updated.
+
+When updating the README:
+1. Preserve existing README content that delivers substantial user value, even if it describes features not yet implemented
+2. Update the README if it conflicts with current source code, tests, or documentation, prioritizing content that directly enhances the product's primary purpose
+3. If documentation files are out of date compared to the source code or tests, update them to be consistent, focusing on high-impact information that enables immediate application rather than superficial descriptions
+4. Ensure documentation clearly communicates the core functionality and value proposition of the product, prioritizing content that helps users solve real problems
+
+Apply the contributing guidelines to your response and when suggesting enhancements consider the tone and direction of the contributing guidelines. Focus on documentation improvements that deliver measurable value to users rather than cosmetic changes or excessive detail on edge cases.
+
+You may only change the files provided in the prompt context. You can update multiple files by specifying their paths and contents in the updatedFiles object. Each file will be checked against the allowedFilepathPatterns before being written.
+
+Consider the following when refining your response:
+  * Current feature names and specifications in the repository
+  * Source file content (for context only)
+  * Test file content (for context only)
+  * Documentation file content
+  * README file content
+  * MISSION file content
+  * Contributing file content
+  * Dependencies file content
+  * Dependency install output
+  * Issue details (if any)
+  * Build output
+  * Test output
+  * Main execution output
+  * Agent configuration file content
+
+Current feature names and specifications (for context, read only):
+CURRENT_FEATURES_START
+find: ‘features/’: No such file or directory
+none
+CURRENT_FEATURES_END
+
+Source files (for context only, DO NOT UPDATE):
+SOURCE_FILES_START
+File: sandbox/source/server.js
+import http from 'http';
+import crypto from 'crypto';
+import { URL } from 'url';
+import { z } from 'zod';
+import dotenv from 'dotenv';
+import MarkdownIt from 'markdown-it';
+import markdownItGithub from 'markdown-it-github';
+
+dotenv.config();
+
+// Configuration
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const CORS_ALLOWED_ORIGINS = process.env.CORS_ALLOWED_ORIGINS || '*';
+const RATE_LIMIT_REQUESTS = process.env.RATE_LIMIT_REQUESTS ? parseInt(process.env.RATE_LIMIT_REQUESTS, 10) : 60;
+const METRICS_USER = process.env.METRICS_USER;
+const METRICS_PASS = process.env.METRICS_PASS;
+const DOCS_USER = process.env.DOCS_USER;
+const DOCS_PASS = process.env.DOCS_PASS;
+
+// Metrics storage
+const metrics = {
+  http_requests_total: {},
+  http_request_failures_total: {},
+};
+
+// Rate limiter per IP
+const rateLimiters = new Map();
+
+// Minimal OpenAPI spec for available endpoints
+const openApiSpec = {
+  openapi: '3.0.0',
+  info: { title: 'Agentic-lib Server API', version: '1.0.0' },
+  paths: {
+    '/health': { get: { responses: { '200': { description: 'OK' } } } },
+    '/metrics': { get: { responses: { '200': { description: 'Prometheus metrics' } } } },
+    '/openapi.json': { get: { responses: { '200': { description: 'OpenAPI JSON' } } } },
+    '/docs': { get: { responses: { '200': { description: 'Interactive Docs' } } } }
+  }
+};
+
+// Utility functions
+function recordRequest(method, route, status) {
+  const key = `${method}_${route}_${status}`;
+  metrics.http_requests_total[key] = (metrics.http_requests_total[key] || 0) + 1;
+}
+
+function recordFailure(route) {
+  metrics.http_request_failures_total[route] = (metrics.http_request_failures_total[route] || 0) + 1;
+}
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const windowMs = 60000;
+  const limit = RATE_LIMIT_REQUESTS;
+  let entry = rateLimiters.get(ip);
+  if (!entry) {
+    entry = { tokens: limit - 1, last: now };
+    rateLimiters.set(ip, entry);
+    return true;
+  }
+  const elapsed = now - entry.last;
+  const refill = Math.floor(elapsed / windowMs) * limit;
+  if (refill > 0) {
+    entry.tokens = Math.min(entry.tokens + refill, limit);
+    entry.last = now;
+  }
+  if (entry.tokens > 0) {
+    entry.tokens -= 1;
+    return true;
+  }
+  return false;
+}
+
+function basicAuth(req, user, pass) {
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith('Basic ')) return false;
+  const creds = Buffer.from(auth.slice(6), 'base64').toString('utf8');
+  const [u, p] = creds.split(':');
+  return u === user && p === pass;
+}
+
+function sendJson(res, statusCode, data) {
+  const body = JSON.stringify(data);
+  res.writeHead(statusCode, {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': CORS_ALLOWED_ORIGINS,
+  });
+  res.end(body);
+}
+
+function sendText(res, statusCode, data) {
+  res.writeHead(statusCode, {
+    'Content-Type': 'text/plain',
+    'Access-Control-Allow-Origin': CORS_ALLOWED_ORIGINS,
+  });
+  res.end(data);
+}
+
+async function handler(req, res) {
+  const ip = req.socket.remoteAddress || 'unknown';
+  if (!checkRateLimit(ip)) {
+    recordFailure('rate_limit');
+    res.writeHead(429);
+    return res.end('Too Many Requests');
+  }
+  const method = req.method;
+  const parsedUrl = new URL(req.url || '', `http://${req.headers.host}`);
+  const route = parsedUrl.pathname;
+  try {
+    if (method === 'GET' && route === '/health') {
+      const data = { status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() };
+      sendJson(res, 200, data);
+      recordRequest(method, 'health', 200);
+    } else if (method === 'GET' && route === '/metrics') {
+      if (METRICS_USER && METRICS_PASS && !basicAuth(req, METRICS_USER, METRICS_PASS)) {
+        recordFailure('metrics_auth');
+        res.writeHead(401, { 'WWW-Authenticate': 'Basic realm="Metrics"' });
+        return res.end('Unauthorized');
+      }
+      let out = '';
+      for (const key in metrics.http_requests_total) {
+        const [m, r, s] = key.split('_');
+        out += `http_requests_total{method=\"${m}\",route=\"${r}\",status=\"${s}\"} ${metrics.http_requests_total[key]}\n`;
+      }
+      for (const r in metrics.http_request_failures_total) {
+        out += `http_request_failures_total{route=\"${r}\"} ${metrics.http_request_failures_total[r]}\n`;
+      }
+      sendText(res, 200, out);
+      recordRequest(method, 'metrics', 200);
+    } else if (method === 'GET' && route === '/openapi.json') {
+      sendJson(res, 200, openApiSpec);
+      recordRequest(method, 'openapi', 200);
+    } else if (method === 'GET' && route === '/docs') {
+      if (DOCS_USER && DOCS_PASS && !basicAuth(req, DOCS_USER, DOCS_PASS)) {
+        recordFailure('docs_auth');
+        res.writeHead(401, { 'WWW-Authenticate': 'Basic realm="Docs"' });
+        return res.end('Unauthorized');
+      }
+      const md = new MarkdownIt().use(markdownItGithub);
+      const mdContent = '```json\n' + JSON.stringify(openApiSpec, null, 2) + '\n```';
+      const html = md.render(mdContent);
+      res.writeHead(200, {
+        'Content-Type': 'text/html',
+        'Access-Control-Allow-Origin': CORS_ALLOWED_ORIGINS,
+      });
+      res.end(html);
+      recordRequest(method, 'docs', 200);
+    } else {
+      recordFailure(route);
+      res.writeHead(404);
+      res.end('Not Found');
+    }
+  } catch (err) {
+    recordFailure(route);
+    res.writeHead(500);
+    res.end('Internal Server Error');
+  }
+}
+
+export function startServer(options = {}) {
+  const port = options.port || PORT;
+  const server = http.createServer(handler);
+  server.listen(port);
+  console.log(`Server started on port ${port}`);
+  return server;
+}
+
+File: src/lib/main.js
+#!/usr/bin/env node
+// src/lib/main.js
+
+// Initialize global callCount to support test mocks that reference it
+if (typeof globalThis.callCount === "undefined") {
+  globalThis.callCount = 0;
+}
+
+import { fileURLToPath } from "url";
+import { z } from "zod";
+import dotenv from "dotenv";
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Environment configuration from .env file or environment variables or test values.
+// ---------------------------------------------------------------------------------------------------------------------
+
+dotenv.config();
+
+if (process.env.VITEST || process.env.NODE_ENV === "development") {
+  process.env.GITHUB_API_BASE_URL = process.env.GITHUB_API_BASE_URL || "https://api.github.com.test/";
+  process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || "key-test";
+}
+
+const configSchema = z.object({
+  GITHUB_API_BASE_URL: z.string().optional(),
+  OPENAI_API_KEY: z.string().optional(),
+});
+
+export const config = configSchema.parse(process.env);
+
+// Global verbose mode flag
+const VERBOSE_MODE = false;
+// Global verbose stats flag
+const VERBOSE_STATS = false;
+
+// Helper function to format log entries
+function formatLogEntry(level, message, additionalData = {}) {
+  return {
+    level,
+    timestamp: new Date().toISOString(),
+    message,
+    ...additionalData,
+  };
+}
+
+export function logConfig() {
+  const logObj = formatLogEntry("info", "Configuration loaded", {
+    config: {
+      GITHUB_API_BASE_URL: config.GITHUB_API_BASE_URL,
+      OPENAI_API_KEY: config.OPENAI_API_KEY,
+    },
+  });
+  console.log(JSON.stringify(logObj));
+}
+logConfig();
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Utility functions
+// ---------------------------------------------------------------------------------------------------------------------
+
+export function logInfo(message) {
+  const additionalData = VERBOSE_MODE ? { verbose: true } : {};
+  const logObj = formatLogEntry("info", message, additionalData);
+  console.log(JSON.stringify(logObj));
+}
+
+export function logError(message, error) {
+  const additionalData = { error: error ? error.toString() : undefined };
+  if (VERBOSE_MODE && error && error.stack) {
+    additionalData.stack = error.stack;
+  }
+  const logObj = formatLogEntry("error", message, additionalData);
+  console.error(JSON.stringify(logObj));
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// AWS Utility functions
+// ---------------------------------------------------------------------------------------------------------------------
+
+export function createSQSEventFromDigest(digest) {
+  return {
+    Records: [
+      {
+        eventVersion: "2.0",
+        eventSource: "aws:sqs",
+        eventTime: new Date().toISOString(),
+        eventName: "SendMessage",
+        body: JSON.stringify(digest),
+      },
+    ],
+  };
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// SQS Lambda Handlers
+// ---------------------------------------------------------------------------------------------------------------------
+
+export async function digestLambdaHandler(sqsEvent) {
+  logInfo(`Digest Lambda received event: ${JSON.stringify(sqsEvent)}`);
+
+  // If event.Records is an array, use it. Otherwise, treat the event itself as one record.
+  const sqsEventRecords = Array.isArray(sqsEvent.Records) ? sqsEvent.Records : [sqsEvent];
+
+  // Array to collect the identifiers of the failed records
+  const batchItemFailures = [];
+
+  for (const [index, sqsEventRecord] of sqsEventRecords.entries()) {
+    try {
+      const digest = JSON.parse(sqsEventRecord.body);
+      logInfo(`Record ${index}: Received digest: ${JSON.stringify(digest)}`);
+    } catch (error) {
+      // If messageId is missing, generate a fallback identifier including record index
+      const recordId =
+        sqsEventRecord.messageId || `fallback-${index}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      logError(`Error processing record ${recordId} at index ${index}`, error);
+      logError(`Invalid JSON payload. Error: ${error.message}. Raw message: ${sqsEventRecord.body}`);
+      batchItemFailures.push({ itemIdentifier: recordId });
+    }
+  }
+
+  // Return the list of failed messages so that AWS SQS can attempt to reprocess them.
+  return {
+    batchItemFailures,
+    handler: "src/lib/main.digestLambdaHandler",
+  };
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// CLI Helper Functions
+// ---------------------------------------------------------------------------------------------------------------------
+
+// Function to generate CLI usage instructions
+function generateUsage() {
+  return `
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+`;
+}
+
+// Process the --help flag
+function processHelp(args) {
+  if (args.includes("--help")) {
+    console.log(generateUsage());
+    return true;
+  }
+  return false;
+}
+
+// Process the --version flag
+async function processVersion(args) {
+  if (args.includes("--version")) {
+    try {
+      const { readFileSync } = await import("fs");
+      const packageJsonPath = new URL("../../package.json", import.meta.url);
+      const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+      const versionInfo = {
+        version: packageJson.version,
+        timestamp: new Date().toISOString(),
+      };
+      console.log(JSON.stringify(versionInfo));
+    } catch (error) {
+      logError("Failed to retrieve version", error);
+    }
+    return true;
+  }
+  return false;
+}
+
+// Process the --digest flag
+async function processDigest(args) {
+  if (args.includes("--digest")) {
+    const exampleDigest = {
+      key: "events/1.json",
+      value: "12345",
+      lastModified: new Date().toISOString(),
+    };
+    const sqsEvent = createSQSEventFromDigest(exampleDigest);
+    await digestLambdaHandler(sqsEvent);
+    return true;
+  }
+  return false;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Main CLI
+// ---------------------------------------------------------------------------------------------------------------------
+
+export async function main(args = process.argv.slice(2)) {
+  if (processHelp(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (await processVersion(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (await processDigest(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+
+  console.log("No command argument supplied.");
+  console.log(generateUsage());
+  if (VERBOSE_STATS) {
+    console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+  }
+}
+
+// if (import.meta.url.endsWith(process.argv[1])) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main().catch((err) => {
+    logError("Fatal error in main execution", err);
+    process.exit(1);
+  });
+}
+
+
+SOURCE_FILES_END
+
+Test files (for context only, DO NOT UPDATE):
+TEST_FILES_START
+File: sandbox/tests/server.test.js
+import { describe, test, expect, beforeAll, afterAll } from 'vitest';
+import http from 'http';
+import { startServer } from '../source/server.js';
+
+let server;
+let base;
+
+beforeAll(() => {
+  server = startServer({ port: 0 });
+  const addr = server.address();
+  const port = typeof addr === 'object' && addr !== null ? addr.port : 3000;
+  base = `http://127.0.0.1:${port}`;
+});
+
+afterAll(() => {
+  server.close();
+});
+
+function request(path) {
+  return new Promise((resolve, reject) => {
+    http.get(base + path, (res) => {
+      let data = '';
+      res.on('data', (chunk) => (data += chunk));
+      res.on('end', () => resolve({ statusCode: res.statusCode, body: data }));
+    }).on('error', reject);
+  });
+}
+
+describe('Server', () => {
+  test('/health returns status ok', async () => {
+    const { statusCode, body } = await request('/health');
+    expect(statusCode).toBe(200);
+    const json = JSON.parse(body);
+    expect(json.status).toBe('ok');
+    expect(typeof json.uptime).toBe('number');
+    expect(typeof json.timestamp).toBe('string');
+  });
+
+  test('/metrics returns metrics without auth when not configured', async () => {
+    const { statusCode, body } = await request('/metrics');
+    expect(statusCode).toBe(200);
+    expect(body).toContain('http_requests_total');
+  });
+});
+
+File: tests/unit/main.test.js
+import { describe, test, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
+
+// Ensure that the global callCount is reset before tests that rely on it
+beforeAll(() => {
+  globalThis.callCount = 0;
+});
+
+// Reset callCount before each test in agenticHandler tests
+beforeEach(() => {
+  globalThis.callCount = 0;
+});
+
+// Clear all mocks after each test to tidy up
+afterEach(() => {
+  vi.clearAllMocks();
+});
+
+// Use dynamic import for the module to ensure mocks are applied correctly
+let agenticLib;
+
+// Default mock for openai used by tests that don't override it
+vi.mock("openai", () => {
+  return {
+    Configuration: (config) => config,
+    OpenAIApi: class {
+      async createChatCompletion() {
+        const dummyResponse = { fixed: "true", message: "dummy success", refinement: "none" };
+        return {
+          data: {
+            choices: [{ message: { content: JSON.stringify(dummyResponse) } }]
+          }
+        };
+      }
+    }
+  };
+});
+
+// Re-import the module after setting up the default mock
+beforeAll(async () => {
+  agenticLib = await import("../../src/lib/main.js");
+});
+
+describe("Main Module Import", () => {
+  test("should be non-null", async () => {
+    const mainModule = await import("../../src/lib/main.js");
+    expect(mainModule).not.toBeNull();
+  });
+});
+
+
+File: tests/unit/module-index.test.js
+// tests/unit/module-index.test.js
+// src/lib/main.js
+//
+// This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+// This file is licensed under the MIT License. For details, see LICENSE-MIT
+//
+
+import { describe, test, expect } from "vitest";
+import anything from "@src/index.js";
+
+describe("Index Module Exports", () => {
+  test("module index should be defined", () => {
+    expect(anything).toBeUndefined();
+  });
+});
+
+
+TEST_FILES_END
+
+Documentation files (to be updated if necessary):
+DOCS_FILES_START
+File: sandbox/docs/SERVER.md
+# HTTP Server Feature
+
+This document describes the `--serve` mode for the Agentic-lib CLI, which launches a self-hosted HTTP server exposing key endpoints.
+
+## Usage
+
+Start the server on the configured port (default 3000):
+
+```bash
+npx agentic-lib --serve
+```
+
+## Endpoints
+
+- **GET /health**: Liveness probe. Returns `{ status: "ok", uptime: <seconds>, timestamp: <ISO> }`.
+- **GET /metrics**: Prometheus-formatted metrics. Exposes `http_requests_total{method,route,status}` and `http_request_failures_total{route}`. Protected by Basic Auth if `METRICS_USER`/`METRICS_PASS` are set.
+- **GET /openapi.json**: Returns the OpenAPI 3.0 schema for all endpoints.
+- **GET /docs**: Renders the OpenAPI schema as HTML via Markdown. Protected by Basic Auth if `DOCS_USER`/`DOCS_PASS` are set.
+
+## Configuration
+
+Environment variables:
+
+- `PORT` (default `3000`)
+- `CORS_ALLOWED_ORIGINS` (default `*`)
+- `RATE_LIMIT_REQUESTS` (requests per minute, default `60`)
+- `METRICS_USER`, `METRICS_PASS` (for `/metrics`)
+- `DOCS_USER`, `DOCS_PASS` (for `/docs`)
+
+## Rate Limiting
+
+IP-based token bucket. Exceeding the limit returns `429 Too Many Requests`.
+
+
+File: sandbox/docs/SQS_OVERVIEW.md
+# Deep Dive: SQS Overview
+
+A comprehensive guide to Amazon SQS features, configuration, and best practices.
+
+## 1. Encryption Options
+
+Default SSE-SQS managed encryption  
+SSE-KMS custom KMS key: specify `KmsMasterKeyId` = key ARN or alias
+
+## 2. Queue Types and Delivery Semantics
+
+- **Standard**: at-least-once, unlimited requests/sec  
+- **FIFO**: exactly-once, high-throughput mode, ordering
+
+## 3. Message Retention Configuration
+
+SetQueueAttributes Attributes:  
+`MessageRetentionPeriod`: integer, 60 to 1,209,600  
+Default: 345,600
+
+## 4. Visibility Timeout and Message Lifecycle
+
+ReceiveMessage hides message for `VisibilityTimeout`  
+DeleteMessage removes message permanently  
+`VisibilityTimeout`: seconds (0 to 43,200)
+
+## 5. Large Message Handling
+
+Max payload: 256 KB  
+Use S3 or DynamoDB for >256 KB, SQS stores pointer only
+
+## 6. Dead-Letter Queue Configuration
+
+On source queue:  
+```json
+{
+  "RedrivePolicy": {
+    "deadLetterTargetArn": "<DLQ_ARN>",
+    "maxReceiveCount": "<count>"
+  }
+}
+```
+On DLQ:  
+```json
+{
+  "RedriveAllowPolicy": {
+    "allowPolicyType": "allowAll" | "byQueue" | "denyAll",
+    "queueArns": ["arn1", ...]
+  }
+}
+```
+
+## 7. Dead-Letter Queue Retention Behavior
+
+- **Standard**: original enqueue timestamp applies  
+- **FIFO**: timestamp resets on move  
+- `ApproximateAgeOfOldestMessage` metric interpretation changes accordingly  
+
+**Recommendation**: Set DLQ retention period longer than source queue retention.
+
+
+DOCS_FILES_END
+
+README file (primary focus, to be updated): sandbox/README.md
+README_FILE_START
+# agentic-lib
+
+agentic-lib is a drop-in JavaScript SDK for autonomous GitHub workflows. Inspired by our mission to enable continuous, agentic interactions through issues, branches, and pull requests, this library provides core utilities to configure environments, handle AWS SQS events, and power CLI-driven and programmatic workflows.
+
+With agentic-lib, you can seamlessly integrate environment validation, structured logging, AWS utilities, and Lambda handlers into your GitHub Actions or custom Node.js projects, ensuring reproducible, testable, and maintainable automation.
+
+## Key Features
+
+- **Environment configuration** (dotenv + Zod)
+- **Logging helpers** (logInfo, logError)
+- **AWS utilities** (createSQSEventFromDigest)
+- **Lambda handler** (digestLambdaHandler)
+- **CLI flags**: `--help`, `--version`, `--digest`
+
+## Installation
+
+Install from npm:
+
+```bash
+npm install @xn-intenton-z2a/agentic-lib
+```
+
+Or clone this repository and install dependencies:
+
+```bash
+git clone https://github.com/xn-intenton-z2a/agentic-lib.git
+cd agentic-lib
+npm install
+```
+
+## CLI Usage Examples
+
+### Show Help
+
+```bash
+npx agentic-lib --help
+```
+
+### Show Version
+
+```bash
+npx agentic-lib --version
+```
+
+### Run Digest Simulation
+
+```bash
+npx agentic-lib --digest
+```
+
+## Programmatic Usage
+
+```js
+import { createSQSEventFromDigest, digestLambdaHandler } from "@xn-intenton-z2a/agentic-lib";
+
+const event = createSQSEventFromDigest({
+  key: "path",
+  value: "123",
+  lastModified: new Date().toISOString(),
+});
+
+digestLambdaHandler(event).then(() => console.log("Processed"));
+```
+
+## Testing
+
+Run the full test suite using Vitest:
+
+```bash
+npm test
+```
+
+## Links
+
+- [Mission Statement](../MISSION.md)
+- [Contributing Guide](../CONTRIBUTING.md)
+- [License](../LICENSE.md)
+- [GitHub Repository](https://github.com/xn-intenton-z2a/agentic-lib)
+
+## Advanced Topics
+
+- [Deep Dive: SQS Overview](./docs/SQS_OVERVIEW.md)
+
+README_FILE_END
+
+MISSION file (for context, read only): MISSION.md
+MISSION_FILE_START
+# Mission Statement
+
+**agentic‑lib** Is a JavaScript library which can be used as a drop in JS implementation or wholesale replacement for 
+the steps, jobs, and re-usable workflows below in this repository. It is designed to be used in a GitHub Actions 
+workflow to enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate
+through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be
+invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+
+MISSION_FILE_END
+
+Contributing file (for context, read only): CONTRIBUTING.md
+CONTRIBUTING_FILE_START
+# agentic‑lib
+
+This document outlines our guidelines for human and automated contributions, ensuring that our core library remains 
+robust, testable, and efficient in powering our reusable GitHub Workflows.
+
+## How to Contribute
+
+The guidelines below apply to human or automated contributions:
+
+1. **Report Issues or Ideas:**
+    - Open an issue on GitHub to share bug reports, feature requests, or any improvements you envision.
+    - Clear descriptions and reproducible steps are highly appreciated.
+
+2. **Submit Pull Requests:**
+    - Implement your changes and push them to a new branch, ensuring you follow the 
+      existing coding style and standards.
+    - Add tests to cover any new functionality.
+    - Update documentation if your changes affect usage or workflow behavior.
+    - Submit your pull request for review.
+
+## Guidelines
+
+- **Features:**
+    - Clear Objective & Scope: Define the feature with a concise description outlining its purpose, scope, and the specific problem it solves for the end user.
+    - Value Proposition: Articulate the tangible benefits of the feature, including improved functionality, performance, or user experience.
+    - Success Criteria & Requirements: List measurable success criteria and requirements, including performance benchmarks, usability standards, and stability expectations, to guide development and testing.
+    - Testability & Stability: Ensure the feature can be verified through both automated tests and user acceptance criteria. Specify any necessary rollback or fail-safe mechanisms to maintain system stability.
+    - Dependencies & Constraints: Identify any dependencies (external libraries, APIs, etc.), assumptions, and limitations that could impact feature delivery or future enhancements.
+    - User Scenarios & Examples: Provide illustrative use cases or scenarios that demonstrate how the feature will be used in real-world situations, making it easier for both developers and stakeholders to understand its impact.
+    - Verification & Acceptance: Define clear verification steps and acceptance criteria to ensure the feature meets its intended requirements. This should include detailed plans for unit tests, integration tests, manual user acceptance tests, and code reviews. Specify measurable outcomes that must be achieved for the feature to be considered successfully delivered and stable.
+
+- **Code Quality:**
+    - Ensure there are tests that cover your changes and any likely new cases they introduce.
+    - When making a change remain consistent with the existing code style and structure.
+    - When adding new functionality, consider if some unused or superseded code should be removed.
+
+- **Compatibility:**
+    - Ensure your code runs on Node 20 and adheres to ECMAScript Module (ESM) standards.
+    - Tests use vitest and competing test frameworks should not be added.
+    - Mocks in tests must not interfere with other tests.
+
+- **Testing:**
+    - The command `npm test` should invoke the tests added for the new functionality (and pass).
+    - If you add new functionality, ensure it is covered by tests.
+
+- **Documentation:**
+    - When making a change to the main source file, review the readme to see if it needs to be updated and if so, update it.
+    - Where the source exports a function, consider that part of the API of the library and document it in the readme.
+    - Where the source stands-up an HTTP endpoint, consider that part of the API of the library and document it in the readme.
+    - Include usage examples including inline code usage and CLI and HTTP invocation, API references.
+
+- **README:**
+    - The README should begin with something inspired by the mission statement and describe the current state of the repository (rather than the journey)
+    - The README should include a link to MISSION.md, CONTRIBUTING.md, LICENSE.md.
+    - The README should include a link to the intentïon `agentic-lib` GitHub Repository which is https://github.com/xn-intenton-z2a/agentic-lib.
+
+## Sandbox mode
+
+Please note that the automation features of this repository are in sandbox mode. This means that
+automated changes should only be applied to the sandbox paths which are shown below:
+```yaml
+paths:
+  targetTestsPath:
+    path: 'sandbox/tests/'
+    permissions: [ 'write' ]
+  targetSourcePath:
+    path: 'sandbox/source/'
+    permissions: [ 'write' ]
+  documentationPath:
+    path: 'sandbox/docs/'
+    permissions: [ 'write' ]
+  readmeFilepath:
+    path: 'sandbox/README.md'
+    permissions: [ 'write' ]
+```
+
+CONTRIBUTING_FILE_END
+
+Dependencies file (for context, read only): package.json
+DEPENDENCIES_FILE_START
+{
+  "name": "@xn-intenton-z2a/agentic-lib",
+  "version": "6.6.3-0",
+  "description": "Agentic-lib Agentic Coding Systems SDK powering automated GitHub workflows.",
+  "type": "module",
+  "main": "src/lib/main.js",
+  "scripts": {
+    "build": "echo \"Nothing to build\"",
+    "formatting": "prettier --check",
+    "formatting-fix": "prettier --write",
+    "linting": "eslint",
+    "linting-json": "eslint --format=@microsoft/eslint-formatter-sarif",
+    "linting-fix": "eslint --fix",
+    "update-to-minor": "npx npm-check-updates --upgrade --enginesNode --target minor --verbose --install always",
+    "update-to-greatest": "npx npm-check-updates --upgrade --enginesNode --target greatest --verbose --install always --reject \"alpha\"",
+    "test": "vitest tests/unit/*.test.js sandbox/tests/*.test.js",
+    "test:unit": "vitest --coverage tests/unit/*.test.js sandbox/tests/*.test.js",
+    "start": "node src/lib/main.js"
+  },
+  "keywords": [],
+  "author": "https://github.com/xn-intenton-z2a",
+  "license": "GPL-3.0, MIT",
+  "dependencies": {
+    "@aws-sdk/client-lambda": "^3.804.0",
+    "@xn-intenton-z2a/s3-sqs-bridge": "^0.24.0",
+    "chalk": "^5.4.1",
+    "change-case": "^5.4.4",
+    "dayjs": "^1.11.13",
+    "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
+    "figlet": "^1.8.1",
+    "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21",
+    "minimatch": "^10.0.1",
+    "openai": "^4.97.0",
+    "seedrandom": "^3.0.5",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@microsoft/eslint-formatter-sarif": "^3.1.0",
+    "@vitest/coverage-v8": "^3.1.3",
+    "aws-cdk": "^2.1013.0",
+    "eslint": "^9.25.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "^8.10.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.4.0",
+    "eslint-plugin-promise": "^7.2.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-security": "^3.0.1",
+    "eslint-plugin-sonarjs": "^3.0.2",
+    "figlet": "^1.8.1",
+    "markdown-it": "^14.1.0",
+    "markdown-it-github": "^0.5.0",
+    "npm-check-updates": "^18.0.1",
+    "prettier": "^3.5.3",
+    "vitest": "^3.1.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "files": [
+    "package.json"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}
+
+DEPENDENCIES_FILE_END   
+
+Dependencies install from command: npm install
+DEPENDENCIES_INSTALL_START
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+
+added 618 packages, and audited 619 packages in 5s
+
+162 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+DEPENDENCIES_INSTALL_END    
+
+Build output from command: npm run build
+BUILD_OUTPUT_START
+
+> @xn-intenton-z2a/agentic-lib@6.6.3-0 build
+> echo "Nothing to build"
+
+Nothing to build
+BUILD_OUTPUT_END      
+
+Test output from command: npm test
+TEST_OUTPUT_START
+
+> @xn-intenton-z2a/agentic-lib@6.6.3-0 test
+> vitest tests/unit/*.test.js sandbox/tests/*.test.js
+
+
+[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/agentic-lib/agentic-lib[39m
+
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+[90mstdout[2m | tests/unit/main.test.js
+[22m[39m{"level":"info","timestamp":"2025-05-17T23:15:56.368Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
+
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 67[2mms[22m[39m
+[90mstdout[2m | sandbox/tests/server.test.js
+[22m[39mServer started on port 3000
+
+ [32m✓[39m sandbox/tests/server.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m   Start at [22m 23:15:56
+[2m   Duration [22m 418ms[2m (transform 91ms, setup 0ms, collect 219ms, tests 93ms, environment 1ms, prepare 255ms)[22m
+TEST_OUTPUT_END            
+
+Main execution output from command: npm run start
+MAIN_OUTPUT_START
+
+> @xn-intenton-z2a/agentic-lib@6.6.3-0 start
+> node src/lib/main.js
+
+{"level":"info","timestamp":"2025-05-17T23:15:56.659Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+MAIN_OUTPUT_END    
+
+Agent configuration file:
+AGENT_CONFIG_FILE_START
+# Which agentic-lib workflow schedule should be used?
+schedule: schedule-3
+
+# Mapping for from symbolic keys to filepaths for access by agentic-lib workflows with limits and access permissions
+paths:
+  # Filepaths for elaborator workflows
+  missionFilepath:
+    path: 'MISSION.md'
+  librarySourcesFilepath:
+    path: 'sandbox/SOURCES.md'
+    permissions: [ 'write' ]
+    limit: 8
+  libraryDocumentsPath:
+    path: 'sandbox/library/'
+    permissions: [ 'write' ]
+    limit: 32
+  featuresPath:
+    path: 'sandbox/features/'
+    permissions: [ 'write' ]
+    limit: 1
+
+  # Filepaths for engineer workflows
+  contributingFilepath:
+    path: 'CONTRIBUTING.md'
+  targetTestsPath:
+    path: 'sandbox/tests/'
+    permissions: [ 'write' ]
+  otherTestsPaths:
+    paths: [ 'tests/unit/' ]
+  targetSourcePath:
+    path: 'sandbox/source/'
+    permissions: [ 'write' ]
+  otherSourcePaths:
+    paths: [ 'src/lib/' ]
+  dependenciesFilepath:
+    path: 'package.json'
+  documentationPath:
+    path: 'sandbox/docs/'
+    permissions: [ 'write' ]
+
+  # Filepaths for maintainer workflows
+  formattingFilepath:
+    path: '.prettierrc'
+  lintingFilepath:
+    path: 'eslint.config.js'
+  readmeFilepath:
+    path: 'sandbox/README.md'
+    permissions: [ 'write' ]
+
+# Execution commands
+buildScript: 'npm run build'
+testScript: 'npm test'
+mainScript: 'npm run start'
+
+# How many issues should be available to be picked up?
+featureDevelopmentIssuesWipLimit: 2
+maintenanceIssuesWipLimit: 1
+
+# How many attempts should be made to work on an issue?
+attemptsPerBranch: 2
+attemptsPerIssue: 2
+
+# Web publishing
+docRoot: 'public'
+
+# Sandbox configuration
+sandbox:
+  sandboxReset: 'true'
+  sandboxPath: 'sandbox'
+
+# Repository seeding
+#seeding:
+#  repositoryReseed: 'true'
+#  missionFilepath: 'seeds/zero-MISSION.md'
+#  sourcePath: 'seeds/zero-main.js'
+#  testsPath: 'seeds/zero-main.test.js'
+#  dependenciesFilepath: 'seeds/zero-package.json'
+#  readmeFilepath: 'seeds/zero-README.md'
+
+intentionBot:
+  intentionFilepath: 'intentïon.md'
+
+AGENT_CONFIG_FILE_END
+
+Please produce updated versions of the README and documentation files to ensure they accurately reflect the current state of the codebase.
+Remember:
+1. The README is the primary focus, but other documentation files can be updated as well if needed
+2. Source files (srcFiles) and test files (testFiles) should NOT be updated
+3. Preserve existing README content even if it describes features not yet implemented
+4. Update the README if it conflicts with current source code, tests, or documentation
+5. If documentation files are out of date compared to the source code or tests, update them to be consistent
+
+If there are no changes required, please provide the original content and state that no changes are necessary in the message.
+
+Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;sandbox/docs/;sandbox/README.md
+
+Answer strictly with a JSON object following this schema:
+{
+  "message": "A short sentence explaining the changes applied (or why no changes were applied) suitable for a commit message or PR text.",
+  "updatedFile01Filepath": "sandbox/README.md",
+  "updatedFile01Contents": "The entire new content of the README file, with all necessary changes applied, if any.",
+  "updatedFile02Filepath":  "sandbox/docs/USAGE.md",
+  "updatedFile02Contents": "The entire new content of the file, with all necessary changes applied, if any.",
+  "updatedFile03Filepath": "unused",
+  "updatedFile03Contents": "unused",
+  "updatedFile04Filepath": "unused",
+  "updatedFile04Contents": "unused",
+  "updatedFile05Filepath": "unused",
+  "updatedFile05Contents": "unused",
+  "updatedFile06Filepath": "unused",
+  "updatedFile06Contents": "unused",
+  "updatedFile07Filepath": "unused",
+  "updatedFile07Contents": "unused",
+  "updatedFile08Filepath": "unused",
+  "updatedFile08Contents": "unused",
+  "updatedFile09Filepath": "unused",
+  "updatedFile09Contents": "unused",
+  "updatedFile10Filepath": "unused",
+  "updatedFile10Contents": "unused",
+  "updatedFile11Filepath": "unused",
+  "updatedFile11Contents": "unused",
+  "updatedFile12Filepath": "unused",
+  "updatedFile12Contents": "unused",
+  "updatedFile13Filepath": "unused",
+  "updatedFile13Contents": "unused",
+  "updatedFile14Filepath": "unused",
+  "updatedFile14Contents": "unused",
+  "updatedFile15Filepath": "unused",
+  "updatedFile15Contents": "unused",
+  "updatedFile16Filepath": "unused",
+  "updatedFile16Contents": "unused"
+}
+
+You can include up to 16 files using the updatedFileXXName and updatedFileXXContents pairs (where XX is a number from 01 to 16)
+Where a file name and contents slot is not used, populate tha name with "unused" and the contents with "unused".
+Never truncate the files, when returning a file, always return the entire file content.
+
+Ensure valid JSON.
