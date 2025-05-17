@@ -15,3 +15,5 @@
 
 2025-05-17T10:58:21.671Z - Maintained feature WORKFLOW_INPUT_HANDLER
 
+2025-05-17T10:59:11.419Z - Created issue with title [Test] Enhance test coverage for SQS handler and CLI commands
+
