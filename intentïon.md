@@ -168,3 +168,5 @@ Requirements: TS>=4.5, Node>=18, Deno>=1.28,Bun>=1.0,Cloudflare,VercelEdge,Nitro
 
 2025-05-17T23:34:16.664Z - Maintained feature CLI_EXTENSIONS.
 
+2025-05-17T23:34:56.143Z - Generated feature development issue with title Add --stream flag for CLI streaming chat mode.
+
