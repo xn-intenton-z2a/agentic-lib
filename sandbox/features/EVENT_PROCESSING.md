@@ -1,55 +1,47 @@
 # Objective & Scope
-Enhance the existing HTTP server and CLI library to fully implement AI-driven suggestions via an agenticHandler, alongside secure event ingestion and operational endpoints. This feature covers:
-
-- Implementing agenticHandler using OpenAI ChatCompletion API, parsing and returning structured suggestions.
-- Integrating agenticHandler into the HTTP REST endpoints and CLI flags.
-- Reusing existing logging utilities and configuration.
+Extend the existing HTTP server, CLI library, and AWS Lambda handler to include comprehensive health monitoring and Prometheus-style metrics alongside AI-driven suggestions and secure event ingestion. This unified feature ensures robust event handling, real-time service health insights, and operational visibility in a single lightweight SDK.
 
 # Value Proposition
 
-- Empowers users with automated, contextual AI-generated suggestions for GitHub issues or identifiers.
-- Unifies event processing and AI-driven workflows under a single, lightweight HTTP and CLI-based interface.
-- Maintains low-dependency footprint by using built-in http, zod, and the openai SDK.
+- Delivers automated, contextual AI suggestions for GitHub issues or identifiers via the agenticHandler.
+- Provides built-in health and metrics endpoints to monitor service availability, event throughput, and failure rates.
+- Maintains a minimal dependency footprint using built-in http, zod, and optional prom-client for metrics collection.
 
 # Success Criteria & Requirements
 
 ## Agentic Handler Implementation
-- Add an async function agenticHandler(payload) in src/lib/main.js.
-- Initialize OpenAIApi client with OPENAI_API_KEY from config.
-- Call createChatCompletion with a prompt schema wrapping payload.issueUrl or payload.id.
-- Parse the assistant response as JSON; expect fields: suggestion, refinement, metadata.
-- Return an object: { suggestion, refinement, metadata, handler } referencing the function path.
-- On invalid JSON or API errors, throw with descriptive messages.
+- Async function agenticHandler(payload) in src/lib/main.js remains as defined: calls OpenAI ChatCompletion, parses JSON response, returns { suggestion, refinement, metadata, handler }.
 
 ## CLI Integration
-- Introduce processAgentic(args) complementing processDigest.
-- Recognize a --agentic flag with parameters: --issueUrl or --id.
-- Construct payload from args and invoke agenticHandler.
-- Log results via logInfo and return true to signal handling.
-- Update main() to call processAgentic in the CLI flow before default usage output.
+- processAgentic(args) supports --agentic with --issueUrl or --id flags, invokes agenticHandler, logs results via logInfo.
+- Expose new --health flag in CLI: when supplied, print JSON { status: "ok", uptime, processedEvents, failedEvents } and return true before other flags.
 
-## HTTP Endpoint
-- In the built-in HTTP server, add POST /agentic validating body with zod: issueUrl (string) or id (string or number).
-- Invoke agenticHandler with validated payload.
-- Return 200 with JSON: { suggestion, refinement, metadata, handler } on success.
-- Return 400 for validation errors and 500 for handler exceptions, with structured logs.
+## HTTP Endpoints
+- POST /agentic: validate body with zod, invoke agenticHandler, return 200 with JSON payload or 400/500 on error.
+- GET /health: no request body, return 200 with JSON { status: "ok", uptime: number, timestamp: string }.
+- GET /metrics: no request body, return 200 with text/plain metrics in Prometheus exposition format including counters processed_events_total, failed_events_total, agentic_requests_total and a gauge service_uptime_seconds.
 
 # Testability & Stability
-- Unit tests for agenticHandler: mock OpenAIApi to return valid and malformed JSON; assert correct parsing and error paths.
-- Unit tests for processAgentic(): mock args and agenticHandler; verify CLI flow and logging.
-- Integration tests with supertest covering /agentic endpoint success, 400 validation, and 500 errors.
-- Maintain overall coverage > 90% for new code paths.
+
+- Unit tests for agenticHandler: mock OpenAIApi for valid/malformed JSON and error paths.
+- Unit tests for processAgentic and processHealth CLI flows: simulate args, assert output and exit behavior.
+- Integration tests using supertest for /agentic, /health, and /metrics: cover success, validation failures, and error handling.
+- Maintain coverage above 90% for all new code paths.
 
 # Dependencies & Constraints
-- Use openai SDK version aligned with package.json.
-- Continue Node 20 ESM compatibility; no additional HTTP frameworks beyond built-in http.
+
+- Continue using Node 20 ESM and built-in http server; add prom-client as optional dependency for metrics or implement minimal counter logic without new libraries.
 - Reuse zod for schema validation and existing logInfo/logError utilities.
+- Do not introduce additional HTTP frameworks or heavyweight telemetry tools.
 
 # User Scenarios & Examples
-- CLI: npx agentic-lib --agentic --issueUrl https://github.com/org/repo/issues/123 generates AI suggestions in terminal logs.
-- HTTP: POST /agentic with { issueUrl: string } returns structured AI suggestion payload.
+
+- CLI health check: npx agentic-lib --health outputs service status and counters.
+- Metrics scraping: GET /metrics returns text/plain Prometheus metrics for automated monitoring.
+- HTTP agentic call: POST /agentic with { issueUrl: string } returns AI suggestions.
 
 # Verification & Acceptance
-- Run unit and integration tests with npm test; all pass.
-- Manual test: start HTTP server locally; exercise POST /agentic with curl; inspect JSON response and logs.
-- Review logs for structured JSON entries at info and error levels.
+
+- Run npm test to ensure unit and integration tests for health, metrics, and agentic features pass.
+- Manual test: start HTTP server, curl /health and /metrics, verify correct JSON and metrics format; test agentic endpoint with valid and invalid payloads.
+- Inspect logs for structured JSON entries at info and error levels for event processing and health checks.
