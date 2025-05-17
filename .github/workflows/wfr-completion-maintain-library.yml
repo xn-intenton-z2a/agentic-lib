@@ -441,14 +441,16 @@ jobs:
 
             // Randomly select a source entry
             const randomIndex = Math.floor(Math.random() * sourceEntries.length);
+            core.info(`Random index: ${randomIndex} out of ${sourceEntries.length} is ${sourceEntries[randomIndex]}`);
             const randomSourceEntry = sourceEntries[randomIndex];
-            core.info(`Randomly selected source entry: ${randomSourceEntry.name} (${randomSourceEntry.url})`);
+            const randomSourceEntryUrl = randomSourceEntry.url;
+            core.info(`Randomly selected source entry: ${randomSourceEntry.name} (${randomSourceEntryUrl})`);
 
             // Crawl the URL from the randomly selected source entry
-            core.info(`Crawling URL: ${randomSourceEntry.url}`);
+            core.info(`Crawling URL: ${randomSourceEntryUrl}`);
             let crawlResult = { content: '', links: [], dataSize: 0, error: 'Not crawled' };
             try {
-              crawlResult = await crawlUrl(randomSourceEntry.url);
+              crawlResult = await crawlUrl(randomSourceEntryUrl);
             } catch (error) {
               core.warning(`Error during crawling: ${error.message}`);
             }
@@ -456,7 +458,7 @@ jobs:
             const chatGptPrompt = `
             ${promptContent}
 
-            Crawled content from URL (${randomSourceEntry.url}):
+            Crawled content from URL (${randomSourceEntryUrl}):
             CRAWLED_CONTENT_START
             Data Size: ${crawlResult.dataSize} bytes
             Links Found: ${crawlResult.links.length}
