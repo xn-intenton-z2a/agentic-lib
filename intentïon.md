@@ -91,3 +91,5 @@
 
 2025-05-17T18:58:14.561Z - Maintained feature EVENT_PROCESSING.
 
+2025-05-17T19:20:18.333Z - Generated feature development issue with title Add `--mission` CLI flag to expose mission statement.
+
