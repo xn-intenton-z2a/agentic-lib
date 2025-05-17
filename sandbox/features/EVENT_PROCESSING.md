@@ -1,49 +1,53 @@
 # Objective & Scope
-Extend the library to support core event simulation and replay via CLI as well as collecting automated discussion statistics from GitHub issues or discussions. Provide a reliable foundation for SQS event handling, command-line interaction, and on-demand analysis of repository discussions.
+Extend the library’s core event handling capabilities to include a lightweight HTTP API interface alongside existing CLI support. Provide a consistent foundation for SQS event simulation, discussion statistics retrieval, and HTTP endpoints for integration within automated workflows and local development.
 
 # Value Proposition
-- Quickly simulate SQS digest events locally for debugging and development workflows
-- Standardized CLI interface for help, version info, event replay, and discussion statistics
-- Automated retrieval and computation of discussion metrics, enabling teams to gain insights into conversation activity without manual effort
-- Consistent JSON logging for observability and downstream processing
+- Simplify integration into CI/CD pipelines and GitHub workflow_call events via HTTP endpoints.
+- Maintain existing CLI workflows for local debugging and ad-hoc analysis.
+- Enable HTTP-based event replay and discussion metrics retrieval for external tools or orchestrators.
+- Ensure consistent JSON logging across CLI, Lambda handler, and HTTP server for observability.
 
 # Success Criteria & Requirements
 
 ## Event Handler
-- createSQSEventFromDigest: generate a valid AWS SQS Records array from a digest object
-- digestLambdaHandler: process SQS event records, parse JSON bodies, log info, collect and return batchItemFailures
+- createSQSEventFromDigest: generate a valid AWS SQS Records array from a digest object.
+- digestLambdaHandler: process SQS event records, parse JSON bodies, log info, collect and return batchItemFailures.
 
 ## GitHub Discussion Statistics
-- fetchDiscussionComments(input): accept a discussion URL or numeric ID, retrieve all comments via GitHub API using configured base URL and authentication token
-- analyzeDiscussionStatistics(comments): compute total comment count, unique author count, average comment length, and optional sentiment summary by invoking OpenAI API
+- fetchDiscussionComments(input): retrieve all comments via GitHub API using configured base URL and authentication token.
+- analyzeDiscussionStatistics(comments): compute total comment count, unique author count, average comment length, optional sentiment summary via OpenAI API.
 
 ## CLI Commands
-- --help: display usage instructions and exit
-- --version: read package.json version and timestamp, output as JSON
-- --digest: simulate a sample SQS digest event using createSQSEventFromDigest and dispatch to digestLambdaHandler
-- --stats <discussion-url|id>: fetch comments for the given discussion or issue, run analyzeDiscussionStatistics, and output structured JSON with metrics
-- Fallback behavior: display message and usage when no valid command is supplied
+- --help: display usage instructions and exit.
+- --version: output package version and timestamp as JSON.
+- --digest: simulate an SQS digest event and dispatch to digestLambdaHandler.
+- --stats <discussion-url|id>: fetch and compute discussion metrics, output structured JSON.
+
+## HTTP API Endpoints
+- POST /digest
+  * Accept JSON body as digest object, convert to SQS event via createSQSEventFromDigest, invoke digestLambdaHandler, respond with batchItemFailures and handler identifier.
+- POST /stats
+  * Accept JSON body with discussionUrl or id, run fetchDiscussionComments and analyzeDiscussionStatistics, respond with metrics JSON.
+- GET /health
+  * Return a simple JSON payload with service name and uptime.
 
 # Testability & Stability
-- Unit tests for createSQSEventFromDigest, digestLambdaHandler, fetchDiscussionComments, and analyzeDiscussionStatistics, including error handling for network failures or invalid input
-- Integration tests for CLI commands: help, version, digest, and stats flags
-- Mock GitHub API and OpenAI responses to validate metrics computation and error paths
-- Ensure globalThis.callCount is reset and verified in tests when applicable
+- Unit tests for HTTP handlers, ensuring valid responses, error handling for invalid payloads, network failures, and missing parameters.
+- Integration tests for HTTP endpoints using built-in http module or supertest mocks to validate JSON responses and status codes.
+- Retain and extend existing unit and integration tests for CLI, event handler, and discussion utilities.
 
 # Dependencies & Constraints
-- Node 20 and ESM module standard
-- Use built-in fetch for HTTP requests; no additional external libraries beyond existing dependencies (zod, dotenv, openai)
-- CLI entrypoint in src/lib/main.js, no new files required
-- Configurable via environment variables: GITHUB_API_BASE_URL and OPENAI_API_KEY
+- Node 20 and ESM module standard.
+- Use built-in http module; no new external dependencies required.
+- HTTP server entrypoint integrated into src/lib/main.js, toggled by flag or environment variable (e.g., HTTP_PORT).
+- Configurable via environment variables: HTTP_PORT, GITHUB_API_BASE_URL, OPENAI_API_KEY.
 
 # User Scenarios & Examples
-- View help: node src/lib/main.js --help
-- Check version: node src/lib/main.js --version
-- Replay SQS digest: node src/lib/main.js --digest
-- Generate discussion stats by ID: node src/lib/main.js --stats 123
-- Generate discussion stats by URL: node src/lib/main.js --stats https://github.com/owner/repo/discussions/456
+- Run HTTP server: HTTP_PORT=3000 node src/lib/main.js --serve
+- Replay SQS digest via HTTP: POST http://localhost:3000/digest with JSON body { key: "events/1.json", value: "12345", lastModified: "..." }
+- Retrieve discussion stats via HTTP: POST http://localhost:3000/stats with JSON body { discussionUrl: "https://github.com/.../discussions/456" }
 
 # Verification & Acceptance
-- npm test passes all tests for handler functions, discussion utilities, and CLI commands
-- Structured JSON logs and stats output emitted on stdout matching defined schema
-- No unhandled exceptions or process crashes during CLI invocation
+- npm test passes all existing and new tests, covering CLI, HTTP endpoints, event handlers, and statistics utilities.
+- HTTP endpoints respond with correct status codes (200 for success, 400 for invalid input, 500 for server errors) and JSON payloads matching defined schemas.
+- No unhandled exceptions or process crashes during CLI or HTTP invocation.
