@@ -619,7 +619,7 @@ jobs:
                 { role: "user", content: chatGptPrompt }
               ],
               tools: tools
-            });
+            };
             
             const requestFilePath = 'request.json';
             fs.writeFileSync(requestFilePath, JSON.stringify(request, null, 2));
