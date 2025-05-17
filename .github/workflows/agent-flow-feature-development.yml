@@ -345,20 +345,20 @@ jobs:
             const fs = require('fs');
             const path = require('path');
 
-            // Create trace file and the parent directory of seedDiscussionFilepath if it doesn't exist
-            if (!fs.existsSync(path.dirname(seedDiscussionFilepath))) {
-              fs.mkdirSync(path.dirname(seedDiscussionFilepath), { recursive: true });
+            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
+            if (!fs.existsSync(path.dirname(intentionFilepath))) {
+              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
             const activityLogContent = `${isoDate} - ${activity}\n\n`;
-            fs.appendFileSync(seedDiscussionFilepath, activityLogContent);
-            core.info(`Activity logged to ${seedDiscussionFilepath}`);
+            fs.appendFileSync(intentionFilepath, activityLogContent);
+            core.info(`Activity logged to ${intentionFilepath}`);
 
       - name: Commit changes
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
-          git add  ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged" || echo "No changes to commit"
           git push
 

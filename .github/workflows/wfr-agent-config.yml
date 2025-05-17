@@ -551,7 +551,7 @@ jobs:
 
             // Discussions Bot - Set outputs
             core.info(`intentionFilepath=${intentionFilepath}`);
-            core.setOutput('intentionFilepath', seedDiscussionFilepath);
+            core.setOutput('intentionFilepath', intentionFilepath);
 
 
             // Contents of the agentic-lib.yml file
@@ -619,7 +619,7 @@ jobs:
       repositoryReseedReadmeFilepath: ${{ steps.agentic-lib.outputs.repositoryReseedReadmeFilepath }}
 
       # Discussions Bot
-      seedDiscussionFilepath: ${{ steps.agentic-lib.outputs.seedDiscussionFilepath }}
+      intentionFilepath: ${{ steps.agentic-lib.outputs.intentionFilepath }}
 
       # Contents of the agentic-lib.yml file
       agentConfigContent: ${{ steps.agentic-lib.outputs.agentConfigContent }}

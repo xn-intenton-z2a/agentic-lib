@@ -537,16 +537,16 @@ jobs:
 
       - name: Log the declaration in the seed discussion file (intentïon) file.
         run: |
-          echo "" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
-          echo "${{ needs.generate-response.outputs.action }} at $(date)" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
-          echo "" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
-          echo "HALT" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          echo "" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          echo "${{ needs.generate-response.outputs.action }} at $(date)" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          echo "" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          echo "HALT" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
 
       - name: Commit changes
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
-          git add ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          git add ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "HALT with ${{ needs.generate-response.outputs.action }}"
           git push
         env:
