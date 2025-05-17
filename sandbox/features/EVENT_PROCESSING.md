@@ -1,55 +1,59 @@
 # Objective & Scope
-Extend the existing event-processing framework to include interactive API documentation alongside the HTTP server for webhook ingestion, secure event ingestion, health checks, metrics, dead-letter queue management, and CLI integration. Provide both a machine-readable OpenAPI schema and a simple HTML-based documentation interface without adding heavy web frameworks.
+Extend the existing event-processing framework in a single ESM binary to provide a self-hosted HTTP server supporting secure webhook ingestion, background queue management, health and metrics endpoints, and interactive API documentation. Ensure minimal dependencies by using Node.js built-in http module, zod for validation, crypto for HMAC, and existing markdown-it libraries for docs rendering.
 
 # Value Proposition
-- Offer a self-documenting HTTP API for all routes, reducing onboarding friction and eliminating the need for external API docs.
-- Enable users and integrators to explore endpoints, request schemas, and response formats directly from the library binary.
-- Maintain a single binary serving API, metrics, health, and documentation, simplifying deployment and local development.
+- Deliver a one-stop binary that handles event ingestion, queueing, monitoring, and documentation without external frameworks.
+- Reduce onboarding and integration friction by exposing a machine-readable OpenAPI schema and an HTML interface at runtime.
+- Improve operational visibility with health checks, Prometheus-style metrics, DLQ management, CORS support, rate limiting, and optional basic authentication for sensitive endpoints.
 
 # Success Criteria & Requirements
 
 ## HTTP Server Implementation
-- Use Node.js built-in http module. Do not introduce Express or similar frameworks.
-- CLI flag serve remains --serve, launching the HTTP server on PORT or default 3000.
-- Log startup information including port, enabled routes, and documentation endpoints.
+- Use Node.js built-in http module only; do not introduce Express or other frameworks.
+- CLI flag `--serve` starts the server on `PORT` or default 3000; when serve mode is active, ignore other flags and warn the user.
+- Log startup information: chosen port, enabled routes, CORS origins, rate limit settings, and docs endpoints.
 
-- Exposed Endpoints:
-  - POST /webhook to handle GitHub events with signature validation, JSON schema checks, SQS enqueueing, and AI suggestions.
-  - POST /ingest to validate JSON payload and enqueue to SQS.
-  - GET /health to return status, uptime, and timestamp.
-  - GET /metrics to expose Prometheus-style counters.
-  - POST /dlq/purge to purge dead-letter queue when configured.
-  - GET /openapi.json to serve an OpenAPI 3.0 compliant JSON schema describing all routes, methods, request bodies, and response formats.
-  - GET /docs to serve a minimal HTML page that renders the OpenAPI schema in a readable form using markdown-it and markdown-it-github, no client-side frameworks.
+### Exposed Endpoints
+- POST /webhook
+  - Validate GitHub signature using built-in crypto HMAC with secret from `WEBHOOK_SECRET`.
+  - Validate JSON payload against a Zod schema and enqueue valid events to SQS via existing AWS utilities.
+  - On validation failure respond with 400 and JSON error details.
+- POST /ingest
+  - Validate generic JSON payload and enqueue to SQS.
+- GET /health
+  - Return JSON status, uptime, timestamp, and SQS connectivity check.
+- GET /metrics
+  - Expose Prometheus-style counters (requests, failures, queue length) with optional basic auth using `METRICS_USER` and `METRICS_PASS`.
+- POST /dlq/purge
+  - Purge dead-letter queue when configured; require basic auth.
+- GET /openapi.json
+  - Serve a fully compliant OpenAPI 3.0 JSON schema for all routes.
+- GET /docs
+  - Serve a minimal HTML page rendering the OpenAPI schema using markdown-it and markdown-it-github; require basic auth if `DOCS_USER`/`DOCS_PASS` set.
 
-## CLI Integration
-- Retain --help, --version, --digest flags.
-- --serve launches HTTP server; ignore other flags when --serve is present and warn the user.
-- Add a warning in usage output indicating documentation endpoints at /docs and /openapi.json when in serve mode.
+### Security, CORS & Rate Limiting
+- Allow CORS origins configured via `CORS_ALLOWED_ORIGINS` (comma-separated), default `*`.
+- Implement simple IP-based token bucket rate limiter: configurable `RATE_LIMIT_REQUESTS` per minute; respond 429 when exceeded.
+- Basic authentication on docs, metrics, and DLQ purge endpoints when credentials are provided via env.
 
 ## Testability & Stability
-- Unit tests with supertest and vitest for new documentation endpoints:
-  - Verify GET /openapi.json returns valid JSON matching declared schema.
-  - Verify GET /docs returns HTML containing key sections for each endpoint.
-- Integration tests launching CLI with --serve, then:
-  - Request /openapi.json and assert response content-type and schema structure.
-  - Request /docs and assert HTML contains route summaries and examples.
-  - Ensure existing tests for /webhook, /ingest, /health, /metrics, /dlq/purge still pass.
-- Maintain coverage above 90% for new code paths.
+- Unit tests with vitest and supertest for all endpoints, including CORS headers, rate limiting, basic auth, OpenAPI response structure, and HTML docs content.
+- Integration tests launch CLI with `--serve`, then verify each endpoint behavior, security, and metrics counters.
+- Maintain coverage above 90% on new code.
 
 ## Dependencies & Constraints
-- Do not add heavy frameworks; rely on markdown-it and markdown-it-github already in dependencies.
-- Continue using zod for schema validation and built-in crypto for HMAC.
-- Update sandbox/tests and sandbox/README.md with examples for documentation endpoints.
-- Ensure compatibility with Node 20, ESM, and existing linting and formatting rules.
+- Do not add heavy frameworks; rely on built-in http, zod, crypto, markdown-it, markdown-it-github, and existing AWS SDK utilities.
+- Ensure compatibility with Node 20, ESM, current linting and formatting rules.
+- Update sandbox/tests for new endpoints and sandbox/README.md with usage examples.
 
 ## User Scenarios & Examples
-- Local development: run npx agentic-lib --serve; navigate to http://localhost:3000/docs to explore API and schemas.
-- CI integration: use GET /openapi.json to generate client bindings or validate request contracts.
-- Production: host documentation behind authentication or proxy; integrate /metrics with Prometheus and healthchecks with Kubernetes.
+- Local development: `npx agentic-lib --serve`; open `http://localhost:3000/docs`; test rate limiting and CORS via curl.
+- CI: fetch `/openapi.json` for contract validation; integrate `/metrics` with Prometheus.
+- Production: run behind reverse proxy handling TLS and authentication if needed.
 
 ## Verification & Acceptance
-- Run npm test including sandbox tests for documentation endpoints.
-- Manually start server, fetch /openapi.json and validate its structure against an OpenAPI validator.
-- Open /docs in a browser and confirm that documentation for each route is visible, including request and response examples.
-- Confirm no regressions in existing event processing, health, metrics, and DLQ routes.
+- Run `npm test` including sandbox tests for HTTP server.
+- Manually start server, fetch `/openapi.json`, validate with an OpenAPI validator.
+- Browse `/docs` in a browser and confirm interactive documentation is rendered.
+- Confirm CORS headers, rate limiting, and basic auth function as configured.
+- Verify no regressions in existing queueing and CLI flags.
