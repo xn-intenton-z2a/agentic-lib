@@ -678,10 +678,6 @@ jobs:
             Ensure valid JSON.
             `;
 
-            core.info("prompt start: **********************************************");
-            core.info(`${chatGptPrompt}`);
-            core.info("prompt end:   **********************************************");
-
             const promptFilePath = 'prompt.txt';
             fs.writeFileSync(promptFilePath, chatGptPrompt);
             core.setOutput("promptFilePath", promptFilePath);

@@ -648,10 +648,6 @@ jobs:
             Ensure valid JSON.
             `;
 
-            core.info("prompt start: **********************************************");
-            core.info(`${chatGptPrompt}`);
-            core.info("prompt end:   **********************************************");
-
             const promptFilePath = 'prompt.txt';
             fs.writeFileSync(promptFilePath, chatGptPrompt);
             core.setOutput("promptFilePath", promptFilePath);
@@ -686,7 +682,7 @@ jobs:
                 { role: "user", content: chatGptPrompt }
               ],
               tools: tools
-            });
+            };
             
             const requestFilePath = 'request.json';
             fs.writeFileSync(requestFilePath, JSON.stringify(request, null, 2));
