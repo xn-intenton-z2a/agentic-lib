@@ -534,14 +534,23 @@ jobs:
             }];
 
             // Call OpenAI using function calling format
-            const response = await openai.chat.completions.create({
+            const request = {
               model,
               messages: [
                 { role: "system", content: "You are maintaining a technical library by extracting and condensing actual technical details from source materials. Your task is to provide specific technical information, not summaries or descriptions. Extract complete API specifications, exact method signatures, full code examples, precise implementation patterns, specific configuration options, concrete best practices, and detailed troubleshooting procedures. Answer strictly with a JSON object following the provided function schema." },
                 { role: "user", content: chatGptPrompt }
               ],
               tools: tools
-            });
+            };
+            const requestFilePath = 'request.json';
+            fs.writeFileSync(requestFilePath, JSON.stringify(request, null, 2));
+            setOutput("requestFilePath", requestFilePath);
+            core.info("requestFilePath: " + requestFilePath);
+            const response = await openai.chat.completions.create(request);
+            const responseFilePath = 'response.json';
+            fs.writeFileSync(responseFilePath, response);
+            setOutput("responseFilePath", responseFilePath);
+            core.info("responseFilePath: " + responseFilePath);
 
             let result;
             if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
@@ -564,11 +573,11 @@ jobs:
             }
 
             try {
-              core.info("raw response start: **********************************************");
-              core.info(`raw response (${(result ? result.length : "undefined")} characters): "${result}"`);
-              core.info("raw response mid: ================================================");
-              core.info(`raw response as JSON: "${JSON.stringify(result, null, 2)}"`);
-              core.info("raw response end: ************************************************");
+              //core.info("raw response start: **********************************************");
+              //core.info(`raw response (${(result ? result.length : "undefined")} characters): "${result}"`);
+              //core.info("raw response mid: ================================================");
+              //core.info(`raw response as JSON: "${JSON.stringify(result, null, 2)}"`);
+              //core.info("raw response end: ************************************************");
               const parsed = ResponseSchema.parse(result);
               core.info(`parsed response: "${JSON.stringify(parsed, null, 2)}"`);
               core.setOutput("documentName", parsed.documentName);
@@ -756,6 +765,22 @@ jobs:
           git pull --ff-only origin ${{ github.ref }}
           git push -v origin ${{ github.ref }}
           git status -v
+
+      - name: Upload request file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: request.json
+          path: ${{ steps.maintain-library.outputs.requestFilePath }}
+          retention-days: 7
+
+      - name: Upload response file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: response.json
+          path: ${{ steps.maintain-library.outputs.responseFilePath }}
+          retention-days: 7
 
     outputs:
       documentName: ${{ steps.maintain-library.outputs.documentName }}
