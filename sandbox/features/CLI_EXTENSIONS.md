@@ -1,31 +1,47 @@
 # Objective & Scope
 
-Extend the existing CLI driver to support both interactive chat and HTTP server modes through two new flags. Maintain all current flags (--help, --version, --digest) while integrating --chat and --serve capabilities to transform agentic-lib into both a chat client and a lightweight HTTP service.
+Extend the existing CLI driver to support two new modes: interactive chat and HTTP server. Maintain all current flags (--help, --version, --digest) while integrating --chat and --serve capabilities to transform the library into both a chat client and a lightweight HTTP service.
 
 # Value Proposition
 
-- Provides users with a built-in chat interface and a self-hosted API for health checks, metrics, OpenAPI, and interactive docs.
-- Leverages existing OpenAI SDK and server modules with no new external dependencies.
-- Aligns with the mission to power autonomous workflows through both CLI and HTTP interfaces, enabling rapid prototyping and integrations.
+- Empowers users to interact directly with the OpenAI Chat API from the CLI for instant conversational assistance.
+- Provides a self-hosted HTTP interface for health checks, metrics, OpenAPI spec, and interactive documentation.
+- Leverages existing modules with no additional external dependencies.
+- Aligns with the mission to power autonomous workflows through both CLI and HTTP interfaces.
 
 # Success Criteria & Requirements
 
-- Introduce a new --chat <message> flag. When provided with a message, send it to OpenAI createChatCompletion and output the response content as JSON. When provided without a message, read from stdin until EOF and then send.
-- Introduce a new --serve flag. When invoked, call startServer from sandbox/source/server.js on the configured port, allowing HTTP endpoints /health, /metrics, /openapi.json, and /docs to be served.
-- Preserve global callCount. If VERBOSE_STATS is enabled, surface callCount and uptime after each operation.
-- Return exit code 0 on success and non-zero on API or server startup errors.
+1. Introduce a --chat [message] flag:
+   • If a message is supplied, send it to OpenAI.createChatCompletion as a single prompt and output the response content as JSON.
+   • If the flag is provided without an argument, read from stdin until EOF, then send the collected text.
+   • On success, print to stdout and exit with code 0. On API errors, return a non-zero exit code.
+
+2. Introduce a --serve flag:
+   • When invoked, import and call startServer from sandbox/source/server.js.
+   • Respect optional port override via --port <number> or PORT environment variable (default 3000).
+   • Serve endpoints: /health, /metrics, /openapi.json, /docs.
+   • Exit non-zero if the server fails to start.
+
+3. Preserve global callCount. If VERBOSE_STATS is enabled, surface callCount and uptime after each operation.
+
+4. Ensure existing flags (--help, --version, --digest) continue to function without regression.
 
 # Testability & Stability
 
-- Add unit tests for processChat and processServe functions, mocking OpenAI API and HTTP server startup.
-- Add integration tests invoking CLI with --chat "hello world" and asserting JSON output, and invoking CLI with --serve then performing GET requests to /health and /metrics to verify responses.
-- Mock openai.OpenAIApi and http.createServer in vitest to prevent external network calls and port collisions.
+- Unit tests for processChat and processServe functions:
+  • Mock openai.OpenAIApi to simulate chat responses.
+  • Mock sandbox/source/server.js startServer to verify invocation.
+- Integration tests:
+  • CLI invocation with --chat "hello" asserting valid JSON output.
+  • CLI invocation reading stdin for --chat without argument.
+  • CLI invocation with --serve, then GET /health and /metrics to verify responses.
+- Ensure tests run under vitest without network calls or port collisions.
 
 # Dependencies & Constraints
 
-- No new dependencies; use openai package and built-in http module.
-- Compatible with Node 20, ESM modules, and existing linting and formatting rules.
-- CLI operations must remain non-blocking and not interfere with each other.
+- No new dependencies; use openai, http, and existing modules.
+- Compatible with Node 20, ESM modules, linting, and formatting rules.
+- CLI operations must not block each other or leak resources.
 
 # User Scenarios & Examples
 
@@ -33,14 +49,17 @@ Single-shot chat:
 
 npx agentic-lib --chat "What is the best practice for rate limiting?"
 
+Streaming chat via stdin:
+
+echo "Summarize today's logs" | npx agentic-lib --chat
+
 Server mode:
 
-npx agentic-lib --serve
-
-Then visit http://localhost:3000/health to verify status.
+npx agentic-lib --serve --port 4000
+curl http://localhost:4000/health
 
 # Verification & Acceptance
 
-- All new tests pass under npm test with coverage above 90%.
-- Manual CLI runs produce valid JSON responses for chat and serve expected HTML or text for HTTP endpoints.
-- No regressions in help, version, or digest flags and existing server handlers.
+- All new tests pass with coverage above 90%.
+- Manual CLI runs produce valid JSON for chat and HTML or text for HTTP endpoints.
+- No regressions in existing help, version, or digest behaviors.
