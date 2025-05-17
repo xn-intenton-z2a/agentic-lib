@@ -126,3 +126,17 @@
 
 2025-05-17T22:24:42.979Z - Maintain sources of library content.
 
+2025-05-17T22:27:31.062Z - Digested OpenAI({apiKey?:string, maxRetries:number=2, timeout:number=600000, fetch?(url,init?):Promise<Response>, httpAgent?:Agent, dangerouslyAllowBrowser?:boolean})
+responses.create({model:string,input:string,instructions?:string,stream?:boolean}, {maxRetries?:number,timeout?:number,httpAgent?:Agent}): Promise<{output_text:string,_request_id:string}>|AsyncIterable<SSEEvent>
+chat.completions.create({model:string,messages:{role:string,content:string}[],stream?:boolean,functions?:any[]}, RequestOptions): Promise<{choices:{message:{role:string,content:string}}[],_request_id:string}>|AsyncIterable<ChatStreamEvent>
+files.create({file:fs.ReadStream|File|Response|toFile(Buffer|Uint8Array,filename:string),purpose:'fine-tune'}):Promise<{id:string,object:string,bytes:number,_request_id:string}>
+Error subclasses: BadRequestError(400),AuthenticationError(401),PermissionDeniedError(403),NotFoundError(404),UnprocessableEntityError(422),RateLimitError(429),InternalServerError(>=500),APIConnectionError
+Default retries=2 on conn errors,408,409,429,>=500; override via maxRetries
+Default timeout=600000ms; override via timeout; throws APIConnectionTimeoutError
+.withResponse():{data,response}; .asResponse():Response
+Auto-pagination: for await … of on list(); page.data, page.hasNextPage(), page.getNextPage()
+OpenAIRealtimeWebSocket({model:string}) on 'response.text.delta'
+AzureOpenAI({azureADTokenProvider,apiVersion})
+client.get/post(path,{body?,query?,headers?})
+Requirements: TS>=4.5, Node>=18, Deno>=1.28,Bun>=1.0,Cloudflare,VercelEdge,Nitro>=2.6,Jest>=28; browser support via dangerouslyAllowBrowser:true.
+
