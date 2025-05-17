@@ -1,39 +1,52 @@
 # Objective & Scope
-Implement an HTTP server in the main CLI library to expose event processing handlers via REST endpoints, complementing existing AWS Lambda and CLI flows.
+Implement an HTTP server in the main CLI library to expose event processing handlers via REST endpoints for digesting events, retrieving stats, agentic actions, and health checks. This API will reuse existing logic (digestLambdaHandler and agenticHandler) and structured logging utilities.
 
 # Value Proposition
-- Provide a single, self-contained HTTP API for event-driven and agentic workflows, simplifying integration into webhooks and applications.
-- Ensure consistent structured JSON logging for all endpoints using existing logInfo and logError utilities.
-- Maintain reuse of digestLambdaHandler and agenticHandler logic for easy maintenance and observability.
+- Enables low-latency, HTTP-based integration for webhooks and external services.
+- Provides consistent structured JSON logging across REST and existing flows.
+- Simplifies deployment by bundling HTTP handling into the existing CLI library with no additional frameworks.
 
 # Success Criteria & Requirements
 ## HTTP Server Setup
-- Listen on port from environment variable HTTP_PORT or default to 3000.
-- Increment globalThis.callCount for each incoming request before routing.
-- Gracefully handle server errors and log using logError.
+- Use Node.js built-in http module to listen on port from HTTP_PORT or default 3000.
+- Increment globalThis.callCount for each request before routing.
+- Gracefully handle and log server errors via logError.
 
-## Routing & Endpoints
-- POST /digest
-  - Validate JSON body schema: must include key, value, lastModified fields.
-  - Invoke digestLambdaHandler with created event payload.
-  - Respond with 200 and JSON containing batchItemFailures and handler metadata.
-- POST /stats
-  - No request body required.
-  - Compute and return JSON with current callCount and uptime (seconds).
-- POST /agentic
-  - Validate JSON body schema: must include issueUrl or id.
-  - Invoke agenticHandler with payload.
-  - Return 200 and JSON with suggestion details or appropriate error code.
-- GET /health
-  - Respond with service name, current uptime, and total callCount.
+## Endpoints & Behavior
+### POST /digest
+- Validate JSON body with zod schema: key (string), value (string), lastModified (ISO 8601 string).
+- Invoke digestLambdaHandler with constructed SQS event.
+- Return 200 with JSON: { batchItemFailures, handler }.
+- Return 400 for body validation errors and 500 for handler exceptions.
+
+### POST /stats
+- No request body required.
+- Respond 200 with JSON: { callCount, uptime }.
+
+### POST /agentic
+- Validate JSON body with zod schema: issueUrl (string) or id (string or number).
+- Invoke agenticHandler with payload.
+- Return 200 with suggestion JSON or 400/500 on errors.
+
+### GET /health
+- Respond 200 with JSON: { service: name, uptime, callCount }.
 
 # Testability & Stability
-- Add supertest-based integration tests for each endpoint, covering success responses and error conditions (invalid JSON, missing fields).
-- Ensure unit tests mock express-like request objects or HTTP server to verify routing and handler invocation.
-- Validate that all endpoints return correct HTTP status codes: 200, 400 for bad request, 500 for server error.
+- Add integration tests using supertest to cover success and error cases for each endpoint.
+- Mock HTTP requests in unit tests to verify routing logic and handler invocation.
+- Ensure 200, 400, and 500 status codes are correctly returned.
 
 # Dependencies & Constraints
-- Use Node.js built-in http module; no new external HTTP frameworks.
-- Use zod for input validation of request bodies.
-- Configure server port via environment variable HTTP_PORT.
+- Only use built-in http module and zod for validation.
 - Maintain Node 20 ESM compatibility.
+- No additional external HTTP frameworks.
+
+# User Scenarios & Examples
+- Webhook sender posts digest events to /digest for real-time processing.
+- Monitoring system polls /stats and /health for uptime and usage metrics.
+- CI workflow triggers agentic suggestions via /agentic endpoint.
+
+# Verification & Acceptance
+- Manual test: start server locally, exercise each endpoint with curl or HTTP client.
+- Automated tests pass with coverage > 90% for new code paths.
+- Review logs to confirm structured JSON output and error handling.
