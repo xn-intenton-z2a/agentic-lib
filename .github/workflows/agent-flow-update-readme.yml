@@ -251,11 +251,11 @@ jobs:
         uses: actions/github-script@v7
         env:
           activity: "Worked to update README with: ${{ needs.apply-update.outputs.message }}."
-          seedDiscussionFilepath: ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
             const activity = process.env.activity;
-            const seedDiscussionFilepath = process.env.seedDiscussionFilepath;
+            const intentionFilepath = process.env.intentionFilepath;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${seedDiscussionFilepath}`);

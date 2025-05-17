@@ -111,7 +111,7 @@ jobs:
         env:
           discussionBody: ${{ inputs.discussionBody || env.defaultDiscussionBody }}
           userName: "${{ github.actor }} running workflow ${{ github.workflow }} using workflow event ${{ github.event_name }}"
-          seedDiscussionFilepath: ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
             let authorAssociation; // discussion author_association
@@ -165,11 +165,11 @@ jobs:
               if (!url) {
                 try {
                   const fs = require('fs');
-                  const seedDiscussionFilepath = process.env.seedDiscussionFilepath;
-                  core.info(`Looking for last */discussions/* in intentïon.md at ${seedDiscussionFilepath}`);
+                  const intentionFilepath = process.env.intentionFilepath;
+                  core.info(`Looking for last */discussions/* in intentïon.md at ${intentionFilepath}`);
 
-                  if (fs.existsSync(seedDiscussionFilepath)) {
-                    const seedDiscussionContent = fs.readFileSync(seedDiscussionFilepath, 'utf8');
+                  if (fs.existsSync(intentionFilepath)) {
+                    const seedDiscussionContent = fs.readFileSync(intentionFilepath, 'utf8');
                     const lines = seedDiscussionContent.split('\n');
 
                     // Filter to lines matching ^*https://.*/discussions/*$ and extract the last matching line.
@@ -189,7 +189,7 @@ jobs:
                       }
                     }
                   } else {
-                    core.warning(`intentïon.md file not found at ${seedDiscussionFilepath}`);
+                    core.warning(`intentïon.md file not found at ${intentionFilepath}`);
                   }
                 } catch (error) {
                   core.warning(`Error reading intentïon.md: ${error.message}`);
@@ -420,7 +420,7 @@ jobs:
           discussionTitle: ${{ needs.process-discussion-post.outputs.title }}
           discussionBody: ${{ needs.process-discussion-post.outputs.body }}
           discussionUrl: ${{ needs.process-discussion-post.outputs.url }}
-          seedDiscussionFilepath: ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          intentionFilepath: ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
         with:
           script: |
             const title = process.env.discussionTitle;

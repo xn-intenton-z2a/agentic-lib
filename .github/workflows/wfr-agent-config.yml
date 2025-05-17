@@ -138,8 +138,8 @@ on:
         value: ${{ jobs.agentic-lib.outputs.repositoryReseedReadmeFilepath }}
 
       # Discussions Bot
-      seedDiscussionFilepath:
-        value: ${{ jobs.agentic-lib.outputs.seedDiscussionFilepath }}
+      intentionFilepath:
+        value: ${{ jobs.agentic-lib.outputs.intentionFilepath }}
 
       # Contents of the agentic-lib.yml file
       agentConfigContent:
@@ -212,7 +212,7 @@ jobs:
       defaultRepositoryReseedReadmeFilepath: 'seeds/zero-README.md'
 
       # Discussions Bot
-      defaultSeedDiscussionFilepath: 'intentïon.md'
+      defaultintentionFilepath: 'intentïon.md'
 
       # Agentic-lib configuration file contents
       defaultAgentConfigContent: ''
@@ -318,7 +318,7 @@ jobs:
             const repositoryReseedReadmeFilepath = config?.seeding?.repositoryReseedReadmeFilepath || process.env.defaultRepositoryReseedReadmeFilepath;
 
             // Discussions Bot
-            const seedDiscussionFilepath = config?.discussions?.seedDiscussionFilepath || process.env.defaultSeedDiscussionFilepath;
+            const intentionFilepath = config?.intentionBot?.intentionFilepath || process.env.defaultSeedDiscussionFilepath;
 
             // Check if the seed discussion file exists and read its last line
             core.info(`Checking for halt signal "${haltSignal}" in last non-blank line of ${seedDiscussionFilepath}`);

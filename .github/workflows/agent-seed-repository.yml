@@ -193,7 +193,7 @@ jobs:
 
       - name: Truncate the intentïon file.
         run: |
-          > ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          > ${{ needs.agentic-lib.outputs.intentionFilepath }}
 
       - name: Commit and push
         id: commit

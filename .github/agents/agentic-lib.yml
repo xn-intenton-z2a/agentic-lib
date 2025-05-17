@@ -77,5 +77,5 @@ sandbox:
 #  dependenciesFilepath: 'seeds/zero-package.json'
 #  readmeFilepath: 'seeds/zero-README.md'
 
-discussionBot:
-  seedDiscussionFilepath: 'intentïon.md'
+intentionBot:
+  intentionFilepath: 'intentïon.md'
