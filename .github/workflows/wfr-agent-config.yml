@@ -318,28 +318,28 @@ jobs:
             const repositoryReseedReadmeFilepath = config?.seeding?.repositoryReseedReadmeFilepath || process.env.defaultRepositoryReseedReadmeFilepath;
 
             // Discussions Bot
-            const intentionFilepath = config?.intentionBot?.intentionFilepath || process.env.defaultSeedDiscussionFilepath;
+            const intentionFilepath = config?.intentionBot?.intentionFilepath || process.env.defaultintentionFilepath;
 
             // Check if the seed discussion file exists and read its last line
-            core.info(`Checking for halt signal "${haltSignal}" in last non-blank line of ${seedDiscussionFilepath}`);
-            if (fs.existsSync(seedDiscussionFilepath)) {
+            core.info(`Checking for halt signal "${haltSignal}" in last non-blank line of ${intentionFilepath}`);
+            if (fs.existsSync(intentionFilepath)) {
               try {
-                const fileContent = fs.readFileSync(seedDiscussionFilepath, 'utf8');
+                const fileContent = fs.readFileSync(intentionFilepath, 'utf8');
                 const lines = fileContent.split('\n').filter(line => line.trim() !== ''); // Filter out empty lines
                 const lastLine = lines[lines.length - 1].trim();
 
                 // Check if the last line contains the halt signal (in caps)
                 if (lastLine.includes(haltSignal)) {
-                  core.setFailed(`${haltSignal} detected in the last line of ${seedDiscussionFilepath}. Stopping execution.`);
+                  core.setFailed(`${haltSignal} detected in the last line of ${intentionFilepath}. Stopping execution.`);
                   return;
                 } else {
-                  core.info(`Last line of ${seedDiscussionFilepath}: ${lastLine} - proceeding with execution`);
+                  core.info(`Last line of ${intentionFilepath}: ${lastLine} - proceeding with execution`);
                 }
               } catch (error) {
-                core.warning(`Error reading ${seedDiscussionFilepath}: ${error.message}`);
+                core.warning(`Error reading ${intentionFilepath}: ${error.message}`);
               }
             } else {
-              core.warning(`Warning: ${seedDiscussionFilepath} file not found.`);
+              core.warning(`Warning: ${intentionFilepath} file not found.`);
             }
 
             if (config?.paths) {
@@ -550,8 +550,8 @@ jobs:
 
 
             // Discussions Bot - Set outputs
-            core.info(`seedDiscussionFilepath=${seedDiscussionFilepath}`);
-            core.setOutput('seedDiscussionFilepath', seedDiscussionFilepath);
+            core.info(`intentionFilepath=${intentionFilepath}`);
+            core.setOutput('intentionFilepath', seedDiscussionFilepath);
 
 
             // Contents of the agentic-lib.yml file

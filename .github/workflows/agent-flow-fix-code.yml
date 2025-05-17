@@ -616,7 +616,7 @@ jobs:
         with:
           script: |
             const activity = process.env.activity;
-            const seedDiscussionFilepath = process.env.seedDiscussionFilepath;
+            const intentionFilepath = process.env.intentionFilepath;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${seedDiscussionFilepath}`);
