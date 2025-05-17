@@ -1,38 +1,49 @@
 # Core Event Processing and AI Augmentation
 
-# Objective & Scope
-Define a unified handler for SQS digest events that performs schema validation, robust error handling, and optional AI-driven enrichment of valid payloads.
+## Objective & Scope
+Extend the existing digest event handler to also process GitHub webhook events for issues and pull requests, performing schema validation, robust error handling, and optional AI-driven comment generation and posting.
 
-# Value Proposition
-- Ensure incoming messages conform to expected schema before processing to prevent runtime errors
-- Provide clear error logging and batchItemFailures markers for invalid messages
-- Enable optional OpenAI API integration to augment or transform digest payloads with AI-generated insights
-- Maintain a single, cohesive entry point for digest processing with consistent logging and observability
+## Value Proposition
+- Enable agentic-lib to autonomously handle GitHub issue and pull request events alongside SQS digest events.
+- Validate incoming GitHub webhook payloads to prevent unexpected failures and ensure predictable processing.
+- Provide optional AI-powered comment suggestions or reviews using the OpenAI API.
+- Safely post comments back to GitHub via its REST API using a configurable base URL and authentication token.
 
-# Success Criteria & Requirements
-- Use zod to define DigestSchema with fields key string, value string, lastModified ISO string
-- In digestLambdaHandler, parse and validate each record against DigestSchema
-- On validation failure or JSON parse error, log error, record itemIdentifier, and include in batchItemFailures
-- If configured (detecting OPENAI_API_KEY), call OpenAIApi.createChatCompletion with the raw digest to produce an enrichment result
-- On AI call success, log enriched payload content; on failure, log error and include record in batchItemFailures
-- Return an object containing batchItemFailures and handler identifier
+## Success Criteria & Requirements
+- Extend the configuration schema to include GITHUB_TOKEN as a required string.
+- Implement a new function `gitHubEventHandler(eventType, payload)` in the main source file:
+  - Accept an `eventType` string (`issues` or `pull_request`) and a payload object.
+  - Define Zod schemas for `GitHubIssueEvent` (fields: action, issue.number, repository.owner.login, repository.name) and `GitHubPullRequestEvent` (fields: action, pull_request.number, repository.owner.login, repository.name).
+  - Parse and validate payload against the appropriate schema.
+  - On validation failure, log errors using `logError` and record the eventType and identifying fields in a failures array.
+  - If `OPENAI_API_KEY` is configured and validation succeeds, call `OpenAIApi.createChatCompletion` to generate a comment message based on the event details.
+  - Post the AI-generated comment to GitHub using `fetch` to `${config.GITHUB_API_BASE_URL}/repos/{owner}/{repo}/issues/{number}/comments` with `Authorization: Bearer ${config.GITHUB_TOKEN}`.
+  - Handle and log any fetch or API errors, recording them in the failures array.
+  - Return an object with handledEvents, failures, and handler identifier.
+- Update CLI to recognize a new flag `--github-event <type> <payloadFile>` to simulate and invoke `gitHubEventHandler` for manual testing.
 
-# Testability & Stability
-- Unit tests covering valid payload without AI, valid payload with AI enrichment, invalid JSON payload, zod validation failures, and AI API error handling
-- Use Vitest and vi.mock to simulate OpenAI responses and errors
+## Testability & Stability
+- Add unit tests for:
+  - Valid issue event without AI key.
+  - Valid pull request event with AI comment generation.
+  - Invalid payload structure for both event types.
+  - GitHub API error scenarios when posting comments (mock fetch to return non-2xx responses).
+  - OpenAI API error handling (mock `openai` to throw).
+- Use Vitest and `vi.mock` to simulate `fetch` and OpenAI responses.
 
-# Dependencies & Constraints
-- Leverage existing dependencies: zod for validation, openai for AI integration
-- No additional external libraries
-- Compatible with Node 20 ESM environment
+## Dependencies & Constraints
+- Utilize existing dependencies: `zod` for validation, `openai` for AI integration.
+- Leverage Node 20 global `fetch` for GitHub API calls; no additional HTTP libraries.
+- Extend `dotenv` configuration to load `GITHUB_TOKEN` from environment.
+- Maintain ESM compatibility and Node 20 support.
 
-# User Scenarios & Examples
-- Scenario: Valid digest flows through without AI key configured, logs info, returns zero failures
-- Scenario: Valid digest with OPENAI_API_KEY configured, enrichment content logged, no failures
-- Scenario: Invalid JSON body results in error log and batchItemFailures entry
-- Scenario: AI API error triggers error log and failure marker for that record
+## User Scenarios & Examples
+- Scenario: New issue opened, no AI key configured; handler validates payload and returns no failures, but skips comment generation.
+- Scenario: Pull request synchronized, AI key configured; handler generates review comment via OpenAI, posts to GitHub, and logs success.
+- Scenario: Malformed issue payload arrives; handler logs validation errors and returns failure entry.
+- Scenario: Fetch returns 401 due to invalid `GITHUB_TOKEN`; handler logs error and records failure.
 
-# Verification & Acceptance
-- All new and existing tests pass under npm test
-- README updated to document digestLambdaHandler behavior, environment variables, and AI augmentation capability
-- Clear example entries in README and CONTRIBUTING.md updated as necessary
+## Verification & Acceptance
+- All existing and new tests pass under `npm test`.
+- README updated to document `gitHubEventHandler`, new CLI flag, required environment variables, and usage examples.
+- Contributing guidelines updated if necessary to reflect GitHub event handler implementation.
