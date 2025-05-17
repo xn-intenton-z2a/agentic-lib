@@ -1,5 +1,9 @@
 # HTTP Server Feature
 
+## Mission Alignment
+
+The HTTP server provides critical observability endpoints (health, metrics, OpenAPI schema, docs) to support continuous monitoring and self-hosted documentation in line with our mission to enable autonomous, agentic workflows. For mission details, see [Mission Statement](../MISSION.md).
+
 This document describes how to launch the built-in HTTP server provided by agentic-lib, exposing key endpoints.
 
 ## Programmatic Usage

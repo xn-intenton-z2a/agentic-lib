@@ -1,5 +1,9 @@
 # Deep Dive: SQS Overview
 
+## Mission Alignment
+
+The SQS utilities support robust, event-driven architectures and automated message processing, empowering continuous, autonomous agentic workflows. For mission details, see [Mission Statement](../MISSION.md).
+
 A comprehensive guide to Amazon SQS features, configuration, and best practices.
 
 ## 1. Encryption Options

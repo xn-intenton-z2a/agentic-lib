@@ -1,3 +1,7 @@
+## Mission Statement
+
+This project is guided by the core mission of agentic-lib to enable autonomous, continuous agentic interactions through issues, branches, and pull requests. For full mission details, see [Mission Statement](../MISSION.md).
+
 # agentic-lib
 
 agentic-lib is a drop-in JavaScript SDK for autonomous GitHub workflows. Inspired by our mission to enable continuous, agentic interactions through issues, branches, and pull requests, this library provides core utilities to configure environments, handle AWS SQS events, power CLI-driven workflows, and optionally launch a self-hosted HTTP server for health, metrics, and documentation.
@@ -6,12 +10,18 @@ With agentic-lib, you can seamlessly integrate environment validation, structure
 
 ## Key Features
 
-- **Environment configuration** (dotenv + Zod)
-- **Logging helpers** (logInfo, logError)
-- **AWS utilities** (createSQSEventFromDigest)
-- **Lambda handler** (digestLambdaHandler)
-- **HTTP Server** (startServer function with `/health`, `/metrics`, `/openapi.json`, `/docs` endpoints)
-- **CLI flags**: `--help`, `--version`, `--digest`
+- **Environment configuration** (dotenv + Zod)  
+  Mission Alignment: Validates and loads environment variables to ensure consistent, reproducible conditions essential for autonomous workflows.  
+- **Logging helpers** (logInfo, logError)  
+  Mission Alignment: Provides structured, consistent logs to enable transparent audit trails for agentic operations.  
+- **AWS utilities** (createSQSEventFromDigest)  
+  Mission Alignment: Simplifies SQS event creation for seamless integration into continuous, event-driven workflows.  
+- **Lambda handler** (digestLambdaHandler)  
+  Mission Alignment: Automates message processing and error handling to maintain continuous, autonomous system reliability.  
+- **HTTP Server** (startServer function with `/health`, `/metrics`, `/openapi.json`, `/docs` endpoints)  
+  Mission Alignment: Exposes self-hosted endpoints for observability and documentation, supporting ongoing, autonomous monitoring.  
+- **CLI flags**: `--help`, `--version`, `--digest`  
+  Mission Alignment: Offers intuitive CLI interfaces to drive agentic workflows directly from the command line.
 
 ## Installation
 
