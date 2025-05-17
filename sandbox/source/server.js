@@ -39,12 +39,12 @@ const openApiSpec = {
 };
 
 // Utility functions
-def function recordRequest(method, route, status) {
+function recordRequest(method, route, status) {
   const key = `${method}_${route}_${status}`;
   metrics.http_requests_total[key] = (metrics.http_requests_total[key] || 0) + 1;
 }
 
-def function recordFailure(route) {
+function recordFailure(route) {
   metrics.http_request_failures_total[route] = (metrics.http_request_failures_total[route] || 0) + 1;
 }
 
