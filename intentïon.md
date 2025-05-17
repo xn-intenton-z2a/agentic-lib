@@ -172,3 +172,5 @@ Requirements: TS>=4.5, Node>=18, Deno>=1.28,Bun>=1.0,Cloudflare,VercelEdge,Nitro
 
 2025-05-17T23:40:58.272Z - Generated feature development issue with title Implement `--house` CLI flag for random and explicit house assignment.
 
+2025-05-17T23:41:27.947Z - Maintained feature EXTENDED_CHAT_API.
+
