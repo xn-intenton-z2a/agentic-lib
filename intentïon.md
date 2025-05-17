@@ -140,3 +140,5 @@ AzureOpenAI({azureADTokenProvider,apiVersion})
 client.get/post(path,{body?,query?,headers?})
 Requirements: TS>=4.5, Node>=18, Deno>=1.28,Bun>=1.0,Cloudflare,VercelEdge,Nitro>=2.6,Jest>=28; browser support via dangerouslyAllowBrowser:true.
 
+2025-05-17T22:30:44.543Z - Maintained feature EVENT_PROCESSING.
+
