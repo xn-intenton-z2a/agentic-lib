@@ -5,3 +5,5 @@
 
 2025-05-17T12:18:45.097Z - Generated feature development issue with title Add HTTP API server with /version and /digest endpoints via --serve flag.
 
+2025-05-17T12:20:10.212Z - Enhanced issue .
+
