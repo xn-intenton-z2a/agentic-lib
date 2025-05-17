@@ -14,42 +14,42 @@ CC BY 4.0
 
 # AWS Lambda Developer Guide
 ## https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
-Comprehensive guide on AWS Lambda functions, covering event models, deployment packages, Node.js runtime specifics, environment variables, and best practices for monitoring & error handling. Directly informs how to structure and invoke Lambda handlers from SQS events within agentic-lib's AWS utility functions.
+Comprehensive guide on AWS Lambda, covering event models, triggers (including SQS and other event sources), deployment packages, Node.js runtime specifics, environment variables, permission models, and best practices for monitoring, error handling, and retry strategies. Includes guidance on using the modular AWS SDK v3 and middleware stacks for efficient client construction.
 Last updated: 2024-02-20. Authoritativeness: Official AWS documentation under CC BY 4.0.
 ## License if known
 CC BY 4.0
 
-# Amazon SQS Developer Guide
-## https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/Welcome.html
-In-depth coverage of SQS message formats, FIFO vs standard queues, batching, visibility timeouts, and error retry semantics. Essential for understanding the construction of SQS events (`createSQSEventFromDigest`) and handling batch failures in the Lambda handler.
-Last updated: 2024-01-30. Authoritativeness: Official AWS documentation under CC BY 4.0.
-## License if known
-CC BY 4.0
-
-# AWS SDK for JavaScript v3
-## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/index.html
-Reference documentation for the modular AWS SDK, detailing client constructors, command patterns, middleware stacks, and asynchronous invocation. Direct guidance for importing and using `@aws-sdk/client-lambda` in Node ESM projects, including configuration and performance tuning.
-Last updated: 2024-05-05. Authoritativeness: Official AWS SDK docs under Apache-2.0.
-## License if known
-Apache-2.0
-
 # OpenAI API Reference
 ## https://platform.openai.com/docs/api-reference
-Provides endpoint specifications, request/response schemas, rate limits, authentication, and streaming options for chat completion and other models. Enables precise implementation of OpenAI client integrations and error handling in the library’s default OpenAI API usage.
+Provides endpoint specifications, request/response schemas, rate limits, authentication, and streaming options for chat completion and other models. Enables precise implementation of OpenAI client integrations and robust error handling in the library’s default OpenAI API usage.
 Last updated: 2024-04. Authoritativeness: Official OpenAI documentation (Proprietary).
 ## License if known
 Proprietary
 
 # Vitest Documentation
 ## https://vitest.dev/api/
-API reference and configuration guide for Vitest, including mocking, setup/teardown hooks, coverage integration, and CLI options. Vital for writing and maintaining unit tests for agentic-lib, ensuring consistency with the existing `vitest` test suite and mocking patterns.
+API reference and configuration guide for Vitest, including mocking strategies, setup/teardown hooks, coverage integrations, and CLI options. Vital for writing and maintaining unit tests for agentic-lib, ensuring consistency with the existing `vitest` test suite and mocking patterns.
 Last updated: 2024-03. Authoritativeness: Official Vitest docs under MIT.
 ## License if known
 MIT
 
 # Zod Schema Validation
 ## https://zod.dev/
-Comprehensive guide to schema definitions, parsing, type inference, and custom validations. Provides actionable examples for environment variable validation (`configSchema`), error messages, and runtime safety, directly supporting agentic-lib’s use of Zod for robust configuration parsing.
+Comprehensive guide to schema definitions, parsing, type inference, and custom validations. Provides actionable examples for environment variable validation (`configSchema`), error messaging, and runtime safety checks, directly supporting agentic-lib’s robust configuration parsing.
 Last updated: 2024-02. Authoritativeness: Official Zod documentation under MIT.
 ## License if known
 MIT
+
+# LangChain JS Documentation
+## https://js.langchain.com/docs/get_started/quickstart
+Concise quickstart and API reference for chains, agents, callbacks, and memory management. Provides practical examples for constructing modular agent workflows, integrating with LLMs, and handling asynchronous execution flows. Directly relevant for extending agentic-lib with advanced chaining and agent orchestration patterns.
+Last updated: 2024-04. Authoritativeness: Official LangChain documentation under MIT.
+## License if known
+MIT
+
+# Node.js ECMAScript Modules Guide
+## https://nodejs.org/api/esm.html
+Detailed reference for ESM support in Node.js, including import/export syntax, dynamic imports, file URL handling, interop with CommonJS, package configuration (`"type": "module"`), and performance considerations. Essential for structuring ESM-based libraries and scripts like agentic-lib under Node 20.
+Last updated: 2024-01. Authoritativeness: Official Node.js documentation under CC BY-SA 4.0.
+## License if known
+CC BY-SA 4.0
