@@ -174,3 +174,5 @@ Requirements: TS>=4.5, Node>=18, Deno>=1.28,Bun>=1.0,Cloudflare,VercelEdge,Nitro
 
 2025-05-17T23:41:27.947Z - Maintained feature EXTENDED_CHAT_API.
 
+2025-05-17T23:46:06.154Z - Generated feature development issue with title Embed Mission Alignment References in Feature Documentation and README.
+
