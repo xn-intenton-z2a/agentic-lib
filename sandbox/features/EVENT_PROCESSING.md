@@ -1,59 +1,73 @@
 # Objective & Scope
-Extend the existing event-processing framework in a single ESM binary to provide a self-hosted HTTP server supporting secure webhook ingestion, background queue management, health and metrics endpoints, and interactive API documentation. Ensure minimal dependencies by using Node.js built-in http module, zod for validation, crypto for HMAC, and existing markdown-it libraries for docs rendering.
+Extend the existing event-processing framework in a single ESM binary to provide a self-hosted HTTP server supporting secure webhook ingestion, background queue management, health and metrics endpoints, interactive API documentation, and AI-driven payload summarization. Include corresponding CLI flags for local simulation, event digest, and summarization using OpenAI.
 
 # Value Proposition
-- Deliver a one-stop binary that handles event ingestion, queueing, monitoring, and documentation without external frameworks.
-- Reduce onboarding and integration friction by exposing a machine-readable OpenAPI schema and an HTML interface at runtime.
-- Improve operational visibility with health checks, Prometheus-style metrics, DLQ management, CORS support, rate limiting, and optional basic authentication for sensitive endpoints.
+
+- Deliver a one-stop binary that handles event ingestion, queueing, monitoring, documentation, and payload summarization without external frameworks.
+- Empower users to obtain human-readable summaries of arbitrary event payloads directly from the CLI or an HTTP endpoint, accelerating debugging and triage.
+- Leverage existing OpenAI credentials and SDK to provide AI capabilities without introducing new dependencies.
+- Maintain minimal dependencies by using built-in http, zod, crypto, markdown-it, markdown-it-github, and the installed OpenAI SDK.
 
 # Success Criteria & Requirements
 
 ## HTTP Server Implementation
-- Use Node.js built-in http module only; do not introduce Express or other frameworks.
-- CLI flag `--serve` starts the server on `PORT` or default 3000; when serve mode is active, ignore other flags and warn the user.
-- Log startup information: chosen port, enabled routes, CORS origins, rate limit settings, and docs endpoints.
+- Use Node.js built-in http module; do not introduce additional frameworks.
+- CLI flag `--serve` starts server on `PORT` or default 3000; when active, ignore other flags.
+- Log startup information: port, enabled routes, CORS origins, rate limit, AI endpoint availability.
 
 ### Exposed Endpoints
 - POST /webhook
-  - Validate GitHub signature using built-in crypto HMAC with secret from `WEBHOOK_SECRET`.
-  - Validate JSON payload against a Zod schema and enqueue valid events to SQS via existing AWS utilities.
-  - On validation failure respond with 400 and JSON error details.
+  - Validate GitHub signature, JSON payload, and enqueue to SQS as before.
 - POST /ingest
-  - Validate generic JSON payload and enqueue to SQS.
-- GET /health
-  - Return JSON status, uptime, timestamp, and SQS connectivity check.
-- GET /metrics
-  - Expose Prometheus-style counters (requests, failures, queue length) with optional basic auth using `METRICS_USER` and `METRICS_PASS`.
-- POST /dlq/purge
-  - Purge dead-letter queue when configured; require basic auth.
-- GET /openapi.json
-  - Serve a fully compliant OpenAPI 3.0 JSON schema for all routes.
-- GET /docs
-  - Serve a minimal HTML page rendering the OpenAPI schema using markdown-it and markdown-it-github; require basic auth if `DOCS_USER`/`DOCS_PASS` set.
+  - Validate generic payload and enqueue to SQS.
+- POST /summarize
+  - Accept any JSON payload in body.
+  - Forward payload to OpenAI chat completion with a system prompt to generate a concise summary.
+  - Respond with JSON `{ summary: string }` on success or 502 on AI errors.
+- GET /health, GET /metrics, POST /dlq/purge, GET /openapi.json, GET /docs as specified.
 
-### Security, CORS & Rate Limiting
-- Allow CORS origins configured via `CORS_ALLOWED_ORIGINS` (comma-separated), default `*`.
-- Implement simple IP-based token bucket rate limiter: configurable `RATE_LIMIT_REQUESTS` per minute; respond 429 when exceeded.
-- Basic authentication on docs, metrics, and DLQ purge endpoints when credentials are provided via env.
+## CLI Extensions
+- `--digest`: simulate SQS digest event as before.
+- `--summarize [file]`
+  - If `file` provided, read JSON from path; otherwise read JSON from STDIN.
+  - Call OpenAI API with a consistent system prompt to summarize payload.
+  - Print summary text to stdout.
+- `--help` and `--version` remain unchanged.
+
+## OpenAI Integration
+- Use existing openai SDK and `OPENAI_API_KEY` from environment.
+- Send chat completion requests with model `gpt-3.5-turbo` or fallback to default.
+- Apply a Zod schema to validate response contains `choices[0].message.content`.
+
+## Security, CORS & Rate Limiting
+- Same CORS, rate limiting, and basic auth requirements apply to new /summarize endpoint.
 
 ## Testability & Stability
-- Unit tests with vitest and supertest for all endpoints, including CORS headers, rate limiting, basic auth, OpenAPI response structure, and HTML docs content.
-- Integration tests launch CLI with `--serve`, then verify each endpoint behavior, security, and metrics counters.
-- Maintain coverage above 90% on new code.
+- Add unit tests with vitest and supertest for the new CLI and HTTP summarize functionality.
+  - Mock OpenAI to return a fixed dummy summary.
+  - Verify correct HTTP status codes, JSON shapes, error handling, and CORS headers.
+- Add integration tests launching `--serve` and testing POST /summarize with real server instance.
+- Maintain overall coverage above 90%.
 
 ## Dependencies & Constraints
-- Do not add heavy frameworks; rely on built-in http, zod, crypto, markdown-it, markdown-it-github, and existing AWS SDK utilities.
-- Ensure compatibility with Node 20, ESM, current linting and formatting rules.
-- Update sandbox/tests for new endpoints and sandbox/README.md with usage examples.
+- Do not introduce new dependencies beyond the existing OpenAI SDK.
+- Ensure compatibility with Node 20, ESM, existing linting, and formatting.
 
 ## User Scenarios & Examples
-- Local development: `npx agentic-lib --serve`; open `http://localhost:3000/docs`; test rate limiting and CORS via curl.
-- CI: fetch `/openapi.json` for contract validation; integrate `/metrics` with Prometheus.
-- Production: run behind reverse proxy handling TLS and authentication if needed.
+- Local CLI:
+  ```bash
+  echo '{"event":"test"}' | npx agentic-lib --summarize
+  ```
+- File input:
+  ```bash
+  npx agentic-lib --summarize payload.json
+  ```
+- HTTP:
+  ```bash
+  curl -X POST http://localhost:3000/summarize -H "Content-Type: application/json" -d '{"foo":123}'
+  ```
 
 ## Verification & Acceptance
-- Run `npm test` including sandbox tests for HTTP server.
-- Manually start server, fetch `/openapi.json`, validate with an OpenAPI validator.
-- Browse `/docs` in a browser and confirm interactive documentation is rendered.
-- Confirm CORS headers, rate limiting, and basic auth function as configured.
-- Verify no regressions in existing queueing and CLI flags.
+- Run `npm test` covering new tests.
+- Manually start server; POST /summarize and confirm response summary matches mock or real AI.
+- Confirm no regressions in existing endpoints or CLI flags.
