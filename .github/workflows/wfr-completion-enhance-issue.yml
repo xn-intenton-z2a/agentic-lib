@@ -906,28 +906,28 @@ jobs:
           path: ${{ steps.enhance-issue.outputs.promptFilePath }}
           retention-days: 7
 
-    - name: Upload request file as an artifact
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: enhance-issue-request.json
-        path: ${{ steps.enhance-issue.outputs.requestFilePath }}
-        retention-days: 7
+      - name: Upload request file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: enhance-issue-request.json
+          path: ${{ steps.enhance-issue.outputs.requestFilePath }}
+          retention-days: 7
 
-    - name: Upload response file as an artifact
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: enhance-issue-response.json
-        path: ${{ steps.enhance-issue.outputs.responseFilePath }}
-        retention-days: 7
+      - name: Upload response file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: enhance-issue-response.json
+          path: ${{ steps.enhance-issue.outputs.responseFilePath }}
+          retention-days: 7
 
-    - name: Upload result file as an artifact
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: enhance-issue-result.json
-        path: ${{ steps.enhance-issue.outputs.resultFilePath }}
+      - name: Upload result file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: enhance-issue-result.json
+          path: ${{ steps.enhance-issue.outputs.resultFilePath }}
 
     outputs:
       action: ${{ steps.enhance-issue.outputs.action }}
