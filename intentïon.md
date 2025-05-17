@@ -162,3 +162,5 @@ Requirements: TS>=4.5, Node>=18, Deno>=1.28,Bun>=1.0,Cloudflare,VercelEdge,Nitro
 
 2025-05-17T23:15:50.235Z - Maintained feature CLI_EXTENSIONS.
 
+2025-05-17T23:17:09.907Z - Worked to update README with: Update README with HTTP Server usage and align SERVER.md with code implementation.
+
