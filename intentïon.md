@@ -81,3 +81,5 @@
 
 2025-05-17T18:26:02.531Z - Maintain sources of library content.
 
+2025-05-17T18:29:04.881Z - Digested npm install langchain openai; export OPENAI_API_KEY; import OpenAI, PromptTemplate, LLMChain; const model=new OpenAI({modelName:'gpt-3.5-turbo',temperature:0.7,maxRetries:3,streaming:false,timeout:60000}); const prompt=new PromptTemplate({template:'Translate the following English text to French: {text}',inputVariables:['text']}); const chain=new LLMChain({llm:model,prompt:prompt}); const response=await chain.call({text:'I love programming.'}); response.text.
+
