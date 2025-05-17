@@ -102,3 +102,5 @@
 2025-05-17T20:11:04.575Z - This repository was seeded from GitHub Discussion  at 
 2025-05-17T20:12:34.955Z - Maintained feature EVENT_PROCESSING.
 
+2025-05-17T20:13:31.298Z - Generated feature development issue with title Implement EVENT_PROCESSING HTTP server with --serve CLI flag and core endpoints.
+
