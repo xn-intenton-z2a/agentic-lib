@@ -7,3 +7,5 @@
 
 2025-05-17T12:20:10.212Z - Enhanced issue .
 
+2025-05-17T12:22:50.020Z - Generated feature development issue with title Add --mission CLI flag to display the mission statement.
+
