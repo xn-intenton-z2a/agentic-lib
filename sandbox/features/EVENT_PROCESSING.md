@@ -1,49 +1,58 @@
-# Core Event Processing and AI Augmentation
+# Core Event Processing with GitHub Integration and HTTP API
 
 ## Objective & Scope
-Extend the existing digest event handler to also process GitHub webhook events for issues and pull requests, performing schema validation, robust error handling, and optional AI-driven comment generation and posting.
+Extend event processing in the library to handle both AWS SQS digest events and GitHub webhook events for issues and pull requests. Provide both CLI and native HTTP API endpoints to invoke these handlers for local testing or serverless deployment.
 
 ## Value Proposition
-- Enable agentic-lib to autonomously handle GitHub issue and pull request events alongside SQS digest events.
-- Validate incoming GitHub webhook payloads to prevent unexpected failures and ensure predictable processing.
-- Provide optional AI-powered comment suggestions or reviews using the OpenAI API.
-- Safely post comments back to GitHub via its REST API using a configurable base URL and authentication token.
+- Unify SQS digest handling and GitHub webhook processing in a single feature set.
+- Enable optional AI-driven comment generation on GitHub issues and pull requests when OPENAI_API_KEY is configured.
+- Offer both CLI flags and lightweight HTTP endpoints to trigger event handlers, increasing flexibility for integration and local development.
+- Maintain robust schema validation with clear error reporting and failure tracking.
 
 ## Success Criteria & Requirements
-- Extend the configuration schema to include GITHUB_TOKEN as a required string.
-- Implement a new function `gitHubEventHandler(eventType, payload)` in the main source file:
-  - Accept an `eventType` string (`issues` or `pull_request`) and a payload object.
-  - Define Zod schemas for `GitHubIssueEvent` (fields: action, issue.number, repository.owner.login, repository.name) and `GitHubPullRequestEvent` (fields: action, pull_request.number, repository.owner.login, repository.name).
-  - Parse and validate payload against the appropriate schema.
-  - On validation failure, log errors using `logError` and record the eventType and identifying fields in a failures array.
-  - If `OPENAI_API_KEY` is configured and validation succeeds, call `OpenAIApi.createChatCompletion` to generate a comment message based on the event details.
-  - Post the AI-generated comment to GitHub using `fetch` to `${config.GITHUB_API_BASE_URL}/repos/{owner}/{repo}/issues/{number}/comments` with `Authorization: Bearer ${config.GITHUB_TOKEN}`.
-  - Handle and log any fetch or API errors, recording them in the failures array.
-  - Return an object with handledEvents, failures, and handler identifier.
-- Update CLI to recognize a new flag `--github-event <type> <payloadFile>` to simulate and invoke `gitHubEventHandler` for manual testing.
+- Configuration Schema
+  - Add optional string GITHUB_TOKEN for GitHub API authentication.
+  - Add optional boolean HTTP_ENABLED (default false) and number HTTP_PORT (default 3000).
+
+- GitHub Event Handler
+  - Implement `async function gitHubEventHandler(eventType, payload)` in src/lib/main.js.
+  - Define Zod schemas for GitHubIssueEvent and GitHubPullRequestEvent with required fields.
+  - On validation failure, log errors and record failures array entries.
+  - On success with OPENAI_API_KEY, call OpenAIApi.createChatCompletion to generate a comment.
+  - Post generated comment to GitHub using fetch with GITHUB_TOKEN.
+  - Return object `{ handledEvents, failures, handler: 'gitHubEventHandler' }`.
+
+- AWS SQS Digest Handler
+  - Retain `digestLambdaHandler` to process SQS events and report batchItemFailures.
+
+- CLI Support
+  - Add `--github-event <type> <payloadFile>` to simulate GitHub events from JSON files.
+  - Retain existing `--digest` flag.
+
+- HTTP Server
+  - When HTTP_ENABLED is true, start a Node HTTP server on HTTP_PORT.
+  - Accept POST requests to `/events/digest` and `/events/github` with JSON bodies.
+  - Dispatch to digestLambdaHandler or gitHubEventHandler based on path and GitHub event header or explicit type field.
+  - Respond with JSON payload containing handler results and appropriate HTTP status codes.
 
 ## Testability & Stability
-- Add unit tests for:
-  - Valid issue event without AI key.
-  - Valid pull request event with AI comment generation.
-  - Invalid payload structure for both event types.
-  - GitHub API error scenarios when posting comments (mock fetch to return non-2xx responses).
-  - OpenAI API error handling (mock `openai` to throw).
-- Use Vitest and `vi.mock` to simulate `fetch` and OpenAI responses.
+- Add unit tests in sandbox/tests for:
+  - Valid and invalid issue and pull request payloads without AI key.
+  - AI comment generation success and OpenAI API failures.
+  - GitHub fetch error scenarios.
+  - HTTP server routes responding with correct status and payloads (mock fetch and OpenAIApi).
+  - CLI flags `--github-event` invoking gitHubEventHandler correctly.
 
 ## Dependencies & Constraints
-- Utilize existing dependencies: `zod` for validation, `openai` for AI integration.
-- Leverage Node 20 global `fetch` for GitHub API calls; no additional HTTP libraries.
-- Extend `dotenv` configuration to load `GITHUB_TOKEN` from environment.
-- Maintain ESM compatibility and Node 20 support.
+- Use Node 20 native http module for HTTP server; no additional HTTP libraries.
+- Continue using zod, openai, dotenv, and global fetch.
+- Maintain ESM compatibility and adhere to existing coding style.
 
 ## User Scenarios & Examples
-- Scenario: New issue opened, no AI key configured; handler validates payload and returns no failures, but skips comment generation.
-- Scenario: Pull request synchronized, AI key configured; handler generates review comment via OpenAI, posts to GitHub, and logs success.
-- Scenario: Malformed issue payload arrives; handler logs validation errors and returns failure entry.
-- Scenario: Fetch returns 401 due to invalid `GITHUB_TOKEN`; handler logs error and records failure.
+- CLI: `node src/lib/main.js --github-event issues path/to/issue.json` prints handler output.
+- HTTP: Send POST to http://localhost:3000/events/github with header X-GitHub-Event: pull_request; server validates and processes event.
 
 ## Verification & Acceptance
-- All existing and new tests pass under `npm test`.
-- README updated to document `gitHubEventHandler`, new CLI flag, required environment variables, and usage examples.
-- Contributing guidelines updated if necessary to reflect GitHub event handler implementation.
+- All new and existing tests pass with `npm test`.
+- README updated with documentation for gitHubEventHandler, CLI flag, HTTP API endpoints and required env variables.
+- Ensure backward compatibility with existing digest CLI workflow.
