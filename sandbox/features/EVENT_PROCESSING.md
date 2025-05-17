@@ -1,67 +1,57 @@
 # Objective & Scope
-Extend event processing in the library to handle AWS SQS digest events, AWS SNS notifications, GitHub webhook events, and GitHub Actions workflow_call events. Provide CLI flags, HTTP endpoints, and auto-dispatch in GitHub Actions mode for flexible invocation and integration. Introduce payload enrichment for GitHub events by fetching and attaching additional repository and pull request context when GITHUB_TOKEN is available.
+Extend the library to unify event ingestion and dispatch for AWS SQS digest events, AWS SNS notifications, GitHub webhooks, and GitHub Actions workflow_call events. Provide flexible invocation via CLI flags, GitHub Actions mode auto-dispatch, and an HTTP server API. When a GITHUB_TOKEN is supplied, enrich GitHub payloads with repository metadata and pull request context.
 
 # Value Proposition
-- Unify SQS digest, SNS notifications, GitHub webhooks, and Actions workflow dispatch in a single feature.
-- Automate AI-driven comments on issues and pull requests when OPENAI_API_KEY is configured.
-- Enrich GitHub events with repository metadata, pull request diff statistics, and changed files list when GITHUB_TOKEN is provided.
-- Support CLI, HTTP API, and seamless GitHub Actions invocation without external wrappers.
-- Provide health check endpoint for operational monitoring.
+- Single library entrypoint for SQS, SNS, and GitHub event handling
+- Local simulation of events for development and testing via CLI
+- Seamless integration in GitHub Actions with automatic dispatch based on GITHUB_EVENT_NAME
+- HTTP API endpoints for remote event delivery and operational health checks
+- Optional payload enrichment using GitHub API when authentication is configured
 
 # Success Criteria & Requirements
 
 ## Configuration Schema
-- Extend config schema with detection of AWS_SNS_TOPIC_ARN, GITHUB_ACTIONS (boolean), GITHUB_EVENT_NAME, and GITHUB_EVENT_PATH.
-- Add optional GITHUB_TOKEN for enrichment; validate presence if enrichment is requested.
-- Validate required environment variables or inputs for each invocation mode.
+- Detect and validate AWS_SNS_TOPIC_ARN for SNS mode
+- Detect GITHUB_ACTIONS, GITHUB_EVENT_NAME, and GITHUB_EVENT_PATH for Actions mode
+- Allow optional GITHUB_TOKEN for enrichment; require token when enrichment is enabled
+- Preserve existing config parsing with Zod and environment fallbacks
 
-## AWS SNS Notifications
-- Detect and parse SNS event payloads following AWS SNS Records structure.
-- For each record in event.Records, parse record.Sns.Message as JSON and dispatch to digestLambdaHandler or custom snsNotificationHandler.
-- Handle errors per record, collecting batchItemFailures for retry.
+## Event Handlers
+- digestLambdaHandler: process SQS Records array or single record; record failures in batchItemFailures
+- snsNotificationHandler: parse each record.Sns.Message and dispatch to digestLambdaHandler
+- gitHubEventHandler: handle issue, pull_request, and workflow_call events; attach enrichment when requested
 
-## GitHub Actions Mode
-- Detect GITHUB_ACTIONS environment variable set to true.
-- Read eventName from GITHUB_EVENT_NAME and payload path from GITHUB_EVENT_PATH.
-- Dispatch to digestLambdaHandler for SQS events, snsNotificationHandler for SNS notifications, or gitHubEventHandler for GitHub issue, pull_request, and workflow_call events.
-- When handling GitHub events with enrichment enabled, fetch additional context:
-  - For pull_request events: fetch repository details, diff stats, and list of changed files.
-  - For issue events: fetch issue timeline and labels.
-- Attach enrichment data to event payload before handler invocation.
-- Output JSON to stdout containing handler, handledEvents, enrichment, and failures.
-
-## CLI Support
-- Retain --digest flag for SQS digest simulation.
-- Add --sns-notification <payloadFile> to simulate SNS events.
-- Add --github-event <type> <payloadFile> to simulate GitHub events.
-- Add --enrich flag to enable enrichment when simulating GitHub events.
-- Add --actions-simulate flag to mimic Actions mode locally by reading GITHUB_EVENT_* variables.
-
-## HTTP Server
-- When HTTP_ENABLED is true, start HTTP server on HTTP_PORT.
-- POST /events/digest dispatches to digestLambdaHandler.
-- POST /events/sns dispatches to snsNotificationHandler.
-- POST /events/github dispatches to gitHubEventHandler using X-GitHub-Event header or explicit type field; optional header X-Enrich: true for enrichment.
-- GET /healthz returns 200 with basic service info and version.
+## Invocation Modes
+- CLI Flags:
+  --digest to replay an example SQS digest
+  --sns-notification <payloadFile> to simulate an SNS event
+  --github-event <type> <payloadFile> to simulate a GitHub webhook or workflow_call event
+  --enrich to fetch and attach GitHub metadata when simulating events locally
+  --actions-simulate to mimic GitHub Actions environment locally
+- GitHub Actions Mode: detect GITHUB_ACTIONS, read event name and payload from env; auto-dispatch to appropriate handler
+- HTTP Server (when HTTP_ENABLED=true):
+  POST /events/digest → digestLambdaHandler
+  POST /events/sns → snsNotificationHandler
+  POST /events/github → gitHubEventHandler (use X-GitHub-Event header or explicit type field; support X-Enrich: true)
+  GET /healthz → return service status and version
 
 # Testability & Stability
-- Add unit tests simulating SNS events with fake payloads and verify handler invocation and failure recording.
-- Add tests for GitHub enrichment: mock GitHub API endpoints and verify payload attachment.
-- Add tests for /healthz endpoint returning expected JSON structure.
-- Continue mocking fetch and OpenAIApi for event handler tests.
+- Unit tests for each handler with mock payloads and failure simulation
+- Mock GitHub API endpoints to verify enrichment logic
+- Integration tests for CLI flags and HTTP endpoints returning expected status and payload
+- Maintain coverage on existing logConfig, logInfo, and logError functions
 
 # Dependencies & Constraints
-- Use Node 20 native http and fetch modules; no new dependencies.
-- Maintain ESM compatibility and existing coding style.
-- Respect rate limits on GitHub API when fetching enrichment data.
+- Node 20, ESM module standard, use native http and fetch
+- No additional dependencies beyond existing AWS SDK, OpenAI, and Zod
+- Respect GitHub API rate limits and handle fetch errors gracefully
 
 # User Scenarios & Examples
-- AWS SNS: node src/lib/main.js --sns-notification path/to/sns.json to simulate an SNS invocation.
-- GitHub Workflow: set GITHUB_ACTIONS, GITHUB_EVENT_NAME, GITHUB_EVENT_PATH, and GITHUB_TOKEN; run node src/lib/main.js; workflow parses JSON output including enrichment.
-- CLI: node src/lib/main.js --github-event pull_request path/to/pr.json --enrich
-- HTTP: curl -H "X-GitHub-Event: pull_request" -H "X-Enrich: true" -d @pr.json http://localhost:3000/events/github
+- Simulate an SNS event: node src/lib/main.js --sns-notification path/to/sns.json
+- Run in Actions mode with enrichment: set GITHUB_ACTIONS=true, GITHUB_EVENT_NAME=pull_request, GITHUB_EVENT_PATH=pr.json, GITHUB_TOKEN=token; node src/lib/main.js
+- Send a GitHub event over HTTP: curl -X POST -H "X-GitHub-Event: pull_request" -H "X-Enrich: true" -d @pr.json http://localhost:3000/events/github
 
 # Verification & Acceptance
-- All existing and new tests pass with npm test.
-- README updated with SNS section, enrichment usage, CLI flags, and HTTP endpoints details.
-- Backward compatibility maintained for existing digest workflows.
+- npm test passes all new and existing tests
+- README updated with CLI, HTTP, and Actions usage examples
+- Backward compatibility preserved for existing digest workflows
