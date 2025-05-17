@@ -497,6 +497,11 @@ jobs:
             core.info(`${chatGptPrompt}`);
             core.info("prompt end:   **********************************************");
 
+            const promptFilePath = 'prompt.txt';
+            fs.writeFileSync(promptFilePath, chatGptPrompt);
+            core.setOutput("promptFilePath", promptFilePath);
+            core.info("promptFilePath: " + promptFilePath);
+
             const ResponseSchema = z.object({ 
               documentName: z.string(), 
               documentDetailedDigest: z.string(), 
@@ -549,8 +554,9 @@ jobs:
             core.setOutput("requestFilePath", requestFilePath);
             core.info("requestFilePath: " + requestFilePath);
             const response = await openai.chat.completions.create(request);
+            
             const responseFilePath = 'response.json';
-            fs.writeFileSync(responseFilePath, response);
+            fs.writeFileSync(responseFilePath, JSON.stringify(response, null, 2));
             core.setOutput("responseFilePath", responseFilePath);
             core.info("responseFilePath: " + responseFilePath);
 
@@ -767,6 +773,14 @@ jobs:
           git pull --ff-only origin ${{ github.ref }}
           git push -v origin ${{ github.ref }}
           git status -v
+
+      - name: Upload prompt file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: prompt.txt
+          path: ${{ steps.maintain-library.outputs.promptFilePath }}
+          retention-days: 7
 
       - name: Upload request file as an artifact
         if: ${{ !cancelled() }}
