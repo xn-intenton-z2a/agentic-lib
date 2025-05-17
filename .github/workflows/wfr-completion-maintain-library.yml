@@ -587,7 +587,12 @@ jobs:
               //core.info(`raw response as JSON: "${JSON.stringify(result, null, 2)}"`);
               //core.info("raw response end: ************************************************");
               const parsed = ResponseSchema.parse(result);
-              core.info(`parsed response: "${JSON.stringify(parsed, null, 2)}"`);
+              //core.info(`parsed response: "${JSON.stringify(parsed, null, 2)}"`);
+              const resultFilePath = 'result.json';
+              fs.writeFileSync(resultFilePath, JSON.stringify(result, null, 2));
+              core.setOutput("resultFilePath", resultFilePath);
+              core.info("resultFilePath: " + resultFilePath);
+              
               core.setOutput("documentName", parsed.documentName);
               core.setOutput("documentDetailedDigest", parsed.documentDetailedDigest);
               core.setOutput("documentNamesToBeDeleted", parsed.documentNamesToBeDeleted);
@@ -797,6 +802,13 @@ jobs:
           name: response.json
           path: ${{ steps.maintain-library.outputs.responseFilePath }}
           retention-days: 7
+
+      - name: Upload result file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: result.json
+          path: ${{ steps.maintain-library.outputs.resultFilePath }}
 
     outputs:
       documentName: ${{ steps.maintain-library.outputs.documentName }}
