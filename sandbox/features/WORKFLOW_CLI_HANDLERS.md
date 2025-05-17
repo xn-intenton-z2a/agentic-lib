@@ -1,47 +1,61 @@
 # Workflow and CLI Handlers
 
 ## Objective & Scope
+
 - Consolidate handling of GitHub Actions input events into unified handlers.
 - Support both workflow_call and workflow_dispatch events via workflowCallHandler and workflowDispatchHandler.
-- Introduce a new CLI flag --mission to output the project mission statement (contents of MISSION.md) and halt CLI processing.
+- Introduce CLI flags to streamline user interactions:
+  - --mission to output the project mission statement and exit.
+  - --stats to output runtime statistics (callCount and uptime) and exit.
 
 ## Value Proposition
+
 - Simplifies integration with GitHub Actions by providing consistent event handlers for workflow inputs.
 - Enables users to view and verify the project mission directly from the CLI without inspecting files.
+- Provides transparent runtime metrics for diagnostics and monitoring via a simple CLI flag.
 - Reduces duplication by unifying logic for event handling and CLI flag processing in a single module.
 
 ## Specification
+
 - In src/lib/main.js:
   - Maintain exports of async functions workflowCallHandler(event) and workflowDispatchHandler(event).
   - Both handlers expect an event object with an inputs object ({ key: string, value: string, lastModified: ISO string }).
   - Validate inputs using Zod; on failure, log error and throw.
   - Construct SQS event payload via createSQSEventFromDigest and invoke digestLambdaHandler, returning its response.
-  - Implement new async function processMission(args) that:
-    - Checks if args includes "--mission".
-    - Reads MISSION.md from the project root using fs.readFile.
-    - Prints the raw contents to stdout.
+  - Existing async functions:
+    - processMission(args): handles "--mission" flag by reading MISSION.md and printing its raw contents; returns true when handled.
+    - processVersion(args): handles "--version" flag by reading package.json and printing version and timestamp as JSON; returns true when handled.
+    - processDigest(args): handles "--digest" flag by constructing example digest, invoking digestLambdaHandler, and returning true when handled.
+  - Implement new async function processStats(args):
+    - Checks if args includes "--stats".
+    - Constructs a JSON object with keys callCount (globalThis.callCount) and uptime (process.uptime()).
+    - Prints the JSON object to stdout.
     - Returns true to indicate the flag was handled.
   - In main(args):
-    - Call processMission(args) before processHelp.
-    - If processMission returns true, skip further processing and exit normally.
+    - Sequentially invoke processMission, processHelp, processVersion, processDigest, and processStats.
+    - After each flag handler, if it returns true, skip further processing and exit normally.
+    - Default case: print "No command argument supplied." and show usage.
+
 - Tests:
   - In tests/unit/main.test.js:
-    - Add tests for processMission:
-      - When called with ["--mission"], it reads MISSION.md and logs its content exactly.
-      - Ensure processMission returns true and main terminates early.
-    - Verify existing workflowCallHandler and workflowDispatchHandler tests remain passing.
-  - In sandbox/tests/cli-mission.test.js:
-    - Simulate invoking main(["--mission"]) and assert stdout contains the first line of MISSION.md.
+    - Add tests for processStats:
+      - When called with ["--stats"], ensure processStats returns true and stdout contains a JSON object with numeric callCount and uptime keys.
+    - Ensure existing tests for workflowCallHandler, workflowDispatchHandler, processMission, processVersion, and processDigest remain passing.
+  - No additional test files added; expand coverage in existing suite.
+
 - Documentation:
-  - Update README.md under CLI Usage to include:
-    --mission    Show project mission statement contents of MISSION.md.
+  - Update sandbox/README.md under CLI Usage to include:
+      --stats    Show runtime statistics including callCount and uptime.
   - Provide example:
-    agentic-lib --mission
+      agentic-lib --stats
 
 ## Verification & Acceptance
-- Unit tests cover valid and invalid inputs for both workflows and mission flag behavior.
+
+- Unit tests cover valid and invalid inputs for both workflows, mission flag, version flag, digest flag, and stats flag behavior.
 - README updated with new CLI reference and usage example.
 - Manual acceptance by running:
-  node src/lib/main.js --mission
-  node src/lib/main.js --digest
-  node src/lib/main.js --help
+    node src/lib/main.js --stats
+    node src/lib/main.js --mission
+    node src/lib/main.js --digest
+    node src/lib/main.js --help
+    node src/lib/main.js --version
