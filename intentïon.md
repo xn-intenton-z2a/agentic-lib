@@ -28,3 +28,5 @@
 
 2025-05-18T16:58:16.131Z - Maintained feature AGENTIC_CLI.
 
+2025-05-18T16:58:54.939Z - Generated feature development issue with title Implement --serve flag in AGENTIC_CLI for HTTP REST server with metrics.
+
