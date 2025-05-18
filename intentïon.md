@@ -38,3 +38,9 @@
 
 2025-05-18T06:26:26.317Z - Maintain sources of library content.
 
+2025-05-18T06:30:24.684Z - Digested OpenAI SDK: npm install openai; import OpenAI from 'openai'; constructor({apiKey?,maxRetries=2,timeout=600000,httpAgent?,fetch?,dangerouslyAllowBrowser=false});
+responses.create({model:string,instructions?,input?,stream?},opts?)=>Promise<{output_text:string,_request_id:string}>|AsyncIterable<SSE>;
+chat.completions.create({model:string,messages:Array<{role,content}>,stream?},opts?)=>Promise<{choices:Array<{message:{role,content}}>,_request_id:string}>|AsyncIterable<SSE>;
+client.files.create({file:ReadStream|File|Response|toFile(buffer,name),purpose:'fine-tune'|'answers'|'search'|'classifications'|'embeddings'});
+Errors: APIError subclasses with request_id,status,name,headers; map 400-429-5xx; connection errors retry; timeout=>APIConnectionTimeoutError; default retries=2; override via maxRetries global or per-request; override timeout global or per-request; all responses include _request_id or via .withResponse(); auto-pagination with for await or page.hasNextPage(); Realtime via OpenAIRealtimeWebSocket({model}); Azure: new AzureOpenAI({azureADTokenProvider,apiVersion}); Advanced: .asResponse(), client.get/post, custom fetch, DEBUG=true logging, httpAgent for proxies; shim imports for fetch behavior; TS>=4.5, Node>=18, Deno>=1.28, Bun>=1.0, Cloudflare, Vercel Edge, Jest>=28, Nitro>=2.6; browser support with dangerouslyAllowBrowser:true..
+
