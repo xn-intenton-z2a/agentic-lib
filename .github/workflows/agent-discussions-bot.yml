@@ -436,7 +436,8 @@ jobs:
         with:
           script: |
             const action = process.env.action;
-            const title = process.env.title;
+            const detail = process.env.detail;
+            const reply = process.env.reply;
             const intentionFilepath = process.env.intentionFilepath;
             
             const activity = `${reply}\n\n[Posted on "${url}" by the repository bot which took the action "${action}" with the detail "${detail}".]`;
