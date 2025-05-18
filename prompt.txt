@@ -587,6 +587,10 @@ Documentation files (write new files or update files in sandbox/docs as necessar
 DOCUMENTATION_FILE_START File: sandbox/docs/SERVER.md
 # HTTP Server Feature
 
+## Mission Alignment
+
+The HTTP server provides critical observability endpoints (health, metrics, OpenAPI schema, docs) to support continuous monitoring and self-hosted documentation in line with our mission to enable autonomous, agentic workflows. For mission details, see [Mission Statement](../MISSION.md).
+
 This document describes how to launch the built-in HTTP server provided by agentic-lib, exposing key endpoints.
 
 ## Programmatic Usage
@@ -647,6 +651,10 @@ DOCUMENTATION_FILE_END
 
 DOCUMENTATION_FILE_START File: sandbox/docs/SQS_OVERVIEW.md
 # Deep Dive: SQS Overview
+
+## Mission Alignment
+
+The SQS utilities support robust, event-driven architectures and automated message processing, empowering continuous, autonomous agentic workflows. For mission details, see [Mission Statement](../MISSION.md).
 
 A comprehensive guide to Amazon SQS features, configuration, and best practices.
 
@@ -712,6 +720,10 @@ DOCUMENTATION_FILE_END
 
 README file (for context, read only): sandbox/README.md
 README_FILE_START
+## Mission Statement
+
+This project is guided by the core mission of agentic-lib to enable autonomous, continuous agentic interactions through issues, branches, and pull requests. For full mission details, see [Mission Statement](../MISSION.md).
+
 # agentic-lib
 
 agentic-lib is a drop-in JavaScript SDK for autonomous GitHub workflows. Inspired by our mission to enable continuous, agentic interactions through issues, branches, and pull requests, this library provides core utilities to configure environments, handle AWS SQS events, power CLI-driven workflows, and optionally launch a self-hosted HTTP server for health, metrics, and documentation.
@@ -720,12 +732,18 @@ With agentic-lib, you can seamlessly integrate environment validation, structure
 
 ## Key Features
 
-- **Environment configuration** (dotenv + Zod)
-- **Logging helpers** (logInfo, logError)
-- **AWS utilities** (createSQSEventFromDigest)
-- **Lambda handler** (digestLambdaHandler)
-- **HTTP Server** (startServer function with `/health`, `/metrics`, `/openapi.json`, `/docs` endpoints)
-- **CLI flags**: `--help`, `--version`, `--digest`
+- **Environment configuration** (dotenv + Zod)  
+  Mission Alignment: Validates and loads environment variables to ensure consistent, reproducible conditions essential for autonomous workflows.  
+- **Logging helpers** (logInfo, logError)  
+  Mission Alignment: Provides structured, consistent logs to enable transparent audit trails for agentic operations.  
+- **AWS utilities** (createSQSEventFromDigest)  
+  Mission Alignment: Simplifies SQS event creation for seamless integration into continuous, event-driven workflows.  
+- **Lambda handler** (digestLambdaHandler)  
+  Mission Alignment: Automates message processing and error handling to maintain continuous, autonomous system reliability.  
+- **HTTP Server** (startServer function with `/health`, `/metrics`, `/openapi.json`, `/docs` endpoints)  
+  Mission Alignment: Exposes self-hosted endpoints for observability and documentation, supporting ongoing, autonomous monitoring.  
+- **CLI flags**: `--help`, `--version`, `--digest`  
+  Mission Alignment: Offers intuitive CLI interfaces to drive agentic workflows directly from the command line.
 
 ## Installation
 
@@ -1180,47 +1198,50 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: Embed Mission Alignment References in Feature Documentation and README
+title: Embed Mission Alignment Sections in Library Documentation
 description:
-Objective:
-Ensure that all feature documentation and the README explicitly reference and link to the mission statement, reinforcing how each feature supports the core mission of agentic-lib.
+**Objective:**
+Add a standardized “Mission Alignment” section at the top of each guide in `sandbox/library/` so all library quickstart and SDK docs clearly reference the core mission of agentic-lib.
 
-Changes Required:
-1. sandbox/README.md:
-   - Under “Key Features”, for each listed feature add a brief “Mission Alignment” sentence explaining how it furthers the mission in MISSION.md.
-   - Add or update a “Mission Statement” section at the top linking to the MISSION.md file.
+**Affected files:**
+- `sandbox/library/LANGCHAIN_QUICKSTART.md`
+- `sandbox/library/OPENAI_NODE_SDK.md`
 
-2. sandbox/features/CLI_EXTENSIONS.md:
-   - At the top of the file, insert a “Mission Alignment” section that describes how the `--stream` flag and streaming chat mode align with and advance the project mission to enable real-time, autonomous agentic workflows.
+**Requirements:**
+1. At the top of each document (immediately after the main heading), insert a `## Mission Alignment` section.  
+2. In that section, briefly describe how the document’s content advances agentic-lib’s mission to enable autonomous, continuous agentic workflows.  
+3. Include a link to the root `MISSION.md` (e.g., `For mission details, see [Mission Statement](../MISSION.md).`).  
+4. Follow the style and structure of existing mission alignment entries (e.g., see `sandbox/docs/SERVER.md`).
 
-3. sandbox/docs/SERVER.md and sandbox/docs/SQS_OVERVIEW.md:
-   - Prepend a “Mission Alignment” subsection to each, summarizing how the HTTP server (health, metrics, docs endpoints) and SQS utilities contribute to the mission of powering autonomous, continuous interactions.
-   - Ensure each page links back to MISSION.md.
+**Success Criteria & Verification:**
+- Both docs compile cleanly as Markdown.
+- The new sections appear immediately below the main title in each file.
+- CI (Markdown linter) reports no errors.
 
-Verification:
-- After updating files, verify that:
-  - sandbox/README.md begins with a Mission Statement section linking to MISSION.md and that each key feature description includes a Mission Alignment sentence.
-  - sandbox/features/CLI_EXTENSIONS.md, sandbox/docs/SERVER.md, and sandbox/docs/SQS_OVERVIEW.md each include a Mission Alignment heading and link to the mission file.
-  - No other files are modified.
+**Implementation Steps:**
+1. Edit `sandbox/library/LANGCHAIN_QUICKSTART.md`:
+   - After `# LANGCHAIN_QUICKSTART.md`, add a `## Mission Alignment` section describing how LangChain quickstart supports autonomous LLM-driven workflows, with a link to `MISSION.md`.
+2. Edit `sandbox/library/OPENAI_NODE_SDK.md`:
+   - After `# OPENAI_NODE_SDK.md`, add a `## Mission Alignment` section describing how the OpenAI SDK integration empowers continuous, agentic automation, with a link to `MISSION.md`.
+3. Commit changes and run `npm test` to ensure no regressions.
 
-Deliverable:
-Provide updated versions of sandbox/README.md, sandbox/features/CLI_EXTENSIONS.md, sandbox/docs/SERVER.md, and sandbox/docs/SQS_OVERVIEW.md in a single LLM response, ready for commit.
+Once merged, all library docs will clearly tie back to the core mission, improving consistency and context for users.
 comments:
-Author:github-actions[bot], Created:2025-05-17T23:46:27Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15090200541
+Author:github-actions[bot], Created:2025-05-18T00:42:26Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15090624313
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/6d5bc6308a84dc0ac6209f56e766abcbb704cb6e
-Author:github-actions[bot], Created:2025-05-17T23:46:52Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15090200541
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/57a46f365a9ff490bf8ebe29163e54b11d4229f7
+Author:github-actions[bot], Created:2025-05-18T00:42:54Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15090624313
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/6d5bc6308a84dc0ac6209f56e766abcbb704cb6e
-Author:github-actions[bot], Created:2025-05-17T23:47:43Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15090200541
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/98068a759d2d620728aed59ba15eb18a4635ea6b
+Author:github-actions[bot], Created:2025-05-18T00:43:53Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15090624313
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/6d5bc6308a84dc0ac6209f56e766abcbb704cb6e
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/57000d75b54046138494010581885e60478f6b88
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -1279,18 +1300,18 @@ TEST_OUTPUT_START
 
  [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js
-[22m[39m{"level":"info","timestamp":"2025-05-17T23:48:58.063Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
+[22m[39m{"level":"info","timestamp":"2025-05-18T00:45:12.926Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
 
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 74[2mms[22m[39m
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 64[2mms[22m[39m
 [90mstdout[2m | sandbox/tests/server.test.js
 [22m[39mServer started on port 3000
 
- [32m✓[39m sandbox/tests/server.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m sandbox/tests/server.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 55[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
 [2m      Tests [22m [1m[32m4 passed[39m[22m[90m (4)[39m
-[2m   Start at [22m 23:48:57
-[2m   Duration [22m 439ms[2m (transform 103ms, setup 0ms, collect 237ms, tests 101ms, environment 1ms, prepare 253ms)[22m
+[2m   Start at [22m 00:45:12
+[2m   Duration [22m 448ms[2m (transform 104ms, setup 0ms, collect 208ms, tests 122ms, environment 1ms, prepare 256ms)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
@@ -1299,7 +1320,7 @@ MAIN_OUTPUT_START
 > @xn-intenton-z2a/agentic-lib@6.6.3-0 start
 > node src/lib/main.js
 
-{"level":"info","timestamp":"2025-05-17T23:48:58.409Z","message":"Configuration loaded","config":{}}
+{"level":"info","timestamp":"2025-05-18T00:45:13.269Z","message":"Configuration loaded","config":{}}
 No command argument supplied.
 
 Usage:
