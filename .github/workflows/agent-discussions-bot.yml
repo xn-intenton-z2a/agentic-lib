@@ -15,21 +15,11 @@ on:
       - answered
       - unanswered
       - deleted
-    secrets:
-      PERSONAL_ACCESS_TOKEN:
-        required: false
-      CHATGPT_API_SECRET_KEY:
-        required: true
   discussion_comment:
     types:
       - created
       - edited
       - deleted
-    secrets:
-      PERSONAL_ACCESS_TOKEN:
-        required: false
-      CHATGPT_API_SECRET_KEY:
-        required: true
   workflow_dispatch:
     inputs:
       discussionBody:
@@ -114,18 +104,15 @@ jobs:
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
-            let authorAssociation; // discussion author_association
+            // Initialize variables with default values
+            let authorAssociation = ''; // discussion author_association
             let body = ''; // discussion body
             let state = ''; // discussion state
             let title = ''; // discussion title
             let url = ''; // discussion html_url
-
             let categoryName = ''; // discussion category name
-
-            let userName = '' // discussion user name
-
+            let userName = ''; // discussion user name
             let labels = ''; // discussion labels.*
-
             let reactions = ''; // discussion reactions confused + eyes + heart + hooray + laugh + rocket
 
             if (context.eventName === 'discussion') {
@@ -498,7 +485,7 @@ jobs:
       - generate-response
       - seed-repository
       - agentic-lib
-    if: ${{ !cancelled() && needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' }}
+    if: ${{ !cancelled() && (needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature') }}
     permissions:
       contents: write
       pull-requests: write
@@ -521,7 +508,7 @@ jobs:
   #    - generate-response
   #    - seed-repository
   #    - agentic-lib
-  #  if: ${{ !cancelled() && needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' }}
+  #  if: ${{ !cancelled() && (needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature') }}
   #  permissions:
   #    contents: write
   #    pull-requests: write
@@ -543,7 +530,7 @@ jobs:
       - generate-response
       - agentic-lib
       - feature-maintenance-flow
-    if: ${{ !cancelled() && (needs.generate-response.outputs.action == 'mark-complete' || needs.generate-response.outputs.action == 'stop') }}
+    if: ${{ !cancelled() && (needs.generate-response.outputs.action == 'mission-complete' || needs.generate-response.outputs.action == 'stop') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -559,16 +546,20 @@ jobs:
 
       - name: Log the declaration in the seed discussion file (intentïon) file.
         run: |
-          echo "" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          echo "${{ needs.generate-response.outputs.action }} at $(date)" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          echo "" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          echo "HALT" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          mkdir -p "$(dirname "${{ needs.agentic-lib.outputs.intentionFilepath }}")"
+          if [ ! -f "${{ needs.agentic-lib.outputs.intentionFilepath }}" ]; then
+            touch "${{ needs.agentic-lib.outputs.intentionFilepath }}"
+          fi
+          echo "" >> "${{ needs.agentic-lib.outputs.intentionFilepath }}"
+          echo "${{ needs.generate-response.outputs.action }} at $(date)" >> "${{ needs.agentic-lib.outputs.intentionFilepath }}"
+          echo "" >> "${{ needs.agentic-lib.outputs.intentionFilepath }}"
+          echo "HALT" >> "${{ needs.agentic-lib.outputs.intentionFilepath }}"
 
       - name: Commit changes
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
-          git add ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          git add "${{ needs.agentic-lib.outputs.intentionFilepath }}"
           git commit -m "HALT with ${{ needs.generate-response.outputs.action }}"
           git push
         env:
@@ -602,6 +593,7 @@ jobs:
   #    - seed-repository
   #    - agentic-lib
   #    - feature-development-flow
+  #    - feature-maintenance-flow
   #    - declare-status-and-halt
   #    - select-next-issue
   #  if: ${{ !cancelled() }}

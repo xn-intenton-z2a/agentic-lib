@@ -736,6 +736,7 @@ intentïon user journey [Launch UX]:
 - [x] Rename (intentionBot, intentionFilepath) to (intentionBot, intentionFilepath)
 - [~] Add links to issues, feature files, and commits to intentïon.md
 - [~] More disciplined markdown in intentïon.md (e.g. # Activity logs\n\n ## 2025-04-20....)
+- [~] Extract the mission file from the repository and put it in the intentïon.md
 - [ ] Add main output examples to intentïon.md
 - [ ] Add PR approval and closure/abandonment to intentïon.md
 - [ ] Add API call duration to usage

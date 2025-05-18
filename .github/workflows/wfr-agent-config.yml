@@ -244,34 +244,34 @@ jobs:
             const fs = require('fs');
             const path = require('path');
             const yaml = require('js-yaml');
-            
+
             const haltSignal = process.env.haltSignal;
 
-            // Filepaths for elaborator workflows - Default values
-            let missionFilepath = process.env.defaultMissionFilepath;
-            let librarySourcesFilepath = process.env.defaultLibrarySourcesFilepath;
-            let librarySourcesLimit = process.env.defaultLibrarySourcesLimit;            
-            let libraryDocumentsPath = process.env.defaultLibraryDocumentsPath;
-            let libraryDocumentsLimit = process.env.defaultLibraryDocumentsLimit;
-            let featuresPath = process.env.defaultFeaturesPath;
-            let featuresLimit = process.env.defaultFeaturesLimit;
+            // Filepaths for elaborator workflows - Default values with fallbacks
+            let missionFilepath = process.env.defaultMissionFilepath || 'MISSION.md';
+            let librarySourcesFilepath = process.env.defaultLibrarySourcesFilepath || 'SOURCES*.md';
+            let librarySourcesLimit = process.env.defaultLibrarySourcesLimit || '16';            
+            let libraryDocumentsPath = process.env.defaultLibraryDocumentsPath || 'library/';
+            let libraryDocumentsLimit = process.env.defaultLibraryDocumentsLimit || '8';
+            let featuresPath = process.env.defaultFeaturesPath || 'features/';
+            let featuresLimit = process.env.defaultFeaturesLimit || '3';
 
-            // Filepaths for engineer workflows - Default values
-            let contributingFilepath = process.env.defaultContributingFilepath;
-            let targetTestsPath = process.env.defaultTargetTestsPath;
-            let otherTestsPaths = process.env.defaultOtherTestsPaths;
-            let targetSourcePath = process.env.defaultTargetSourcePath;
-            let otherSourcePaths = process.env.defaultOtherSourcePaths;
-            let dependenciesFilepath = process.env.defaultDependenciesFilepath;
-            let documentationPath = process.env.defaultDocumentationPath;
+            // Filepaths for engineer workflows - Default values with fallbacks
+            let contributingFilepath = process.env.defaultContributingFilepath || 'CONTRIBUTING.md';
+            let targetTestsPath = process.env.defaultTargetTestsPath || 'tests/unit/';
+            let otherTestsPaths = process.env.defaultOtherTestsPaths || '["tests/unit/"]';
+            let targetSourcePath = process.env.defaultTargetSourcePath || 'src/lib/';
+            let otherSourcePaths = process.env.defaultOtherSourcePaths || '["src/lib/"]';
+            let dependenciesFilepath = process.env.defaultDependenciesFilepath || 'package.json';
+            let documentationPath = process.env.defaultDocumentationPath || 'docs/';
 
-            // Filepaths for maintainer workflows - Default values
-            let formattingFilepath = process.env.defaultFormattingFilepath;
-            let lintingFilepath = process.env.defaultLintingFilepath;
-            let readmeFilepath = process.env.defaultReadmeFilepath;
+            // Filepaths for maintainer workflows - Default values with fallbacks
+            let formattingFilepath = process.env.defaultFormattingFilepath || '.prettierrc';
+            let lintingFilepath = process.env.defaultLintingFilepath || 'eslint.config.js';
+            let readmeFilepath = process.env.defaultReadmeFilepath || 'README.md';
 
-            // Filepath access permissions - Default values
-            let writeableFilepaths = process.env.defaultWriteableFilepaths;
+            // Filepath access permissions - Default values with fallbacks
+            let writeableFilepaths = process.env.defaultWriteableFilepaths || 'SOURCES.md;library/;features/;tests/unit/;src/lib/;package.json;docs/;README.md';
 
             // Use the configPath from input parameter
             const configPath = process.env.configPath;

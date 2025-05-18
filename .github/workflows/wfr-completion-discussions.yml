@@ -743,36 +743,37 @@ jobs:
             }
             const openai = new OpenAI({ apiKey });
 
-            const discussionTitle = process.env.discussionTitle;
-            const discussionBody = process.env.discussionBody;
-            const discussionUrl = process.env.discussionUrl;
-            const discussionState = process.env.discussionState;
-            const discussionCategoryName = process.env.discussionCategoryName;
-            const discussionUserInformation = process.env.discussionUserInformation;
-            const discussionLabels = process.env.discussionLabels;
-            const discussionReactions = process.env.discussionReactions;
-            const commits = process.env.commits;
-            const repoFiles = process.env.repoFiles;
-            const sourceFiles = process.env.sourceFiles;
-            const testFiles = process.env.testFiles;
-            const docsFiles = process.env.docsFiles;
-            const readmeContent = process.env.readmeContent;
-            const missionContent = process.env.missionContent;
-            const contributingContent = process.env.contributingContent;
-            const dependenciesContent = process.env.dependenciesContent;
-            const workflowFilesContent = process.env.workflowFilesContent;
-            const installScript = process.env.installScript;
-            const installOutput = process.env.installOutput;
-            const buildScript = process.env.buildScript;
-            const buildOutput = process.env.buildOutput;
-            const testScript = process.env.testScript;
-            const testOutput = process.env.testOutput;
-            const mainScript = process.env.mainScript;
-            const mainOutput = process.env.mainOutput;
-            const statsJson = process.env.statsJson;
-            const promptContent = process.env.promptContent;
-            const agentConfigContent = process.env.agentConfigContent;
-            const model = process.env.model;
+            // Get environment variables
+            const discussionTitle = process.env.discussionTitle || '';
+            const discussionBody = process.env.discussionBody || '';
+            const discussionUrl = process.env.discussionUrl || '';
+            const discussionState = process.env.discussionState || '';
+            const discussionCategoryName = process.env.discussionCategoryName || '';
+            const discussionUserInformation = process.env.discussionUserInformation || '';
+            const discussionLabels = process.env.discussionLabels || '';
+            const discussionReactions = process.env.discussionReactions || '';
+            const commits = process.env.commits || '';
+            const repoFiles = process.env.repoFiles || '';
+            const sourceFiles = process.env.sourceFiles || '';
+            const testFiles = process.env.testFiles || '';
+            const docsFiles = process.env.docsFiles || '';
+            const readmeContent = process.env.readmeContent || '';
+            const missionContent = process.env.missionContent || '';
+            const contributingContent = process.env.contributingContent || '';
+            const dependenciesContent = process.env.dependenciesContent || '';
+            const workflowFilesContent = process.env.workflowFilesContent || '';
+            const installScript = process.env.installScript || '';
+            const installOutput = process.env.installOutput || '';
+            const buildScript = process.env.buildScript || '';
+            const buildOutput = process.env.buildOutput || '';
+            const testScript = process.env.testScript || '';
+            const testOutput = process.env.testOutput || '';
+            const mainScript = process.env.mainScript || '';
+            const mainOutput = process.env.mainOutput || '';
+            const statsJson = process.env.statsJson || '';
+            const promptContent = process.env.promptContent || '';
+            const agentConfigContent = process.env.agentConfigContent || '';
+            const model = process.env.model || 'o4-mini';
 
             core.info(`Discussion title: ${discussionTitle}`);
             core.info(`Discussion body: ${discussionBody}`);
@@ -1130,13 +1131,13 @@ jobs:
               ],
               tools: tools
             };
-            
+
             const requestFilePath = 'request.json';
             fs.writeFileSync(requestFilePath, JSON.stringify(request, null, 2));
             core.setOutput("requestFilePath", requestFilePath);
             core.info("requestFilePath: " + requestFilePath);
             const response = await openai.chat.completions.create(request);
-            
+
             const responseFilePath = 'response.json';
             fs.writeFileSync(responseFilePath, JSON.stringify(response, null, 2));
             core.setOutput("responseFilePath", responseFilePath);
@@ -1174,7 +1175,7 @@ jobs:
                 core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
                 return;
               }
-            
+
               core.setOutput("action", parsed.action);
               core.setOutput("detail", parsed.detail);
               core.setOutput("reply", parsed.reply);
