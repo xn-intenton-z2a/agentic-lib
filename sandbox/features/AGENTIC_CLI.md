@@ -1,56 +1,50 @@
 # Value Proposition
 
-Provide a unified command line interface that combines AWS event simulation for S3, SNS, and SQS with an interactive agentic chat feature powered by OpenAI. This tool enables developers to locally test Lambda handlers against realistic AWS events, prototype autonomous workflow decisions through a chat interface, and preview mission statements without deploying to external services.
+Provide a unified CLI for local AWS event simulation (S3, SNS, SQS) and an interactive agentic chat powered by OpenAI. This ensures developers can prototype, test, and preview workflows without deploying to external services.
 
 # Success Criteria & Requirements
 
 ## CLI Flag Parsing
-
 - In sandbox/source/main.js:
-  - Support --s3-event flag with bucketName and objectKey arguments, defaulting to S3_BUCKET_NAME environment variable when absent.
-  - Support --sns-event flag with topicArn and message arguments, defaulting to SNS_TOPIC_ARN environment variable when absent.
-  - Support existing --digest flag that simulates an SQS event from a fixed example digest.
-  - Support a new --chat flag followed by a user prompt string. Extract a single argument or quoted string for the prompt.
-  - Parse flags in any order, remove processed flags and their arguments before invoking handlers to avoid interference.
+  - Support --s3-event with two arguments: bucketName and objectKey. If arguments are omitted, default to S3_BUCKET_NAME and OBJECT_KEY environment variables.
+  - Support --sns-event with two arguments: topicArn and message. If arguments are omitted, default to SNS_TOPIC_ARN and SNS_MESSAGE environment variables.
+  - Retain existing --digest flag behavior.
+  - Support a new --chat flag with a prompt string argument, accepting unquoted or quoted multiword prompts.
+  - Parse flags and their arguments in any order, remove them from args before invoking respective handlers.
 
 ## AWS Event Creators and Handlers
-
 - In src/lib/main.js:
-  - Maintain createS3PutObjectEvent(bucketName, objectKey) returning an S3 PutObject notification event.
-  - Maintain createSNSEvent(topicArn, message) returning an SNS Publish event.
+  - Add createS3PutObjectEvent(bucketName, objectKey) returning a valid S3 PutObject notification event object.
+  - Add createSNSEvent(topicArn, message) returning a valid SNS Publish event object.
   - Maintain createSQSEventFromDigest(digest) for SQS simulation.
-  - Export async handlers `s3LambdaHandler`, `snsLambdaHandler`, `digestLambdaHandler` that log event details using logInfo.
+  - Export async handlers s3LambdaHandler(event), snsLambdaHandler(event), and digestLambdaHandler(event) that log event details via logInfo.
 
 ## OpenAI Chat Integration
-
 - In src/lib/main.js:
-  - Import Configuration and OpenAIApi from openai.
-  - Export async function `chatHandler(userPrompt)` that:
+  - Export async chatHandler(userPrompt) that:
     - Instantiates OpenAIApi with Configuration using OPENAI_API_KEY.
-    - Sends a chat completion with:
-      - system message describing agentic-lib mission.
-      - userPrompt as a follow-up.
-    - Parses the response content as text and logs it via logInfo.
+    - Sends a chat completion request with a system message describing the agentic mission and the userPrompt follow-up.
+    - Parses the returned message content as text and logs it with logInfo.
     - Returns the raw response content.
 
 ## CLI Integration
-
 - In sandbox/source/main.js:
-  - Implement `processChat(args)` to detect --chat flag, extract the prompt, invoke chatHandler, and log its response using logInfo.
-  - Invoke `processChat` alongside `processS3Event`, `processSnsEvent`, and `processDigest` in main execution flow before help and default message.
-  - Update `generateUsage()` to include: `--chat [prompt]` Interact with the agentic AI chat interface.
+  - Implement processS3Event(args), processSnsEvent(args), and processChat(args) functions.
+  - Each function detects its flag, extracts and validates arguments, invokes the corresponding handler from src/lib/main.js, and logs the result.
+  - Update generateUsage() to include:
+    --s3-event [bucketName objectKey]  Simulate an S3 PutObject event.
+    --sns-event [topicArn message]     Simulate an SNS Publish event.
+    --chat [prompt]                    Interact with the agentic chat interface.
+  - Invoke these processors in the main execution flow alongside processMission, processHelp, processVersion, processDigest.
 
 ## Documentation
+- In sandbox/README.md:
+  - Update options list to include --s3-event, --sns-event, and --chat, each with concise descriptions and examples.
+  - Ensure links to MISSION.md, CONTRIBUTING.md, and the agentic-lib GitHub repository are present.
 
-- Update sandbox/README.md:
-  - Add usage entry for --chat with an example: `node sandbox/source/main.js --chat "Describe next agentic workflow step"`.
-  - Ensure entries for --s3-event, --sns-event, --digest, --mission, --help, and --version remain accurate.
-
-# Verification & Acceptance
-
-- Add sandbox/tests/chat.cli.test.js:
-  - Mock openai library to return a fixed chat completion.
-  - Verify invoking `--chat prompt` calls chatHandler with correct prompt.
-  - Assert console.log outputs a JSON log entry with the returned message.
-- Confirm existing sandbox/tests/s3.event.test.js and sandbox/tests/sns.event.test.js pass without modification.
-- Confirm unit tests in tests/unit remain green.
+## Testing
+- Add sandbox/tests/s3.cli.test.js and sandbox/tests/sns.cli.test.js:
+  - Mock the AWS event creators and lambda handlers to return fixed log entries.
+  - Verify invoking --s3-event and --sns-event calls correct handlers with parsed arguments and logs JSON entries.
+- Update sandbox/tests/chat.cli.test.js to ensure chatHandler is invoked and its response is logged.
+- Confirm existing tests for --mission, --digest, and unit tests in tests/unit remain green.
