@@ -12,3 +12,5 @@
 
 2025-05-18T15:33:10.606Z - Enhanced issue 1487.
 
+2025-05-18T15:47:27.511Z - Worked to resolve issue Implement --verbose and --verbose-stats CLI flags with corresponding logging and tests. Implement --verbose and --verbose-stats CLI flags with corresponding logging and tests.
+
