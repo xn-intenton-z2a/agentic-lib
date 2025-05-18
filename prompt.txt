@@ -1,18 +1,23 @@
 
-You are providing the entire new content of source files, test files, documentation files, and other necessary
-files with all necessary changes applied to deliver the resolution to an issue. Focus on high-impact, 
-functional solutions that address core issues rather than superficial changes or excessive code polishing.
-Implement as much as you can and refer to the projects features and mission statement when expanding the code
-beyond the scope of the original issue. Implement whole features and do not leave stubbed out or pretended code.
+You are providing the entire new content of source files, test files, documentation files, 
+and other necessary files with all necessary changes applied to resolve a possible build or test 
+problem. Focus on high-impact, functional fixes that address core issues rather than superficial 
+changes or excessive debugging or validation. If the problem is in an area of the code with little
+value you may re-implement it or remove it.
 
-Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone and direction
-of the contributing guidelines. Prioritize changes that deliver user value and maintain the integrity
-of the codebase's primary purpose.
+Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone
+and direction of the contributing guidelines. Prioritize changes that deliver substantial user value
+and maintain the integrity of the codebase's primary purpose.
 
-Do as much as you can all at once.
+You may complete the implementation of a feature and/or bring the code output in line with the README
+or other documentation. Do as much as you can all at once so that the build runs (even with nothing
+to build) and the tests pass and the main at least doesn't output an error.
 
-Follow the linting guidelines and the formatting guidelines from the included config.
 
+
+Examine the "Build output from command","Test output from command", and "Main execution output from command" 
+to determine if there are any problems with the code to fix such as failing tests or output 
+not matching the features, README or other documentation.
 
 You must only add, remove, or change the files in the target writable locations. You can update multiple
 files by specifying their paths and contents in the enumerated updatedFile01Filepath updatedFile02Contents response
@@ -21,7 +26,7 @@ be checked against the write permission in the Agent configuration file before b
 add new files as long as they are in the target writable locations. You can also remove files, but only if
 they are in the target writable locations. To delete a file, set the updated file contents to "delete".
 
-The target writable locations for your output are: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;sandbox/docs/;sandbox/README.md
+The target writable locations for your output are: sandbox/source sandbox/tests sandbox/docs
 Other file will be supplied in the context but only the paths above should be written to.
 
 Only provide new or updated content for the target source files in sandbox/source.
@@ -34,22 +39,21 @@ Only update the target documentation files in sandbox/docs.
 Follow the attached Formatting file content and Linting file content.
 
 Consider the following when refining your response:
-* Current feature names and specifications in the repository
-* Source file content
-* Test file content
-* Documentation file content
-* README file content
-* MISSION file content
-* Contributing file content
-* Dependencies file content
-* Formatting file content
-* Linting file content
-* Agent configuration file content
-* Issue details
-* Dependency list
-* Build output
-* Test output
-* Main execution output
+  * Current feature names and specifications in the repository
+  * Source file content
+  * Test file content
+  * Documentation file content
+  * README file content
+  * MISSION file content
+  * Contributing file content
+  * Dependencies file content
+  * Formatting file content
+  * Linting file content
+  * Dependency install output
+  * Issue details (if any)
+  * Build output
+  * Test output
+  * Main execution output
 
 Current feature names and specifications (for context, read only):
 CURRENT_FEATURES_START
@@ -925,7 +929,7 @@ Dependencies file (for context, read only): package.json
 DEPENDENCIES_FILE_START
 {
   "name": "@xn-intenton-z2a/agentic-lib",
-  "version": "6.6.3-0",
+  "version": "6.6.5-0",
   "description": "Agentic-lib Agentic Coding Systems SDK powering automated GitHub workflows.",
   "type": "module",
   "main": "src/lib/main.js",
@@ -1108,9 +1112,85 @@ export default [
   },
 ];
 
-LINTING_FILE_END
+LINTING_FILE_END        
 
-Agent configuration file (for context, read only):
+Dependencies install from command: npm install
+DEPENDENCIES_INSTALL_START
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+
+added 605 packages, and audited 606 packages in 5s
+
+162 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+DEPENDENCIES_INSTALL_END    
+
+Issue details:
+ISSUE_START
+title: No issue number provided
+description:
+No issue description provided ( parsed to )
+comments:
+No issue comments provided
+ISSUE_END
+
+Build output from command: npm run build
+BUILD_OUTPUT_START
+
+> @xn-intenton-z2a/agentic-lib@6.6.5-0 build
+> echo "Nothing to build"
+
+Nothing to build
+BUILD_OUTPUT_END      
+
+Test output from command: npm test
+TEST_OUTPUT_START
+
+> @xn-intenton-z2a/agentic-lib@6.6.5-0 test
+> vitest tests/unit/*.test.js sandbox/tests/*.test.js
+
+
+[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/agentic-lib/agentic-lib[39m
+
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+[90mstdout[2m | tests/unit/main.test.js
+[22m[39m{"level":"info","timestamp":"2025-05-18T04:42:50.135Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
+
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 62[2mms[22m[39m
+[90mstdout[2m | sandbox/tests/server.test.js
+[22m[39mServer started on port 3000
+
+ [32m✓[39m sandbox/tests/server.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m   Start at [22m 04:42:49
+[2m   Duration [22m 402ms[2m (transform 96ms, setup 0ms, collect 221ms, tests 87ms, environment 1ms, prepare 257ms)[22m
+TEST_OUTPUT_END            
+
+Main execution output from command: npm run start
+MAIN_OUTPUT_START
+
+> @xn-intenton-z2a/agentic-lib@6.6.5-0 start
+> node src/lib/main.js
+
+{"level":"info","timestamp":"2025-05-18T04:42:50.406Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+MAIN_OUTPUT_END    
+
+Agent configuration file:
 AGENT_CONFIG_FILE_START
 # Which agentic-lib workflow schedule should be used?
 schedule: schedule-3
@@ -1196,156 +1276,23 @@ intentionBot:
 
 AGENT_CONFIG_FILE_END
 
-Issue details:
-ISSUE_START
-title: Embed Mission Alignment Sections in Library Documentation
-description:
-**Objective:**
-Add a standardized “Mission Alignment” section at the top of each guide in `sandbox/library/` so all library quickstart and SDK docs clearly reference the core mission of agentic-lib.
-
-**Affected files:**
-- `sandbox/library/LANGCHAIN_QUICKSTART.md`
-- `sandbox/library/OPENAI_NODE_SDK.md`
-
-**Requirements:**
-1. At the top of each document (immediately after the main heading), insert a `## Mission Alignment` section.  
-2. In that section, briefly describe how the document’s content advances agentic-lib’s mission to enable autonomous, continuous agentic workflows.  
-3. Include a link to the root `MISSION.md` (e.g., `For mission details, see [Mission Statement](../MISSION.md).`).  
-4. Follow the style and structure of existing mission alignment entries (e.g., see `sandbox/docs/SERVER.md`).
-
-**Success Criteria & Verification:**
-- Both docs compile cleanly as Markdown.
-- The new sections appear immediately below the main title in each file.
-- CI (Markdown linter) reports no errors.
-
-**Implementation Steps:**
-1. Edit `sandbox/library/LANGCHAIN_QUICKSTART.md`:
-   - After `# LANGCHAIN_QUICKSTART.md`, add a `## Mission Alignment` section describing how LangChain quickstart supports autonomous LLM-driven workflows, with a link to `MISSION.md`.
-2. Edit `sandbox/library/OPENAI_NODE_SDK.md`:
-   - After `# OPENAI_NODE_SDK.md`, add a `## Mission Alignment` section describing how the OpenAI SDK integration empowers continuous, agentic automation, with a link to `MISSION.md`.
-3. Commit changes and run `npm test` to ensure no regressions.
-
-Once merged, all library docs will clearly tie back to the core mission, improving consistency and context for users.
-comments:
-Author:github-actions[bot], Created:2025-05-18T00:42:26Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15090624313
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/57a46f365a9ff490bf8ebe29163e54b11d4229f7
-Author:github-actions[bot], Created:2025-05-18T00:42:54Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15090624313
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/98068a759d2d620728aed59ba15eb18a4635ea6b
-Author:github-actions[bot], Created:2025-05-18T00:43:53Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15090624313
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/57000d75b54046138494010581885e60478f6b88
-ISSUE_END            
-
-Dependencies list from command: npm list
-DEPENDENCIES_LIST_START
-@xn-intenton-z2a/agentic-lib@6.6.3-0 /home/runner/work/agentic-lib/agentic-lib
-├── @aws-sdk/client-lambda@3.808.0
-├── @microsoft/eslint-formatter-sarif@3.1.0
-├── @vitest/coverage-v8@3.1.3
-├── @xn-intenton-z2a/s3-sqs-bridge@0.24.0
-├── aws-cdk@2.1014.0
-├── chalk@5.4.1
-├── change-case@5.4.4
-├── dayjs@1.11.13
-├── dotenv@16.5.0
-├── ejs@3.1.10
-├── eslint-config-google@0.14.0
-├── eslint-config-prettier@8.10.0
-├── eslint-plugin-import@2.31.0
-├── eslint-plugin-prettier@5.4.0
-├── eslint-plugin-promise@7.2.1
-├── eslint-plugin-react@7.37.5
-├── eslint-plugin-security@3.0.1
-├── eslint-plugin-sonarjs@3.0.2
-├── eslint@9.26.0
-├── figlet@1.8.1
-├── js-yaml@4.1.0
-├── lodash@4.17.21
-├── markdown-it-github@0.5.0
-├── markdown-it@14.1.0
-├── minimatch@10.0.1
-├── npm-check-updates@18.0.1
-├── openai@4.98.0
-├── prettier@3.5.3
-├── seedrandom@3.0.5
-├── vitest@3.1.3
-└── zod@3.24.4
-DEPENDENCIES_LIST_END    
-
-Build output from command: npm run build
-BUILD_OUTPUT_START
-
-> @xn-intenton-z2a/agentic-lib@6.6.3-0 build
-> echo "Nothing to build"
-
-Nothing to build
-BUILD_OUTPUT_END      
-
-Test output from command: npm test
-TEST_OUTPUT_START
-
-> @xn-intenton-z2a/agentic-lib@6.6.3-0 test
-> vitest tests/unit/*.test.js sandbox/tests/*.test.js
-
-
-[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/agentic-lib/agentic-lib[39m
-
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
-[90mstdout[2m | tests/unit/main.test.js
-[22m[39m{"level":"info","timestamp":"2025-05-18T00:45:12.926Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
-
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 64[2mms[22m[39m
-[90mstdout[2m | sandbox/tests/server.test.js
-[22m[39mServer started on port 3000
-
- [32m✓[39m sandbox/tests/server.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 55[2mms[22m[39m
-
-[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
-[2m      Tests [22m [1m[32m4 passed[39m[22m[90m (4)[39m
-[2m   Start at [22m 00:45:12
-[2m   Duration [22m 448ms[2m (transform 104ms, setup 0ms, collect 208ms, tests 122ms, environment 1ms, prepare 256ms)[22m
-TEST_OUTPUT_END            
-
-Main execution output from command: npm run start
-MAIN_OUTPUT_START
-
-> @xn-intenton-z2a/agentic-lib@6.6.3-0 start
-> node src/lib/main.js
-
-{"level":"info","timestamp":"2025-05-18T00:45:13.269Z","message":"Configuration loaded","config":{}}
-No command argument supplied.
-
-Usage:
-  --help                     Show this help message and usage instructions.
-  --digest                   Run a full bucket replay simulating an SQS event.
-  --version                  Show version information with current timestamp.
-MAIN_OUTPUT_END    
-
-Please produce updated versions of the files that resolve the issue.
+Please produce updated versions of the files that resolve the possible build or test problem.
+If there are no changes required, please provide the original content and state that no changes are necessary in the message.
 Note that the README.md file is provided for context only - any documentation changes should be written to the documentation files.
 The source files, test files, and documentation files can be individual files or directories containing multiple files.
-Never truncate the files, when returning a file, always return the entire file content.
 
-Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;sandbox/docs/;sandbox/README.md
+Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;sandbox/docs/;sandbox/README.md}
 
 Answer strictly with a JSON object following this schema:
 {
   "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text.",
   "updatedFile01Filepath": "sandbox/source/orderParser.js",
   "updatedFile01Contents": "The entire new content of the source file, with all necessary changes applied, if any.",
-  "updatedFile02Filepath":  "sandbox/tests/orderParser.test.js",
+  "updatedFile02Filepath": "sandbox/tests/orderParser.test.js",
   "updatedFile02Contents": "The entire new content of the test file, with all necessary changes applied, if any.",
-  "updatedFile03Filepath": "sandbox/docs/USAGE.md",
+  "updatedFile03Filepath": "sandbox/docs/docs/USAGE.md",
   "updatedFile03Contents": "The entire new content of the documentation file, with all necessary changes applied, if any.",
-  "updatedFile04Filepath": "sandbox/docs/A_FILE_WE_DONT_WANT.md",
+  "updatedFile04Filepath": "sandbox/docs/docs/A_FILE_WE_DONT_WANT.md",
   "updatedFile04Contents": "delete",
   "updatedFile05Filepath": "unused",
   "updatedFile05Contents": "unused",
