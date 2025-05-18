@@ -1,58 +1,63 @@
 # Mission Alignment
 
-This feature extends the built-in HTTP server to provide essential observability, core GitHub operations, webhook-driven event handling, and autonomous workflow management. It enables summarization, creation, update, and full lifecycle control of GitHub issues, branches, pull requests, merges, and automated reactions to webhook events directly through a REST interface.
+Extend the built-in HTTP server to deliver full GitHub automation and observability. Provide endpoints for health, metrics, OpenAPI, interactive docs, GitHub issue summarization, issue and branch lifecycle operations, pull request management, and GitHub webhook event handling. Aligns with the mission to enable continuous, autonomous workflows via GitHub API interactions.
 
 # Overview
 
-The HTTP server exposes health checks, metrics, documentation, programmatic GitHub interaction endpoints, and a secure GitHub webhook listener. All operations are validated, rate-limited, signature-verified, and instrumented to support reliable, observability-driven automation aligned with the agentic-lib mission.
+Enhance the existing HTTP server in sandbox/source/server.js to offer a comprehensive REST interface for automated GitHub operations, with full request validation, security controls, rate limiting, and observability. Provide programmatic access to create and manage issues, branches, pull requests, merges, and process incoming GitHub webhooks to trigger automated reactions.
 
 # Endpoints
 
 - GET /health
-  Returns JSON with status, uptime, and timestamp for liveness checks.
+  Returns service status, uptime, and timestamp for liveness checks.
 
 - GET /metrics
-  Returns Prometheus-formatted metrics: http_requests_total, http_request_failures_total, github_issue_summaries_total, github_issues_created_total, github_branches_created_total, github_pulls_created_total, github_pulls_merged_total, github_webhooks_received_total, github_webhooks_processed_total, github_webhook_failures_total. Protected by Basic Auth when METRICS_USER and METRICS_PASS are set.
+  Returns Prometheus metrics including http_requests_total, http_request_failures_total, github_issue_summaries_total, github_issues_created_total, github_branches_created_total, github_pulls_created_total, github_pulls_merged_total, github_webhooks_received_total, github_webhooks_processed_total, github_webhook_failures_total. Protected by Basic Auth when METRICS_USER and METRICS_PASS are configured.
 
 - GET /openapi.json
-  Returns the updated OpenAPI 3.0 schema reflecting all endpoints.
+  Returns the OpenAPI 3.0 schema covering all endpoints.
 
 - GET /docs
-  Renders interactive HTML documentation from the OpenAPI schema. Protected by Basic Auth when DOCS_USER and DOCS_PASS are set.
+  Renders interactive HTML documentation from the OpenAPI schema. Protected by Basic Auth when DOCS_USER and DOCS_PASS are configured.
 
 - POST /issues/summarize
-  Summarizes GitHub issues via OpenAI for concise descriptions.
+  Accepts JSON payload with repository owner, name, and array of issue numbers. Summarizes issue bodies using OpenAI. Increments github_issue_summaries_total.
 
 - POST /issues/create
-  Creates a new GitHub issue.
+  Accepts JSON payload with repository owner, name, title, and body. Creates a GitHub issue via REST API. Increments github_issues_created_total.
 
 - POST /issues/update
-  Updates issue state or body.
+  Accepts JSON payload with owner, repo, issue_number, state or body fields. Updates issue state or body. Increments github_issues_created_total for state changes.
 
 - POST /branches
-  Creates a new Git branch.
+  Accepts JSON payload with owner, repo, base, and newBranchName. Creates a new branch off base. Increments github_branches_created_total.
 
 - POST /pulls
-  Opens a new pull request.
+  Accepts JSON payload with owner, repo, head, base, title, and body. Creates a pull request. Increments github_pulls_created_total.
 
 - POST /pulls/merge
-  Merges an existing pull request using merge, squash, or rebase.
+  Accepts JSON payload with owner, repo, pull_number, merge_method. Merges the specified pull request. Increments github_pulls_merged_total.
 
 - POST /webhooks/github
-  Receives GitHub webhook events. Validates X-Hub-Signature-256 header using GITHUB_WEBHOOK_SECRET. Supports push events (to trigger branch or CI workflows), issues events (opened, edited, closed), pull_request events (opened, reopened, closed, merged). Parses payload, records metrics, and dispatches to internal handlers for automated workflows.
+  Listens for GitHub webhook events: push, issues, pull_request. Validates X-Hub-Signature-256 header; rejects invalid signatures. Emits metrics: github_webhooks_received_total, github_webhooks_processed_total, github_webhook_failures_total. Dispatches to internal handlers to trigger automated workflows (e.g., branch creation on push, issue summarization on issue open).
 
 # Validation & Security
 
-1. All request bodies are validated with Zod schemas.
-2. Webhook payload signatures verified using HMAC SHA256 against GITHUB_WEBHOOK_SECRET; invalid signatures yield 401 Unauthorized.
-3. CORS headers enforced using CORS_ALLOWED_ORIGINS.
-4. IP-based token bucket rate limiter with limit from RATE_LIMIT_REQUESTS.
-5. Basic Auth protection for /metrics and /docs when credentials are configured.
+1. Validate all request bodies using Zod schemas.
+2. Verify webhook signatures with HMAC SHA256 using GITHUB_WEBHOOK_SECRET; invalid signatures return 401.
+3. Enforce CORS using CORS_ALLOWED_ORIGINS.
+4. Apply IP-based token bucket rate limiter configured by RATE_LIMIT_REQUESTS; excess requests return 429.
+5. Protect /metrics and /docs with Basic Auth when credentials are set.
 
 # Metrics & Instrumentation
 
 - Use recordRequest and recordFailure utilities for every route.
-- Additional counters for webhooks:
+- Add counters for GitHub interactions and webhook handling:
+  • github_issue_summaries_total
+  • github_issues_created_total
+  • github_branches_created_total
+  • github_pulls_created_total
+  • github_pulls_merged_total
   • github_webhooks_received_total
   • github_webhooks_processed_total
   • github_webhook_failures_total
@@ -60,17 +65,17 @@ The HTTP server exposes health checks, metrics, documentation, programmatic GitH
 
 # Testing & Success Criteria
 
-- Add tests covering:
-  • GET /health returns status ok.
-  • GET /metrics returns full set of metrics and enforces auth when configured.
-  • Validation and signature errors for POST /webhooks/github: missing header, invalid signature.
-  • Successful processing of push, issues, and pull_request webhook payloads with mocked event handlers.
-  • Metrics counters increment correctly for webhook events and failure scenarios.
-  • All existing POST endpoint tests continue passing with mocks for GitHub and OpenAI.
-  • Rate limit behavior returning 429 when exceeded.
+- Add unit tests for each new endpoint verifying:
+  • Successful responses with mocked GitHub and OpenAI clients.
+  • Validation errors for malformed payloads.
+  • Authentication failures for metrics/docs.
+  • Rate limit enforcement.
+  • Webhook signature validation errors and processing flows.
+- Verify metrics counters increment correctly under both success and failure scenarios.
+- Ensure existing GET endpoint tests continue passing.
 
 # Documentation & README Updates
 
-- Update sandbox/docs/SERVER.md to document the /webhooks/github endpoint, its headers, and supported event types.
-- Refresh OpenAPI schema to include the webhook listener route and its security scheme.
-- Amend sandbox/README.md Key Features section to list GitHub webhook support and the new metrics counters.
+- Update sandbox/docs/SERVER.md to document all new endpoints, their payloads, response formats, and required headers.
+- Refresh OpenAPI schema in code and documentation to include new routes and components.
+- Amend sandbox/README.md Key Features section to list GitHub issue summarization, issue/branch/pull request management, and webhook-driven automation.
