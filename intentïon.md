@@ -10,3 +10,5 @@
 
 2025-05-18T16:00:29.248Z - Enhanced issue 1489.
 
+2025-05-18T16:25:34.268Z - Worked to resolve issue Add --agent CLI command with processAgent handler tests and README documentation. Add --agent CLI command with processAgent handler tests and README documentation.
+
