@@ -254,3 +254,15 @@ LLM API Usage:
 
 2025-05-18T21:00:26Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/agentic-lib/tree/intention-2025-05-18T18-13Z
 
+## Activity at 2025-05-18T21:25:55.282Z
+
+Digested dotenv vX: install npm install dotenv. Usage: require('dotenv').config(opts) or import 'dotenv/config'. Exposed: config({path:string|[],encoding:'utf8',debug:false,override:false,processEnv:object}), parse(input:Buffer|string,{debug:false}):Record<string,string>, populate(target:object,source:Record<string,string>,{override:false,debug:false}), decrypt for dotenvx. Config path default cwd/.env, encoding utf8, debug false logs parsing, override false preserves existing env. parse rules: skip empty lines, comments (# unless quoted), trim unquoted, preserve quoted whitespace, expand \n in double quotes, support backticks. Preload: node -r dotenv/config script.js with dotenv_config_path, dotenv_config_debug, dotenv_config_encoding CLI args or DOTENV_CONFIG_* env. Multiline: native breaks (>=v15), or \n. Comments inline allowed, values with # require quotes. Best practices: no VCS commit, one .env per environment, React prefix REACT_APP_. Troubleshooting: config({debug:true}), node -r dotenv/config, polyfill node-polyfill-webpack-plugin or use dotenv-webpack..
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":13427,"completion_tokens":2682,"total_tokens":16109,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":448,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
