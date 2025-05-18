@@ -290,3 +290,15 @@ LLM API Usage:
 
 ---
 
+## Activity at 2025-05-18T22:20:41.032Z
+
+Generated feature development issue with title Add mission statement support to core CLI and documentation.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":9596,"completion_tokens":1781,"total_tokens":11377,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1280,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
