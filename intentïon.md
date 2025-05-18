@@ -42,3 +42,5 @@
 
 2025-05-18T14:32:11.210Z - Maintained feature AGENTIC_CORE.
 
+2025-05-18T14:33:04.014Z - Generated feature development issue with title Add OpenAI usage metrics collection and /openai-usage endpoint.
+
