@@ -455,7 +455,7 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Activity at ${isoDate}\n\n${activity}\n\n### LLM API Usage\n\n\`\`\`json\n${usage}\`\`\`\n\n---\n\n`;
+            const activityLogContent = `## Activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\`\`\`\n\n---\n\n`;
             if (action == 'seed-repository') {
               fs.writeFileSync(intentionFilepath, `${missionFileContent}\n\n# Activity Log\n\n${activityLogContent}`);
             } else if (fs.existsSync(intentionFilepath) && action != 'seed-repository') {
