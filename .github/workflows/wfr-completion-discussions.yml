@@ -730,6 +730,7 @@ jobs:
           script: |
             const OpenAI = require('openai').default;
             const { z } = require('zod');
+            const fs = require('fs');
             require('dotenv').config();
 
             const apiKey = process.env.chatgptApiSecretKey;

@@ -747,10 +747,6 @@ jobs:
 
             Ensure valid JSON.
             `;
-            
-            core.info("prompt start: **********************************************");
-            core.info(`${chatGptPrompt}`);
-            core.info("prompt end:   **********************************************");
 
             const promptFilePath = 'prompt.txt';
             fs.writeFileSync(promptFilePath, chatGptPrompt);
@@ -943,14 +939,25 @@ jobs:
             }];
 
             // Call OpenAI using the function calling format via the tools parameter
-            const response = await openai.chat.completions.create({
+            const request = {
               model,
               messages: [
                 { role: "system", content: "You are a code fixer that returns updated file contents to resolve an issue. You can update multiple files by specifying their paths and contents in the updatedFiles object. The source files, test files, and documentation files can be individual files or directories containing multiple files. Answer strictly with a JSON object that adheres to the provided function schema." },
                 { role: "user", content: chatGptPrompt }
               ],
               tools: applyIssueResolutionToSource
-            });
+            };
+
+            const requestFilePath = 'request.json';
+            fs.writeFileSync(requestFilePath, JSON.stringify(request, null, 2));
+            core.setOutput("requestFilePath", requestFilePath);
+            core.info("requestFilePath: " + requestFilePath);
+            const response = await openai.chat.completions.create(request);
+            
+            const responseFilePath = 'response.json';
+            fs.writeFileSync(responseFilePath, JSON.stringify(response, null, 2));
+            core.setOutput("responseFilePath", responseFilePath);
+            core.info("responseFilePath: " + responseFilePath);
 
             let fixApplied;
             let result;
@@ -978,13 +985,18 @@ jobs:
             }
 
             try {
-              core.info("raw response start: **********************************************");
-              core.info(`raw response (${(result ? result.length : "undefined")} characters): "${result}"`);
-              core.info("raw response mid: ================================================");
-              core.info(`raw response as JSON: "${JSON.stringify(result, null, 2)}"`);
-              core.info("raw response end: ************************************************");
-              const parsed = ResponseSchema.parse(result);
-              core.info(`parsed response: "${JSON.stringify(parsed, null, 2)}"`);
+              let parsed;
+              try {
+                parsed = ResponseSchema.parse(result);
+                const resultFilePath = 'result.json';
+                fs.writeFileSync(resultFilePath, JSON.stringify(parsed, null, 2));
+                core.setOutput("resultFilePath", resultFilePath);
+                core.info("resultFilePath: " + resultFilePath);
+              } catch (e) {
+                core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
+                return;
+              }
+            
               // Sanitize commit message: retain only alphanumerics, spaces, and basic URL-safe punctuation (-, _, ., ~)
               const sanitizedMessage = parsed.message.replace(/[^A-Za-z0-9 \-\_\.\~]/g, '').replace(/\s+/g, ' ').trim();
               core.setOutput("message", sanitizedMessage);
@@ -1152,6 +1164,37 @@ jobs:
                 assignees: [ context.actor ]
               });
             }
+
+      - name: Upload prompt file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: update-target-prompt.txt
+          path: ${{ steps.update-target.outputs.promptFilePath }}
+          retention-days: 7
+
+      - name: Upload request file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: update-target-request.json
+          path: ${{ steps.update-target.outputs.requestFilePath }}
+          retention-days: 7
+
+      - name: Upload response file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: update-target-response.json
+          path: ${{ steps.update-target.outputs.responseFilePath }}
+          retention-days: 7
+
+      - name: Upload result file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: update-target-result.json
+          path: ${{ steps.update-target.outputs.resultFilePath }}
 
       - name: Extract Results
         if: ${{ !cancelled() }}
