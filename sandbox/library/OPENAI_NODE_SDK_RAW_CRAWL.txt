@@ -6101,7 +6101,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
   
     
   
-    Read more about Plaid's customer story
+    Read more about 3M's customer story
     
       
         
@@ -6112,8 +6112,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Plaid
-    Plaid’s Developer Efficiency team speeds up workflows with developer happiness—and GitHub—at the heart of their operation.
+     3M
+    3M transforms its software toolchain to bring cutting-edge science to customers, faster.
     
       Read story 
 
@@ -6123,7 +6123,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about InfoTrack's customer story
+    Read more about ADEO's customer story
     
       
         
@@ -6134,8 +6134,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     InfoTrack
-    GitHub gives InfoTrack's global team of developers a common language.
+     ADEO
+    ADEO works more efficiently across teams and time zones with a global innersource program.
     
       Read story 
 
@@ -6145,7 +6145,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about DLR Institute of Robotics's customer story
+    Read more about Adobe's customer story
     
       
         
@@ -6156,8 +6156,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     DLR Institute of Robotics
-    Learn why the DLR Robotics Institute chose to roll out GitHub Enterprise when it saw an organic rise in Git usage across the organization.
+     Adobe
+    Adobe’s family of technology services finds common ground in GitHub.
     
       Read story 
 
@@ -6167,7 +6167,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Spotify's customer story
+    Read more about Ahold Delhaize's customer story
     
       
         
@@ -6183,8 +6183,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
           
         
     
-     Spotify
-    Spotify developers meet 217 million monthly listeners where they are with seamless collaboration, continuous integration, and GitHub Enterprise.
+     Ahold Delhaize
+    Ahold Delhaize keeps engineers focused on code through automation with GitHub Enterprise and Actions.
     
       Read story 
 
@@ -6194,7 +6194,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Mercari's customer story
+    Read more about American Airlines's customer story
     
       
         
@@ -6205,8 +6205,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Mercari
-    Mercari simplifies its security and CI/CD with GitHub Advanced Security and Actions.
+     American Airlines
+    American Airlines fosters innovation by using GitHub as an incubator for ideas.
     
       Read story 
 
@@ -6216,7 +6216,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Anaplan's customer story
+    Read more about Amplifon's customer story
     
       
         
@@ -6227,8 +6227,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Anaplan
-    Big data can lead to compliance headaches for regulated industries. Discover how Anaplan is growing their team while staying secure with GitHub Enterprise.
+     Amplifon
+    Amplifon centralizes development on GitHub to accelerate healthcare innovation.
     
       Read story 
 
@@ -6905,7 +6905,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
   
     
   
-    Read more about Netdata's customer story
+    Read more about Buffer's customer story
     
       
         
@@ -6916,8 +6916,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Netdata
-    Netdata accelerates their developer workflow with built-in security and open source.
+     Buffer
+    Buffer goes from siloed to synced for better production releases.
     
       Read story 
 
@@ -6927,7 +6927,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Peak Money's customer story
+    Read more about Cesium's customer story
     
       
         
@@ -6938,8 +6938,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Peak Money
-    Peak Money collaborates across tools, teams, and time zones with GitHub Team.
+     Cesium
+    Cesium leverages an open source community to support the development of 3D geospatial applications.
     
       Read story 
 
@@ -6971,6 +6971,28 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
+    Read more about Knock's customer story
+    
+      
+        
+  
+  
+  
+  
+
+      
+    
+     Knock
+    Knock pivots to new products, with the help of GitHub’s fast, flexible developer workflows.
+    
+      Read story 
+
+    
+  
+
+
+    
+  
     Read more about Modsy's customer story
     
       
@@ -6993,7 +7015,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Sketch's customer story
+    Read more about Netdata's customer story
     
       
         
@@ -7004,30 +7026,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Sketch
-    Sketch streamlines their workflows to provide teams with a comprehensive digital design editor.
-    
-      Read story 
-
-    
-  
-
-
-    
-  
-    Read more about Tray.io's customer story
-    
-      
-        
-  
-  
-  
-  
-
-      
-    
-     Tray.io
-    GitHub Team helps the general automation platform build, package, and deploy code faster than ever.
+     Netdata
+    Netdata accelerates their developer workflow with built-in security and open source.
     
       Read story 
 
@@ -8288,6 +8288,41 @@ The ReadME Project
     
   
 
+
+
+
+          
+
+          
+  
+
+  Niek Palm // Philips
+
+
+
+  
+    Provisioning self-hosted GitHub Actions runners on demand
+
+
+  
+    How Philips optimized their CI/CD process using GitHub Actions and self-hosted runners.
+  
+
+        
+        
+          
+            
+  
+    
+    
+  
+  
+  
+  
+
+    
+  
+
     Open Source
 
 
@@ -8307,41 +8342,6 @@ The ReadME Project
 
   
     Follow Drupal’s lead: Prioritize and systematically squash accessibility bugs.
-  
-
-        
-        
-          
-            
-  
-    
-    
-  
-  
-  
-  
-
-    
-  
-
-
-
-
-          
-
-          
-  
-
-  Niek Palm // Philips
-
-
-
-  
-    Provisioning self-hosted GitHub Actions runners on demand
-
-
-  
-    How Philips optimized their CI/CD process using GitHub Actions and self-hosted runners.
   
 
         
@@ -8475,9 +8475,9 @@ The ReadME Project
     
         
       
-        Minecraft
+        Kubernetes
       
-      Minecraft is a sandbox video game.
+      Kubernetes is an open source system for automating deployment, scaling, and management of containerized applications.
     
   
 
@@ -8491,9 +8491,9 @@ The ReadME Project
     
         
       
-        SpaceVim
+        CSS
       
-      SpaceVim is a community-driven distribution of the vim editor that allows managing your plugins in layers.
+      Cascading Style Sheets (CSS) is a language used most often to style and improve upon the appearance of views.
     
   
 
@@ -8507,9 +8507,9 @@ The ReadME Project
     
         
       
-        PWA
+        Express
       
-      Progressive Web Apps are traditional web sites that are enhanced with native like features.
+      Express is a minimal Node.js framework for web and mobile applications.
     
   
 
@@ -9096,12 +9096,12 @@ The ReadME Project
           
           
             
-  javascript
+  nodejs
 
           
           
             
-  css
+  javascript
 
           
           
@@ -9116,27 +9116,27 @@ The ReadME Project
           
           
             
-  html
+  library
 
           
           
             
-  ai
+  typescript
 
           
           
             
-  csharp
+  javascript-library
 
           
           
             
-  tailwindcss
+  github-config
 
           
           
             
-  github-config\n\n\n\nStar
+  llm\n\n\n\nStar
 
 
   
@@ -9161,9 +9161,9 @@ The ReadME Project
 
 
       
-        22,263
+        22,669
       
-        4,440
+        4,500
       
         Built by
 
@@ -9172,7 +9172,7 @@ The ReadME Project
 
       
         
-        2,475 stars today
+        2,471 stars today
   
 
   
@@ -9205,9 +9205,9 @@ The ReadME Project
 
 
       
-        341,553
+        341,796
       
-        35,995
+        36,024
       
         Built by
 
@@ -9219,7 +9219,7 @@ The ReadME Project
 
       
         
-        1,234 stars today
+        1,165 stars today
   
 
   
@@ -9252,9 +9252,9 @@ The ReadME Project
 
 
       
-        27,908
+        27,945
       
-        4,837
+        4,844
       
         Built by
 
@@ -9299,9 +9299,9 @@ The ReadME Project
 
 
       
-        31,141
+        31,187
       
-        3,011
+        3,017
       
         Built by
 
@@ -9354,9 +9354,9 @@ The ReadME Project
 
 
       
-        124,673
+        124,714
       
-        16,670
+        16,674
       
         Built by
 
@@ -9368,7 +9368,7 @@ The ReadME Project
 
       
         
-        86 stars today
+        63 stars today
   
 
   
@@ -9401,7 +9401,7 @@ The ReadME Project
 
 
       
-        1,696
+        1,736
       
         173
       
@@ -9415,7 +9415,7 @@ The ReadME Project
 
       
         
-        242 stars today
+        243 stars today
   
 
   
@@ -9448,9 +9448,9 @@ The ReadME Project
 
 
       
-        7,316
+        7,348
       
-        291
+        293
       
         Built by
 
@@ -9462,7 +9462,7 @@ The ReadME Project
 
       
         
-        221 stars today
+        223 stars today
   
 
   
@@ -9495,7 +9495,7 @@ The ReadME Project
 
 
       
-        10,082
+        10,133
       
         775
       
@@ -9509,7 +9509,7 @@ The ReadME Project
 
       
         
-        627 stars today
+        634 stars today
   
 
   
@@ -9542,9 +9542,9 @@ The ReadME Project
 
 
       
-        95,111
+        95,200
       
-        26,049
+        26,074
       
         Built by
 
@@ -9556,7 +9556,7 @@ The ReadME Project
 
       
         
-        574 stars today
+        577 stars today
   
 
   
@@ -9589,9 +9589,9 @@ The ReadME Project
 
 
       
-        959
+        1,004
       
-        75
+        81
       
         Built by
 
@@ -9603,7 +9603,7 @@ The ReadME Project
 
       
         
-        59 stars today
+        70 stars today
   
 
   
@@ -9636,9 +9636,9 @@ The ReadME Project
 
 
       
-        20,191
+        20,273
       
-        1,052
+        1,056
       
         Built by
 
@@ -9650,7 +9650,7 @@ The ReadME Project
 
       
         
-        196 stars today
+        189 stars today
   
 
   
@@ -9683,7 +9683,7 @@ The ReadME Project
 
 
       
-        1,321
+        1,336
       
         312
       
@@ -9697,7 +9697,7 @@ The ReadME Project
 
       
         
-        22 stars today
+        27 stars today
   
 
   
@@ -9730,7 +9730,7 @@ The ReadME Project
 
 
       
-        473
+        478
       
         36
       
@@ -9744,7 +9744,7 @@ The ReadME Project
 
       
         
-        23 stars today
+        14 stars today
   
 
   
@@ -9777,9 +9777,9 @@ The ReadME Project
 
 
       
-        17,768
+        17,805
       
-        616
+        618
       
         Built by
 
@@ -9791,7 +9791,7 @@ The ReadME Project
 
       
         
-        284 stars today
+        286 stars today
   
 
   
@@ -9824,9 +9824,9 @@ The ReadME Project
 
 
       
-        3,948
+        3,956
       
-        468
+        470
       
         Built by
 
@@ -9838,7 +9838,7 @@ The ReadME Project
 
       
         
-        14 stars today
+        8 stars today
   
 
   
@@ -9871,9 +9871,9 @@ The ReadME Project
 
 
       
-        19,089
+        19,146
       
-        2,695
+        2,699
       
         Built by
 
@@ -9885,7 +9885,7 @@ The ReadME Project
 
       
         
-        96 stars today\n\nExplore
+        62 stars today\n\nExplore
 
       Topics
 
@@ -11977,9 +11977,9 @@ The ReadME Project
 
 
       
-        22,263
+        22,669
       
-        4,440
+        4,500
       
         Built by
 
@@ -11988,7 +11988,7 @@ The ReadME Project
 
       
         
-        2,475 stars today
+        2,471 stars today
   
 
 
@@ -12023,9 +12023,9 @@ The ReadME Project
 
 
       
-        341,553
+        341,796
       
-        35,995
+        36,024
       
         Built by
 
@@ -12037,7 +12037,7 @@ The ReadME Project
 
       
         
-        1,234 stars today
+        1,165 stars today
   
 
 
@@ -12072,9 +12072,9 @@ The ReadME Project
 
 
       
-        27,908
+        27,945
       
-        4,837
+        4,844
       
         Built by
 
@@ -12121,9 +12121,9 @@ The ReadME Project
 
 
       
-        31,141
+        31,187
       
-        3,011
+        3,017
       
         Built by
 
@@ -12178,9 +12178,9 @@ The ReadME Project
 
 
       
-        124,673
+        124,714
       
-        16,670
+        16,674
       
         Built by
 
@@ -12192,7 +12192,7 @@ The ReadME Project
 
       
         
-        86 stars today
+        63 stars today
   
 
 
@@ -12227,7 +12227,7 @@ The ReadME Project
 
 
       
-        1,696
+        1,736
       
         173
       
@@ -12241,7 +12241,7 @@ The ReadME Project
 
       
         
-        242 stars today
+        243 stars today
   
 
 
@@ -12276,9 +12276,9 @@ The ReadME Project
 
 
       
-        7,316
+        7,348
       
-        291
+        293
       
         Built by
 
@@ -12290,7 +12290,7 @@ The ReadME Project
 
       
         
-        221 stars today
+        223 stars today
   
 
 
@@ -12325,7 +12325,7 @@ The ReadME Project
 
 
       
-        10,082
+        10,133
       
         775
       
@@ -12339,7 +12339,7 @@ The ReadME Project
 
       
         
-        627 stars today
+        634 stars today
   
 
 
@@ -12374,9 +12374,9 @@ The ReadME Project
 
 
       
-        95,111
+        95,200
       
-        26,049
+        26,074
       
         Built by
 
@@ -12388,7 +12388,7 @@ The ReadME Project
 
       
         
-        574 stars today
+        577 stars today
   
 
 
@@ -12423,9 +12423,9 @@ The ReadME Project
 
 
       
-        959
+        1,004
       
-        75
+        81
       
         Built by
 
@@ -12437,7 +12437,7 @@ The ReadME Project
 
       
         
-        59 stars today
+        70 stars today
   
 
 
@@ -12472,9 +12472,9 @@ The ReadME Project
 
 
       
-        20,191
+        20,273
       
-        1,052
+        1,056
       
         Built by
 
@@ -12486,7 +12486,7 @@ The ReadME Project
 
       
         
-        196 stars today
+        189 stars today
   
 
 
@@ -12521,7 +12521,7 @@ The ReadME Project
 
 
       
-        1,321
+        1,336
       
         312
       
@@ -12535,7 +12535,7 @@ The ReadME Project
 
       
         
-        22 stars today
+        27 stars today
   
 
 
@@ -12570,7 +12570,7 @@ The ReadME Project
 
 
       
-        473
+        478
       
         36
       
@@ -12584,7 +12584,7 @@ The ReadME Project
 
       
         
-        23 stars today
+        14 stars today
   
 
 
@@ -12619,9 +12619,9 @@ The ReadME Project
 
 
       
-        17,768
+        17,805
       
-        616
+        618
       
         Built by
 
@@ -12633,7 +12633,7 @@ The ReadME Project
 
       
         
-        284 stars today
+        286 stars today
   
 
 
@@ -12668,9 +12668,9 @@ The ReadME Project
 
 
       
-        3,948
+        3,956
       
-        468
+        470
       
         Built by
 
@@ -12682,7 +12682,7 @@ The ReadME Project
 
       
         
-        14 stars today
+        8 stars today
   
 
 
@@ -12717,9 +12717,9 @@ The ReadME Project
 
 
       
-        19,089
+        19,146
       
-        2,695
+        2,699
       
         Built by
 
@@ -12731,7 +12731,7 @@ The ReadME Project
 
       
         
-        96 stars today\n\n\n\n#
+        62 stars today\n\n\n\n#
     
 
     
@@ -12934,14 +12934,6 @@ The ReadME Project
         
   
       
-    Made in Brazil
-    Open source projects built in or receiving significant contributions from Brazil :brazil:
-  
-
-
-        
-  
-      
     Pixel Art Tools
     Creating pixel art for fun or animated sprites for a game? The digital artist in you will love these apps and tools!
   
@@ -12952,6 +12944,14 @@ The ReadME Project
       
     Learn to Code
     Resources to help people learn to code
+  
+
+
+        
+  
+      
+    Made in Brazil
+    Open source projects built in or receiving significant contributions from Brazil :brazil:
   
 
 
@@ -24970,14 +24970,14 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
 
 
         
-          23,303
+          23,406
         
           Apache-2.0
 
         
-          2,343
+          2,355
       
-        205
+        208
         (1 issue needs help)
       
         68
@@ -25011,12 +25011,12 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
 
 
         
-          5,545
+          5,546
         
           MIT
 
         
-          679
+          680
       
         3
 
@@ -25052,12 +25052,12 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
 
 
         
-          94
+          107
 
         
-          15
+          19
       
-        9
+        12
 
       
         5
@@ -25132,7 +25132,7 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
 
 
         
-          806
+          807
         
           Apache-2.0
 
@@ -25212,14 +25212,14 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
 
 
         
-          64,091
+          64,100
         
           MIT
 
         
-          10,464
+          10,465
       
-        31
+        29
 
       
         19
@@ -25294,14 +25294,14 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
 
 
         
-          10,336
+          10,341
         
           MIT
 
         
-          1,424
+          1,425
       
-        138
+        136
 
       
         49
@@ -25335,14 +25335,14 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
 
 
         
-          1,791
+          1,792
         
           Apache-2.0
 
         
           138
       
-        31
+        32
 
       
         20
@@ -27381,7 +27381,7 @@ Insights: openai/openai-node
     
       
       
-        PoornakumarRasiraju
+        transitive-bullshit
     
       /
     openai-node  
@@ -27404,13 +27404,13 @@ Insights: openai/openai-node
       
   
     Created
-    February 26, 2025 05:54
+    November 7, 2023 04:03
 
 
       
   
     Updated
-    March 10, 2025 06:58
+    November 7, 2023 04:04
 
 
   
@@ -27459,7 +27459,7 @@ Insights: openai/openai-node
     
       
       
-        transitive-bullshit
+        PoornakumarRasiraju
     
       /
     openai-node  
@@ -27482,13 +27482,13 @@ Insights: openai/openai-node
       
   
     Created
-    November 7, 2023 04:03
+    February 26, 2025 05:54
 
 
       
   
     Updated
-    November 7, 2023 04:04
+    March 10, 2025 06:58
 
 
   
@@ -27654,45 +27654,6 @@ Insights: openai/openai-node
     
       
       
-        mexicanamerican
-    
-      /
-    openai-node  
-      
-    
-      1
-
-      
-    
-      0
-
-      
-    
-      0
-
-      
-    
-      0
-
-      
-  
-    Created
-    August 24, 2023 03:27
-
-
-      
-  
-    Updated
-    May 16, 2025 21:52
-
-
-  
-
-        
-  
-    
-      
-      
         TNGBBK
     
       /
@@ -27723,6 +27684,45 @@ Insights: openai/openai-node
   
     Updated
     April 3, 2025 13:06
+
+
+  
+
+        
+  
+    
+      
+      
+        mexicanamerican
+    
+      /
+    openai-node  
+      
+    
+      1
+
+      
+    
+      0
+
+      
+    
+      0
+
+      
+    
+      0
+
+      
+  
+    Created
+    August 24, 2023 03:27
+
+
+      
+  
+    Updated
+    May 16, 2025 21:52
 
 
   
@@ -27801,45 +27801,6 @@ Insights: openai/openai-node
   
     Updated
     December 31, 2024 16:50
-
-
-  
-
-        
-  
-    
-      
-      
-        Om-Bhattalwar-20
-    
-      /
-    openai-node  
-      
-    
-      1
-
-      
-    
-      0
-
-      
-    
-      0
-
-      
-    
-      0
-
-      
-  
-    Created
-    April 18, 2025 10:13
-
-
-      
-  
-    Updated
-    April 18, 2025 10:13
 
 
   
@@ -27996,6 +27957,45 @@ Insights: openai/openai-node
   
     Updated
     November 4, 2024 17:14
+
+
+  
+
+        
+  
+    
+      
+      
+        Om-Bhattalwar-20
+    
+      /
+    openai-node  
+      
+    
+      1
+
+      
+    
+      0
+
+      
+    
+      0
+
+      
+    
+      0
+
+      
+  
+    Created
+    April 18, 2025 10:13
+
+
+      
+  
+    Updated
+    April 18, 2025 10:13
 
 
   
@@ -32343,7 +32343,7 @@ Additional navigation options
   
   
   ProTip!
-  Updated in the last three days: updated:>2025-05-14.\n\n\n\nopenai
+  What’s not been updated in a month: updated:<2025-04-17.\n\n\n\nopenai
     
     /
     
@@ -34149,7 +34149,7 @@ Additional navigation options
   
   
   ProTip!
-  Exclude everything labeled bug with -label:bug.\n\n\n\nopenai
+  What’s not been updated in a month: updated:<2025-04-17.\n\n\n\nopenai
     
     /
     
@@ -35539,7 +35539,7 @@ Additional navigation options
 
   
     
-      1,874 workflow runs
+      1,871 workflow runs
     
   
 
@@ -35547,7 +35547,7 @@ Additional navigation options
   
     
         
-          1,874 workflow runs
+          1,871 workflow runs
         
     
     
@@ -39236,4 +39236,3379 @@ Additional navigation options
 
   
   
-    CommitsBranch selector masterUser selectorAll usersDatepickerAll timeCommit HistoryCommits on May 16, 2025Merge pull request #1500 from openai/release-please--branches--master--changes--next--components--openaiShow description for 65d9f6bkwhinnery-openaiauthored65d9f6bCopy full SHA for 65d9f6brelease: 4.100.0stainless-app[bot]authored29e608fCopy full SHA for 29e608ffeat(api): further updates for evals APIstainless-app[bot]committed3f6f248Copy full SHA for 3f6f248chore(internal): version bumpstainless-app[bot]committed5123fe0Copy full SHA for 5123fe0release: 4.99.0stainless-app[bot]committed416c89bCopy full SHA for 416c89bfeat(api): Updating Assistants and Evals API schemasstainless-app[bot]committed8cc63d3Copy full SHA for 8cc63d3feat(api): manual updatesstainless-app[bot]committede83286bCopy full SHA for e83286bfeat(api): responses x eval apistainless-app[bot]committedea1d56cCopy full SHA for ea1d56cCommits on May 8, 2025release: 4.98.0stainless-app[bot]committedbc9f15fCopy full SHA for bc9f15ffeat(api): Add reinforcement fine-tuning api supportstainless-app[bot]committedfabe6ecCopy full SHA for fabe6ecdocs: add examples to tsdocsstainless-app[bot]committede8d2092Copy full SHA for e8d2092chore(ci): bump node version for release workflowsstainless-app[bot]committedbbf5d45Copy full SHA for bbf5d45chore(internal): fix formatting RobertCraigieauthored andstainless-app[bot]committed6469d53Copy full SHA for 6469d53Commits on May 2, 2025release: 4.97.0stainless-app[bot]committed5bb4543Copy full SHA for 5bb4543feat(api): add image sizes, reasoning encryptionstainless-app[bot]committed31cd88fCopy full SHA for 31cd88fdocs: fix "procesing" -> "processing" in realtime examples (#1406) mini-peanutauthored andstainless-app[bot]committeddfbdc65Copy full SHA for dfbdc65chore(docs): add missing deprecation warningsstainless-app[bot]committed995075bCopy full SHA for 995075bdocs(readme): fix typostainless-app[bot]committed0989ddcCopy full SHA for 0989ddcCommits on Apr 29, 2025release: 4.96.2stainless-app[bot]committed37ab638Copy full SHA for 37ab638release: 4.96.1stainless-app[bot]committed593fea4Copy full SHA for 593fea4 fix(types): export ParseableToolsParams (#1486) isaacbatstauthored andstainless-app[bot]committed3e7c92cCopy full SHA for 3e7c92cchore(ci): only use depot for staging reposstainless-app[bot]committed214da39Copy full SHA for 214da39chore(ci): run on more branches and use depot runnersstainless-app[bot]committedead76fcCopy full SHA for ead76fcCommits on Apr 23, 2025release: 4.96.0stainless-app[bot]committedf99e7c3Copy full SHA for f99e7c3feat(api): adding new image model supportstainless-app[bot]committedc353531Copy full SHA for c353531chore(ci): add timeout thresholds for CI jobsstainless-app[bot]committed939f636Copy full SHA for 939f636fix(types): export AssistantStream (#1472) RobertCraigieauthored andstainless-app[bot]committedbc492baCopy full SHA for bc492baCommits on Apr 18, 2025release: 4.95.1stainless-app[bot]committed2785c11Copy full SHA for 2785c11fix(zod): warn on optional field usage (#1469)RobertCraigieauthoredaea2d12Copy full SHA for aea2d12Commits on Apr 16, 2025release: 4.95.0stainless-app[bot]committedb5a5ee4Copy full SHA for b5a5ee4feat(api): add o3 and o4-mini model IDsstainless-app[bot]committeda0d0000Copy full SHA for a0d0000Commits on Apr 14, 2025release: 4.94.0stainless-app[bot]committedbd50165Copy full SHA for bd50165feat(api): adding gpt-4.1 family of model IDsstainless-app[bot]committed840e7deCopy full SHA for 840e7dechore(client): minor internal fixesstainless-app[bot]committed6558b7cCopy full SHA for 6558b7cchore(internal): reduce CI branch coveragestainless-app[bot]committed77fc77fCopy full SHA for 77fc77fPaginationPreviousNext\n\n\n\n
+    CommitsBranch selector masterUser selectorAll usersDatepickerAll timeCommit HistoryCommits on May 16, 2025Merge pull request #1500 from openai/release-please--branches--master--changes--next--components--openaiShow description for 65d9f6bkwhinnery-openaiauthored65d9f6bCopy full SHA for 65d9f6brelease: 4.100.0stainless-app[bot]authored29e608fCopy full SHA for 29e608ffeat(api): further updates for evals APIstainless-app[bot]committed3f6f248Copy full SHA for 3f6f248chore(internal): version bumpstainless-app[bot]committed5123fe0Copy full SHA for 5123fe0release: 4.99.0stainless-app[bot]committed416c89bCopy full SHA for 416c89bfeat(api): Updating Assistants and Evals API schemasstainless-app[bot]committed8cc63d3Copy full SHA for 8cc63d3feat(api): manual updatesstainless-app[bot]committede83286bCopy full SHA for e83286bfeat(api): responses x eval apistainless-app[bot]committedea1d56cCopy full SHA for ea1d56cCommits on May 8, 2025release: 4.98.0stainless-app[bot]committedbc9f15fCopy full SHA for bc9f15ffeat(api): Add reinforcement fine-tuning api supportstainless-app[bot]committedfabe6ecCopy full SHA for fabe6ecdocs: add examples to tsdocsstainless-app[bot]committede8d2092Copy full SHA for e8d2092chore(ci): bump node version for release workflowsstainless-app[bot]committedbbf5d45Copy full SHA for bbf5d45chore(internal): fix formatting RobertCraigieauthored andstainless-app[bot]committed6469d53Copy full SHA for 6469d53Commits on May 2, 2025release: 4.97.0stainless-app[bot]committed5bb4543Copy full SHA for 5bb4543feat(api): add image sizes, reasoning encryptionstainless-app[bot]committed31cd88fCopy full SHA for 31cd88fdocs: fix "procesing" -> "processing" in realtime examples (#1406) mini-peanutauthored andstainless-app[bot]committeddfbdc65Copy full SHA for dfbdc65chore(docs): add missing deprecation warningsstainless-app[bot]committed995075bCopy full SHA for 995075bdocs(readme): fix typostainless-app[bot]committed0989ddcCopy full SHA for 0989ddcCommits on Apr 29, 2025release: 4.96.2stainless-app[bot]committed37ab638Copy full SHA for 37ab638release: 4.96.1stainless-app[bot]committed593fea4Copy full SHA for 593fea4 fix(types): export ParseableToolsParams (#1486) isaacbatstauthored andstainless-app[bot]committed3e7c92cCopy full SHA for 3e7c92cchore(ci): only use depot for staging reposstainless-app[bot]committed214da39Copy full SHA for 214da39chore(ci): run on more branches and use depot runnersstainless-app[bot]committedead76fcCopy full SHA for ead76fcCommits on Apr 23, 2025release: 4.96.0stainless-app[bot]committedf99e7c3Copy full SHA for f99e7c3feat(api): adding new image model supportstainless-app[bot]committedc353531Copy full SHA for c353531chore(ci): add timeout thresholds for CI jobsstainless-app[bot]committed939f636Copy full SHA for 939f636fix(types): export AssistantStream (#1472) RobertCraigieauthored andstainless-app[bot]committedbc492baCopy full SHA for bc492baCommits on Apr 18, 2025release: 4.95.1stainless-app[bot]committed2785c11Copy full SHA for 2785c11fix(zod): warn on optional field usage (#1469)RobertCraigieauthoredaea2d12Copy full SHA for aea2d12Commits on Apr 16, 2025release: 4.95.0stainless-app[bot]committedb5a5ee4Copy full SHA for b5a5ee4feat(api): add o3 and o4-mini model IDsstainless-app[bot]committeda0d0000Copy full SHA for a0d0000Commits on Apr 14, 2025release: 4.94.0stainless-app[bot]committedbd50165Copy full SHA for bd50165feat(api): adding gpt-4.1 family of model IDsstainless-app[bot]committed840e7deCopy full SHA for 840e7dechore(client): minor internal fixesstainless-app[bot]committed6558b7cCopy full SHA for 6558b7cchore(internal): reduce CI branch coveragestainless-app[bot]committed77fc77fCopy full SHA for 77fc77fPaginationPreviousNext\n\n\n\nopenai
+    
+    /
+    
+      openai-node
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    1.1k
+
+  
+
+  
+        
+            
+          Star
+          9.2k
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          86
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          15
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nopenai
+    
+    /
+    
+      openai-node
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    1.1k
+
+  
+
+  
+        
+            
+          Star
+          9.2k
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          86
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          15
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nopenai
+    
+    /
+    
+      openai-node
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    1.1k
+
+  
+
+  
+        
+            
+          Star
+          9.2k
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          86
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          15
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nopenai
+    
+    /
+    
+      openai-node
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    1.1k
+
+  
+
+  
+        
+            
+          Star
+          9.2k
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          86
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          15
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nopenai
+    
+    /
+    
+      openai-node
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    1.1k
+
+  
+
+  
+        
+            
+          Star
+          9.2k
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          86
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          15
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nopenai
+    
+    /
+    
+      openai-node
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    1.1k
+
+  
+
+  
+        
+            
+          Star
+          9.2k
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          86
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          15
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nopenai
+    
+    /
+    
+      openai-node
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    1.1k
+
+  
+
+  
+        
+            
+          Star
+          9.2k
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          86
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          15
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nopenai
+    
+    /
+    
+      openai-node
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    1.1k
+
+  
+
+  
+        
+            
+          Star
+          9.2k
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          86
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          15
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nopenai
+    
+    /
+    
+      openai-node
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    1.1k
+
+  
+
+  
+        
+            
+          Star
+          9.2k
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          86
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          15
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nopenai
+    
+    /
+    
+      openai-node
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    1.1k
+
+  
+
+  
+        
+            
+          Star
+          9.2k
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          86
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          15
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nopenai
+    
+    /
+    
+      openai-node
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    1.1k
+
+  
+
+  
+        
+            
+          Star
+          9.2k
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          86
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          15
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nopenai
+    
+    /
+    
+      openai-node
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    1.1k
+
+  
+
+  
+        
+            
+          Star
+          9.2k
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          86
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          15
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nopenai
+    
+    /
+    
+      openai-node
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    1.1k
+
+  
+
+  
+        
+            
+          Star
+          9.2k
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          86
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          15
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nopenai
+    
+    /
+    
+      openai-node
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    1.1k
+
+  
+
+  
+        
+            
+          Star
+          9.2k
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          86
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          15
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nopenai
+    
+    /
+    
+      openai-node
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    1.1k
+
+  
+
+  
+        
+            
+          Star
+          9.2k
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          86
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          15
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\n
