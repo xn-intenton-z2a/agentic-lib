@@ -14,3 +14,5 @@
 
 2025-05-18T04:58:38.917Z - Maintained feature AGENTIC_CORE.
 
+2025-05-18T04:59:04.755Z - Created maintenance issue with title Test: Enhance HTTP server test suite for core endpoints, auth, and rate-limiting.
+
