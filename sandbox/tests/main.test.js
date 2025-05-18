@@ -1,5 +1,17 @@
 // sandbox/tests/main.test.js
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+
+// Mock openai to provide Configuration and OpenAIApi for spying
+vi.mock("openai", () => {
+  return {
+    Configuration: class {},
+    OpenAIApi: class {
+      constructor() {}
+      async createChatCompletion() {}
+    },
+  };
+});
+
 import { main } from "../source/main.js";
 import { OpenAIApi } from "openai";
 
