@@ -169,13 +169,14 @@ jobs:
                   core.info(`Looking for last */discussions/* in intentïon.md at ${intentionFilepath}`);
 
                   if (fs.existsSync(intentionFilepath)) {
-                    const seedDiscussionContent = fs.readFileSync(intentionFilepath, 'utf8');
-                    const lines = seedDiscussionContent.split('\n');
+                    const intentionFileContent = fs.readFileSync(intentionFilepath, 'utf8');
+                    const lines = intentionFileContent.split('\n');
 
                     // Filter to lines matching ^*https://.*/discussions/*$ and extract the last matching line.
                     const discussionsUrlLines = lines.filter(line => line.match(/^\s*https:\/\/.*\/discussions\/.*$/));
                     if (discussionsUrlLines.length === 0) {
-                      core.warning(`No matching GitHub Discussions URL found in intentïon.md`);
+                      core.setFailed(`No matching GitHub Discussions URL found in intentïon.md at ${intentionFilepath}: \n${intentionFileContent}\n`);
+                      return;
                     } else {
                       const lastUrlLine = discussionsUrlLines[discussionsUrlLines.length - 1];
               
@@ -183,16 +184,19 @@ jobs:
                       const urlMatch = lastUrlLine.match(/https:\/\/[^ ]+/);
                       if (urlMatch) {
                         url = urlMatch[0];
-                        core.info(`Using URL from intentïon.md: ${url}`);
+                        core.info(`Using URL from intentïon.md at ${intentionFilepath}: ${url}`);
                       } else {
-                        core.warning(`No matching GitHub Discussions URL found in intentïon.md: ${lastUrlLine}`);
+                        core.setFailed(`No matching GitHub Discussions URL found in selected line "${lastUrlLine}" in intentïon.md at ${intentionFilepath}: \n${intentionFileContent}\n`);
+                        return;
                       }
                     }
                   } else {
-                    core.warning(`intentïon.md file not found at ${intentionFilepath}`);
+                    core.setFailed(`intentïon.md file not found at ${intentionFilepath}`);
+                    return;
                   }
                 } catch (error) {
-                  core.warning(`Error reading intentïon.md: ${error.message}`);
+                  core.setFailed(`Error reading intentïon.md at ${intentionFilepath}: ${error.message}`);
+                  return;
                 }
               }
             }
@@ -232,7 +236,7 @@ jobs:
     needs:
       - process-discussion-post
       - agentic-lib
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
     permissions:
       contents: write
       packages: read
@@ -271,7 +275,7 @@ jobs:
     needs:
       - process-discussion-post
       - generate-response
-    if: ${{ needs.generate-response.outputs.action != 'nop' }}
+    if: ${{ needs.generate-response.outputs.action != 'nop' && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
     runs-on: ubuntu-latest
     permissions:
       discussions: write
@@ -280,16 +284,20 @@ jobs:
       - name: Post reply
         uses: actions/github-script@v7
         env:
+          action: ${{ needs.generate-response.outputs.action }}
+          detail: ${{ needs.generate-response.outputs.detail }}
           reply: ${{ needs.generate-response.outputs.reply }}
           url: ${{ needs.process-discussion-post.outputs.url }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             // Grab the reply text and URL from the job outputs
+            const action = process.env.action;
+            const detail = process.env.detail;
             const reply = process.env.reply;
             const url = process.env.url;
-            const body = process.env.reply;
-
+            let body = `${process.env.reply}\n\n[action: "${action}" with detail: "${detail}"]`;
+            
             // Determine discussion number and ID
             let discussionNumber;
             let discussionId;
@@ -399,7 +407,7 @@ jobs:
       - generate-response
       - seed-repository
       - agentic-lib
-    if: ${{ !cancelled() && needs.generate-response.outputs.action == 'seed-repository' }}
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -420,12 +428,18 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          activity: "This repository was seeded from GitHub Discussion ${{ needs.process-discussion-post.outputs.title }}"
+          action: ${{ needs.generate-response.outputs.action }}
+          detail: ${{ needs.generate-response.outputs.detail }}
+          reply: ${{ needs.generate-response.outputs.reply }}
+          url: ${{ needs.process-discussion-post.outputs.url }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
-            const activity = process.env.activity;
+            const action = process.env.action;
+            const title = process.env.title;
             const intentionFilepath = process.env.intentionFilepath;
+            
+            const activity = `${reply}\n\n[Posted on "${url}" by the repository bot which took the action "${action}" with the detail "${detail}".]`;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);

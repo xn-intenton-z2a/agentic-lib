@@ -88,8 +88,8 @@ jobs:
               core.info(`Looking for lines likely to be branches in intentïon.md at ${intentionFilepath}`);
         
               if (fs.existsSync(intentionFilepath)) {
-                const seedDiscussionContent = fs.readFileSync(intentionFilepath, 'utf8');
-                const lines = seedDiscussionContent.split('\n');
+                const intentionFileContent = fs.readFileSync(intentionFilepath, 'utf8');
+                const lines = intentionFileContent.split('\n');
         
                 // Filter to lines matching ^*https://.*/ some branch path fragments /*$ and extract the last matching line.
                 //const branchUrlPattern = /^\s*https:\/\/github\.com\/[^\/\s]+\/[^\/\s]+\/(tree|blob|edit|new|upload|commits)\/[^\s]+|https:\/\/github\.com\/[^\/\s]+\/[^\/\s]+\/compare\/[^.\/]+\.{3}[^\/\s]+/;                  
