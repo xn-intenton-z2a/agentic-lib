@@ -52,3 +52,5 @@
 
 2025-05-18T14:44:40.563Z - Worked to resolve issue Add OpenAI usage metrics endpoint and instrumentation helpers. Add OpenAI usage metrics endpoint and instrumentation helpers.
 
+2025-05-18T14:47:55.870Z - Generated feature development issue with title Add CLI flag `--mission` to output project mission statement.
+
