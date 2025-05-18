@@ -1,38 +1,43 @@
 # Objective
-Add a new CLI command that accepts a user prompt, invokes the OpenAI API, and prints the structured JSON response. This will enable users to run autonomous AI tasks directly from the command line.
+Extend the existing command-line interface to support a persistent HTTP server that exposes core handlers (digest, version, and agent) over REST endpoints, enabling easy local testing and integration with other services.
 
 # Value Proposition
-By exposing an --agent flag, consumers can script calls to the AI agent without writing custom code. This simplifies integrating AI-driven logic into CI/CD pipelines, GitHub Actions, or local automation workflows.
+Running an HTTP server alongside the CLI unlocks lightweight local or containerized deployments, allows workflows or other systems to invoke library functions via HTTP, and accelerates iterative development and testing by avoiding CLI flags for every invocation.
 
 # Requirements
-1. Add a new processAgent(args) function that:
-   • Detects --agent flag and reads the next argument as the prompt text.
-   • Initializes OpenAI client with Configuration and OpenAIApi from the openai dependency.
-   • Sends a chat completion request using a default model (e.g., gpt-4) with system and user messages.
-   • Parses the assistant reply, expecting JSON content, and logs it via console.log.
-2. Extend main(args) to call processAgent before other CLI handlers.
-3. Ensure globalThis.callCount increments on each invocation of --agent.
-4. Add automated tests to verify:
-   • processAgent triggers an OpenAI API call with correct parameters.
-   • Successful JSON is logged for valid responses.
-   • logError is called when OpenAI throws an error.
-5. Update README to document the --agent flag, usage example, and sample JSON output.
+1. Add a new function processServe(args) that:
+   • Detects a --serve flag and an optional --port <number> argument (default port 3000).
+   • Imports Node's http module and creates an HTTP server.
+   • Defines endpoints:
+     - GET /version: returns JSON with version and timestamp (reuse processVersion logic).
+     - POST /digest: accepts a JSON payload, calls digestLambdaHandler, and responds with JSON { batchItemFailures, handler }.
+     - POST /agent: accepts { prompt: string } in the body, invokes OpenAI chat completion (reuse processAgent logic), and sends parsed JSON response.
+   • Increments globalThis.callCount on each incoming request.
+   • Handles errors by returning HTTP 500 with JSON { error, message } using logError internally.
+   • Listens on the specified port and logs a startup INFO log entry.
+2. Extend main(args) to call processServe before other CLI handlers and return when server starts.
+3. Add automated tests in tests/unit/main.test.js to verify:
+   • processServe starts a server on the default and custom ports.
+   • GET /version responds with the same JSON as --version flag.
+   • POST /digest with a sample payload invokes digestLambdaHandler and returns expected structure.
+   • POST /agent with sample prompt invokes OpenAI API mock and returns parsed JSON.
+   • Server returns HTTP 500 when handlers throw errors, and logError is called.
+4. Update sandbox/README.md:
+   • Document the --serve flag, optional --port argument, and REST endpoints with examples (curl commands).
+   • Show sample responses for each endpoint.
 
 # Implementation
 • Modify src/lib/main.js:
-  • Import Configuration and OpenAIApi from openai.
-  • Implement processAgent(args) as described in Requirements.
-  • Invoke processAgent in main before other flags and return on success.
-  • Increment globalThis.callCount each time processAgent runs.
+  • Import http from Node.
+  • Implement processServe as described.
+  • Integrate processServe into main() before existing flag processors.
+  • Ensure globalThis.callCount increments for each request.
 • Update tests/unit/main.test.js:
-  • Mock openai.OpenAIApi.createChatCompletion to return a dummy JSON string.
-  • Test that running main(["--agent","test prompt"]) logs the parsed JSON object.
-  • Test error handling when createChatCompletion rejects.
-• Update sandbox/README.md:
-  • Add section under CLI Usage for --agent with description and example.
+  • Use a testing HTTP client (e.g., fetch or axios) against a started server instance.
+  • Mock handlers to produce predictable results.
+• Update sandbox/README.md with the new server usage.
 
 # Verification & Acceptance
-• Unit tests covering positive response and error scenarios.
-• Manual test: run node src/lib/main.js --agent "Hello AI"
-  and inspect parsed JSON printed to console.
-• CI passes all tests with npm test.
+• CI passes all existing and new tests without modification failures.
+• Manually start the server: node src/lib/main.js --serve --port 4000; verify endpoints respond correctly.
+• Ensure globalThis.callCount reflects the number of HTTP requests processed.
