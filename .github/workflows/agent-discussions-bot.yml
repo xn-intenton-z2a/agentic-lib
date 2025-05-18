@@ -443,10 +443,11 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\`\`\`\n\n---\n\n`;
+            let activityLogContent = `## Activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\`\`\`\n\n---\n\n`;
             if (action == 'seed-repository') {
-              fs.writeFileSync(intentionFilepath, `# Activity Log\n\n${activityLogContent}`);
-            } else if (fs.existsSync(intentionFilepath) && action != 'seed-repository') {
+              activityLogContent = `# Activity Log\n\n${activityLogContent}`;
+            }
+            if (fs.existsSync(intentionFilepath)) {
               fs.appendFileSync(intentionFilepath, activityLogContent);
             } else {
               fs.writeFileSync(intentionFilepath, activityLogContent);
