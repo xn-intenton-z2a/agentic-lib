@@ -370,7 +370,7 @@ jobs:
   archive-intention:
     needs:
       - generate-response
-    if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
+    if: ${{ needs.generate-response.outputs.action == 'seed-repository' && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
     permissions:
       contents: write
       pull-requests: write
@@ -386,7 +386,7 @@ jobs:
     needs:
       - archive-intention
       - generate-response
-    if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
+    if: ${{ needs.generate-response.outputs.action == 'seed-repository' && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
     permissions:
       contents: write
       pull-requests: write
@@ -407,7 +407,7 @@ jobs:
       - generate-response
       - seed-repository
       - agentic-lib
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -470,7 +470,7 @@ jobs:
       - seed-repository
       - agentic-lib
       - log-intention-activity
-    if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
+    if: ${{ needs.generate-response.outputs.action == 'seed-repository' && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
     permissions:
       contents: write
       pull-requests: write
