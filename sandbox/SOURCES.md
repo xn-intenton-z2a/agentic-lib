@@ -40,8 +40,8 @@ Official Node.js documentation for the core `http` module, detailing the `http.S
 ## License if known
 CC BY-SA 3.0
 
-# HTTP Authentication Schemes
-## https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication
-Detailed MDN Web Docs guide to HTTP authentication methods including Basic, Digest, Bearer tokens, and usage of the `Authorization` header. Includes header syntax, Base64 encoding for Basic Auth, security best practices, and server-side implementation examples. Directly informs the implementation of Basic Auth for `/metrics` and `/docs` endpoints in the HTTP server. Last reviewed August 2023; authoritative Mozilla resource.
+# Cross-Origin Resource Sharing (CORS)
+## https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+Detailed MDN Web Docs guide to Cross-Origin Resource Sharing (CORS) headers including `Access-Control-Allow-Origin`, `Access-Control-Allow-Methods`, `Access-Control-Allow-Headers`, and preflight request mechanisms. Covers simple vs. non-simple requests, wildcard origins, credentialed requests, and security best practices for browser-enforced CORS policies. Essential for correctly configuring the `Access-Control-Allow-Origin` header in the HTTP server to prevent cross-site errors and control resource access. Last reviewed October 2023; authoritative MDN resource.
 ## License if known
 CC BY-SA 2.5
