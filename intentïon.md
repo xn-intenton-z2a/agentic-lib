@@ -22,3 +22,5 @@
 
 2025-05-18T16:42:49.334Z - Enhanced issue 1491.
 
+2025-05-18T16:47:21.113Z - Worked to resolve issue Export generateUsage and add CLI and SQS handler tests. Export generateUsage and add CLI and SQS handler tests.
+
