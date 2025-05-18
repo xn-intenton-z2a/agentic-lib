@@ -16,15 +16,24 @@ afterAll(() => {
   server.close();
 });
 
-function request(path) {
+// Helper request function supporting headers
+function request(path, headers = {}) {
   return new Promise((resolve, reject) => {
-    http
-      .get(base + path, (res) => {
-        let data = '';
-        res.on('data', (chunk) => (data += chunk));
-        res.on('end', () => resolve({ statusCode: res.statusCode, body: data }));
-      })
-      .on('error', reject);
+    const url = new URL(path, base);
+    const options = {
+      method: 'GET',
+      hostname: url.hostname,
+      port: url.port,
+      path: url.pathname + url.search,
+      headers,
+    };
+    const req = http.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => (data += chunk));
+      res.on('end', () => resolve({ statusCode: res.statusCode, headers: res.headers, body: data }));
+    });
+    req.on('error', reject);
+    req.end();
   });
 }
 
@@ -68,5 +77,38 @@ describe('Server', () => {
         /^http_request_duration_seconds\{method="GET",route="\/(health|ready)",status="200"\} \d+\.?\d*$/,
       );
     });
+  });
+});
+
+describe('/openai-usage', () => {
+  test('returns openai metrics without auth when not configured', async () => {
+    const { statusCode, body } = await request('/openai-usage');
+    expect(statusCode).toBe(200);
+    expect(body).toContain('openai_requests_total');
+    expect(body).toContain('openai_request_failures_total');
+    expect(body).toContain('openai_tokens_consumed_total');
+  });
+
+  test('requires auth when METRICS_USER and METRICS_PASS are set', async () => {
+    process.env.METRICS_USER = 'user';
+    process.env.METRICS_PASS = 'pass';
+    const { statusCode, headers } = await request('/openai-usage');
+    expect(statusCode).toBe(401);
+    expect(headers['www-authenticate']).toContain('Basic');
+    delete process.env.METRICS_USER;
+    delete process.env.METRICS_PASS;
+  });
+
+  test('returns openai metrics with valid auth', async () => {
+    process.env.METRICS_USER = 'user';
+    process.env.METRICS_PASS = 'pass';
+    const auth = Buffer.from('user:pass').toString('base64');
+    const { statusCode, body } = await request('/openai-usage', { Authorization: `Basic ${auth}` });
+    expect(statusCode).toBe(200);
+    expect(body).toContain('openai_requests_total');
+    expect(body).toContain('openai_request_failures_total');
+    expect(body).toContain('openai_tokens_consumed_total');
+    delete process.env.METRICS_USER;
+    delete process.env.METRICS_PASS;
   });
 });
