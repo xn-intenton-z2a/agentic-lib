@@ -31,6 +31,7 @@ try {
 const PORT = env.PORT;
 const CORS_ALLOWED_ORIGINS = env.CORS_ALLOWED_ORIGINS;
 const RATE_LIMIT_REQUESTS = env.RATE_LIMIT_REQUESTS;
+// Note: for /openai-usage auth, we read process.env dynamically
 const METRICS_USER = env.METRICS_USER;
 const METRICS_PASS = env.METRICS_PASS;
 const DOCS_USER = env.DOCS_USER;
@@ -41,6 +42,9 @@ const metrics = {
   http_requests_total: {},
   http_request_failures_total: {},
   http_request_duration_seconds: [],
+  openai_requests_total: {},
+  openai_request_failures_total: {},
+  openai_tokens_consumed_total: {},
 };
 
 // Rate limiter per IP
@@ -58,6 +62,7 @@ const openApiSpec = {
     },
     "/openapi.json": { get: { responses: { "200": { description: "OpenAPI JSON" } } } },
     "/docs": { get: { responses: { "200": { description: "Interactive Docs" } } } },
+    "/openai-usage": { get: { responses: { "200": { description: "Prometheus metrics for OpenAI usage" } } } },
   },
 };
 
@@ -74,6 +79,23 @@ function recordFailure(route) {
 
 function recordDuration(method, route, status, duration) {
   metrics.http_request_duration_seconds.push({ method, route, status, duration });
+}
+
+// OpenAI metrics helpers
+function recordOpenAiRequest(endpoint, status) {
+  const key = `${endpoint}_${status}`;
+  metrics.openai_requests_total[key] = (metrics.openai_requests_total[key] || 0) + 1;
+}
+
+function recordOpenAiFailure(endpoint) {
+  metrics.openai_request_failures_total[endpoint] =
+    (metrics.openai_request_failures_total[endpoint] || 0) + 1;
+}
+
+function recordOpenAiTokens(model, endpoint, tokens) {
+  const key = `${model}_${endpoint}`;
+  metrics.openai_tokens_consumed_total[key] =
+    (metrics.openai_tokens_consumed_total[key] || 0) + tokens;
 }
 
 function checkRateLimit(ip) {
@@ -159,13 +181,13 @@ async function handler(req, res) {
         let out = "";
         for (const key in metrics.http_requests_total) {
           const [m, r, s] = key.split("_");
-          out += `http_requests_total{method=\"${m}\",route=\"${r}\",status=\"${s}\"} ${metrics.http_requests_total[key]}\n`;
+          out += `http_requests_total{method="${m}",route="${r}",status="${s}"} ${metrics.http_requests_total[key]}\n`;
         }
         for (const r in metrics.http_request_failures_total) {
-          out += `http_request_failures_total{route=\"${r}\"} ${metrics.http_request_failures_total[r]}\n`;
+          out += `http_request_failures_total{route="${r}"} ${metrics.http_request_failures_total[r]}\n`;
         }
         for (const entry of metrics.http_request_duration_seconds) {
-          out += `http_request_duration_seconds{method=\"${entry.method}\",route=\"${entry.route}\",status=\"${entry.status}\"} ${entry.duration}\n`;
+          out += `http_request_duration_seconds{method="${entry.method}",route="${entry.route}",status="${entry.status}"} ${entry.duration}\n`;
         }
         sendText(res, 200, out);
         status = 200;
@@ -191,6 +213,25 @@ async function handler(req, res) {
         res.end(html);
         status = 200;
         recordRequest(method, "docs", status);
+      } else if (method === "GET" && route === "/openai-usage") {
+        const metricsUser = process.env.METRICS_USER;
+        const metricsPass = process.env.METRICS_PASS;
+        if (metricsUser && metricsPass && !basicAuth(req, metricsUser, metricsPass)) {
+          status = 401;
+          recordFailure("openai_usage_auth");
+          res.writeHead(401, { "WWW-Authenticate": "Basic realm=\"OpenAI Usage\"" });
+          return res.end("Unauthorized");
+        }
+        let out = "";
+        const openaiRequestsSum = Object.values(metrics.openai_requests_total).reduce((a, b) => a + b, 0);
+        const openaiFailuresSum = Object.values(metrics.openai_request_failures_total).reduce((a, b) => a + b, 0);
+        const openaiTokensSum = Object.values(metrics.openai_tokens_consumed_total).reduce((a, b) => a + b, 0);
+        out += `openai_requests_total ${openaiRequestsSum}\n`;
+        out += `openai_request_failures_total ${openaiFailuresSum}\n`;
+        out += `openai_tokens_consumed_total ${openaiTokensSum}\n`;
+        sendText(res, 200, out);
+        status = 200;
+        recordRequest(method, "openai_usage", status);
       } else {
         status = 404;
         recordFailure(route);

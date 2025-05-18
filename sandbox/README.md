@@ -24,3 +24,5 @@ With `agentic-lib`, you can seamlessly integrate environment validation, structu
   Mission Alignment: Exposes request duration metrics for performance monitoring.
 - **CLI flags**: `--help`, `--version`, `--digest`  
   Mission Alignment: Offers intuitive CLI interfaces to drive agentic workflows directly from the command line.
+- **OpenAI Usage Metrics Endpoint** (`GET /openai-usage`)  
+  Mission Alignment: Exposes detailed OpenAI API usage metrics for autonomous observability.

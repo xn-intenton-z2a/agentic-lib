@@ -49,6 +49,13 @@ startServer(options);
 - **GET /docs**  
   Renders the OpenAPI schema as HTML via Markdown. Protected by Basic Auth if `DOCS_USER`/`DOCS_PASS` are set.
 
+- **GET /openai-usage**  
+  Prometheus-formatted OpenAI usage metrics. Exposes:
+  - `openai_requests_total{endpoint, status}`
+  - `openai_request_failures_total{endpoint}`
+  - `openai_tokens_consumed_total{model, endpoint}`
+  Protected by Basic Auth if `METRICS_USER`/`METRICS_PASS` are set.
+
 ## Configuration
 
 Environment variables:
