@@ -193,7 +193,7 @@ jobs:
 
       - name: Truncate the intentïon file and seed it with the mission
         run: |
-          cp '${{ needs.agentic-lib.outputs.missionFilepath }}' > '${{ needs.agentic-lib.outputs.intentionFilepath }}'
+          cp -v '${{ needs.agentic-lib.outputs.missionFilepath }}' '${{ needs.agentic-lib.outputs.intentionFilepath }}'
 
       - name: Commit and push
         id: commit
