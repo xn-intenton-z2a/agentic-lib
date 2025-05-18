@@ -50,3 +50,5 @@
 
 2025-05-18T14:38:46.502Z - Reviewed in-progress issue 1479.
 
+2025-05-18T14:44:40.563Z - Worked to resolve issue Add OpenAI usage metrics endpoint and instrumentation helpers. Add OpenAI usage metrics endpoint and instrumentation helpers.
+
