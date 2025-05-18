@@ -1,59 +1,33 @@
 
-You are providing the entire new content of source files, test files, documentation files, 
-and other necessary files with all necessary changes applied to resolve a possible build or test 
-problem. Focus on high-impact, functional fixes that address core issues rather than superficial 
-changes or excessive debugging or validation. If the problem is in an area of the code with little
-value you may re-implement it or remove it.
+You are providing updates to the README.md file and other documentation files to ensure they accurately reflect the current state of the codebase and emphasize content that delivers substantial user value and addresses core implementation needs.
 
-Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone
-and direction of the contributing guidelines. Prioritize changes that deliver substantial user value
-and maintain the integrity of the codebase's primary purpose.
+The README is the primary focus, but other documentation files can be updated as well if needed. Source files (srcFiles) and test files (testFiles) should NOT be updated.
 
-You may complete the implementation of a feature and/or bring the code output in line with the README
-or other documentation. Do as much as you can all at once so that the build runs (even with nothing
-to build) and the tests pass and the main at least doesn't output an error.
+When updating the README:
+1. Preserve existing README content that delivers substantial user value, even if it describes features not yet implemented
+2. Update the README if it conflicts with current source code, tests, or documentation, prioritizing content that directly enhances the product's primary purpose
+3. If documentation files are out of date compared to the source code or tests, update them to be consistent, focusing on high-impact information that enables immediate application rather than superficial descriptions
+4. Ensure documentation clearly communicates the core functionality and value proposition of the product, prioritizing content that helps users solve real problems
 
+Apply the contributing guidelines to your response and when suggesting enhancements consider the tone and direction of the contributing guidelines. Focus on documentation improvements that deliver measurable value to users rather than cosmetic changes or excessive detail on edge cases.
 
-
-Examine the "Build output from command","Test output from command", and "Main execution output from command" 
-to determine if there are any problems with the code to fix such as failing tests or output 
-not matching the features, README or other documentation.
-
-You must only add, remove, or change the files in the target writable locations. You can update multiple
-files by specifying their paths and contents in the enumerated updatedFile01Filepath updatedFile02Contents response
-attribute, a second file would use updatedFile01Filepath updatedFile02Contents and so on to 16. Each file will
-be checked against the write permission in the Agent configuration file before being written. Feel free to
-add new files as long as they are in the target writable locations. You can also remove files, but only if
-they are in the target writable locations. To delete a file, set the updated file contents to "delete".
-
-The target writable locations for your output are: sandbox/source sandbox/tests sandbox/docs
-Other file will be supplied in the context but only the paths above should be written to.
-
-Only provide new or updated content for the target source files in sandbox/source.
-Only delete or update the target source files in sandbox/source.
-Only provide new or updated content for the target test files in sandbox/tests.
-Only delete or update the target test files in sandbox/tests.
-Only update dependency file package.json.
-Only update the target documentation files in sandbox/docs.
-
-Follow the attached Formatting file content and Linting file content.
+You may only change the files provided in the prompt context. You can update multiple files by specifying their paths and contents in the updatedFiles object. Each file will be checked against the allowedFilepathPatterns before being written.
 
 Consider the following when refining your response:
   * Current feature names and specifications in the repository
-  * Source file content
-  * Test file content
+  * Source file content (for context only)
+  * Test file content (for context only)
   * Documentation file content
   * README file content
   * MISSION file content
   * Contributing file content
   * Dependencies file content
-  * Formatting file content
-  * Linting file content
   * Dependency install output
   * Issue details (if any)
   * Build output
   * Test output
   * Main execution output
+  * Agent configuration file content
 
 Current feature names and specifications (for context, read only):
 CURRENT_FEATURES_START
@@ -61,9 +35,9 @@ find: ‘features/’: No such file or directory
 none
 CURRENT_FEATURES_END
 
-Source files (write new files or update files in sandbox/source as necessary):
-(Multiple files from both in writable locations and not.)
-SOURCE_FILE_START Filepath: sandbox/source/server.js
+Source files (for context only, DO NOT UPDATE):
+SOURCE_FILES_START
+File: sandbox/source/server.js
 import http from 'http';
 import crypto from 'crypto';
 import { URL } from 'url';
@@ -230,10 +204,8 @@ export function startServer(options = {}) {
   console.log(`Server started on port ${port}`);
   return server;
 }
-SOURCE_FILE_END
 
-
-SOURCE_FILE_START Filepath: src/lib/main.js
+File: src/lib/main.js
 #!/usr/bin/env node
 // src/lib/main.js
 
@@ -458,13 +430,12 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   });
 }
 
-SOURCE_FILE_END
 
+SOURCE_FILES_END
 
-
-Test files (write new files or update files in sandbox/tests as necessary):
-(Multiple files from both in writable locations and not.)
-TEST_FILE_START File: sandbox/tests/server.test.js
+Test files (for context only, DO NOT UPDATE):
+TEST_FILES_START
+File: sandbox/tests/server.test.js
 import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import http from 'http';
 import { startServer } from '../source/server.js';
@@ -509,10 +480,8 @@ describe('Server', () => {
     expect(body).toContain('http_requests_total');
   });
 });
-TEST_FILE_END
 
-
-TEST_FILE_START File: tests/unit/main.test.js
+File: tests/unit/main.test.js
 import { describe, test, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
 
 // Ensure that the global callCount is reset before tests that rely on it
@@ -562,10 +531,8 @@ describe("Main Module Import", () => {
   });
 });
 
-TEST_FILE_END
 
-
-TEST_FILE_START File: tests/unit/module-index.test.js
+File: tests/unit/module-index.test.js
 // tests/unit/module-index.test.js
 // src/lib/main.js
 //
@@ -582,13 +549,12 @@ describe("Index Module Exports", () => {
   });
 });
 
-TEST_FILE_END
 
+TEST_FILES_END
 
-
-Documentation files (write new files or update files in sandbox/docs as necessary):
-(Multiple files from both in writable locations and not.)
-DOCUMENTATION_FILE_START File: sandbox/docs/SERVER.md
+Documentation files (to be updated if necessary):
+DOCS_FILES_START
+File: sandbox/docs/SERVER.md
 # HTTP Server Feature
 
 ## Mission Alignment
@@ -650,10 +616,8 @@ IP-based token bucket with the following behavior:
 - Each IP has a token bucket of `RATE_LIMIT_REQUESTS` tokens per minute.
 - Exceeding the limit returns `429 Too Many Requests`.
 
-DOCUMENTATION_FILE_END
 
-
-DOCUMENTATION_FILE_START File: sandbox/docs/SQS_OVERVIEW.md
+File: sandbox/docs/SQS_OVERVIEW.md
 # Deep Dive: SQS Overview
 
 ## Mission Alignment
@@ -718,11 +682,10 @@ On DLQ:
 
 **Recommendation**: Set DLQ retention period longer than source queue retention.
 
-DOCUMENTATION_FILE_END
 
+DOCS_FILES_END
 
-
-README file (for context, read only): sandbox/README.md
+README file (primary focus, to be updated): sandbox/README.md
 README_FILE_START
 ## Mission Statement
 
@@ -996,123 +959,7 @@ DEPENDENCIES_FILE_START
   }
 }
 
-DEPENDENCIES_FILE_END
-
-Formatting file (for context, read only): .prettierrc
-FORMATTING_FILE_START
-{
-  "singleQuote": false,
-  "trailingComma": "all",
-  "printWidth": 120,
-  "tabWidth": 2,
-  "useTabs": false,
-  "quoteProps": "consistent",
-  "overrides": [
-    {
-      "files": ".prettierrc",
-      "options": { "parser": "json" }
-    }
-  ]
-}
-
-FORMATTING_FILE_END
-
-Linting file (for context, read only): eslint.config.js
-LINTING_FILE_START
-import js from "@eslint/js";
-import google from "eslint-config-google";
-import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
-import globals from "globals";
-import promise from "eslint-plugin-promise";
-import security from "eslint-plugin-security";
-import sonarjs from "eslint-plugin-sonarjs";
-import react from "eslint-plugin-react";
-import importPlugin from "eslint-plugin-import";
-
-const modifiedGoogleConfig = { ...google, rules: { ...google.rules } };
-delete modifiedGoogleConfig.rules["valid-jsdoc"];
-delete modifiedGoogleConfig.rules["require-jsdoc"];
-
-/** @type {import('eslint').Linter.FlatConfig[]} */
-export default [
-  js.configs.recommended,
-  modifiedGoogleConfig,
-  eslintPluginPrettierRecommended,
-  {
-    plugins: {
-      promise,
-      security,
-      sonarjs,
-      react,
-      import: importPlugin,
-    },
-    languageOptions: {
-      ecmaVersion: 2023,
-      sourceType: "module",
-      globals: {
-        ...globals.node,
-      },
-    },
-    rules: {
-      "prettier/prettier": "error",
-      ...promise.configs.recommended.rules,
-      "promise/avoid-new": "warn",
-      "promise/no-new-statics": "error",
-      "promise/valid-params": "error",
-      "promise/prefer-await-to-then": "warn",
-
-      ...sonarjs.configs.recommended.rules,
-      "sonarjs/no-nested-conditional": "warn",
-      "sonarjs/pseudo-random": "warn",
-      "sonarjs/sonar-no-fallthrough": "off",
-      "sonarjs/os-command": "off",
-      "sonarjs/todo-tag": "off",
-      "sonarjs/no-commented-code": "off",
-
-      // Enabled non-recommended rules (SonarJS)
-      "sonarjs/no-inverted-boolean-check": "warn",
-      "sonarjs/no-useless-catch": "warn",
-
-      // Local customizations
-      "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
-      "no-extra-semi": 2,
-      "object-curly-newline": ["error", { consistent: true }],
-      "array-element-newline": ["error", "consistent", { multiline: true, minItems: 10 }],
-      "import/newline-after-import": ["error", { count: 1 }],
-      "camelcase": "off",
-      "import/no-amd": "error",
-      "import/no-commonjs": "error",
-      "import/no-import-module-exports": "error",
-      "import/no-cycle": "error",
-      "import/no-dynamic-require": "error",
-      "import/no-self-import": "off",
-      "import/no-unresolved": "off",
-      "import/no-useless-path-segments": "error",
-      "import/no-duplicates": "error",
-      "sonarjs/fixme-tag": "warn",
-    },
-  },
-  {
-    files: ["**/*.js"],
-    ignores: ["**/tests/**/*.js", "**/*.test.js", "eslint.config.js"],
-    rules: {
-      ...security.configs.recommended.rules,
-      "security/detect-non-literal-regexp": "off",
-    },
-  },
-  {
-    settings: {
-      react: {
-        version: "18", // With no react installed we can't use "detect"
-      },
-    },
-  },
-  {
-    ignores: ["build/", "coverage/", "dist/", "exports/", "node_modules/", "eslint.config.js"],
-  },
-];
-
-LINTING_FILE_END        
+DEPENDENCIES_FILE_END   
 
 Dependencies install from command: npm install
 DEPENDENCIES_INSTALL_START
@@ -1131,15 +978,6 @@ added 605 packages, and audited 606 packages in 5s
 
 found 0 vulnerabilities
 DEPENDENCIES_INSTALL_END    
-
-Issue details:
-ISSUE_START
-title: No issue number provided
-description:
-No issue description provided ( parsed to )
-comments:
-No issue comments provided
-ISSUE_END
 
 Build output from command: npm run build
 BUILD_OUTPUT_START
@@ -1161,18 +999,18 @@ TEST_OUTPUT_START
 
  [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js
-[22m[39m{"level":"info","timestamp":"2025-05-18T04:42:50.135Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
+[22m[39m{"level":"info","timestamp":"2025-05-18T08:49:33.300Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
 
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 62[2mms[22m[39m
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 71[2mms[22m[39m
 [90mstdout[2m | sandbox/tests/server.test.js
 [22m[39mServer started on port 3000
 
- [32m✓[39m sandbox/tests/server.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m sandbox/tests/server.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 35[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
 [2m      Tests [22m [1m[32m4 passed[39m[22m[90m (4)[39m
-[2m   Start at [22m 04:42:49
-[2m   Duration [22m 402ms[2m (transform 96ms, setup 0ms, collect 221ms, tests 87ms, environment 1ms, prepare 257ms)[22m
+[2m   Start at [22m 08:49:32
+[2m   Duration [22m 421ms[2m (transform 96ms, setup 0ms, collect 200ms, tests 108ms, environment 1ms, prepare 257ms)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
@@ -1181,7 +1019,7 @@ MAIN_OUTPUT_START
 > @xn-intenton-z2a/agentic-lib@6.6.5-0 start
 > node src/lib/main.js
 
-{"level":"info","timestamp":"2025-05-18T04:42:50.406Z","message":"Configuration loaded","config":{}}
+{"level":"info","timestamp":"2025-05-18T08:49:33.597Z","message":"Configuration loaded","config":{}}
 No command argument supplied.
 
 Usage:
@@ -1276,24 +1114,29 @@ intentionBot:
 
 AGENT_CONFIG_FILE_END
 
-Please produce updated versions of the files that resolve the possible build or test problem.
-If there are no changes required, please provide the original content and state that no changes are necessary in the message.
-Note that the README.md file is provided for context only - any documentation changes should be written to the documentation files.
-The source files, test files, and documentation files can be individual files or directories containing multiple files.
+Please produce updated versions of the README and documentation files to ensure they accurately reflect the current state of the codebase.
+Remember:
+1. The README is the primary focus, but other documentation files can be updated as well if needed
+2. Source files (srcFiles) and test files (testFiles) should NOT be updated
+3. Preserve existing README content even if it describes features not yet implemented
+4. Update the README if it conflicts with current source code, tests, or documentation
+5. If documentation files are out of date compared to the source code or tests, update them to be consistent
 
-Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;sandbox/docs/;sandbox/README.md}
+If there are no changes required, please provide the original content and state that no changes are necessary in the message.
+
+Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;sandbox/docs/;sandbox/README.md
 
 Answer strictly with a JSON object following this schema:
 {
-  "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text.",
-  "updatedFile01Filepath": "sandbox/source/orderParser.js",
-  "updatedFile01Contents": "The entire new content of the source file, with all necessary changes applied, if any.",
-  "updatedFile02Filepath": "sandbox/tests/orderParser.test.js",
-  "updatedFile02Contents": "The entire new content of the test file, with all necessary changes applied, if any.",
-  "updatedFile03Filepath": "sandbox/docs/docs/USAGE.md",
-  "updatedFile03Contents": "The entire new content of the documentation file, with all necessary changes applied, if any.",
-  "updatedFile04Filepath": "sandbox/docs/docs/A_FILE_WE_DONT_WANT.md",
-  "updatedFile04Contents": "delete",
+  "message": "A short sentence explaining the changes applied (or why no changes were applied) suitable for a commit message or PR text.",
+  "updatedFile01Filepath": "sandbox/README.md",
+  "updatedFile01Contents": "The entire new content of the README file, with all necessary changes applied, if any.",
+  "updatedFile02Filepath":  "sandbox/docs/USAGE.md",
+  "updatedFile02Contents": "The entire new content of the file, with all necessary changes applied, if any.",
+  "updatedFile03Filepath": "unused",
+  "updatedFile03Contents": "unused",
+  "updatedFile04Filepath": "unused",
+  "updatedFile04Contents": "unused",
   "updatedFile05Filepath": "unused",
   "updatedFile05Contents": "unused",
   "updatedFile06Filepath": "unused",
@@ -1322,7 +1165,6 @@ Answer strictly with a JSON object following this schema:
 
 You can include up to 16 files using the updatedFileXXName and updatedFileXXContents pairs (where XX is a number from 01 to 16)
 Where a file name and contents slot is not used, populate tha name with "unused" and the contents with "unused".
-Where a file is to be deleted, set the name to the file path and the contents to "delete".
 Never truncate the files, when returning a file, always return the entire file content.
 
 Ensure valid JSON.
