@@ -1,54 +1,54 @@
 # Overview
 
-Enhance the core agentic-lib feature to add GitHub Webhook ingestion, extending the existing issue and pull request lifecycle management, AI chat completions, SQS, Lambda, CLI, and HTTP server capabilities. This feature enables real-time, event-driven agentic workflows by validating and processing incoming GitHub webhook events, automatically enqueuing them for downstream processing.
+Extend the core agentic-lib feature to support AI-driven GitHub issue summarization and commentary, building upon existing webhook ingestion, SQS, Lambda, CLI, and HTTP server capabilities. This addition enables users to fetch open issues from a repository, generate natural language summaries via OpenAI chat completions, and optionally post summaries as comments on GitHub issues, all through CLI flags or HTTP endpoints.
 
 # CLI Interface
 
-Extend src/lib/main.js with a new flag in addition to existing ones:
+Extend src/lib/main.js with two new flags alongside existing ones:
 
-- --github-simulate-webhook <eventFile>  Read a local JSON file representing a GitHub webhook payload, sign it using GITHUB_WEBHOOK_SECRET (from environment), and POST it to http://localhost:<PORT>/webhook/github. Output HTTP response status and body as JSON. Exit code 0 on success, non-zero on error.
+- --summarize-issues <owner/repo>  Fetch all open issues from the specified repository using GITHUB_API_BASE_URL and GITHUB_API_TOKEN, call summarizeIssues utility, and output the summary text as JSON to stdout. Exit code 0 on success, non-zero on error.
+- --post-comment <issueNumber>  When used together with --summarize-issues, post the generated summary as a comment to the specified issue number via GitHub REST API. Use GITHUB_API_TOKEN for authentication.
 
-Maintain existing error logging and call counting when VERBOSE_STATS is enabled.
+Maintain existing error logging, structured output, and call counting when VERBOSE_STATS is enabled.
 
 # HTTP Server Endpoints
 
 Extend sandbox/source/server.js to expose a new route alongside existing endpoints:
 
-- POST /webhook/github  Headers: X-Hub-Signature-256 containing HMAC sha256 signature of the raw JSON body using GITHUB_WEBHOOK_SECRET. JSON body: any payload from GitHub events. Workflow:
-  1. Reject if signature header is missing or invalid, respond 401 Unauthorized.
+- GET /issues/summary  Query parameters: repo=<owner/repo>, token=<GITHUB_API_TOKEN>. Workflow:
+  1. Reject if token or repo parameter missing or if token does not match GITHUB_API_TOKEN in environment; respond 401 Unauthorized.
   2. Validate rate limit by IP; on exceed respond 429.
-  3. On valid request, record a new metric http_requests_total{method="POST",route="webhook",status="200"}.
-  4. Enqueue the raw payload to SQS by calling createSQSEventFromDigest or invoking digestLambdaHandler directly.
-  5. Respond 200 with { delivered: true, eventType: <X-GitHub-Event header> }.
+  3. On valid request, record metric http_requests_total{method="GET",route="issues/summary",status="200"}.
+  4. Invoke summarizeIssues(owner, repo) utility to generate a summary.
+  5. Respond 200 with JSON { repo: "owner/repo", summary: <string> }.
 
-Ensure signature verification using new utility verifyWebhookSignature.
-All existing HTTP endpoints remain unchanged, including rate limiting, authentication, schema validation, and metrics.
+Ensure existing HTTP endpoints remain unchanged, including rate limiting, authentication, schema validation, and metrics.
 
-# API Utilities
+# GitHub Issue Summarization Utilities
 
-Export reusable functions in src/lib/main.js:
+Export new reusable functions in src/lib/main.js:
 
-- verifyWebhookSignature(rawPayload: string, signature: string, secret: string): boolean  Validate HMAC sha256 signature header against raw payload and secret.
-- handleWebhookEvent(payload: object, headers: object): Promise<object>  Validate signature, enqueue event, and return processing result.
+- summarizeIssues(owner: string, repo: string): Promise<string>  Fetch open issues via REST API, construct a prompt listing issue titles and bodies, call OpenAIApi.createChatCompletion to generate a concise summary, and return the summary text.
+- postIssueComment(owner: string, repo: string, issueNumber: number, body: string): Promise<object>  Post a comment to the specified issue via GitHub REST API, using fetch and GITHUB_API_TOKEN, and return the API response object.
 
-Each utility uses crypto HMAC sha256, structured logging via logInfo and logError, and clear error messages on failure.
+Use structured logging via logInfo and logError, clear error messages on failure, and built-in crypto or fetch for HTTP calls.
 
 # Success Criteria & Testing
 
 - All existing tests must pass without modification.
-- Add unit tests for verifyWebhookSignature covering valid and invalid signatures.
-- Add unit tests for handleWebhookEvent mocking SQS and digestLambdaHandler behavior.
-- Add CLI tests for --github-simulate-webhook verifying file reading, signature creation, HTTP request, console output, exit codes, and error handling under invalid inputs.
-- Add sandbox tests for POST /webhook/github validating status codes, signature failures, rate limiting, metrics recording, and payload forwarding.
+- Add unit tests for summarizeIssues mocking GitHub API and OpenAIApi behavior, verifying prompt construction and summary return.
+- Add unit tests for postIssueComment mocking fetch to GitHub, verifying correct payload and URL.
+- Add CLI tests for --summarize-issues and --summarize-issues with --post-comment, verifying output, exit codes, and error handling under invalid inputs.
+- Add sandbox tests for GET /issues/summary validating status codes for missing parameters, authentication failures, rate limiting, metrics recording, and successful summary response.
 
 # Documentation & README Updates
 
-- Update sandbox/README.md Key Features to include GitHub Webhook ingest capability.
-- Add examples for simulate-webhook in sandbox/docs/SERVER.md under CLI Examples and HTTP Examples.
-- Document verifyWebhookSignature and handleWebhookEvent in sandbox/docs/OPENAPI_API.md or a new sandbox/docs/WEBHOOKS.md with example payloads and usage.
+- Update sandbox/README.md Key Features to include GitHub Issue Summarization capability.
+- Add examples for summarize-issues and post comments under CLI Examples in sandbox/docs/SERVER.md.
+- Create sandbox/docs/ISSUE_SUMMARIES.md with API reference, usage scenarios, sample request and response, and environment variable requirements.
 
 # Dependencies & Constraints
 
 - Modify only src/lib/main.js, sandbox/source/server.js, sandbox/tests/, sandbox/docs/, sandbox/README.md, and package.json.
-- Introduce no new runtime dependencies; use built-in crypto for HMAC sha256. Use only existing dependencies: crypto, fetch, openai, zod.
+- Introduce no new runtime dependencies; use existing openai, fetch, and built-in crypto if needed. If fetch is not globally available, use node's experimental fetch or add isomorphic-fetch as dev dependency.
 - Maintain ESM compatibility, existing coding style, and alignment with the mission statement.
