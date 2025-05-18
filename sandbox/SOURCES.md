@@ -1,47 +1,47 @@
 # AWS Lambda & Amazon SQS Integration
 ## https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html
-Comprehensive guide detailing how to configure AWS Lambda to consume messages from Amazon SQS queues. Covers event source mapping configuration, batch size tuning, error handling via `batchItemFailures`, visibility timeout strategies, and concurrency controls for both standard and FIFO queues. Also references the AWS SDK for JavaScript v3 SQSClient for programmatic message operations (SendMessageCommand, ReceiveMessageCommand, DeleteMessageCommand), middleware customization, pagination utilities, and retry patterns. Includes JSON event schemas and real-world examples for Node.js Lambda functions. Last updated March 2024; authoritative AWS Lambda Developer Guide.
+Comprehensive official AWS guide detailing how to configure AWS Lambda functions to consume messages from Amazon SQS queues. Covers event source mapping, batch size tuning, error handling using `batchItemFailures`, visibility timeout strategies, and concurrency controls for both standard and FIFO queues. Includes code examples using the AWS SDK for JavaScript v3 `SQSClient` (SendMessageCommand, ReceiveMessageCommand, DeleteMessageCommand), along with middleware customization, pagination utilities, and retry patterns. Provides JSON event schemas and real-world Node.js samples to address core implementation needs in event-driven workflows. Last updated March 2024; authoritative AWS Lambda Developer Guide.
 ## License if known
 Proprietary – see AWS Documentation Terms.
 
 # Environment Configuration (dotenv + Zod)
 ## https://github.com/motdotla/dotenv#readme
-Official `dotenv` documentation covering loading environment variables from `.env` files, default values, variable expansion, and safety checks. Combined with Zod-based schema validation patterns to enforce runtime type safety and provide clear error feedback on missing or malformed configuration values. Guides building robust, type-safe pipelines for application settings in Node.js environments. Last updated March 2024; widely adopted community standard.
+Official `dotenv` documentation for loading environment variables from `.env` files in Node.js, covering default values, variable expansion, and security considerations. When paired with Zod schema validation (https://github.com/colinhacks/zod), enables runtime type checking and clear error reporting for missing or malformed configuration, enforcing robust, type-safe pipelines. Essential for consistent environment loading and validation in CLI, Lambda, and server components. Last updated March 2024; widely adopted community standard.
 ## License if known
 BSD-2-Clause (dotenv), MIT (Zod)
 
 # OpenAI Node.js SDK Reference
 ## https://github.com/openai/openai-node
-Official reference for OpenAI’s Node.js SDK, detailing authentication flows, rate limiting, retry strategies, and usage patterns for ChatCompletion and Completions APIs. Covers streaming responses, pagination, error codes, and performance tuning recommendations with real code examples. Essential for integrating generative AI capabilities in agentic workflows. Updated April 2024; maintained by OpenAI.
+The official OpenAI Node.js SDK reference describes authentication flows, API client initialization, rate limiting considerations, and retry strategies. Covers usage patterns for ChatCompletion, Completions, and Edits endpoints, including streaming responses, pagination handling, and error code management. Provides performance tuning recommendations and real code examples to seamlessly integrate generative AI into agentic workflows. Last updated April 2024; maintained by OpenAI.
 ## License if known
 MIT
 
 # GitHub REST API Documentation
 ## https://docs.github.com/en/rest
-Authoritative GitHub REST API reference outlining endpoint specifications, authentication methods, pagination guidelines, webhook configuration, and rate limiting. Provides detailed JSON schemas for requests and responses, query parameter usage, and versioning best practices. Crucial for automating issue, branch, and pull request workflows in continuous integration pipelines. Continuously updated; licensed under CC BY 4.0.
+Authoritative GitHub REST API reference outlining endpoint specifications for issues, branches, pull requests, and more. Details authentication methods (personal tokens, OAuth), pagination guidelines, rate limiting headers, webhook configuration, and versioning best practices. Includes precise JSON schemas for requests and responses to automate CI/CD and repository management in agentic workflows. Continuously updated; licensed under CC BY 4.0.
 ## License if known
 CC BY 4.0
 
 # Prometheus Exposition Format
 ## https://prometheus.io/docs/instrumenting/exposition_formats/
-Official documentation of Prometheus exposition formats, including text-based and protocol buffer encodings. Defines metric types (counter, gauge, histogram, summary), naming conventions, label usage, and endpoint implementation best practices. Essential for building compatible `/metrics` endpoints and ensuring accurate scraping and instrumentation of service performance. Published May 2023; maintained by the Prometheus project.
+Official Prometheus documentation defining exposition formats for text-based and protocol buffer encodings. Specifies metric types (counter, gauge, histogram, summary), naming conventions, label cardinality guidelines, and endpoint implementation best practices. Critical for creating a compatible `/metrics` endpoint in Node.js and ensuring accurate data scraping for observability and alerting. Published May 2023; maintained by the Prometheus project.
 ## License if known
 Apache 2.0
 
 # OpenAPI & JSON Schema Specifications
 ## https://spec.openapis.org/oas/v3.1.0
-The OpenAPI Specification (v3.1) defines structure and semantics for RESTful API definitions, covering Paths, Components (schemas, parameters, responses), and Security Schemes. Integrated with JSON Schema (https://json-schema.org/specification.html) for detailed validation keywords, formats, and extensibility. Underpins generation, validation, and maintenance of the `/openapi.json` endpoint with strict schema conformance. OpenAPI published January 2023 (CC BY 4.0); JSON Schema published latest draft 2023 (CC0).
+Comprehensive specification for OpenAPI v3.1.0, defining the structure, components (schemas, parameters, responses), security schemes, and reference mechanisms for RESTful APIs. Integrates with the latest JSON Schema (https://json-schema.org/specification.html) for detailed validation, custom types, and extensibility. Underpins the generation and strict validation of the `/openapi.json` endpoint, enabling code-generated clients and interactive docs. OpenAPI spec published January 2023 (CC BY 4.0); JSON Schema latest draft 2023 (CC0).
 ## License if known
 CC BY 4.0 (OpenAPI), CC0 (JSON Schema)
 
-# Markdown Rendering Libraries
-## https://github.com/markdown-it/markdown-it
-Official documentation for MarkdownIt, a pluggable CommonMark-compliant parser and renderer. Covers core API for parsing and rendering Markdown, performance tuning, plugin architecture, and customization hooks. Combined with the `markdown-it-github` plugin (https://github.com/markdown-it/github) to enable GitHub-flavored Markdown extensions like tables, task lists, and autolinks. Critical for implementing interactive `/docs` endpoints and secure HTML rendering of OpenAPI schemas. Updated February 2024; MIT License.
+# Node.js HTTP Module
+## https://nodejs.org/api/http.html
+Official Node.js documentation for the core `http` module, detailing the `http.Server`, `http.IncomingMessage`, and `http.ServerResponse` APIs. Covers request routing, header management, streaming data, error handling, and performance considerations. Essential for building custom HTTP servers, implementing rate limiting logic, and managing CORS and Basic Auth in a lightweight, dependency-free manner. Reflects Node.js v20.x; authoritative Node Foundation docs.
 ## License if known
-MIT
+CC BY-SA 3.0
 
-# GitHub Actions Reusable Workflows (`workflow_call`)
-## https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call
-Official GitHub Actions documentation describing the `workflow_call` event for invoking reusable workflows. Details inputs, outputs, secrets contexts, and event syntax for modular, composable CI/CD pipelines. Provides examples demonstrating cross-repository workflow calls, parameter passing, and security considerations. Essential for structuring agentic-lib as part of GitHub-hosted automation via workflow_call. Last updated April 2024; CC BY 4.0.
+# HTTP Authentication Schemes
+## https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication
+Detailed MDN Web Docs guide to HTTP authentication methods including Basic, Digest, Bearer tokens, and usage of the `Authorization` header. Includes header syntax, Base64 encoding for Basic Auth, security best practices, and server-side implementation examples. Directly informs the implementation of Basic Auth for `/metrics` and `/docs` endpoints in the HTTP server. Last reviewed August 2023; authoritative Mozilla resource.
 ## License if known
-CC BY 4.0
+CC BY-SA 2.5
