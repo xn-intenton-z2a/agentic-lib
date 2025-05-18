@@ -1,7 +1,3 @@
-# Mission Alignment
-
-AGENTIC_CORE consolidates all essential core capabilities of agentic-lib into a single coherent feature, fully realizing the mission to enable autonomous, continuous agentic interactions. It now includes an OpenAI Chat Utility to empower conversational agentic workflows.
-
 # Feature Overview
 
 - Environment Configuration
@@ -16,14 +12,34 @@ AGENTIC_CORE consolidates all essential core capabilities of agentic-lib into a 
   Support --help, --version, and --digest flags in main CLI, enabling users to display usage instructions, version information with timestamp, and simulate SQS digest events.
 - HTTP Server
   startServer function exposing critical endpoints: /health, /metrics, /openapi.json, /docs, all supporting CORS, Basic Auth when configured, and integrated rate-limit headers.
+- GitHub API Utilities
+  Export functions to interact with GitHub repositories and issues, including createIssue, listIssues, createBranch, commitFile, and createPullRequest, leveraging authenticated REST API calls to enable agentic workflows through issues and branches.
 
-# OpenAI Chat Utilities
+# GitHub API Utilities
 
-The chatCompletion function accepts an array of message objects and optional model parameters, uses the OpenAIApi client to request a chat completion, logs the request and response via logInfo, and returns the parsed JSON content. On API errors or invalid responses it logs detailed errors via logError and throws descriptive exceptions.
+Implement a set of asynchronous functions for seamless integration with GitHub APIs:
+
+- createIssue(repo, title, body, labels?):
+  Create a GitHub issue in the specified repository with title, body, and optional labels.
+- listIssues(repo, filters?):
+  Retrieve a list of issues matching optional filters (state, labels, assignee).
+- createBranch(repo, baseBranch, newBranch):
+  Create a new branch from a specified base branch in the repository.
+- commitFile(repo, branch, filePath, content, commitMessage):
+  Create or update a file in the given branch, committing changes with the provided message.
+- createPullRequest(repo, title, head, base, body?):
+  Open a pull request from head branch into base branch with title and optional description.
+
+Each function must:
+
+- Use @octokit/rest or Fetch with config.GITHUB_API_BASE_URL and GITHUB_TOKEN for authentication.
+- Log request and response details via logInfo; log errors via logError.
+- Throw descriptive errors for HTTP failures or invalid inputs.
 
 # Configuration & Environment Variables
 
-- GITHUB_API_BASE_URL (optional)
+- GITHUB_API_BASE_URL (optional)  Base URL for GitHub API requests; defaults to api.github.com.
+- GITHUB_TOKEN (required for GitHub API Utilities)  Personal access token or GitHub App token with repo scope.
 - OPENAI_API_KEY (required for chatCompletion)
 - PORT
 - CORS_ALLOWED_ORIGINS
@@ -33,13 +49,15 @@ The chatCompletion function accepts an array of message objects and optional mod
 
 # Success Criteria & Acceptance
 
-- chatCompletion returns correctly parsed JSON object when OpenAI API returns valid content.
-- chatCompletion logs both request payload and response content via logInfo.
-- chatCompletion throws and logs errors when API key is missing, invalid, or API call fails.
-- Existing environment validation, logging, SQS utilities, CLI, and HTTP server functionality remain unaffected and continue to pass existing tests.
+- All existing core features continue to function and pass existing tests.
+- GitHub API Utilities functions successfully call mocked API endpoints with correct parameters in Vitest tests.
+- createIssue and createPullRequest return parsed JSON responses when API returns success.
+- Error paths such as authentication failures or missing parameters throw and log descriptive exceptions.
+- Implementation uses only allowed sandbox paths (source, tests, docs, readme, dependencies).
 
 # Testability & Stability
 
-- Vitest tests should cover chatCompletion success path by mocking OpenAIApi to return known content, and error path by simulating API failures.
-- Ensure missing OPENAI_API_KEY triggers startup validation error before chatCompletion invocation.
-- Maintain fail-safe mechanisms: unexpected errors in chatCompletion are captured and reported without crashing other features.
+- Add Vitest tests in sandbox/tests/server.test.js and tests/unit/main.test.js to mock @octokit/rest and validate both success and error scenarios.
+- Ensure required GITHUB_TOKEN missing triggers startup validation error.
+- Verify GitHub API functions integrate correctly with logInfo/logError helpers and global callCount when used in CLI scenarios.
+- Maintain existing fail-safe mechanisms: unexpected errors in new utilities are captured and reported without crashing other functionality.
