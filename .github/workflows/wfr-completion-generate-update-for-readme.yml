@@ -170,6 +170,9 @@ on:
         value: ${{ jobs.start-issue.outputs.postResolutionCommentOutcome }}
       allValidationStepsSuccessful:
         value: ${{ jobs.start-issue.outputs.allValidationStepsSuccessful }}
+      usage:
+        description: 'The LLM API usage of the action'
+        value: ${{ jobs.apply-update.outputs.usage }}
 
 jobs:
   apply-update:
@@ -970,7 +973,6 @@ jobs:
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`updateApplied: "${updateApplied}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
-            core.info(`response: "${JSON.stringify(response)}"`);
 
       - name: Examine the git working copy
         shell: bash
@@ -1034,37 +1036,6 @@ jobs:
           git push -v origin ${{ env.branch }}
           git status -v
 
-      - name: Upload prompt file as an artifact
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: update-readme-prompt.txt
-          path: ${{ steps.update-readme.outputs.promptFilePath }}
-          retention-days: 7
-
-      - name: Upload request file as an artifact
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: update-readme-request.json
-          path: ${{ steps.update-readme.outputs.requestFilePath }}
-          retention-days: 7
-
-      - name: Upload response file as an artifact
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: update-readme-response.json
-          path: ${{ steps.update-readme.outputs.responseFilePath }}
-          retention-days: 7
-
-      - name: Upload result file as an artifact
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: update-readme-result.json
-          path: ${{ steps.update-readme.outputs.resultFilePath }}
-
       - name: Extract Results
         if: ${{ !cancelled() }}
         id: results
@@ -1104,6 +1075,37 @@ jobs:
             core.info(`commitOutcome: "${commitOutcome}"`);
             core.info(`allValidationStepsSuccessful: "${allValidationStepsSuccessful}"`);
 
+      - name: Upload prompt file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: update-readme-prompt.txt
+          path: ${{ steps.update-readme.outputs.promptFilePath }}
+          retention-days: 7
+
+      - name: Upload request file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: update-readme-request.json
+          path: ${{ steps.update-readme.outputs.requestFilePath }}
+          retention-days: 7
+
+      - name: Upload response file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: update-readme-response.json
+          path: ${{ steps.update-readme.outputs.responseFilePath }}
+          retention-days: 7
+
+      - name: Upload result file as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: update-readme-result.json
+          path: ${{ steps.update-readme.outputs.resultFilePath }}
+
     outputs:
       updateApplied: ${{ steps.results.outputs.updateApplied }}
       message: ${{ steps.results.outputs.message }}
@@ -1113,3 +1115,4 @@ jobs:
       mainAfterUpdateOutcome: ${{ steps.results.outputs.mainAfterUpdateOutcome }}
       commitOutcome: ${{ steps.results.outputs.commitOutcome }}
       allValidationStepsSuccessful: ${{ steps.results.outputs.allValidationStepsSuccessful }}
+      usage: ${{ steps.update-readme.outputs.usage }}

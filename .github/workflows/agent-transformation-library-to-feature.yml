@@ -155,10 +155,12 @@ jobs:
         env:
           activity: "Maintained feature ${{ needs.maintain-features.outputs.featureName }}."
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          usage: ${{ needs.maintain-features.outputs.usage }}
         with:
           script: |
             const activity = process.env.activity;
             const intentionFilepath = process.env.intentionFilepath;
+            const usage = process.env.usage;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -171,7 +173,7 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `${isoDate} - ${activity}\n\n`;
+            const activityLogContent = `## Activity at ${isoDate}\n\n${activity}\n\n### LLM API Usage\n\n\`\`\`json\n${usage}\n\`\`\`\n\n---\n\n`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 
@@ -180,7 +182,7 @@ jobs:
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          git commit -m "Activity logged" || echo "No changes to commit"
+          git commit -m "Activity logged by agent-transformation-library-to-feature.yml" || echo "No changes to commit"
           git push
 
   #feature-to-issue:

@@ -154,6 +154,9 @@ on:
         value: ${{ jobs.enhance-issue.outputs.relevantLibraryDocuments }}
       closeReason:
         value: ${{ jobs.enhance-issue.outputs.closeReason }}
+      usage:
+        description: 'The LLM API usage of the action'
+        value: ${{ jobs.enhance-issue.outputs.usage }}
 
 jobs:
   enhance-issue:
@@ -889,9 +892,7 @@ jobs:
               core.info(`action: "${parsed.action}" unmapped. nop`);
             }
 
-            core.setOutput("response", JSON.stringify(response));
             core.setOutput("usage", JSON.stringify(response.usage));
-            core.info(`response: "${JSON.stringify(response)}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
 
       - name: Upload prompt file as an artifact
@@ -930,3 +931,4 @@ jobs:
       enhancedDescription: ${{ steps.enhance-issue.outputs.enhancedDescription }}
       relevantLibraryDocuments: ${{ steps.enhance-issue.outputs.relevantLibraryDocuments }}
       closeReason: ${{ steps.enhance-issue.outputs.closeReason }}
+      usage: ${{ steps.enhance-issue.outputs.usage }}

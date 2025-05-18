@@ -156,6 +156,9 @@ on:
         value: ${{ jobs.generate-feature-development-issue.outputs.issueTitle }}
       issueDescription:
         value: ${{ jobs.generate-feature-development-issue.outputs.issueDescription }}
+      usage:
+        description: 'The LLM API usage of the action'
+        value: ${{ jobs.generate-feature-development-issue.outputs.usage }}
 
 jobs:
   generate-feature-development-issue:
@@ -738,9 +741,7 @@ jobs:
               return;
             }
 
-            core.setOutput("response", JSON.stringify(response));
             core.setOutput("usage", JSON.stringify(response.usage));
-            core.info(`response: "${JSON.stringify(response)}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
 
       - name: Upload prompt file as an artifact
@@ -777,3 +778,4 @@ jobs:
     outputs:
       issueTitle: ${{ steps.generate-feature-development-issue.outputs.issueTitle }}
       issueDescription: ${{ steps.generate-feature-development-issue.outputs.issueDescription }}
+      usage: ${{ steps.generate-feature-development-issue.outputs.usage }}

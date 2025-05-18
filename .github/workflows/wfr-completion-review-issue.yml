@@ -144,6 +144,9 @@ on:
     outputs:
       fixed:
         value: ${{ jobs.review-issue.outputs.fixed }}
+      usage:
+        description: 'The LLM API usage of the action'
+        value: ${{ jobs.review-issue.outputs.usage }}
 
 jobs:
   review-issue:
@@ -690,9 +693,7 @@ jobs:
               return;
             }
 
-            core.setOutput("response", JSON.stringify(response));
             core.setOutput("usage", JSON.stringify(response.usage));
-            core.info(`response: "${JSON.stringify(response)}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
 
       - name: Upload prompt file as an artifact
@@ -848,3 +849,4 @@ jobs:
       fixed: ${{ steps.verify.outputs.fixed }}
       message: ${{ steps.verify.outputs.message }}
       refinement: ${{ steps.verify.outputs.refinement }}
+      usage: ${{ steps.verify.outputs.usage }}

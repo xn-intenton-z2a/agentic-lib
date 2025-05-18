@@ -252,10 +252,12 @@ jobs:
         env:
           activity: "Worked to update README with: ${{ needs.apply-update.outputs.message }}."
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          usage: ${{ needs.apply-update.outputs.usage }}
         with:
           script: |
             const activity = process.env.activity;
             const intentionFilepath = process.env.intentionFilepath;
+            const usage = process.env.usage;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -268,7 +270,7 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `${isoDate} - ${activity}\n\n`;
+            const activityLogContent = `## Activity at ${isoDate}\n\n${activity}\n\n### LLM API Usage\n\n\`\`\`json\n${usage}\n\`\`\`\n\n---\n\n`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 
@@ -277,7 +279,7 @@ jobs:
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          git commit -m "Activity logged" || echo "No changes to commit"
+          git commit -m "Activity logged by agent-flow-update-readme.yml" || echo "No changes to commit"
           git push
 
   create-pr:

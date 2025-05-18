@@ -132,6 +132,9 @@ on:
         value: ${{ jobs.maintain-features.outputs.featureName }}
       featureSpec:
         value: ${{ jobs.maintain-features.outputs.featureSpec }}
+      usage:
+        description: 'The LLM API usage of the action'
+        value: ${{ jobs.maintain-features.outputs.usage }}
 
 jobs:
   maintain-features:
@@ -705,9 +708,7 @@ jobs:
               return;
             }
 
-            core.setOutput("response", JSON.stringify(response));
             core.setOutput("usage", JSON.stringify(response.usage));
-            core.info(`response: "${JSON.stringify(response)}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
 
       - name: Commit changes
@@ -759,3 +760,4 @@ jobs:
     outputs:
       featureName: ${{ steps.maintain-features.outputs.featureName }}
       featureSpec: ${{ steps.maintain-features.outputs.featureSpec }}
+      usage: ${{ steps.maintain-features.outputs.usage }}

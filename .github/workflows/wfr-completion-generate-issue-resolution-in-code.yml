@@ -186,6 +186,9 @@ on:
         value: ${{ jobs.apply-issue-resolution.outputs.allValidationStepsSuccessful }}
       branch:
         value: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}${{ inputs.issueNumber }}
+      usage:
+        description: 'The LLM API usage of the action'
+        value: ${{ jobs.apply-issue-resolution.outputs.usage }}
 
 jobs:
   apply-issue-resolution:
@@ -1165,6 +1168,49 @@ jobs:
               });
             }
 
+      - name: Extract Results
+        if: ${{ !cancelled() }}
+        id: results
+        uses: actions/github-script@v7
+        env:
+          fixApplied: ${{ steps.update-target.outputs.fixApplied }}
+          message: ${{ steps.update-target.outputs.message }}
+          installAfterUpdateOutcome: ${{ steps.install-after-update.outcome }}
+          ciAfterUpdateOutcome: ${{ steps.ci-after-update.outcome }}
+          testAfterUpdateOutcome: ${{ steps.test-after-update.outcome }}
+          mainAfterUpdateOutcome: ${{ steps.main-after-update.outcome }}
+          commitOutcome: ${{ steps.commit.outcome }}
+          postResolutionCommentOutcome: ${{ steps.post-resolution-comment.outcome }}
+        with:
+          script: |
+            const fixApplied = process.env.fixApplied === 'true';
+            const message = process.env.message;
+            const installAfterUpdateOutcome = process.env.installAfterUpdateOutcome;
+            const ciAfterUpdateOutcome = process.env.ciAfterUpdateOutcome;
+            const testAfterUpdateOutcome = process.env.testAfterUpdateOutcome;
+            const mainAfterUpdateOutcome = process.env.mainAfterUpdateOutcome;
+            const commitOutcome = process.env.commitOutcome;
+            const postResolutionCommentOutcome = process.env.postResolutionCommentOutcome;
+            const allValidationStepsSuccessful = installAfterUpdateOutcome === "success" && ciAfterUpdateOutcome === "success" && testAfterUpdateOutcome === "success" && mainAfterUpdateOutcome === "success" && commitOutcome === "success" && postResolutionCommentOutcome === "success";
+            core.setOutput('fixApplied', fixApplied);
+            core.setOutput('message', message);
+            core.setOutput('installAfterUpdateOutcome', installAfterUpdateOutcome);
+            core.setOutput('ciAfterUpdateOutcome', ciAfterUpdateOutcome);
+            core.setOutput('testAfterUpdateOutcome', testAfterUpdateOutcome);
+            core.setOutput('mainAfterUpdateOutcome', mainAfterUpdateOutcome);
+            core.setOutput('commitOutcome', commitOutcome);
+            core.setOutput('postResolutionCommentOutcome', postResolutionCommentOutcome);
+            core.setOutput('allValidationStepsSuccessful', allValidationStepsSuccessful);
+            core.info(`fixApplied: "${fixApplied}"`);
+            core.info(`message: "${message}"`);
+            core.info(`installAfterUpdateOutcome: "${installAfterUpdateOutcome}"`);
+            core.info(`ciAfterUpdateOutcome: "${ciAfterUpdateOutcome}"`);
+            core.info(`testAfterUpdateOutcome: "${testAfterUpdateOutcome}"`);
+            core.info(`mainAfterUpdateOutcome: "${mainAfterUpdateOutcome}"`);
+            core.info(`commitOutcome: "${commitOutcome}"`);
+            core.info(`postResolutionCommentOutcome: "${postResolutionCommentOutcome}"`);
+            core.info(`allValidationStepsSuccessful: "${allValidationStepsSuccessful}"`);
+
       - name: Upload prompt file as an artifact
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
@@ -1195,49 +1241,6 @@ jobs:
         with:
           name: update-target-result.json
           path: ${{ steps.update-target.outputs.resultFilePath }}
-
-      - name: Extract Results
-        if: ${{ !cancelled() }}
-        id: results
-        uses: actions/github-script@v7
-        env:
-            fixApplied: ${{ steps.update-target.outputs.fixApplied }}
-            message: ${{ steps.update-target.outputs.message }}
-            installAfterUpdateOutcome: ${{ steps.install-after-update.outcome }}
-            ciAfterUpdateOutcome: ${{ steps.ci-after-update.outcome }}
-            testAfterUpdateOutcome: ${{ steps.test-after-update.outcome }}
-            mainAfterUpdateOutcome: ${{ steps.main-after-update.outcome }}
-            commitOutcome: ${{ steps.commit.outcome }}
-            postResolutionCommentOutcome: ${{ steps.post-resolution-comment.outcome }}
-        with:
-          script: |
-            const fixApplied = process.env.fixApplied === 'true';
-            const message = process.env.message;
-            const installAfterUpdateOutcome = process.env.installAfterUpdateOutcome;
-            const ciAfterUpdateOutcome = process.env.ciAfterUpdateOutcome;
-            const testAfterUpdateOutcome = process.env.testAfterUpdateOutcome;
-            const mainAfterUpdateOutcome = process.env.mainAfterUpdateOutcome;
-            const commitOutcome = process.env.commitOutcome;
-            const postResolutionCommentOutcome = process.env.postResolutionCommentOutcome;
-            const allValidationStepsSuccessful = installAfterUpdateOutcome === "success" && ciAfterUpdateOutcome === "success" && testAfterUpdateOutcome === "success" && mainAfterUpdateOutcome === "success" && commitOutcome === "success" && postResolutionCommentOutcome === "success";
-            core.setOutput('fixApplied', fixApplied);
-            core.setOutput('message', message);
-            core.setOutput('installAfterUpdateOutcome', installAfterUpdateOutcome);
-            core.setOutput('ciAfterUpdateOutcome', ciAfterUpdateOutcome);
-            core.setOutput('testAfterUpdateOutcome', testAfterUpdateOutcome);
-            core.setOutput('mainAfterUpdateOutcome', mainAfterUpdateOutcome);
-            core.setOutput('commitOutcome', commitOutcome);
-            core.setOutput('postResolutionCommentOutcome', postResolutionCommentOutcome);
-            core.setOutput('allValidationStepsSuccessful', allValidationStepsSuccessful);
-            core.info(`fixApplied: "${fixApplied}"`);
-            core.info(`message: "${message}"`);
-            core.info(`installAfterUpdateOutcome: "${installAfterUpdateOutcome}"`);
-            core.info(`ciAfterUpdateOutcome: "${ciAfterUpdateOutcome}"`);
-            core.info(`testAfterUpdateOutcome: "${testAfterUpdateOutcome}"`);
-            core.info(`mainAfterUpdateOutcome: "${mainAfterUpdateOutcome}"`);
-            core.info(`commitOutcome: "${commitOutcome}"`);
-            core.info(`postResolutionCommentOutcome: "${postResolutionCommentOutcome}"`);
-            core.info(`allValidationStepsSuccessful: "${allValidationStepsSuccessful}"`);
 
     outputs:
       fixApplied: ${{ steps.results.outputs.fixApplied }}

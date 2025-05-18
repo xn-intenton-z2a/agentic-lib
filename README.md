@@ -734,6 +734,12 @@ intentïon user journey [Launch UX]:
 - [x] intentïon.com shows: Running experiment:  <link to branch> + random lines from intentïon.md
 - [x] Put every commit comment into intentïon.md plus some none commit activities. (copy trace-discussion from the bot)
 - [x] Rename (intentionBot, intentionFilepath) to (intentionBot, intentionFilepath)
+- [~] Add links to issues, feature files, and commits to intentïon.md
+- [~] More disciplined markdown in intentïon.md (e.g. # Activity logs\n\n ## 2025-04-20....)
+- [ ] Add main output examples to intentïon.md
+- [ ] Add PR approval and closure/abandonment to intentïon.md
+- [ ] Add API call duration to usage
+- [ ] Change link to running experiment to be a link to intentïon.md on that branch.
 - [ ] intentïon.com shows: past experiments: <link to branch> + mission and status.
 - [ ] intentïon.com shows: past experiments as websites (see comment in .com project): <link to branch> + mission and status.
 - [ ] Create a repository from main via a button.

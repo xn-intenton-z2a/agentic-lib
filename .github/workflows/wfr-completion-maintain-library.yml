@@ -107,6 +107,9 @@ on:
         value: ${{ jobs.maintain-library.outputs.referenceDetails }}
       informationDenseExtract:
         value: ${{ jobs.maintain-library.outputs.informationDenseExtract }}
+      usage:
+        description: 'The LLM API usage of the action'
+        value: ${{ jobs.maintain-library.outputs.usage }}
 
 jobs:
   maintain-library:
@@ -757,9 +760,7 @@ jobs:
               return;
             }
 
-            core.setOutput("response", JSON.stringify(response));
             core.setOutput("usage", JSON.stringify(response.usage));
-            core.info(`response: "${JSON.stringify(response)}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
 
       - name: Commit changes
@@ -815,3 +816,4 @@ jobs:
       supplementaryDetails: ${{ steps.maintain-library.outputs.supplementaryDetails }}
       referenceDetails: ${{ steps.maintain-library.outputs.referenceDetails }}
       informationDenseExtract: ${{ steps.maintain-library.outputs.informationDenseExtract }}
+      usage: ${{ steps.maintain-library.outputs.usage }}

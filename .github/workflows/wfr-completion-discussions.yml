@@ -190,6 +190,9 @@ on:
       reply:
         description: 'The reply to post'
         value: ${{ jobs.generate-response.outputs.reply }}
+      usage:
+        description: 'The LLM API usage of the action'
+        value: ${{ jobs.generate-response.outputs.usage }}
 
 jobs:
   generate-stats-json:
@@ -1183,9 +1186,7 @@ jobs:
               return;
             }
 
-            core.setOutput("response", JSON.stringify(response));
             core.setOutput("usage", JSON.stringify(response.usage));
-            core.info(`response: "${JSON.stringify(response)}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
 
       - name: Tear down .npmrc
@@ -1228,3 +1229,4 @@ jobs:
       action: ${{ steps.response.outputs.action }}
       detail: ${{ steps.response.outputs.detail }}
       reply: ${{ steps.response.outputs.reply }}
+      usage: ${{ steps.response.outputs.usage }}

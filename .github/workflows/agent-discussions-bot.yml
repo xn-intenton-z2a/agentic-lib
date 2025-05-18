@@ -432,12 +432,14 @@ jobs:
           detail: ${{ needs.generate-response.outputs.detail }}
           reply: ${{ needs.generate-response.outputs.reply }}
           url: ${{ needs.process-discussion-post.outputs.url }}
+          usage: ${{ needs.process-discussion-post.outputs.usage }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
             const action = process.env.action;
             const detail = process.env.detail;
             const reply = process.env.reply;
+            usage = process.env.usage;
             const intentionFilepath = process.env.intentionFilepath;
             
             const activity = `${reply}\n\n[Posted on "${url}" by the repository bot which took the action "${action}" with the detail "${detail}".]`;
@@ -453,7 +455,14 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `${isoDate} - ${activity}\n\n`;
+            const activityLogContent = `## Activity at ${isoDate}\n\n${activity}\n\n### LLM API Usage\n\n\`\`\`json\n${usage}\`\`\`\n\n---\n\n`;
+            if (action == 'seed-repository') {
+              fs.writeFileSync(intentionFilepath, `${missionFileContent}\n\n# Activity Log\n\n${activityLogContent}`);
+            } else if (fs.existsSync(intentionFilepath) && action != 'seed-repository') {
+              fs.appendFileSync(intentionFilepath, activityLogContent);
+            } else {
+              fs.writeFileSync(intentionFilepath, activityLogContent);
+            }
             fs.writeFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 
@@ -462,7 +471,7 @@ jobs:
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          git commit -m "Activity logged" || echo "No changes to commit"
+          git commit -m "Activity logged by agent-discussions-bot.yml" || echo "No changes to commit"
           git push
 
   archive-seeded-intention:

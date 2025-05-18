@@ -135,6 +135,9 @@ on:
     outputs:
       sourcesDirectoryFileContent:
         value: ${{ jobs.maintain-sources.outputs.sourcesDirectoryFileContent }}
+      usage:
+        description: 'The LLM API usage of the action'
+        value: ${{ jobs.maintain-sources.outputs.usage }}
 
 jobs:
   maintain-sources:
@@ -628,9 +631,7 @@ jobs:
               return;
             }
 
-            core.setOutput("response", JSON.stringify(response));
             core.setOutput("usage", JSON.stringify(response.usage));
-            core.info(`response: "${JSON.stringify(response)}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
 
       - name: Commit changes
@@ -680,3 +681,7 @@ jobs:
         with:
           name: maintain-sources-result.json
           path: ${{ steps.maintain-sources.outputs.resultFilePath }}
+
+    outputs:
+      sourcesDirectoryFileContent: ${{ steps.maintain-sources.outputs.sourcesDirectoryFileContent }}
+      usage: ${{ steps.maintain-sources.outputs.usage }}
