@@ -1,10 +1,12 @@
-# Mission Alignment
+# HTTP Server Feature Expansion
 
-The HTTP Server feature implements self-hosted observability and documentation endpoints, empowering autonomous, agentic workflows with real-time health checks, metrics, and interactive API docs. It advances our mission by providing critical insights into long-running processes and seamless integration points for monitoring and continuous automation.
+## Mission Alignment
 
-# Feature Overview
+The HTTP Server feature enables comprehensive self-hosted observability, configuration introspection, and documentation endpoints. By exposing a new `/config` endpoint alongside existing health, metrics, OpenAPI, and docs endpoints, users gain real-time insight into runtime settings. This enhancement furthers our mission of autonomous agentic workflows by enabling dynamic diagnostics and seamless integration with monitoring systems.
 
-The HTTP Server exposes four core endpoints over HTTP, supporting CORS and Basic Auth where configured:
+## Feature Overview
+
+The HTTP Server now exposes five core endpoints over HTTP, supporting CORS and Basic Auth where configured:
 
 - **GET /health**
   Returns JSON with service status, uptime, and timestamp.
@@ -18,7 +20,10 @@ The HTTP Server exposes four core endpoints over HTTP, supporting CORS and Basic
 - **GET /docs**
   Renders the OpenAPI schema as interactive HTML via Markdown, protected by Basic Auth if DOCS_USER/DOCS_PASS are set.
 
-# Configuration
+- **GET /config**
+  Returns JSON containing the effective runtime configuration, including port, CORS origins, rate-limit settings, and enabled auth flags. Protected by Basic Auth if CONFIG_USER/CONFIG_PASS are set.
+
+## Configuration
 
 Environment variables:
 
@@ -27,28 +32,22 @@ Environment variables:
 - `RATE_LIMIT_REQUESTS` (requests per minute per IP, default 60)
 - `METRICS_USER`, `METRICS_PASS` (Basic Auth credentials for `/metrics`)
 - `DOCS_USER`, `DOCS_PASS` (Basic Auth credentials for `/docs`)
+- `CONFIG_USER`, `CONFIG_PASS` (Basic Auth credentials for `/config`)
 
-# Usage
+## Success Criteria & Acceptance
 
-Import and start the server programmatically:
-
-```js
-import { startServer } from "@xn-intenton-z2a/agentic-lib";
-startServer({ port: 3000 });
-```
-
-Or via CLI mode sandbox under `sandbox/source/server.js`, which listens on `PORT` or provided options object.
-
-# Success Criteria & Acceptance
-
-- All four endpoints respond with correct status codes and payloads.
-- Basic Auth protects `/metrics` and `/docs` endpoints when credentials are set.
+- All five endpoints respond with correct status codes and payloads.
+- GET `/config` returns a JSON object reflecting active configuration keys and values.
+- Basic Auth protects `/metrics`, `/docs`, and `/config` endpoints when credentials are set.
 - Rate limiting returns 429 after exceeding configured requests per minute per IP.
 - CORS headers allow origins defined by `CORS_ALLOWED_ORIGINS`.
 - Interactive docs render cleanly in a browser.
 
-# Testability & Stability
+## Testability & Stability
 
-- Covered by Vitest in `sandbox/tests/server.test.js`.
-- Simulate unauthorized access, rate limits, and valid requests.
+- Covered by Vitest in `sandbox/tests/server.test.js`, including:
+  - `/config` returns config JSON when unprotected.
+  - Unauthorized access returns 401 when CONFIG_USER/CONFIG_PASS are set.
+  - Authorized access returns correct JSON structure.
 - Fail-safe on internal errors returning 500.
+- Maintain existing tests for health, metrics, openapi.json, and docs endpoints.
