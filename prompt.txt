@@ -1,18 +1,23 @@
 
-You are providing the entire new content of source files, test files, documentation files, and other necessary
-files with all necessary changes applied to deliver the resolution to an issue. Focus on high-impact, 
-functional solutions that address core issues rather than superficial changes or excessive code polishing.
-Implement as much as you can and refer to the projects features and mission statement when expanding the code
-beyond the scope of the original issue. Implement whole features and do not leave stubbed out or pretended code.
+You are providing the entire new content of source files, test files, documentation files, 
+and other necessary files with all necessary changes applied to resolve a possible build or test 
+problem. Focus on high-impact, functional fixes that address core issues rather than superficial 
+changes or excessive debugging or validation. If the problem is in an area of the code with little
+value you may re-implement it or remove it.
 
-Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone and direction
-of the contributing guidelines. Prioritize changes that deliver user value and maintain the integrity
-of the codebase's primary purpose.
+Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone
+and direction of the contributing guidelines. Prioritize changes that deliver substantial user value
+and maintain the integrity of the codebase's primary purpose.
 
-Do as much as you can all at once.
+You may complete the implementation of a feature and/or bring the code output in line with the README
+or other documentation. Do as much as you can all at once so that the build runs (even with nothing
+to build) and the tests pass and the main at least doesn't output an error.
 
-Follow the linting guidelines and the formatting guidelines from the included config.
 
+
+Examine the "Build output from command","Test output from command", and "Main execution output from command" 
+to determine if there are any problems with the code to fix such as failing tests or output 
+not matching the features, README or other documentation.
 
 You must only add, remove, or change the files in the target writable locations. You can update multiple
 files by specifying their paths and contents in the enumerated updatedFile01Filepath updatedFile02Contents response
@@ -21,7 +26,7 @@ be checked against the write permission in the Agent configuration file before b
 add new files as long as they are in the target writable locations. You can also remove files, but only if
 they are in the target writable locations. To delete a file, set the updated file contents to "delete".
 
-The target writable locations for your output are: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;sandbox/docs/;sandbox/README.md
+The target writable locations for your output are: sandbox/source sandbox/tests sandbox/docs
 Other file will be supplied in the context but only the paths above should be written to.
 
 Only provide new or updated content for the target source files in sandbox/source.
@@ -34,22 +39,21 @@ Only update the target documentation files in sandbox/docs.
 Follow the attached Formatting file content and Linting file content.
 
 Consider the following when refining your response:
-* Current feature names and specifications in the repository
-* Source file content
-* Test file content
-* Documentation file content
-* README file content
-* MISSION file content
-* Contributing file content
-* Dependencies file content
-* Formatting file content
-* Linting file content
-* Agent configuration file content
-* Issue details
-* Dependency list
-* Build output
-* Test output
-* Main execution output
+  * Current feature names and specifications in the repository
+  * Source file content
+  * Test file content
+  * Documentation file content
+  * README file content
+  * MISSION file content
+  * Contributing file content
+  * Dependencies file content
+  * Formatting file content
+  * Linting file content
+  * Dependency install output
+  * Issue details (if any)
+  * Build output
+  * Test output
+  * Main execution output
 
 Current feature names and specifications (for context, read only):
 CURRENT_FEATURES_START
@@ -60,29 +64,49 @@ CURRENT_FEATURES_END
 Source files (write new files or update files in sandbox/source as necessary):
 (Multiple files from both in writable locations and not.)
 SOURCE_FILE_START Filepath: sandbox/source/server.js
-import http from 'http';
-import crypto from 'crypto';
-import { URL } from 'url';
-import { z } from 'zod';
-import dotenv from 'dotenv';
-import MarkdownIt from 'markdown-it';
-import markdownItGithub from 'markdown-it-github';
+import http from "http";
+import { URL } from "url";
+import { z } from "zod";
+import dotenv from "dotenv";
+import MarkdownIt from "markdown-it";
+import markdownItGithub from "markdown-it-github";
 
 dotenv.config();
 
+// Validate environment variables
+const envSchema = z.object({
+  PORT: z
+    .preprocess((val) => (val === undefined ? undefined : String(val)), z.string().regex(/^\d+$/).default("3000").transform((s) => parseInt(s, 10))),
+  CORS_ALLOWED_ORIGINS: z.string().default("*"),
+  RATE_LIMIT_REQUESTS: z
+    .preprocess((val) => (val === undefined ? undefined : String(val)), z.string().regex(/^\d+$/).default("60").transform((s) => parseInt(s, 10))),
+  METRICS_USER: z.string().optional(),
+  METRICS_PASS: z.string().optional(),
+  DOCS_USER: z.string().optional(),
+  DOCS_PASS: z.string().optional(),
+});
+let env;
+try {
+  env = envSchema.parse(process.env);
+} catch (err) {
+  console.error("Invalid or missing environment variables for server:", err.errors);
+  process.exit(1);
+}
+
 // Configuration
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
-const CORS_ALLOWED_ORIGINS = process.env.CORS_ALLOWED_ORIGINS || '*';
-const RATE_LIMIT_REQUESTS = process.env.RATE_LIMIT_REQUESTS ? parseInt(process.env.RATE_LIMIT_REQUESTS, 10) : 60;
-const METRICS_USER = process.env.METRICS_USER;
-const METRICS_PASS = process.env.METRICS_PASS;
-const DOCS_USER = process.env.DOCS_USER;
-const DOCS_PASS = process.env.DOCS_PASS;
+const PORT = env.PORT;
+const CORS_ALLOWED_ORIGINS = env.CORS_ALLOWED_ORIGINS;
+const RATE_LIMIT_REQUESTS = env.RATE_LIMIT_REQUESTS;
+const METRICS_USER = env.METRICS_USER;
+const METRICS_PASS = env.METRICS_PASS;
+const DOCS_USER = env.DOCS_USER;
+const DOCS_PASS = env.DOCS_PASS;
 
 // Metrics storage
 const metrics = {
   http_requests_total: {},
   http_request_failures_total: {},
+  http_request_duration_seconds: [],
 };
 
 // Rate limiter per IP
@@ -90,14 +114,17 @@ const rateLimiters = new Map();
 
 // Minimal OpenAPI spec for available endpoints
 const openApiSpec = {
-  openapi: '3.0.0',
-  info: { title: 'Agentic-lib Server API', version: '1.0.0' },
+  openapi: "3.0.0",
+  info: { title: "Agentic-lib Server API", version: "1.0.0" },
   paths: {
-    '/health': { get: { responses: { '200': { description: 'OK' } } } },
-    '/metrics': { get: { responses: { '200': { description: 'Prometheus metrics' } } } },
-    '/openapi.json': { get: { responses: { '200': { description: 'OpenAPI JSON' } } } },
-    '/docs': { get: { responses: { '200': { description: 'Interactive Docs' } } } }
-  }
+    "/health": { get: { responses: { "200": { description: "OK" } } } },
+    "/ready": { get: { responses: { "200": { description: "Ready" } } } },
+    "/metrics": {
+      get: { responses: { "200": { description: "Prometheus metrics including http_request_duration_seconds histogram" } } },
+    },
+    "/openapi.json": { get: { responses: { "200": { description: "OpenAPI JSON" } } } },
+    "/docs": { get: { responses: { "200": { description: "Interactive Docs" } } } },
+  },
 };
 
 // Utility functions
@@ -107,7 +134,12 @@ function recordRequest(method, route, status) {
 }
 
 function recordFailure(route) {
-  metrics.http_request_failures_total[route] = (metrics.http_request_failures_total[route] || 0) + 1;
+  metrics.http_request_failures_total[route] =
+    (metrics.http_request_failures_total[route] || 0) + 1;
+}
+
+function recordDuration(method, route, status, duration) {
+  metrics.http_request_duration_seconds.push({ method, route, status, duration });
 }
 
 function checkRateLimit(ip) {
@@ -135,88 +167,114 @@ function checkRateLimit(ip) {
 
 function basicAuth(req, user, pass) {
   const auth = req.headers.authorization;
-  if (!auth || !auth.startsWith('Basic ')) return false;
-  const creds = Buffer.from(auth.slice(6), 'base64').toString('utf8');
-  const [u, p] = creds.split(':');
+  if (!auth || !auth.startsWith("Basic ")) return false;
+  const creds = Buffer.from(auth.slice(6), "base64").toString("utf8");
+  const [u, p] = creds.split(":");
   return u === user && p === pass;
 }
 
 function sendJson(res, statusCode, data) {
   const body = JSON.stringify(data);
   res.writeHead(statusCode, {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': CORS_ALLOWED_ORIGINS,
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": CORS_ALLOWED_ORIGINS,
   });
   res.end(body);
 }
 
 function sendText(res, statusCode, data) {
   res.writeHead(statusCode, {
-    'Content-Type': 'text/plain',
-    'Access-Control-Allow-Origin': CORS_ALLOWED_ORIGINS,
+    "Content-Type": "text/plain",
+    "Access-Control-Allow-Origin": CORS_ALLOWED_ORIGINS,
   });
   res.end(data);
 }
 
 async function handler(req, res) {
-  const ip = req.socket.remoteAddress || 'unknown';
-  if (!checkRateLimit(ip)) {
-    recordFailure('rate_limit');
-    res.writeHead(429);
-    return res.end('Too Many Requests');
-  }
+  const ip = req.socket.remoteAddress || "unknown";
   const method = req.method;
-  const parsedUrl = new URL(req.url || '', `http://${req.headers.host}`);
+  const parsedUrl = new URL(req.url || "", `http://${req.headers.host}`);
   const route = parsedUrl.pathname;
-  try {
-    if (method === 'GET' && route === '/health') {
-      const data = { status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() };
-      sendJson(res, 200, data);
-      recordRequest(method, 'health', 200);
-    } else if (method === 'GET' && route === '/metrics') {
-      if (METRICS_USER && METRICS_PASS && !basicAuth(req, METRICS_USER, METRICS_PASS)) {
-        recordFailure('metrics_auth');
-        res.writeHead(401, { 'WWW-Authenticate': 'Basic realm="Metrics"' });
-        return res.end('Unauthorized');
+  const start = process.hrtime();
+  let status = 200;
+
+  if (!checkRateLimit(ip)) {
+    status = 429;
+    recordFailure("rate_limit");
+    res.writeHead(429);
+    res.end("Too Many Requests");
+  } else {
+    try {
+      if (method === "GET" && route === "/health") {
+        const data = { status: "ok", uptime: process.uptime(), timestamp: new Date().toISOString() };
+        sendJson(res, 200, data);
+        status = 200;
+        recordRequest(method, "health", status);
+      } else if (method === "GET" && route === "/ready") {
+        const data = { status: "ready", timestamp: new Date().toISOString() };
+        sendJson(res, 200, data);
+        status = 200;
+        recordRequest(method, "ready", status);
+      } else if (method === "GET" && route === "/metrics") {
+        if (METRICS_USER && METRICS_PASS && !basicAuth(req, METRICS_USER, METRICS_PASS)) {
+          status = 401;
+          recordFailure("metrics_auth");
+          res.writeHead(401, { "WWW-Authenticate": "Basic realm=\"Metrics\"" });
+          return res.end("Unauthorized");
+        }
+        let out = "";
+        for (const key in metrics.http_requests_total) {
+          const [m, r, s] = key.split("_");
+          out += `http_requests_total{method=\"${m}\",route=\"${r}\",status=\"${s}\"} ${metrics.http_requests_total[key]}\n`;
+        }
+        for (const r in metrics.http_request_failures_total) {
+          out += `http_request_failures_total{route=\"${r}\"} ${metrics.http_request_failures_total[r]}\n`;
+        }
+        for (const entry of metrics.http_request_duration_seconds) {
+          out += `http_request_duration_seconds{method=\"${entry.method}\",route=\"${entry.route}\",status=\"${entry.status}\"} ${entry.duration}\n`;
+        }
+        sendText(res, 200, out);
+        status = 200;
+        recordRequest(method, "metrics", status);
+      } else if (method === "GET" && route === "/openapi.json") {
+        sendJson(res, 200, openApiSpec);
+        status = 200;
+        recordRequest(method, "openapi", status);
+      } else if (method === "GET" && route === "/docs") {
+        if (DOCS_USER && DOCS_PASS && !basicAuth(req, DOCS_USER, DOCS_PASS)) {
+          status = 401;
+          recordFailure("docs_auth");
+          res.writeHead(401, { "WWW-Authenticate": "Basic realm=\"Docs\"" });
+          return res.end("Unauthorized");
+        }
+        const md = new MarkdownIt().use(markdownItGithub);
+        const mdContent = "```json\n" + JSON.stringify(openApiSpec, null, 2) + "\n```";
+        const html = md.render(mdContent);
+        res.writeHead(200, {
+          "Content-Type": "text/html",
+          "Access-Control-Allow-Origin": CORS_ALLOWED_ORIGINS,
+        });
+        res.end(html);
+        status = 200;
+        recordRequest(method, "docs", status);
+      } else {
+        status = 404;
+        recordFailure(route);
+        res.writeHead(404);
+        res.end("Not Found");
       }
-      let out = '';
-      for (const key in metrics.http_requests_total) {
-        const [m, r, s] = key.split('_');
-        out += `http_requests_total{method=\"${m}\",route=\"${r}\",status=\"${s}\"} ${metrics.http_requests_total[key]}\n`;
-      }
-      for (const r in metrics.http_request_failures_total) {
-        out += `http_request_failures_total{route=\"${r}\"} ${metrics.http_request_failures_total[r]}\n`;
-      }
-      sendText(res, 200, out);
-      recordRequest(method, 'metrics', 200);
-    } else if (method === 'GET' && route === '/openapi.json') {
-      sendJson(res, 200, openApiSpec);
-      recordRequest(method, 'openapi', 200);
-    } else if (method === 'GET' && route === '/docs') {
-      if (DOCS_USER && DOCS_PASS && !basicAuth(req, DOCS_USER, DOCS_PASS)) {
-        recordFailure('docs_auth');
-        res.writeHead(401, { 'WWW-Authenticate': 'Basic realm="Docs"' });
-        return res.end('Unauthorized');
-      }
-      const md = new MarkdownIt().use(markdownItGithub);
-      const mdContent = '```json\n' + JSON.stringify(openApiSpec, null, 2) + '\n```';
-      const html = md.render(mdContent);
-      res.writeHead(200, {
-        'Content-Type': 'text/html',
-        'Access-Control-Allow-Origin': CORS_ALLOWED_ORIGINS,
-      });
-      res.end(html);
-      recordRequest(method, 'docs', 200);
-    } else {
+    } catch (err) {
+      status = 500;
       recordFailure(route);
-      res.writeHead(404);
-      res.end('Not Found');
+      res.writeHead(500);
+      res.end("Internal Server Error");
     }
-  } catch (err) {
-    recordFailure(route);
-    res.writeHead(500);
-    res.end('Internal Server Error');
   }
+
+  // Record duration for each request
+  const [sec, nanosec] = process.hrtime(start);
+  const duration = sec + nanosec / 1e9;
+  recordDuration(method, route, status, duration);
 }
 
 export function startServer(options = {}) {
@@ -226,6 +284,7 @@ export function startServer(options = {}) {
   console.log(`Server started on port ${port}`);
   return server;
 }
+
 SOURCE_FILE_END
 
 
@@ -481,11 +540,13 @@ afterAll(() => {
 
 function request(path) {
   return new Promise((resolve, reject) => {
-    http.get(base + path, (res) => {
-      let data = '';
-      res.on('data', (chunk) => (data += chunk));
-      res.on('end', () => resolve({ statusCode: res.statusCode, body: data }));
-    }).on('error', reject);
+    http
+      .get(base + path, (res) => {
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => resolve({ statusCode: res.statusCode, body: data }));
+      })
+      .on('error', reject);
   });
 }
 
@@ -504,7 +565,34 @@ describe('Server', () => {
     expect(statusCode).toBe(200);
     expect(body).toContain('http_requests_total');
   });
+
+  test('/ready returns status ready', async () => {
+    const { statusCode, body } = await request('/ready');
+    expect(statusCode).toBe(200);
+    const json = JSON.parse(body);
+    expect(json.status).toBe('ready');
+    expect(typeof json.timestamp).toBe('string');
+    expect(new Date(json.timestamp).toString()).not.toBe('Invalid Date');
+  });
+
+  test('metrics includes http_request_duration_seconds after calls', async () => {
+    await request('/health');
+    await request('/ready');
+    const { statusCode, body } = await request('/metrics');
+    expect(statusCode).toBe(200);
+    const lines = body.split('\n');
+    const durationLines = lines.filter((line) =>
+      line.startsWith('http_request_duration_seconds'),
+    );
+    expect(durationLines.length).toBeGreaterThanOrEqual(2);
+    durationLines.forEach((line) => {
+      expect(line).toMatch(
+        /^http_request_duration_seconds\{method="GET",route="\/(health|ready)",status="200"\} \d+\.?\d*$/,
+      );
+    });
+  });
 });
+
 TEST_FILE_END
 
 
@@ -589,7 +677,7 @@ DOCUMENTATION_FILE_START File: sandbox/docs/SERVER.md
 
 ## Mission Alignment
 
-The HTTP server provides critical observability endpoints (health, metrics, OpenAPI schema, docs) to support continuous monitoring and self-hosted documentation in line with our mission to enable autonomous, agentic workflows. For mission details, see [Mission Statement](../MISSION.md).
+The HTTP server provides critical observability endpoints (health, readiness, metrics, OpenAPI schema, docs) to support continuous monitoring and self-hosted documentation in line with our mission to enable autonomous, agentic workflows. For mission details, see [Mission Statement](../MISSION.md).
 
 This document describes how to launch the built-in HTTP server provided by agentic-lib, exposing key endpoints.
 
@@ -617,10 +705,17 @@ startServer(options);
   { "status": "ok", "uptime": <seconds>, "timestamp": "<ISO>" }
   ```
 
+- **GET /ready**  
+  Readiness probe. Returns JSON:
+  ```json
+  { "status": "ready", "timestamp": "<ISO>" }
+  ```
+
 - **GET /metrics**  
   Prometheus-formatted metrics. Exposes:
   - `http_requests_total{method,route,status}`
   - `http_request_failures_total{route}`
+  - `http_request_duration_seconds{method,route,status}` (request duration histogram)
   Protected by Basic Auth if `METRICS_USER`/`METRICS_PASS` are set.
 
 - **GET /openapi.json**  
@@ -707,7 +802,7 @@ This project is guided by the core mission of agentic-lib to enable autonomous, 
 
 # agentic-lib
 
-`agentic-lib` is a drop-in JavaScript SDK for autonomous GitHub workflows. Inspired by our mission to enable continuous, agentic interactions through issues, branches, and pull requests, this library provides core utilities to configure environments, handle AWS SQS events, power CLI-driven workflows, and optionally launch a self-hosted HTTP server for health, metrics, and documentation.
+`agentic-lib` is a drop-in JavaScript SDK for autonomous GitHub workflows. Inspired by our mission to enable continuous, agentic interactions through issues, branches, and pull requests, this library provides core utilities to configure environments, handle AWS SQS events, power CLI-driven workflows, and optionally launch a self-hosted HTTP server for health, readiness, metrics, and documentation.
 
 With `agentic-lib`, you can seamlessly integrate environment validation, structured logging, AWS utilities, Lambda handlers, CLI and programmatic workflows into your Node.js projects, ensuring reproducible, testable, and maintainable automation.
 
@@ -721,107 +816,13 @@ With `agentic-lib`, you can seamlessly integrate environment validation, structu
   Mission Alignment: Simplifies SQS event creation for seamless integration into continuous, event-driven workflows.
 - **Lambda handler** (digestLambdaHandler)  
   Mission Alignment: Automates message processing and error handling to maintain continuous, autonomous system reliability.
-- **HTTP Server** (startServer function with `/health`, `/metrics`, `/openapi.json`, `/docs` endpoints, with configurable rate limiting and Basic Auth support)  
-  Mission Alignment: Exposes self-hosted endpoints for observability, metrics, and interactive documentation, supporting ongoing, autonomous monitoring.
+- **HTTP Server** (startServer function with `/health`, `/ready`, `/metrics`, `/openapi.json`, `/docs` endpoints, with configurable rate limiting and Basic Auth support)  
+  Mission Alignment: Exposes self-hosted endpoints for observability, readiness checks, metrics (including request duration histogram), and interactive documentation, supporting ongoing, autonomous monitoring.
+- **Request duration histogram** (`http_request_duration_seconds{method,route,status}`)  
+  Mission Alignment: Exposes request duration metrics for performance monitoring.
 - **CLI flags**: `--help`, `--version`, `--digest`  
   Mission Alignment: Offers intuitive CLI interfaces to drive agentic workflows directly from the command line.
 
-## Installation
-
-Install from npm:
-
-```bash
-npm install @xn-intenton-z2a/agentic-lib
-```
-
-Or clone this repository and install dependencies:
-
-```bash
-git clone https://github.com/xn-intenton-z2a/agentic-lib.git
-cd agentic-lib
-npm install
-```
-
-## CLI Usage Examples
-
-### Show Help
-
-```bash
-npx agentic-lib --help
-```
-
-### Show Version
-
-```bash
-npx agentic-lib --version
-```
-
-### Run Digest Simulation
-
-```bash
-npx agentic-lib --digest
-```
-
-## Configuration
-
-`agentic-lib` can be customized via environment variables:
-
-- `GITHUB_API_BASE_URL` (optional) – Custom GitHub API base URL (defaults to GitHub’s public API).
-- `OPENAI_API_KEY` (optional) – OpenAI API key for chat operations.
-
-**HTTP Server Configuration:**
-
-- `PORT` – Port for the HTTP server (default: `3000`).
-- `CORS_ALLOWED_ORIGINS` – CORS origins header (default: `*`).
-- `RATE_LIMIT_REQUESTS` – Number of requests per minute per IP (default: `60`).
-- `METRICS_USER` / `METRICS_PASS` – Basic Auth credentials for `/metrics` endpoint.
-- `DOCS_USER` / `DOCS_PASS` – Basic Auth credentials for `/docs` endpoint.
-
-## Programmatic Usage
-
-### Lambda Handler
-
-```js
-import { createSQSEventFromDigest, digestLambdaHandler } from "@xn-intenton-z2a/agentic-lib";
-
-const event = createSQSEventFromDigest({
-  key: "path/to/object.json",
-  value: "12345",
-  lastModified: new Date().toISOString(),
-});
-
-digestLambdaHandler(event).then(() => console.log("Processed"));
-```
-
-### HTTP Server
-
-Import and start the built-in HTTP server to expose health, metrics, OpenAPI spec, and interactive docs:
-
-```js
-import { startServer } from "@xn-intenton-z2a/agentic-lib";
-
-// Optional configuration: port, CORS origins, rate limits, auth credentials
-startServer({ port: 3000 });
-```
-
-See [HTTP Server Docs](./docs/SERVER.md) for detailed information on endpoints and configuration.
-
-## Testing
-
-Run the full test suite using Vitest:
-
-```bash
-npm test
-```
-
-## Links
-
-- [Mission Statement](../MISSION.md)
-- [Contributing Guide](../CONTRIBUTING.md)
-- [License](../LICENSE.md)
-- [GitHub Repository](https://github.com/xn-intenton-z2a/agentic-lib)
-- [HTTP Server Docs](./docs/SERVER.md)
-- [Deep Dive: SQS Utilities](./docs/SQS_OVERVIEW.md)
 README_FILE_END
 
 MISSION file (for context, read only): MISSION.md
@@ -1103,9 +1104,116 @@ export default [
   },
 ];
 
-LINTING_FILE_END
+LINTING_FILE_END        
 
-Agent configuration file (for context, read only):
+Dependencies install from command: npm install
+DEPENDENCIES_INSTALL_START
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+
+added 605 packages, and audited 606 packages in 5s
+
+162 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+DEPENDENCIES_INSTALL_END    
+
+Issue details:
+ISSUE_START
+title: No issue number provided
+description:
+No issue description provided ( parsed to )
+comments:
+No issue comments provided
+ISSUE_END
+
+Build output from command: npm run build
+BUILD_OUTPUT_START
+
+> @xn-intenton-z2a/agentic-lib@6.6.5-0 build
+> echo "Nothing to build"
+
+Nothing to build
+BUILD_OUTPUT_END      
+
+Test output from command: npm test
+TEST_OUTPUT_START
+
+> @xn-intenton-z2a/agentic-lib@6.6.5-0 test
+> vitest tests/unit/*.test.js sandbox/tests/*.test.js
+
+
+[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/agentic-lib/agentic-lib[39m
+
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+[90mstdout[2m | tests/unit/main.test.js
+[22m[39m{"level":"info","timestamp":"2025-05-18T14:32:33.337Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
+
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 102[2mms[22m[39m
+[90mstdout[2m | sandbox/tests/server.test.js
+[22m[39mServer started on port 3000
+
+ [31m❯[39m sandbox/tests/server.test.js [2m([22m[2m4 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 31[2mms[22m[39m
+   [32m✓[39m Server[2m > [22m/health returns status ok[32m 13[2mms[22m[39m
+   [32m✓[39m Server[2m > [22m/metrics returns metrics without auth when not configured[32m 2[2mms[22m[39m
+   [32m✓[39m Server[2m > [22m/ready returns status ready[32m 2[2mms[22m[39m
+[31m   [31m×[31m Server[2m > [22mmetrics includes http_request_duration_seconds after calls[39m[32m 9[2mms[22m[39m
+[31m     → expected 'http_request_duration_seconds{method=…' to match /…/(health|ready)",status="200"\} \d+\.?\d*$[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m sandbox/tests/server.test.js[2m > [22mServer[2m > [22mmetrics includes http_request_duration_seconds after calls
+[31m[1mAssertionError[22m: expected 'http_request_duration_seconds{method=…' to match /…/(health|ready)",status="200"\} \d+\.?\d*$[39m
+
+[32m- Expected:[39m 
+/^http_request_duration_seconds\{method="GET",route="\/(health|ready)",status="200"\} \d+\.?\d*$/
+
+[31m+ Received:[39m 
+"http_request_duration_seconds{method=\"GET\",route=\"/metrics\",status=\"200\"} 0.000267162"
+
+[36m [2m❯[22m sandbox/tests/server.test.js:[2m67:20[22m[39m
+    [90m 65| [39m    [34mexpect[39m(durationLines[33m.[39mlength)[33m.[39m[34mtoBeGreaterThanOrEqual[39m([34m2[39m)[33m;[39m
+    [90m 66| [39m    durationLines[33m.[39m[34mforEach[39m((line) [33m=>[39m {
+    [90m 67| [39m      [34mexpect[39m(line)[33m.[39m[34mtoMatch[39m(
+    [90m   | [39m                   [31m^[39m
+    [90m 68| [39m        /^http_request_duration_seconds\{method="GET",route="\/(health…
+    [90m 69| [39m      )[33m;[39m
+[90m [2m❯[22m sandbox/tests/server.test.js:[2m66:19[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m2 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m5 passed[39m[22m[90m (6)[39m
+[2m   Start at [22m 14:32:32
+[2m   Duration [22m 520ms[2m (transform 139ms, setup 0ms, collect 283ms, tests 136ms, environment 1ms, prepare 284ms)[22m
+
+
+::error file=/home/runner/work/agentic-lib/agentic-lib/sandbox/tests/server.test.js,title=sandbox/tests/server.test.js > Server > metrics includes http_request_duration_seconds after calls,line=67,column=20::AssertionError: expected 'http_request_duration_seconds{method=…' to match /…/(health|ready)",status="200"\} \d+\.?\d*$%0A%0A- Expected: %0A/^http_request_duration_seconds\{method="GET",route="\/(health|ready)",status="200"\} \d+\.?\d*$/%0A%0A+ Received: %0A"http_request_duration_seconds{method=\"GET\",route=\"/metrics\",status=\"200\"} 0.000267162"%0A%0A ❯ sandbox/tests/server.test.js:67:20%0A ❯ sandbox/tests/server.test.js:66:19%0A%0A
+TEST_OUTPUT_END            
+
+Main execution output from command: npm run start
+MAIN_OUTPUT_START
+
+> @xn-intenton-z2a/agentic-lib@6.6.5-0 start
+> node src/lib/main.js
+
+{"level":"info","timestamp":"2025-05-18T14:32:33.676Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+MAIN_OUTPUT_END    
+
+Agent configuration file:
 AGENT_CONFIG_FILE_START
 # Which agentic-lib workflow schedule should be used?
 schedule: schedule-3
@@ -1191,733 +1299,23 @@ intentionBot:
 
 AGENT_CONFIG_FILE_END
 
-Issue details:
-ISSUE_START
-title: Implement GitHub management utility functions and update documentation
-description:
-Title: Implement GitHub management utility functions and update documentation
-
-## Overview
-
-Add a set of core, reusable GitHub management utilities to `src/lib/main.js` and update sandbox documentation in `sandbox/README.md` to support new CLI flags and programmatic imports. These utilities will enable autonomous workflows by:
-
-- Summarizing open GitHub issues via OpenAI Chat Completions
-- Posting comments on existing issues
-- Creating new branches programmatically
-- Opening pull requests via the GitHub REST API
-
-## Testable Acceptance Criteria
-
-1. **summarizeIssues(owner: string, repo: string): Promise<Array<{ number: number; title: string; summary: string }>>**
-   - Validates inputs with Zod: owner and repo non-empty strings (test invalid inputs throw Zod errors).
-   - Uses Octokit to fetch issues (mock `octokit.rest.issues.listForRepo`, return sample list).
-   - Calls OpenAI Chat completions (mock OpenAI SDK) and returns an array of objects containing `number`, `title`, and non-empty `summary` strings.
-   - On API error from GitHub or OpenAI, throws `Error` containing status code and message (test by mocking errors).
-
-2. **postIssueComment(owner: string, repo: string, issueNumber: number, comment: string): Promise<any>**
-   - Validates inputs: owner, repo non-empty; issueNumber positive integer; comment non-empty (test invalid inputs).
-   - Uses Octokit to post comment; on 201 returns comment object; on non-2xx throws `Error` with status and body (test both success and failure paths).
-
-3. **createBranch(owner: string, repo: string, branchName: string, baseRef?: string): Promise<string>**
-   - Validates inputs: owner, repo, branchName non-empty; baseRef optional (test invalid inputs).
-   - Uses Octokit to create ref; on 201 returns branch name; on non-201 throws `Error` (test both paths).
-
-4. **createPullRequest(owner: string, repo: string, head: string, base: string, title: string, body: string): Promise<any>**
-   - Validates all inputs non-empty (test invalid inputs).
-   - Uses Octokit to create PR; on 201 returns PR JSON; on non-201 throws `Error` (test both paths).
-
-5. **CLI Integration**
-   - Implements flags: `--summarize-issues owner repo`, `--post-comment owner repo issueNumber comment`, `--create-branch owner repo branchName [baseRef]`, `--create-pr owner repo head base title body`.
-   - Running each flag with valid and invalid arguments exits with code 0 on success, non-zero on failure, and prints JSON result or error to STDOUT/STDERR (test via child process invocation).
-
-6. **Documentation Updates**
-   - `sandbox/README.md` lists new Key Features: "GitHub Issue Summarization" and "Branch & PR Management" with usage examples.
-   - Example code block provided and verified to render correctly in Markdown.
-
-## End-to-End Verification
-
-- Run `npm test` and confirm all new and existing tests pass.
-- Launch CLI with each new flag in a REPL or shell script to verify behavior.
-- Preview `sandbox/README.md` in GitHub UI to ensure formatting and links are correct.
-comments:
-Author:github-actions[bot], Created:2025-05-18T09:21:42Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094466996
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/f59a83ec9d0ba371219e61e209967ba1fcd5dad7
-Author:github-actions[bot], Created:2025-05-18T09:22:13Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094466996
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/f59a83ec9d0ba371219e61e209967ba1fcd5dad7
-Author:github-actions[bot], Created:2025-05-18T09:23:17Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094466996
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/f59a83ec9d0ba371219e61e209967ba1fcd5dad7
-Author:github-actions[bot], Created:2025-05-18T09:31:40Z, Comment: Workflow name: flow-feature-maintenance
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094548778
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/8e8d0509731cbd93cb32122ed2b8ed4fe017e537
-Author:github-actions[bot], Created:2025-05-18T09:32:21Z, Comment: ## Relevant Library Document: OPENAI_NODE_SDK.md
-
-Table of Contents
-1 Installation
-2 Client Initialization
-3 Responses API
-4 Chat Completions API
-5 Streaming Responses
-6 File Uploads
-7 Error Handling
-8 Retries and Backoff
-9 Timeouts
-10 Request IDs
-11 Auto-Pagination
-12 Realtime API Beta
-13 Azure OpenAI
-14 Advanced Usage
-15 Browser Support
-16 Requirements
-
-1 Installation
-  Commands:
-    npm install openai
-    deno add jsr:@openai/openai
-    npx jsr add @openai/openai
-
-2 Client Initialization
-  new OpenAI({
-    apiKey?:string,         default process.env.OPENAI_API_KEY
-    maxRetries?:number,     default 2
-    timeout?:number,        default 600000
-    fetch?:(url,init)=>Promise<Response>
-    httpAgent?:http.Agent|HttpsProxyAgent
-    dangerouslyAllowBrowser?:boolean default false
-  })
-  new AzureOpenAI({
-    azureADTokenProvider:()=>Promise<string>
-    apiVersion:string       e.g. '2024-10-01-preview'
-  })
-
-3 Responses API
-  Method: client.responses.create
-  Params:{ model:string; instructions?:string; input:string; stream?:boolean }
-  Options:{ maxRetries?:number; timeout?:number; httpAgent?:http.Agent }
-  Returns:Promise<{ output_text:string; _request_id:string }>
-
-4 Chat Completions API
-  Method: client.chat.completions.create
-  Params:{ model:string; messages:{role:'system'|'user'|'assistant'|'developer';content:string}[]; stream?:boolean }
-  Returns:Promise<{ choices:{message:{role:string;content:string}}[]; _request_id:string }>
-
-5 Streaming Responses
-  Call create with stream:true
-  Returns AsyncIterable<{ type:string; data:string; id?:string }>
-
-6 File Uploads
-  Method: client.files.create
-  Params:{ file:ReadStream|File|Response|ReturnType<typeof toFile>; purpose:'fine-tune' }
-
-7 Error Handling
-  Throws subclasses of OpenAI.APIError:
-    BadRequestError(400), AuthenticationError(401), PermissionDeniedError(403), NotFoundError(404), UnprocessableEntityError(422), RateLimitError(429), InternalServerError(>=500), APIConnectionError
-  Timeout throws APIConnectionTimeoutError
-
-8 Retries and Backoff
-  Default maxRetries=2
-  Retries on network errors, 408,409,429,>=500
-  Override via maxRetries
-
-9 Timeouts
-  Default timeout=600000
-  Override via timeout
-  Throws APIConnectionTimeoutError
-
-10 Request IDs
-  Responses include _request_id from x-request-id
-  .withResponse() returns { data, request_id, response }
-
-11 Auto-Pagination
-  List methods return PagedResult<T> with .data[], .hasNextPage(), .getNextPage()
-  Async iteration across pages
-
-12 Realtime API Beta
-  import { OpenAIRealtimeWebSocket } from 'openai/beta/realtime/websocket'
-  new OpenAIRealtimeWebSocket({ model:string })
-  on('response.text.delta', callback)
-
-13 Azure OpenAI
-  import { AzureOpenAI } from 'openai'
-  new AzureOpenAI({ azureADTokenProvider, apiVersion })
-
-14 Advanced Usage
-  .asResponse(), .withResponse()
-  client.get/post for undocumented endpoints
-  ts-ignore extra params
-
-15 Browser Support
-  dangerouslyAllowBrowser:true to enable
-  exposes secret key risks
-
-16 Requirements
-  TS>=4.5, Node>=18, Deno>=1.28, Bun>=1.0, Cloudflare Workers, Vercel Edge, Jest28(node), Nitro>=2.6
-Author:github-actions[bot], Created:2025-05-18T09:32:21Z, Comment: ## Relevant Library Document: OPENAI_SDK.md
-
-Table of Contents
-1. Installation and Imports
-2. Client Initialization Options
-3. Text Generation (Responses API)
-4. Chat Completions API
-5. Streaming with SSE
-6. File Upload Patterns
-7. Error Handling and Status Mapping
-8. Retry Strategy and Configuration
-9. Timeout Configuration
-10. Request ID Extraction
-11. Auto-pagination Patterns
-12. Realtime WebSocket API
-13. Azure OpenAI Integration
-14. Raw Response Access
-15. Custom HTTP Requests
-16. Client Fetch Middleware
-17. Logging and Debugging
-18. HTTP/S Agent Configuration
-19. Semantic Versioning Guidelines
-20. Runtime Requirements
-
-1. Installation and Imports
-- npm install openai
-- import OpenAI from 'openai'
-- deno add jsr:@openai/openai or npx jsr add @openai/openai
-
-2. Client Initialization Options
-Constructor OpenAI({
-  apiKey?: string;           // default from OPENAI_API_KEY
-  maxRetries?: number;       // default 2
-  timeout?: number;          // default 600000 ms
-  httpAgent?: Agent;
-  fetch?: (RequestInfo, RequestInit?) => Promise<Response>;
-  dangerouslyAllowBrowser?: boolean;
-  azureADTokenProvider?: TokenProvider;
-  apiVersion?: string;
-});
-
-3. Text Generation (Responses API)
-Method: client.responses.create(params, options?)
-Params:
-  model: string
-  instructions?: string
-  input?: string
-  stream?: boolean
-Options:
-  maxRetries?: number
-  timeout?: number
-  httpAgent?: Agent
-  fetch?: function
-Returns:
-  Promise<{ output_text: string; _request_id: string }>
-  or AsyncIterable<ServerSentEvent> if stream=true
-
-4. Chat Completions API
-Method: client.chat.completions.create(params, options?)
-Params:
-  model: string
-  messages: Array<{ role: 'system'|'developer'|'user'|'assistant'; content: string }>
-  stream?: boolean
-Returns:
-  Promise<{ choices: Array<{ message: { role: string; content: string } }>; _request_id: string }>
-  or AsyncIterable<ServerSentEvent>
-
-5. Streaming with SSE
-- Set stream:true in create()
-- Iterate AsyncIterable<ServerSentEvent>
-
-6. File Upload Patterns
-Method: client.files.create({ file, purpose })
-file can be: fs.ReadStream | File | Response | toFile(Buffer,email) helper
-purpose: string (e.g., 'fine-tune')
-
-7. Error Handling and Status Mapping
-Throws APIError subclasses with: request_id, status, name, headers
-Mapping: 400 BadRequestError; 401 AuthenticationError; 403 PermissionDeniedError; 404 NotFoundError; 422 UnprocessableEntityError; 429 RateLimitError; >=500 InternalServerError; connection errors APIConnectionError
-
-8. Retry Strategy and Configuration
-Default retries: 2 for connection errors, 408,409,429,>=500
-Override: global maxRetries in constructor or per-request in options
-
-9. Timeout Configuration
-Default: 600000 ms; global override in constructor; per-request override in options
-On timeout: throws APIConnectionTimeoutError; still retried by default
-
-10. Request ID Extraction
-_All response objects include _request_id_
-Use .withResponse() to destructure { data, request_id }
-
-11. Auto-pagination Patterns
-Use for awaitof on list() methods; or manual via page.hasNextPage() and page.getNextPage()
-
-12. Realtime WebSocket API
-Import OpenAIRealtimeWebSocket from 'openai/beta/realtime/websocket'
-Constructor: new OpenAIRealtimeWebSocket({ model: string })
-Events: 'response.text.delta'
-
-13. Azure OpenAI Integration
-Import AzureOpenAI; require azureADTokenProvider, apiVersion
-auth via DefaultAzureCredential + getBearerTokenProvider
-
-14. Raw Response Access
-Use .asResponse() or .withResponse() to access fetch Response headers and statusText
-
-15. Custom HTTP Requests
-Use client.get/post/put/delete('/path', { body, query, headers })
-
-16. Client Fetch Middleware
-Pass fetch override in constructor to log/modify requests
-
-17. Logging and Debugging
-Set DEBUG=true to log all requests and responses automatically
-
-18. HTTP/S Agent Configuration
-Pass httpAgent in constructor or per-request; supports proxies (HttpsProxyAgent)
-
-19. Semantic Versioning Guidelines
-Follows SemVer; minor may include type-only or internal changes
-
-20. Runtime Requirements
-TypeScript>=4.5; Node >=18; Deno>=1.28; Bun>=1.0; Cloudflare Workers; Vercel Edge; Jest>=28; Nitro>=2.6; Browser support opt-in
-Author:github-actions[bot], Created:2025-05-18T09:32:22Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([OPENAI_NODE_SDK.md,OPENAI_SDK.md], 2 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-18T09:37:41Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094614264
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/8e8d0509731cbd93cb32122ed2b8ed4fe017e537
-Author:github-actions[bot], Created:2025-05-18T09:43:17Z, Comment: Workflow name: transformation-06-issue-to-code
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094648420
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/8e8d0509731cbd93cb32122ed2b8ed4fe017e537
-Author:github-actions[bot], Created:2025-05-18T09:46:13Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094668315
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/8e8d0509731cbd93cb32122ed2b8ed4fe017e537
-Author:github-actions[bot], Created:2025-05-18T09:46:40Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094668315
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/8e8d0509731cbd93cb32122ed2b8ed4fe017e537
-Author:github-actions[bot], Created:2025-05-18T09:47:40Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094668315
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/8e8d0509731cbd93cb32122ed2b8ed4fe017e537
-Author:github-actions[bot], Created:2025-05-18T09:49:21Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094699233
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/8e8d0509731cbd93cb32122ed2b8ed4fe017e537
-Author:github-actions[bot], Created:2025-05-18T09:50:38Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094707938
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/8e8d0509731cbd93cb32122ed2b8ed4fe017e537
-Author:github-actions[bot], Created:2025-05-18T09:57:07Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094748477
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/8e8d0509731cbd93cb32122ed2b8ed4fe017e537
-Author:github-actions[bot], Created:2025-05-18T09:58:45Z, Comment: Workflow name: flow-feature-maintenance
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094746863
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/94cd18272d220e14756f34ba035e188642ee55df
-Author:github-actions[bot], Created:2025-05-18T10:20:55Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094924400
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/94cd18272d220e14756f34ba035e188642ee55df
-Author:github-actions[bot], Created:2025-05-18T10:20:56Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094935994
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/94cd18272d220e14756f34ba035e188642ee55df
-Author:github-actions[bot], Created:2025-05-18T10:21:18Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094924400
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/94cd18272d220e14756f34ba035e188642ee55df
-Author:github-actions[bot], Created:2025-05-18T10:22:18Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094924400
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/94cd18272d220e14756f34ba035e188642ee55df
-Author:github-actions[bot], Created:2025-05-18T10:24:08Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094961909
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/94cd18272d220e14756f34ba035e188642ee55df
-Author:github-actions[bot], Created:2025-05-18T10:26:22Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094981146
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/e0239032ca85e7fb644a881836515cb996ec5011
-Author:github-actions[bot], Created:2025-05-18T10:34:22Z, Comment: Workflow name: flow-feature-maintenance
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15095028928
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/e6ed752980691965a2e8242d44775804a7c8a063
-Author:github-actions[bot], Created:2025-05-18T10:36:07Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15095058792
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/e6ed752980691965a2e8242d44775804a7c8a063
-Author:github-actions[bot], Created:2025-05-18T10:38:01Z, Comment: Workflow name: ci-publish-web
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15095074644
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/e6ed752980691965a2e8242d44775804a7c8a063
-Author:github-actions[bot], Created:2025-05-18T10:39:36Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15095088213
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/e6ed752980691965a2e8242d44775804a7c8a063
-Author:github-actions[bot], Created:2025-05-18T10:40:04Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15095081789
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/e6ed752980691965a2e8242d44775804a7c8a063
-Author:github-actions[bot], Created:2025-05-18T10:40:54Z, Comment: ## Relevant Library Document: OPENAI_NODE_SDK.md
-
-Table of Contents
-1 Installation
-2 Client Initialization
-3 Responses API
-4 Chat Completions API
-5 Streaming Responses
-6 File Uploads
-7 Error Handling
-8 Retries and Backoff
-9 Timeouts
-10 Request IDs
-11 Auto-Pagination
-12 Realtime API Beta
-13 Azure OpenAI
-14 Advanced Usage
-15 Browser Support
-16 Requirements
-
-1 Installation
-  Commands:
-    npm install openai
-    deno add jsr:@openai/openai
-    npx jsr add @openai/openai
-
-2 Client Initialization
-  new OpenAI({
-    apiKey?:string,         default process.env.OPENAI_API_KEY
-    maxRetries?:number,     default 2
-    timeout?:number,        default 600000
-    fetch?:(url,init)=>Promise<Response>
-    httpAgent?:http.Agent|HttpsProxyAgent
-    dangerouslyAllowBrowser?:boolean default false
-  })
-  new AzureOpenAI({
-    azureADTokenProvider:()=>Promise<string>
-    apiVersion:string       e.g. '2024-10-01-preview'
-  })
-
-3 Responses API
-  Method: client.responses.create
-  Params:{ model:string; instructions?:string; input:string; stream?:boolean }
-  Options:{ maxRetries?:number; timeout?:number; httpAgent?:http.Agent }
-  Returns:Promise<{ output_text:string; _request_id:string }>
-
-4 Chat Completions API
-  Method: client.chat.completions.create
-  Params:{ model:string; messages:{role:'system'|'user'|'assistant'|'developer';content:string}[]; stream?:boolean }
-  Returns:Promise<{ choices:{message:{role:string;content:string}}[]; _request_id:string }>
-
-5 Streaming Responses
-  Call create with stream:true
-  Returns AsyncIterable<{ type:string; data:string; id?:string }>
-
-6 File Uploads
-  Method: client.files.create
-  Params:{ file:ReadStream|File|Response|ReturnType<typeof toFile>; purpose:'fine-tune' }
-
-7 Error Handling
-  Throws subclasses of OpenAI.APIError:
-    BadRequestError(400), AuthenticationError(401), PermissionDeniedError(403), NotFoundError(404), UnprocessableEntityError(422), RateLimitError(429), InternalServerError(>=500), APIConnectionError
-  Timeout throws APIConnectionTimeoutError
-
-8 Retries and Backoff
-  Default maxRetries=2
-  Retries on network errors, 408,409,429,>=500
-  Override via maxRetries
-
-9 Timeouts
-  Default timeout=600000
-  Override via timeout
-  Throws APIConnectionTimeoutError
-
-10 Request IDs
-  Responses include _request_id from x-request-id
-  .withResponse() returns { data, request_id, response }
-
-11 Auto-Pagination
-  List methods return PagedResult<T> with .data[], .hasNextPage(), .getNextPage()
-  Async iteration across pages
-
-12 Realtime API Beta
-  import { OpenAIRealtimeWebSocket } from 'openai/beta/realtime/websocket'
-  new OpenAIRealtimeWebSocket({ model:string })
-  on('response.text.delta', callback)
-
-13 Azure OpenAI
-  import { AzureOpenAI } from 'openai'
-  new AzureOpenAI({ azureADTokenProvider, apiVersion })
-
-14 Advanced Usage
-  .asResponse(), .withResponse()
-  client.get/post for undocumented endpoints
-  ts-ignore extra params
-
-15 Browser Support
-  dangerouslyAllowBrowser:true to enable
-  exposes secret key risks
-
-16 Requirements
-  TS>=4.5, Node>=18, Deno>=1.28, Bun>=1.0, Cloudflare Workers, Vercel Edge, Jest28(node), Nitro>=2.6
-Author:github-actions[bot], Created:2025-05-18T10:40:54Z, Comment: ## Relevant Library Document: OPENAI_SDK.md
-
-Table of Contents
-1. Installation and Imports
-2. Client Initialization Options
-3. Text Generation (Responses API)
-4. Chat Completions API
-5. Streaming with SSE
-6. File Upload Patterns
-7. Error Handling and Status Mapping
-8. Retry Strategy and Configuration
-9. Timeout Configuration
-10. Request ID Extraction
-11. Auto-pagination Patterns
-12. Realtime WebSocket API
-13. Azure OpenAI Integration
-14. Raw Response Access
-15. Custom HTTP Requests
-16. Client Fetch Middleware
-17. Logging and Debugging
-18. HTTP/S Agent Configuration
-19. Semantic Versioning Guidelines
-20. Runtime Requirements
-
-1. Installation and Imports
-- npm install openai
-- import OpenAI from 'openai'
-- deno add jsr:@openai/openai or npx jsr add @openai/openai
-
-2. Client Initialization Options
-Constructor OpenAI({
-  apiKey?: string;           // default from OPENAI_API_KEY
-  maxRetries?: number;       // default 2
-  timeout?: number;          // default 600000 ms
-  httpAgent?: Agent;
-  fetch?: (RequestInfo, RequestInit?) => Promise<Response>;
-  dangerouslyAllowBrowser?: boolean;
-  azureADTokenProvider?: TokenProvider;
-  apiVersion?: string;
-});
-
-3. Text Generation (Responses API)
-Method: client.responses.create(params, options?)
-Params:
-  model: string
-  instructions?: string
-  input?: string
-  stream?: boolean
-Options:
-  maxRetries?: number
-  timeout?: number
-  httpAgent?: Agent
-  fetch?: function
-Returns:
-  Promise<{ output_text: string; _request_id: string }>
-  or AsyncIterable<ServerSentEvent> if stream=true
-
-4. Chat Completions API
-Method: client.chat.completions.create(params, options?)
-Params:
-  model: string
-  messages: Array<{ role: 'system'|'developer'|'user'|'assistant'; content: string }>
-  stream?: boolean
-Returns:
-  Promise<{ choices: Array<{ message: { role: string; content: string } }>; _request_id: string }>
-  or AsyncIterable<ServerSentEvent>
-
-5. Streaming with SSE
-- Set stream:true in create()
-- Iterate AsyncIterable<ServerSentEvent>
-
-6. File Upload Patterns
-Method: client.files.create({ file, purpose })
-file can be: fs.ReadStream | File | Response | toFile(Buffer,email) helper
-purpose: string (e.g., 'fine-tune')
-
-7. Error Handling and Status Mapping
-Throws APIError subclasses with: request_id, status, name, headers
-Mapping: 400 BadRequestError; 401 AuthenticationError; 403 PermissionDeniedError; 404 NotFoundError; 422 UnprocessableEntityError; 429 RateLimitError; >=500 InternalServerError; connection errors APIConnectionError
-
-8. Retry Strategy and Configuration
-Default retries: 2 for connection errors, 408,409,429,>=500
-Override: global maxRetries in constructor or per-request in options
-
-9. Timeout Configuration
-Default: 600000 ms; global override in constructor; per-request override in options
-On timeout: throws APIConnectionTimeoutError; still retried by default
-
-10. Request ID Extraction
-_All response objects include _request_id_
-Use .withResponse() to destructure { data, request_id }
-
-11. Auto-pagination Patterns
-Use for awaitof on list() methods; or manual via page.hasNextPage() and page.getNextPage()
-
-12. Realtime WebSocket API
-Import OpenAIRealtimeWebSocket from 'openai/beta/realtime/websocket'
-Constructor: new OpenAIRealtimeWebSocket({ model: string })
-Events: 'response.text.delta'
-
-13. Azure OpenAI Integration
-Import AzureOpenAI; require azureADTokenProvider, apiVersion
-auth via DefaultAzureCredential + getBearerTokenProvider
-
-14. Raw Response Access
-Use .asResponse() or .withResponse() to access fetch Response headers and statusText
-
-15. Custom HTTP Requests
-Use client.get/post/put/delete('/path', { body, query, headers })
-
-16. Client Fetch Middleware
-Pass fetch override in constructor to log/modify requests
-
-17. Logging and Debugging
-Set DEBUG=true to log all requests and responses automatically
-
-18. HTTP/S Agent Configuration
-Pass httpAgent in constructor or per-request; supports proxies (HttpsProxyAgent)
-
-19. Semantic Versioning Guidelines
-Follows SemVer; minor may include type-only or internal changes
-
-20. Runtime Requirements
-TypeScript>=4.5; Node >=18; Deno>=1.28; Bun>=1.0; Cloudflare Workers; Vercel Edge; Jest>=28; Nitro>=2.6; Browser support opt-in
-Author:github-actions[bot], Created:2025-05-18T10:40:55Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([OPENAI_NODE_SDK.md,OPENAI_SDK.md], 2 in total) have been added as comments.
-ISSUE_END            
-
-Dependencies list from command: npm list
-DEPENDENCIES_LIST_START
-@xn-intenton-z2a/agentic-lib@6.6.5-0 /home/runner/work/agentic-lib/agentic-lib
-├── @aws-sdk/client-lambda@3.812.0
-├── @microsoft/eslint-formatter-sarif@3.1.0
-├── @vitest/coverage-v8@3.1.3
-├── @xn-intenton-z2a/s3-sqs-bridge@0.24.0
-├── aws-cdk@2.1016.0
-├── chalk@5.4.1
-├── change-case@5.4.4
-├── dayjs@1.11.13
-├── dotenv@16.5.0
-├── ejs@3.1.10
-├── eslint-config-google@0.14.0
-├── eslint-config-prettier@8.10.0
-├── eslint-plugin-import@2.31.0
-├── eslint-plugin-prettier@5.4.0
-├── eslint-plugin-promise@7.2.1
-├── eslint-plugin-react@7.37.5
-├── eslint-plugin-security@3.0.1
-├── eslint-plugin-sonarjs@3.0.2
-├── eslint@9.27.0
-├── figlet@1.8.1
-├── js-yaml@4.1.0
-├── lodash@4.17.21
-├── markdown-it-github@0.5.0
-├── markdown-it@14.1.0
-├── minimatch@10.0.1
-├── npm-check-updates@18.0.1
-├── openai@4.100.0
-├── prettier@3.5.3
-├── seedrandom@3.0.5
-├── vitest@3.1.3
-└── zod@3.24.4
-DEPENDENCIES_LIST_END    
-
-Build output from command: npm run build
-BUILD_OUTPUT_START
-
-> @xn-intenton-z2a/agentic-lib@6.6.5-0 build
-> echo "Nothing to build"
-
-Nothing to build
-BUILD_OUTPUT_END      
-
-Test output from command: npm test
-TEST_OUTPUT_START
-
-> @xn-intenton-z2a/agentic-lib@6.6.5-0 test
-> vitest tests/unit/*.test.js sandbox/tests/*.test.js
-
-
-[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/agentic-lib/agentic-lib[39m
-
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
-[90mstdout[2m | tests/unit/main.test.js
-[22m[39m{"level":"info","timestamp":"2025-05-18T12:54:15.482Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
-
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 53[2mms[22m[39m
-[90mstdout[2m | sandbox/tests/server.test.js
-[22m[39mServer started on port 3000
-
- [32m✓[39m sandbox/tests/server.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 19[2mms[22m[39m
-
-[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
-[2m      Tests [22m [1m[32m4 passed[39m[22m[90m (4)[39m
-[2m   Start at [22m 12:54:15
-[2m   Duration [22m 394ms[2m (transform 89ms, setup 0ms, collect 204ms, tests 75ms, environment 1ms, prepare 258ms)[22m
-TEST_OUTPUT_END            
-
-Main execution output from command: npm run start
-MAIN_OUTPUT_START
-
-> @xn-intenton-z2a/agentic-lib@6.6.5-0 start
-> node src/lib/main.js
-
-{"level":"info","timestamp":"2025-05-18T12:54:15.768Z","message":"Configuration loaded","config":{}}
-No command argument supplied.
-
-Usage:
-  --help                     Show this help message and usage instructions.
-  --digest                   Run a full bucket replay simulating an SQS event.
-  --version                  Show version information with current timestamp.
-MAIN_OUTPUT_END    
-
-Please produce updated versions of the files that resolve the issue.
+Please produce updated versions of the files that resolve the possible build or test problem.
+If there are no changes required, please provide the original content and state that no changes are necessary in the message.
 Note that the README.md file is provided for context only - any documentation changes should be written to the documentation files.
 The source files, test files, and documentation files can be individual files or directories containing multiple files.
-Never truncate the files, when returning a file, always return the entire file content.
 
-Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;sandbox/docs/;sandbox/README.md
+Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;sandbox/docs/;sandbox/README.md}
 
 Answer strictly with a JSON object following this schema:
 {
   "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text.",
   "updatedFile01Filepath": "sandbox/source/orderParser.js",
   "updatedFile01Contents": "The entire new content of the source file, with all necessary changes applied, if any.",
-  "updatedFile02Filepath":  "sandbox/tests/orderParser.test.js",
+  "updatedFile02Filepath": "sandbox/tests/orderParser.test.js",
   "updatedFile02Contents": "The entire new content of the test file, with all necessary changes applied, if any.",
-  "updatedFile03Filepath": "sandbox/docs/USAGE.md",
+  "updatedFile03Filepath": "sandbox/docs/docs/USAGE.md",
   "updatedFile03Contents": "The entire new content of the documentation file, with all necessary changes applied, if any.",
-  "updatedFile04Filepath": "sandbox/docs/A_FILE_WE_DONT_WANT.md",
+  "updatedFile04Filepath": "sandbox/docs/docs/A_FILE_WE_DONT_WANT.md",
   "updatedFile04Contents": "delete",
   "updatedFile05Filepath": "unused",
   "updatedFile05Contents": "unused",

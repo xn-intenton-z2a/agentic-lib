@@ -2,7 +2,7 @@
 
 ## Mission Alignment
 
-The HTTP server provides critical observability endpoints (health, metrics, OpenAPI schema, docs) to support continuous monitoring and self-hosted documentation in line with our mission to enable autonomous, agentic workflows. For mission details, see [Mission Statement](../MISSION.md).
+The HTTP server provides critical observability endpoints (health, readiness, metrics, OpenAPI schema, docs) to support continuous monitoring and self-hosted documentation in line with our mission to enable autonomous, agentic workflows. For mission details, see [Mission Statement](../MISSION.md).
 
 This document describes how to launch the built-in HTTP server provided by agentic-lib, exposing key endpoints.
 
@@ -30,10 +30,17 @@ startServer(options);
   { "status": "ok", "uptime": <seconds>, "timestamp": "<ISO>" }
   ```
 
+- **GET /ready**  
+  Readiness probe. Returns JSON:
+  ```json
+  { "status": "ready", "timestamp": "<ISO>" }
+  ```
+
 - **GET /metrics**  
   Prometheus-formatted metrics. Exposes:
   - `http_requests_total{method,route,status}`
   - `http_request_failures_total{route}`
+  - `http_request_duration_seconds{method,route,status}` (request duration histogram)
   Protected by Basic Auth if `METRICS_USER`/`METRICS_PASS` are set.
 
 - **GET /openapi.json**  
