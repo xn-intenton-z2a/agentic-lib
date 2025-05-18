@@ -1,23 +1,18 @@
 
-You are providing the entire new content of source files, test files, documentation files, 
-and other necessary files with all necessary changes applied to resolve a possible build or test 
-problem. Focus on high-impact, functional fixes that address core issues rather than superficial 
-changes or excessive debugging or validation. If the problem is in an area of the code with little
-value you may re-implement it or remove it.
+You are providing the entire new content of source files, test files, documentation files, and other necessary
+files with all necessary changes applied to deliver the resolution to an issue. Focus on high-impact, 
+functional solutions that address core issues rather than superficial changes or excessive code polishing.
+Implement as much as you can and refer to the projects features and mission statement when expanding the code
+beyond the scope of the original issue. Implement whole features and do not leave stubbed out or pretended code.
 
-Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone
-and direction of the contributing guidelines. Prioritize changes that deliver substantial user value
-and maintain the integrity of the codebase's primary purpose.
+Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone and direction
+of the contributing guidelines. Prioritize changes that deliver user value and maintain the integrity
+of the codebase's primary purpose.
 
-You may complete the implementation of a feature and/or bring the code output in line with the README
-or other documentation. Do as much as you can all at once so that the build runs (even with nothing
-to build) and the tests pass and the main at least doesn't output an error.
+Do as much as you can all at once.
 
+Follow the linting guidelines and the formatting guidelines from the included config.
 
-
-Examine the "Build output from command","Test output from command", and "Main execution output from command" 
-to determine if there are any problems with the code to fix such as failing tests or output 
-not matching the features, README or other documentation.
 
 You must only add, remove, or change the files in the target writable locations. You can update multiple
 files by specifying their paths and contents in the enumerated updatedFile01Filepath updatedFile02Contents response
@@ -26,7 +21,7 @@ be checked against the write permission in the Agent configuration file before b
 add new files as long as they are in the target writable locations. You can also remove files, but only if
 they are in the target writable locations. To delete a file, set the updated file contents to "delete".
 
-The target writable locations for your output are: sandbox/source sandbox/tests sandbox/docs
+The target writable locations for your output are: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;sandbox/docs/;sandbox/README.md
 Other file will be supplied in the context but only the paths above should be written to.
 
 Only provide new or updated content for the target source files in sandbox/source.
@@ -39,21 +34,22 @@ Only update the target documentation files in sandbox/docs.
 Follow the attached Formatting file content and Linting file content.
 
 Consider the following when refining your response:
-  * Current feature names and specifications in the repository
-  * Source file content
-  * Test file content
-  * Documentation file content
-  * README file content
-  * MISSION file content
-  * Contributing file content
-  * Dependencies file content
-  * Formatting file content
-  * Linting file content
-  * Dependency install output
-  * Issue details (if any)
-  * Build output
-  * Test output
-  * Main execution output
+* Current feature names and specifications in the repository
+* Source file content
+* Test file content
+* Documentation file content
+* README file content
+* MISSION file content
+* Contributing file content
+* Dependencies file content
+* Formatting file content
+* Linting file content
+* Agent configuration file content
+* Issue details
+* Dependency list
+* Build output
+* Test output
+* Main execution output
 
 Current feature names and specifications (for context, read only):
 CURRENT_FEATURES_START
@@ -63,294 +59,6 @@ CURRENT_FEATURES_END
 
 Source files (write new files or update files in sandbox/source as necessary):
 (Multiple files from both in writable locations and not.)
-SOURCE_FILE_START Filepath: sandbox/source/main.js
-#!/usr/bin/env node
-// sandbox/source/main.js
-
-// Initialize global callCount to support test mocks that reference it
-if (typeof globalThis.callCount === "undefined") {
-  globalThis.callCount = 0;
-}
-
-import { fileURLToPath } from "url";
-import { z } from "zod";
-import dotenv from "dotenv";
-import { Configuration, OpenAIApi } from "openai";
-
-// ---------------------------------------------------------------------------------------------------------------------
-// Environment configuration from .env file or environment variables or test values.
-// ---------------------------------------------------------------------------------------------------------------------
-
-dotenv.config();
-
-if (process.env.VITEST || process.env.NODE_ENV === "development") {
-  process.env.GITHUB_API_BASE_URL =
-    process.env.GITHUB_API_BASE_URL || "https://api.github.com.test/";
-  process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || "key-test";
-}
-
-const configSchema = z.object({
-  GITHUB_API_BASE_URL: z.string().optional(),
-  OPENAI_API_KEY: z.string().optional(),
-});
-
-export const config = configSchema.parse(process.env);
-
-// Global verbose mode flag
-const VERBOSE_MODE = false;
-// Global verbose stats flag
-const VERBOSE_STATS = false;
-
-// Helper function to format log entries
-function formatLogEntry(level, message, additionalData = {}) {
-  return {
-    level,
-    timestamp: new Date().toISOString(),
-    message,
-    ...additionalData,
-  };
-}
-
-export function logConfig() {
-  const logObj = formatLogEntry("info", "Configuration loaded", {
-    config: {
-      GITHUB_API_BASE_URL: config.GITHUB_API_BASE_URL,
-      OPENAI_API_KEY: config.OPENAI_API_KEY,
-    },
-  });
-  console.log(JSON.stringify(logObj));
-}
-logConfig();
-
-// ---------------------------------------------------------------------------------------------------------------------
-// Utility functions
-// ---------------------------------------------------------------------------------------------------------------------
-
-export function logInfo(message) {
-  const additionalData = VERBOSE_MODE ? { verbose: true } : {};
-  const logObj = formatLogEntry("info", message, additionalData);
-  console.log(JSON.stringify(logObj));
-}
-
-export function logError(message, error) {
-  const additionalData = { error: error ? error.toString() : undefined };
-  if (VERBOSE_MODE && error && error.stack) {
-    additionalData.stack = error.stack;
-  }
-  const logObj = formatLogEntry("error", message, additionalData);
-  console.error(JSON.stringify(logObj));
-}
-
-// ---------------------------------------------------------------------------------------------------------------------
-// AWS Utility functions
-// ---------------------------------------------------------------------------------------------------------------------
-
-export function createSQSEventFromDigest(digest) {
-  return {
-    Records: [
-      {
-        eventVersion: "2.0",
-        eventSource: "aws:sqs",
-        eventTime: new Date().toISOString(),
-        eventName: "SendMessage",
-        body: JSON.stringify(digest),
-      },
-    ],
-  };
-}
-
-// ---------------------------------------------------------------------------------------------------------------------
-// SQS Lambda Handlers
-// ---------------------------------------------------------------------------------------------------------------------
-
-export async function digestLambdaHandler(sqsEvent) {
-  logInfo(`Digest Lambda received event: ${JSON.stringify(sqsEvent)}`);
-
-  // If event.Records is an array, use it. Otherwise, treat the event itself as one record.
-  const sqsEventRecords = Array.isArray(sqsEvent.Records)
-    ? sqsEvent.Records
-    : [sqsEvent];
-
-  // Array to collect the identifiers of the failed records
-  const batchItemFailures = [];
-
-  for (const [index, sqsEventRecord] of sqsEventRecords.entries()) {
-    try {
-      const digest = JSON.parse(sqsEventRecord.body);
-      logInfo(`Record ${index}: Received digest: ${JSON.stringify(digest)}`);
-    } catch (error) {
-      // If messageId is missing, generate a fallback identifier including record index
-      const recordId =
-        sqsEventRecord.messageId ||
-        `fallback-${index}-${Date.now()}-${Math.random()
-          .toString(36)
-          .substr(2, 9)}`;
-      logError(`Error processing record ${recordId} at index ${index}`, error);
-      logError(
-        `Invalid JSON payload. Error: ${error.message}. Raw message: ${sqsEventRecord.body}`
-      );
-      batchItemFailures.push({ itemIdentifier: recordId });
-    }
-  }
-
-  // Return the list of failed messages so that AWS SQS can attempt to reprocess them.
-  return {
-    batchItemFailures,
-    handler: "sandbox/source/main.digestLambdaHandler",
-  };
-}
-
-// ---------------------------------------------------------------------------------------------------------------------
-// CLI Helper Functions
-// ---------------------------------------------------------------------------------------------------------------------
-
-// Function to generate CLI usage instructions
-function generateUsage() {
-  return `
-Usage:
-  --help                     Show this help message and usage instructions.
-  --digest                   Run a full bucket replay simulating an SQS event.
-  --version                  Show version information with current timestamp.
-  --agent "<prompt>"          Send a prompt to OpenAI and receive JSON response.
-`;
-}
-
-// Process the --help flag
-function processHelp(args) {
-  if (args.includes("--help")) {
-    console.log(generateUsage());
-    return true;
-  }
-  return false;
-}
-
-// Process the --version flag
-async function processVersion(args) {
-  if (args.includes("--version")) {
-    try {
-      const { readFileSync } = await import("fs");
-      const packageJsonPath = new URL("../../package.json", import.meta.url);
-      const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
-      const versionInfo = {
-        version: packageJson.version,
-        timestamp: new Date().toISOString(),
-      };
-      console.log(JSON.stringify(versionInfo));
-    } catch (error) {
-      logError("Failed to retrieve version", error);
-    }
-    return true;
-  }
-  return false;
-}
-
-// Process the --digest flag
-async function processDigest(args) {
-  if (args.includes("--digest")) {
-    const exampleDigest = {
-      key: "events/1.json",
-      value: "12345",
-      lastModified: new Date().toISOString(),
-    };
-    const sqsEvent = createSQSEventFromDigest(exampleDigest);
-    await digestLambdaHandler(sqsEvent);
-    return true;
-  }
-  return false;
-}
-
-// Process the --agent flag
-export async function processAgent(args) {
-  const idx = args.indexOf("--agent");
-  if (idx === -1) {
-    return false;
-  }
-  globalThis.callCount++;
-  const prompt = args[idx + 1] || "";
-  try {
-    const configuration = new Configuration({ apiKey: config.OPENAI_API_KEY });
-    const client = new OpenAIApi(configuration);
-    const response = await client.createChatCompletion({
-      model: "gpt-4",
-      messages: [
-        { role: "system", content: "You are an intelligent assistant." },
-        { role: "user", content: prompt },
-      ],
-    });
-    const content = response.data.choices[0].message.content;
-    let parsed;
-    try {
-      parsed = JSON.parse(content);
-    } catch (parseError) {
-      throw new Error(
-        `Invalid JSON response from OpenAI: ${parseError.message}`
-      );
-    }
-    console.log(JSON.stringify(parsed));
-  } catch (error) {
-    logError("Agent CLI failed", error);
-  }
-  return true;
-}
-
-// ---------------------------------------------------------------------------------------------------------------------
-// Main CLI
-// ---------------------------------------------------------------------------------------------------------------------
-
-export async function main(args = process.argv.slice(2)) {
-  if (await processAgent(args)) {
-    if (VERBOSE_STATS) {
-      console.log(
-        JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() })
-      );
-    }
-    return;
-  }
-  if (processHelp(args)) {
-    if (VERBOSE_STATS) {
-      console.log(
-        JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() })
-      );
-    }
-    return;
-  }
-  if (await processVersion(args)) {
-    if (VERBOSE_STATS) {
-      console.log(
-        JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() })
-      );
-    }
-    return;
-  }
-  if (await processDigest(args)) {
-    if (VERBOSE_STATS) {
-      console.log(
-        JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() })
-      );
-    }
-    return;
-  }
-
-  console.log("No command argument supplied.");
-  console.log(generateUsage());
-  if (VERBOSE_STATS) {
-    console.log(
-      JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() })
-    );
-  }
-}
-
-// Execute when run directly
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main().catch((err) => {
-    logError("Fatal error in main execution", err);
-    process.exit(1);
-  });
-}
-
-SOURCE_FILE_END
-
-
 SOURCE_FILE_START Filepath: src/lib/main.js
 #!/usr/bin/env node
 // src/lib/main.js
@@ -582,64 +290,6 @@ SOURCE_FILE_END
 
 Test files (write new files or update files in sandbox/tests as necessary):
 (Multiple files from both in writable locations and not.)
-TEST_FILE_START File: sandbox/tests/main.test.js
-// sandbox/tests/main.test.js
-import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
-import { main } from "../source/main.js";
-import { OpenAIApi } from "openai";
-
-beforeEach(() => {
-  globalThis.callCount = 0;
-});
-
-afterEach(() => {
-  vi.restoreAllMocks();
-});
-
-describe("--agent CLI command", () => {
-  test("should log parsed JSON and increment callCount on success", async () => {
-    const mockResponse = {
-      data: {
-        choices: [
-          { message: { content: JSON.stringify({ foo: "bar" }) } },
-        ],
-      },
-    };
-    vi.spyOn(OpenAIApi.prototype, "createChatCompletion").mockResolvedValue(mockResponse);
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-
-    await main(["--agent", "test prompt"]);
-
-    expect(logSpy).toHaveBeenCalledWith(JSON.stringify({ foo: "bar" }));
-    expect(globalThis.callCount).toBe(1);
-  });
-
-  test("should log error JSON on failure and increment callCount", async () => {
-    const error = new Error("API failure");
-    vi.spyOn(OpenAIApi.prototype, "createChatCompletion").mockRejectedValue(error);
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
-    await main(["--agent", "fails prompt"]);
-
-    expect(globalThis.callCount).toBe(1);
-    expect(errorSpy).toHaveBeenCalled();
-    const firstCallArg = errorSpy.mock.calls[0][0];
-    let parsed;
-    try {
-      parsed = JSON.parse(firstCallArg);
-    } catch {
-      parsed = null;
-    }
-    expect(parsed).not.toBeNull();
-    expect(parsed.level).toBe("error");
-    expect(parsed.message).toBe("Agent CLI failed");
-    expect(parsed.error).toContain("Error: API failure");
-  });
-});
-
-TEST_FILE_END
-
-
 TEST_FILE_START File: tests/unit/main.test.js
 import { describe, test, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
 
@@ -724,41 +374,6 @@ DOCUMENTATION_FILE_END
 
 README file (for context, read only): sandbox/README.md
 README_FILE_START
-# agentic-lib
-
-Agentic-lib is a JavaScript library designed to serve as a drop-in SDK for enabling autonomous workflows in GitHub Actions and other automation pipelines. It provides CLI commands, AWS Lambda handlers, and utilities to streamline CI/CD processes by communicating through issues, branches, and events.
-
-For more details, see [MISSION.md](../../MISSION.md) and [CONTRIBUTING.md](../../CONTRIBUTING.md).
-
-Repository: [https://github.com/xn-intenton-z2a/agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib)
-
-## CLI Usage
-
-The CLI supports several flags to interact with your workflows:
-
-  --help
-    Show this help message and usage instructions.
-
-  --digest
-    Run a full bucket replay simulating an SQS event.
-
-  --version
-    Show version information with the current timestamp.
-
-  --agent "<prompt>"
-    Send a prompt to the OpenAI API and receive a structured JSON response. Useful for CI/CD, GitHub Actions, and local automation.
-
-### Example
-
-```bash
-node src/lib/main.js --agent "Summarize the repository mission"
-```
-
-### Sample Output
-
-```json
-{"summary":"agentic-lib is a JavaScript library designed to serve as a drop-in SDK for enabling autonomous workflows in GitHub Actions and other automation pipelines."}
-```
 
 README_FILE_END
 
@@ -858,7 +473,7 @@ Dependencies file (for context, read only): package.json
 DEPENDENCIES_FILE_START
 {
   "name": "@xn-intenton-z2a/agentic-lib",
-  "version": "6.6.5-0",
+  "version": "6.7.1-0",
   "description": "Agentic-lib Agentic Coding Systems SDK powering automated GitHub workflows.",
   "type": "module",
   "main": "src/lib/main.js",
@@ -1041,121 +656,9 @@ export default [
   },
 ];
 
-LINTING_FILE_END        
+LINTING_FILE_END
 
-Dependencies install from command: npm install
-DEPENDENCIES_INSTALL_START
-npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
-npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
-npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
-npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
-npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
-npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
-npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
-
-added 605 packages, and audited 606 packages in 5s
-
-162 packages are looking for funding
-  run `npm fund` for details
-
-found 0 vulnerabilities
-DEPENDENCIES_INSTALL_END    
-
-Issue details:
-ISSUE_START
-title: No issue number provided
-description:
-No issue description provided ( parsed to )
-comments:
-No issue comments provided
-ISSUE_END
-
-Build output from command: npm run build
-BUILD_OUTPUT_START
-
-> @xn-intenton-z2a/agentic-lib@6.6.5-0 build
-> echo "Nothing to build"
-
-Nothing to build
-BUILD_OUTPUT_END      
-
-Test output from command: npm test
-TEST_OUTPUT_START
-
-> @xn-intenton-z2a/agentic-lib@6.6.5-0 test
-> vitest tests/unit/*.test.js sandbox/tests/*.test.js
-
-
-[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/agentic-lib/agentic-lib[39m
-
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
-[90mstdout[2m | tests/unit/main.test.js
-[22m[39m{"level":"info","timestamp":"2025-05-18T16:34:38.054Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
-
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 75[2mms[22m[39m
-[90mstdout[2m | sandbox/tests/main.test.js
-[22m[39m{"level":"info","timestamp":"2025-05-18T16:34:38.166Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
-
- [31m❯[39m sandbox/tests/main.test.js [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 9[2mms[22m[39m
-[31m   [31m×[31m --agent CLI command[2m > [22mshould log parsed JSON and increment callCount on success[39m[32m 7[2mms[22m[39m
-[31m     → Cannot read properties of undefined (reading 'prototype')[39m
-[31m   [31m×[31m --agent CLI command[2m > [22mshould log error JSON on failure and increment callCount[39m[32m 1[2mms[22m[39m
-[31m     → Cannot read properties of undefined (reading 'prototype')[39m
-
-[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
-
-[41m[1m FAIL [22m[49m sandbox/tests/main.test.js[2m > [22m--agent CLI command[2m > [22mshould log parsed JSON and increment callCount on success
-[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'prototype')[39m
-[36m [2m❯[22m sandbox/tests/main.test.js:[2m23:24[22m[39m
-    [90m 21| [39m      }[33m,[39m
-    [90m 22| [39m    }[33m;[39m
-    [90m 23| [39m    vi.spyOn(OpenAIApi.prototype, "createChatCompletion").mockResolved…
-    [90m   | [39m                       [31m^[39m
-    [90m 24| [39m    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {…
-    [90m 25| [39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
-
-[41m[1m FAIL [22m[49m sandbox/tests/main.test.js[2m > [22m--agent CLI command[2m > [22mshould log error JSON on failure and increment callCount
-[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'prototype')[39m
-[36m [2m❯[22m sandbox/tests/main.test.js:[2m34:24[22m[39m
-    [90m 32| [39m  test("should log error JSON on failure and increment callCount", asy…
-    [90m 33| [39m    [35mconst[39m error [33m=[39m [35mnew[39m [33mError[39m([32m"API failure"[39m)[33m;[39m
-    [90m 34| [39m    vi.spyOn(OpenAIApi.prototype, "createChatCompletion").mockRejected…
-    [90m   | [39m                       [31m^[39m
-    [90m 35| [39m    const errorSpy = vi.spyOn(console, "error").mockImplementation(() …
-    [90m 36| [39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
-
-
-[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m2 passed[39m[22m[90m (3)[39m
-[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m2 passed[39m[22m[90m (4)[39m
-[2m   Start at [22m 16:34:37
-[2m   Duration [22m 513ms[2m (transform 136ms, setup 0ms, collect 275ms, tests 88ms, environment 1ms, prepare 309ms)[22m
-
-
-::error file=/home/runner/work/agentic-lib/agentic-lib/sandbox/tests/main.test.js,title=sandbox/tests/main.test.js > --agent CLI command > should log parsed JSON and increment callCount on success,line=23,column=24::TypeError: Cannot read properties of undefined (reading 'prototype')%0A ❯ sandbox/tests/main.test.js:23:24%0A%0A
-
-::error file=/home/runner/work/agentic-lib/agentic-lib/sandbox/tests/main.test.js,title=sandbox/tests/main.test.js > --agent CLI command > should log error JSON on failure and increment callCount,line=34,column=24::TypeError: Cannot read properties of undefined (reading 'prototype')%0A ❯ sandbox/tests/main.test.js:34:24%0A%0A
-TEST_OUTPUT_END            
-
-Main execution output from command: npm run start
-MAIN_OUTPUT_START
-
-> @xn-intenton-z2a/agentic-lib@6.6.5-0 start
-> node src/lib/main.js
-
-{"level":"info","timestamp":"2025-05-18T16:34:38.397Z","message":"Configuration loaded","config":{}}
-No command argument supplied.
-
-Usage:
-  --help                     Show this help message and usage instructions.
-  --digest                   Run a full bucket replay simulating an SQS event.
-  --version                  Show version information with current timestamp.
-MAIN_OUTPUT_END    
-
-Agent configuration file:
+Agent configuration file (for context, read only):
 AGENT_CONFIG_FILE_START
 # Which agentic-lib workflow schedule should be used?
 schedule: schedule-3
@@ -1241,23 +744,167 @@ intentionBot:
 
 AGENT_CONFIG_FILE_END
 
-Please produce updated versions of the files that resolve the possible build or test problem.
-If there are no changes required, please provide the original content and state that no changes are necessary in the message.
+Issue details:
+ISSUE_START
+title: Add CLI "--mission" Flag to Display Mission Statement
+description:
+### Objective
+Add a new CLI option `--mission` that prints out the repository's mission statement (from `MISSION.md`) and exits immediately. This will ensure users can quickly view the library’s guiding principles and confirm alignment with its purpose.
+
+### Changes Required
+1. **src/lib/main.js**
+   - Introduce a new helper `processMission(args)` before other flags.
+     - Detect the presence of `--mission` in the `args` array.
+     - Read `MISSION.md` from the project root.
+     - Print its raw Markdown content to stdout.
+     - Return `true` to signal the flag was handled.
+   - Integrate `processMission` into the `main()` flow, similar to `processHelp` and `processVersion`, ensuring it takes precedence over other commands.
+
+2. **tests/unit/main.test.js**
+   - Add a test suite for the new `--mission` flag.
+     - Mock `fs/promises.readFile` to return a sample Markdown string.
+     - Spy on `console.log` to capture output.
+     - Invoke `main(["--mission"])` and assert:
+       - `console.log` was called with the Markdown content.
+       - The function returns early and does not process other flags.
+
+3. **sandbox/README.md** (since sandbox mode is in use)
+   - Update the Usage section to document the new `--mission` flag:
+     ```
+     --mission                  Show the project mission statement.
+     ```
+
+4. **package.json**
+   - No new dependencies required (uses built-in `fs/promises`).
+
+### Verification
+- Run `npm test` and confirm the new test(s) pass alongside existing ones.
+- Execute `node src/lib/main.js --mission` and verify the mission markdown is printed verbatim.
+- Ensure no regressions for `--help`, `--version`, or `--digest` flags.
+
+This enhancement delivers immediate visibility into the library’s mission, reinforcing user understanding and aligning future feature development with core objectives.
+comments:
+Author:github-actions[bot], Created:2025-05-18T18:22:18Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15098766830
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/b728ba7208593702782cee52126133f06c92874c
+Author:github-actions[bot], Created:2025-05-18T18:22:52Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15098766830
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/b728ba7208593702782cee52126133f06c92874c
+Author:github-actions[bot], Created:2025-05-18T18:23:33Z, Comment: Workflow name: transformation-05-issue-to-ready-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15098793441
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/b728ba7208593702782cee52126133f06c92874c
+Author:github-actions[bot], Created:2025-05-18T18:23:57Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15098766830
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/b728ba7208593702782cee52126133f06c92874c
+Author:github-actions[bot], Created:2025-05-18T18:24:44Z, Comment: This request is a documentation convenience rather than a core functional enhancement; printing the mission statement at runtime does not deliver substantial user value in the context of agentic-lib’s primary purpose.
+ISSUE_END            
+
+Dependencies list from command: npm list
+DEPENDENCIES_LIST_START
+@xn-intenton-z2a/agentic-lib@6.7.1-0 /home/runner/work/agentic-lib/agentic-lib
+├── @aws-sdk/client-lambda@3.812.0
+├── @microsoft/eslint-formatter-sarif@3.1.0
+├── @vitest/coverage-v8@3.1.3
+├── @xn-intenton-z2a/s3-sqs-bridge@0.24.0
+├── aws-cdk@2.1016.0
+├── chalk@5.4.1
+├── change-case@5.4.4
+├── dayjs@1.11.13
+├── dotenv@16.5.0
+├── ejs@3.1.10
+├── eslint-config-google@0.14.0
+├── eslint-config-prettier@8.10.0
+├── eslint-plugin-import@2.31.0
+├── eslint-plugin-prettier@5.4.0
+├── eslint-plugin-promise@7.2.1
+├── eslint-plugin-react@7.37.5
+├── eslint-plugin-security@3.0.1
+├── eslint-plugin-sonarjs@3.0.2
+├── eslint@9.27.0
+├── figlet@1.8.1
+├── js-yaml@4.1.0
+├── lodash@4.17.21
+├── markdown-it-github@0.5.0
+├── markdown-it@14.1.0
+├── minimatch@10.0.1
+├── npm-check-updates@18.0.1
+├── openai@4.100.0
+├── prettier@3.5.3
+├── seedrandom@3.0.5
+├── vitest@3.1.3
+└── zod@3.24.4
+DEPENDENCIES_LIST_END    
+
+Build output from command: npm run build
+BUILD_OUTPUT_START
+
+> @xn-intenton-z2a/agentic-lib@6.7.1-0 build
+> echo "Nothing to build"
+
+Nothing to build
+BUILD_OUTPUT_END      
+
+Test output from command: npm test
+TEST_OUTPUT_START
+
+> @xn-intenton-z2a/agentic-lib@6.7.1-0 test
+> vitest tests/unit/*.test.js sandbox/tests/*.test.js
+
+
+[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/agentic-lib/agentic-lib[39m
+
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+[90mstdout[2m | tests/unit/main.test.js
+[22m[39m{"level":"info","timestamp":"2025-05-18T18:25:15.913Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
+
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 52[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 18:25:15
+[2m   Duration [22m 285ms[2m (transform 68ms, setup 0ms, collect 51ms, tests 54ms, environment 0ms, prepare 137ms)[22m
+TEST_OUTPUT_END            
+
+Main execution output from command: npm run start
+MAIN_OUTPUT_START
+
+> @xn-intenton-z2a/agentic-lib@6.7.1-0 start
+> node src/lib/main.js
+
+{"level":"info","timestamp":"2025-05-18T18:25:16.115Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+MAIN_OUTPUT_END    
+
+Please produce updated versions of the files that resolve the issue.
 Note that the README.md file is provided for context only - any documentation changes should be written to the documentation files.
 The source files, test files, and documentation files can be individual files or directories containing multiple files.
+Never truncate the files, when returning a file, always return the entire file content.
 
-Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;sandbox/docs/;sandbox/README.md}
+Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;sandbox/docs/;sandbox/README.md
 
 Answer strictly with a JSON object following this schema:
 {
   "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text.",
   "updatedFile01Filepath": "sandbox/source/orderParser.js",
   "updatedFile01Contents": "The entire new content of the source file, with all necessary changes applied, if any.",
-  "updatedFile02Filepath": "sandbox/tests/orderParser.test.js",
+  "updatedFile02Filepath":  "sandbox/tests/orderParser.test.js",
   "updatedFile02Contents": "The entire new content of the test file, with all necessary changes applied, if any.",
-  "updatedFile03Filepath": "sandbox/docs/docs/USAGE.md",
+  "updatedFile03Filepath": "sandbox/docs/USAGE.md",
   "updatedFile03Contents": "The entire new content of the documentation file, with all necessary changes applied, if any.",
-  "updatedFile04Filepath": "sandbox/docs/docs/A_FILE_WE_DONT_WANT.md",
+  "updatedFile04Filepath": "sandbox/docs/A_FILE_WE_DONT_WANT.md",
   "updatedFile04Contents": "delete",
   "updatedFile05Filepath": "unused",
   "updatedFile05Contents": "unused",
