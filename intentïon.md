@@ -58,3 +58,5 @@ Errors: APIError subclasses with request_id,status,name,headers; map 400-429-5xx
 
 2025-05-18T06:58:11.145Z - Maintained feature AGENTIC_CORE.
 
+2025-05-18T07:30:14.641Z - Maintained feature AGENTIC_CORE.
+
