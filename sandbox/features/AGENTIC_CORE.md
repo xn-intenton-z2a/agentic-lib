@@ -1,57 +1,60 @@
-# HTTP Server Feature
+# HTTP Server with GitHub Integration
 
-The HTTP server in agentic-lib will be extended to provide GitHub integration endpoints for issue summarization, branch creation, and pull request creation, alongside existing observability endpoints. This feature aligns with our mission to enable autonomous workflows by exposing core GitHub operations over HTTP.
+## Mission Alignment
 
-# Endpoints
+This feature extends the existing HTTP server to expose core GitHub operations alongside observability endpoints, enabling autonomous workflows to interact with GitHub issues, branches, and pull requests programmatically.
+
+## Endpoints
 
 - GET /health  
-  Returns JSON with status, uptime, and timestamp.
+  Returns JSON with status, uptime, and timestamp for liveness checks.
 
 - GET /metrics  
-  Returns Prometheus-formatted metrics including http_requests_total, http_request_failures_total, agentic_sqs_processed_total, agentic_sqs_failures_total, github_issue_summaries_total, github_branches_created_total, and github_pulls_created_total. Protected by Basic Auth when METRICS_USER and METRICS_PASS are set.
+  Protected by Basic Auth if METRICS_USER and METRICS_PASS are set. Returns Prometheus-formatted metrics including http_requests_total, http_request_failures_total, github_issue_summaries_total, github_branches_created_total, and github_pulls_created_total.
 
 - GET /openapi.json  
-  Returns the OpenAPI 3.0 schema covering all endpoints.
+  Returns updated OpenAPI 3.0 schema reflecting all endpoints.
 
 - GET /docs  
-  Renders interactive HTML documentation generated from the OpenAPI schema. Protected by Basic Auth when DOCS_USER and DOCS_PASS are set.
+  Protected by Basic Auth if DOCS_USER and DOCS_PASS are set. Renders interactive HTML documentation from the OpenAPI schema.
 
 - POST /issues/summarize  
   Request JSON: { owner: string, repo: string, issueNumbers: number[] }  
-  Response JSON: { summaries: { issueNumber: number, summary: string }[] }  
-  Fetches issue data via GitHub API, calls OpenAI to generate summaries, and returns structured results. Validates inputs with Zod, enforces rate limiting and CORS.
+  Validates input with Zod. Fetches issue data via GitHub REST API. Calls OpenAI chat to generate concise summaries. Returns { summaries: { issueNumber: number, summary: string }[] }.
 
 - POST /branches  
   Request JSON: { owner: string, repo: string, branchName: string, baseRef?: string }  
-  Response JSON: { owner: string, repo: string, branch: string }  
-  Creates a new branch via GitHub REST API. Validates GITHUB_API_TOKEN, rate limiting, CORS.
+  Validates input. Creates a new branch via GitHub REST API. Returns { owner: string, repo: string, branch: string }.
 
 - POST /pulls  
   Request JSON: { owner: string, repo: string, head: string, base: string, title: string, body: string }  
-  Response JSON: { url: string, number: number }  
-  Opens a pull request via GitHub REST API. Validates GITHUB_API_TOKEN, rate limiting, CORS.
+  Validates input. Opens a pull request via GitHub REST API. Returns { url: string, number: number }.
 
-# Validation & Security
+## Validation & Security
 
-- Use Zod schemas to validate all request bodies and parameters.
-- Enforce CORS_ALLOWED_ORIGINS header on all responses.
-- Implement IP-based token bucket rate limiter per RATE_LIMIT_REQUESTS.
-- Protect /metrics and /docs endpoints with Basic Auth when credentials are configured.
+1. All request bodies are validated with Zod schemas.  
+2. Enforce Access-Control-Allow-Origin header using CORS_ALLOWED_ORIGINS.  
+3. IP-based token bucket rate limiter per RATE_LIMIT_REQUESTS.  
+4. Protect /metrics and /docs with Basic Auth when credentials are configured.
 
-# Metrics & Instrumentation
+## Metrics & Instrumentation
 
-- Use recordRequest(method, route, status) and recordFailure(route) for all endpoints.
-- Introduce new counters: github_issue_summaries_total, github_branches_created_total, github_pulls_created_total.
-- Expose all counters in the /metrics output.
+- Use recordRequest and recordFailure utilities for all routes.  
+- Introduce counters: github_issue_summaries_total, github_branches_created_total, github_pulls_created_total.  
+- Expose all counters in the /metrics response.
 
-# Testing & Success Criteria
+## Testing & Success Criteria
 
-- Add sandbox/tests/server.test.js cases for POST /issues/summarize, /branches, and /pulls covering: successful responses, validation errors, authentication failures, and rate limiting behavior.
-- Ensure existing tests for /health and /metrics continue to pass.
-- Verify metrics counters increment as expected for each endpoint.
+- Add tests in sandbox/tests/server.test.js for POST /issues/summarize, POST /branches, and POST /pulls covering:  
+  • Successful responses with valid inputs.  
+  • Validation errors for missing or invalid fields.  
+  • Authentication failures on protected endpoints.  
+  • Rate limiting behavior returning 429 status.  
+- Verify existing tests for GET /health and GET /metrics continue to pass.  
+- Confirm metrics counters increment correctly for each endpoint.
 
-# Documentation & README Updates
+## Documentation & README Updates
 
-- Update sandbox/docs/SERVER.md to document the new GitHub integration endpoints and new metrics counters.
+- Update sandbox/docs/SERVER.md to document the new GitHub integration endpoints and new metrics counters.  
+- Refresh OpenAPI schema in code to include new routes and ensure /openapi.json and /docs reflect updates.  
 - Amend sandbox/README.md Key Features section to list HTTP endpoints for issue summarization, branch creation, and pull request creation.
-- Refresh OpenAPI schema to include new endpoints and ensure /openapi.json and /docs reflect updates.
