@@ -1,49 +1,52 @@
 # Value Proposition
 
-- Enable dynamic control of log verbosity and runtime metrics in agentic workflows directly from the CLI.
-- Provide developers and CI pipelines with fine-grained debug output and execution telemetry without manual code changes.
-- Introduce a CLI command to publish JSON digests to an SQS queue for testing and integration workflows.
+- Extend CLI to simulate AWS S3 PutObject events for local testing of S3-triggered lambdas.
+- Enable developers to specify bucket and object key to generate realistic S3 event records.
 
 # Success Criteria & Requirements
 
+## CLI Flag Parsing
+
 - In sandbox/source/main.js:
-  - Parse `--agentic`, `--verbose`, `--stats`, and `--publish` flags from process.argv at startup.  
-  - Support an optional queue URL argument after `--publish`, falling back to environment variable `SQS_QUEUE_URL` if not provided.  
-  - Remove these flags before invoking processAgentic or publishToSQS.  
-  - Implement an async function publishToSQS(args) that:
-    - Reads JSON input from stdin or from a file path if provided as an argument.  
-    - Uses `@aws-sdk/client-sqs` SQSClient and SendMessageCommand to send the payload to the configured queue URL.  
-    - Logs the sent message ID via console.log in JSON format: { action: "publish", messageId }.  
+  - Parse `--s3-event` flag followed by bucketName and objectKey arguments.
+  - Fallback bucketName to environment variable `S3_BUCKET_NAME` if not provided.
+  - Remove flag and its arguments before invoking processS3Event.
+
+## S3 Event Creator and Handler
+
 - In src/lib/main.js:
-  - Expose support for reading `SQS_QUEUE_URL` from environment variables.  
-  - Export a helper function sendSqsMessage(queueUrl, payload) that returns the SQS message ID.  
-- CLI Usage Documentation:
-  - Update generateUsage() in both sandbox/source/main.js and src/lib/main.js to list `--publish [queueUrl]` option with description.  
-  - Update sandbox/README.md to show usage examples for the `--publish` flag.
+  - Export function `createS3PutObjectEvent(bucketName, objectKey)` returning an event object with Records array containing an AWS S3 PutObject notification record:
+    - eventVersion: "2.1"
+    - eventSource: "aws:s3"
+    - s3.bucket.name: bucketName
+    - s3.object.key: objectKey
+  - Export async function `s3LambdaHandler(s3Event)` that logs receipt of the event and details via logInfo.
+
+## CLI Implementation
+
+- In sandbox/source/main.js:
+  - Implement `processS3Event(args)` to detect the `--s3-event` flag, construct the event via createS3PutObjectEvent, and invoke s3LambdaHandler.
+  - Integrate `processS3Event` into main execution flow before default help.
+  - Log outputs consistent with existing logInfo format.
+
+## Documentation
+
+- Update `generateUsage()` in both sandbox/source/main.js and sandbox/README.md to list `--s3-event [bucketName] [objectKey]` option with description.
+- Add usage examples in sandbox/README.md for the S3 event simulation.
 
 # User Scenarios & Examples
 
-## Agentic Workflow with Verbose Debugging
+## Simulate S3 PutObject Event
 
-$ cat event.json | node sandbox/source/main.js --agentic --verbose
-Expect detailed AI planning traces with verbose:true in each logged JSON line.
-
-## Agentic Workflow with Runtime Metrics
-
-$ node sandbox/source/main.js --agentic --stats < event.json
-Expect a final JSON line summarizing callCount and uptime after execution.
-
-## Publish JSON Digest to SQS Queue
-
-$ cat digest.json | node sandbox/source/main.js --publish https://sqs.us-east-1.amazonaws.com/123456789012/my-queue
-Expect a JSON line { action: "publish", messageId: "<ID>" } on successful send.
+```
+node sandbox/source/main.js --s3-event my-bucket path/to/object.json
+```
+Expect log entries indicating the S3 event received with bucket: my-bucket and object key: path/to/object.json.
 
 # Verification & Acceptance
 
-- Add sandbox/tests/sqs.publish.test.js:
-  - Mock `@aws-sdk/client-sqs` SQSClient and SendMessageCommand.  
-  - Provide a sample JSON payload via stdin and optional queue URL argument.  
-  - Assert that SQSClient is called with the correct queueUrl and message body.  
-  - Assert console.log outputs a JSON object containing the sent messageId.  
-- Ensure existing tests for `--mission`, `--help`, `--version`, `--digest`, and agentic flags continue to pass.  
-- Confirm generateUsage includes the new `--publish` option in help output.
+- Add sandbox/tests/s3.event.test.js:
+  - Mock `createS3PutObjectEvent` and `s3LambdaHandler`.
+  - Verify that passing bucketName and objectKey to `--s3-event` invokes handler with correct event structure.
+  - Assert console.log outputs with expected logInfo JSON entries.
+- Confirm existing CLI and lambda tests continue to pass.
