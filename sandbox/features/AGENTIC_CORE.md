@@ -1,73 +1,61 @@
 # Overview
-This feature delivers the essential building blocks for autonomous, agentic workflows in Node.js projects. It unifies environment configuration, structured logging, AWS SQS utilities, Lambda event handling, CLI interfaces, HTTP server endpoints, GitHub API integrations, and OpenAI completions into a cohesive module. Each component is designed for reliability, testability, and seamless integration.
+
+Enhance the core agentic-lib feature to fully realize GitHub workflow integration alongside existing SQS, Lambda, CLI, and HTTP server capabilities. This update ensures end-to-end support for autonomous issue and pull request operations via both CLI flags and REST endpoints, aligned with our mission to enable continuous, agentic interactions.
 
 # CLI Interface
-Extend the main(args) function in src/lib/main.js to support these flags in addition to --help, --version, and --digest:
-• --send-queue <queueUrl> <json-body>           : send a JSON payload to an AWS SQS queue
-• --receive-queue <queueUrl> [max]               : fetch messages from an AWS SQS queue
-• --purge-queue <queueUrl>                       : purge all messages from an AWS SQS queue
-• --dead-letter <sourceUrl> <dlqArn> <maxCount>   : configure Dead Letter Queue policy
-• --github-create-issue <owner> <repo> <title> [body]      : create a new GitHub issue
-• --github-list-issues <owner> <repo> [state]             : list issues for a repository
-• --github-create-branch <owner> <repo> <branchName> <fromSha>  : create a new branch from a given commit SHA
-• --github-commit-file <owner> <repo> <branch> <path> <content> <message> : commit or update a file on a branch
-• --github-create-pull-request <owner> <repo> <head> <base> <title> [body] : open a pull request
-• --github-list-pull-requests <owner> <repo> [state]        : list pull requests for a repository
-• --github-merge-pull-request <owner> <repo> <prNumber> [method] : merge a pull request using merge, squash, or rebase
-• --chat <prompt> [model] [maxTokens]              : send a prompt to OpenAI and output the completion response
 
-Preserve early-exit behavior for help, version, and digest flags. Log each operation and handle errors with descriptive messages.
+Extend src/lib/main.js to support new flags in addition to --help, --version, and --digest:
+• --github-list-pull-requests <owner> <repo> [state]
+  List pull requests for a repository, formatted as JSON lines. Exit code 0 on success, non-zero on error.
+
+• --github-merge-pull-request <owner> <repo> <prNumber> [method]
+  Merge a pull request by number using merge, squash, or rebase. Output merge commit details. Exit code 0 on success, non-zero on error.
+
+Preserve early-exit behavior for help, version, and digest flags. Log operations, handle errors with descriptive messages, and increment globalThis.callCount for each action when VERBOSE_STATS is enabled.
 
 # HTTP Server Endpoints
-Extend sandbox/source/server.js to expose new REST routes in addition to /health, /metrics, /openapi.json, and /docs:
-• POST /queue/send           accepts JSON { queueUrl, body, delaySeconds } and returns { MessageId }
-• GET  /queue/receive        accepts query params queueUrl, maxMessages, waitTimeSeconds and returns messages array
-• DELETE /queue/purge        accepts query param queueUrl and returns purge result
-• PUT  /queue/dead-letter    accepts JSON { sourceQueueUrl, deadLetterQueueArn, maxReceiveCount } and returns updated policy
 
-• POST /github/issues        accepts JSON { owner, repo, title, body } and returns issue details
-• GET  /github/issues        accepts query params owner, repo, state and returns list of issues
-• POST /github/branches      accepts JSON { owner, repo, branchName, fromSha } and returns branch info
-• POST /github/commit        accepts JSON { owner, repo, branch, path, content, message } and returns commit result
-• POST /github/pull-request  accepts JSON { owner, repo, head, base, title, body } and returns pull request details
-• GET  /github/pull-requests accepts query params owner, repo, state and returns list of pull requests
-• POST /github/merge-pull-request accepts JSON { owner, repo, prNumber, method } and returns merge commit details
+Extend sandbox/source/server.js to expose new REST routes alongside /health, /metrics, /openapi.json, and /docs:
 
-• POST /openai/completions   accepts JSON { prompt, model, maxTokens } and returns the AI completion response
+• GET  /github/pull-requests    Query params: owner, repo, state. Returns JSON array of pull request objects.
 
-Protect queue, GitHub, and OpenAI routes with Basic Auth if configured via environment variables. Record HTTP request and failure metrics per route and enforce rate limiting per IP.
+• POST /github/merge-pull-request  JSON body: { owner, repo, prNumber, method }. Returns merge commit details.
+
+Protect these routes with Basic Auth if GITHUB_USER/GITHUB_PASS environment variables are set. Validate request schema with Zod, record HTTP request and failure metrics, and enforce IP rate limiting.
 
 # GitHub API Utilities
-Export reusable functions in src/lib/main.js for interacting with GitHub using global fetch:
-• createIssue(owner: string, repo: string, title: string, body?: string): Promise<object>
-• listIssues(owner: string, repo: string, state?: string): Promise<Array<object>>
-• createBranch(owner: string, repo: string, branchName: string, fromSha: string): Promise<object>
-• commitFile(owner: string, repo: string, branch: string, path: string, content: string, message: string): Promise<object>
-• createPullRequest(owner: string, repo: string, head: string, base: string, title: string, body?: string): Promise<object>
+
+Export reusable functions in src/lib/main.js:
+
 • listPullRequests(owner: string, repo: string, state?: string): Promise<Array<object>>
-• mergePullRequest(owner: string, repo: string, pullNumber: number, method?: "merge" | "squash" | "rebase"): Promise<object>
+• mergePullRequest(owner: string, repo: string, prNumber: number, method?: "merge" | "squash" | "rebase"): Promise<object>
 
-Log each request and response, implement retry logic for rate limits, and surface descriptive errors.
-
-# OpenAI API Utilities
-Export a function in src/lib/main.js for interacting with OpenAI using the openai package:
-• createChatCompletion(prompt: string, options?: { model?: string, maxTokens?: number }): Promise<object>
-
-Log requests and responses, implement retry on rate limits, and report descriptive errors for failures.
+Implement each with fetch to GITHUB_API_BASE_URL, include retry logic on rate limits, structured logging, and descriptive error handling.
 
 # Success Criteria & Testing
-• All existing Vitest tests continue passing without modification.
-• Add unit tests mocking the GitHub API client to simulate list and merge pull requests success and failure.
-• Add unit tests for new CLI --github-list-pull-requests and --github-merge-pull-request flags, verifying console output, exit codes, and error handling.
-• Add sandbox tests for the GET /github/pull-requests and POST /github/merge-pull-request HTTP routes, verifying status codes, request validation, authentication, and rate limiting.
+
+• All existing tests continue passing without modification.
+
+• Add unit tests mocking fetch for listPullRequests and mergePullRequest to simulate success and failure.
+
+• Add unit tests for new CLI flags, verifying console output, exit codes, and error conditions.
+
+• Add sandbox tests for GET /github/pull-requests and POST /github/merge-pull-request, validating status codes, authentication, rate limiting, and response schema.
 
 # Documentation & README Updates
-• Update sandbox/README.md Key Features to include new pull request listing and merge CLI flags and HTTP endpoints.
-• Add usage examples for CLI list and merge pull request flags in sandbox/docs/SERVER.md.
-• Update openapi.json to describe the new /github/pull-requests and /github/merge-pull-request endpoints and their payload schemas.
-• Document listPullRequests and mergePullRequest utilities in docs/GITHUB_API.md with usage scenarios.
+
+• Update sandbox/README.md Key Features to list new GitHub pull request CLI flags and HTTP endpoints.
+
+• Add usage examples for the new CLI commands in sandbox/docs/SERVER.md under the "CLI Examples" section.
+
+• Update openapi.json to define /github/pull-requests and /github/merge-pull-request operations and schemas.
+
+• Document listPullRequests and mergePullRequest utilities in sandbox/docs/GITHUB_API.md with example JSON payloads and responses.
 
 # Dependencies & Constraints
-• Modify src/lib/main.js, sandbox/source/server.js, sandbox/tests/, sandbox/docs/, sandbox/README.md, and openapi.json only.
-• Use existing global fetch and no new dependencies required.
-• Maintain ESM compatibility and existing coding style conventions.
+
+• Modify only src/lib/main.js, sandbox/source/server.js, sandbox/tests/, sandbox/docs/, sandbox/README.md, and openapi.json.
+
+• Use global fetch and no additional dependencies.
+
+• Maintain ESM compatibility, existing coding style, and mission alignment.
