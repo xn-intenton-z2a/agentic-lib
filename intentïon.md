@@ -54,3 +54,5 @@
 
 2025-05-18T14:47:55.870Z - Generated feature development issue with title Add CLI flag `--mission` to output project mission statement.
 
+2025-05-18T14:58:25.671Z - Maintained feature AGENTIC_CORE.
+
