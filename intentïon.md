@@ -52,3 +52,5 @@ Errors: APIError subclasses with request_id,status,name,headers; map 400-429-5xx
 
 2025-05-18T06:38:57.744Z - Enhanced issue 1474.
 
+2025-05-18T06:43:39.102Z - Reviewed in-progress issue 1473.
+
