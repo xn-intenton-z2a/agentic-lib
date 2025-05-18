@@ -24,3 +24,5 @@
 
 2025-05-18T16:47:21.113Z - Worked to resolve issue Export generateUsage and add CLI and SQS handler tests. Export generateUsage and add CLI and SQS handler tests.
 
+2025-05-18T16:49:57.379Z - Generated feature development issue with title Add --mission CLI flag and GET /mission HTTP endpoint to expose repository mission statement.
+
