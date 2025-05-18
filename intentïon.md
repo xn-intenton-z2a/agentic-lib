@@ -96,3 +96,15 @@ LLM API Usage:
 
 ---
 
+## Activity at 2025-05-18T18:29:09.366Z
+
+Digested POST /v1/chat/completions header Authorization:Bearer{$KEY} model:string messages:[{role,user,assistant},content,name?] optional parameters:temperature=1.0 top_p=1.0 n=1 stream=false stop=max_tokens unlimited presence_penalty=0 frequency_penalty=0 logit_bias map user:string. Response: {id,object="chat.completion",created,model,usage:{prompt_tokens,completion_tokens,total_tokens},choices:[{index,message:{role,content,name?},finish_reason}]}. Node.js SDK: openai.chat.completions.create(params)->Promise<ChatCompletion>. Code: import OpenAI; new OpenAI({apiKey}).create({model,messages,...}). Streaming with stream:true yields async iterable. Best practices: temperature=0 for determinism, use stop, batch messages. Retry on 429 with exponential backoff. Configure timeout and baseURL via constructor..
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":2378,"completion_tokens":2805,"total_tokens":5183,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
