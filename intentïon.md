@@ -8,3 +8,5 @@
 
 2025-05-18T15:31:00.135Z - Maintained feature VERBOSE_LOGGING.
 
+2025-05-18T15:31:47.349Z - Generated feature development issue with title Implement VERBOSE_LOGGING: support --verbose and --verbose-stats CLI flags.
+
