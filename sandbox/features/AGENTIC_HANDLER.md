@@ -2,28 +2,24 @@
 
 - Enable dynamic control of log verbosity and runtime metrics in agentic workflows directly from the CLI.
 - Provide developers and CI pipelines with fine-grained debug output and execution telemetry without manual code changes.
+- Introduce a CLI command to publish JSON digests to an SQS queue for testing and integration workflows.
 
 # Success Criteria & Requirements
 
 - In sandbox/source/main.js:
-  - Parse `--agentic`, `--verbose`, and `--stats` flags from process.argv at startup.
-  - Define constants VERBOSE_MODE and VERBOSE_STATS based on presence of `--verbose` and `--stats` flags.
-  - Remove these flags and the `--agentic` flag before invoking processAgentic.
-  - Implement an async function processAgentic(args) that:
-    - Reads JSON input from stdin for a workflow_call event if no args are passed.
-    - Calls agenticLambdaHandler from src/lib/main.js with parsed args.
-    - Writes each log entry via logInfo and logs a summary or metrics depending on VERBOSE_STATS.
-
+  - Parse `--agentic`, `--verbose`, `--stats`, and `--publish` flags from process.argv at startup.  
+  - Support an optional queue URL argument after `--publish`, falling back to environment variable `SQS_QUEUE_URL` if not provided.  
+  - Remove these flags before invoking processAgentic or publishToSQS.  
+  - Implement an async function publishToSQS(args) that:
+    - Reads JSON input from stdin or from a file path if provided as an argument.  
+    - Uses `@aws-sdk/client-sqs` SQSClient and SendMessageCommand to send the payload to the configured queue URL.  
+    - Logs the sent message ID via console.log in JSON format: { action: "publish", messageId }.  
 - In src/lib/main.js:
-  - Expose setters or environment variable reads for VERBOSE_MODE and VERBOSE_STATS.
-  - In agenticLambdaHandler:
-    - When VERBOSE_MODE is true, include detailed context (task names, parameters) in each log entry.
-    - Always increment globalThis.callCount for each AI call.
-    - Return a summary object containing completed task count and any errors.
-
+  - Expose support for reading `SQS_QUEUE_URL` from environment variables.  
+  - Export a helper function sendSqsMessage(queueUrl, payload) that returns the SQS message ID.  
 - CLI Usage Documentation:
-  - Update generateUsage() in both sandbox/source/main.js and src/lib/main.js to list `--agentic`, `--verbose`, and `--stats` options with descriptions.
-  - Update sandbox/README.md to show usage examples combining the new flags.
+  - Update generateUsage() in both sandbox/source/main.js and src/lib/main.js to list `--publish [queueUrl]` option with description.  
+  - Update sandbox/README.md to show usage examples for the `--publish` flag.
 
 # User Scenarios & Examples
 
@@ -37,17 +33,17 @@ Expect detailed AI planning traces with verbose:true in each logged JSON line.
 $ node sandbox/source/main.js --agentic --stats < event.json
 Expect a final JSON line summarizing callCount and uptime after execution.
 
-## Combined Debug and Metrics
+## Publish JSON Digest to SQS Queue
 
-$ echo '{"body":{"event":"workflow_call"}}' | node sandbox/source/main.js --agentic --verbose --stats
-Expect interleaved verbose logs and a concluding telemetry object.
+$ cat digest.json | node sandbox/source/main.js --publish https://sqs.us-east-1.amazonaws.com/123456789012/my-queue
+Expect a JSON line { action: "publish", messageId: "<ID>" } on successful send.
 
 # Verification & Acceptance
 
-- Add sandbox/tests/agentic.flags.test.js:
-  - Mock process.argv with `--agentic`, `--verbose`, and `--stats` flags.
-  - Stub OpenAI API responses and globalThis.callCount.
-  - Assert logInfo outputs include verbose:true when VERBOSE_MODE.
-  - Assert console.log outputs metrics JSON when VERBOSE_STATS is true.
-- Ensure existing tests for `--mission`, `--help`, `--version`, and `--digest` continue to pass.
-- Confirm generateUsage includes the new flags in help output.
+- Add sandbox/tests/sqs.publish.test.js:
+  - Mock `@aws-sdk/client-sqs` SQSClient and SendMessageCommand.  
+  - Provide a sample JSON payload via stdin and optional queue URL argument.  
+  - Assert that SQSClient is called with the correct queueUrl and message body.  
+  - Assert console.log outputs a JSON object containing the sent messageId.  
+- Ensure existing tests for `--mission`, `--help`, `--version`, `--digest`, and agentic flags continue to pass.  
+- Confirm generateUsage includes the new `--publish` option in help output.
