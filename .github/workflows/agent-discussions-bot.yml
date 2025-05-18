@@ -175,18 +175,18 @@ jobs:
                     // Filter to lines matching ^*https://.*/discussions/*$ and extract the last matching line.
                     const discussionsUrlLines = lines.filter(line => line.match(/^\s*https:\/\/.*\/discussions\/.*$/));
                     if (discussionsUrlLines.length === 0) {
-                      core.setFailed(`No matching GitHub Discussions URL found in intentïon.md at ${intentionFilepath}: \n${intentionFileContent}\n`);
+                      core.setFailed(`No matching GitHub Discussions URL found in intentïon.md at ${intentionFilepath}`);
                       return;
                     } else {
                       const lastUrlLine = discussionsUrlLines[discussionsUrlLines.length - 1];
-              
+
                       // Extract URL by ignoring anything before the first https:// and up to the first non-url character.
                       const urlMatch = lastUrlLine.match(/https:\/\/[^ ]+/);
                       if (urlMatch) {
                         url = urlMatch[0];
                         core.info(`Using URL from intentïon.md at ${intentionFilepath}: ${url}`);
                       } else {
-                        core.setFailed(`No matching GitHub Discussions URL found in selected line "${lastUrlLine}" in intentïon.md at ${intentionFilepath}: \n${intentionFileContent}\n`);
+                        core.setFailed(`No matching GitHub Discussions URL found in selected line "${lastUrlLine}" in intentïon.md at ${intentionFilepath}`);
                         return;
                       }
                     }
@@ -296,8 +296,8 @@ jobs:
             const detail = process.env.detail;
             const reply = process.env.reply;
             const url = process.env.url;
-            let body = `${process.env.reply}\n\n[action: "${action}" with detail: "${detail}"]`;
-            
+            let body = `${reply}\n\n[action: "${action}" with detail: "${detail}"]`;
+
             // Determine discussion number and ID
             let discussionNumber;
             let discussionId;
@@ -442,7 +442,7 @@ jobs:
             const url = process.env.url;
             const usage = process.env.usage;
             const intentionFilepath = process.env.intentionFilepath;
-            
+
             const activity = `${reply}\n\n[Posted on "${url}" by the repository bot which took the action "${action}" with the detail "${detail}".]`;
 
             core.info(`Activity: ${activity}`);
@@ -458,13 +458,12 @@ jobs:
             const isoDate = new Date().toISOString();
             const activityLogContent = `## Activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\`\`\`\n\n---\n\n`;
             if (action == 'seed-repository') {
-              fs.writeFileSync(intentionFilepath, `${missionFileContent}\n\n# Activity Log\n\n${activityLogContent}`);
+              fs.writeFileSync(intentionFilepath, `# Activity Log\n\n${activityLogContent}`);
             } else if (fs.existsSync(intentionFilepath) && action != 'seed-repository') {
               fs.appendFileSync(intentionFilepath, activityLogContent);
             } else {
               fs.writeFileSync(intentionFilepath, activityLogContent);
             }
-            fs.writeFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 
       - name: Commit changes
