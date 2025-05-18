@@ -10,3 +10,5 @@
 
 2025-05-18T12:38:42.139Z - Maintained feature AGENTIC_CORE.
 
+2025-05-18T12:50:32.813Z - Reviewed in-progress issue 1473.
+
