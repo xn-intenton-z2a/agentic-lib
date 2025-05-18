@@ -1,39 +1,41 @@
-# GitHub REST API
+# GitHub API (REST v3 and Octokit)
 ## https://docs.github.com/en/rest
-The GitHub REST API v3 documentation provides comprehensive, versioned endpoint specs including authentication flows, pagination standards, rate limiting details, and error codes. It covers core resources such as issues, branches, workflows (including `workflow_call` events), and repository actions, which directly inform implementation of agentic-lib’s GitHub integration. Last updated continuously; authoritative as the official GitHub source.
-## License: CC BY 4.0
+## https://github.com/octokit/rest.js#readme
+This combined reference covers the official GitHub REST API v3 endpoint specifications including authentication, pagination, rate limiting, and error codes, alongside the Octokit/rest.js JavaScript client. It provides actionable code examples for making raw HTTP calls or using a high-level client with pagination helpers, plugin architecture, and TypeScript typings—directly supporting agentic-lib’s GitHub integration. Documentation is continuously updated; the REST API is licensed under CC BY 4.0 by GitHub, and Octokit/rest.js is MIT licensed.
+## License: CC BY 4.0 (GitHub REST API), MIT (Octokit)
 
 # GitHub Actions Workflow Syntax
 ## https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
-This reference details the entire workflow syntax for GitHub Actions, including triggers, inputs/outputs, `workflow_call` composition, environment variables, and permissions. It is essential for defining and orchestrating automations in agentic-lib. Published March 2024; official GitHub documentation.
+The official GitHub Actions Workflow Syntax reference details triggers (`workflow_call`, `on.push`, etc.), inputs/outputs, environment variables, resource permissions, concurrency controls, and matrix strategies. It is vital for authoring and composing agentic workflows, ensuring robust, secure, and repeatable automation. Published March 2024; licensed under CC BY 4.0.
 ## License: CC BY 4.0
 
-# AWS Lambda SQS Event Source Mapping
+# AWS SQS Integration: Event Source Mapping & SDK Client
 ## https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html
-Official AWS guide on configuring SQS as an event source for Lambda, describing the JSON schema of `Records`, batching behavior, retry semantics, and dead-letter queue integration. Critical for designing the `digestLambdaHandler` function and handling `batchItemFailures`. Updated February 2024.
-## License: Apache 2.0
-
-# AWS SDK for JavaScript v3 – SQS Client
 ## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-sqs/
-Detailed API reference for the AWS SDK v3 SQS client, covering commands like `SendMessageCommand` and `ReceiveMessageCommand`, middleware stacks, configuration options, and TypeScript typings. Provides practical code examples for instantiating clients in an ESM environment, matching agentic-lib’s dependency graph. Updated January 2024.
+This dual reference explains how to configure SQS as a Lambda event source, covering payload JSON schema, batch sizes, retry semantics, and dead-letter queues, while also detailing the AWS SDK v3 SQS Client (`SendMessageCommand`, `ReceiveMessageCommand`, middleware, and TypeScript support). Together these docs inform the design and implementation of `digestLambdaHandler` and message processing in agentic-lib. Updated February 2024 and January 2024.
 ## License: Apache 2.0
 
 # OpenAI Node.js SDK
 ## https://platform.openai.com/docs/api-reference/chat/create
-This section of the OpenAI docs focuses on the Node.js usage for Chat Completion endpoints, including request schema, streaming vs. non-streaming, error handling, rate limits, and API key management. It underpins the default OpenAI mock and production integration in agentic-lib. Last published April 2024; officially maintained by OpenAI.
+This OpenAI documentation covers the Chat Completion API via the Node.js client, including request and streaming schemas, response structures, rate limit handling, and API key management. It underpins agentic-lib’s default mock and production usage, with practical code snippets and error handling guidance. Last published April 2024; MIT licensed.
 ## License: MIT
 
 # Zod Type Validation for JavaScript and TypeScript
 ## https://github.com/colinhacks/zod
-Zod’s README and API spec illustrate defining schemas, parsing behavior, custom error messages, and TypeScript inference. Core to environment validation (`configSchema`) and payload parsing within agentic-lib. Version 3.x released December 2023; MIT licensed.
-## License: MIT
-
-# Octokit REST.js – GitHub API for JavaScript
-## https://github.com/octokit/rest.js#readme
-Octokit/rest.js documentation describes instantiating the client, authentication options (OAuth, tokens), endpoint methods, plugin architecture, and pagination helpers. Acts as a higher-level alternative to raw REST calls used in agentic-lib workflows. Last updated March 2024; community official client for GitHub.
+Zod’s repository and API docs explain schema definitions, parsing flows, custom error formatting, and TypeScript inference. Core to validating environment variables (`configSchema`) and SQS payloads within agentic-lib. Version 3.x released December 2023; MIT licensed.
 ## License: MIT
 
 # dotenv – Load Environment Variables from .env
 ## https://github.com/motdotla/dotenv
-Explains loading `.env` files, variable expansion, safe defaults, and TypeScript support. Essential for the early environment configuration and test mock scaffolding in `main.js`. Version 16.x published October 2023; BSD-2-Clause.
+This guide covers loading and expanding `.env` files, default values, error handling, and TypeScript usage. Essential for flexible environment configuration in both development and production contexts of agentic-lib. Version 16.x published October 2023; BSD-2-Clause licensed.
 ## License: BSD-2-Clause
+
+# s3-sqs-bridge – Bridging S3 and SQS Queues
+## https://github.com/xn-intenton-z2a/s3-sqs-bridge#readme
+The s3-sqs-bridge README describes a reusable library for wiring S3 event notifications into SQS queues, including configuration patterns, batching options, IAM permissions, and error handling strategies. Directly relevant for integrating S3-driven workflows in agentic-lib’s Lambda handlers. Version 0.24.0; MIT licensed.
+## License: MIT
+
+# AWS Lambda Function Handler in Node.js
+## https://docs.aws.amazon.com/lambda/latest/dg/nodejs-handler.html
+This AWS Lambda Node.js handler documentation defines function signatures (`exports.handler`), context object properties, callback conventions, and best practices for asynchronous operations and error propagation in Lambda functions. It informs naming the `handler` field and implementing robust invocation logic in agentic-lib. Updated January 2024; Apache 2.0.
+## License: Apache 2.0
