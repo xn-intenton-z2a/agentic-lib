@@ -1,33 +1,36 @@
 # Objective
-Extend the existing command-line interface to support a persistent HTTP server that exposes core handlers (digest, version, agent) over REST endpoints and include an observability endpoint for metrics.
+Extend the existing command-line interface to support a long-running HTTP server that exposes the core handlers over REST and provides built-in metrics for observability.
 
 # Value Proposition
-Running an HTTP server alongside the CLI unlocks lightweight local or containerized deployments, allows workflows or other systems to invoke library functions via HTTP, accelerates iterative development and testing by avoiding CLI flags, and provides built-in observability via a metrics endpoint that reports call counts and uptime.
+Running a local HTTP server alongside the CLI commands unlocks lightweight containerized deployments, simplifies integration in CI/CD pipelines, accelerates iterative development by avoiding process spawning, and offers real-time insights into usage via a metrics endpoint.
 
 # Requirements
-1. Add a new function processServe(args) that:
-   • Detects a --serve flag and an optional --port <number> argument (default port 3000).
-   • Imports Node http module and creates an HTTP server.
-   • Defines endpoints:
-     - GET /version: returns JSON with version and timestamp (reuse processVersion logic).
-     - POST /digest: accepts a JSON payload, calls digestLambdaHandler, and responds with JSON { batchItemFailures, handler }.
-     - POST /agent: accepts { prompt } in the body, invokes OpenAI chat completion (reuse processAgent logic), and sends parsed JSON response.
-     - GET /metrics: returns JSON with fields callCount and uptime (in seconds) reflecting the total HTTP requests served and process.uptime().
-   • Increments globalThis.callCount on each incoming request.
-   • Handles errors by returning HTTP 500 with JSON { error, message } using logError internally.
-   • Listens on the specified port and logs a startup INFO log entry.
-2. Extend main(args) to call processServe before existing CLI handlers and exit after server starts.
-3. Add automated tests in tests/unit/main.test.js to verify:
-   • processServe starts a server on default and custom ports.
-   • GET /version responds with the same output as the --version flag.
-   • POST /digest with a sample payload invokes digestLambdaHandler and returns expected structure.
-   • POST /agent with a sample prompt invokes the OpenAI API mock and returns parsed JSON.
-   • GET /metrics returns correct callCount and uptime values, and resets callCount when globalThis.callCount is reinitialized.
-   • Server returns HTTP 500 when handlers throw errors and logError is called.
-4. Update sandbox/README.md to document the --serve flag, optional --port argument, and REST endpoints with curl examples and sample responses for each endpoint including /metrics.
+1. Add a new function processServe(args) in sandbox/source/main.js that:
+   • Detects a --serve flag and optional --port <number> argument (default port 3000).
+   • Imports the Node http module to create an HTTP server instance.
+   • Defines the following endpoints:
+     - GET /version: mirrors the CLI --version output (json with version and timestamp).
+     - POST /digest: accepts a JSON payload, invokes digestLambdaHandler, and returns { batchItemFailures, handler }.
+     - POST /agent: accepts { prompt } in the JSON body, increments globalThis.callCount, invokes processAgent logic, and returns parsed JSON response or error details.
+     - GET /metrics: returns JSON { callCount, uptime } reflecting total HTTP requests served and process.uptime().
+   • Increments globalThis.callCount for each incoming HTTP request.
+   • Handles errors by responding with HTTP 500 and JSON { level: "error", message, error } using logError internally.
+   • Listens on the configured port and emits an INFO log on startup.
+2. Modify main(args) in sandbox/source/main.js to invoke processServe when --serve is detected and prevent existing CLI handlers from running in serve mode.
+3. Update sandbox/tests/main.test.js to cover:
+   • Server startup on default and custom ports.
+   • GET /version returns the same JSON as CLI --version.
+   • POST /digest with sample payload triggers digestLambdaHandler and returns expected structure.
+   • POST /agent returns parsed JSON on valid responses, logs errors on failures, and increments callCount.
+   • GET /metrics reports accurate callCount and uptime and resets callCount when reinitialized.
+   • HTTP 500 responses when handlers throw exceptions and verifying logError invocation.
+4. Update sandbox/README.md to document the new --serve flag, optional --port argument, all REST endpoints with curl examples, sample responses, and metrics usage.
 
-# Implementation
-Modify src/lib/main.js to implement processServe with the metrics endpoint, update tests/unit/main.test.js to cover metrics behavior, and update sandbox/README.md with usage and examples.
+# Dependencies & Constraints
+- Rely only on built-in Node http module, existing OpenAI and AWS handler logic in sandbox/source/main.js.
+- Tests must use vitest and existing mock patterns for OpenAI.
+- No changes outside sandbox/source, sandbox/tests, sandbox/README.md.
 
 # Verification & Acceptance
-CI passes all existing and new tests without failures. Manually start the server with node src/lib/main.js --serve --port 4000 and verify endpoints respond correctly, including metrics reflecting callCount and uptime.
+- All new and existing tests pass under npm test.
+- Manual validation: start server with node sandbox/source/main.js --serve --port 4000 and verify endpoints behave as specified, including metrics resets.
