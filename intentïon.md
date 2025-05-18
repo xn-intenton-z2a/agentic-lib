@@ -4,3 +4,5 @@
 
 2025-05-18T15:55:13.169Z - Enhanced issue 1488.
 
+2025-05-18T15:58:17.936Z - Maintained feature AGENTIC_CLI.
+
