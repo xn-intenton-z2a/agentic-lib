@@ -1,54 +1,53 @@
 # Overview
 
-Extend the core agentic-lib feature to support AI-driven GitHub issue summarization and commentary, building upon existing webhook ingestion, SQS, Lambda, CLI, and HTTP server capabilities. This addition enables users to fetch open issues from a repository, generate natural language summaries via OpenAI chat completions, and optionally post summaries as comments on GitHub issues, all through CLI flags or HTTP endpoints.
+Extend the core agentic-lib feature to support both AI-driven GitHub issue summarization and automated branch and pull request management. Building on existing webhook ingestion, SQS, Lambda, CLI, and HTTP server capabilities, this feature enables users to fetch open issues and generate concise summaries, create new branches from a base reference, and open pull requests through both CLI flags and HTTP endpoints.
 
 # CLI Interface
 
-Extend src/lib/main.js with two new flags alongside existing ones:
+Enhance src/lib/main.js with the following flags alongside existing ones:
 
-- --summarize-issues <owner/repo>  Fetch all open issues from the specified repository using GITHUB_API_BASE_URL and GITHUB_API_TOKEN, call summarizeIssues utility, and output the summary text as JSON to stdout. Exit code 0 on success, non-zero on error.
-- --post-comment <issueNumber>  When used together with --summarize-issues, post the generated summary as a comment to the specified issue number via GitHub REST API. Use GITHUB_API_TOKEN for authentication.
+-  --summarize-issues <owner/repo>  Fetch all open issues, generate a summary using OpenAI chat completions, and output JSON summary to stdout.
+-  --post-comment <issueNumber>  Post a generated summary to the specified issue when used with summarize-issues.
+-  --create-branch <owner/repo> <branchName> [baseRef]  Create a new branch named branchName from baseRef (default default branch) using the GitHub REST API.
+-  --create-pr <owner/repo> <branchName> --pr-title <title> --pr-body <body>  Open a pull request from branchName to the repository default branch, setting title and body as given.
 
-Maintain existing error logging, structured output, and call counting when VERBOSE_STATS is enabled.
+All commands should maintain structured logging, error handling, exit codes, and call counting when VERBOSE_STATS is enabled.
 
 # HTTP Server Endpoints
 
-Extend sandbox/source/server.js to expose a new route alongside existing endpoints:
+Extend sandbox/source/server.js to add two new routes alongside existing endpoints:
 
-- GET /issues/summary  Query parameters: repo=<owner/repo>, token=<GITHUB_API_TOKEN>. Workflow:
-  1. Reject if token or repo parameter missing or if token does not match GITHUB_API_TOKEN in environment; respond 401 Unauthorized.
-  2. Validate rate limit by IP; on exceed respond 429.
-  3. On valid request, record metric http_requests_total{method="GET",route="issues/summary",status="200"}.
-  4. Invoke summarizeIssues(owner, repo) utility to generate a summary.
-  5. Respond 200 with JSON { repo: "owner/repo", summary: <string> }.
+-  POST /branches
+   Accept JSON body with owner, repo, branchName, and optional baseRef. Validate authentication token matches GITHUB_API_TOKEN. Enforce rate limiting. On success, respond 201 with JSON { owner, repo, branch: branchName }.
+-  POST /pulls
+   Accept JSON body with owner, repo, head (branchName), base (default branch), title, and body. Validate authentication token. Enforce rate limiting. On success, respond 201 with JSON containing pull request URL and number.
 
-Ensure existing HTTP endpoints remain unchanged, including rate limiting, authentication, schema validation, and metrics.
+Ensure existing endpoints remain unchanged, including rate limiting, authentication, validation, and metrics.
 
-# GitHub Issue Summarization Utilities
+# GitHub Management Utilities
 
 Export new reusable functions in src/lib/main.js:
 
-- summarizeIssues(owner: string, repo: string): Promise<string>  Fetch open issues via REST API, construct a prompt listing issue titles and bodies, call OpenAIApi.createChatCompletion to generate a concise summary, and return the summary text.
-- postIssueComment(owner: string, repo: string, issueNumber: number, body: string): Promise<object>  Post a comment to the specified issue via GitHub REST API, using fetch and GITHUB_API_TOKEN, and return the API response object.
+-  createBranch(owner: string, repo: string, branchName: string, baseRef?: string): Promise<string>  Call GitHub REST API to create a branch reference ref heads/branchName from baseRef or default branch and return the branch name.
+-  createPullRequest(owner: string, repo: string, head: string, base: string, title: string, body: string): Promise<object>  Call GitHub REST API to open a pull request and return the API response object.
 
-Use structured logging via logInfo and logError, clear error messages on failure, and built-in crypto or fetch for HTTP calls.
+Retain existing functions summarizeIssues and postIssueComment. Use structured logging via logInfo and logError and fetch for HTTP calls.
 
 # Success Criteria & Testing
 
-- All existing tests must pass without modification.
-- Add unit tests for summarizeIssues mocking GitHub API and OpenAIApi behavior, verifying prompt construction and summary return.
-- Add unit tests for postIssueComment mocking fetch to GitHub, verifying correct payload and URL.
-- Add CLI tests for --summarize-issues and --summarize-issues with --post-comment, verifying output, exit codes, and error handling under invalid inputs.
-- Add sandbox tests for GET /issues/summary validating status codes for missing parameters, authentication failures, rate limiting, metrics recording, and successful summary response.
+-  All existing tests must pass without modification.
+-  Add unit tests for createBranch and createPullRequest mocking GitHub API, verifying correct URL, payload, and return value.
+-  Add CLI tests for --create-branch and --create-pr flags, verifying exit codes, JSON output, and error handling for missing or invalid parameters.
+-  Add sandbox tests for POST /branches and POST /pulls covering authentication failures, rate limiting, validation errors, and successful responses.
 
 # Documentation & README Updates
 
-- Update sandbox/README.md Key Features to include GitHub Issue Summarization capability.
-- Add examples for summarize-issues and post comments under CLI Examples in sandbox/docs/SERVER.md.
-- Create sandbox/docs/ISSUE_SUMMARIES.md with API reference, usage scenarios, sample request and response, and environment variable requirements.
+-  Update sandbox/README.md Key Features to include branch and pull request management.
+-  Amend sandbox/docs/SERVER.md to document POST /branches and POST /pulls endpoints with request and response schemas.
+-  Create sandbox/docs/BRANCH_PR.md with API reference, CLI examples, and usage scenarios.
 
 # Dependencies & Constraints
 
-- Modify only src/lib/main.js, sandbox/source/server.js, sandbox/tests/, sandbox/docs/, sandbox/README.md, and package.json.
-- Introduce no new runtime dependencies; use existing openai, fetch, and built-in crypto if needed. If fetch is not globally available, use node's experimental fetch or add isomorphic-fetch as dev dependency.
-- Maintain ESM compatibility, existing coding style, and alignment with the mission statement.
+-  Modify only src/lib/main.js, sandbox/source/server.js, sandbox/tests/, sandbox/docs/, sandbox/README.md, and package.json.
+-  Introduce no new runtime dependencies; use existing fetch and dotenv. If fetch is not global, use node experimental fetch.
+-  Maintain ESM compatibility, existing coding style, and alignment with the mission statement.
