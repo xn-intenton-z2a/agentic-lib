@@ -4,22 +4,22 @@ This project is guided by the core mission of agentic-lib to enable autonomous, 
 
 # agentic-lib
 
-agentic-lib is a drop-in JavaScript SDK for autonomous GitHub workflows. Inspired by our mission to enable continuous, agentic interactions through issues, branches, and pull requests, this library provides core utilities to configure environments, handle AWS SQS events, power CLI-driven workflows, and optionally launch a self-hosted HTTP server for health, metrics, and documentation.
+`agentic-lib` is a drop-in JavaScript SDK for autonomous GitHub workflows. Inspired by our mission to enable continuous, agentic interactions through issues, branches, and pull requests, this library provides core utilities to configure environments, handle AWS SQS events, power CLI-driven workflows, and optionally launch a self-hosted HTTP server for health, metrics, and documentation.
 
-With agentic-lib, you can seamlessly integrate environment validation, structured logging, AWS utilities, Lambda handlers, CLI and programmatic workflows into your Node.js projects, ensuring reproducible, testable, and maintainable automation.
+With `agentic-lib`, you can seamlessly integrate environment validation, structured logging, AWS utilities, Lambda handlers, CLI and programmatic workflows into your Node.js projects, ensuring reproducible, testable, and maintainable automation.
 
 ## Key Features
 
 - **Environment configuration** (dotenv + Zod)  
-  Mission Alignment: Validates and loads environment variables to ensure consistent, reproducible conditions essential for autonomous workflows.  
+  Mission Alignment: Validates and loads environment variables to ensure consistent, reproducible conditions essential for autonomous workflows.
 - **Logging helpers** (logInfo, logError)  
-  Mission Alignment: Provides structured, consistent logs to enable transparent audit trails for agentic operations.  
+  Mission Alignment: Provides structured, consistent logs to enable transparent audit trails for agentic operations.
 - **AWS utilities** (createSQSEventFromDigest)  
-  Mission Alignment: Simplifies SQS event creation for seamless integration into continuous, event-driven workflows.  
+  Mission Alignment: Simplifies SQS event creation for seamless integration into continuous, event-driven workflows.
 - **Lambda handler** (digestLambdaHandler)  
-  Mission Alignment: Automates message processing and error handling to maintain continuous, autonomous system reliability.  
-- **HTTP Server** (startServer function with `/health`, `/metrics`, `/openapi.json`, `/docs` endpoints)  
-  Mission Alignment: Exposes self-hosted endpoints for observability and documentation, supporting ongoing, autonomous monitoring.  
+  Mission Alignment: Automates message processing and error handling to maintain continuous, autonomous system reliability.
+- **HTTP Server** (startServer function with `/health`, `/metrics`, `/openapi.json`, `/docs` endpoints, with configurable rate limiting and Basic Auth support)  
+  Mission Alignment: Exposes self-hosted endpoints for observability, metrics, and interactive documentation, supporting ongoing, autonomous monitoring.
 - **CLI flags**: `--help`, `--version`, `--digest`  
   Mission Alignment: Offers intuitive CLI interfaces to drive agentic workflows directly from the command line.
 
@@ -59,6 +59,21 @@ npx agentic-lib --version
 npx agentic-lib --digest
 ```
 
+## Configuration
+
+`agentic-lib` can be customized via environment variables:
+
+- `GITHUB_API_BASE_URL` (optional) – Custom GitHub API base URL (defaults to GitHub’s public API).
+- `OPENAI_API_KEY` (optional) – OpenAI API key for chat operations.
+
+**HTTP Server Configuration:**
+
+- `PORT` – Port for the HTTP server (default: `3000`).
+- `CORS_ALLOWED_ORIGINS` – CORS origins header (default: `*`).
+- `RATE_LIMIT_REQUESTS` – Number of requests per minute per IP (default: `60`).
+- `METRICS_USER` / `METRICS_PASS` – Basic Auth credentials for `/metrics` endpoint.
+- `DOCS_USER` / `DOCS_PASS` – Basic Auth credentials for `/docs` endpoint.
+
 ## Programmatic Usage
 
 ### Lambda Handler
@@ -67,8 +82,8 @@ npx agentic-lib --digest
 import { createSQSEventFromDigest, digestLambdaHandler } from "@xn-intenton-z2a/agentic-lib";
 
 const event = createSQSEventFromDigest({
-  key: "path",
-  value: "123",
+  key: "path/to/object.json",
+  value: "12345",
   lastModified: new Date().toISOString(),
 });
 
@@ -86,7 +101,7 @@ import { startServer } from "@xn-intenton-z2a/agentic-lib";
 startServer({ port: 3000 });
 ```
 
-See [docs/SERVER.md](./docs/SERVER.md) for detailed information on endpoints and configuration.
+See [HTTP Server Docs](./docs/SERVER.md) for detailed information on endpoints and configuration.
 
 ## Testing
 
@@ -103,4 +118,4 @@ npm test
 - [License](../LICENSE.md)
 - [GitHub Repository](https://github.com/xn-intenton-z2a/agentic-lib)
 - [HTTP Server Docs](./docs/SERVER.md)
-- [Deep Dive: SQS Overview](./docs/SQS_OVERVIEW.md)
+- [Deep Dive: SQS Utilities](./docs/SQS_OVERVIEW.md)

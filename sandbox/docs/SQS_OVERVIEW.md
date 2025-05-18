@@ -1,63 +1,44 @@
-# Deep Dive: SQS Overview
+# SQS Utilities
 
 ## Mission Alignment
 
-The SQS utilities support robust, event-driven architectures and automated message processing, empowering continuous, autonomous agentic workflows. For mission details, see [Mission Statement](../MISSION.md).
+The SQS utilities in agentic-lib provide programmatic helpers to simulate, process, and handle AWS SQS events, supporting continuous, event-driven agentic workflows. For mission details, see [Mission Statement](../MISSION.md).
 
-A comprehensive guide to Amazon SQS features, configuration, and best practices.
+## Utilities Provided
 
-## 1. Encryption Options
+- **createSQSEventFromDigest(digest)**  
+  Generates an AWS SQS event wrapper for a given `digest` object. Useful for testing or simulating Lambda invocations.
 
-Default SSE-SQS managed encryption  
-SSE-KMS custom KMS key: specify `KmsMasterKeyId` = key ARN or alias
+- **digestLambdaHandler(sqsEvent)**  
+  Processes SQS event records, parsing message bodies, logging successes and errors, and returning a `batchItemFailures` list for failed messages, aligning with AWS Lambda SQS batch failure handling.
 
-## 2. Queue Types and Delivery Semantics
+## Usage Examples
 
-- **Standard**: at-least-once, unlimited requests/sec  
-- **FIFO**: exactly-once, high-throughput mode, ordering
+### Creating an SQS Event
 
-## 3. Message Retention Configuration
+```js
+import { createSQSEventFromDigest } from "@xn-intenton-z2a/agentic-lib";
 
-SetQueueAttributes Attributes:  
-`MessageRetentionPeriod`: integer, 60 to 1,209,600  
-Default: 345,600
-
-## 4. Visibility Timeout and Message Lifecycle
-
-ReceiveMessage hides message for `VisibilityTimeout`  
-DeleteMessage removes message permanently  
-`VisibilityTimeout`: seconds (0 to 43,200)
-
-## 5. Large Message Handling
-
-Max payload: 256 KB  
-Use S3 or DynamoDB for >256 KB, SQS stores pointer only
-
-## 6. Dead-Letter Queue Configuration
-
-On source queue:  
-```json
-{
-  "RedrivePolicy": {
-    "deadLetterTargetArn": "<DLQ_ARN>",
-    "maxReceiveCount": "<count>"
-  }
-}
+const digest = {
+  key: "events/1.json",
+  value: "12345",
+  lastModified: new Date().toISOString(),
+};
+const event = createSQSEventFromDigest(digest);
 ```
-On DLQ:  
-```json
-{
-  "RedriveAllowPolicy": {
-    "allowPolicyType": "allowAll" | "byQueue" | "denyAll",
-    "queueArns": ["arn1", ...]
-  }
+
+### Handling SQS Events in a Lambda Function
+
+```js
+import { digestLambdaHandler } from "@xn-intenton-z2a/agentic-lib";
+
+export async function handler(event) {
+  const result = await digestLambdaHandler(event);
+  // Return result.batchItemFailures to SQS for retries of failed messages
+  return { batchItemFailures: result.batchItemFailures };
 }
 ```
 
-## 7. Dead-Letter Queue Retention Behavior
+## Error Handling
 
-- **Standard**: original enqueue timestamp applies  
-- **FIFO**: timestamp resets on move  
-- `ApproximateAgeOfOldestMessage` metric interpretation changes accordingly  
-
-**Recommendation**: Set DLQ retention period longer than source queue retention.
+On JSON parse errors or invalid message bodies, the handler logs detailed errors and includes the failed record identifiers in `batchItemFailures`, allowing AWS SQS to retry processing.
