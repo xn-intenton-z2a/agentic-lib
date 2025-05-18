@@ -1,35 +1,43 @@
 # Value Proposition
-- Introduce CLI flags `--verbose` and `--stats` to control runtime logging verbosity and metrics output across both HTTP and CLI workflows.
-- Enhance observability and debugging by allowing users to see detailed trace data and performance statistics when invoking agentic workflows or digest replays.
-- Maintain existing agentic automation features while offering fine-grained control over log output and execution metrics.
+
+- Add a dedicated CLI flag `--agentic` to trigger an agentic workflow using the core library’s planning and execution pipeline.
+- Leverage the existing OpenAI integration to generate an AI-driven plan and execute each step, providing a self-evolving code review and update mechanism via GitHub.
+- Combine with `--verbose` and `--stats` flags to give users fine-grained control over logging detail and runtime metrics for agentic executions.
 
 # Success Criteria & Requirements
-- Extend `sandbox/source/main.js` and `src/lib/main.js` to recognize `--verbose` and `--stats` flags before primary command processing.
-  - When `--verbose` is set, enable detailed logging: `VERBOSE_MODE = true` so that `logInfo` and `logError` include additional data and stack traces when available.
-  - When `--stats` is set, enable `VERBOSE_STATS = true` so that after any command (mission, help, version, digest, or agentic), the CLI prints a JSON object containing `{ callCount, uptime }`.
-- Update the usage instructions in both CLI helpers (`generateUsage`) across sandbox and core source to document `--verbose` and `--stats` flags.
-- Ensure flag parsing does not interfere with existing flags (`--help`, `--mission`, `--version`, `--digest`, `--agentic`). Flags order should be flexible.
-- All logging functions (`logInfo`, `logError`) should respect the new `VERBOSE_MODE` setting.
+
+- Extend sandbox/source/main.js and src/lib/main.js to recognize the `--agentic` flag prior to all other processing.
+  - In sandbox/source/main.js, implement `processAgentic(args)`:
+    - When `--agentic` is present, read a JSON event payload from stdin.
+    - Import and invoke `agenticLambdaHandler` from `src/lib/main.js` with the parsed payload.
+    - Ensure `VERBOSE_MODE` controls inclusion of extra debug data in logs and `VERBOSE_STATS` prints `{ callCount, uptime }` after completion.
+  - In src/lib/main.js, export `agenticLambdaHandler(event)`:
+    - Log the start of the agentic workflow with `logInfo`.
+    - Use the OpenAI client to call `createChatCompletion` with a prompt derived from the event.
+    - Parse the AI response as a JSON plan containing an ordered list of tasks.
+    - For each task, log execution with `logInfo` and include any `verbose` details if enabled.
+    - Return a summary object with completed tasks and any errors.
+- Update `generateUsage()` in both sandbox and core to include `--agentic`, `--verbose`, and `--stats` in the usage instructions.
+- Update `README.md` in sandbox to document the `--agentic` option with examples combining flags.
 
 # User Scenarios & Examples
-## Verbose Mode
-Run an agentic workflow with detailed logging:
 
-$ echo '{"headers": {"x-github-event": "workflow_call"}, "body": {"event": "workflow_call"}}' \
-  | node sandbox/source/main.js --agentic --verbose
+## Agentic Workflow Invocation
+Run an agentic workflow reading a GitHub workflow call event from stdin:
 
-Expect console output of each log entry with additional debug fields and AI plan dispatch confirmation.
+$ echo '{"headers":{"x-github-event":"workflow_call"},"body":{"event":"workflow_call"}}' \
+  | node sandbox/source/main.js --agentic --verbose --stats
 
-## Stats Output
-Run a digest replay and get runtime metrics:
-
-$ node sandbox/source/main.js --digest --stats
-
-Expect the usual digest handler output followed by a JSON line containing callCount and uptime.
+Expect detailed AI planning traces in logs and a final JSON line with runtime metrics when `--stats` is set.
 
 # Verification & Acceptance
-- Add unit tests in `sandbox/tests` to invoke the CLI with combinations of `--verbose` and `--stats`, mocking `console.log` and `console.error`, and asserting:
-  - `logInfo` outputs include `verbose` flag and extra data when `--verbose`.
-  - After command completion with `--stats`, one additional console output with callCount and uptime JSON.
-- Ensure existing tests for mission, help, version, digest, and agentic continue to pass without regression.
-- Update `README.md` in sandbox to include the new flags in the options list with descriptions.
+
+- Add unit tests in `sandbox/tests` to:
+  - Mock stdin with a sample event JSON and verify that `agenticLambdaHandler` is invoked.
+  - Spy on `console.log` and `console.error` to assert:
+    - `logInfo` is called for start, each task, and completion, with extra fields when `--verbose`.
+    - A final metrics JSON line is printed when `--stats` is present.
+- Add unit tests in `tests/unit` for `agenticLambdaHandler`:
+  - Mock the OpenAI API to return a fixed plan.
+  - Ensure the handler logs each plan step and returns the expected summary object.
+- Ensure existing tests for mission, help, version, and digest continue to pass without regression.
