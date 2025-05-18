@@ -30,3 +30,5 @@
 
 2025-05-18T13:46:51.397Z - Generated feature development issue with title Decouple feature documentation from mission alignment references.
 
+2025-05-18T13:58:28.062Z - Maintained feature AGENTIC_CORE.
+
