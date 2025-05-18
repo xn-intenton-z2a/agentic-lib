@@ -6,3 +6,5 @@
 
 2025-05-18T15:58:17.936Z - Maintained feature AGENTIC_CLI.
 
+2025-05-18T15:59:12.217Z - Generated feature development issue with title Implement --agent CLI command for autonomous AI tasks.
+
