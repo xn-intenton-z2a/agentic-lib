@@ -1,13 +1,13 @@
 # Mission Alignment
 
-Unify environment configuration, structured logging, AWS SQS utilities, CLI interface, HTTP server endpoints (including health, readiness probe, and latency histogram), GitHub API integration, and OpenAI-driven automation into a single cohesive core feature that powers autonomous, continuous agentic workflows.
+Unify environment configuration, structured logging, AWS SQS utilities, CLI interface, HTTP server observability endpoints, GitHub API utilities, and OpenAI-driven automation into a cohesive core feature that powers autonomous, continuous agentic workflows within a single Node.js library.
 
 # Configuration
 
 Load and validate environment variables via dotenv and Zod. Expose a config object with:
 
-- GITHUB_API_BASE_URL (defaults to GitHub’s public API or a test base URL in development)
-- GITHUB_TOKEN (required for GitHub integration)
+- GITHUB_API_BASE_URL (optional base URL, defaults to GitHub public API)
+- GITHUB_TOKEN (required for GitHub API calls)
 - OPENAI_API_KEY (required for AI-driven operations)
 - PORT (default 3000)
 - CORS_ALLOWED_ORIGINS (default "*")
@@ -15,93 +15,93 @@ Load and validate environment variables via dotenv and Zod. Expose a config obje
 - METRICS_USER, METRICS_PASS (optional Basic Auth for metrics endpoint)
 - DOCS_USER, DOCS_PASS (optional Basic Auth for docs endpoint)
 
-Ensure sensible defaults and proper Zod validation in test and development modes.
+Validate all variables with Zod, support sensible defaults in development and test modes.
 
 # Logging Helpers
 
-Provide logInfo and logError functions that emit structured JSON logs containing:
+Export logInfo and logError functions emitting structured JSON logs with:
 
 - level
 - timestamp
 - message
-- optional error details and stack when verbose mode is enabled
+- optional error details and stack when verbose mode enabled
+
+Ensure logs are consistent and easily parsable.
 
 # AWS Utilities
 
-Implement createSQSEventFromDigest to wrap a digest object into an AWS SQS event shape and digestLambdaHandler to:
+Implement createSQSEventFromDigest to wrap a digest object into AWS SQS event format, and digestLambdaHandler to:
 
-- iterate and parse SQS records
+- iterate and parse SQS Records
 - log successes and detailed failures
-- return batchItemFailures for invalid records
+- collect batchItemFailures for invalid records
+- return an object with batchItemFailures and handler metadata
 
 # CLI Interface
 
-Support the following flags on the CLI tool (src/lib/main.js) via process arguments:
+Enhance CLI in src/lib/main.js to support:
 
 - --help: display usage instructions
-- --version: read and output version from package.json along with a timestamp
-- --digest: simulate an SQS event with an example digest and invoke digestLambdaHandler
-- --generate-issue: use OpenAI API to generate a sample GitHub issue description from example context and output JSON
-- --summarize-pr: use OpenAI API to produce a summary of a sample pull request diff and output JSON
+- --version: print library version and timestamp
+- --digest: simulate SQS digest event via createSQSEventFromDigest
+- --generate-issue: call generateIssueDescription with sample context and output JSON
+- --summarize-pr: call summarizePullRequest with sample diff and output JSON
+
+Ensure flags return structured JSON and handle errors via logError.
 
 # HTTP Server
 
-Extend startServer to launch an HTTP server with the following endpoints:
+Export startServer to launch an HTTP server with endpoints:
 
-- GET /health  
-  Liveness probe returning JSON with status "ok", uptime, and timestamp.
-- GET /ready  
-  Readiness probe returning JSON with status "ready" and timestamp.
-- GET /metrics  
-  Prometheus metrics in text format for http_requests_total, http_request_failures_total, and http_request_duration_seconds histogram. Protected by Basic Auth if METRICS_USER/METRICS_PASS are set.
-- GET /openapi.json  
-  Returns the OpenAPI 3.0 schema for all endpoints.
-- GET /docs  
-  Renders the OpenAPI schema as interactive HTML via Markdown. Protected by Basic Auth if DOCS_USER/DOCS_PASS are set.
+- GET /health: liveness probe returning { status, uptime, timestamp }
+- GET /ready: readiness probe returning { status: "ready", timestamp }
+- GET /metrics: Prometheus metrics for http_requests_total, http_request_failures_total; Basic Auth protected if configured
+- GET /openapi.json: OpenAPI 3.0 schema for all endpoints
+- GET /docs: interactive HTML docs rendered via Markdown; Basic Auth protected if configured
 
-Implement IP-based token bucket rate limiting per IP, handle CORS, record metrics for each request and failure, and measure request duration to populate a latency histogram.
+Implement IP-based token bucket rate limiting, CORS handling, metrics recording, and latency histogram measurement.
 
 # GitHub Integration
 
-Use the @octokit/rest library to initialize a GitHub API client with GITHUB_TOKEN and GITHUB_API_BASE_URL. Export utility functions:
+Use @octokit/rest to initialize a GitHub client. Export functions:
 
-- createIssue
-- commentOnIssue
-- createBranch
-- mergePullRequest
-- listOpenPullRequests
+- createIssue(title, body)
+- commentOnIssue(issueNumber, comment)
+- createBranch(branchName, fromRef)
+- mergePullRequest(prNumber, options)
+- listOpenPullRequests()
 
-Log errors with logError and rethrow for upstream handling.
+Handle API errors with logError and rethrow. Include unit tests mocking Octokit responses.
 
 # OpenAI Integration
 
-Use the openai library to initialize a ChatCompletion client with OPENAI_API_KEY. Export utility functions:
+Use openai library to initialize ChatCompletion client. Export functions:
 
-- generateChatCompletion: invoke the ChatCompletion API with a prompt and options, return structured response.
-- generateIssueDescription: accept a title and context object, construct a prompt, call generateChatCompletion, and return a detailed issue body.
-- refineIssueDescription: accept an existing issue draft, call generateChatCompletion to refine clarity and formatting.
-- summarizePullRequest: accept a diff or PR details, call generateChatCompletion to produce a concise summary.
+- generateChatCompletion(prompt, options)
+- generateIssueDescription(title, context)
+- refineIssueDescription(draft)
+- summarizePullRequest(diff)
 
-Handle API errors with logError, support configurable request retries, and include tests mocking openai responses.
+Implement retry logic on failures, log errors, and return structured responses. Mock openai in tests for predictable behavior.
 
 # Testing and Success Criteria
 
-Add unit and integration tests to cover:
+Add vitest tests to cover:
 
-- Configuration loading and validation
-- Structured logging output and error cases
+- configuration validation in all modes
+- structured logging output
 - AWS utilities and SQS simulation
-- CLI flags behavior including new --generate-issue and --summarize-pr
-- HTTP endpoints (/health, /ready, /metrics, /openapi.json, /docs), including authentication, rate limiting, and histogram population
-- GitHub integration utilities with mocked Octokit responses
-- OpenAI integration utilities with mocked openai responses for generateChatCompletion, generateIssueDescription, refineIssueDescription, and summarizePullRequest
+- CLI flags including new AI and GitHub flags
+- HTTP endpoints, authentication, rate limiting, histogram metrics
+- GitHub integration utilities with mocked Octokit
+- OpenAI integration utilities with mocked openai
 
-Verify metrics counters and latency histogram are incremented correctly in each scenario and AI functions return expected structured outputs.
+Verify all counters, histograms, and returned payloads meet expected structure and counts.
 
 # Documentation Updates
 
-- Update sandbox/docs/SERVER.md to document the /ready endpoint and request duration histogram
-- Refresh sandbox/docs/SQS_OVERVIEW.md for AWS utilities
-- Create or update sandbox/docs/GITHUB_API_INTEGRATION.md with usage examples for GitHub utilities
+- Update sandbox/docs/SERVER.md to include /ready endpoint and latency histogram details
+- Refresh sandbox/docs/SQS_OVERVIEW.md for AWS utilities unchanged
+- Create sandbox/docs/GITHUB_API_INTEGRATION.md with usage examples for GitHub utilities
 - Create sandbox/docs/OPENAI_INTEGRATION.md detailing OpenAI integration functions and CLI flags
-- Update sandbox/README.md under Key Features to include AI integration and new CLI capabilities
+- Update sandbox/README.md under Key Features to include GitHub and AI integration
