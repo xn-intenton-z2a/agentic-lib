@@ -10,7 +10,7 @@ This feature extends the existing HTTP server to expose core GitHub operations a
   Returns JSON with status, uptime, and timestamp for liveness checks.
 
 - GET /metrics  
-  Protected by Basic Auth if METRICS_USER and METRICS_PASS are set. Returns Prometheus-formatted metrics including http_requests_total, http_request_failures_total, github_issue_summaries_total, github_branches_created_total, and github_pulls_created_total.
+  Protected by Basic Auth if METRICS_USER and METRICS_PASS are set. Returns Prometheus-formatted metrics including http_requests_total, http_request_failures_total, github_issue_summaries_total, github_issues_created_total, github_branches_created_total, and github_pulls_created_total.
 
 - GET /openapi.json  
   Returns updated OpenAPI 3.0 schema reflecting all endpoints.
@@ -21,6 +21,10 @@ This feature extends the existing HTTP server to expose core GitHub operations a
 - POST /issues/summarize  
   Request JSON: { owner: string, repo: string, issueNumbers: number[] }  
   Validates input with Zod. Fetches issue data via GitHub REST API. Calls OpenAI chat to generate concise summaries. Returns { summaries: { issueNumber: number, summary: string }[] }.
+
+- POST /issues/create  
+  Request JSON: { owner: string, repo: string, title: string, body?: string }  
+  Validates input with Zod. Creates a new issue via GitHub REST API. Returns { url: string, number: number }.
 
 - POST /branches  
   Request JSON: { owner: string, repo: string, branchName: string, baseRef?: string }  
@@ -40,12 +44,12 @@ This feature extends the existing HTTP server to expose core GitHub operations a
 ## Metrics & Instrumentation
 
 - Use recordRequest and recordFailure utilities for all routes.  
-- Introduce counters: github_issue_summaries_total, github_branches_created_total, github_pulls_created_total.  
+- Introduce counters: github_issue_summaries_total, github_issues_created_total, github_branches_created_total, github_pulls_created_total.  
 - Expose all counters in the /metrics response.
 
 ## Testing & Success Criteria
 
-- Add tests in sandbox/tests/server.test.js for POST /issues/summarize, POST /branches, and POST /pulls covering:  
+- Add tests in sandbox/tests/server.test.js for POST /issues/summarize, POST /issues/create, POST /branches, and POST /pulls covering:  
   • Successful responses with valid inputs.  
   • Validation errors for missing or invalid fields.  
   • Authentication failures on protected endpoints.  
@@ -55,6 +59,6 @@ This feature extends the existing HTTP server to expose core GitHub operations a
 
 ## Documentation & README Updates
 
-- Update sandbox/docs/SERVER.md to document the new GitHub integration endpoints and new metrics counters.  
-- Refresh OpenAPI schema in code to include new routes and ensure /openapi.json and /docs reflect updates.  
-- Amend sandbox/README.md Key Features section to list HTTP endpoints for issue summarization, branch creation, and pull request creation.
+- Update sandbox/docs/SERVER.md to document the new /issues/create endpoint and the new github_issues_created_total metric.  
+- Refresh OpenAPI schema in code to include the /issues/create route and ensure /openapi.json and /docs reflect updates.  
+- Amend sandbox/README.md Key Features section to list HTTP endpoint for issue creation alongside summarization, branch creation, and pull request creation.
