@@ -18,3 +18,5 @@
 
 2025-05-18T03:39:08.592Z - Digested install:npm install openai|deno add jsr:@openai/openai|npx jsr add @openai/openai;init:new OpenAI({apiKey?,maxRetries=2,timeout=600000,fetch?,httpAgent?,dangerouslyAllowBrowser=false});responses.create(params:{model,input,instructions?,stream?},options?):Promise<{output_text, _request_id}>;chat.completions.create(params:{model,messages[],stream?},options?):Promise<{choices[{message:{role,content}}],_request_id}>;stream: AsyncIterable<{type,data,id?}>;files.create({file:ReadStream|File|Response|toFile, purpose:'fine-tune'});errors:APIError subclasses per status;retry default2 configurable;timeout default600000ms configurable;withResponse()=>{data,request_id,response};pagination: for await or .hasNextPage();realtime: OpenAIRealtimeWebSocket({model}).on('response.text.delta');Azure: new AzureOpenAI({azureADTokenProvider,apiVersion});custom:req via client.get/post;fetch override;httpAgent override;browser:dangerouslyAllowBrowser;requirements:TS>=4.5,Node>=18,Deno>=1.28,Bun>=1.0,Workers,Edge.
 
+2025-05-18T03:41:05.664Z - Maintained feature AGENTIC_CORE.
+
