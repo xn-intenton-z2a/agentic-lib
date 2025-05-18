@@ -8,61 +8,55 @@ Export logConfig, logInfo, and logError functions to produce structured JSON log
 
 # AWS Utilities & Lambda Handlers
 
-Provide createSQSEventFromDigest(digest) to wrap a digest object into an SQS-compatible event for testing. Implement digestLambdaHandler to process SQS records, parse JSON bodies, log successes and errors, and return batchItemFailures to enable AWS retry semantics.
+Provide createSQSEventFromDigest(digest) to wrap a digest object into an SQS compatible event for testing. Implement digestLambdaHandler to process SQS records, parse JSON bodies, log successes and errors, and return batchItemFailures to enable AWS retry semantics. Instrument metrics counters for processed events and failure counts.
 
 # CLI Interface
 
 Extend the main CLI with flags:
-
-- --help: Display usage instructions.
-- --version: Print library version and timestamp.
-- --digest: Simulate SQS event processing with an example digest.
-- --summarize-issues <owner/repo>: Fetch open issues, generate summaries via OpenAI chat completions, and output JSON.
-- --post-comment <issueNumber>: Post a generated summary as a comment when used with summarize-issues.
-- --create-branch <owner/repo> <branchName> [baseRef]: Create a new branch via the GitHub REST API.
-- --create-pr <owner/repo> <branchName> --pr-title <title> --pr-body <body>: Open a pull request from branchName to the default branch.
-
+- --help: display usage instructions
+- --version: print library version and timestamp
+- --digest: simulate SQS event processing with an example digest
 Ensure structured logging, error handling, and optional verbose statistics for each command.
 
 # HTTP Server Endpoints
 
 Enhance startServer to expose:
-
-- GET /health: Liveness probe returning status, uptime, and timestamp.
-- GET /metrics: Prometheus-formatted metrics, protected by Basic Auth when configured.
-- GET /openapi.json: Serve the OpenAPI 3.0 schema.
-- GET /docs: Render interactive HTML docs using Markdown, protected by Basic Auth when configured.
-- POST /branches: Create a branch given owner, repo, branchName, and optional baseRef. Validate GITHUB_API_TOKEN, enforce rate limiting and CORS, respond 201 with JSON { owner, repo, branch }.
-- POST /pulls: Create a pull request given owner, repo, head, base, title, and body. Validate GITHUB_API_TOKEN, enforce rate limiting, respond 201 with JSON containing pull request URL and number.
+- GET /health: liveness probe returning status, uptime, and timestamp
+- GET /metrics: Prometheus formatted metrics including http_requests_total, http_request_failures_total, agentic_sqs_processed_total, and agentic_sqs_failures_total; protected by basic authentication when configured
+- GET /openapi.json: serve the OpenAPI 3.0 schema
+- GET /docs: render interactive HTML docs using Markdown; protected by basic authentication when configured
+- POST /branches: create a branch given owner, repo, branchName, and optional baseRef; validate GITHUB_API_TOKEN, enforce rate limiting and CORS, respond with HTTP status 201 and JSON payload with keys owner, repo, branch
+- POST /pulls: open a pull request given owner, repo, head, base, title, and body; validate GITHUB_API_TOKEN, enforce rate limiting, respond with HTTP status 201 and JSON payload containing pull request URL and number
 
 Maintain existing endpoints unchanged, including authentication, rate limiting, and metrics recording.
 
 # GitHub Issue Summarization & Branch/PR Management
 
-Implement reusable functions:
+Implement reusable functions in src/lib/main.js and wire them into the CLI and HTTP routes:
+- summarizeIssues(owner, repo): fetch open issues, call OpenAI chat completions to generate concise summaries, and return structured JSON
+- postIssueComment(owner, repo, issueNumber, summary): post a comment containing summary to the specified issue
+- createBranch(owner, repo, branchName, baseRef?): create a branch reference via GitHub REST API and return the new branch name
+- createPullRequest(owner, repo, head, base, title, body): open a pull request via GitHub REST API and return the API response
 
-- summarizeIssues(owner: string, repo: string): Promise<object>  Fetch open issues, call OpenAI chat completions to generate concise summaries, and return structured JSON.
-- postIssueComment(owner: string, repo: string, issueNumber: number, summary: string): Promise<object>  Post a comment containing summary to the specified issue.
-- createBranch(owner: string, repo: string, branchName: string, baseRef?: string): Promise<string>  Create a branch reference via GitHub REST API and return the new branch name.
-- createPullRequest(owner: string, repo: string, head: string, base: string, title: string, body: string): Promise<object>  Open a pull request via GitHub REST API and return the API response.
+# SQS Processing Metrics Integration
 
-Expose these functions in src/lib/main.js and wire them into the CLI and HTTP routes.
+Instrument the digestLambdaHandler to record metrics counters for total processed messages and failures. Expose these counters as agentic_sqs_processed_total and agentic_sqs_failures_total in the GET /metrics endpoint.
 
 # Success Criteria & Testing
 
-- All existing tests must pass without modification.
-- Add unit tests for new utilities: createSQSEventFromDigest, digestLambdaHandler error and success paths, GitHub utilities (summarizeIssues, postIssueComment, createBranch, createPullRequest) with mocked API calls.
-- Add CLI tests for new flags, verifying exit codes, JSON output, and error handling for invalid input.
-- Add HTTP server tests for POST /branches and POST /pulls covering authentication failures, rate limiting, validation errors, and successful responses.
+- All existing tests must pass without modification
+- Add unit tests to verify SQS metrics counters in digestLambdaHandler success and failure paths
+- Add HTTP server tests for GET /metrics covering presence of new metrics, authentication failures, rate limiting, validation errors, and successful responses
+- Add CLI tests for new flags, verifying exit codes, JSON output, and error handling for invalid input
 
 # Documentation & README Updates
 
-- Update sandbox/README.md Key Features to reflect full feature set including config, logging, AWS utilities, CLI flags, HTTP endpoints, and GitHub management.
-- Amend sandbox/docs/SERVER.md to include POST /branches and POST /pulls schemas and examples.
-- Create sandbox/docs/BRANCH_PR.md with API reference, CLI examples, and usage scenarios for issue summarization, branch creation, and pull requests.
+- Update sandbox/README.md Key Features section to include SQS metrics integration
+- Amend sandbox/docs/SERVER.md to document inclusion of agentic_sqs_processed_total and agentic_sqs_failures_total in /metrics output
+- Ensure documentation examples reflect new metrics in output
 
 # Dependencies & Constraints
 
-- Modify only src/lib/main.js, sandbox/source/server.js, sandbox/tests/, sandbox/docs/, sandbox/README.md, and package.json.
-- Introduce no new runtime dependencies; use existing libraries: fetch, dotenv, zod, openai.
-- Maintain ESM compatibility, existing coding style, and alignment with the mission statement.
+- Modify only src/lib/main.js, sandbox/source/server.js, sandbox/tests/, sandbox/docs/, sandbox/README.md, and package.json
+- Introduce no new runtime dependencies; use existing libraries such as fetch, dotenv, zod, openai
+- Maintain ESM compatibility, existing coding style, and alignment with the mission statement
