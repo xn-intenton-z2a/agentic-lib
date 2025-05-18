@@ -4,48 +4,44 @@ Enhance the core agentic-lib feature to fully integrate GitHub issue and pull re
 
 # CLI Interface
 
-Extend src/lib/main.js to support new flags in addition to --help, --version, --digest, --github-list-pull-requests, and --github-merge-pull-request:
-• --github-list-issues <owner> <repo> [state]
-  List issues for a repository, formatted as JSON lines. Exit code 0 on success, non-zero on error.
+Extend src/lib/main.js to support new flags in addition to --help, --version, --digest, --github-list-pull-requests, --github-merge-pull-request, --github-list-issues, and --github-create-issue:
 
-• --github-create-issue <owner> <repo> <title> [body]
-  Create a new issue with title and optional body. Output created issue details as JSON. Exit code 0 on success, non-zero on error.
+• --github-create-pull-request <owner> <repo> <head> <base> <title> [body]
+  Create a new pull request from branch head into base branch with title and optional body. Output created pull request details as JSON. Exit code 0 on success, non-zero on error.
 
 Maintain existing flag behavior, error logging, and call counting when VERBOSE_STATS is enabled.
 
 # HTTP Server Endpoints
 
-Extend sandbox/source/server.js to expose new REST routes alongside existing /health, /metrics, /openapi.json, /docs, /github/pull-requests, and /github/merge-pull-request:
+Extend sandbox/source/server.js to expose new REST routes alongside existing /health, /metrics, /openapi.json, /docs, /github/issues, /github/pull-requests, and /github/merge-pull-request:
 
-• GET  /github/issues    Query params: owner, repo, state
-  Returns JSON array of issue objects.
+• POST /github/pull-requests
+  JSON body: { owner, repo, head, base, title, body }
+  Creates a new pull request on the specified repository. Returns created pull request details as JSON. Exit code 200 on success, 4xx or 5xx on error.
 
-• POST /github/issues    JSON body: { owner, repo, title, body }
-  Returns created issue details as JSON.
-
-Protect these routes with Basic Auth if GITHUB_USER/GITHUB_PASS are set. Validate request schema with Zod, record HTTP request and failure metrics, and enforce IP rate limiting.
+Protect this route with Basic Auth if GITHUB_USER/GITHUB_PASS are set. Validate request schema with Zod, record HTTP request and failure metrics, and enforce IP rate limiting.
 
 # GitHub API Utilities
 
-Export reusable functions in src/lib/main.js for issue management:
-• listIssues(owner: string, repo: string, state?: string): Promise<Array<object>>
-• createIssue(owner: string, repo: string, title: string, body?: string): Promise<object>
+Export reusable functions in src/lib/main.js for pull request creation:
 
-Implement API calls using fetch to GITHUB_API_BASE_URL with retry logic on rate limits, structured logging, and descriptive error handling.
+• createPullRequest(owner: string, repo: string, head: string, base: string, title: string, body?: string): Promise<object>
+
+Reuse fetch to GITHUB_API_BASE_URL with retry logic on rate limits, structured logging, and descriptive error handling. Ensure existing listIssues, createIssue, listPullRequests, and mergePullRequest utilities remain available.
 
 # Success Criteria & Testing
 
 • All existing tests continue passing without modification.
-• Add unit tests mocking fetch for listIssues and createIssue to simulate success and failure.
-• Add unit tests for new CLI flags, verifying console output, exit codes, and error conditions.
-• Add sandbox tests for GET /github/issues and POST /github/issues, validating status codes, authentication, rate limiting, and response schema.
+• Add unit tests mocking fetch for createPullRequest to simulate success and failure.
+• Add unit tests for new CLI flag, verifying console output, exit code, and error conditions.
+• Add sandbox tests for POST /github/pull-requests, validating status codes, authentication, rate limiting, and response schema.
 
 # Documentation & README Updates
 
-• Update sandbox/README.md Key Features to list new GitHub issue CLI flags and HTTP endpoints.
-• Add usage examples for new CLI commands in sandbox/docs/SERVER.md under CLI Examples.
-• Update openapi.json to define /github/issues GET and POST operations and schemas.
-• Document listIssues and createIssue utilities in sandbox/docs/GITHUB_API.md with example JSON payloads and responses.
+• Update sandbox/README.md Key Features to list new GitHub CLI flag and HTTP endpoint for create pull request.
+• Add usage examples for --github-create-pull-request in sandbox/docs/SERVER.md under CLI Examples and HTTP Examples.
+• Update openapi.json to define POST /github/pull-requests operation and request/response schemas.
+• Document createPullRequest utility in sandbox/docs/GITHUB_API.md with example JSON payloads and responses.
 
 # Dependencies & Constraints
 
