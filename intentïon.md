@@ -18,3 +18,5 @@
 
 2025-05-18T13:05:33.125Z - Maintained feature AGENTIC_CORE.
 
+2025-05-18T13:06:14.430Z - Generated feature development issue with title Implement readiness endpoint and request duration histogram in HTTP server.
+
