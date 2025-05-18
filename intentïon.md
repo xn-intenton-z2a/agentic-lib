@@ -54,3 +54,5 @@ Errors: APIError subclasses with request_id,status,name,headers; map 400-429-5xx
 
 2025-05-18T06:43:39.102Z - Reviewed in-progress issue 1473.
 
+2025-05-18T06:54:52.920Z - Worked to resolve issue Add GitHub issues and pull-requests HTTP endpoints with validation auth metrics OpenAPI spec and documentation plus integration tests. Add GitHub issues and pull-requests HTTP endpoints with validation auth metrics OpenAPI spec and documentation plus integration tests.
+
