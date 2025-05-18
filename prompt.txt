@@ -1,33 +1,55 @@
 
-You are providing updates to the README.md file and other documentation files to ensure they accurately reflect the current state of the codebase and emphasize content that delivers substantial user value and addresses core implementation needs.
+You are providing the entire new content of source files, test files, documentation files, and other necessary
+files with all necessary changes applied to deliver the resolution to an issue. Focus on high-impact, 
+functional solutions that address core issues rather than superficial changes or excessive code polishing.
+Implement as much as you can and refer to the projects features and mission statement when expanding the code
+beyond the scope of the original issue. Implement whole features and do not leave stubbed out or pretended code.
 
-The README is the primary focus, but other documentation files can be updated as well if needed. Source files (srcFiles) and test files (testFiles) should NOT be updated.
+Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone and direction
+of the contributing guidelines. Prioritize changes that deliver user value and maintain the integrity
+of the codebase's primary purpose.
 
-When updating the README:
-1. Preserve existing README content that delivers substantial user value, even if it describes features not yet implemented
-2. Update the README if it conflicts with current source code, tests, or documentation, prioritizing content that directly enhances the product's primary purpose
-3. If documentation files are out of date compared to the source code or tests, update them to be consistent, focusing on high-impact information that enables immediate application rather than superficial descriptions
-4. Ensure documentation clearly communicates the core functionality and value proposition of the product, prioritizing content that helps users solve real problems
+Do as much as you can all at once.
 
-Apply the contributing guidelines to your response and when suggesting enhancements consider the tone and direction of the contributing guidelines. Focus on documentation improvements that deliver measurable value to users rather than cosmetic changes or excessive detail on edge cases.
+Follow the linting guidelines and the formatting guidelines from the included config.
 
-You may only change the files provided in the prompt context. You can update multiple files by specifying their paths and contents in the updatedFiles object. Each file will be checked against the allowedFilepathPatterns before being written.
+
+You must only add, remove, or change the files in the target writable locations. You can update multiple
+files by specifying their paths and contents in the enumerated updatedFile01Filepath updatedFile02Contents response
+attribute, a second file would use updatedFile01Filepath updatedFile02Contents and so on to 16. Each file will
+be checked against the write permission in the Agent configuration file before being written. Feel free to
+add new files as long as they are in the target writable locations. You can also remove files, but only if
+they are in the target writable locations. To delete a file, set the updated file contents to "delete".
+
+The target writable locations for your output are: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;sandbox/docs/;sandbox/README.md
+Other file will be supplied in the context but only the paths above should be written to.
+
+Only provide new or updated content for the target source files in sandbox/source.
+Only delete or update the target source files in sandbox/source.
+Only provide new or updated content for the target test files in sandbox/tests.
+Only delete or update the target test files in sandbox/tests.
+Only update dependency file package.json.
+Only update the target documentation files in sandbox/docs.
+
+Follow the attached Formatting file content and Linting file content.
 
 Consider the following when refining your response:
-  * Current feature names and specifications in the repository
-  * Source file content (for context only)
-  * Test file content (for context only)
-  * Documentation file content
-  * README file content
-  * MISSION file content
-  * Contributing file content
-  * Dependencies file content
-  * Dependency install output
-  * Issue details (if any)
-  * Build output
-  * Test output
-  * Main execution output
-  * Agent configuration file content
+* Current feature names and specifications in the repository
+* Source file content
+* Test file content
+* Documentation file content
+* README file content
+* MISSION file content
+* Contributing file content
+* Dependencies file content
+* Formatting file content
+* Linting file content
+* Agent configuration file content
+* Issue details
+* Dependency list
+* Build output
+* Test output
+* Main execution output
 
 Current feature names and specifications (for context, read only):
 CURRENT_FEATURES_START
@@ -35,9 +57,9 @@ find: ‘features/’: No such file or directory
 none
 CURRENT_FEATURES_END
 
-Source files (for context only, DO NOT UPDATE):
-SOURCE_FILES_START
-File: sandbox/source/server.js
+Source files (write new files or update files in sandbox/source as necessary):
+(Multiple files from both in writable locations and not.)
+SOURCE_FILE_START Filepath: sandbox/source/server.js
 import http from 'http';
 import crypto from 'crypto';
 import { URL } from 'url';
@@ -204,8 +226,10 @@ export function startServer(options = {}) {
   console.log(`Server started on port ${port}`);
   return server;
 }
+SOURCE_FILE_END
 
-File: src/lib/main.js
+
+SOURCE_FILE_START Filepath: src/lib/main.js
 #!/usr/bin/env node
 // src/lib/main.js
 
@@ -430,12 +454,13 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   });
 }
 
+SOURCE_FILE_END
 
-SOURCE_FILES_END
 
-Test files (for context only, DO NOT UPDATE):
-TEST_FILES_START
-File: sandbox/tests/server.test.js
+
+Test files (write new files or update files in sandbox/tests as necessary):
+(Multiple files from both in writable locations and not.)
+TEST_FILE_START File: sandbox/tests/server.test.js
 import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import http from 'http';
 import { startServer } from '../source/server.js';
@@ -480,8 +505,10 @@ describe('Server', () => {
     expect(body).toContain('http_requests_total');
   });
 });
+TEST_FILE_END
 
-File: tests/unit/main.test.js
+
+TEST_FILE_START File: tests/unit/main.test.js
 import { describe, test, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
 
 // Ensure that the global callCount is reset before tests that rely on it
@@ -531,8 +558,10 @@ describe("Main Module Import", () => {
   });
 });
 
+TEST_FILE_END
 
-File: tests/unit/module-index.test.js
+
+TEST_FILE_START File: tests/unit/module-index.test.js
 // tests/unit/module-index.test.js
 // src/lib/main.js
 //
@@ -549,12 +578,13 @@ describe("Index Module Exports", () => {
   });
 });
 
+TEST_FILE_END
 
-TEST_FILES_END
 
-Documentation files (to be updated if necessary):
-DOCS_FILES_START
-File: sandbox/docs/SERVER.md
+
+Documentation files (write new files or update files in sandbox/docs as necessary):
+(Multiple files from both in writable locations and not.)
+DOCUMENTATION_FILE_START File: sandbox/docs/SERVER.md
 # HTTP Server Feature
 
 ## Mission Alignment
@@ -616,76 +646,60 @@ IP-based token bucket with the following behavior:
 - Each IP has a token bucket of `RATE_LIMIT_REQUESTS` tokens per minute.
 - Exceeding the limit returns `429 Too Many Requests`.
 
+DOCUMENTATION_FILE_END
 
-File: sandbox/docs/SQS_OVERVIEW.md
-# Deep Dive: SQS Overview
+
+DOCUMENTATION_FILE_START File: sandbox/docs/SQS_OVERVIEW.md
+# SQS Utilities
 
 ## Mission Alignment
 
-The SQS utilities support robust, event-driven architectures and automated message processing, empowering continuous, autonomous agentic workflows. For mission details, see [Mission Statement](../MISSION.md).
+The SQS utilities in agentic-lib provide programmatic helpers to simulate, process, and handle AWS SQS events, supporting continuous, event-driven agentic workflows. For mission details, see [Mission Statement](../MISSION.md).
 
-A comprehensive guide to Amazon SQS features, configuration, and best practices.
+## Utilities Provided
 
-## 1. Encryption Options
+- **createSQSEventFromDigest(digest)**  
+  Generates an AWS SQS event wrapper for a given `digest` object. Useful for testing or simulating Lambda invocations.
 
-Default SSE-SQS managed encryption  
-SSE-KMS custom KMS key: specify `KmsMasterKeyId` = key ARN or alias
+- **digestLambdaHandler(sqsEvent)**  
+  Processes SQS event records, parsing message bodies, logging successes and errors, and returning a `batchItemFailures` list for failed messages, aligning with AWS Lambda SQS batch failure handling.
 
-## 2. Queue Types and Delivery Semantics
+## Usage Examples
 
-- **Standard**: at-least-once, unlimited requests/sec  
-- **FIFO**: exactly-once, high-throughput mode, ordering
+### Creating an SQS Event
 
-## 3. Message Retention Configuration
+```js
+import { createSQSEventFromDigest } from "@xn-intenton-z2a/agentic-lib";
 
-SetQueueAttributes Attributes:  
-`MessageRetentionPeriod`: integer, 60 to 1,209,600  
-Default: 345,600
-
-## 4. Visibility Timeout and Message Lifecycle
-
-ReceiveMessage hides message for `VisibilityTimeout`  
-DeleteMessage removes message permanently  
-`VisibilityTimeout`: seconds (0 to 43,200)
-
-## 5. Large Message Handling
-
-Max payload: 256 KB  
-Use S3 or DynamoDB for >256 KB, SQS stores pointer only
-
-## 6. Dead-Letter Queue Configuration
-
-On source queue:  
-```json
-{
-  "RedrivePolicy": {
-    "deadLetterTargetArn": "<DLQ_ARN>",
-    "maxReceiveCount": "<count>"
-  }
-}
+const digest = {
+  key: "events/1.json",
+  value: "12345",
+  lastModified: new Date().toISOString(),
+};
+const event = createSQSEventFromDigest(digest);
 ```
-On DLQ:  
-```json
-{
-  "RedriveAllowPolicy": {
-    "allowPolicyType": "allowAll" | "byQueue" | "denyAll",
-    "queueArns": ["arn1", ...]
-  }
+
+### Handling SQS Events in a Lambda Function
+
+```js
+import { digestLambdaHandler } from "@xn-intenton-z2a/agentic-lib";
+
+export async function handler(event) {
+  const result = await digestLambdaHandler(event);
+  // Return result.batchItemFailures to SQS for retries of failed messages
+  return { batchItemFailures: result.batchItemFailures };
 }
 ```
 
-## 7. Dead-Letter Queue Retention Behavior
+## Error Handling
 
-- **Standard**: original enqueue timestamp applies  
-- **FIFO**: timestamp resets on move  
-- `ApproximateAgeOfOldestMessage` metric interpretation changes accordingly  
+On JSON parse errors or invalid message bodies, the handler logs detailed errors and includes the failed record identifiers in `batchItemFailures`, allowing AWS SQS to retry processing.
 
-**Recommendation**: Set DLQ retention period longer than source queue retention.
+DOCUMENTATION_FILE_END
 
 
-DOCS_FILES_END
 
-README file (primary focus, to be updated): sandbox/README.md
+README file (for context, read only): sandbox/README.md
 README_FILE_START
 ## Mission Statement
 
@@ -693,22 +707,22 @@ This project is guided by the core mission of agentic-lib to enable autonomous, 
 
 # agentic-lib
 
-agentic-lib is a drop-in JavaScript SDK for autonomous GitHub workflows. Inspired by our mission to enable continuous, agentic interactions through issues, branches, and pull requests, this library provides core utilities to configure environments, handle AWS SQS events, power CLI-driven workflows, and optionally launch a self-hosted HTTP server for health, metrics, and documentation.
+`agentic-lib` is a drop-in JavaScript SDK for autonomous GitHub workflows. Inspired by our mission to enable continuous, agentic interactions through issues, branches, and pull requests, this library provides core utilities to configure environments, handle AWS SQS events, power CLI-driven workflows, and optionally launch a self-hosted HTTP server for health, metrics, and documentation.
 
-With agentic-lib, you can seamlessly integrate environment validation, structured logging, AWS utilities, Lambda handlers, CLI and programmatic workflows into your Node.js projects, ensuring reproducible, testable, and maintainable automation.
+With `agentic-lib`, you can seamlessly integrate environment validation, structured logging, AWS utilities, Lambda handlers, CLI and programmatic workflows into your Node.js projects, ensuring reproducible, testable, and maintainable automation.
 
 ## Key Features
 
 - **Environment configuration** (dotenv + Zod)  
-  Mission Alignment: Validates and loads environment variables to ensure consistent, reproducible conditions essential for autonomous workflows.  
+  Mission Alignment: Validates and loads environment variables to ensure consistent, reproducible conditions essential for autonomous workflows.
 - **Logging helpers** (logInfo, logError)  
-  Mission Alignment: Provides structured, consistent logs to enable transparent audit trails for agentic operations.  
+  Mission Alignment: Provides structured, consistent logs to enable transparent audit trails for agentic operations.
 - **AWS utilities** (createSQSEventFromDigest)  
-  Mission Alignment: Simplifies SQS event creation for seamless integration into continuous, event-driven workflows.  
+  Mission Alignment: Simplifies SQS event creation for seamless integration into continuous, event-driven workflows.
 - **Lambda handler** (digestLambdaHandler)  
-  Mission Alignment: Automates message processing and error handling to maintain continuous, autonomous system reliability.  
-- **HTTP Server** (startServer function with `/health`, `/metrics`, `/openapi.json`, `/docs` endpoints)  
-  Mission Alignment: Exposes self-hosted endpoints for observability and documentation, supporting ongoing, autonomous monitoring.  
+  Mission Alignment: Automates message processing and error handling to maintain continuous, autonomous system reliability.
+- **HTTP Server** (startServer function with `/health`, `/metrics`, `/openapi.json`, `/docs` endpoints, with configurable rate limiting and Basic Auth support)  
+  Mission Alignment: Exposes self-hosted endpoints for observability, metrics, and interactive documentation, supporting ongoing, autonomous monitoring.
 - **CLI flags**: `--help`, `--version`, `--digest`  
   Mission Alignment: Offers intuitive CLI interfaces to drive agentic workflows directly from the command line.
 
@@ -748,6 +762,21 @@ npx agentic-lib --version
 npx agentic-lib --digest
 ```
 
+## Configuration
+
+`agentic-lib` can be customized via environment variables:
+
+- `GITHUB_API_BASE_URL` (optional) – Custom GitHub API base URL (defaults to GitHub’s public API).
+- `OPENAI_API_KEY` (optional) – OpenAI API key for chat operations.
+
+**HTTP Server Configuration:**
+
+- `PORT` – Port for the HTTP server (default: `3000`).
+- `CORS_ALLOWED_ORIGINS` – CORS origins header (default: `*`).
+- `RATE_LIMIT_REQUESTS` – Number of requests per minute per IP (default: `60`).
+- `METRICS_USER` / `METRICS_PASS` – Basic Auth credentials for `/metrics` endpoint.
+- `DOCS_USER` / `DOCS_PASS` – Basic Auth credentials for `/docs` endpoint.
+
 ## Programmatic Usage
 
 ### Lambda Handler
@@ -756,8 +785,8 @@ npx agentic-lib --digest
 import { createSQSEventFromDigest, digestLambdaHandler } from "@xn-intenton-z2a/agentic-lib";
 
 const event = createSQSEventFromDigest({
-  key: "path",
-  value: "123",
+  key: "path/to/object.json",
+  value: "12345",
   lastModified: new Date().toISOString(),
 });
 
@@ -775,7 +804,7 @@ import { startServer } from "@xn-intenton-z2a/agentic-lib";
 startServer({ port: 3000 });
 ```
 
-See [docs/SERVER.md](./docs/SERVER.md) for detailed information on endpoints and configuration.
+See [HTTP Server Docs](./docs/SERVER.md) for detailed information on endpoints and configuration.
 
 ## Testing
 
@@ -792,8 +821,7 @@ npm test
 - [License](../LICENSE.md)
 - [GitHub Repository](https://github.com/xn-intenton-z2a/agentic-lib)
 - [HTTP Server Docs](./docs/SERVER.md)
-- [Deep Dive: SQS Overview](./docs/SQS_OVERVIEW.md)
-
+- [Deep Dive: SQS Utilities](./docs/SQS_OVERVIEW.md)
 README_FILE_END
 
 MISSION file (for context, read only): MISSION.md
@@ -959,76 +987,125 @@ DEPENDENCIES_FILE_START
   }
 }
 
-DEPENDENCIES_FILE_END   
+DEPENDENCIES_FILE_END
 
-Dependencies install from command: npm install
-DEPENDENCIES_INSTALL_START
-npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
-npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
-npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
-npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
-npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
-npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
-npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+Formatting file (for context, read only): .prettierrc
+FORMATTING_FILE_START
+{
+  "singleQuote": false,
+  "trailingComma": "all",
+  "printWidth": 120,
+  "tabWidth": 2,
+  "useTabs": false,
+  "quoteProps": "consistent",
+  "overrides": [
+    {
+      "files": ".prettierrc",
+      "options": { "parser": "json" }
+    }
+  ]
+}
 
-added 605 packages, and audited 606 packages in 5s
+FORMATTING_FILE_END
 
-162 packages are looking for funding
-  run `npm fund` for details
+Linting file (for context, read only): eslint.config.js
+LINTING_FILE_START
+import js from "@eslint/js";
+import google from "eslint-config-google";
+import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
+import globals from "globals";
+import promise from "eslint-plugin-promise";
+import security from "eslint-plugin-security";
+import sonarjs from "eslint-plugin-sonarjs";
+import react from "eslint-plugin-react";
+import importPlugin from "eslint-plugin-import";
 
-found 0 vulnerabilities
-DEPENDENCIES_INSTALL_END    
+const modifiedGoogleConfig = { ...google, rules: { ...google.rules } };
+delete modifiedGoogleConfig.rules["valid-jsdoc"];
+delete modifiedGoogleConfig.rules["require-jsdoc"];
 
-Build output from command: npm run build
-BUILD_OUTPUT_START
+/** @type {import('eslint').Linter.FlatConfig[]} */
+export default [
+  js.configs.recommended,
+  modifiedGoogleConfig,
+  eslintPluginPrettierRecommended,
+  {
+    plugins: {
+      promise,
+      security,
+      sonarjs,
+      react,
+      import: importPlugin,
+    },
+    languageOptions: {
+      ecmaVersion: 2023,
+      sourceType: "module",
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      "prettier/prettier": "error",
+      ...promise.configs.recommended.rules,
+      "promise/avoid-new": "warn",
+      "promise/no-new-statics": "error",
+      "promise/valid-params": "error",
+      "promise/prefer-await-to-then": "warn",
 
-> @xn-intenton-z2a/agentic-lib@6.6.5-0 build
-> echo "Nothing to build"
+      ...sonarjs.configs.recommended.rules,
+      "sonarjs/no-nested-conditional": "warn",
+      "sonarjs/pseudo-random": "warn",
+      "sonarjs/sonar-no-fallthrough": "off",
+      "sonarjs/os-command": "off",
+      "sonarjs/todo-tag": "off",
+      "sonarjs/no-commented-code": "off",
 
-Nothing to build
-BUILD_OUTPUT_END      
+      // Enabled non-recommended rules (SonarJS)
+      "sonarjs/no-inverted-boolean-check": "warn",
+      "sonarjs/no-useless-catch": "warn",
 
-Test output from command: npm test
-TEST_OUTPUT_START
+      // Local customizations
+      "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      "no-extra-semi": 2,
+      "object-curly-newline": ["error", { consistent: true }],
+      "array-element-newline": ["error", "consistent", { multiline: true, minItems: 10 }],
+      "import/newline-after-import": ["error", { count: 1 }],
+      "camelcase": "off",
+      "import/no-amd": "error",
+      "import/no-commonjs": "error",
+      "import/no-import-module-exports": "error",
+      "import/no-cycle": "error",
+      "import/no-dynamic-require": "error",
+      "import/no-self-import": "off",
+      "import/no-unresolved": "off",
+      "import/no-useless-path-segments": "error",
+      "import/no-duplicates": "error",
+      "sonarjs/fixme-tag": "warn",
+    },
+  },
+  {
+    files: ["**/*.js"],
+    ignores: ["**/tests/**/*.js", "**/*.test.js", "eslint.config.js"],
+    rules: {
+      ...security.configs.recommended.rules,
+      "security/detect-non-literal-regexp": "off",
+    },
+  },
+  {
+    settings: {
+      react: {
+        version: "18", // With no react installed we can't use "detect"
+      },
+    },
+  },
+  {
+    ignores: ["build/", "coverage/", "dist/", "exports/", "node_modules/", "eslint.config.js"],
+  },
+];
 
-> @xn-intenton-z2a/agentic-lib@6.6.5-0 test
-> vitest tests/unit/*.test.js sandbox/tests/*.test.js
+LINTING_FILE_END
 
-
-[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/agentic-lib/agentic-lib[39m
-
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
-[90mstdout[2m | tests/unit/main.test.js
-[22m[39m{"level":"info","timestamp":"2025-05-18T08:49:33.300Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
-
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 71[2mms[22m[39m
-[90mstdout[2m | sandbox/tests/server.test.js
-[22m[39mServer started on port 3000
-
- [32m✓[39m sandbox/tests/server.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 35[2mms[22m[39m
-
-[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
-[2m      Tests [22m [1m[32m4 passed[39m[22m[90m (4)[39m
-[2m   Start at [22m 08:49:32
-[2m   Duration [22m 421ms[2m (transform 96ms, setup 0ms, collect 200ms, tests 108ms, environment 1ms, prepare 257ms)[22m
-TEST_OUTPUT_END            
-
-Main execution output from command: npm run start
-MAIN_OUTPUT_START
-
-> @xn-intenton-z2a/agentic-lib@6.6.5-0 start
-> node src/lib/main.js
-
-{"level":"info","timestamp":"2025-05-18T08:49:33.597Z","message":"Configuration loaded","config":{}}
-No command argument supplied.
-
-Usage:
-  --help                     Show this help message and usage instructions.
-  --digest                   Run a full bucket replay simulating an SQS event.
-  --version                  Show version information with current timestamp.
-MAIN_OUTPUT_END    
-
-Agent configuration file:
+Agent configuration file (for context, read only):
 AGENT_CONFIG_FILE_START
 # Which agentic-lib workflow schedule should be used?
 schedule: schedule-3
@@ -1114,29 +1191,734 @@ intentionBot:
 
 AGENT_CONFIG_FILE_END
 
-Please produce updated versions of the README and documentation files to ensure they accurately reflect the current state of the codebase.
-Remember:
-1. The README is the primary focus, but other documentation files can be updated as well if needed
-2. Source files (srcFiles) and test files (testFiles) should NOT be updated
-3. Preserve existing README content even if it describes features not yet implemented
-4. Update the README if it conflicts with current source code, tests, or documentation
-5. If documentation files are out of date compared to the source code or tests, update them to be consistent
+Issue details:
+ISSUE_START
+title: Implement GitHub management utility functions and update documentation
+description:
+Title: Implement GitHub management utility functions and update documentation
 
-If there are no changes required, please provide the original content and state that no changes are necessary in the message.
+## Overview
+
+Add a set of core, reusable GitHub management utilities to `src/lib/main.js` and update sandbox documentation in `sandbox/README.md` to support new CLI flags and programmatic imports. These utilities will enable autonomous workflows by:
+
+- Summarizing open GitHub issues via OpenAI Chat Completions
+- Posting comments on existing issues
+- Creating new branches programmatically
+- Opening pull requests via the GitHub REST API
+
+## Testable Acceptance Criteria
+
+1. **summarizeIssues(owner: string, repo: string): Promise<Array<{ number: number; title: string; summary: string }>>**
+   - Validates inputs with Zod: owner and repo non-empty strings (test invalid inputs throw Zod errors).
+   - Uses Octokit to fetch issues (mock `octokit.rest.issues.listForRepo`, return sample list).
+   - Calls OpenAI Chat completions (mock OpenAI SDK) and returns an array of objects containing `number`, `title`, and non-empty `summary` strings.
+   - On API error from GitHub or OpenAI, throws `Error` containing status code and message (test by mocking errors).
+
+2. **postIssueComment(owner: string, repo: string, issueNumber: number, comment: string): Promise<any>**
+   - Validates inputs: owner, repo non-empty; issueNumber positive integer; comment non-empty (test invalid inputs).
+   - Uses Octokit to post comment; on 201 returns comment object; on non-2xx throws `Error` with status and body (test both success and failure paths).
+
+3. **createBranch(owner: string, repo: string, branchName: string, baseRef?: string): Promise<string>**
+   - Validates inputs: owner, repo, branchName non-empty; baseRef optional (test invalid inputs).
+   - Uses Octokit to create ref; on 201 returns branch name; on non-201 throws `Error` (test both paths).
+
+4. **createPullRequest(owner: string, repo: string, head: string, base: string, title: string, body: string): Promise<any>**
+   - Validates all inputs non-empty (test invalid inputs).
+   - Uses Octokit to create PR; on 201 returns PR JSON; on non-201 throws `Error` (test both paths).
+
+5. **CLI Integration**
+   - Implements flags: `--summarize-issues owner repo`, `--post-comment owner repo issueNumber comment`, `--create-branch owner repo branchName [baseRef]`, `--create-pr owner repo head base title body`.
+   - Running each flag with valid and invalid arguments exits with code 0 on success, non-zero on failure, and prints JSON result or error to STDOUT/STDERR (test via child process invocation).
+
+6. **Documentation Updates**
+   - `sandbox/README.md` lists new Key Features: "GitHub Issue Summarization" and "Branch & PR Management" with usage examples.
+   - Example code block provided and verified to render correctly in Markdown.
+
+## End-to-End Verification
+
+- Run `npm test` and confirm all new and existing tests pass.
+- Launch CLI with each new flag in a REPL or shell script to verify behavior.
+- Preview `sandbox/README.md` in GitHub UI to ensure formatting and links are correct.
+comments:
+Author:github-actions[bot], Created:2025-05-18T09:21:42Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094466996
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/f59a83ec9d0ba371219e61e209967ba1fcd5dad7
+Author:github-actions[bot], Created:2025-05-18T09:22:13Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094466996
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/f59a83ec9d0ba371219e61e209967ba1fcd5dad7
+Author:github-actions[bot], Created:2025-05-18T09:23:17Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094466996
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/f59a83ec9d0ba371219e61e209967ba1fcd5dad7
+Author:github-actions[bot], Created:2025-05-18T09:31:40Z, Comment: Workflow name: flow-feature-maintenance
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094548778
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/8e8d0509731cbd93cb32122ed2b8ed4fe017e537
+Author:github-actions[bot], Created:2025-05-18T09:32:21Z, Comment: ## Relevant Library Document: OPENAI_NODE_SDK.md
+
+Table of Contents
+1 Installation
+2 Client Initialization
+3 Responses API
+4 Chat Completions API
+5 Streaming Responses
+6 File Uploads
+7 Error Handling
+8 Retries and Backoff
+9 Timeouts
+10 Request IDs
+11 Auto-Pagination
+12 Realtime API Beta
+13 Azure OpenAI
+14 Advanced Usage
+15 Browser Support
+16 Requirements
+
+1 Installation
+  Commands:
+    npm install openai
+    deno add jsr:@openai/openai
+    npx jsr add @openai/openai
+
+2 Client Initialization
+  new OpenAI({
+    apiKey?:string,         default process.env.OPENAI_API_KEY
+    maxRetries?:number,     default 2
+    timeout?:number,        default 600000
+    fetch?:(url,init)=>Promise<Response>
+    httpAgent?:http.Agent|HttpsProxyAgent
+    dangerouslyAllowBrowser?:boolean default false
+  })
+  new AzureOpenAI({
+    azureADTokenProvider:()=>Promise<string>
+    apiVersion:string       e.g. '2024-10-01-preview'
+  })
+
+3 Responses API
+  Method: client.responses.create
+  Params:{ model:string; instructions?:string; input:string; stream?:boolean }
+  Options:{ maxRetries?:number; timeout?:number; httpAgent?:http.Agent }
+  Returns:Promise<{ output_text:string; _request_id:string }>
+
+4 Chat Completions API
+  Method: client.chat.completions.create
+  Params:{ model:string; messages:{role:'system'|'user'|'assistant'|'developer';content:string}[]; stream?:boolean }
+  Returns:Promise<{ choices:{message:{role:string;content:string}}[]; _request_id:string }>
+
+5 Streaming Responses
+  Call create with stream:true
+  Returns AsyncIterable<{ type:string; data:string; id?:string }>
+
+6 File Uploads
+  Method: client.files.create
+  Params:{ file:ReadStream|File|Response|ReturnType<typeof toFile>; purpose:'fine-tune' }
+
+7 Error Handling
+  Throws subclasses of OpenAI.APIError:
+    BadRequestError(400), AuthenticationError(401), PermissionDeniedError(403), NotFoundError(404), UnprocessableEntityError(422), RateLimitError(429), InternalServerError(>=500), APIConnectionError
+  Timeout throws APIConnectionTimeoutError
+
+8 Retries and Backoff
+  Default maxRetries=2
+  Retries on network errors, 408,409,429,>=500
+  Override via maxRetries
+
+9 Timeouts
+  Default timeout=600000
+  Override via timeout
+  Throws APIConnectionTimeoutError
+
+10 Request IDs
+  Responses include _request_id from x-request-id
+  .withResponse() returns { data, request_id, response }
+
+11 Auto-Pagination
+  List methods return PagedResult<T> with .data[], .hasNextPage(), .getNextPage()
+  Async iteration across pages
+
+12 Realtime API Beta
+  import { OpenAIRealtimeWebSocket } from 'openai/beta/realtime/websocket'
+  new OpenAIRealtimeWebSocket({ model:string })
+  on('response.text.delta', callback)
+
+13 Azure OpenAI
+  import { AzureOpenAI } from 'openai'
+  new AzureOpenAI({ azureADTokenProvider, apiVersion })
+
+14 Advanced Usage
+  .asResponse(), .withResponse()
+  client.get/post for undocumented endpoints
+  ts-ignore extra params
+
+15 Browser Support
+  dangerouslyAllowBrowser:true to enable
+  exposes secret key risks
+
+16 Requirements
+  TS>=4.5, Node>=18, Deno>=1.28, Bun>=1.0, Cloudflare Workers, Vercel Edge, Jest28(node), Nitro>=2.6
+Author:github-actions[bot], Created:2025-05-18T09:32:21Z, Comment: ## Relevant Library Document: OPENAI_SDK.md
+
+Table of Contents
+1. Installation and Imports
+2. Client Initialization Options
+3. Text Generation (Responses API)
+4. Chat Completions API
+5. Streaming with SSE
+6. File Upload Patterns
+7. Error Handling and Status Mapping
+8. Retry Strategy and Configuration
+9. Timeout Configuration
+10. Request ID Extraction
+11. Auto-pagination Patterns
+12. Realtime WebSocket API
+13. Azure OpenAI Integration
+14. Raw Response Access
+15. Custom HTTP Requests
+16. Client Fetch Middleware
+17. Logging and Debugging
+18. HTTP/S Agent Configuration
+19. Semantic Versioning Guidelines
+20. Runtime Requirements
+
+1. Installation and Imports
+- npm install openai
+- import OpenAI from 'openai'
+- deno add jsr:@openai/openai or npx jsr add @openai/openai
+
+2. Client Initialization Options
+Constructor OpenAI({
+  apiKey?: string;           // default from OPENAI_API_KEY
+  maxRetries?: number;       // default 2
+  timeout?: number;          // default 600000 ms
+  httpAgent?: Agent;
+  fetch?: (RequestInfo, RequestInit?) => Promise<Response>;
+  dangerouslyAllowBrowser?: boolean;
+  azureADTokenProvider?: TokenProvider;
+  apiVersion?: string;
+});
+
+3. Text Generation (Responses API)
+Method: client.responses.create(params, options?)
+Params:
+  model: string
+  instructions?: string
+  input?: string
+  stream?: boolean
+Options:
+  maxRetries?: number
+  timeout?: number
+  httpAgent?: Agent
+  fetch?: function
+Returns:
+  Promise<{ output_text: string; _request_id: string }>
+  or AsyncIterable<ServerSentEvent> if stream=true
+
+4. Chat Completions API
+Method: client.chat.completions.create(params, options?)
+Params:
+  model: string
+  messages: Array<{ role: 'system'|'developer'|'user'|'assistant'; content: string }>
+  stream?: boolean
+Returns:
+  Promise<{ choices: Array<{ message: { role: string; content: string } }>; _request_id: string }>
+  or AsyncIterable<ServerSentEvent>
+
+5. Streaming with SSE
+- Set stream:true in create()
+- Iterate AsyncIterable<ServerSentEvent>
+
+6. File Upload Patterns
+Method: client.files.create({ file, purpose })
+file can be: fs.ReadStream | File | Response | toFile(Buffer,email) helper
+purpose: string (e.g., 'fine-tune')
+
+7. Error Handling and Status Mapping
+Throws APIError subclasses with: request_id, status, name, headers
+Mapping: 400 BadRequestError; 401 AuthenticationError; 403 PermissionDeniedError; 404 NotFoundError; 422 UnprocessableEntityError; 429 RateLimitError; >=500 InternalServerError; connection errors APIConnectionError
+
+8. Retry Strategy and Configuration
+Default retries: 2 for connection errors, 408,409,429,>=500
+Override: global maxRetries in constructor or per-request in options
+
+9. Timeout Configuration
+Default: 600000 ms; global override in constructor; per-request override in options
+On timeout: throws APIConnectionTimeoutError; still retried by default
+
+10. Request ID Extraction
+_All response objects include _request_id_
+Use .withResponse() to destructure { data, request_id }
+
+11. Auto-pagination Patterns
+Use for awaitof on list() methods; or manual via page.hasNextPage() and page.getNextPage()
+
+12. Realtime WebSocket API
+Import OpenAIRealtimeWebSocket from 'openai/beta/realtime/websocket'
+Constructor: new OpenAIRealtimeWebSocket({ model: string })
+Events: 'response.text.delta'
+
+13. Azure OpenAI Integration
+Import AzureOpenAI; require azureADTokenProvider, apiVersion
+auth via DefaultAzureCredential + getBearerTokenProvider
+
+14. Raw Response Access
+Use .asResponse() or .withResponse() to access fetch Response headers and statusText
+
+15. Custom HTTP Requests
+Use client.get/post/put/delete('/path', { body, query, headers })
+
+16. Client Fetch Middleware
+Pass fetch override in constructor to log/modify requests
+
+17. Logging and Debugging
+Set DEBUG=true to log all requests and responses automatically
+
+18. HTTP/S Agent Configuration
+Pass httpAgent in constructor or per-request; supports proxies (HttpsProxyAgent)
+
+19. Semantic Versioning Guidelines
+Follows SemVer; minor may include type-only or internal changes
+
+20. Runtime Requirements
+TypeScript>=4.5; Node >=18; Deno>=1.28; Bun>=1.0; Cloudflare Workers; Vercel Edge; Jest>=28; Nitro>=2.6; Browser support opt-in
+Author:github-actions[bot], Created:2025-05-18T09:32:22Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([OPENAI_NODE_SDK.md,OPENAI_SDK.md], 2 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-18T09:37:41Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094614264
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/8e8d0509731cbd93cb32122ed2b8ed4fe017e537
+Author:github-actions[bot], Created:2025-05-18T09:43:17Z, Comment: Workflow name: transformation-06-issue-to-code
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094648420
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/8e8d0509731cbd93cb32122ed2b8ed4fe017e537
+Author:github-actions[bot], Created:2025-05-18T09:46:13Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094668315
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/8e8d0509731cbd93cb32122ed2b8ed4fe017e537
+Author:github-actions[bot], Created:2025-05-18T09:46:40Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094668315
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/8e8d0509731cbd93cb32122ed2b8ed4fe017e537
+Author:github-actions[bot], Created:2025-05-18T09:47:40Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094668315
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/8e8d0509731cbd93cb32122ed2b8ed4fe017e537
+Author:github-actions[bot], Created:2025-05-18T09:49:21Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094699233
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/8e8d0509731cbd93cb32122ed2b8ed4fe017e537
+Author:github-actions[bot], Created:2025-05-18T09:50:38Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094707938
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/8e8d0509731cbd93cb32122ed2b8ed4fe017e537
+Author:github-actions[bot], Created:2025-05-18T09:57:07Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094748477
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/8e8d0509731cbd93cb32122ed2b8ed4fe017e537
+Author:github-actions[bot], Created:2025-05-18T09:58:45Z, Comment: Workflow name: flow-feature-maintenance
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094746863
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/94cd18272d220e14756f34ba035e188642ee55df
+Author:github-actions[bot], Created:2025-05-18T10:20:55Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094924400
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/94cd18272d220e14756f34ba035e188642ee55df
+Author:github-actions[bot], Created:2025-05-18T10:20:56Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094935994
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/94cd18272d220e14756f34ba035e188642ee55df
+Author:github-actions[bot], Created:2025-05-18T10:21:18Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094924400
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/94cd18272d220e14756f34ba035e188642ee55df
+Author:github-actions[bot], Created:2025-05-18T10:22:18Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094924400
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/94cd18272d220e14756f34ba035e188642ee55df
+Author:github-actions[bot], Created:2025-05-18T10:24:08Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094961909
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/94cd18272d220e14756f34ba035e188642ee55df
+Author:github-actions[bot], Created:2025-05-18T10:26:22Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15094981146
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/e0239032ca85e7fb644a881836515cb996ec5011
+Author:github-actions[bot], Created:2025-05-18T10:34:22Z, Comment: Workflow name: flow-feature-maintenance
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15095028928
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/e6ed752980691965a2e8242d44775804a7c8a063
+Author:github-actions[bot], Created:2025-05-18T10:36:07Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15095058792
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/e6ed752980691965a2e8242d44775804a7c8a063
+Author:github-actions[bot], Created:2025-05-18T10:38:01Z, Comment: Workflow name: ci-publish-web
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15095074644
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/e6ed752980691965a2e8242d44775804a7c8a063
+Author:github-actions[bot], Created:2025-05-18T10:39:36Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15095088213
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/e6ed752980691965a2e8242d44775804a7c8a063
+Author:github-actions[bot], Created:2025-05-18T10:40:04Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15095081789
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/e6ed752980691965a2e8242d44775804a7c8a063
+Author:github-actions[bot], Created:2025-05-18T10:40:54Z, Comment: ## Relevant Library Document: OPENAI_NODE_SDK.md
+
+Table of Contents
+1 Installation
+2 Client Initialization
+3 Responses API
+4 Chat Completions API
+5 Streaming Responses
+6 File Uploads
+7 Error Handling
+8 Retries and Backoff
+9 Timeouts
+10 Request IDs
+11 Auto-Pagination
+12 Realtime API Beta
+13 Azure OpenAI
+14 Advanced Usage
+15 Browser Support
+16 Requirements
+
+1 Installation
+  Commands:
+    npm install openai
+    deno add jsr:@openai/openai
+    npx jsr add @openai/openai
+
+2 Client Initialization
+  new OpenAI({
+    apiKey?:string,         default process.env.OPENAI_API_KEY
+    maxRetries?:number,     default 2
+    timeout?:number,        default 600000
+    fetch?:(url,init)=>Promise<Response>
+    httpAgent?:http.Agent|HttpsProxyAgent
+    dangerouslyAllowBrowser?:boolean default false
+  })
+  new AzureOpenAI({
+    azureADTokenProvider:()=>Promise<string>
+    apiVersion:string       e.g. '2024-10-01-preview'
+  })
+
+3 Responses API
+  Method: client.responses.create
+  Params:{ model:string; instructions?:string; input:string; stream?:boolean }
+  Options:{ maxRetries?:number; timeout?:number; httpAgent?:http.Agent }
+  Returns:Promise<{ output_text:string; _request_id:string }>
+
+4 Chat Completions API
+  Method: client.chat.completions.create
+  Params:{ model:string; messages:{role:'system'|'user'|'assistant'|'developer';content:string}[]; stream?:boolean }
+  Returns:Promise<{ choices:{message:{role:string;content:string}}[]; _request_id:string }>
+
+5 Streaming Responses
+  Call create with stream:true
+  Returns AsyncIterable<{ type:string; data:string; id?:string }>
+
+6 File Uploads
+  Method: client.files.create
+  Params:{ file:ReadStream|File|Response|ReturnType<typeof toFile>; purpose:'fine-tune' }
+
+7 Error Handling
+  Throws subclasses of OpenAI.APIError:
+    BadRequestError(400), AuthenticationError(401), PermissionDeniedError(403), NotFoundError(404), UnprocessableEntityError(422), RateLimitError(429), InternalServerError(>=500), APIConnectionError
+  Timeout throws APIConnectionTimeoutError
+
+8 Retries and Backoff
+  Default maxRetries=2
+  Retries on network errors, 408,409,429,>=500
+  Override via maxRetries
+
+9 Timeouts
+  Default timeout=600000
+  Override via timeout
+  Throws APIConnectionTimeoutError
+
+10 Request IDs
+  Responses include _request_id from x-request-id
+  .withResponse() returns { data, request_id, response }
+
+11 Auto-Pagination
+  List methods return PagedResult<T> with .data[], .hasNextPage(), .getNextPage()
+  Async iteration across pages
+
+12 Realtime API Beta
+  import { OpenAIRealtimeWebSocket } from 'openai/beta/realtime/websocket'
+  new OpenAIRealtimeWebSocket({ model:string })
+  on('response.text.delta', callback)
+
+13 Azure OpenAI
+  import { AzureOpenAI } from 'openai'
+  new AzureOpenAI({ azureADTokenProvider, apiVersion })
+
+14 Advanced Usage
+  .asResponse(), .withResponse()
+  client.get/post for undocumented endpoints
+  ts-ignore extra params
+
+15 Browser Support
+  dangerouslyAllowBrowser:true to enable
+  exposes secret key risks
+
+16 Requirements
+  TS>=4.5, Node>=18, Deno>=1.28, Bun>=1.0, Cloudflare Workers, Vercel Edge, Jest28(node), Nitro>=2.6
+Author:github-actions[bot], Created:2025-05-18T10:40:54Z, Comment: ## Relevant Library Document: OPENAI_SDK.md
+
+Table of Contents
+1. Installation and Imports
+2. Client Initialization Options
+3. Text Generation (Responses API)
+4. Chat Completions API
+5. Streaming with SSE
+6. File Upload Patterns
+7. Error Handling and Status Mapping
+8. Retry Strategy and Configuration
+9. Timeout Configuration
+10. Request ID Extraction
+11. Auto-pagination Patterns
+12. Realtime WebSocket API
+13. Azure OpenAI Integration
+14. Raw Response Access
+15. Custom HTTP Requests
+16. Client Fetch Middleware
+17. Logging and Debugging
+18. HTTP/S Agent Configuration
+19. Semantic Versioning Guidelines
+20. Runtime Requirements
+
+1. Installation and Imports
+- npm install openai
+- import OpenAI from 'openai'
+- deno add jsr:@openai/openai or npx jsr add @openai/openai
+
+2. Client Initialization Options
+Constructor OpenAI({
+  apiKey?: string;           // default from OPENAI_API_KEY
+  maxRetries?: number;       // default 2
+  timeout?: number;          // default 600000 ms
+  httpAgent?: Agent;
+  fetch?: (RequestInfo, RequestInit?) => Promise<Response>;
+  dangerouslyAllowBrowser?: boolean;
+  azureADTokenProvider?: TokenProvider;
+  apiVersion?: string;
+});
+
+3. Text Generation (Responses API)
+Method: client.responses.create(params, options?)
+Params:
+  model: string
+  instructions?: string
+  input?: string
+  stream?: boolean
+Options:
+  maxRetries?: number
+  timeout?: number
+  httpAgent?: Agent
+  fetch?: function
+Returns:
+  Promise<{ output_text: string; _request_id: string }>
+  or AsyncIterable<ServerSentEvent> if stream=true
+
+4. Chat Completions API
+Method: client.chat.completions.create(params, options?)
+Params:
+  model: string
+  messages: Array<{ role: 'system'|'developer'|'user'|'assistant'; content: string }>
+  stream?: boolean
+Returns:
+  Promise<{ choices: Array<{ message: { role: string; content: string } }>; _request_id: string }>
+  or AsyncIterable<ServerSentEvent>
+
+5. Streaming with SSE
+- Set stream:true in create()
+- Iterate AsyncIterable<ServerSentEvent>
+
+6. File Upload Patterns
+Method: client.files.create({ file, purpose })
+file can be: fs.ReadStream | File | Response | toFile(Buffer,email) helper
+purpose: string (e.g., 'fine-tune')
+
+7. Error Handling and Status Mapping
+Throws APIError subclasses with: request_id, status, name, headers
+Mapping: 400 BadRequestError; 401 AuthenticationError; 403 PermissionDeniedError; 404 NotFoundError; 422 UnprocessableEntityError; 429 RateLimitError; >=500 InternalServerError; connection errors APIConnectionError
+
+8. Retry Strategy and Configuration
+Default retries: 2 for connection errors, 408,409,429,>=500
+Override: global maxRetries in constructor or per-request in options
+
+9. Timeout Configuration
+Default: 600000 ms; global override in constructor; per-request override in options
+On timeout: throws APIConnectionTimeoutError; still retried by default
+
+10. Request ID Extraction
+_All response objects include _request_id_
+Use .withResponse() to destructure { data, request_id }
+
+11. Auto-pagination Patterns
+Use for awaitof on list() methods; or manual via page.hasNextPage() and page.getNextPage()
+
+12. Realtime WebSocket API
+Import OpenAIRealtimeWebSocket from 'openai/beta/realtime/websocket'
+Constructor: new OpenAIRealtimeWebSocket({ model: string })
+Events: 'response.text.delta'
+
+13. Azure OpenAI Integration
+Import AzureOpenAI; require azureADTokenProvider, apiVersion
+auth via DefaultAzureCredential + getBearerTokenProvider
+
+14. Raw Response Access
+Use .asResponse() or .withResponse() to access fetch Response headers and statusText
+
+15. Custom HTTP Requests
+Use client.get/post/put/delete('/path', { body, query, headers })
+
+16. Client Fetch Middleware
+Pass fetch override in constructor to log/modify requests
+
+17. Logging and Debugging
+Set DEBUG=true to log all requests and responses automatically
+
+18. HTTP/S Agent Configuration
+Pass httpAgent in constructor or per-request; supports proxies (HttpsProxyAgent)
+
+19. Semantic Versioning Guidelines
+Follows SemVer; minor may include type-only or internal changes
+
+20. Runtime Requirements
+TypeScript>=4.5; Node >=18; Deno>=1.28; Bun>=1.0; Cloudflare Workers; Vercel Edge; Jest>=28; Nitro>=2.6; Browser support opt-in
+Author:github-actions[bot], Created:2025-05-18T10:40:55Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([OPENAI_NODE_SDK.md,OPENAI_SDK.md], 2 in total) have been added as comments.
+ISSUE_END            
+
+Dependencies list from command: npm list
+DEPENDENCIES_LIST_START
+@xn-intenton-z2a/agentic-lib@6.6.5-0 /home/runner/work/agentic-lib/agentic-lib
+├── @aws-sdk/client-lambda@3.812.0
+├── @microsoft/eslint-formatter-sarif@3.1.0
+├── @vitest/coverage-v8@3.1.3
+├── @xn-intenton-z2a/s3-sqs-bridge@0.24.0
+├── aws-cdk@2.1016.0
+├── chalk@5.4.1
+├── change-case@5.4.4
+├── dayjs@1.11.13
+├── dotenv@16.5.0
+├── ejs@3.1.10
+├── eslint-config-google@0.14.0
+├── eslint-config-prettier@8.10.0
+├── eslint-plugin-import@2.31.0
+├── eslint-plugin-prettier@5.4.0
+├── eslint-plugin-promise@7.2.1
+├── eslint-plugin-react@7.37.5
+├── eslint-plugin-security@3.0.1
+├── eslint-plugin-sonarjs@3.0.2
+├── eslint@9.27.0
+├── figlet@1.8.1
+├── js-yaml@4.1.0
+├── lodash@4.17.21
+├── markdown-it-github@0.5.0
+├── markdown-it@14.1.0
+├── minimatch@10.0.1
+├── npm-check-updates@18.0.1
+├── openai@4.100.0
+├── prettier@3.5.3
+├── seedrandom@3.0.5
+├── vitest@3.1.3
+└── zod@3.24.4
+DEPENDENCIES_LIST_END    
+
+Build output from command: npm run build
+BUILD_OUTPUT_START
+
+> @xn-intenton-z2a/agentic-lib@6.6.5-0 build
+> echo "Nothing to build"
+
+Nothing to build
+BUILD_OUTPUT_END      
+
+Test output from command: npm test
+TEST_OUTPUT_START
+
+> @xn-intenton-z2a/agentic-lib@6.6.5-0 test
+> vitest tests/unit/*.test.js sandbox/tests/*.test.js
+
+
+[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/agentic-lib/agentic-lib[39m
+
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+[90mstdout[2m | tests/unit/main.test.js
+[22m[39m{"level":"info","timestamp":"2025-05-18T12:54:15.482Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
+
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 53[2mms[22m[39m
+[90mstdout[2m | sandbox/tests/server.test.js
+[22m[39mServer started on port 3000
+
+ [32m✓[39m sandbox/tests/server.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m   Start at [22m 12:54:15
+[2m   Duration [22m 394ms[2m (transform 89ms, setup 0ms, collect 204ms, tests 75ms, environment 1ms, prepare 258ms)[22m
+TEST_OUTPUT_END            
+
+Main execution output from command: npm run start
+MAIN_OUTPUT_START
+
+> @xn-intenton-z2a/agentic-lib@6.6.5-0 start
+> node src/lib/main.js
+
+{"level":"info","timestamp":"2025-05-18T12:54:15.768Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+MAIN_OUTPUT_END    
+
+Please produce updated versions of the files that resolve the issue.
+Note that the README.md file is provided for context only - any documentation changes should be written to the documentation files.
+The source files, test files, and documentation files can be individual files or directories containing multiple files.
+Never truncate the files, when returning a file, always return the entire file content.
 
 Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;sandbox/docs/;sandbox/README.md
 
 Answer strictly with a JSON object following this schema:
 {
-  "message": "A short sentence explaining the changes applied (or why no changes were applied) suitable for a commit message or PR text.",
-  "updatedFile01Filepath": "sandbox/README.md",
-  "updatedFile01Contents": "The entire new content of the README file, with all necessary changes applied, if any.",
-  "updatedFile02Filepath":  "sandbox/docs/USAGE.md",
-  "updatedFile02Contents": "The entire new content of the file, with all necessary changes applied, if any.",
-  "updatedFile03Filepath": "unused",
-  "updatedFile03Contents": "unused",
-  "updatedFile04Filepath": "unused",
-  "updatedFile04Contents": "unused",
+  "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text.",
+  "updatedFile01Filepath": "sandbox/source/orderParser.js",
+  "updatedFile01Contents": "The entire new content of the source file, with all necessary changes applied, if any.",
+  "updatedFile02Filepath":  "sandbox/tests/orderParser.test.js",
+  "updatedFile02Contents": "The entire new content of the test file, with all necessary changes applied, if any.",
+  "updatedFile03Filepath": "sandbox/docs/USAGE.md",
+  "updatedFile03Contents": "The entire new content of the documentation file, with all necessary changes applied, if any.",
+  "updatedFile04Filepath": "sandbox/docs/A_FILE_WE_DONT_WANT.md",
+  "updatedFile04Contents": "delete",
   "updatedFile05Filepath": "unused",
   "updatedFile05Contents": "unused",
   "updatedFile06Filepath": "unused",
@@ -1165,6 +1947,7 @@ Answer strictly with a JSON object following this schema:
 
 You can include up to 16 files using the updatedFileXXName and updatedFileXXContents pairs (where XX is a number from 01 to 16)
 Where a file name and contents slot is not used, populate tha name with "unused" and the contents with "unused".
+Where a file is to be deleted, set the name to the file path and the contents to "delete".
 Never truncate the files, when returning a file, always return the entire file content.
 
 Ensure valid JSON.
