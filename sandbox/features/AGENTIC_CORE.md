@@ -12,6 +12,8 @@ Extend the main(args) function in src/lib/main.js to support these flags in addi
 • --github-create-branch <owner> <repo> <branchName> <fromSha>  : create a new branch from a given commit SHA
 • --github-commit-file <owner> <repo> <branch> <path> <content> <message> : commit or update a file on a branch
 • --github-create-pull-request <owner> <repo> <head> <base> <title> [body] : open a pull request
+• --github-list-pull-requests <owner> <repo> [state]        : list pull requests for a repository
+• --github-merge-pull-request <owner> <repo> <prNumber> [method] : merge a pull request using merge, squash, or rebase
 • --chat <prompt> [model] [maxTokens]              : send a prompt to OpenAI and output the completion response
 
 Preserve early-exit behavior for help, version, and digest flags. Log each operation and handle errors with descriptive messages.
@@ -28,6 +30,8 @@ Extend sandbox/source/server.js to expose new REST routes in addition to /health
 • POST /github/branches      accepts JSON { owner, repo, branchName, fromSha } and returns branch info
 • POST /github/commit        accepts JSON { owner, repo, branch, path, content, message } and returns commit result
 • POST /github/pull-request  accepts JSON { owner, repo, head, base, title, body } and returns pull request details
+• GET  /github/pull-requests accepts query params owner, repo, state and returns list of pull requests
+• POST /github/merge-pull-request accepts JSON { owner, repo, prNumber, method } and returns merge commit details
 
 • POST /openai/completions   accepts JSON { prompt, model, maxTokens } and returns the AI completion response
 
@@ -40,6 +44,8 @@ Export reusable functions in src/lib/main.js for interacting with GitHub using g
 • createBranch(owner: string, repo: string, branchName: string, fromSha: string): Promise<object>
 • commitFile(owner: string, repo: string, branch: string, path: string, content: string, message: string): Promise<object>
 • createPullRequest(owner: string, repo: string, head: string, base: string, title: string, body?: string): Promise<object>
+• listPullRequests(owner: string, repo: string, state?: string): Promise<Array<object>>
+• mergePullRequest(owner: string, repo: string, pullNumber: number, method?: "merge" | "squash" | "rebase"): Promise<object>
 
 Log each request and response, implement retry logic for rate limits, and surface descriptive errors.
 
@@ -51,17 +57,17 @@ Log requests and responses, implement retry on rate limits, and report descripti
 
 # Success Criteria & Testing
 • All existing Vitest tests continue passing without modification.
-• Add unit tests mocking the OpenAIApi client to simulate success and failure scenarios for createChatCompletion and the --chat CLI flag.
-• Add unit tests for new CLI --chat flag, verifying console output, exit codes, and error handling.
-• Add sandbox tests for the /openai/completions HTTP route, verifying status codes, response bodies, authentication, and rate limiting.
+• Add unit tests mocking the GitHub API client to simulate list and merge pull requests success and failure.
+• Add unit tests for new CLI --github-list-pull-requests and --github-merge-pull-request flags, verifying console output, exit codes, and error handling.
+• Add sandbox tests for the GET /github/pull-requests and POST /github/merge-pull-request HTTP routes, verifying status codes, request validation, authentication, and rate limiting.
 
 # Documentation & README Updates
-• Update sandbox/README.md Key Features to include OpenAI CLI flag and HTTP endpoint.
-• Add usage examples for OpenAI CLI flag and HTTP /openai/completions route in sandbox/docs/SERVER.md or create sandbox/docs/OPENAI.md.
-• Update openapi.json to describe the new /openai/completions endpoint and its payload schema.
-• Document OpenAI utilities in docs/OPENAI_API.md with usage scenarios.
+• Update sandbox/README.md Key Features to include new pull request listing and merge CLI flags and HTTP endpoints.
+• Add usage examples for CLI list and merge pull request flags in sandbox/docs/SERVER.md.
+• Update openapi.json to describe the new /github/pull-requests and /github/merge-pull-request endpoints and their payload schemas.
+• Document listPullRequests and mergePullRequest utilities in docs/GITHUB_API.md with usage scenarios.
 
 # Dependencies & Constraints
 • Modify src/lib/main.js, sandbox/source/server.js, sandbox/tests/, sandbox/docs/, sandbox/README.md, and openapi.json only.
-• Use the existing openai dependency; no new dependencies required.
+• Use existing global fetch and no new dependencies required.
 • Maintain ESM compatibility and existing coding style conventions.
