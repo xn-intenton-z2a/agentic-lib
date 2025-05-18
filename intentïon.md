@@ -44,3 +44,5 @@ chat.completions.create({model:string,messages:Array<{role,content}>,stream?},op
 client.files.create({file:ReadStream|File|Response|toFile(buffer,name),purpose:'fine-tune'|'answers'|'search'|'classifications'|'embeddings'});
 Errors: APIError subclasses with request_id,status,name,headers; map 400-429-5xx; connection errors retry; timeout=>APIConnectionTimeoutError; default retries=2; override via maxRetries global or per-request; override timeout global or per-request; all responses include _request_id or via .withResponse(); auto-pagination with for await or page.hasNextPage(); Realtime via OpenAIRealtimeWebSocket({model}); Azure: new AzureOpenAI({azureADTokenProvider,apiVersion}); Advanced: .asResponse(), client.get/post, custom fetch, DEBUG=true logging, httpAgent for proxies; shim imports for fetch behavior; TS>=4.5, Node>=18, Deno>=1.28, Bun>=1.0, Cloudflare, Vercel Edge, Jest>=28, Nitro>=2.6; browser support with dangerouslyAllowBrowser:true..
 
+2025-05-18T06:34:33.904Z - Maintained feature AGENTIC_CORE.
+
