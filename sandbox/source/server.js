@@ -205,10 +205,12 @@ async function handler(req, res) {
     }
   }
 
-  // Record duration for each request
+  // Record duration for each request except /metrics to avoid recursive metrics recording
   const [sec, nanosec] = process.hrtime(start);
   const duration = sec + nanosec / 1e9;
-  recordDuration(method, route, status, duration);
+  if (route !== "/metrics") {
+    recordDuration(method, route, status, duration);
+  }
 }
 
 export function startServer(options = {}) {
