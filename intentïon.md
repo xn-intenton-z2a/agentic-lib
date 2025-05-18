@@ -16,3 +16,5 @@
 
 2025-05-18T04:59:04.755Z - Created maintenance issue with title Test: Enhance HTTP server test suite for core endpoints, auth, and rate-limiting.
 
+2025-05-18T05:20:58.841Z - Generated feature development issue with title Add --mission CLI flag to display project mission statement.
+
