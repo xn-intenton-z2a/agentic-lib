@@ -1,63 +1,68 @@
-# Feature Overview
+# Agentic Core Feature Specification
 
-- Environment Configuration
-  Load and validate environment variables using dotenv and Zod to ensure consistent, reproducible conditions in autonomous workflows.
-- Structured Logging Helpers
-  Export logInfo and logError functions producing JSON-formatted logs with levels, timestamps, messages, and optional context for transparent audit trails.
-- OpenAI Chat Utilities
-  Export async chatCompletion function to call the OpenAI API with a messages array, process responses, and return parsed JSON content.
-- AWS SQS Utilities & Lambda Handler
-  Provide createSQSEventFromDigest to craft mock SQS events and digestLambdaHandler to process records with error handling, failure reporting, and support for AWS batchItemFailures semantics.
-- CLI Interface
-  Support --help, --version, and --digest flags in main CLI, enabling users to display usage instructions, version information with timestamp, and simulate SQS digest events.
-- HTTP Server
-  startServer function exposing critical endpoints: /health, /metrics, /openapi.json, /docs, all supporting CORS, Basic Auth when configured, and integrated rate-limit headers.
-- GitHub API Utilities
-  Export functions to interact with GitHub repositories and issues, including createIssue, listIssues, createBranch, commitFile, and createPullRequest, leveraging authenticated REST API calls to enable agentic workflows through issues and branches.
+## 1. Overview
+This feature delivers the essential building blocks for autonomous, agentic workflows. It consolidates environment configuration, structured logging, AWS SQS utilities, CLI interface, HTTP server endpoints, and GitHub API integrations into a single cohesive module. Each component is designed for high reliability, testability, and seamless integration in Node.js projects.
 
-# GitHub API Utilities
+## 2. Environment Configuration
+- Load environment variables using dotenv.
+- Validate required and optional variables with Zod schema:
+  • GITHUB_API_BASE_URL (string, optional, default https://api.github.com)
+  • GITHUB_TOKEN (string, required for GitHub API calls)
+  • OPENAI_API_KEY (string, required for chat utilities)
+  • PORT, CORS_ALLOWED_ORIGINS, RATE_LIMIT_REQUESTS, METRICS_USER, METRICS_PASS, DOCS_USER, DOCS_PASS
 
-Implement a set of asynchronous functions for seamless integration with GitHub APIs:
+## 3. Structured Logging Helpers
+- Export `logInfo(message: string): void` and `logError(message: string, error?: any): void`.
+- Format logs as JSON with `level`, `timestamp`, `message`, and optional context or stack.
+- Allow verbose mode through environment variable for additional diagnostics.
 
-- createIssue(repo, title, body, labels?):
-  Create a GitHub issue in the specified repository with title, body, and optional labels.
-- listIssues(repo, filters?):
-  Retrieve a list of issues matching optional filters (state, labels, assignee).
-- createBranch(repo, baseBranch, newBranch):
-  Create a new branch from a specified base branch in the repository.
-- commitFile(repo, branch, filePath, content, commitMessage):
-  Create or update a file in the given branch, committing changes with the provided message.
-- createPullRequest(repo, title, head, base, body?):
-  Open a pull request from head branch into base branch with title and optional description.
+## 4. AWS SQS Utilities & Lambda Handler
+- `createSQSEventFromDigest(digest: object): SqsEvent` to construct mock SQS event records.
+- `digestLambdaHandler(event: SqsEvent): Promise<{ batchItemFailures: Array<{ itemIdentifier: string }>, handler: string }>`:
+  • Parse each record body as JSON, log successes and errors.
+  • Generate fallback record identifiers for failures.
+  • Return AWS-compatible batchItemFailures list.
 
-Each function must:
+## 5. CLI Interface
+- Support flags in `main(args: string[])`:
+  • `--help`: print usage instructions and exit.
+  • `--version`: read version from package.json, print JSON with `version` and `timestamp`.
+  • `--digest`: simulate SQS digest using createSQSEventFromDigest and digestLambdaHandler.
+- Exit early on handled flags; default to usage instructions if no flags.
 
-- Use @octokit/rest or Fetch with config.GITHUB_API_BASE_URL and GITHUB_TOKEN for authentication.
-- Log request and response details via logInfo; log errors via logError.
-- Throw descriptive errors for HTTP failures or invalid inputs.
+## 6. HTTP Server Endpoints
+- Function `startServer(options?: { port?: number }): http.Server`:
+  • `/health`: GET returns JSON `{ status, uptime, timestamp }`.
+  • `/metrics`: GET returns Prometheus metrics, protected by Basic Auth if configured.
+  • `/openapi.json`: GET returns OpenAPI 3.0 spec for all endpoints.
+  • `/docs`: GET returns HTML-rendered OpenAPI spec via MarkdownIt and markdown-it-github, protected by Basic Auth if configured.
+- Enforce IP-based rate limiting with token bucket algorithm per-minute.
+- Record request counts and failure counts in in-memory metrics.
 
-# Configuration & Environment Variables
+## 7. GitHub API Utilities
+- Export async functions using @octokit/rest or fetch:
+  • `createIssue(repo: string, title: string, body: string, labels?: string[]): Promise<object>`
+  • `listIssues(repo: string, filters?: Record<string, any>): Promise<object[]>`
+  • `createBranch(repo: string, baseBranch: string, newBranch: string): Promise<object>`
+  • `commitFile(repo: string, branch: string, filePath: string, content: string, commitMessage: string): Promise<object>`
+  • `createPullRequest(repo: string, title: string, head: string, base: string, body?: string): Promise<object>`
+- Authenticate with GITHUB_TOKEN and log all requests and responses.
+- Throw descriptive errors on HTTP or input validation failures.
 
-- GITHUB_API_BASE_URL (optional)  Base URL for GitHub API requests; defaults to api.github.com.
-- GITHUB_TOKEN (required for GitHub API Utilities)  Personal access token or GitHub App token with repo scope.
-- OPENAI_API_KEY (required for chatCompletion)
-- PORT
-- CORS_ALLOWED_ORIGINS
-- RATE_LIMIT_REQUESTS
-- METRICS_USER, METRICS_PASS
-- DOCS_USER, DOCS_PASS
+## 8. Success Criteria & Testing
+- All components pass existing Vitest tests and new tests:
+  • Mock AWS and HTTP behavior for SQS and server endpoints.
+  • Mock @octokit/rest or fetch for GitHub functions to verify request correctness and error handling.
+- Environment validation errors thrown on missing required vars.
+- Rate limiting and Basic Auth scenarios covered in server tests.
+- CLI flags tested in unit tests for correct output and exit behavior.
+- Ensure globalThis.callCount tracking remains intact for test mocks.
 
-# Success Criteria & Acceptance
+## 9. Documentation & README Updates
+- Update README feature list to match implemented utilities.
+- Add usage examples for GitHub API functions.
+- Ensure sandbox/docs and sandbox/README.md reflect all endpoints and utilities.
 
-- All existing core features continue to function and pass existing tests.
-- GitHub API Utilities functions successfully call mocked API endpoints with correct parameters in Vitest tests.
-- createIssue and createPullRequest return parsed JSON responses when API returns success.
-- Error paths such as authentication failures or missing parameters throw and log descriptive exceptions.
-- Implementation uses only allowed sandbox paths (source, tests, docs, readme, dependencies).
-
-# Testability & Stability
-
-- Add Vitest tests in sandbox/tests/server.test.js and tests/unit/main.test.js to mock @octokit/rest and validate both success and error scenarios.
-- Ensure required GITHUB_TOKEN missing triggers startup validation error.
-- Verify GitHub API functions integrate correctly with logInfo/logError helpers and global callCount when used in CLI scenarios.
-- Maintain existing fail-safe mechanisms: unexpected errors in new utilities are captured and reported without crashing other functionality.
+## 10. Dependencies & Constraints
+- Only modify sandbox/source, sandbox/tests, sandbox/docs, sandbox/README.md, and package.json.
+- Maintain Node 20+ ESM compatibility.
