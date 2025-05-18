@@ -734,18 +734,18 @@ intentïon user journey [Launch UX]:
 - [x] intentïon.com shows: Running experiment:  <link to branch> + random lines from intentïon.md
 - [x] Put every commit comment into intentïon.md plus some none commit activities. (copy trace-discussion from the bot)
 - [x] Rename (intentionBot, intentionFilepath) to (intentionBot, intentionFilepath)
-- [~] Add links to issues, feature files, and commits to intentïon.md
-- [~] More disciplined markdown in intentïon.md (e.g. # Activity logs\n\n ## 2025-04-20....)
-- [~] Extract the mission file from the repository and put it in the intentïon.md
-- [ ] Add main output examples to intentïon.md
-- [ ] Add PR approval and closure/abandonment to intentïon.md
-- [ ] Add API call duration to usage
-- [ ] Change link to running experiment to be a link to intentïon.md on that branch.
-- [ ] intentïon.com shows: past experiments: <link to branch> + mission and status.
-- [ ] intentïon.com shows: past experiments as websites (see comment in .com project): <link to branch> + mission and status.
+- [x] [Launch] Markdown in intentïon.md (e.g. # Activity logs\n\n ## 2025-04-20....)
+- [~] [Launch] Add links to issues, feature files, and commits to intentïon.md
+- [~] [Launch] Extract the mission file from the repository and put it in the intentïon.md
+- [ ] [Launch] Add main output examples to intentïon.md
+- [ ] [Launch] Change link to running experiment to be a link to intentïon.md on that branch.
+- [ ] [Launch] intentïon.com shows: past experiments: <link to branch> + mission and status.
+- [ ] [Launch] intentïon.com shows: past experiments as websites (see comment in .com project): <link to branch> + mission and status.
 - [ ] Create a repository from main via a button.
 - [ ] Script the process from request to cloning the repository and setting it up to run the workflows.
-- [ ] Screen capture the scripted flow.
+- [ ] Screen capture the scripted flow and post a link to this on Youtube.
+- [ ] Add PR approval and closure/abandonment to intentïon.md
+- [ ] Add API call duration to usage
 - [ ] Request a promotional video.
 - [ ] Activity report to maintainers log.
 - [ ] Update intentïon.md with the current state of the repository.
