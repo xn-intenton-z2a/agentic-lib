@@ -309,3 +309,84 @@ LLM API Usage:
 ```
 ---
 
+## Maintained Feature at 2025-05-19T16:34:27.788Z
+
+Maintained feature SQS_SENDER.
+
+Git diff:
+
+```
+diff --git a/sandbox/features/SQS_SENDER.md b/sandbox/features/SQS_SENDER.md
+index c118ab83..a5ee94ed 100644
+--- a/sandbox/features/SQS_SENDER.md
++++ b/sandbox/features/SQS_SENDER.md
+@@ -1,30 +1,42 @@
+ # Objective
+ 
+-Add the ability to send digest messages to an AWS SQS queue from both the library API and the CLI. This feature allows users to push events into a queue for downstream processing, completing the end-to-end workflow from event creation through delivery.
++Extend the library and CLI to send digest payloads to an AWS SQS queue, enabling downstream workflows to consume events without custom scripting.
+ 
+ # Value Proposition
+ 
+-Provide core functionality for publishing digest events to SQS so that automated workflows can leverage AWS messaging. Users gain a single, unified API and CLI command to enqueue messages without writing custom code or scripts.
++Provide a unified API and CLI flag for queuing digest messages. This simplifies integration with AWS SQS by encapsulating configuration, message formatting, and error handling within the library, reducing boilerplate for end users.
+ 
+ # Requirements
+ 
+-1. Environment variable QUEUE_URL must be defined to specify the target SQS queue.
+-2. Add dependency on @aws-sdk/client-sqs to package.json.
+-3. Implement a sendMessageToQueue function in the main source file that accepts a digest object, constructs a SendMessageCommand, and calls SQSClient.send.
+-4. Expose sendMessageToQueue in the module exports for programmatic use.
+-5. Add a new CLI flag --send-queue that reads the queue URL, builds an example or supplied digest, and invokes sendMessageToQueue.
+-6. Update README with usage examples for the new CLI flag and library API.
+-7. Write unit tests covering success and error cases for sendMessageToQueue and the --send-queue CLI command.
++1. Add dependency on @aws-sdk/client-sqs in package.json.
++2. In src/lib/main.js import SQSClient and SendMessageCommand from @aws-sdk/client-sqs.
++3. Implement and export async function sendMessageToQueue(digest: object):
++   - Read QUEUE_URL from environment.
++   - Create SQSClient with default region.
++   - Construct SendMessageCommand with MessageBody set to JSON.stringify(digest) and QueueUrl set to QUEUE_URL.
++   - Call client.send and return the result.
++   - On missing QUEUE_URL throw an error with clear guidance.
++4. Add CLI support for --send-queue flag:
++   - Process args in main: if args includes --send-queue, parse optional JSON payload from a file or use built-in example digest.
++   - Call sendMessageToQueue and log success or error using logInfo/logError.
++   - Exit with non-zero code on failure.
++5. Update README:
++   - Document the sendMessageToQueue API signature.
++   - Add CLI section for --send-queue with example invocations and expected output.
++6. Write unit tests in sandbox/tests for sendMessageToQueue:
++   - Mock SQSClient.send to verify message construction and error handling.
++   - Test CLI invocation with --send-queue and with missing QUEUE_URL to confirm error path.
+ 
+ # User Scenarios
+ 
+-- As a developer, I want to enqueue a digest event by running npm start -- --send-queue so that downstream Lambdas or services can process it.
+-- As an automated workflow author, I import sendMessageToQueue from agentic-lib and call it to publish events dynamically during runtime.
++- As a CLI user, I run npm start -- --send-queue to enqueue a sample digest and see confirmation.
++- As a developer, I import sendMessageToQueue and call it with a custom digest object in my workflow.
++- As an automation engineer, I set QUEUE_URL and invoke sendMessageToQueue to route events to my processing pipeline.
+ 
+ # Verification & Acceptance
+ 
+-1. Unit tests simulate SQSClient mock to verify that SendMessageCommand is constructed with correct body and queue URL.
+-2. CLI integration tests confirm that invoking --send-queue logs success or reports errors cleanly.
+-3. If QUEUE_URL is missing, provide a clear error message and exit non-zero.
+-4. Documentation examples in README produce valid JSON output demonstrating enqueue success.
+-5. Dependency list updated and linting passes with no errors.
+\ No newline at end of file
++1. Unit tests mock SQSClient to assert that SendMessageCommand receives correct QueueUrl and MessageBody.
++2. CLI tests simulate environment without QUEUE_URL and confirm process exits with error message.
++3. README examples execute successfully against a live or mocked queue.
++4. Linting and formatting pass with no errors.
++5. New dependency appears in package.json and package lock, and install succeeds.
+\ No newline at end of file
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6442,"completion_tokens":1232,"total_tokens":7674,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
