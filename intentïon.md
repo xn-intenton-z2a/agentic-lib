@@ -137,3 +137,64 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-19T23:36:16.143Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1537 with enhanced description:
+
+Overview
+--------
+Enhance the existing `--digest` CLI command so users can optionally supply a file path pointing to a JSON payload.
+
+When a path is provided:
+- Read the file synchronously (`fs.readFileSync(path, 'utf8')`).
+- Parse the content as JSON; on success:
+  - Call `createSQSEventFromDigest(parsedObject)` and await `digestLambdaHandler` with the generated event.
+- On file read or parse error:
+  - Call `logError()` with details (raw content and error message) and exit with `process.exit(1)`.
+
+If no path is provided or the next token is another flag, retain the current fallback behavior using `exampleDigest`.
+
+Testable Acceptance Criteria
+----------------------------
+- [ ] `generateUsage()` output includes `--digest [<path>]` in the usage instructions.
+- [ ] Running `node src/lib/main.js --digest ./payload.json`:
+  - Reads and parses `payload.json` correctly.
+  - Invokes `createSQSEventFromDigest` with the parsed JSON.
+  - Calls `digestLambdaHandler` with an event whose `Records[0].body` matches the JSON payload.
+- [ ] Running `node src/lib/main.js --digest` (no path) uses the `exampleDigest` fallback and invokes `digestLambdaHandler` accordingly.
+- [ ] On file not found or permission error:
+  - `logError` is called with the error object.
+  - The process exits with code 1.
+- [ ] On invalid JSON content:
+  - `logError` is called with the raw file content and parse error.
+  - The process exits with code 1.
+- [ ] Unit tests in `tests/unit/main.test.js` cover:
+  - Valid file path scenario (mock `fs.readFileSync`, spy on `digestLambdaHandler`).
+  - Fallback behavior (no path).
+  - File read error scenario (mock `fs.readFileSync` to throw, spy on `logError` and `process.exit`).
+  - Invalid JSON scenario (mock `fs.readFileSync` to return malformed JSON, spy on `logError` and `process.exit`).
+- [ ] All tests pass with `npm test`.
+
+Documentation Updates
+---------------------
+- [ ] Update `sandbox/README.md` under "Usage" to document the new `--digest [<path>]` option with an example:
+  ```bash
+  node src/lib/main.js --digest ./sampleEvent.json
+  ```
+
+Scope
+-----
+Only modify:
+- `src/lib/main.js` (implementation)
+- `tests/unit/main.test.js` (unit tests)
+- `sandbox/README.md` (usage docs)
+
+No new files should be created or deleted.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7630,"completion_tokens":1550,"total_tokens":9180,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":896,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
