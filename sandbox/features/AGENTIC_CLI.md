@@ -1,36 +1,37 @@
 # Value Proposition
-Extend the sandbox CLI into a combined HTTP server and interactive chat interface powered by OpenAI. Provide summarization capabilities for both GitHub issues and pull requests by fetching relevant data, compiling it, and generating concise summaries.
+Extend the sandbox CLI and HTTP interface to not only summarize GitHub issues and pull requests but also post those summaries back to GitHub as comments. This streamlines the workflow by providing automated feedback directly in the GitHub UI, closing the loop on summarization and enabling faster collaboration.
 
 # Success Criteria & Requirements
 - CLI Flags:
-  - --summarize-issue <owner>/<repo>#<issue-number>: retrieve issue body and comments via GITHUB_API_BASE_URL, send aggregated content to OpenAI createChatCompletion, print summary to stdout.
-  - --summarize-pr <owner>/<repo>#<pr-number>: retrieve pull request metadata, diff and comments via GITHUB_API_BASE_URL, send aggregated content to OpenAI createChatCompletion, print summary to stdout.
+  - --summarize-issue <owner>/<repo>#<issue-number>: Retrieve and summarize issue body and comments, print summary to stdout.
+  - --summarize-pr <owner>/<repo>#<pr-number>: Retrieve and summarize pull request metadata, diff, and comments, print summary to stdout.
+  - --post-issue-summary <owner>/<repo>#<issue-number>: Perform issue summarization and post the resulting summary as a new comment on the issue.
+  - --post-pr-summary <owner>/<repo>#<pr-number>: Perform PR summarization and post the summary as a new comment on the pull request.
 - HTTP Endpoints:
-  - POST /summary: accept JSON with keys owner string, repo string, issueNumber number, optional model string and maxTokens number; return JSON with key summary string.
-  - POST /pr-summary: accept JSON with keys owner string, repo string, prNumber number, optional model string and maxTokens number; return JSON with key summary string.
-- Configuration: honor GITHUB_API_BASE_URL, OPENAI_API_KEY, OPENAI_API_BASE_URL, OPENAI_CHAT_MODEL default gpt-3.5-turbo and OPENAI_MAX_TOKENS default 500.
-- Logging & Observability: use logInfo and logError to record incoming requests, GitHub and OpenAI calls. Respect VERBOSE_MODE and VERBOSE_STATS flags for additional logs and stats in HTTP responses.
-- Error Handling: validate presence and types of owner, repo, issueNumber and prNumber; return HTTP 400 on invalid input and HTTP 502 on GitHub or OpenAI API errors with structured error messages.
+  - POST /summary: Accept JSON with owner, repo, issueNumber, optional model, maxTokens; return JSON with summary.
+  - POST /pr-summary: Accept JSON with owner, repo, prNumber, optional model, maxTokens; return JSON with summary.
+  - POST /issue-comment: Accept JSON with owner, repo, issueNumber, optional model, maxTokens; return JSON with summary and commentUrl.
+  - POST /pr-comment: Accept JSON with owner, repo, prNumber, optional model, maxTokens; return JSON with summary and commentUrl.
+- Authentication & Configuration:
+  - Require GITHUB_TOKEN environment variable to authenticate comment posting.
+  - Honor GITHUB_API_BASE_URL, OPENAI_API_KEY, OPENAI_API_BASE_URL, OPENAI_CHAT_MODEL default gpt-3.5-turbo, OPENAI_MAX_TOKENS default 500.
+- Logging & Observability:
+  - Use logInfo and logError for all incoming commands and HTTP requests, GitHub and OpenAI API calls.
+  - Respect VERBOSE_MODE and VERBOSE_STATS for additional logs and statistics in CLI output and HTTP responses.
+- Error Handling:
+  - Validate input parameters and authentication token presence, returning exit code and messages for CLI.
+  - Return HTTP 400 for invalid input, HTTP 401 for missing or invalid GITHUB_TOKEN, HTTP 502 for external API errors, with structured JSON error objects.
 
 # Testing & Verification
-- Unit Tests: mock openai.OpenAIApi and GitHub API calls to simulate successful summarization and failures. Verify CLI flags for issue and PR summarization print correct summary and exit code 0 on success and non-zero on failure.
-- HTTP Tests: use vitest and Node http mocks to verify endpoints accept valid JSON, apply defaults, handle missing parameters and return expected JSON or error codes.
-- Integration Checks: test behavior when OPENAI_API_KEY or GITHUB_API_BASE_URL is missing, expecting validation errors in both CLI and HTTP paths.
+- Unit Tests:
+  - Mock GitHub comment API and OpenAI createChatCompletion to simulate success and failures.
+  - Verify CLI flags --post-issue-summary and --post-pr-summary perform both summarization and comment posting, printing the comment URL on success, exiting code 0, non-zero on failure.
+- HTTP Tests:
+  - Use vitest and HTTP mocks to test /issue-comment and /pr-comment endpoints accept valid JSON, apply defaults, require GITHUB_TOKEN header or env var, return summary and commentUrl or appropriate error codes.
+- Integration Checks:
+  - Test behavior when GITHUB_TOKEN is missing or invalid, expecting authorization errors in both CLI and HTTP paths.
 
 # Dependencies & Constraints
 - Update sandbox/source/main.js, sandbox/tests/main.chat.test.js, sandbox/docs/USAGE.md, sandbox/README.md, and package.json scripts as needed.
-- Reuse existing openai package, axios or fetch for GitHub API calls and configuration logic. No new files should be created.
-- Maintain Node 20 ESM compatibility and vitest testing.
-
-# User Scenarios & Examples
-CLI Issue Summarization
-node sandbox/source/main.js --summarize-issue octocat/Hello-World#42
-
-CLI PR Summarization
-node sandbox/source/main.js --summarize-pr octocat/Hello-World#5
-
-HTTP Issue Summarization
-curl -X POST http://localhost:3000/summary -H content-type application/json -d { owner: octocat, repo: Hello-World, issueNumber: 42 }
-
-HTTP PR Summarization
-curl -X POST http://localhost:3000/pr-summary -H content-type application/json -d { owner: octocat, repo: Hello-World, prNumber: 5 }
+- Reuse existing openai package, axios or fetch for GitHub API calls, configuration logic, and logging utilities.
+- Maintain Node 20 ESM compatibility and vitest testing; no new files should be created.
