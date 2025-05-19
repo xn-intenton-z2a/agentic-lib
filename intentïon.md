@@ -107,3 +107,14 @@ LLM API Usage:
 
 2025-05-19T19:57:29Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/agentic-lib/tree/intention-2025-05-19T19-57Z
 
+## Feature to Issue at 2025-05-19T20:21:45.968Z
+
+Generated feature development issue with title Add --mission CLI flag to display project mission statement.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6860,"completion_tokens":1896,"total_tokens":8756,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1472,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
