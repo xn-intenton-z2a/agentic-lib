@@ -834,3 +834,15 @@ LLM API Usage:
 
 ---
 
+## Activity at 2025-05-19T08:51:23.199Z
+
+Generated feature development issue with title Implement --mission flag support in core CLI (src/lib/main.js).
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":12090,"completion_tokens":2230,"total_tokens":14320,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1664,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
