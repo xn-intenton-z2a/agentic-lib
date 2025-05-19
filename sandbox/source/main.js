@@ -11,6 +11,7 @@ import { readFile } from "fs/promises";
 import path from "path";
 import { z } from "zod";
 import dotenv from "dotenv";
+import { randomUUID } from "crypto";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Environment configuration from .env file or environment variables or test values.
@@ -88,10 +89,8 @@ export function createSQSEventFromDigest(digest) {
 export async function digestLambdaHandler(sqsEvent) {
   logInfo(`Digest Lambda received event: ${JSON.stringify(sqsEvent)}`);
 
-  // If event.Records is an array, use it. Otherwise, treat the event itself as one record.
   const sqsEventRecords = Array.isArray(sqsEvent.Records) ? sqsEvent.Records : [sqsEvent];
 
-  // Array to collect the identifiers of the failed records
   const batchItemFailures = [];
 
   for (const [index, sqsEventRecord] of sqsEventRecords.entries()) {
@@ -99,16 +98,14 @@ export async function digestLambdaHandler(sqsEvent) {
       const digest = JSON.parse(sqsEventRecord.body);
       logInfo(`Record ${index}: Received digest: ${JSON.stringify(digest)}`);
     } catch (error) {
-      // If messageId is missing, generate a fallback identifier including record index
       const recordId =
-        sqsEventRecord.messageId || `fallback-${index}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        sqsEventRecord.messageId || `fallback-${index}-${Date.now()}-${randomUUID()}`;
       logError(`Error processing record ${recordId} at index ${index}`, error);
       logError(`Invalid JSON payload. Error: ${error.message}. Raw message: ${sqsEventRecord.body}`);
       batchItemFailures.push({ itemIdentifier: recordId });
     }
   }
 
-  // Return the list of failed messages so that AWS SQS can attempt to reprocess them.
   return {
     batchItemFailures,
     handler: "src/lib/main.digestLambdaHandler",
@@ -119,7 +116,6 @@ export async function digestLambdaHandler(sqsEvent) {
 // CLI Helper Functions
 // ---------------------------------------------------------------------------------------------------------------------
 
-// Function to generate CLI usage instructions
 function generateUsage() {
   return `
 Usage:
@@ -130,7 +126,6 @@ Usage:
 `;
 }
 
-// Process the --help flag
 function processHelp(args) {
   if (args.includes("--help")) {
     console.log(generateUsage());
@@ -139,7 +134,6 @@ function processHelp(args) {
   return false;
 }
 
-// Process the --mission flag
 async function processMission(args) {
   if (args.includes("--mission")) {
     try {
@@ -154,7 +148,6 @@ async function processMission(args) {
   return false;
 }
 
-// Process the --version flag
 async function processVersion(args) {
   if (args.includes("--version")) {
     try {
@@ -174,7 +167,6 @@ async function processVersion(args) {
   return false;
 }
 
-// Process the --digest flag
 async function processDigest(args) {
   if (args.includes("--digest")) {
     const exampleDigest = {
@@ -227,8 +219,12 @@ export async function main(args = process.argv.slice(2)) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main().catch((err) => {
-    logError("Fatal error in main execution", err);
-    process.exit(1);
-  });
+  (async () => {
+    try {
+      await main();
+    } catch (err) {
+      logError("Fatal error in main execution", err);
+      process.exit(1);
+    }
+  })();
 }
