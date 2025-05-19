@@ -616,3 +616,15 @@ LLM API Usage:
 
 ---
 
+## Activity at 2025-05-19T04:37:36.974Z
+
+Generated feature development issue with title Add --digest-file flag and unify CLI usage in sandbox and core AGENTIC_CLI.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":10896,"completion_tokens":1640,"total_tokens":12536,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":896,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
