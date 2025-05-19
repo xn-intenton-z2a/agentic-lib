@@ -130,7 +130,7 @@ jobs:
         uses: actions/github-script@v7
         env:
           crawlSummary: "${{ needs.maintain-library.outputs.crawlSummary }}"
-          gitDiff: ${{ needs.maintain-library.outputs.gitDiff }}
+          gitDiff: "${{ needs.maintain-library.outputs.gitDiff }}"
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.maintain-library.outputs.usage }}
         with:

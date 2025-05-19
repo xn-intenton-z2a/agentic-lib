@@ -963,7 +963,7 @@ jobs:
             }];
 
             // Call OpenAI using the function calling format via the tools parameter
-            const request{
+            const request = {
               model,
               messages: [
                 { role: "system", content: "You are a code fixer that returns updated file contents to resolve a possible build or test problem. You can update multiple files by specifying their paths and contents in the updatedFiles object. The source files, test files, and documentation files can be individual files or directories containing multiple files. Answer strictly with a JSON object that adheres to the provided function schema." },
@@ -977,7 +977,7 @@ jobs:
             core.setOutput("requestFilePath", requestFilePath);
             core.info("requestFilePath: " + requestFilePath);
             const response = await openai.chat.completions.create(request);
-            
+
             const responseFilePath = 'response.json';
             fs.writeFileSync(responseFilePath, JSON.stringify(response, null, 2));
             core.setOutput("responseFilePath", responseFilePath);
@@ -1020,7 +1020,7 @@ jobs:
                 core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
                 return;
               }
-            
+
               // Sanitize commit message: retain only alphanumerics, spaces, and basic URL-safe punctuation (-, _, ., ~)
               const sanitizedMessage = parsed.message.replace(/[^A-Za-z0-9 \-\_\.\~]/g, '').replace(/\s+/g, ' ').trim();
               core.setOutput("message", sanitizedMessage);
