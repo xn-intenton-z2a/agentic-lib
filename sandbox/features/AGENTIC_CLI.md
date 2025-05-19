@@ -1,48 +1,55 @@
 # Value Proposition
 
-Extend the existing sandbox CLI to fully implement file based digest ingestion, S3 bucket replay with prefix filtering and batching, comprehensive health checks, and global dry run planning across all commands. This feature empowers developers to test and replay real SQS events locally or in CI environments, validate system connectivity to GitHub and OpenAI before execution, and generate structured JSON plans for audit and debugging.
+Enhance the sandbox CLI to provide comprehensive simulation and dry-run support across all commands, enable replay of S3 bucket digests with filtering and batching, and implement robust health checks with structured JSON output. This empowers developers to locally plan, audit, and validate end-to-end workflows against SQS, S3, GitHub, and OpenAI before production deployment.
 
 # Success Criteria & Requirements
 
-## 1 Common Flags
-- --help  Show usage instructions covering all commands and exit.
-- --mission  Read and print mission statement from MISSION.md and exit.
-- --version  Read version from package.json and print JSON with version and ISO timestamp then exit.
-- --dry-run  When provided with any action flag, parse arguments and configuration, emit a structured JSON plan of steps and exit without side effects.
+## Common Flags & Dry-Run Planning
 
-## 2 Digest Ingestion
-- --digest  Simulate an in memory digest record, wrap in SQS event, invoke digestLambdaHandler or plan the invocation.
-- --digest-file <path>  Read JSON file at path, build SQS event from its contents, invoke digestLambdaHandler or plan it.
-- Handle file not found and invalid JSON errors gracefully, logging or planning an error step without crashing.
+- Support --help, --mission, --version, and --dry-run across all commands.
+- --dry-run produces a structured JSON plan listing each intended operation without side effects.
+- Exit code 0 for success and dry-run, non-zero for runtime errors.
 
-## 3 Bucket Replay
-- --replay-bucket <bucket>  List objects in the given S3 bucket via s3-sqs-bridge.
-- --prefix <prefix>  Optionally filter listed object keys by prefix.
-- --batch-size <n>  Optionally override default batch chunk size (default 10).
-- For each batch, wrap each object key as digest payload and invoke digestLambdaHandler or plan it.
-- Summarize total objects, batches, successes, failures and report in JSON logs or plan steps.
+## Digest Ingestion & Replay
 
-## 4 Health Checks
-- --health  Perform connectivity checks against GitHub API base URL and OpenAI API key endpoint.
-- For each service, measure latency, capture status code, error messages, timestamp, and report structured JSON report or plan step.
-- Retry failed checks up to two times with exponential backoff in normal mode, but just plan retries in dry run.
+- --digest and --digest-file: parse inline JSON or file, wrap in SQS event, invoke or plan digestLambdaHandler.
+- --replay-bucket <bucket>: list objects via s3-sqs-bridge, apply optional --prefix <prefix> filter.
+- --batch-size <n>: chunk replay into batches, default 10.
+- For each batch, wrap keys in digest events, invoke or plan handler, collect per-batch success/failure.
+- Summarize total objects, batches, successes, and failures in JSON output or plan.
 
-## 5 Exit Codes
-- Exit code zero on success or dry run.
-- Non zero exit codes when any handler or check fails in normal mode.
+## Health Checks
+
+- --health performs connectivity tests against GitHub API and OpenAI key endpoint.
+- Measure latency, capture status code, error messages, and timestamp.
+- Retry failed checks up to two times with exponential backoff in normal mode; plan retries in dry-run.
+- Report health status as structured JSON array of check results.
 
 # Testing & Verification
 
-- Unit tests for each flag in both normal and dry run modes using vitest.
-- Mock fs to test --digest-file error and success paths.
-- Mock s3-sqs-bridge to test listing, prefix filtering, batching, and error handling.
-- Mock HTTP clients for GitHub and OpenAI to test health check reports and retries.
-- Verify structured JSON plan output lists all planned operations in order.
-- Verify summary statistics output includes counts and timing information.
+- Unit tests for each CLI flag in normal and dry-run modes using vitest.
+- Mock fs/promises for --digest-file success and error paths.
+- Mock s3-sqs-bridge to simulate listing, filtering, batching, and errors.
+- Mock HTTP clients for GitHub and OpenAI to validate health checks and retry logic.
+- Verify JSON plan structure lists operations in order and summary statistics.
 
 # Dependencies & Constraints
 
-- Reuse existing modules: fs/promises, s3-sqs-bridge, logging helpers, zod for validation.
+- Reuse existing modules: fs/promises, s3-sqs-bridge, logging helpers, zod.
 - No new external dependencies.
-- Maintain compatibility with Node 20 ESM and existing test framework vitest.
-- Honor VERBOSE_MODE and VERBOSE_STATS environment flags to include additional details in execution or plan output.
+- Maintain compatibility with Node 20 ESM and vitest framework.
+- Honor VERBOSE_MODE and VERBOSE_STATS environment flags.
+
+# User Scenarios & Examples
+
+## Dry-Run Plan Replay
+
+node sandbox/source/main.js --replay-bucket my-bucket --prefix events/ --batch-size 5 --dry-run
+
+Produces JSON plan of S3 list, batch creation, and digest handler invocations without side effects.
+
+## Full Health Check
+
+node sandbox/source/main.js --health
+
+Outputs JSON report of GitHub and OpenAI connectivity, including latency and status codes.
