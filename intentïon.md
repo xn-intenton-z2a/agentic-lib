@@ -1059,3 +1059,57 @@ LLM API Usage:
 
 ---
 
+## Issue to Ready Issue at 2025-05-19T12:26:10.929Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1517 with action enhance and updated description:
+
+Title: Add --mission CLI Flag to Output Library Mission Statement
+
+Description:
+Implement a new `--mission` CLI flag in `src/lib/main.js` that reads and prints the contents of `MISSION.md` when invoked. This provides users a quick and discoverable way to view the library’s mission statement directly from the CLI, aligning CLI usability with the project’s mission-driven philosophy.
+
+Acceptance Criteria:
+1. Code Changes:
+   - Introduce a `processMission(args)` helper function similar to existing `processHelp`, `processVersion`, and `processDigest`:
+     • It detects the `--mission` flag in the `args` array.
+     • Reads the raw contents of `MISSION.md` from the project root.
+     • Calls `console.log` once with the exact file contents (no extra formatting).
+     • Returns `true` to short-circuit further flag processing.
+   - Integrate `processMission` into the `main(args)` workflow, invoked before the default usage fallback.
+
+2. Unit Tests (`tests/unit/main.test.js`):
+   - Mock the `fs` module or use `vi.spyOn` to simulate reading `MISSION.md`, returning a dummy mission string (e.g., "Dummy Mission Statement").
+   - Verify that calling `main(['--mission'])`:
+     • Does not output help, version, or digest messages.
+     • Calls `console.log` exactly once with the dummy mission string.
+   - Add a negative test: calling `main(['--not-mission'])` should **not** invoke `console.log` with mission content and should fall back to default usage output.
+
+3. Documentation (`sandbox/README.md`):
+   - Update the CLI Usage section to include `--mission` alongside `--help`, `--digest`, and `--version`:
+     ```bash
+     --mission                  Show the library's mission statement.
+     ```
+   - Add a short example in the README:
+     ```bash
+     $ agentic-lib --mission
+     # prints contents of MISSION.md
+     ```
+
+Verification Steps:
+- Run `npm test` and ensure all tests pass, including the new `--mission` tests.
+- Execute manually:
+  ```bash
+  node src/lib/main.js --mission
+  ```
+  → Should output the full mission statement exactly as in `MISSION.md`.
+- Confirm that `sandbox/README.md` lists and documents the new flag correctly.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7242,"completion_tokens":960,"total_tokens":8202,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":384,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
