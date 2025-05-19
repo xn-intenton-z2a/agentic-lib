@@ -664,3 +664,15 @@ LLM API Usage:
 
 ---
 
+## Activity at 2025-05-19T04:59:36.583Z
+
+Created issue [Test] Enhance core SQS digest handler and CLI command coverage
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":15566,"completion_tokens":1754,"total_tokens":17320,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1280,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
