@@ -204,3 +204,41 @@ LLM API Usage:
 
 2025-05-19T21:00:05Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/agentic-lib/tree/intention-2025-05-19T19-57Z
 
+## Issue to Ready Issue at 2025-05-19T21:40:06.702Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1533 with action close and updated description:
+
+We need a new high-impact CLI command (--validate-mission) in src/lib/main.js that scans all sandbox/features/*.md files and ensures each file explicitly references our central mission statement (e.g., contains the word “mission” or a “Mission Alignment” heading). This helps guarantee that every feature spec stays aligned with our MISSION.md.
+
+Implementation details:
+1. In src/lib/main.js:
+   - Import { readdir, readFile } from "fs/promises".
+   - Add a new async function processValidateMission(args) that:
+     • Checks if args includes "--validate-mission".
+     • Reads the sandbox/features directory.
+     • For each .md file, reads the content and verifies it includes the substring "mission" (case-insensitive) or a dedicated Mission heading.
+     • Logs an info summary if all files pass; otherwise logs an error for each non-compliant file and exits with a non-zero error code.
+   - Wire processValidateMission into the main command flow, before the default fallback, so `node src/lib/main.js --validate-mission` runs it and then exits.
+2. Update tests in tests/unit/main.test.js:
+   - Add mocks for fs/promises methods (readdir, readFile) to simulate:
+     a. All feature files contain the term “mission”: expect processValidateMission to console.log a success and return.
+     b. One or more files missing “mission”: expect logError calls and an exception or non-zero exit.
+   - Use vi.mock or vi.spyOn to stub filesystem calls and capture console output.
+3. Update sandbox/README.md:
+   - Document the new --validate-mission flag under CLI Usage, explaining its purpose, behavior, and exit codes.
+4. Dependencies:
+   - No new dependencies required; fs/promises is built-in. Only update import statements if necessary.
+
+Acceptance & Verification:
+• `npm test` passes all existing and new tests.
+• Running `node src/lib/main.js --validate-mission` exits with code 0 when all feature files reference the mission, or code 1 with error logs if any do not.
+• README updates clearly describe the new flag and usage examples.
+• Follow existing ESM/Node20 conventions, pass linting & formatting checks.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7847,"completion_tokens":1906,"total_tokens":9753,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1344,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
