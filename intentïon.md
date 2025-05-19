@@ -241,3 +241,55 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-19T16:24:53.598Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1526 with action close and updated description:
+
+Objective:
+Implement a new command-line flag `--mission` in the main CLI entrypoint that reads and prints the contents of the top-level `MISSION.md` file. This will give users instant access to the library’s mission without digging through markdown or source.
+
+Scope of Work:
+1. src/lib/main.js
+   - Introduce a new helper `async function processMission(args)` that:
+     • Checks for `--mission` in the argument list.  
+     • Reads `MISSION.md` from the project root using `fs/promises`.  
+     • Prints the raw markdown contents to stdout.  
+     • Returns `true` if the flag is handled, `false` otherwise.
+   - In `main()`, call `await processMission(args)` after `processDigest` so that `--mission` short-circuits remaining logic (similar to `--help` and `--version`).
+   - On file read errors, call `logError("Failed to load mission statement", error)` and `process.exit(1)`.
+
+2. tests/unit/main.test.js
+   - Add a new suite for `--mission`:
+     • Mock `fs/promises.readFile` to return a known string.  
+     • Invoke `main(["--mission"])` (or the underlying handler) and verify that stdout contains the expected markdown.  
+     • Simulate read errors and assert that `logError` is called and `process.exit(1)` is triggered.
+
+3. sandbox/README.md
+   - Update the usage section to include `--mission` along with `--help`, `--digest`, and `--version`.
+   - Add a short example:
+     ```bash
+     $ npm start -- --mission
+     # prints out the full contents of MISSION.md
+     ```
+
+4. Dependencies
+   - No changes needed to `package.json` because `fs/promises` is built-in.
+
+Acceptance Criteria:
+- Running `npm start -- --mission` prints the exact contents of `MISSION.md` to stdout and exits with code 0.
+- If `MISSION.md` cannot be read, the CLI logs an error object as JSON and exits with code 1.
+- New unit tests cover success and error paths for `--mission`, achieving ≥90% coverage on the new helper.
+- Updated README usage examples render correctly and lint without errors.
+
+Verification:
+- Execute `npm test` to confirm all unit tests (including the new ones) pass.
+- Run `npm start -- --mission` manually to verify behavior in a live environment.
+- Lint (`npm run linting`) and formatting (`npm run formatting`) should complete without issues.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7770,"completion_tokens":1224,"total_tokens":8994,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":576,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
