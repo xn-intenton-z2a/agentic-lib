@@ -35,15 +35,27 @@ Use the core CLI for production workflows:
 node src/lib/main.js [options]
 ```
 
-**Example: Show the mission statement**
+**Example: Show version information**
 
 ```bash
-node src/lib/main.js --mission
+node src/lib/main.js --version
 ```
 
 ## Options
 
 - `--help`                     Show this help message and usage instructions.
-- `--mission`                  Show the project mission statement.
+- `--mission`                  Show the project mission statement. (Sandbox CLI only)
 - `--digest`                   Run a full bucket replay simulating an SQS event.
 - `--version`                  Show version information with current timestamp.
+
+## Configuration
+
+Before using the CLI, configure the following environment variables:
+
+- `OPENAI_API_KEY` (required): Your OpenAI API key.
+- `GITHUB_API_BASE_URL` (optional): Override the GitHub API base URL. Defaults to `https://api.github.com/`.
+
+In sandbox mode (when `NODE_ENV` is set to `development` or `VITEST` is set), default values are applied for testing:
+
+- `OPENAI_API_KEY=key-test`
+- `GITHUB_API_BASE_URL=https://api.github.com.test/`
