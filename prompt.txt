@@ -59,6 +59,245 @@ CURRENT_FEATURES_END
 
 Source files (write new files or update files in sandbox/source as necessary):
 (Multiple files from both in writable locations and not.)
+SOURCE_FILE_START Filepath: sandbox/source/main.js
+#!/usr/bin/env node
+// sandbox/source/main.js
+
+// Initialize global callCount to support test mocks that reference it
+if (typeof globalThis.callCount === "undefined") {
+  globalThis.callCount = 0;
+}
+
+import { fileURLToPath } from "url";
+import { readFile } from "fs/promises";
+import path from "path";
+import { z } from "zod";
+import dotenv from "dotenv";
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Environment configuration from .env file or environment variables or test values.
+// ---------------------------------------------------------------------------------------------------------------------
+
+dotenv.config();
+
+if (process.env.VITEST || process.env.NODE_ENV === "development") {
+  process.env.GITHUB_API_BASE_URL = process.env.GITHUB_API_BASE_URL || "https://api.github.com.test/";
+  process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || "key-test";
+}
+
+const configSchema = z.object({
+  GITHUB_API_BASE_URL: z.string().optional(),
+  OPENAI_API_KEY: z.string().optional(),
+});
+
+export const config = configSchema.parse(process.env);
+
+// Global verbose mode flag
+const VERBOSE_MODE = false;
+// Global verbose stats flag
+const VERBOSE_STATS = false;
+
+// Helper function to format log entries
+function formatLogEntry(level, message, additionalData = {}) {
+  return {
+    level,
+    timestamp: new Date().toISOString(),
+    message,
+    ...additionalData,
+  };
+}
+
+export function logConfig() {
+  const logObj = formatLogEntry("info", "Configuration loaded", {
+    config: {
+      GITHUB_API_BASE_URL: config.GITHUB_API_BASE_URL,
+      OPENAI_API_KEY: config.OPENAI_API_KEY,
+    },
+  });
+  console.log(JSON.stringify(logObj));
+}
+logConfig();
+
+export function logInfo(message) {
+  const additionalData = VERBOSE_MODE ? { verbose: true } : {};
+  const logObj = formatLogEntry("info", message, additionalData);
+  console.log(JSON.stringify(logObj));
+}
+
+export function logError(message, error) {
+  const additionalData = { error: error ? error.toString() : undefined };
+  if (VERBOSE_MODE && error && error.stack) {
+    additionalData.stack = error.stack;
+  }
+  const logObj = formatLogEntry("error", message, additionalData);
+  console.error(JSON.stringify(logObj));
+}
+
+export function createSQSEventFromDigest(digest) {
+  return {
+    Records: [
+      {
+        eventVersion: "2.0",
+        eventSource: "aws:sqs",
+        eventTime: new Date().toISOString(),
+        eventName: "SendMessage",
+        body: JSON.stringify(digest),
+      },
+    ],
+  };
+}
+
+export async function digestLambdaHandler(sqsEvent) {
+  logInfo(`Digest Lambda received event: ${JSON.stringify(sqsEvent)}`);
+
+  // If event.Records is an array, use it. Otherwise, treat the event itself as one record.
+  const sqsEventRecords = Array.isArray(sqsEvent.Records) ? sqsEvent.Records : [sqsEvent];
+
+  // Array to collect the identifiers of the failed records
+  const batchItemFailures = [];
+
+  for (const [index, sqsEventRecord] of sqsEventRecords.entries()) {
+    try {
+      const digest = JSON.parse(sqsEventRecord.body);
+      logInfo(`Record ${index}: Received digest: ${JSON.stringify(digest)}`);
+    } catch (error) {
+      // If messageId is missing, generate a fallback identifier including record index
+      const recordId =
+        sqsEventRecord.messageId || `fallback-${index}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      logError(`Error processing record ${recordId} at index ${index}`, error);
+      logError(`Invalid JSON payload. Error: ${error.message}. Raw message: ${sqsEventRecord.body}`);
+      batchItemFailures.push({ itemIdentifier: recordId });
+    }
+  }
+
+  // Return the list of failed messages so that AWS SQS can attempt to reprocess them.
+  return {
+    batchItemFailures,
+    handler: "src/lib/main.digestLambdaHandler",
+  };
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// CLI Helper Functions
+// ---------------------------------------------------------------------------------------------------------------------
+
+// Function to generate CLI usage instructions
+function generateUsage() {
+  return `
+Usage:
+  --help                     Show this help message and usage instructions.
+  --mission                  Show the project mission statement.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+`;
+}
+
+// Process the --help flag
+function processHelp(args) {
+  if (args.includes("--help")) {
+    console.log(generateUsage());
+    return true;
+  }
+  return false;
+}
+
+// Process the --mission flag
+async function processMission(args) {
+  if (args.includes("--mission")) {
+    try {
+      const missionPath = path.resolve(process.cwd(), "MISSION.md");
+      const content = await readFile(missionPath, "utf8");
+      console.log(content);
+    } catch (error) {
+      logError("Failed to read mission file", error);
+    }
+    return true;
+  }
+  return false;
+}
+
+// Process the --version flag
+async function processVersion(args) {
+  if (args.includes("--version")) {
+    try {
+      const { readFileSync } = await import("fs");
+      const packageJsonPath = new URL("../../package.json", import.meta.url);
+      const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+      const versionInfo = {
+        version: packageJson.version,
+        timestamp: new Date().toISOString(),
+      };
+      console.log(JSON.stringify(versionInfo));
+    } catch (error) {
+      logError("Failed to retrieve version", error);
+    }
+    return true;
+  }
+  return false;
+}
+
+// Process the --digest flag
+async function processDigest(args) {
+  if (args.includes("--digest")) {
+    const exampleDigest = {
+      key: "events/1.json",
+      value: "12345",
+      lastModified: new Date().toISOString(),
+    };
+    const sqsEvent = createSQSEventFromDigest(exampleDigest);
+    await digestLambdaHandler(sqsEvent);
+    return true;
+  }
+  return false;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Main CLI
+// ---------------------------------------------------------------------------------------------------------------------
+
+export async function main(args = process.argv.slice(2)) {
+  if (await processMission(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (processHelp(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (await processVersion(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (await processDigest(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+
+  console.log("No command argument supplied.");
+  console.log(generateUsage());
+  if (VERBOSE_STATS) {
+    console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+  }
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main().catch((err) => {
+    logError("Fatal error in main execution", err);
+    process.exit(1);
+  });
+}
+
+SOURCE_FILE_END
+
+
 SOURCE_FILE_START Filepath: src/lib/main.js
 #!/usr/bin/env node
 // src/lib/main.js
@@ -290,6 +529,40 @@ SOURCE_FILE_END
 
 Test files (write new files or update files in sandbox/tests as necessary):
 (Multiple files from both in writable locations and not.)
+TEST_FILE_START File: sandbox/tests/main.mission.test.js
+import { describe, test, expect, vi, beforeEach } from "vitest";
+
+// Mock fs/promises for readFile
+vi.mock("fs/promises", () => ({
+  readFile: vi.fn(),
+}));
+
+import path from "path";
+import { main } from "../source/main.js";
+import { readFile } from "fs/promises";
+
+describe("--mission flag", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  test("should read and print mission statement and exit early", async () => {
+    const sampleMarkdown = "# Sample Mission";
+    readFile.mockResolvedValue(sampleMarkdown);
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+    await main(["--mission"]);
+
+    expect(readFile).toHaveBeenCalledWith(path.resolve(process.cwd(), "MISSION.md"), "utf8");
+    expect(consoleSpy).toHaveBeenCalledWith(sampleMarkdown);
+
+    consoleSpy.mockRestore();
+  });
+});
+
+TEST_FILE_END
+
+
 TEST_FILE_START File: tests/unit/main.test.js
 import { describe, test, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
 
@@ -374,6 +647,18 @@ DOCUMENTATION_FILE_END
 
 README file (for context, read only): sandbox/README.md
 README_FILE_START
+# Usage
+
+```bash
+node sandbox/source/main.js [options]
+```
+
+Options:
+
+- `--help`                     Show this help message and usage instructions.
+- `--mission`                  Show the project mission statement.
+- `--digest`                   Run a full bucket replay simulating an SQS event.
+- `--version`                  Show version information with current timestamp.
 
 README_FILE_END
 
@@ -746,65 +1031,193 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: Add CLI "--mission" Flag to Display Mission Statement
+title: Add mission statement support to core CLI and documentation
 description:
-### Objective
-Add a new CLI option `--mission` that prints out the repository's mission statement (from `MISSION.md`) and exits immediately. This will ensure users can quickly view the library’s guiding principles and confirm alignment with its purpose.
+Title: Add --mission Flag to Core CLI and Update Root README
 
-### Changes Required
-1. **src/lib/main.js**
-   - Introduce a new helper `processMission(args)` before other flags.
-     - Detect the presence of `--mission` in the `args` array.
-     - Read `MISSION.md` from the project root.
-     - Print its raw Markdown content to stdout.
-     - Return `true` to signal the flag was handled.
-   - Integrate `processMission` into the `main()` flow, similar to `processHelp` and `processVersion`, ensuring it takes precedence over other commands.
+Problem:
+The core CLI (`src/lib/main.js`) does not support a `--mission` flag to print the project mission statement, causing inconsistency with the sandbox CLI and making it harder for users to discover the mission via the command line. The root `README.md` also lacks documentation for this capability.
 
-2. **tests/unit/main.test.js**
-   - Add a test suite for the new `--mission` flag.
-     - Mock `fs/promises.readFile` to return a sample Markdown string.
-     - Spy on `console.log` to capture output.
-     - Invoke `main(["--mission"])` and assert:
-       - `console.log` was called with the Markdown content.
-       - The function returns early and does not process other flags.
-
-3. **sandbox/README.md** (since sandbox mode is in use)
-   - Update the Usage section to document the new `--mission` flag:
+Proposed Solution:
+1. Core CLI Enhancement:
+   - Implement `processMission(args)` in `src/lib/main.js`:
+     • Detect the `--mission` flag in incoming CLI arguments.
+     • Resolve the path to `MISSION.md` using `path.resolve(process.cwd(), 'MISSION.md')`.
+     • Read and output the file contents with `fs/promises.readFile(..., 'utf8')` and `console.log()`.
+     • Return `true` on successful processing to exit early.
+   - In the `main(args)` function, insert an early check:
+     ```js
+     if (await processMission(args)) return;
      ```
+   - Update `generateUsage()` to include:
+     ```text
      --mission                  Show the project mission statement.
      ```
 
-4. **package.json**
-   - No new dependencies required (uses built-in `fs/promises`).
+2. Unit Tests:
+   - Create `tests/unit/main.mission.lib.test.js` that:
+     • Mocks `fs/promises.readFile` to return sample mission markdown.
+     • Spies on `console.log` to capture output.
+     • Invokes `main(['--mission'])` and asserts:
+       1. Only the mission file contents are printed (exact match).
+       2. The function returns early without printing usage or invoking other flags.
 
-### Verification
-- Run `npm test` and confirm the new test(s) pass alongside existing ones.
-- Execute `node src/lib/main.js --mission` and verify the mission markdown is printed verbatim.
-- Ensure no regressions for `--help`, `--version`, or `--digest` flags.
+3. Documentation Updates:
+   - Update the root `README.md`:
+     • Under **Options**, add:
+       ```text
+       --mission                  Show the project mission statement.
+       ```
+     • Provide a usage example:
+       ```bash
+       node src/lib/main.js --mission
+       ```
+     • Add a link to the mission file:
+       ```md
+       [Mission Statement](./MISSION.md)
+       ```
 
-This enhancement delivers immediate visibility into the library’s mission, reinforcing user understanding and aligning future feature development with core objectives.
+Testable Acceptance Criteria:
+- `node src/lib/main.js --mission` prints exactly the contents of `MISSION.md` and exits immediately (no usage text or extra logs).
+- `generateUsage()` in `src/lib/main.js` lists the `--mission` option.
+- New unit test in `tests/unit/main.mission.lib.test.js` passes, mocking the file read, capturing the log, and verifying early exit behavior.
+- Root `README.md` includes the `--mission` flag in its Options list, a usage example, and a link to `MISSION.md`.
+- Existing behaviors for `--help`, `--version`, and `--digest` remain unchanged and all existing tests continue to pass.
 comments:
-Author:github-actions[bot], Created:2025-05-18T18:22:18Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15098766830
+Author:github-actions[bot], Created:2025-05-18T22:20:57Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100602336
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/b728ba7208593702782cee52126133f06c92874c
-Author:github-actions[bot], Created:2025-05-18T18:22:52Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15098766830
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7817d07574298bc98b2a0c5b9d2bae30cb86954d
+Author:github-actions[bot], Created:2025-05-18T22:21:25Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100602336
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/b728ba7208593702782cee52126133f06c92874c
-Author:github-actions[bot], Created:2025-05-18T18:23:33Z, Comment: Workflow name: transformation-05-issue-to-ready-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15098793441
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7817d07574298bc98b2a0c5b9d2bae30cb86954d
+Author:github-actions[bot], Created:2025-05-18T22:22:06Z, Comment: Workflow name: transformation-05-issue-to-ready-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100625265
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/b728ba7208593702782cee52126133f06c92874c
-Author:github-actions[bot], Created:2025-05-18T18:23:57Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15098766830
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7817d07574298bc98b2a0c5b9d2bae30cb86954d
+Author:github-actions[bot], Created:2025-05-18T22:22:21Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100602336
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/b728ba7208593702782cee52126133f06c92874c
-Author:github-actions[bot], Created:2025-05-18T18:24:44Z, Comment: This request is a documentation convenience rather than a core functional enhancement; printing the mission statement at runtime does not deliver substantial user value in the context of agentic-lib’s primary purpose.
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7817d07574298bc98b2a0c5b9d2bae30cb86954d
+Author:github-actions[bot], Created:2025-05-18T22:22:58Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-18T22:24:08Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100641762
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/22bd187f6636180b5f413f437858a6a0d13580c4
+Author:github-actions[bot], Created:2025-05-18T22:25:42Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100653980
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/9ac9ba11b68069c06976f4096c3e2bcced841d06
+Author:github-actions[bot], Created:2025-05-18T22:33:07Z, Comment: Workflow name: flow-feature-maintenance
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100694351
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
+Author:github-actions[bot], Created:2025-05-18T22:33:58Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-18T22:35:04Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100725698
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
+Author:github-actions[bot], Created:2025-05-18T22:38:46Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100754391
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
+Author:github-actions[bot], Created:2025-05-18T22:39:18Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100749277
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
+Author:github-actions[bot], Created:2025-05-18T22:39:58Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-18T22:40:19Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100749277
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
+Author:github-actions[bot], Created:2025-05-18T22:41:24Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100749277
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
+Author:github-actions[bot], Created:2025-05-18T22:43:56Z, Comment: Workflow name: transformation-06-issue-to-code
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100789075
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
+Author:github-actions[bot], Created:2025-05-18T22:46:23Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100805348
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
+Author:github-actions[bot], Created:2025-05-18T22:46:40Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100805348
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
+Author:github-actions[bot], Created:2025-05-18T22:47:37Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100805348
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
+Author:github-actions[bot], Created:2025-05-18T22:49:26Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100834451
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
+Author:github-actions[bot], Created:2025-05-18T22:50:37Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100841498
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
+Author:github-actions[bot], Created:2025-05-18T22:56:50Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100880760
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
+Author:github-actions[bot], Created:2025-05-18T22:58:52Z, Comment: Workflow name: flow-feature-maintenance
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100881329
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7a5ecc08686b2e8f8b4effa5e9ae598c079c0fb1
+Author:github-actions[bot], Created:2025-05-18T22:59:31Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-18T23:20:26Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15101051803
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7a5ecc08686b2e8f8b4effa5e9ae598c079c0fb1
+Author:github-actions[bot], Created:2025-05-18T23:20:42Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15101051803
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7a5ecc08686b2e8f8b4effa5e9ae598c079c0fb1
+Author:github-actions[bot], Created:2025-05-18T23:20:43Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15101062461
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7a5ecc08686b2e8f8b4effa5e9ae598c079c0fb1
+Author:github-actions[bot], Created:2025-05-18T23:21:44Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15101051803
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7a5ecc08686b2e8f8b4effa5e9ae598c079c0fb1
+Author:github-actions[bot], Created:2025-05-18T23:23:33Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15101086209
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7a5ecc08686b2e8f8b4effa5e9ae598c079c0fb1
+Author:github-actions[bot], Created:2025-05-18T23:25:11Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15101098180
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7a5ecc08686b2e8f8b4effa5e9ae598c079c0fb1
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -862,15 +1275,19 @@ TEST_OUTPUT_START
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/agentic-lib/agentic-lib[39m
 
  [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+[90mstdout[2m | sandbox/tests/main.mission.test.js
+[22m[39m{"level":"info","timestamp":"2025-05-19T03:11:38.960Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
+
 [90mstdout[2m | tests/unit/main.test.js
-[22m[39m{"level":"info","timestamp":"2025-05-18T18:25:15.913Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
+[22m[39m{"level":"info","timestamp":"2025-05-19T03:11:38.966Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
 
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32m✓[39m sandbox/tests/main.mission.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 93[2mms[22m[39m
 
-[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
-[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
-[2m   Start at [22m 18:25:15
-[2m   Duration [22m 285ms[2m (transform 68ms, setup 0ms, collect 51ms, tests 54ms, environment 0ms, prepare 137ms)[22m
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m   Start at [22m 03:11:38
+[2m   Duration [22m 400ms[2m (transform 165ms, setup 0ms, collect 222ms, tests 102ms, environment 1ms, prepare 312ms)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
@@ -879,7 +1296,7 @@ MAIN_OUTPUT_START
 > @xn-intenton-z2a/agentic-lib@6.7.1-0 start
 > node src/lib/main.js
 
-{"level":"info","timestamp":"2025-05-18T18:25:16.115Z","message":"Configuration loaded","config":{}}
+{"level":"info","timestamp":"2025-05-19T03:11:39.194Z","message":"Configuration loaded","config":{}}
 No command argument supplied.
 
 Usage:
