@@ -70,7 +70,6 @@ web_modules/
 /cdk.out/
 /target/
 /test-file.txt
-/response.json
 /latest*.json
 /1.json
 /2.json
@@ -105,4 +104,12 @@ web_modules/
 /versions.txt
 /id-4.json
 /pom.xml.versionsBackup
-
+/prompt.txt
+/plot.png
+/plot.svg
+/plot.json
+/output.png
+/output.json
+/request.json
+/response.json
+/result.json
