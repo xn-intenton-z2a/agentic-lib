@@ -129,14 +129,18 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          activity: "Digested ${{ needs.maintain-library.outputs.informationDenseExtract }}."
+          crawlSummary: "${{ needs.maintain-library.outputs.crawlSummary }}"
+          gitDiff: ${{ needs.maintain-library.outputs.gitDiff }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.maintain-library.outputs.usage }}
         with:
           script: |
-            const activity = process.env.activity;
+            const crawlSummary = process.env.crawlSummary;
+            const gitDiff = process.env.gitDiff;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
+
+            core.info(`Crawl summary: ${crawlSummary} produced the following git diff: ${gitDiff}`);
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);

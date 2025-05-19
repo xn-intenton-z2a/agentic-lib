@@ -135,6 +135,9 @@ on:
     outputs:
       sourcesDirectoryFileContent:
         value: ${{ jobs.maintain-sources.outputs.sourcesDirectoryFileContent }}
+      gitDiff:
+        description: 'The changes applied as seen by a git diff of the workspace after the changes were applied'
+        value: ${{ jobs.maintain-sources.outputs.gitDiff }}
       usage:
         description: 'The LLM API usage of the action'
         value: ${{ jobs.maintain-sources.outputs.usage }}
@@ -634,6 +637,18 @@ jobs:
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
 
+      - name: Collect git diff as a text output
+        id: git-diff
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          output=$(git diff 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
       - name: Commit changes
         id: commit
         continue-on-error: true
@@ -684,4 +699,5 @@ jobs:
 
     outputs:
       sourcesDirectoryFileContent: ${{ steps.maintain-sources.outputs.sourcesDirectoryFileContent }}
+      gitDiff: ${{ steps.git-diff.outputs.output }}
       usage: ${{ steps.maintain-sources.outputs.usage }}

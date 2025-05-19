@@ -335,11 +335,17 @@ jobs:
         uses: actions/github-script@v7
         env:
           issueNumber: ${{ needs.select-issue-to-enhance.outputs.issueNumber }}
+          issueBody: ${{ needs.enhance-issue.outputs.enhancedDescription }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.enhance-issue.outputs.usage }}
         with:
           script: |
-            const activity = `Updated feature development issue #${process.env.issueNumber}`;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issueNumber = process.env.issueNumber;
+            const issueBody = process.env.issueBody;
+            const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
+            const activity = `Updated feature development issue ${issueUrl} with enhanced description:\n\n${issueBody}`;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
 

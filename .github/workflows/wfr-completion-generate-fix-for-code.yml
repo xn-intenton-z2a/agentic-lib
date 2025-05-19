@@ -184,6 +184,9 @@ on:
         value: ${{ jobs.apply-fix.outputs.postResolutionCommentOutcome }}
       allValidationStepsSuccessful:
         value: ${{ jobs.apply-fix.outputs.allValidationStepsSuccessful }}
+      gitDiff:
+        description: 'The changes applied as seen by a git diff of the workspace after the changes were applied'
+        value: ${{ jobs.apply-fix.outputs.gitDiff }}
       usage:
         description: 'The LLM API usage of the action'
         value: ${{ jobs.apply-fix.outputs.usage }}
@@ -1134,6 +1137,18 @@ jobs:
           timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }}
           exit 0
 
+      - name: Collect git diff as a text output
+        id: git-diff
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          output=$(git diff 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
       - name: Commit changes
         id: commit
         continue-on-error: true
@@ -1231,4 +1246,5 @@ jobs:
       commitOutcome: ${{ steps.results.outputs.commitOutcome }}
       allValidationStepsSuccessful: ${{ steps.results.outputs.allValidationStepsSuccessful }}
       postResolutionCommentOutcome: ${{ steps.results.outputs.postResolutionCommentOutcome }}
+      gitDiff: ${{ steps.git-diff.outputs.output }}
       usage: ${{ steps.update-target.outputs.usage }}

@@ -250,14 +250,18 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          activity: "Worked to update README with: ${{ needs.apply-update.outputs.message }}."
+          message: "${{ needs.apply-update.outputs.message }}"
+          gitDiff: ${{ needs.apply-update.outputs.gitDiff }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.apply-update.outputs.usage }}
         with:
           script: |
-            const activity = process.env.activity;
+            const message = process.env.message;
+            const gitDiff = process.env.gitDiff;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
+  
+            const activity = `Updated README: ${message}\n\n\`\`\`${gitDiff}\`\`\``
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);

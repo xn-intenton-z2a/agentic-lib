@@ -613,12 +613,17 @@ jobs:
         env:
           fixApplied: ${{ needs.apply-fix.outputs.fixApplied }}
           message: ${{ needs.apply-fix.outputs.message }}
+          gitDiff: ${{ needs.apply-fix.outputs.gitDiff }}
           allValidationStepsSuccessful: ${{ needs.apply-fix.outputs.allValidationStepsSuccessful }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.apply-fix.outputs.usage }}
         with:
           script: |
-            const activity = `fixApplied: ${process.env.fixApplied}\n\n${message}\n\n[allValidationStepsSuccessful: ${process.env.allValidationStepsSuccessful}]`;
+            const fixApplied = process.env.fixApplied;
+            const message = process.env.message;
+            const gitDiff = process.env.gitDiff;
+            const allValidationStepsSuccessful = process.env.allValidationStepsSuccessful;
+            const activity = `fixApplied: ${process.env.fixApplied}\n\n${message}\n\n\`\`\`${gitDiff}\`\`\`\n\n[allValidationStepsSuccessful: ${allValidationStepsSuccessful}]`;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
 

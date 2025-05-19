@@ -159,11 +159,20 @@ jobs:
         env:
           issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
           fixed: "${{ needs.review-issue.outputs.fixed }}"
+          message: "${{ needs.review-issue.outputs.message }}"
+          refinement: "${{ needs.review-issue.outputs.refinement }}"
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.review-issue.outputs.usage }}
         with:
           script: |
-            const activity = `Reviewed issue #${process.env.issueNumber} and the review determination was ${process.env.fixed}.`
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issueNumber = process.env.issueNumber;
+            const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
+            const fixed = process.env.fixed;
+            const message = process.env.message;
+            const refinement = process.env.refinement;
+            const activity = `Reviewed issue #${issueUrl} and the review determination was ${fixed} with message:\n\n${message}\n\nAnd refinement:\n\n${refinement}`;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
 

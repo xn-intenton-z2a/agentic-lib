@@ -186,6 +186,9 @@ on:
         value: ${{ jobs.apply-issue-resolution.outputs.allValidationStepsSuccessful }}
       branch:
         value: ${{ inputs.branchPrefix || 'agentic-lib-issue-' }}${{ inputs.issueNumber }}
+      gitDiff:
+        description: 'The changes applied as seen by a git diff of the workspace after the changes were applied'
+        value: ${{ jobs.apply-issue-resolution.outputs.gitDiff }}
       usage:
         description: 'The LLM API usage of the action'
         value: ${{ jobs.apply-issue-resolution.outputs.usage }}
@@ -1067,7 +1070,6 @@ jobs:
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`fixApplied: "${fixApplied}"`);
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
-            core.info(`response: "${JSON.stringify(response)}"`);
 
       - name: Examine the git working copy
         shell: bash
@@ -1124,6 +1126,18 @@ jobs:
         shell: bash
         run: |
           timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }}
+
+      - name: Collect git diff as a text output
+        id: git-diff
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          output=$(git diff 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
 
       - name: Commit to new branch
         id: commit
@@ -1252,3 +1266,5 @@ jobs:
       commitOutcome: ${{ steps.results.outputs.commitOutcome }}
       postResolutionCommentOutcome: ${{ steps.results.outputs.postResolutionCommentOutcome }}
       allValidationStepsSuccessful: ${{ steps.results.outputs.allValidationStepsSuccessful }}
+      gitDiff: ${{ steps.git-diff.outputs.output }}
+      usage: ${{ steps.update-target.outputs.usage }}

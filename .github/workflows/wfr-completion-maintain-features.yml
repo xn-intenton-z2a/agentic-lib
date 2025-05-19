@@ -132,6 +132,9 @@ on:
         value: ${{ jobs.maintain-features.outputs.featureName }}
       featureSpec:
         value: ${{ jobs.maintain-features.outputs.featureSpec }}
+      gitDiff:
+        description: 'The changes applied as seen by a git diff of the workspace after the changes were applied'
+        value: ${{ jobs.maintain-features.outputs.gitDiff }}
       usage:
         description: 'The LLM API usage of the action'
         value: ${{ jobs.maintain-features.outputs.usage }}
@@ -711,6 +714,18 @@ jobs:
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
 
+      - name: Collect git diff as a text output
+        id: git-diff
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          output=$(git diff 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+
       - name: Commit changes
         id: commit
         continue-on-error: true
@@ -760,4 +775,5 @@ jobs:
     outputs:
       featureName: ${{ steps.maintain-features.outputs.featureName }}
       featureSpec: ${{ steps.maintain-features.outputs.featureSpec }}
+      gitDiff: ${{ steps.git-diff.outputs.output }}
       usage: ${{ steps.maintain-features.outputs.usage }}

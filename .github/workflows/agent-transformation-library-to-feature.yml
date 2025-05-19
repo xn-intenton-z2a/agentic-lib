@@ -153,14 +153,18 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          activity: "Maintained feature ${{ needs.maintain-features.outputs.featureName }}."
+          featureName: "${{ needs.maintain-features.outputs.featureName }}"
+          gitDiff: ${{ needs.maintain-features.outputs.gitDiff }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.maintain-features.outputs.usage }}
         with:
           script: |
-            const activity = process.env.activity;
+            const featureName = process.env.featureName;
+            const gitDiff = process.env.gitDiff;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
+
+            const activity = `Maintained feature ${featureName}.\n\nGit diff:\n\n\`\`\`${gitDiff}\n\`\`\``;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);

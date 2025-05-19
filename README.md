@@ -737,8 +737,10 @@ intentïon user journey [Launch UX]:
 - [x] [Launch] Markdown in intentïon.md (e.g. # Activity logs\n\n ## 2025-04-20....)
 - [~] [Launch] Add links to issues, feature files, and commits to intentïon.md
 - [~] [Launch] Extract the mission file from the repository and put it in the intentïon.md
-- [ ] [Launch] Add main output examples to intentïon.md
-- [ ] [Launch] Change link to running experiment to be a link to intentïon.md on that branch.
+- [~] [Launch] Add main output examples to intentïon.md
+- [~] [Launch] Add code change Git diff output to the intentïon.md
+- [~] [Launch] Change link to running experiment to be a link to intentïon.md on that branch.
+- [~] [Launch] Add a link to the commit for any commit applied
 - [ ] [Launch] intentïon.com shows: past experiments: <link to branch> + mission and status.
 - [ ] [Launch] intentïon.com shows: past experiments as websites (see comment in .com project): <link to branch> + mission and status.
 - [ ] Create a repository from main via a button.
