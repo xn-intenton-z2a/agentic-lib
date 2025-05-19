@@ -1,6 +1,6 @@
 # Value Proposition
 
-Extend the unified CLI to support a dry-run mode that previews all actions without producing side effects. This empowers developers to inspect and verify planned operations for digest simulation, bucket replay, and health checks before executing them.
+Enhance the unified sandbox CLI to support file-based digests, replay from S3 buckets, and health checks with structured dry-run planning for all commands. This extension empowers developers to test and replay specific digest files, bulk replay bucket contents, and verify system connectivity without side effects.
 
 # Success Criteria & Requirements
 
@@ -8,27 +8,27 @@ Extend the unified CLI to support a dry-run mode that previews all actions witho
 - `--help`: Show usage instructions covering all flags and exit immediately.
 - `--mission`: Read and print mission statement from MISSION.md.
 - `--version`: Read version from package.json and print JSON with version and ISO timestamp.
-- `--digest`: Simulate an in-memory digest, wrap as SQS event, invoke digestLambdaHandler (or plan steps in dry-run), and log progress.
-- `--digest-file <path>`: Read JSON file, build SQS event, invoke digest handler (or plan), handle parse errors, and log results.
-- `--replay-bucket <bucket> [--prefix <prefix>]`: List objects via s3-sqs-bridge, batch replay to digestLambdaHandler (or plan), and log summary statistics.
-- `--health`: Perform connectivity checks against GitHub API and OpenAI API, report status, latencyMs, errors, and timestamp (or plan steps).
+- `--dry-run`: When provided alongside any action flag, CLI enters dry-run mode. Parse and validate arguments and configuration, emit structured JSON plan of steps, and exit without side effects.
 
-## 2 Dry Run Flag
-- `--dry-run`: When provided alongside any other command flag, CLI enters dry-run mode.
-- In dry-run mode:
-  - Parse and validate all arguments and environment configuration.
-  - Do not invoke network calls, AWS handlers, or external APIs.
-  - Emit a structured JSON log listing each step that would have been executed, including event creation, bucket listing, handler invocation, and health checks.
-  - Exit with code zero.
+## 2 Digest Flags
+- `--digest`: Simulate an in-memory digest, wrap as SQS event, invoke digestLambdaHandler (or plan). Log progress or plan steps.
+- `--digest-file <path>`: Read JSON file at path, build SQS event, invoke digest handler (or plan). Handle parse errors and log or plan the error step.
+
+## 3 Replay Flag
+- `--replay-bucket <bucket>`: List objects via s3-sqs-bridge on bucket. Optionally filter with `--prefix <prefix>`. Batch send to digestLambdaHandler (or plan), and log summary statistics.
+
+## 4 Health Flag
+- `--health`: Perform connectivity checks against configured GitHub API and OpenAI API. Report status, latencyMs, errors, and timestamp (or plan steps).
 
 # Testing & Verification
 
-- Unit tests for `--dry-run` combined with each main flag. Verify handler functions and HTTP clients are not called when dry-run is active.
-- Tests for dry-run plan output shape and content, confirming inclusion of each planned operation.
-- Edge case tests: invalid JSON path with `--digest-file` in dry-run mode should still plan and report the parsing step without throwing.
+- Unit tests for each flag combined with `--dry-run`. Confirm no network calls or handler invocations occur and plan output lists each planned operation.
+- Tests for `--digest-file`: valid path should plan file read and handler invocation; invalid JSON should plan parse error without throwing.
+- Tests for `--replay-bucket`: mock s3-sqs-bridge listing; verify batch planning or execution and summary logging in normal and dry-run modes.
+- Tests for `--health`: mock HTTP clients; verify health checks invoked or planned, and output shape.
 
 # Dependencies & Constraints
 
-- No new dependencies; reuse existing modules for logging, parsing, and handlers.
-- Remain compatible with Node 20 ESM and existing test framework (vitest).
-- Honor `VERBOSE_MODE` and `VERBOSE_STATS` flags for extended details in plan logs.
+- No new dependencies; reuse existing modules for logging, parsing, AWS handlers, and HTTP clients.
+- Maintain compatibility with Node 20 ESM, vitest, and existing test framework.
+- Honor `VERBOSE_MODE` and `VERBOSE_STATS` flags for extended details in execution or plan output.
