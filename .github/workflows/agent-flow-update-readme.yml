@@ -261,7 +261,7 @@ jobs:
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
   
-            const activity = `Updated README: ${message}\n\n\`\`\`\n${gitDiff}\n\n\`\`\``
+            const activity = `Updated README: ${message}\n\n\`\`\`\n${gitDiff}\n\`\`\``
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);

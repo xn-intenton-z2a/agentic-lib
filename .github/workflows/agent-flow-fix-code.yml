@@ -625,7 +625,7 @@ jobs:
             const gitDiff = process.env.gitDiff;
             const mainOutput = process.env.mainOutput;
             const allValidationStepsSuccessful = process.env.allValidationStepsSuccessful;
-            const activity = `fixApplied: ${process.env.fixApplied}\n\n${message}\n\nGit Diff:\n\n\`\`\`\n${gitDiff}\n\n\`\`\`\nmainOutput:\`\`\`\n${mainOutput}\n\n\`\`\`\n[allValidationStepsSuccessful: ${allValidationStepsSuccessful}]`;
+            const activity = `fixApplied: ${process.env.fixApplied}\n\n${message}\n\nGit Diff:\n\n\`\`\`\n${gitDiff}\n\`\`\`\nmainOutput:\n\`\`\`\n${mainOutput}\n\n\`\`\`\n[allValidationStepsSuccessful: ${allValidationStepsSuccessful}]`;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
 

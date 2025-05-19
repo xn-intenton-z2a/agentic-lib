@@ -482,7 +482,7 @@ jobs:
             const gitDiff = process.env.gitDiff;
             const mainOutput = process.env.mainOutput;
             const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
-            const activity = `fixApplied: ${fixApplied}\n\n${message}\n\nGit Diff:\n\n\`\`\`\n${gitDiff}\n\n\`\`\`\nmainOutput:\`\`\`\n${mainOutput}\n\n\`\`\`\n[for issue ${issueUrl} with title: "${issueTitle}"]`;
+            const activity = `fixApplied: ${fixApplied}\n\n${message}\n\nGit Diff:\n\n\`\`\`\n${gitDiff}\n\`\`\`\nmainOutput:\n\`\`\`\n${mainOutput}\n\n\`\`\`\n[for issue ${issueUrl} with title: "${issueTitle}"]`;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
 
