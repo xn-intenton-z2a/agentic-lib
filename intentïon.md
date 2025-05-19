@@ -1446,3 +1446,20 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-19T19:00:37.752Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1530 with title:
+
+Add GitHub Workflow Dispatch and Monitoring Functions with CLI Support
+
+And description:
+
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":10709,"completion_tokens":2330,"total_tokens":13039,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1344,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
