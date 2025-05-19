@@ -198,3 +198,403 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-19T23:40:55.372Z
+
+fixApplied: true
+
+Enable --digest path option and add related tests and documentation
+
+Git Diff:
+
+```
+diff --git a/sandbox/README.md b/sandbox/README.md
+new file mode 100644
+index 00000000..336b2195
+--- /dev/null
++++ b/sandbox/README.md
+@@ -0,0 +1,32 @@
++# agentic-lib
++
++Agentic-lib is a JavaScript SDK designed to power autonomous workflows in GitHub Actions. It enables your repository to operate in an “agentic” manner by communicating through branches and issues to continuously review, fix, update, and evolve your code.
++
++## CLI Usage
++
++Run the main script with the following options:
++
++  --help                     Show help message and usage instructions.
++  --digest [<path>]          Run a full bucket replay simulating an SQS event, optionally with a JSON file path.
++  --version                  Show version information with current timestamp.
++
++### Examples
++
++Run using a custom JSON payload file:
++
++```bash
++node sandbox/source/main.js --digest ./sampleEvent.json
++```
++
++Run using the default example digest:
++
++```bash
++node sandbox/source/main.js --digest
++```
++
++## Links
++
++- [Mission Statement](../../MISSION.md)
++- [Contributing Guidelines](../../CONTRIBUTING.md)
++- [License](LICENSE-MIT)
++- [Repository](https://github.com/xn-intenton-z2a/agentic-lib)
+\ No newline at end of file
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+new file mode 100644
+index 00000000..acc600a1
+--- /dev/null
++++ b/sandbox/source/main.js
+@@ -0,0 +1,246 @@
++#!/usr/bin/env node
++// sandbox/source/main.js
++
++// Initialize global callCount to support test mocks that reference it
++if (typeof globalThis.callCount === "undefined") {
++  globalThis.callCount = 0;
++}
++
++import { fileURLToPath } from "url";
++import { z } from "zod";
++import dotenv from "dotenv";
++
++// ---------------------------------------------------------------------------------------------------------------------
++// Environment configuration from .env file or environment variables or test values.
++// ---------------------------------------------------------------------------------------------------------------------
++
++dotenv.config();
++
++if (process.env.VITEST || process.env.NODE_ENV === "development") {
++  process.env.GITHUB_API_BASE_URL = process.env.GITHUB_API_BASE_URL || "https://api.github.com.test/";
++  process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || "key-test";
++}
++
++const configSchema = z.object({
++  GITHUB_API_BASE_URL: z.string().optional(),
++  OPENAI_API_KEY: z.string().optional(),
++});
++
++export const config = configSchema.parse(process.env);
++
++// Global verbose mode flag
++const VERBOSE_MODE = false;
++// Global verbose stats flag
++const VERBOSE_STATS = false;
++
++// Helper function to format log entries
++function formatLogEntry(level, message, additionalData = {}) {
++  return {
++    level,
++    timestamp: new Date().toISOString(),
++    message,
++    ...additionalData,
++  };
++}
++
++export function logConfig() {
++  const logObj = formatLogEntry("info", "Configuration loaded", {
++    config: {
++      GITHUB_API_BASE_URL: config.GITHUB_API_BASE_URL,
++      OPENAI_API_KEY: config.OPENAI_API_KEY,
++    },
++  });
++  console.log(JSON.stringify(logObj));
++}
++logConfig();
++
++// ---------------------------------------------------------------------------------------------------------------------
++// Utility functions
++// ---------------------------------------------------------------------------------------------------------------------
++
++export function logInfo(message) {
++  const additionalData = VERBOSE_MODE ? { verbose: true } : {};
++  const logObj = formatLogEntry("info", message, additionalData);
++  console.log(JSON.stringify(logObj));
++}
++
++export function logError(message, error) {
++  const additionalData = { error: error ? error.toString() : undefined };
++  if (VERBOSE_MODE && error && error.stack) {
++    additionalData.stack = error.stack;
++  }
++  const logObj = formatLogEntry("error", message, additionalData);
++  console.error(JSON.stringify(logObj));
++}
++
++// ---------------------------------------------------------------------------------------------------------------------
++// AWS Utility functions
++// ---------------------------------------------------------------------------------------------------------------------
++
++export function createSQSEventFromDigest(digest) {
++  return {
++    Records: [
++      {
++        eventVersion: "2.0",
++        eventSource: "aws:sqs",
++        eventTime: new Date().toISOString(),
++        eventName: "SendMessage",
++        body: JSON.stringify(digest),
++      },
++    ],
++  };
++}
++
++// ---------------------------------------------------------------------------------------------------------------------
++// SQS Lambda Handlers
++// ---------------------------------------------------------------------------------------------------------------------
++
++export async function digestLambdaHandler(sqsEvent) {
++  logInfo(`Digest Lambda received event: ${JSON.stringify(sqsEvent)}`);
++
++  // If event.Records is an array, use it. Otherwise, treat the event itself as one record.
++  const sqsEventRecords = Array.isArray(sqsEvent.Records) ? sqsEvent.Records : [sqsEvent];
++
++  // Array to collect the identifiers of the failed records
++  const batchItemFailures = [];
++
++  for (const [index, sqsEventRecord] of sqsEventRecords.entries()) {
++    try {
++      const digest = JSON.parse(sqsEventRecord.body);
++      logInfo(`Record ${index}: Received digest: ${JSON.stringify(digest)}`);
++    } catch (error) {
++      // If messageId is missing, generate a fallback identifier including record index
++      const recordId =
++        sqsEventRecord.messageId || `fallback-${index}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
++      logError(`Error processing record ${recordId} at index ${index}`, error);
++      logError(`Invalid JSON payload. Error: ${error.message}. Raw message: ${sqsEventRecord.body}`);
++      batchItemFailures.push({ itemIdentifier: recordId });
++    }
++  }
++
++  // Return the list of failed messages so that AWS SQS can attempt to reprocess them.
++  return {
++    batchItemFailures,
++    handler: "sandbox/source/main.digestLambdaHandler",
++  };
++}
++
++// ---------------------------------------------------------------------------------------------------------------------
++// CLI Helper Functions
++// ---------------------------------------------------------------------------------------------------------------------
++
++// Function to generate CLI usage instructions
++function generateUsage() {
++  return `
++Usage:
++  --help                     Show this help message and usage instructions.
++  --digest [<path>]          Run a full bucket replay simulating an SQS event, optionally with a JSON file path.
++  --version                  Show version information with current timestamp.
++`;
++}
++
++// Process the --help flag
++function processHelp(args) {
++  if (args.includes("--help")) {
++    console.log(generateUsage());
++    return true;
++  }
++  return false;
++}
++
++// Process the --version flag
++async function processVersion(args) {
++  if (args.includes("--version")) {
++    try {
++      const { readFileSync } = await import("fs");
++      const packageJsonPath = new URL("../../package.json", import.meta.url);
++      const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
++      const versionInfo = {
++        version: packageJson.version,
++        timestamp: new Date().toISOString(),
++      };
++      console.log(JSON.stringify(versionInfo));
++    } catch (error) {
++      logError("Failed to retrieve version", error);
++    }
++    return true;
++  }
++  return false;
++}
++
++// Process the --digest flag
++async function processDigest(args) {
++  if (args.includes("--digest")) {
++    const index = args.indexOf("--digest");
++    let digestObj;
++    const { readFileSync } = await import("fs");
++
++    // Check for optional file path argument
++    if (args[index + 1] && !args[index + 1].startsWith("-")) {
++      const filePath = args[index + 1];
++      let raw;
++      try {
++        raw = readFileSync(filePath, "utf8");
++      } catch (error) {
++        logError(`Failed to read digest file at ${filePath}`, error);
++        process.exit(1);
++      }
++      try {
++        digestObj = JSON.parse(raw);
++      } catch (parseError) {
++        logError(`Invalid JSON in digest file at ${filePath}. Raw content: ${raw}`, parseError);
++        process.exit(1);
++      }
++    } else {
++      // Fallback example digest
++      digestObj = {
++        key: "events/1.json",
++        value: "12345",
++        lastModified: new Date().toISOString(),
++      };
++    }
++
++    const sqsEvent = createSQSEventFromDigest(digestObj);
++    await digestLambdaHandler(sqsEvent);
++    return true;
++  }
++  return false;
++}
++
++// ---------------------------------------------------------------------------------------------------------------------
++// Main CLI
++// ---------------------------------------------------------------------------------------------------------------------
++
++export async function main(args = process.argv.slice(2)) {
++  if (processHelp(args)) {
++    if (VERBOSE_STATS) {
++      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
++    }
++    return;
++  }
++  if (await processVersion(args)) {
++    if (VERBOSE_STATS) {
++      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
++    }
++    return;
++  }
++  if (await processDigest(args)) {
++    if (VERBOSE_STATS) {
++      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
++    }
++    return;
++  }
++
++  console.log("No command argument supplied.");
++  console.log(generateUsage());
++  if (VERBOSE_STATS) {
++    console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
++  }
++}
++
++if (process.argv[1] === fileURLToPath(import.meta.url)) {
++  main().catch((err) => {
++    logError("Fatal error in main execution", err);
++    process.exit(1);
++  });
++}
+\ No newline at end of file
+diff --git a/sandbox/tests/main.test.js b/sandbox/tests/main.test.js
+new file mode 100644
+index 00000000..05ef8598
+--- /dev/null
++++ b/sandbox/tests/main.test.js
+@@ -0,0 +1,67 @@
++import { describe, test, expect, vi, beforeAll, beforeEach } from "vitest";
++import fs from "fs";
++
++let mainModule;
++
++beforeAll(async () => {
++  mainModule = await import("../source/main.js");
++});
++
++beforeEach(() => {
++  vi.clearAllMocks();
++  // Mock process.exit to throw for easier testing
++  vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`process.exit: ${code}`); });
++});
++
++describe("processDigest CLI option", () => {
++  test("fallback behavior with no path uses example digest", async () => {
++    const createSpy = vi.spyOn(mainModule, "createSQSEventFromDigest");
++    const digestSpy = vi.spyOn(mainModule, "digestLambdaHandler").mockResolvedValue();
++
++    await mainModule.main(["--digest"]);
++
++    expect(createSpy).toHaveBeenCalledTimes(1);
++    const arg = createSpy.mock.calls[0][0];
++    expect(arg).toEqual(
++      expect.objectContaining({ key: "events/1.json", value: "12345", lastModified: expect.any(String) })
++    );
++    expect(digestSpy).toHaveBeenCalledTimes(1);
++  });
++
++  test("valid file path scenario", async () => {
++    const fakePayload = { foo: "bar" };
++    const rawJson = JSON.stringify(fakePayload);
++    const readSpy = vi.spyOn(fs, "readFileSync").mockReturnValue(rawJson);
++    const createSpy = vi.spyOn(mainModule, "createSQSEventFromDigest").mockReturnValue({ Records: [{ body: rawJson }] });
++    const digestSpy = vi.spyOn(mainModule, "digestLambdaHandler").mockResolvedValue();
++
++    await mainModule.main(["--digest", "fake.json"]);
++
++    expect(readSpy).toHaveBeenCalledWith("fake.json", "utf8");
++    expect(createSpy).toHaveBeenCalledWith(fakePayload);
++    expect(digestSpy).toHaveBeenCalledWith({ Records: [{ body: rawJson }] });
++  });
++
++  test("file read error scenario", async () => {
++    const readError = new Error("ENOENT");
++    vi.spyOn(fs, "readFileSync").mockImplementation(() => { throw readError; });
++    const logSpy = vi.spyOn(mainModule, "logError").mockImplementation(() => {});
++
++    await expect(mainModule.main(["--digest", "bad.json"]))
++      .rejects.toThrow("process.exit: 1");
++    expect(logSpy).toHaveBeenCalledWith(`Failed to read digest file at bad.json`, readError);
++  });
++
++  test("invalid JSON scenario", async () => {
++    const rawInvalid = "{not: 'json'}";
++    vi.spyOn(fs, "readFileSync").mockReturnValue(rawInvalid);
++    const logSpy = vi.spyOn(mainModule, "logError").mockImplementation(() => {});
++
++    await expect(mainModule.main(["--digest", "bad.json"]))
++      .rejects.toThrow("process.exit: 1");
++    expect(logSpy).toHaveBeenCalledWith(
++      `Invalid JSON in digest file at bad.json. Raw content: ${rawInvalid}`,
++      expect.any(SyntaxError)
++    );
++  });
++});
+\ No newline at end of file
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.7.6-0 start
+> node src/lib/main.js
+
+{"level":"info","timestamp":"2025-05-19T23:40:35.251Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1537 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":9696,"completion_tokens":10217,"total_tokens":19913,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":6912,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
