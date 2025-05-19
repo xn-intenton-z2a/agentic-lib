@@ -1,57 +1,37 @@
 # Value Proposition
 
-Extend the unified command-line interface to include a health command that verifies connectivity and configuration for core integrations. Developers can quickly validate their environment and key dependencies (GitHub API and OpenAI) before running workflows, improving reliability and reducing troubleshooting time.
+Provide a unified command-line interface for both sandbox and core modes that empowers developers to verify environment configuration, simulate digest events, replay S3 buckets, and perform integration health checks before running automated workflows. This feature reduces setup friction, accelerates troubleshooting, and ensures consistency across modes.
 
 # Success Criteria & Requirements
 
-## 1. Help Command (--help)
-- Unchanged: print detailed usage for all supported flags including the new `--health` flag and exit immediately.
+## 1 Common Flags
+  - --help: Show usage instructions covering all flags and exit immediately.
+  - --mission: Read and print mission statement from MISSION.md.
+  - --version: Read version from package.json and print JSON with version and ISO timestamp.
+  - --digest: Simulate an in-memory digest, wrap as SQS event, invoke digestLambdaHandler, and log progress.
+  - --digest-file <path>: Read JSON file, build SQS event, invoke digest handler, handle parse errors, log results.
+  - --replay-bucket <bucket> [--prefix <prefix>]: List objects via s3-sqs-bridge, batch replay to digestLambdaHandler, and log summary statistics.
+  - --health: Perform two sequential connectivity checks and emit a JSON report:
+      1. GitHub API: send HEAD or GET to GITHUB_API_BASE_URL, expect 200 OK or valid JSON.
+      2. OpenAI API: request list models with OPENAI_API_KEY, expect 200 OK.
+    Report contains status, latencyMs, optional error messages, and timestamp. Always exit zero.
 
-## 2. Mission Command (--mission)
-- Unchanged: read and print the project mission statement from MISSION.md in both sandbox and core modes.
-
-## 3. Version Command (--version)
-- Unchanged: read version from package.json, return JSON with version and timestamp.
-
-## 4. Sample Digest Command (--digest)
-- Unchanged: simulate an in-memory digest, wrap as SQS event, invoke digestLambdaHandler, log info.
-
-## 5. File Digest Command (--digest-file <path>)
-- Unchanged: read JSON file, parse into digest, create SQS event, invoke handler, handle errors.
-
-## 6. Replay Bucket Command (--replay-bucket <bucket> [--prefix <prefix>])
-- Unchanged: use s3-sqs-bridge, list objects, batch replay to digestLambdaHandler, log summary.
-
-## 7. Default Behavior
-- Unchanged: on no recognized flags, print “No command argument supplied.” and usage.
-
-## 8. Consistency Across Modes
-- Unchanged: sandbox and core entry points must share identical usage text, flags, logging behavior.
-
-## 9. Health Command (--health)
-- When invoked with `--health`, perform two connectivity checks in sequence:
-  1. GitHub API Health: send a HEAD or GET request to the configured GITHUB_API_BASE_URL (defaulting to https://api.github.com/) and verify a 200 OK response or valid JSON. Log success or failure with timing.
-  2. OpenAI API Health: send a minimal authenticated request to the OpenAI API (e.g., list models endpoint) using the OPENAI_API_KEY. Verify a 200 OK response. Log success or failure with timing.
-- Construct a JSON report containing:
-  - github: { status: "ok"|"error", latencyMs, errorMessage? }
-  - openai: { status: "ok"|"error", latencyMs, errorMessage? }
-  - timestamp: ISO timestamp of the check
-- Print the JSON report to stdout and exit.
-- On network errors or invalid credentials, include descriptive error messages in the report but always exit with code zero (for CI health gate patterns).
-- Supported in both sandbox/source/main.js and src/lib/main.js.
+## 2 Default Behavior
+  - If invoked without recognized flags, print “No command argument supplied.” followed by usage text.
+  - All flags share identical behavior, usage text, and logging in sandbox and core entry points.
 
 # Testing & Verification
 
-- Add unit tests to cover:
-  - Successful GitHub health check (mock out HTTP client to return 200).
-  - Failed GitHub health check (mock non-200 status or network error).
-  - Successful OpenAI health check (mock openai client to respond).
-  - Failed OpenAI health check (invalid key or network error).
-  - Combined report JSON structure and exit behavior.
-- Use Vitest mocks for fs, HTTP and openai client to isolate behavior.
+- Unit tests for each flag in both modes:
+  • Help outputs usage text.
+  • Mission reads and prints file.
+  • Version returns valid JSON structure.
+  • Digest and digest-file simulate event and log calls, including error branch for invalid JSON.
+  • Replay-bucket lists objects, invokes handler, logs successes and failures.
+  • Health command with mocked HTTP and OpenAI clients for success and failure scenarios, verifying JSON report shape and exit code.
 
 # Dependencies & Constraints
 
-- Leverage native fetch (Node 20 global) or a lightweight HTTP client already in dependencies.
-- Use the existing dotenv and config parsing for environment.
-- Respect VERBOSE_MODE and VERBOSE_STATS flags for optional extended logging.
+- Use Node 20 global fetch or light HTTP client for health checks.
+- Leverage dotenv and zod for configuration parsing.
+- Respect VERBOSE_MODE and VERBOSE_STATS for extended logging when enabled.
