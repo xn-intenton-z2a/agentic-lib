@@ -157,7 +157,7 @@ on:
       issueTitle:
         description: 'Title for the new task'
         required: false
-        default: 'house choice'
+        default: ''
 ```
 Internally, this triggers [`wfr-create-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@1.2.0) to generate an issue template based on provided parameters.
 

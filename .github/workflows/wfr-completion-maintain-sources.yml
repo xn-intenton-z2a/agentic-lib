@@ -29,10 +29,10 @@ on:
   workflow_call:
     inputs:
       mission:
-        description: 'Text to drive the source creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Add a source about agents."'
+        description: 'Text to drive the source creation (if "", the repository will be assessed and an action chosen). e.g. "Add a source about agents."'
         type: string
         required: false
-        default: 'house choice'
+        default: ''
       librarySourcesFilepath:
         description: 'The file to create/update the sources in. e.g. "SOURCES.md"'
         type: string
@@ -442,7 +442,7 @@ jobs:
 
             // generate the source prompt either by using the supplied source prompt or by reviewing the current sources and full context
             let prompt = mission;
-            if (mission === 'house choice') {
+            if (mission === '') {
               prompt = `Please review the current sources in the directory and either;
                 * add a new source to the repository, or
                 * extend an existing source to add a new aspect to it, or

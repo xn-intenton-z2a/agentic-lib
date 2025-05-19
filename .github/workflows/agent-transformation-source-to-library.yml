@@ -80,7 +80,7 @@ jobs:
               core.info(`targetFilepath "${targetFilepath}" is in the list of writeable filepaths.`);
             }
 
-  # If the document is "house choice", the repository will be assessed and an action chosen otherwise the supplied text will be used to generate a new document.
+  # If the document is "", the repository will be assessed and an action chosen otherwise the supplied text will be used to generate a new document.
   maintain-library:
     needs:
       - agentic-lib

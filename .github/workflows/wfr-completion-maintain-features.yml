@@ -29,10 +29,10 @@ on:
   workflow_call:
     inputs:
       feature:
-        description: 'Text to drive the feature creation (if "house choice", the repository will be assessed an action chosen). e.g. "Support output to PDF."'
+        description: 'Text to drive the feature creation (if "", the repository will be assessed an action chosen). e.g. "Support output to PDF."'
         type: string
         required: false
-        default: 'house choice'
+        default: ''
       featuresPath:
         description: 'The directory to create/update the features in. e.g. "features/"'
         type: string
@@ -484,7 +484,7 @@ jobs:
 
             // generate the feature prompt either by using the supplied feature or by reviewing the current features and full context
             let prompt = feature;
-            if (feature === 'house choice') {
+            if (feature === '') {
               prompt = `Please review the current features in the repository and either;
                 * add a new feature to the repository, or
                 * extend an existing feature to add a new aspect to it, or

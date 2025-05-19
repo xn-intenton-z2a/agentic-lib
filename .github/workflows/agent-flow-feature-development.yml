@@ -14,22 +14,22 @@ on:
   workflow_dispatch:
     inputs:
       feature:
-        description: 'Text to drive the feature creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
+        description: 'Text to drive the feature creation (if "", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
         required: false
         type: string
-        default: 'house choice'
-  workflow_run:
-    workflows:
-      - seed-repository
-    types:
-      - completed
+        default: ''
+  #workflow_run:
+  #  workflows:
+  #    - seed-repository
+  #  types:
+  #    - completed
   workflow_call:
     inputs:
       feature:
-        description: 'Text to drive the feature creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
+        description: 'Text to drive the feature creation (if "", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
         required: false
         type: string
-        default: 'house choice'
+        default: ''
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -104,7 +104,7 @@ jobs:
               core.info(`One of the targetFilepaths "${targetFilepath1}", "${targetFilepath2}", "${targetFilepath3}", or "${targetFilepath4}" is in the list of writeable filepaths.`);
             }
 
-  # If the feature is "house choice", the repository will be assessed and an action chosen otherwise the supplied text will be used to generate a new feature.
+  # If the feature is "", the repository will be assessed and an action chosen otherwise the supplied text will be used to generate a new feature.
   #maintain-features:
   #  needs:
   #    - agentic-lib

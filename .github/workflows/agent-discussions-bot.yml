@@ -480,27 +480,28 @@ jobs:
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  feature-maintenance-flow:
-    needs:
-      - process-discussion-post
-      - generate-response
-      - seed-repository
-      - agentic-lib
-    if: ${{ !cancelled() && (needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature') }}
-    permissions:
-      contents: write
-      pull-requests: write
-      checks: write
-      issues: write
-      packages: write
-      id-token: write
-      pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-maintenance.yml@main'
-    with:
-      feature: ${{ needs.generate-response.outputs.detail }}
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+  # TODO - Add some shallow actions inline for the bot. Create feature & Create issue.
+  #feature-maintenance-flow:
+  #  needs:
+  #    - process-discussion-post
+  #    - generate-response
+  #    - seed-repository
+  #    - agentic-lib
+  #  if: ${{ !cancelled() && (needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature') }}
+  #  permissions:
+  #    contents: write
+  #    pull-requests: write
+  #    checks: write
+  #    issues: write
+  #    packages: write
+  #    id-token: write
+  #    pages: write
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-maintenance.yml@main'
+  #  with:
+  #    feature: ${{ needs.generate-response.outputs.detail }}
+  #  secrets:
+  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
   # Currently too large to include
   #feature-development-flow:
