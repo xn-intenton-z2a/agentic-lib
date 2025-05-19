@@ -1,75 +1,80 @@
 # Value Proposition
 
-Provide a unified command-line interface in both sandbox and core contexts that allows users to discover project information, inspect mission details, simulate event streams, load custom digest payloads from file, and retrieve version metadata, all from a single entry point.
+Provide a single, unified command-line interface for both sandbox and core modes that allows users to:
+
+- Discover and display the project mission statement and metadata.
+- Retrieve version information including build timestamp in JSON format.
+- Simulate or replay event digests from memory or external JSON files, emitting structured logs and handling errors gracefully.
+- Offer consistent help and default guidance on available commands.
+
+This feature streamlines development and debugging workflows by consolidating all CLI operations into one coherent entry point.
 
 # Success Criteria & Requirements
 
 ## 1. Help Command (--help)
-- When invoked with --help, display usage instructions and all available flags and their descriptions.
-- After printing help, exit early without executing any other logic.
-- Ensure generateUsage functions in both modules list: --help, --mission, --version, --digest, --digest-file.
+- Prints detailed usage instructions with descriptions of all supported flags.
+- After printing help, exits immediately without performing any other logic.
+- Usage instructions list --help, --mission, --version, --digest, --digest-file.
 
 ## 2. Mission Command (--mission)
-- When invoked with --mission, read MISSION.md from project root as UTF-8.
-- On success, print raw markdown content to stdout and exit.
-- On failure, call logError with descriptive message and error details then exit.
+- Reads MISSION.md from project root using fs/promises readFile as UTF-8.
+- On success, prints raw markdown content to stdout and exits.
+- On failure, logs an error message and stack (if enabled) via logError, then exits.
 
 ## 3. Version Command (--version)
-- When invoked with --version, load package.json and parse version.
-- Construct object with version and current ISO timestamp and print as JSON to stdout.
-- On error, call logError with descriptive message and error stack if available, then exit.
+- Loads package.json via fs.readFileSync, parses version.
+- Constructs object containing version and current ISO timestamp.
+- Prints object as JSON to stdout and exits.
+- On error, logs descriptive error via logError and exits.
 
 ## 4. Sample Digest Command (--digest)
-- When invoked with --digest, construct a sample digest payload with key, value, lastModified.
-- Use createSQSEventFromDigest to build an SQS event and call digestLambdaHandler with it.
-- Ensure logInfo and logError calls surface event receipt, record processing, and failures.
-- After handler completes, exit early.
+- Builds an in-memory sample digest object with key, value, lastModified.
+- Uses createSQSEventFromDigest to wrap digest in an SQS event structure.
+- Invokes digestLambdaHandler with the generated event.
+- Logs receipt and processing of each record with logInfo.
+- Collects and returns any batchItemFailures.
+- Exits immediately after handler completes.
 
 ## 5. File Digest Command (--digest-file <path>)
-- When invoked with --digest-file and a file path, read the specified JSON file as UTF-8.
-- Parse JSON content into a digest object with key, value, and lastModified.
-- If parsing succeeds, create SQS event via createSQSEventFromDigest and pass to digestLambdaHandler.
-- On file read or JSON parse error, call logError with descriptive message and error details, then exit.
-- After handler completes, exit early.
+- Reads JSON file at provided path via fs/promises readFile.
+- Parses content into digest object; on parse success, creates SQS event and invokes digestLambdaHandler.
+- On file read or JSON parse errors, logs descriptive errors via logError with error details, then exits.
+- Exits immediately after handler completes.
 
 ## 6. Default Behavior
-- If no recognized flag is provided, print No command argument supplied. then display usage instructions.
-- Ensure only one command path executes per invocation.
+- When invoked with no recognized flags, prints a "No command argument supplied." message followed by usage instructions.
+- Ensures only one command path executes per invocation.
 
-# Usage Documentation
-
-Update sandbox/docs/USAGE.md and sandbox/README.md and core README/docs/USAGE.md:
-
-Examples:
+# Usage Examples
 
 Show help
-  node sandbox/source/main.js --help
+node sandbox/source/main.js --help
 
 Show mission
-  node sandbox/source/main.js --mission
+node sandbox/source/main.js --mission
 
 Show version
-  node sandbox/source/main.js --version
+node sandbox/source/main.js --version
 
 Run sample digest
-  node sandbox/source/main.js --digest
+node sandbox/source/main.js --digest
 
 Run digest from file
-  node sandbox/source/main.js --digest-file path/to/digest.json
+node sandbox/source/main.js --digest-file path/to/digest.json
 
 # Tests Coverage
 
-Add or update unit tests:
-- --help prints usage and exits early in both CLI modules.
-- --mission reads MISSION.md, logs content; error path logs error.
-- --version prints JSON with version and timestamp; error path logs error.
-- --digest invokes createSQSEventFromDigest and digestLambdaHandler; mock logging for success and failure.
-- --digest-file reads file, parses JSON, invokes digestLambdaHandler; error paths for read failure and invalid JSON should log errors and exit.
-- Default invocation prints no-argument message and usage.
+- Unit tests for each flag in sandbox/tests/main.mission.test.js and additional tests in sandbox/tests:
+  - --help prints usage and returns early.
+  - --mission reads file and logs content; error path logs error.
+  - --version outputs valid JSON with version and timestamp; error path logs error.
+  - --digest invokes createSQSEventFromDigest and digestLambdaHandler; mocks logInfo and logError.
+  - --digest-file reads and parses file; tests error handling on missing file and invalid JSON.
+  - Default invocation prints no-argument message and usage.
 
 # Dependencies & Constraints
 
-- Use existing ESM modules: fs/promises, fs for sync reads, zod, dotenv.
-- Do not introduce new external packages.
-- Maintain Node >=20 compatibility and ESM structure.
-- Limit changes to source files, test files, README files, docs, and package.json if necessary.
+- Uses existing ESM modules: fs, fs/promises, zod, dotenv.
+- No new external packages introduced.
+- Maintains compatibility with Node >=20 and ESM import syntax.
+- Changes limited to sandbox/source, sandbox/tests, sandbox/docs, sandbox/README.md, and package.json if necessary.
