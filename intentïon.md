@@ -153,3 +153,41 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-19T20:39:30.809Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1532 with action close and updated description:
+
+Implement a new `--mission` command for the CLI to surface the contents of `MISSION.md`, connecting the library’s executable interface directly to its mission statement.
+
+Changes to make:
+
+1. src/lib/main.js
+   - Import `readFileSync` from the `fs` module.
+   - Add an async function `processMission(args)` that:
+     1. Checks if `args` includes `"--mission"`.
+     2. Reads the project’s `MISSION.md` (via `new URL('../../../MISSION.md', import.meta.url)`).
+     3. Logs the raw markdown content to stdout via `console.log`.
+     4. Returns `true` when handled.
+   - Invoke `processMission(args)` at the top of the CLI dispatch in `main()`, before the existing flags. If it returns `true`, exit early (optionally emitting verbose stats).
+
+2. tests/unit/main.test.js
+   - Add a new `describe` block for the `--mission` flag.
+   - Mock `fs.readFileSync` to return a predictable mission string (e.g., `'# Test Mission'`).
+   - Spy on `console.log`, call `processMission(['--mission'])` (imported from main), and assert that the mission string is printed and the function returns `true`.
+
+3. README.md (root)
+   - Under the CLI Usage section, document the new `--mission` flag with a description and example output.
+   - Link to `MISSION.md` for full details.
+
+Verification:
+
+- Running `npm test` should pass all existing tests plus the new `--mission` tests.
+- Running `node src/lib/main.js --mission` should print the entire `MISSION.md` contents followed by no additional usage text.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7711,"completion_tokens":1478,"total_tokens":9189,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1024,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
