@@ -995,3 +995,69 @@ LLM API Usage:
 
 ---
 
+## Feature to Issue at 2025-05-19T15:11:35.430Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1521 with title:
+
+Implement HTTP /digest endpoint and server startup in main library
+
+And description:
+
+Objective: Extend `src/lib/main.js` to support an HTTP server mode that exposes a POST /digest endpoint, forwarding requests to the existing `digestLambdaHandler` logic.
+
+Scope of Work:
+1. Source Changes (src/lib/main.js):
+   - Detect HTTP mode via:
+     • CLI flag `--http`
+     • Environment variable `HTTP_MODE=true`
+   - Read `HTTP_PORT` environment variable (default to 3000).
+   - Use Node.js built-in `http` module to create a server:
+     • Route POST requests to `/digest`.
+     • Limit request body to 1 MB.
+     • Parse `application/json`; on parse failure respond with 400 and `{ error: "Invalid JSON payload" }`.
+     • On valid payload:
+       – Invoke `await digestLambdaHandler({ body: JSON.stringify(parsedBody) })`.
+       – Return handler’s JSON result with status code 200.
+   - Handle graceful shutdown on `SIGINT` and `SIGTERM`.
+   - Export `startHttpServer()` and `stopHttpServer()` helpers to allow clean up in tests.
+
+2. Test Updates (tests/unit/main.test.js):
+   - Mock `digestLambdaHandler` to observe invocation and inject a dummy JSON response.
+   - Write new tests to:
+     • Start the HTTP server (via `startHttpServer({ port, mode })`).
+     • Send a valid JSON POST to `/digest` and assert:
+       – `digestLambdaHandler` called exactly once with the parsed body.
+       – Response status 200 and correct JSON payload.
+     • Send an invalid JSON POST and assert status 400 with error message.
+     • Verify server listens on configured `HTTP_PORT`.
+     • Cleanly stop the server after tests using `stopHttpServer()`.
+
+3. Documentation Updates (sandbox/README.md):
+   - Add a new section “HTTP Endpoint”:
+     • Describe `--http` flag and `HTTP_MODE` env var.
+     • Explain `HTTP_PORT` configuration.
+     • Provide curl examples:
+       ```bash
+       HTTP_MODE=true HTTP_PORT=4000 npm start
+       curl -X POST http://localhost:4000/digest \
+         -H "Content-Type: application/json" \
+         -d '{"key":"events/1.json","value":"12345","lastModified":"2023-01-01T00:00:00Z"}'
+       ```
+     • Note graceful shutdown behavior.
+
+Verification & Acceptance Criteria:
+- All existing tests pass and new HTTP tests succeed.
+- Manual test via curl returns expected results.
+- No additional dependencies added; ESM and Node 20 compatibility preserved.
+- CLI and HTTP modes work side by side without conflict.
+
+After merging, run `npm test` and manually exercise the endpoint to confirm correct behavior.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6778,"completion_tokens":1946,"total_tokens":8724,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1280,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
