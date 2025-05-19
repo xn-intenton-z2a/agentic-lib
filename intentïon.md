@@ -619,3 +619,63 @@ LLM API Usage:
 ```
 ---
 
+## Enhanced Issue at 2025-05-19T16:45:04.817Z
+
+Enhanced maintenance issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1528 with enhanced description:
+
+Title: [Test] Enhance test coverage for core CLI and SQS handler functions
+
+Description:
+We need to expand and strengthen our test suite to cover the critical behaviors of our core AWS SQS utilities and CLI interface. This will reduce regressions and increase confidence in the library’s primary workflows.
+
+Acceptance Criteria:
+
+1. createSQSEventFromDigest
+   - Given a JavaScript object `digest`, `createSQSEventFromDigest(digest)` returns an object with:
+     • `Records` as an array of length 1.
+     • Each record has:
+       - `eventVersion` equal to "2.0".
+       - `eventSource` equal to "aws:sqs".
+       - `eventName` equal to "SendMessage".
+       - `body` equal to `JSON.stringify(digest)`.
+
+2. digestLambdaHandler
+   - When passed an event whose `Records` array contains only valid JSON bodies:
+     • Returns `{ batchItemFailures: [], handler: "src/lib/main.digestLambdaHandler" }`.
+     • Logs an info entry for receipt and parsing of each record to stdout.
+   - When passed an event containing at least one record with invalid JSON:
+     • Returns `{ batchItemFailures: [ { itemIdentifier: <fallback-ID> } ], handler: "src/lib/main.digestLambdaHandler" }`.
+     • `itemIdentifier` matches the fallback pattern (`/^fallback-\d+-\d+-[A-Za-z0-9]+$/`).
+     • Logs an error entry for the parsing failure and includes the raw message body.
+
+3. CLI Flags (main())
+   - --help
+     • Prints the usage instructions including lines for `--help`, `--version`, `--digest`.
+     • Exits normally (no errors to stderr, exit code 0).
+   - --version
+     • Mocks reading `package.json` and prints a JSON object with keys `version` matching the file and a valid ISO `timestamp`.
+     • Logs no errors to stderr.
+   - --digest
+     • Calls `createSQSEventFromDigest` and then `digestLambdaHandler` with an example payload.
+     • Logs at least one info message from `digestLambdaHandler` to stdout.
+     • Exits normally (no uncaught exceptions).
+
+4. Test File Updates
+   - Update `tests/unit/main.test.js` to add unit and integration tests for items (1)–(3).
+   - Update or remove placeholder in `tests/unit/module-index.test.js` to assert the actual exports of `src/lib/main.js` (e.g., no default export, but named exports exist).
+
+5. Documentation
+   - Update `sandbox/README.md`’s CLI Usage section with concrete examples for `--help`, `--version`, and `--digest`, including sample output blocks that tests can validate against.
+
+Verification:
+- Run `npm test` and ensure all existing and new tests pass.
+- Coverage for `src/lib/main.js` should exceed 90% on the newly tested functions.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7539,"completion_tokens":1992,"total_tokens":9531,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1280,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
