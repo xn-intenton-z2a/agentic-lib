@@ -1007,3 +1007,55 @@ LLM API Usage:
 
 ---
 
+## Feature to enhanced Issue at 2025-05-19T12:24:56.192Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1518 with enhanced description:
+
+Title: Add --health-check CLI Command to Report System Health Status
+
+Objective:
+Implement a new `--health-check` CLI flag in `src/lib/main.js` that outputs a single JSON object summarizing the runtime health of the tool and returns immediately.
+
+Testable Acceptance Criteria:
+
+1. CLI Behavior
+   - Invoking `node src/lib/main.js --health-check` writes exactly one line to stdout containing a valid JSON string.
+   - The JSON object must include all of the following fields:
+     - `level`: string, exactly "info".
+     - `handler`: string, exactly "health-check".
+     - `timestamp`: string, valid ISO 8601 timestamp.
+     - `config`: object, matching the parsed `config` schema (`GITHUB_API_BASE_URL` and `OPENAI_API_KEY` keys present if set, otherwise omitted).
+     - `uptime`: number, equal to `process.uptime()` at time of invocation (greater than or equal to zero).
+     - `callCount`: number, equal to `globalThis.callCount` at time of invocation.
+   - The process should return early (exit `main`) after printing this message; no other usage instructions or logs should appear.
+
+2. Usage Documentation
+   - `generateUsage()` output must include a new line: `--health-check             Output system health and configuration status in JSON.`
+   - Updated CLI usage in `sandbox/README.md` to show example:
+     ```bash
+     $ node src/lib/main.js --health-check
+     {"level":"info","handler":"health-check","timestamp":"2025-...","config":{...},"uptime":0.0,"callCount":0}
+     ```
+
+3. Automated Tests
+   - In `tests/unit/main.test.js`, add a suite for `--health-check`:
+     - Spy on `console.log`.
+     - Call `await main(["--health-check"])`.
+     - Assert only one `console.log` call occurred.
+     - Parse the logged JSON and verify all required fields and types.
+     - Confirm no additional console output.
+
+Verification Steps:
+- Run `npm test` and confirm the new health-check tests pass.
+- Execute `node src/lib/main.js --health-check` manually and validate JSON output structure.
+- Confirm usage text (`--help` or no args) now includes `--health-check` in the printed instructions.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6986,"completion_tokens":1020,"total_tokens":8006,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":448,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
