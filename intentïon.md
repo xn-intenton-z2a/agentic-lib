@@ -4168,3 +4168,60 @@ LLM API Usage:
 
 ---
 
+## Issue to Ready Issue at 2025-05-19T12:53:33.981Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1519 with action enhance and updated description:
+
+Title: [Test Maintenance] Expand tests for SQS digest handler and CLI commands
+
+Description:
+To ensure the core SQS digest handler and CLI features are reliable and fully tested, expand our test suite with the following testable acceptance criteria.
+
+Acceptance Criteria:
+1. Utility Function: createSQSEventFromDigest
+   - Given a sample digest object, createSQSEventFromDigest(digest) returns an object with a `Records` array of length 1.
+   - The single record's `body` must equal JSON.stringify(digest).
+
+2. digestLambdaHandler Success Path
+   - Given a valid SQS event (with Records containing stringified JSON bodies), digestLambdaHandler(event) returns `{ batchItemFailures: [] }`.
+   - No errors are logged (vi.spyOn(logError) not called).
+
+3. digestLambdaHandler Failure Path
+   - Given an event with a record whose `body` is invalid JSON, digestLambdaHandler(event) returns `{ batchItemFailures: [ { itemIdentifier: string } ] }`.
+   - The returned `itemIdentifier` matches the fallback pattern `/^fallback-\d+-\d+-[a-z0-9]{9}$/i`.
+   - logError is called at least twice: once for the parsing error and once for the invalid raw message.
+
+4. CLI Flag: --help
+   - Spawning `node src/lib/main.js --help` prints the usage instructions exactly as returned by generateUsage().
+   - Process exits gracefully (exit code 0 or no unhandled exception).
+
+5. CLI Flag: --version
+   - Mock fs.readFileSync to return `{ "version": "1.2.3" }`, then run `node src/lib/main.js --version`.
+   - Output is valid JSON containing `version: "1.2.3"` and `timestamp` matching ISO8601 format.
+
+6. CLI Flag: --digest
+   - Stub digestLambdaHandler to a mock implementation, then run `node src/lib/main.js --digest`.
+   - Assert stub is invoked exactly once with the example digest object.
+   - Output logs include the `Received event` info message.
+
+7. CLI No Flags
+   - Running `node src/lib/main.js` with no arguments prints "No command argument supplied." followed by generateUsage() output.
+
+8. Documentation Update
+   - In sandbox/README.md, add a "Usage" section with code blocks demonstrating:
+     * `--help` output example
+     * `--version` output example
+     * `--digest` output example
+
+Verification:
+- `npm test` passes all new and existing tests.
+- Coverage for src/lib/main.js is increased to at least 80%.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7740,"completion_tokens":2112,"total_tokens":9852,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1472,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
