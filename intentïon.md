@@ -1463,3 +1463,55 @@ LLM API Usage:
 ```
 ---
 
+## Feature to enhanced Issue at 2025-05-19T19:01:40.891Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1530 with enhanced description:
+
+Title: Add GitHub Workflow Dispatch and Monitoring Functions with CLI Support
+
+Description:
+We need to extend the core SDK and CLI to support dispatching GitHub Actions workflows and monitoring their status in real time. This will enable end-to-end automation control via both library calls and command-line flags.
+
+Acceptance Criteria:
+1. Library Function: `async triggerGitHubWorkflow(repo: string, workflowId: string, ref?: string, inputs?: object)`
+   - Calls GitHub Actions Dispatch API using Octokit or fetch
+   - Reads `GITHUB_API_BASE_URL` and `GITHUB_TOKEN` from config
+   - Returns an object containing `status`, `runId`, and API response body
+   - Throws an error on non-2xx HTTP responses
+   - Unit test mocks GitHub API and verifies correct request parameters and error handling
+
+2. Library Functions for Monitoring:
+   a. `async getWorkflowRuns(repo: string, workflowId: string): Promise<Run[]>`
+   b. `async getWorkflowRunStatus(repo: string, runId: number): Promise<{ status: string, conclusion: string }>`
+   c. `async fetchWorkflowRunLogs(repo: string, runId: number): Promise<Buffer>`
+   d. `async waitForWorkflowCompletion(repo: string, runId: number, timeout?: number): Promise<{ status: string, conclusion: string }>`
+   - Each function calls the appropriate GitHub API endpoint
+   - Properly handles pagination and rate limits
+   - Returns typed results and throws on unrecoverable errors
+   - Unit tests mock API responses and verify polling logic and timeout behavior
+
+3. CLI Support:
+   - Add `--dispatch <owner/repo> <workflowId> [ref] [inputs]` flag
+     • Invokes `triggerGitHubWorkflow` and prints JSON `{ status, runId, details }`
+   - Add `--status <owner/repo> <runId> [timeout]` flag
+     • Invokes `waitForWorkflowCompletion` and prints final status and conclusion
+   - Add `--logs <owner/repo> <runId>` flag
+     • Invokes `fetchWorkflowRunLogs` and streams raw logs to stdout
+   - Tests for each CLI flag, mocking underlying library functions
+
+4. Documentation:
+   - Update README and USAGE.md with examples for `--dispatch`, `--status`, and `--logs`
+   - Provide code snippet for library usage of `triggerGitHubWorkflow` and `waitForWorkflowCompletion`
+
+5. Verification & Acceptance:
+   - All new unit tests pass in both `src/lib` and `sandbox/source`
+   - Existing tests remain passing
+   - Manual CLI verification against a test repo ensures real dispatch and log fetching work as expected
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":10545,"completion_tokens":974,"total_tokens":11519,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":320,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
