@@ -1289,3 +1289,38 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-19T18:49:28.393Z
+
+fixApplied: true
+
+Add CLI documentation and comprehensive tests for core SQS and CLI handlers
+
+Git Diff:
+
+```
+
+
+```
+mainOutput:```
+
+> @xn-intenton-z2a/agentic-lib@6.7.5-0 start
+> node src/lib/main.js
+
+{"level":"info","timestamp":"2025-05-19T18:49:06.900Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1528 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":12843,"completion_tokens":6559,"total_tokens":19402,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3136,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
