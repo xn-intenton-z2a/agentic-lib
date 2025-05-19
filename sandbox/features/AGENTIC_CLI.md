@@ -1,45 +1,48 @@
 # Value Proposition
-Extend CLI entry points in both sandbox and core CLIs to provide AWS Lambda invocation, S3 simulation and OpenAI summarization and refinement workflows alongside GitHub issue management commands. This empowers users to orchestrate cloud functions, generate text insights, and manage issues from a single interface, streamlining automation in GitHub workflows.
+Provide a unified command-line interface in both sandbox and core contexts that allows users to discover project information, inspect mission details, simulate event streams, and retrieve version metadata, all from a single entry point.
 
 # Success Criteria & Requirements
 
-## 1. Existing AWS & OpenAI Commands
-- Retain flags --invoke-lambda, --simulate-s3, --summarize, --refine with existing behavior, validations, and logging.
-- --invoke-lambda dispatches to AWS Lambda client with function name and payload.
-- --simulate-s3 reads digest fixtures and simulates SQS events via S3-to-SQS bridge utilities.
-- --summarize and --refine call OpenAI chat completion with provided prompt, parse JSON response, and output messages.
+## 1. Help Command (--help)
+- When invoked with --help, display usage instructions and available flags.
+- Update generateUsage in sandbox/source/main.js and src/lib/main.js to enumerate all supported flags.
+- After printing help, exit early without executing any other logic.
 
-## 2. GitHub Issue Management
+## 2. Mission Command (--mission)
+- When invoked with --mission, read the MISSION.md file in the project root as UTF-8 text.
+- On success, print the raw markdown content to stdout and exit early.
+- On failure to read the file, call logError with a descriptive message and error details, then exit early.
 
-### --list-issues [--repo <owner/repo>] [--state <open|closed|all>]
-- Default repo from GITHUB_REPOSITORY environment or origin remote if not provided.
-- Require GITHUB_TOKEN and GITHUB_API_BASE_URL; if missing logError and exit non-zero.
-- Perform GET request to /repos/{owner}/{repo}/issues with given state and parse response.
-- For each issue logInfo with id, title, state, and url.
+## 3. Version Command (--version)
+- When invoked with --version, load package.json from the project root.
+- Parse version field and construct an object containing version and current ISO timestamp.
+- Print the object as a JSON string to stdout and exit early.
+- On any error, call logError with a descriptive message and stack if available, then exit early.
 
-### --create-issue --repo <owner/repo> --title <title> [--body <bodyFile>]
-- Read issue body from file or default to empty string.
-- Require GITHUB_TOKEN; on missing token logError and exit non-zero.
-- Perform POST to /repos/{owner}/{repo}/issues with JSON payload { title, body }.
-- On success logInfo with created issue number and URL; on failure logError with status and message.
+## 4. Digest Command (--digest)
+- When invoked with --digest, construct a sample digest payload containing key, value, and lastModified timestamp.
+- Use createSQSEventFromDigest to build an SQS event and call digestLambdaHandler with it.
+- Ensure that logInfo and logError calls within the handler surface event receipt, record processing, and any failures.
+- After handler completes, exit early.
 
-### --close-issue --repo <owner/repo> --issue-number <number>
-- Require GITHUB_TOKEN; if missing logError and exit non-zero.
-- Perform PATCH to /repos/{owner}/{repo}/issues/{number} with { state: "closed" }.
-- On success logInfo with confirmation; on failure logError with response details.
+## 5. Default Behavior
+- If no recognized flag is provided, print "No command argument supplied.", then display usage instructions.
+- Ensure that only one command path executes per invocation.
 
 # Usage Documentation
-- Update generateUsage in sandbox/source/main.js and src/lib/main.js to list new flags and usage patterns.
-- Update sandbox/README.md, README.md, and sandbox/docs/USAGE.md with examples for listing, creating, and closing issues, and AWS/OpenAI commands.
+- Update sandbox/docs/USAGE.md and sandbox/README.md to reflect help, mission, version, and digest options with examples.
+- Update core CLI documentation in README.md and docs/USAGE.md to match sandbox behavior.
 
 # Tests Coverage
-- Add or update unit tests to cover missing or invalid GITHUB_TOKEN for each new flag.
-- Mock successful and failed HTTP responses for list, create, and close commands.
-- Test CLI dispatch logic correctly routes flags to GitHub, AWS, and OpenAI handlers.
-- Verify logInfo and logError output for both info and error scenarios.
+- Add or update unit tests in sandbox/tests and tests/unit to cover:
+  - --help prints usage and exits early.
+  - --mission reads MISSION.md and logs content; error path logs error.
+  - --version prints JSON with correct version and timestamp; error path logs error.
+  - --digest invokes createSQSEventFromDigest and digestLambdaHandler; mock logging for success and failure.
+  - Default invocation prints no-argument message and usage.
 
 # Dependencies & Constraints
-- Leverage existing native fetch or node-fetch and dotenv for environment loading.
-- Do not introduce new external packages beyond current dependencies.
-- Maintain ESM compatibility and support Node >=20.
-- Limit changes to source files, test files, README files, and package.json if needed for fetch polyfill.
+- Use existing ESM modules: fs/promises, zod, dotenv, and native fetch support.
+- Do not introduce new external packages beyond those listed in package.json.
+- Maintain Node >=20 compatibility and ESM structure.
+- Limit changes to source files, test files, README files, and package.json if fetch polyfill is required.
