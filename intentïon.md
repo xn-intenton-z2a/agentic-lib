@@ -4109,3 +4109,62 @@ LLM API Usage:
 
 ---
 
+## Enhanced Issue at 2025-05-19T12:53:26.120Z
+
+Enhanced maintenance issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1519 with enhanced description:
+
+Title: [Test Maintenance] Expand tests for SQS digest handler and CLI commands
+
+Description:
+Current tests only verify module import and undefined exports, leaving core SQS handling and CLI behavior untested. To improve reliability and deliver measurable user value, add comprehensive unit and end-to-end tests covering event creation, Lambda handling, CLI flags, and documentation updates.
+
+Acceptance Criteria:
+1. createSQSEventFromDigest:
+   - Given a digest object, createSQSEventFromDigest(digest) returns an object with:
+     • Records array of length 1
+     • Records[0].eventSource === "aws:sqs"
+     • Records[0].body === JSON.stringify(digest)
+2. digestLambdaHandler:
+   a. Success Path:
+      - Input: valid SQS event with JSON body
+      - Output: { batchItemFailures: [], handler: "src/lib/main.digestLambdaHandler" }
+   b. Failure Path with messageId:
+      - Input: event record with invalid JSON and messageId
+      - batchItemFailures[0].itemIdentifier === original messageId
+      - logError called at least twice (processing and payload log)
+   c. Failure Path without messageId:
+      - Input: invalid JSON record missing messageId
+      - batchItemFailures[0].itemIdentifier matches /^fallback-\d+-\d+-[a-z0-9]+$/
+3. CLI Flag Processing (unit + integration):
+   a. --help:
+      - Running main(["--help"]) logs usage string exactly matching generateUsage()
+   b. --version:
+      - Mock fs.readFileSync to return { version: "1.2.3" }
+      - Running main(["--version"]) logs JSON with version === "1.2.3" and valid ISO timestamp
+   c. --digest:
+      - Stub digestLambdaHandler
+      - Running main(["--digest"]) invokes stub once with an event matching exampleDigest
+   d. No args:
+      - Running main([]) logs "No command argument supplied." and usage text
+4. Documentation:
+   - Update sandbox/README.md to include a \"Usage\" section detailing CLI commands (--help, --version, --digest) with code blocks showing example invocations and outputs
+
+Implementation Files to Modify:
+- tests/unit/main.test.js (add unit tests for utility and handler)
+- tests/unit/cli.test.js (create tests for CLI flag functions)
+- sandbox/tests/cli.feature.test.js (spawn CLI for end-to-end scenarios)
+- sandbox/README.md (insert Usage section with examples)
+
+Verification:
+- npm test passes new and existing tests
+- Coverage for src/lib/main.js increases above 80%
+- No external environment setup; all fs/handler calls are mocked
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7740,"completion_tokens":1422,"total_tokens":9162,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":768,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
