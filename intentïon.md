@@ -455,3 +455,104 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-19T16:37:31.614Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1527 with title:
+
+Implement SQS_INTEGRATION: sendMessageToQueue, enhanced digest handler, and CLI support
+
+And description:
+
+## Objective
+Extend the library and CLI to fully support AWS SQS end-to-end for digest payloads: implement message sending, improve the SQS event handler, and add `--send-queue` CLI flag.
+
+## Scope of Changes
+Only modify the following files:
+- **package.json** (dependencies)
+- **src/lib/main.js** (source)
+- **sandbox/tests/** (unit tests)
+- **sandbox/README.md** (documentation)
+
+### 1. Add SQS dependency
+- In `package.json` under `dependencies`, add:
+  ```json
+  "@aws-sdk/client-sqs": "^3.x"
+  ```
+- Run `npm install` to update lockfile.
+
+### 2. Implement `sendMessageToQueue` in `src/lib/main.js`
+- Import:
+  ```js
+  import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+  ```
+- Export an async function:
+  ```js
+  export async function sendMessageToQueue(digest) {
+    const queueUrl = process.env.QUEUE_URL;
+    if (!queueUrl) throw new Error('Environment variable QUEUE_URL is required');
+    const client = new SQSClient({});
+    const command = new SendMessageCommand({
+      QueueUrl: queueUrl,
+      MessageBody: JSON.stringify(digest)
+    });
+    const result = await client.send(command);
+    logInfo(`Sent message to SQS: ${result.MessageId}`);
+    return result;
+  }
+  ```
+
+### 3. Enhance `digestLambdaHandler`
+- Ensure JSON parse errors are caught and recorded in `batchItemFailures` with a stable `itemIdentifier` (use `messageId` or fallback pattern).
+- Confirm handler returns `{ batchItemFailures, handler: 'src/lib/main.digestLambdaHandler' }`.
+
+### 4. Add `--send-queue` CLI flag
+- In `src/lib/main.js`, add a `processSendQueue(args)` before the final fallback:
+  ```js
+  async function processSendQueue(args) {
+    if (args.includes('--send-queue')) {
+      const fileArg = args[args.indexOf('--send-queue') + 1];
+      const digest = fileArg ? JSON.parse(await fs.promises.readFile(fileArg, 'utf8'))
+                              : { example: 'digest' };
+      await sendMessageToQueue(digest);
+      return true;
+    }
+    return false;
+  }
+  ```
+- Invoke it in `main()` alongside `processDigest` and update `generateUsage()` to include `--send-queue [path]`.
+
+### 5. Unit tests in `sandbox/tests/`
+- **sendMessageToQueue.test.js**: mock `SQSClient.send` to:
+  - Assert that missing `QUEUE_URL` throws error.
+  - Validate `SendMessageCommand` receives correct `QueueUrl` and `MessageBody`.
+- **createSQSEventFromDigest.test.js**: verify structure of the returned event.
+- **digestLambdaHandler.test.js**: cover
+  - Successful JSON parse
+  - Invalid JSON body producing `batchItemFailures`
+- **cli.test.js**: simulate `process.argv` with `--send-queue` and `--digest`, assert console logs and exit codes.
+
+### 6. Documentation in `sandbox/README.md`
+- Document the function signature and usage of `sendMessageToQueue(digest)` and `digestLambdaHandler(event)`.
+- Add CLI usage:
+  ```bash
+  npm start -- --send-queue myDigest.json
+  npm start -- --digest
+  ```
+- Show example logs for success and error cases.
+
+## Verification & Acceptance Criteria
+1. `npm test` passes all existing and new tests with coverage.
+2. `npm start -- --send-queue sample.json` logs a `MessageId` and returns exit code 0.
+3. `npm start -- --send-queue` without `QUEUE_URL` or with malformed JSON returns a non-zero exit code and logs a descriptive error.
+4. `npm start -- --digest` continues to work as before.
+5. Linting and formatting remain clean.  
+
+This single-LLM invocation should produce all updated source files, tests, `package.json`, and `sandbox/README.md` to complete the SQS_INTEGRATION feature.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7086,"completion_tokens":1859,"total_tokens":8945,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":832,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
