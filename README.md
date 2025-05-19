@@ -739,7 +739,8 @@ intentïon user journey [Launch UX]:
 - [x] [Launch] Add links to issues to intentïon.md
 - [x] [Launch] Add code change Git diff output to the intentïon.md
 - [x] [Launch] Add main output examples to intentïon.md
-- [~] [Launch] Change link to running experiment to be a link to intentïon.md on that branch.
+- [ ] [Launch] Remove tmp files before the Git Diff
+- [ ] [Launch] Change link to running experiment to be a link to intentïon.md on that branch.
 - [ ] [Launch] Add a link to the commit URL for any commit applied
 - [ ] [Launch] Add a link to the URL for any feature updated.
 - [ ] [Launch] Add PR approval and closure/abandonment to intentïon.md
