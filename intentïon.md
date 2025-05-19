@@ -846,3 +846,15 @@ LLM API Usage:
 
 ---
 
+## Activity at 2025-05-19T08:53:40.143Z
+
+Worked to update README with: Clarify core CLI options add configuration sections and note sandbox-only mission flag.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":9678,"completion_tokens":4298,"total_tokens":13976,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3136,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
