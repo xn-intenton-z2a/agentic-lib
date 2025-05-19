@@ -104,3 +104,56 @@ LLM API Usage:
 ```
 ---
 
+## Feature to enhanced Issue at 2025-05-19T22:22:57.128Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1535 with enhanced description:
+
+Summary:
+
+Improve the `digestLambdaHandler` in src/lib/main.js by enforcing a Zod schema (`digestSchema`) on incoming SQS digest messages. Only messages with the required fields (`key`, `value`, and an ISO `lastModified` timestamp) will be processed. Malformed or invalid payloads will be logged with detailed validation errors and returned as `batchItemFailures` for AWS to retry.
+
+Testable Acceptance Criteria:
+
+1. Valid Digest Message
+   - Given an SQS event with a record body containing `{ key: string, value: string, lastModified: valid ISO timestamp }`,
+   - When `digestLambdaHandler` processes the event,
+   - Then the returned object has `batchItemFailures: []`,
+   - And `logInfo` is called once with a message matching `/Valid digest/` containing the parsed payload.
+
+2. Missing Required Field
+   - Given an SQS event where the record body is missing one of `key` or `value`,
+   - When `digestLambdaHandler` processes the event,
+   - Then the returned object has `batchItemFailures` containing a single entry with `itemIdentifier` equal to the record’s `messageId` or fallback ID,
+   - And `logError` is called with a `ZodError` message that references the missing field.
+
+3. Invalid Timestamp Format
+   - Given an SQS event with a record body where `lastModified` is not a valid ISO timestamp,
+   - When `digestLambdaHandler` processes the event,
+   - Then the returned object has `batchItemFailures` containing a single entry,
+   - And `logError` is called with a validation message: "Invalid ISO timestamp".
+
+4. Invalid JSON Payload
+   - Given an SQS event with a record body containing malformed JSON,
+   - When `digestLambdaHandler` processes the event,
+   - Then the returned object has `batchItemFailures` containing a single entry,
+   - And `logError` is called twice: once for JSON parse failure and once logging the raw payload.
+
+Implementation Notes:
+- Import `ZodError` alongside `z` from the `zod` package.
+- Define and export `digestSchema`:
+    z.object({
+      key: z.string(),
+      value: z.string(),
+      lastModified: z.string().refine(val => !isNaN(Date.parse(val)), { message: 'Invalid ISO timestamp' })
+    })
+- Wrap JSON.parse and schema.parse in separate try/catch blocks, logging errors and collecting failures as outlined above.
+- Add unit tests in tests/unit/main.test.js covering all scenarios using `createSQSEventFromDigest`, and spy on `logInfo` and `logError` to confirm expected calls.
+- Update sandbox/README.md to document `digestSchema`, required fields, timestamp format, and failure behavior.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7459,"completion_tokens":1127,"total_tokens":8586,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":448,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
