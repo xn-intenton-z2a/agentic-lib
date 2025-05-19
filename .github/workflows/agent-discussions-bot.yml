@@ -480,7 +480,8 @@ jobs:
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  # TODO - Add some shallow actions inline for the bot. Create feature & Create issue.
+  # TODO - Feature development flow in-line.
+
   #feature-maintenance-flow:
   #  needs:
   #    - process-discussion-post
@@ -531,7 +532,6 @@ jobs:
       - process-discussion-post
       - generate-response
       - agentic-lib
-      - feature-maintenance-flow
     if: ${{ !cancelled() && (needs.generate-response.outputs.action == 'mission-complete' || needs.generate-response.outputs.action == 'stop') }}
     runs-on: ubuntu-latest
     steps:
