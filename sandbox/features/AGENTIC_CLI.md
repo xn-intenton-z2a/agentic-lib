@@ -1,52 +1,57 @@
 # Value Proposition
 
-Provide a unified command-line interface for both sandbox and core modes that offers a consistent user experience to inspect the project mission, view version metadata, simulate or process event digests from memory or file, and replay real S3 bucket contents as SQS events. This streamlines development, debugging, integration testing, and batch processing workflows by avoiding duplication and ensuring both CLI entry points support the same set of commands.
+Extend the unified command-line interface to include a health command that verifies connectivity and configuration for core integrations. Developers can quickly validate their environment and key dependencies (GitHub API and OpenAI) before running workflows, improving reliability and reducing troubleshooting time.
 
 # Success Criteria & Requirements
 
 ## 1. Help Command (--help)
-- Invoking with `--help` prints detailed usage instructions listing all supported flags: `--help`, `--mission`, `--version`, `--digest`, `--digest-file`, `--replay-bucket` and optional `--prefix` for replay.
-- Exits immediately after printing help without executing any other logic.
+- Unchanged: print detailed usage for all supported flags including the new `--health` flag and exit immediately.
 
 ## 2. Mission Command (--mission)
-- Reads `MISSION.md` from project root via fs/promises `readFile` with UTF-8 encoding.
-- On success, prints raw markdown content to stdout and exits.
-- On failure, logs an error message and optional stack (if verbose) via `logError` and exits.
-- Supported in both `sandbox/source/main.js` and `src/lib/main.js`.
+- Unchanged: read and print the project mission statement from MISSION.md in both sandbox and core modes.
 
 ## 3. Version Command (--version)
-- Reads the `version` field from `package.json` synchronously via `readFileSync` in ESM import.
-- Constructs a JSON object containing `version` and the current ISO timestamp.
-- Prints JSON to stdout and exits.
-- On error, logs descriptive error via `logError` and exits.
-- Supported in both entry points.
+- Unchanged: read version from package.json, return JSON with version and timestamp.
 
 ## 4. Sample Digest Command (--digest)
-- Constructs an in-memory digest object with `key`, `value`, and `lastModified` timestamp.
-- Wraps the digest in an SQS event using `createSQSEventFromDigest`.
-- Invokes `digestLambdaHandler` with the event and logs receipt and processing of each record via `logInfo`.
-- Collects and returns any `batchItemFailures`, then exits.
-- Supported in both entry points.
+- Unchanged: simulate an in-memory digest, wrap as SQS event, invoke digestLambdaHandler, log info.
 
 ## 5. File Digest Command (--digest-file <path>)
-- Reads a JSON file at the given path using fs/promises `readFile` with UTF-8 encoding.
-- Parses content into a digest object; on successful parse creates an SQS event and invokes `digestLambdaHandler`.
-- On read or parse errors, logs descriptive error via `logError` and exits.
-- Exits after handler completes.
-- Supported in both entry points.
+- Unchanged: read JSON file, parse into digest, create SQS event, invoke handler, handle errors.
 
 ## 6. Replay Bucket Command (--replay-bucket <bucket> [--prefix <prefix>])
-- Invoking with `--replay-bucket` and an S3 bucket name, optionally with an object prefix, imports the `@xn-intenton-z2a/s3-sqs-bridge` module.
-- Calls the bridge function to list objects and generate SQS events in batches, handling pagination.
-- For each batch event, invokes `digestLambdaHandler`, logging start, per-record info, and summary failures via `logInfo` and `logError`.
-- On any bridge or AWS errors, logs descriptive messages and exits.
-- Prints a final summary JSON object with `totalRecords`, `successCount`, and `failureCount`, then exits.
-- Supported in both entry points.
+- Unchanged: use s3-sqs-bridge, list objects, batch replay to digestLambdaHandler, log summary.
 
 ## 7. Default Behavior
-- When invoked with no recognized flags, prints “No command argument supplied.” followed by usage instructions.
-- Ensures only one command path executes per invocation and exits gracefully.
+- Unchanged: on no recognized flags, print “No command argument supplied.” and usage.
 
 ## 8. Consistency Across Modes
-- Both sandbox CLI (`sandbox/source/main.js`) and core CLI (`src/lib/main.js`) must share identical usage text, logging behavior, and command semantics for all commands above.
-- Tests must cover each flag and code path in both entry points, including success and failure scenarios for file digest and replay commands.
+- Unchanged: sandbox and core entry points must share identical usage text, flags, logging behavior.
+
+## 9. Health Command (--health)
+- When invoked with `--health`, perform two connectivity checks in sequence:
+  1. GitHub API Health: send a HEAD or GET request to the configured GITHUB_API_BASE_URL (defaulting to https://api.github.com/) and verify a 200 OK response or valid JSON. Log success or failure with timing.
+  2. OpenAI API Health: send a minimal authenticated request to the OpenAI API (e.g., list models endpoint) using the OPENAI_API_KEY. Verify a 200 OK response. Log success or failure with timing.
+- Construct a JSON report containing:
+  - github: { status: "ok"|"error", latencyMs, errorMessage? }
+  - openai: { status: "ok"|"error", latencyMs, errorMessage? }
+  - timestamp: ISO timestamp of the check
+- Print the JSON report to stdout and exit.
+- On network errors or invalid credentials, include descriptive error messages in the report but always exit with code zero (for CI health gate patterns).
+- Supported in both sandbox/source/main.js and src/lib/main.js.
+
+# Testing & Verification
+
+- Add unit tests to cover:
+  - Successful GitHub health check (mock out HTTP client to return 200).
+  - Failed GitHub health check (mock non-200 status or network error).
+  - Successful OpenAI health check (mock openai client to respond).
+  - Failed OpenAI health check (invalid key or network error).
+  - Combined report JSON structure and exit behavior.
+- Use Vitest mocks for fs, HTTP and openai client to isolate behavior.
+
+# Dependencies & Constraints
+
+- Leverage native fetch (Node 20 global) or a lightweight HTTP client already in dependencies.
+- Use the existing dotenv and config parsing for environment.
+- Respect VERBOSE_MODE and VERBOSE_STATS flags for optional extended logging.
