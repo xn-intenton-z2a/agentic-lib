@@ -95,3 +95,75 @@ LLM API Usage:
 ```
 ---
 
+## Feature to enhanced Issue at 2025-05-19T15:39:26.843Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1524 with enhanced description:
+
+Title: Implement GitHub Issue Commenter CLI Feature
+
+Description:
+This feature adds a core `--comment` CLI command to post comments to GitHub issues, enabling agentic workflows to provide automated feedback directly on GitHub. It includes:
+
+1. Configuration:
+   - Extend `configSchema` in `src/lib/main.js` to include:
+     - `GITHUB_TOKEN: z.string().optional()`
+     - `GITHUB_API_BASE_URL: z.string().optional()` (already present)
+
+2. Implementation:
+   - Add `async function commentOnIssue(owner, repo, issueNumber, body)`:
+     - Constructs POST to `${config.GITHUB_API_BASE_URL || 'https://api.github.com'}/repos/${owner}/${repo}/issues/${issueNumber}/comments`.
+     - Sets `Authorization: token ${config.GITHUB_TOKEN}` header.
+     - Sends JSON payload `{ body }`.
+     - Logs success via `logInfo()` or errors via `logError()`.
+
+   - Add `processComment(args)` before other handlers to detect flags:
+     ```js
+     --comment                   Trigger issue comment mode
+     --owner <owner>             GitHub organization or user
+     --repo <repo-name>          Repository name
+     --issue <number>            Issue number to comment on
+     --message <text>            Comment body text
+     ```
+   - Wire `processComment` into `main()` so running:
+     ```bash
+     agentic-lib --comment --owner my-org --repo my-repo --issue 42 --message "Your comment"
+     ```
+     results in a call to `commentOnIssue` and then exits.
+
+3. Testing (`tests/unit/main.test.js`):
+   - Mock global `fetch` to intercept HTTP POSTs and simulate:
+     - 201 response on success.
+     - 401 or other status on failure.
+   - Test Cases:
+     - Successful comment posts to correct URL with correct headers and body.
+     - Missing `GITHUB_TOKEN` logs an error and exits with non-zero code.
+     - HTTP error triggers `logError` with the response status and message.
+     - Ensure existing `globalThis.callCount` behavior is unaffected.
+
+4. Documentation (`sandbox/README.md`):
+   - Add CLI usage example:
+     ```bash
+     agentic-lib --comment --owner <github-org> --repo <repo-name> --issue <number> --message "Comment body"
+     ```
+   - Document environment variables:
+     - `GITHUB_TOKEN` (required for authentication)
+     - `GITHUB_API_BASE_URL` (optional override, defaults to `https://api.github.com`)
+
+5. Dependencies (`package.json`):
+   - No new dependencies required (Node 20+ native `fetch`).
+   - Update `--help` output to include `--comment` flag description.
+
+Testable Acceptance Criteria:
+- Given a valid `GITHUB_TOKEN`, executing `agentic-lib --comment --owner octocat --repo hello-world --issue 1 --message "Test"` should send a POST request to `https://api.github.com/repos/octocat/hello-world/issues/1/comments` and log success.
+- When `GITHUB_TOKEN` is not set, running the same command should log an error and exit with code `1`.
+- On HTTP status >= 400, the CLI logs the error status and message via `logError()` and exits with code `1`.
+- Unit tests mock `fetch` to simulate both success and failure, verifying URL, headers, request body, and logging behavior.
+- `--help` output lists `--comment`, `--owner`, `--repo`, `--issue`, and `--message` flags with descriptions.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7048,"completion_tokens":2077,"total_tokens":9125,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1216,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
