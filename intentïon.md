@@ -192,3 +192,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-19T22:33:01.511Z
+
+Generated feature development issue with title Add --mission CLI flag to display library mission statement and update documentation.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6732,"completion_tokens":1897,"total_tokens":8629,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1408,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
