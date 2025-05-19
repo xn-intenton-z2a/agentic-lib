@@ -900,3 +900,108 @@ LLM API Usage:
 ```
 ---
 
+## Maintain Feature at 2025-05-19T17:59:00.306Z
+
+Maintained feature SQS_INTEGRATION.
+
+Git diff:
+
+```
+diff --git a/sandbox/features/SQS_INTEGRATION.md b/sandbox/features/SQS_INTEGRATION.md
+index dd9feb0b..2ae1f433 100644
+--- a/sandbox/features/SQS_INTEGRATION.md
++++ b/sandbox/features/SQS_INTEGRATION.md
+@@ -1,52 +1,51 @@
+ # Objective
+ 
+-Expand the library and CLI to fully integrate with AWS SQS end to end and add a lightweight HTTP API server exposing REST endpoints to send digests to SQS and trigger the digest handler locally
++Expand the library and CLI to fully integrate with AWS SQS end to end, add a lightweight HTTP API server exposing REST endpoints to send digests to SQS and trigger the digest handler locally, and provide OpenAI chat completion capabilities via CLI and HTTP for interactive prompt handling.
+ 
+ # Value Proposition
+ 
+-Provide a unified interface for SQS message operations via both CLI and HTTP, simplifying integration and testing and eliminating boilerplate script work
++Deliver a unified interface for SQS operations and conversational chat functionality using OpenAI, accessible via both CLI and HTTP endpoints. Simplify message workflows, testing, and enable dynamic content generation or refinement through AI without additional boilerplate.
+ 
+ # Requirements
+ 
+ 1 Dependencies
+-   - Add or update dependency on @aws-sdk/client-sqs in package json
+-   - Add express to dependencies in package json
++   - Ensure dependency on @aws-sdk/client-sqs is present in package.json
++   - Ensure dependency on express is present in package.json
++   - Add or update dependency on openai in package.json
+ 
+ 2 SQS Functions
+-   - sendMessageToQueue(digest : object) reads QUEUE_URL environment variable constructs a SendMessageCommand with the JSON digest and sends the message returning the command result
+-   - createSQSEventFromDigest(digest) returns a valid SQS event record wrapping the digest in Records array
+-   - digestLambdaHandler(sqsEvent) logs the incoming event parses JSON bodies collects batchItemFailures and returns the list with handler identifier
++   - sendMessageToQueue(digest : object) reads QUEUE_URL environment variable, constructs a SendMessageCommand with the JSON digest, sends the message and returns the command result
++   - createSQSEventFromDigest(digest) returns a valid SQS event record wrapping the digest in a Records array
++   - digestLambdaHandler(sqsEvent) logs the incoming event, parses JSON bodies, collects batchItemFailures and returns the list with handler identifier
+ 
+ 3 HTTP Server
+-   - Implement startHttpServer(port : number) that creates an express app with JSON body parsing
+-   - Add endpoint POST /send queue that accepts a JSON digest body calls sendMessageToQueue and responds with message id and status or error with status code 400 or 500
+-   - Add endpoint POST /digest that accepts a JSON digest body creates an SQS event via createSQSEventFromDigest calls digestLambdaHandler and responds with batch item failures list and status 200
++   - Implement startHttpServer(port : number) that creates an express app with JSON body parsing and CORS
++   - Add endpoint POST /send-queue that accepts a JSON digest body, calls sendMessageToQueue, and responds with message id and status or error with status codes 4xx or 5xx
++   - Add endpoint POST /digest that accepts a JSON digest body, creates an SQS event via createSQSEventFromDigest, calls digestLambdaHandler, and responds with batch item failures list and status 200
++   - Add endpoint POST /chat that accepts a JSON body with field prompt, calls openAIChat, and responds with the chat completion content or error with appropriate status code
+    - On server start log an info message with the listening port
+ 
+-4 CLI Enhancements
+-   - Add the flag serve [port] to start the HTTP server on the specified port defaulting to 3000
+-   - Update usage instructions to include serve flag details
+-
+-5 Tests
+-   - Write sandbox tests for HTTP endpoints mocking sendMessageToQueue to verify success and error paths for POST /send queue
+-   - Test POST /digest endpoint returns correct batch item failures for valid and invalid JSON payloads
+-   - Ensure existing unit tests for sendMessageToQueue createSQSEventFromDigest digestLambdaHandler and CLI flags continue to pass
++4 OpenAI Chat Functions
++   - openAIChat(prompt : string) reads OPENAI_API_KEY from config, initializes OpenAIApi with Configuration, calls createChatCompletion using model gpt-3.5-turbo and returns the assistant text
++   - Handle API errors by logging and returning descriptive error responses
+ 
+-6 Documentation
+-   - Update sandbox README to document startHttpServer API and HTTP endpoints with example curl commands
+-   - Add CLI usage section for serve flag with examples
++5 CLI Enhancements
++   - Add the flag serve [port] to start the HTTP server on the specified port defaulting to 3000
++   - Add the flag chat <prompt> to invoke openAIChat with the provided prompt and output the result or error to the console
++   - Update usage instructions in generateUsage to include serve and chat flags with examples
+ 
+-# User Scenarios and Examples
++6 Tests
++   - Write sandbox tests for HTTP endpoints mocking sendMessageToQueue and openAIChat to verify success and error paths for POST /send-queue, POST /digest, and POST /chat
++   - Write sandbox tests for CLI --chat flag success and error scenarios using vitest and mocks for openai
++   - Ensure existing unit tests for sendMessageToQueue, createSQSEventFromDigest, digestLambdaHandler, and CLI flags continue to pass unchanged
+ 
+-As a CI workflow post a JSON digest to localhost colon 3000 slash send queue and receive confirmation with message id
+-As a developer run npm start with serve 8080 to start the server and send digests via HTTP
+-As a tester post an invalid JSON body to slash digest and verify batch item failures in the response
++7 Documentation
++   - Update sandbox README to document startHttpServer API, HTTP endpoints, and the chat endpoint with example curl commands
++   - Add CLI usage section for serve and chat flags with inline examples
+ 
+ # Verification and Acceptance
+ 
+-All tests pass with coverage for new code paths
+-POST slash send queue uses correct queue URL and payload responding with status 200 and message details or status 4xx or 5xx on errors
+-POST slash digest returns a JSON response with batch item failures and status 200
+-CLI serve flag starts the server logs the listening port and handles stop signals gracefully
+-Sandbox README examples execute successfully against a live HTTP server
+-Linting formatting and dependency installation succeed without errors
+\ No newline at end of file
++- All tests pass with coverage for new code paths
++- POST /chat returns JSON with field completion and status 200 or error status for missing prompt or API failures
++- CLI --chat outputs the completion to the console and exits with code 0 on success or non-zero on error
++- Linting, formatting, and dependency installation succeed without errors
+\ No newline at end of file
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6669,"completion_tokens":4599,"total_tokens":11268,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3776,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
