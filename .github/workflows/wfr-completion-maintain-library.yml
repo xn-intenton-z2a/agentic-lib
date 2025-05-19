@@ -772,7 +772,7 @@ jobs:
         run: |
           git config --local user.email '${{ env.gitUserEmail }}'
           git config --local user.name '${{ env.gitUserName }}'
-          output=$(git diff 2>&1)
+          output=$(git add --intent-to-add $(git ls-files -o --exclude-standard) ; git diff 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
