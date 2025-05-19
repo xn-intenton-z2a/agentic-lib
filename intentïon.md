@@ -39,3 +39,51 @@ LLM API Usage:
 ```
 ---
 
+## Feature to enhanced Issue at 2025-05-19T19:56:06.976Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1531 with enhanced description:
+
+**Objective:**
+Add and export a new asynchronous function `agenticHandler(inputData)` in `src/lib/main.js` that serves as the primary orchestrator for agentic operations, integrating with the OpenAI Chat Completion API, tracking call counts, and handling errors gracefully.
+
+**Requirements:**
+1. `agenticHandler` must accept a single parameter `inputData` (any JSON-serializable object).
+2. Increment `globalThis.callCount` by 1 at the very start of the function.
+3. Construct an OpenAI client using `new OpenAIApi(new Configuration({ apiKey: config.OPENAI_API_KEY }))`.
+4. Call `createChatCompletion` with model `gpt-3.5-turbo` (or override via config), sending `JSON.stringify(inputData)` as the user message in the chat payload.
+5. Parse the response string at `response.data.choices[0].message.content` using `JSON.parse` and return the resulting JavaScript object.
+6. Wrap the API call and JSON parsing in a `try/catch` block. On any error, call `logError('agenticHandler error', error)` and rethrow the original error.
+
+**Testable Acceptance Criteria:**
+- Unit Test — Success Case:
+  • Mock `OpenAIApi.prototype.createChatCompletion` to return a JSON string payload.
+  • Verify `agenticHandler` returns the parsed object.
+  • Verify `globalThis.callCount` increments exactly once from 0 to 1.
+
+- Unit Test — Error Case:
+  • Mock `createChatCompletion` to throw an error.
+  • Spy on `logError` to ensure it is invoked with message `'agenticHandler error'` and the thrown error.
+  • Verify that `agenticHandler` rethrows the original error.
+
+- Integration Checks:
+  • Existing tests in `tests/unit/main.test.js` and `tests/unit/module-index.test.js` (unrelated to `agenticHandler`) continue to pass without modification.
+
+- Documentation:
+  • Update `sandbox/README.md` with an **API Reference** section describing `agenticHandler(inputData) → Promise<object>`.
+  • Include parameter description, return value, side-effects (call count tracking), and an example snippet:
+    ```js
+    import { agenticHandler } from '@xn-intenton-z2a/agentic-lib';
+
+    const result = await agenticHandler({ task: 'summarize', data: 'Hello world' });
+    console.log(result); // Parsed JSON response from LLM
+    ```
+
+No additional files should be created or deleted; implement all changes in a single pass to meet the above criteria.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7605,"completion_tokens":1268,"total_tokens":8873,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
