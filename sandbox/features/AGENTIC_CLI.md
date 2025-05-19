@@ -4,18 +4,18 @@ Provide a unified command-line interface in both sandbox and core contexts that 
 # Success Criteria & Requirements
 
 ## 1. Help Command (--help)
-- When invoked with --help, display usage instructions and available flags.
-- Update generateUsage in sandbox/source/main.js and src/lib/main.js to enumerate all supported flags.
+- When invoked with --help in either sandbox/source/main.js or src/lib/main.js, display usage instructions and all available flags.
+- Update generateUsage in both modules to enumerate supported flags: --help, --mission, --digest, --version.
 - After printing help, exit early without executing any other logic.
 
 ## 2. Mission Command (--mission)
-- When invoked with --mission, read the MISSION.md file in the project root as UTF-8 text.
+- When invoked with --mission in sandbox/source/main.js and src/lib/main.js, read the MISSION.md file in the project root as UTF-8 text.
 - On success, print the raw markdown content to stdout and exit early.
 - On failure to read the file, call logError with a descriptive message and error details, then exit early.
+- Add tests for core CLI in tests/unit to assert that --mission reads MISSION.md and logs content; error path logs error.
 
 ## 3. Version Command (--version)
-- When invoked with --version, load package.json from the project root.
-- Parse version field and construct an object containing version and current ISO timestamp.
+- When invoked with --version, load package.json from the project root, parse the version field, and construct an object containing version and current ISO timestamp.
 - Print the object as a JSON string to stdout and exit early.
 - On any error, call logError with a descriptive message and stack if available, then exit early.
 
@@ -31,12 +31,12 @@ Provide a unified command-line interface in both sandbox and core contexts that 
 
 # Usage Documentation
 - Update sandbox/docs/USAGE.md and sandbox/README.md to reflect help, mission, version, and digest options with examples.
-- Update core CLI documentation in README.md and docs/USAGE.md to match sandbox behavior.
+- Update core CLI documentation in README.md and docs/USAGE.md to match sandbox behavior, including --mission examples.
 
 # Tests Coverage
-- Add or update unit tests in sandbox/tests and tests/unit to cover:
-  - --help prints usage and exits early.
-  - --mission reads MISSION.md and logs content; error path logs error.
+- Add or update unit tests in sandbox/tests and tests/unit:
+  - --help prints usage and exits early in both CLI modules.
+  - --mission reads MISSION.md and logs content; error path logs error in both CLI modules.
   - --version prints JSON with correct version and timestamp; error path logs error.
   - --digest invokes createSQSEventFromDigest and digestLambdaHandler; mock logging for success and failure.
   - Default invocation prints no-argument message and usage.
