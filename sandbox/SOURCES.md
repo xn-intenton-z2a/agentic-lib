@@ -21,14 +21,10 @@ This official guide specifies the complete YAML structure for GitHub Actions wor
 This dual reference explains how to wire AWS SQS queues into Lambda functions, detailing JSON event schema, batch size configuration, retry semantics, and dead-letter queue patterns. The s3-sqs-bridge library README extends these concepts by illustrating how to route S3 bucket notifications into SQS with IAM permission templates, batching strategies, and error-handling hooks. Together, they provide actionable patterns for reliable, event-driven workflows in agentic-lib. AWS docs updated February 2024 (Apache 2.0); bridge library version 0.24.0 (MIT licensed).
 ## License: Apache 2.0 (AWS), MIT (s3-sqs-bridge)
 
-# AWS Lambda Client (AWS SDK v3)
+# AWS Lambda SDK & Node.js Handler
 ## https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-lambda/
-This documentation describes the AWS SDK v3 Lambda Client, covering core commands such as `InvokeCommand`, `InvokeAsyncCommand`, client middleware stack configuration, credential resolution, retry strategies, and TypeScript support. It details payload serialization/deserialization, invocation types (`Event`, `RequestResponse`, `DryRun`), and best practices for asynchronous Lambda orchestration and cross-function communication. Critical for agentic-lib’s programmatic Lambda invocations and error propagation. Last published January 2024; Apache 2.0 licensed.
-## License: Apache 2.0
-
-# AWS Lambda Function Handler in Node.js
 ## https://docs.aws.amazon.com/lambda/latest/dg/nodejs-handler.html
-This AWS guide outlines the Node.js Lambda handler interface, including function signatures (`exports.handler` vs. async handlers), the `context` object, callback behaviors, error propagation, and best practices for cold start optimization. It clarifies timeout settings, environment variable access, and logging integration with CloudWatch. Foundational for implementing reliable, performant `digestLambdaHandler` logic in agentic-lib. Updated January 2024; Apache 2.0 licensed.
+This combined reference covers the AWS SDK v3 Lambda Client (InvokeCommand, client middleware stack, credential resolution, retry strategies, TypeScript support) and the official AWS Lambda Node.js handler interface (`exports.handler` vs. async, the `context` object, error propagation, cold start optimizations, and CloudWatch logging integration). It provides best practices for robust orchestration, payload serialization/deserialization, and environment variable access, critical for agentic-lib’s serverless workflows. Last published January 2024; Apache 2.0 licensed.
 ## License: Apache 2.0
 
 # OpenAI Node.js SDK
@@ -41,3 +37,9 @@ This reference details the Chat Completion API via the official OpenAI Node.js c
 ## https://github.com/colinhacks/zod
 This combined source covers robust environment management: dotenv for loading and expanding `.env` files (default values, variable expansion, error fallbacks) and Zod for declarative schema validation of environment variables and payloads. It explains custom error formatting, TypeScript type inference, and integration patterns that ensure configuration correctness and safe runtime behavior in both development and production. dotenv v16.x released October 2023 (BSD-2-Clause); Zod v3.x released December 2023 (MIT licensed).
 ## License: BSD-2-Clause (dotenv), MIT (Zod)
+
+# Vitest Testing Framework & API Reference
+## https://vitest.dev/guide/
+## https://vitest.dev/api/
+This source outlines the end-to-end capabilities of Vitest, including test suite creation, mocking, snapshot testing, coverage integration with V8, and lifecycle hooks (`beforeEach`, `afterAll`). It covers command-line flags, configuration options in `vitest.config.ts`, and integration patterns with ESM modules and GitHub Actions. Includes practical examples for module mocking, spies, and test isolation, directly supporting agentic-lib’s test suite maintenance. Last published March 2024; MIT licensed.
+## License: MIT
