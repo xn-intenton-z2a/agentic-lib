@@ -191,3 +191,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-19T20:47:46.564Z
+
+Generated feature development issue with title Add --validate-mission CLI command to enforce feature-to-mission alignment.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6860,"completion_tokens":1815,"total_tokens":8675,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1280,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
