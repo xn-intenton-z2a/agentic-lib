@@ -872,3 +872,23 @@ LLM API Usage:
 
 2025-05-19T09:00:27Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/agentic-lib/tree/intention-2025-05-18T18-13Z
 
+## Activity at 2025-05-19T09:28:57.580Z
+
+Digested Awaitable<T>=T|PromiseLike<T>;TestFunction=()=>Awaitable<void>;TestOptions{timeout?:ms;retry?:number=0;repeats?:number=0};
+Test API: test(name:string,optsOrFn:TestOptions|TestFunction,fnOrTimeout?:TestFunction|number,timeoutMs?:number):void
+Modifiers: test.skip(name,fn,timeout?),test.only, test.concurrent, test.sequential, test.todo(name), test.fails(name,fn);
+test.each(cases,pattern,fn), test.for(cases,pattern,fn); printf placeholders: %s,%d,%i,%f,%j,%o,%#, %$,%%; Template table syntax supported
+Fixtures: test.extend({key:async({task},use)=>{setup;await use(value);cleanup}})->TestInstance
+Bench API: bench(name:string,fn:BenchFunction,options?:{time?:ms=500;iterations?:number=10;warmupTime?:100;warmupIterations?:5;now?:()=>number;signal?:AbortSignal;throws?:boolean;setup?:Hook;teardown?:Hook}); bench.skip, bench.only, bench.todo; TaskResult{error?,totalTime,min,max,hz,period,samples,mean,variance,sd,sem,df,critical,moe,rme,mad,p50,p75,p99,p995,p999}
+Lifecycle Hooks: beforeEach/afterEach/beforeAll/afterAll(fn,timeout?);
+Test Context Hooks inside test: onTestFinished(cb), onTestFailed(cb({task}))
+Config: vitest.config.ts {test:{timeout:number,threads:boolean,sequence:{concurrent:boolean,shuffle:boolean,seed?:number}},bench:{time:number,iterations:number,warmupTime:number,warmupIterations:number}}.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":15620,"completion_tokens":3109,"total_tokens":18729,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
