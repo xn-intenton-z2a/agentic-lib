@@ -714,3 +714,15 @@ LLM API Usage:
 
 ---
 
+## Activity at 2025-05-19T06:31:22.810Z
+
+Digested TS>=4.5 strict; npm install zod; import {z} from"zod"; core:z.string(),z.number(),z.boolean(),z.bigint(),z.date(),z.any(),z.unknown(),z.never(); z.coerce.{string,number,boolean,bigint,date}; string: .min(n),.max(n),.length(n),.email(),.url(),.regex(rx),.includes(s),.startsWith(s),.endsWith(s),.datetime({offset,local,precision}),.date(),.time({precision}),.duration(),.base64(),.trim(),.toLowerCase(),.toUpperCase(); number: .gt,gte,lt,lte,int,positive,nonnegative,negative,nonpositive,multipleOf,finite,safe; bigint analogous; date: .min,.max; boolean; z.enum(vals),z.nativeEnum(enumObj); .optional(),.nullable(),.nullish(); object: z.object(shape),.shape,.keyof(),.extend(),.merge(),.pick(),.omit(),.partial(),.deepPartial(),.required(),.passthrough(),.strict(),.strip(),.catchall(); array: z.array(schema),schema.array(),.nonempty(),.min(n),.max(n),.length(n); tuple: z.tuple([...]),.rest(); union: z.union([...]),.or(); discriminatedUnion(key,opts); intersection: z.intersection(a,b),.and(); record: z.record(keySchema,valueSchema); map: z.map(); set: z.set(),.nonempty(),.min(),.max(),.size(); recursive: z.lazy(()=>schema); preprocess: z.preprocess(fn,schema); transform: .transform(fn); refine: .refine(fn,{message,path}); superRefine: .superRefine(fn); function: z.function().args(...).returns(...).implement(fn); instanceof: z.instanceof(cls); promise: z.promise(schema); parse: .parse(data):T; .parseAsync(data):Promise<T>; .safeParse(data):{success,data}|{success,error}; .spa(data); error ZodError.issues->[{code,message,path}]. utility types: z.infer,z.input,z.output; best: use safeParse, strict mode tsconfig, lazy for recursion, avoid boolean coercion pitfalls..
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":14805,"completion_tokens":8670,"total_tokens":23475,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2368,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
