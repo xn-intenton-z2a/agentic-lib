@@ -1,51 +1,44 @@
 # Value Proposition
-Extend the existing CLI across both sandbox and library entry points to include a new --invoke-lambda flag. This empowers users to trigger a remote AWS Lambda function with a simulated or file-based SQS digest event, enabling end-to-end integration with real event processing pipelines.
+Extend the existing CLI across both sandbox and library entry points to include two new capabilities:  --invoke-lambda for remote AWS Lambda invocation and --simulate-s3 for end-to-end S3-to-SQS event simulation. This empowers users to test real integration flows locally and simulate upstream S3 events feeding into existing digest handlers.
 
 # Success Criteria & Requirements
 
 ## 1. New --invoke-lambda Flag in Both Entry Points
-
 - CLI must recognize a new flag --invoke-lambda <functionName> and optional --file <path> in both src/lib/main.js and sandbox/source/main.js.
-- When --invoke-lambda is provided, skip any other commands and perform these steps:
+- When --invoke-lambda is provided, skip any other commands and perform:
   - Read digest data from the provided file path or fall back to the existing exampleDigest object.
   - Generate an SQS event by calling createSQSEventFromDigest with the digest.
   - Invoke the specified AWS Lambda function using the AWS SDK.
-- Require AWS_REGION, AWS_ACCESS_KEY_ID, and AWS_SECRET_ACCESS_KEY to be defined. If any are missing, call logError with a descriptive message and exit with a non-zero code.
+- Require AWS_REGION, AWS_ACCESS_KEY_ID, and AWS_SECRET_ACCESS_KEY to be defined. If missing, call logError and exit with a non-zero code.
 
-## 2. AWS Lambda Integration
+## 2. New --simulate-s3 Flag in Both Entry Points
+- CLI must recognize flags --simulate-s3 <bucketName> --object <objectKey> with optional --event-type <eventType> and --file <path> in both src/lib/main.js and sandbox/source/main.js.
+- When --simulate-s3 is provided, skip any other commands and perform:
+  - Read object content from the provided file path or use a default empty JSON object.
+  - Generate an S3 event record by calling createSQSEventFromS3 from @xn-intenton-z2a/s3-sqs-bridge with bucketName, objectKey, content, and eventType.
+  - Invoke digestLambdaHandler with the generated SQS event.
+  - On any error, call logError and exit gracefully.
 
-- Import LambdaClient and InvokeCommand from @aws-sdk/client-lambda in both entry files.
-- Instantiate LambdaClient using default AWS credential resolution and the AWS_REGION environment variable.
-- Construct an InvokeCommand with:
-    - FunctionName set to the user-provided functionName argument.
-    - Payload set to the JSON string of the generated SQS event.
-- Await the client.send(command) call. If the response has a StatusCode in the 200 range:
-    - Extract and decode the response.Payload, log it to stdout.
-- On any invocation error, call logError with the error details and exit gracefully.
+## 3. AWS Lambda and S3-SQS Bridge Integration
+- Import LambdaClient and InvokeCommand from @aws-sdk/client-lambda and import createSQSEventFromS3 from @xn-intenton-z2a/s3-sqs-bridge in both entry files.
+- Use default credential resolution for LambdaClient with AWS_REGION.
+- Pass correct parameters to InvokeCommand and call client.send.
+- Use createSQSEventFromS3 for S3 simulation.
 
-## 3. Tests Coverage
+## 4. Tests Coverage
+- Add unit tests in tests/unit/main.cli.invoke.test.js, tests/unit/main.cli.simulate-s3.test.js, sandbox/tests/cli.invoke.test.js, and sandbox/tests/cli.simulate-s3.test.js.
+- Mock @aws-sdk/client-lambda and @xn-intenton-z2a/s3-sqs-bridge to simulate success and failure scenarios.
+- Verify correct construction of clients and commands, correct payloads, logging on success, and error handling on failure or missing credentials.
 
-- Add unit tests in tests/unit/main.cli.invoke.test.js and sandbox/tests/cli.invoke.test.js.
-- Mock @aws-sdk/client-lambda to simulate both successful and failed invocation scenarios.
-- Verify that:
-    - LambdaClient is constructed with correct region.
-    - InvokeCommand is called with correct FunctionName and Payload.
-    - CLI prints the function response on success.
-    - CLI logs an error and exits on failure or missing credentials.
-
-## 4. Usage Documentation
-
+## 5. Usage Documentation
 - Update generateUsage in both entry files to include:
     --invoke-lambda "<functionName>" [--file "<digestFile>"]    Invoke an AWS Lambda with a generated or file-based SQS event payload.
+    --simulate-s3 "<bucketName>" --object "<objectKey>" [--event-type "<type>"] [--file "<objectFile>"]    Simulate an S3 event, generate an SQS event, and invoke the digest handler.
 - Update README.md and sandbox/README.md with examples:
-    node src/lib/main.js --invoke-lambda myFunction --file ./myDigest.json
-    node sandbox/source/main.js --invoke-lambda myFunction
+    node src/lib/main.js --simulate-s3 my-bucket --object path/to/object.json --event-type ObjectCreated:Put --file ./data.json
+    node sandbox/source/main.js --simulate-s3 my-bucket --object key.txt
 
-# Dependencies & Constraints
-
-- Leverage the existing @aws-sdk/client-lambda dependency; no new packages.
-- Changes limited to:
-  - src/lib/main.js and sandbox/source/main.js to implement flag and invocation logic.
-  - New or updated tests under tests/unit/ and sandbox/tests/ to cover invoke behavior.
-  - README.md and sandbox/README.md to include usage examples.
+## Dependencies & Constraints
+- Leverage existing @aws-sdk/client-lambda and @xn-intenton-z2a/s3-sqs-bridge dependencies; no new packages.
+- Changes limited to source files, test files, README files, and package.json if needed.
 - Maintain ESM standards, Node >=20 compatibility, and existing coding style.
