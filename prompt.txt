@@ -1,33 +1,55 @@
 
-You are providing updates to the README.md file and other documentation files to ensure they accurately reflect the current state of the codebase and emphasize content that delivers substantial user value and addresses core implementation needs.
+You are providing the entire new content of source files, test files, documentation files, and other necessary
+files with all necessary changes applied to deliver the resolution to an issue. Focus on high-impact, 
+functional solutions that address core issues rather than superficial changes or excessive code polishing.
+Implement as much as you can and refer to the projects features and mission statement when expanding the code
+beyond the scope of the original issue. Implement whole features and do not leave stubbed out or pretended code.
 
-The README is the primary focus, but other documentation files can be updated as well if needed. Source files (srcFiles) and test files (testFiles) should NOT be updated.
+Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone and direction
+of the contributing guidelines. Prioritize changes that deliver user value and maintain the integrity
+of the codebase's primary purpose.
 
-When updating the README:
-1. Preserve existing README content that delivers substantial user value, even if it describes features not yet implemented
-2. Update the README if it conflicts with current source code, tests, or documentation, prioritizing content that directly enhances the product's primary purpose
-3. If documentation files are out of date compared to the source code or tests, update them to be consistent, focusing on high-impact information that enables immediate application rather than superficial descriptions
-4. Ensure documentation clearly communicates the core functionality and value proposition of the product, prioritizing content that helps users solve real problems
+Do as much as you can all at once.
 
-Apply the contributing guidelines to your response and when suggesting enhancements consider the tone and direction of the contributing guidelines. Focus on documentation improvements that deliver measurable value to users rather than cosmetic changes or excessive detail on edge cases.
+Follow the linting guidelines and the formatting guidelines from the included config.
 
-You may only change the files provided in the prompt context. You can update multiple files by specifying their paths and contents in the updatedFiles object. Each file will be checked against the allowedFilepathPatterns before being written.
+
+You must only add, remove, or change the files in the target writable locations. You can update multiple
+files by specifying their paths and contents in the enumerated updatedFile01Filepath updatedFile02Contents response
+attribute, a second file would use updatedFile01Filepath updatedFile02Contents and so on to 16. Each file will
+be checked against the write permission in the Agent configuration file before being written. Feel free to
+add new files as long as they are in the target writable locations. You can also remove files, but only if
+they are in the target writable locations. To delete a file, set the updated file contents to "delete".
+
+The target writable locations for your output are: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;sandbox/docs/;sandbox/README.md
+Other file will be supplied in the context but only the paths above should be written to.
+
+Only provide new or updated content for the target source files in sandbox/source.
+Only delete or update the target source files in sandbox/source.
+Only provide new or updated content for the target test files in sandbox/tests.
+Only delete or update the target test files in sandbox/tests.
+Only update dependency file package.json.
+Only update the target documentation files in sandbox/docs.
+
+Follow the attached Formatting file content and Linting file content.
 
 Consider the following when refining your response:
-  * Current feature names and specifications in the repository
-  * Source file content (for context only)
-  * Test file content (for context only)
-  * Documentation file content
-  * README file content
-  * MISSION file content
-  * Contributing file content
-  * Dependencies file content
-  * Dependency install output
-  * Issue details (if any)
-  * Build output
-  * Test output
-  * Main execution output
-  * Agent configuration file content
+* Current feature names and specifications in the repository
+* Source file content
+* Test file content
+* Documentation file content
+* README file content
+* MISSION file content
+* Contributing file content
+* Dependencies file content
+* Formatting file content
+* Linting file content
+* Agent configuration file content
+* Issue details
+* Dependency list
+* Build output
+* Test output
+* Main execution output
 
 Current feature names and specifications (for context, read only):
 CURRENT_FEATURES_START
@@ -35,242 +57,9 @@ find: ‘features/’: No such file or directory
 none
 CURRENT_FEATURES_END
 
-Source files (for context only, DO NOT UPDATE):
-SOURCE_FILES_START
-File: sandbox/source/main.js
-#!/usr/bin/env node
-// sandbox/source/main.js
-
-// Initialize global callCount to support test mocks that reference it
-if (typeof globalThis.callCount === "undefined") {
-  globalThis.callCount = 0;
-}
-
-import { fileURLToPath } from "url";
-import { readFile } from "fs/promises";
-import path from "path";
-import { z } from "zod";
-import dotenv from "dotenv";
-import { randomUUID } from "crypto";
-
-// ---------------------------------------------------------------------------------------------------------------------
-// Environment configuration from .env file or environment variables or test values.
-// ---------------------------------------------------------------------------------------------------------------------
-
-dotenv.config();
-
-if (process.env.VITEST || process.env.NODE_ENV === "development") {
-  process.env.GITHUB_API_BASE_URL = process.env.GITHUB_API_BASE_URL || "https://api.github.com.test/";
-  process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || "key-test";
-}
-
-const configSchema = z.object({
-  GITHUB_API_BASE_URL: z.string().optional(),
-  OPENAI_API_KEY: z.string().optional(),
-});
-
-export const config = configSchema.parse(process.env);
-
-// Global verbose mode flag
-const VERBOSE_MODE = false;
-// Global verbose stats flag
-const VERBOSE_STATS = false;
-
-// Helper function to format log entries
-function formatLogEntry(level, message, additionalData = {}) {
-  return {
-    level,
-    timestamp: new Date().toISOString(),
-    message,
-    ...additionalData,
-  };
-}
-
-export function logConfig() {
-  const logObj = formatLogEntry("info", "Configuration loaded", {
-    config: {
-      GITHUB_API_BASE_URL: config.GITHUB_API_BASE_URL,
-      OPENAI_API_KEY: config.OPENAI_API_KEY,
-    },
-  });
-  console.log(JSON.stringify(logObj));
-}
-logConfig();
-
-export function logInfo(message) {
-  const additionalData = VERBOSE_MODE ? { verbose: true } : {};
-  const logObj = formatLogEntry("info", message, additionalData);
-  console.log(JSON.stringify(logObj));
-}
-
-export function logError(message, error) {
-  const additionalData = { error: error ? error.toString() : undefined };
-  if (VERBOSE_MODE && error && error.stack) {
-    additionalData.stack = error.stack;
-  }
-  const logObj = formatLogEntry("error", message, additionalData);
-  console.error(JSON.stringify(logObj));
-}
-
-export function createSQSEventFromDigest(digest) {
-  return {
-    Records: [
-      {
-        eventVersion: "2.0",
-        eventSource: "aws:sqs",
-        eventTime: new Date().toISOString(),
-        eventName: "SendMessage",
-        body: JSON.stringify(digest),
-      },
-    ],
-  };
-}
-
-export async function digestLambdaHandler(sqsEvent) {
-  logInfo(`Digest Lambda received event: ${JSON.stringify(sqsEvent)}`);
-
-  const sqsEventRecords = Array.isArray(sqsEvent.Records) ? sqsEvent.Records : [sqsEvent];
-
-  const batchItemFailures = [];
-
-  for (const [index, sqsEventRecord] of sqsEventRecords.entries()) {
-    try {
-      const digest = JSON.parse(sqsEventRecord.body);
-      logInfo(`Record ${index}: Received digest: ${JSON.stringify(digest)}`);
-    } catch (error) {
-      const recordId =
-        sqsEventRecord.messageId || `fallback-${index}-${Date.now()}-${randomUUID()}`;
-      logError(`Error processing record ${recordId} at index ${index}`, error);
-      logError(`Invalid JSON payload. Error: ${error.message}. Raw message: ${sqsEventRecord.body}`);
-      batchItemFailures.push({ itemIdentifier: recordId });
-    }
-  }
-
-  return {
-    batchItemFailures,
-    handler: "src/lib/main.digestLambdaHandler",
-  };
-}
-
-// ---------------------------------------------------------------------------------------------------------------------
-// CLI Helper Functions
-// ---------------------------------------------------------------------------------------------------------------------
-
-function generateUsage() {
-  return `
-Usage:
-  --help                     Show this help message and usage instructions.
-  --mission                  Show the project mission statement.
-  --digest                   Run a full bucket replay simulating an SQS event.
-  --version                  Show version information with current timestamp.
-`;
-}
-
-function processHelp(args) {
-  if (args.includes("--help")) {
-    console.log(generateUsage());
-    return true;
-  }
-  return false;
-}
-
-async function processMission(args) {
-  if (args.includes("--mission")) {
-    try {
-      const missionPath = path.resolve(process.cwd(), "MISSION.md");
-      const content = await readFile(missionPath, "utf8");
-      console.log(content);
-    } catch (error) {
-      logError("Failed to read mission file", error);
-    }
-    return true;
-  }
-  return false;
-}
-
-async function processVersion(args) {
-  if (args.includes("--version")) {
-    try {
-      const { readFileSync } = await import("fs");
-      const packageJsonPath = new URL("../../package.json", import.meta.url);
-      const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
-      const versionInfo = {
-        version: packageJson.version,
-        timestamp: new Date().toISOString(),
-      };
-      console.log(JSON.stringify(versionInfo));
-    } catch (error) {
-      logError("Failed to retrieve version", error);
-    }
-    return true;
-  }
-  return false;
-}
-
-async function processDigest(args) {
-  if (args.includes("--digest")) {
-    const exampleDigest = {
-      key: "events/1.json",
-      value: "12345",
-      lastModified: new Date().toISOString(),
-    };
-    const sqsEvent = createSQSEventFromDigest(exampleDigest);
-    await digestLambdaHandler(sqsEvent);
-    return true;
-  }
-  return false;
-}
-
-// ---------------------------------------------------------------------------------------------------------------------
-// Main CLI
-// ---------------------------------------------------------------------------------------------------------------------
-
-export async function main(args = process.argv.slice(2)) {
-  if (await processMission(args)) {
-    if (VERBOSE_STATS) {
-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-    }
-    return;
-  }
-  if (processHelp(args)) {
-    if (VERBOSE_STATS) {
-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-    }
-    return;
-  }
-  if (await processVersion(args)) {
-    if (VERBOSE_STATS) {
-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-    }
-    return;
-  }
-  if (await processDigest(args)) {
-    if (VERBOSE_STATS) {
-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-    }
-    return;
-  }
-
-  console.log("No command argument supplied.");
-  console.log(generateUsage());
-  if (VERBOSE_STATS) {
-    console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-  }
-}
-
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  (async () => {
-    try {
-      await main();
-    } catch (err) {
-      logError("Fatal error in main execution", err);
-      process.exit(1);
-    }
-  })();
-}
-
-
-File: src/lib/main.js
+Source files (write new files or update files in sandbox/source as necessary):
+(Multiple files from both in writable locations and not.)
+SOURCE_FILE_START Filepath: src/lib/main.js
 #!/usr/bin/env node
 // src/lib/main.js
 
@@ -495,44 +284,13 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   });
 }
 
-
-SOURCE_FILES_END
-
-Test files (for context only, DO NOT UPDATE):
-TEST_FILES_START
-File: sandbox/tests/main.mission.test.js
-import { describe, test, expect, vi, beforeEach } from "vitest";
-
-// Mock fs/promises for readFile
-vi.mock("fs/promises", () => ({
-  readFile: vi.fn(),
-}));
-
-import path from "path";
-import { main } from "../source/main.js";
-import { readFile } from "fs/promises";
-
-describe("--mission flag", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  test("should read and print mission statement and exit early", async () => {
-    const sampleMarkdown = "# Sample Mission";
-    readFile.mockResolvedValue(sampleMarkdown);
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-
-    await main(["--mission"]);
-
-    expect(readFile).toHaveBeenCalledWith(path.resolve(process.cwd(), "MISSION.md"), "utf8");
-    expect(consoleSpy).toHaveBeenCalledWith(sampleMarkdown);
-
-    consoleSpy.mockRestore();
-  });
-});
+SOURCE_FILE_END
 
 
-File: tests/unit/main.test.js
+
+Test files (write new files or update files in sandbox/tests as necessary):
+(Multiple files from both in writable locations and not.)
+TEST_FILE_START File: tests/unit/main.test.js
 import { describe, test, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
 
 // Ensure that the global callCount is reset before tests that rely on it
@@ -582,8 +340,10 @@ describe("Main Module Import", () => {
   });
 });
 
+TEST_FILE_END
 
-File: tests/unit/module-index.test.js
+
+TEST_FILE_START File: tests/unit/module-index.test.js
 // tests/unit/module-index.test.js
 // src/lib/main.js
 //
@@ -600,117 +360,20 @@ describe("Index Module Exports", () => {
   });
 });
 
-
-TEST_FILES_END
-
-Documentation files (to be updated if necessary):
-DOCS_FILES_START
-File: sandbox/docs/USAGE.md
-# CLI Usage
-
-The **agentic-lib** library provides both a sandbox CLI and a core CLI for interacting with its features.
-
-## Sandbox CLI
-
-Use the sandbox CLI to experiment locally:
-
-```bash
-node sandbox/source/main.js [options]
-```
-
-Available options:
-
-- `--help`     Show this help message and usage instructions.
-- `--mission`  Show the project mission statement.
-- `--digest`   Run a full bucket replay simulating an SQS event.
-- `--version`  Show version information with current timestamp.
-
-**Example: Show the mission statement**
-
-```bash
-node sandbox/source/main.js --mission
-```
-
-## Core CLI
-
-Use the core CLI for production workflows:
-
-```bash
-node src/lib/main.js [options]
-```
-
-Available options:
-
-- `--help`     Show this help message and usage instructions.
-- `--mission`  Show the project mission statement.
-- `--digest`   Run a full bucket replay simulating an SQS event.
-- `--version`  Show version information with current timestamp.
-
-**Example: Show the mission statement**
-
-```bash
-node src/lib/main.js --mission
-```
-
-## Links
-
-- Mission Statement: [MISSION.md](../MISSION.md)
-- Contributing Guidelines: [CONTRIBUTING.md](../CONTRIBUTING.md)
+TEST_FILE_END
 
 
-DOCS_FILES_END
 
-README file (primary focus, to be updated): sandbox/README.md
+Documentation files (write new files or update files in sandbox/docs as necessary):
+(Multiple files from both in writable locations and not.)
+DOCUMENTATION_FILE_START File: sandbox/docs
+
+DOCUMENTATION_FILE_END
+
+
+
+README file (for context, read only): sandbox/README.md
 README_FILE_START
-# agentic-lib
-
-Agentic-lib is a JavaScript library designed to power automated GitHub workflows in an “agentic” manner, enabling autonomous workflows to communicate through branches and issues. It can be used as a drop-in JS implementation or replacement for steps, jobs, and reusable workflows in your repository.
-
-**Mission:** [Mission Statement](../MISSION.md)
-
-**Contributing:** [Contributing Guidelines](../CONTRIBUTING.md)  
-**License:** [MIT License](../LICENSE-MIT)
-
-**Repository:** https://github.com/xn-intenton-z2a/agentic-lib
-
----
-
-# Usage
-
-## Sandbox CLI
-
-Use the sandbox CLI to experiment locally:
-
-```bash
-node sandbox/source/main.js [options]
-```
-
-**Example: Show the mission statement**
-
-```bash
-node sandbox/source/main.js --mission
-```
-
-## Core CLI
-
-Use the core CLI for production workflows:
-
-```bash
-node src/lib/main.js [options]
-```
-
-**Example: Show the mission statement**
-
-```bash
-node src/lib/main.js --mission
-```
-
-## Options
-
-- `--help`                     Show this help message and usage instructions.
-- `--mission`                  Show the project mission statement.
-- `--digest`                   Run a full bucket replay simulating an SQS event.
-- `--version`                  Show version information with current timestamp.
 
 README_FILE_END
 
@@ -810,7 +473,7 @@ Dependencies file (for context, read only): package.json
 DEPENDENCIES_FILE_START
 {
   "name": "@xn-intenton-z2a/agentic-lib",
-  "version": "6.7.1-0",
+  "version": "6.7.5-0",
   "description": "Agentic-lib Agentic Coding Systems SDK powering automated GitHub workflows.",
   "type": "module",
   "main": "src/lib/main.js",
@@ -877,76 +540,125 @@ DEPENDENCIES_FILE_START
   }
 }
 
-DEPENDENCIES_FILE_END   
+DEPENDENCIES_FILE_END
 
-Dependencies install from command: npm install
-DEPENDENCIES_INSTALL_START
-npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
-npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
-npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
-npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
-npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
-npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
-npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+Formatting file (for context, read only): .prettierrc
+FORMATTING_FILE_START
+{
+  "singleQuote": false,
+  "trailingComma": "all",
+  "printWidth": 120,
+  "tabWidth": 2,
+  "useTabs": false,
+  "quoteProps": "consistent",
+  "overrides": [
+    {
+      "files": ".prettierrc",
+      "options": { "parser": "json" }
+    }
+  ]
+}
 
-added 605 packages, and audited 606 packages in 5s
+FORMATTING_FILE_END
 
-162 packages are looking for funding
-  run `npm fund` for details
+Linting file (for context, read only): eslint.config.js
+LINTING_FILE_START
+import js from "@eslint/js";
+import google from "eslint-config-google";
+import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
+import globals from "globals";
+import promise from "eslint-plugin-promise";
+import security from "eslint-plugin-security";
+import sonarjs from "eslint-plugin-sonarjs";
+import react from "eslint-plugin-react";
+import importPlugin from "eslint-plugin-import";
 
-found 0 vulnerabilities
-DEPENDENCIES_INSTALL_END    
+const modifiedGoogleConfig = { ...google, rules: { ...google.rules } };
+delete modifiedGoogleConfig.rules["valid-jsdoc"];
+delete modifiedGoogleConfig.rules["require-jsdoc"];
 
-Build output from command: npm run build
-BUILD_OUTPUT_START
+/** @type {import('eslint').Linter.FlatConfig[]} */
+export default [
+  js.configs.recommended,
+  modifiedGoogleConfig,
+  eslintPluginPrettierRecommended,
+  {
+    plugins: {
+      promise,
+      security,
+      sonarjs,
+      react,
+      import: importPlugin,
+    },
+    languageOptions: {
+      ecmaVersion: 2023,
+      sourceType: "module",
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      "prettier/prettier": "error",
+      ...promise.configs.recommended.rules,
+      "promise/avoid-new": "warn",
+      "promise/no-new-statics": "error",
+      "promise/valid-params": "error",
+      "promise/prefer-await-to-then": "warn",
 
-> @xn-intenton-z2a/agentic-lib@6.7.1-0 build
-> echo "Nothing to build"
+      ...sonarjs.configs.recommended.rules,
+      "sonarjs/no-nested-conditional": "warn",
+      "sonarjs/pseudo-random": "warn",
+      "sonarjs/sonar-no-fallthrough": "off",
+      "sonarjs/os-command": "off",
+      "sonarjs/todo-tag": "off",
+      "sonarjs/no-commented-code": "off",
 
-Nothing to build
-BUILD_OUTPUT_END      
+      // Enabled non-recommended rules (SonarJS)
+      "sonarjs/no-inverted-boolean-check": "warn",
+      "sonarjs/no-useless-catch": "warn",
 
-Test output from command: npm test
-TEST_OUTPUT_START
+      // Local customizations
+      "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      "no-extra-semi": 2,
+      "object-curly-newline": ["error", { consistent: true }],
+      "array-element-newline": ["error", "consistent", { multiline: true, minItems: 10 }],
+      "import/newline-after-import": ["error", { count: 1 }],
+      "camelcase": "off",
+      "import/no-amd": "error",
+      "import/no-commonjs": "error",
+      "import/no-import-module-exports": "error",
+      "import/no-cycle": "error",
+      "import/no-dynamic-require": "error",
+      "import/no-self-import": "off",
+      "import/no-unresolved": "off",
+      "import/no-useless-path-segments": "error",
+      "import/no-duplicates": "error",
+      "sonarjs/fixme-tag": "warn",
+    },
+  },
+  {
+    files: ["**/*.js"],
+    ignores: ["**/tests/**/*.js", "**/*.test.js", "eslint.config.js"],
+    rules: {
+      ...security.configs.recommended.rules,
+      "security/detect-non-literal-regexp": "off",
+    },
+  },
+  {
+    settings: {
+      react: {
+        version: "18", // With no react installed we can't use "detect"
+      },
+    },
+  },
+  {
+    ignores: ["build/", "coverage/", "dist/", "exports/", "node_modules/", "eslint.config.js"],
+  },
+];
 
-> @xn-intenton-z2a/agentic-lib@6.7.1-0 test
-> vitest tests/unit/*.test.js sandbox/tests/*.test.js
+LINTING_FILE_END
 
-
-[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/agentic-lib/agentic-lib[39m
-
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
-[90mstdout[2m | tests/unit/main.test.js
-[22m[39m{"level":"info","timestamp":"2025-05-19T08:52:28.471Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
-
-[90mstdout[2m | sandbox/tests/main.mission.test.js
-[22m[39m{"level":"info","timestamp":"2025-05-19T08:52:28.471Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
-
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 74[2mms[22m[39m
- [32m✓[39m sandbox/tests/main.mission.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
-
-[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
-[2m      Tests [22m [1m[32m3 passed[39m[22m[90m (3)[39m
-[2m   Start at [22m 08:52:28
-[2m   Duration [22m 397ms[2m (transform 133ms, setup 0ms, collect 179ms, tests 82ms, environment 1ms, prepare 295ms)[22m
-TEST_OUTPUT_END            
-
-Main execution output from command: npm run start
-MAIN_OUTPUT_START
-
-> @xn-intenton-z2a/agentic-lib@6.7.1-0 start
-> node src/lib/main.js
-
-{"level":"info","timestamp":"2025-05-19T08:52:28.690Z","message":"Configuration loaded","config":{}}
-No command argument supplied.
-
-Usage:
-  --help                     Show this help message and usage instructions.
-  --digest                   Run a full bucket replay simulating an SQS event.
-  --version                  Show version information with current timestamp.
-MAIN_OUTPUT_END    
-
-Agent configuration file:
+Agent configuration file (for context, read only):
 AGENT_CONFIG_FILE_START
 # Which agentic-lib workflow schedule should be used?
 schedule: schedule-3
@@ -1032,29 +744,156 @@ intentionBot:
 
 AGENT_CONFIG_FILE_END
 
-Please produce updated versions of the README and documentation files to ensure they accurately reflect the current state of the codebase.
-Remember:
-1. The README is the primary focus, but other documentation files can be updated as well if needed
-2. Source files (srcFiles) and test files (testFiles) should NOT be updated
-3. Preserve existing README content even if it describes features not yet implemented
-4. Update the README if it conflicts with current source code, tests, or documentation
-5. If documentation files are out of date compared to the source code or tests, update them to be consistent
+Issue details:
+ISSUE_START
+title: Populate README with mission reference, project overview, and usage examples
+description:
+## Objective
 
-If there are no changes required, please provide the original content and state that no changes are necessary in the message.
+Enhance the sandbox/README.md to provide a clear introduction to **agentic-lib**, explicitly reference the Mission Statement, and offer comprehensive usage instructions for both CLI and HTTP modes. This ensures users understand how the library aligns with the mission and how to install and use it effectively.
+
+## Changes to Apply
+
+1. Update `sandbox/README.md` to include:
+   - Project title and brief description inspired by `MISSION.md`.
+   - Link to `MISSION.md`, `CONTRIBUTING.md`, and `LICENSE.md`.
+   - Link to the GitHub repository: `https://github.com/xn-intenton-z2a/agentic-lib`.
+   - **Installation** section showing `npm install @xn-intenton-z2a/agentic-lib`.
+   - **CLI Usage** section with examples:
+     - `npx agentic-lib --help`
+     - `npx agentic-lib --version`
+     - `npx agentic-lib --digest`
+   - **HTTP Endpoint Usage** section describing:
+     - Enabling HTTP mode via `--http` or `HTTP_MODE=true`.
+     - Configurable port via `HTTP_PORT` (default 3000).
+     - Example `curl` command for `POST /digest` with sample JSON payload.
+   - **API Reference** summary listing exported functions (`main`, `digestLambdaHandler`, `createSQSEventFromDigest`, etc.).
+   - **Examples** code blocks for in-code usage (importing and calling `digestLambdaHandler` directly).
+
+## Verification & Acceptance
+
+- The updated `sandbox/README.md` renders correctly in Markdown viewers (GitHub, VS Code).
+- All links to `MISSION.md`, `CONTRIBUTING.md`, `LICENSE.md`, and the GitHub repository are valid.
+- Code snippets and shell commands are syntactically correct and demonstrable.
+
+_No other files should be modified._
+comments:
+Author:github-actions[bot], Created:2025-05-19T15:22:03Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15116865651
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/864a8dd0f7928333fabc6ec91bc82328301788cc
+Author:github-actions[bot], Created:2025-05-19T15:22:35Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15116865651
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/e967ed1e9fe16537100187ac7293d217a924c7a6
+Author:github-actions[bot], Created:2025-05-19T15:23:36Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15116865651
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/e967ed1e9fe16537100187ac7293d217a924c7a6
+ISSUE_END            
+
+Dependencies list from command: npm list
+DEPENDENCIES_LIST_START
+@xn-intenton-z2a/agentic-lib@6.7.5-0 /home/runner/work/agentic-lib/agentic-lib
+├── @aws-sdk/client-lambda@3.812.0
+├── @microsoft/eslint-formatter-sarif@3.1.0
+├── @vitest/coverage-v8@3.1.3
+├── @xn-intenton-z2a/s3-sqs-bridge@0.24.0
+├── aws-cdk@2.1016.0
+├── chalk@5.4.1
+├── change-case@5.4.4
+├── dayjs@1.11.13
+├── dotenv@16.5.0
+├── ejs@3.1.10
+├── eslint-config-google@0.14.0
+├── eslint-config-prettier@8.10.0
+├── eslint-plugin-import@2.31.0
+├── eslint-plugin-prettier@5.4.0
+├── eslint-plugin-promise@7.2.1
+├── eslint-plugin-react@7.37.5
+├── eslint-plugin-security@3.0.1
+├── eslint-plugin-sonarjs@3.0.2
+├── eslint@9.27.0
+├── figlet@1.8.1
+├── js-yaml@4.1.0
+├── lodash@4.17.21
+├── markdown-it-github@0.5.0
+├── markdown-it@14.1.0
+├── minimatch@10.0.1
+├── npm-check-updates@18.0.1
+├── openai@4.100.0
+├── prettier@3.5.3
+├── seedrandom@3.0.5
+├── vitest@3.1.3
+└── zod@3.24.4
+DEPENDENCIES_LIST_END    
+
+Build output from command: npm run build
+BUILD_OUTPUT_START
+
+> @xn-intenton-z2a/agentic-lib@6.7.5-0 build
+> echo "Nothing to build"
+
+Nothing to build
+BUILD_OUTPUT_END      
+
+Test output from command: npm test
+TEST_OUTPUT_START
+
+> @xn-intenton-z2a/agentic-lib@6.7.5-0 test
+> vitest tests/unit/*.test.js sandbox/tests/*.test.js
+
+
+[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/agentic-lib/agentic-lib[39m
+
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+[90mstdout[2m | tests/unit/main.test.js
+[22m[39m{"level":"info","timestamp":"2025-05-19T15:24:51.794Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
+
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 80[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 15:24:51
+[2m   Duration [22m 337ms[2m (transform 90ms, setup 0ms, collect 56ms, tests 83ms, environment 1ms, prepare 145ms)[22m
+TEST_OUTPUT_END            
+
+Main execution output from command: npm run start
+MAIN_OUTPUT_START
+
+> @xn-intenton-z2a/agentic-lib@6.7.5-0 start
+> node src/lib/main.js
+
+{"level":"info","timestamp":"2025-05-19T15:24:52.019Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+MAIN_OUTPUT_END    
+
+Please produce updated versions of the files that resolve the issue.
+Note that the README.md file is provided for context only - any documentation changes should be written to the documentation files.
+The source files, test files, and documentation files can be individual files or directories containing multiple files.
+Never truncate the files, when returning a file, always return the entire file content.
 
 Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;sandbox/docs/;sandbox/README.md
 
 Answer strictly with a JSON object following this schema:
 {
-  "message": "A short sentence explaining the changes applied (or why no changes were applied) suitable for a commit message or PR text.",
-  "updatedFile01Filepath": "sandbox/README.md",
-  "updatedFile01Contents": "The entire new content of the README file, with all necessary changes applied, if any.",
-  "updatedFile02Filepath":  "sandbox/docs/USAGE.md",
-  "updatedFile02Contents": "The entire new content of the file, with all necessary changes applied, if any.",
-  "updatedFile03Filepath": "unused",
-  "updatedFile03Contents": "unused",
-  "updatedFile04Filepath": "unused",
-  "updatedFile04Contents": "unused",
+  "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text.",
+  "updatedFile01Filepath": "sandbox/source/orderParser.js",
+  "updatedFile01Contents": "The entire new content of the source file, with all necessary changes applied, if any.",
+  "updatedFile02Filepath":  "sandbox/tests/orderParser.test.js",
+  "updatedFile02Contents": "The entire new content of the test file, with all necessary changes applied, if any.",
+  "updatedFile03Filepath": "sandbox/docs/USAGE.md",
+  "updatedFile03Contents": "The entire new content of the documentation file, with all necessary changes applied, if any.",
+  "updatedFile04Filepath": "sandbox/docs/A_FILE_WE_DONT_WANT.md",
+  "updatedFile04Contents": "delete",
   "updatedFile05Filepath": "unused",
   "updatedFile05Contents": "unused",
   "updatedFile06Filepath": "unused",
@@ -1083,6 +922,7 @@ Answer strictly with a JSON object following this schema:
 
 You can include up to 16 files using the updatedFileXXName and updatedFileXXContents pairs (where XX is a number from 01 to 16)
 Where a file name and contents slot is not used, populate tha name with "unused" and the contents with "unused".
+Where a file is to be deleted, set the name to the file path and the contents to "delete".
 Never truncate the files, when returning a file, always return the entire file content.
 
 Ensure valid JSON.
