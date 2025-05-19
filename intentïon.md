@@ -1061,3 +1061,66 @@ LLM API Usage:
 
 ---
 
+## Feature to enhanced Issue at 2025-05-19T15:12:44.932Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1521 with enhanced description:
+
+Title: Implement HTTP /digest endpoint and server startup in main library
+
+Objective:
+Extend `src/lib/main.js` to support an HTTP server mode exposing a POST `/digest` endpoint that forwards requests to the existing `digestLambdaHandler` logic. This feature enables external systems to push digest events over HTTP and simplifies local testing workflows.
+
+Acceptance Criteria:
+1. Server Startup
+   - The HTTP server must start when:
+     • The CLI flag `--http` is passed, OR
+     • Environment variable `HTTP_MODE` is set to `true`.
+   - The server listens on the port specified by `HTTP_PORT` (default `3000`).
+   - Exposing `startHttpServer(options)` and `stopHttpServer()` helpers to facilitate clean setup and teardown in tests.
+
+2. Endpoint Behavior
+   - Expose a single route: `POST /digest`, accepting `application/json` payloads.
+   - Reject requests exceeding 1 MB body size with status `413 Payload Too Large`.
+   - On invalid JSON payload:
+     • Respond with status `400 Bad Request` and JSON body `{ "error": "Invalid JSON payload" }`.
+     • Do not invoke `digestLambdaHandler`.
+   - On valid JSON payload:
+     • Invoke `await digestLambdaHandler({ body: JSON.stringify(parsedBody) })`.
+     • Respond with status `200 OK` and forward the handler’s JSON response.
+
+3. Graceful Shutdown
+   - Listen for `SIGINT` and `SIGTERM` signals.
+   - On signal, stop accepting new connections and close the server gracefully.
+
+4. Tests
+   - Mock `digestLambdaHandler` to verify invocation and control response data.
+   - Write unit tests using Vitest to:
+     • Start the server with `startHttpServer({ port: X, mode: 'http' })`.
+     • Send a valid JSON POST to `/digest`, asserting:
+       – `digestLambdaHandler` is called exactly once with the parsed body.
+       – Response status is `200` and the body matches the mocked handler response.
+     • Send an invalid JSON POST and assert status `400` with `{ "error": "Invalid JSON payload" }`.
+     • Send a payload larger than 1 MB and assert status `413 Payload Too Large`.
+     • Verify the server listens on the configured `HTTP_PORT`.
+     • Clean up by calling `stopHttpServer()` after each test.
+
+5. Documentation
+   - Update `README.md` in `sandbox/`:
+     • Document the `--http` flag and `HTTP_MODE` env var.
+     • Explain `HTTP_PORT` configuration.
+     • Provide curl examples for valid and invalid requests.
+     • Note graceful shutdown behavior.
+
+Constraints:
+- Use Node.js built-in `http` module (no additional dependencies).
+- Adhere to ESM standards; remain compatible with Node.js 20.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7422,"completion_tokens":1063,"total_tokens":8485,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":384,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
