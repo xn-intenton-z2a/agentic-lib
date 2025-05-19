@@ -1563,3 +1563,147 @@ LLM API Usage:
 ```
 ---
 
+## Maintain Feature at 2025-05-19T19:29:54.487Z
+
+Maintained feature INTEGRATIONS.
+
+Git diff:
+
+```
+diff --git a/sandbox/features/INTEGRATIONS.md b/sandbox/features/INTEGRATIONS.md
+index 17bac921..a7363c25 100644
+--- a/sandbox/features/INTEGRATIONS.md
++++ b/sandbox/features/INTEGRATIONS.md
+@@ -1,65 +1,80 @@
+ # Objective
+-Unify core agentic-lib integrations and extend functionality to include workflow status monitoring for comprehensive automation control via JavaScript library calls, CLI tool, and HTTP API.
++Extend and unify agentic-lib core integrations to deliver a complete automation SDK for SQS event processing, AI chat, GitHub workflow dispatch, real-time status monitoring, and GitHub issue and branch management.
+ 
+ # Value Proposition
+-Provide developers with a single SDK that:
+- • Eliminates repetitive boilerplate for SQS event processing, AI chat, and workflow dispatch.
+- • Enables real-time monitoring and log retrieval of GitHub Actions runs.
+- • Simplifies end-to-end automation by combining event publishing, AI-driven decisions, workflow execution, and status monitoring in one consistent interface.
++Provide developers with a single, consistent SDK that:
++ • Eliminates repetitive boilerplate for SQS event creation and lambda handling
++ • Enables AI-driven chat interactions via OpenAI with error handling and logging
++ • Automates GitHub Actions dispatch, monitors run status, and retrieves logs
++ • Manages GitHub issues and repository branches to support autonomous workflow communication
++ • Exposes functionality via JavaScript library, HTTP API, and CLI flags for end-to-end automation
+ 
+ # Requirements
+ 1 Dependencies & Configuration
+- • Add @aws-sdk/client-sqs, express, openai to package.json if not present.
+- • Ensure fetch or node-fetch is available for GitHub API calls.
+- • Extend config schema to require OPENAI_API_KEY and GITHUB_TOKEN, support optional GITHUB_API_BASE_URL.
++ • Ensure @aws-sdk/client-sqs, express, openai, node-fetch or fetch are in dependencies
++ • Extend config schema to require OPENAI_API_KEY, GITHUB_TOKEN, optional GITHUB_API_BASE_URL
+ 
+ 2 AWS SQS Functions
+- • sendMessageToQueue(digest: object): read QUEUE_URL, send JSON digest, return result.
+- • createSQSEventFromDigest(digest): wrap digest in SQS Records array.
+- • digestLambdaHandler(event): process Records, parse JSON, log successes and collect batchItemFailures on error.
++ • sendMessageToQueue(digest: object): read QUEUE_URL, send JSON digest, return result
++ • createSQSEventFromDigest(digest): wrap digest in SQS Records array
++ • digestLambdaHandler(event): process records, log successes, collect batchItemFailures on error
+ 
+ 3 OpenAI Chat Functions
+- • openAIChat(prompt: string): call OpenAIApi.createChatCompletion, return assistant message, handle and log errors.
++ • openAIChat(prompt: string): call OpenAIApi.createChatCompletion, return assistant message, handle and log errors
+ 
+-4 GitHub Dispatch Functions
+- • triggerGitHubWorkflow(repo: string, workflowId: string, ref?: string, inputs?: object): POST to GitHub Actions dispatch API, return status and response body, throw on non-2xx.
++4 GitHub Workflow Dispatch
++ • triggerGitHubWorkflow(repo: string, workflowId: string, ref?: string, inputs?: object): dispatch workflow, return runId
+ 
+-5 Workflow Status Monitoring Functions
+- • getWorkflowRuns(repo: string, workflowId: string): GET list of workflow runs for specified workflow.
+- • getWorkflowRunStatus(repo: string, runId: number): GET status and conclusion of a workflow run.
+- • fetchWorkflowRunLogs(repo: string, runId: number): GET log archive URL, download and return raw logs.
+- • waitForWorkflowCompletion(repo: string, runId: number, timeout?: number): poll run status until completion or timeout, return final status.
++5 Workflow Status Monitoring
++ • getWorkflowRuns(repo: string, workflowId: string)
++ • getWorkflowRunStatus(repo: string, runId: number)
++ • fetchWorkflowRunLogs(repo: string, runId: number)
++ • waitForWorkflowCompletion(repo: string, runId: number, timeout?: number)
+ 
+-6 HTTP API Endpoints
+- • POST /send-queue: accept JSON digest, call sendMessageToQueue.
+- • POST /chat: accept prompt, call openAIChat.
+- • POST /dispatch-workflow: accept repo, workflowId, optional ref and inputs, call triggerGitHubWorkflow, return JSON { status, details }.
+- • GET /workflow-status: accept repo and runId query params, call getWorkflowRunStatus, return JSON { status, conclusion }.
+- • GET /workflow-logs: accept repo and runId query params, call fetchWorkflowRunLogs, stream raw logs.
++6 GitHub Issue & Branch Management Functions
++ • createIssue(repo: string, title: string, body: string): POST /repos/{repo}/issues
++ • commentOnIssue(repo: string, issueNumber: number, comment: string): POST /repos/{repo}/issues/{issueNumber}/comments
++ • createBranch(repo: string, branchName: string, fromRef: string): GET default ref, POST new ref
++ • mergeBranch(repo: string, pullNumber: number, commitMessage?: string): POST merge
++ • deleteBranch(repo: string, branchName: string): DELETE ref
+ 
+-7 CLI Enhancements
+- • Retain --digest, --version, --help flags.
+- • Add --dispatch <repo> <workflowId> [ref] [inputs]: call triggerGitHubWorkflow.
+- • Add --status <repo> <runId> [timeout]: call waitForWorkflowCompletion, print final status.
+- • Add --logs <repo> <runId>: call fetchWorkflowRunLogs, output logs to stdout.
++7 HTTP API Endpoints
++ • POST /send-queue: call sendMessageToQueue
++ • POST /chat: call openAIChat
++ • POST /dispatch-workflow: call triggerGitHubWorkflow
++ • GET /workflow-status: call getWorkflowRunStatus
++ • GET /workflow-logs: stream fetchWorkflowRunLogs
++ • POST /issues: call createIssue
++ • POST /issues/comments: call commentOnIssue
++ • POST /branches/create: call createBranch
++ • POST /branches/merge: call mergeBranch
++ • DELETE /branches: call deleteBranch
++
++8 CLI Enhancements
++ • --dispatch <repo> <workflowId> [ref] [inputs]
++ • --status <repo> <runId> [timeout]
++ • --logs <repo> <runId>
++ • --issue <repo> <title> <body>
++ • --comment <repo> <issueNumber> <comment>
++ • --create-branch <repo> <branchName> <fromRef>
++ • --merge-branch <repo> <pullNumber> [commitMessage]
++ • --delete-branch <repo> <branchName>
+ 
+ # User Scenarios & Examples
+ • Library Usage
+-  import { triggerGitHubWorkflow, waitForWorkflowCompletion } from 'agentic-lib'
+-  const dispatchResult = await triggerGitHubWorkflow('owner/repo', 'build.yml', 'main')
+-  const finalStatus = await waitForWorkflowCompletion('owner/repo', dispatchResult.runId)
++  import { createIssue, waitForWorkflowCompletion } from 'agentic-lib'
++  const issue = await createIssue('owner/repo', 'Bug report', 'Details');
++  const finalStatus = await waitForWorkflowCompletion('owner/repo', 1234)
+ 
+ • CLI Invocation
+-  agentic-lib --dispatch owner/repo build.yml main '{"env":"prod"}'
+-  agentic-lib --status owner/repo 12345 300000
+-  agentic-lib --logs owner/repo 12345
++  agentic-lib --issue owner/repo "New task" "Please implement X"
++  agentic-lib --create-branch owner/repo feature-1 main
+ 
+ • HTTP Invocation
+-  curl -X GET http://localhost:3000/workflow-status?repo=owner/repo&runId=12345
+-  curl -X GET http://localhost:3000/workflow-logs?repo=owner/repo&runId=12345
++  curl -X POST http://localhost:3000/issues -d '{"repo":"owner/repo","title":"Issue","body":"Desc"}'
+ 
+ # Verification & Acceptance
+- • Unit tests mocking AWS SDK, OpenAI client, and fetch for dispatch and status functions.
+- • HTTP endpoint tests with supertest mocking underlying functions.
+- • CLI tests for --status and --logs flag scenarios.
+- • All existing SQS, chat, and dispatch tests remain passing.
++ • Unit tests mocking AWS SDK, OpenAI, fetch for dispatch, status, issues, branches
++ • HTTP endpoint tests with supertest for new routes, mocking underlying functions
++ • CLI tests for new flags, verifying exit codes and console outputs
++ • Ensure all existing SQS, chat, dispatch tests remain passing
+\ No newline at end of file
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":9609,"completion_tokens":2761,"total_tokens":12370,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1728,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
