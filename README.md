@@ -735,22 +735,23 @@ intentïon user journey [Launch UX]:
 - [x] Put every commit comment into intentïon.md plus some none commit activities. (copy trace-discussion from the bot)
 - [x] Rename (intentionBot, intentionFilepath) to (intentionBot, intentionFilepath)
 - [x] [Launch] Markdown in intentïon.md (e.g. # Activity logs\n\n ## 2025-04-20....)
-- [~] [Launch] Add links to issues, feature files, and commits to intentïon.md
-- [~] [Launch] Extract the mission file from the repository and put it in the intentïon.md
-- [~] [Launch] Add main output examples to intentïon.md
-- [~] [Launch] Add code change Git diff output to the intentïon.md
+- [x] [Launch] Extract the mission file from the repository and put it in the intentïon.md
+- [x] [Launch] Add links to issues to intentïon.md
+- [x] [Launch] Add code change Git diff output to the intentïon.md
+- [x] [Launch] Add main output examples to intentïon.md
 - [~] [Launch] Change link to running experiment to be a link to intentïon.md on that branch.
-- [~] [Launch] Add a link to the commit for any commit applied
-- [ ] [Launch] intentïon.com shows: past experiments: <link to branch> + mission and status.
-- [ ] [Launch] intentïon.com shows: past experiments as websites (see comment in .com project): <link to branch> + mission and status.
-- [ ] Create a repository from main via a button.
-- [ ] Script the process from request to cloning the repository and setting it up to run the workflows.
-- [ ] Screen capture the scripted flow and post a link to this on Youtube.
-- [ ] Add PR approval and closure/abandonment to intentïon.md
-- [ ] Add API call duration to usage
+- [ ] [Launch] Add a link to the commit URL for any commit applied
+- [ ] [Launch] Add a link to the URL for any feature updated.
+- [ ] [Launch] Add PR approval and closure/abandonment to intentïon.md
+- [ ] [Launch] intentïon.com shows: past experiments: <link to branch intentïon.md>
+- [ ] [Launch] Create a repository from main via a button.
+- [ ] [Launch] Script the process from request to cloning the repository and setting it up to run the workflows.
+- [ ] [Launch] Screen capture the scripted flow and post a link to this on Youtube.
 - [ ] Request a promotional video.
-- [ ] Activity report to maintainers log.
-- [ ] Update intentïon.md with the current state of the repository.
+- [ ] Automate a test Script for the process from request to cloning the repository and setting it up to run the workflows.
+- [ ] Add API call duration to usage
+- [ ] Echo Bot Repository summary messages in intentïon.md.
+- [ ] intentïon.com shows: past experiments as websites (see comment in .com project).
 - [ ] Automated demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
 - [ ] Extract demo output to publish in the discussion thread and request feedback and next steps.
 

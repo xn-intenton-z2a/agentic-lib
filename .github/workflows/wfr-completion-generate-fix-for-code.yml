@@ -187,6 +187,9 @@ on:
       gitDiff:
         description: 'The changes applied as seen by a git diff of the workspace after the changes were applied'
         value: ${{ jobs.apply-fix.outputs.gitDiff }}
+      mainOutput:
+        description: 'The output of the main script'
+        value: ${{ jobs.apply-fix.outputs.mainOutput }}
       usage:
         description: 'The LLM API usage of the action'
         value: ${{ jobs.apply-fix.outputs.usage }}
@@ -1107,6 +1110,7 @@ jobs:
 
       - name: install-after-update
         id: install-after-update
+        continue-on-error: true
         shell: bash
         run: |
           set +e
@@ -1115,6 +1119,7 @@ jobs:
 
       - name: ci-after-update
         id: ci-after-update
+        continue-on-error: true
         shell: bash
         run: |
           set +e
@@ -1123,6 +1128,7 @@ jobs:
 
       - name: Test after update
         id: test-after-update
+        continue-on-error: true
         shell: bash
         run: |
           set +e
@@ -1131,10 +1137,24 @@ jobs:
 
       - name: Run main after update
         id: main-after-update
+        continue-on-error: true
         shell: bash
         run: |
           set +e
           timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }}
+          exit 0
+
+      - name: main-output-after-update
+        id: main-output-after-update
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
           exit 0
 
       - name: Collect git diff as a text output
@@ -1247,4 +1267,5 @@ jobs:
       allValidationStepsSuccessful: ${{ steps.results.outputs.allValidationStepsSuccessful }}
       postResolutionCommentOutcome: ${{ steps.results.outputs.postResolutionCommentOutcome }}
       gitDiff: ${{ steps.git-diff.outputs.output }}
+      mainOutput: ${{ steps.main-output-after-update.outputs.output }}
       usage: ${{ steps.update-target.outputs.usage }}

@@ -473,6 +473,7 @@ jobs:
           fixApplied: "${{ needs.apply-issue-resolution.outputs.fixApplied }}"
           message: "${{ needs.apply-issue-resolution.outputs.message }}"
           gitDiff: "${{ needs.apply-issue-resolution.outputs.gitDiff }}"
+          mainOutput: "${{ needs.apply-issue-resolution.outputs.mainOutput }}"
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.apply-issue-resolution.outputs.usage }}
         with:
@@ -484,8 +485,9 @@ jobs:
             const fixApplied = process.env.fixApplied;
             const message = process.env.message;
             const gitDiff = process.env.gitDiff;
+            const mainOutput = process.env.mainOutput;
             const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
-            const activity = `fixApplied: ${fixApplied}\n\n${message}\n\n\`\`\`${gitDiff}\`\`\`\n\n[for issue ${issueUrl} with title: "${issueTitle}"]`;
+            const activity = `fixApplied: ${fixApplied}\n\n${message}\n\nGit Diff:\n\n\`\`\`${gitDiff}\`\`\`\n\nmainOutput:\`\`\`${mainOutput}\`\`\`\n\n[for issue ${issueUrl} with title: "${issueTitle}"]`;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
 

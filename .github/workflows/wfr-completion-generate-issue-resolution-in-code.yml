@@ -189,6 +189,9 @@ on:
       gitDiff:
         description: 'The changes applied as seen by a git diff of the workspace after the changes were applied'
         value: ${{ jobs.apply-issue-resolution.outputs.gitDiff }}
+      mainOutput:
+        description: 'The output of the main script'
+        value: ${{ jobs.apply-issue-resolution.outputs.mainOutput }}
       usage:
         description: 'The LLM API usage of the action'
         value: ${{ jobs.apply-issue-resolution.outputs.usage }}
@@ -1100,6 +1103,7 @@ jobs:
 
       - name: install-after-update
         id: install-after-update
+        continue-on-error: true
         run: npm install
 
       - name: ci-after-update
@@ -1126,6 +1130,19 @@ jobs:
         shell: bash
         run: |
           timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }}
+
+      - name: main-output-after-update
+        id: main-output-after-update
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+          exit 0
 
       - name: Collect git diff as a text output
         id: git-diff
@@ -1267,4 +1284,5 @@ jobs:
       postResolutionCommentOutcome: ${{ steps.results.outputs.postResolutionCommentOutcome }}
       allValidationStepsSuccessful: ${{ steps.results.outputs.allValidationStepsSuccessful }}
       gitDiff: ${{ steps.git-diff.outputs.output }}
+      mainOutput: ${{ steps.main-output-after-update.outputs.output }}
       usage: ${{ steps.update-target.outputs.usage }}
