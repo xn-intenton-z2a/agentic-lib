@@ -1,55 +1,46 @@
 # Value Proposition
 
-Enhance the sandbox CLI to provide comprehensive simulation and dry-run support across all commands, enable replay of S3 bucket digests with filtering and batching, and implement robust health checks with structured JSON output. This empowers developers to locally plan, audit, and validate end-to-end workflows against SQS, S3, GitHub, and OpenAI before production deployment.
+Extend the existing sandbox CLI to also operate as an HTTP server for programmatic integration. This empowers developers and automated systems to invoke digest handling, S3 replay, and health checks via HTTP endpoints alongside the interactive CLI.
 
 # Success Criteria & Requirements
 
-## Common Flags & Dry-Run Planning
-
-- Support --help, --mission, --version, and --dry-run across all commands.
-- --dry-run produces a structured JSON plan listing each intended operation without side effects.
-- Exit code 0 for success and dry-run, non-zero for runtime errors.
-
-## Digest Ingestion & Replay
-
-- --digest and --digest-file: parse inline JSON or file, wrap in SQS event, invoke or plan digestLambdaHandler.
-- --replay-bucket <bucket>: list objects via s3-sqs-bridge, apply optional --prefix <prefix> filter.
-- --batch-size <n>: chunk replay into batches, default 10.
-- For each batch, wrap keys in digest events, invoke or plan handler, collect per-batch success/failure.
-- Summarize total objects, batches, successes, and failures in JSON output or plan.
-
-## Health Checks
-
-- --health performs connectivity tests against GitHub API and OpenAI key endpoint.
-- Measure latency, capture status code, error messages, and timestamp.
-- Retry failed checks up to two times with exponential backoff in normal mode; plan retries in dry-run.
-- Report health status as structured JSON array of check results.
+- Support a new --serve <port> flag to launch a built-in HTTP server on the specified port (default 3000).
+- Expose the following endpoints:
+  - GET /health: perform connectivity checks against the GitHub API and OpenAI key endpoint, returning a structured JSON array of check results.
+  - POST /digest: accept a JSON body representing a digest payload, wrap it into an SQS event, invoke digestLambdaHandler, and return a JSON response containing batchItemFailures.
+  - POST /replay: accept a JSON body with { bucket: string, prefix?: string, batchSize?: number }, list objects from the specified S3 bucket via s3-sqs-bridge, chunk them according to batchSize (default 10), invoke or plan digestLambdaHandler for each batch, and return a summary JSON including total objects, total batches, successes, and failures.
+- Handle graceful shutdown on SIGINT and SIGTERM, closing the HTTP server and reporting uptime if VERBOSE_STATS is enabled.
+- Honor existing global flags VERBOSE_MODE and VERBOSE_STATS in HTTP responses and logs.
 
 # Testing & Verification
 
-- Unit tests for each CLI flag in normal and dry-run modes using vitest.
-- Mock fs/promises for --digest-file success and error paths.
-- Mock s3-sqs-bridge to simulate listing, filtering, batching, and errors.
-- Mock HTTP clients for GitHub and OpenAI to validate health checks and retry logic.
-- Verify JSON plan structure lists operations in order and summary statistics.
+- Unit tests for HTTP server startup and route handling using vitest and Node’s http module mocks.
+- Test GET /health returns a JSON array matching the CLI --health output format for both success and simulated failure scenarios.
+- Test POST /digest with valid and invalid payloads to verify batchItemFailures and HTTP status codes.
+- Test POST /replay by mocking s3-sqs-bridge list behavior and digestLambdaHandler, verifying summary output and error handling.
+- Verify that --serve flag preempts CLI-only commands and that help, version, and mission flags are still supported when not running as a server.
 
 # Dependencies & Constraints
 
-- Reuse existing modules: fs/promises, s3-sqs-bridge, logging helpers, zod.
-- No new external dependencies.
-- Maintain compatibility with Node 20 ESM and vitest framework.
-- Honor VERBOSE_MODE and VERBOSE_STATS environment flags.
+- Use only built-in Node http module; no new external dependencies.
+- Reuse existing modules: fs/promises, s3-sqs-bridge, logging helpers, zod, dotenv.
+- Maintain compatibility with Node 20 ESM and the vitest testing framework.
+- No new files should be created; update sandbox/source/main.js, sandbox/tests/main.http.test.js, sandbox/README.md, and package.json scripts if necessary.
 
 # User Scenarios & Examples
 
-## Dry-Run Plan Replay
+## Run HTTP Server
 
-node sandbox/source/main.js --replay-bucket my-bucket --prefix events/ --batch-size 5 --dry-run
+node sandbox/source/main.js --serve 8080
 
-Produces JSON plan of S3 list, batch creation, and digest handler invocations without side effects.
+## Invoke Health Endpoint
 
-## Full Health Check
+curl http://localhost:8080/health
 
-node sandbox/source/main.js --health
+## Send Digest via HTTP
 
-Outputs JSON report of GitHub and OpenAI connectivity, including latency and status codes.
+curl -X POST http://localhost:8080/digest -H 'Content-Type: application/json' -d '{"key":"events/1.json","value":"12345","lastModified":"2023-01-01T00:00:00.000Z"}'
+
+## Replay S3 Bucket via HTTP
+
+curl -X POST http://localhost:8080/replay -H 'Content-Type: application/json' -d '{"bucket":"my-bucket","prefix":"events/","batchSize":5}'
