@@ -68,3 +68,72 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-19T23:35:11.707Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1537 with title:
+
+SIMULATE_DIGEST: Enable --digest [<path>] for external JSON payloads
+
+And description:
+
+Overview
+--------
+Enhance the existing `--digest` CLI command so that users can optionally supply a file path pointing to a JSON payload. When provided, the tool should read and parse the external file, create an SQS event from its contents via `createSQSEventFromDigest`, and invoke `digestLambdaHandler`. If no path is supplied, maintain the current exampleDigest fallback.
+
+Tasks
+-----
+1. **Update Usage Documentation**
+   - In `src/lib/main.js`, modify `generateUsage()` to show:
+     ```
+     --digest [<path>]      Run a full bucket replay simulating an SQS event; optionally read JSON payload from file.
+     ```
+   - Update any relevant comments in `sandbox/README.md` to reflect the new optional path behavior.
+
+2. **Enhance processDigest**
+   - Import `fs.readFileSync` at the top of the file if not already imported.
+   - In `processDigest(args)`, detect whether `--digest` is followed by a non-flag argument:
+     - If a path is provided: 
+       1. Read the file synchronously with `fs.readFileSync(path, 'utf8')`. 
+       2. Parse the content with `JSON.parse`; on success, call `createSQSEventFromDigest(parsedJson)` and pass it to `digestLambdaHandler`.
+       3. On file read or parse error, call `logError()` with the error details and exit the process with a non-zero code (`process.exit(1)`).
+     - If no path is provided or the next token starts with `--`, retain the existing fallback `exampleDigest` logic.
+
+3. **Error Handling**
+   - On file-not-found or permission errors: log the error message and raw exception, then `process.exit(1)`.
+   - On invalid JSON: log the raw file content and parse error, then `process.exit(1)`.
+
+4. **Unit Tests**
+   - In `tests/unit/main.test.js`, add Vitest cases for:
+     - **Valid file path**: mock `fs.readFileSync` to return a valid JSON string, spy on `digestLambdaHandler`, and verify it's invoked with the correct event.
+     - **Fallback behavior**: call `processDigest` without a path (or with `--digest --version` style args) and confirm `exampleDigest` is used.
+     - **File read error**: mock `fs.readFileSync` to throw, spy on `logError` and `process.exit`, and assert correct exit code.
+     - **Invalid JSON**: mock `fs.readFileSync` to return malformed JSON, spy on `logError` and `process.exit`, and assert correct exit code.
+   - Use Vitest mocks (`vi.mock` / `vi.spyOn`) for `fs`, `logError`, and `process.exit`.
+
+5. **README Update**
+   - In `sandbox/README.md`, under "Usage", document the new `[<path>]` option and provide an example:
+     ```bash
+     node src/lib/main.js --digest ./sampleEvent.json
+     ```
+
+6. **Verify & Acceptance**
+   - Run `npm test`; all existing tests plus new ones should pass.
+   - Manual smoke test: invoke `node src/lib/main.js --digest <valid-json-file>`, observe the Lambda handler receiving the parsed event.
+
+Scope
+-----
+Only modify:
+- `src/lib/main.js` (source implementation)
+- `tests/unit/main.test.js` (unit tests)
+- `sandbox/README.md` (usage docs)
+- `package.json` (if adding any required dependency or adjusting the test script)
+
+No new files should be created or deleted. Focus on delivering the core functionality and high-impact error handling as outlined above.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6782,"completion_tokens":2098,"total_tokens":8880,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1216,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
