@@ -1,42 +1,42 @@
 # Purpose
-
-Add runtime usage statistics tracking to the CLI and Lambda handler, enabling operators to monitor invocation counts and uptime. Introduce a --stats flag to expose these metrics on demand after any command execution.
+Add runtime usage statistics tracking to both the CLI entry points and the Lambda handler to provide operators with real-time insight into how often actions run and for how long the process has been alive.
 
 # Value Proposition
+Operators, CI systems, and observability tools can easily monitor invocation counts and uptime without external monitoring services. This enables faster debugging, capacity planning, and reliability reporting with zero additional dependencies.
 
-Operators and automated workflows gain visibility into how often commands and events run, facilitating debugging, performance analysis, and usage reporting. This feature leverages the existing global callCount and integrates an uptime metric to deliver actionable insights without external dependencies.
-
-# Requirements
-
-1. Increment globalThis.callCount at the start of each entry point: main, processVersion, processHelp, processDigest, and digestLambdaHandler.
-2. Add a new CLI flag --stats. When provided alongside any command, after executing the primary action (help, version, digest, or default), print a JSON object with fields callCount and uptime.
-3. Update generateUsage text to include the --stats flag description.
-4. No external dependencies beyond built-in modules and Vitest.
+# Success Criteria & Requirements
+1. Each invocation of main, processVersion, processHelp, processDigest, and digestLambdaHandler must increment a global counter.
+2. Introduce a new CLI flag `--stats` that, after any command completes, prints a JSON object containing:
+   - `callCount`: total number of invocations since process start
+   - `uptime`: process.uptime() in seconds
+3. Ensure `--stats` works in combination with `--help`, `--version`, `--digest`, and default behavior.
+4. No new dependencies; rely only on built-in modules and existing test setup.
 
 # Implementation Details
-
-- In src/lib/main.js:
-  - At the top of main and in digestLambdaHandler, increment globalThis.callCount.
-  - Implement processStats(args) to check for --stats flag and, if present, output JSON with callCount and uptime.
-  - Integrate processStats at the end of main flow so stats are shown after any command handling.
-  - Update generateUsage to mention --stats.
-
-- In tests/unit/main.test.js:
-  - Add tests for the --stats flag verifying console.log outputs a valid JSON with callCount >= 1 and uptime > 0.
-  - Mock process.uptime() to a fixed value to assert uptime output.
-
-- In sandbox/README.md:
-  - Document the new --stats flag and example output.
-  - Update usage examples to include the stats option.
+- In **src/lib/main.js**:
+  - Initialize or reset `globalThis.callCount` at startup.
+  - At the very start of each entry point (main(), processHelp, processVersion, processDigest, digestLambdaHandler), increment `globalThis.callCount`.
+  - Detect `--stats` in the argument list and, after the primary action, output JSON via `console.log(JSON.stringify({ callCount, uptime }))`.
+  - Update usage text in `generateUsage()` to describe `--stats` and provide an example.
+- In **tests/unit/main.test.js**:
+  - Mock `process.uptime()` to a fixed value.
+  - Write tests for combinations:
+    - `node main.js --stats`
+    - `node main.js --version --stats`
+    - `node main.js --help --stats`
+    - Test that `digestLambdaHandler` increments the counter and stats flag reflects it.
+- In **sandbox/README.md**:
+  - Document the `--stats` flag, explain output format, and include usage examples.
 
 # Test Scenarios
+- Running `node src/lib/main.js --stats` outputs default usage text followed by stats JSON with `callCount >= 1` and `uptime > 0`.
+- Running `node src/lib/main.js --version --stats` prints version info, then stats JSON showing at least two invocations.
+- Invoking Lambda handler directly and then running CLI with `--stats` reflects cumulative `callCount`.
 
-- Running `node main.js --stats` outputs default usage plus stats JSON.
-- Running `node main.js --version --stats` outputs version info then stats JSON with callCount reflecting both invocations.
-- Invoking digestLambdaHandler increments callCount and, when triggered via CLI with --stats, shows the updated count and uptime.
+# Dependencies & Constraints
+No external libraries or services; must run under Node 20 with existing Vitest setup. All changes confined to the source file, the unit test file, and the sandbox README.
 
 # Verification & Acceptance
-
-- Unit tests pass covering stats behavior.
-- Manual CLI invocation yields correct JSON structure: { "callCount": <number>, "uptime": <seconds> }.
-- README examples updated and accurate.
+- All new and existing tests pass under `npm test`.
+- Manual CLI runs produce valid JSON for stats and consistent behavior with and without the flag.
+- README examples render correctly and link to existing documentation.
