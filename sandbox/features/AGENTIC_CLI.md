@@ -1,33 +1,26 @@
 # Value Proposition
-Extend the existing sandbox CLI to operate as an HTTP server for programmatic integration, including a new metrics endpoint for runtime monitoring and observability.
+Extend the sandbox CLI into a combined HTTP server and interactive chat interface powered by OpenAI. Enable both programmatic and CLI-driven chat completions to support summarization, refinement, and automated agentic workflows.
 
 # Success Criteria & Requirements
-- Support a new --serve <port> flag to launch a built-in HTTP server on the specified port (default 3000).
-- Expose the following endpoints:
-  - GET /health: perform connectivity checks against the GitHub API and OpenAI key endpoint, returning a structured JSON array of check results.
-  - POST /digest: accept a JSON body representing a digest payload, wrap it into an SQS event, invoke digestLambdaHandler, and return a JSON response containing batchItemFailures.
-  - POST /replay: accept a JSON body with { bucket: string, prefix?: string, batchSize?: number }, list objects from the specified S3 bucket via s3-sqs-bridge, chunk them according to batchSize (default 10), invoke or plan digestLambdaHandler for each batch, and return a summary JSON including total objects, total batches, successes, and failures.
-  - GET /metrics: expose Prometheus-compatible metrics in plain text format, including uptime, totalDigestsReceived, totalBatchesProcessed, totalBatchFailures, and HTTP request counts per route.
-- Handle graceful shutdown on SIGINT and SIGTERM, closing the HTTP server and reporting uptime if VERBOSE_STATS is enabled.
-- Honor existing global flags VERBOSE_MODE and VERBOSE_STATS in HTTP responses and logs.
+- CLI Flag: Support a new --chat <prompt> flag that sends the given prompt to OpenAI’s createChatCompletion API, parses the JSON response content, and prints it to stdout.
+- HTTP Endpoint: Extend the existing --serve HTTP server with a new POST /chat endpoint that accepts JSON { prompt: string, model?: string, maxTokens?: number } and returns JSON { response: string }.
+- Configuration: Honor environment variables OPENAI_API_KEY, OPENAI_API_BASE_URL (override), OPENAI_CHAT_MODEL (default gpt-3.5-turbo), and OPENAI_MAX_TOKENS (default 500).
+- Logging & Observability: Use logInfo and logError to record incoming prompts, model selection, and OpenAI responses. Respect VERBOSE_MODE and VERBOSE_STATS flags for additional logging and stats in HTTP responses.
+- Error Handling: Validate prompt presence and type, return HTTP 400 on invalid input, and HTTP 502 on OpenAI API failures with structured error messages.
 
 # Testing & Verification
-- Unit tests for HTTP server startup and route handling using vitest and Node’s http module mocks.
-- Test GET /health returns a JSON array matching the CLI --health output for both success and simulated failure scenarios.
-- Test POST /digest with valid and invalid payloads to verify batchItemFailures and HTTP status codes.
-- Test POST /replay by mocking s3-sqs-bridge list behavior and digestLambdaHandler, verifying summary output and error handling.
-- Test GET /metrics returns correctly formatted metrics text, including expected metric names and sample values under different load scenarios.
-- Verify that --serve flag preempts CLI-only commands and that help, version, and mission flags are still supported when not running as a server.
+- Unit Tests: Mock openai.OpenAIApi to simulate successful chat responses and errors. Verify CLI --chat prints correct output and exits with code 0 on success and non-zero on failure.
+- HTTP Tests: Use vitest and Node http mocks to verify POST /chat accepts valid JSON, applies defaults, handles missing prompt, and returns expected JSON or error codes.
+- Integration Checks: Test behavior when OPENAI_API_KEY is missing, expecting validation errors both in CLI and HTTP paths.
 
 # Dependencies & Constraints
-- Use only built-in Node http module; no new external dependencies.
-- Reuse existing modules: fs/promises, s3-sqs-bridge, logging helpers, zod, dotenv.
-- Maintain compatibility with Node 20 ESM and the vitest testing framework.
-- No new files should be created; update sandbox/source/main.js, sandbox/tests/main.http.test.js, sandbox/README.md, and package.json scripts if necessary.
+- Update sandbox/source/main.js, sandbox/tests/main.chat.test.js, sandbox/docs/USAGE.md, sandbox/README.md, and package.json scripts as needed.
+- Reuse the existing openai package and configuration logic. No new files should be created.
+- Maintain Node 20 ESM compatibility and vitest testing.
 
 # User Scenarios & Examples
-## Run HTTP Server with Metrics
-node sandbox/source/main.js --serve 8080
+## CLI Chat Completion
+node sandbox/source/main.js --chat "Summarize recent pull requests."
 
-## Invoke Metrics Endpoint
-curl http://localhost:8080/metrics
+## HTTP Chat Completion
+curl -X POST http://localhost:3000/chat -H 'Content-Type: application/json' -d '{ "prompt":"Generate issue summary" }'
