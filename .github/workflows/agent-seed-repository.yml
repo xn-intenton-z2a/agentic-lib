@@ -356,3 +356,54 @@ jobs:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
 # TODO Inline code to issue and merge pr.
+
+  select-issue-to-code:
+    needs:
+      - feature-maintenance-flow
+    if: ${{ !cancelled() }}
+    permissions:
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
+    with:
+      issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+      selectionLabel: 'ready'
+      filterLabel: 'in-progress'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  issue-to-code:
+    needs:
+      - feature-maintenance-flow
+      - select-issue-to-code
+    if: ${{ !cancelled() }}
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      packages: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@main'
+    with:
+      issueNumber: ${{ needs.select-issue-to-code.outputs.issueNumber }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  automerge-pr:
+    needs:
+      - issue-to-code
+    if: ${{ !cancelled() }}
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@main'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

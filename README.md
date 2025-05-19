@@ -739,8 +739,12 @@ intentïon user journey [Launch UX]:
 - [x] [Launch] Add links to issues to intentïon.md
 - [x] [Launch] Add code change Git diff output to the intentïon.md
 - [x] [Launch] Add main output examples to intentïon.md
-- [ ] [Launch] Remove tmp files before the Git Diff
-- [ ] [Launch] Change link to running experiment to be a link to intentïon.md on that branch.
+- [x] [Launch] Remove tmp files before the Git Diff
+- [x] [Launch] Change link to running experiment to be a link to intentïon.md on that branch.
+- [~] [Launch] Replace the sandbox with a full repository.
+- [ ] [Launch] Set the initial states to a "Hello World!" and capture this output.
+- [x] [Launch] Change link to running experiment to be a link to intentïon.md on main.
+- [~] [Launch] Simple stream of updated from a seed to deliver a single feature.
 - [ ] [Launch] Add a link to the commit URL for any commit applied
 - [ ] [Launch] Add a link to the URL for any feature updated.
 - [ ] [Launch] Add PR approval and closure/abandonment to intentïon.md
