@@ -639,7 +639,57 @@ TEST_FILE_END
 
 Documentation files (write new files or update files in sandbox/docs as necessary):
 (Multiple files from both in writable locations and not.)
-DOCUMENTATION_FILE_START File: sandbox/docs
+DOCUMENTATION_FILE_START File: sandbox/docs/USAGE.md
+# CLI Usage
+
+The **agentic-lib** library provides both a sandbox CLI and a core CLI for interacting with its features.
+
+## Sandbox CLI
+
+Use the sandbox CLI to experiment locally:
+
+```bash
+node sandbox/source/main.js [options]
+```
+
+Available options:
+
+- `--help`     Show this help message and usage instructions.
+- `--mission`  Show the project mission statement.
+- `--digest`   Run a full bucket replay simulating an SQS event.
+- `--version`  Show version information with current timestamp.
+
+**Example: Show the mission statement**
+
+```bash
+node sandbox/source/main.js --mission
+```
+
+## Core CLI
+
+Use the core CLI for production workflows:
+
+```bash
+node src/lib/main.js [options]
+```
+
+Available options:
+
+- `--help`     Show this help message and usage instructions.
+- `--mission`  Show the project mission statement.
+- `--digest`   Run a full bucket replay simulating an SQS event.
+- `--version`  Show version information with current timestamp.
+
+**Example: Show the mission statement**
+
+```bash
+node src/lib/main.js --mission
+```
+
+## Links
+
+- Mission Statement: [MISSION.md](../MISSION.md)
+- Contributing Guidelines: [CONTRIBUTING.md](../CONTRIBUTING.md)
 
 DOCUMENTATION_FILE_END
 
@@ -647,13 +697,50 @@ DOCUMENTATION_FILE_END
 
 README file (for context, read only): sandbox/README.md
 README_FILE_START
+# agentic-lib
+
+Agentic-lib is a JavaScript library designed to power automated GitHub workflows in an “agentic” manner, enabling autonomous workflows to communicate through branches and issues. It can be used as a drop-in JS implementation or replacement for steps, jobs, and reusable workflows in your repository.
+
+**Mission:** [Mission Statement](../MISSION.md)
+
+**Contributing:** [Contributing Guidelines](../CONTRIBUTING.md)  
+**License:** [MIT License](../LICENSE-MIT)
+
+**Repository:** https://github.com/xn-intenton-z2a/agentic-lib
+
+---
+
 # Usage
+
+## Sandbox CLI
+
+Use the sandbox CLI to experiment locally:
 
 ```bash
 node sandbox/source/main.js [options]
 ```
 
-Options:
+**Example: Show the mission statement**
+
+```bash
+node sandbox/source/main.js --mission
+```
+
+## Core CLI
+
+Use the core CLI for production workflows:
+
+```bash
+node src/lib/main.js [options]
+```
+
+**Example: Show the mission statement**
+
+```bash
+node src/lib/main.js --mission
+```
+
+## Options
 
 - `--help`                     Show this help message and usage instructions.
 - `--mission`                  Show the project mission statement.
@@ -1031,193 +1118,44 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: Add mission statement support to core CLI and documentation
+title: Resolve issues in output from running: npm run linting-fix "." -- --max-warnings=10
 description:
-Title: Add --mission Flag to Core CLI and Update Root README
 
-Problem:
-The core CLI (`src/lib/main.js`) does not support a `--mission` flag to print the project mission statement, causing inconsistency with the sandbox CLI and making it harder for users to discover the mission via the command line. The root `README.md` also lacks documentation for this capability.
+> @xn-intenton-z2a/agentic-lib@6.7.1-0 linting
+> eslint sandbox/tests/ sandbox/source/ src/lib/ sandbox/source/
 
-Proposed Solution:
-1. Core CLI Enhancement:
-   - Implement `processMission(args)` in `src/lib/main.js`:
-     • Detect the `--mission` flag in incoming CLI arguments.
-     • Resolve the path to `MISSION.md` using `path.resolve(process.cwd(), 'MISSION.md')`.
-     • Read and output the file contents with `fs/promises.readFile(..., 'utf8')` and `console.log()`.
-     • Return `true` on successful processing to exit early.
-   - In the `main(args)` function, insert an early check:
-     ```js
-     if (await processMission(args)) return;
-     ```
-   - Update `generateUsage()` to include:
-     ```text
-     --mission                  Show the project mission statement.
-     ```
 
-2. Unit Tests:
-   - Create `tests/unit/main.mission.lib.test.js` that:
-     • Mocks `fs/promises.readFile` to return sample mission markdown.
-     • Spies on `console.log` to capture output.
-     • Invokes `main(['--mission'])` and asserts:
-       1. Only the mission file contents are printed (exact match).
-       2. The function returns early without printing usage or invoking other flags.
+/home/runner/work/agentic-lib/agentic-lib/sandbox/source/main.js
+  104:72  warning  Make sure that using this pseudorandom number generator is safe here  sonarjs/pseudo-random
+  230:10  warning  Prefer await to then()/catch()/finally()                              promise/prefer-await-to-then
 
-3. Documentation Updates:
-   - Update the root `README.md`:
-     • Under **Options**, add:
-       ```text
-       --mission                  Show the project mission statement.
-       ```
-     • Provide a usage example:
-       ```bash
-       node src/lib/main.js --mission
-       ```
-     • Add a link to the mission file:
-       ```md
-       [Mission Statement](./MISSION.md)
-       ```
+/home/runner/work/agentic-lib/agentic-lib/src/lib/main.js
+  114:72  warning  Make sure that using this pseudorandom number generator is safe here  sonarjs/pseudo-random
+  219:10  warning  Prefer await to then()/catch()/finally()                              promise/prefer-await-to-then
 
-Testable Acceptance Criteria:
-- `node src/lib/main.js --mission` prints exactly the contents of `MISSION.md` and exits immediately (no usage text or extra logs).
-- `generateUsage()` in `src/lib/main.js` lists the `--mission` option.
-- New unit test in `tests/unit/main.mission.lib.test.js` passes, mocking the file read, capturing the log, and verifying early exit behavior.
-- Root `README.md` includes the `--mission` flag in its Options list, a usage example, and a link to `MISSION.md`.
-- Existing behaviors for `--help`, `--version`, and `--digest` remain unchanged and all existing tests continue to pass.
+✖ 4 problems (0 errors, 4 warnings)
 comments:
-Author:github-actions[bot], Created:2025-05-18T22:20:57Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100602336
+Author:github-actions[bot], Created:2025-05-19T04:35:34Z, Comment: Workflow name: flow-linting-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15104379015
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7817d07574298bc98b2a0c5b9d2bae30cb86954d
-Author:github-actions[bot], Created:2025-05-18T22:21:25Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100602336
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/5670024e622697b693b2303fdce410646f90a58a
+Author:github-actions[bot], Created:2025-05-19T04:35:51Z, Comment: Workflow name: flow-linting-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15104379015
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7817d07574298bc98b2a0c5b9d2bae30cb86954d
-Author:github-actions[bot], Created:2025-05-18T22:22:06Z, Comment: Workflow name: transformation-05-issue-to-ready-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100625265
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/5670024e622697b693b2303fdce410646f90a58a
+Author:github-actions[bot], Created:2025-05-19T04:36:46Z, Comment: This issue addresses superficial lint warnings that do not impact core functionality or deliver substantial user value.
+Author:github-actions[bot], Created:2025-05-19T04:37:28Z, Comment: Workflow name: flow-linting-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15104379015
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7817d07574298bc98b2a0c5b9d2bae30cb86954d
-Author:github-actions[bot], Created:2025-05-18T22:22:21Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100602336
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/73536eb22cbd8b4bc282bba6552a8cc44f34d994
+Author:github-actions[bot], Created:2025-05-19T04:38:26Z, Comment: Workflow name: flow-linting-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15104379015
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7817d07574298bc98b2a0c5b9d2bae30cb86954d
-Author:github-actions[bot], Created:2025-05-18T22:22:58Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-18T22:24:08Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100641762
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/22bd187f6636180b5f413f437858a6a0d13580c4
-Author:github-actions[bot], Created:2025-05-18T22:25:42Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100653980
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/9ac9ba11b68069c06976f4096c3e2bcced841d06
-Author:github-actions[bot], Created:2025-05-18T22:33:07Z, Comment: Workflow name: flow-feature-maintenance
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100694351
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
-Author:github-actions[bot], Created:2025-05-18T22:33:58Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-18T22:35:04Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100725698
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
-Author:github-actions[bot], Created:2025-05-18T22:38:46Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100754391
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
-Author:github-actions[bot], Created:2025-05-18T22:39:18Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100749277
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
-Author:github-actions[bot], Created:2025-05-18T22:39:58Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-18T22:40:19Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100749277
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
-Author:github-actions[bot], Created:2025-05-18T22:41:24Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100749277
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
-Author:github-actions[bot], Created:2025-05-18T22:43:56Z, Comment: Workflow name: transformation-06-issue-to-code
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100789075
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
-Author:github-actions[bot], Created:2025-05-18T22:46:23Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100805348
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
-Author:github-actions[bot], Created:2025-05-18T22:46:40Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100805348
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
-Author:github-actions[bot], Created:2025-05-18T22:47:37Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100805348
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
-Author:github-actions[bot], Created:2025-05-18T22:49:26Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100834451
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
-Author:github-actions[bot], Created:2025-05-18T22:50:37Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100841498
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
-Author:github-actions[bot], Created:2025-05-18T22:56:50Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100880760
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/44e01fc81b031e6c4039bf48792414fcb144ea57
-Author:github-actions[bot], Created:2025-05-18T22:58:52Z, Comment: Workflow name: flow-feature-maintenance
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15100881329
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7a5ecc08686b2e8f8b4effa5e9ae598c079c0fb1
-Author:github-actions[bot], Created:2025-05-18T22:59:31Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-18T23:20:26Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15101051803
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7a5ecc08686b2e8f8b4effa5e9ae598c079c0fb1
-Author:github-actions[bot], Created:2025-05-18T23:20:42Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15101051803
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7a5ecc08686b2e8f8b4effa5e9ae598c079c0fb1
-Author:github-actions[bot], Created:2025-05-18T23:20:43Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15101062461
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7a5ecc08686b2e8f8b4effa5e9ae598c079c0fb1
-Author:github-actions[bot], Created:2025-05-18T23:21:44Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15101051803
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7a5ecc08686b2e8f8b4effa5e9ae598c079c0fb1
-Author:github-actions[bot], Created:2025-05-18T23:23:33Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15101086209
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7a5ecc08686b2e8f8b4effa5e9ae598c079c0fb1
-Author:github-actions[bot], Created:2025-05-18T23:25:11Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/agentic-lib/actions/runs/15101098180
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/7a5ecc08686b2e8f8b4effa5e9ae598c079c0fb1
+HEAD of main URL: https://github.com/xn-intenton-z2a/agentic-lib/commit/02d02027251b489514dd6f2545924c71f7b42553
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -1275,19 +1213,19 @@ TEST_OUTPUT_START
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/agentic-lib/agentic-lib[39m
 
  [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
-[90mstdout[2m | sandbox/tests/main.mission.test.js
-[22m[39m{"level":"info","timestamp":"2025-05-19T03:11:38.960Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
-
 [90mstdout[2m | tests/unit/main.test.js
-[22m[39m{"level":"info","timestamp":"2025-05-19T03:11:38.966Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
+[22m[39m{"level":"info","timestamp":"2025-05-19T04:39:41.869Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
 
- [32m✓[39m sandbox/tests/main.mission.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 93[2mms[22m[39m
+[90mstdout[2m | sandbox/tests/main.mission.test.js
+[22m[39m{"level":"info","timestamp":"2025-05-19T04:39:41.869Z","message":"Configuration loaded","config":{"GITHUB_API_BASE_URL":"https://api.github.com.test/","OPENAI_API_KEY":"key-test"}}
+
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 73[2mms[22m[39m
+ [32m✓[39m sandbox/tests/main.mission.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 7[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
 [2m      Tests [22m [1m[32m3 passed[39m[22m[90m (3)[39m
-[2m   Start at [22m 03:11:38
-[2m   Duration [22m 400ms[2m (transform 165ms, setup 0ms, collect 222ms, tests 102ms, environment 1ms, prepare 312ms)[22m
+[2m   Start at [22m 04:39:41
+[2m   Duration [22m 366ms[2m (transform 153ms, setup 0ms, collect 180ms, tests 83ms, environment 1ms, prepare 282ms)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
@@ -1296,7 +1234,7 @@ MAIN_OUTPUT_START
 > @xn-intenton-z2a/agentic-lib@6.7.1-0 start
 > node src/lib/main.js
 
-{"level":"info","timestamp":"2025-05-19T03:11:39.194Z","message":"Configuration loaded","config":{}}
+{"level":"info","timestamp":"2025-05-19T04:39:42.082Z","message":"Configuration loaded","config":{}}
 No command argument supplied.
 
 Usage:
