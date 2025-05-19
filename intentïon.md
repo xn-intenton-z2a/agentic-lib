@@ -242,3 +242,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-19T21:46:29.159Z
+
+Generated feature development issue with title Add --mission CLI option to display repository mission statement.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6860,"completion_tokens":1520,"total_tokens":8380,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1152,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
