@@ -556,3 +556,66 @@ LLM API Usage:
 ```
 ---
 
+## Feature to enhanced Issue at 2025-05-19T16:38:55.931Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1527 with enhanced description:
+
+## Objective
+Extend the library and CLI to fully support AWS SQS end-to-end for digest payloads by implementing message sending, improving error handling in the event handler, and adding a `--send-queue` CLI flag.
+
+## Scope of Changes
+- **package.json**: Add dependency on `@aws-sdk/client-sqs`.
+- **src/lib/main.js**: 
+  - Implement and export `sendMessageToQueue(digest: object): Promise<SendMessageResult>` that:
+    1. Reads `QUEUE_URL` from `process.env` and throws `Error('Environment variable QUEUE_URL is required')` if missing.
+    2. Constructs an `SQSClient` and a `SendMessageCommand` with `QueueUrl` and `MessageBody = JSON.stringify(digest)`.
+    3. Sends the command, logs success via `logInfo`, and returns the result.
+  - Enhance `digestLambdaHandler(event)` to:
+    1. Parse each record’s `body` as JSON.
+    2. On parse errors, generate a stable `itemIdentifier` (use `messageId` or fallback) and append to `batchItemFailures`.
+    3. Return an object `{ batchItemFailures, handler: 'src/lib/main.digestLambdaHandler' }`.
+  - Add `processSendQueue(args: string[])` in `main()` that:
+    1. Detects `--send-queue [path]`.
+    2. Reads JSON from the provided file or uses a default example digest.
+    3. Calls `sendMessageToQueue` and logs outcome or errors.
+    4. Returns non-zero exit code on error.
+  - Update `generateUsage()` to include `--send-queue [path]`.
+- **sandbox/tests/**: Add or update tests for:
+  1. `sendMessageToQueue`:
+     - Throws when `QUEUE_URL` is missing.
+     - Sends correct `QueueUrl` and `MessageBody` via mocked `SQSClient.send`.
+  2. `createSQSEventFromDigest`: Verifies event structure.
+  3. `digestLambdaHandler`: Covers successful parse and invalid JSON producing `batchItemFailures`.
+  4. CLI flags (`--send-queue`, `--digest`): Asserts console output, exit codes, and error handling.
+- **sandbox/README.md**: Document:
+  1. Function signatures and usage examples for `sendMessageToQueue(digest)` and `digestLambdaHandler(event)`.
+  2. CLI usage examples:
+     ```bash
+     npm start -- --send-queue myDigest.json
+     npm start -- --digest
+     ```
+  3. Example logs for success and error cases.
+
+## Acceptance Criteria
+1. **Tests:** `npm test` passes all existing and new tests with coverage for new code.
+2. **CLI Behavior:**
+   - `npm start -- --send-queue sample.json` logs a JSON object containing `MessageId`, exits with code 0.
+   - `npm start -- --send-queue` without `QUEUE_URL` or with malformed JSON exits non-zero and logs a descriptive error.
+   - `npm start -- --digest` continues to work unchanged.
+3. **Handler Behavior:** `digestLambdaHandler` returns correct `batchItemFailures` on parse errors and proper handler tag.
+4. **Lint & Format:** No linting or formatting errors.
+5. **Documentation:** `sandbox/README.md` contains clear API reference and CLI instructions.
+
+## Verification Steps
+- Run `npm test` to confirm coverage.
+- Simulate CLI usage in both success and failure modes.
+- Review logs for correct structure and content.
+- Verify documentation examples execute as shown.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":8031,"completion_tokens":1708,"total_tokens":9739,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":832,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
