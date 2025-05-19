@@ -1,84 +1,41 @@
-# Usage Statistics Enhancement
+# Purpose
+Extend the CLI to provide two core capabilities: runtime usage statistics reporting and on-demand AI chat completion, directly from the command line.
 
-## Purpose
-Extend the CLI to provide built-in runtime statistics reporting for invocation count and uptime using a simple flag.
+# Value Proposition
+Operators and developers gain immediate visibility into command usage and uptime without external monitoring. At the same time, they can prototype, debug, or automate AI interactions using the same CLI, eliminating the need for separate HTTP clients or scripts.
 
-## Value Proposition
-Operators gain immediate insight into how often commands run and how long the process lives without external monitoring or infrastructure changes.
+# Success Criteria & Requirements
+1. Stats Reporting
+   • Add a --stats flag recognized in all command paths (--help, --version, --digest, or default).  
+   • Maintain a global invocation counter in globalThis.callCount, incremented at each entry point: main(), processHelp(), processVersion(), processDigest(), and digestLambdaHandler().  
+   • Compute uptime via process.uptime() at the moment of stats output.  
+   • After primary command output, if --stats is present, print JSON with callCount (integer) and uptime (seconds, millisecond precision).
 
-## Success Criteria & Requirements
-1. Add a `--stats` CLI flag recognized in any command path (`--help`, `--version`, `--digest`, or default) that triggers printing of a JSON object after primary output.
-2. Maintain a global invocation counter in `globalThis.callCount`, incremented at each entry point: `main()`, `processHelp()`, `processVersion()`, `processDigest()`, and `digestLambdaHandler()`.
-3. Compute uptime with `process.uptime()` at the moment of stats printing.
-4. Stats output JSON must include:
-   - `callCount`: integer
-   - `uptime`: number of seconds (millisecond precision)
-5. No behavior change or extra output when `--stats` is not provided.
-6. No new external dependencies.
+2. AI Chat Completion
+   • Add a --chat <prompt> flag to invoke OpenAI chat completion with model gpt-3.5-turbo.  
+   • Support an optional --chat-json flag to emit the raw JSON response.  
+   • Extract prompt text following the flag, call createChatCompletion using the existing openai dependency and OPENAI_API_KEY.  
+   • On success, output either plain text content or raw JSON. On failure, log error via logError and exit with code 1.
 
-## Implementation Details
-- In `src/lib/main.js`:
-  1. Initialize `globalThis.callCount = 0` if undefined at module load.
-  2. At start of each public function entry (`main()`, `processHelp()`, `processVersion()`, `processDigest()`, `digestLambdaHandler()`), increment `callCount`.
-  3. Detect `--stats` in arguments and after primary output, log JSON via `console.log(JSON.stringify({ callCount, uptime }))`.
-  4. Extract flag detection into a helper `shouldPrintStats(args)`.
-  5. Update `generateUsage()` to describe the `--stats` flag.
+3. General
+   • No changes in behavior when neither --stats nor --chat flags are provided.  
+   • If both a primary command and --stats or --chat flags are provided, process chat first, then stats.  
+   • Do not introduce new external dependencies.
 
-- In `tests/unit/main.test.js` and sandbox tests:
-  1. Mock `process.uptime()` to a fixed value.
-  2. Write tests for each command scenario with `--stats`, verifying primary output first, then JSON stats.
-  3. Test direct invocation of `digestLambdaHandler()` increments `callCount` and reflected in subsequent CLI runs with `--stats`.
+# Implementation Details
+- In src/lib/main.js initialize globalThis.callCount = 0 if undefined at module load.  
+- Implement shouldPrintStats(args) to detect --stats.  
+- Implement processChat(args) async function: detect --chat or --chat-json, extract prompt, configure OpenAI client, call createChatCompletion, handle success and error.  
+- In main(), before existing help/version/digest logic, call await processChat(args) and return if processed. After each command or chat, if shouldPrintStats(args), console.log(JSON.stringify({ callCount, uptime })).  
+- Update generateUsage() to include descriptions for --stats, --chat, and --chat-json.
 
-- In `sandbox/README.md`:
-  1. Document `--stats` usage, JSON schema, example invocations.
-  2. Link to MISSION.md and CONTRIBUTING.md.
+# Dependencies & Constraints
+- Use the existing openai package.  
+- Maintain compatibility with Node 20 and existing ESM code.  
+- No additional dependencies beyond those declared in package.json.
 
----
-
-# Chat Completion CLI Command
-
-## Purpose
-Provide a built-in CLI command to submit a prompt to the OpenAI chat API and display the response, enabling quick experimentation and integration in workflows.
-
-## Value Proposition
-Users can interact directly with the AI model from the CLI for prototyping, debugging, or embedding responses in automation scripts, without writing custom code or separate HTTP clients.
-
-## Success Criteria & Requirements
-1. Add a `--chat <prompt>` CLI flag that passes the provided prompt string to the OpenAI chat completion endpoint.
-2. Use the existing `openai` dependency to call `createChatCompletion` with model `gpt-3.5-turbo` and given prompt.
-3. Print the AI response content to stdout in plain text.
-4. Support an optional `--chat-json` flag that outputs raw JSON response.
-5. CLI should return a non-zero exit code on API errors, with a clear error message logged via `logError`.
-6. The feature must work within Node 20 and use only existing dependencies.
-
-## Implementation Details
-- In `src/lib/main.js`:
-  1. Import `OpenAIApi` and `Configuration` from `openai`.
-  2. Implement a `processChat(args)` function:
-     - Detect `--chat` or `--chat-json` flags.
-     - Extract prompt text following the flag.
-     - Configure OpenAI client with `OPENAI_API_KEY` from env.
-     - Call `createChatCompletion` and await response.
-     - On success, output either plain text or raw JSON.
-     - On failure, call `logError` and exit with code 1.
-  3. In `main()`, before default fallback, run `await processChat(args)` and return true if processed.
-  4. Add usage text for `--chat` and `--chat-json` in `generateUsage()`.
-
-- In `tests/unit/main.test.js` and new sandbox tests:
-  1. Mock `openai` client to simulate a successful chat completion and an error.
-  2. Test normal `node main.js --chat "Hello world"` prints expected message.
-  3. Test `--chat-json` outputs full JSON.
-  4. Test error path prints error message and exit code.
-
-- In `sandbox/README.md`:
-  1. Document CLI syntax for chat commands.
-  2. Show plain and JSON output examples.
-
-## Dependencies & Constraints
-- Uses existing `openai` package.
-- No additional dependencies added.
-
-## Verification & Acceptance
-- All tests pass under `npm test`.
-- CLI commands behave as documented.
-- ESLint, Prettier, and existing CI checks remain green.
+# Verification & Acceptance
+- Add tests in tests/unit/main.test.js and sandbox/tests to mock process.uptime and openai client.  
+- Verify stats output in all command paths with and without --stats.  
+- Test chat success with --chat and --chat-json flags; test error path triggers logError and non-zero exit.  
+- Ensure ESLint, Prettier, and existing CI checks remain green.
