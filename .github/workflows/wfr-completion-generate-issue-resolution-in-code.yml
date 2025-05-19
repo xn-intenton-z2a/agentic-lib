@@ -83,7 +83,7 @@ on:
         required: false
         default: 'package.json'
       formattingFilepath:
-        description: 'The formatting file to review. e.g. ".prettierrc"'
+        description: 'The formatting file to review. test e.g. ".prettierrc"'
         type: string
         required: false
         default: '.prettierrc'
