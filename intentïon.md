@@ -203,3 +203,56 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-19T22:43:43.185Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1536 with action enhance and updated description:
+
+Title: Add --mission CLI flag to display library mission statement and update documentation
+
+Problem Statement:
+The CLI currently supports --help, --version, and --digest, but there is no way to programmatically expose the library’s Mission Statement to end users. This leaves the core purpose of agentic-lib hidden from CLI consumers and our README.
+
+Proposed Solution:
+1. In `src/lib/main.js`:
+   • Extend `generateUsage()` to list a new `--mission` flag.
+   • Implement a new `processMission(args)` function that:
+     - Detects `--mission` in the argument list.
+     - Reads the contents of `MISSION.md` using `fs.readFileSync` from the repository root.
+     - Prints the raw Mission file content to `stdout`.
+     - Returns `true` to short-circuit further flag processing.
+   • Invoke `processMission(args)` in `main()` alongside existing flag handlers (`processHelp`, `processVersion`, `processDigest`).
+
+2. In `tests/unit/main.test.js`:
+   • Add a new test that mocks `fs.readFileSync` to return a known mission string (e.g. "TEST MISSION").
+   • Call `main()` with `['--mission']` and assert:
+     - `console.log` is called with the mocked mission string.
+     - No other usage or version messages are printed.
+     - `main()` completes without errors.
+
+3. In `sandbox/README.md`:
+   • Add a "Mission" section at the top inspired by `MISSION.md` content.
+   • Under "Usage", include documentation for the new `--mission` flag with an example command and expected output.
+   • Ensure links to `MISSION.md`, `CONTRIBUTING.md`, `LICENSE.md`, and the GitHub repository appear in the README.
+
+Testable Acceptance Criteria:
+- When running `node src/lib/main.js --mission`, the CLI prints the exact contents of `MISSION.md` to stdout and exits without additional usage text.
+- `generateUsage()` output includes a new line for `--mission  Show the agentic-lib Mission Statement`.
+- Unit test for `--mission` passes in `tests/unit/main.test.js` with mock `fs.readFileSync` and validates `console.log` output.
+- `npm test` passes with no regressions.
+- `sandbox/README.md` contains a documented usage example for `--mission` and links to mission and contributing documents.
+
+User Scenario:
+As a CLI user or integrator, I want a straightforward `--mission` flag so I can quickly view the library’s guiding principles without browsing the repository.
+
+Value Proposition:
+- Surfaces essential project purpose directly in the CLI.
+- Improves discoverability for end users and automation scripts.
+- Aligns documentation with functionality, ensuring README and CLI remain synchronized.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7556,"completion_tokens":1112,"total_tokens":8668,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":448,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
