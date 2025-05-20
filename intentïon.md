@@ -1106,3 +1106,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-20T03:34:07.926Z
+
+Generated feature development issue with title Implement HTTP server (--serve) mode with Express for /digest endpoint.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":8796,"completion_tokens":3361,"total_tokens":12157,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2560,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
