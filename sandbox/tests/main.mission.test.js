@@ -1,7 +1,7 @@
 import { describe, test, expect, vi } from "vitest";
 
 // Mock fs to return dummy mission content
-gi.mock("fs", () => ({
+vi.mock("fs", () => ({
   readFileSync: (path, encoding) => "dummy mission"
 }));
 
