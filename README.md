@@ -760,6 +760,15 @@ intentïon user journey [Launch UX]:
 - [ ] Automated demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.
 - [ ] Extract demo output to publish in the discussion thread and request feedback and next steps.
 
+Collaboration
+- [ ] Completion to mine past intention branches for code fragments to implement main branch features
+- [ ] Completion to mine other workflows by posting on their GitHub Discussions, requesting source files mined from their history to be attached to a reply.
+- [ ] Bot can process attachments, check licenses, link to the context of the feature being requested, and select the relevant parts for that feature to incorporate into the codebase.
+- [ ] Free premium features for collaborating repositories requiring compatible permissive licenses.
+- [ ] intentïon Feature marketplace service to allow users to request features from a community which delegate as well as share.
+- [ ] Farm features using spare capacity to build features for the community.
+- [ ] Token cost is available for the features creating a marketplace for low-cost (low-impact to build) features.
+
 Marketplace GitHub Actions [Launch]:
 - [x] Review all the parameters where re-usable workflows are used and ensure that any parameters that are filepaths are stated explicitly in the calling workflow.
 - [x] Do this everywhere: echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc

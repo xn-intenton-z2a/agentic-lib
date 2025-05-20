@@ -461,7 +461,7 @@ jobs:
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          git commit -m "Activity logged by agent-flow-feature-maintenance.yml, maintain feature." || echo "No changes to commit"
+          git commit -m "Activity logged by agent-seed-repository.yml, maintain feature." || echo "No changes to commit"
           git push
 
   generate-feature-development-issue:
@@ -574,7 +574,7 @@ jobs:
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          git commit -m "Activity logged by agent-flow-feature-maintenance.yml, generate issue" || echo "No changes to commit"
+          git commit -m "Activity logged by agent-seed-repository.yml, generate issue" || echo "No changes to commit"
           git push
 
   enhance-issue:
@@ -669,7 +669,7 @@ jobs:
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          git commit -m "Activity logged by agent-flow-feature-maintenance.yml, enhance issue" || echo "No changes to commit"
+          git commit -m "Activity logged by agent-seed-repository.yml, enhance issue" || echo "No changes to commit"
           git push
 
   #issue-to-code:
