@@ -57,4 +57,14 @@ describe("POST /digest Endpoint", () => {
     expect(response.body.batchItemFailures.length).toBe(1);
     expect(response.body.batchItemFailures[0]).toMatch(/fallback-\d+-\d+\w+/);
   });
+
+  test("single record payload without Records array normalizes to Records array", async () => {
+    const sampleDigest = { key: "events/2.json", value: "abcde", lastModified: new Date().toISOString() };
+    const response = await request(app)
+      .post("/digest")
+      .send(sampleDigest)
+      .set("Content-Type", "application/json");
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ batchItemFailures: [] });
+  });
 });

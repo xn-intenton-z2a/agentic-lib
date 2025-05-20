@@ -9,7 +9,7 @@ if (typeof globalThis.callCount === "undefined") {
 import express from "express";
 import { fileURLToPath } from "url";
 import { readFileSync } from "fs";
-import { z, ZodError } from "zod";
+import { z } from "zod";
 import dotenv from "dotenv";
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -19,46 +19,30 @@ import dotenv from "dotenv";
 export const app = express();
 app.use(express.json());
 
-// Zod schemas for HTTP /digest endpoint payload
-const recordSchema = z.object({
-  body: z.string(),
-  messageId: z.string().optional(),
-});
-// Accept either { Records: [...] } or a single record
-const httpEventSchema = z.union([
-  z.object({ Records: z.array(recordSchema) }),
-  recordSchema,
-]);
-
 // POST /digest endpoint
 app.post("/digest", async (req, res) => {
-  // Validate payload shape
-  let parsed;
-  try {
-    parsed = httpEventSchema.parse(req.body);
-  } catch (err) {
-    if (err instanceof ZodError) {
-      logError("Invalid request payload", err);
-      const message = err.issues.map((e) => e.message).join(", ");
-      return res.status(400).json({ error: message });
-    }
-    logError("Unknown error validating payload", err);
-    return res.status(400).json({ error: err.toString() });
-  }
-
-  // Normalize to SQS event format
+  const rawBody = req.body;
   let sqsEvent;
-  if (parsed && Object.prototype.hasOwnProperty.call(parsed, 'Records') && Array.isArray(parsed.Records)) {
-    sqsEvent = { Records: parsed.Records };
+
+  // Raw SQS-like event
+  if (
+    rawBody &&
+    Array.isArray(rawBody.Records) &&
+    rawBody.Records.every((r) => typeof r.body === "string")
+  ) {
+    sqsEvent = { Records: rawBody.Records };
+  } else if (rawBody && typeof rawBody.body === "string") {
+    sqsEvent = { Records: [rawBody] };
   } else {
-    sqsEvent = { Records: [parsed] };
+    // Treat payload as direct digest
+    sqsEvent = createSQSEventFromDigest(rawBody);
   }
 
   try {
     const result = await digestLambdaHandler(sqsEvent);
     // Map batchItemFailures to identifier strings for HTTP response
     const failures = result.batchItemFailures.map((entry) =>
-      typeof entry === 'string' ? entry : entry.itemIdentifier || entry
+      typeof entry === "string" ? entry : entry.itemIdentifier || entry
     );
     return res.json({ batchItemFailures: failures });
   } catch (error) {
