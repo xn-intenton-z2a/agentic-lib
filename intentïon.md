@@ -129,3 +129,66 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-20T00:54:21.777Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+Title: HTTP Server Mode (--serve) for /digest Endpoint
+
+Objective:
+--------
+Enable the CLI in src/lib/main.js to start an Express-based HTTP server when invoked with a new --serve flag, exposing the existing digestLambdaHandler at POST /digest.
+
+Scope of Changes:
+------------------
+1. package.json
+   • Add "express" as a runtime dependency (e.g., "express": "^4.18.2").
+   • Add "supertest" as a devDependency (e.g., "supertest": "^6.3.3").
+
+2. src/lib/main.js
+   • Import Express and implement a processServe(args) function:
+     - Detect --serve flag before other CLI flags.
+     - Read PORT from environment or default to 3000.
+     - Configure POST /digest:
+       * If body.Records is an array, pass it directly to digestLambdaHandler.
+       * Otherwise wrap the request body as a single record.
+       * Return HTTP 200 with JSON { batchItemFailures }.
+     - Support JSON parsing via express.json().
+     - Implement graceful shutdown on SIGINT and SIGTERM to close the server.
+   • Export processServe (for testing) and invoke it in main() when --serve is present.
+
+3. tests/unit/main.test.js
+   • Use supertest against the exported Express app:
+     - POST /digest with valid SQS-style JSON -> expect 200 and correct batchItemFailures: [].
+     - POST /digest with invalid JSON payload -> expect 200 and batchItemFailures contains a fallback identifier.
+     - Custom PORT via environment variable -> server listens on the configured port.
+     - Ensure server shuts down cleanly after tests to prevent hanging.
+
+4. sandbox/README.md
+   • Add "HTTP Server Mode" section:
+     - Usage: `node src/lib/main.js --serve [--port <number>]`.
+     - curl examples:
+         curl -X POST http://localhost:3000/digest -H 'Content-Type: application/json' -d '{"Records":[{"body":"{ \"key\": \"value\" }"}]}'
+     - Document response format: `{ "batchItemFailures": [] }` or fallback identifiers.
+
+Acceptance Criteria:
+--------------------
+- Automated tests pass (`npm test` covers HTTP endpoint tests and existing tests).  
+- The CLI `--serve` flag starts an HTTP server on port 3000 or the value of the PORT environment variable.  
+- POST /digest with a valid SQS event payload returns HTTP 200 and an empty batchItemFailures array.  
+- POST /digest with malformed JSON returns HTTP 200 and batchItemFailures contains a generated fallback identifier.  
+- Graceful shutdown: sending SIGINT or SIGTERM closes the server within 5 seconds without hanging.  
+- sandbox/README.md examples work out-of-the-box when copy-pasted.
+
+Implementation Notes:
+---------------------
+- Use Express’s built-in express.json() middleware.  
+- Do not add new source or test files; update only package.json, src/lib/main.js, tests/unit/main.test.js, and sandbox/README.md.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7198,"completion_tokens":1257,"total_tokens":8455,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":512,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
