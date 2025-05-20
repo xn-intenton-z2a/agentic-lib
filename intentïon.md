@@ -985,3 +985,48 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-20T02:22:37.679Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1542 with action close and updated description:
+
+**Summary**
+
+Implement a new `--mission` CLI flag in `src/lib/main.js` that reads and prints the contents of the project-level `MISSION.md`. This will surface the library’s mission directly to users, addressing the fact that no existing feature or command currently references the mission statement.
+
+**Scope & Changes**
+
+1. **src/lib/main.js**
+   - Add `import { readFileSync } from 'fs'` and use `fileURLToPath` + `import.meta.url` to locate `MISSION.md`.
+   - Create a new helper function `async function processMission(args)` that:
+     - Checks for `--mission` in `args`.
+     - Reads `MISSION.md` content.
+     - Logs the raw mission markdown to the console.
+     - Returns `true` when the flag is handled.
+   - Update `generateUsage()` to include a `--mission    Show the project mission statement` entry.
+   - Invoke `await processMission(args)` in `main()` immediately after the help/version handlers.
+
+2. **tests/unit/main.test.js**
+   - Mock the `fs` module (e.g. `vi.mock('fs', ...)`) to return a dummy mission text.
+   - Spy on `console.log` and verify:
+     - Running `main(['--mission'])` prints the mocked mission text exactly once.
+     - `main()` returns early after handling `--mission` (i.e., does not proceed to other flags).
+   - Ensure all existing tests still pass.
+
+3. **sandbox/README.md**
+   - Add a new section under "Usage" describing the `--mission` flag and linking to `MISSION.md` in the repo root.
+   - Provide an example invocation: ``npm start -- --mission``.
+
+**Verification & Acceptance**
+
+- Run `npm test` to confirm all tests (including the new `--mission` tests) pass.
+- Manually execute `npm start -- --mission` and confirm the full contents of `MISSION.md` are output to stdout.
+
+**Note**: No new files should be created or deleted; only updates to `src/lib/main.js`, `tests/unit/main.test.js`, and `sandbox/README.md` are required. The LLM will supply the complete updated source, test, and README content in a single response.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7651,"completion_tokens":911,"total_tokens":8562,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":320,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
