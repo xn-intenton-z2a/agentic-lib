@@ -128,3 +128,56 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-20T00:19:29.331Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+**Summary**
+
+Implement a complete interactive CLI "Guess the Number" game under `sandbox/source/guess-game.js`. The game should initialize with a secret random number, accept and validate user input, provide feedback, track attempts, and handle graceful exits.
+
+**Acceptance Criteria**
+
+1. **Initialization & Configuration**
+   - Default minimum and maximum bounds are 1 and 100.
+   - Support overriding bounds via:
+     - Environment variables: `MIN`, `MAX`.
+     - Command-line flags: `--min <number>`, `--max <number>`.
+   - Unit test seeds the RNG (e.g., using `seedrandom`) to assert the secret number is within configured bounds.
+
+2. **User Interaction Flow**
+   - Prompt: `Guess a number between <min> and <max>:` on startup.
+   - On each user input:
+     - If non-numeric or out of range, display: `Invalid input. Please enter an integer between <min> and <max>.` and re-prompt without exiting.
+     - If valid:
+       - If guess < secret: print `Too low. Try again:` and re-prompt.
+       - If guess > secret: print `Too high. Try again:` and re-prompt.
+       - If guess == secret: print `Congratulations! You guessed the number <secret> in <attempts> attempts.` and exit with code 0.
+   - Pressing Ctrl+C prints `Goodbye!` and exits with code 0.
+
+3. **Testing Requirements**
+   - Create `sandbox/tests/guess-game.test.js` with unit tests covering:
+     1. Secret number generation within bounds for default and custom ranges.
+     2. Feedback logic for too low, too high, and correct guesses, including accurate attempt counts.
+     3. Handling of invalid inputs (non-numeric, out-of-range) without terminating the game.
+     4. Environment variable and flag overrides of bounds.
+     5. Graceful exit on Ctrl+C (simulate SIGINT) printing `Goodbye!`.
+
+4. **Documentation**
+   - Update `sandbox/README.md` to include:
+     - Installation and usage instructions for default and custom ranges.
+     - CLI flag examples and environment variable usage.
+     - Sample game session transcript demonstrating prompts, feedback, correct guess, and Ctrl+C exit.
+
+5. **Verification**
+   - Manual: Run `node sandbox/source/guess-game.js` in a TTY to confirm full game flow matches specs.
+   - Automated: `npm test` passes new sandbox tests alongside existing tests.
+   - Documentation: Copy-paste examples from `sandbox/README.md` into a terminal to ensure no errors.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7285,"completion_tokens":1024,"total_tokens":8309,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":384,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
