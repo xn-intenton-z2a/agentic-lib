@@ -2639,3 +2639,99 @@ LLM API Usage:
 ```
 ---
 
+## Maintained Feature at 2025-05-20T04:35:22.691Z
+
+Maintained feature SERVICE_INTERFACE.
+
+Git diff:
+
+```
+diff --git a/sandbox/features/HTTP_ENDPOINT.md b/sandbox/features/HTTP_ENDPOINT.md
+deleted file mode 100644
+index d2ceefe3..00000000
+--- a/sandbox/features/HTTP_ENDPOINT.md
++++ /dev/null
+@@ -1,31 +0,0 @@
+-# HTTP Endpoint Feature
+-
+-# Description
+-Provide an integrated HTTP server that exposes the existing digestLambdaHandler as a RESTful endpoint. Users can send POST requests to trigger the same processing logic used in the CLI and AWS Lambda contexts.
+-
+-# Value Proposition
+-Deliver a direct HTTP API to invoke digest logic without requiring AWS infrastructure or CLI commands. Simplifies local development, testing, and integration with external services.
+-
+-# Success Criteria & Requirements
+-- Launch an HTTP server when invoked with the --serve flag.
+-- Default to port 3000 or honor the PORT environment variable.
+-- Accept POST requests at the /digest endpoint with a JSON body matching the SQS event schema.
+-- Return HTTP 200 with a JSON body listing any batchItemFailures.
+-- Graceful shutdown on SIGINT or SIGTERM.
+-
+-# API Specification
+-Endpoint: POST /digest
+-Request Body: JSON object with either Records array or single event record. Matches SQS event format.
+-Response:
+-  status: 200
+-  body: { batchItemFailures: Array }
+-
+-# CLI Integration
+-Extend main() to process a new --serve flag:
+-  node src/lib/main.js --serve [--port <number>]
+-When --serve is present, start HTTP server instead of running CLI commands.
+-
+-# Verification & Acceptance
+-- Unit tests simulate POST /digest requests and validate JSON responses.
+-- Tests cover valid and invalid JSON payloads and error handling.
+-- Manual test using curl or HTTP client to verify behavior.\n\n// New [sandbox/features/SERVICE_INTERFACE.md]:\n# SERVICE_INTERFACE Feature
+
+# Description
+Provide a unified interface layer exposing the library’s core digest logic through both a CLI and an HTTP server. Users can interact via command-line flags or a RESTful API, enabling flexible integration in scripts, local development, and external services.
+
+# Value Proposition
+- Simplify access to digest processing without AWS infrastructure.  
+- Support automation workflows via CLI flags for help, version, mission, and digest triggers.  
+- Enable programmatic integration via HTTP POST, lowering barrier for third-party services to invoke digest logic.
+
+# Success Criteria & Requirements
+- CLI commands respond to the following flags:
+  - --help: prints usage instructions and exits.
+  - --version: prints package version and timestamp.
+  - --mission: prints mission statement and exits.
+  - --digest: simulates an SQS event and invokes digestLambdaHandler.
+  - --serve [--port <number>]: starts HTTP server (default port 3000 or PORT env).
+- HTTP server behavior:
+  - Endpoint: POST /digest
+  - Accepts JSON body matching AWS SQS event schema (Records array or single record).
+  - Returns HTTP 200 with JSON { batchItemFailures: [] } on success.
+  - Graceful shutdown on SIGINT/SIGTERM.
+
+# CLI Specification
+- Implement flags in main(): processHelp, processVersion, processMission, processDigest, and processServe.
+- processHelp prints usage and exits.
+- processVersion reads version from package.json, prints JSON { version, timestamp }.
+- processMission reads MISSION.md, prints content.
+- processDigest builds example digest, creates SQS event, calls digestLambdaHandler.
+- processServe starts HTTP server when --serve is present.
+
+# HTTP API Specification
+- Launch when main is invoked with --serve.
+- Use Express or node http module to listen on configured port.
+- Accept POST requests at /digest with JSON body.
+- On receipt, call digestLambdaHandler with parsed event.
+- Respond with status 200 and JSON listing batchItemFailures.
+- Cleanly close server on termination signals.
+
+# Verification & Acceptance
+- Unit tests cover each CLI flag behavior, verifying console output and exit flow.
+- HTTP endpoint tests simulate POST /digest with valid and invalid payloads, asserting status codes and JSON responses.
+- Manual verification using curl:
+  curl -X POST localhost:3000/digest -d '{"Records":[{"body":"{\"key\":\"value\"}"}]}' 
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":8365,"completion_tokens":1292,"total_tokens":9657,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":704,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
