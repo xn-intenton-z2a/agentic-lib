@@ -3054,3 +3054,57 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-20T05:43:51.512Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1549 with action enhance and updated description:
+
+Title: Test maintenance: Enhance test coverage for SQS handler and utility functions
+
+Description:
+Extend and consolidate tests to fully verify the correctness of the core SQS handler and related utility functions. This ensures robust validation of primary library behavior and prevents regressions.
+
+Testable Acceptance Criteria:
+
+1. createSQSEventFromDigest Unit Tests:
+   - Given a sample digest object (e.g. { key: "events/1.json", value: "12345", lastModified: <ISO timestamp string> }), calling createSQSEventFromDigest(sampleDigest) returns an object with:
+     • Records: an array of length 1
+     • record.eventVersion === "2.0"
+     • record.eventSource === "aws:sqs"
+     • record.eventTime matches ISO 8601 timestamp format
+     • record.eventName === "SendMessage"
+     • record.body === JSON.stringify(sampleDigest)
+
+2. digestLambdaHandler Unit Tests:
+   - Valid JSON record:
+     • Input: an SQS event with one record whose body is JSON.stringify(sampleDigest).
+     • Output: { batchItemFailures: [], handler: "src/lib/main.digestLambdaHandler" }
+   - Invalid JSON record:
+     • Input: an SQS event with one record whose body is "not a json"
+     • Output: batchItemFailures is an array of length 1
+     • The failure entry has an itemIdentifier matching /^fallback-\d+-\d+-[a-z0-9]+$/
+
+3. HTTP Server Normalization Test:
+   - Endpoint: POST /digest
+   - Input: a JSON payload without a top-level Records array (e.g. { body: JSON.stringify(sampleDigest) })
+   - Behavior: server wraps the single record into Records array and calls digestLambdaHandler
+   - Output: HTTP 200 response with { batchItemFailures: [] }
+
+4. README Updates:
+   - Add a ``Utility Functions`` section to sandbox/README.md with code snippets showing:
+     • Import and invocation of createSQSEventFromDigest and expected return
+     • Direct invocation of digestLambdaHandler with a constructed event and interpreting its return value
+
+Implementation Steps:
+1. In tests/unit/main.test.js, append tests covering the above createSQSEventFromDigest and digestLambdaHandler scenarios using Vitest assertions.
+2. In sandbox/tests/http.server.test.js, append a test for the single-record normalization path.
+3. Update sandbox/README.md to include the new Utility Functions section with runnable examples.
+4. Run `npm test` to verify all tests pass and coverage metrics include the new tests.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11820,"completion_tokens":1439,"total_tokens":13259,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":832,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
