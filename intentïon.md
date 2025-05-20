@@ -3400,3 +3400,47 @@ LLM API Usage:
 ```
 ---
 
+## Enhanced Issue at 2025-05-20T07:42:19.802Z
+
+Enhanced maintenance issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1551 with enhanced description:
+
+**Context**
+The current package.json lists numerous dependencies (e.g., AWS SDK, S3-SQS-bridge, lodash, chalk, openai, etc.) that are not referenced by the core source files (`sandbox/source/main.js`) nor by the library entry point (`src/lib/main.js`). These unused dependencies increase install size, surface area for security vulnerabilities, and maintenance burden without providing value to the primary features (HTTP `/digest` endpoint, SQS event handler, CLI flags).
+
+**Desired Change**
+- In the `package.json` file, update the `dependencies` section to retain only the packages actively used by the code:
+  - Keep: `express`, `dotenv`, `zod`.
+  - Remove: 
+    - `@aws-sdk/client-lambda`
+    - `@xn-intenton-z2a/s3-sqs-bridge`
+    - `chalk`
+    - `change-case`
+    - `dayjs`
+    - `ejs`
+    - `figlet`
+    - `js-yaml`
+    - `lodash`
+    - `minimatch`
+    - `openai`
+    - `seedrandom`
+    - `supertest` (already present in devDependencies)
+
+**How to Apply**
+1. Open `package.json`.
+2. Under the top-level `dependencies` key, delete all entries except for `express`, `dotenv`, and `zod`.
+3. Save the file.
+
+**Verification**
+- Run `npm install` to ensure no missing references.
+- Execute the full test suite with `npm test` and confirm that all tests pass.
+- Spot-check functionality of the `/digest` HTTP endpoint and CLI flags to verify unchanged behavior.
+
+_No other manual steps or file additions are required. The LLM can directly update the `package.json` content to reflect these edits._
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":13804,"completion_tokens":998,"total_tokens":14802,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":512,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
