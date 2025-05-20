@@ -3108,3 +3108,144 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-20T05:50:19.099Z
+
+fixApplied: true
+
+Add utility function tests and README examples
+
+Git Diff:
+
+```
+diff --git a/sandbox/README.md b/sandbox/README.md
+index 75836eee..0047204b 100644
+--- a/sandbox/README.md
++++ b/sandbox/README.md
+@@ -46,3 +46,40 @@ Response format:
+ ```json
+ { "batchItemFailures": [] }
+ ```
++
++## Utility Functions
++
++The library exposes utility functions for constructing and invoking SQS Lambda handlers directly from code.
++
++```js
++import { createSQSEventFromDigest, digestLambdaHandler } from "./source/main.js";
++
++// Create a sample digest object
++const sampleDigest = {
++  key: "events/1.json",
++  value: "12345",
++  lastModified: new Date().toISOString(),
++};
++
++// Construct an SQS event
++const sqsEvent = createSQSEventFromDigest(sampleDigest);
++console.log(sqsEvent);
++// {
++//   Records: [
++//     {
++//       eventVersion: "2.0",
++//       eventSource: "aws:sqs",
++//       eventTime: "2025-01-01T00:00:00.000Z",
++//       eventName: "SendMessage",
++//       body: JSON.stringify(sampleDigest)
++//     }
++//   ]
++// }
++
++// Directly invoke the Lambda handler
++(async () => {
++  const result = await digestLambdaHandler(sqsEvent);
++  console.log(result);
++  // { batchItemFailures: [], handler: "src/lib/main.digestLambdaHandler" }
++})();
++```
+\ No newline at end of file
+diff --git a/sandbox/tests/http.server.test.js b/sandbox/tests/http.server.test.js
+index 8ca0a1e7..2dd41082 100644
+--- a/sandbox/tests/http.server.test.js
++++ b/sandbox/tests/http.server.test.js
+@@ -57,4 +57,14 @@ describe("POST /digest Endpoint", () => {
+     expect(response.body.batchItemFailures.length).toBe(1);
+     expect(response.body.batchItemFailures[0]).toMatch(/fallback-\d+-\d+\w+/);
+   });
++
++  test("single record payload without Records array normalizes to Records array", async () => {
++    const sampleDigest = { key: "events/2.json", value: "abcde", lastModified: new Date().toISOString() };
++    const response = await request(app)
++      .post("/digest")
++      .send(sampleDigest)
++      .set("Content-Type", "application/json");
++    expect(response.status).toBe(200);
++    expect(response.body).toEqual({ batchItemFailures: [] });
++  });
+ });\n\n// New [sandbox/tests/utils.test.js]:\nimport { describe, test, expect } from "vitest";
+import { createSQSEventFromDigest, digestLambdaHandler } from "../source/main.js";
+
+describe("Utility Functions", () => {
+  test("createSQSEventFromDigest returns correct SQS event", () => {
+    const sampleDigest = { key: "events/1.json", value: "12345", lastModified: "2025-01-01T00:00:00.000Z" };
+    const event = createSQSEventFromDigest(sampleDigest);
+    expect(event).toHaveProperty("Records");
+    expect(Array.isArray(event.Records)).toBe(true);
+    expect(event.Records).toHaveLength(1);
+    const record = event.Records[0];
+    expect(record.eventVersion).toBe("2.0");
+    expect(record.eventSource).toBe("aws:sqs");
+    expect(record.eventName).toBe("SendMessage");
+    expect(typeof record.eventTime).toBe("string");
+    expect(record.eventTime).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+    expect(record.body).toBe(JSON.stringify(sampleDigest));
+  });
+
+  test("digestLambdaHandler processes valid JSON record without failures", async () => {
+    const sampleDigest = { key: "events/3.json", value: "67890", lastModified: "2025-01-01T00:00:00.000Z" };
+    const sqsEvent = { Records: [{ body: JSON.stringify(sampleDigest), messageId: "msg-1" }] };
+    const result = await digestLambdaHandler(sqsEvent);
+    expect(result).toEqual({ batchItemFailures: [], handler: "src/lib/main.digestLambdaHandler" });
+  });
+
+  test("digestLambdaHandler reports failures on invalid JSON with messageId", async () => {
+    const sqsEvent = { Records: [{ body: "not a json", messageId: "msg-2" }] };
+    const result = await digestLambdaHandler(sqsEvent);
+    expect(Array.isArray(result.batchItemFailures)).toBe(true);
+    expect(result.batchItemFailures).toHaveLength(1);
+    const [failure] = result.batchItemFailures;
+    expect(failure).toHaveProperty("itemIdentifier", "msg-2");
+  });
+
+  test("digestLambdaHandler reports fallback identifier when messageId missing", async () => {
+    const sqsEvent = { Records: [{ body: "bad payload" }] };
+    const result = await digestLambdaHandler(sqsEvent);
+    expect(result.batchItemFailures).toHaveLength(1);
+    const fallbackId = result.batchItemFailures[0].itemIdentifier;
+    expect(fallbackId).toMatch(/^fallback-\d+-\d+-[a-z0-9]+$/);
+  });
+});
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.7.8-0 start
+> node src/lib/main.js
+
+{"level":"info","timestamp":"2025-05-20T05:49:58.103Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1549 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":14005,"completion_tokens":4866,"total_tokens":18871,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2560,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
