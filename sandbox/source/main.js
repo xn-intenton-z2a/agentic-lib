@@ -9,7 +9,7 @@ if (typeof globalThis.callCount === "undefined") {
 import express from "express";
 import { fileURLToPath } from "url";
 import { readFileSync } from "fs";
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import dotenv from "dotenv";
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -19,25 +19,51 @@ import dotenv from "dotenv";
 export const app = express();
 app.use(express.json());
 
+// Zod schemas for HTTP /digest endpoint payload
+const recordSchema = z.object({
+  body: z.string(),
+  messageId: z.string().optional(),
+});
+// Accept either { Records: [...] } or a single record
+const httpEventSchema = z.union([
+  z.object({ Records: z.array(recordSchema) }),
+  recordSchema,
+]);
+
 // POST /digest endpoint
 app.post("/digest", async (req, res) => {
-  const body = req.body;
-  let sqsEvent;
-  if (Array.isArray(body.Records)) {
-    sqsEvent = { Records: body.Records };
-  } else {
-    sqsEvent = { Records: [body] };
+  // Validate payload shape
+  let parsed;
+  try {
+    parsed = httpEventSchema.parse(req.body);
+  } catch (err) {
+    if (err instanceof ZodError) {
+      logError("Invalid request payload", err);
+      const message = err.issues.map((e) => e.message).join(", ");
+      return res.status(400).json({ error: message });
+    }
+    logError("Unknown error validating payload", err);
+    return res.status(400).json({ error: err.toString() });
   }
+
+  // Normalize to SQS event format
+  let sqsEvent;
+  if (parsed && Object.prototype.hasOwnProperty.call(parsed, 'Records') && Array.isArray(parsed.Records)) {
+    sqsEvent = { Records: parsed.Records };
+  } else {
+    sqsEvent = { Records: [parsed] };
+  }
+
   try {
     const result = await digestLambdaHandler(sqsEvent);
     // Map batchItemFailures to identifier strings for HTTP response
-    const failures = result.batchItemFailures.map(entry =>
+    const failures = result.batchItemFailures.map((entry) =>
       typeof entry === 'string' ? entry : entry.itemIdentifier || entry
     );
-    res.json({ batchItemFailures: failures });
+    return res.json({ batchItemFailures: failures });
   } catch (error) {
     logError("Error in HTTP /digest handler", error);
-    res.json({ batchItemFailures: [] });
+    return res.json({ batchItemFailures: [] });
   }
 });
 
@@ -48,7 +74,8 @@ app.post("/digest", async (req, res) => {
 dotenv.config();
 
 if (process.env.VITEST || process.env.NODE_ENV === "development") {
-  process.env.GITHUB_API_BASE_URL = process.env.GITHUB_API_BASE_URL || "https://api.github.com.test/";
+  process.env.GITHUB_API_BASE_URL =
+    process.env.GITHUB_API_BASE_URL || "https://api.github.com.test/";
   process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || "key-test";
 }
 
@@ -130,7 +157,9 @@ export async function digestLambdaHandler(sqsEvent) {
   logInfo(`Digest Lambda received event: ${JSON.stringify(sqsEvent)}`);
 
   // If event.Records is an array, use it. Otherwise, treat the event itself as one record.
-  const sqsEventRecords = Array.isArray(sqsEvent.Records) ? sqsEvent.Records : [sqsEvent];
+  const sqsEventRecords = Array.isArray(sqsEvent.Records)
+    ? sqsEvent.Records
+    : [sqsEvent];
 
   // Array to collect the identifiers of the failed records
   const batchItemFailures = [];
@@ -142,9 +171,14 @@ export async function digestLambdaHandler(sqsEvent) {
     } catch (error) {
       // If messageId is missing, generate a fallback identifier including record index
       const recordId =
-        sqsEventRecord.messageId || `fallback-${index}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        sqsEventRecord.messageId ||
+        `fallback-${index}-${Date.now()}-${Math.random()
+          .toString(36)
+          .substr(2, 9)}`;
       logError(`Error processing record ${recordId} at index ${index}`, error);
-      logError(`Invalid JSON payload. Error: ${error.message}. Raw message: ${sqsEventRecord.body}`);
+      logError(
+        `Invalid JSON payload. Error: ${error.message}. Raw message: ${sqsEventRecord.body}`
+      );
       batchItemFailures.push({ itemIdentifier: recordId });
     }
   }
@@ -216,7 +250,9 @@ async function processVersion(args) {
     try {
       const { readFileSync } = await import("fs");
       const packageJsonPath = new URL("../../package.json", import.meta.url);
-      const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+      const packageJson = JSON.parse(
+        readFileSync(packageJsonPath, "utf8")
+      );
       const versionInfo = {
         version: packageJson.version,
         timestamp: new Date().toISOString(),
@@ -271,25 +307,33 @@ export async function main(args = process.argv.slice(2)) {
   }
   if (processHelp(args)) {
     if (VERBOSE_STATS) {
-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+      console.log(
+        JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() })
+      );
     }
     return;
   }
   if (await processVersion(args)) {
     if (VERBOSE_STATS) {
-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+      console.log(
+        JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() })
+      );
     }
     return;
   }
   if (await processMission(args)) {
     if (VERBOSE_STATS) {
-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+      console.log(
+        JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() })
+      );
     }
     return;
   }
   if (await processDigest(args)) {
     if (VERBOSE_STATS) {
-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+      console.log(
+        JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() })
+      );
     }
     return;
   }
@@ -297,7 +341,9 @@ export async function main(args = process.argv.slice(2)) {
   console.log("No command argument supplied.");
   console.log(generateUsage());
   if (VERBOSE_STATS) {
-    console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    console.log(
+      JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() })
+    );
   }
 }
 
