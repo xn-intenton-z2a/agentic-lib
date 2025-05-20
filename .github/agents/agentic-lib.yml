@@ -58,7 +58,7 @@ featureDevelopmentIssuesWipLimit: 2
 maintenanceIssuesWipLimit: 1
 
 # How many attempts should be made to work on an issue?
-attemptsPerBranch: 2
+attemptsPerBranch: 3
 attemptsPerIssue: 2
 
 # Web publishing
