@@ -80,3 +80,51 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-20T00:18:45.249Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1539 with title:
+
+Implement GUESS_NUMBER_GAME: Interactive CLI number-guessing game
+
+And description:
+
+Summary:
+
+Implement a complete interactive "Guess the Number" CLI game under sandbox that initializes a random secret number, accepts user input, provides feedback, and tracks attempts until the user guesses correctly.
+
+Tasks:
+
+1. Update sandbox/source/guess-game.js:
+   - Parse minimum and maximum bounds from environment variables (MIN, MAX) or command-line flags (--min, --max), defaulting to 1 and 100.
+   - Generate a secret integer within [min, max] (using Math.random or seedrandom).
+   - Display prompt: `Guess a number between <min> and <max>:` and read each line from stdin.
+   - Validate input: if non-numeric or out of range, print a friendly message and re-prompt without exiting.
+   - After each valid guess, print `Too low. Try again.`, `Too high. Try again.`, or `Correct! You guessed <secret> in <attempts> attempts.` and exit on correct guess.
+   - Gracefully handle TTY termination (Ctrl+C) by printing `Goodbye!` before exiting.
+
+2. Add tests in sandbox/tests/guess-game.test.js:
+   - Unit tests for random number generation within bounds.
+   - Feedback logic tests for low, high, and correct cases, including attempt count.
+   - Validation tests for non-numeric and out-of-range inputs.
+   - Environment variable and flag override tests for custom ranges.
+
+3. Update sandbox/README.md:
+   - Document installation and usage:
+     • Default range: `node sandbox/source/guess-game.js`
+     • Custom range via flags: `node sandbox/source/guess-game.js --min 10 --max 20`
+     • Custom range via env vars: `MIN=10 MAX=20 node sandbox/source/guess-game.js`
+   - Show sample game session output and explain exit behavior on correct guess and Ctrl+C.
+
+Verification:
+
+- Running `node sandbox/source/guess-game.js` in a TTY should match the user scenarios in the feature spec.
+- `npm test` should pass all new sandbox tests alongside existing tests.
+- README examples should run without errors when copied into the terminal.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6891,"completion_tokens":1153,"total_tokens":8044,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
