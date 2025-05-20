@@ -3003,3 +3003,39 @@ LLM API Usage:
 ```
 ---
 
+## Maintenance Activity to Issue at 2025-05-20T04:57:40.600Z
+
+Created issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1549 with title Test maintenance: Enhance test coverage for SQS handler and utility functions and body:
+
+ Add and extend tests to cover core SQS handler logic and utility functions for robust validation of primary behavior.
+
+Files to update:
+
+- tests/unit/main.test.js:
+  - Add unit tests for `createSQSEventFromDigest`:
+    - Verify the returned object has a `Records` array with one record containing the expected properties (`eventVersion`, `eventSource`, `eventTime` as a timestamp string, `eventName`, and `body` matching the JSON string of a sample digest).
+  - Add unit tests for `digestLambdaHandler`:
+    - Case 1: valid SQS event with one record whose `body` is a JSON string; assert that the returned `batchItemFailures` array is empty and `handler` matches the expected path.
+    - Case 2: invalid JSON body; assert that `batchItemFailures` contains exactly one failure with an identifier matching the fallback pattern.
+
+- sandbox/tests/http.server.test.js:
+  - Add a new HTTP endpoint test for the single-record normalization path (sending a payload without a top-level `Records` array) to confirm `/digest` correctly wraps it into an array and returns no failures for valid JSON.
+
+- sandbox/README.md:
+  - Extend the usage section to include examples for:
+    - Calling `createSQSEventFromDigest` in code (showing import and sample invocation).
+    - Invoking `digestLambdaHandler` directly with a constructed event and interpreting its return value.
+
+How to apply and verify:
+1. In the specified test files, append the new test cases using Vitest and assertions as described.
+2. Update `sandbox/README.md` to add code snippets under a new Utility Functions section.
+3. Run `npm test` to ensure all tests (unit and HTTP server tests) pass and that coverage includes the newly tested paths.
+4. Confirm that the README examples render correctly and that copy-pasting them into a REPL or code file produces the expected objects and output..
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11146,"completion_tokens":1935,"total_tokens":13081,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1472,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
