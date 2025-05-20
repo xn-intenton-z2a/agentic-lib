@@ -192,3 +192,445 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-20T00:56:51.980Z
+
+fixApplied: true
+
+Implement HTTP Server Mode --serve using Express with tests and documentation
+
+Git Diff:
+
+```
+diff --git a/sandbox/docs/HTTP_SERVER_MODE.md b/sandbox/docs/HTTP_SERVER_MODE.md
+new file mode 100644
+index 00000000..73492efd
+--- /dev/null
++++ b/sandbox/docs/HTTP_SERVER_MODE.md
+@@ -0,0 +1,54 @@
++# HTTP Server Mode
++
++The CLI now supports running an HTTP server to receive SQS-style payloads and invoke the `digestLambdaHandler`.
++
++## Usage
++
++Start the server:
++
++```bash
++# Default port 3000 or PORT env
++node sandbox/source/main.js --serve [--port <number>]
++```
++
++Examples:
++
++```bash
++# Run on default 3000
++node sandbox/source/main.js --serve
++
++# Run on custom port
++node sandbox/source/main.js --serve --port 4000
++```
++
++Send a valid payload:
++
++```bash
++curl -X POST http://localhost:3000/digest \
++  -H 'Content-Type: application/json' \
++  -d '{"Records":[{"body":"{ \"key\": \"value\" }"}]}'
++```
++
++Response:
++
++```json
++{ "batchItemFailures": [] }
++```
++
++Send a malformed payload:
++
++```bash
++curl -X POST http://localhost:3000/digest \
++  -H 'Content-Type: application/json' \
++  -d '{"Records":[{"body":"{ invalidJson }"}]}'
++```
++
++Response:
++
++```json
++{ "batchItemFailures": [{ "itemIdentifier": "fallback-0-<timestamp>-<random>" }] }
++```
++
++## Graceful Shutdown
++
++Press `Ctrl+C` or send a `SIGTERM` to stop the server. It will close active connections and shut down within 5 seconds.
+\ No newline at end of file
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+new file mode 100644
+index 00000000..93849d75
+--- /dev/null
++++ b/sandbox/source/main.js
+@@ -0,0 +1,279 @@
++#!/usr/bin/env node
++// sandbox/source/main.js
++
++// Initialize global callCount to support test mocks that reference it
++if (typeof globalThis.callCount === "undefined") {
++  globalThis.callCount = 0;
++}
++
++import express from "express";
++import { fileURLToPath } from "url";
++import { z } from "zod";
++import dotenv from "dotenv";
++
++// ---------------------------------------------------------------------------------------------------------------------
++// Environment configuration from .env file or environment variables or test values.
++// ---------------------------------------------------------------------------------------------------------------------
++
++dotenv.config();
++
++if (process.env.VITEST || process.env.NODE_ENV === "development") {
++  process.env.GITHUB_API_BASE_URL = process.env.GITHUB_API_BASE_URL || "https://api.github.com.test/";
++  process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || "key-test";
++}
++
++const configSchema = z.object({
++  GITHUB_API_BASE_URL: z.string().optional(),
++  OPENAI_API_KEY: z.string().optional(),
++});
++
++export const config = configSchema.parse(process.env);
++
++// Global verbose mode flag
++const VERBOSE_MODE = false;
++// Global verbose stats flag
++const VERBOSE_STATS = false;
++
++// Helper function to format log entries
++function formatLogEntry(level, message, additionalData = {}) {
++  return {
++    level,
++    timestamp: new Date().toISOString(),
++    message,
++    ...additionalData,
++  };
++}
++
++export function logConfig() {
++  const logObj = formatLogEntry("info", "Configuration loaded", {
++    config: {
++      GITHUB_API_BASE_URL: config.GITHUB_API_BASE_URL,
++      OPENAI_API_KEY: config.OPENAI_API_KEY,
++    },
++  });
++  console.log(JSON.stringify(logObj));
++}
++logConfig();
++
++// ---------------------------------------------------------------------------------------------------------------------
++// Utility functions
++// ---------------------------------------------------------------------------------------------------------------------
++
++export function logInfo(message) {
++  const additionalData = VERBOSE_MODE ? { verbose: true } : {};
++  const logObj = formatLogEntry("info", message, additionalData);
++  console.log(JSON.stringify(logObj));
++}
++
++export function logError(message, error) {
++  const additionalData = { error: error ? error.toString() : undefined };
++  if (VERBOSE_MODE && error && error.stack) {
++    additionalData.stack = error.stack;
++  }
++  const logObj = formatLogEntry("error", message, additionalData);
++  console.error(JSON.stringify(logObj));
++}
++
++// ---------------------------------------------------------------------------------------------------------------------
++// AWS Utility functions
++// ---------------------------------------------------------------------------------------------------------------------
++
++export function createSQSEventFromDigest(digest) {
++  return {
++    Records: [
++      {
++        eventVersion: "2.0",
++        eventSource: "aws:sqs",
++        eventTime: new Date().toISOString(),
++        eventName: "SendMessage",
++        body: JSON.stringify(digest),
++      },
++    ],
++  };
++}
++
++// ---------------------------------------------------------------------------------------------------------------------
++// SQS Lambda Handlers
++// ---------------------------------------------------------------------------------------------------------------------
++
++export async function digestLambdaHandler(sqsEvent) {
++  logInfo(`Digest Lambda received event: ${JSON.stringify(sqsEvent)}`);
++
++  // If event.Records is an array, use it. Otherwise, treat the event itself as one record.
++  const sqsEventRecords = Array.isArray(sqsEvent.Records) ? sqsEvent.Records : [sqsEvent];
++
++  // Array to collect the identifiers of the failed records
++  const batchItemFailures = [];
++
++  for (const [index, sqsEventRecord] of sqsEventRecords.entries()) {
++    try {
++      const digest = JSON.parse(sqsEventRecord.body);
++      logInfo(`Record ${index}: Received digest: ${JSON.stringify(digest)}`);
++    } catch (error) {
++      // If messageId is missing, generate a fallback identifier including record index
++      const recordId =
++        sqsEventRecord.messageId || `fallback-${index}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
++      logError(`Error processing record ${recordId} at index ${index}`, error);
++      logError(`Invalid JSON payload. Error: ${error.message}. Raw message: ${sqsEventRecord.body}`);
++      batchItemFailures.push({ itemIdentifier: recordId });
++    }
++  }
++
++  // Return the list of failed messages so that AWS SQS can attempt to reprocess them.
++  return {
++    batchItemFailures,
++    handler: "src/lib/main.digestLambdaHandler",
++  };
++}
++
++// ---------------------------------------------------------------------------------------------------------------------
++// CLI Helper Functions
++// ---------------------------------------------------------------------------------------------------------------------
++
++// Function to generate CLI usage instructions
++function generateUsage() {
++  return `
++Usage:
++  --help                     Show this help message and usage instructions.
++  --digest                   Run a full bucket replay simulating an SQS event.
++  --version                  Show version information with current timestamp.
++  --serve                    Start HTTP server for /digest endpoint.
++  --port <number>            (Optional) Port for HTTP server, defaults to PORT env or 3000.
++`;
++}
++
++// Process the --help flag
++function processHelp(args) {
++  if (args.includes("--help")) {
++    console.log(generateUsage());
++    return true;
++  }
++  return false;
++}
++
++// Process the --version flag
++async function processVersion(args) {
++  if (args.includes("--version")) {
++    try {
++      const { readFileSync } = await import("fs");
++      const packageJsonPath = new URL("../../package.json", import.meta.url);
++      const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
++      const versionInfo = {
++        version: packageJson.version,
++        timestamp: new Date().toISOString(),
++      };
++      console.log(JSON.stringify(versionInfo));
++    } catch (error) {
++      logError("Failed to retrieve version", error);
++    }
++    return true;
++  }
++  return false;
++}
++
++// Process the --digest flag
++async function processDigest(args) {
++  if (args.includes("--digest")) {
++    const exampleDigest = {
++      key: "events/1.json",
++      value: "12345",
++      lastModified: new Date().toISOString(),
++    };
++    const sqsEvent = createSQSEventFromDigest(exampleDigest);
++    await digestLambdaHandler(sqsEvent);
++    return true;
++  }
++  return false;
++}
++
++// Process the --serve flag and start HTTP server
++export function processServe(args) {
++  if (!args.includes("--serve")) {
++    return null;
++  }
++  const portArgIndex = args.indexOf("--port");
++  let port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
++  if (portArgIndex !== -1 && args[portArgIndex + 1]) {
++    const parsed = parseInt(args[portArgIndex + 1], 10);
++    if (!isNaN(parsed)) {
++      port = parsed;
++    }
++  }
++
++  const app = express();
++  app.use(express.json());
++
++  app.post("/digest", async (req, res) => {
++    let incoming = req.body;
++    // Normalize to SQS event shape
++    const sqsEvent = Array.isArray(incoming.Records) && incoming.Records
++      ? incoming
++      : { Records: [incoming] };
++    const result = await digestLambdaHandler(sqsEvent);
++    res.status(200).json({ batchItemFailures: result.batchItemFailures });
++  });
++
++  const server = app.listen(port, () => {
++    logInfo(`HTTP server listening on port ${port}`);
++  });
++
++  const shutdown = (signal) => {
++    logInfo(`Received ${signal}, shutting down server...`);
++    server.close(() => {
++      logInfo(`Server closed on ${signal}`);
++      process.exit(0);
++    });
++    setTimeout(() => {
++      logError('Forceful shutdown after timeout');
++      process.exit(1);
++    }, 5000);
++  };
++  process.on('SIGINT', () => shutdown('SIGINT')); 
++  process.on('SIGTERM', () => shutdown('SIGTERM'));
++
++  return { app, server };
++}
++
++// ---------------------------------------------------------------------------------------------------------------------
++// Main CLI
++// ---------------------------------------------------------------------------------------------------------------------
++
++export async function main(args = process.argv.slice(2)) {
++  // Serve has highest priority
++  const serveResult = processServe(args);
++  if (serveResult) {
++    return;
++  }
++
++  if (processHelp(args)) {
++    if (VERBOSE_STATS) {
++      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
++    }
++    return;
++  }
++  if (await processVersion(args)) {
++    if (VERBOSE_STATS) {
++      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
++    }
++    return;
++  }
++  if (await processDigest(args)) {
++    if (VERBOSE_STATS) {
++      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
++    }
++    return;
++  }
++
++  console.log("No command argument supplied.");
++  console.log(generateUsage());
++  if (VERBOSE_STATS) {
++    console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
++  }
++}
++
++if (process.argv[1] === fileURLToPath(import.meta.url)) {
++  main().catch((err) => {
++    logError("Fatal error in main execution", err);
++    process.exit(1);
++  });
++}
+\ No newline at end of file
+diff --git a/sandbox/tests/main.http.test.js b/sandbox/tests/main.http.test.js
+new file mode 100644
+index 00000000..175202f6
+--- /dev/null
++++ b/sandbox/tests/main.http.test.js
+@@ -0,0 +1,54 @@
++// sandbox/tests/main.http.test.js
++import { describe, test, expect, beforeAll, afterAll } from 'vitest';
++import supertest from 'supertest';
++import { processServe } from '../source/main.js';
++
++let server;
++let request;
++
++beforeAll(() => {
++  // Set a custom port for testing
++  process.env.PORT = '0'; // Let system assign an ephemeral port
++  const result = processServe(['--serve']);
++  if (!result) {
++    throw new Error('Server did not start');
++  }
++  server = result.server;
++  request = supertest(result.app);
++});
++
++afterAll((done) => {
++  server.close(done);
++});
++
++describe('HTTP Server Mode', () => {
++  test('POST /digest with valid SQS-style JSON returns 200 and empty batchItemFailures', async () => {
++    const payload = {
++      Records: [
++        { body: JSON.stringify({ key: 'value' }) }
++      ]
++    };
++    const res = await request.post('/digest').send(payload).set('Content-Type', 'application/json');
++    expect(res.status).toBe(200);
++    expect(res.body).toHaveProperty('batchItemFailures');
++    expect(res.body.batchItemFailures).toEqual([]);
++  });
++
++  test('POST /digest with malformed JSON payload returns 200 and batchItemFailures contains fallback identifier', async () => {
++    const badBody = '{ invalidJson }';
++    const payload = { Records: [{ body: badBody }] };
++    const res = await request.post('/digest').send(payload).set('Content-Type', 'application/json');
++    expect(res.status).toBe(200);
++    expect(res.body.batchItemFailures).toHaveLength(1);
++    const id = res.body.batchItemFailures[0].itemIdentifier;
++    expect(id).toMatch(/^fallback-\d+-\d+-[a-z0-9]+/);
++  });
++
++  test('Server listens on custom PORT environment variable', () => {
++    const addr = server.address();
++    // On some platforms, server.address() may return string if UNIX socket, but we expect port
++    const port = typeof addr === 'object' ? addr.port : NaN;
++    expect(typeof port).toBe('number');
++    expect(port).toBeGreaterThan(0);
++  });
++});
+\ No newline at end of file
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.7.7-0 start
+> node src/lib/main.js
+
+{"level":"info","timestamp":"2025-05-20T00:56:28.823Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1540 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":9408,"completion_tokens":6197,"total_tokens":15605,"prompt_tokens_details":{"cached_tokens":6912,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2752,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
