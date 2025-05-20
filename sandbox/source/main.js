@@ -30,7 +30,11 @@ app.post("/digest", async (req, res) => {
   }
   try {
     const result = await digestLambdaHandler(sqsEvent);
-    res.json({ batchItemFailures: result.batchItemFailures });
+    // Map batchItemFailures to identifier strings for HTTP response
+    const failures = result.batchItemFailures.map(entry =>
+      typeof entry === 'string' ? entry : entry.itemIdentifier || entry
+    );
+    res.json({ batchItemFailures: failures });
   } catch (error) {
     logError("Error in HTTP /digest handler", error);
     res.json({ batchItemFailures: [] });
