@@ -6,10 +6,40 @@ if (typeof globalThis.callCount === "undefined") {
   globalThis.callCount = 0;
 }
 
+import express from "express";
 import { fileURLToPath } from "url";
 import { readFileSync } from "fs";
 import { z } from "zod";
 import dotenv from "dotenv";
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Express HTTP server setup
+// ---------------------------------------------------------------------------------------------------------------------
+
+export const app = express();
+app.use(express.json());
+
+// POST /digest endpoint
+app.post("/digest", async (req, res) => {
+  const body = req.body;
+  let sqsEvent;
+  if (Array.isArray(body.Records)) {
+    sqsEvent = { Records: body.Records };
+  } else {
+    sqsEvent = { Records: [body] };
+  }
+  try {
+    const result = await digestLambdaHandler(sqsEvent);
+    // Map batchItemFailures to identifier strings for HTTP response
+    const failures = result.batchItemFailures.map(entry =>
+      typeof entry === 'string' ? entry : entry.itemIdentifier || entry
+    );
+    res.json({ batchItemFailures: failures });
+  } catch (error) {
+    logError("Error in HTTP /digest handler", error);
+    res.json({ batchItemFailures: [] });
+  }
+});
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Environment configuration from .env file or environment variables or test values.
@@ -127,6 +157,35 @@ export async function digestLambdaHandler(sqsEvent) {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
+// HTTP Server Mode
+// ---------------------------------------------------------------------------------------------------------------------
+
+export async function processServe(args) {
+  if (!args.includes("--serve")) {
+    return false;
+  }
+  const port = process.env.PORT || 3000;
+  const server = app.listen(port, () => {
+    logInfo(`HTTP server listening on port ${port}`);
+  });
+
+  const gracefulShutdown = () => {
+    server.close(() => {
+      logInfo("HTTP server closed");
+      process.exit(0);
+    });
+    setTimeout(() => {
+      process.exit(1);
+    }, 5000);
+  };
+
+  process.on("SIGINT", gracefulShutdown);
+  process.on("SIGTERM", gracefulShutdown);
+
+  return true;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
 // CLI Helper Functions
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -138,6 +197,7 @@ Usage:
   --digest                   Run a full bucket replay simulating an SQS event.
   --version                  Show version information with current timestamp.
   --mission                  Show the project mission statement.
+  --serve                    Start HTTP server mode exposing /digest endpoint.
 `;
 }
 
@@ -206,6 +266,9 @@ async function processDigest(args) {
 // ---------------------------------------------------------------------------------------------------------------------
 
 export async function main(args = process.argv.slice(2)) {
+  if (await processServe(args)) {
+    return;
+  }
   if (processHelp(args)) {
     if (VERBOSE_STATS) {
       console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));

@@ -28,12 +28,14 @@
     "dayjs": "^1.11.13",
     "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
+    "express": "^4.18.2",
     "figlet": "^1.8.1",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "minimatch": "^10.0.1",
     "openai": "^4.97.0",
     "seedrandom": "^3.0.5",
+    "supertest": "^6.3.3",
     "zod": "^3.24.4"
   },
   "devDependencies": {
@@ -54,6 +56,7 @@
     "markdown-it-github": "^0.5.0",
     "npm-check-updates": "^18.0.1",
     "prettier": "^3.5.3",
+    "supertest": "^6.3.3",
     "vitest": "^3.1.4"
   },
   "engines": {
