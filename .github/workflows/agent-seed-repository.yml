@@ -35,6 +35,7 @@ on:
 
 env:
   mission: ${{ inputs.mission || '' }}
+  npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
   gitUserEmail: 'action@github.com'
   gitUserName: 'GitHub Actions[bot]'
   archivePath: 'archive/'
@@ -672,6 +673,36 @@ jobs:
           git commit -m "Activity logged by agent-seed-repository.yml, enhance issue" || echo "No changes to commit"
           git push
 
+  npm-test-before-issue-resolution:
+    needs:
+      - agentic-lib
+      - create-issue
+      - enhance-issue
+    name: 'npm test with coverage'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+      - run: npm ci || npm install
+      - run: npm run test:unit
+
   #issue-to-code:
   #  needs:
   #    - agentic-lib
@@ -728,7 +759,7 @@ jobs:
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: "${{ needs.select-issue.outputs.issueNumber }}",
+              issue_number: "${{ needs.create-issue.outputs.issueNumber }}",
               labels: [`issue-worker-${{ github.run_id }}`, `in-progress`]
             });
 
@@ -737,6 +768,7 @@ jobs:
       - agentic-lib
       - create-issue
       - enhance-issue
+      - npm-test-before-issue-resolution
     permissions:
       contents: write
       issues: write
