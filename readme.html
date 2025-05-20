@@ -170,7 +170,7 @@ With a simple prompt (e.g. a new issue), the system will automatically review, g
       issueTitle:
         description: 'Title for the new task'
         required: false
-        default: 'house choice'
+        default: ''
 </code></pre>
 <p class="md-github">Internally, this triggers <a href="https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@1.2.0" class="md-github"><code class="md-github">wfr-create-issue.yml@1.2.0</code></a> to generate an issue template based on provided parameters.</p>
 <hr class="md-github">
@@ -683,22 +683,40 @@ aws sqs get-queue-attributes \
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> Put every commit comment into intentïon.md plus some none commit activities. (copy trace-discussion from the bot)</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> Rename (intentionBot, intentionFilepath) to (intentionBot, intentionFilepath)</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Markdown in intentïon.md (e.g. # Activity logs\n\n ## 2025-04-20....)</li>
-<li class="md-github">[~] [Launch] Add links to issues, feature files, and commits to intentïon.md</li>
-<li class="md-github">[~] [Launch] Extract the mission file from the repository and put it in the intentïon.md</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Add main output examples to intentïon.md</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Change link to running experiment to be a link to intentïon.md on that branch.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] intentïon.com shows: past experiments: <link to branch> + mission and status.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] intentïon.com shows: past experiments as websites (see comment in .com project): <link to branch> + mission and status.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Create a repository from main via a button.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Script the process from request to cloning the repository and setting it up to run the workflows.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Screen capture the scripted flow and post a link to this on Youtube.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Add PR approval and closure/abandonment to intentïon.md</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Add API call duration to usage</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Extract the mission file from the repository and put it in the intentïon.md</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Add links to issues to intentïon.md</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Add code change Git diff output to the intentïon.md</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Add main output examples to intentïon.md</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Remove tmp files before the Git Diff</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Change link to running experiment to be a link to intentïon.md on that branch.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Replace the sandbox with a full repository.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Change link to running experiment to be a link to intentïon.md on main.</li>
+<li class="md-github">[~] [Launch] Simple stream of updated from a seed to deliver a single feature.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Set the initial states to a &quot;Hello World!&quot; and capture this output.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Add a link to the commit URL for any commit applied</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Add a link to the URL for any feature updated.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Add PR approval and closure/abandonment to intentïon.md</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] intentïon.com shows: past experiments: &lt;link to branch intentïon.md&gt;</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Create a repository from main via a button.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Script the process from request to cloning the repository and setting it up to run the workflows.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Screen capture the scripted flow and post a link to this on Youtube.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Request a promotional video.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Activity report to maintainers log.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Update intentïon.md with the current state of the repository.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Automate a test Script for the process from request to cloning the repository and setting it up to run the workflows.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Add API call duration to usage</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Echo Bot Repository summary messages in intentïon.md.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> intentïon.com shows: past experiments as websites (see comment in .com project).</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Automated demo workflow: demo.sh + DEMO.md, Maintain a demo script of commands, which the system will run and show the output for, then ask for a new version.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Extract demo output to publish in the discussion thread and request feedback and next steps.</li>
+</ul>
+<p class="md-github">Collaboration</p>
+<ul class="md-github md-github__task-list">
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Completion to mine past intention branches for code fragments to implement main branch features</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Completion to mine other workflows by posting on their GitHub Discussions, requesting source files mined from their history to be attached to a reply.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Bot can process attachments, check licenses, link to the context of the feature being requested, and select the relevant parts for that feature to incorporate into the codebase.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Free premium features for collaborating repositories requiring compatible permissive licenses.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> intentïon Feature marketplace service to allow users to request features from a community which delegate as well as share.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Farm features using spare capacity to build features for the community.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Token cost is available for the features creating a marketplace for low-cost (low-impact to build) features.</li>
 </ul>
 <p class="md-github">Marketplace GitHub Actions [Launch]:</p>
 <ul class="md-github md-github__task-list">
@@ -839,7 +857,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-05-19T10:40:59.008Z</p>
+    <p>Generated on 2025-05-20T10:40:46.213Z</p>
   </footer>
 </body>
 </html>
