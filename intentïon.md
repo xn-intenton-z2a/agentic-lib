@@ -67,3 +67,65 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-20T00:53:41.512Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1540 with title:
+
+Implement HTTP Server (--serve) Mode Using Express for /digest Endpoint
+
+And description:
+
+Objective
+--------
+Enhance the CLI in src/lib/main.js to support an HTTP server mode (triggered by a new --serve flag) that exposes the existing digestLambdaHandler as a RESTful POST /digest endpoint. Update tests, README, and package.json to reflect and verify this new capability.
+
+Scope of Changes
+----------------
+1. package.json
+   • Add "express" as a runtime dependency (e.g., "express": "^4.18.2").
+   • Add "supertest" as a devDependency (e.g., "supertest": "^6.3.3").
+
+2. src/lib/main.js
+   • Import Express and initialize an app.
+   • Implement a processServe(args) function that:
+     - Detects --serve flag.
+     - Reads PORT from env or defaults to 3000.
+     - Defines POST /digest to accept JSON payloads:
+       * If body.Records is an array, pass it directly to digestLambdaHandler.
+       * Otherwise, wrap the JSON body as a single record object.
+     - Sends HTTP 200 with { batchItemFailures } returned by digestLambdaHandler.
+   • In main(), check for the --serve flag before existing CLI flags, call processServe and return.
+   • Add graceful shutdown handling on SIGINT/SIGTERM to close the HTTP server.
+
+3. tests/unit/main.test.js
+   • Import supertest and the main Express app (via the new processServe export).
+   • Write test cases for:
+     - Successful POST /digest with valid SQS-style JSON -> expect HTTP 200 and correct batchItemFailures array.
+     - POST /digest with invalid JSON payload -> expect HTTP 200 and batchItemFailures containing a fallback identifier.
+     - Custom PORT via environment variable.
+
+4. README (sandbox/README.md)
+   • Add a new "HTTP Server Mode" section:
+     - Describe how to start: \`node src/lib/main.js --serve [--port <number>]\`.
+     - Provide curl examples for POST /digest with a sample payload.
+     - Document response format.
+
+Verification & Acceptance
+-------------------------
+• Running `npm test` should cover all new HTTP endpoint tests and pass.
+• Manually starting with `npm start -- --serve` or `node src/lib/main.js --serve --port 4000` and curling POST requests should return expected JSON.
+• README examples must work out-of-the-box when copy-pasted.
+
+Implementation Notes
+--------------------
+- Avoid adding new files: update only package.json, src/lib/main.js, tests/unit/main.test.js, and sandbox/README.md.
+- Use Express's built-in JSON body parser (no extra body-parser package).
+- Ensure the server shuts down cleanly on process signals to prevent hanging in test suites.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6676,"completion_tokens":1675,"total_tokens":8351,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1024,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
