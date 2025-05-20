@@ -21,21 +21,8 @@
   "author": "https://github.com/xn-intenton-z2a",
   "license": "GPL-3.0, MIT",
   "dependencies": {
-    "@aws-sdk/client-lambda": "^3.804.0",
-    "@xn-intenton-z2a/s3-sqs-bridge": "^0.24.0",
-    "chalk": "^5.4.1",
-    "change-case": "^5.4.4",
-    "dayjs": "^1.11.13",
-    "dotenv": "^16.5.0",
-    "ejs": "^3.1.10",
     "express": "^4.18.2",
-    "figlet": "^1.8.1",
-    "js-yaml": "^4.1.0",
-    "lodash": "^4.17.21",
-    "minimatch": "^10.0.1",
-    "openai": "^4.97.0",
-    "seedrandom": "^3.0.5",
-    "supertest": "^6.3.3",
+    "dotenv": "^16.5.0",
     "zod": "^3.24.4"
   },
   "devDependencies": {
