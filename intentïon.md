@@ -2576,3 +2576,66 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-20T03:57:02.919Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1544 with action enhance and updated description:
+
+Implement the HTTP_ENDPOINT feature by adding an Express-based HTTP server in sandbox/source/main.js and covering it with tests and documentation.
+
+## Scope
+- Add `express` as a dependency in `package.json`.
+- Detect a `--serve` flag in the CLI before existing flags.
+- On `--serve`:
+  - Start an Express server on `process.env.PORT || 3000`.
+  - Expose a `POST /digest` route that:
+    1. Parses the incoming JSON body, accepting either:
+       - `{ Records: Array<{ body: string, messageId?: string }> }`
+       - A single record object with `body` and optional `messageId`.
+    2. Validates payload shape using a Zod schema.
+    3. Calls `digestLambdaHandler(event)` and captures its return value.
+    4. On success, responds with HTTP 200 and JSON `{ batchItemFailures: [...] }`.
+    5. On malformed JSON or schema validation failure, responds with HTTP 400 and JSON `{ error: <message> }`.
+  - Log requests and errors via existing `logInfo` and `logError` utilities.
+  - Implement graceful shutdown on `SIGINT` and `SIGTERM`, closing the server and exiting cleanly.
+
+## Testable Acceptance Criteria
+1. **Dependency**: `express` is added under `dependencies` in `package.json` and installs without errors.
+2. **Server Launch**:
+   - Running `npm start -- --serve` starts the Express server on port 3000 by default.
+   - Setting `PORT=4000 npm start -- --serve` binds the server to port 4000.
+3. **Valid Payload Handling**:
+   - When `POST /digest` is called with a valid SQS-style event, the server returns HTTP 200 and JSON `{ batchItemFailures: [...] }` matching the handler’s output.
+   - The test harness stubs `digestLambdaHandler` to return a known response so tests can assert the JSON body.
+4. **Invalid Payload Handling**:
+   - When `POST /digest` receives invalid JSON or fails schema validation, the server returns HTTP 400 and JSON `{ error: '<detailed message>' }`.
+5. **Logging**:
+   - Successful requests and errors are logged via `logInfo` and `logError` (verifiable via spy or test logs).
+6. **Graceful Shutdown**:
+   - Sending `SIGINT` or `SIGTERM` causes the server to close existing connections and exit with code 0.
+7. **Test Coverage**:
+   - Vitest tests using `supertest` simulate:
+     - Valid requests returning 200.
+     - Malformed requests returning 400.
+     - Default and custom port binding.
+     - Graceful shutdown behavior.
+   - All new tests pass under `npm test` and are included in `sandbox/tests/http-endpoint.test.js`.
+
+## Documentation Updates
+- Update `sandbox/README.md` under "Available flags" to include `--serve` with description.
+- Add a `curl` example demonstrating a `POST /digest` request.
+
+**All changes** apply only to:
+- `sandbox/source/main.js`
+- `sandbox/tests/http-endpoint.test.js`
+- `sandbox/README.md`
+- `package.json`
+
+No new files outside these paths. No manual steps beyond `npm install`, `npm test`, and `npm start`.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":10038,"completion_tokens":1458,"total_tokens":11496,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
