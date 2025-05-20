@@ -46,3 +46,40 @@ Response format:
 ```json
 { "batchItemFailures": [] }
 ```
+
+## Utility Functions
+
+The library exposes utility functions for constructing and invoking SQS Lambda handlers directly from code.
+
+```js
+import { createSQSEventFromDigest, digestLambdaHandler } from "./source/main.js";
+
+// Create a sample digest object
+const sampleDigest = {
+  key: "events/1.json",
+  value: "12345",
+  lastModified: new Date().toISOString(),
+};
+
+// Construct an SQS event
+const sqsEvent = createSQSEventFromDigest(sampleDigest);
+console.log(sqsEvent);
+// {
+//   Records: [
+//     {
+//       eventVersion: "2.0",
+//       eventSource: "aws:sqs",
+//       eventTime: "2025-01-01T00:00:00.000Z",
+//       eventName: "SendMessage",
+//       body: JSON.stringify(sampleDigest)
+//     }
+//   ]
+// }
+
+// Directly invoke the Lambda handler
+(async () => {
+  const result = await digestLambdaHandler(sqsEvent);
+  console.log(result);
+  // { batchItemFailures: [], handler: "src/lib/main.digestLambdaHandler" }
+})();
+```
