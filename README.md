@@ -682,7 +682,9 @@ Re-usable GitHub Actions Workflows:
 - [x] [Launch] Don't run the contents updating jobs when there are no writable files
 - [~] [Launch] Review repository and reseed if stale.
 - [~] [Launch] Review mission and stop when done or failing to progress.
-- [ ] [Launch] Stop updating features when the features would deliver the mission.
+- [~] [Launch] Stop updating features when the features would deliver the mission.
+- [~] [Launch] When declaring mission-complete rename the branch imtentïon-mission-complete-<mission name>-<date>.
+- [~] [Launch] If the progress has been halted for <agent-lib-defined> time, then seed the repository.
 - [ ] [Launch] Update packages during reseed.
 - [ ] [Launch] Add intentïon.md to the context.
 - [ ] [Launch] Label issues with the related feature.
