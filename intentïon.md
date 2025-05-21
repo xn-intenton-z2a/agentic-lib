@@ -204,3 +204,477 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-21T23:14:56.911Z
+
+fixApplied: true
+
+Add Express HTTP server support with POST digest endpoint and related tests and documentation
+
+Git Diff:
+
+```
+\n\n// New [sandbox/README.md]:\n# agentic-lib HTTP Server
+
+This HTTP API provides a lightweight endpoint for digest processing alongside the existing CLI and AWS Lambda integrations.
+
+## Starting the Server
+
+You can start the HTTP server with the `/digest` endpoint by either passing the `--http` flag to the CLI or setting the `RUN_HTTP` environment variable:
+
+```bash
+# Default port 3000
+node sandbox/source/main.js --http
+
+# Or using environment variable
+RUN_HTTP=true node sandbox/source/main.js
+
+# To use a custom port
+PORT=4000 node sandbox/source/main.js --http
+```
+
+Once started, the server listens on the specified port and exposes the following endpoint:
+
+### POST /digest
+
+Accepts a JSON object representing a digest and returns the result of the `digestLambdaHandler` in SQS batch format.
+
+#### Request
+
+- Method: `POST`
+- URL: `http://localhost:3000/digest`
+- Headers: `Content-Type: application/json`
+- Body: Any JSON object, for example:
+
+  ```json
+  {
+    "key": "events/1.json",
+    "value": "12345",
+    "lastModified": "2025-01-01T00:00:00Z"
+  }
+  ```
+
+#### Successful Response
+
+- Status: `200 OK`
+- Body:
+  ```json
+  {
+    "batchItemFailures": []
+  }
+  ```
+
+#### Error Responses
+
+- Invalid JSON Payload:
+  - Status: `400 Bad Request`
+  - Body:
+    ```json
+    { "error": "Invalid JSON payload" }
+    ```
+
+- Non-Object JSON Body:
+  - Status: `400 Bad Request`
+  - Body:
+    ```json
+    { "error": "Invalid request body, expected JSON object" }
+    ```
+
+- Handler Error:
+  - Status: `400 Bad Request`
+  - Body:
+    ```json
+    { "error": "Error handling digest: <message>" }
+    ```
+
+## Examples
+
+```bash
+curl -X POST http://localhost:3000/digest \
+  -H "Content-Type: application/json" \
+  -d '{"key":"events/1.json","value":"12345","lastModified":"2025-01-01T00:00:00Z"}'
+
+# Response:
+# { "batchItemFailures": [] }
+
+curl -X POST http://localhost:3000/digest \
+  -H "Content-Type: application/json" \
+  -d 'not a json'
+
+# Response:
+# { "error": "Invalid JSON payload" }
+```\n\n// New [sandbox/source/main.js]:\n#!/usr/bin/env node
+// sandbox/source/main.js
+
+// Initialize global callCount to support test mocks that reference it
+if (typeof globalThis.callCount === "undefined") {
+  globalThis.callCount = 0;
+}
+
+import { fileURLToPath } from "url";
+import { z } from "zod";
+import dotenv from "dotenv";
+import express from "express";
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Environment configuration from .env file or environment variables or test values.
+// ---------------------------------------------------------------------------------------------------------------------
+
+dotenv.config();
+
+if (process.env.VITEST || process.env.NODE_ENV === "development") {
+  process.env.GITHUB_API_BASE_URL = process.env.GITHUB_API_BASE_URL || "https://api.github.com.test/";
+  process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || "key-test";
+}
+
+const configSchema = z.object({
+  GITHUB_API_BASE_URL: z.string().optional(),
+  OPENAI_API_KEY: z.string().optional(),
+});
+
+export const config = configSchema.parse(process.env);
+
+// Global verbose mode flag
+const VERBOSE_MODE = false;
+// Global verbose stats flag
+const VERBOSE_STATS = false;
+
+// Helper function to format log entries
+function formatLogEntry(level, message, additionalData = {}) {
+  return {
+    level,
+    timestamp: new Date().toISOString(),
+    message,
+    ...additionalData,
+  };
+}
+
+export function logConfig() {
+  const logObj = formatLogEntry("info", "Configuration loaded", {
+    config: {
+      GITHUB_API_BASE_URL: config.GITHUB_API_BASE_URL,
+      OPENAI_API_KEY: config.OPENAI_API_KEY,
+    },
+  });
+  console.log(JSON.stringify(logObj));
+}
+logConfig();
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Utility functions
+// ---------------------------------------------------------------------------------------------------------------------
+
+export function logInfo(message) {
+  const additionalData = VERBOSE_MODE ? { verbose: true } : {};
+  const logObj = formatLogEntry("info", message, additionalData);
+  console.log(JSON.stringify(logObj));
+}
+
+export function logError(message, error) {
+  const additionalData = { error: error ? error.toString() : undefined };
+  if (VERBOSE_MODE && error && error.stack) {
+    additionalData.stack = error.stack;
+  }
+  const logObj = formatLogEntry("error", message, additionalData);
+  console.error(JSON.stringify(logObj));
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// AWS Utility functions
+// ---------------------------------------------------------------------------------------------------------------------
+
+export function createSQSEventFromDigest(digest) {
+  return {
+    Records: [
+      {
+        eventVersion: "2.0",
+        eventSource: "aws:sqs",
+        eventTime: new Date().toISOString(),
+        eventName: "SendMessage",
+        body: JSON.stringify(digest),
+      },
+    ],
+  };
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// SQS Lambda Handlers
+// ---------------------------------------------------------------------------------------------------------------------
+
+export async function digestLambdaHandler(sqsEvent) {
+  logInfo(`Digest Lambda received event: ${JSON.stringify(sqsEvent)}`);
+
+  const sqsEventRecords = Array.isArray(sqsEvent.Records) ? sqsEvent.Records : [sqsEvent];
+  const batchItemFailures = [];
+
+  for (const [index, sqsEventRecord] of sqsEventRecords.entries()) {
+    try {
+      const digest = JSON.parse(sqsEventRecord.body);
+      logInfo(`Record ${index}: Received digest: ${JSON.stringify(digest)}`);
+    } catch (error) {
+      const recordId =
+        sqsEventRecord.messageId || `fallback-${index}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      logError(`Error processing record ${recordId} at index ${index}`, error);
+      logError(`Invalid JSON payload. Error: ${error.message}. Raw message: ${sqsEventRecord.body}`);
+      batchItemFailures.push({ itemIdentifier: recordId });
+    }
+  }
+
+  return {
+    batchItemFailures,
+    handler: "sandbox/source/main.digestLambdaHandler",
+  };
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// HTTP Server Support
+// ---------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Create an Express application with a POST /digest endpoint
+ */
+export function createApp() {
+  const app = express();
+  app.use(express.json());
+
+  // Handle malformed JSON
+  app.use((err, req, res, next) => {
+    if (err instanceof SyntaxError && 'body' in err) {
+      const errMsg = 'Invalid JSON payload';
+      logError(errMsg, err);
+      return res.status(400).json({ error: errMsg });
+    }
+    next();
+  });
+
+  app.post('/digest', async (req, res) => {
+    logInfo(`HTTP /digest request received: ${JSON.stringify(req.body)}`);
+    if (typeof req.body !== 'object' || req.body === null || Array.isArray(req.body)) {
+      const errMsg = 'Invalid request body, expected JSON object';
+      logError(errMsg);
+      return res.status(400).json({ error: errMsg });
+    }
+    try {
+      const event = createSQSEventFromDigest(req.body);
+      const result = await digestLambdaHandler(event);
+      logInfo(`HTTP /digest response batchItemFailures: ${JSON.stringify(result.batchItemFailures)}`);
+      return res.status(200).json({ batchItemFailures: result.batchItemFailures });
+    } catch (error) {
+      const errMsg = `Error handling digest: ${error.message}`;
+      logError(errMsg, error);
+      return res.status(400).json({ error: errMsg });
+    }
+  });
+
+  return app;
+}
+
+export const app = createApp();
+
+/**
+ * Start the HTTP server on the given port (or PORT env var/default 3000)
+ * Returns the server instance for shutdown
+ */
+export function startHttpServer(port = Number(process.env.PORT) || 3000) {
+  const server = app.listen(port, () => {
+    logInfo(`HTTP server listening on port ${port}`);
+  });
+  return server;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// CLI Helper Functions
+// ---------------------------------------------------------------------------------------------------------------------
+
+function generateUsage() {
+  return `
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+  --http                     Start the HTTP server with POST /digest endpoint.
+`;
+}
+
+function processHelp(args) {
+  if (args.includes("--help")) {
+    console.log(generateUsage());
+    return true;
+  }
+  return false;
+}
+
+async function processVersion(args) {
+  if (args.includes("--version")) {
+    try {
+      const { readFileSync } = await import("fs");
+      const packageJsonPath = new URL("../../package.json", import.meta.url);
+      const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+      const versionInfo = {
+        version: packageJson.version,
+        timestamp: new Date().toISOString(),
+      };
+      console.log(JSON.stringify(versionInfo));
+    } catch (error) {
+      logError("Failed to retrieve version", error);
+    }
+    return true;
+  }
+  return false;
+}
+
+async function processDigest(args) {
+  if (args.includes("--digest")) {
+    const exampleDigest = {
+      key: "events/1.json",
+      value: "12345",
+      lastModified: new Date().toISOString(),
+    };
+    const sqsEvent = createSQSEventFromDigest(exampleDigest);
+    await digestLambdaHandler(sqsEvent);
+    return true;
+  }
+  return false;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Main CLI
+// ---------------------------------------------------------------------------------------------------------------------
+
+export async function main(args = process.argv.slice(2)) {
+  if (processHelp(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (await processVersion(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (await processDigest(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (args.includes("--http") || process.env.RUN_HTTP === 'true') {
+    const port = Number(process.env.PORT) || 3000;
+    startHttpServer(port);
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+
+  console.log("No command argument supplied.");
+  console.log(generateUsage());
+  if (VERBOSE_STATS) {
+    console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+  }
+}
+
+// if (import.meta.url.endsWith(process.argv[1])) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main().catch((err) => {
+    logError("Fatal error in main execution", err);
+    process.exit(1);
+  });
+}\n\n// New [sandbox/tests/http-server.test.js]:\nimport { describe, test, expect, afterAll } from "vitest";
+import request from "supertest";
+import http from "http";
+import { startHttpServer, app } from "../source/main.js";
+
+let server;
+const TEST_PORT = 3001;
+
+afterAll(() => {
+  if (server && server.close) {
+    server.close();
+  }
+});
+
+describe("HTTP Server CLI Disabled", () => {
+  test("connection refused when no server", async () => {
+    await expect(
+      new Promise((resolve, reject) => {
+        const req = http.request(
+          { hostname: 'localhost', port: 3000, path: '/digest', method: 'POST' },
+          (res) => resolve(res)
+        );
+        req.on('error', (err) => reject(err));
+        req.end();
+      })
+    ).rejects.toHaveProperty('code', 'ECONNREFUSED');
+  });
+});
+
+describe("HTTP Server Behavior", () => {
+  test("server starts with startHttpServer and responds 404 on GET /", async () => {
+    server = startHttpServer(TEST_PORT);
+    await new Promise((resolve) => server.on('listening', resolve));
+    await request(`http://localhost:${TEST_PORT}`)
+      .get('/')
+      .expect(404);
+  });
+
+  test("POST /digest with valid payload returns 200 and batchItemFailures array", async () => {
+    // Ensure server is up
+    if (!server) {
+      server = startHttpServer(TEST_PORT);
+      await new Promise((resolve) => server.on('listening', resolve));
+    }
+    const payload = { key: 'events/1.json', value: '12345', lastModified: new Date().toISOString() };
+    const res = await request(`http://localhost:${TEST_PORT}`)
+      .post('/digest')
+      .send(payload)
+      .set('Content-Type', 'application/json')
+      .expect(200);
+    expect(res.body).toHaveProperty('batchItemFailures');
+    expect(Array.isArray(res.body.batchItemFailures)).toBe(true);
+  });
+
+  test("POST /digest with invalid JSON returns 400 and error message", async () => {
+    const res = await request(`http://localhost:${TEST_PORT}`)
+      .post('/digest')
+      .send('not a json')
+      .set('Content-Type', 'application/json')
+      .expect(400);
+    expect(res.body).toHaveProperty('error');
+  });
+
+  test("POST /digest with non-object body returns 400 and error message", async () => {
+    const res = await request(`http://localhost:${TEST_PORT}`)
+      .post('/digest')
+      .send([1,2,3])
+      .set('Content-Type', 'application/json')
+      .expect(400);
+    expect(res.body).toHaveProperty('error');
+  });
+});
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.7.13-0 start
+> node src/lib/main.js
+
+{"level":"info","timestamp":"2025-05-21T23:14:38.302Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1558 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":9326,"completion_tokens":7187,"total_tokens":16513,"prompt_tokens_details":{"cached_tokens":4864,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3328,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
