@@ -15,7 +15,8 @@
     "update-to-greatest": "npx npm-check-updates --upgrade --enginesNode --target greatest --verbose --install always --reject \"alpha\"",
     "test": "vitest tests/unit/*.test.js sandbox/tests/*.test.js",
     "test:unit": "vitest --coverage tests/unit/*.test.js sandbox/tests/*.test.js",
-    "start": "node src/lib/main.js"
+    "start": "node src/lib/main.js",
+    "start:http": "node src/lib/main.js --serve"
   },
   "keywords": [],
   "author": "https://github.com/xn-intenton-z2a",
