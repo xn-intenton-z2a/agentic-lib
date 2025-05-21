@@ -103,3 +103,74 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-21T22:32:00.610Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1556 with title:
+
+Implement HTTP server mode with /health and /version endpoints
+
+And description:
+
+Overview
+--------
+Add a new HTTP server mode to the CLI, enabled by the existing --server flag, to support real-time monitoring and integration with orchestration tooling. When invoked with --server, the application should spin up an Express HTTP server exposing both health and version endpoints, complete with logging and graceful shutdown.
+
+Detailed Tasks
+--------------
+1. Update src/lib/main.js
+   - Import and initialize an Express application when --server is passed.
+   - Determine port from environment variable SERVER_PORT (fallback to 3000 or a --port flag override).
+   - Expose GET /health:
+     • Return 200 with JSON { status: 'ok', uptime: <process.uptime()>, callCount: <globalThis.callCount> }.
+     • Increment globalThis.callCount on each request.
+     • Conditionally include verbose stats when VERBOSE_STATS is true.
+   - Expose GET /version:
+     • Read version from package.json and timestamp = new Date().toISOString().
+     • Return 200 with JSON { version: 'x.y.z', timestamp: 'ISO8601' }.
+   - Use existing logInfo() to log every incoming request at info level, including method and URL.
+   - Attach handlers for SIGINT and SIGTERM:
+     • On shutdown, stop accepting new connections, close the server, log shutdown event with current callCount, then exit process(0).
+   - Ensure no conflicts with existing CLI flags and preserve current CLI behavior when --server is absent.
+
+2. Update tests/unit/main.test.js
+   - Import supertest and reference the Express app returned by main() in server mode.
+   - Write tests to:
+     • Launch main(['--server']) on an ephemeral port and verify:
+       - GET /health returns 200 and correct JSON schema with status, uptime > 0, callCount starts at 1 after first request.
+       - GET /version returns 200 with version matching package.json and a valid ISO8601 timestamp.
+     • Override SERVER_PORT in the test environment and verify the server listens on that port.
+     • Simulate SIGINT by sending a signal to the running server and assert that:
+       - The server closes the socket.
+       - logInfo is called with a shutdown message including current callCount.
+
+3. Update sandbox/README.md
+   - Document the new --server flag usage.
+   - Describe environment variable SERVER_PORT and default port behavior.
+   - Show example curl commands for /health and /version.
+   - Explain logging behavior and graceful shutdown.
+   - Link to MISSION.md and CONTRIBUTING.md.
+
+Verification
+------------
+- Run `npm test` and ensure all existing tests plus new HTTP server tests pass.
+- Start the server manually: `node src/lib/main.js --server` and validate endpoints via curl:
+  ```bash
+  curl http://localhost:3000/health
+  curl http://localhost:3000/version
+  ```
+- Set SERVER_PORT to a custom port and confirm the server honors it.
+- Send SIGINT (Ctrl+C) to the process and observe a clean shutdown log including callCount.
+
+No new files should be created; only modify:
+- src/lib/main.js
+- tests/unit/main.test.js
+- sandbox/README.md
+- (optional) package.json to bump version if desired, but no additional dependencies are required beyond Express and Supertest.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6554,"completion_tokens":1856,"total_tokens":8410,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1088,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
