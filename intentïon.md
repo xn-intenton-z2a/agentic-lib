@@ -279,3 +279,33 @@ LLM API Usage:
 ```
 ---
 
+## Discussions activity at 2025-05-21T23:08:56.718Z
+
+Hello @Antony-at-Polycode 👋
+
+Based on our mission to **Create a tty based guess a number game**, I’m proposing a new feature to enrich the game’s user experience:
+
+Feature: Difficulty Levels and Hint System
+
+Specification:
+1. Add CLI flags `--level easy|medium|hard` (default: `medium`).
+   - **easy**: numbers between 1–10, unlimited hints.
+   - **medium**: numbers between 1–50, up to 3 hints.
+   - **hard**: numbers between 1–100, only 1 hint.
+2. Implement `--hint` command during gameplay to reveal if the secret number is higher or lower than the last guess (counts against the hint limit).
+3. Display remaining guesses/hints after each attempt.
+4. Update tests to cover each difficulty’s range and hint limits.
+5. Update documentation in `sandbox/features/GUESS_NUMBER_GAME.md` and `sandbox/tests/guess-number.test.js` for usage examples.
+
+I’ll scaffold this feature branch and start coding the difficulty parsing and hint logic. Let me know if you’d like to adjust the levels or hint behavior!
+
+[Posted on "https://github.com/xn-intenton-z2a/agentic-lib/discussions/1318#discussioncomment-13226819" by the repository bot which took the action "create-feature" with the detail "".]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":40851,"completion_tokens":280,"total_tokens":41131,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+
+```
+---
+
