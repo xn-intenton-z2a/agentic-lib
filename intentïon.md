@@ -152,3 +152,55 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-21T23:12:07.385Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+Overview:
+Implement an embeddable HTTP server in `src/lib/main.js` that exposes a POST `/digest` endpoint. Incoming JSON payloads will be transformed into SQS-style events and passed to the existing `digestLambdaHandler`, providing a lightweight HTTP API for digest handling in addition to CLI and SQS integrations.
+
+Requirements & Scope:
+1. In `src/lib/main.js`:
+   - Import and initialize an Express application.
+   - Read server port from environment variable `PORT` (default `3000`).
+   - Introduce a new CLI flag `--http` and respect environment variable `RUN_HTTP=true` to start the HTTP server. The server must not start by default.
+   - Apply JSON body-parsing middleware and validate that the request body is an object.
+   - Define POST `/digest` route:
+     • Convert the request body into an SQS event via `createSQSEventFromDigest(body)`.
+     • Invoke `await digestLambdaHandler(event)`.
+     • On successful handling, respond with HTTP 200 and JSON `{ batchItemFailures: [...] }`.
+     • On JSON parsing errors or handler failures, respond with HTTP 400 and JSON `{ error: string }`.
+     • Log incoming requests and errors using `logInfo` and `logError`.
+
+2. In `sandbox/tests/http-server.test.js`:
+   - Use Supertest to import or spin up the Express `app` (exported for testing) when run with `--http` or `RUN_HTTP=true`.
+   - Test scenarios:
+     a. No server: running without `--http` and without `RUN_HTTP` must refuse connections on default port.
+     b. Startup: running with `--http` or `RUN_HTTP=true` starts server on specified port.
+     c. Valid payload: POST `/digest` with a well-formed JSON object returns HTTP 200 with body `{ batchItemFailures: [] }`.
+     d. Invalid payload: POST `/digest` with malformed JSON or non-object body returns HTTP 400 with `{ error: <message> }`.
+   - Ensure clean startup and shutdown of server between tests.
+
+3. In `sandbox/README.md`:
+   - Document how to start the HTTP server (`node src/lib/main.js --http` or `RUN_HTTP=true node ...`).
+   - Provide example `curl` commands for valid and invalid POST `/digest` requests.
+   - Describe expected JSON response formats for success and error cases.
+
+Acceptance Criteria (Testable):
+1. Running `node src/lib/main.js` without `--http` or `RUN_HTTP` does not listen on port 3000 (connection refused).
+2. Running `node src/lib/main.js --http` or `RUN_HTTP=true node src/lib/main.js` starts the server on the configured port (default 3000). A health check (e.g., GET `/`) may return 404 or usage instructions.
+3. POST `/digest` with a valid JSON object returns HTTP 200 and a JSON body containing a `batchItemFailures` array (empty or with entries on failure).
+4. POST `/digest` with invalid JSON returns HTTP 400 and a JSON error message.
+5. All new and existing tests (`npm test`) pass, including Supertest coverage for the HTTP server.
+6. Logs produced by successful and failed requests use `logInfo` and `logError` appropriately.
+7. Documentation in `sandbox/README.md` is updated with clear usage instructions and examples.
+
+No files outside `src/lib/main.js`, `sandbox/tests/http-server.test.js`, and `sandbox/README.md` should be modified.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7092,"completion_tokens":1465,"total_tokens":8557,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
