@@ -954,7 +954,9 @@ jobs:
             If the goals of the mission have been met you may declare "mission-complete" by choosing the action "mission-complete".
             Similarly, if the repository is not progressing towards the mission you may declare "stop" by choosing the action "stop".
 
-            If the repository has been in a stagnant state for a while, you may suggest to "seed-repository" by choosing the action "seed-repository".
+            If the repository has been given a "mission-complete" or a "stop" action but not seeded for a couple of days
+            (indicated by the intentïon.md having a line with HALT on it's own), you may suggest to "seed-repository" 
+            by choosing the action "seed-repository".
 
             Consider the following when generating your response:
               * Current discussion <- this is the discussion you are responding to.
