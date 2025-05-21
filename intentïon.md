@@ -3478,3 +3478,28 @@ LLM API Usage:
 ```
 ---
 
+## Discussions activity at 2025-05-21T22:29:22.612Z
+
+Hello @Antony-at-Polycode 👋
+
+I’ve proposed a new feature that aligns with our mission to provide a unified SERVICE_INTERFACE: adding health and metrics endpoints to our existing HTTP server.  
+
+Feature: HTTP Service Observability  
+
+- Add GET /health endpoint returning `{ status: "ok" }`  
+- Add GET /metrics endpoint exposing `{ uptime, totalDigestInvocations, totalFailures }`  
+- Update CLI to support `--health` and `--metrics` flags  
+- Maintain existing logging and graceful shutdown behaviors  
+
+This will empower integrators and operators to monitor the service state and key metrics directly via HTTP or CLI. I’ll draft the implementation and tests shortly. Let me know if you have any feedback or additional requirements! 🚀
+
+[Posted on "https://github.com/xn-intenton-z2a/agentic-lib/discussions/1318#discussioncomment-13226452" by the repository bot which took the action "create-feature" with the detail "".]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":85113,"completion_tokens":195,"total_tokens":85308,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+
+```
+---
+
