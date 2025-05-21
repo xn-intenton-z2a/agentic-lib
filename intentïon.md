@@ -171,3 +171,90 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-21T23:54:58.880Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+Implement HTTP interface with Express for health, digest, and webhook endpoints
+
+Objective:
+Extend the existing CLI (`src/lib/main.js`) to provide a built-in HTTP interface when invoked with `--serve` or `--http`, exposing three REST endpoints:
+
+Endpoints and Acceptance Criteria:
+
+1. GET /health
+   * When the server is running in HTTP mode, a GET request to `/health` should return HTTP 200.
+   * Response body must be JSON with the exact shape:
+     ```json
+     {
+       "status": "ok",
+       "uptime": <number>
+     }
+     ```
+   * `uptime` must be a non-negative number representing seconds since server start.
+
+2. POST /digest
+   * Valid JSON payload matching the digest schema (fields: `key`, `value`, `lastModified`) should return HTTP 200.
+   * Response body must be JSON matching the output of `digestLambdaHandler`, for example:
+     ```json
+     {
+       "batchItemFailures": [],
+       "handler": "src/lib/main.digestLambdaHandler"
+     }
+     ```
+   * When the request body is malformed JSON or missing required fields, respond with HTTP 400 and JSON error:
+     ```json
+     {
+       "error": "Invalid JSON payload: <detailed message>"
+     }
+     ```
+
+3. POST /webhook
+   * Accept any JSON payload and return HTTP 200 with body:
+     ```json
+     {
+       "status": "received"
+     }
+     ```
+   * Internally log the received payload via `logInfo`.
+
+Additional Requirements:
+
+- Implement a `serveHttp()` function in `src/lib/main.js` that:
+  - Checks for `--serve` or `--http` in `process.argv`.
+  - Initializes an Express application and registers the three routes above.
+  - Listens on `process.env.PORT || 3000`.
+  - Ensures fatal Express errors terminate the process with a non-zero exit code.
+- Modify `main()` to invoke `serveHttp()` early and bypass CLI-only handlers when in HTTP mode.
+- Update `package.json` to include:
+  ```json
+  "scripts": {
+    "start:http": "node src/lib/main.js --serve"
+  }
+  ```
+
+Testing & Verification:
+
+- Add `tests/unit/http-interface.test.js` using supertest to validate:
+  - `/health` returns 200 and correct JSON shape.
+  - `/digest` returns 200 and correct handler response for valid payloads; returns 400 and error JSON for malformed payloads.
+  - `/webhook` returns 200 and `{ status: 'received' }`.
+- Ensure `npm test` passes all existing and new tests.
+- Manual validation via `curl`:
+  ```bash
+  npm run start:http
+  curl http://localhost:3000/health
+  curl -X POST http://localhost:3000/digest -H "Content-Type: application/json" -d '{"key":"events/1.json","value":"12345","lastModified":"2025-05-21T00:00:00Z"}'
+  curl -X POST http://localhost:3000/webhook -H "Content-Type: application/json" -d '{"foo":"bar"}'
+  ```
+
+Scope:
+Changes allowed only in `src/lib/main.js`, `tests/unit/http-interface.test.js`, `sandbox/README.md`, and `package.json`. All existing functionality must remain unaffected.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7176,"completion_tokens":1402,"total_tokens":8578,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":576,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
