@@ -420,6 +420,7 @@ jobs:
     needs:
       - agentic-lib
       - maintain-features
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -482,6 +483,7 @@ jobs:
     needs:
       - agentic-lib
       - maintain-features
+    if: ${{ !cancelled() }}
     permissions:
       contents: write
       issues: write
@@ -517,6 +519,7 @@ jobs:
       - agentic-lib
       - maintain-features
       - generate-feature-development-issue
+    if: ${{ !cancelled() }}
     permissions:
       issues: write
       id-token: write
@@ -532,6 +535,7 @@ jobs:
       - maintain-features
       - generate-feature-development-issue
       - create-issue
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -599,6 +603,7 @@ jobs:
       - maintain-features
       - generate-feature-development-issue
       - create-issue
+    if: ${{ !cancelled() }}
     permissions:
       contents: read
       issues: write
@@ -631,6 +636,7 @@ jobs:
     needs:
       - agentic-lib
       - enhance-issue
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -696,6 +702,7 @@ jobs:
       - generate-feature-development-issue
       - create-issue
       - enhance-issue
+    if: ${{ !cancelled() }}
     name: 'npm test with coverage'
     runs-on: ubuntu-latest
     steps:
@@ -750,6 +757,7 @@ jobs:
       - create-issue
       - enhance-issue
       - npm-test-before-issue-resolution
+    if: ${{ !cancelled() }}
     permissions:
       contents: write
       issues: write
@@ -794,6 +802,7 @@ jobs:
       - enhance-issue
       - npm-test-before-issue-resolution
       - label-issue-before-attempt
+    if: ${{ !cancelled() }}
     permissions:
       contents: write
       issues: write
@@ -832,6 +841,7 @@ jobs:
       - agentic-lib
       - create-issue
       - apply-issue-resolution
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -901,6 +911,7 @@ jobs:
   npm-test-after-issue-resolution:
     needs:
       - apply-issue-resolution
+    if: ${{ !cancelled() }}
     name: 'npm test with coverage'
     runs-on: ubuntu-latest
     steps:
@@ -929,6 +940,7 @@ jobs:
   npm-build-after-issue-resolution:
     needs:
       - apply-issue-resolution
+    if: ${{ !cancelled() }}
     name: 'npm run build'
     runs-on: ubuntu-latest
     steps:
@@ -957,6 +969,7 @@ jobs:
   npm-run-after-issue-resolution:
     needs:
       - apply-issue-resolution
+    if: ${{ !cancelled() }}
     name: 'npm run start'
     runs-on: ubuntu-latest
     steps:
@@ -988,7 +1001,7 @@ jobs:
       - npm-test-after-issue-resolution
       - npm-build-after-issue-resolution
       - npm-run-after-issue-resolution
-    if: ${{ needs.npm-test-after-issue-resolution.result != 'success' || needs.npm-build-after-issue-resolution.result != 'success' || needs.npm-run-after-issue-resolution.result != 'success' }}
+    if: ${{ !cancelled() && ( needs.npm-test-after-issue-resolution.result != 'success' || needs.npm-build-after-issue-resolution.result != 'success' || needs.npm-run-after-issue-resolution.result != 'success' ) }}
     runs-on: ubuntu-latest
     steps:
       - name: set-needs-fix
@@ -1018,7 +1031,7 @@ jobs:
       - create-issue
       - apply-issue-resolution
       - needs-fix-after-issue-resolution
-    if: ${{ needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'true' }}
+    if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'true' ) }}
     permissions:
       contents: write
       packages: write
@@ -1036,6 +1049,7 @@ jobs:
   automerge-pr:
     needs:
       - create-pr
+    if: ${{ !cancelled() }}
     permissions:
       contents: write
       pull-requests: write
