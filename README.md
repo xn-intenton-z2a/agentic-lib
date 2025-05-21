@@ -680,13 +680,13 @@ Re-usable GitHub Actions Workflows:
 - [x] [Launch] Comment every issue that a worker touches with the workflow information.
 - [x] [Launch] Don't run the completion jobs when there is no chatGPT key
 - [x] [Launch] Don't run the contents updating jobs when there are no writable files
-- [~] [Launch] Review repository and reseed if stale.
-- [~] [Launch] Review mission and stop when done or failing to progress.
-- [~] [Launch] Stop updating features when the features would deliver the mission.
-- [~] [Launch] When declaring mission-complete rename the branch imtentïon-mission-complete-<mission name>-<date>.
-- [~] [Launch] If the progress has been halted for <agent-lib-defined> time, then seed the repository.
+- [x] [Launch] Review repository and reseed if stale.
+- [x] [Launch] Review mission and stop when done or failing to progress.
+- [x] [Launch] Stop updating features when the features would deliver the mission.
+- [x] [Launch] When declaring mission-complete rename the branch imtentïon-mission-complete-<mission name>-<date>.
+- [x] [Launch] If the progress has been halted for <agent-lib-defined> time, then seed the repository.
+- [~] [Launch] Add intentïon.md to the context.
 - [ ] [Launch] Update packages during reseed.
-- [ ] [Launch] Add intentïon.md to the context.
 - [ ] [Launch] Label issues with the related feature.
 - [ ] [Launch] Log successfully merged issues to intentïon.md and reference the feature.
 - [ ] [Launch] Pull into agentic-lib.yml: startsWith("apply-fix-"));

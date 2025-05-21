@@ -110,6 +110,11 @@ on:
         type: string
         required: false
         default: '.github/workflows/agent-*.yml'
+      intentionFilepath:
+        description: 'The intention file to review. e.g. "intentïon.md"'
+        type: string
+        required: false
+        default: 'intentïon.md'
       buildScript:
         description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
         type: string
@@ -225,6 +230,7 @@ jobs:
       contributingFilepath: ${{ inputs.contributingFilepath || 'CONTRIBUTING.md' }}
       dependenciesFilepath: ${{ inputs.dependenciesFilepath || 'package.json' }}
       workflowPathGlob: ${{ inputs.workflowPathGlob || '.github/workflows/agent-*.yml' }}
+      intentionFilepath: ${{ inputs.intentionFilepath || 'intentïon.md' }}
       installScript: ${{ 'npm install' }}
       buildScript: ${{ inputs.buildScript || 'echo "No build script specified."' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
@@ -762,6 +768,7 @@ jobs:
             const contributingContent = process.env.contributingContent || '';
             const dependenciesContent = process.env.dependenciesContent || '';
             const workflowFilesContent = process.env.workflowFilesContent || '';
+            const intentionFilepath = process.env.intentionFilepath || '';
             const installScript = process.env.installScript || '';
             const installOutput = process.env.installOutput || '';
             const buildScript = process.env.buildScript || '';
@@ -928,6 +935,20 @@ jobs:
               core.setOutput('allDiscussionsText', '');
               allDiscussionsText = '';
             }
+            
+            // intention Filepath contents 
+            let intentionContent = '';
+            try {
+              const intentionFilepath = process.env.intentionFilepath;
+              if (fs.existsSync(intentionFilepath)) {
+                intentionContent = fs.readFileSync(intentionFilepath, 'utf8');
+                core.info(`Intention file content: ${intentionContent}`);
+              } else {
+                core.warning(`Intention file '${intentionFilepath}' does not exist.`);
+              }
+            } catch (error) {
+              core.warning(`Error reading intention file: ${error.message}`);
+            }
 
             const chatGptPrompt = `
             ${promptContent}
@@ -944,8 +965,17 @@ jobs:
               - stop
             The detail can be blank if we are re-seeding without changing the mission or the mission statement or a 
             sentence describing the feature.
+            
+            Check the previous discussions and comments to contextualize the current discussion which you are responding to.
+            Previous discussions and comments may contain context leading up to the current discussion post and even
+            be a direct continuation assuming you have recent previous messages in your context.
+            
+            The intentïon file contents is a log of both taken in the repository since the last repository seed and you
+            should see an alignment between the intentïon file entries and commits in the repository (where a commit is required).
+            Use this log to determine the current direction of the repository towards its mission. The combination of the
+            repository code, tests, dependencies and supporting documentation show the current state of the repository.
 
-            And you may reply asking for clarification or more information or stating that action has been taken.
+            You may reply asking for clarification or more information or stating that action has been taken.
             Explain which action you took and why. If the repository seems to making good progress you may suggest
             waiting (and estimate the time). If the suggested mission or feature is not practical given the capabilities 
             of this repository, please explain why and suggest a more practical mission or feature. If the discussion
@@ -961,6 +991,7 @@ jobs:
             Consider the following when generating your response:
               * Current discussion <- this is the discussion you are responding to.
               * Previous discussions and comments
+              * intentïon file contents
               * Recent commits
               * Repository file paths
               * Workflow files content
@@ -994,6 +1025,11 @@ jobs:
             PREVIOUS_DISCUSSIONS_START
             ${allDiscussionsText}
             PREVIOUS_DISCUSSIONS_END
+
+            intentïon file contents:
+            INTENTION_FILE_START
+            ${intentionContent}
+            INTENTION_FILE_END
 
             Recent commits:
             RECENT_COMMITS_START
