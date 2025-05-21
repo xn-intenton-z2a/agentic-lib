@@ -898,6 +898,24 @@ This has been story of [`repository0-plot-code-lib`](https://github.com/xn-inten
 
 ---
 
+## Q & A
+
+Q.  Can you give me a summary of what it’s trying to achieve?
+
+A. Eventually the scope will be to jump from a sentence describing anything that you could do in a single GitHub repository, 
+to an in-flight software development project which runs and deploys, this is not unique with some established services out there.
+My unique selling points are that you can clone your repository, which continues to evolve under your own account.
+You can interact with a bot that is fed your code and previous chat history, and the prompts are customisable, including chat Bot.
+
+Right now I’m allowing public access to a single sandbox directly from the home page. This example doesn’t scale well,
+or communicate what the product is very well. I need to replace this with a simplified set of steps and an animation of
+these but in a 1-2-3 it is:
+1. Create a GitHub repository from our template.
+2. Save a mission statement for your project.
+3. Watch and interact with the AI driven refinement and development until it’s done or reset and try-again.
+
+---
+
 ## License
 
 This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
