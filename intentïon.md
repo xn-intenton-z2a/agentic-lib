@@ -678,3 +678,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-21T23:20:43.615Z
+
+Generated feature development issue with title Enhance sandbox/README.md with Mission-Inspired Introduction and Key Documentation Links.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6638,"completion_tokens":1377,"total_tokens":8015,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":960,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
