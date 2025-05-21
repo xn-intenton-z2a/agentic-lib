@@ -82,6 +82,11 @@ on:
         type: string
         required: false
         default: 'package.json'
+      intentionFilepath:
+        description: 'The intention file to review. e.g. "intentïon.md"'
+        type: string
+        required: false
+        default: 'intentïon.md'
       buildScript:
         description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
         type: string
@@ -176,6 +181,7 @@ jobs:
       missionFilepath: ${{ inputs.missionFilepath || 'MISSION.md' }}
       contributingFilepath: ${{ inputs.contributingFilepath || 'CONTRIBUTING.md' }}
       dependenciesFilepath: ${{ inputs.dependenciesFilepath || 'package.json' }}
+      intentionFilepath: ${{ inputs.intentionFilepath || 'intentïon.md' }}
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
       testScriptTimeout: '5m'
@@ -308,6 +314,7 @@ jobs:
             const apiKey = process.env.chatgptApiSecretKey;
             const promptFilepath = process.env.promptFilepath;
             const dependenciesListOutput = process.env.dependenciesListOutput;
+            const intentionFilepath = process.env.intentionFilepath || '';
             const buildScript = process.env.buildScript;
             const buildOutput = process.env.buildOutput;
             const testScript = process.env.testScript;
@@ -540,11 +547,30 @@ jobs:
 
             core.info(`Found ${libraryFiles.length} library documents in directory "${libraryDocumentsPath}"`);
 
+            // intention Filepath contents 
+            let intentionContent = '';
+            try {
+              const intentionFilepath = process.env.intentionFilepath;
+              if (fs.existsSync(intentionFilepath)) {
+                intentionContent = fs.readFileSync(intentionFilepath, 'utf8');
+                core.info(`Intention file content: ${intentionContent}`);
+              } else {
+                core.warning(`Intention file '${intentionFilepath}' does not exist.`);
+              }
+            } catch (error) {
+              core.warning(`Error reading intention file: ${error.message}`);
+            }
+
             const chatGptPrompt = `
             Please generate the title and description of a GitHub issue to which will be used to further the development
             of the ${featureName} feature. Examine the details named feature ${featureName} in the current feature names
             and specifications if it's there, (if not imply the feature from the from the name), and evaluate the current
             state of the repository to determine which changes will implement the feature and allow it's value to be realised.
+            
+            The intentïon file contents is a log of both taken in the repository since the last repository seed and you
+            should see an alignment between the intentïon file entries and commits in the repository (where a commit is required).
+            Use this log to determine the current direction of the repository towards its mission. The combination of the
+            repository code, tests, dependencies and supporting documentation show the current state of the repository.
 
             ${promptContent}
 
@@ -553,6 +579,7 @@ jobs:
 
             Consider the following when refining your response:
               * Current feature names and specifications in the repository
+              * intentïon file contents
               * Source file content
               * Test file content
               * Documentation file content
@@ -572,6 +599,11 @@ jobs:
             CURRENT_FEATURES_START
             ${currentFeatures}
             CURRENT_FEATURES_END
+
+            intentïon file contents:
+            INTENTION_FILE_START
+            ${intentionContent}
+            INTENTION_FILE_END
 
             Source files:
             SOURCE_FILES_START

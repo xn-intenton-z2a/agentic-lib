@@ -77,6 +77,11 @@ on:
         type: string
         required: false
         default: 'eslint.config.js'
+      intentionFilepath:
+        description: 'The intention file to review. e.g. "intentïon.md"'
+        type: string
+        required: false
+        default: 'intentïon.md'
       buildScript:
         description: 'The script must be runnable as: `npm ci ; <script>` and succeed with a zero exit code. e.g. `npm run build`'
         type: string
@@ -192,6 +197,7 @@ jobs:
       dependenciesFilepath: ${{ inputs.dependenciesFilepath || 'package.json' }}
       formattingFilepath: ${{ inputs.formattingFilepath || '.prettierrc' }}
       lintingFilepath: ${{ inputs.lintingFilepath || 'eslint.config.js' }}
+      intentionFilepath: ${{ inputs.intentionFilepath || 'intentïon.md' }}
       buildScript: ${{ inputs.buildScript || 'npm run build' }}
       testScript: ${{ inputs.testScript || 'npm test' }}
       testScriptTimeout: '5m'
@@ -326,6 +332,7 @@ jobs:
             const promptFilepath = process.env.promptFilepath;
             const installOutput = process.env.installOutput;
             const dependenciesListOutput = process.env.dependenciesListOutput;
+            const intentionFilepath = process.env.intentionFilepath;
             const buildScript = process.env.buildScript;
             const buildOutput = process.env.buildOutput;
             const testScript = process.env.testScript;
@@ -526,11 +533,31 @@ jobs:
             core.info(`Dependencies file '${dependenciesFilepath}' has been loaded (length ${dependenciesFilepathContent.length}).`);
             core.info(`Prompt file '${promptFilepath}' has been loaded (length ${promptContent.length}).`);
 
+            // intention Filepath contents 
+            let intentionContent = '';
+            try {
+              const intentionFilepath = process.env.intentionFilepath;
+              if (fs.existsSync(intentionFilepath)) {
+                intentionContent = fs.readFileSync(intentionFilepath, 'utf8');
+                core.info(`Intention file content: ${intentionContent}`);
+              } else {
+                core.warning(`Intention file '${intentionFilepath}' does not exist.`);
+              }
+            } catch (error) {
+              core.warning(`Error reading intention file: ${error.message}`);
+            }
+
             const chatGptPrompt = `
             ${promptContent}
+            
+            The intentïon file contents is a log of both taken in the repository since the last repository seed and you
+            should see an alignment between the intentïon file entries and commits in the repository (where a commit is required).
+            Use this log to determine the current direction of the repository towards its mission. The combination of the
+            repository code, tests, dependencies and supporting documentation show the current state of the repository.
 
             Consider the following when refining your response:
               * Current feature names and specifications in the repository
+              * intentïon file contents
               * Source file content (for context only)
               * Test file content (for context only)
               * Documentation file content
@@ -549,6 +576,11 @@ jobs:
             CURRENT_FEATURES_START
             ${currentFeatures}
             CURRENT_FEATURES_END
+            
+            intentïon file contents:
+            INTENTION_FILE_START
+            ${intentionContent}
+            INTENTION_FILE_END
 
             Source files (for context only, DO NOT UPDATE):
             SOURCE_FILES_START

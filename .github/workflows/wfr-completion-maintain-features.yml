@@ -78,6 +78,11 @@ on:
         type: string
         required: false
         default: 'package.json'
+      intentionFilepath:
+        description: 'The intention file to review. e.g. "intentïon.md"'
+        type: string
+        required: false
+        default: 'intentïon.md'
       model:
         description: 'The OpenAI model to use. e.g. "o3-mini"'
         type: string
@@ -154,6 +159,7 @@ jobs:
       missionFilepath: ${{ inputs.missionFilepath || 'MISSION.md' }}
       contributingFilepath: ${{ inputs.contributingFilepath || 'CONTRIBUTING.md' }}
       dependenciesFilepath: ${{ inputs.dependenciesFilepath || 'package.json' }}
+      intentionFilepath: ${{ inputs.intentionFilepath || 'intentïon.md' }}
       model: ${{ inputs.model || vars.CHATGPT_API_MODEL || 'o4-mini' }}
       npmAuthOrganisation: ${{ inputs.npmAuthOrganisation || '' }}
       gitUserEmail: ${{ inputs.gitUserEmail || 'action@github.com' }}
@@ -256,6 +262,7 @@ jobs:
             const missionFilepath = process.env.missionFilepath;
             const contributingFilepath = process.env.contributingFilepath;
             const dependenciesFilepath = process.env.dependenciesFilepath;
+            const intentionFilepath = process.env.intentionFilepath || '';
             const model = process.env.model;
             const apiKey = process.env.chatgptApiSecretKey;
             const promptFilepath = process.env.promptFilepath;
@@ -492,6 +499,20 @@ jobs:
                 The feature name should either be a current feature name or be supplied with a feature specification which is distinct from any other feature in the repository.
               `;
             }
+            
+            // intention Filepath contents 
+            let intentionContent = '';
+            try {
+              const intentionFilepath = process.env.intentionFilepath;
+              if (fs.existsSync(intentionFilepath)) {
+                intentionContent = fs.readFileSync(intentionFilepath, 'utf8');
+                core.info(`Intention file content: ${intentionContent}`);
+              } else {
+                core.warning(`Intention file '${intentionFilepath}' does not exist.`);
+              }
+            } catch (error) {
+              core.warning(`Error reading intention file: ${error.message}`);
+            }
 
             const chatGptPrompt = `
             ${promptContent}
@@ -500,10 +521,16 @@ jobs:
             similar features into a single feature and name the features to be deleted.
             All significant features of the repository should be present in the feature set before new features are 
             added and features can be consolidated to make room below the maximum of ${featuresLimit} features.
+            
+            The intentïon file contents is a log of both taken in the repository since the last repository seed and you
+            should see an alignment between the intentïon file entries and commits in the repository (where a commit is required).
+            Use this log to determine the current direction of the repository towards its mission. The combination of the
+            repository code, tests, dependencies and supporting documentation show the current state of the repository.
 
             Consider the following when refining your response:
             * Feature prompt details
             * Current feature names and specifications in the repository
+            * intentïon file contents
             * Rejected feature names
             * Source file content
             * Test file content
@@ -518,7 +545,12 @@ jobs:
             Feature prompt:
             FEATURE_PROMPT_START
             ${prompt}
-            FEATURE_PROMPT_END            
+            FEATURE_PROMPT_END
+            
+            intentïon file contents:
+            INTENTION_FILE_START
+            ${intentionContent}
+            INTENTION_FILE_END
 
             Current feature names and specifications:
             CURRENT_FEATURES_START

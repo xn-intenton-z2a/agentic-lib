@@ -204,11 +204,3 @@ jobs:
           else
             echo 'Will not push to main looking target: ${{ needs.intention.outputs.branchName }}'
           fi
-
-      #- name: Push the current state of main to ${{ needs.intention.outputs.branchUrl }}
-      #  id: push-to-branch
-      #  run: |
-      #    git config --local user.email '${{ env.gitUserEmail }}'
-      #    git config --local user.name '${{ env.gitUserName }}'
-      #    git push -v origin HEAD:${{ needs.intention.outputs.branchUrl }}
-      #    git status -v

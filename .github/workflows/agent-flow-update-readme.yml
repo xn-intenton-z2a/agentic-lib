@@ -213,6 +213,7 @@ jobs:
       dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
       formattingFilepath: ${{ needs.agentic-lib.outputs.formattingFilepath }}
       lintingFilepath: ${{ needs.agentic-lib.outputs.lintingFilepath }}
+      intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
       buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
       testScript: ${{ needs.agentic-lib.outputs.testScript }}
       mainScript: ${{ needs.agentic-lib.outputs.mainScript }}

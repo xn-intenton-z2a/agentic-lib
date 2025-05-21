@@ -685,19 +685,21 @@ Re-usable GitHub Actions Workflows:
 - [x] [Launch] Stop updating features when the features would deliver the mission.
 - [x] [Launch] When declaring mission-complete rename the branch imtentïon-mission-complete-<mission name>-<date>.
 - [x] [Launch] If the progress has been halted for <agent-lib-defined> time, then seed the repository.
-- [~] [Launch] Add intentïon.md to the context.
-- [ ] [Launch] Update packages during reseed.
-- [ ] [Launch] Label issues with the related feature.
-- [ ] [Launch] Log successfully merged issues to intentïon.md and reference the feature.
+- [x] [Launch] Add intentïon.md to the context.
+- [n] [Launch] Update packages during reseed.
+- [n] [Launch] Label issues with the related feature.
+- [n] [Launch] Log successfully merged issues to intentïon.md and reference the feature.
+- [n] [Launch] Add PR approval and closure/abandonment to intentïon.md
+- [n] [Launch] Set the initial states to a "Hello World!" and capture this output.
+- [ ] [Launch] Add a comment and put an issue for review if it is already done.
+- [ ] [Launch] For all issue comments, add context to the comment such as: "After review, this issue was found to be already done."
 - [ ] [Launch] Pull into agentic-lib.yml: startsWith("apply-fix-"));
 - [ ] [Launch] Pull into agentic-lib.yml: startsWith("issue-worker-"));
 - [ ] [Launch] Make the agent prompts match the top level workflow file names
 - [ ] [Launch] Make the reusable workflow names match the top level workflow file names
 - [ ] [Launch] When adding issue comments to a prompt, just add the last <configurable> comments.
-- [ ] [Launch] Add a comment and put an issue for review if it is already done.
 - [ ] [Launch] Move branch pre-fix to agentic-lib.yml
-- [ ] [Launch] For all issue comments, add context to the comment such as: "After review, this issue was found to be already done."
-- [ ] Separate out writable annd non-writable file paths in the prompt
+- [ ] Separate out writable and non-writable file paths in the prompt
 - [ ] Diagram the workflow interactions.
 - [ ] Pull any max file sizes into the agent config
 - [ ] Commentator: news feed sources, news feed updates, news feed commentary, web publish.
@@ -706,7 +708,7 @@ Re-usable GitHub Actions Workflows:
 - [ ] Update CHANGELOG.md when publishing a release version of the changes since the last release.
 - [ ] Generate API.md based on the source file.
 - [ ] Move check-attempts-limit into a reusable workflow.
-- [ ] Investigate MCP for exposing access to repository files.
+- [ ] Investigate MCP for exposing access to repository files and github features.
 - [ ] Create an MCP sever for the repositor actions and pass to ChatGPT to act.
 
 Discussions Bot [MVP]:
@@ -746,10 +748,14 @@ intentïon user journey [Launch UX]:
 - [x] [Launch] Replace the sandbox with a full repository.
 - [x] [Launch] Change link to running experiment to be a link to intentïon.md on main.
 - [~] [Launch] Simple stream of updates from a seed to deliver a single feature.
-- [ ] [Launch] Set the initial states to a "Hello World!" and capture this output.
+- [ ] [Launch] Add 1-2-3 to the website
+```
+1. Create a GitHub repository from our template.
+2. Save a mission statement for your project.
+3. Watch and interact with the AI driven refinement and development until it’s done or reset and try-again.
+```
 - [ ] [Launch] Add a link to the commit URL for any commit applied
 - [ ] [Launch] Add a link to the URL for any feature updated.
-- [ ] [Launch] Add PR approval and closure/abandonment to intentïon.md
 - [ ] [Launch] intentïon.com shows: past experiments: <link to branch intentïon.md>
 - [ ] [Launch] Create a repository from main via a button.
 - [ ] [Launch] Script the process from request to cloning the repository and setting it up to run the workflows.
