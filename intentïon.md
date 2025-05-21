@@ -689,3 +689,60 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-21T23:37:40.660Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1559 with action enhance and updated description:
+
+### Summary
+
+Populate the sandbox/README.md with a mission-inspired introduction, clear project overview, essential documentation links, and concise usage examples to improve onboarding and align with agentic-lib’s mission.
+
+## Problem Statement
+The current sandbox/README.md is empty. New users and contributors lack an entry point to understand the purpose, scope, and usage of the library in the sandbox environment.
+
+## Proposed Solution
+1. Add a mission-inspired introduction based on MISSION.md.
+2. Provide a brief project description highlighting agentic-lib as a drop-in JS SDK for GitHub Actions workflows.
+3. Include direct links to:
+   - MISSION.md
+   - CONTRIBUTING.md
+   - LICENSE.md (MIT and GPL-3.0)
+   - GitHub repository (https://github.com/xn-intenton-z2a/agentic-lib)
+4. Outline basic usage examples:
+   - **CLI invocation**
+     ```bash
+     node src/lib/main.js --help
+     node src/lib/main.js --digest
+     node src/lib/main.js --version
+     ```
+   - **HTTP server endpoint** (when started with `--http` or `RUN_HTTP=true`):
+     ```bash
+     node src/lib/main.js --http
+     curl -X POST http://localhost:3000/digest \
+          -H "Content-Type: application/json" \
+          -d '{"key":"events/1.json","value":"12345","lastModified":"2025-01-01T00:00:00Z"}'
+     ```
+5. Reference the HTTP server feature and link to its spec in `sandbox/features/HTTP_SERVER.md`.
+6. Add a table of contents and adhere to markdown best practices.
+
+## Acceptance Criteria
+1. **Mission Introduction**: README begins with a concise paragraph summarizing agentic-lib’s mission.
+2. **Project Overview**: Includes a sentence describing the library’s role as a GitHub Actions SDK.
+3. **Documentation Links**: All required links (MISSION.md, CONTRIBUTING.md, LICENSE.md, repo URL) are present and functional.
+4. **Usage Examples**: CLI and HTTP server examples are included, with correct commands and expected outputs.
+5. **Feature Reference**: HTTP server section clearly references `sandbox/features/HTTP_SERVER.md`.
+6. **Structure & Style**: README contains a table of contents, uses headings consistently, and passes markdown linting.
+7. **No Other Changes**: Only `sandbox/README.md` is modified.
+
+## Definition of Done
+- A pull request updating `sandbox/README.md` is opened.
+- All CI checks pass (linting, formatting).
+- Manual review confirms readability and correctness of links/examples.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7404,"completion_tokens":1273,"total_tokens":8677,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
