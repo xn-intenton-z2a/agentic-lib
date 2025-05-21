@@ -369,6 +369,27 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@main'
     with:
       mission: ${{ needs.generate-response.outputs.detail }}
+      feature: ''
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  create-feature:
+    needs:
+      - generate-response
+    if: ${{ needs.generate-response.outputs.action == 'create-feature' && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
+    permissions:
+      contents: write
+      pull-requests: write
+      packages: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@main'
+    with:
+      mission: ''
+      feature: ${{ needs.generate-response.outputs.detail }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
