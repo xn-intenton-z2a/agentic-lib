@@ -96,3 +96,59 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-21T23:11:20.453Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1558 with title:
+
+Add Express-based HTTP Server with POST /digest Endpoint
+
+And description:
+
+Overview:
+
+Implement an embeddable HTTP server in `src/lib/main.js` that exposes a POST `/digest` endpoint. Incoming JSON payloads should be converted into SQS-style events and passed to the existing `digestLambdaHandler`. This provides a lightweight HTTP API for digest handling alongside the CLI and SQS integrations.
+
+Scope of Changes:
+
+1. src/lib/main.js
+   - Import and initialize an Express app.
+   - Read `PORT` from environment (default `3000`).
+   - Add a new CLI flag `--http` (and respect `RUN_HTTP=true`) to start the server; do not start by default.
+   - Register middleware to parse JSON bodies.
+   - Define POST `/digest`:
+     • Validate request body is a JSON object.
+     • Call `createSQSEventFromDigest(body)` and invoke `await digestLambdaHandler(event)`.
+     • On success: respond `200` with `{ batchItemFailures }`.
+     • On invalid JSON or handler errors: respond `400` with `{ error: string }`.
+     • Use `logInfo`/`logError` for request and error logging.
+
+2. sandbox/tests/http-server.test.js
+   - Use Supertest to spin up the server via `node src/lib/main.js --http` import or by exporting an `app` instance for testing.
+   - Test cases:
+     • Server does not start without `--http` (connection refused or similar behavior).
+     • Successful POST `/digest` with valid JSON returns `200` and an array `batchItemFailures`.
+     • POST `/digest` with invalid JSON returns `400` and an error message.
+   - Cleanly start and stop the server in tests.
+
+3. sandbox/README.md
+   - Document how to start the HTTP server (`node src/lib/main.js --http` or `RUN_HTTP=true`).
+   - Show example `curl` commands for valid and invalid POST `/digest` requests.
+   - Describe response format and error handling.
+
+Acceptance Criteria:
+
+- `npm test` passes all existing and new tests.
+- Running `node src/lib/main.js --http` starts the server on the configured port.
+- A POST to `/digest` with a valid JSON object returns `{ batchItemFailures: [] }`.
+- Invalid payloads return `400` with an error description.
+- No modifications to files outside of `src/lib/main.js`, `sandbox/tests/http-server.test.js`, and `sandbox/README.md`.  
+
+Please provide updated file contents for all modified files in one LLM invocation.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6617,"completion_tokens":1173,"total_tokens":7790,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":576,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
