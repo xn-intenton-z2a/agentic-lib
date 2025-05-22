@@ -818,3 +818,196 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T00:43:51.288Z
+
+fixApplied: true
+
+Expose mission via CLI and HTTP endpoint
+
+Git Diff:
+
+```
+diff --git a/sandbox/README.md b/sandbox/README.md
+index 6e654133..d37ca1a0 100644
+--- a/sandbox/README.md
++++ b/sandbox/README.md
+@@ -20,6 +20,22 @@ npm run start:http
+ 
+ By default, the server listens on port 3000 (or the port defined in the `PORT` environment variable).
+ 
++## CLI Usage
++
++Retrieve the library's mission statement via the CLI:
++
++```bash
++node sandbox/source/main.js --mission
++```
++
++**Sample Output**
++
++```json
++{
++  "mission": "# Mission Statement\n**agentic-lib** Is a JavaScript library which can be used as a drop in JS implementation or wholesale replacement for the steps, jobs, and re-usable workflows below in this repository. It is designed to be used in a GitHub Actions workflow to enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK."  
++}
++```
++
+ ## API Endpoints
+ 
+ ### GET /health
+@@ -80,6 +96,24 @@ curl -X POST http://localhost:3000/webhook \
+ { "status": "received" }
+ ```
+ 
++### GET /mission
++
++Returns the full mission statement of the library.
++
++**Request**
++
++```bash
++curl http://localhost:3000/mission
++```
++
++**Response**
++
++```json
++{
++  "mission": "# Mission Statement\n**agentic-lib** Is a JavaScript library which can be used as a drop in JS implementation or wholesale replacement for the steps, jobs, and re-usable workflows below in this repository. It is designed to be used in a GitHub Actions workflow to enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK."
++}
++```
++
+ ## Additional Resources
+ 
+ - [MISSION.md](../MISSION.md)
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index 192576be..5d34c160 100644
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -7,6 +7,7 @@ if (typeof globalThis.callCount === "undefined") {
+ }
+ 
+ import { fileURLToPath } from "url";
++import { readFileSync } from "fs";
+ import { z } from "zod";
+ import dotenv from "dotenv";
+ import express from "express";
+@@ -181,6 +182,17 @@ export function createHttpServer() {
+     res.status(200).json({ status: "received" });
+   });
+ 
++  // Mission endpoint
++  app.get("/mission", (req, res) => {
++    try {
++      const missionPath = new URL("../../MISSION.md", import.meta.url);
++      const missionContent = readFileSync(missionPath, "utf-8");
++      res.status(200).json({ mission: missionContent });
++    } catch (err) {
++      res.status(500).json({ error: err.message });
++    }
++  });
++
+   return app;
+ }
+ 
+@@ -211,6 +223,7 @@ Usage:
+   --digest                   Run a full bucket replay simulating an SQS event.
+   --version                  Show version information with current timestamp.
+   --serve, --http            Run in HTTP server mode.
++  --mission                  Show the mission statement of the library.
+ `;
+ }
+ 
+@@ -227,9 +240,9 @@ function processHelp(args) {
+ async function processVersion(args) {
+   if (args.includes("--version")) {
+     try {
+-      const { readFileSync } = await import("fs");
++      const { readFileSync: readPkg } = await import("fs");
+       const packageJsonPath = new URL("../../package.json", import.meta.url);
+-      const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
++      const packageJson = JSON.parse(readPkg(packageJsonPath, "utf8"));
+       const versionInfo = {
+         version: packageJson.version,
+         timestamp: new Date().toISOString(),
+@@ -243,6 +256,22 @@ async function processVersion(args) {
+   return false;
+ }
+ 
++// Process the --mission flag
++function processMission(args) {
++  if (args.includes("--mission")) {
++    try {
++      const missionFilePath = new URL("../../MISSION.md", import.meta.url);
++      const missionContent = readFileSync(missionFilePath, "utf-8");
++      console.log(JSON.stringify({ mission: missionContent }));
++    } catch (err) {
++      console.error(JSON.stringify({ error: err.message }));
++      process.exit(1);
++    }
++    return true;
++  }
++  return false;
++}
++
+ // Process the --digest flag
+ async function processDigest(args) {
+   if (args.includes("--digest")) {
+@@ -279,6 +308,12 @@ export async function main(args = process.argv.slice(2)) {
+     }
+     return;
+   }
++  if (processMission(args)) {
++    if (VERBOSE_STATS) {
++      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
++    }
++    return;
++  }
+   if (await processDigest(args)) {
+     if (VERBOSE_STATS) {
+       console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+diff --git a/sandbox/tests/http-interface.test.js b/sandbox/tests/http-interface.test.js
+index 1184fa6a..4fd821f9 100644
+--- a/sandbox/tests/http-interface.test.js
++++ b/sandbox/tests/http-interface.test.js
+@@ -62,4 +62,12 @@ describe("HTTP Interface Integration", () => {
+     expect(res.status).toBe(200);
+     expect(res.body).toEqual({ status: "received" });
+   });
+-});
+\ No newline at end of file
++
++  test("GET /mission returns mission content", async () => {
++    const res = await request(app).get("/mission");
++    expect(res.status).toBe(200);
++    expect(res.body).toHaveProperty("mission");
++    expect(typeof res.body.mission).toBe("string");
++    expect(res.body.mission.length).toBeGreaterThan(0);
++  });
++});
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.8.2-0 start
+> node sandbox/source/main.js
+
+{"level":"info","timestamp":"2025-05-22T00:43:31.348Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+  --serve, --http            Run in HTTP server mode.
+  --mission                  Show the mission statement of the library.
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1563 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":19499,"completion_tokens":8239,"total_tokens":27738,"prompt_tokens_details":{"cached_tokens":1280,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3648,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
