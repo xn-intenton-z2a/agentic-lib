@@ -301,6 +301,38 @@ function processFeatures(args) {
   return false;
 }
 
+// Add CLI discussion-stats handler
+function processDiscussionStats(args) {
+  if (args.includes("--discussion-stats")) {
+    const discussionStats = {
+      discussionCount: 0,
+      commentCount: 0,
+      uniqueAuthors: 0,
+    };
+    console.log(JSON.stringify(discussionStats));
+    return true;
+  }
+  return false;
+}
+
+// Add CLI stats handler
+function processStats(args) {
+  if (args.includes("--stats")) {
+    const uptime = (Date.now() - serverStartTime) / 1000;
+    const metrics = {
+      digestInvocations,
+      digestErrors,
+      webhookInvocations,
+      webhookErrors,
+      featuresRequests,
+      missionRequests,
+    };
+    console.log(JSON.stringify({ uptime, metrics }));
+    return true;
+  }
+  return false;
+}
+
 async function processDigest(args) {
   if (args.includes("--digest")) {
     const exampleDigest = { key: "events/1.json", value: "12345", lastModified: new Date().toISOString() };
@@ -320,6 +352,8 @@ export async function main(args = process.argv.slice(2)) {
   if (await processVersion(args)) return;
   if (processMission(args)) return;
   if (processFeatures(args)) return;
+  if (processDiscussionStats(args)) return;
+  if (processStats(args)) return;
   if (await processDigest(args)) return;
   console.log("No command argument supplied.");
   console.log(generateUsage());
