@@ -3007,3 +3007,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T06:51:44.589Z
+
+Generated feature development issue with title Include feature descriptions in features CLI output and HTTP /features response.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":44367,"completion_tokens":3462,"total_tokens":47829,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2880,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
