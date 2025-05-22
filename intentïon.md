@@ -2040,3 +2040,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T04:22:00.208Z
+
+Generated feature development issue with title Add in-memory metrics collection with GET /stats HTTP endpoint and --stats CLI flag.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":30846,"completion_tokens":2249,"total_tokens":33095,"prompt_tokens_details":{"cached_tokens":14208,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1280,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
