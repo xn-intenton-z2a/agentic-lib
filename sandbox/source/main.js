@@ -224,17 +224,22 @@ export function createHttpServer() {
   // Stats endpoint
   app.get("/stats", (req, res) => {
     const uptime = (Date.now() - serverStartTime) / 1000;
-    res.status(200).json({
-      uptime,
-      metrics: {
-        digestInvocations,
-        digestErrors,
-        webhookInvocations,
-        webhookErrors,
-        featuresRequests,
-        missionRequests,
-      },
-    });
+    const metricsSnapshot = {
+      digestInvocations,
+      digestErrors,
+      webhookInvocations,
+      webhookErrors,
+      featuresRequests,
+      missionRequests,
+    };
+    res.status(200).json({ uptime, metrics: metricsSnapshot });
+    // Reset metrics after responding to avoid accumulation across tests
+    digestInvocations = 0;
+    digestErrors = 0;
+    webhookInvocations = 0;
+    webhookErrors = 0;
+    featuresRequests = 0;
+    missionRequests = 0;
   });
 
   return app;

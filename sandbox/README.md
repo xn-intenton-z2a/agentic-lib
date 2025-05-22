@@ -167,24 +167,32 @@ Returns service uptime and in-memory metrics.
 curl http://localhost:3000/stats
 ```
 
+**Example Sequence**
+
+```bash
+# exercise endpoints
+curl -X POST http://localhost:3000/digest -H 'Content-Type: application/json' -d '{"key":"events/1.json","value":"foo","lastModified":"2025-05-22T00:00:00Z"}' || true
+curl -X POST http://localhost:3000/digest -H 'Content-Type: application/json' -d '{}'
+curl -X POST http://localhost:3000/webhook -H 'Content-Type: application/json' -d '{}'
+curl http://localhost:3000/features
+curl http://localhost:3000/mission
+
+# check metrics
+curl http://localhost:3000/stats
+```
+
 **Response**
 
 ```json
 {
   "uptime": 1.234,
   "metrics": {
-    "digestInvocations": 5,
-    "digestErrors": 0,
-    "webhookInvocations": 2,
+    "digestInvocations": 1,
+    "digestErrors": 1,
+    "webhookInvocations": 1,
     "webhookErrors": 0,
-    "featuresRequests": 3,
+    "featuresRequests": 1,
     "missionRequests": 1
   }
 }
 ```
-
-## Additional Resources
-
-- [MISSION.md](../MISSION.md)
-- [CONTRIBUTING.md](../CONTRIBUTING.md)
-- [GitHub Repository](https://github.com/xn-intenton-z2a/agentic-lib)
