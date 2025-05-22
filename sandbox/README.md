@@ -34,6 +34,20 @@ Retrieve the list of available features via the CLI:
 node sandbox/source/main.js --features
 ```
 
+**Sample Output**
+
+```json
+{
+  "features": [
+    {
+      "name": "HTTP_INTERFACE",
+      "title": "Provide a built-in HTTP interface that allows external systems (for example, CI pipelines or webhook providers) to invoke core agentic-lib functionality via REST endpoints. This feature leverages the existing Express dependency without introducing new files beyond source, test, README, and package.json, and it remains fully compatible with GitHub Actions workflows.",
+      "description": "Extend the existing HTTP interface feature to collect in-memory runtime metrics and expose them via a new HTTP endpoint and CLI flag. This enhancement remains confined to sandbox/source/main.js, sandbox/tests, sandbox/README.md, and package.json."
+    }
+  ]
+}
+```
+
 Retrieve runtime metrics via the CLI:
 
 ```bash
@@ -136,7 +150,7 @@ curl http://localhost:3000/mission
 
 ### GET /features
 
-List available features and their titles.
+List available features and their titles (including description).
 
 **Request**
 
@@ -151,7 +165,8 @@ curl http://localhost:3000/features
   "features": [
     {
       "name": "HTTP_INTERFACE",
-      "title": "Provide a built-in HTTP interface that allows external systems (for example, CI pipelines or webhook providers) to invoke core agentic-lib functionality via REST endpoints. This feature leverages the existing Express dependency without introducing new files beyond source, test, README, and package.json, and it remains fully compatible with GitHub Actions workflows."
+      "title": "Provide a built-in HTTP interface that allows external systems (for example, CI pipelines or webhook providers) to invoke core agentic-lib functionality via REST endpoints. This feature leverages the existing Express dependency without introducing new files beyond source, test, README, and package.json, and it remains fully compatible with GitHub Actions workflows.",
+      "description": "Extend the existing HTTP interface feature to collect in-memory runtime metrics and expose them via a new HTTP endpoint and CLI flag. This enhancement remains confined to sandbox/source/main.js, sandbox/tests, sandbox/README.md, and package.json."
     }
   ]
 }

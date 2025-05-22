@@ -211,9 +211,23 @@ export function createHttpServer() {
       const features = files.map((file) => {
         const name = file.replace(/\.md$/, "");
         const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
-        const firstLine = content.split("\n").find((line) => line.startsWith("#"));
+        const lines = content.split("\n");
+        const firstLine = lines.find((line) => line.startsWith("#"));
         const title = firstLine ? firstLine.replace(/^#\s*/, "").trim() : "";
-        return { name, title };
+        let description = "";
+        const titleIndex = lines.findIndex((line) => line === firstLine);
+        if (titleIndex !== -1) {
+          const descLines = [];
+          for (let i = titleIndex + 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (line === "") break;
+            if (!line.startsWith("#")) {
+              descLines.push(line);
+            }
+          }
+          description = descLines.join(" ");
+        }
+        return { name, title, description };
       });
       res.status(200).json({ features });
     } catch (err) {
@@ -328,9 +342,21 @@ function processFeatures(args) {
       const features = files.map((file) => {
         const name = file.replace(/\.md$/, "");
         const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
-        const firstLine = content.split("\n").find((line) => line.startsWith("#"));
+        const lines = content.split("\n");
+        const firstLine = lines.find((line) => line.startsWith("#"));
         const title = firstLine ? firstLine.replace(/^#\s*/, "").trim() : "";
-        return { name, title };
+        let description = "";
+        const titleIndex = lines.findIndex((line) => line === firstLine);
+        if (titleIndex !== -1) {
+          const descLines = [];
+          for (let i = titleIndex + 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (line === "") break;
+            if (!line.startsWith("#")) descLines.push(line);
+          }
+          description = descLines.join(" ");
+        }
+        return { name, title, description };
       });
       console.log(JSON.stringify({ features }));
     } catch (err) {

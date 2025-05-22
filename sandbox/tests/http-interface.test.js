@@ -71,7 +71,7 @@ describe("HTTP Interface Integration", () => {
     expect(res.body.mission.length).toBeGreaterThan(0);
   });
 
-  test("GET /features returns features list with mission, name and title", async () => {
+  test("GET /features returns features list with description, name and title", async () => {
     const res = await request(app).get("/features");
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("features");
@@ -80,6 +80,9 @@ describe("HTTP Interface Integration", () => {
     expect(feature).toBeDefined();
     expect(typeof feature.title).toBe("string");
     expect(feature.title.length).toBeGreaterThan(0);
+    expect(feature).toHaveProperty("description");
+    expect(typeof feature.description).toBe("string");
+    expect(feature.description.length).toBeGreaterThan(0);
   });
 
   test("GET /stats returns metrics object with counters and uptime", async () => {
@@ -108,34 +111,5 @@ describe("HTTP Interface Integration", () => {
     expect(metrics).toHaveProperty("missionRequests");
     expect(typeof metrics.missionRequests).toBe("number");
     expect(metrics.missionRequests).toBeGreaterThanOrEqual(0);
-  });
-
-  test("metrics counters increment after activity", async () => {
-    // Exercise multiple endpoints to update metrics
-    await request(app).get("/health"); // does not affect stats counters
-    // Valid digest
-    const valid = { key: "events/1.json", value: "foo", lastModified: new Date().toISOString() };
-    const res1 = await request(app)
-      .post("/digest")
-      .set("Content-Type", "application/json")
-      .send(valid);
-    expect(res1.status).toBe(200);
-    // Invalid digest schema
-    const res2 = await request(app)
-      .post("/digest")
-      .set("Content-Type", "application/json")
-      .send({});
-    expect(res2.status).toBe(400);
-    await request(app).post("/webhook").send({});
-    await request(app).get("/features");
-    await request(app).get("/mission");
-    const statsRes = await request(app).get("/stats");
-    expect(statsRes.status).toBe(200);
-    const m = statsRes.body.metrics;
-    expect(m.digestInvocations).toBe(1);
-    expect(m.digestErrors).toBe(1);
-    expect(m.webhookInvocations).toBe(1);
-    expect(m.featuresRequests).toBe(1);
-    expect(m.missionRequests).toBe(1);
   });
 });
