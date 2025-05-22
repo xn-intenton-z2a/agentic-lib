@@ -1073,3 +1073,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T01:07:28.122Z
+
+Generated feature development issue with title Add --features CLI flag and GET /features HTTP endpoint to list project features.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":19722,"completion_tokens":2170,"total_tokens":21892,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1472,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
