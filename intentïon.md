@@ -4947,3 +4947,64 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-22T16:42:58.724Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1588 with action enhance and updated description:
+
+Enhance the `/features` HTTP endpoint and `--features` CLI flag to include a `description` field for each feature, capturing the first paragraph from the corresponding Markdown feature file.
+
+Scope of Changes (sandbox paths only):
+1. **sandbox/source/main.js**
+   - **GET /features** handler:
+     - Read all `.md` files under `sandbox/features/`.
+     - For each file, extract:
+       - `name`: filename minus `.md` extension.
+       - `title`: the first Markdown heading (line starting with `#`).
+       - `description`: the first paragraph following the heading (all lines until the first blank line).
+     - Return JSON payload:
+       ```json
+       {
+         "features": [
+           {"name": string, "title": string, "description": string},
+           ...
+         ]
+       }
+       ```
+   - **processFeatures()** CLI handler:
+     - Apply the same parsing logic so that running `node sandbox/source/main.js --features` outputs JSON with `features` array, each object containing `name`, `title`, and `description`.
+
+2. **sandbox/tests/http-interface.test.js**
+   - Update the `GET /features` integration test to assert that each feature object:
+     ```js
+     const feature = res.body.features.find(f => f.name === 'HTTP_INTERFACE');
+     expect(feature).toHaveProperty('description');
+     expect(typeof feature.description).toBe('string');
+     expect(feature.description.length).toBeGreaterThan(0);
+     ```
+
+3. **sandbox/tests/cli-features.test.js**
+   - Update the CLI test for `--features` to verify each feature object in `json.features` includes `description`:
+     ```js
+     const feature = json.features.find(f => f.name === 'HTTP_INTERFACE');
+     expect(feature).toHaveProperty('description');
+     expect(typeof feature.description).toBe('string');
+     expect(feature.description.length).toBeGreaterThan(0);
+     ```
+
+4. **sandbox/README.md**
+   - Update the **GET /features** sample response to include `description` for each feature.
+   - Update the CLI example under **CLI Usage** to show feature objects with `description`.
+
+Acceptance Criteria:
+- Running the HTTP server (`npm run start:http`) and fetching `GET /features` returns status `200` and a JSON object with a `features` array. Every object must have non-empty `name`, `title`, and `description` string properties.
+- Running the CLI flag (`node sandbox/source/main.js --features`) prints valid JSON to stdout with `features` array; each element must have non-empty `name`, `title`, and `description` string properties. Exit code must be `0` and no stderr output.
+- All updated tests (`sandbox/tests/http-interface.test.js` and `sandbox/tests/cli-features.test.js`) must pass under `npm test`.
+- Changes are confined to `sandbox/source/main.js`, `sandbox/tests/http-interface.test.js`, `sandbox/tests/cli-features.test.js`, and `sandbox/README.md` only.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":14005,"completion_tokens":1188,"total_tokens":15193,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":448,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
