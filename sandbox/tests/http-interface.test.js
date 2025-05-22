@@ -70,4 +70,15 @@ describe("HTTP Interface Integration", () => {
     expect(typeof res.body.mission).toBe("string");
     expect(res.body.mission.length).toBeGreaterThan(0);
   });
+
+  test("GET /features returns features list with name and title", async () => {
+    const res = await request(app).get("/features");
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("features");
+    expect(Array.isArray(res.body.features)).toBe(true);
+    const feature = res.body.features.find((f) => f.name === "HTTP_INTERFACE");
+    expect(feature).toBeDefined();
+    expect(typeof feature.title).toBe("string");
+    expect(feature.title.length).toBeGreaterThan(0);
+  });
 });
