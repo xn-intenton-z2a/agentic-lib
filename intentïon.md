@@ -1084,3 +1084,239 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T01:12:30.950Z
+
+fixApplied: true
+
+Add CLI flag and HTTP endpoint to list features
+
+Git Diff:
+
+```
+diff --git a/sandbox/README.md b/sandbox/README.md
+index d37ca1a0..eae9f50e 100644
+--- a/sandbox/README.md
++++ b/sandbox/README.md
+@@ -28,11 +28,22 @@ Retrieve the library's mission statement via the CLI:
+ node sandbox/source/main.js --mission
+ ```
+ 
++Retrieve the list of available features via the CLI:
++
++```bash
++node sandbox/source/main.js --features
++```
++
+ **Sample Output**
+ 
+ ```json
+ {
+-  "mission": "# Mission Statement\n**agentic-lib** Is a JavaScript library which can be used as a drop in JS implementation or wholesale replacement for the steps, jobs, and re-usable workflows below in this repository. It is designed to be used in a GitHub Actions workflow to enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK."  
++  "features": [
++    {
++      "name": "HTTP_INTERFACE",
++      "title": "Provide a built-in HTTP interface that allows external systems (for example, CI pipelines or webhook providers) to invoke core agentic-lib functionality via REST endpoints. This feature leverages the existing Express dependency without introducing new files beyond source, test, README, and package.json, and it remains fully compatible with GitHub Actions workflows."
++    }
++  ]
+ }
+ ```
+ 
+@@ -114,6 +125,29 @@ curl http://localhost:3000/mission
+ }
+ ```
+ 
++### GET /features
++
++List available features and their titles.
++
++**Request**
++
++```bash
++curl http://localhost:3000/features
++```
++
++**Response**
++
++```json
++{
++  "features": [
++    {
++      "name": "HTTP_INTERFACE",
++      "title": "Provide a built-in HTTP interface that allows external systems (for example, CI pipelines or webhook providers) to invoke core agentic-lib functionality via REST endpoints. This feature leverages the existing Express dependency without introducing new files beyond source, test, README, and package.json, and it remains fully compatible with GitHub Actions workflows."
++    }
++  ]
++}
++```
++
+ ## Additional Resources
+ 
+ - [MISSION.md](../MISSION.md)
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index 5d34c160..bd10c167 100644
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -7,7 +7,7 @@ if (typeof globalThis.callCount === "undefined") {
+ }
+ 
+ import { fileURLToPath } from "url";
+-import { readFileSync } from "fs";
++import { readFileSync, readdirSync } from "fs";
+ import { z } from "zod";
+ import dotenv from "dotenv";
+ import express from "express";
+@@ -193,6 +193,24 @@ export function createHttpServer() {
+     }
+   });
+ 
++  // Features endpoint
++  app.get("/features", (req, res) => {
++    try {
++      const featuresDir = fileURLToPath(new URL("../features", import.meta.url));
++      const files = readdirSync(featuresDir).filter((f) => f.endsWith(".md"));
++      const features = files.map((file) => {
++        const name = file.replace(/\.md$/, "");
++        const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
++        const firstLine = content.split("\n").find((line) => line.startsWith("#"));
++        const title = firstLine ? firstLine.replace(/^#\s*/, '').trim() : '';
++        return { name, title };
++      });
++      res.status(200).json({ features });
++    } catch (err) {
++      res.status(500).json({ error: err.message });
++    }
++  });
++
+   return app;
+ }
+ 
+@@ -224,6 +242,7 @@ Usage:
+   --version                  Show version information with current timestamp.
+   --serve, --http            Run in HTTP server mode.
+   --mission                  Show the mission statement of the library.
++  --features                 List available features and their titles.
+ `;
+ }
+ 
+@@ -272,6 +291,29 @@ function processMission(args) {
+   return false;
+ }
+ 
++// Process the --features flag
++function processFeatures(args) {
++  if (args.includes("--features")) {
++    try {
++      const featuresDir = fileURLToPath(new URL("../features", import.meta.url));
++      const files = readdirSync(featuresDir).filter((f) => f.endsWith(".md"));
++      const features = files.map((file) => {
++        const name = file.replace(/\.md$/, "");
++        const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
++        const firstLine = content.split("\n").find((line) => line.startsWith("#"));
++        const title = firstLine ? firstLine.replace(/^#\s*/, '').trim() : '';
++        return { name, title };
++      });
++      console.log(JSON.stringify({ features }));
++    } catch (err) {
++      console.error(JSON.stringify({ error: err.message }));
++      process.exit(1);
++    }
++    return true;
++  }
++  return false;
++}
++
+ // Process the --digest flag
+ async function processDigest(args) {
+   if (args.includes("--digest")) {
+@@ -297,35 +339,29 @@ export async function main(args = process.argv.slice(2)) {
+   }
+ 
+   if (processHelp(args)) {
+-    if (VERBOSE_STATS) {
+-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+-    }
++    if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+     return;
+   }
+   if (await processVersion(args)) {
+-    if (VERBOSE_STATS) {
+-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+-    }
++    if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+     return;
+   }
+   if (processMission(args)) {
+-    if (VERBOSE_STATS) {
+-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+-    }
++    if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
++    return;
++  }
++  if (processFeatures(args)) {
++    if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+     return;
+   }
+   if (await processDigest(args)) {
+-    if (VERBOSE_STATS) {
+-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+-    }
++    if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+     return;
+   }
+ 
+   console.log("No command argument supplied.");
+   console.log(generateUsage());
+-  if (VERBOSE_STATS) {
+-    console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+-  }
++  if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+ }
+ 
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+diff --git a/sandbox/tests/http-interface.test.js b/sandbox/tests/http-interface.test.js
+index 4fd821f9..cf0a8986 100644
+--- a/sandbox/tests/http-interface.test.js
++++ b/sandbox/tests/http-interface.test.js
+@@ -70,4 +70,15 @@ describe("HTTP Interface Integration", () => {
+     expect(typeof res.body.mission).toBe("string");
+     expect(res.body.mission.length).toBeGreaterThan(0);
+   });
++
++  test("GET /features returns features list with name and title", async () => {
++    const res = await request(app).get("/features");
++    expect(res.status).toBe(200);
++    expect(res.body).toHaveProperty("features");
++    expect(Array.isArray(res.body.features)).toBe(true);
++    const feature = res.body.features.find((f) => f.name === "HTTP_INTERFACE");
++    expect(feature).toBeDefined();
++    expect(typeof feature.title).toBe("string");
++    expect(feature.title.length).toBeGreaterThan(0);
++  });
+ });
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.8.2-0 start
+> node sandbox/source/main.js
+
+{"level":"info","timestamp":"2025-05-22T01:12:10.708Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+  --serve, --http            Run in HTTP server mode.
+  --mission                  Show the mission statement of the library.
+  --features                 List available features and their titles.
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1565 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":22765,"completion_tokens":8060,"total_tokens":30825,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2688,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
