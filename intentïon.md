@@ -1944,3 +1944,74 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-22T03:48:11.459Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1570 with action close and updated description:
+
+Objective:
+Provide context for the project’s features by including the full mission statement in both the CLI `--features` output and the HTTP `GET /features` endpoint. This will help users and integrations understand how each feature aligns with the library’s purpose.
+
+Scope of Changes (sandbox paths only):
+
+1. sandbox/source/main.js
+   - HTTP `/features` route: Read `MISSION.md` at runtime, and include a top-level `mission` property (string) alongside the existing `features` array in the JSON response. On read errors, return HTTP 500 with `{ error: <message> }`.
+   - `processFeatures(args)` CLI handler: After discovering features, synchronously read `MISSION.md` and print a single JSON object with `{ mission: <string>, features: <array> }` to stdout. Ensure the process exits with code 0 when successful.
+
+2. sandbox/tests/http-interface.test.js
+   - Update the existing `GET /features` test (or add a new one) to assert:
+     • `res.status` is 200
+     • `res.body` has a non-empty string property `mission`
+     • `res.body.features` remains an array of `{ name, title }` objects
+
+3. sandbox/tests/cli-features.test.js
+   - Enhance the CLI test to:
+     • Execute `node sandbox/source/main.js --features`
+     • Assert `stderr` is empty
+     • Parse `stdout` as JSON
+     • Verify the JSON has:
+       - `mission` property of type `string` and length > 0
+       - `features` property as an array containing at least the `HTTP_INTERFACE` feature with valid `title`
+
+4. sandbox/README.md
+   - Under the `### GET /features` section, update the example response to show both `mission` and `features` fields.
+   - Under the `## CLI Usage` section for `--features`, update the sample output to include the `mission` field alongside `features`.
+
+Verification & Acceptance:
+1. Start the HTTP server:
+   ```bash
+   npm run start:http
+   curl http://localhost:3000/features
+   ```
+   - Response JSON includes both:
+     ```json
+     {
+       "mission": "<full contents of MISSION.md>",
+       "features": [ { name: ..., title: ... } ]
+     }
+     ```
+2. CLI invocation:
+   ```bash
+   node sandbox/source/main.js --features
+   ```
+   - Prints a single JSON object with `mission` and `features` keys, and exits code 0.
+3. Run tests:
+   ```bash
+   npm test
+   ```
+   - All existing and new tests pass.
+
+All changes must be confined to:
+- sandbox/source/main.js
+- sandbox/tests/http-interface.test.js
+- sandbox/tests/cli-features.test.js
+- sandbox/README.md
+
+No modifications outside these files are permitted.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":12849,"completion_tokens":1439,"total_tokens":14288,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":704,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
