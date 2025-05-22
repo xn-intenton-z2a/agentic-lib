@@ -199,12 +199,11 @@ export function createHttpServer() {
       const files = readdirSync(featuresDir).filter((f) => f.endsWith(".md"));
       const features = files.map((file) => {
         const name = file.replace(/\.md$/, "");
-        const content = readFileSync(`${featuresDir}/${file}", "utf-8");
+        const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
         const firstLine = content.split("\n").find((line) => line.startsWith("#"));
         const title = firstLine ? firstLine.replace(/^#\s*/, '').trim() : '';
         return { name, title };
       });
-      // Read mission content
       const missionPath = new URL("../../MISSION.md", import.meta.url);
       const missionContent = readFileSync(missionPath, "utf-8");
       res.status(200).json({ mission: missionContent, features });
@@ -301,12 +300,11 @@ function processFeatures(args) {
       const files = readdirSync(featuresDir).filter((f) => f.endsWith(".md"));
       const features = files.map((file) => {
         const name = file.replace(/\.md$/, "");
-        const content = readFileSync(`${featuresDir}/${file}", "utf-8");
+        const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
         const firstLine = content.split("\n").find((line) => line.startsWith("#"));
         const title = firstLine ? firstLine.replace(/^#\s*/, '').trim() : '';
         return { name, title };
       });
-      // Read mission content
       const missionFilePath = new URL("../../MISSION.md", import.meta.url);
       const missionContent = readFileSync(missionFilePath, "utf-8");
       console.log(JSON.stringify({ mission: missionContent, features }));
