@@ -2284,3 +2284,439 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T04:49:46.539Z
+
+fixApplied: true
+
+Add in-memory metrics with GET stats endpoint and --stats CLI flag
+
+Git Diff:
+
+```
+diff --git a/sandbox/README.md b/sandbox/README.md
+index eae9f50e..f4b58727 100644
+--- a/sandbox/README.md
++++ b/sandbox/README.md
+@@ -34,16 +34,25 @@ Retrieve the list of available features via the CLI:
+ node sandbox/source/main.js --features
+ ```
+ 
++Retrieve runtime metrics via the CLI:
++
++```bash
++node sandbox/source/main.js --stats
++```
++
+ **Sample Output**
+ 
+ ```json
+ {
+-  "features": [
+-    {
+-      "name": "HTTP_INTERFACE",
+-      "title": "Provide a built-in HTTP interface that allows external systems (for example, CI pipelines or webhook providers) to invoke core agentic-lib functionality via REST endpoints. This feature leverages the existing Express dependency without introducing new files beyond source, test, README, and package.json, and it remains fully compatible with GitHub Actions workflows."
+-    }
+-  ]
++  "uptime": 0.123,
++  "metrics": {
++    "digestInvocations": 0,
++    "digestErrors": 0,
++    "webhookInvocations": 0,
++    "webhookErrors": 0,
++    "featuresRequests": 0,
++    "missionRequests": 0
++  }
+ }
+ ```
+ 
+@@ -148,8 +157,34 @@ curl http://localhost:3000/features
+ }
+ ```
+ 
++### GET /stats
++
++Returns service uptime and in-memory metrics.
++
++**Request**
++
++```bash
++curl http://localhost:3000/stats
++```
++
++**Response**
++
++```json
++{
++  "uptime": 1.234,
++  "metrics": {
++    "digestInvocations": 5,
++    "digestErrors": 0,
++    "webhookInvocations": 2,
++    "webhookErrors": 0,
++    "featuresRequests": 3,
++    "missionRequests": 1
++  }
++}
++```
++
+ ## Additional Resources
+ 
+ - [MISSION.md](../MISSION.md)
+ - [CONTRIBUTING.md](../CONTRIBUTING.md)
+-- [GitHub Repository](https://github.com/xn-intenton-z2a/agentic-lib)
++- [GitHub Repository](https://github.com/xn-intenton-z2a/agentic-lib)
+\ No newline at end of file
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index ab5d3d6f..8ccf148d 100644
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -38,6 +38,14 @@ const VERBOSE_STATS = false;
+ // Record server start time for uptime
+ let serverStartTime = Date.now();
+ 
++// In-memory metrics counters
++let digestInvocations = 0;
++let digestErrors = 0;
++let webhookInvocations = 0;
++let webhookErrors = 0;
++let featuresRequests = 0;
++let missionRequests = 0;
++
+ // Helper function to format log entries
+ function formatLogEntry(level, message, additionalData = {}) {
+   return {
+@@ -136,7 +144,7 @@ export function createHttpServer() {
+   const app = express();
+   app.use(express.json());
+   app.use((err, req, res, next) => {
+-    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
++    if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+       return res.status(400).json({ error: `Invalid JSON payload: ${err.message}` });
+     }
+     next(err);
+@@ -144,11 +152,13 @@ export function createHttpServer() {
+ 
+   serverStartTime = Date.now();
+ 
++  // Health endpoint
+   app.get("/health", (req, res) => {
+     const uptime = (Date.now() - serverStartTime) / 1000;
+     res.status(200).json({ status: "ok", uptime });
+   });
+ 
++  // Digest endpoint
+   app.post("/digest", async (req, res) => {
+     try {
+       const payload = req.body;
+@@ -160,8 +170,10 @@ export function createHttpServer() {
+       const validated = schema.parse(payload);
+       const event = createSQSEventFromDigest(validated);
+       const result = await digestLambdaHandler(event);
++      digestInvocations++;
+       res.status(200).json(result);
+     } catch (err) {
++      digestErrors++;
+       const message =
+         err instanceof z.ZodError
+           ? err.errors.map((e) => e.message).join(", ")
+@@ -170,13 +182,17 @@ export function createHttpServer() {
+     }
+   });
+ 
++  // Webhook endpoint
+   app.post("/webhook", (req, res) => {
++    webhookInvocations++;
+     const payload = req.body;
+     logInfo(`Webhook received payload: ${JSON.stringify(payload)}`);
+     res.status(200).json({ status: "received" });
+   });
+ 
++  // Mission endpoint
+   app.get("/mission", (req, res) => {
++    missionRequests++;
+     try {
+       const missionPath = new URL("../../MISSION.md", import.meta.url);
+       const missionContent = readFileSync(missionPath, "utf-8");
+@@ -186,7 +202,9 @@ export function createHttpServer() {
+     }
+   });
+ 
++  // Features endpoint
+   app.get("/features", (req, res) => {
++    featuresRequests++;
+     try {
+       const featuresDir = fileURLToPath(new URL("../features", import.meta.url));
+       const files = readdirSync(featuresDir).filter((f) => f.endsWith(".md"));
+@@ -194,7 +212,7 @@ export function createHttpServer() {
+         const name = file.replace(/\.md$/, "");
+         const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
+         const firstLine = content.split("\n").find((line) => line.startsWith("#"));
+-        const title = firstLine ? firstLine.replace(/^#\s*/, '').trim() : '';
++        const title = firstLine ? firstLine.replace(/^#\s*/, "").trim() : "";
+         return { name, title };
+       });
+       res.status(200).json({ features });
+@@ -203,9 +221,28 @@ export function createHttpServer() {
+     }
+   });
+ 
++  // Stats endpoint
++  app.get("/stats", (req, res) => {
++    const uptime = (Date.now() - serverStartTime) / 1000;
++    res.status(200).json({
++      uptime,
++      metrics: {
++        digestInvocations,
++        digestErrors,
++        webhookInvocations,
++        webhookErrors,
++        featuresRequests,
++        missionRequests,
++      },
++    });
++  });
++
+   return app;
+ }
+ 
++/**
++ * If --serve or --http flag is present, start HTTP server and bypass CLI.
++ */
+ export function serveHttp() {
+   const args = process.argv.slice(2);
+   if (!args.includes("--serve") && !args.includes("--http")) {
+@@ -215,10 +252,11 @@ export function serveHttp() {
+   const port = process.env.PORT || 3000;
+   app.listen(port, () => {
+     logInfo(`HTTP server listening on port ${port}`);
+-  }).on("error", (err) => {
+-    logError("Express server error", err);
+-    process.exit(1);
+-  });
++  })
++    .on("error", (err) => {
++      logError("Express server error", err);
++      process.exit(1);
++    });
+   return true;
+ }
+ 
+@@ -231,6 +269,7 @@ Usage:
+   --serve, --http            Run in HTTP server mode.
+   --mission                  Show the mission statement of the library.
+   --features                 List available features and their titles.
++  --stats                    Show runtime metrics and request counts.
+ `;
+ }
+ 
+@@ -285,7 +324,7 @@ function processFeatures(args) {
+         const name = file.replace(/\.md$/, "");
+         const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
+         const firstLine = content.split("\n").find((line) => line.startsWith("#"));
+-        const title = firstLine ? firstLine.replace(/^#\s*/, '').trim() : '';
++        const title = firstLine ? firstLine.replace(/^#\s*/, "").trim() : "";
+         return { name, title };
+       });
+       console.log(JSON.stringify({ features }));
+@@ -298,6 +337,23 @@ function processFeatures(args) {
+   return false;
+ }
+ 
++function processStats(args) {
++  if (args.includes("--stats")) {
++    const uptime = (Date.now() - serverStartTime) / 1000;
++    const metrics = {
++      digestInvocations,
++      digestErrors,
++      webhookInvocations,
++      webhookErrors,
++      featuresRequests,
++      missionRequests,
++    };
++    console.log(JSON.stringify({ uptime, metrics }));
++    return true;
++  }
++  return false;
++}
++
+ async function processDigest(args) {
+   if (args.includes("--digest")) {
+     const exampleDigest = {
+@@ -312,11 +368,16 @@ async function processDigest(args) {
+   return false;
+ }
+ 
++// ---------------------------------------------------------------------------------------------------------------------
++// Main CLI
++// ---------------------------------------------------------------------------------------------------------------------
+ export async function main(args = process.argv.slice(2)) {
+   if (serveHttp()) {
+     return;
+   }
+-
++  if (processStats(args)) {
++    return;
++  }
+   if (processHelp(args)) {
+     if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+     return;
+diff --git a/sandbox/tests/http-interface.test.js b/sandbox/tests/http-interface.test.js
+index cf0a8986..d20ffda9 100644
+--- a/sandbox/tests/http-interface.test.js
++++ b/sandbox/tests/http-interface.test.js
+@@ -81,4 +81,32 @@ describe("HTTP Interface Integration", () => {
+     expect(typeof feature.title).toBe("string");
+     expect(feature.title.length).toBeGreaterThan(0);
+   });
+-});
++
++  test("GET /stats returns metrics object with counters and uptime", async () => {
++    const res = await request(app).get("/stats");
++    expect(res.status).toBe(200);
++    expect(res.body).toHaveProperty("uptime");
++    expect(typeof res.body.uptime).toBe("number");
++    expect(res.body.uptime).toBeGreaterThanOrEqual(0);
++    expect(res.body).toHaveProperty("metrics");
++    const metrics = res.body.metrics;
++    expect(metrics).toHaveProperty("digestInvocations");
++    expect(typeof metrics.digestInvocations).toBe("number");
++    expect(metrics.digestInvocations).toBeGreaterThanOrEqual(0);
++    expect(metrics).toHaveProperty("digestErrors");
++    expect(typeof metrics.digestErrors).toBe("number");
++    expect(metrics.digestErrors).toBeGreaterThanOrEqual(0);
++    expect(metrics).toHaveProperty("webhookInvocations");
++    expect(typeof metrics.webhookInvocations).toBe("number");
++    expect(metrics.webhookInvocations).toBeGreaterThanOrEqual(0);
++    expect(metrics).toHaveProperty("webhookErrors");
++    expect(typeof metrics.webhookErrors).toBe("number");
++    expect(metrics.webhookErrors).toBeGreaterThanOrEqual(0);
++    expect(metrics).toHaveProperty("featuresRequests");
++    expect(typeof metrics.featuresRequests).toBe("number");
++    expect(metrics.featuresRequests).toBeGreaterThanOrEqual(0);
++    expect(metrics).toHaveProperty("missionRequests");
++    expect(typeof metrics.missionRequests).toBe("number");
++    expect(metrics.missionRequests).toBeGreaterThanOrEqual(0);
++  });
++});
+\ No newline at end of file\n\n// New [sandbox/docs/stats.md]:\n# Runtime Metrics (Stats)
+
+This document describes how to retrieve in-memory runtime metrics via both HTTP and the CLI.
+
+## HTTP Endpoint: GET /stats
+
+Returns a JSON object containing uptime and counters for key operations.
+
+**Request**
+
+```bash
+curl http://localhost:3000/stats
+```
+
+**Response**
+
+```json
+{
+  "uptime": 42,
+  "metrics": {
+    "digestInvocations": 10,
+    "digestErrors": 1,
+    "webhookInvocations": 5,
+    "webhookErrors": 0,
+    "featuresRequests": 2,
+    "missionRequests": 3
+  }
+}
+```
+
+- **uptime**: Number of seconds since the server started.
+- **digestInvocations**: Number of successful `/digest` calls.
+- **digestErrors**: Number of failed `/digest` calls.
+- **webhookInvocations**: Total `/webhook` calls received.
+- **webhookErrors**: Number of `/webhook` calls that returned errors.
+- **featuresRequests**: Total `GET /features` calls.
+- **missionRequests**: Total `GET /mission` calls.
+
+## CLI Flag: --stats
+
+Retrieve the same metrics via the CLI:
+
+```bash
+node sandbox/source/main.js --stats
+```
+
+**Sample Output**
+
+```json
+{
+  "uptime": 42,
+  "metrics": {
+    "digestInvocations": 10,
+    "digestErrors": 1,
+    "webhookInvocations": 5,
+    "webhookErrors": 0,
+    "featuresRequests": 2,
+    "missionRequests": 3
+  }
+}
+```\n\n// New [sandbox/tests/cli-stats.test.js]:\nimport { describe, test, expect } from "vitest";
+import { exec } from "child_process";
+import { promisify } from "util";
+
+const execAsync = promisify(exec);
+
+describe("CLI Stats Flag", () => {
+  test("node sandbox/source/main.js --stats prints JSON with uptime and metrics and exits 0", async () => {
+    const { stdout, stderr } = await execAsync(
+      "node sandbox/source/main.js --stats"
+    );
+    expect(stderr).toBe("");
+    let json;
+    expect(() => { json = JSON.parse(stdout); }).not.toThrow();
+    expect(json).toHaveProperty("uptime");
+    expect(typeof json.uptime).toBe("number");
+    expect(json.uptime).toBeGreaterThanOrEqual(0);
+    expect(json).toHaveProperty("metrics");
+    const metrics = json.metrics;
+    const keys = [
+      "digestInvocations",
+      "digestErrors",
+      "webhookInvocations",
+      "webhookErrors",
+      "featuresRequests",
+      "missionRequests",
+    ];
+    keys.forEach((key) => {
+      expect(metrics).toHaveProperty(key);
+      expect(typeof metrics[key]).toBe("number");
+      expect(metrics[key]).toBeGreaterThanOrEqual(0);
+    });
+  });
+});
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.8.2-0 start
+> node sandbox/source/main.js
+
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+  --serve, --http            Run in HTTP server mode.
+  --mission                  Show the mission statement of the library.
+  --features                 List available features and their titles.
+  --stats                    Show runtime metrics and request counts.
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1573 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":37470,"completion_tokens":9482,"total_tokens":46952,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2560,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
