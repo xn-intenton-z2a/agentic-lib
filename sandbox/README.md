@@ -34,6 +34,20 @@ Retrieve the list of available features via the CLI:
 node sandbox/source/main.js --features
 ```
 
+**Response**
+
+```json
+{
+  "features": [
+    {
+      "name": "HTTP_INTERFACE",
+      "title": "Objective & Scope",
+      "description": "Provide a unified HTTP interface and complementary CLI flags to expose core agentic-lib functionality without adding new files beyond source, tests, README, and package.json. This feature covers service health, digest processing, webhook intake, mission and feature discovery, and in-memory runtime metrics in a single Express application."
+    }
+  ]
+}
+```
+
 Retrieve runtime metrics via the CLI:
 
 ```bash
@@ -136,7 +150,7 @@ curl http://localhost:3000/mission
 
 ### GET /features
 
-List available features and their titles.
+List available features and their titles and descriptions.
 
 **Request**
 
@@ -151,7 +165,8 @@ curl http://localhost:3000/features
   "features": [
     {
       "name": "HTTP_INTERFACE",
-      "title": "Provide a built-in HTTP interface that allows external systems (for example, CI pipelines or webhook providers) to invoke core agentic-lib functionality via REST endpoints. This feature leverages the existing Express dependency without introducing new files beyond source, test, README, and package.json, and it remains fully compatible with GitHub Actions workflows."
+      "title": "Objective & Scope",
+      "description": "Provide a unified HTTP interface and complementary CLI flags to expose core agentic-lib functionality without adding new files beyond source, tests, README, and package.json. This feature covers service health, digest processing, webhook intake, mission and feature discovery, and in-memory runtime metrics in a single Express application."
     }
   ]
 }
