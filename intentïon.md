@@ -3500,3 +3500,126 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T10:54:15.473Z
+
+fixApplied: true
+
+Update documentation to include feature descriptions in features listing
+
+Git Diff:
+
+```
+diff --git a/sandbox/README.md b/sandbox/README.md
+index d46c4bc6..ea2abc0b 100644
+--- a/sandbox/README.md
++++ b/sandbox/README.md
+@@ -34,6 +34,20 @@ Retrieve the list of available features via the CLI:
+ node sandbox/source/main.js --features
+ ```
+ 
++**Response**
++
++```json
++{
++  "features": [
++    {
++      "name": "HTTP_INTERFACE",
++      "title": "Objective & Scope",
++      "description": "Provide a unified HTTP interface and complementary CLI flags to expose core agentic-lib functionality without adding new files beyond source, tests, README, and package.json. This feature covers service health, digest processing, webhook intake, mission and feature discovery, and in-memory runtime metrics in a single Express application."
++    }
++  ]
++}
++```
++
+ Retrieve runtime metrics via the CLI:
+ 
+ ```bash
+@@ -136,7 +150,7 @@ curl http://localhost:3000/mission
+ 
+ ### GET /features
+ 
+-List available features and their titles.
++List available features and their titles and descriptions.
+ 
+ **Request**
+ 
+@@ -151,7 +165,8 @@ curl http://localhost:3000/features
+   "features": [
+     {
+       "name": "HTTP_INTERFACE",
+-      "title": "Provide a built-in HTTP interface that allows external systems (for example, CI pipelines or webhook providers) to invoke core agentic-lib functionality via REST endpoints. This feature leverages the existing Express dependency without introducing new files beyond source, test, README, and package.json, and it remains fully compatible with GitHub Actions workflows."
++      "title": "Objective & Scope",
++      "description": "Provide a unified HTTP interface and complementary CLI flags to expose core agentic-lib functionality without adding new files beyond source, tests, README, and package.json. This feature covers service health, digest processing, webhook intake, mission and feature discovery, and in-memory runtime metrics in a single Express application."
+     }
+   ]
+ }
+@@ -195,4 +210,4 @@ curl http://localhost:3000/stats
+     "missionRequests": 1
+   }
+ }
+-```
++```
+\ No newline at end of file
+diff --git a/sandbox/docs/features.md b/sandbox/docs/features.md
+index 5810c013..0290a41f 100644
+--- a/sandbox/docs/features.md
++++ b/sandbox/docs/features.md
+@@ -1,6 +1,6 @@
+ # Features
+ 
+-List of available features and how to retrieve them.
++List of available features and how to retrieve them. Each feature object now includes `name`, `title`, and `description` to provide context about the feature.
+ 
+ ## CLI Usage
+ 
+@@ -17,7 +17,8 @@ node sandbox/source/main.js --features
+   "features": [
+     {
+       "name": "HTTP_INTERFACE",
+-      "title": "Provide a built-in HTTP interface that allows external systems (for example, CI pipelines or webhook providers) to invoke core agentic-lib functionality via REST endpoints. This feature leverages the existing Express dependency without introducing new files beyond source, test, README, and package.json, and it remains fully compatible with GitHub Actions workflows."
++      "title": "Objective & Scope",
++      "description": "Provide a unified HTTP interface and complementary CLI flags to expose core agentic-lib functionality without adding new files beyond source, tests, README, and package.json. This feature covers service health, digest processing, webhook intake, mission and feature discovery, and in-memory runtime metrics in a single Express application."
+     }
+   ]
+ }
+@@ -38,8 +39,9 @@ curl http://localhost:3000/features
+   "features": [
+     {
+       "name": "HTTP_INTERFACE",
+-      "title": "Provide a built-in HTTP interface that allows external systems (for example, CI pipelines or webhook providers) to invoke core agentic-lib functionality via REST endpoints. This feature leverages the existing Express dependency without introducing new files beyond source, test, README, and package.json, and it remains fully compatible with GitHub Actions workflows."
++      "title": "Objective & Scope",
++      "description": "Provide a unified HTTP interface and complementary CLI flags to expose core agentic-lib functionality without adding new files beyond source, tests, README, and package.json. This feature covers service health, digest processing, webhook intake, mission and feature discovery, and in-memory runtime metrics in a single Express application."
+     }
+   ]
+ }
+-```
++```
+\ No newline at end of file
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.8.2-0 start
+> node sandbox/source/main.js
+
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+  --serve, --http            Run in HTTP server mode.
+  --mission                  Show the mission statement of the library.
+  --features                 List available features and their titles.
+  --stats                    Show runtime metrics and request counts.
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1581 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":51864,"completion_tokens":6131,"total_tokens":57995,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4160,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
