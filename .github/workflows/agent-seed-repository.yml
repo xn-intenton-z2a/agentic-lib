@@ -37,11 +37,11 @@ on:
         required: false
       CHATGPT_API_SECRET_KEY:
         required: true
-  schedule:
-    #- cron: '4 0 1 */2 *' # schedule-1
-    #- cron: '4 0 1 */1 *' # schedule-2
-    - cron: '4 0 * * 4' # schedule-3
-    #- cron: '4 0 * * 4' # schedule-4
+  #schedule:
+    #- cron: '4 0 1 */2 *' # schedule-unused-1
+    #- cron: '4 0 1 */1 *' # schedule-unused-2
+    #- cron: '4 0 * * 4' # schedule-unused-3
+    #- cron: '4 0 * * 4' # schedule-unused-4
 
 env:
   mission: ${{ inputs.mission || '' }}
