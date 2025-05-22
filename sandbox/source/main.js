@@ -223,6 +223,22 @@ export function createHttpServer() {
     }
   });
 
+  // Stats endpoint
+  app.get("/stats", (req, res) => {
+    const uptime = (Date.now() - serverStartTime) / 1000;
+    res.status(200).json({
+      uptime,
+      metrics: {
+        digestInvocations,
+        digestErrors,
+        webhookInvocations,
+        webhookErrors,
+        featuresRequests,
+        missionRequests,
+      },
+    });
+  });
+
   return app;
 }
 
