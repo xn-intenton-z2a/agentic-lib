@@ -4879,3 +4879,46 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-22T15:40:00.149Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1587 with action close and updated description:
+
+Objective:
+Make the `/features` endpoint and the `--features` CLI flag return a fully self-contained list of features by embedding the project mission into each feature object. Currently the API returns the mission only at the top level; we want each feature entry to include a `mission` field, so that consumers parsing a single feature record get context about the library’s overall mission without additional lookups.
+
+Scope of Changes (sandbox paths only):
+1. sandbox/source/main.js
+   - In the `GET /features` handler inside `createHttpServer()`, read `MISSION.md` once and, when building the `features` array, add a `mission` property (string) to each feature object equal to the mission content.
+   - In `processFeatures()` (CLI), apply the same logic: after loading features, read `MISSION.md` and attach it to every feature object before printing JSON.
+
+2. sandbox/tests/http-interface.test.js
+   - Update the existing `GET /features` integration test to assert that every item in `res.body.features` has a `mission` property of type `string` and non-zero length.
+
+3. sandbox/tests/cli-features.test.js
+   - Extend the CLI test for `--features` to verify that the parsed JSON’s `features` array contains feature objects each with a non-empty `mission` string.
+
+4. sandbox/README.md
+   - In the **GET /features** and **CLI Usage** sections, update the sample JSON responses to show the new `mission` field inside each feature object.
+
+Verification & Acceptance:
+- Start the HTTP server (`npm run start:http`) and run:
+  ```bash
+  curl http://localhost:3000/features | jq '.features[] | select(.name=="HTTP_INTERFACE")'
+  ```
+  Verify the output includes `{ name, title, description, mission }` where `mission` matches the full contents of `MISSION.md`.
+- Run `npm test` to confirm the updated HTTP and CLI tests pass without errors.
+- Run `node sandbox/source/main.js --features` to ensure the CLI output shows a `features` array whose objects each include the `mission` string and exit code 0.
+
+All modifications must be confined to:
+- sandbox/source/main.js
+- sandbox/tests/http-interface.test.js
+- sandbox/tests/cli-features.test.js
+- sandbox/README.md
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":15581,"completion_tokens":1427,"total_tokens":17008,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":832,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
