@@ -2214,3 +2214,73 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-22T04:42:17.589Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1573 with action enhance and updated description:
+
+Objective:
+
+Implement an in-memory metrics system to provide visibility into core HTTP and CLI operations. The system will track request counts and error occurrences for key endpoints and expose these metrics via both an HTTP endpoint and a CLI flag.
+
+Scope of Changes:
+
+1. sandbox/source/main.js
+   - Define global numeric counters: `digestInvocations`, `digestErrors`, `webhookInvocations`, `webhookErrors`, `featuresRequests`, `missionRequests`.
+   - In each HTTP handler (`/digest`, `/webhook`, `/features`, `/mission`), increment the appropriate invocation counter; on error, increment the corresponding error counter.
+   - Add `app.get('/stats', ...)` to return a JSON object:
+     {
+       uptime: number,
+       metrics: {
+         digestInvocations: number,
+         digestErrors: number,
+         webhookInvocations: number,
+         webhookErrors: number,
+         featuresRequests: number,
+         missionRequests: number
+       }
+     }
+   - In the CLI, implement `processStats(args)` to detect `--stats`, print the same JSON to stdout, and exit with code 0.
+   - Update `generateUsage()` to include `--stats                    Show runtime metrics and request counts.`
+   - Integrate `processStats` into `main()` before other CLI commands.
+
+2. sandbox/tests/http-interface.test.js
+   - Add tests for `GET /stats`:
+     • Should return HTTP 200.
+     • Response body must include numeric `uptime` and a `metrics` object with all six counters of type number.
+
+3. sandbox/tests/cli-features.test.js (or a new CLI tests file)
+   - Add a test for `node sandbox/source/main.js --stats`:
+     • Exits with code 0 and no stderr.
+     • stdout is valid JSON with numeric `uptime` and a `metrics` object containing fields `digestInvocations`, `digestErrors`, `webhookInvocations`, `webhookErrors`, `featuresRequests`, `missionRequests`, each a number.
+
+4. sandbox/README.md
+   - Under API Endpoints, document `GET /stats` with request example and a sample JSON response showing `uptime` and `metrics` object.
+   - Under CLI Usage, document `node sandbox/source/main.js --stats` with sample JSON output.
+
+Acceptance Criteria:
+
+1. Runtime Metrics via HTTP:
+   - After invoking `/digest`, `/webhook`, `/features`, and `/mission` endpoints multiple times (including at least one failure in `/digest` or `/webhook`), `GET /stats` returns a JSON payload with:
+     • `uptime` ≥ 0 (seconds since server start)
+     • `metrics.digestInvocations` equal to the count of successful `/digest` calls
+     • `metrics.digestErrors` equal to the count of failed `/digest` calls
+     • `metrics.webhookInvocations` and `metrics.webhookErrors` likewise
+     • `metrics.featuresRequests` and `metrics.missionRequests` reflecting the number of GET calls to `/features` and `/mission`
+
+2. Runtime Metrics via CLI:
+   - Executing `node sandbox/source/main.js --stats` prints the same JSON object to stdout and exits with code 0.
+   - No output to stderr.
+
+3. Tests:
+   - Supertest-based integration tests for `/stats` cover normal and error conditions.
+   - Vitest/exec-based CLI test validates JSON structure, types, and exit code.
+
+All modifications are confined to the sandbox directory: source, tests, and README. No other files should be touched.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":13214,"completion_tokens":1726,"total_tokens":14940,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":896,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
