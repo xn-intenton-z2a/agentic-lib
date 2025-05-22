@@ -34,14 +34,146 @@ Retrieve the list of available features via the CLI:
 node sandbox/source/main.js --features
 ```
 
-Embedded response (each feature):
+**Response**
 
 ```json
-[
-  {
-    "name": "HTTP_INTERFACE",
-    "title": "Objective & Scope",
-    "mission": "# Mission Statement\n..."
+{
+  "features": [
+    {
+      "name": "HTTP_INTERFACE",
+      "title": "Objective & Scope",
+      "description": "Provide a unified HTTP interface and complementary CLI flags to expose core agentic-lib functionality without adding new files beyond source, tests, README, and package.json. This feature covers service health, digest processing, webhook intake, mission and feature discovery, and in-memory runtime metrics in a single Express application."
+    }
+  ]
+}
+```
+
+## HTTP Endpoints
+
+### GET /health
+
+Returns service health and uptime.
+
+**Request**
+
+```bash
+curl http://localhost:3000/health
+```
+
+**Response**
+
+```json
+{
+  "status": "ok",
+  "uptime": 1.234
+}
+```
+
+### POST /digest
+
+Accepts a JSON payload matching the digest schema and invokes the digest handler.
+
+**Request**
+
+```bash
+curl -X POST http://localhost:3000/digest \
+  -H "Content-Type: application/json" \
+  -d '{"key":"events/1.json","value":"12345","lastModified":"2025-05-21T00:00:00Z"}'
+```
+
+**Response**
+
+```json
+{
+  "batchItemFailures": [],
+  "handler": "sandbox/source/main.digestLambdaHandler"
+}
+```
+
+### POST /webhook
+
+Receives any JSON payload, logs it internally, and acknowledges receipt.
+
+**Request**
+
+```bash
+curl -X POST http://localhost:3000/webhook \
+  -H "Content-Type: application/json" \
+  -d '{"foo":"bar"}'
+```
+
+**Response**
+
+```json
+{ "status": "received" }
+```
+
+### GET /features
+
+List available features, including their name, title, and description.
+
+**Request**
+
+```bash
+curl http://localhost:3000/features
+```
+
+**Response**
+
+```json
+{
+  "features": [
+    {
+      "name": "HTTP_INTERFACE",
+      "title": "Objective & Scope",
+      "description": "Provide a unified HTTP interface and complementary CLI flags to expose core agentic-lib functionality without adding new files beyond source, tests, README, and package.json. This feature covers service health, digest processing, webhook intake, mission and feature discovery, and in-memory runtime metrics in a single Express application."
+    }
+  ]
+}
+```
+
+### GET /stats
+
+Returns service uptime and in-memory metrics.
+
+**Request**
+
+```bash
+curl http://localhost:3000/stats
+```
+
+**Response**
+
+```json
+{
+  "uptime": 1.234,
+  "metrics": {
+    "digestInvocations": 0,
+    "digestErrors": 0,
+    "webhookInvocations": 0,
+    "webhookErrors": 0,
+    "featuresRequests": 0,
+    "missionRequests": 0
   }
-]
+}
+```
+
+### GET /discussion-stats
+
+Returns placeholder discussion analytics via HTTP.
+
+**Request**
+
+```bash
+curl http://localhost:3000/discussion-stats
+```
+
+**Response**
+
+```json
+{
+  "discussionCount": 0,
+  "commentCount": 0,
+  "uniqueAuthors": 0
+}
 ```

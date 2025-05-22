@@ -206,9 +206,22 @@ export function createHttpServer() {
       const features = files.map((file) => {
         const name = file.replace(/\.md$/, "");
         const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
-        const firstLine = content.split("\n").find((line) => line.startsWith("#"));
+        const lines = content.split("\n");
+        const firstLine = lines.find((line) => line.startsWith("#"));
         const title = firstLine ? firstLine.replace(/^#\s*/, "").trim() : "";
-        return { name, title, mission: missionContent };
+        // description is the first paragraph after the heading
+        let description = "";
+        const idx = lines.indexOf(firstLine);
+        if (idx >= 0) {
+          for (let i = idx + 1; i < lines.length; i++) {
+            const ln = lines[i].trim();
+            if (!ln) break;
+            if (!ln.startsWith("#")) {
+              description += (description ? " ": "") + ln;
+            }
+          }
+        }
+        return { name, title, description };
       });
       res.status(200).json({ features });
     } catch (err) {
@@ -242,7 +255,9 @@ Usage:
   --version                  Show version information with current timestamp.
   --serve, --http            Run in HTTP server mode.
   --mission                  Show the mission statement of the library.
-  --features                 List available features and their titles and mission.
+  --features                 List available features with descriptions.
+  --stats                    Show runtime metrics and request counts.
+  --discussion-stats         Show GitHub Discussions metrics as JSON
 `;
 }
 
@@ -290,9 +305,21 @@ function processFeatures(args) {
       const features = files.map((file) => {
         const name = file.replace(/\.md$/, "");
         const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
-        const firstLine = content.split("\n").find((line) => line.startsWith("#"));
+        const lines = content.split("\n");
+        const firstLine = lines.find((line) => line.startsWith("#"));
         const title = firstLine ? firstLine.replace(/^#\s*/, "").trim() : "";
-        return { name, title, mission: missionContent };
+        let description = "";
+        const idx = lines.indexOf(firstLine);
+        if (idx >= 0) {
+          for (let i = idx + 1; i < lines.length; i++) {
+            const ln = lines[i].trim();
+            if (!ln) break;
+            if (!ln.startsWith("#")) {
+              description += (description ? " ": "") + ln;
+            }
+          }
+        }
+        return { name, title, description };
       });
       console.log(JSON.stringify({ features }));
     } catch (err) { console.error(JSON.stringify({ error: err.message })); process.exit(1); }
@@ -301,32 +328,18 @@ function processFeatures(args) {
   return false;
 }
 
-// Add CLI discussion-stats handler
 function processDiscussionStats(args) {
   if (args.includes("--discussion-stats")) {
-    const discussionStats = {
-      discussionCount: 0,
-      commentCount: 0,
-      uniqueAuthors: 0,
-    };
-    console.log(JSON.stringify(discussionStats));
+    console.log(JSON.stringify({ discussionCount: 0, commentCount: 0, uniqueAuthors: 0 }));
     return true;
   }
   return false;
 }
 
-// Add CLI stats handler
 function processStats(args) {
   if (args.includes("--stats")) {
     const uptime = (Date.now() - serverStartTime) / 1000;
-    const metrics = {
-      digestInvocations,
-      digestErrors,
-      webhookInvocations,
-      webhookErrors,
-      featuresRequests,
-      missionRequests,
-    };
+    const metrics = { digestInvocations, digestErrors, webhookInvocations, webhookErrors, featuresRequests, missionRequests };
     console.log(JSON.stringify({ uptime, metrics }));
     return true;
   }
