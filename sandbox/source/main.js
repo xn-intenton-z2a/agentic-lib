@@ -7,7 +7,7 @@ if (typeof globalThis.callCount === "undefined") {
 }
 
 import { fileURLToPath } from "url";
-import { readFileSync } from "fs";
+import { readFileSync, readdirSync } from "fs";
 import { z } from "zod";
 import dotenv from "dotenv";
 import express from "express";
@@ -193,6 +193,24 @@ export function createHttpServer() {
     }
   });
 
+  // Features endpoint
+  app.get("/features", (req, res) => {
+    try {
+      const featuresDir = fileURLToPath(new URL("../features", import.meta.url));
+      const files = readdirSync(featuresDir).filter((f) => f.endsWith(".md"));
+      const features = files.map((file) => {
+        const name = file.replace(/\.md$/, "");
+        const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
+        const firstLine = content.split("\n").find((line) => line.startsWith("#"));
+        const title = firstLine ? firstLine.replace(/^#\s*/, '').trim() : '';
+        return { name, title };
+      });
+      res.status(200).json({ features });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   return app;
 }
 
@@ -224,6 +242,7 @@ Usage:
   --version                  Show version information with current timestamp.
   --serve, --http            Run in HTTP server mode.
   --mission                  Show the mission statement of the library.
+  --features                 List available features and their titles.
 `;
 }
 
@@ -272,6 +291,29 @@ function processMission(args) {
   return false;
 }
 
+// Process the --features flag
+function processFeatures(args) {
+  if (args.includes("--features")) {
+    try {
+      const featuresDir = fileURLToPath(new URL("../features", import.meta.url));
+      const files = readdirSync(featuresDir).filter((f) => f.endsWith(".md"));
+      const features = files.map((file) => {
+        const name = file.replace(/\.md$/, "");
+        const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
+        const firstLine = content.split("\n").find((line) => line.startsWith("#"));
+        const title = firstLine ? firstLine.replace(/^#\s*/, '').trim() : '';
+        return { name, title };
+      });
+      console.log(JSON.stringify({ features }));
+    } catch (err) {
+      console.error(JSON.stringify({ error: err.message }));
+      process.exit(1);
+    }
+    return true;
+  }
+  return false;
+}
+
 // Process the --digest flag
 async function processDigest(args) {
   if (args.includes("--digest")) {
@@ -297,35 +339,29 @@ export async function main(args = process.argv.slice(2)) {
   }
 
   if (processHelp(args)) {
-    if (VERBOSE_STATS) {
-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-    }
+    if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
     return;
   }
   if (await processVersion(args)) {
-    if (VERBOSE_STATS) {
-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-    }
+    if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
     return;
   }
   if (processMission(args)) {
-    if (VERBOSE_STATS) {
-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-    }
+    if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    return;
+  }
+  if (processFeatures(args)) {
+    if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
     return;
   }
   if (await processDigest(args)) {
-    if (VERBOSE_STATS) {
-      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-    }
+    if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
     return;
   }
 
   console.log("No command argument supplied.");
   console.log(generateUsage());
-  if (VERBOSE_STATS) {
-    console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-  }
+  if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
