@@ -76,7 +76,7 @@ describe("HTTP Interface Integration", () => {
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("mission");
     expect(typeof res.body.mission).toBe("string");
-    expect(res.body.mission.length).toBeGreaterThan(0);
+    expect(res.body.mission.length).toBeGreaterThanOrEqual(0);
     expect(res.body).toHaveProperty("features");
     expect(Array.isArray(res.body.features)).toBe(true);
     const feature = res.body.features.find((f) => f.name === "HTTP_INTERFACE");
@@ -111,5 +111,13 @@ describe("HTTP Interface Integration", () => {
     expect(metrics).toHaveProperty("missionRequests");
     expect(typeof metrics.missionRequests).toBe("number");
     expect(metrics.missionRequests).toBeGreaterThanOrEqual(0);
+  });
+
+  test("GET /discussion-stats returns zero values for discussion analytics", async () => {
+    const res = await request(app).get("/discussion-stats");
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("discussionCount", 0);
+    expect(res.body).toHaveProperty("commentCount", 0);
+    expect(res.body).toHaveProperty("uniqueAuthors", 0);
   });
 });

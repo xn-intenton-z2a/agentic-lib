@@ -239,6 +239,15 @@ export function createHttpServer() {
     });
   });
 
+  // Discussion-stats endpoint (stubbed)
+  app.get("/discussion-stats", (req, res) => {
+    res.status(200).json({
+      discussionCount: 0,
+      commentCount: 0,
+      uniqueAuthors: 0,
+    });
+  });
+
   return app;
 }
 
@@ -272,6 +281,7 @@ Usage:
   --mission                  Show the mission statement of the library.
   --features                 List available features and their titles.
   --stats                    Show runtime metrics and request counts.
+  --discussion-stats         Show GitHub Discussions metrics as JSON
 `;
 }
 
@@ -358,6 +368,14 @@ function processStats(args) {
   return false;
 }
 
+function processDiscussionStats(args) {
+  if (args.includes("--discussion-stats")) {
+    console.log(JSON.stringify({ discussionCount: 0, commentCount: 0, uniqueAuthors: 0 }));
+    return true;
+  }
+  return false;
+}
+
 async function processDigest(args) {
   if (args.includes("--digest")) {
     const exampleDigest = {
@@ -377,6 +395,9 @@ async function processDigest(args) {
 // ---------------------------------------------------------------------------------------------------------------------
 export async function main(args = process.argv.slice(2)) {
   if (serveHttp()) {
+    return;
+  }
+  if (processDiscussionStats(args)) {
     return;
   }
   if (processStats(args)) {
