@@ -5008,3 +5008,371 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T16:50:13.868Z
+
+fixApplied: true
+
+Add description extraction to features endpoint and CLI update tests and docs accordingly
+
+Git Diff:
+
+```
+diff --git a/sandbox/README.md b/sandbox/README.md
+index 707fdcb0..44814c68 100644
+--- a/sandbox/README.md
++++ b/sandbox/README.md
+@@ -34,14 +34,146 @@ Retrieve the list of available features via the CLI:
+ node sandbox/source/main.js --features
+ ```
+ 
+-Embedded response (each feature):
++**Response**
+ 
+ ```json
+-[
+-  {
+-    "name": "HTTP_INTERFACE",
+-    "title": "Objective & Scope",
+-    "mission": "# Mission Statement\n..."
++{
++  "features": [
++    {
++      "name": "HTTP_INTERFACE",
++      "title": "Objective & Scope",
++      "description": "Provide a unified HTTP interface and complementary CLI flags to expose core agentic-lib functionality without adding new files beyond source, tests, README, and package.json. This feature covers service health, digest processing, webhook intake, mission and feature discovery, and in-memory runtime metrics in a single Express application."
++    }
++  ]
++}
++```
++
++## HTTP Endpoints
++
++### GET /health
++
++Returns service health and uptime.
++
++**Request**
++
++```bash
++curl http://localhost:3000/health
++```
++
++**Response**
++
++```json
++{
++  "status": "ok",
++  "uptime": 1.234
++}
++```
++
++### POST /digest
++
++Accepts a JSON payload matching the digest schema and invokes the digest handler.
++
++**Request**
++
++```bash
++curl -X POST http://localhost:3000/digest \
++  -H "Content-Type: application/json" \
++  -d '{"key":"events/1.json","value":"12345","lastModified":"2025-05-21T00:00:00Z"}'
++```
++
++**Response**
++
++```json
++{
++  "batchItemFailures": [],
++  "handler": "sandbox/source/main.digestLambdaHandler"
++}
++```
++
++### POST /webhook
++
++Receives any JSON payload, logs it internally, and acknowledges receipt.
++
++**Request**
++
++```bash
++curl -X POST http://localhost:3000/webhook \
++  -H "Content-Type: application/json" \
++  -d '{"foo":"bar"}'
++```
++
++**Response**
++
++```json
++{ "status": "received" }
++```
++
++### GET /features
++
++List available features, including their name, title, and description.
++
++**Request**
++
++```bash
++curl http://localhost:3000/features
++```
++
++**Response**
++
++```json
++{
++  "features": [
++    {
++      "name": "HTTP_INTERFACE",
++      "title": "Objective & Scope",
++      "description": "Provide a unified HTTP interface and complementary CLI flags to expose core agentic-lib functionality without adding new files beyond source, tests, README, and package.json. This feature covers service health, digest processing, webhook intake, mission and feature discovery, and in-memory runtime metrics in a single Express application."
++    }
++  ]
++}
++```
++
++### GET /stats
++
++Returns service uptime and in-memory metrics.
++
++**Request**
++
++```bash
++curl http://localhost:3000/stats
++```
++
++**Response**
++
++```json
++{
++  "uptime": 1.234,
++  "metrics": {
++    "digestInvocations": 0,
++    "digestErrors": 0,
++    "webhookInvocations": 0,
++    "webhookErrors": 0,
++    "featuresRequests": 0,
++    "missionRequests": 0
+   }
+-]
++}
+ ```
++
++### GET /discussion-stats
++
++Returns placeholder discussion analytics via HTTP.
++
++**Request**
++
++```bash
++curl http://localhost:3000/discussion-stats
++```
++
++**Response**
++
++```json
++{
++  "discussionCount": 0,
++  "commentCount": 0,
++  "uniqueAuthors": 0
++}
++```
+\ No newline at end of file
+diff --git a/sandbox/docs/features.md b/sandbox/docs/features.md
+index a0ce8af2..5536e6e8 100644
+--- a/sandbox/docs/features.md
++++ b/sandbox/docs/features.md
+@@ -14,7 +14,6 @@ node sandbox/source/main.js --features
+ 
+ ```json
+ {
+-  "mission": "# Mission Statement\n**agentic-lib** Is a JavaScript library which can be used as a drop in JS implementation or wholesale replacement for the steps, jobs, and re-usable workflows below in this repository. It is designed to be used in a GitHub Actions workflow to enable your repository to operate in an \"agentic\" manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.",
+   "features": [
+     {
+       "name": "HTTP_INTERFACE",
+@@ -37,7 +36,6 @@ curl http://localhost:3000/features
+ 
+ ```json
+ {
+-  "mission": "# Mission Statement\n**agentic-lib** Is a JavaScript library which can be used as a drop in JS implementation or wholesale replacement for the steps, jobs, and re-usable workflows below in this repository. It is designed to be used in a GitHub Actions workflow to enable your repository to operate in an \"agentic\" manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.",
+   "features": [
+     {
+       "name": "HTTP_INTERFACE",
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index 6be5802a..a75bb61e 100644
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -206,9 +206,22 @@ export function createHttpServer() {
+       const features = files.map((file) => {
+         const name = file.replace(/\.md$/, "");
+         const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
+-        const firstLine = content.split("\n").find((line) => line.startsWith("#"));
++        const lines = content.split("\n");
++        const firstLine = lines.find((line) => line.startsWith("#"));
+         const title = firstLine ? firstLine.replace(/^#\s*/, "").trim() : "";
+-        return { name, title, mission: missionContent };
++        // description is the first paragraph after the heading
++        let description = "";
++        const idx = lines.indexOf(firstLine);
++        if (idx >= 0) {
++          for (let i = idx + 1; i < lines.length; i++) {
++            const ln = lines[i].trim();
++            if (!ln) break;
++            if (!ln.startsWith("#")) {
++              description += (description ? " ": "") + ln;
++            }
++          }
++        }
++        return { name, title, description };
+       });
+       res.status(200).json({ features });
+     } catch (err) {
+@@ -242,7 +255,9 @@ Usage:
+   --version                  Show version information with current timestamp.
+   --serve, --http            Run in HTTP server mode.
+   --mission                  Show the mission statement of the library.
+-  --features                 List available features and their titles and mission.
++  --features                 List available features with descriptions.
++  --stats                    Show runtime metrics and request counts.
++  --discussion-stats         Show GitHub Discussions metrics as JSON
+ `;
+ }
+ 
+@@ -290,9 +305,21 @@ function processFeatures(args) {
+       const features = files.map((file) => {
+         const name = file.replace(/\.md$/, "");
+         const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
+-        const firstLine = content.split("\n").find((line) => line.startsWith("#"));
++        const lines = content.split("\n");
++        const firstLine = lines.find((line) => line.startsWith("#"));
+         const title = firstLine ? firstLine.replace(/^#\s*/, "").trim() : "";
+-        return { name, title, mission: missionContent };
++        let description = "";
++        const idx = lines.indexOf(firstLine);
++        if (idx >= 0) {
++          for (let i = idx + 1; i < lines.length; i++) {
++            const ln = lines[i].trim();
++            if (!ln) break;
++            if (!ln.startsWith("#")) {
++              description += (description ? " ": "") + ln;
++            }
++          }
++        }
++        return { name, title, description };
+       });
+       console.log(JSON.stringify({ features }));
+     } catch (err) { console.error(JSON.stringify({ error: err.message })); process.exit(1); }
+@@ -301,32 +328,18 @@ function processFeatures(args) {
+   return false;
+ }
+ 
+-// Add CLI discussion-stats handler
+ function processDiscussionStats(args) {
+   if (args.includes("--discussion-stats")) {
+-    const discussionStats = {
+-      discussionCount: 0,
+-      commentCount: 0,
+-      uniqueAuthors: 0,
+-    };
+-    console.log(JSON.stringify(discussionStats));
++    console.log(JSON.stringify({ discussionCount: 0, commentCount: 0, uniqueAuthors: 0 }));
+     return true;
+   }
+   return false;
+ }
+ 
+-// Add CLI stats handler
+ function processStats(args) {
+   if (args.includes("--stats")) {
+     const uptime = (Date.now() - serverStartTime) / 1000;
+-    const metrics = {
+-      digestInvocations,
+-      digestErrors,
+-      webhookInvocations,
+-      webhookErrors,
+-      featuresRequests,
+-      missionRequests,
+-    };
++    const metrics = { digestInvocations, digestErrors, webhookInvocations, webhookErrors, featuresRequests, missionRequests };
+     console.log(JSON.stringify({ uptime, metrics }));
+     return true;
+   }
+diff --git a/sandbox/tests/cli-features.test.js b/sandbox/tests/cli-features.test.js
+index 123fd97b..6ff81308 100644
+--- a/sandbox/tests/cli-features.test.js
++++ b/sandbox/tests/cli-features.test.js
+@@ -5,7 +5,7 @@ import { promisify } from "util";
+ const execAsync = promisify(exec);
+ 
+ describe("CLI Features Flag", () => {
+-  test("node sandbox/source/main.js --features prints JSON with features items embedding mission and exits 0", async () => {
++  test("node sandbox/source/main.js --features prints JSON with feature descriptions and exits 0", async () => {
+     const { stdout, stderr } = await execAsync(
+       "node sandbox/source/main.js --features"
+     );
+@@ -22,8 +22,8 @@ describe("CLI Features Flag", () => {
+     expect(feature).toBeDefined();
+     expect(typeof feature.title).toBe("string");
+     expect(feature.title.length).toBeGreaterThan(0);
+-    expect(feature).toHaveProperty("mission");
+-    expect(typeof feature.mission).toBe("string");
+-    expect(feature.mission.length).toBeGreaterThan(0);
++    expect(feature).toHaveProperty("description");
++    expect(typeof feature.description).toBe("string");
++    expect(feature.description.length).toBeGreaterThan(0);
+   });
+ });
+\ No newline at end of file
+diff --git a/sandbox/tests/http-interface.test.js b/sandbox/tests/http-interface.test.js
+index 9adabbcd..8a0dc89d 100644
+--- a/sandbox/tests/http-interface.test.js
++++ b/sandbox/tests/http-interface.test.js
+@@ -71,7 +71,7 @@ describe("HTTP Interface Integration", () => {
+     expect(res.body.mission.length).toBeGreaterThan(0);
+   });
+ 
+-  test("GET /features returns features list with embedded mission in each item", async () => {
++  test("GET /features returns features list with description, name and title", async () => {
+     const res = await request(app).get("/features");
+     expect(res.status).toBe(200);
+     expect(res.body).toHaveProperty("features");
+@@ -80,8 +80,8 @@ describe("HTTP Interface Integration", () => {
+     expect(feature).toBeDefined();
+     expect(typeof feature.title).toBe("string");
+     expect(feature.title.length).toBeGreaterThan(0);
+-    expect(feature).toHaveProperty("mission");
+-    expect(typeof feature.mission).toBe("string");
+-    expect(feature.mission.length).toBeGreaterThan(0);
++    expect(feature).toHaveProperty("description");
++    expect(typeof feature.description).toBe("string");
++    expect(feature.description.length).toBeGreaterThan(0);
+   });
+ });
+\ No newline at end of file
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.8.2-0 start
+> node sandbox/source/main.js
+
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+  --serve, --http            Run in HTTP server mode.
+  --mission                  Show the mission statement of the library.
+  --features                 List available features with descriptions.
+  --stats                    Show runtime metrics and request counts.
+  --discussion-stats         Show GitHub Discussions metrics as JSON
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1588 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":66487,"completion_tokens":6718,"total_tokens":73205,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
