@@ -690,15 +690,15 @@ Re-usable GitHub Actions Workflows:
 - [n] [Launch] Label issues with the related feature.
 - [n] [Launch] Log successfully merged issues to intentïon.md and reference the feature.
 - [n] [Launch] Add PR approval and closure/abandonment to intentïon.md
-- [n] [Launch] Set the initial states to a "Hello World!" and capture this output.
-- [ ] [Launch] Add a comment and put an issue for review if it is already done.
+- [n] [Launch] Add a comment and put an issue for review if it is already done.
+- [ ] [Launch] Set the initial states to a "Hello World!" and capture this output.
 - [ ] [Launch] For all issue comments, add context to the comment such as: "After review, this issue was found to be already done."
 - [ ] [Launch] Pull into agentic-lib.yml: startsWith("apply-fix-"));
 - [ ] [Launch] Pull into agentic-lib.yml: startsWith("issue-worker-"));
+- [ ] [Launch] Move branch pre-fix to agentic-lib.yml
 - [ ] [Launch] Make the agent prompts match the top level workflow file names
 - [ ] [Launch] Make the reusable workflow names match the top level workflow file names
 - [ ] [Launch] When adding issue comments to a prompt, just add the last <configurable> comments.
-- [ ] [Launch] Move branch pre-fix to agentic-lib.yml
 - [ ] Separate out writable and non-writable file paths in the prompt
 - [ ] Diagram the workflow interactions.
 - [ ] Pull any max file sizes into the agent config
@@ -864,7 +864,7 @@ Supervisor launch:
 - [ ] Run live mode with a real-time scrolling timeline.
 
 Repository0-web:
-- [ ] Set up repository0-web to documents only (elaboration role), hand off to "Repository0-web" tasklist
+- [~] Set up repository0-web to documents only (elaboration role), hand off to "Repository0-web" tasklist
 - [ ] New template for the repository0-web repository (without AWS).
 - [ ] Reduce running of workflows to web publishing and node ci only. (role: elaborator)
 - [ ] Create example templates using content from the library.
