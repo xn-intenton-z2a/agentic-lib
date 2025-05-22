@@ -47,3 +47,5 @@ curl http://localhost:3000/features
   ]
 }
 ```
+
+Each feature object includes `description`, which is the first paragraph of the feature markdown file.
