@@ -4273,3 +4273,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T14:49:25.498Z
+
+Generated feature development issue with title Include mission in each feature object for features listing.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":58460,"completion_tokens":1901,"total_tokens":60361,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1344,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
