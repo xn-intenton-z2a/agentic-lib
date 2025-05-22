@@ -805,3 +805,16 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-22T00:39:16.129Z
+
+Readied issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1560 with enhanced description:
+
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":10761,"completion_tokens":1557,"total_tokens":12318,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":704,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
