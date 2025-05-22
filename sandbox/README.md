@@ -34,16 +34,25 @@ Retrieve the list of available features via the CLI:
 node sandbox/source/main.js --features
 ```
 
+Retrieve runtime metrics via the CLI:
+
+```bash
+node sandbox/source/main.js --stats
+```
+
 **Sample Output**
 
 ```json
 {
-  "features": [
-    {
-      "name": "HTTP_INTERFACE",
-      "title": "Provide a built-in HTTP interface that allows external systems (for example, CI pipelines or webhook providers) to invoke core agentic-lib functionality via REST endpoints. This feature leverages the existing Express dependency without introducing new files beyond source, test, README, and package.json, and it remains fully compatible with GitHub Actions workflows."
-    }
-  ]
+  "uptime": 0.123,
+  "metrics": {
+    "digestInvocations": 0,
+    "digestErrors": 0,
+    "webhookInvocations": 0,
+    "webhookErrors": 0,
+    "featuresRequests": 0,
+    "missionRequests": 0
+  }
 }
 ```
 
@@ -145,6 +154,32 @@ curl http://localhost:3000/features
       "title": "Provide a built-in HTTP interface that allows external systems (for example, CI pipelines or webhook providers) to invoke core agentic-lib functionality via REST endpoints. This feature leverages the existing Express dependency without introducing new files beyond source, test, README, and package.json, and it remains fully compatible with GitHub Actions workflows."
     }
   ]
+}
+```
+
+### GET /stats
+
+Returns service uptime and in-memory metrics.
+
+**Request**
+
+```bash
+curl http://localhost:3000/stats
+```
+
+**Response**
+
+```json
+{
+  "uptime": 1.234,
+  "metrics": {
+    "digestInvocations": 5,
+    "digestErrors": 0,
+    "webhookInvocations": 2,
+    "webhookErrors": 0,
+    "featuresRequests": 3,
+    "missionRequests": 1
+  }
 }
 ```
 

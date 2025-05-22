@@ -38,6 +38,14 @@ const VERBOSE_STATS = false;
 // Record server start time for uptime
 let serverStartTime = Date.now();
 
+// In-memory metrics counters
+let digestInvocations = 0;
+let digestErrors = 0;
+let webhookInvocations = 0;
+let webhookErrors = 0;
+let featuresRequests = 0;
+let missionRequests = 0;
+
 // Helper function to format log entries
 function formatLogEntry(level, message, additionalData = {}) {
   return {
@@ -136,7 +144,7 @@ export function createHttpServer() {
   const app = express();
   app.use(express.json());
   app.use((err, req, res, next) => {
-    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
       return res.status(400).json({ error: `Invalid JSON payload: ${err.message}` });
     }
     next(err);
@@ -144,11 +152,13 @@ export function createHttpServer() {
 
   serverStartTime = Date.now();
 
+  // Health endpoint
   app.get("/health", (req, res) => {
     const uptime = (Date.now() - serverStartTime) / 1000;
     res.status(200).json({ status: "ok", uptime });
   });
 
+  // Digest endpoint
   app.post("/digest", async (req, res) => {
     try {
       const payload = req.body;
@@ -160,8 +170,10 @@ export function createHttpServer() {
       const validated = schema.parse(payload);
       const event = createSQSEventFromDigest(validated);
       const result = await digestLambdaHandler(event);
+      digestInvocations++;
       res.status(200).json(result);
     } catch (err) {
+      digestErrors++;
       const message =
         err instanceof z.ZodError
           ? err.errors.map((e) => e.message).join(", ")
@@ -170,13 +182,17 @@ export function createHttpServer() {
     }
   });
 
+  // Webhook endpoint
   app.post("/webhook", (req, res) => {
+    webhookInvocations++;
     const payload = req.body;
     logInfo(`Webhook received payload: ${JSON.stringify(payload)}`);
     res.status(200).json({ status: "received" });
   });
 
+  // Mission endpoint
   app.get("/mission", (req, res) => {
+    missionRequests++;
     try {
       const missionPath = new URL("../../MISSION.md", import.meta.url);
       const missionContent = readFileSync(missionPath, "utf-8");
@@ -186,7 +202,9 @@ export function createHttpServer() {
     }
   });
 
+  // Features endpoint
   app.get("/features", (req, res) => {
+    featuresRequests++;
     try {
       const featuresDir = fileURLToPath(new URL("../features", import.meta.url));
       const files = readdirSync(featuresDir).filter((f) => f.endsWith(".md"));
@@ -194,7 +212,7 @@ export function createHttpServer() {
         const name = file.replace(/\.md$/, "");
         const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
         const firstLine = content.split("\n").find((line) => line.startsWith("#"));
-        const title = firstLine ? firstLine.replace(/^#\s*/, '').trim() : '';
+        const title = firstLine ? firstLine.replace(/^#\s*/, "").trim() : "";
         return { name, title };
       });
       res.status(200).json({ features });
@@ -203,9 +221,28 @@ export function createHttpServer() {
     }
   });
 
+  // Stats endpoint
+  app.get("/stats", (req, res) => {
+    const uptime = (Date.now() - serverStartTime) / 1000;
+    res.status(200).json({
+      uptime,
+      metrics: {
+        digestInvocations,
+        digestErrors,
+        webhookInvocations,
+        webhookErrors,
+        featuresRequests,
+        missionRequests,
+      },
+    });
+  });
+
   return app;
 }
 
+/**
+ * If --serve or --http flag is present, start HTTP server and bypass CLI.
+ */
 export function serveHttp() {
   const args = process.argv.slice(2);
   if (!args.includes("--serve") && !args.includes("--http")) {
@@ -215,10 +252,11 @@ export function serveHttp() {
   const port = process.env.PORT || 3000;
   app.listen(port, () => {
     logInfo(`HTTP server listening on port ${port}`);
-  }).on("error", (err) => {
-    logError("Express server error", err);
-    process.exit(1);
-  });
+  })
+    .on("error", (err) => {
+      logError("Express server error", err);
+      process.exit(1);
+    });
   return true;
 }
 
@@ -231,6 +269,7 @@ Usage:
   --serve, --http            Run in HTTP server mode.
   --mission                  Show the mission statement of the library.
   --features                 List available features and their titles.
+  --stats                    Show runtime metrics and request counts.
 `;
 }
 
@@ -285,7 +324,7 @@ function processFeatures(args) {
         const name = file.replace(/\.md$/, "");
         const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
         const firstLine = content.split("\n").find((line) => line.startsWith("#"));
-        const title = firstLine ? firstLine.replace(/^#\s*/, '').trim() : '';
+        const title = firstLine ? firstLine.replace(/^#\s*/, "").trim() : "";
         return { name, title };
       });
       console.log(JSON.stringify({ features }));
@@ -293,6 +332,23 @@ function processFeatures(args) {
       console.error(JSON.stringify({ error: err.message }));
       process.exit(1);
     }
+    return true;
+  }
+  return false;
+}
+
+function processStats(args) {
+  if (args.includes("--stats")) {
+    const uptime = (Date.now() - serverStartTime) / 1000;
+    const metrics = {
+      digestInvocations,
+      digestErrors,
+      webhookInvocations,
+      webhookErrors,
+      featuresRequests,
+      missionRequests,
+    };
+    console.log(JSON.stringify({ uptime, metrics }));
     return true;
   }
   return false;
@@ -312,11 +368,16 @@ async function processDigest(args) {
   return false;
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+// Main CLI
+// ---------------------------------------------------------------------------------------------------------------------
 export async function main(args = process.argv.slice(2)) {
   if (serveHttp()) {
     return;
   }
-
+  if (processStats(args)) {
+    return;
+  }
   if (processHelp(args)) {
     if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
     return;
