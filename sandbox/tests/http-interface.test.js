@@ -71,7 +71,7 @@ describe("HTTP Interface Integration", () => {
     expect(res.body.mission.length).toBeGreaterThan(0);
   });
 
-  test("GET /features returns features list with embedded mission in each item", async () => {
+  test("GET /features returns features list with description, name and title", async () => {
     const res = await request(app).get("/features");
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("features");
@@ -80,8 +80,8 @@ describe("HTTP Interface Integration", () => {
     expect(feature).toBeDefined();
     expect(typeof feature.title).toBe("string");
     expect(feature.title.length).toBeGreaterThan(0);
-    expect(feature).toHaveProperty("mission");
-    expect(typeof feature.mission).toBe("string");
-    expect(feature.mission.length).toBeGreaterThan(0);
+    expect(feature).toHaveProperty("description");
+    expect(typeof feature.description).toBe("string");
+    expect(feature.description.length).toBeGreaterThan(0);
   });
 });
