@@ -57,7 +57,7 @@ export function logConfig() {
   });
   console.log(JSON.stringify(logObj));
 }
-logConfig();
+// Configuration logging removed at startup to clean CLI output
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Utility functions
@@ -134,9 +134,7 @@ export async function digestLambdaHandler(sqsEvent) {
  */
 export function createHttpServer() {
   const app = express();
-  // JSON parsing middleware
   app.use(express.json());
-  // Capture JSON parse errors
   app.use((err, req, res, next) => {
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
       return res.status(400).json({ error: `Invalid JSON payload: ${err.message}` });
@@ -144,16 +142,13 @@ export function createHttpServer() {
     next(err);
   });
 
-  // Track server start
   serverStartTime = Date.now();
 
-  // Health endpoint
   app.get("/health", (req, res) => {
     const uptime = (Date.now() - serverStartTime) / 1000;
     res.status(200).json({ status: "ok", uptime });
   });
 
-  // Digest endpoint
   app.post("/digest", async (req, res) => {
     try {
       const payload = req.body;
@@ -175,14 +170,12 @@ export function createHttpServer() {
     }
   });
 
-  // Webhook endpoint
   app.post("/webhook", (req, res) => {
     const payload = req.body;
     logInfo(`Webhook received payload: ${JSON.stringify(payload)}`);
     res.status(200).json({ status: "received" });
   });
 
-  // Mission endpoint
   app.get("/mission", (req, res) => {
     try {
       const missionPath = new URL("../../MISSION.md", import.meta.url);
@@ -193,7 +186,6 @@ export function createHttpServer() {
     }
   });
 
-  // Features endpoint
   app.get("/features", (req, res) => {
     try {
       const featuresDir = fileURLToPath(new URL("../features", import.meta.url));
@@ -214,9 +206,6 @@ export function createHttpServer() {
   return app;
 }
 
-/**
- * If --serve or --http flag is present, start HTTP server and bypass CLI.
- */
 export function serveHttp() {
   const args = process.argv.slice(2);
   if (!args.includes("--serve") && !args.includes("--http")) {
@@ -233,7 +222,6 @@ export function serveHttp() {
   return true;
 }
 
-// Function to generate CLI usage instructions
 function generateUsage() {
   return `
 Usage:
@@ -246,7 +234,6 @@ Usage:
 `;
 }
 
-// Process the --help flag
 function processHelp(args) {
   if (args.includes("--help")) {
     console.log(generateUsage());
@@ -255,7 +242,6 @@ function processHelp(args) {
   return false;
 }
 
-// Process the --version flag
 async function processVersion(args) {
   if (args.includes("--version")) {
     try {
@@ -275,7 +261,6 @@ async function processVersion(args) {
   return false;
 }
 
-// Process the --mission flag
 function processMission(args) {
   if (args.includes("--mission")) {
     try {
@@ -291,7 +276,6 @@ function processMission(args) {
   return false;
 }
 
-// Process the --features flag
 function processFeatures(args) {
   if (args.includes("--features")) {
     try {
@@ -314,7 +298,6 @@ function processFeatures(args) {
   return false;
 }
 
-// Process the --digest flag
 async function processDigest(args) {
   if (args.includes("--digest")) {
     const exampleDigest = {
@@ -329,11 +312,7 @@ async function processDigest(args) {
   return false;
 }
 
-// ---------------------------------------------------------------------------------------------------------------------
-// Main CLI
-// ---------------------------------------------------------------------------------------------------------------------
 export async function main(args = process.argv.slice(2)) {
-  // HTTP mode takes precedence
   if (serveHttp()) {
     return;
   }
