@@ -42,7 +42,8 @@ node sandbox/source/main.js --features
   "features": [
     {
       "name": "HTTP_INTERFACE",
-      "title": "Objective & Scope"
+      "title": "Objective & Scope",
+      "description": "Provide a unified HTTP interface and complementary CLI flags to expose core agentic-lib functionality without adding new files beyond source, tests, README, and package.json. This feature covers service health, digest processing, webhook intake, mission and feature discovery, and in-memory runtime metrics in a single Express application."
     }
   ]
 }
@@ -150,7 +151,7 @@ curl http://localhost:3000/mission
 
 ### GET /features
 
-List available features and their titles (including mission context).
+List available features and their titles, descriptions, and mission context.
 
 **Request**
 
@@ -166,7 +167,8 @@ curl http://localhost:3000/features
   "features": [
     {
       "name": "HTTP_INTERFACE",
-      "title": "Objective & Scope"
+      "title": "Objective & Scope",
+      "description": "Provide a unified HTTP interface and complementary CLI flags to expose core agentic-lib functionality without adding new files beyond source, tests, README, and package.json. This feature covers service health, digest processing, webhook intake, mission and feature discovery, and in-memory runtime metrics in a single Express application."
     }
   ]
 }
