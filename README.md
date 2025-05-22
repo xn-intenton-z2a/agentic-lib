@@ -683,14 +683,18 @@ Re-usable GitHub Actions Workflows:
 - [x] [Launch] Review repository and reseed if stale.
 - [x] [Launch] Review mission and stop when done or failing to progress.
 - [x] [Launch] Stop updating features when the features would deliver the mission.
-- [x] [Launch] When declaring mission-complete rename the branch imtentïon-mission-complete-<mission name>-<date>.
 - [x] [Launch] If the progress has been halted for <agent-lib-defined> time, then seed the repository.
 - [x] [Launch] Add intentïon.md to the context.
 - [n] [Launch] Update packages during reseed.
 - [n] [Launch] Label issues with the related feature.
-- [n] [Launch] Log successfully merged issues to intentïon.md and reference the feature.
+- [n] [Launch] Log successfully merged issues to intentïon.md and mention the relted feature.
 - [n] [Launch] Add PR approval and closure/abandonment to intentïon.md
-- [n] [Launch] Add a comment and put an issue for review if it is already done.
+- [n] [Launch] Add a comment label as already-done if it is already done and change review issue to also select these.
+- [ ] [Launch] Be more ruthless about closing features.
+- [ ] [Launch] Be more bullish about declaring the mission complete.
+- [ ] [Launch] When declaring mission-complete rename the branch intentïon-mission-complete-<mission name>-<date>.
+- [ ] [Launch] Gather complete experiments from experiments from repository0-js-lib (renamed from crucible) and repository0-web (drop plot-code-lib) for the intentïon.com showcase. 
+- [ ] [Launch] Keep repository0 clean for use as a template.
 - [ ] [Launch] Set the initial states to a "Hello World!" and capture this output.
 - [ ] [Launch] For all issue comments, add context to the comment such as: "After review, this issue was found to be already done."
 - [ ] [Launch] Pull into agentic-lib.yml: startsWith("apply-fix-"));
@@ -748,16 +752,8 @@ intentïon user journey [Launch UX]:
 - [x] [Launch] Replace the sandbox with a full repository.
 - [x] [Launch] Change link to running experiment to be a link to intentïon.md on main.
 - [~] [Launch] Simple stream of updates from a seed to deliver a single feature.
-- [ ] [Launch] Add 1-2-3 to the website
-```
-1. Create a GitHub repository from our template.
-2. Save a mission statement for your project.
-3. Watch and interact with the AI driven refinement and development until it’s done or reset and try-again.
-```
 - [ ] [Launch] Add a link to the commit URL for any commit applied
 - [ ] [Launch] Add a link to the URL for any feature updated.
-- [ ] [Launch] intentïon.com shows: past experiments: <link to branch intentïon.md>
-- [ ] [Launch] Create a repository from main via a button.
 - [ ] [Launch] Script the process from request to cloning the repository and setting it up to run the workflows.
 - [ ] [Launch] Screen capture the scripted flow and post a link to this on Youtube.
 - [ ] Request a promotional video.
