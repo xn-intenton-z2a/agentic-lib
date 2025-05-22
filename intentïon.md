@@ -2951,3 +2951,59 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-22T06:44:16.163Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1577 with action close and updated description:
+
+Objective
+Extend the existing HTTP metrics feature by adding a new integration test that exercises `/health`, `/digest` (success and failure), `/webhook`, `/features`, and `/mission`, then validates that `/stats` returns the correct invocation and error counts. Update the sandbox/README.md to include a short example demonstrating how metrics increment after activity.
+
+Scope of Changes
+1. sandbox/tests/http-interface.test.js
+   - Add a new test suite or test case (e.g. "metrics counters increment after activity") that:
+     • Sends a series of HTTP requests against the Express app:
+       - GET `/health` (no metric count)
+       - POST `/digest` with valid payload → should succeed
+       - POST `/digest` with malformed payload → should fail
+       - POST `/webhook`
+       - GET `/features`
+       - GET `/mission`
+     • Calls GET `/stats`
+     • Asserts that in the returned JSON under `metrics`:
+       - `digestInvocations` equals 1
+       - `digestErrors` equals 1
+       - `webhookInvocations` equals 1
+       - `featuresRequests` equals 1
+       - `missionRequests` equals 1
+2. sandbox/README.md
+   - Under the **GET /stats** section, add an example sequence:
+     ```bash
+     # exercise endpoints
+     curl -X POST http://localhost:3000/digest -H 'Content-Type: application/json' -d '{"key":"events/1.json","value":"foo","lastModified":"...Z"}' || true
+     curl -X POST http://localhost:3000/digest -H 'Content-Type: application/json' -d 'invalid'
+     curl -X POST http://localhost:3000/webhook -d '{}' \
+     curl http://localhost:3000/features \
+     curl http://localhost:3000/mission
+
+     # check metrics
+     curl http://localhost:3000/stats
+     ```
+   - Show sample JSON output highlighting nonzero counters.
+
+Verification & Acceptance
+1. Run `npm run start:http` against the updated HTTP server; manually execute the example sequence to confirm `/stats` reflects the expected counts and uptime.
+2. Execute `npm test`; ensure the new metrics integration test passes along with existing tests.
+
+Files to Modify
+- sandbox/tests/http-interface.test.js
+- sandbox/README.md
+
+No other files should be modified. All existing functionality must remain unaffected.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":15375,"completion_tokens":1495,"total_tokens":16870,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":896,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
