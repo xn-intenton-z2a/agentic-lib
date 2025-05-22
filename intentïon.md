@@ -1514,3 +1514,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T02:48:32.118Z
+
+Generated feature development issue with title Extend features listing to include mission context in CLI and HTTP outputs.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":24380,"completion_tokens":2307,"total_tokens":26687,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1792,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
