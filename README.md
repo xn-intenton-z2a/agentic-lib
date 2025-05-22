@@ -693,8 +693,8 @@ Re-usable GitHub Actions Workflows:
 - [ ] [Launch] Be more ruthless about closing features.
 - [ ] [Launch] Be more bullish about declaring the mission complete.
 - [ ] [Launch] When declaring mission-complete rename the branch intentïon-mission-complete-<mission name>-<date>.
-- [ ] [Launch] Gather complete experiments from experiments from repository0-js-lib (renamed from crucible) and repository0-web (drop plot-code-lib) for the intentïon.com showcase. 
-- [ ] [Launch] Keep repository0 clean for use as a template.
+- [ ] [Launch] Keep repository0 clean for use as a template and reference current experiments in repository0-js-lib (renamed from crucible) and repository0-web
+- [ ] [Launch] Gather complete experiments from experiments from repository0-js-lib and repository0-web (drop plot-code-lib) for the intentïon.com showcase.
 - [ ] [Launch] Set the initial states to a "Hello World!" and capture this output.
 - [ ] [Launch] For all issue comments, add context to the comment such as: "After review, this issue was found to be already done."
 - [ ] [Launch] Pull into agentic-lib.yml: startsWith("apply-fix-"));
