@@ -1011,3 +1011,65 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-22T00:53:47.783Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1563 with action nop and updated description:
+
+Objective
+
+Provide a built-in way for users and external systems to retrieve the library’s mission statement via both the CLI and the HTTP interface. This will allow other workflows, tooling, or debugging sessions to programmatically understand the project’s intent.
+
+Scope of Changes
+
+1. sandbox/source/main.js
+   - Import Node’s `fs` module and use `fileURLToPath` to locate the root `MISSION.md` file.
+   - Create a new Express route: `GET /mission`, which reads `MISSION.md`, strips markdown headers if desired, and returns `{ mission: <full file contents as string> }` with HTTP 200. On read errors, respond with HTTP 500 and an error JSON.
+   - Introduce a new CLI flag `--mission`. Add `processMission(args)` that:
+     - Checks for `--mission` in `process.argv`.
+     - Reads `MISSION.md` synchronously.
+     - Prints the JSON string: `{"mission": <file contents>}` to stdout.
+     - Returns `true` to exit early.
+   - Update the `generateUsage()` text to include `--mission                 Show the mission statement of the library.`
+   - Hook `processMission(args)` into the `main()` flow, before `processDigest`.
+
+2. sandbox/tests/http-interface.test.js
+   - Add an integration test for `GET /mission` using `supertest`:
+     - Verify status code 200.
+     - Assert the response body has a `mission` property of type `string` and non-zero length.
+
+3. sandbox/README.md
+   - Document the new `GET /mission` endpoint under the HTTP API section with example `curl` command:
+     ```bash
+     curl http://localhost:3000/mission
+     ```
+   - Show sample JSON response with the `mission` field.
+   - Under CLI usage, add instruction:
+     ```bash
+     node sandbox/source/main.js --mission
+     ```
+     and describe the JSON output.
+
+Verification & Acceptance
+
+- Run `npm run start:http` and `curl http://localhost:3000/mission` to confirm the mission JSON is returned.
+- Execute `npm test` to ensure the new HTTP test passes alongside existing tests.
+- Test the CLI:
+  ```bash
+  node sandbox/source/main.js --mission
+  ```
+  and verify it prints a single JSON object with the `mission` key.
+
+All changes are confined to:
+- `sandbox/source/main.js`
+- `sandbox/tests/http-interface.test.js`
+- `sandbox/README.md`
+
+No other files should be modified.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11530,"completion_tokens":2532,"total_tokens":14062,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1920,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
