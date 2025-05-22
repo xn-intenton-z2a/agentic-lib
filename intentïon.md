@@ -5407,3 +5407,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T21:46:56.213Z
+
+Generated feature development issue with title Expose GitHub Actions workflow run analytics via HTTP endpoint and CLI flag.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":67419,"completion_tokens":2667,"total_tokens":70086,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1600,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
