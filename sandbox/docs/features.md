@@ -1,6 +1,6 @@
 # Features
 
-List of available features and how to retrieve them.
+List of available features and how to retrieve them. Each feature object now includes `name`, `title`, and `description` to provide context about the feature.
 
 ## CLI Usage
 
@@ -17,7 +17,8 @@ node sandbox/source/main.js --features
   "features": [
     {
       "name": "HTTP_INTERFACE",
-      "title": "Provide a built-in HTTP interface that allows external systems (for example, CI pipelines or webhook providers) to invoke core agentic-lib functionality via REST endpoints. This feature leverages the existing Express dependency without introducing new files beyond source, test, README, and package.json, and it remains fully compatible with GitHub Actions workflows."
+      "title": "Objective & Scope",
+      "description": "Provide a unified HTTP interface and complementary CLI flags to expose core agentic-lib functionality without adding new files beyond source, tests, README, and package.json. This feature covers service health, digest processing, webhook intake, mission and feature discovery, and in-memory runtime metrics in a single Express application."
     }
   ]
 }
@@ -38,7 +39,8 @@ curl http://localhost:3000/features
   "features": [
     {
       "name": "HTTP_INTERFACE",
-      "title": "Provide a built-in HTTP interface that allows external systems (for example, CI pipelines or webhook providers) to invoke core agentic-lib functionality via REST endpoints. This feature leverages the existing Express dependency without introducing new files beyond source, test, README, and package.json, and it remains fully compatible with GitHub Actions workflows."
+      "title": "Objective & Scope",
+      "description": "Provide a unified HTTP interface and complementary CLI flags to expose core agentic-lib functionality without adding new files beyond source, tests, README, and package.json. This feature covers service health, digest processing, webhook intake, mission and feature discovery, and in-memory runtime metrics in a single Express application."
     }
   ]
 }
