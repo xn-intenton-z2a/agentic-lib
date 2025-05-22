@@ -7,6 +7,7 @@ if (typeof globalThis.callCount === "undefined") {
 }
 
 import { fileURLToPath } from "url";
+import { readFileSync } from "fs";
 import { z } from "zod";
 import dotenv from "dotenv";
 import express from "express";
@@ -181,6 +182,17 @@ export function createHttpServer() {
     res.status(200).json({ status: "received" });
   });
 
+  // Mission endpoint
+  app.get("/mission", (req, res) => {
+    try {
+      const missionPath = new URL("../../MISSION.md", import.meta.url);
+      const missionContent = readFileSync(missionPath, "utf-8");
+      res.status(200).json({ mission: missionContent });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   return app;
 }
 
@@ -211,6 +223,7 @@ Usage:
   --digest                   Run a full bucket replay simulating an SQS event.
   --version                  Show version information with current timestamp.
   --serve, --http            Run in HTTP server mode.
+  --mission                  Show the mission statement of the library.
 `;
 }
 
@@ -227,9 +240,9 @@ function processHelp(args) {
 async function processVersion(args) {
   if (args.includes("--version")) {
     try {
-      const { readFileSync } = await import("fs");
+      const { readFileSync: readPkg } = await import("fs");
       const packageJsonPath = new URL("../../package.json", import.meta.url);
-      const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+      const packageJson = JSON.parse(readPkg(packageJsonPath, "utf8"));
       const versionInfo = {
         version: packageJson.version,
         timestamp: new Date().toISOString(),
@@ -237,6 +250,22 @@ async function processVersion(args) {
       console.log(JSON.stringify(versionInfo));
     } catch (error) {
       logError("Failed to retrieve version", error);
+    }
+    return true;
+  }
+  return false;
+}
+
+// Process the --mission flag
+function processMission(args) {
+  if (args.includes("--mission")) {
+    try {
+      const missionFilePath = new URL("../../MISSION.md", import.meta.url);
+      const missionContent = readFileSync(missionFilePath, "utf-8");
+      console.log(JSON.stringify({ mission: missionContent }));
+    } catch (err) {
+      console.error(JSON.stringify({ error: err.message }));
+      process.exit(1);
     }
     return true;
   }
@@ -274,6 +303,12 @@ export async function main(args = process.argv.slice(2)) {
     return;
   }
   if (await processVersion(args)) {
+    if (VERBOSE_STATS) {
+      console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
+    }
+    return;
+  }
+  if (processMission(args)) {
     if (VERBOSE_STATS) {
       console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
     }

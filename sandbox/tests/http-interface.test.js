@@ -62,4 +62,12 @@ describe("HTTP Interface Integration", () => {
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ status: "received" });
   });
+
+  test("GET /mission returns mission content", async () => {
+    const res = await request(app).get("/mission");
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("mission");
+    expect(typeof res.body.mission).toBe("string");
+    expect(res.body.mission.length).toBeGreaterThan(0);
+  });
 });
