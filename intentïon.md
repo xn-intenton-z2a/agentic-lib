@@ -2015,3 +2015,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T03:53:43.404Z
+
+Generated feature development issue with title Embed mission context in features CLI output and GET /features HTTP response.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":30472,"completion_tokens":1324,"total_tokens":31796,"prompt_tokens_details":{"cached_tokens":15744,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
