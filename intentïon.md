@@ -3895,3 +3895,86 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T12:59:37.881Z
+
+fixApplied: true
+
+Update documentation to include feature descriptions in features listing
+
+Git Diff:
+
+```
+diff --git a/sandbox/README.md b/sandbox/README.md
+index 7876bf6c..2e05d5f6 100644
+--- a/sandbox/README.md
++++ b/sandbox/README.md
+@@ -42,7 +42,8 @@ node sandbox/source/main.js --features
+   "features": [
+     {
+       "name": "HTTP_INTERFACE",
+-      "title": "Objective & Scope"
++      "title": "Objective & Scope",
++      "description": "Provide a unified HTTP interface and complementary CLI flags to expose core agentic-lib functionality without adding new files beyond source, tests, README, and package.json. This feature covers service health, digest processing, webhook intake, mission and feature discovery, and in-memory runtime metrics in a single Express application."
+     }
+   ]
+ }
+@@ -150,7 +151,7 @@ curl http://localhost:3000/mission
+ 
+ ### GET /features
+ 
+-List available features and their titles (including mission context).
++List available features and their titles, descriptions, and mission context.
+ 
+ **Request**
+ 
+@@ -166,7 +167,8 @@ curl http://localhost:3000/features
+   "features": [
+     {
+       "name": "HTTP_INTERFACE",
+-      "title": "Objective & Scope"
++      "title": "Objective & Scope",
++      "description": "Provide a unified HTTP interface and complementary CLI flags to expose core agentic-lib functionality without adding new files beyond source, tests, README, and package.json. This feature covers service health, digest processing, webhook intake, mission and feature discovery, and in-memory runtime metrics in a single Express application."
+     }
+   ]
+ }
+diff --git a/sandbox/docs/features.md b/sandbox/docs/features.md
+index 5798dd74..70292e05 100644
+--- a/sandbox/docs/features.md
++++ b/sandbox/docs/features.md
+@@ -46,4 +46,6 @@ curl http://localhost:3000/features
+     }
+   ]
+ }
+-```
+\ No newline at end of file
++```
++
++Each feature object includes `description`, which is the first paragraph of the feature markdown file.
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.8.2-0 start
+> node sandbox/source/main.js
+
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+  --serve, --http            Run in HTTP server mode.
+  --mission                  Show the mission statement of the library.
+  --features                 List available features and their titles.
+  --stats                    Show runtime metrics and request counts.
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1581 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":58570,"completion_tokens":2507,"total_tokens":61077,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
