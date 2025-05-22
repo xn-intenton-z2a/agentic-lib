@@ -3993,3 +3993,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T13:50:27.699Z
+
+Generated feature development issue with title Add discussion analytics via HTTP endpoint and CLI flag.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":55148,"completion_tokens":1641,"total_tokens":56789,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":960,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
