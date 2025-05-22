@@ -794,3 +794,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T00:38:36.561Z
+
+Generated feature development issue with title Expose project mission via CLI flag and HTTP endpoint.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":16418,"completion_tokens":2079,"total_tokens":18497,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1472,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
