@@ -3489,3 +3489,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T10:49:21.355Z
+
+Generated feature development issue with title Sync documentation to include feature descriptions in features listing.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":49725,"completion_tokens":1885,"total_tokens":51610,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1472,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
