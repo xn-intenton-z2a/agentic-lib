@@ -2817,3 +2817,137 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T05:52:03.895Z
+
+fixApplied: true
+
+Add metrics integration test and README example for stats counters
+
+Git Diff:
+
+```
+diff --git a/sandbox/README.md b/sandbox/README.md
+index f4b58727..d46c4bc6 100644
+--- a/sandbox/README.md
++++ b/sandbox/README.md
+@@ -167,24 +167,32 @@ Returns service uptime and in-memory metrics.
+ curl http://localhost:3000/stats
+ ```
+ 
++**Example Sequence**
++
++```bash
++# exercise endpoints
++curl -X POST http://localhost:3000/digest -H 'Content-Type: application/json' -d '{"key":"events/1.json","value":"foo","lastModified":"2025-05-22T00:00:00Z"}' || true
++curl -X POST http://localhost:3000/digest -H 'Content-Type: application/json' -d '{}'
++curl -X POST http://localhost:3000/webhook -H 'Content-Type: application/json' -d '{}'
++curl http://localhost:3000/features
++curl http://localhost:3000/mission
++
++# check metrics
++curl http://localhost:3000/stats
++```
++
+ **Response**
+ 
+ ```json
+ {
+   "uptime": 1.234,
+   "metrics": {
+-    "digestInvocations": 5,
+-    "digestErrors": 0,
+-    "webhookInvocations": 2,
++    "digestInvocations": 1,
++    "digestErrors": 1,
++    "webhookInvocations": 1,
+     "webhookErrors": 0,
+-    "featuresRequests": 3,
++    "featuresRequests": 1,
+     "missionRequests": 1
+   }
+ }
+ ```
+-
+-## Additional Resources
+-
+-- [MISSION.md](../MISSION.md)
+-- [CONTRIBUTING.md](../CONTRIBUTING.md)
+-- [GitHub Repository](https://github.com/xn-intenton-z2a/agentic-lib)
+\ No newline at end of file
+diff --git a/sandbox/tests/http-interface.test.js b/sandbox/tests/http-interface.test.js
+index d20ffda9..81c06e3c 100644
+--- a/sandbox/tests/http-interface.test.js
++++ b/sandbox/tests/http-interface.test.js
+@@ -71,7 +71,7 @@ describe("HTTP Interface Integration", () => {
+     expect(res.body.mission.length).toBeGreaterThan(0);
+   });
+ 
+-  test("GET /features returns features list with name and title", async () => {
++  test("GET /features returns features list with mission, name and title", async () => {
+     const res = await request(app).get("/features");
+     expect(res.status).toBe(200);
+     expect(res.body).toHaveProperty("features");
+@@ -109,4 +109,33 @@ describe("HTTP Interface Integration", () => {
+     expect(typeof metrics.missionRequests).toBe("number");
+     expect(metrics.missionRequests).toBeGreaterThanOrEqual(0);
+   });
+-});
+\ No newline at end of file
++
++  test("metrics counters increment after activity", async () => {
++    // Exercise multiple endpoints to update metrics
++    await request(app).get("/health"); // does not affect stats counters
++    // Valid digest
++    const valid = { key: "events/1.json", value: "foo", lastModified: new Date().toISOString() };
++    const res1 = await request(app)
++      .post("/digest")
++      .set("Content-Type", "application/json")
++      .send(valid);
++    expect(res1.status).toBe(200);
++    // Invalid digest schema
++    const res2 = await request(app)
++      .post("/digest")
++      .set("Content-Type", "application/json")
++      .send({});
++    expect(res2.status).toBe(400);
++    await request(app).post("/webhook").send({});
++    await request(app).get("/features");
++    await request(app).get("/mission");
++    const statsRes = await request(app).get("/stats");
++    expect(statsRes.status).toBe(200);
++    const m = statsRes.body.metrics;
++    expect(m.digestInvocations).toBe(1);
++    expect(m.digestErrors).toBe(1);
++    expect(m.webhookInvocations).toBe(1);
++    expect(m.featuresRequests).toBe(1);
++    expect(m.missionRequests).toBe(1);
++  });
++});
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.8.2-0 start
+> node sandbox/source/main.js
+
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+  --serve, --http            Run in HTTP server mode.
+  --mission                  Show the mission statement of the library.
+  --features                 List available features and their titles.
+  --stats                    Show runtime metrics and request counts.
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1577 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":43923,"completion_tokens":5210,"total_tokens":49133,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2048,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
