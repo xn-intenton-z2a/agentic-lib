@@ -1,36 +1,61 @@
 # Objective & Scope
 
-Provide a built-in HTTP interface that allows external systems (for example, CI pipelines or webhook providers) to invoke core agentic-lib functionality via REST endpoints. This feature leverages the existing Express dependency without introducing new files beyond source, test, README, and package.json, and it remains fully compatible with GitHub Actions workflows.
+Extend the existing HTTP interface feature to collect in-memory runtime metrics and expose them via a new HTTP endpoint and CLI flag. This enhancement remains confined to sandbox/source/main.js, sandbox/tests, sandbox/README.md, and package.json.
 
 # Value Proposition
 
-- Enables easy integration with third-party tools by issuing HTTP requests instead of CLI calls
-- Simplifies local testing and debugging through a listen-and-serve model
-- Supports health checks and secure webhook ingestion for automated pipelines
+- Provide visibility into service usage and reliability via basic metrics without external monitoring systems
+- Enable automated workflows or developers to query invocation counts and error rates programmatically
+- Maintain a lightweight footprint: metrics live in process memory and require no additional dependencies
 
 # API Endpoints
 
-## GET /health
+## GET /stats
 
-Returns a JSON object indicating service health and uptime. Useful for readiness and liveness probes in containerized environments.
+Return a JSON object with service uptime and invocation counters:
 
-## POST /digest
+- **uptime**: seconds since server start
+- **totalDigestInvocations**: number of successful POST /digest calls
+- **totalDigestErrors**: number of POST /digest calls that returned errors
+- **totalWebhookCalls**: number of POST /webhook calls received
+- **totalFeaturesRequests**: number of GET /features calls
+- **totalMissionRequests**: number of GET /mission calls
 
-Accepts a JSON payload matching the existing digest schema. Internally calls createSQSEventFromDigest and digestLambdaHandler, returning batchItemFailures and handler info.
+Respond with HTTP 200 and shape:
 
-## POST /webhook
+```json
+{
+  "uptime": 42,
+  "totalDigestInvocations": 10,
+  "totalDigestErrors": 1,
+  "totalWebhookCalls": 5,
+  "totalFeaturesRequests": 2,
+  "totalMissionRequests": 3
+}
+```
 
-Receives arbitrary JSON (e.g., GitHub webhook payload), logs the payload, and responds with a 200 status. Provides an extensibility point for future event handling or routing logic.
+# CLI Flag
+
+Introduce a new `--stats` flag in the CLI:
+
+```bash
+node sandbox/source/main.js --stats
+```
+
+On invocation, synchronously print the same JSON object returned by GET /stats and exit with code 0.
 
 # Success Criteria & Requirements
 
-- Service starts when invoked with a new CLI flag --serve or --http
-- Endpoints respond with appropriate HTTP status codes and JSON payloads
-- Integration tests using supertest validate each endpoint under normal and error conditions
-- No changes outside main source, test suite, README, or package.json
+- Track counters in memory: increment appropriate metric on each endpoint invocation
+- Implement `GET /stats` in Express app listening on `/stats`
+- Add `processStats(args)` in CLI to handle `--stats`, read metrics, print JSON to stdout
+- Integration tests using supertest for `/stats` covering normal and error conditions
+- CLI test using `vitest` and `exec` to validate correct JSON output and exit code
+- Update sandbox/README.md with usage instructions for HTTP `/stats` and CLI `--stats`
+- No changes outside sandbox source, tests, README, or package.json
 
 # Verification & Acceptance
 
-- Unit tests cover handler logic via supertest against the live Express app
-- README updated with usage instructions for HTTP mode, including example curl commands
-- package.json scripts updated (for example, "start:http": "node src/lib/main.js --serve")
+1. Run `npm run start:http`; send metrics-altering requests (`/health`, `/digest`, `/webhook`, `/features`, `/mission`) then `curl http://localhost:3000/stats`; verify counts and uptime.
+2. Execute `npm test`; ensure new tests for `/stats` and `--stats` pass alongside existing tests.
+3. Run CLI: `node sandbox/source/main.js --stats`; parse JSON; verify keys and positive values; ensure exit code 0.
