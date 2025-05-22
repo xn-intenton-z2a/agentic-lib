@@ -1578,3 +1578,52 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-22T03:04:50.036Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1568 with action close and updated description:
+
+Objective  
+Ensure that both the CLI (--features) and the HTTP GET /features endpoint return the project’s mission statement along with the list of features. Embedding the mission provides context for how each feature aligns with the project’s purpose.
+
+Scope of Changes  
+1. sandbox/source/main.js  
+   • HTTP /features endpoint: read MISSION.md and include a top-level "mission" property in the JSON response alongside the existing "features" array.  
+   • processFeatures CLI handler: when --features is passed, read MISSION.md, then output JSON with both "mission" and "features" keys.  
+   • Keep the existing features-only logic unchanged except to wrap it with the mission.
+
+2. sandbox/tests/http-interface.test.js  
+   • Add an integration test for GET /features that asserts:  
+     – status code 200  
+     – response body has a non-empty string property "mission"  
+     – response body has "features" array unchanged in structure  
+   
+3. sandbox/README.md  
+   • Update the GET /features section to show example output including the new "mission" field.  
+   • Update the CLI --features example to include mission in JSON sample.
+
+Verification & Acceptance  
+1. Run `npm run start:http` and execute:  
+   ```bash  
+   curl http://localhost:3000/features  
+   ```  
+   - Response includes both "mission" (string) and "features" (array) keys.  
+2. Run CLI locally:  
+   ```bash  
+   node sandbox/source/main.js --features  
+   ```  
+   - Prints a single JSON object containing both "mission" and "features"; exits with code 0.  
+3. Execute `npm test` and confirm all existing and new tests pass.  
+
+All changes must be confined to:  
+- sandbox/source/main.js  
+- sandbox/tests/http-interface.test.js  
+- sandbox/README.md  
+- package.json (no edits required unless scripts need updating, but verify no regressions occur.)
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":12357,"completion_tokens":817,"total_tokens":13174,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":256,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
