@@ -71,53 +71,17 @@ describe("HTTP Interface Integration", () => {
     expect(res.body.mission.length).toBeGreaterThan(0);
   });
 
-  test("GET /features returns features list with mission, name and title", async () => {
+  test("GET /features returns features list with embedded mission in each item", async () => {
     const res = await request(app).get("/features");
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty("mission");
-    expect(typeof res.body.mission).toBe("string");
-    expect(res.body.mission.length).toBeGreaterThanOrEqual(0);
     expect(res.body).toHaveProperty("features");
     expect(Array.isArray(res.body.features)).toBe(true);
     const feature = res.body.features.find((f) => f.name === "HTTP_INTERFACE");
     expect(feature).toBeDefined();
     expect(typeof feature.title).toBe("string");
     expect(feature.title.length).toBeGreaterThan(0);
-  });
-
-  test("GET /stats returns metrics object with counters and uptime", async () => {
-    const res = await request(app).get("/stats");
-    expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty("uptime");
-    expect(typeof res.body.uptime).toBe("number");
-    expect(res.body.uptime).toBeGreaterThanOrEqual(0);
-    expect(res.body).toHaveProperty("metrics");
-    const metrics = res.body.metrics;
-    expect(metrics).toHaveProperty("digestInvocations");
-    expect(typeof metrics.digestInvocations).toBe("number");
-    expect(metrics.digestInvocations).toBeGreaterThanOrEqual(0);
-    expect(metrics).toHaveProperty("digestErrors");
-    expect(typeof metrics.digestErrors).toBe("number");
-    expect(metrics.digestErrors).toBeGreaterThanOrEqual(0);
-    expect(metrics).toHaveProperty("webhookInvocations");
-    expect(typeof metrics.webhookInvocations).toBe("number");
-    expect(metrics.webhookInvocations).toBeGreaterThanOrEqual(0);
-    expect(metrics).toHaveProperty("webhookErrors");
-    expect(typeof metrics.webhookErrors).toBe("number");
-    expect(metrics.webhookErrors).toBeGreaterThanOrEqual(0);
-    expect(metrics).toHaveProperty("featuresRequests");
-    expect(typeof metrics.featuresRequests).toBe("number");
-    expect(metrics.featuresRequests).toBeGreaterThanOrEqual(0);
-    expect(metrics).toHaveProperty("missionRequests");
-    expect(typeof metrics.missionRequests).toBe("number");
-    expect(metrics.missionRequests).toBeGreaterThanOrEqual(0);
-  });
-
-  test("GET /discussion-stats returns zero values for discussion analytics", async () => {
-    const res = await request(app).get("/discussion-stats");
-    expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty("discussionCount", 0);
-    expect(res.body).toHaveProperty("commentCount", 0);
-    expect(res.body).toHaveProperty("uniqueAuthors", 0);
+    expect(feature).toHaveProperty("mission");
+    expect(typeof feature.mission).toBe("string");
+    expect(feature.mission.length).toBeGreaterThan(0);
   });
 });

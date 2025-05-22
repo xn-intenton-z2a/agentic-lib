@@ -5,21 +5,14 @@ import { promisify } from "util";
 const execAsync = promisify(exec);
 
 describe("CLI Features Flag", () => {
-  test("node sandbox/source/main.js --features prints JSON with mission and features and exits 0", async () => {
+  test("node sandbox/source/main.js --features prints JSON with features items embedding mission and exits 0", async () => {
     const { stdout, stderr } = await execAsync(
       "node sandbox/source/main.js --features"
     );
-
     expect(stderr).toBe("");
 
     let json;
-    expect(() => {
-      json = JSON.parse(stdout);
-    }).not.toThrow();
-
-    expect(json).toHaveProperty("mission");
-    expect(typeof json.mission).toBe("string");
-    expect(json.mission.length).toBeGreaterThan(0);
+    expect(() => { json = JSON.parse(stdout); }).not.toThrow();
 
     expect(json).toHaveProperty("features");
     expect(Array.isArray(json.features)).toBe(true);
@@ -29,5 +22,8 @@ describe("CLI Features Flag", () => {
     expect(feature).toBeDefined();
     expect(typeof feature.title).toBe("string");
     expect(feature.title.length).toBeGreaterThan(0);
+    expect(feature).toHaveProperty("mission");
+    expect(typeof feature.mission).toBe("string");
+    expect(feature.mission.length).toBeGreaterThan(0);
   });
 });

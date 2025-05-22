@@ -162,11 +162,7 @@ export function createHttpServer() {
   app.post("/digest", async (req, res) => {
     try {
       const payload = req.body;
-      const schema = z.object({
-        key: z.string(),
-        value: z.string(),
-        lastModified: z.string(),
-      });
+      const schema = z.object({ key: z.string(), value: z.string(), lastModified: z.string() });
       const validated = schema.parse(payload);
       const event = createSQSEventFromDigest(validated);
       const result = await digestLambdaHandler(event);
@@ -174,10 +170,7 @@ export function createHttpServer() {
       res.status(200).json(result);
     } catch (err) {
       digestErrors++;
-      const message =
-        err instanceof z.ZodError
-          ? err.errors.map((e) => e.message).join(", ")
-          : err.message;
+      const message = err instanceof z.ZodError ? err.errors.map((e) => e.message).join(", ") : err.message;
       res.status(400).json({ error: `Invalid JSON payload: ${message}` });
     }
   });
@@ -208,44 +201,19 @@ export function createHttpServer() {
     try {
       const featuresDir = fileURLToPath(new URL("../features", import.meta.url));
       const files = readdirSync(featuresDir).filter((f) => f.endsWith(".md"));
+      const missionPath = new URL("../../MISSION.md", import.meta.url);
+      const missionContent = readFileSync(missionPath, "utf-8");
       const features = files.map((file) => {
         const name = file.replace(/\.md$/, "");
         const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
         const firstLine = content.split("\n").find((line) => line.startsWith("#"));
         const title = firstLine ? firstLine.replace(/^#\s*/, "").trim() : "";
-        return { name, title };
+        return { name, title, mission: missionContent };
       });
-      const missionPath = new URL("../../MISSION.md", import.meta.url);
-      const missionContent = readFileSync(missionPath, "utf-8");
-      res.status(200).json({ mission: missionContent, features });
+      res.status(200).json({ features });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
-  });
-
-  // Stats endpoint
-  app.get("/stats", (req, res) => {
-    const uptime = (Date.now() - serverStartTime) / 1000;
-    res.status(200).json({
-      uptime,
-      metrics: {
-        digestInvocations,
-        digestErrors,
-        webhookInvocations,
-        webhookErrors,
-        featuresRequests,
-        missionRequests,
-      },
-    });
-  });
-
-  // Discussion-stats endpoint (stubbed)
-  app.get("/discussion-stats", (req, res) => {
-    res.status(200).json({
-      discussionCount: 0,
-      commentCount: 0,
-      uniqueAuthors: 0,
-    });
   });
 
   return app;
@@ -256,18 +224,13 @@ export function createHttpServer() {
  */
 export function serveHttp() {
   const args = process.argv.slice(2);
-  if (!args.includes("--serve") && !args.includes("--http")) {
-    return false;
-  }
+  if (!args.includes("--serve") && !args.includes("--http")) return false;
   const app = createHttpServer();
   const port = process.env.PORT || 3000;
-  app.listen(port, () => {
-    logInfo(`HTTP server listening on port ${port}`);
-  })
-    .on("error", (err) => {
-      logError("Express server error", err);
-      process.exit(1);
-    });
+  app.listen(port, () => logInfo(`HTTP server listening on port ${port}`)).on("error", (err) => {
+    logError("Express server error", err);
+    process.exit(1);
+  });
   return true;
 }
 
@@ -279,9 +242,7 @@ Usage:
   --version                  Show version information with current timestamp.
   --serve, --http            Run in HTTP server mode.
   --mission                  Show the mission statement of the library.
-  --features                 List available features and their titles.
-  --stats                    Show runtime metrics and request counts.
-  --discussion-stats         Show GitHub Discussions metrics as JSON
+  --features                 List available features and their titles and mission.
 `;
 }
 
@@ -299,14 +260,9 @@ async function processVersion(args) {
       const { readFileSync: readPkg } = await import("fs");
       const packageJsonPath = new URL("../../package.json", import.meta.url);
       const packageJson = JSON.parse(readPkg(packageJsonPath, "utf8"));
-      const versionInfo = {
-        version: packageJson.version,
-        timestamp: new Date().toISOString(),
-      };
+      const versionInfo = { version: packageJson.version, timestamp: new Date().toISOString() };
       console.log(JSON.stringify(versionInfo));
-    } catch (error) {
-      logError("Failed to retrieve version", error);
-    }
+    } catch (error) { logError("Failed to retrieve version", error); }
     return true;
   }
   return false;
@@ -318,10 +274,7 @@ function processMission(args) {
       const missionFilePath = new URL("../../MISSION.md", import.meta.url);
       const missionContent = readFileSync(missionFilePath, "utf-8");
       console.log(JSON.stringify({ mission: missionContent }));
-    } catch (err) {
-      console.error(JSON.stringify({ error: err.message }));
-      process.exit(1);
-    }
+    } catch (err) { console.error(JSON.stringify({ error: err.message })); process.exit(1); }
     return true;
   }
   return false;
@@ -332,45 +285,17 @@ function processFeatures(args) {
     try {
       const featuresDir = fileURLToPath(new URL("../features", import.meta.url));
       const files = readdirSync(featuresDir).filter((f) => f.endsWith(".md"));
+      const missionFilePath = new URL("../../MISSION.md", import.meta.url);
+      const missionContent = readFileSync(missionFilePath, "utf-8");
       const features = files.map((file) => {
         const name = file.replace(/\.md$/, "");
         const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
         const firstLine = content.split("\n").find((line) => line.startsWith("#"));
         const title = firstLine ? firstLine.replace(/^#\s*/, "").trim() : "";
-        return { name, title };
+        return { name, title, mission: missionContent };
       });
-      const missionFilePath = new URL("../../MISSION.md", import.meta.url);
-      const missionContent = readFileSync(missionFilePath, "utf-8");
-      console.log(JSON.stringify({ mission: missionContent, features }));
-    } catch (err) {
-      console.error(JSON.stringify({ error: err.message }));
-      process.exit(1);
-    }
-    return true;
-  }
-  return false;
-}
-
-function processStats(args) {
-  if (args.includes("--stats")) {
-    const uptime = (Date.now() - serverStartTime) / 1000;
-    const metrics = {
-      digestInvocations,
-      digestErrors,
-      webhookInvocations,
-      webhookErrors,
-      featuresRequests,
-      missionRequests,
-    };
-    console.log(JSON.stringify({ uptime, metrics }));
-    return true;
-  }
-  return false;
-}
-
-function processDiscussionStats(args) {
-  if (args.includes("--discussion-stats")) {
-    console.log(JSON.stringify({ discussionCount: 0, commentCount: 0, uniqueAuthors: 0 }));
+      console.log(JSON.stringify({ features }));
+    } catch (err) { console.error(JSON.stringify({ error: err.message })); process.exit(1); }
     return true;
   }
   return false;
@@ -378,11 +303,7 @@ function processDiscussionStats(args) {
 
 async function processDigest(args) {
   if (args.includes("--digest")) {
-    const exampleDigest = {
-      key: "events/1.json",
-      value: "12345",
-      lastModified: new Date().toISOString(),
-    };
+    const exampleDigest = { key: "events/1.json", value: "12345", lastModified: new Date().toISOString() };
     const sqsEvent = createSQSEventFromDigest(exampleDigest);
     await digestLambdaHandler(sqsEvent);
     return true;
@@ -394,44 +315,16 @@ async function processDigest(args) {
 // Main CLI
 // ---------------------------------------------------------------------------------------------------------------------
 export async function main(args = process.argv.slice(2)) {
-  if (serveHttp()) {
-    return;
-  }
-  if (processDiscussionStats(args)) {
-    return;
-  }
-  if (processStats(args)) {
-    return;
-  }
-  if (processHelp(args)) {
-    if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-    return;
-  }
-  if (await processVersion(args)) {
-    if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-    return;
-  }
-  if (processMission(args)) {
-    if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-    return;
-  }
-  if (processFeatures(args)) {
-    if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-    return;
-  }
-  if (await processDigest(args)) {
-    if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
-    return;
-  }
-
+  if (serveHttp()) return;
+  if (processHelp(args)) return;
+  if (await processVersion(args)) return;
+  if (processMission(args)) return;
+  if (processFeatures(args)) return;
+  if (await processDigest(args)) return;
   console.log("No command argument supplied.");
   console.log(generateUsage());
-  if (VERBOSE_STATS) console.log(JSON.stringify({ callCount: globalThis.callCount, uptime: process.uptime() }));
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main().catch((err) => {
-    logError("Fatal error in main execution", err);
-    process.exit(1);
-  });
+  main().catch((err) => { logError("Fatal error in main execution", err); process.exit(1); });
 }
