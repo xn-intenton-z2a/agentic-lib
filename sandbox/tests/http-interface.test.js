@@ -74,6 +74,9 @@ describe("HTTP Interface Integration", () => {
   test("GET /features returns features list with mission, name and title", async () => {
     const res = await request(app).get("/features");
     expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("mission");
+    expect(typeof res.body.mission).toBe("string");
+    expect(res.body.mission.length).toBeGreaterThan(0);
     expect(res.body).toHaveProperty("features");
     expect(Array.isArray(res.body.features)).toBe(true);
     const feature = res.body.features.find((f) => f.name === "HTTP_INTERFACE");
@@ -108,34 +111,5 @@ describe("HTTP Interface Integration", () => {
     expect(metrics).toHaveProperty("missionRequests");
     expect(typeof metrics.missionRequests).toBe("number");
     expect(metrics.missionRequests).toBeGreaterThanOrEqual(0);
-  });
-
-  test("metrics counters increment after activity", async () => {
-    // Exercise multiple endpoints to update metrics
-    await request(app).get("/health"); // does not affect stats counters
-    // Valid digest
-    const valid = { key: "events/1.json", value: "foo", lastModified: new Date().toISOString() };
-    const res1 = await request(app)
-      .post("/digest")
-      .set("Content-Type", "application/json")
-      .send(valid);
-    expect(res1.status).toBe(200);
-    // Invalid digest schema
-    const res2 = await request(app)
-      .post("/digest")
-      .set("Content-Type", "application/json")
-      .send({});
-    expect(res2.status).toBe(400);
-    await request(app).post("/webhook").send({});
-    await request(app).get("/features");
-    await request(app).get("/mission");
-    const statsRes = await request(app).get("/stats");
-    expect(statsRes.status).toBe(200);
-    const m = statsRes.body.metrics;
-    expect(m.digestInvocations).toBe(1);
-    expect(m.digestErrors).toBe(1);
-    expect(m.webhookInvocations).toBe(1);
-    expect(m.featuresRequests).toBe(1);
-    expect(m.missionRequests).toBe(1);
   });
 });

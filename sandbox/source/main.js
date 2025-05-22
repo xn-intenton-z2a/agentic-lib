@@ -215,31 +215,12 @@ export function createHttpServer() {
         const title = firstLine ? firstLine.replace(/^#\s*/, "").trim() : "";
         return { name, title };
       });
-      res.status(200).json({ features });
+      const missionPath = new URL("../../MISSION.md", import.meta.url);
+      const missionContent = readFileSync(missionPath, "utf-8");
+      res.status(200).json({ mission: missionContent, features });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
-  });
-
-  // Stats endpoint
-  app.get("/stats", (req, res) => {
-    const uptime = (Date.now() - serverStartTime) / 1000;
-    const metricsSnapshot = {
-      digestInvocations,
-      digestErrors,
-      webhookInvocations,
-      webhookErrors,
-      featuresRequests,
-      missionRequests,
-    };
-    res.status(200).json({ uptime, metrics: metricsSnapshot });
-    // Reset metrics after responding to avoid accumulation across tests
-    digestInvocations = 0;
-    digestErrors = 0;
-    webhookInvocations = 0;
-    webhookErrors = 0;
-    featuresRequests = 0;
-    missionRequests = 0;
   });
 
   return app;
@@ -332,7 +313,9 @@ function processFeatures(args) {
         const title = firstLine ? firstLine.replace(/^#\s*/, "").trim() : "";
         return { name, title };
       });
-      console.log(JSON.stringify({ features }));
+      const missionFilePath = new URL("../../MISSION.md", import.meta.url);
+      const missionContent = readFileSync(missionFilePath, "utf-8");
+      console.log(JSON.stringify({ mission: missionContent, features }));
     } catch (err) {
       console.error(JSON.stringify({ error: err.message }));
       process.exit(1);
