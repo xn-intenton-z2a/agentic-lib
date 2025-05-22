@@ -1651,3 +1651,296 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T03:38:59.159Z
+
+fixApplied: true
+
+Embed project mission in features HTTP response and CLI output
+
+Git Diff:
+
+```
+diff --git a/sandbox/README.md b/sandbox/README.md
+index eae9f50e..77e36dc5 100644
+--- a/sandbox/README.md
++++ b/sandbox/README.md
+@@ -38,6 +38,7 @@ node sandbox/source/main.js --features
+ 
+ ```json
+ {
++  "mission": "# Mission Statement\n\n**agentic-lib** Is a JavaScript library which can be used as a drop in JS implementation or wholesale replacement for the steps, jobs, and re-usable workflows below in this repository. It is designed to be used in a GitHub Actions workflow to enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.",
+   "features": [
+     {
+       "name": "HTTP_INTERFACE",
+@@ -127,7 +128,7 @@ curl http://localhost:3000/mission
+ 
+ ### GET /features
+ 
+-List available features and their titles.
++List available features and their titles (including mission context).
+ 
+ **Request**
+ 
+@@ -139,6 +140,7 @@ curl http://localhost:3000/features
+ 
+ ```json
+ {
++  "mission": "# Mission Statement\n\n**agentic-lib** Is a JavaScript library which can be used as a drop in JS implementation or wholesale replacement for the steps, jobs, and re-usable workflows below in this repository. It is designed to be used in a GitHub Actions workflow to enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.",
+   "features": [
+     {
+       "name": "HTTP_INTERFACE",
+@@ -152,4 +154,4 @@ curl http://localhost:3000/features
+ 
+ - [MISSION.md](../MISSION.md)
+ - [CONTRIBUTING.md](../CONTRIBUTING.md)
+-- [GitHub Repository](https://github.com/xn-intenton-z2a/agentic-lib)
++- [GitHub Repository](https://github.com/xn-intenton-z2a/agentic-lib)
+\ No newline at end of file
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index ab5d3d6f..1c0c6e08 100644
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -57,7 +57,6 @@ export function logConfig() {
+   });
+   console.log(JSON.stringify(logObj));
+ }
+-// Configuration logging removed at startup to clean CLI output
+ 
+ // ---------------------------------------------------------------------------------------------------------------------
+ // Utility functions
+@@ -134,7 +133,9 @@ export async function digestLambdaHandler(sqsEvent) {
+  */
+ export function createHttpServer() {
+   const app = express();
++  // JSON parsing middleware
+   app.use(express.json());
++  // Capture JSON parse errors
+   app.use((err, req, res, next) => {
+     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+       return res.status(400).json({ error: `Invalid JSON payload: ${err.message}` });
+@@ -142,13 +143,16 @@ export function createHttpServer() {
+     next(err);
+   });
+ 
++  // Track server start
+   serverStartTime = Date.now();
+ 
++  // Health endpoint
+   app.get("/health", (req, res) => {
+     const uptime = (Date.now() - serverStartTime) / 1000;
+     res.status(200).json({ status: "ok", uptime });
+   });
+ 
++  // Digest endpoint
+   app.post("/digest", async (req, res) => {
+     try {
+       const payload = req.body;
+@@ -170,12 +174,14 @@ export function createHttpServer() {
+     }
+   });
+ 
++  // Webhook endpoint
+   app.post("/webhook", (req, res) => {
+     const payload = req.body;
+     logInfo(`Webhook received payload: ${JSON.stringify(payload)}`);
+     res.status(200).json({ status: "received" });
+   });
+ 
++  // Mission endpoint
+   app.get("/mission", (req, res) => {
+     try {
+       const missionPath = new URL("../../MISSION.md", import.meta.url);
+@@ -186,18 +192,22 @@ export function createHttpServer() {
+     }
+   });
+ 
++  // Features endpoint
+   app.get("/features", (req, res) => {
+     try {
+       const featuresDir = fileURLToPath(new URL("../features", import.meta.url));
+       const files = readdirSync(featuresDir).filter((f) => f.endsWith(".md"));
+       const features = files.map((file) => {
+         const name = file.replace(/\.md$/, "");
+-        const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
++        const content = readFileSync(`${featuresDir}/${file}", "utf-8");
+         const firstLine = content.split("\n").find((line) => line.startsWith("#"));
+         const title = firstLine ? firstLine.replace(/^#\s*/, '').trim() : '';
+         return { name, title };
+       });
+-      res.status(200).json({ features });
++      // Read mission content
++      const missionPath = new URL("../../MISSION.md", import.meta.url);
++      const missionContent = readFileSync(missionPath, "utf-8");
++      res.status(200).json({ mission: missionContent, features });
+     } catch (err) {
+       res.status(500).json({ error: err.message });
+     }
+@@ -206,6 +216,9 @@ export function createHttpServer() {
+   return app;
+ }
+ 
++/**
++ * If --serve or --http flag is present, start HTTP server and bypass CLI.
++ */
+ export function serveHttp() {
+   const args = process.argv.slice(2);
+   if (!args.includes("--serve") && !args.includes("--http")) {
+@@ -222,6 +235,7 @@ export function serveHttp() {
+   return true;
+ }
+ 
++// Function to generate CLI usage instructions
+ function generateUsage() {
+   return `
+ Usage:
+@@ -234,6 +248,7 @@ Usage:
+ `;
+ }
+ 
++// Process the --help flag
+ function processHelp(args) {
+   if (args.includes("--help")) {
+     console.log(generateUsage());
+@@ -242,6 +257,7 @@ function processHelp(args) {
+   return false;
+ }
+ 
++// Process the --version flag
+ async function processVersion(args) {
+   if (args.includes("--version")) {
+     try {
+@@ -261,6 +277,7 @@ async function processVersion(args) {
+   return false;
+ }
+ 
++// Process the --mission flag
+ function processMission(args) {
+   if (args.includes("--mission")) {
+     try {
+@@ -276,6 +293,7 @@ function processMission(args) {
+   return false;
+ }
+ 
++// Process the --features flag
+ function processFeatures(args) {
+   if (args.includes("--features")) {
+     try {
+@@ -283,12 +301,15 @@ function processFeatures(args) {
+       const files = readdirSync(featuresDir).filter((f) => f.endsWith(".md"));
+       const features = files.map((file) => {
+         const name = file.replace(/\.md$/, "");
+-        const content = readFileSync(`${featuresDir}/${file}`, "utf-8");
++        const content = readFileSync(`${featuresDir}/${file}", "utf-8");
+         const firstLine = content.split("\n").find((line) => line.startsWith("#"));
+         const title = firstLine ? firstLine.replace(/^#\s*/, '').trim() : '';
+         return { name, title };
+       });
+-      console.log(JSON.stringify({ features }));
++      // Read mission content
++      const missionFilePath = new URL("../../MISSION.md", import.meta.url);
++      const missionContent = readFileSync(missionFilePath, "utf-8");
++      console.log(JSON.stringify({ mission: missionContent, features }));
+     } catch (err) {
+       console.error(JSON.stringify({ error: err.message }));
+       process.exit(1);
+@@ -298,6 +319,7 @@ function processFeatures(args) {
+   return false;
+ }
+ 
++// Process the --digest flag
+ async function processDigest(args) {
+   if (args.includes("--digest")) {
+     const exampleDigest = {
+@@ -312,7 +334,11 @@ async function processDigest(args) {
+   return false;
+ }
+ 
++// ---------------------------------------------------------------------------------------------------------------------
++// Main CLI
++// ---------------------------------------------------------------------------------------------------------------------
+ export async function main(args = process.argv.slice(2)) {
++  // HTTP mode takes precedence
+   if (serveHttp()) {
+     return;
+   }
+@@ -348,4 +374,4 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+     logError("Fatal error in main execution", err);
+     process.exit(1);
+   });
+-}
+\ No newline at end of file
++}
+diff --git a/sandbox/tests/cli-features.test.js b/sandbox/tests/cli-features.test.js
+index f1d92023..d7d06e09 100644
+--- a/sandbox/tests/cli-features.test.js
++++ b/sandbox/tests/cli-features.test.js
+@@ -5,7 +5,7 @@ import { promisify } from "util";
+ const execAsync = promisify(exec);
+ 
+ describe("CLI Features Flag", () => {
+-  test("node sandbox/source/main.js --features prints valid JSON and exits 0", async () => {
++  test("node sandbox/source/main.js --features prints JSON with mission and features and exits 0", async () => {
+     // Execute the CLI command
+     const { stdout, stderr } = await execAsync(
+       "node sandbox/source/main.js --features"
+@@ -20,7 +20,12 @@ describe("CLI Features Flag", () => {
+       json = JSON.parse(stdout);
+     }).not.toThrow();
+ 
+-    // Validate structure
++    // Validate mission
++    expect(json).toHaveProperty("mission");
++    expect(typeof json.mission).toBe("string");
++    expect(json.mission.length).toBeGreaterThan(0);
++
++    // Validate features structure
+     expect(json).toHaveProperty("features");
+     expect(Array.isArray(json.features)).toBe(true);
+     expect(json.features.length).toBeGreaterThan(0);
+diff --git a/sandbox/tests/http-interface.test.js b/sandbox/tests/http-interface.test.js
+index cf0a8986..e38d2577 100644
+--- a/sandbox/tests/http-interface.test.js
++++ b/sandbox/tests/http-interface.test.js
+@@ -71,9 +71,12 @@ describe("HTTP Interface Integration", () => {
+     expect(res.body.mission.length).toBeGreaterThan(0);
+   });
+ 
+-  test("GET /features returns features list with name and title", async () => {
++  test("GET /features returns features list with mission, name and title", async () => {
+     const res = await request(app).get("/features");
+     expect(res.status).toBe(200);
++    expect(res.body).toHaveProperty("mission");
++    expect(typeof res.body.mission).toBe("string");
++    expect(res.body.mission.length).toBeGreaterThan(0);
+     expect(res.body).toHaveProperty("features");
+     expect(Array.isArray(res.body.features)).toBe(true);
+     const feature = res.body.features.find((f) => f.name === "HTTP_INTERFACE");
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.8.2-0 start
+> node sandbox/source/main.js
+
+file:///home/runner/work/agentic-lib/agentic-lib/sandbox/source/main.js:202
+        const content = readFileSync(`${featuresDir}/${file}", "utf-8");
+
+SyntaxError: missing ) after argument list
+    at compileSourceTextModule (node:internal/modules/esm/utils:340:16)
+    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:146:18)
+    at #translate (node:internal/modules/esm/loader:431:12)
+    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:478:27)
+    at async ModuleJob._link (node:internal/modules/esm/module_job:110:19)
+
+Node.js v20.19.1
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1570 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":29419,"completion_tokens":12232,"total_tokens":41651,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":6080,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
