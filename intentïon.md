@@ -1397,3 +1397,120 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T02:21:07.672Z
+
+fixApplied: true
+
+Add CLI test for --features flag and documentation for features endpoint
+
+Git Diff:
+
+```
+\n\n// New [sandbox/docs/features.md]:\n# Features
+
+List of available features and how to retrieve them.
+
+## CLI Usage
+
+Retrieve feature list via the CLI:
+
+```bash
+node sandbox/source/main.js --features
+```
+
+**Response**
+
+```json
+{
+  "features": [
+    {
+      "name": "HTTP_INTERFACE",
+      "title": "Provide a built-in HTTP interface that allows external systems (for example, CI pipelines or webhook providers) to invoke core agentic-lib functionality via REST endpoints. This feature leverages the existing Express dependency without introducing new files beyond source, test, README, and package.json, and it remains fully compatible with GitHub Actions workflows."
+    }
+  ]
+}
+```
+
+## HTTP Endpoint
+
+Retrieve feature list via HTTP:
+
+```bash
+curl http://localhost:3000/features
+```
+
+**Response**
+
+```json
+{
+  "features": [
+    {
+      "name": "HTTP_INTERFACE",
+      "title": "Provide a built-in HTTP interface that allows external systems (for example, CI pipelines or webhook providers) to invoke core agentic-lib functionality via REST endpoints. This feature leverages the existing Express dependency without introducing new files beyond source, test, README, and package.json, and it remains fully compatible with GitHub Actions workflows."
+    }
+  ]
+}
+```\n\n// New [sandbox/tests/cli-features.test.js]:\nimport { describe, test, expect } from "vitest";
+import { exec } from "child_process";
+import { promisify } from "util";
+
+const execAsync = promisify(exec);
+
+describe("CLI Features Flag", () => {
+  test("node sandbox/source/main.js --features prints valid JSON and exits 0", async () => {
+    // Execute the CLI command
+    const { stdout, stderr } = await execAsync(
+      "node sandbox/source/main.js --features"
+    );
+
+    // Ensure no error output
+    expect(stderr).toBe("");
+
+    // Parse JSON output
+    let json;
+    expect(() => {
+      json = JSON.parse(stdout);
+    }).not.toThrow();
+
+    // Validate structure
+    expect(json).toHaveProperty("features");
+    expect(Array.isArray(json.features)).toBe(true);
+    expect(json.features.length).toBeGreaterThan(0);
+
+    // Ensure HTTP_INTERFACE feature is present
+    const feature = json.features.find(
+      (f) => f.name === "HTTP_INTERFACE"
+    );
+    expect(feature).toBeDefined();
+    expect(typeof feature.title).toBe("string");
+    expect(feature.title.length).toBeGreaterThan(0);
+  });
+});
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.8.2-0 start
+> node sandbox/source/main.js
+
+{"level":"info","timestamp":"2025-05-22T02:20:49.311Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+  --serve, --http            Run in HTTP server mode.
+  --mission                  Show the mission statement of the library.
+  --features                 List available features and their titles.
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1565 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":26940,"completion_tokens":2422,"total_tokens":29362,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1536,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
