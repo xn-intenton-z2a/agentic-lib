@@ -20,6 +20,22 @@ npm run start:http
 
 By default, the server listens on port 3000 (or the port defined in the `PORT` environment variable).
 
+## CLI Usage
+
+Retrieve the library's mission statement via the CLI:
+
+```bash
+node sandbox/source/main.js --mission
+```
+
+**Sample Output**
+
+```json
+{
+  "mission": "# Mission Statement\n**agentic-lib** Is a JavaScript library which can be used as a drop in JS implementation or wholesale replacement for the steps, jobs, and re-usable workflows below in this repository. It is designed to be used in a GitHub Actions workflow to enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK."  
+}
+```
+
 ## API Endpoints
 
 ### GET /health
@@ -78,6 +94,24 @@ curl -X POST http://localhost:3000/webhook \
 
 ```json
 { "status": "received" }
+```
+
+### GET /mission
+
+Returns the full mission statement of the library.
+
+**Request**
+
+```bash
+curl http://localhost:3000/mission
+```
+
+**Response**
+
+```json
+{
+  "mission": "# Mission Statement\n**agentic-lib** Is a JavaScript library which can be used as a drop in JS implementation or wholesale replacement for the steps, jobs, and re-usable workflows below in this repository. It is designed to be used in a GitHub Actions workflow to enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK."
+}
 ```
 
 ## Additional Resources
