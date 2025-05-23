@@ -629,14 +629,17 @@ aws sqs get-queue-attributes \
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Review repository and reseed if stale.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Review mission and stop when done or failing to progress.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Stop updating features when the features would deliver the mission.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] When declaring mission-complete rename the branch imtentïon-mission-complete-<mission name>-<date>.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] If the progress has been halted for <agent-lib-defined> time, then seed the repository.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Add intentïon.md to the context.</li>
-<li class="md-github">[n] [Launch] Update packages during reseed.</li>
-<li class="md-github">[n] [Launch] Label issues with the related feature.</li>
-<li class="md-github">[n] [Launch] Log successfully merged issues to intentïon.md and reference the feature.</li>
-<li class="md-github">[n] [Launch] Add PR approval and closure/abandonment to intentïon.md</li>
-<li class="md-github">[n] [Launch] Add a comment and put an issue for review if it is already done.</li>
+<li class="md-github">[~] [Launch] Update packages during reseed.</li>
+<li class="md-github">[~] [Launch] Label issues with the related feature.</li>
+<li class="md-github">[n] [Launch] Add PR closure/abandonment to intentïon.md and mention the related feature.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] If the issue is already done, have the issue to code completion return a nop and handle it positively.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Be more ruthless about deleting features.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Be more bullish about declaring the mission complete.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] When declaring mission-complete rename the branch intentïon-mission-complete-<mission name>-<date>.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Keep repository0 clean for use as a template and reference current experiments in repository0-js-lib (renamed from crucible) and repository0-web</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Gather complete experiments from experiments from repository0-js-lib and repository0-web (drop plot-code-lib) for the intentïon.com showcase.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Set the initial states to a &quot;Hello World!&quot; and capture this output.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] For all issue comments, add context to the comment such as: &quot;After review, this issue was found to be already done.&quot;</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Pull into agentic-lib.yml: startsWith(&quot;apply-fix-&quot;));</li>
@@ -645,6 +648,7 @@ aws sqs get-queue-attributes \
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Make the agent prompts match the top level workflow file names</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Make the reusable workflow names match the top level workflow file names</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] When adding issue comments to a prompt, just add the last <configurable> comments.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Reduce the recent commits attached to prompts to 10 and only send these to review issue, discussions, and fix code.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Separate out writable and non-writable file paths in the prompt</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Diagram the workflow interactions.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Pull any max file sizes into the agent config</li>
@@ -696,17 +700,8 @@ aws sqs get-queue-attributes \
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Replace the sandbox with a full repository.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Change link to running experiment to be a link to intentïon.md on main.</li>
 <li class="md-github">[~] [Launch] Simple stream of updates from a seed to deliver a single feature.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Add 1-2-3 to the website</li>
-</ul>
-<pre class="md-github"><code class="md-github">1. Create a GitHub repository from our template.
-2. Save a mission statement for your project.
-3. Watch and interact with the AI driven refinement and development until it’s done or reset and try-again.
-</code></pre>
-<ul class="md-github md-github__task-list">
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Add a link to the commit URL for any commit applied</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Add a link to the URL for any feature updated.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] intentïon.com shows: past experiments: &lt;link to branch intentïon.md&gt;</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Create a repository from main via a button.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Script the process from request to cloning the repository and setting it up to run the workflows.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Screen capture the scripted flow and post a link to this on Youtube.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Request a promotional video.</li>
@@ -892,7 +887,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-05-22T10:40:33.667Z</p>
+    <p>Generated on 2025-05-23T10:40:26.560Z</p>
   </footer>
 </body>
 </html>
