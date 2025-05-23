@@ -686,11 +686,10 @@ Re-usable GitHub Actions Workflows:
 - [x] [Launch] If the progress has been halted for <agent-lib-defined> time, then seed the repository.
 - [x] [Launch] Add intentïon.md to the context.
 - [~] [Launch] Update packages during reseed.
-- [n] [Launch] Label issues with the related feature.
-- [n] [Launch] Log successfully merged issues to intentïon.md and mention the relted feature.
-- [n] [Launch] Add PR approval and closure/abandonment to intentïon.md
-- [n] [Launch] Add a comment label as already-done if it is already done and change review issue to also select these.
-- [ ] [Launch] Be more ruthless about closing features.
+- [~] [Launch] Label issues with the related feature.
+- [n] [Launch] Add PR closure/abandonment to intentïon.md and mention the related feature.
+- [ ] [Launch] If the issue is already done, have the issue to code completion return a nop and handle it positively.
+- [ ] [Launch] Be more ruthless about deleting features.
 - [ ] [Launch] Be more bullish about declaring the mission complete.
 - [ ] [Launch] When declaring mission-complete rename the branch intentïon-mission-complete-<mission name>-<date>.
 - [ ] [Launch] Keep repository0 clean for use as a template and reference current experiments in repository0-js-lib (renamed from crucible) and repository0-web

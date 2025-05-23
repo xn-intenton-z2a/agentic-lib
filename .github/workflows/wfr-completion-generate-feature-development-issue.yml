@@ -161,6 +161,8 @@ on:
         value: ${{ jobs.generate-feature-development-issue.outputs.issueTitle }}
       issueDescription:
         value: ${{ jobs.generate-feature-development-issue.outputs.issueDescription }}
+      featureLabel:
+        value: ${{ jobs.generate-feature-development-issue.outputs.featureLabel }}
       usage:
         description: 'The LLM API usage of the action'
         value: ${{ jobs.generate-feature-development-issue.outputs.usage }}
@@ -563,16 +565,25 @@ jobs:
 
             const chatGptPrompt = `
             Please generate the title and description of a GitHub issue to which will be used to further the development
-            of the ${featureName} feature. Examine the details named feature ${featureName} in the current feature names
-            and specifications if it's there, (if not imply the feature from the from the name), and evaluate the current
-            state of the repository to determine which changes will implement the feature and allow it's value to be realised.
+            of the feature named "${featureName}". Examine the details of the feature named "${featureName}" in the list
+            of "Current feature names and specifications" for more details on the feature if it is in that list and then 
+            create an issue that will deliver the feature. If the named feature is blank, create an issue that will partly 
+            or completely fulfill the mission. If the named feature is not in the list of "Current feature names and 
+            specifications" then imply the feature from the from the name.
             
+            Evaluate the current state of the repository code, tests, open issues and create an issue which makes 
+            district and useful progress towards delivering the features and complete the mission.
+
+            In your response, please include, the title of the GitHub issue summarising the change and the body of the 
+            GitHub issue detailing the change and how to apply and verify it. Also create a feature label from the name 
+            of the feature that this issue is working towards by making a kebab-case name of the feature name.
+
+            ${promptContent}
+
             The intentïon file contents is a log of both taken in the repository since the last repository seed and you
             should see an alignment between the intentïon file entries and commits in the repository (where a commit is required).
             Use this log to determine the current direction of the repository towards its mission. The combination of the
             repository code, tests, dependencies and supporting documentation show the current state of the repository.
-
-            ${promptContent}
 
             The maximum number of feature development issues that should be open at any one time is ${featureDevelopmentIssuesWipLimit},
             if there are already ${featureDevelopmentIssuesWipLimit} open issues fail this request.
@@ -677,8 +688,9 @@ jobs:
 
             Answer strictly with a JSON object following this schema:
             {
-              "issueTitle": "The title of the GitHub issue summarising the change",
+              "issueTitle": "The title of the GitHub issue summarising the change.",
               "issueDescription": "The description of the GitHub issue detailing the change and how to apply and verify it.",
+              "featureLabel": "The label for the GitHub issue representing the feature name in kebab-case."
             }
             Ensure valid JSON.
             `;
@@ -688,21 +700,22 @@ jobs:
             core.setOutput("promptFilePath", promptFilePath);
             core.info("promptFilePath: " + promptFilePath);
 
-            const ResponseSchema = z.object({ issueTitle: z.string(), issueDescription: z.string() });
+            const ResponseSchema = z.object({ issueTitle: z.string(), issueDescription: z.string(), featureLabel: z.string() });
 
             // Define the function schema for function calling
             const tools = [{
               type: "function",
               function: {
                 name: "generate_issue",
-                description: "Further development of the feature through changes to the project files captured in the issueTitle and issueDescription of a GitHub Issue. Return an object with issueTitle (string), and issueDescription (string).",
+                description: "Further development of the named feature through changes to the project files captured in the issueTitle and issueDescription of a GitHub Issue. Return an object with issueTitle (string), and issueDescription (string) and the featureLabel (string).",
                 parameters: {
                   type: "object",
                   properties: {
                     issueTitle: { type: "string", description: "A summary of the change to make as a title." },
                     issueDescription: { type: "string", description: "Detail about the change, how to apply and verify it." }
+                    featureLabel: { type: "string", description: "The label for the GitHub issue representing the feature name in kebab-case." }
                   },
-                  required: ["issueTitle", "issueDescription"],
+                  required: ["issueTitle", "issueDescription", "featureLabel"],
                   additionalProperties: false
                 },
                 strict: true
@@ -765,8 +778,10 @@ jobs:
             
               core.setOutput("issueTitle", parsed.issueTitle);
               core.setOutput("issueDescription", parsed.issueDescription);
+              core.setOutput("featureLabel", parsed.featureLabel);
               core.info(`issueTitle: "${parsed.issueTitle}"`);
               core.info(`issueDescription: "${parsed.issueDescription}"`);
+              core.info(`featureLabel: "${parsed.featureLabel}"`);
 
             } catch (e) {
               core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
@@ -810,4 +825,5 @@ jobs:
     outputs:
       issueTitle: ${{ steps.generate-feature-development-issue.outputs.issueTitle }}
       issueDescription: ${{ steps.generate-feature-development-issue.outputs.issueDescription }}
+      featureLabel: ${{ steps.generate-feature-development-issue.outputs.featureLabel }}
       usage: ${{ steps.generate-feature-development-issue.outputs.usage }}

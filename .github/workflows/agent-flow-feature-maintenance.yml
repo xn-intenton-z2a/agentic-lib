@@ -248,7 +248,7 @@ jobs:
     with:
       issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
       issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
-      issueLabels: 'feature, automated'
+      issueLabels: 'feature, automated, ${{ needs.generate-feature-development-issue.outputs.featureLabel }}'
 
   log-intention-activity:
     needs:
@@ -278,6 +278,7 @@ jobs:
           issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
           issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
           issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
+          featureLabel: ${{ needs.generate-feature-development-issue.outputs.featureLabel }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.generate-feature-development-issue.outputs.usage }}
         with:
@@ -287,8 +288,18 @@ jobs:
             const issueNumber = process.env.issueNumber;
             const issueTitle = process.env.issueTitle;
             const issueBody = process.env.issueBody;
+            const featureLabel = process.env.featureLabel;
             const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
-            const activity = `Generated feature development issue ${issueUrl} with title:\n\n${issueTitle}\n\nAnd description:\n\n${issueBody}`;
+            
+            const activity = `Generated issue ${issueNumber} for feature "${featureLabel}" with URL ${issueUrl}
+            
+            title:
+            
+            ${issueTitle}
+            
+            And description:
+            
+            ${issueBody}`;
             
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
