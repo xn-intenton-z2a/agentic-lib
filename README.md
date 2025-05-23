@@ -702,6 +702,7 @@ Re-usable GitHub Actions Workflows:
 - [ ] [Launch] Make the agent prompts match the top level workflow file names
 - [ ] [Launch] Make the reusable workflow names match the top level workflow file names
 - [ ] [Launch] When adding issue comments to a prompt, just add the last <configurable> comments.
+- [ ] [Launch] Reduce the recent commits attached to prompts to 10 and only send these to review issue, discussions, and fix code.
 - [ ] Separate out writable and non-writable file paths in the prompt
 - [ ] Diagram the workflow interactions.
 - [ ] Pull any max file sizes into the agent config
