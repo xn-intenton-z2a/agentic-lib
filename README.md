@@ -685,7 +685,7 @@ Re-usable GitHub Actions Workflows:
 - [x] [Launch] Stop updating features when the features would deliver the mission.
 - [x] [Launch] If the progress has been halted for <agent-lib-defined> time, then seed the repository.
 - [x] [Launch] Add intentïon.md to the context.
-- [n] [Launch] Update packages during reseed.
+- [~] [Launch] Update packages during reseed.
 - [n] [Launch] Label issues with the related feature.
 - [n] [Launch] Log successfully merged issues to intentïon.md and mention the relted feature.
 - [n] [Launch] Add PR approval and closure/abandonment to intentïon.md
