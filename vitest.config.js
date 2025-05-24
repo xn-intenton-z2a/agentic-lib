@@ -4,6 +4,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@dist": "/dist",
+      "@sandbox": "/sandbox",
       "@src": "/src",
       "@tests": "/tests",
     },
