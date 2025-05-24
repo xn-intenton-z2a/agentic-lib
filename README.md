@@ -688,7 +688,7 @@ Re-usable GitHub Actions Workflows:
 - [~] [Launch] Update packages during reseed.
 - [~] [Launch] Label issues with the related feature.
 - [n] [Launch] Add PR closure/abandonment to intentïon.md and mention the related feature.
-- [ ] [Launch] Create all the features needed during a reseed by doing 'if featuresWIP >=1 create-one, if featuresWIP >= 2 create-two, if featuresWIP >= 3 create-three, etc...'
+- [~] [Launch] Create up to 3 the features needed during a reseed by doing 'if featuresWIP >=1 create-one, if featuresWIP >= 2 create-two, if featuresWIP >= 3 create-three, etc...'
 - [ ] [Launch] Then scan all the features during scheduled feature maintenance and delete any that are not on mission.
 - [ ] [Launch] Allow the bot to update and delete features pro-activity and when asked to create features and include full feature detail in the response.
 - [ ] [Launch] Suggest that the Bot pushes back if a feature request violates the missing and contributing guidelines.
