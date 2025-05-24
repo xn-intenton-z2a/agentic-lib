@@ -111,9 +111,8 @@ export async function digestLambdaHandler(sqsEvent) {
       const digest = JSON.parse(sqsEventRecord.body);
       logInfo(`Record ${index}: Received digest: ${JSON.stringify(digest)}`);
     } catch (error) {
-      // If messageId is missing, generate a fallback identifier including record index
-      const recordId =
-        sqsEventRecord.messageId || `fallback-${index}-${Date.now()}-${randomUUID()}`;
+      // If messageId is missing, generate a fallback identifier
+      const recordId = sqsEventRecord.messageId || randomUUID();
       logError(`Error processing record ${recordId} at index ${index}`, error);
       logError(`Invalid JSON payload. Error: ${error.message}. Raw message: ${sqsEventRecord.body}`);
       batchItemFailures.push({ itemIdentifier: recordId });
