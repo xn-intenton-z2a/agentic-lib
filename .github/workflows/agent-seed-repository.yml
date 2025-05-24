@@ -171,12 +171,30 @@ jobs:
         if: needs.agentic-lib.outputs.sandboxReset == 'true'
         shell: bash
         run: |          
-          # If the mission is set, create a mission out of that text, else if the mission is not set use the config.
-          mkdir -p '${{ needs.agentic-lib.outputs.featuresPath }}'
-          if [ -n "${{ env.mission }}" ]; then
-            echo "${{ env.mission }}" >> '${{ needs.agentic-lib.outputs.featuresPath }}/FEATURE.md'
-            echo "Seeded repository from '${{ env.mission }}' to ${{ needs.agentic-lib.outputs.featuresPath }}/FEATURE.md"
-          fi
+            # If the mission is set, create a mission out of that text, else if the mission is not set use the config.
+            mkdir -p '${{ needs.agentic-lib.outputs.featuresPath }}'
+            if [ -n "${{ env.mission }}" ]; then
+              echo "${{ env.mission }}" >> '${{ needs.agentic-lib.outputs.missionFilepath }}'
+              echo "Seeded repository from '${{ env.mission }}' to ${{ needs.agentic-lib.outputs.missionFilepath }}"
+            fi
+          
+            if [[ '${{ needs.agentic-lib.outputs.targetSourcePath }}' == */ ]]; then
+              mkdir -p '${{ needs.agentic-lib.outputs.targetSourcePath }}'
+              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedSourcePath }}' '${{ needs.agentic-lib.outputs.targetSourcePath }}main.js'
+            else
+              mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.targetSourcePath }}')"
+              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedSourcePath }}' '${{ needs.agentic-lib.outputs.targetSourcePath }}'
+            fi
+            echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedSourcePath }} to ${{ needs.agentic-lib.outputs.targetSourcePath }}'
+
+            if [[ '${{ needs.agentic-lib.outputs.targetTestsPath }}' == */ ]]; then
+              mkdir -p '${{ needs.agentic-lib.outputs.targetTestsPath }}'
+              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedTestsPath }}' '${{ needs.agentic-lib.outputs.targetTestsPath }}main.test.js'
+            else
+              mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.targetTestsPath }}')"
+              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedTestsPath }}' '${{ needs.agentic-lib.outputs.targetTestsPath }}'
+            fi
+            echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedTestsPath }} to ${{ needs.agentic-lib.outputs.targetTestsPath }}'
 
       - name: seed-repository
         if: needs.agentic-lib.outputs.repositoryReseed == 'true'

@@ -5,7 +5,7 @@ schedule: schedule-2
 paths:
   # Filepaths for elaborator workflows
   missionFilepath:
-    path: 'MISSION.md'
+    path: 'sandbox/MISSION.md'
   librarySourcesFilepath:
     path: 'sandbox/SOURCES.md'
     permissions: [ 'write' ]
