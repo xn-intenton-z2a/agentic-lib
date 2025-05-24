@@ -212,7 +212,7 @@ jobs:
       defaultRepositoryReseedReadmeFilepath: 'seeds/zero-README.md'
 
       # Discussions Bot
-      defaultintentionFilepath: 'intentïon.md'
+      defaultIntentionFilepath: 'intentïon.md'
 
       # Agentic-lib configuration file contents
       defaultAgentConfigContent: ''
@@ -305,11 +305,9 @@ jobs:
             // Web publishing
             const docRoot = config?.docRoot || process.env.defaultDocRoot;
 
-            // Sandbox configuration
-            const sandboxPath = config?.sandbox?.sandboxPath || process.env.defaultSandboxPath;
-            const sandboxReset = config?.sandbox?.sandboxReset || process.env.defaultSandboxReset;
-
             // Repository seeding
+            const sandboxPath = config?.seeding?.sandboxPath || process.env.defaultSandboxPath;
+            const sandboxReset = config?.seeding?.sandboxReset || process.env.defaultSandboxReset;
             const repositoryReseed = config?.seeding?.repositoryReseed || process.env.defaultRepositoryReseed;
             const repositoryReseedMissionFilepath = config?.seeding?.repositoryReseedMissionFilepath || process.env.defaultRepositoryReseedMissionFilepath;
             const repositoryReseedSourcePath = config?.seeding?.repositoryReseedSourcePath || process.env.defaultRepositoryReseedSourcePath;
@@ -318,7 +316,7 @@ jobs:
             const repositoryReseedReadmeFilepath = config?.seeding?.repositoryReseedReadmeFilepath || process.env.defaultRepositoryReseedReadmeFilepath;
 
             // Discussions Bot
-            const intentionFilepath = config?.intentionBot?.intentionFilepath || process.env.defaultintentionFilepath;
+            const intentionFilepath = config?.intentionBot?.intentionFilepath || process.env.defaultIntentionFilepath;
 
             // Check if the seed discussion file exists and read its last line
             core.info(`Checking for halt signal "${haltSignal}" in last non-blank line of ${intentionFilepath}`);

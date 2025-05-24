@@ -34,7 +34,6 @@ paths:
     paths: [ 'src/lib/' ]
   dependenciesFilepath:
     path: 'package.json'
-    permissions: [ 'write' ]
   documentationPath:
     path: 'sandbox/docs/'
     permissions: [ 'write' ]
@@ -64,19 +63,16 @@ attemptsPerIssue: 2
 # Web publishing
 docRoot: 'public'
 
-# Sandbox configuration
-sandbox:
+# Repository seeding
+seeding:
   sandboxReset: 'true'
   sandboxPath: 'sandbox'
-
-# Repository seeding
-#seeding:
 #  repositoryReseed: 'true'
 #  missionFilepath: 'seeds/zero-MISSION.md'
-#  sourcePath: 'seeds/zero-main.js'
-#  testsPath: 'seeds/zero-main.test.js'
+  sourcePath: 'seeds/zero-main.js'
+  testsPath: 'seeds/zero-main.test.js'
 #  dependenciesFilepath: 'seeds/zero-package.json'
-#  readmeFilepath: 'seeds/zero-README.md'
+  readmeFilepath: 'seeds/zero-README.md'
 
 intentionBot:
   intentionFilepath: 'intentïon.md'
