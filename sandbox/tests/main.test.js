@@ -20,4 +20,13 @@ describe("Main API", () => {
     const result = await digestLambdaHandler(event);
     expect(result).toEqual({ batchItemFailures: [], handler: "src/lib/main.digestLambdaHandler" });
   });
+
+  test("digestLambdaHandler returns fallback UUID identifier on invalid JSON", async () => {
+    const badEvent = { Records: [{ body: "invalid-json" }] };
+    const result = await digestLambdaHandler(badEvent);
+    expect(result.batchItemFailures).toHaveLength(1);
+    const id = result.batchItemFailures[0].itemIdentifier;
+    expect(typeof id).toBe("string");
+    expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+  });
 });
