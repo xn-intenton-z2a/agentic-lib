@@ -207,3 +207,76 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-24T04:39:23.785Z
+
+fixApplied: true
+
+Fix import syntax replace Math.random with crypto.randomUUID for secure IDs and add test for fallback UUID
+
+Git Diff:
+
+```
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index b98afe34..72104011 100644
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -7,6 +7,7 @@ if (typeof globalThis.callCount === "undefined") {
+ }
+ 
+ import { fileURLToPath } from "url";
++import { randomUUID } from "crypto";
+ import { z } from "zod";
+ import dotenv from "dotenv";
+ 
+@@ -112,7 +113,7 @@ export async function digestLambdaHandler(sqsEvent) {
+     } catch (error) {
+       // If messageId is missing, generate a fallback identifier including record index
+       const recordId =
+-        sqsEventRecord.messageId || `fallback-${index}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
++        sqsEventRecord.messageId || `fallback-${index}-${Date.now()}-${randomUUID()}`;
+       logError(`Error processing record ${recordId} at index ${index}`, error);
+       logError(`Invalid JSON payload. Error: ${error.message}. Raw message: ${sqsEventRecord.body}`);
+       batchItemFailures.push({ itemIdentifier: recordId });
+diff --git a/sandbox/tests/main.test.js b/sandbox/tests/main.test.js
+index 4ae43dcf..60c7786e 100644
+--- a/sandbox/tests/main.test.js
++++ b/sandbox/tests/main.test.js
+@@ -20,4 +20,13 @@ describe("Main API", () => {
+     const result = await digestLambdaHandler(event);
+     expect(result).toEqual({ batchItemFailures: [], handler: "src/lib/main.digestLambdaHandler" });
+   });
++
++  test("digestLambdaHandler returns fallback UUID identifier on invalid JSON", async () => {
++    const badEvent = { Records: [{ body: "invalid-json" }] };
++    const result = await digestLambdaHandler(badEvent);
++    expect(result.batchItemFailures).toHaveLength(1);
++    const id = result.batchItemFailures[0].itemIdentifier;
++    expect(typeof id).toBe("string");
++    expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
++  });
+ });
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.8.2-0 start
+> node sandbox/source/main.js
+
+{"level":"info","timestamp":"2025-05-24T04:39:03.932Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1595 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":13548,"completion_tokens":7485,"total_tokens":21033,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4992,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
