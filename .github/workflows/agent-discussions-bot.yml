@@ -394,6 +394,7 @@ jobs:
             const reply = process.env.reply;
             const url = process.env.url;
             const usage = process.env.usage;
+            const outcome = process.env.outcome;
             const intentionFilepath = process.env.intentionFilepath;
 
             const activity = `Reply Posted on "${url}" by the repository bot which took the action "${action}":
@@ -450,7 +451,7 @@ jobs:
       pages: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@main'
     with:
-      mission: ${{ needs.generate-response.outputs.detail }}
+      mission: "${{ needs.generate-response.outputs.detail }} as mentioned in reply ${{ needs.generate-response.outputs.detail }}"
       feature: ''
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -552,7 +553,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@main'
     with:
       mission: ''
-      feature: ${{ needs.generate-response.outputs.detail }}
+      feature: "${{ needs.generate-response.outputs.detail }} as mentioned in reply ${{ needs.generate-response.outputs.detail }}"
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
