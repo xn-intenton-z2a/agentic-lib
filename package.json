@@ -13,10 +13,10 @@
     "linting-fix": "eslint --fix",
     "update-to-minor": "npx npm-check-updates --upgrade --enginesNode --target minor --verbose --install always",
     "update-to-greatest": "npx npm-check-updates --upgrade --enginesNode --target greatest --verbose --install always --reject \"alpha\"",
-    "test": "vitest sandbox/tests/*.test.js",
-    "test:unit": "vitest --coverage sandbox/tests/*.test.js",
-    "start": "node sandbox/source/main.js",
-    "start:http": "node sandbox/source/main.js --serve"
+    "test": "vitest --run tests/unit/*.test.js sandbox/tests/*.test.js",
+    "test:unit": "vitest --run --coverage tests/unit/*.test.js sandbox/tests/*.test.js",
+    "sandbox": "node sandbox/source/main.js",
+    "start": "node src/lib/main.js"
   },
   "keywords": [],
   "author": "https://github.com/xn-intenton-z2a",
