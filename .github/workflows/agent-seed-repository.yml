@@ -667,7 +667,6 @@ jobs:
     needs:
       - agentic-lib
       - maintain-features-one
-    if: ${{ maintain-features-one }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -768,7 +767,6 @@ jobs:
     needs:
       - agentic-lib
       - maintain-features-two
-    if: ${{ maintain-features-two }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
