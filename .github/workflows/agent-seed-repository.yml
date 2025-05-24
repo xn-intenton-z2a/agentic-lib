@@ -536,6 +536,7 @@ jobs:
       - delete-branches
       - cleanup-issues
       - pom-check
+      - update-npm
     if: ${{ needs.pom-check.outputs.pomXmlExists == 'true' }}
     runs-on: ubuntu-latest
     steps:
@@ -612,6 +613,8 @@ jobs:
       - seed-repository
       - delete-branches
       - cleanup-issues
+      - update-npm
+      - update-mvn
       #- maintain-library
     if: ${{ !cancelled() }}
     permissions:
