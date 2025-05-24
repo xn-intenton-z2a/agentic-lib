@@ -385,6 +385,7 @@ jobs:
           reply: ${{ needs.generate-response.outputs.reply }}
           url: ${{ needs.process-discussion-post.outputs.url }}
           usage: ${{ needs.generate-response.outputs.usage }}
+          outcome: ${{ needs.post-reply.outcome }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
@@ -401,7 +402,9 @@ jobs:
             
             with the detail:
             
-            "${detail}"`;
+            "${detail}"
+            
+            and outcome "${outcome}"`;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -436,7 +439,7 @@ jobs:
   seed-repository:
     needs:
       - generate-response
-    if: ${{ needs.generate-response.outputs.action == 'seed-repository' && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
+    if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
     permissions:
       contents: write
       pull-requests: write
@@ -455,11 +458,9 @@ jobs:
 
   log-intention-activity-seed-repository:
     needs:
-      - process-discussion-post
       - generate-response
       - seed-repository
       - agentic-lib
-    if: ${{ !cancelled() && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -483,7 +484,6 @@ jobs:
           action: ${{ needs.generate-response.outputs.action }}
           detail: ${{ needs.generate-response.outputs.detail }}
           reply: ${{ needs.generate-response.outputs.reply }}
-          url: ${{ needs.process-discussion-post.outputs.url }}
           usage: ${{ needs.generate-response.outputs.usage }}
           outcome: ${{ needs.seed-repository.outcome }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
@@ -492,12 +492,11 @@ jobs:
             const action = process.env.action;
             const detail = process.env.detail;
             const reply = process.env.reply;
-            const url = process.env.url;
             const usage = process.env.usage;
             const outcome = process.env.outcome;
             const intentionFilepath = process.env.intentionFilepath;
 
-            const activity = `Reply Posted on "${url}" by the repository bot which took the action "${action}":
+            const activity = `The repository bot which took the action "${action}":
             
             ${reply}
             
@@ -518,7 +517,7 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            let activityLogContent = `## Discussions activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\n\`\`\`\n---\n\n`;
+            let activityLogContent = `## Seed repository activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\n\`\`\`\n---\n\n`;
             if (action == 'seed-repository') {
               activityLogContent = `# Activity Log\n\n${activityLogContent}`;
             }
@@ -539,8 +538,9 @@ jobs:
 
   create-feature:
     needs:
+      - agentic-lib
       - generate-response
-    if: ${{ needs.generate-response.outputs.action == 'create-feature' && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
+    if: ${{ needs.generate-response.outputs.action == 'create-feature' }}
     permissions:
       contents: write
       pull-requests: write
@@ -559,11 +559,9 @@ jobs:
 
   log-intention-activity-create-feature:
     needs:
-      - process-discussion-post
       - generate-response
       - create-feature
       - agentic-lib
-    if: ${{ !cancelled() && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -587,7 +585,6 @@ jobs:
           action: ${{ needs.generate-response.outputs.action }}
           detail: ${{ needs.generate-response.outputs.detail }}
           reply: ${{ needs.generate-response.outputs.reply }}
-          url: ${{ needs.process-discussion-post.outputs.url }}
           usage: ${{ needs.generate-response.outputs.usage }}
           outcome: ${{ needs.create-feature.outcome }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
@@ -596,12 +593,11 @@ jobs:
             const action = process.env.action;
             const detail = process.env.detail;
             const reply = process.env.reply;
-            const url = process.env.url;
             const usage = process.env.usage;
             const outcome = process.env.outcome;
             const intentionFilepath = process.env.intentionFilepath;
 
-            const activity = `Reply Posted on "${url}" by the repository bot which took the action "${action}":
+            const activity = `The repository bot took the following action "${action}":
             
             ${reply}
             
@@ -622,7 +618,7 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            let activityLogContent = `## Discussions activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\n\`\`\`\n---\n\n`;
+            let activityLogContent = `## Create feature activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\n\`\`\`\n---\n\n`;
             if (action == 'seed-repository') {
               activityLogContent = `# Activity Log\n\n${activityLogContent}`;
             }
