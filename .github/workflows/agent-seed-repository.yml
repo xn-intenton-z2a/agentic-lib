@@ -522,6 +522,7 @@ jobs:
           git add -v --all
           git diff
           git commit -m 'Library updates after reseed from possible unmaintained dependency file' --allow-empty
+          git pull --ff-only origin ${{ github.ref }}
           git push -v
           git status -v
 
