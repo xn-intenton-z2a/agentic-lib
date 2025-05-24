@@ -712,7 +712,7 @@ jobs:
                   type: "object",
                   properties: {
                     issueTitle: { type: "string", description: "A summary of the change to make as a title." },
-                    issueDescription: { type: "string", description: "Detail about the change, how to apply and verify it." }
+                    issueDescription: { type: "string", description: "Detail about the change, how to apply and verify it." },
                     featureLabel: { type: "string", description: "The label for the GitHub issue representing the feature name in kebab-case." }
                   },
                   required: ["issueTitle", "issueDescription", "featureLabel"],
