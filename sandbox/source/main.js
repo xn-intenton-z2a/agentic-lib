@@ -1,42 +1,38 @@
 #!/usr/bin/env node
-// sandbox/source/main.js
 
-import { fileURLToPath } from "url";
-
-export async function main(args) {
+/**
+ * Sandbox CLI main entry point.
+ * Usage: node sandbox/source/main.js --crawl <url>
+ */
+export async function main(args = process.argv.slice(2)) {
   const crawlIndex = args.indexOf("--crawl");
   if (crawlIndex !== -1) {
     const url = args[crawlIndex + 1];
-    if (!url) {
-      console.error(
-        JSON.stringify({ error: "FetchError", message: "No URL provided", url: null })
-      );
-      process.exit(1);
-    }
     try {
       const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      let jsonData;
+      try {
+        jsonData = await response.json();
+      } catch (err) {
+        console.error(JSON.stringify({
+          error: "JSONParseError",
+          message: err.message,
+          url,
+        }));
+        process.exit(1);
       }
-      const data = await response.json();
-      console.log(JSON.stringify(data));
+      console.log(JSON.stringify(jsonData));
+      return;
     } catch (err) {
-      const errorType = err.name === "SyntaxError" ? "JSONParseError" : "FetchError";
-      console.error(
-        JSON.stringify({ error: errorType, message: err.message, url })
-      );
+      console.error(JSON.stringify({
+        error: "FetchError",
+        message: err.message,
+        url,
+      }));
       process.exit(1);
     }
-    return;
   }
 
-  console.log(`Run with: ${JSON.stringify(args)}`);
-}
-
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const args = process.argv.slice(2);
-  main(args).catch((err) => {
-    console.error(JSON.stringify({ error: "FetchError", message: err.message, url: null }));
-    process.exit(1);
-  });
+  // Default: show usage
+  console.log("Usage: --crawl <url>");
 }
