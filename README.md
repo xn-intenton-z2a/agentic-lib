@@ -759,6 +759,7 @@ intentïon user journey [Launch UX]:
 - [x] [Launch] Replace the sandbox with a full repository.
 - [x] [Launch] Change link to running experiment to be a link to intentïon.md on main.
 - [~] [Launch] Simple stream of updates from a seed to deliver a single feature.
+- [~] [Launch] Go through all the flows and transitions and where the tests are performed inside the wfr_* workflows, remove them from the outer workflows.
 - [ ] [Launch] Add a link to the commit URL for any commit applied
 - [ ] [Launch] Add a link to the URL for any feature updated.
 - [ ] [Launch] Script the process from request to cloning the repository and setting it up to run the workflows.
