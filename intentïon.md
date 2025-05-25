@@ -269,4 +269,64 @@ LLM API Usage:
 {"prompt_tokens":8696,"completion_tokens":1608,"total_tokens":10304,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":832,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to enhanced Issue at 2025-05-25T19:55:52.662Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+Title: Add `--crawl` CLI command for Data Crawler ingestion into knowledge graph
+
+Description:
+Implement the Data Crawler feature by adding a new `--crawl <URL>` CLI option in `src/lib/main.js`. This feature enables users to fetch JSON from any public HTTP endpoint and feed it into our existing digest processing pipeline via `createSQSEventFromDigest` and `digestLambdaHandler`.
+
+Testable Acceptance Criteria:
+
+1. CLI Flag Recognition:
+   - The CLI usage (`generateUsage`) includes a line for `--crawl <URL>`.
+   - When `node src/lib/main.js --crawl <URL>` is invoked, `processCrawl(args)` is executed and returns `true`.
+
+2. Successful Fetch and Ingestion:
+   - Logs an info entry: `Fetching URL: <URL>` before network request.
+   - Uses global `fetch` to perform an HTTP GET request.
+   - On HTTP 200 response with valid JSON payload:
+     • Logs an info entry including `url`, `status`, and `size` (byte length of raw text).
+     • Wraps parsed JSON into a digest object: `{ source: URL, data: <parsed JSON> }`.
+     • Calls `createSQSEventFromDigest(digest)` and invokes `await digestLambdaHandler(...)`.
+     • Prints `Crawl completed for <URL>` to stdout and exits with code `0`.
+
+3. Network Error Handling:
+   - If `fetch` throws or response is non-200, logs an error with details.
+   - Exits with code `1` when a network error occurs.
+
+4. JSON Parse Error Handling:
+   - If response text cannot be parsed as JSON, logs an error describing parse failure.
+   - Exits with code `1` on invalid JSON.
+
+5. Unit Tests:
+   - Success scenario:
+     • Stub `global.fetch` to return `{ status: 200, text: async () => JSON.stringify({ key: "value" }) }`.
+     • Spy on `createSQSEventFromDigest` and `digestLambdaHandler` to assert correct digest object.
+     • Mock `process.exit` to capture exit code `0` and assert confirmation message.
+   - Fetch error scenario:
+     • Stub `global.fetch` to throw an error.
+     • Assert an error log and exit code `1`.
+   - Invalid JSON scenario:
+     • Stub `global.fetch` to return non-JSON text.
+     • Assert error log and exit code `1`.
+
+6. Documentation Update:
+   - `sandbox/README.md` is updated to include the new `--crawl <URL>` flag under CLI Usage with example invocation and expected output.
+
+7. No new dependencies are introduced; rely on Node 20+ global `fetch`.
+
+Verification Steps:
+- Run `npm test` to ensure all unit tests (including new `--crawl` tests) pass.
+- Manually invoke `node src/lib/main.js --crawl http://localhost:3000/data` against a local JSON endpoint to verify logs, confirmation message, and exit code.
+
+LLM API Usage:
+```json
+{"prompt_tokens":8023,"completion_tokens":1168,"total_tokens":9191,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":448,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
