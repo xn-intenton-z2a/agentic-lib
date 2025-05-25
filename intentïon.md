@@ -206,3 +206,50 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-25T02:21:38.116Z
+
+Generated issue 1607 for feature "metrics-endpoint" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1607
+
+title:
+
+Implement /metrics HTTP endpoint with request count and runtime metrics
+
+And description:
+
+We need to extend the existing Express HTTP server in `sandbox/source/main.js` to track incoming requests and expose a `/metrics` endpoint returning key runtime metrics in JSON format. This will enable operators to curl or scrape `GET /metrics` on the metrics port and retrieve a structured object containing `requestCount`, `uptime`, and `memoryUsage` (`rss`, `heapTotal`, `heapUsed`).
+
+**Changes to apply:**
+
+1. **Source (`sandbox/source/main.js`):**
+   • Import and initialize an Express app.
+   • Read `METRICS_PORT` from environment (fallback to `HEALTH_PORT`).
+   • Maintain a module‐scoped `requestCount` that increments on every HTTP request via a simple middleware: `app.use(...)`.
+   • Define `GET /metrics` handler to respond with `{ requestCount, uptime, memoryUsage }`, where `uptime` is `process.uptime()` in seconds, and `memoryUsage` is `process.memoryUsage()` filtered to keys `rss`, `heapTotal`, `heapUsed`.
+   • Export the Express `app` for testing and a `startServer()` function (or similar) called when running the CLI with `--serve` (reuse the server logic from the health implementation).
+
+2. **Tests (`sandbox/tests/main.test.js`):**
+   • Use `supertest` to import the exported `app` and perform an HTTP request against `/metrics`.
+   • Write assertions to ensure:
+     - Status code is `200`.
+     - Response body is an object with numeric `requestCount` (initially `0` or `>=0`), numeric `uptime`, and a nested object `memoryUsage` containing numeric keys `rss`, `heapTotal`, `heapUsed`.
+
+3. **README (`sandbox/README.md`):**
+   • Document the new `/metrics` endpoint under a “Serving Metrics” section.
+   • Show how to run the server (e.g. `node sandbox/source/main.js --serve`) and how to curl:
+     ```bash
+     METRICS_PORT=4000 node sandbox/source/main.js --serve
+     curl http://localhost:4000/metrics
+     ```
+
+**Verification & Acceptance:**
+- Run `npm test` and confirm the new metrics‐endpoint tests pass.
+- Manually run the sandbox CLI with `METRICS_PORT` (or `HEALTH_PORT`) and hit `/metrics` to see a valid JSON response with the required shape and numeric values.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7277,"completion_tokens":2896,"total_tokens":10173,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2304,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
