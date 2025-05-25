@@ -1669,3 +1669,21 @@ jobs:
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  fix-code:
+    needs:
+      - create-issue-one
+      - apply-issue-resolution
+      - needs-fix-after-issue-resolution
+    if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'false' ) }}
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+      checks: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-fix-code.yml@main'
+    with:
+      branchPrefix: 'agentic-lib-issue-'
+      scanForBranches: 'true'

@@ -25,6 +25,28 @@ on:
         required: false
         type: boolean
         default: false
+  workflow_call:
+    inputs:
+      branchPrefix:
+        description: 'The prefix of the branch to scan for. e.g. "agentic-lib-"'
+        required: false
+        type: string
+        default: 'agentic-lib-'
+      applyFixEvenIfTestsPass:
+        description: 'Apply the fix even if the tests pass. e.g. true'
+        required: false
+        type: boolean
+        default: false
+      scanForBranches:
+        description: 'Scan for branches matching the pattern. e.g. true'
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
   #workflow_run:
   #  workflows:
   #    - seed-repository
