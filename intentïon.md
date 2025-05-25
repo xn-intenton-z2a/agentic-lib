@@ -370,4 +370,402 @@ LLM API Usage:
 {"prompt_tokens":7539,"completion_tokens":1667,"total_tokens":9206,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1024,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Code at 2025-05-25T22:06:51.114Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-1632 with message Add --crawl CLI command for fetching and normalizing JSON data and outcome 
+
+Git Diff:
+```diff
+diff --git a/package-lock.json b/package-lock.json
+index 31c2afda..adda1bd7 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -12,6 +12,7 @@
+         "dotenv": "^16.5.0",
+         "express": "^4.21.2",
+         "minimatch": "^10.0.1",
++        "node-fetch": "^3.0.0",
+         "openai": "^4.103.0",
+         "zod": "^3.25.28"
+       },
+@@ -2384,6 +2385,15 @@
+         "node": ">= 8"
+       }
+     },
++    "node_modules/data-uri-to-buffer": {
++      "version": "4.0.1",
++      "resolved": "https://registry.npmjs.org/data-uri-to-buffer/-/data-uri-to-buffer-4.0.1.tgz",
++      "integrity": "sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==",
++      "license": "MIT",
++      "engines": {
++        "node": ">= 12"
++      }
++    },
+     "node_modules/data-view-buffer": {
+       "version": "1.0.2",
+       "resolved": "https://registry.npmjs.org/data-view-buffer/-/data-view-buffer-1.0.2.tgz",
+@@ -3539,6 +3549,38 @@
+         }
+       }
+     },
++    "node_modules/fetch-blob": {
++      "version": "3.2.0",
++      "resolved": "https://registry.npmjs.org/fetch-blob/-/fetch-blob-3.2.0.tgz",
++      "integrity": "sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==",
++      "funding": [
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/jimmywarting"
++        },
++        {
++          "type": "paypal",
++          "url": "https://paypal.me/jimmywarting"
++        }
++      ],
++      "license": "MIT",
++      "dependencies": {
++        "node-domexception": "^1.0.0",
++        "web-streams-polyfill": "^3.0.3"
++      },
++      "engines": {
++        "node": "^12.20 || >= 14.13"
++      }
++    },
++    "node_modules/fetch-blob/node_modules/web-streams-polyfill": {
++      "version": "3.3.3",
++      "resolved": "https://registry.npmjs.org/web-streams-polyfill/-/web-streams-polyfill-3.3.3.tgz",
++      "integrity": "sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==",
++      "license": "MIT",
++      "engines": {
++        "node": ">= 8"
++      }
++    },
+     "node_modules/figlet": {
+       "version": "1.8.1",
+       "resolved": "https://registry.npmjs.org/figlet/-/figlet-1.8.1.tgz",
+@@ -3703,6 +3745,18 @@
+         "node": ">= 12.20"
+       }
+     },
++    "node_modules/formdata-polyfill": {
++      "version": "4.0.10",
++      "resolved": "https://registry.npmjs.org/formdata-polyfill/-/formdata-polyfill-4.0.10.tgz",
++      "integrity": "sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==",
++      "license": "MIT",
++      "dependencies": {
++        "fetch-blob": "^3.1.2"
++      },
++      "engines": {
++        "node": ">=12.20.0"
++      }
++    },
+     "node_modules/formidable": {
+       "version": "2.1.5",
+       "resolved": "https://registry.npmjs.org/formidable/-/formidable-2.1.5.tgz",
+@@ -5102,23 +5156,21 @@
+       }
+     },
+     "node_modules/node-fetch": {
+-      "version": "2.7.0",
+-      "resolved": "https://registry.npmjs.org/node-fetch/-/node-fetch-2.7.0.tgz",
+-      "integrity": "sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==",
++      "version": "3.3.2",
++      "resolved": "https://registry.npmjs.org/node-fetch/-/node-fetch-3.3.2.tgz",
++      "integrity": "sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==",
+       "license": "MIT",
+       "dependencies": {
+-        "whatwg-url": "^5.0.0"
++        "data-uri-to-buffer": "^4.0.0",
++        "fetch-blob": "^3.1.4",
++        "formdata-polyfill": "^4.0.10"
+       },
+       "engines": {
+-        "node": "4.x || >=6.0.0"
++        "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+       },
+-      "peerDependencies": {
+-        "encoding": "^0.1.0"
+-      },
+-      "peerDependenciesMeta": {
+-        "encoding": {
+-          "optional": true
+-        }
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/node-fetch"
+       }
+     },
+     "node_modules/npm-check-updates": {
+@@ -5310,6 +5362,26 @@
+         }
+       }
+     },
++    "node_modules/openai/node_modules/node-fetch": {
++      "version": "2.7.0",
++      "resolved": "https://registry.npmjs.org/node-fetch/-/node-fetch-2.7.0.tgz",
++      "integrity": "sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==",
++      "license": "MIT",
++      "dependencies": {
++        "whatwg-url": "^5.0.0"
++      },
++      "engines": {
++        "node": "4.x || >=6.0.0"
++      },
++      "peerDependencies": {
++        "encoding": "^0.1.0"
++      },
++      "peerDependenciesMeta": {
++        "encoding": {
++          "optional": true
++        }
++      }
++    },
+     "node_modules/optionator": {
+       "version": "0.9.4",
+       "resolved": "https://registry.npmjs.org/optionator/-/optionator-0.9.4.tgz",
+diff --git a/package.json b/package.json
+index 8ac333a0..0df76e59 100644
+--- a/package.json
++++ b/package.json
+@@ -25,6 +25,7 @@
+     "dotenv": "^16.5.0",
+     "express": "^4.21.2",
+     "minimatch": "^10.0.1",
++    "node-fetch": "^3.0.0",
+     "openai": "^4.103.0",
+     "zod": "^3.25.28"
+   },
+@@ -58,4 +59,4 @@
+   "publishConfig": {
+     "registry": "https://npm.pkg.github.com"
+   }
+-}
++}
+\ No newline at end of file
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..b51289db 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -2,12 +2,64 @@
+ // sandbox/source/main.js
+ 
+ import { fileURLToPath } from "url";
++import nodeFetch from "node-fetch";
+ 
+-export function main(args) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
++const fetch = globalThis.fetch ?? nodeFetch;
++
++async function crawlUrl(url) {
++  const maxRetries = 3;
++  let attempt = 0;
++  let lastError;
++  while (attempt < maxRetries) {
++    try {
++      const response = await fetch(url);
++      if (!response.ok) {
++        console.error(`[Error] HTTP error fetching ${url}: ${response.status} ${response.statusText}`);
++        process.exit(1);
++      }
++      const text = await response.text();
++      let data;
++      try {
++        data = JSON.parse(text);
++      } catch (e) {
++        console.error(`[Error] Invalid JSON response from ${url}: ${e.message}`);
++        process.exit(1);
++      }
++      const items = Array.isArray(data) ? data : [data];
++      for (const item of items) {
++        const normalized = {};
++        Object.entries(item).forEach(([key, value]) => {
++          const newKey = key.toLowerCase();
++          const newValue = typeof value === "string" ? value.trim() : value;
++          normalized[newKey] = newValue;
++        });
++        console.log(JSON.stringify(normalized));
++      }
++      return;
++    } catch (err) {
++      lastError = err;
++      attempt++;
++      if (attempt < maxRetries) {
++        const delay = 100 * 2 ** (attempt - 1);
++        await new Promise((res) => setTimeout(res, delay));
++      }
++    }
++  }
++  console.error(`[Error] Failed to fetch ${url} after ${maxRetries} attempts: ${lastError.message}`);
++  process.exit(1);
++}
++
++async function main(args = process.argv.slice(2)) {
++  if (args[0] === "--crawl" && args[1]) {
++    await crawlUrl(args[1]);
++  } else {
++    console.log(`Run with: ${JSON.stringify(args)}`);
++  }
+ }
+ 
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  const args = process.argv.slice(2);
+-  main(args);
++  main().catch((err) => {
++    console.error(`[Error] Fatal error: ${err.message}`);
++    process.exit(1);
++  });
+ }\n\n// New [sandbox/README.md]:\n# agentic-lib Sandbox CLI
+
+This sandbox provides CLI utilities for the `agentic-lib` toolkit, including data crawling and normalization.
+
+## Mission
+
+See [MISSION](./MISSION.md) for the project mission: building a knowledge graph of the physical world by crawling public data sources.
+
+## CLI Commands
+
+### --crawl `<URL>`
+
+Fetches and normalizes JSON data from the specified URL.
+
+Usage:
+
+```bash
+node sandbox/source/main.js --crawl <URL>
+```
+
+Example:
+
+```bash
+node sandbox/source/main.js --crawl https://api.example.com/data.json
+```
+
+Refer to [Crawl Public JSON Data](./docs/crawl_public_data.md) for details.
+
+## Contributing
+
+See [CONTRIBUTING](../CONTRIBUTING.md) for contribution guidelines.\n\n// New [sandbox/docs/crawl_public_data.md]:\n# Crawl Public JSON Data
+
+## Overview
+
+The `--crawl` CLI command fetches JSON from a public endpoint, normalizes each object into graph nodes, and outputs each node as a JSON string per line to stdout.
+
+## Usage
+
+```bash
+node sandbox/source/main.js --crawl <URL>
+```
+
+- `<URL>`: The public endpoint returning JSON data.
+
+## Output
+
+- Each JSON object is normalized:
+  - Keys converted to lowercase.
+  - String values trimmed of whitespace.
+- Each normalized object is printed on its own line in JSON format.
+
+## Error Handling
+
+- HTTP errors (non-2xx status codes) are logged to stderr and the process exits with code `1`.
+- Invalid JSON responses are logged to stderr and the process exits with code `1`.
+- Network errors are retried up to 3 times with exponential backoff (100ms, 200ms, 400ms). If all retries fail, an error is logged to stderr and the process exits with code `1`.
+
+Example:
+
+```bash
+node sandbox/source/main.js --crawl https://api.example.com/data.json
+#> {"name":"Alice","age":"30"}
+#> {"name":"Bob","age":"25"}
+```\n\n// New [sandbox/tests/crawl.test.js]:\nimport { describe, it, expect, beforeEach, vi } from "vitest";
+
+describe("crawl CLI command", () => {
+  let consoleLogSpy;
+  let consoleErrorSpy;
+  let exitSpy;
+
+  beforeEach(() => {
+    vi.resetModules();
+    consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => {
+      throw new Error(`process.exit:${code}`);
+    });
+  });
+
+  it("fetches and normalizes JSON array", async () => {
+    const testData = [{ Name: "Alice ", Age: "30" }];
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      text: async () => JSON.stringify(testData)
+    });
+    const { main } = await import("../source/main.js");
+    await main(["--crawl", "http://example.com/data"]);
+    expect(global.fetch).toHaveBeenCalledWith("http://example.com/data");
+    expect(consoleLogSpy).toHaveBeenCalledWith('{"name":"Alice","age":"30"}');
+  });
+
+  it("exits with error on HTTP error", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 404,
+      statusText: "Not Found"
+    });
+    const { main } = await import("../source/main.js");
+    await expect(main(["--crawl", "http://example.com/data"])).rejects.toThrow("process.exit:1");
+    expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining("HTTP error"));
+  });
+
+  it("exits with error on invalid JSON", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      text: async () => "invalid JSON"
+    });
+    const { main } = await import("../source/main.js");
+    await expect(main(["--crawl", "http://example.com/data"])).rejects.toThrow("process.exit:1");
+    expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining("Invalid JSON"));
+  });
+
+  it("retries on network error and succeeds", async () => {
+    const testData = [{ key: "value" }];
+    const fetchMock = vi.fn()
+      .mockRejectedValueOnce(new Error("network error 1"))
+      .mockRejectedValueOnce(new Error("network error 2"))
+      .mockResolvedValue({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        text: async () => JSON.stringify(testData)
+      });
+    global.fetch = fetchMock;
+    const { main } = await import("../source/main.js");
+    await main(["--crawl", "http://example.com/data"]);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(consoleLogSpy).toHaveBeenCalledWith('{"key":"value"}');
+  });
+});
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/agentic-lib@6.9.5-0 sandbox
+> node sandbox/source/main.js
+
+Run with: []
+```
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1632 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":13341,"completion_tokens":8416,"total_tokens":21757,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":5504,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
