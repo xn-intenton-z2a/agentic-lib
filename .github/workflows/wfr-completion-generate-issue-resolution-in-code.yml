@@ -400,7 +400,7 @@ jobs:
             core.info(`lintingFilepath: "${lintingFilepath}"`);
             core.info(`agentConfigContent: "${agentConfigContent}"`);
             core.info(`writeableFilepaths: "${writeableFilepaths}"`);
-            
+
             function isWriteable(filepath) {
               const patterns = writeableFilepaths.split(';').map(file => file.trim());
               core.info(`Checking if writing to filepath '${filepath}' is allowed in writeableFilepaths: ${patterns}`);
@@ -515,7 +515,7 @@ jobs:
             } catch (e) {
               core.warning(`Error reading docs file '${file}': ${e.message}`);
             }
-            
+
             let missionFilepathContent;
             try {
               missionFilepathContent = fs.readFileSync(missionFilepath, 'utf8');
@@ -523,7 +523,7 @@ jobs:
                 core.warning(`Error reading MISSION file '${missionFilepath}': ${e.message}`);
                 missionFilepathContent = '';
             }
-            
+
             let contributingFilepathContent;
             try {
               contributingFilepathContent = fs.readFileSync(contributingFilepath, 'utf8');
@@ -531,7 +531,7 @@ jobs:
               core.warning(`Error reading CONTRIBUTING file '${contributingFilepath}': ${e.message}`);
               contributingFilepathContent = '';
             }
-            
+
              let dependenciesFilepathContent;
             try {
               dependenciesFilepathContent = fs.readFileSync(dependenciesFilepath, 'utf8');
@@ -539,7 +539,7 @@ jobs:
               core.warning(`Error reading dependencies file '${dependenciesFilepath}': ${e.message}`);
               dependenciesFilepathContent = '';
             }
-            
+
             let formattingFilepathContent;
             try {
               formattingFilepathContent = fs.readFileSync(formattingFilepath, 'utf8');
@@ -547,7 +547,7 @@ jobs:
               core.warning(`Error reading formatting file '${formattingFilepath}': ${e.message}`);
               formattingFilepathContent = '';
             }
-            
+
             let lintingFilepathContent;
             try {
               lintingFilepathContent = fs.readFileSync(lintingFilepath, 'utf8');
@@ -555,7 +555,7 @@ jobs:
               core.warning(`Error reading linting file '${lintingFilepath}': ${e.message}`);
               lintingFilepathContent = '';
             }
-            
+
             let promptContent;
             try {
               promptContent = fs.readFileSync(promptFilepath, 'utf8');
@@ -614,15 +614,15 @@ jobs:
             be checked against the write permission in the Agent configuration file before being written. Feel free to
             add new files as long as they are in the target writable locations. You can also remove files, but only if
             they are in the target writable locations. To delete a file, set the updated file contents to "delete".
-            
+
             The intentïon file contents is a log of both taken in the repository since the last repository seed and you
             should see an alignment between the intentïon file entries and commits in the repository (where a commit is required).
             Use this log to determine the current direction of the repository towards its mission. The combination of the
             repository code, tests, dependencies and supporting documentation show the current state of the repository.
-            
+
             The target writable locations for your output are: ${writeableFilepaths}
             Other file will be supplied in the context but only the paths above should be written to.
-            
+
             Only provide new or updated content for the target source files in ${targetSourcePath}.
             Only delete or update the target source files in ${targetSourcePath}.
             Only provide new or updated content for the target test files in ${targetTestsPath}.
@@ -660,7 +660,7 @@ jobs:
             INTENTION_FILE_START
             ${intentionContent}
             INTENTION_FILE_END
-            
+
             Source files (write new files or update files in ${targetSourcePath} as necessary):
             (Multiple files from both in writable locations and not.)
             ${Object.entries(sourceFileContents).map(([file, content]) => `SOURCE_FILE_START Filepath: ${file}\n${content}\nSOURCE_FILE_END\n\n`).join('\n')}
@@ -668,7 +668,7 @@ jobs:
             Test files (write new files or update files in ${targetTestsPath} as necessary):
             (Multiple files from both in writable locations and not.)
             ${Object.entries(testsFileContents).map(([file, content]) => `TEST_FILE_START File: ${file}\n${content}\nTEST_FILE_END\n\n`).join('\n')}
-            
+
             Documentation files (write new files or update files in ${documentationPath} as necessary):
             (Multiple files from both in writable locations and not.)
             ${Object.entries(docsFileContents).map(([file, content]) => `DOCUMENTATION_FILE_START File: ${file}\n${content}\nDOCUMENTATION_FILE_END\n\n`).join('\n')}
@@ -994,7 +994,7 @@ jobs:
             core.setOutput("requestFilePath", requestFilePath);
             core.info("requestFilePath: " + requestFilePath);
             const response = await openai.chat.completions.create(request);
-            
+
             const responseFilePath = 'response.json';
             fs.writeFileSync(responseFilePath, JSON.stringify(response, null, 2));
             core.setOutput("responseFilePath", responseFilePath);
@@ -1037,7 +1037,7 @@ jobs:
                 core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
                 return;
               }
-            
+
               // Sanitize commit message: retain only alphanumerics, spaces, and basic URL-safe punctuation (-, _, ., ~)
               const sanitizedMessage = parsed.message.replace(/[^A-Za-z0-9 \-\_\.\~]/g, '').replace(/\s+/g, ' ').trim();
               core.setOutput("message", sanitizedMessage);
@@ -1112,13 +1112,13 @@ jobs:
           git config --local user.email '${{ env.gitUserEmail }}'
           git config --local user.name '${{ env.gitUserName }}'
           git status -v
-          IFS=';' read -ra SRC_FILES <<< "${{ env.targetSourcePaths }}"
+          IFS=';' read -ra SRC_FILES <<< "${{ env.targetSourcePath }}"
           for file in "${SRC_FILES[@]}"; do
             echo "=== Git diff for source file: $file ==="
             git diff -- "$file" || true
             echo ""
           done
-          IFS=';' read -ra TEST_FILES <<< "${{ env.targetTestsPaths }}"
+          IFS=';' read -ra TEST_FILES <<< "${{ env.targetTestsPath }}"
           for file in "${TEST_FILES[@]}"; do
             echo "=== Git diff for test file: $file ==="
             git diff -- "$file" || true

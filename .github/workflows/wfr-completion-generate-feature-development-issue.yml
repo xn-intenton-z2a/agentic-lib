@@ -791,11 +791,19 @@ jobs:
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
 
+      - id: uuid
+        name: uuid
+        shell: bash
+        run: |
+          uuid=$(uuidgen)
+          echo "uuid: ${uuid}"
+          echo "uuid=${uuid}" >> $GITHUB_OUTPUT
+
       - name: Upload prompt file as an artifact
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: generate-feature-development-issue-prompt.txt
+          name: "generate-feature-development-issue-prompt-${{ steps.uuid.outputs.uuid }}.txt"
           path: ${{ steps.generate-feature-development-issue.outputs.promptFilePath }}
           retention-days: 7
 
@@ -803,7 +811,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: generate-feature-development-issue-request.json
+          name: "generate-feature-development-issue-request-${{ steps.uuid.outputs.uuid }}.json"
           path: ${{ steps.generate-feature-development-issue.outputs.requestFilePath }}
           retention-days: 7
 
@@ -811,7 +819,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: generate-feature-development-issue-response.json
+          name: "generate-feature-development-issue-response-${{ steps.uuid.outputs.uuid }}.json"
           path: ${{ steps.generate-feature-development-issue.outputs.responseFilePath }}
           retention-days: 7
 
@@ -819,7 +827,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: generate-feature-development-issue-result.json
+          name: "generate-feature-development-issue-result-${{ steps.uuid.outputs.uuid }}.json"
           path: ${{ steps.generate-feature-development-issue.outputs.resultFilePath }}
 
     outputs:

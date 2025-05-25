@@ -499,7 +499,7 @@ jobs:
                 The feature name should either be a current feature name or be supplied with a feature specification which is distinct from any other feature in the repository.
               `;
             }
-            
+
             // intention Filepath contents 
             let intentionContent = '';
             try {
@@ -516,12 +516,12 @@ jobs:
 
             const chatGptPrompt = `
             ${promptContent}
-            
+
             If there are more than the maximum number of ${featuresLimit} features in the repository, you must merge 
             similar features into a single feature and name the features to be deleted.
             All significant features of the repository should be present in the feature set before new features are 
             added and features can be consolidated to make room below the maximum of ${featuresLimit} features.
-            
+
             The intentïon file contents is a log of both taken in the repository since the last repository seed and you
             should see an alignment between the intentïon file entries and commits in the repository (where a commit is required).
             Use this log to determine the current direction of the repository towards its mission. The combination of the
@@ -546,7 +546,7 @@ jobs:
             FEATURE_PROMPT_START
             ${prompt}
             FEATURE_PROMPT_END
-            
+
             intentïon file contents:
             INTENTION_FILE_START
             ${intentionContent}
@@ -657,13 +657,13 @@ jobs:
               ],
               tools: tools
             };
-            
+
             const requestFilePath = 'request.json';
             fs.writeFileSync(requestFilePath, JSON.stringify(request, null, 2));
             core.setOutput("requestFilePath", requestFilePath);
             core.info("requestFilePath: " + requestFilePath);
             const response = await openai.chat.completions.create(request);
-            
+
             const responseFilePath = 'response.json';
             fs.writeFileSync(responseFilePath, JSON.stringify(response, null, 2));
             core.setOutput("responseFilePath", responseFilePath);
@@ -701,7 +701,7 @@ jobs:
                 core.setFailed(`Failed to parse ChatGPT response: ${e.message}`);
                 return;
               }
-            
+
               core.setOutput("featureName", parsed.featureName);
               core.setOutput("featureSpec", parsed.featureSpec);
               core.setOutput("featureNamesToBeDeleted", parsed.featureNamesToBeDeleted);
@@ -726,7 +726,7 @@ jobs:
 
               const featureFilepathsToBeDeleted = parsed.featureNamesToBeDeleted
                 .split(',')
-                .map(name => path.join(featuresPath, `${name.trim().replace(/.md^/, "").toUpperCase()}.md`));
+                .map(name => path.join(featuresPath, `${name.trim().replace(/.md$/, "").toUpperCase()}.md`));
               for (const filepath of featureFilepathsToBeDeleted) {
                 try {
                   if( fs.existsSync(filepath) ) {
@@ -780,11 +780,19 @@ jobs:
           git push -v origin ${{ github.ref }}
           git status -v
 
+      - id: uuid
+        name: uuid
+        shell: bash
+        run: |
+          uuid=$(uuidgen)
+          echo "uuid: ${uuid}"
+          echo "uuid=${uuid}" >> $GITHUB_OUTPUT
+
       - name: Upload prompt file as an artifact
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: maintain-features-prompt.txt
+          name: "maintain-features-prompt-${{ steps.uuid.outputs.uuid }}.txt"
           path: ${{ steps.maintain-features.outputs.promptFilePath }}
           retention-days: 7
 
@@ -792,7 +800,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: maintain-features-request.json
+          name: "maintain-features-request-${{ steps.uuid.outputs.uuid }}.json"
           path: ${{ steps.maintain-features.outputs.requestFilePath }}
           retention-days: 7
 
@@ -800,7 +808,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: maintain-features-response.json
+          name: "maintain-features-response-${{ steps.uuid.outputs.uuid }}.json"
           path: ${{ steps.maintain-features.outputs.responseFilePath }}
           retention-days: 7
 
@@ -808,7 +816,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: maintain-features-result.json
+          name: "maintain-features-result-${{ steps.uuid.outputs.uuid }}.json"
           path: ${{ steps.maintain-features.outputs.resultFilePath }}
 
 

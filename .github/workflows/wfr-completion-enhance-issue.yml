@@ -895,11 +895,19 @@ jobs:
             core.setOutput("usage", JSON.stringify(response.usage));
             core.info(`usage: "${JSON.stringify(response.usage)}"`);
 
+      - id: uuid
+        name: uuid
+        shell: bash
+        run: |
+          uuid=$(uuidgen)
+          echo "uuid: ${uuid}"
+          echo "uuid=${uuid}" >> $GITHUB_OUTPUT
+
       - name: Upload prompt file as an artifact
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: enhance-issue-prompt.txt
+          name: "enhance-issue-prompt-${{ steps.uuid.outputs.uuid }}.txt"
           path: ${{ steps.enhance-issue.outputs.promptFilePath }}
           retention-days: 7
 
@@ -907,7 +915,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: enhance-issue-request.json
+          name: "enhance-issue-request-${{ steps.uuid.outputs.uuid }}.json"
           path: ${{ steps.enhance-issue.outputs.requestFilePath }}
           retention-days: 7
 
@@ -915,7 +923,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: enhance-issue-response.json
+          name: "enhance-issue-response-${{ steps.uuid.outputs.uuid }}.json"
           path: ${{ steps.enhance-issue.outputs.responseFilePath }}
           retention-days: 7
 
@@ -923,7 +931,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: enhance-issue-result.json
+          name: "enhance-issue-result-${{ steps.uuid.outputs.uuid }}.json"
           path: ${{ steps.enhance-issue.outputs.resultFilePath }}
 
     outputs:
