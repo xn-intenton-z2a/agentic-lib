@@ -391,7 +391,7 @@ jobs:
           reply: ${{ needs.generate-response.outputs.reply }}
           url: ${{ needs.process-discussion-post.outputs.url }}
           usage: ${{ needs.generate-response.outputs.usage }}
-          outcome: ${{ needs.post-reply.outcome }}
+          outcome: ${{ needs.post-reply.result }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
@@ -503,7 +503,7 @@ jobs:
           reply: ${{ needs.generate-response.outputs.reply }}
           url: ${{ needs.process-discussion-post.outputs.url }}
           usage: ${{ needs.generate-response.outputs.usage }}
-          outcome: ${{ needs.seed-repository.outcome }}
+          outcome: ${{ needs.seed-repository.result }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
@@ -612,7 +612,7 @@ jobs:
           detail: ${{ needs.generate-response.outputs.detail }}
           reply: ${{ needs.generate-response.outputs.reply }}
           usage: ${{ needs.generate-response.outputs.usage }}
-          outcome: ${{ needs.create-feature.outcome }}
+          outcome: ${{ needs.create-feature.result }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |

@@ -1258,12 +1258,12 @@ jobs:
         env:
           fixApplied: ${{ steps.update-target.outputs.fixApplied }}
           message: ${{ steps.update-target.outputs.message }}
-          installAfterUpdateOutcome: ${{ steps.install-after-update.outcome }}
-          ciAfterUpdateOutcome: ${{ steps.ci-after-update.outcome }}
-          testAfterUpdateOutcome: ${{ steps.test-after-update.outcome }}
-          mainAfterUpdateOutcome: ${{ steps.main-after-update.outcome }}
-          commitOutcome: ${{ steps.commit.outcome }}
-          postResolutionCommentOutcome: ${{ steps.post-resolution-comment.outcome }}
+          installAfterUpdateOutcome: ${{ steps.install-after-update.result }}
+          ciAfterUpdateOutcome: ${{ steps.ci-after-update.result }}
+          testAfterUpdateOutcome: ${{ steps.test-after-update.result }}
+          mainAfterUpdateOutcome: ${{ steps.main-after-update.result }}
+          commitOutcome: ${{ steps.commit.result }}
+          postResolutionCommentOutcome: ${{ steps.post-resolution-comment.result }}
         with:
           script: |
             const fixApplied = process.env.fixApplied === 'true';

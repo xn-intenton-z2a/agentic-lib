@@ -312,7 +312,7 @@ jobs:
           issueNumber: ${{ needs.merge-check.outputs.issueNumber }}
           prMerged: ${{ needs.automerge.outputs.prMerged }}
           message: ${{ needs.automerge.outputs.message }}
-          outcome: ${{ needs.automerge.outcome }}
+          outcome: ${{ needs.automerge.result }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
