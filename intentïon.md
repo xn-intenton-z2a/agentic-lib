@@ -463,4 +463,351 @@ LLM API Usage:
 {"prompt_tokens":8925,"completion_tokens":1744,"total_tokens":10669,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1024,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Code at 2025-05-25T22:36:07.548Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-1634 with message Add --crawl flag with fetch from Wikipedia summary include tests and documentation add fetch fallback and outcome 
+
+Git Diff:
+```diff
+diff --git a/package-lock.json b/package-lock.json
+index 42f6cc4d..d75d55f4 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -12,6 +12,7 @@
+         "dotenv": "^16.5.0",
+         "express": "^4.21.2",
+         "minimatch": "^10.0.1",
++        "node-fetch": "^3.3.1",
+         "openai": "^4.103.0",
+         "zod": "^3.25.28"
+       },
+@@ -2384,6 +2385,15 @@
+         "node": ">= 8"
+       }
+     },
++    "node_modules/data-uri-to-buffer": {
++      "version": "4.0.1",
++      "resolved": "https://registry.npmjs.org/data-uri-to-buffer/-/data-uri-to-buffer-4.0.1.tgz",
++      "integrity": "sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==",
++      "license": "MIT",
++      "engines": {
++        "node": ">= 12"
++      }
++    },
+     "node_modules/data-view-buffer": {
+       "version": "1.0.2",
+       "resolved": "https://registry.npmjs.org/data-view-buffer/-/data-view-buffer-1.0.2.tgz",
+@@ -3539,6 +3549,38 @@
+         }
+       }
+     },
++    "node_modules/fetch-blob": {
++      "version": "3.2.0",
++      "resolved": "https://registry.npmjs.org/fetch-blob/-/fetch-blob-3.2.0.tgz",
++      "integrity": "sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==",
++      "funding": [
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/jimmywarting"
++        },
++        {
++          "type": "paypal",
++          "url": "https://paypal.me/jimmywarting"
++        }
++      ],
++      "license": "MIT",
++      "dependencies": {
++        "node-domexception": "^1.0.0",
++        "web-streams-polyfill": "^3.0.3"
++      },
++      "engines": {
++        "node": "^12.20 || >= 14.13"
++      }
++    },
++    "node_modules/fetch-blob/node_modules/web-streams-polyfill": {
++      "version": "3.3.3",
++      "resolved": "https://registry.npmjs.org/web-streams-polyfill/-/web-streams-polyfill-3.3.3.tgz",
++      "integrity": "sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==",
++      "license": "MIT",
++      "engines": {
++        "node": ">= 8"
++      }
++    },
+     "node_modules/figlet": {
+       "version": "1.8.1",
+       "resolved": "https://registry.npmjs.org/figlet/-/figlet-1.8.1.tgz",
+@@ -3703,6 +3745,18 @@
+         "node": ">= 12.20"
+       }
+     },
++    "node_modules/formdata-polyfill": {
++      "version": "4.0.10",
++      "resolved": "https://registry.npmjs.org/formdata-polyfill/-/formdata-polyfill-4.0.10.tgz",
++      "integrity": "sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==",
++      "license": "MIT",
++      "dependencies": {
++        "fetch-blob": "^3.1.2"
++      },
++      "engines": {
++        "node": ">=12.20.0"
++      }
++    },
+     "node_modules/formidable": {
+       "version": "2.1.5",
+       "resolved": "https://registry.npmjs.org/formidable/-/formidable-2.1.5.tgz",
+@@ -5102,23 +5156,21 @@
+       }
+     },
+     "node_modules/node-fetch": {
+-      "version": "2.7.0",
+-      "resolved": "https://registry.npmjs.org/node-fetch/-/node-fetch-2.7.0.tgz",
+-      "integrity": "sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==",
++      "version": "3.3.2",
++      "resolved": "https://registry.npmjs.org/node-fetch/-/node-fetch-3.3.2.tgz",
++      "integrity": "sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==",
+       "license": "MIT",
+       "dependencies": {
+-        "whatwg-url": "^5.0.0"
++        "data-uri-to-buffer": "^4.0.0",
++        "fetch-blob": "^3.1.4",
++        "formdata-polyfill": "^4.0.10"
+       },
+       "engines": {
+-        "node": "4.x || >=6.0.0"
++        "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+       },
+-      "peerDependencies": {
+-        "encoding": "^0.1.0"
+-      },
+-      "peerDependenciesMeta": {
+-        "encoding": {
+-          "optional": true
+-        }
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/node-fetch"
+       }
+     },
+     "node_modules/npm-check-updates": {
+@@ -5310,6 +5362,26 @@
+         }
+       }
+     },
++    "node_modules/openai/node_modules/node-fetch": {
++      "version": "2.7.0",
++      "resolved": "https://registry.npmjs.org/node-fetch/-/node-fetch-2.7.0.tgz",
++      "integrity": "sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==",
++      "license": "MIT",
++      "dependencies": {
++        "whatwg-url": "^5.0.0"
++      },
++      "engines": {
++        "node": "4.x || >=6.0.0"
++      },
++      "peerDependencies": {
++        "encoding": "^0.1.0"
++      },
++      "peerDependenciesMeta": {
++        "encoding": {
++          "optional": true
++        }
++      }
++    },
+     "node_modules/optionator": {
+       "version": "0.9.4",
+       "resolved": "https://registry.npmjs.org/optionator/-/optionator-0.9.4.tgz",
+diff --git a/package.json b/package.json
+index 8bbac1c0..3e28ba04 100644
+--- a/package.json
++++ b/package.json
+@@ -26,7 +26,8 @@
+     "express": "^4.21.2",
+     "minimatch": "^10.0.1",
+     "openai": "^4.103.0",
+-    "zod": "^3.25.28"
++    "zod": "^3.25.28",
++    "node-fetch": "^3.3.1"
+   },
+   "devDependencies": {
+     "@microsoft/eslint-formatter-sarif": "^3.1.0",
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..6241eb81 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -3,11 +3,56 @@
+ 
+ import { fileURLToPath } from "url";
+ 
+-export function main(args) {
++async function processCrawl(args) {
++  const index = args.indexOf("--crawl");
++  if (index !== -1) {
++    const entityName = args[index + 1];
++    if (!entityName) {
++      console.error(JSON.stringify({ level: "error", message: "Missing entity name for --crawl" }));
++      process.exit(1);
++    }
++    // Polyfill fetch if not available
++    if (typeof globalThis.fetch === "undefined") {
++      try {
++        const fetchModule = await import("node-fetch");
++        globalThis.fetch = fetchModule.default;
++      } catch (err) {
++        console.error(JSON.stringify({ level: "error", message: "Failed to load fetch polyfill", error: err.toString() }));
++        process.exit(1);
++      }
++    }
++    const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(entityName)}`;
++    try {
++      const response = await fetch(url);
++      if (!response.ok) {
++        const details = await response.text();
++        console.error(JSON.stringify({ level: "error", message: `HTTP error ${response.status}`, details }));
++        process.exit(1);
++      }
++      const data = await response.json();
++      const result = {
++        title: data.title,
++        extract: data.extract,
++        url: data.content_urls.desktop.page,
++        retrievedAt: new Date().toISOString(),
++      };
++      console.log(JSON.stringify(result));
++      process.exit(0);
++    } catch (err) {
++      console.error(JSON.stringify({ level: "error", message: "Network or fetch error", error: err.toString() }));
++      process.exit(1);
++    }
++  }
++}
++
++export async function main(args = process.argv.slice(2)) {
++  await processCrawl(args);
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  const args = process.argv.slice(2);
+-  main(args);
++  main().catch((err) => {
++    console.error(JSON.stringify({ level: "error", message: "Fatal error", error: err.toString() }));
++    process.exit(1);
++  });
+ }\n\n// New [sandbox/docs/CRAWL.md]:\n# --crawl
+
+Retrieve a Wikipedia summary for a given entity.
+
+## Usage
+
+```bash
+node sandbox/source/main.js --crawl "<Entity Name>"
+```
+
+## Example
+
+```bash
+node sandbox/source/main.js --crawl "Eiffel Tower"
+```
+
+## Sample Output
+
+```json
+{
+  "title": "Eiffel Tower",
+  "extract": "The Eiffel Tower is ...",
+  "url": "https://en.wikipedia.org/wiki/Eiffel_Tower",
+  "retrievedAt": "2025-06-01T12:34:56.789Z"
+}
+```\n\n// New [sandbox/tests/crawl.test.js]:\nimport { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { main } from "../source/main.js";
+
+describe("--crawl flag", () => {
+  let originalFetch;
+  let originalLog;
+  let originalError;
+  let originalExit;
+  let logs;
+  let errors;
+
+  beforeEach(() => {
+    logs = [];
+    errors = [];
+    originalFetch = globalThis.fetch;
+    originalLog = console.log;
+    originalError = console.error;
+    originalExit = process.exit;
+    console.log = (msg) => { logs.push(msg); };
+    console.error = (msg) => { errors.push(msg); };
+    process.exit = vi.fn((code) => { throw new Error(`ProcessExit:${code}`); });
+  });
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+    console.log = originalLog;
+    console.error = originalError;
+    process.exit = originalExit;
+    vi.resetAllMocks();
+  });
+
+  it("errors when missing entity name", async () => {
+    await expect(main(["--crawl"])).rejects.toThrow("ProcessExit:1");
+    expect(errors[0]).toContain("Missing entity name for --crawl");
+  });
+
+  it("fetches and prints result on success", async () => {
+    globalThis.fetch = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        title: "Test",
+        extract: "A description",
+        content_urls: { desktop: { page: "https://example.com" } },
+      }),
+    }));
+    await expect(main(["--crawl", "Test"])).rejects.toThrow("ProcessExit:0");
+    const output = JSON.parse(logs[0]);
+    expect(output).toEqual({
+      title: "Test",
+      extract: "A description",
+      url: "https://example.com",
+      retrievedAt: expect.any(String),
+    });
+    expect(new Date(output.retrievedAt).toString()).not.toBe("Invalid Date");
+  });
+
+  it("errors on non-ok response", async () => {
+    globalThis.fetch = vi.fn(async () => ({
+      ok: false,
+      status: 404,
+      text: async () => "Not Found",
+    }));
+    await expect(main(["--crawl", "Test"])).rejects.toThrow("ProcessExit:1");
+    expect(errors[0]).toContain("HTTP error 404");
+  });
+
+  it("errors on fetch throw", async () => {
+    globalThis.fetch = vi.fn(() => { throw new Error("Network"); });
+    await expect(main(["--crawl", "Test"])).rejects.toThrow("ProcessExit:1");
+    expect(errors[0]).toContain("Network or fetch error");
+  });
+});
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/agentic-lib@6.9.6-0 sandbox
+> node sandbox/source/main.js
+
+Run with: []
+```
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1634 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":14763,"completion_tokens":6467,"total_tokens":21230,"prompt_tokens_details":{"cached_tokens":1536,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3968,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
