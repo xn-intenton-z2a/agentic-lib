@@ -285,3 +285,106 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-25T04:43:13.838Z
+
+Generated issue 1613 for feature "ai-summarization" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1613
+
+title:
+
+Implement AI Summarization with CLI Flag and HTTP Endpoint
+
+And description:
+
+We want to extend `src/lib/main.js`, tests, and documentation to support AI-powered summarization of digest events via the OpenAI API. This includes a new CLI flag (`--summarize`) and an HTTP endpoint (`POST /digest/summarize`). Once implemented, users can obtain both the standard SQS batchItemFailures and a concise AI-generated summary.
+
+---
+
+### 1. Source Changes (`src/lib/main.js`)
+
+1. **summarizeDigest(digest)**
+   - Import and configure OpenAIApi using `config.OPENAI_API_KEY`.
+   - Send the digest object as JSON to `createChatCompletion` with a system/user prompt instructing the model to produce a concise summary.
+   - Parse the response and return the summary string.
+
+2. **summarizationHandler(event)**
+   - Accept an SQS-style event, call `digestLambdaHandler` to get `{ batchItemFailures }`.
+   - Extract the original digest payload from `event.Records[0].body`.
+   - Call `summarizeDigest(digest)`.
+   - Return `{ batchItemFailures, summary }`.
+
+3. **CLI: processSummarize(args)**
+   - Detect `--summarize` flag with optional path argument (`node src/lib/main.js --summarize events.json`).
+   - If a path is provided, `import('fs').readFileSync` to load the JSON payload; otherwise, use the default example digest.
+   - Wrap payload with `createSQSEventFromDigest`, call `summarizationHandler`, and `console.log(JSON.stringify({ batchItemFailures, summary }))`.
+   - Return `true` to exit after processing.
+
+4. **HTTP API**
+   - In Express server setup (existing or new), add `POST /digest/summarize`:
+     - Accept JSON body as the digest payload.
+     - Wrap into SQS event via `createSQSEventFromDigest`.
+     - Call `summarizationHandler`.
+     - Return `200` with JSON: `{ summary, batchItemFailures }`.
+     - Return `500` with `{ error: message }` on failure.
+
+---
+
+### 2. Tests
+
+1. **Unit Tests (`tests/unit/summarization.test.js`)**
+   - **summarizeDigest**: Mock `openai.OpenAIApi` to return a known completion; verify the function returns the correct string.
+   - **summarizationHandler**: Mock `digestLambdaHandler` and `summarizeDigest`; verify combined output.
+   - **CLI**: Mock `process.argv` for `--summarize`, stub file reads, spy on `console.log`; assert output structure.
+
+2. **HTTP Tests (`sandbox/tests/http_summarize.test.js`)**
+   - Use Supertest with the Express app to test `POST /digest/summarize`:
+     - Valid payload returns `200` and JSON `{ summary: string, batchItemFailures: [] }`.
+     - Invalid JSON returns `400`.
+
+---
+
+### 3. Documentation (`sandbox/README.md`)
+
+1. Add to **CLI Usage** section:
+   ```bash
+   --summarize [file]    Generate an AI summary for a digest event (uses OPENAI_API_KEY).
+   ```
+   Example:
+   ```bash
+   node src/lib/main.js --summarize events.json
+   ```
+
+2. Add to **HTTP API** section:
+   ```bash
+   curl -X POST http://localhost:3000/digest/summarize \
+     -H 'Content-Type: application/json' \
+     -d '{"key":"events/1.json","value":"12345","lastModified":"..."}'
+   ```
+   Response:
+   ```json
+   {
+     "summary": "...",
+     "batchItemFailures": []
+   }
+   ```
+
+3. Note: requires `OPENAI_API_KEY` in environment.
+
+---
+
+### 4. Verification
+
+1. Run `npm test` and ensure all new tests pass.
+2. Start server: `OPENAI_API_KEY=<key> npm start`
+   - `POST /digest/summarize` returns both `summary` and `batchItemFailures`.
+3. CLI: `OPENAI_API_KEY=<key> node src/lib/main.js --summarize` outputs JSON with summary.
+
+No other files should be created or deleted. This change is focused on source, unit tests, HTTP tests, and README.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":9138,"completion_tokens":1700,"total_tokens":10838,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
