@@ -148,7 +148,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -804,7 +804,7 @@ jobs:
           git commit -m 'Maintain library ${{ steps.maintain-library.outputs.documentName }}'
           git status -v
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }} origin ${{ github.ref }}
           git status -v
 
