@@ -296,4 +296,189 @@ LLM API Usage:
 
 ```
 
+---## Issue to Code at 2025-05-25T19:03:15.053Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-1622 with message Add --fetch-wikipedia CLI option in sandbox with tests and docs and outcome 
+
+Git Diff:
+```diff
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..a0595c3c 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -3,11 +3,69 @@
+ 
+ import { fileURLToPath } from "url";
+ 
+-export function main(args) {
++/**
++ * Log an error message to stderr.
++ * @param {string} message
++ */
++function logError(message) {
++  console.error(message);
++}
++
++/**
++ * Process the --fetch-wikipedia flag.
++ * @param {string[]} args
++ * @returns {Promise<boolean>} true if flag was handled
++ */
++async function processFetchWikipedia(args) {
++  const idx = args.indexOf("--fetch-wikipedia");
++  if (idx !== -1) {
++    const topic = args[idx + 1];
++    if (!topic) {
++      logError("Missing topic for --fetch-wikipedia flag");
++      return true;
++    }
++    const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(
++      topic
++    )}`;
++    let response;
++    try {
++      response = await fetch(url);
++    } catch (err) {
++      logError(`Error fetching Wikipedia summary: ${err}`);
++      return true;
++    }
++    if (!response.ok) {
++      logError(`Error fetching Wikipedia summary: ${response.status} ${response.statusText}`);
++      return true;
++    }
++    let data;
++    try {
++      data = await response.json();
++    } catch (err) {
++      logError(`Error parsing Wikipedia response: ${err}`);
++      return true;
++    }
++    console.log(JSON.stringify(data));
++    return true;
++  }
++  return false;
++}
++
++/**
++ * Main entrypoint for sandbox CLI.
++ * @param {string[]} args
++ */
++export async function main(args) {
++  if (await processFetchWikipedia(args)) {
++    return;
++  }
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   const args = process.argv.slice(2);
+-  main(args);
++  main(args).catch((err) => {
++    logError(`Fatal error in sandbox CLI: ${err}`);
++    process.exit(1);
++  });
+ }\n\n// New [sandbox/README.md]:\n# Agentic Lib Sandbox CLI
+
+This sandbox CLI provides utilities to interact with the agentic library in a local environment.
+
+## Usage
+  --fetch-wikipedia <topic>   Fetch the summary of `<topic>` from Wikipedia and output JSON.
+
+### Examples
+
+Fetch the summary of "Node.js":
+```
+npm run sandbox -- --fetch-wikipedia "Node.js"
+```
+
+If no supported flag is provided, the CLI will output the received arguments:
+```
+npm run sandbox -- --foo bar
+# Run with: ["--foo","bar"]
+```\n\n// New [sandbox/tests/fetchWikipedia.test.js]:\nimport { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+import { main } from "../source/main.js";
+
+describe("--fetch-wikipedia flag", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("successful fetch logs JSON data", async () => {
+    const mockData = { title: "Node.js", extract: "Node.js is a runtime..." };
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue(mockData),
+    });
+    const logSpy = vi.spyOn(console, "log");
+    const errSpy = vi.spyOn(console, "error");
+
+    await main(["--fetch-wikipedia", "Node.js"]);
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://en.wikipedia.org/api/rest_v1/page/summary/Node.js"
+    );
+    expect(logSpy).toHaveBeenCalledWith(JSON.stringify(mockData));
+    expect(errSpy).not.toHaveBeenCalled();
+  });
+
+  test("missing topic logs error and exits", async () => {
+    const errSpy = vi.spyOn(console, "error");
+    const logSpy = vi.spyOn(console, "log");
+
+    await main(["--fetch-wikipedia"]);
+
+    expect(errSpy).toHaveBeenCalledWith(
+      "Missing topic for --fetch-wikipedia flag"
+    );
+    expect(logSpy).not.toHaveBeenCalled();
+  });
+
+  test("HTTP error logs status and exits", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 404,
+      statusText: "Not Found",
+    });
+    const errSpy = vi.spyOn(console, "error");
+    const logSpy = vi.spyOn(console, "log");
+
+    await main(["--fetch-wikipedia", "Earth"]);
+
+    expect(errSpy).toHaveBeenCalledWith(
+      "Error fetching Wikipedia summary: 404 Not Found"
+    );
+    expect(logSpy).not.toHaveBeenCalled();
+  });
+
+  test("flag bypass prints default run message", async () => {
+    const logSpy = vi.spyOn(console, "log");
+    const errSpy = vi.spyOn(console, "error");
+
+    await main(["--other", "value"]);
+    expect(logSpy).toHaveBeenCalledWith(
+      `Run with: ${JSON.stringify(["--other", "value"])}`
+    );
+    expect(errSpy).not.toHaveBeenCalled();
+  });
+});
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/agentic-lib@6.9.1-0 sandbox
+> node sandbox/source/main.js
+
+Run with: []
+```
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1622 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":13300,"completion_tokens":4698,"total_tokens":17998,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3136,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
