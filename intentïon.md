@@ -761,3 +761,240 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-25T04:55:02.732Z
+
+fixApplied: true
+
+Add HTTP API server in sandboxsource tests and documentation
+
+Git Diff:
+
+```
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..b8fe9581 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -2,12 +2,58 @@
+ // sandbox/source/main.js
+ 
+ import { fileURLToPath } from "url";
++import express from "express";
++import {
++  createSQSEventFromDigest,
++  digestLambdaHandler,
++  logInfo,
++  logError,
++} from "../../src/lib/main.js";
+ 
+-export function main(args) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
+-}
++// Create Express app
++const app = express();
++app.use(express.json());
++
++// Health endpoint
++app.get("/health", (req, res) => {
++  try {
++    const uptime = process.uptime();
++    res.status(200).json({ status: "ok", uptime });
++  } catch (err) {
++    logError("Error in /health", err);
++    res.status(500).json({ error: err.message });
++  }
++});
++
++// Digest endpoint
++app.post("/digest", async (req, res) => {
++  try {
++    const payload = req.body;
++    if (
++      !payload ||
++      typeof payload !== "object" ||
++      !payload.key ||
++      !payload.value ||
++      !payload.lastModified
++    ) {
++      return res.status(400).json({ error: "Invalid JSON payload" });
++    }
++    const sqsEvent = createSQSEventFromDigest(payload);
++    const result = await digestLambdaHandler(sqsEvent);
++    return res.status(200).json({ batchItemFailures: result.batchItemFailures });
++  } catch (err) {
++    logError("Error processing /digest", err);
++    return res.status(500).json({ error: err.message });
++  }
++});
++
++// Server startup
++const port = process.env.DIGEST_SERVER_PORT || 3000;
++export { app };
+ 
++// If script is run directly, start listening
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  const args = process.argv.slice(2);
+-  main(args);
++  app.listen(port, () => {
++    logInfo(`Server listening on port ${port}`);
++  });
+ }\n\n// New [sandbox/README.md]:\n# Agentic-lib Sandbox HTTP API Server
+
+This sandbox provides a lightweight HTTP API server to expose health and digest event processing endpoints, built on top of the core `agentic-lib` functionality.
+
+- Source code for the server is in `sandbox/source/main.js`.
+- Automated tests for the HTTP endpoints are in `sandbox/tests/http_api_server.test.js`.
+- Detailed API documentation is available in `sandbox/docs/API.md`.
+
+## Running the Server
+
+```bash
+npm run sandbox
+```
+
+By default, the server listens on port `3000`. To customize the port:
+
+```bash
+export DIGEST_SERVER_PORT=4000
+npm run sandbox
+```
+
+## API Endpoints
+
+See [API Documentation](sandbox/docs/API.md) for request and response details, examples, and error handling.\n\n// New [sandbox/docs/API.md]:\n# HTTP API Server
+
+This document describes the HTTP API server provided in the sandbox environment. The server exposes endpoints to check service health and submit digest events directly.
+
+## Environment Configuration
+
+- `DIGEST_SERVER_PORT`: Port on which the server listens. Defaults to `3000` if not set.
+
+## Endpoints
+
+### GET /health
+
+- **Description**: Check the health and uptime of the service.
+- **Request**: `GET http://localhost:<PORT>/health`
+- **Response**:
+  - Status: `200 OK`
+  - Body:
+    ```json
+    {
+      "status": "ok",
+      "uptime": <number>
+    }
+    ```
+
+**Example**:
+```bash
+curl http://localhost:3000/health
+```
+
+### POST /digest
+
+- **Description**: Submit a single digest event for processing.
+- **Request**:
+  - Method: `POST`
+  - URL: `http://localhost:<PORT>/digest`
+  - Headers: `Content-Type: application/json`
+  - Body:
+    ```json
+    {
+      "key": "events/1.json",
+      "value": "12345",
+      "lastModified": "2025-01-01T00:00:00.000Z"
+    }
+    ```
+- **Responses**:
+  - **Success** (valid payload and processing):
+    - Status: `200 OK`
+    - Body:
+      ```json
+      {
+        "batchItemFailures": []
+      }
+      ```
+  - **Invalid Payload** (missing required fields or malformed JSON):
+    - Status: `400 Bad Request`
+    - Body:
+      ```json
+      {
+        "error": "Invalid JSON payload"
+      }
+      ```
+  - **Server Error** (unexpected error during processing):
+    - Status: `500 Internal Server Error`
+    - Body:
+      ```json
+      {
+        "error": "<error message>"
+      }
+      ```
+
+**Example**:
+```bash
+curl -X POST http://localhost:3000/digest \
+  -H 'Content-Type: application/json' \
+  -d '{"key":"events/1.json","value":"12345","lastModified":"2025-01-01T00:00:00.000Z"}'
+```\n\n// New [sandbox/tests/http_api_server.test.js]:\nimport request from "supertest";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { app } from "../source/main.js";
+import * as srcMain from "../../src/lib/main.js";
+
+let server;
+
+describe("HTTP API Server", () => {
+  beforeAll(() => {
+    // Stub digestLambdaHandler to return a predictable result
+    srcMain.digestLambdaHandler = async () => ({ batchItemFailures: [] });
+    server = app.listen(0);
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  it("GET /health returns status 200 and JSON shape", async () => {
+    const res = await request(app).get("/health");
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("status", "ok");
+    expect(res.body).toHaveProperty("uptime");
+    expect(typeof res.body.uptime).toBe("number");
+    expect(res.body.uptime).toBeGreaterThanOrEqual(0);
+  });
+
+  it("POST /digest with valid payload returns 200 and empty batchItemFailures", async () => {
+    const payload = { key: "events/1.json", value: "12345", lastModified: "2025-01-01T00:00:00.000Z" };
+    const res = await request(app).post("/digest").send(payload);
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("batchItemFailures");
+    expect(Array.isArray(res.body.batchItemFailures)).toBe(true);
+    expect(res.body.batchItemFailures).toEqual([]);
+  });
+
+  it("POST /digest with invalid payload returns 400 and error message", async () => {
+    // Sending non-object to trigger invalid payload
+    const res = await request(app).post("/digest").send("not a json");
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("error", "Invalid JSON payload");
+  });
+});
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.9.1-0 sandbox
+> node sandbox/source/main.js
+
+{"level":"info","timestamp":"2025-05-25T04:49:39.156Z","message":"Configuration loaded","config":{}}
+{"level":"info","timestamp":"2025-05-25T04:49:39.162Z","message":"Server listening on port 3000"}
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1612 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":13446,"completion_tokens":4914,"total_tokens":18360,"prompt_tokens_details":{"cached_tokens":1536,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2944,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
