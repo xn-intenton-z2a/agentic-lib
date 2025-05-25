@@ -205,4 +205,74 @@ LLM API Usage:
 {"prompt_tokens":6254,"completion_tokens":1818,"total_tokens":8072,"prompt_tokens_details":{"cached_tokens":1152,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1472,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Feature to Issue at 2025-05-25T18:43:56.449Z
+
+Activity:
+
+Generated issue 1620 for feature "fetch-public-data" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1620
+
+title:
+
+Implement FETCH_PUBLIC_DATA CLI flag in sandbox to fetch and output JSON
+
+And description:
+
+### Objective
+
+Enable the sandbox CLI (`sandbox/source/main.js`) to fetch and print JSON data from a public API endpoint using a new `--fetch <URL>` flag. This is the foundational ingestion step for seeding the knowledge graph of the physical world.
+
+### Scope of Work
+
+1. **Modify `sandbox/source/main.js`**
+   - Change `main` to an `async` function.
+   - Parse `--fetch <URL>` in the argument list:
+     - If `--fetch` is present, extract the next value as `url`.
+     - Use the built-in global `fetch(url)` to perform an HTTP GET.
+     - On success (`response.ok`), parse the JSON body and `console.log(JSON.stringify(data, null, 2))` to stdout.
+     - On HTTP error (`!response.ok`), or any thrown error, catch and `console.error(JSON.stringify({ level: "error", message: "Failed to fetch data", error: err.toString() }))`, then exit with non-zero code.
+   - If `--fetch` was handled, return early and do not run the default `console.log` behavior.
+
+2. **Extend `sandbox/tests/main.test.js`**
+   - Mock `global.fetch` using Vitest:
+     - A successful fetch returning `{ hello: "world" }`. Capture `console.log` and assert that it printed the JSON string with 2-space indentation.
+     - A failing fetch (either `fetch` throws or returns non-OK). Capture `console.error` and assert it was called with a structured error log.
+
+3. **Update `sandbox/README.md`**
+   - Add a **Fetch Public Data** section under CLI Usage:
+     ```markdown
+     ## Fetch Public Data
+
+     The `--fetch <URL>` flag retrieves JSON data from a public API and prints it formatted to stdout.
+
+     ### Examples
+     ```bash
+     npm run sandbox -- --fetch https://api.example.com/data.json
+     ```
+     ```json
+     {
+       "key": "value",
+       "array": [1, 2, 3]
+     }
+     ```
+     ```bash
+     npm run sandbox -- --fetch invalid-url
+     ```
+     Logs a structured error JSON to stderr and exits with code &gt; 0.
+     ```
+     ```
+     Add links to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md](../CONTRIBUTING.md).
+
+### Verification & Acceptance Criteria
+
+- `sandbox/source/main.js` passes existing tests and new fetch tests (`npm test`).
+- Running `npm run sandbox -- --fetch <valid JSON URL>` prints pretty JSON to stdout.
+- Running with invalid URL prints a structured error log to stderr and exits non-zero.
+- README updates render correctly and include examples.
+- No new dependencies added; rely on Node.js 20+ built-in `fetch`.
+
+LLM API Usage:
+```json
+{"prompt_tokens":7684,"completion_tokens":1650,"total_tokens":9334,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":960,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
