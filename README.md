@@ -690,10 +690,6 @@ Re-usable GitHub Actions Workflows:
 - [x] [Launch] Create up to 3 the features needed during a reseed by doing 'if featuresWIP >=1 create-one, if featuresWIP >= 2 create-two, if featuresWIP >= 3 create-three, etc...'
 - [x] [Launch] Run fix code if the seed resolve issue fails.
 - [n] [Launch] Add PR closure/abandonment to intentïon.md and mention the related feature.
-- [ ] [Launch] Scan all the features during scheduled feature maintenance and delete any that are not on mission.
-- [ ] [Launch] Allow the bot to update and delete features pro-activity and when asked to create features and include full feature detail in the response.
-- [ ] [Launch] Suggest that the Bot pushes back if a feature request violates the missing and contributing guidelines.
-- [ ] [Launch] Suggest the bot guides users towards a reseed with a new mission when a feature request is not aligned with the mission.
 - [ ] [Launch] If the issue is already done, have the issue to code completion return a nop and handle it positively.
 - [ ] [Launch] Be more ruthless about deleting features.
 - [ ] [Launch] Be more bullish about declaring the mission complete.
@@ -709,6 +705,9 @@ Re-usable GitHub Actions Workflows:
 - [ ] [Launch] Make the reusable workflow names match the top level workflow file names
 - [ ] [Launch] When adding issue comments to a prompt, just add the last <configurable> comments.
 - [ ] [Launch] Reduce the recent commits attached to prompts to 10 and only send these to review issue, discussions, and fix code.
+- [ ] Allow the bot to update and delete features pro-activity and when asked to create features and include full feature detail in the response.
+- [ ] Suggest that the Bot pushes back if a feature request violates the missing and contributing guidelines.
+- [ ] Suggest the bot guides users towards a reseed with a new mission when a feature request is not aligned with the mission.
 - [ ] Separate out writable and non-writable file paths in the prompt
 - [ ] Diagram the workflow interactions.
 - [ ] Pull any max file sizes into the agent config

@@ -920,6 +920,7 @@ jobs:
       - update-npm
       - update-mvn
       - maintain-features-one
+      - maintain-features-two
       #- maintain-library
     if: ${{ !cancelled() && needs.agentic-lib.outputs.featuresLimit > 2 && inputs.feature == '' }}
     permissions:
@@ -954,6 +955,7 @@ jobs:
     needs:
       - agentic-lib
       - log-intention-activity-maintain-features-one
+      - log-intention-activity-maintain-features-two
       - maintain-features-three
     runs-on: ubuntu-latest
     env:
@@ -1070,7 +1072,7 @@ jobs:
       issueBody: ${{ needs.generate-feature-development-issue-one.outputs.issueDescription }}
       issueLabels: 'feature, automated, ${{ needs.generate-feature-development-issue-one.outputs.featureLabel }}'
 
-  log-intention-activity:
+  log-intention-activity-generate-feature-development-issue-one:
     needs:
       - agentic-lib
       - maintain-features-one
@@ -1158,6 +1160,7 @@ jobs:
       - pom-check
       - update-npm
       - update-mvn
+      - generate-feature-development-issue-one
       - maintain-features-two
     if: ${{ !cancelled() }}
     permissions:
@@ -2109,7 +2112,7 @@ jobs:
       - npm-build-after-fix
       - npm-run-after-fix
       - needs-fix-after-fix
-    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != 'main' && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'false' }}
+    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'false' }}
     permissions:
       contents: write
       packages: write
@@ -2134,7 +2137,7 @@ jobs:
       - npm-build-after-fix
       - npm-run-after-fix
       - needs-fix-after-fix
-    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != 'main' && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'false' }}
+    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'false' }}
     permissions:
       contents: write
       pull-requests: write
