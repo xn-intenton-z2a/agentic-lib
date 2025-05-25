@@ -234,3 +234,68 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-25T01:18:21.013Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+## Overview
+
+Extend the sandbox source to provide a fully functional Express-based HTTP API server with two routes:
+
+1. **GET /health**
+   - Returns HTTP 200 and JSON `{ "status": "OK" }`.
+   - Logs request and response via `logInfo`.
+
+2. **POST /digest**
+   - Accepts a JSON body with required fields: `key` (string), `value` (string), and `lastModified` (ISO string).
+   - On valid payload:
+     - Constructs an SQS event using `createSQSEventFromDigest()`.
+     - Invokes `digestLambdaHandler` and returns HTTP 200 with the handler response: `{ batchItemFailures, handler }`.
+     - Logs request, payload, and response via `logInfo`.
+   - On missing or invalid fields:
+     - Returns HTTP 400 with JSON `{ "error": "<field> is required" }`.
+     - Logs the validation error via `logError`.
+   - On handler exception:
+     - Returns HTTP 500 with JSON `{ "error": "<error message>" }`.
+     - Logs the error and stack via `logError`.
+
+## Tasks
+
+1. **Server Setup**
+   - In `sandbox/source/main.js`, import and configure `express` and `express.json()`.
+   - Import `digestLambdaHandler`, `createSQSEventFromDigest`, `logInfo`, and `logError` from `src/lib/main.js`.
+   - Define and export the Express `app` instance for testing.
+   - In the CLI entry point, start the server on `process.env.PORT || 3000` and log startup with `logInfo`.
+
+2. **Tests**
+   - Update `sandbox/tests/main.test.js` to use Supertest and Vitest:
+     - GET `/health`: expect 200 and `{ status: "OK" }`.
+     - POST `/digest` valid payload: expect 200 and matching handler response.
+     - POST `/digest` missing `key`, `value`, or `lastModified`: expect 400 and appropriate error message.
+     - POST `/digest` when `digestLambdaHandler` throws: expect 500 and error JSON.
+   - Use `vi.mock()` to stub `digestLambdaHandler` for success and error scenarios.
+   - Import the exported `app` from `sandbox/source/main.js`.
+
+3. **Documentation**
+   - Update `sandbox/README.md`:
+     - Describe the HTTP API server feature.
+     - Show how to start the server (`npm run sandbox` or `PORT=4000 npm run sandbox`).
+     - Provide `curl` examples for both endpoints.
+
+## Acceptance Criteria
+
+- [ ] GET `/health` returns 200 and `{ "status": "OK" }`, and logs are emitted via `logInfo`.
+- [ ] POST `/digest` with valid body returns 200, correct JSON response, and logs include payload and handler output.
+- [ ] POST `/digest` missing a required field returns 400 with `{ "error": "<field> is required" }`, and logs via `logError`.
+- [ ] POST `/digest` when `digestLambdaHandler` throws returns 500 with `{ "error": "<error message>" }`, and logs via `logError`.
+- [ ] Express `app` is exported and can be mounted in tests.
+- [ ] Sandbox tests pass with `npm test`, and manual `curl` tests work as documented in README.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7071,"completion_tokens":1219,"total_tokens":8290,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":384,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
