@@ -140,13 +140,19 @@ jobs:
         run: |
           git config --local user.email '${{ env.gitUserEmail }}'
           git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
           git status -v
 
       - name: Get latest from remote
         run: |
-          git config --local user.email "${{ env.gitUserEmail }}"
-          git config --local user.name "${{ env.gitUserName }}"
-          git pull --ff-only origin ${{ github.ref }}
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
       - name: released
         id: released
@@ -197,6 +203,8 @@ jobs:
         run: |
           git config --local user.email '${{ env.gitUserEmail }}'
           git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
           git status -v
 
       - name: Run build after version bump
@@ -207,14 +215,18 @@ jobs:
         run: |
           git config --local user.email '${{ env.gitUserEmail }}'
           git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
           git status -v
 
       - name: Push version commit
         id: push
         shell: bash
         run: |
-          git config --local user.email "${{ env.gitUserEmail }}"
-          git config --local user.name "${{ env.gitUserName }}"
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
           git add -v --all
           newVersion=$(node -p "require('./package.json').version")
           git commit -m "${newVersion?}"

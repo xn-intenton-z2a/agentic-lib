@@ -91,6 +91,13 @@ jobs:
       - run: |
           echo "Triggered by: workflow_dispatch"
 
+  workflow-call-event:
+    if: github.event_name == 'workflow_call'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "Triggered by: workflow_call"
+
   workflow-run-event:
     if: github.event_name == 'workflow_run'
     runs-on: ubuntu-latest
@@ -109,7 +116,7 @@ jobs:
 
   ls:
     needs: label
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_run'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call' || github.event_name == 'workflow_run'
     runs-on: ubuntu-latest
     steps:
       - name: Determine pull request number
@@ -207,6 +214,7 @@ jobs:
             }
 
             core.setOutput('branchName', branchName);            
+            core.info(`branchName '${branchName}'`);
             core.setOutput('issueNumber', issueNumber);
             core.info(`issueNumber '${issueNumber}'`);
           result-encoding: string

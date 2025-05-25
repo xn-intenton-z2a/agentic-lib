@@ -90,9 +90,13 @@ jobs:
 
       - name: Get latest from remote
         run: |
-          git config --local user.email "${{ env.gitUserEmail }}"
-          git config --local user.name "${{ env.gitUserName }}"
-          git pull --ff-only origin ${{ github.ref }}
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
       - name: discussion
         id: discussion
@@ -372,9 +376,13 @@ jobs:
 
       - name: Get latest from remote
         run: |
-          git config --local user.email "${{ env.gitUserEmail }}"
-          git config --local user.name "${{ env.gitUserName }}"
-          git pull --ff-only origin ${{ github.ref }}
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
       - name: log-intention-activity
         id: log-intention-activity
@@ -431,8 +439,10 @@ jobs:
 
       - name: Commit changes
         run: |
-          git config --local user.email "${{ env.gitUserEmail }}"
-          git config --local user.name "${{ env.gitUserName }}"
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-discussions-bot.yml" || echo "No changes to commit"
           git push
@@ -475,9 +485,13 @@ jobs:
 
       - name: Get latest from remote
         run: |
-          git config --local user.email "${{ env.gitUserEmail }}"
-          git config --local user.name "${{ env.gitUserName }}"
-          git pull --ff-only origin ${{ github.ref }}
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
       - name: log-intention-activity
         id: log-intention-activity
@@ -534,8 +548,10 @@ jobs:
 
       - name: Commit changes
         run: |
-          git config --local user.email "${{ env.gitUserEmail }}"
-          git config --local user.name "${{ env.gitUserName }}"
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-discussions-bot.yml" || echo "No changes to commit"
           git push
@@ -578,9 +594,13 @@ jobs:
 
       - name: Get latest from remote
         run: |
-          git config --local user.email "${{ env.gitUserEmail }}"
-          git config --local user.name "${{ env.gitUserName }}"
-          git pull --ff-only origin ${{ github.ref }}
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
       - name: log-intention-activity
         id: log-intention-activity
@@ -635,8 +655,10 @@ jobs:
 
       - name: Commit changes
         run: |
-          git config --local user.email "${{ env.gitUserEmail }}"
-          git config --local user.name "${{ env.gitUserName }}"
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-discussions-bot.yml" || echo "No changes to commit"
           git push
@@ -656,9 +678,13 @@ jobs:
 
       - name: Get latest from remote
         run: |
-          git config --local user.email "${{ env.gitUserEmail }}"
-          git config --local user.name "${{ env.gitUserName }}"
-          git pull --ff-only origin ${{ github.ref }}
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
       - name: Log the declaration in the seed discussion file (intentïon) file.
         run: |
@@ -673,8 +699,10 @@ jobs:
 
       - name: Commit changes
         run: |
-          git config --local user.email "${{ env.gitUserEmail }}"
-          git config --local user.name "${{ env.gitUserName }}"
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
           git add "${{ needs.agentic-lib.outputs.intentionFilepath }}"
           git commit -m "HALT with ${{ needs.generate-response.outputs.action }}"
           git push

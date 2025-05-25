@@ -177,9 +177,13 @@ jobs:
 
       - name: Get latest from remote
         run: |
-          git config --local user.email "${{ env.gitUserEmail }}"
-          git config --local user.name "${{ env.gitUserName }}"
-          git pull --ff-only origin ${{ github.ref }}
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -643,6 +647,8 @@ jobs:
         run: |
           git config --local user.email '${{ env.gitUserEmail }}'
           git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
           #output=$(git add --intent-to-add $(git ls-files -o --exclude-standard) ; git diff 2>&1)
           output=$(git diff 2>&1)
           # Get a list of the new files not added to the index and concatenate them to the output with a lable showing
@@ -663,6 +669,8 @@ jobs:
         run: |
           git config --local user.email '${{ env.gitUserEmail }}'
           git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
           git status -v
 
           # Add the specific file
@@ -670,7 +678,9 @@ jobs:
           git commit -m "Maintain sources ${{ env.librarySourcesFilepath }}"
 
           git status -v
-          git pull --ff-only origin ${{ github.ref }}
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
           git push -v origin ${{ github.ref }}
           git status -v
 
