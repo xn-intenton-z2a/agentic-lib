@@ -329,4 +329,69 @@ LLM API Usage:
 {"prompt_tokens":8023,"completion_tokens":1168,"total_tokens":9191,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":448,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Feature to Issue at 2025-05-25T19:56:00.926Z
+
+Activity:
+
+Generated issue 1629 for feature "jsonld-crawler" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1629
+
+title:
+
+Implement `--extract-jsonld` CLI command for JSON-LD crawler
+
+And description:
+
+Summary
+-------
+Add a new `--extract-jsonld <URL>` option to the CLI in `src/lib/main.js` that fetches a web page, parses out all `<script type="application/ld+json">` blocks, and ingests each JSON-LD object into the existing knowledge-graph pipeline via `createSQSEventFromDigest` → `digestLambdaHandler`. Log the number of blocks found, summaries of each ingestion, and handle errors with nonzero exit codes.
+
+Files to update
+---------------
+1. **package.json**
+   - Add `cheerio` to `dependencies`.
+
+2. **src/lib/main.js**
+   - `import cheerio from 'cheerio';`
+   - Implement `async function processExtractJsonLd(args)`:
+     • Detect `--extract-jsonld` and extract the following URL argument.  
+     • Use native `fetch(url)` to retrieve page HTML; on network or non-OK status, `logError(...)` and `process.exit(1)`.  
+     • Load HTML into Cheerio: `const $ = cheerio.load(html);`  
+     • Select all `<script type="application/ld+json">` elements, parse each block text via `JSON.parse()`, wrap into digest `{ source: url, data: parsedObject }`.  
+     • For each digest: call `createSQSEventFromDigest(digest)`, then `await digestLambdaHandler(event)`.  
+     • After processing, `logInfo` total count and a one-line summary for each block.  
+     • Exit with code `0` if at least one block ingested, or `0` with a warning if zero blocks found.  
+   - Register `await processExtractJsonLd(args)` in the main dispatch sequence (before the final “No command” message).  
+
+3. **README.md**
+   - Under CLI Usage, document `--extract-jsonld <URL>` with:
+     • A brief description.  
+     • Example:  
+       ```bash
+       node src/lib/main.js --extract-jsonld https://example.com/page-with-jsonld
+       ```
+
+4. **tests/unit/main.test.js**
+   - Add new test cases (using Vitest):
+     • **Single JSON-LD block**: mock `fetch` to return HTML containing one `<script type="application/ld+json">` with known JSON; mock Cheerio to load and return that script; spy on `digestLambdaHandler` to assert it’s called once with correct payload; expect exit code 0.  
+     • **Multiple JSON-LD blocks**: similar, verify multiple calls in order.  
+     • **No JSON-LD present**: mock empty HTML; expect a warning log and exit code 0, with zero calls to `digestLambdaHandler`.  
+     • **Network error or invalid HTML**: mock `fetch` to throw or return invalid markup; expect `logError` and exit code 1.  
+   - Use Vitest’s `vi.mock` for `global.fetch` and `cheerio.load`; restore mocks after each test.
+
+Verification
+------------
+1. Run `npm install` (to pull in `cheerio`).
+2. Execute `npm test` — all new unit tests under `tests/unit/main.test.js` should pass.  
+3. Manual smoke test:
+   ```bash
+   node src/lib/main.js --extract-jsonld http://localhost:3000/test-page
+   ```
+   - Confirm logs report correct block count and summary lines; process exits with code 0 on success.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":9230,"completion_tokens":2316,"total_tokens":11546,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1472,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
