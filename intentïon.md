@@ -115,4 +115,51 @@ LLM API Usage:
 {"prompt_tokens":6254,"completion_tokens":1408,"total_tokens":7662,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":960,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Feature to Issue at 2025-05-25T18:43:15.826Z
+
+Activity:
+
+Generated issue 1619 for feature "data-crawler" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1619
+
+title:
+
+Implement DATA_CRAWLER CLI to fetch and output JSON from a URL
+
+And description:
+
+We need to add basic data crawling functionality to the sandbox CLI so that we can fetch public data sources and begin building our knowledge graph. This issue will implement a `--crawl <url>` flag in `sandbox/source/main.js`, add tests in `sandbox/tests/main.test.js`, and update `sandbox/README.md` with usage documentation.
+
+Changes to make:
+
+1. Update `sandbox/source/main.js`:
+   - Parse a new `--crawl` flag followed by a URL argument.
+   - Use the built-in `fetch` API (Node 20 global fetch) to retrieve data from the provided URL.
+   - Attempt to parse the response as JSON and `console.log` the result in stringified form.
+   - Handle fetch or parsing errors by printing a JSON-formatted error object via `console.error` and exiting with a non-zero code.
+
+2. Extend `sandbox/tests/main.test.js`:
+   - Mock the global `fetch` function to return a dummy JSON payload for a fake URL.
+   - Add a test case that calls `main(["--crawl", "https://example.com/data"])` and asserts that `console.log` was called with the expected JSON string.
+   - Add a test case for handling a fetch error (e.g., mock `fetch` to reject) and assert that `console.error` is called and that the process exits non-zero (or simulate behavior without actual exit).
+
+3. Update `sandbox/README.md`:
+   - Document the new `--crawl` option under the CLI Usage section.
+   - Provide an example invocation: `node sandbox/source/main.js --crawl https://api.example.com/data` and sample output.
+
+4. Verification:
+   - Run `npm test` and ensure all existing and new tests pass.
+   - Run `npm run sandbox -- --crawl https://example.com/data` and verify JSON is printed to stdout.
+
+Only modify the following files:
+- `sandbox/source/main.js`
+- `sandbox/tests/main.test.js`
+- `sandbox/README.md`
+
+This will lay the groundwork for our DATA_CRAWLER feature and enable ingestion of public JSON data sources.
+
+LLM API Usage:
+```json
+{"prompt_tokens":6720,"completion_tokens":1862,"total_tokens":8582,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1344,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
