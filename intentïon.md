@@ -512,3 +512,252 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-25T04:50:25.812Z
+
+fixApplied: true
+
+Add AI summarization CLI flag and HTTP endpoint with tests and docs
+
+Git Diff:
+
+```
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..31e558ca 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -1,13 +1,104 @@
+ #!/usr/bin/env node
+-// sandbox/source/main.js
+-
++import { readFileSync } from "fs";
++import express from "express";
++import { config as dotenvConfig } from "dotenv";
++import { Configuration, OpenAIApi } from "openai";
++import { createSQSEventFromDigest, digestLambdaHandler } from "../../src/lib/main.js";
+ import { fileURLToPath } from "url";
+ 
+-export function main(args) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
++// Load environment variables
++dotenvConfig();
++
++// Initialize OpenAI client
++const openai = new OpenAIApi(new Configuration({ apiKey: process.env.OPENAI_API_KEY }));
++
++// Express app setup
++const app = express();
++app.use(express.json());
++app.use((err, _req, res, next) => {
++  if (err instanceof SyntaxError) {
++    return res.status(400).json({ error: "Invalid JSON payload" });
++  }
++  next();
++});
++
++// Health endpoint
++app.get("/health", (_req, res) => {
++  res.status(200).json({ status: "ok", uptime: process.uptime() });
++});
++
++// Summarization endpoint
++app.post("/digest/summarize", async (req, res) => {
++  try {
++    const payload = req.body;
++    const event = createSQSEventFromDigest(payload);
++    const { batchItemFailures, summary } = await summarizationHandler(event);
++    res.status(200).json({ batchItemFailures, summary });
++  } catch (err) {
++    res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
++  }
++});
++
++// Summarize using OpenAI
++export async function summarizeDigest(digest) {
++  const messages = [
++    { role: "system", content: "You are a concise summarizer of digest events. Provide a brief summary." },
++    { role: "user", content: JSON.stringify(digest) },
++  ];
++  const response = await openai.createChatCompletion({
++    model: "gpt-3.5-turbo",
++    messages,
++    max_tokens: 200,
++  });
++  return response.data.choices[0].message.content.trim();
+ }
+ 
+-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  const args = process.argv.slice(2);
+-  main(args);
++// Handler combining digest and summarization
++export async function summarizationHandler(event) {
++  const { batchItemFailures } = await digestLambdaHandler(event);
++  const digest = JSON.parse(event.Records[0].body);
++  const summary = await summarizeDigest(digest);
++  return { batchItemFailures, summary };
++}
++
++// Main function for CLI and server
++export async function main(args = process.argv.slice(2)) {
++  if (args.includes("--summarize")) {
++    const idx = args.indexOf("--summarize");
++    const fileArg = args[idx + 1] && !args[idx + 1].startsWith("--") ? args[idx + 1] : null;
++    let digest;
++    try {
++      if (fileArg) {
++        digest = JSON.parse(readFileSync(fileArg, "utf-8"));
++      } else {
++        digest = { key: "events/1.json", value: "12345", lastModified: new Date().toISOString() };
++      }
++    } catch (err) {
++      console.error(JSON.stringify({ error: "Failed to read or parse JSON file: " + err.message }));
++      process.exit(1);
++    }
++    const event = createSQSEventFromDigest(digest);
++    try {
++      const { batchItemFailures, summary } = await summarizationHandler(event);
++      console.log(JSON.stringify({ batchItemFailures, summary }));
++    } catch (err) {
++      console.error(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
++      process.exit(1);
++    }
++    return;
++  }
++
++  // Start HTTP server
++  const port = process.env.DIGEST_SERVER_PORT || 3000;
++  app.listen(port, () => {
++    console.log(`Server listening on port ${port}`);
++  });
+ }
++
++// Execute main if run directly
++if (process.argv[1] === fileURLToPath(import.meta.url)) {
++  main().catch((err) => {
++    console.error(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
++    process.exit(1);
++  });
++}
+\ No newline at end of file\n\n// New [sandbox/docs/API.md]:\n# API
+
+## POST /digest/summarize
+
+Endpoint for AI summarization of digest events.
+
+**Request**
+
+- URL: `/digest/summarize`
+- Method: `POST`
+- Headers: `Content-Type: application/json`
+- Body: JSON object matching digest schema:
+  ```json
+  {
+    "key": "events/1.json",
+    "value": "12345",
+    "lastModified": "2025-01-01T00:00:00.000Z"
+  }
+  ```
+
+**Responses**
+
+- `200 OK`:
+  ```json
+  {
+    "batchItemFailures": [],
+    "summary": "Concise AI-generated summary text."
+  }
+  ```
+- `400 Bad Request`: Invalid JSON payload.
+  ```json
+  { "error": "Invalid JSON payload" }
+  ```
+- `500 Internal Server Error`: On internal errors.
+  ```json
+  { "error": "Error message" }
+  ```
+
+**Environment Variables**
+
+- `OPENAI_API_KEY`: Required for AI summarization.\n\n// New [sandbox/docs/CLI.md]:\n# CLI Usage
+
+The CLI supports the following option:
+
+```
+--summarize [file]
+```
+
+- `--summarize`: Generate an AI summary for a digest event.
+- `[file]`: Optional path to a JSON file containing the digest payload. If omitted, a default example digest is used.
+
+**Example**
+
+```bash
+# Using default example digest
+OPENAI_API_KEY=<key> node sandbox/source/main.js --summarize
+
+# Using a custom digest file
+OPENAI_API_KEY=<key> node sandbox/source/main.js --summarize path/to/digest.json
+```\n\n// New [sandbox/tests/http_summarize.test.js]:\nimport { describe, test, expect, vi } from "vitest";
+import request from "supertest";
+
+// Mock OpenAI to avoid real API calls
+vi.mock("openai", () => {
+  return {
+    Configuration: (config) => config,
+    OpenAIApi: class {
+      async createChatCompletion() {
+        return {
+          data: { choices: [{ message: { content: "Test summary" } }] },
+        };
+      }
+    },
+  };
+});
+
+import app from "@sandbox/source/main.js";
+
+describe("HTTP Summarization Endpoint", () => {
+  test("POST /digest/summarize with valid payload returns summary and batchItemFailures", async () => {
+    const payload = { key: "events/1.json", value: "12345", lastModified: new Date().toISOString() };
+    const res = await request(app).post("/digest/summarize").send(payload);
+    expect(res.status).toBe(200);
+    expect(res.body.summary).toBe("Test summary");
+    expect(Array.isArray(res.body.batchItemFailures)).toBe(true);
+  });
+
+  test("POST /digest/summarize with invalid JSON returns 400", async () => {
+    const res = await request(app)
+      .post("/digest/summarize")
+      .set("Content-Type", "application/json")
+      .send('{"invalidJson":');
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: "Invalid JSON payload" });
+  });
+});
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.9.1-0 sandbox
+> node sandbox/source/main.js
+
+file:///home/runner/work/agentic-lib/agentic-lib/sandbox/source/main.js:5
+import { Configuration, OpenAIApi } from "openai";
+         ^^^^^^^^^^^^^
+SyntaxError: The requested module 'openai' does not provide an export named 'Configuration'
+    at ModuleJob._instantiate (node:internal/modules/esm/module_job:175:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:258:5)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.1
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1613 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":13689,"completion_tokens":9105,"total_tokens":22794,"prompt_tokens_details":{"cached_tokens":11008,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":7040,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
