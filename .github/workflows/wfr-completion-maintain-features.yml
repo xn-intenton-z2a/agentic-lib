@@ -772,11 +772,16 @@ jobs:
         run: |
           git config --local user.email '${{ env.gitUserEmail }}'
           git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
           git status -v
           git add -v --all '${{ env.featuresPath }}'
           git commit -m 'Maintain features ${{ steps.maintain-features.outputs.featureName }}'
           git status -v
-          git pull --ff-only origin ${{ github.ref }}
+          #git pull --ff-only origin ${{ github.ref }}
+          # 4) Fetch & merge remote (always creates a merge commit, no editor prompt)
+          git fetch origin ${{ github.ref }}
+          git merge origin/${{ github.ref }} --no-ff --no-edit
           git push -v origin ${{ github.ref }}
           git status -v
 
