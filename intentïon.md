@@ -199,4 +199,74 @@ LLM API Usage:
 {"prompt_tokens":7259,"completion_tokens":2087,"total_tokens":9346,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1344,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Maintain Feature at 2025-05-25T19:55:27.596Z
+
+Activity:
+
+Maintained feature CSV_CRAWLER with
+
+Feature spec:
+
+# Objective & Scope
+Add a new CLI command `--extract-csv <URL>` to fetch a public CSV file, parse its rows into structured objects, and ingest each row into the existing knowledge graph pipeline.
+
+# Value Proposition
+Many open data sources publish tabular data in CSV format. This feature provides a seamless way to integrate CSV datasets into the knowledge graph without manual preprocessing, accelerating data ingestion and enabling users to tap into a wider range of public data sources.
+
+# Success Criteria & Requirements
+- The CLI accepts `--extract-csv` followed by a valid HTTP(S) URL pointing to a CSV file.
+- On invocation, fetch the CSV file content using native `fetch`.
+- Load and parse the CSV text using the `csv-parse` library, treating the first row as headers and subsequent rows as data.
+- For each parsed row, construct a digest object:
+  - `source`: the provided URL
+  - `rowNumber`: the 1-based index of the data row
+  - `data`: an object mapping header names to cell values
+- For each digest, create an SQS event via `createSQSEventFromDigest` and invoke `digestLambdaHandler` sequentially.
+- Log an info entry indicating the total number of rows ingested.
+- If the CSV has no data rows, log a warning indicating zero rows and exit with code 0 without errors.
+- On fetch or parse errors, log an error with details and exit with code 1.
+
+# Dependencies & Constraints
+- Introduce `csv-parse` as a new dependency for parsing CSV content.
+- Use native Node 20+ `fetch` API for network requests.
+- Changes limited to `src/lib/main.js`, test files under `tests/unit/` and `sandbox/tests/`, `README.md`, and `package.json`.
+- Tests should mock both `fetch` and `csv-parse` parsing to simulate various CSV structures and error conditions.
+
+# User Scenarios & Examples
+1. Successful CSV Ingestion:
+   - Command: `node src/lib/main.js --extract-csv https://data.example.com/items.csv`
+   - Logs:
+     - Info entry: "Fetched CSV with X rows"
+     - Confirmation of each row ingestion
+2. Empty CSV (headers only):
+   - Command: `node src/lib/main.js --extract-csv https://data.example.com/empty.csv`
+   - Logs a warning: "No data rows found in CSV" and exit code 0
+3. Invalid URL or Parse Error:
+   - Command: `node src/lib/main.js --extract-csv https://data.example.com/bad.csv`
+   - Logs an error describing fetch or parse failure and exit code 1
+
+# Verification & Acceptance
+- Unit tests covering:
+  - Valid CSV with multiple rows ingested successfully
+  - CSV with headers only and zero data rows
+  - Network failure triggers error logging and exit code 1
+  - Invalid CSV format triggers parse error and exit code 1
+- Manual test by serving example CSV files via a local HTTP server and verifying CLI behavior.
+
+# Implementation Notes
+- In `src/lib/main.js`, implement `processExtractCsv(args)` before existing command handlers.
+- Register `--extract-csv` in the main CLI dispatch sequence.
+- Update `package.json` to add `csv-parse` dependency.
+- Extend `README.md` to document usage of the new flag and provide examples.
+
+Git diff:
+```diff
+
+```
+
+LLM API Usage:
+```json
+{"prompt_tokens":8696,"completion_tokens":1608,"total_tokens":10304,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":832,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
