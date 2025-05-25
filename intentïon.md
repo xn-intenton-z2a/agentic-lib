@@ -526,4 +526,245 @@ LLM API Usage:
 {"prompt_tokens":8654,"completion_tokens":2441,"total_tokens":11095,"prompt_tokens_details":{"cached_tokens":1152,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1856,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Code at 2025-05-25T23:03:56.046Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-1637 with message Implement --crawl CLI flag with tests and documentation and outcome success
+
+Git Diff:
+```diff
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..37729245 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -1,13 +1,36 @@
+ #!/usr/bin/env node
+-// sandbox/source/main.js
+-
+ import { fileURLToPath } from "url";
+ 
+-export function main(args) {
++export async function main(args) {
++  if (args[0] === "--crawl") {
++    if (args.length !== 2) {
++      console.error("Usage: node sandbox/source/main.js --crawl <url>");
++      return;
++    }
++    const url = args[1];
++    try {
++      const response = await fetch(url);
++      if (!response.ok) {
++        console.error(`Error: HTTP status ${response.status}`);
++        process.exit(1);
++      }
++      const body = await response.text();
++      try {
++        const json = JSON.parse(body);
++        console.log(JSON.stringify(json, null, 2));
++      } catch {
++        console.log(body);
++      }
++      process.exit(0);
++    } catch (error) {
++      console.error(`Error: ${error.message}`);
++      process.exit(1);
++    }
++  }
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   const args = process.argv.slice(2);
+   main(args);
+-}
++}
+\ No newline at end of file
+diff --git a/sandbox/tests/main.test.js b/sandbox/tests/main.test.js
+index 04c527ce..9f610ebc 100644
+--- a/sandbox/tests/main.test.js
++++ b/sandbox/tests/main.test.js
+@@ -1,9 +1,106 @@
+-import { describe, test } from "vitest";
++import { describe, test, expect, vi, beforeEach } from "vitest";
+ import { main } from "@sandbox/source/main.js";
+ 
+ describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "sandbox/source/main.js"];
+-    main();
++  test("should terminate without error", async () => {
++    const args = [];
++    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    await main(args);
++    expect(logSpy).toHaveBeenCalledWith("Run with: []");
++    logSpy.mockRestore();
+   });
+ });
++
++describe("CLI --crawl flag", () => {
++  beforeEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  test("JSON fetch success", async () => {
++    const fakeData = { hello: "world" };
++    vi.stubGlobal("fetch", () =>
++      Promise.resolve({
++        ok: true,
++        status: 200,
++        text: () => Promise.resolve(JSON.stringify(fakeData)),
++      })
++    );
++    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
++    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => {
++      throw new Error(`exit:${code}`);
++    });
++    try {
++      await main(["--crawl", "http://example.com"]);
++    } catch (e) {
++      expect(e.message).toBe("exit:0");
++    }
++    expect(logSpy).toHaveBeenCalledWith(JSON.stringify(fakeData, null, 2));
++    logSpy.mockRestore();
++    errorSpy.mockRestore();
++    exitSpy.mockRestore();
++  });
++
++  test("Text fetch fallback", async () => {
++    const text = "plain text";
++    vi.stubGlobal("fetch", () =>
++      Promise.resolve({
++        ok: true,
++        status: 200,
++        text: () => Promise.resolve(text),
++      })
++    );
++    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => {
++      throw new Error(`exit:${code}`);
++    });
++    try {
++      await main(["--crawl", "http://example.com"]);
++    } catch (e) {
++      expect(e.message).toBe("exit:0");
++    }
++    expect(logSpy).toHaveBeenCalledWith(text);
++    logSpy.mockRestore();
++    exitSpy.mockRestore();
++  });
++
++  test("HTTP error handling", async () => {
++    vi.stubGlobal("fetch", () =>
++      Promise.resolve({
++        ok: false,
++        status: 404,
++        text: () => Promise.resolve(""),
++      })
++    );
++    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
++    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => {
++      throw new Error(`exit:${code}`);
++    });
++    try {
++      await main(["--crawl", "http://example.com"]);
++    } catch (e) {
++      expect(e.message).toBe("exit:1");
++    }
++    expect(errorSpy).toHaveBeenCalledWith("Error: HTTP status 404");
++    errorSpy.mockRestore();
++    exitSpy.mockRestore();
++  });
++
++  test("Network error handling", async () => {
++    vi.stubGlobal("fetch", () => {
++      throw new Error("network fail");
++    });
++    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
++    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => {
++      throw new Error(`exit:${code}`);
++    });
++    try {
++      await main(["--crawl", "http://example.com"]);
++    } catch (e) {
++      expect(e.message).toBe("exit:1");
++    }
++    expect(errorSpy).toHaveBeenCalledWith("Error: network fail");
++    errorSpy.mockRestore();
++    exitSpy.mockRestore();
++  });
++});
+\ No newline at end of file\n\n// New [sandbox/README.md]:\n# Sandbox CLI
+
+This CLI provides utilities for crawling and inspecting HTTP endpoints, supporting rapid prototyping for knowledge graph ingestion.
+
+## Available Command
+
+- `--crawl <url>`: Fetches data from a public HTTP endpoint and displays the response.
+
+For detailed usage, see the [CLI crawl documentation](docs/CLI_CRAWL.md).\n\n// New [sandbox/docs/CLI_CRAWL.md]:\n# CLI `--crawl <url>`
+
+## Description
+
+The `--crawl <url>` flag allows users to fetch data from any public HTTP endpoint directly from the sandbox CLI. It retrieves the content, attempts to parse JSON responses for pretty-printing, or falls back to raw text output.
+
+## Usage
+
+```sh
+node sandbox/source/main.js --crawl <url>
+```
+
+## Behavior
+
+- Performs an HTTP GET request using the built-in `fetch` API.
+- If the response status is not in the 2xx range, it prints an error message including the HTTP status code and exits with code `1`.
+- Reads the response body as text:
+  - If the text is valid JSON, it pretty-prints the parsed JSON with 2-space indentation to `stdout` and exits with code `0`.
+  - If JSON parsing fails, it prints the raw text response and exits with code `0`.
+- On network or other errors, it prints the error message to `stderr` and exits with code `1`.
+
+## Examples
+
+### Fetching JSON data
+
+```sh
+node sandbox/source/main.js --crawl https://api.github.com/repos/nodejs/node
+```
+
+Prints the repository metadata as formatted JSON.
+
+### Fetching plaintext data
+
+```sh
+node sandbox/source/main.js --crawl https://example.com/robots.txt
+```
+
+Prints the raw text of `robots.txt`.
+
+### Handling HTTP errors
+
+```sh
+node sandbox/source/main.js --crawl https://example.com/nonexistent
+```
+
+Prints an error with HTTP status and exits with code `1`.
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/agentic-lib@6.9.7-0 sandbox
+> node sandbox/source/main.js
+
+Run with: []
+```
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1637 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":15007,"completion_tokens":7518,"total_tokens":22525,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":5504,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
