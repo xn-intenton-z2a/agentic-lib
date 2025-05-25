@@ -355,3 +355,62 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-25T01:43:25.529Z
+
+Generated issue 1602 for feature "number-guess-game" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1602
+
+title:
+
+Support --min and --max flags for custom range in Number Guess Game
+
+And description:
+
+We need to extend the existing Number Guess Game in the sandbox to allow users to configure the guessing range via command-line flags. This involves updating the source implementation, adding comprehensive test coverage, and documenting the new CLI options.
+
+1. **Modify sandbox/source/main.js**
+   - Parse two optional flags: `--min <number>` and `--max <number>` (default to 1 and 100 when omitted).
+   - Validate both values are integers and ensure `min < max`. On validation failure, print a clear error (e.g., `Error: Invalid range. Ensure min (X) is less than max (Y).`) and exit with code 1.
+   - Randomly select a secret integer between `min` and `max` (inclusive).
+   - Display a welcome/instruction message: `Welcome to Number Guess! Guess a number between X and Y.`
+   - Implement the game loop with Node’s `readline`:
+     - Prompt the user for a guess each iteration.
+     - Provide feedback: “Too low”, “Too high”, or on success: `Congratulations! You guessed the number in N attempts.`
+     - Exit gracefully after a correct guess.
+   - Ensure all logic remains in ESM, uses only built-in modules, and maintains compatibility with Node 20.
+
+2. **Enhance sandbox/tests/main.test.js**
+   - Add tests simulating a full game session for the default range (1–100).
+   - Add tests for a custom range, e.g., `--min 5 --max 7`, validating the welcome message and game flow.
+   - Add tests for invalid flag usage:
+     - Missing values: `--min` without a number.
+     - Non-numeric values: `--max foo`.
+     - Range inversion: `--min 10 --max 5`.
+     - Assert that invalid scenarios print the correct error message and exit with code 1.
+   - Use mocks or stubs to simulate `process.argv`, mock `stdin` input sequences, and capture `stdout` and `process.exit` behavior.
+
+3. **Update sandbox/README.md**
+   - Document installation and how to run the game: `npm run sandbox -- [--min X] [--max Y]`.
+   - Describe default behavior and examples:
+     ```bash
+     # Default range
+     npm run sandbox
+     # Custom range
+     npm run sandbox -- --min 10 --max 20
+     ```
+   - Explain error handling for invalid flags.
+
+**Acceptance Criteria**
+- Running `npm run sandbox` without flags starts the game between 1 and 100.
+- Running with valid flags starts the game in the specified custom range.
+- Invalid flags or ranges produce an error message and exit code 1.
+- All new behavior is covered by automated tests that pass via `npm test`.
+- Documentation in `sandbox/README.md` is clear and accurate.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":9613,"completion_tokens":1392,"total_tokens":11005,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":704,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
