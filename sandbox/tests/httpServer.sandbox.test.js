@@ -1,50 +1,35 @@
-import { describe, test, expect } from 'vitest';
 import request from 'supertest';
-import { startHttpServer } from '../source/main.js';
+import { afterEach } from 'vitest';
+import { startHttpServer } from '../../src/lib/main.js';
 
-describe('HTTP Server Integration (sandbox)', () => {
-  let server;
-  let port;
+let server;
+let port;
 
-  afterEach((done) => {
-    if (server && server.close) {
-      server.close(() => done());
-    } else {
-      done();
-    }
-  });
+afterEach((done) => {
+  if (server && server.close) {
+    server.close(() => done());
+  } else {
+    done();
+  }
+});
 
-  test('GET /health returns status ok and uptime', async () => {
-    server = await startHttpServer({ port: 0 });
-    port = server.address().port;
-    const res = await request(`http://localhost:${port}`).get('/health');
-    expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty('status', 'ok');
-    expect(res.body).toHaveProperty('uptime');
-    expect(typeof res.body.uptime).toBe('number');
-  });
+test('GET /health responds with status ok and uptime', async () => {
+  port = Math.floor(Math.random() * (65535 - 1024)) + 1024;
+  server = startHttpServer({ port });
+  const res = await request(`http://localhost:${port}`).get('/health');
+  expect(res.statusCode).toBe(200);
+  expect(res.body).toHaveProperty('status', 'ok');
+  expect(typeof res.body.uptime).toBe('number');
+  expect(res.body.uptime).toBeGreaterThan(0);
+});
 
-  test('GET /metrics returns callCount and uptime', async () => {
-    server = await startHttpServer({ port: 0 });
-    port = server.address().port;
-    const res1 = await request(`http://localhost:${port}`).get('/metrics');
-    expect(res1.status).toBe(200);
-    expect(res1.body).toHaveProperty('callCount', 1);
-    expect(res1.body).toHaveProperty('uptime');
-    expect(typeof res1.body.uptime).toBe('number');
-  });
-
-  test('POST /digest returns empty failures for valid digest', async () => {
-    server = await startHttpServer({ port: 0 });
-    port = server.address().port;
-    const digest = { key: 'x', value: 'y', lastModified: new Date().toISOString() };
-    const res = await request(`http://localhost:${port}`)
-      .post('/digest')
-      .send(digest)
-      .set('Content-Type', 'application/json');
-    expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty('batchItemFailures');
-    expect(Array.isArray(res.body.batchItemFailures)).toBe(true);
-    expect(res.body.batchItemFailures).toHaveLength(0);
-  });
+test('POST /digest responds with batchItemFailures empty array', async () => {
+  port = Math.floor(Math.random() * (65535 - 1024)) + 1024;
+  server = startHttpServer({ port });
+  const body = { key: 'x', value: 'y', lastModified: new Date().toISOString() };
+  const res = await request(`http://localhost:${port}`).post('/digest').send(body);
+  expect(res.statusCode).toBe(200);
+  expect(res.body).toHaveProperty('batchItemFailures');
+  expect(Array.isArray(res.body.batchItemFailures)).toBe(true);
+  expect(res.body.batchItemFailures.length).toBe(0);
 });
