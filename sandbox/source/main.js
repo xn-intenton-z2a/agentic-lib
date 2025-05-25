@@ -1,97 +1,74 @@
-#!/usr/bin/env node
-// sandbox/source/main.js
+import dotenv from 'dotenv';
+dotenv.config();
 
-import { fileURLToPath } from "url";
-import express from "express";
-import { createSQSEventFromDigest, digestLambdaHandler } from "../../src/lib/main.js";
+import express from 'express';
+import { createSQSEventFromDigest, digestLambdaHandler } from '../../src/lib/main.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Create Express app
+// Express app setup
 export const app = express();
 app.use(express.json());
 
 // Health endpoint
-app.get("/health", (req, res) => {
-  res.json({ status: "ok", uptime: process.uptime() });
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', uptime: process.uptime() });
 });
 
 // Version endpoint
-app.get("/version", async (req, res) => {
-  try {
-    const { readFileSync } = await import("fs");
-    const pkgPath = new URL("../../package.json", import.meta.url);
-    const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
-    res.json({ version: pkg.version, timestamp: new Date().toISOString() });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const pkgPath = path.resolve(__dirname, '../../package.json');
+let version = '';
+try {
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+  version = pkg.version;
+} catch {
+  version = '';
+}
+
+app.get('/version', (req, res) => {
+  res.status(200).json({ version, timestamp: new Date().toISOString() });
 });
 
 // Digest endpoint
-app.post("/digest", async (req, res) => {
+app.post('/digest', async (req, res) => {
   try {
-    const digest = req.body;
-    const sqsEvent = createSQSEventFromDigest(digest);
-    await digestLambdaHandler(sqsEvent);
-    res.json({ success: true });
+    const event = createSQSEventFromDigest(req.body);
+    await digestLambdaHandler(event);
+    res.status(200).json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-let server;
-// Function to start the HTTP server
-e��export async function startServer(port = 3000) {
+// Server control
+let serverInstance;
+export async function startServer(port = process.env.HTTP_PORT ? Number(process.env.HTTP_PORT) : 3000) {
+  const listenPort = typeof port === 'number' ? port : Number(port);
   return new Promise((resolve, reject) => {
-    server = app.listen(port, () => {
-      console.log(`Server started on port ${port}`);
-      resolve(server);
+    serverInstance = app.listen(listenPort, () => {
+      resolve(serverInstance);
     });
-    server.on("error", reject);
+    serverInstance.on('error', (err) => {
+      reject(err);
+    });
   });
 }
 
-// Function to stop the HTTP server
 export async function stopServer() {
   return new Promise((resolve, reject) => {
-    if (!server) {
+    if (serverInstance) {
+      serverInstance.close((err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    } else {
       resolve();
-      return;
     }
-    server.close((err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
   });
-}
-
-// CLI entrypoint
-export function main(args = process.argv.slice(2)) {
-  const serveIndex = args.indexOf("--serve");
-  if (serveIndex !== -1) {
-    let port = process.env.HTTP_PORT ? Number(process.env.HTTP_PORT) : 3000;
-    const portIndex = args.indexOf("--port");
-    if (portIndex !== -1 && args.length > portIndex + 1) {
-      port = Number(args[portIndex + 1]);
-    }
-    startServer(port).catch((err) => {
-      console.error(err);
-      process.exit(1);
-    });
-    const gracefulShutdown = async () => {
-      await stopServer();
-      process.exit(0);
-    };
-    process.on("SIGINT", gracefulShutdown);
-    process.on("SIGTERM", gracefulShutdown);
-    return;
-  }
-  console.log("Usage: --serve [--port <number>]");
-}
-
-// Auto-execute if script is run directly
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main(process.argv.slice(2));
 }
