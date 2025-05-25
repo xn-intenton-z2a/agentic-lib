@@ -366,3 +366,28 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-25T18:15:36.672Z
+
+fixApplied: false
+
+Add --graph CLI option with optional output-file support update tests docs and dependencies
+
+Git Diff:
+
+```
+
+```
+mainOutput:
+```
+
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1617 with title: ""]
+
+LLM API Usage:
+
+```json
+
+```
+---
+
