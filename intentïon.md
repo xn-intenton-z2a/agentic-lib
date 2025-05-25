@@ -231,3 +231,73 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-25T02:34:14.854Z
+
+Generated issue 1609 for feature "health-check-server" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1609
+
+title:
+
+Enhance HEALTH_CHECK_SERVER: Add /metrics endpoint, CLI serve flag & graceful shutdown
+
+And description:
+
+## Overview
+This issue completes the HEALTH_CHECK_SERVER feature by adding a metrics endpoint, integrating a `--serve` CLI flag with configurable port, and ensuring graceful shutdown. Once implemented, users can start a local health server to monitor service status and runtime metrics.
+
+## Tasks
+
+1. **CLI Flag Integration**
+   - In `src/lib/main.js`, detect a new `--serve` flag.
+   - Parse an optional `--port <number>` argument (default to `3000`).
+   - If `--serve` is present, skip other commands and start the server.
+
+2. **Express Server Setup**
+   - Add Express to `src/lib/main.js` (dependency already present).
+   - Create an HTTP server on the configured port.
+   - Implement two routes:
+     - `GET /health` → `200` with JSON `{ "status": "ok" }`.
+     - `GET /metrics` → `200` with JSON `{ callCount, uptime }`:
+       - `callCount`: use global `globalThis.callCount`.
+       - `uptime`: `Math.floor(process.uptime())` in seconds.
+   - Increment `globalThis.callCount` on each incoming request.
+
+3. **Graceful Shutdown**
+   - Listen for `SIGINT` and `SIGTERM` signals.
+   - On signal, close the HTTP server, log a shutdown message, and exit the process with code `0`.
+
+4. **Tests**
+   - Create `tests/unit/health-server.test.js` using `supertest`:
+     - Verify `/health` returns `200` and `{ status: "ok" }`.
+     - Verify `/metrics` returns `200` with numeric `callCount` and `uptime`.
+     - Test port configuration by starting server on a custom port.
+     - Simulate shutdown by sending a signal and ensure the server stops without hanging.
+
+5. **Documentation**
+   - Update `sandbox/README.md`:
+     - Add a **Health Check Server** section.
+     - Show CLI examples:
+       ```bash
+       # Default port
+       node src/lib/main.js --serve
+
+       # Custom port
+       node src/lib/main.js --serve --port 4000
+
+       # Verify endpoints
+       curl http://localhost:4000/health
+       curl http://localhost:4000/metrics
+       ```
+
+## Verification
+
+- Run `npm test` and ensure all new and existing tests pass.
+- Manually start the server with both default and custom ports; verify endpoints and graceful shutdown behavior.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7935,"completion_tokens":1903,"total_tokens":9838,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1280,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
