@@ -634,7 +634,7 @@ jobs:
       - update-npm
       - update-mvn
       #- maintain-library
-    if: ${{ !cancelled() && agentic-lib.outputs.featuresLimit > 0 }}
+    if: ${{ !cancelled() && needs.agentic-lib.outputs.featuresLimit > 0 }}
     permissions:
       contents: write
       issues: write
@@ -734,7 +734,7 @@ jobs:
       - update-npm
       - update-mvn
       #- maintain-library
-    if: ${{ !cancelled() && agentic-lib.outputs.featuresLimit > 0 }}
+    if: ${{ !cancelled() && needs.agentic-lib.outputs.featuresLimit > 0 }}
     permissions:
       contents: write
       issues: write
