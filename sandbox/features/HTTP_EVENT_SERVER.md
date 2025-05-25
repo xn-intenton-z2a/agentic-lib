@@ -1,52 +1,68 @@
+# HTTP_EVENT_SERVER
+
 # Objective
-Provide a lightweight HTTP server to accept incoming JSON event payloads and route them through the existing digestLambdaHandler. This allows users to run and test event processing workflows locally without AWS infrastructure.
+Provide a lightweight HTTP server to accept incoming JSON event payloads and route them through the existing digestLambdaHandler. Extend server functionality with health checks, configurable CORS, and graceful shutdown to improve developer experience and reliability during local testing.
 
 # API Endpoints
 
 ## POST /events
 - Accepts a JSON payload in the request body.
-- Parses the JSON and constructs an SQS-style event using createSQSEventFromDigest.
-- Invokes digestLambdaHandler and returns its batchItemFailures response.
-- Returns HTTP 200 with JSON:
-  {
-    "batchItemFailures": [ ... ]
-  }
+- Parses the JSON, constructs an SQS-style event using createSQSEventFromDigest, and invokes digestLambdaHandler.
+- Returns HTTP 200 with JSON containing the batchItemFailures response from the handler.
 - Returns HTTP 400 if the payload is missing or invalid JSON.
+- Returns HTTP 500 on internal server errors and logs the error via logError.
+
+## GET /health
+- Returns HTTP 200 with JSON { "status": "ok", "uptime": <seconds> } to verify server liveness and uptime.
 
 # CLI Integration
 
-- New flag `--server [port]` in the main CLI invocation:
-  - If supplied, spin up the Express server on the specified port (default 3000).
-  - Other flags (`--help`, `--version`, `--digest`) remain unaffected.
+- Introduce a new `--server [port]` flag in the main CLI invocation:
+  - When provided, spin up the Express server on the specified port (default 3000).
+  - Preserve existing CLI flags (`--help`, `--version`, `--digest`) without change in behavior.
 
 # Configuration
 
-- Port can be overridden via environment variable `EVENT_SERVER_PORT` or the `--server` CLI argument.
-- CORS disabled by default; details can be extended in future iterations.
+- Port override via:
+  - Environment variable `EVENT_SERVER_PORT`.
+  - CLI argument `--server [port]`.
+- Enable or disable CORS via environment variable `EVENT_SERVER_CORS` (default disabled).
+- Configure graceful shutdown timeout via `EVENT_SERVER_SHUTDOWN_TIMEOUT_MS` (default 5000 ms).
 
 # Success Criteria & Requirements
 
-1. Server starts and listens on port 3000 by default or custom port when provided.
-2. POST requests to `/events` with valid JSON call digestLambdaHandler and return correct structure.
-3. Invalid JSON or missing body yields HTTP 400 and error log.
-4. Server errors produce HTTP 500 and logError is invoked.
+1. Server starts and listens on the default or custom port when `--server` is used.
+2. POST /events routes valid JSON to digestLambdaHandler and returns correct batchItemFailures.
+3. GET /health returns server status and uptime.
+4. Invalid JSON yields HTTP 400 and error logged.
+5. Uncaught errors yield HTTP 500 and error logged.
+6. CORS headers applied when enabled.
+7. Server gracefully shuts down on SIGINT/SIGTERM within configured timeout.
 
 # Testing & Verification
 
-- Unit tests send mock HTTP requests against the Express app without listening on a real port using supertest.
-- Tests cover successful event processing, invalid JSON input, and error handling scenarios.
+- Unit tests using supertest against the Express app without opening a real network port.
+- Test cases for:
+  - Successful event processing.
+  - Invalid JSON input.
+  - Health check endpoint returning correct status.
+  - CORS header presence when enabled.
+  - Graceful shutdown behavior via simulated signals.
 
 # Dependencies & Constraints
 
-- Requires `express` and `body-parser` or built-in JSON parsing in Express.
-- Should not alter existing SQS handler behavior or logging logic.
+- Requires `express` and built-in JSON parsing in Express.
+- Optionally uses `cors` middleware if CORS is enabled.
+- Should not modify existing SQS handler behavior or logging logic.
 
 # README Updates
 
-- Document the new `--server` flag and HTTP endpoints under Usage.
-- Provide example curl commands for POST /events.
+- Document the new `--server` flag and its options.
+- Provide example curl commands for POST /events and GET /health.
+- Explain environment variables for port, CORS, and shutdown timeout.
+- Include health check usage in development and CI scenarios.
 
 # Verification & Acceptance
 
 - Add supertest-based tests in sandbox/tests/http-server.test.js.
-- Ensure `npm test` passes and coverage is added for the new server code.
+- Ensure `npm test` passes and coverage includes the new endpoints and configuration.
