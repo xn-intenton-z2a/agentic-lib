@@ -226,3 +226,62 @@ LLM API Usage:
 ```
 ---
 
+## Maintain Feature at 2025-05-25T04:42:58.377Z
+
+Maintained feature HTTP_API_SERVER.
+
+Feature spec:
+
+# HTTP API Server
+
+## Objective & Scope
+Define a lightweight HTTP API server in src/lib/main.js using Express to expose health, digest processing, and metrics endpoints for monitoring and event ingestion.
+
+## Value Proposition & Benefits
+Provide a unified RESTful interface allowing external systems to monitor service health and uptime, submit digest events directly, and scrape real-time metrics. This enhances integration, observability, and reliability of digest processing workflows.
+
+## Requirements & Success Criteria
+- Add express and prom-client dependencies to package.json.
+- Initialize an HTTP server in src/lib/main.js listening on DIGEST_SERVER_PORT environment variable, defaulting to 3000.
+- Implement GET /health returning HTTP 200 and JSON:
+  { status: "ok", uptime: process.uptime() }
+- Implement POST /digest accepting application/json body, wrapping payload into an SQS-style event via createSQSEventFromDigest, invoking digestLambdaHandler, and returning HTTP 200 with JSON { batchItemFailures }.
+- Implement GET /metrics returning HTTP 200 with Prometheus-formatted metrics, including counters:
+  process_uptime_seconds, digest_requests_total, digest_errors_total.
+- Ensure error handling returns HTTP 500 with JSON { error: <message> } on unexpected failures.
+- Add Vitest tests with Supertest covering:
+  - GET /health status and JSON shape
+  - POST /digest success and failure scenarios
+  - GET /metrics output and metric content
+- Update sandbox/README.md to document the /metrics endpoint, environment variable configuration, and example curl commands.
+
+## User Scenarios & Examples
+1. Monitoring system polls GET /health to verify service uptime and readiness.
+2. External client sends POST /digest with JSON payload to trigger digest processing and receives batch processing results.
+3. Prometheus server scrapes GET /metrics to collect service uptime and digest event counters.
+
+## Verification & Acceptance Criteria
+- All new endpoints are covered by automated tests in tests/unit and sandbox/tests directories.
+- Manual test with curl commands:
+  curl http://localhost:3000/health
+  curl -X POST http://localhost:3000/digest -H 'Content-Type: application/json' -d '{"key":"events/1.json","value":"12345","lastModified":"..."}'
+  curl http://localhost:3000/metrics
+
+## Dependencies & Constraints
+- Introduce prom-client as a runtime dependency.
+- Maintain ESM compatibility and support Node 20.
+
+
+Git diff:
+
+```diff
+
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7677,"completion_tokens":2036,"total_tokens":9713,"prompt_tokens_details":{"cached_tokens":1280,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1472,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
