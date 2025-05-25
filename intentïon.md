@@ -216,3 +216,73 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-25T17:37:36.358Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+Title: Add HTTP server support with health, metrics, and digest endpoints
+
+Description:
+Extend the existing CLI and Lambda logic to provide an HTTP interface using Express when the `--serve` flag is supplied. This feature enables external systems to monitor service health, gather metrics, and submit digest payloads via REST endpoints.
+
+Acceptance Criteria:
+
+1. CLI Configuration
+   - When running `node src/lib/main.js --serve`, the process starts an Express server.
+   - Default port is 3000, overridable by the `--port <number>` CLI option or the `HTTP_PORT` environment variable.
+   - Tests:
+     - Invoking with no `--port` or `HTTP_PORT` binds to port 3000.
+     - Setting `HTTP_PORT=4000` and no `--port` binds to 4000.
+     - Using `--port 5000` overrides `HTTP_PORT`.
+
+2. Endpoints
+   - GET `/health`
+     - Returns HTTP 200 and JSON `{ "status": "ok" }`.
+     - Test with Supertest: expect status 200 and correct JSON response.
+   - GET `/metrics`
+     - Returns HTTP 200 and JSON containing:
+       - `callCount`: the number of CLI or digest invocations processed since server start.
+       - `uptime`: server uptime in seconds (non-negative float).
+     - Test: simulate known `callCount` and verify JSON shape and types.
+   - POST `/digest`
+     - Accepts a JSON body matching Digest schema: `{ key: string, value: string, lastModified: string }`.
+     - Internally invokes `digestLambdaHandler` and returns its `{ batchItemFailures, handler }` response as JSON.
+     - Returns HTTP 200.
+     - Test: stub or spy on `digestLambdaHandler`, POST valid payload, assert response JSON includes `batchItemFailures` array and correct `handler` string.
+
+3. Integration and Regression
+   - Existing CLI flags `--help`, `--version`, and `--digest` must continue working without `--serve`.
+   - Tests:
+     - Running without `--serve` prints usage or version as before.
+     - No unexpected server startup when flags other than `--serve` are supplied.
+
+4. Automated Tests
+   - Create `sandbox/tests/http_server.test.js` using Vitest and Supertest.
+   - Cover all endpoints and port configuration scenarios.
+   - Ensure server is properly started and closed in tests to avoid port conflicts.
+
+5. Documentation
+   - Update `sandbox/README.md` to include:
+     - Usage instructions for `--serve` and `--port`.
+     - Example `curl` commands for `/health`, `/metrics`, and `/digest`.
+     - Note default behavior when `--serve` is omitted.
+
+Verification:
+- Run `npm test` and confirm all unit and integration tests pass.
+- Manual smoke test:
+  ```bash
+  HTTP_PORT=4000 node src/lib/main.js --serve --port 5000
+  curl http://localhost:5000/health
+  curl http://localhost:5000/metrics
+  curl -X POST http://localhost:5000/digest -H 'Content-Type: application/json' \
+       -d '{ "key": "events/1.json", "value": "12345", "lastModified": "2025-01-01T00:00:00Z" }'
+  ```
+- Confirm no regressions for help, version, and digest flags.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7807,"completion_tokens":1967,"total_tokens":9774,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1152,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
