@@ -238,3 +238,62 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-25T02:01:55.067Z
+
+Generated issue 1604 for feature "agentic-handler" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1604
+
+title:
+
+Implement agenticHandler for OpenAI ChatCompletion
+
+And description:
+
+Overview
+--------
+Add a new exported function `agenticHandler(prompt: string, options?)` in `src/lib/main.js` that wraps the OpenAI ChatCompletion API, validates input, increments a global call counter, logs progress, and returns parsed JSON.
+
+Change Details
+--------------
+1. **src/lib/main.js**
+   - Import `Configuration` and `OpenAIApi` from `openai`.
+   - Import `z` from `zod`.
+   - Define a Zod schema to require a non-empty string for `prompt`.
+   - Implement `export async function agenticHandler(prompt: string, options?: {model?: string; temperature?: number})` that:
+     1. Validates `prompt` against the schema and throws if invalid.
+     2. Increments `globalThis.callCount`.
+     3. Logs a start event via `logInfo` with prompt and options.
+     4. Calls `openai.createChatCompletion` with defaults `model = text-davinci-003`, `temperature = 0.7` when options are omitted.
+     5. Parses `response.data.choices[0].message.content` as JSON; logs completion via `logInfo` with metadata.
+     6. Returns the parsed JSON object.
+     7. On API error, logs via `logError` and rethrows.
+
+2. **tests/unit/agenticHandler.test.js**
+   - Create a new test file importing `agenticHandler`.
+   - Mock `openai.Configuration` and `OpenAIApi.createChatCompletion` to return a dummy JSON string.
+   - Test cases:
+     - Successful call returns parsed object and increments `callCount`.
+     - Passing an empty string prompt rejects with a Zod validation error.
+     - Simulated API error triggers `logError` and rethrows.
+
+3. **README.md**
+   - Add a new section **`agenticHandler(prompt, options)`** under **API Reference**:
+     - Describe parameters and defaults.
+     - Show usage example:
+       ```js
+       import { agenticHandler } from "@xn-intenton-z2a/agentic-lib";
+       const data = await agenticHandler("Summarize text", { temperature: 0.5 });
+       console.log(data);
+       ```
+
+Verification
+------------
+- Run `npm test` to confirm new unit tests pass.
+- Import and call `agenticHandler` in a quick script to verify runtime behavior (mocked in tests).
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":8007,"completion_tokens":1693,"total_tokens":9700,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1088,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
