@@ -414,3 +414,172 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-25T01:45:28.629Z
+
+fixApplied: true
+
+Implement interactive number guessing game add tests and documentation
+
+Git Diff:
+
+```
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..23ee2936 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -2,12 +2,53 @@
+ // sandbox/source/main.js
+ 
+ import { fileURLToPath } from "url";
++import readline from "readline";
+ 
+-export function main(args) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
++export async function main() {
++  const min = 1;
++  const max = 100;
++  const secret = process.env.TEST_SECRET
++    ? Number(process.env.TEST_SECRET)
++    : Math.floor(Math.random() * (max - min + 1)) + min;
++  const rl = readline.createInterface({
++    input: process.stdin,
++    output: process.stdout,
++  });
++  console.log("Welcome to the Number Guessing Game!");
++  console.log(`Guess a number between ${min} and ${max}.`);
++  let attempts = 0;
++
++  return new Promise((resolve) => {
++    const ask = () => {
++      rl.question("Enter your guess: ", (input) => {
++        const num = Number(input.trim());
++        if (Number.isNaN(num)) {
++          console.log("Invalid input. Please enter a number.");
++          ask();
++        } else {
++          attempts++;
++          if (num < secret) {
++            console.log("Too low");
++            ask();
++          } else if (num > secret) {
++            console.log("Too high");
++            ask();
++          } else {
++            console.log(
++              `Correct! You found the number in ${attempts} attempts.`
++            );
++            rl.close();
++            resolve();
++          }
++        }
++      });
++    };
++    ask();
++  });
+ }
+ 
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  const args = process.argv.slice(2);
+-  main(args);
+-}
++  main().then(() => {
++    process.exit(0);
++  });
++}
+\ No newline at end of file
+diff --git a/sandbox/tests/main.test.js b/sandbox/tests/main.test.js
+index 04c527ce..ac3b9311 100644
+--- a/sandbox/tests/main.test.js
++++ b/sandbox/tests/main.test.js
+@@ -1,9 +1,31 @@
+-import { describe, test } from "vitest";
+-import { main } from "@sandbox/source/main.js";
++import { describe, test, expect } from "vitest";
++import { spawn } from "child_process";
+ 
+-describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "sandbox/source/main.js"];
+-    main();
++describe("Number Guessing Game", () => {
++  test("full game session with correct prompts and feedback", async () => {
++    const child = spawn(process.execPath, ["sandbox/source/main.js"], {
++      env: { ...process.env, TEST_SECRET: "42" },
++      stdio: ["pipe", "pipe", "inherit"],
++    });
++    let output = "";
++    child.stdout.on("data", (data) => {
++      output += data.toString();
++    });
++    // feed guesses: 41 (too low), 43 (too high), 42 (correct)
++    child.stdin.write("41\n");
++    child.stdin.write("43\n");
++    child.stdin.write("42\n");
++    const exitCode = await new Promise((resolve) => {
++      child.on("close", resolve);
++    });
++    expect(exitCode).toBe(0);
++    expect(output).toContain("Welcome to the Number Guessing Game!");
++    expect(output).toContain("Guess a number between 1 and 100.");
++    expect(output).toContain("Enter your guess:");
++    expect(output).toContain("Too low");
++    expect(output).toContain("Too high");
++    expect(output).toContain(
++      "Correct! You found the number in 3 attempts."
++    );
+   });
+-});
++});
+\ No newline at end of file\n\n// New [sandbox/docs/NUMBER_GUESS_GAME.md]:\n# Number Guessing Game
+
+Welcome to the Number Guessing Game! This CLI game selects a secret number between 1 and 100 and prompts you to guess it.
+
+## Usage
+
+```bash
+npm run sandbox
+```
+
+## How to Play
+
+- On launch, the game displays a welcome message and the guessing range.
+- You will be prompted to enter your guess.
+- After each guess, you will receive feedback:
+  - "Too low" if your guess is less than the secret number.
+  - "Too high" if your guess is greater than the secret number.
+  - "Correct! You found the number in X attempts." when you guess correctly.
+- The game then exits.
+
+## Example Playthrough
+
+```
+Welcome to the Number Guessing Game!
+Guess a number between 1 and 100.
+Enter your guess: 50
+Too low
+Enter your guess: 75
+Too high
+Enter your guess: 63
+Correct! You found the number in 3 attempts.
+```
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.8.2-0 sandbox
+> node sandbox/source/main.js
+
+Welcome to the Number Guessing Game!
+Guess a number between 1 and 100.
+Enter your guess: 
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1601 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":14106,"completion_tokens":4861,"total_tokens":18967,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3584,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
