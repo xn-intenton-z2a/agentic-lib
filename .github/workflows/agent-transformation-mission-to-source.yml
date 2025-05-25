@@ -154,7 +154,6 @@ jobs:
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
           git merge origin/${{ github.ref_name }} --no-ff --no-edit
-          git push -v origin ${{ github.ref_name }}
 
       - name: log-intention-activity
         id: log-intention-activity
