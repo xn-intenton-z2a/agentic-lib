@@ -79,3 +79,62 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-25T00:49:20.602Z
+
+Generated issue 1598 for feature "http-event-server" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1598
+
+title:
+
+Add health check, CORS support, and graceful shutdown to HTTP event server
+
+And description:
+
+## Overview
+Extend the existing HTTP event server implementation in `sandbox/source/main.js` to include:
+
+- **Health Check Endpoint** (`GET /health`): Returns `{ "status": "ok", "uptime": <seconds> }` with HTTP 200.
+- **CORS Support**: Enable optional CORS middleware when `EVENT_SERVER_CORS` is set to `true`.
+- **Graceful Shutdown**: Cleanly handle `SIGINT`/`SIGTERM` with a configurable shutdown timeout (`EVENT_SERVER_SHUTDOWN_TIMEOUT_MS`, default `5000`).
+
+## Tasks
+
+1. **Modify `sandbox/source/main.js`**
+   - Parse `--server [port]` CLI flag or `EVENT_SERVER_PORT` env var (default `3000`).
+   - When `--server` is provided, spin up an Express app:
+     - `POST /events`:
+       - Parse JSON body, use `createSQSEventFromDigest` to build an SQS-style event.
+       - Call `digestLambdaHandler(event)` and return `{ batchItemFailures }` with status 200.
+       - Return 400 on parse errors (invalid/missing JSON).
+       - Return 500 on handler errors, logging via `logError`.
+     - `GET /health`: return JSON `{ status: 'ok', uptime: process.uptime() }`.
+     - Conditionally apply `cors()` middleware when env var `EVENT_SERVER_CORS=true`.
+     - Listen on configured port and log startup info.
+     - Handle `SIGINT`/`SIGTERM`: stop accepting new connections, wait up to configured timeout, then exit.
+
+2. **Add Tests in `sandbox/tests/http-server.test.js`**
+   - Use `supertest` without opening a real network port (import the Express app instance).
+   - Cover:
+     - Successful `POST /events` with valid JSON.
+     - `POST /events` with invalid JSON yields 400 and logs error.
+     - `GET /health` returns status and uptime field.
+     - CORS header is present when `EVENT_SERVER_CORS` is enabled.
+     - Simulated graceful shutdown: send `SIGINT` to server instance and ensure listener closes within timeout.
+
+3. **Update Documentation in `sandbox/README.md`**
+   - Document the `--server [port]` flag and default behavior.
+   - Describe `POST /events` and `GET /health` endpoints with example `curl` commands.
+   - List environment variables: `EVENT_SERVER_PORT`, `EVENT_SERVER_CORS`, `EVENT_SERVER_SHUTDOWN_TIMEOUT_MS`.
+   - Provide guidance on running tests: `npm test` includes the HTTP server tests.
+
+4. **Verify**
+   - Run `npm test` and confirm all new tests pass.
+   - Start the server with `npm run sandbox -- --server 4000` (or `EVENT_SERVER_PORT=4000 npm run sandbox`) and manually exercise endpoints.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7271,"completion_tokens":2045,"total_tokens":9316,"prompt_tokens_details":{"cached_tokens":1024,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1344,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
