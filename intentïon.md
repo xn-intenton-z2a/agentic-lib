@@ -257,4 +257,70 @@ LLM API Usage:
 {"prompt_tokens":6783,"completion_tokens":1617,"total_tokens":8400,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":896,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Feature to Issue at 2025-05-25T23:00:41.521Z
+
+Activity:
+
+Generated issue 1637 for feature "cli-crawl" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1637
+
+title:
+
+Implement --crawl <url> CLI flag to fetch and display HTTP content
+
+And description:
+
+Summary
+-------
+Add a new `--crawl <url>` flag to `sandbox/source/main.js` so that users can fetch data from any public HTTP endpoint and inspect it directly via the sandbox CLI. When provided a URL, the CLI should perform an HTTP GET using the built-in `fetch` API, attempt to parse JSON responses and pretty-print them, or fall back to raw text output. On network failures or non-2xx responses, an error message must be printed and the process should exit with code 1.
+
+Changes Required
+----------------
+1. **sandbox/source/main.js**
+   - Detect the `--crawl` flag and exactly one URL argument.
+   - Use the global `fetch` API (Node 20) to issue a GET request.
+     - If `response.ok` is `false`, print an error message including status code and exit with `process.exit(1)`.
+   - Read the response body as text. Attempt `JSON.parse`:
+     - On success: `console.log(JSON.stringify(parsed, null, 2))` and `process.exit(0)`.
+     - On failure: print the raw text and `process.exit(0)`.
+   - Maintain compatibility with existing `--help`, `--version`, and `--digest` flags: if `--crawl` is present, skip other handlers.
+
+2. **sandbox/tests/main.test.js**
+   - Add a new `describe('CLI --crawl flag', () => { ... })` suite.
+   - Use `vi.stubGlobal('fetch', ...)` to simulate:
+     1. **JSON fetch success**: return an object with `.ok=true`, `.text()` resolves to a JSON string, ensure pretty-printed JSON appears on `stdout` and exit code is 0.
+     2. **Text fetch fallback**: `.ok=true`, `.text()` returns plain text, ensure it is printed raw and exit code is 0.
+     3. **HTTP error**: `.ok=false`, `status=404`, ensure an error message is printed to `stderr` and exit code is 1.
+     4. **Network error**: stub `fetch` to throw, ensure the thrown error is caught, message printed to `stderr`, and exit code is 1.
+   - Spy on `process.exit` to capture exit codes without terminating the test runner.
+
+3. **sandbox/README.md**
+   - Update usage instructions to document the new `--crawl <url>` flag with examples:
+     ```sh
+     node sandbox/source/main.js --crawl https://api.github.com/repos/nodejs/node
+     ```
+
+Verification & Acceptance
+-------------------------
+- All existing tests and new tests in `sandbox/tests/main.test.js` must pass (`npm test`).
+- Manual smoke test in `sandbox` mode:
+  1. Fetch a JSON endpoint:
+     ```sh
+     npm run sandbox -- --crawl https://api.github.com/repos/nodejs/node
+     ```
+     → Pretty-printed JSON.
+  2. Fetch a text endpoint:
+     ```sh
+     npm run sandbox -- --crawl https://example.com/robots.txt
+     ```
+     → Raw text.
+  3. Invalid URL or unreachable host:
+     → Error printed, exit code 1.
+
+No other features or files should be modified.
+
+LLM API Usage:
+```json
+{"prompt_tokens":7299,"completion_tokens":1346,"total_tokens":8645,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":576,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
