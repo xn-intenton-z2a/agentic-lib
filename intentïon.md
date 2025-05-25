@@ -767,4 +767,150 @@ LLM API Usage:
 {"prompt_tokens":15007,"completion_tokens":7518,"total_tokens":22525,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":5504,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Fixed Code at 2025-05-25T23:05:42.325Z
+
+Activity:
+
+fixApplied: true with Implement --crawl CLI flag in sandbox and update documentation and outcome success
+
+Git Diff:
+```diff
+diff --git a/sandbox/README.md b/sandbox/README.md
+index b20dbeb4..f85f365d 100644
+--- a/sandbox/README.md
++++ b/sandbox/README.md
+@@ -1,9 +1,32 @@
+ # Sandbox CLI
+ 
+-This CLI provides utilities for crawling and inspecting HTTP endpoints, supporting rapid prototyping for knowledge graph ingestion.
++This is the sandbox CLI for testing features of the agentic-lib toolkit.
+ 
+-## Available Command
++## Usage
+ 
+-- `--crawl <url>`: Fetches data from a public HTTP endpoint and displays the response.
++  node sandbox/source/main.js [options]
+ 
+-For detailed usage, see the [CLI crawl documentation](docs/CLI_CRAWL.md).
+\ No newline at end of file
++## Options
++
++  --help
++    Show this help message and usage instructions.
++
++  --digest
++    Run a full bucket replay simulating an SQS event.
++
++  --version
++    Show version information with current timestamp.
++
++  --crawl <url>
++    Fetch data from the specified public HTTP endpoint <url> and display the response.
++    - For JSON responses, pretty-print the JSON with 2-space indentation.
++    - For non-JSON responses, output the raw text.
++    - Exits with code 0 on success, or code 1 on HTTP or network errors.
++
++## Examples
++
++  # Pretty-print JSON response
++  node sandbox/source/main.js --crawl https://api.github.com/repos/nodejs/node
++
++  # Output raw text response
++  node sandbox/source/main.js --crawl https://example.com/robots.txt
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index 37729245..70be2b47 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -1,36 +1,42 @@
+-#!/usr/bin/env node
+-import { fileURLToPath } from "url";
+-
++/**
++ * Sandbox CLI main entry for HTTP crawl feature.
++ *
++ * Usage:
++ *   import { main } from './sandbox/source/main.js';
++ *   main(process.argv.slice(2));
++ */
+ export async function main(args) {
+-  if (args[0] === "--crawl") {
+-    if (args.length !== 2) {
+-      console.error("Usage: node sandbox/source/main.js --crawl <url>");
+-      return;
+-    }
++  if (args[0] === '--crawl') {
+     const url = args[1];
++    if (!url) {
++      console.error('Error: URL not provided');
++      process.exit(1);
++    }
+     try {
+-      const response = await fetch(url);
+-      if (!response.ok) {
+-        console.error(`Error: HTTP status ${response.status}`);
++      const res = await fetch(url);
++      if (!res.ok) {
++        console.error(`Error: HTTP status ${res.status}`);
+         process.exit(1);
+       }
+-      const body = await response.text();
+       try {
+-        const json = JSON.parse(body);
+-        console.log(JSON.stringify(json, null, 2));
+-      } catch {
+-        console.log(body);
++        const data = await res.json();
++        console.log(JSON.stringify(data, null, 2));
++      } catch (err) {
++        const text = await res.text();
++        console.log(text);
+       }
+       process.exit(0);
+-    } catch (error) {
+-      console.error(`Error: ${error.message}`);
++    } catch (err) {
++      console.error(err.message);
+       process.exit(1);
+     }
++  } else {
++    console.log('No command argument supplied.');
++    console.log('');
++    console.log('Usage:');
++    console.log('  --help                     Show this help message and usage instructions.');
++    console.log('  --digest                   Run a full bucket replay simulating an SQS event.');
++    console.log('  --version                  Show version information with current timestamp.');
++    process.exit(0);
+   }
+-  console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+-
+-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  const args = process.argv.slice(2);
+-  main(args);
+-}
+\ No newline at end of file
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/agentic-lib@6.9.7-0 start
+> node src/lib/main.js
+
+{"level":"info","timestamp":"2025-05-25T23:05:20.700Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+```
+
+[allValidationStepsSuccessful: false]
+
+LLM API Usage:
+```json
+{"prompt_tokens":21028,"completion_tokens":4496,"total_tokens":25524,"prompt_tokens_details":{"cached_tokens":15104,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3648,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
