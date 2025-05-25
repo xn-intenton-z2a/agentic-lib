@@ -780,9 +780,9 @@ jobs:
           git status -v
           #git pull --ff-only origin ${{ github.ref }}
           # 4) Fetch & merge remote (always creates a merge commit, no editor prompt)
-          git fetch origin ${{ github.ref }}
-          git merge origin/${{ github.ref }} --no-ff --no-edit
-          git push -v origin ${{ github.ref }}
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
           git status -v
 
       - id: uuid
