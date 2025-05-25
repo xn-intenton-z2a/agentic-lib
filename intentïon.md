@@ -143,4 +143,60 @@ LLM API Usage:
 {"prompt_tokens":6693,"completion_tokens":1704,"total_tokens":8397,"prompt_tokens_details":{"cached_tokens":1152,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1024,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Feature to Issue at 2025-05-25T19:55:05.422Z
+
+Activity:
+
+Generated issue 1628 for feature "data-crawler" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1628
+
+title:
+
+Add `--crawl` CLI command for Data Crawler ingestion into knowledge graph
+
+And description:
+
+We need to implement the Data Crawler feature by adding a new `--crawl <URL>` option to our CLI in `src/lib/main.js`. This will allow users to fetch JSON from any public HTTP endpoint and feed the payload into our existing digest processing pipeline (via `createSQSEventFromDigest` and `digestLambdaHandler`).
+
+Specifically, please update the following files in a single LLM invocation:
+
+1. **src/lib/main.js**
+   - In the `generateUsage` function, append a line for `--crawl <URL>`.
+   - Implement an async helper `processCrawl(args)`:
+     - Detect the `--crawl` flag and its URL argument.
+     - Log an info entry before fetching: `Fetching URL: <URL>`.
+     - Use the native Node.js `fetch` API to perform an HTTP GET.
+     - On a successful response:
+       - Read the response text and parse JSON (throw and catch parse errors).
+       - Log an info entry including `url`, `status`, and `size` (byte length of raw text).
+       - Wrap the parsed JSON into a digest object `{ source: URL, data: <parsed JSON> }`.
+       - Invoke `createSQSEventFromDigest(digest)`, then `await digestLambdaHandler(...)`.
+       - Print a confirmation message: `Crawl completed for <URL>` and `process.exit(0)`.
+     - On network errors or invalid JSON:
+       - Log an error with details and call `process.exit(1)`.
+     - Return `true` when `--crawl` is handled, `false` otherwise.
+   - Invoke `await processCrawl(args)` in `main()` before falling back to the no-command logic.
+
+2. **tests/unit/main.test.js**
+   - Add tests for `--crawl`:
+     - **Success scenario**: stub `global.fetch` to return a mock JSON payload and a 200 status. Spy on `createSQSEventFromDigest` and `digestLambdaHandler` to confirm they receive the correct digest. Use `vi.spyOn` or `vi.stubGlobal` as needed. Ensure `process.exit(0)` is called and the confirmation message is printed.
+     - **Fetch error**: stub `fetch` to throw an exception. Confirm that an error is logged and `process.exit(1)` is called.
+     - **Invalid JSON**: stub `fetch` to return non-JSON text (e.g., `"not json"`), confirm exit code 1 and appropriate error log.
+   - Mock `process.exit` to throw so tests can catch exit codes.
+
+3. **sandbox/README.md**
+   - Document the new `--crawl <URL>` flag under the CLI usage section, including an example invocation and expected output.
+
+4. **package.json** (if needed)
+   - No new dependencies required since Node 20+ has global `fetch`.
+
+Verification:
+- Run `npm test` to ensure all unit tests pass.
+- Manually run `node src/lib/main.js --crawl http://localhost:3000/data` against a local JSON server to verify logs, confirmation message, and exit code.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":7259,"completion_tokens":2087,"total_tokens":9346,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1344,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
