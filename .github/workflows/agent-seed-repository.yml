@@ -1901,6 +1901,7 @@ jobs:
       - apply-issue-resolution
       - needs-fix-after-issue-resolution
       - fix-code
+      - agentic-lib
     if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'false' ) }}
     runs-on: ubuntu-latest
     env:

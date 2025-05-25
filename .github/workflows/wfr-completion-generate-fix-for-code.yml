@@ -1233,11 +1233,19 @@ jobs:
             core.info(`postResolutionCommentOutcome: "${postResolutionCommentOutcome}"`);
             core.info(`allValidationStepsSuccessful: "${allValidationStepsSuccessful}"`);
 
+      - id: uuid
+        name: uuid
+        shell: bash
+        run: |
+          uuid=$(uuidgen)
+          echo "uuid: ${uuid}"
+          echo "uuid=${uuid}" >> $GITHUB_OUTPUT
+
       - name: Upload prompt file as an artifact
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: update-target-prompt.txt
+          name: "update-target-prompt-${{ steps.uuid.outputs.uuid }}.txt"
           path: ${{ steps.update-target.outputs.promptFilePath }}
           retention-days: 7
 
@@ -1245,7 +1253,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: update-target-request.json
+          name: "update-target-request-${{ steps.uuid.outputs.uuid }}.json"
           path: ${{ steps.update-target.outputs.requestFilePath }}
           retention-days: 7
 
@@ -1253,7 +1261,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: update-target-response.json
+          name: "update-target-response-${{ steps.uuid.outputs.uuid }}.json"
           path: ${{ steps.update-target.outputs.responseFilePath }}
           retention-days: 7
 
@@ -1261,7 +1269,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: update-target-result.json
+          name: "update-target-result-${{ steps.uuid.outputs.uuid }}.json"
           path: ${{ steps.update-target.outputs.resultFilePath }}
 
     outputs:
