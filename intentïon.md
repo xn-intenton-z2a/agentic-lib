@@ -183,4 +183,292 @@ LLM API Usage:
 {"prompt_tokens":7226,"completion_tokens":3368,"total_tokens":10594,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2496,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Code at 2025-05-25T19:30:49.927Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-1625 with message Add HTTP server endpoints with health metrics and digest include tests docs and serve script and outcome 
+
+Git Diff:
+```diff
+diff --git a/package.json b/package.json
+index 03665e93..16433f49 100644
+--- a/package.json
++++ b/package.json
+@@ -16,7 +16,8 @@
+     "test": "vitest --run tests/unit/*.test.js sandbox/tests/*.test.js",
+     "test:unit": "vitest --run --coverage tests/unit/*.test.js sandbox/tests/*.test.js",
+     "sandbox": "node sandbox/source/main.js",
+-    "start": "node src/lib/main.js"
++    "start": "node src/lib/main.js",
++    "serve": "node sandbox/source/main.js --serve"
+   },
+   "keywords": [],
+   "author": "https://github.com/xn-intenton-z2a",
+@@ -58,4 +59,4 @@
+   "publishConfig": {
+     "registry": "https://npm.pkg.github.com"
+   }
+-}
++}
+\ No newline at end of file
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..5f86b3dc 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -1,12 +1,100 @@
+ #!/usr/bin/env node
+-// sandbox/source/main.js
++import { fileURLToPath } from 'url';
++import express from 'express';
++import { z } from 'zod';
++import { digestLambdaHandler, createSQSEventFromDigest } from '../../src/lib/main.js';
+ 
+-import { fileURLToPath } from "url";
++/**
++ * Create an Express server with health, metrics, and digest endpoints.
++ * @param {Object} options
++ * @param {boolean} options.statsEnabled - Whether to include stats output (unused here).
++ * @returns {import('express').Express}
++ */
++export function createServer({ statsEnabled = false } = {}) {
++  const app = express();
++  app.use(express.json());
+ 
++  // Global request counter middleware
++  app.use((req, res, next) => {
++    globalThis.callCount = (globalThis.callCount || 0) + 1;
++    next();
++  });
++
++  // Health endpoint
++  app.get('/health', (_req, res) => {
++    res.status(200).json({ status: 'ok' });
++  });
++
++  // Metrics endpoint
++  app.get('/metrics', (_req, res) => {
++    res.status(200).json({ uptime: process.uptime(), callCount: globalThis.callCount });
++  });
++
++  // Schema for digest payload
++  const digestSchema = z.object({
++    key: z.string(),
++    value: z.string(),
++    lastModified: z
++      .string()
++      .refine((val) => !isNaN(Date.parse(val)), { message: 'Invalid date format' }),
++  });
++
++  // Digest endpoint
++  app.post('/digest', async (req, res) => {
++    const result = digestSchema.safeParse(req.body);
++    if (!result.success) {
++      return res.status(400).json({ errors: result.error.errors });
++    }
++    try {
++      // Invoke the existing digest handler
++      await digestLambdaHandler(createSQSEventFromDigest(result.data));
++      return res.sendStatus(200);
++    } catch (err) {
++      return res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
++    }
++  });
++
++  return app;
++}
++
++/**
++ * Start the HTTP server on the given port.
++ * @param {Object} options
++ * @param {number|string} options.port - Port number to listen on.
++ * @param {boolean} options.statsEnabled - Whether to include stats output (unused here).
++ * @returns {import('express').Express}
++ */
++export function startServer({ port = process.env.PORT || 3000, statsEnabled = false } = {}) {
++  const app = createServer({ statsEnabled });
++  app.listen(port, () => {
++    console.log(`Server listening on port ${port} with statsEnabled=${statsEnabled}`);
++  });
++  return app;
++}
++
++/**
++ * Main CLI entrypoint. Detects --serve flag.
++ * @param {string[]} args
++ */
+ export function main(args) {
++  const serveIndex = args.indexOf('--serve');
++  if (serveIndex !== -1) {
++    const statsEnabled = args.includes('--stats');
++    let port = process.env.PORT || 3000;
++    const portIndex = args.indexOf('--port');
++    if (portIndex !== -1 && args[portIndex + 1]) {
++      const p = parseInt(args[portIndex + 1], 10);
++      if (!isNaN(p)) {
++        port = p;
++      }
++    }
++    startServer({ port, statsEnabled });
++    return;
++  }
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
++// Auto-run when invoked directly
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   const args = process.argv.slice(2);
+   main(args);
+diff --git a/sandbox/tests/main.test.js b/sandbox/tests/main.test.js
+index 04c527ce..a3826a80 100644
+--- a/sandbox/tests/main.test.js
++++ b/sandbox/tests/main.test.js
+@@ -1,9 +1,50 @@
+-import { describe, test } from "vitest";
+-import { main } from "@sandbox/source/main.js";
++import { describe, test, expect, beforeEach } from 'vitest';
++import request from 'supertest';
++import { main, createServer } from '../source/main.js';
+ 
+-describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "sandbox/source/main.js"];
+-    main();
++describe('Main Output', () => {
++  test('should terminate without error', () => {
++    process.argv = ['node', 'sandbox/source/main.js'];
++    // Call with empty array since CLI args are parsed from args parameter
++    main([]);
++  });
++});
++
++describe('HTTP Server', () => {
++  let app;
++
++  beforeEach(() => {
++    // Reset global call count before each test
++    globalThis.callCount = 0;
++    app = createServer();
++  });
++
++  test('GET /health returns status ok', async () => {
++    const res = await request(app).get('/health');
++    expect(res.status).toBe(200);
++    expect(res.body).toEqual({ status: 'ok' });
++  });
++
++  test('GET /metrics returns uptime and callCount', async () => {
++    const res = await request(app).get('/metrics');
++    expect(res.status).toBe(200);
++    expect(typeof res.body.uptime).toBe('number');
++    expect(typeof res.body.callCount).toBe('number');
++  });
++
++  test('POST /digest with valid payload returns 200', async () => {
++    const payload = {
++      key: 'events/1.json',
++      value: '12345',
++      lastModified: new Date().toISOString(),
++    };
++    const res = await request(app).post('/digest').send(payload);
++    expect(res.status).toBe(200);
++  });
++
++  test('POST /digest with invalid payload returns 400', async () => {
++    const res = await request(app).post('/digest').send({ invalid: 'data' });
++    expect(res.status).toBe(400);
++    expect(res.body).toHaveProperty('errors');
+   });
+ });\n\n// New [sandbox/docs/HTTP_SERVER.md]:\n# HTTP Server
+
+This document describes the HTTP server available in the sandbox CLI, providing health, metrics, and digest endpoints.
+
+## Starting the Server
+
+You can start the HTTP server using npm scripts or directly via Node.js:
+
+```bash
+npm run serve
+# or
+node sandbox/source/main.js --serve [--port <number>] [--stats]
+```
+
+- `--port <number>`: Port to listen on (default `3000` or `process.env.PORT`).
+- `--stats`: (Reserved) Include detailed stats logging on startup.
+
+## Endpoints
+
+### GET /health
+
+Check the health of the server.
+
+- **Response**: `200 OK`
+- **Body**: `{ "status": "ok" }`
+
+**Example**:
+```bash
+curl -X GET http://localhost:3000/health
+```
+
+### GET /metrics
+
+Retrieve uptime and total request count since server start.
+
+- **Response**: `200 OK`
+- **Body**: 
+```json
+{
+  "uptime": 12.345,       // seconds
+  "callCount": 5         // total requests handled
+}
+```
+
+**Example**:
+```bash
+curl -X GET http://localhost:3000/metrics
+```
+
+### POST /digest
+
+Accept a JSON payload describing a digest message, validate its shape, and process via the existing Lambda handler.
+
+- **Request Body**:
+```json
+{
+  "key": "events/1.json",
+  "value": "12345",
+  "lastModified": "2025-01-01T00:00:00.000Z"
+}
+```
+
+- **Responses**:
+  - `200 OK`: Payload valid and successfully processed.
+  - `400 Bad Request`: Payload validation failed. Response includes validation errors.
+  - `500 Internal Server Error`: Processing error.
+
+**Example**:
+```bash
+curl -X POST http://localhost:3000/digest \
+  -H "Content-Type: application/json" \
+  -d '{"key":"events/1.json","value":"12345","lastModified":"2025-01-01T00:00:00.000Z"}'
+```
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/agentic-lib@6.9.2-0 sandbox
+> node sandbox/source/main.js
+
+{"level":"info","timestamp":"2025-05-25T19:30:31.286Z","message":"Configuration loaded","config":{}}
+Run with: []
+```
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1625 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":10400,"completion_tokens":6953,"total_tokens":17353,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3968,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
