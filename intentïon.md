@@ -287,3 +287,71 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-25T01:43:16.054Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+Title: Interactive Console-Based Number Guessing Game
+
+Overview:
+Provide a fully interactive CLI number-guessing game in the sandbox. On launch, the game should display a welcome banner and instructions, pick a random integer in the inclusive range [1,100], and prompt the user until they guess correctly. After each guess, the game must give immediate feedback and maintain an attempt count.
+
+Scope of Changes:
+1. sandbox/source/main.js
+   - Import and configure Node’s built-in readline module.
+   - On startup, display:
+     • Welcome message: "Welcome to the Number Guessing Game!"
+     • Instructions: "Guess a number between 1 and 100."
+   - Generate a secret integer between 1 and 100.
+   - Implement a loop that:
+     • Prompts: "Enter your guess: "
+     • Parses input as integer; ignores non-numeric input with an error prompt.
+     • Compares guess to secret number and prints exactly one of:
+       – "Too low"
+       – "Too high"
+       – "Correct! You found the number in X attempts."
+     • Increments attempt counter on valid numeric guesses.
+     • Closes the readline interface and exits process with code 0 when correct.
+
+2. sandbox/tests/main.test.js
+   - Replace placeholder test with an automated simulation of stdin input sequences ending in a correct guess.
+   - Feed guesses (e.g. 25 → 75 → secret) and capture stdout.
+   - Assert in order:
+     a) Welcome message and instructions printed once.
+     b) Prompt printed before each guess.
+     c) Correct feedback messages ("Too low" / "Too high").
+     d) Final success message includes the exact attempt count.
+     e) Process exits cleanly.
+
+3. sandbox/README.md
+   - Document invocation: `npm run sandbox`
+   - Describe gameplay rules, controls, and exit on correct guess.
+   - Include an example transcript showing prompts, feedback, and success message.
+
+Acceptance Criteria (Automated Tests):
+- Test harness calls `main()` and simulates stdin inputs, verifying stdout contains the exact expected lines in sequence.
+- Tests cover:
+  • Welcome banner and instructions.
+  • Prompt before each guess.
+  • Feedback for low, high, and correct guesses.
+  • Correct attempt count in the success message.
+  • Readline interface closed and process exits with code 0.
+
+Acceptance Criteria (Manual):
+- Running `npm run sandbox` starts the game.
+- Gameplay prompts and feedback match the automated tests.
+- On correct guess, game prints final message with attempt count and exits without error.
+
+Constraints:
+- Only modify `sandbox/source/main.js`, `sandbox/tests/main.test.js`, and `sandbox/README.md`.
+- Use only built-in Node.js modules (no new dependencies).
+- Maintain Node 20 compatibility and ESM standards.
+- Follow existing coding style and test conventions.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7217,"completion_tokens":1204,"total_tokens":8421,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":512,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
