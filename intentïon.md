@@ -217,4 +217,62 @@ LLM API Usage:
 {"prompt_tokens":6743,"completion_tokens":2026,"total_tokens":8769,"prompt_tokens_details":{"cached_tokens":1280,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1472,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Feature to Issue at 2025-05-25T22:33:16.650Z
+
+Activity:
+
+Generated issue 1634 for feature "crawl-entity" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1634
+
+title:
+
+Implement --crawl CLI flag to fetch Wikipedia entity summaries
+
+And description:
+
+Implement the CRAWL_ENTITY feature by adding a new `--crawl` CLI option in `src/lib/main.js` that retrieves structured summary data for a given real-world entity from the Wikipedia REST API. This task should be done with the following steps:
+
+1. **Add `processCrawl` handler:**
+   - Create a new `processCrawl(args)` function in `src/lib/main.js` that checks for the presence of `--crawl` in the CLI arguments.
+   - After detecting `--crawl`, read the next argument as the `entityName`. If missing, log an error via `logError` and exit with status code 1.
+2. **Fetch and parse Wikipedia summary:**
+   - Use the global `fetch` API (Node 20+) to GET `https://en.wikipedia.org/api/rest_v1/page/summary/{encodeURIComponent(entityName)}`.
+   - On HTTP success (status 200), parse the JSON response and extract:
+     - `title`
+     - `extract` (summary)
+     - `content_urls.desktop.page` as `url`
+     - a new `retrievedAt` field set to `new Date().toISOString()`
+   - Construct a result object with these four fields and `console.log(JSON.stringify(result))` to stdout.
+3. **Error handling:**
+   - On non-200 HTTP responses or network errors, invoke `logError` with a descriptive message and the error object, then `process.exit(1)`.
+4. **Fallback for environments without global fetch:**
+   - Detect if `globalThis.fetch` is undefined, and if so import `node-fetch` dynamically and assign it to `globalThis.fetch`. Add `node-fetch` as an optional dependency in `package.json` under `dependencies`.
+5. **Unit tests:**
+   - In `tests/unit/`, write tests for `processCrawl`:
+     - Mock `global.fetch` to simulate a successful JSON response and verify stdout JSON contains the correct fields and values.
+     - Mock `global.fetch` to simulate an HTTP error (e.g., 404) and verify `logError` is called and `process.exit` is invoked.
+   - In `sandbox/tests/`, add a basic smoke test invoking `sandbox/source/main.js --crawl "Test Entity"` to ensure the handler runs without throwing.
+6. **Documentation:**
+   - Update `sandbox/README.md` to document the new `--crawl <entityName>` flag, include usage examples and sample output.
+   - In the top-level `README.md` (if mirrored), add a section under CLI usage describing `--crawl`.
+7. **Verification steps:**
+   - Run `npm test` and ensure all new and existing tests pass.
+   - Manually run `npm start -- --crawl Eiffel Tower` and confirm output is valid JSON with `title`, `extract`, `url`, and `retrievedAt`.
+
+Deliverables:
+- Updated `src/lib/main.js`
+- New/updated tests in `tests/unit/` and `sandbox/tests/`
+- `package.json` updated with `node-fetch` fallback
+- Updated README(s) with `--crawl` documentation
+
+**Acceptance Criteria:**
+- CLI supports `--crawl <entityName>` and prints the correct JSON summary.
+- Errors are logged via `logError` and exit with code 1.
+- Comprehensive unit tests cover success and error scenarios.
+- Documentation reflects new functionality.
+
+LLM API Usage:
+```json
+{"prompt_tokens":7259,"completion_tokens":1047,"total_tokens":8306,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":256,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
