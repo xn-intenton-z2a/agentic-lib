@@ -245,3 +245,51 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-25T18:13:32.243Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+Title: Add --graph CLI option to generate a sample knowledge graph in JSON
+
+Description:
+This issue implements the `--graph` flag in the sandbox CLI to provide immediate inspection of the in-memory knowledge graph structure. When invoked with `--graph`, the CLI will:
+
+1. Parse the `--graph` argument in `sandbox/source/main.js`.
+2. Import `{ Graph }` from the `graphlib` library.
+3. Construct a sample graph with at least three nodes: `A`, `B`, `C`.
+4. Add two directed edges: `A -> B` and `B -> C`.
+5. Build an object:
+   ```js
+   const graphData = {
+     nodes: ['A', 'B', 'C'],
+     edges: [
+       { from: 'A', to: 'B' },
+       { from: 'B', to: 'C' }
+     ]
+   };
+   ```
+6. Output the JSON representation via a single `console.log(JSON.stringify(graphData, null, 2))` call.
+7. Immediately call `process.exit(0)` to halt further CLI logic.
+8. Ensure no other console output appears when `--graph` is provided.
+
+Testable Acceptance Criteria:
+- Given a clean install with `graphlib` added in `package.json`, running `node sandbox/source/main.js --graph` produces valid JSON whose top-level properties are `nodes` and `edges`.
+- The `nodes` array exactly matches `["A","B","C"]`, and `edges` exactly matches `[{ from: "A", to: "B" }, { from: "B", to: "C" }]`.
+- Only one `console.log` is executed, producing the graph JSON, and the process exits with code `0` without emitting usage text or other logs.
+- A Vitest unit test in `sandbox/tests/main.test.js` spies on `console.log`, invokes `main(["--graph"])`, parses its output, and asserts the JSON shape, node/edge values, and single invocation.
+- The `sandbox/README.md` is updated with a new `## CLI Usage` section explaining `--graph` and including an example of the JSON output.
+
+Implementation Steps:
+- Add `graphlib` (e.g., `"graphlib": "^2.1.8"`) to `dependencies` in `package.json`.
+- Enhance `sandbox/source/main.js` to detect and handle `--graph` as described.
+- Add/update tests in `sandbox/tests/main.test.js` to cover the new behavior.
+- Update `sandbox/README.md` with CLI documentation for `--graph`.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7039,"completion_tokens":1272,"total_tokens":8311,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
