@@ -375,3 +375,322 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-25T02:04:33.649Z
+
+fixApplied: true
+
+Implement HTTP API server with Express and --serve CLI flag in sandbox
+
+Git Diff:
+
+```
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..ccfc392f 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -2,12 +2,96 @@
+ // sandbox/source/main.js
+ 
+ import { fileURLToPath } from "url";
++import express from "express";
++import { createSQSEventFromDigest, digestLambdaHandler } from "../../src/lib/main.js";
+ 
+-export function main(args) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
++// Create Express app
++export const app = express();
++app.use(express.json());
++
++// Health endpoint
++app.get("/health", (req, res) => {
++  res.json({ status: "ok", uptime: process.uptime() });
++});
++
++// Version endpoint
++app.get("/version", async (req, res) => {
++  try {
++    const { readFileSync } = await import("fs");
++    const pkgPath = new URL("../../package.json", import.meta.url);
++    const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
++    res.json({ version: pkg.version, timestamp: new Date().toISOString() });
++  } catch (error) {
++    res.status(500).json({ error: error.message });
++  }
++});
++
++// Digest endpoint
++app.post("/digest", async (req, res) => {
++  try {
++    const digest = req.body;
++    const sqsEvent = createSQSEventFromDigest(digest);
++    await digestLambdaHandler(sqsEvent);
++    res.json({ success: true });
++  } catch (error) {
++    res.status(500).json({ error: error.message });
++  }
++});
++
++let server;
++// Function to start the HTTP server
++e��export async function startServer(port = 3000) {
++  return new Promise((resolve, reject) => {
++    server = app.listen(port, () => {
++      console.log(`Server started on port ${port}`);
++      resolve(server);
++    });
++    server.on("error", reject);
++  });
++}
++
++// Function to stop the HTTP server
++export async function stopServer() {
++  return new Promise((resolve, reject) => {
++    if (!server) {
++      resolve();
++      return;
++    }
++    server.close((err) => {
++      if (err) {
++        reject(err);
++      } else {
++        resolve();
++      }
++    });
++  });
++}
++
++// CLI entrypoint
++export function main(args = process.argv.slice(2)) {
++  const serveIndex = args.indexOf("--serve");
++  if (serveIndex !== -1) {
++    let port = process.env.HTTP_PORT ? Number(process.env.HTTP_PORT) : 3000;
++    const portIndex = args.indexOf("--port");
++    if (portIndex !== -1 && args.length > portIndex + 1) {
++      port = Number(args[portIndex + 1]);
++    }
++    startServer(port).catch((err) => {
++      console.error(err);
++      process.exit(1);
++    });
++    const gracefulShutdown = async () => {
++      await stopServer();
++      process.exit(0);
++    };
++    process.on("SIGINT", gracefulShutdown);
++    process.on("SIGTERM", gracefulShutdown);
++    return;
++  }
++  console.log("Usage: --serve [--port <number>]");
+ }
+ 
++// Auto-execute if script is run directly
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  const args = process.argv.slice(2);
+-  main(args);
++  main(process.argv.slice(2));
+ }\n\n// New [sandbox/README.md]:\n# agentic-lib Sandbox
+
+This sandbox application demonstrates the HTTP API server feature of the agentic-lib library.
+It allows external clients to POST digest payloads and retrieve service health and version information.
+
+## HTTP API Server
+
+Start the server with the CLI flag:
+
+```bash
+node sandbox/source/main.js --serve [--port <number>]
+```
+
+- Default port: `3000`.
+- You can set `HTTP_PORT` environment variable instead of `--port`.
+
+### Endpoints
+
+- **GET /health**
+
+  ```json
+  {
+    "status": "ok",
+    "uptime": 123.45
+  }
+  ```
+
+- **GET /version**
+
+  ```json
+  {
+    "version": "6.8.2-0",
+    "timestamp": "2025-05-25T12:34:56.789Z"
+  }
+  ```
+
+- **POST /digest**
+
+  Send a JSON payload matching the digest shape:
+
+  ```json
+  {
+    "key": "events/1.json",
+    "value": "12345",
+    "lastModified": "2025-01-01T00:00:00Z"
+  }
+  ```
+
+  On success, returns:
+
+  ```json
+  {
+    "success": true
+  }
+  ```
+
+Example usage:
+
+```bash
+node sandbox/source/main.js --serve --port 4000
+curl http://localhost:4000/health
+curl http://localhost:4000/version
+curl -X POST http://localhost:4000/digest \
+  -H "Content-Type: application/json" \
+  -d '{ "key": "events/1.json", "value": "12345", "lastModified": "2025-01-01T00:00:00Z" }'
+```\n\n// New [sandbox/docs/API_SERVER.md]:\n# HTTP API Server
+
+The sandbox application exposes an HTTP API with the following endpoints:
+
+## POST /digest
+
+Accepts a JSON payload:
+
+```json
+{
+  "key": "events/1.json",
+  "value": "12345",
+  "lastModified": "2025-01-01T00:00:00Z"
+}
+```
+
+It invokes the `digestLambdaHandler` with an SQS event and returns:
+
+- `200 OK` with `{ "success": true }` on success.
+- `500 Internal Server Error` with `{ "error": "<message>" }` on failure.
+
+## GET /health
+
+Returns application health:
+
+```json
+{
+  "status": "ok",
+  "uptime": 123.45
+}
+```
+
+## GET /version
+
+Returns server version and timestamp:
+
+```json
+{
+  "version": "6.8.2-0",
+  "timestamp": "2025-05-25T12:34:56.789Z"
+}
+```
+
+## Starting the Server
+
+Use the CLI flag:
+
+```bash
+node sandbox/source/main.js --serve --port 3000
+```
+
+Or set environment variable:
+
+```bash
+HTTP_PORT=4000 node sandbox/source/main.js --serve
+```\n\n// New [sandbox/tests/server.test.js]:\nimport request from "supertest";
+import { readFileSync } from "fs";
+import { URL } from "url";
+import { describe, test, expect, vi } from "vitest";
+import { app } from "../source/main.js";
+import { createSQSEventFromDigest } from "../../src/lib/main.js";
+
+describe("HTTP API Server", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("GET /health returns status ok and uptime number", async () => {
+    const res = await request(app).get("/health").expect(200);
+    expect(res.body).toHaveProperty("status", "ok");
+    expect(typeof res.body.uptime).toBe("number");
+  });
+
+  test("GET /version returns version and timestamp", async () => {
+    const pkgPath = new URL("../../package.json", import.meta.url);
+    const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
+    const res = await request(app).get("/version").expect(200);
+    expect(res.body).toHaveProperty("version", pkg.version);
+    expect(typeof res.body.timestamp).toBe("string");
+    expect(new Date(res.body.timestamp).toString()).not.toBe("Invalid Date");
+  });
+
+  test("POST /digest invokes digestLambdaHandler and returns success", async () => {
+    const mod = await import("../../src/lib/main.js");
+    const spy = vi.spyOn(mod, "digestLambdaHandler").mockResolvedValue({
+      batchItemFailures: [],
+      handler: "handler",
+    });
+    const digest = {
+      key: "events/1.json",
+      value: "12345",
+      lastModified: "2025-01-01T00:00:00Z",
+    };
+    const res = await request(app).post("/digest").send(digest).expect(200);
+    expect(res.body).toEqual({ success: true });
+    expect(spy).toHaveBeenCalledWith(createSQSEventFromDigest(digest));
+  });
+
+  test("POST /digest errors are handled with 500", async () => {
+    const errorMsg = "Handler error";
+    const mod = await import("../../src/lib/main.js");
+    vi.spyOn(mod, "digestLambdaHandler").mockRejectedValue(new Error(errorMsg));
+    const digest = {
+      key: "events/2.json",
+      value: "67890",
+      lastModified: "2025-02-02T00:00:00Z",
+    };
+    const res = await request(app).post("/digest").send(digest).expect(500);
+    expect(res.body).toHaveProperty("error", errorMsg);
+  });
+});
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.8.2-0 sandbox
+> node sandbox/source/main.js
+
+file:///home/runner/work/agentic-lib/agentic-lib/sandbox/source/main.js:43
+e��export async function startServer(port = 3000) {
+ 
+
+SyntaxError: Invalid or unexpected token
+    at compileSourceTextModule (node:internal/modules/esm/utils:340:16)
+    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:146:18)
+    at #translate (node:internal/modules/esm/loader:431:12)
+    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:478:27)
+    at async ModuleJob._link (node:internal/modules/esm/module_job:110:19)
+
+Node.js v20.19.1
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1603 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":13771,"completion_tokens":7338,"total_tokens":21109,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4864,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
