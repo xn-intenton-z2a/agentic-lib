@@ -144,3 +144,58 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-25T18:12:47.063Z
+
+Generated issue 1617 for feature "generate-graph" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1617
+
+title:
+
+Add --graph CLI option to generate a sample knowledge graph in JSON
+
+And description:
+
+This issue implements the `GENERATE_GRAPH` feature by adding a `--graph` flag to the sandbox CLI. When invoked, it will build a simple in-memory knowledge graph using `graphlib` and print a JSON representation of nodes and edges, then exit without running other commands.
+
+Scope of work:
+
+1. **Update Dependencies**
+   - In `package.json`, add `graphlib` (e.g., `"graphlib": "^2.1.8"`) under `dependencies`.
+
+2. **Implement CLI Flag**
+   - In `sandbox/source/main.js`:
+     - Parse `args` for `--graph`.
+     - If present, import `{ Graph }` from `graphlib`.
+     - Build a sample graph with at least three nodes (`A`, `B`, `C`) and two edges (`A -> B`, `B -> C`).
+     - Construct an object `{ nodes: [...], edges: [{ from, to }, ...] }` from the graph.
+     - Output the JSON via `console.log(JSON.stringify(graphData, null, 2))` and call `process.exit(0)`.
+     - Ensure no other CLI logic runs when `--graph` is provided.
+
+3. **Add Automated Tests**
+   - In `sandbox/tests/main.test.js`:
+     - Add a new test case that mocks `console.log` using Vitest’s `vi.spyOn`, invokes `main(["--graph"])`, and captures the output.
+     - Parse the printed JSON and assert:
+       - It has `nodes` and `edges` arrays.
+       - `nodes` contains `["A","B","C"]`.
+       - `edges` contains objects `{ from: "A", to: "B" }` and `{ from: "B", to: "C" }`.
+       - Only one `console.log` call occurs.
+
+4. **Update Documentation**
+   - In `sandbox/README.md`:
+     - Add a `## CLI Usage` section or update the existing one to include `--graph`.
+     - Provide a short description and example of the JSON output.
+
+**Verification Steps:**
+
+- Run `npm install` to include `graphlib`.
+- Execute `npm test`; new and existing tests should pass.
+- Run `node sandbox/source/main.js --graph`; verify a pretty-printed JSON object appears with `nodes` and `edges` as specified and the process exits.
+
+By completing these changes in one combined update (dependency, source, tests, and docs), we deliver the core `GENERATE_GRAPH` functionality and ensure it is covered and documented.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6961,"completion_tokens":2932,"total_tokens":9893,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2304,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
