@@ -165,3 +165,69 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-25T02:34:07.144Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+We will extend the library to expose HTTP endpoints for health monitoring and digest processing. Specifically:
+
+**New Feature: HTTP Server**
+- Implement `startHttpServer({ port })` in `src/lib/main.js` that:
+  - Reads `HTTP_PORT` from `process.env` or defaults to `3000`.
+  - Sets up Express endpoints:
+    1. **GET /health**  
+       - Returns HTTP 200 with JSON:
+         ```json
+         { "status": "ok", "uptime": <number> }
+         ```
+       - `<number>` is seconds since process start (must be a positive number).
+    2. **POST /digest**  
+       - Accepts a JSON body matching a digest object: `{ key: string, value: string, lastModified: string }`.
+       - Calls `createSQSEventFromDigest(body)`.
+       - Invokes `await digestLambdaHandler(event)`.
+       - Returns HTTP 200 with JSON:
+         ```json
+         { "batchItemFailures": Array<string> }
+         ```
+       - On valid input, `batchItemFailures` must be an empty array; on invalid JSON or processing error, must return the generated failure identifiers.
+  - Starts listening on configured port and logs startup: `Server listening on http://localhost:<port>`.
+  - Supports graceful shutdown on SIGINT/SIGTERM.
+
+- Extend the CLI in `main()` to recognize `--serve`:
+  - When invoked with `--serve` (and optional `--port <number>`), call `startHttpServer({ port })` instead of default CLI behavior.
+
+**Acceptance Criteria**
+1. Automated tests in `tests/unit/httpServer.test.js` using Supertest must verify:
+   - `GET /health` responds 200 and JSON shape with `status: 'ok'` and numeric `uptime > 0`.
+   - `POST /digest` with a valid digest returns 200 and `{ batchItemFailures: [] }`.
+   - `POST /digest` with invalid JSON returns 400 or 200 with non-empty `batchItemFailures` (failure identifiers must be strings).
+2. A sandbox-level integration test in `sandbox/tests/httpServer.sandbox.test.js` must:
+   - Launch the server on a random port.
+   - Confirm a `GET /health` request returns correct status and uptime.
+3. CLI script:
+   - Add a new npm script `serve`: `"serve": "node src/lib/main.js --serve"`.
+   - Running `npm run serve -- --port 4000` allows overriding port and starts server on port 4000.
+4. Documentation updates in `sandbox/README.md`:
+   - Describe how to start the server via `npm run serve` or `--serve` flag.
+   - Provide example `curl` commands and expected JSON responses.
+
+**Verification**
+- Run `npm test` and ensure all unit and sandbox tests pass.
+- Manually start the server and verify endpoints:
+  ```bash
+  curl http://localhost:3000/health
+  # => { "status": "ok", "uptime": 1.23 }
+
+  curl -X POST http://localhost:3000/digest \
+    -H 'Content-Type: application/json' \
+    -d '{"key":"x","value":"y","lastModified":"2025-05-25T00:00:00Z"}'
+  # => { "batchItemFailures": [] }
+  ```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7374,"completion_tokens":1538,"total_tokens":8912,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":704,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
