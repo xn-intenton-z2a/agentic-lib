@@ -388,3 +388,127 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-25T04:49:52.470Z
+
+fixApplied: true
+
+Add HTTP server in sandboxsourcemain.js with health metrics digest routes and tests
+
+Git Diff:
+
+```
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..1ae0b7da 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -1,13 +1,45 @@
+ #!/usr/bin/env node
+-// sandbox/source/main.js
+-
+ import { fileURLToPath } from "url";
++import express from "express";
++import { digestLambdaHandler } from "../../src/lib/main.js";
+ 
+-export function main(args) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
+-}
++const app = express();
++app.disable("x-powered-by");
++app.use(express.json());
++
++app.get("/health", (req, res) => {
++  res.json({ status: "ok", uptime: process.uptime() });
++});
++
++app.get("/metrics", (req, res) => {
++  res.json({ metrics: {}, timestamp: Date.now() });
++});
++
++app.post("/digest", async (req, res) => {
++  const event = req.body;
++  const result = await digestLambdaHandler(event);
++  res.json({ batchItemFailures: result.batchItemFailures });
++});
+ 
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  const args = process.argv.slice(2);
+-  main(args);
++  const portIndex = process.argv.indexOf("--port");
++  const port =
++    portIndex !== -1 && process.argv[portIndex + 1]
++      ? Number(process.argv[portIndex + 1])
++      : 3000;
++  const server = app.listen(port, () => {
++    console.log(JSON.stringify({ event: "start", port }));
++  });
++  const graceful = () => {
++    server.close(() => {
++      console.log(
++        JSON.stringify({ event: "shutdown", message: "Server shut down gracefully" })
++      );
++      process.exit(0);
++    });
++  };
++  process.on("SIGINT", graceful);
++  process.on("SIGTERM", graceful);
+ }
++
++export { app };
+\ No newline at end of file\n\n// New [sandbox/tests/httpServer.sandbox.test.js]:\nimport supertest from "supertest";
+import { describe, test, beforeAll, afterAll, expect } from "vitest";
+import { app } from "../source/main.js";
+
+describe("HTTP Server", () => {
+  let server;
+  let request;
+
+  beforeAll(() => {
+    server = app.listen(0);
+    const address = server.address();
+    const port = typeof address === "object" && address ? address.port : 0;
+    request = supertest(`http://127.0.0.1:${port}`);
+  });
+
+  afterAll(async () => {
+    await server.close();
+  });
+
+  test("GET /health responds with status ok and uptime", async () => {
+    const response = await request.get("/health");
+    expect(response.status).toEqual(200);
+    expect(response.body.status).toEqual("ok");
+    expect(typeof response.body.uptime).toEqual("number");
+  });
+
+  test("POST /digest responds with batchItemFailures empty array", async () => {
+    const exampleDigest = { x: "y", value: "value" };
+    const sqsEvent = { Records: [{ body: JSON.stringify(exampleDigest) }] };
+    const response = await request
+      .post("/digest")
+      .send(sqsEvent)
+      .set("Content-Type", "application/json");
+    expect(response.status).toEqual(200);
+    expect(response.body.batchItemFailures).toEqual([]);
+  });
+});
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.9.1-0 sandbox
+> node sandbox/source/main.js
+
+{"level":"info","timestamp":"2025-05-25T04:44:31.970Z","message":"Configuration loaded","config":{}}
+{"event":"start","port":3000}
+{"event":"shutdown","message":"Server shut down gracefully"}
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1611 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":10590,"completion_tokens":4174,"total_tokens":14764,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3136,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
