@@ -221,4 +221,79 @@ LLM API Usage:
 {"prompt_tokens":8360,"completion_tokens":1598,"total_tokens":9958,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":896,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to enhanced Issue at 2025-05-25T20:20:00.379Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+# Implement `--crawl-wikipedia` CLI flag to fetch and log Wikipedia page triples
+
+## Overview
+Enable the CLI and Lambda workflow to fetch structured data from Wikipedia’s REST API, transform key fields into subject–predicate–object triples, and emit each triple as a JSON log entry via `logInfo`.
+
+## What to Change
+1. **src/lib/main.js**
+   - Export an async function `crawlWikipedia(pageTitle)` that:
+     - Issues a GET request to `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(pageTitle)}` using built-in `fetch`.
+     - Parses the JSON response and extracts:
+       - `title` (string)
+       - `description` (string)
+       - All fields under an optional `infobox` object.
+     - For each extracted field, constructs a triple with:
+       ```js
+       { subject: pageTitle, predicate: fieldName, object: fieldValue }
+       ```
+       and calls `logInfo(JSON.stringify(triple))`.
+   - Add `processCrawlWikipedia(args)` to detect `--crawl-wikipedia <PAGE_TITLE>`:
+     - Parse `<PAGE_TITLE>` from `args`.
+     - Call `await crawlWikipedia(PAGE_TITLE)` and return `true`.
+   - Integrate `processCrawlWikipedia` into the main argument handler (after `processDigest`).
+   - Update `generateUsage()` to include:
+     ```text
+     --crawl-wikipedia PAGE_TITLE   Fetch Wikipedia summary and log triples
+     ```
+
+2. **tests/unit/main.test.js**
+   - Mock `global.fetch` to return a sample payload, e.g.:
+     ```js
+     { title: 'Node_js', description: 'JS runtime', infobox: { designed_by: 'Ryan Dahl' } }
+     ```
+   - Spy on `logInfo` and assert:
+     - `fetch` is called once with `https://en.wikipedia.org/api/rest_v1/page/summary/Node_js`.
+     - `logInfo` is called exactly 3 times with JSON-stringified triples for:
+       1. `{ subject: 'Node_js', predicate: 'title', object: 'Node_js' }`
+       2. `{ subject: 'Node_js', predicate: 'description', object: 'JS runtime' }`
+       3. `{ subject: 'Node_js', predicate: 'designed_by', object: 'Ryan Dahl' }`
+   - Ensure the test imports and invokes `crawlWikipedia` directly.
+
+3. **sandbox/README.md**
+   - Under a “Usage” section, document the new flag:
+     ```bash
+     npm run start -- --crawl-wikipedia Node_js
+     ```
+   - Show sample output:
+     ```json
+     {"level":"info","timestamp":"<ts>","message":"{\"subject\":\"Node_js\",\"predicate\":\"title\",\"object\":\"Node_js\"}"}
+     {"level":"info","timestamp":"<ts>","message":"{\"subject\":\"Node_js\",\"predicate\":\"description\",\"object\":\"JS runtime\"}"}
+     {"level":"info","timestamp":"<ts>","message":"{\"subject\":\"Node_js\",\"predicate\":\"designed_by\",\"object\":\"Ryan Dahl\"}"}
+     ```
+
+## Acceptance Criteria
+- [ ] **CLI Invocation**: `npm run start -- --crawl-wikipedia Node_js` calls `fetch` with the correct URL and logs exactly three JSON triples via `logInfo`.
+- [ ] **Unit Tests**: New tests in `tests/unit/main.test.js` mock `fetch`, spy on `logInfo`, and assert call count, arguments, and payload correctness.
+- [ ] **Usage Documentation**: `--crawl-wikipedia` is included in `generateUsage()` output and described in `sandbox/README.md` with example and sample output.
+- [ ] **Lambda Integration**: Passing a digest record of type `crawlWikipedia` to `digestLambdaHandler` triggers `crawlWikipedia` and logs the same triples.
+- [ ] **No New Dependencies**: Only Node 20’s built-in `fetch` and existing logging utilities are used.
+
+## Verification
+- Run `npm test` to confirm new unit tests pass and existing tests remain green.
+- Manually execute the CLI command and verify the log output matches the sample above.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":7854,"completion_tokens":2069,"total_tokens":9923,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1024,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
