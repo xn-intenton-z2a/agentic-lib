@@ -690,6 +690,8 @@ Re-usable GitHub Actions Workflows:
 - [x] [Launch] Create up to 3 the features needed during a reseed by doing 'if featuresWIP >=1 create-one, if featuresWIP >= 2 create-two, if featuresWIP >= 3 create-three, etc...'
 - [x] [Launch] Run fix code if the seed resolve issue fails.
 - [x] [Launch] Add PR closure/abandonment to intentïon.md and mention the related feature.
+- [ ] [Launch] Log the outcome of attempts checks in the intentïon.md file.
+- [ ] [Launch] Add a job to clear old intention branches that were not completed.
 - [ ] [Launch] If the issue is already done, have the issue to code completion return a nop and handle it positively.
 - [ ] [Launch] Be more ruthless about deleting features.
 - [ ] [Launch] Be more bullish about declaring the mission complete.

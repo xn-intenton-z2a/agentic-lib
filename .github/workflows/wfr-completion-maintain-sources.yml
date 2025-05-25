@@ -679,8 +679,7 @@ jobs:
           git status -v
           git fetch origin ${{ github.ref_name }}
           git merge origin/${{ github.ref_name }} --no-ff --no-edit
-          git push -v origin ${{ github.ref_name }}
-          git push -v origin ${{ github.ref }}
+          git push -v origin ${{ github.ref_name }} origin ${{ github.ref }}
           git status -v
 
       - name: Upload prompt file as an artifact

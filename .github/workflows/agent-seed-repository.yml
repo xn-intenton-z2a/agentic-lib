@@ -266,7 +266,9 @@ jobs:
           git add -v --all
           git diff
           git commit -m 'Reseed repository' --allow-empty
-          git push -v
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
           git status -v
 
   delete-branches:
@@ -480,7 +482,9 @@ jobs:
           git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-seed-repository.yml, seed repository" || echo "No changes to commit"
-          git push
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
   pom-check:
     needs:
@@ -648,7 +652,6 @@ jobs:
           git fetch origin ${{ github.ref_name }}
           git merge origin/${{ github.ref_name }} --no-ff --no-edit
           git push -v origin ${{ github.ref_name }}
-          git push -v
           git status -v
 
     outputs:
@@ -671,7 +674,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Java (JDK 21)
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '21'
@@ -733,7 +736,6 @@ jobs:
           git fetch origin ${{ github.ref_name }}
           git merge origin/${{ github.ref_name }} --no-ff --no-edit
           git push -v origin ${{ github.ref_name }}
-          git push -v
           git status -v
 
     outputs:
@@ -862,7 +864,9 @@ jobs:
           git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-seed-repository.yml, maintain feature." || echo "No changes to commit"
-          git push
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
   maintain-features-two:
     needs:
@@ -989,7 +993,9 @@ jobs:
           git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-seed-repository.yml, maintain feature." || echo "No changes to commit"
-          git push
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
   maintain-features-three:
     needs:
@@ -1118,7 +1124,9 @@ jobs:
           git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-seed-repository.yml, maintain feature." || echo "No changes to commit"
-          git push
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
   generate-feature-development-issue-one:
     needs:
@@ -1273,7 +1281,9 @@ jobs:
           git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-seed-repository.yml, generate issue" || echo "No changes to commit"
-          git push
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
   generate-feature-development-issue-two:
     needs:
@@ -1430,7 +1440,9 @@ jobs:
           git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-seed-repository.yml, generate issue" || echo "No changes to commit"
-          git push
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
   enhance-issue-one:
     needs:
@@ -1547,7 +1559,9 @@ jobs:
           git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-seed-repository.yml, enhance issue" || echo "No changes to commit"
-          git push
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
   enhance-issue-two:
     needs:
@@ -1664,7 +1678,9 @@ jobs:
           git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-seed-repository.yml, enhance issue" || echo "No changes to commit"
-          git push
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
   npm-test-before-issue-resolution:
     needs:
@@ -1911,7 +1927,9 @@ jobs:
           git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-transformation-issue-to-code.yml" || echo "No changes to commit"
-          git push
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
   npm-test-after-issue-resolution:
     needs:
@@ -2230,7 +2248,9 @@ jobs:
           git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged byagent-seed-repository.yml, fix code" || echo "No changes to commit"
-          git push
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
   npm-test-after-fix:
     needs:

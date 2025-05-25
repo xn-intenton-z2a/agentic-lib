@@ -443,7 +443,9 @@ jobs:
           git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-discussions-bot.yml" || echo "No changes to commit"
-          git push
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
   seed-repository:
     needs:
@@ -551,7 +553,9 @@ jobs:
           git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-discussions-bot.yml" || echo "No changes to commit"
-          git push
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
   create-feature:
     needs:
@@ -657,7 +661,9 @@ jobs:
           git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-discussions-bot.yml" || echo "No changes to commit"
-          git push
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
 
   declare-status-and-halt:
     needs:
@@ -700,6 +706,8 @@ jobs:
           git config --local pull.rebase false       # never rebase on pull
           git add "${{ needs.agentic-lib.outputs.intentionFilepath }}"
           git commit -m "HALT with ${{ needs.generate-response.outputs.action }}"
-          git push
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git push -v origin ${{ github.ref_name }}
         env:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
