@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { fileURLToPath } from "url";
 import express from "express";
-import { digestLambdaHandler } from "../../src/lib/main.js";
+import { digestLambdaHandler, main } from "../../src/lib/main.js";
 
 const app = express();
 app.disable("x-powered-by");
@@ -42,4 +42,4 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   process.on("SIGTERM", graceful);
 }
 
-export { app };
+export { app, main };
