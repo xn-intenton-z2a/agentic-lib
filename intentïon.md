@@ -286,3 +286,78 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-25T17:37:49.006Z
+
+Generated issue 1616 for feature "cli-enhancements" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1616
+
+title:
+
+Implement --help and --version flags in sandbox CLI
+
+And description:
+
+## Overview
+
+Enhance the sandbox CLI (`sandbox/source/main.js`) to support standard `--help` and `--version` flags, improving usability and alignment with core library behavior. Users should be able to discover available commands and verify the sandbox version without inspecting source code.
+
+## Changes to Implement
+
+1. **CLI Flag Handling**  
+   - In `sandbox/source/main.js`, parse the arguments for `--help` and `--version` before the default behavior.  
+   - If `--help` is present:
+     - Print a concise usage summary listing supported flags and their descriptions:
+       ```text
+       Usage:
+         --help       Show this help message and exit
+         --version    Show the sandbox version and exit
+       ```
+     - Return early without printing the raw argument array.
+   - If `--version` is present:
+     - Dynamically import the root-level `package.json` using ESM JSON import:
+       ```js
+       import pkg from '../../package.json' assert { type: 'json' };
+       ```
+     - Print only the version string (e.g., `6.9.1-0`) and return early.
+   - When neither flag is supplied, preserve the existing behavior (printing the argument array).
+
+2. **Automated Tests**  
+   - Create or extend tests under `sandbox/tests/` (e.g., `sandbox/tests/cli.test.js`) using Vitest to cover:
+     - Invocation of `main(['--help'])` logs the usage summary and does not throw.
+     - Invocation of `main(['--version'])` logs the version from `package.json`.
+     - Invocation of `main([])` continues to log the raw arguments as before.
+   - Use `vi.spyOn(console, 'log')` to capture and assert output.
+
+3. **Documentation Updates**  
+   - Update `sandbox/README.md` with:
+     - A brief description of the sandbox CLI features.
+     - Examples showing how to run:
+       ```bash
+       node sandbox/source/main.js --help
+       node sandbox/source/main.js --version
+       node sandbox/source/main.js foo bar
+       ```
+
+## Verification & Acceptance
+
+1. Run `npm test` and confirm all existing and new sandbox tests pass.
+2. Manually verify:
+   ```bash
+   node sandbox/source/main.js --help
+   # Should display usage summary and exit
+
+   node sandbox/source/main.js --version
+   # Should print version number from package.json and exit
+
+   node sandbox/source/main.js alpha beta
+   # Should print the raw argument array ["alpha","beta"]
+   ```
+
+No new dependencies should be introduced, and Node 20 ESM compatibility must be maintained.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":8419,"completion_tokens":1156,"total_tokens":9575,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":512,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
