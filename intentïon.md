@@ -127,4 +127,200 @@ LLM API Usage:
 {"prompt_tokens":6226,"completion_tokens":1411,"total_tokens":7637,"prompt_tokens_details":{"cached_tokens":1152,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":768,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Maintain Feature at 2025-05-25T23:00:30.400Z
+
+Activity:
+
+Maintained feature SCHEMA_EXTRACT with
+
+Feature spec:
+
+# Objective and Scope
+
+Introduce a new command-line flag `--extract-schema <url>` in sandbox/source/main.js that fetches the HTML content of a public web page and extracts embedded schema.org JSON-LD metadata. If JSON-LD script tags are present, parse and output them as an array of JSON objects. If no JSON-LD is found, print an empty JSON array. This iteration focuses on JSON-LD only, deferring full microdata extraction to future enhancements.
+
+# Value Proposition
+
+Knowledge graph builders often need structured metadata directly from web pages. This feature enables rapid extraction of schema.org JSON-LD from any URL without leaving the CLI, accelerating prototyping of ingestion pipelines and validation of metadata availability.
+
+# Success Criteria & Requirements
+
+- Recognize and parse a `--extract-schema <url>` flag with exactly one URL argument.
+- Use the global `fetch` API in Node 20 to retrieve the page HTML.
+- Parse out all `<script type="application/ld+json">` blocks.
+- Combine parsed JSON-LD objects into a JSON array and pretty-print with 2-space indentation.
+- If no JSON-LD blocks are found, output an empty JSON array (`[]`).
+- Exit with code `0` on success and code `1` on network errors or invalid URL, printing an error message.
+- Add sandbox tests in sandbox/tests/main.test.js to cover:
+  - Successful extraction of multiple JSON-LD scripts.
+  - Page with no JSON-LD tags.
+  - Invalid URL or network failure handling.
+
+# Dependencies & Constraints
+
+- Introduce `cheerio` as a new dev dependency for HTML parsing in tests if needed, but JSON-LD extraction should use simple string matching and `JSON.parse` at runtime.
+- Only modify sandbox/source/main.js, sandbox/tests/main.test.js, sandbox/README.md, and package.json to add cheerio.
+- Maintain compatibility with existing CLI flags (`--help`, `--version`, `--digest`, `--crawl`).
+
+# User Scenarios & Examples
+
+1. Extract JSON-LD metadata:
+   ```
+   node sandbox/source/main.js --extract-schema https://example.com/product
+   ```
+   Should print an array of parsed JSON-LD objects, e.g.:  
+   [
+     { "@context": "https://schema.org", "@type": "Product", "name": "Example" }
+   ]
+
+2. Page without JSON-LD:
+   ```
+   node sandbox/source/main.js --extract-schema https://example.com/plain
+   ```
+   Should print `[]`.
+
+3. Handle network error:
+   ```
+   node sandbox/source/main.js --extract-schema http://invalid.local
+   ```
+   Should print an error JSON with code `1`.
+
+# Verification & Acceptance
+
+- Write sandbox tests that mock fetch to return HTML strings with and without JSON-LD.
+- Ensure all tests in sandbox/tests/main.test.js pass.
+- Manual CLI verification on known URLs with JSON-LD.
+- Code review to confirm clear error handling and compliance with project style guidelines.
+
+Git diff:
+```diff
+\n\n// New [sandbox/features/SCHEMA_EXTRACT.md]:\n# Objective and Scope
+
+Introduce a new command-line flag `--extract-schema <url>` in sandbox/source/main.js that fetches the HTML content of a public web page and extracts embedded schema.org JSON-LD metadata. If JSON-LD script tags are present, parse and output them as an array of JSON objects. If no JSON-LD is found, print an empty JSON array. This iteration focuses on JSON-LD only, deferring full microdata extraction to future enhancements.
+
+# Value Proposition
+
+Knowledge graph builders often need structured metadata directly from web pages. This feature enables rapid extraction of schema.org JSON-LD from any URL without leaving the CLI, accelerating prototyping of ingestion pipelines and validation of metadata availability.
+
+# Success Criteria & Requirements
+
+- Recognize and parse a `--extract-schema <url>` flag with exactly one URL argument.
+- Use the global `fetch` API in Node 20 to retrieve the page HTML.
+- Parse out all `<script type="application/ld+json">` blocks.
+- Combine parsed JSON-LD objects into a JSON array and pretty-print with 2-space indentation.
+- If no JSON-LD blocks are found, output an empty JSON array (`[]`).
+- Exit with code `0` on success and code `1` on network errors or invalid URL, printing an error message.
+- Add sandbox tests in sandbox/tests/main.test.js to cover:
+  - Successful extraction of multiple JSON-LD scripts.
+  - Page with no JSON-LD tags.
+  - Invalid URL or network failure handling.
+
+# Dependencies & Constraints
+
+- Introduce `cheerio` as a new dev dependency for HTML parsing in tests if needed, but JSON-LD extraction should use simple string matching and `JSON.parse` at runtime.
+- Only modify sandbox/source/main.js, sandbox/tests/main.test.js, sandbox/README.md, and package.json to add cheerio.
+- Maintain compatibility with existing CLI flags (`--help`, `--version`, `--digest`, `--crawl`).
+
+# User Scenarios & Examples
+
+1. Extract JSON-LD metadata:
+   ```
+   node sandbox/source/main.js --extract-schema https://example.com/product
+   ```
+   Should print an array of parsed JSON-LD objects, e.g.:  
+   [
+     { "@context": "https://schema.org", "@type": "Product", "name": "Example" }
+   ]
+
+2. Page without JSON-LD:
+   ```
+   node sandbox/source/main.js --extract-schema https://example.com/plain
+   ```
+   Should print `[]`.
+
+3. Handle network error:
+   ```
+   node sandbox/source/main.js --extract-schema http://invalid.local
+   ```
+   Should print an error JSON with code `1`.
+
+# Verification & Acceptance
+
+- Write sandbox tests that mock fetch to return HTML strings with and without JSON-LD.
+- Ensure all tests in sandbox/tests/main.test.js pass.
+- Manual CLI verification on known URLs with JSON-LD.
+- Code review to confirm clear error handling and compliance with project style guidelines.
+```
+
+LLM API Usage:
+```json
+{"prompt_tokens":6783,"completion_tokens":1617,"total_tokens":8400,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":896,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---## Feature to Issue at 2025-05-25T23:00:41.521Z
+
+Activity:
+
+Generated issue 1637 for feature "cli-crawl" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1637
+
+title:
+
+Implement --crawl <url> CLI flag to fetch and display HTTP content
+
+And description:
+
+Summary
+-------
+Add a new `--crawl <url>` flag to `sandbox/source/main.js` so that users can fetch data from any public HTTP endpoint and inspect it directly via the sandbox CLI. When provided a URL, the CLI should perform an HTTP GET using the built-in `fetch` API, attempt to parse JSON responses and pretty-print them, or fall back to raw text output. On network failures or non-2xx responses, an error message must be printed and the process should exit with code 1.
+
+Changes Required
+----------------
+1. **sandbox/source/main.js**
+   - Detect the `--crawl` flag and exactly one URL argument.
+   - Use the global `fetch` API (Node 20) to issue a GET request.
+     - If `response.ok` is `false`, print an error message including status code and exit with `process.exit(1)`.
+   - Read the response body as text. Attempt `JSON.parse`:
+     - On success: `console.log(JSON.stringify(parsed, null, 2))` and `process.exit(0)`.
+     - On failure: print the raw text and `process.exit(0)`.
+   - Maintain compatibility with existing `--help`, `--version`, and `--digest` flags: if `--crawl` is present, skip other handlers.
+
+2. **sandbox/tests/main.test.js**
+   - Add a new `describe('CLI --crawl flag', () => { ... })` suite.
+   - Use `vi.stubGlobal('fetch', ...)` to simulate:
+     1. **JSON fetch success**: return an object with `.ok=true`, `.text()` resolves to a JSON string, ensure pretty-printed JSON appears on `stdout` and exit code is 0.
+     2. **Text fetch fallback**: `.ok=true`, `.text()` returns plain text, ensure it is printed raw and exit code is 0.
+     3. **HTTP error**: `.ok=false`, `status=404`, ensure an error message is printed to `stderr` and exit code is 1.
+     4. **Network error**: stub `fetch` to throw, ensure the thrown error is caught, message printed to `stderr`, and exit code is 1.
+   - Spy on `process.exit` to capture exit codes without terminating the test runner.
+
+3. **sandbox/README.md**
+   - Update usage instructions to document the new `--crawl <url>` flag with examples:
+     ```sh
+     node sandbox/source/main.js --crawl https://api.github.com/repos/nodejs/node
+     ```
+
+Verification & Acceptance
+-------------------------
+- All existing tests and new tests in `sandbox/tests/main.test.js` must pass (`npm test`).
+- Manual smoke test in `sandbox` mode:
+  1. Fetch a JSON endpoint:
+     ```sh
+     npm run sandbox -- --crawl https://api.github.com/repos/nodejs/node
+     ```
+     → Pretty-printed JSON.
+  2. Fetch a text endpoint:
+     ```sh
+     npm run sandbox -- --crawl https://example.com/robots.txt
+     ```
+     → Raw text.
+  3. Invalid URL or unreachable host:
+     → Error printed, exit code 1.
+
+No other features or files should be modified.
+
+LLM API Usage:
+```json
+{"prompt_tokens":7299,"completion_tokens":1346,"total_tokens":8645,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":576,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
