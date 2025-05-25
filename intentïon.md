@@ -383,4 +383,190 @@ LLM API Usage:
 {"prompt_tokens":8897,"completion_tokens":3377,"total_tokens":12274,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2496,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Code at 2025-05-25T20:22:09.511Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-1630 with message Implement --crawl-wikipedia feature in sandboxsource with tests and docs and outcome 
+
+Git Diff:
+```diff
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..3411c757 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -3,11 +3,85 @@
+ 
+ import { fileURLToPath } from "url";
+ 
+-export function main(args) {
++/**
++ * Log an informational message.
++ * @param {string} message
++ */
++function logInfo(message) {
++  console.log(message);
++}
++
++/**
++ * Fetches Wikipedia summary for the given page title,
++ * transforms key fields into triples, and logs each triple.
++ * @param {string} pageTitle
++ */
++export async function crawlWikipedia(pageTitle) {
++  const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(pageTitle)}`;
++  let response;
++  try {
++    response = await fetch(url);
++  } catch (err) {
++    console.error(`Error fetching ${pageTitle}: ${err}`);
++    return;
++  }
++  if (!response.ok) {
++    console.error(`Error fetching ${pageTitle}: ${response.status}`);
++    return;
++  }
++  const data = await response.json();
++  const { title, description, infobox } = data;
++  if (title !== undefined) {
++    logInfo(JSON.stringify({ subject: pageTitle, predicate: "title", object: title }));
++  }
++  if (description !== undefined) {
++    logInfo(JSON.stringify({ subject: pageTitle, predicate: "description", object: description }));
++  }
++  if (infobox && typeof infobox === "object") {
++    for (const [key, value] of Object.entries(infobox)) {
++      logInfo(JSON.stringify({ subject: pageTitle, predicate: key, object: value }));
++    }
++  }
++}
++
++/**
++ * Generate CLI usage instructions.
++ * @returns {string}
++ */
++function generateUsage() {
++  return `
++Usage:
++  --help                         Show this help message.
++  --crawl-wikipedia PAGE_TITLE   Fetch Wikipedia summary and log triples
++`;
++}
++
++/**
++ * Main entrypoint for sandbox CLI.
++ * @param {string[]} args
++ */
++export async function main(args = process.argv.slice(2)) {
++  if (args.includes("--help")) {
++    console.log(generateUsage());
++    return;
++  }
++  const crawlIndex = args.indexOf("--crawl-wikipedia");
++  if (crawlIndex !== -1) {
++    const pageTitle = args[crawlIndex + 1];
++    if (!pageTitle) {
++      console.error("Missing page title for --crawl-wikipedia");
++      process.exit(1);
++    }
++    await crawlWikipedia(pageTitle);
++    return;
++  }
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
++// If this script is invoked directly, run main()
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  const args = process.argv.slice(2);
+-  main(args);
++  main().catch((err) => {
++    console.error(`Fatal error: ${err}`);
++    process.exit(1);
++  });
+ }
+diff --git a/sandbox/tests/main.test.js b/sandbox/tests/main.test.js
+index 04c527ce..1b3becdf 100644
+--- a/sandbox/tests/main.test.js
++++ b/sandbox/tests/main.test.js
+@@ -1,9 +1,8 @@
+-import { describe, test } from "vitest";
+-import { main } from "@sandbox/source/main.js";
++import { describe, test, expect } from "vitest";
++import { main } from "../source/main.js";
+ 
+ describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "sandbox/source/main.js"];
+-    main();
++  test("should terminate without error", async () => {
++    await main([]);
+   });
+ });\n\n// New [sandbox/docs/CRAWL_WIKIPEDIA.md]:\n# Crawl Wikipedia
+
+This CLI command fetches a summary of a Wikipedia page and logs subject–predicate–object triples for key fields.
+
+## Usage
+
+```bash
+npm run sandbox -- --crawl-wikipedia PAGE_TITLE
+```
+
+## Example
+
+```bash
+npm run sandbox -- --crawl-wikipedia Node_js
+```
+
+### Sample Output
+
+```json
+{"subject":"Node_js","predicate":"title","object":"Node_js"}
+{"subject":"Node_js","predicate":"description","object":"JS runtime"}
+{"subject":"Node_js","predicate":"designed_by","object":"Ryan Dahl"}
+```\n\n// New [sandbox/tests/crawl-wikipedia.test.js]:\nimport { describe, test, expect, vi } from "vitest";
+import { crawlWikipedia } from "../source/main.js";
+
+describe("crawlWikipedia", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("fetches and logs triples for given page", async () => {
+    const fakeData = { title: "Node_js", description: "JS runtime", infobox: { designed_by: "Ryan Dahl" } };
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(fakeData),
+    });
+    const logs = [];
+    const originalLog = console.log;
+    console.log = (msg) => logs.push(msg);
+
+    await crawlWikipedia("Node_js");
+
+    expect(global.fetch).toHaveBeenCalledWith("https://en.wikipedia.org/api/rest_v1/page/summary/Node_js");
+    expect(logs).toContain(JSON.stringify({ subject: "Node_js", predicate: "title", object: "Node_js" }));
+    expect(logs).toContain(JSON.stringify({ subject: "Node_js", predicate: "description", object: "JS runtime" }));
+    expect(logs).toContain(JSON.stringify({ subject: "Node_js", predicate: "designed_by", object: "Ryan Dahl" }));
+
+    console.log = originalLog;
+  });
+});
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/agentic-lib@6.9.4-0 sandbox
+> node sandbox/source/main.js
+
+Run with: []
+```
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1630 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":14521,"completion_tokens":4713,"total_tokens":19234,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3200,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
