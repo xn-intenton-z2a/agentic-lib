@@ -229,4 +229,82 @@ LLM API Usage:
 {"prompt_tokens":7006,"completion_tokens":2001,"total_tokens":9007,"prompt_tokens_details":{"cached_tokens":1280,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1536,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to enhanced Issue at 2025-05-25T22:04:24.712Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+Title: Implement `--crawl` CLI command to fetch and normalize public JSON data
+
+Description:
+Extend the sandbox CLI by adding a new `--crawl <URL>` command that fetches JSON from a public endpoint, normalizes each object into graph nodes, and writes each node as a JSON string on its own line to stdout. This feature accelerates knowledge graph ingestion by providing a zero-code interface for retrieving and previewing structured data.
+
+Testable Acceptance Criteria:
+1. CLI Recognition
+   - GIVEN the user runs `node sandbox/source/main.js --crawl https://example.com/data.json`
+   - WHEN the `--crawl` flag and a valid URL are provided
+   - THEN the CLI invokes the crawl handler and does not display the default usage message
+
+2. HTTP Fetch with Retry
+   - GIVEN the endpoint temporarily fails with a network error
+   - WHEN `fetch` fails up to 2 times before succeeding on the third attempt
+   - THEN the command retries up to 3 attempts with exponential backoff (100ms, 200ms, 400ms)
+
+3. Successful JSON Response Normalization
+   - GIVEN the endpoint returns HTTP 200 and a JSON array of objects
+   - WHEN the response is valid JSON
+   - THEN each object is processed to:
+     • Convert all keys to lowercase
+     • Trim whitespace from string values
+   - AND each normalized object is output as one JSON string per line to stdout
+
+4. HTTP Error Handling
+   - GIVEN the endpoint returns a non-2xx status (e.g., 404)
+   - WHEN the response status is outside the 200–299 range
+   - THEN an error is logged via `logError` with details
+   - AND the process exits with code `1` without printing nodes
+
+5. Invalid JSON Handling
+   - GIVEN the endpoint returns a malformed JSON payload
+   - WHEN JSON parsing throws an error
+   - THEN an error is logged via `logError` with parse error details
+   - AND the process exits with code `1` without printing nodes
+
+Implementation Steps:
+- Add `node-fetch@^3.0.0` to `package.json` dependencies.
+- In `sandbox/source/main.js`, detect the `--crawl` flag and URL argument.
+- Implement fetch logic with retry and exponential backoff.
+- Use `logError` for error reporting and `process.exit(1)` on failures.
+- Normalize JSON object keys and values as specified.
+- Write each normalized object to stdout.
+
+Unit Tests (`sandbox/tests/crawl.test.js`):
+- Mock `fetch` for a successful JSON array response and verify output normalization.
+- Mock `fetch` to return HTTP 404 and assert exit code `1` and error log.
+- Mock `fetch` to return invalid JSON and assert exit code `1` and error log.
+- Mock transient network errors to verify retry behavior.
+
+Documentation Updates:
+- Update `sandbox/README.md` under "Usage" with:
+  ```bash
+  node sandbox/source/main.js --crawl <URL>
+  ```
+  - Describe output format (one JSON node per line).
+  - Describe failure modes and exit codes.
+- Optionally reference the feature spec in `sandbox/features/CRAWL_PUBLIC_DATA.md`.
+
+Verification:
+- Run `npm install && npm test` to ensure all tests pass.
+- Manually verify:
+  ```bash
+  node sandbox/source/main.js --crawl https://api.example.com/data.json
+  ```
+  outputs normalized JSON nodes to stdout.
+
+LLM API Usage:
+```json
+{"prompt_tokens":7583,"completion_tokens":1005,"total_tokens":8588,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":192,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
