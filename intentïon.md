@@ -275,4 +275,49 @@ LLM API Usage:
 {"prompt_tokens":7684,"completion_tokens":1650,"total_tokens":9334,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":960,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to enhanced Issue at 2025-05-25T18:44:00.128Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+Title: Implement DATA_CRAWLER CLI to Fetch and Output JSON
+
+Description:
+Add a new `--crawl <url>` flag to the sandbox CLI (`sandbox/source/main.js`) to fetch public JSON data and print it to stdout. This will form the foundation of our DATA_CRAWLER feature for ingesting public data sources into our knowledge graph.
+
+Acceptance Criteria:
+1. CLI Behavior:
+   - When invoked as `node sandbox/source/main.js --crawl https://example.com/data`:
+     a. The global `fetch` API is called exactly once with the specified URL.
+     b. If the HTTP response has a valid JSON body, it is parsed and `console.log(JSON.stringify(parsedBody))` is called.
+     c. The process completes with exit code `0` (or does not explicitly exit with non-zero).
+2. Error Handling:
+   a. Network Errors:
+      - If `fetch` rejects (e.g., network failure), catch the error and call `console.error(JSON.stringify({ error: 'FetchError', message: error.message, url: <url> }))`.
+      - Exit with a non-zero code (e.g., `process.exit(1)`).
+   b. JSON Parse Errors:
+      - If `response.json()` rejects (invalid JSON), catch the error and call `console.error(JSON.stringify({ error: 'JSONParseError', message: error.message, url: <url> }))`.
+      - Exit with a non-zero code.
+3. Unit Tests (`sandbox/tests/main.test.js`):
+   - Mock the global `fetch`:
+     • Test successful fetch scenario: mock `fetch` to resolve with an object whose `json()` returns a dummy payload. Assert that `console.log` was called with the correct JSON string and that the process did not exit with an error.
+     • Test fetch rejection: mock `fetch` to reject with an Error. Assert that `console.error` was called with a JSON string containing `error: 'FetchError'` and that `process.exit` was called with a non-zero code.
+     • Test invalid JSON: mock `fetch` to resolve but `response.json()` rejects. Assert that `console.error` was called with `error: 'JSONParseError'` and that `process.exit` was called with a non-zero code.
+4. Documentation (`sandbox/README.md`):
+   - Add a new section under **CLI Usage** for `--crawl <url>`.
+   - Provide an example invocation:
+     ```bash
+     node sandbox/source/main.js --crawl https://api.example.com/data
+     # Expected output: { "foo": "bar", "baz": 123 }
+     ```
+5. Verification:
+   - Running `npm test` passes all existing and new tests.
+   - Running `npm run sandbox -- --crawl <valid-url>` prints the fetched JSON or logs a JSON-formatted error and sets the correct exit code.
+
+LLM API Usage:
+```json
+{"prompt_tokens":6697,"completion_tokens":1440,"total_tokens":8137,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":768,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
