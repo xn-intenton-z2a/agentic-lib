@@ -162,4 +162,47 @@ LLM API Usage:
 {"prompt_tokens":6720,"completion_tokens":1862,"total_tokens":8582,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1344,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Maintain Feature at 2025-05-25T18:43:39.825Z
+
+Activity:
+
+Maintained feature HTTP_ENDPOINT with
+
+Feature spec:
+
+# HTTP Endpoint for Digest Ingestion
+
+# Objective & Scope
+Add an HTTP POST endpoint `/digest` powered by Express that accepts JSON payloads and invokes the existing digestLambdaHandler to simulate SQS events.
+
+# Value Proposition
+- Enables direct integration with HTTP clients, webhooks, and external services without AWS setup.
+- Simplifies local development and testing of the digest workflow.
+
+# Success Criteria & Requirements
+- New Express server in sandbox/source/main.js listens on `PORT` environment variable or defaults to 3000.
+- Implement `POST /digest` route that parses JSON body, calls `createSQSEventFromDigest`, then `digestLambdaHandler`.
+- Route returns a JSON object with `batchItemFailures` and `handler` information.
+- Invalid JSON bodies result in a 400 status with an error message logged using `logError`.
+- All incoming requests and errors are logged via `logInfo` and `logError`.
+
+# User Scenarios & Examples
+- Sending `POST /digest` with valid JSON `{ "key": "events/1.json", "value": "12345" }` returns HTTP 200 with expected response structure.
+- Sending malformed JSON triggers HTTP 400 with descriptive error payload.
+
+# Verification & Acceptance
+- Add integration tests in `sandbox/tests` using supertest to cover valid and invalid requests.
+- Ensure `npm test` passes with new tests and coverage metrics include the HTTP endpoint.
+
+
+Git diff:
+```diff
+
+```
+
+LLM API Usage:
+```json
+{"prompt_tokens":6254,"completion_tokens":1818,"total_tokens":8072,"prompt_tokens_details":{"cached_tokens":1152,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1472,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
