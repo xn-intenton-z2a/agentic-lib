@@ -361,3 +361,70 @@ LLM API Usage:
 ```
 ---
 
+## Maintain Feature at 2025-05-25T17:37:59.053Z
+
+Maintained feature AI_DIGEST_ENRICHMENT.
+
+Feature spec:
+
+# Objective
+
+Enhance the existing digestLambdaHandler to incorporate AI-based enrichment of each digest record by leveraging the OpenAI API. This feature will generate summaries or insights for incoming digest events and include them in the handler’s output.
+
+# Value Proposition
+
+- Provides actionable summaries and insights for digest events, reducing manual review effort.
+- Leverages the existing openai dependency without introducing new libraries.
+- Maintains backward compatibility: if enrichment fails or is disabled, the original digest handling remains unchanged.
+
+# Requirements & Success Criteria
+
+1. Import and initialize OpenAI client in src/lib/main.js:
+   - Read OPENAI_API_KEY from config.
+   - Create an OpenAIApi instance using the existing Configuration class.
+2. Extend digestLambdaHandler logic:
+   - Add a new CLI flag `--enrich` and/or environment variable `ENABLE_ENRICHMENT=true` to toggle enrichment.
+   - For each valid record in sqsEvent.Records:
+     - After parsing the digest body, send a prompt to OpenAI requesting a JSON response with fields `summary` and `insights` based on the digest payload.
+     - Parse the AI response as JSON and attach it under an `enrichment` property in the record log output.
+   - Include an array `enrichedRecords` in the returned object containing each record’s original data plus its enrichment.
+3. Automated Tests:
+   - In tests/unit/main.test.js, mock the OpenAI client to return a dummy JSON response.
+   - Write tests that invoke digestLambdaHandler with `ENABLE_ENRICHMENT=true` and assert that the returned object contains `enrichedRecords` with expected structure.
+   - Test that when enrichment is disabled (no flag and `ENABLE_ENRICHMENT` not set), `enrichedRecords` is absent and batchItemFailures behavior is unchanged.
+4. Documentation Updates:
+   - Update README.md to describe the new `--enrich` flag and `ENABLE_ENRICHMENT` environment variable.
+   - Provide example CLI invocation and sample enriched output JSON.
+   - Note failure and fallback behavior when AI calls fail or times out.
+
+# Dependencies & Constraints
+
+- Uses existing openai dependency and zod-based config.
+- Must conform to ESM module standards and Node 20 compatibility.
+- Enrichment logic should not introduce new runtime dependencies.
+
+# User Scenarios
+
+1. A developer runs: node src/lib/main.js --digest --enrich
+   - Receives both batchItemFailures and an array of summaries and insights for each digest record.
+2. A CI job triggers a digest replay with `ENABLE_ENRICHMENT=true` to validate AI-generated summaries in automated tests.
+
+# Verification & Acceptance
+
+- All existing tests and new enrichment tests pass under Vitest.
+- Manual test: enable enrichment, invoke digest CLI, and verify `enrichedRecords` field appears with valid summary and insights.
+- On enrichment errors, logs include error details but handler still returns batchItemFailures without blocking.
+
+Git diff:
+
+```diff
+
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":9003,"completion_tokens":4075,"total_tokens":13078,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3392,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
