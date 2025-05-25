@@ -99,4 +99,88 @@ LLM API Usage:
 
 ```
 
+---## Feature to Issue at 2025-05-25T19:29:12.769Z
+
+Activity:
+
+Generated issue 1626 for feature "chat-endpoint" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1626
+
+title:
+
+Add POST /chat endpoint for OpenAI chat completions
+
+And description:
+
+Implement the Chat Endpoint feature to the existing Express HTTP server (as defined in sandbox/features/CHAT_ENDPOINT.md). This issue will add a new `POST /chat` route that accepts user prompts, invokes the OpenAI Chat Completion API, and returns the AI-generated response. The LLM should update source files, tests, README, and ensure the feature works end-to-end without manual steps.
+
+1. Source Updates (src/lib/server.js or wherever the HTTP server is defined):
+   - Import and configure OpenAI client:
+     ```js
+     import { Configuration, OpenAIApi } from 'openai';
+     import { z } from 'zod';
+     import { config } from './main.js';
+     ```
+   - Define a Zod schema:
+     ```js
+     const chatSchema = z.object({ prompt: z.string(), model: z.string().optional() });
+     ```
+   - Register `POST /chat` route:
+     ```js
+     app.post('/chat', async (req, res) => {
+       const result = chatSchema.safeParse(req.body);
+       if (!result.success) {
+         return res.status(400).json({ error: 'Invalid payload', details: result.error.errors });
+       }
+       const {prompt, model} = result.data;
+       try {
+         const client = new OpenAIApi(new Configuration({ apiKey: config.OPENAI_API_KEY }));
+         const completion = await client.createChatCompletion({ model: model || 'gpt-3.5-turbo', messages: [{ role: 'user', content: prompt }] });
+         const responseText = completion.data.choices[0].message.content;
+         return res.status(200).json({ response: responseText });
+       } catch (err) {
+         return res.status(502).json({ error: err.message || 'OpenAI API error' });
+       }
+     });
+     ```
+
+2. Tests (sandbox/tests/chat-endpoint.test.js):
+   - Use supertest to spin up the server and test:
+     a. **Valid request** returns 200 with `{ response: string }` (mock OpenAIApi to return a known message).
+     b. **Payload validation error** returns 400 with error details.
+     c. **OpenAI API error** returns 502 (mock `createChatCompletion` to throw).
+
+3. Documentation (sandbox/README.md):
+   - Under **HTTP Endpoints**, add a **Chat** section:
+     ```md
+     ### POST /chat
+     Accepts:
+     ```json
+     { "prompt": "Your prompt here", "model": "gpt-3.5-turbo" }
+     ```
+     Responses:
+     - `200 OK` – `{ "response": "AI-generated text" }`
+     - `400 Bad Request` – `{ "error": "Invalid payload", "details": [...] }`
+     - `502 Bad Gateway` – `{ "error": "OpenAI API error message" }`
+
+     **Example:**
+     ```bash
+     curl -X POST http://localhost:3000/chat \
+       -H 'Content-Type: application/json' \
+       -d '{"prompt":"Hello!","model":"gpt-3.5-turbo"}'
+     ```
+     ```json
+     { "response": "Hi there! How can I help you?" }
+     ```
+     ```
+
+4. Dependencies:
+   - Confirm `openai`, `express`, and `zod` are in `package.json` (already present).
+
+**Verification:** Run `npm test` and ensure all tests pass. Manually verify with `curl` that the endpoint returns the expected responses.
+
+LLM API Usage:
+```json
+{"prompt_tokens":7226,"completion_tokens":3368,"total_tokens":10594,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2496,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
