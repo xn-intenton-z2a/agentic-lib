@@ -768,4 +768,177 @@ LLM API Usage:
 {"prompt_tokens":13341,"completion_tokens":8416,"total_tokens":21757,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":5504,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Fixed Code at 2025-05-25T22:08:49.685Z
+
+Activity:
+
+fixApplied: true with Implement --crawl CLI command with retry and normalization in sandboxsourcemain.js and outcome 
+
+Git Diff:
+```diff
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index b51289db..3d32559a 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -1,65 +1,86 @@
+-#!/usr/bin/env node
+ // sandbox/source/main.js
+ 
+-import { fileURLToPath } from "url";
+-import nodeFetch from "node-fetch";
+-
+-const fetch = globalThis.fetch ?? nodeFetch;
+-
+-async function crawlUrl(url) {
+-  const maxRetries = 3;
+-  let attempt = 0;
+-  let lastError;
+-  while (attempt < maxRetries) {
++/**
++ * CLI entry point for sandbox features, including crawl functionality.
++ * @param {string[]} rawArgs - Command-line arguments (excluding node and script path).
++ */
++export async function main(rawArgs = process.argv.slice(2)) {
++  const args = rawArgs;
++  if (args[0] === '--crawl') {
++    const url = args[1];
++    if (!url) {
++      console.error('No URL provided for --crawl');
++      throw new Error('No URL provided');
++    }
+     try {
+-      const response = await fetch(url);
+-      if (!response.ok) {
+-        console.error(`[Error] HTTP error fetching ${url}: ${response.status} ${response.statusText}`);
+-        process.exit(1);
+-      }
+-      const text = await response.text();
+-      let data;
++      const response = await fetchWithRetry(url);
++      let json;
+       try {
+-        data = JSON.parse(text);
+-      } catch (e) {
+-        console.error(`[Error] Invalid JSON response from ${url}: ${e.message}`);
+-        process.exit(1);
++        json = await response.json();
++      } catch (err) {
++        console.error(`Failed to parse JSON: ${err.message}`);
++        throw err;
+       }
+-      const items = Array.isArray(data) ? data : [data];
+-      for (const item of items) {
++      if (!Array.isArray(json)) {
++        console.error(`Expected JSON array but received ${typeof json}`);
++        throw new Error('Invalid JSON type');
++      }
++      for (const obj of json) {
+         const normalized = {};
+-        Object.entries(item).forEach(([key, value]) => {
++        for (const [key, value] of Object.entries(obj)) {
+           const newKey = key.toLowerCase();
+-          const newValue = typeof value === "string" ? value.trim() : value;
++          let newValue = value;
++          if (typeof newValue === 'string') {
++            newValue = newValue.trim();
++          }
+           normalized[newKey] = newValue;
+-        });
++        }
+         console.log(JSON.stringify(normalized));
+       }
+-      return;
+     } catch (err) {
+-      lastError = err;
+-      attempt++;
+-      if (attempt < maxRetries) {
+-        const delay = 100 * 2 ** (attempt - 1);
+-        await new Promise((res) => setTimeout(res, delay));
+-      }
++      // Error already logged in fetch or parse
++      throw err;
+     }
+-  }
+-  console.error(`[Error] Failed to fetch ${url} after ${maxRetries} attempts: ${lastError.message}`);
+-  process.exit(1);
+-}
+-
+-async function main(args = process.argv.slice(2)) {
+-  if (args[0] === "--crawl" && args[1]) {
+-    await crawlUrl(args[1]);
+   } else {
+-    console.log(`Run with: ${JSON.stringify(args)}`);
++    // Default behavior: show usage
++    console.log('No command argument supplied.');
++    console.log();
++    console.log('Usage:');
++    console.log('  --help                     Show this help message and usage instructions.');
++    console.log('  --digest                   Run a full bucket replay simulating an SQS event.');
++    console.log('  --version                  Show version information with current timestamp.');
+   }
+ }
+ 
+-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  main().catch((err) => {
+-    console.error(`[Error] Fatal error: ${err.message}`);
+-    process.exit(1);
+-  });
+-}
++/**
++ * Fetch with retry and exponential backoff.
++ * @param {string} url - URL to fetch.
++ * @param {number} attempts - Number of attempts.
++ * @param {number} backoff - Initial backoff in ms.
++ * @returns {Promise<Response>} - Fetch response promise.
++ */
++async function fetchWithRetry(url, attempts = 3, backoff = 100) {
++  let lastError;
++  for (let attempt = 1; attempt <= attempts; attempt++) {
++    try {
++      // Use global.fetch if available (e.g., mocked in tests)
++      const fetchFn = typeof global.fetch === 'function'
++        ? global.fetch
++        : (await import('node-fetch')).default;
++      const response = await fetchFn(url);
++      if (!response.ok) {
++        throw new Error(`HTTP error ${response.status} on ${url}`);
++      }
++      return response;
++    } catch (err) {
++      lastError = err;
++      if (attempt < attempts) {
++        // Exponential backoff
++        const delay = backoff * Math.pow(2, attempt - 1);
++        await new Promise((resolve) => setTimeout(resolve, delay));
++      }
++    }
++  }
++  console.error(`Failed to fetch ${url}: ${lastError.message}`);
++  throw lastError;
++}
+\ No newline at end of file
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/agentic-lib@6.9.5-0 start
+> node src/lib/main.js
+
+{"level":"info","timestamp":"2025-05-25T22:08:24.999Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+```
+
+[allValidationStepsSuccessful: true]
+
+LLM API Usage:
+```json
+{"prompt_tokens":22855,"completion_tokens":3675,"total_tokens":26530,"prompt_tokens_details":{"cached_tokens":9472,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2624,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
