@@ -424,7 +424,7 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          mission: ${{ needs.generate-response.outputs.action }}
+          mission: ${{ inputs.mission || '' }}
           url: ${{ inputs.url || needs.agentic-lib.outputs.seedDiscussionUrl }}
           outcome: ${{ needs.seed-repository.outcome }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
@@ -453,10 +453,7 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            let activityLogContent = `## Seed repository activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n---\n\n`;
-            if (action == 'seed-repository') {
-              activityLogContent = `# Activity Log\n\n${activityLogContent}`;
-            }
+            const activityLogContent = `## Seed repository activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n---\n\n`;
             if (fs.existsSync(intentionFilepath)) {
               fs.appendFileSync(intentionFilepath, activityLogContent);
             } else {
