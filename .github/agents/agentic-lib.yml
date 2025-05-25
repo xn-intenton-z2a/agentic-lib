@@ -17,7 +17,7 @@ paths:
   featuresPath:
     path: 'sandbox/features/'
     permissions: [ 'write' ]
-    limit: 1
+    limit: 3
 
   # Filepaths for engineer workflows
   contributingFilepath:
