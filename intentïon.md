@@ -171,3 +171,58 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-25T04:42:45.414Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+Augment src/lib/main.js to add an HTTP API server using Express, with the following testable acceptance criteria:
+
+1. GET /health
+   - Returns HTTP 200.
+   - Response body is JSON: `{ "status": "ok", "uptime": <number> }`.
+   - `uptime` is a positive number that increases between repeated requests.
+
+2. POST /digest
+   - Accepts `application/json` payload matching the digest schema (`key`, `value`, `lastModified`).
+   - Wraps payload via `createSQSEventFromDigest(payload)` and calls `await digestLambdaHandler(event)`.
+   - Returns HTTP 200 and JSON: `{ "batchItemFailures": [ ... ] }` where the array matches the handler output.
+   - For invalid JSON body, returns HTTP 400 with `{ "error": "Invalid JSON payload" }`.
+   - For internal errors, returns HTTP 500 with `{ "error": <error message> }`.
+
+3. Port configuration
+   - Server listens on `process.env.DIGEST_SERVER_PORT` or default 3000.
+   - On startup, logs a message indicating the listening port.
+
+4. ESM compatibility & logging
+   - Uses ESM `import express from 'express'`.
+   - Retains existing `logInfo` and `logError` behavior for requests and errors.
+
+5. Automated tests
+   - Add Vitest+Supertest tests in `tests/unit/http_api_server.test.js`:
+     • Validate GET /health response code and JSON shape.
+     • Validate POST /digest with a valid payload returns a successful `batchItemFailures` array (mock `digestLambdaHandler`).
+     • Validate POST /digest with invalid JSON returns HTTP 400.
+     • Validate server starts on custom port from `DIGEST_SERVER_PORT`.
+
+6. Documentation
+   - Update `sandbox/README.md` with a new **API** section:
+     • Describe endpoints, request/response examples, and environment variable.
+     • Include example `curl` commands for both endpoints.
+
+Verification steps:
+- Run `npm test` to ensure all tests pass.
+- Start server with `DIGEST_SERVER_PORT=4000 npm start`, then:
+  ```bash
+  curl http://localhost:4000/health
+  curl -X POST http://localhost:4000/digest -H 'Content-Type: application/json' \
+    -d '{"key":"events/1.json","value":"12345","lastModified":"2025-01-01T00:00:00.000Z"}'
+  ```
+- Confirm responses meet the criteria above.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7597,"completion_tokens":1018,"total_tokens":8615,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":384,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
