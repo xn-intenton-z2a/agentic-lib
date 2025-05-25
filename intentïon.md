@@ -199,3 +199,49 @@ LLM API Usage:
 ```
 ---
 
+## Maintain Feature at 2025-05-25T18:13:09.813Z
+
+Maintained feature CRAWL_PUBLIC_DATA.
+
+Feature spec:
+
+# Objective & Scope
+Add a new CLI option --crawl to sandbox/source/main.js that retrieves data from a public API and incorporates it into the existing knowledge graph representation.
+
+# Value Proposition
+Provide a concrete demonstration of crawling a real-world public data source and show users how external data enriches the graph. Establish groundwork for scalable data ingestion from multiple APIs in future iterations.
+
+# Requirements
+- Add a dependency on node-fetch for HTTP requests.
+- Update sandbox/source/main.js to detect the --crawl flag and accept an entity name argument (for example --crawl Earth).
+- When --crawl is invoked:
+  - Construct a URL to fetch the Wikipedia summary for the given entity using the REST API endpoint.
+  - Perform an HTTP GET request and parse the JSON response to extract title, description, and page URL.
+  - Build a graph node for the entity with properties title, description, and url.
+  - Merge this new node into a sample graph containing at least two existing nodes and one edge.
+  - Output the combined graph as a JSON object with nodes and edges arrays.
+  - Exit immediately after output.
+- Write tests in sandbox/tests to mock fetch responses and verify that the resulting graph JSON contains the expected node and edge structures.
+
+# User Scenarios
+- A user runs node sandbox/source/main.js --crawl Earth and sees a JSON object listing nodes including Earth with its description and URL, and edges between Earth and sample nodes.
+- CI pipeline runs tests that simulate fetch of a known summary and assert the graph output matches the expected structure.
+
+# Verification & Acceptance
+- Automated tests confirm that when fetch returns a sample summary, the graph JSON includes a node with id matching the entity name and correct properties.
+- Tests verify the merge of crawled data into the existing sample graph without altering the original graph format.
+- Console output is valid JSON and the CLI process exits with no errors.
+
+Git diff:
+
+```diff
+
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6494,"completion_tokens":1206,"total_tokens":7700,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":768,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
