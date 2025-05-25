@@ -120,3 +120,76 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-25T02:20:47.536Z
+
+Generated issue 1606 for feature "health-endpoint" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1606
+
+title:
+
+Implement /health HTTP endpoint and --serve flag for sandbox CLI
+
+And description:
+
+## Summary
+
+Add a built-in health check HTTP endpoint to the sandbox CLI and a new `--serve` flag to start an Express server. This will allow operators and orchestration systems to verify that the process is alive without running CLI commands.
+
+## Changes to Apply
+
+### 1. sandbox/source/main.js
+- Install and import `express`.
+- Implement a helper `createHealthServer()` that:
+  - Reads `process.env.HEALTH_PORT` (default `3000`).
+  - Defines `GET /health` responding with JSON:
+    ```json
+    {
+      "status": "ok",
+      "uptime": <process.uptime() in seconds>,
+      "timestamp": "<new Date().toISOString()>"
+    }
+    ```
+- Update the CLI to handle a new `--serve` flag:
+  - If `--serve` is present, call `createHealthServer().listen(port)` and log a startup message.
+  - Exit after server shutdown is signaled (e.g., SIGINT).
+- Export `createHealthServer` (or the `app`) for testing.
+
+### 2. sandbox/tests/main.test.js
+- Install and import `supertest`.
+- Import `createHealthServer` (or the exported `app`) from `sandbox/source/main.js`.
+- Add a new `describe("Health Endpoint")` block:
+  - Spin up the app with `supertest(app)`.
+  - Test that `GET /health` returns HTTP 200, JSON content type, and an object with keys:
+    - `status` strictly equal to `'ok'`.
+    - `uptime` as a number greater than or equal to `0`.
+    - `timestamp` matching an ISO timestamp regex.
+
+### 3. sandbox/README.md
+- Add a section **Health Endpoint**:
+  - Explain the `--serve` flag:
+    ```bash
+    HEALTH_PORT=4000 node sandbox/source/main.js --serve
+    ```
+  - Show `curl http://localhost:4000/health` sample output.
+
+## Verification & Acceptance
+
+1. Run existing tests to ensure no regressions:  `npm test` should pass both unit and sandbox tests.
+2. New test suite under `sandbox/tests/main.test.js` must include the `/health` checks and pass.
+3. Manual Smoke Test:
+   ```bash
+   HEALTH_PORT=4001 node sandbox/source/main.js --serve
+   curl http://localhost:4001/health | jq .
+   # Expect: {
+   #   "status": "ok",
+   #   "uptime": <number>,
+   #   "timestamp": "<ISO string>"
+   # }
+   ```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6936,"completion_tokens":1801,"total_tokens":8737,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1152,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
