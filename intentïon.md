@@ -428,3 +428,113 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-25T17:39:53.204Z
+
+fixApplied: true
+
+Add --help and --version flags to sandbox CLI with tests and documentation
+
+Git Diff:
+
+```
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..7b710a0d 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -2,8 +2,21 @@
+ // sandbox/source/main.js
+ 
+ import { fileURLToPath } from "url";
++import pkg from "../../package.json" assert { type: "json" };
+ 
+-export function main(args) {
++const usage = `Usage:
++  --help       Show this help message and exit
++  --version    Show the sandbox version and exit`;
++
++export function main(args = process.argv.slice(2)) {
++  if (args.includes("--help")) {
++    console.log(usage);
++    return;
++  }
++  if (args.includes("--version")) {
++    console.log(pkg.version);
++    return;
++  }
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ \n\n// New [sandbox/README.md]:\n# Agentic-lib Sandbox CLI
+
+This sandbox CLI is inspired by the mission of Agentic-lib to power automated GitHub workflows. It provides basic command-line utilities for experimentation and sandbox testing.
+
+See [MISSION](./MISSION.md) for the mission statement. See [CONTRIBUTING](../CONTRIBUTING.md) for contribution guidelines. See [Agentic-lib on GitHub](https://github.com/xn-intenton-z2a/agentic-lib) for the main repository.
+
+## Commands
+
+  --help       Show this help message and exit  
+  --version    Show the sandbox version and exit  
+
+When neither flag is provided, the CLI will print the raw arguments passed.
+
+## Examples
+
+```bash
+# Display help
+node sandbox/source/main.js --help
+
+# Display version
+node sandbox/source/main.js --version
+
+# Pass arbitrary arguments
+node sandbox/source/main.js foo bar
+```\n\n// New [sandbox/tests/cli.test.js]:\nimport { describe, test, expect, vi } from "vitest";
+import { main } from "../source/main.js";
+
+describe("sandbox CLI", () => {
+  test("--help flag displays usage and exits", () => {
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    main(["--help"]);
+    expect(spy).toHaveBeenCalledWith(
+      `Usage:
+  --help       Show this help message and exit
+  --version    Show the sandbox version and exit`
+    );
+    spy.mockRestore();
+  });
+
+  test("--version flag displays version and exits", async () => {
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    main(["--version"]);
+    const { version } = await import("../../package.json", { assert: { type: "json" } });
+    expect(spy).toHaveBeenCalledWith(version);
+    spy.mockRestore();
+  });
+
+  test("no flags logs raw arguments", () => {
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    main(["foo", "bar"]);
+    expect(spy).toHaveBeenCalledWith('Run with: ["foo","bar"]');
+    spy.mockRestore();
+  });
+});
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.9.1-0 sandbox
+> node sandbox/source/main.js
+
+(node:2673) V8: file:///home/runner/work/agentic-lib/agentic-lib/sandbox/source/main.js:5 'assert' is deprecated in import statements and support will be removed in a future version; use 'with' instead
+(Use `node --trace-warnings ...` to show where the warning was created)
+Run with: []
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1615 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":13764,"completion_tokens":5163,"total_tokens":18927,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4160,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
