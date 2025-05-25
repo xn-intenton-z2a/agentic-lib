@@ -396,4 +396,71 @@ LLM API Usage:
 
 ```
 
+---## Feature to Issue at 2025-05-25T22:34:16.741Z
+
+Activity:
+
+Generated issue 1635 for feature "crawl-relations" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1635
+
+title:
+
+Implement --crawl-relations CLI flag to fetch Wikidata entity relations
+
+And description:
+
+## Overview
+Add a new CLI option `--crawl-relations` to retrieve structured relationship data for a real-world entity from the Wikidata API. This feature will extend our knowledge graph by fetching property claims and links between the target entity and related items.
+
+## Tasks
+
+1. **Dependency**
+   - Add `node-fetch` as an optional dependency in `package.json` for environments without global `fetch`.
+
+2. **Source Code Updates (`src/lib/main.js`)**
+   - Implement `processRelations(args)` to detect `--crawl-relations` and an entity name argument.
+   - Resolve the entity label to a Wikidata ID by querying the `https://www.wikidata.org/w/api.php?action=wbsearchentities&search={encodedLabel}&language=en&format=json` endpoint.
+   - Fetch property claims via `action=wbgetentities&ids={entityId}&props=claims&format=json`.
+   - Parse the JSON response to extract key relations (`instance of (P31)`, `located in (P131)`, `coordinates (P625)`, and any identifier properties linking to other items).
+   - Produce a single JSON output to stdout:
+     ```json
+     {
+       "entityId": "Q1234",
+       "relations": [
+         { "subjectId": "Q1234", "predicateId": "P31", "objectId": "Q5678" },
+         { "subjectId": "Q1234", "predicateId": "P625", "objectValue": { "latitude": 52.52, "longitude": 13.405 } },
+         …
+       ],
+       "retrievedAt": "2025-06-01T12:34:56.789Z"
+     }
+     ```
+   - On HTTP errors or unexpected payloads, call `logError` and exit with a non-zero code.
+
+3. **Integrate into Main CLI Flow**
+   - Call `processRelations(args)` in `main()` before the fallback help message, ensuring it returns early on success or error.
+
+4. **Unit Tests (`sandbox/tests/`)**
+   - Mock `fetch` to simulate:
+     - Successful entity search + claims response: verify correct triple extraction and output shape.
+     - HTTP error or invalid JSON: verify `logError` is called and process exits with non-zero code.
+   - Place tests in `sandbox/tests/crawl-relations.test.js`.
+
+5. **Documentation (`sandbox/README.md`)**
+   - Add a section for **`--crawl-relations`**:
+     - Describe purpose
+     - Show usage examples:
+       ```bash
+       node src/lib/main.js --crawl-relations Berlin
+       ```
+     - Show sample output format.
+
+## Verification & Acceptance
+- All new and existing tests pass (`npm test`).
+- Manual test: run `node src/lib/main.js --crawl-relations Berlin` and validate JSON output contains valid `entityId`, a non-empty `relations` array, and correct `retrievedAt` timestamp.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":8925,"completion_tokens":1744,"total_tokens":10669,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1024,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
