@@ -164,3 +164,77 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-25T02:01:07.454Z
+
+Generated issue 1603 for feature "http-api-server" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1603
+
+title:
+
+Implement HTTP API server with Express and --serve CLI flag
+
+And description:
+
+## Objective
+
+Implement the HTTP API server feature to allow external clients to POST digest payloads and retrieve service status and version in real time without using the CLI or AWS SQS.
+
+## Scope of Work
+
+1. **CLI Flag and Configuration**
+   - Add a new `--serve` flag to `src/lib/main.js` that starts an Express HTTP server.
+   - Allow configuring the listening port via an optional `--port <number>` flag or the `HTTP_PORT` environment variable (default to `3000`).
+   - Ensure the existing CLI behavior (`--help`, `--version`, `--digest`) remains unchanged when `--serve` is not supplied.
+
+2. **Express Server Implementation**
+   - Import and initialize Express in `src/lib/main.js`.
+   - Expose the following endpoints:
+     - `POST /digest` – Accepts JSON body matching the `createSQSEventFromDigest` payload, invokes `digestLambdaHandler`, and returns HTTP 200 with JSON `{ success: true }` or appropriate error status.
+     - `GET /health` – Returns HTTP 200 with JSON `{ status: "ok", uptime: <seconds> }`.
+     - `GET /version` – Returns HTTP 200 with JSON `{ version: <package version>, timestamp: <current ISO timestamp> }`.
+   - Support graceful shutdown on `SIGTERM` and `SIGINT`, closing the HTTP server and exiting the process.
+   - Export the Express `app` instance for testing.
+
+3. **Automated Tests**
+   - In `tests/unit/main.test.js`, add a new test suite using Supertest to verify:
+     - `GET /health` returns 200 and correct JSON shape.
+     - `GET /version` returns 200 and includes the current package version and a valid ISO timestamp.
+     - `POST /digest` with a sample digest invokes `digestLambdaHandler` and returns 200 with `{ success: true }`.
+   - Mock or spy on `digestLambdaHandler` to confirm it is called with the parsed payload.
+
+4. **Documentation Updates**
+   - Update `sandbox/README.md` to include:
+     - Usage of the new `--serve` and `--port` CLI flags.
+     - Examples for HTTP requests:
+       ```bash
+       node src/lib/main.js --serve --port 4000
+       curl -X POST http://localhost:4000/digest -H "Content-Type: application/json" -d '{ "key": "events/1.json", "value": "12345", "lastModified": "2025-01-01T00:00:00Z" }'
+       curl http://localhost:4000/health
+       curl http://localhost:4000/version
+       ```
+     - Description of the endpoint behaviors and expected responses.
+
+## Verification
+
+- Run `npm test` to ensure all existing tests pass and new server tests succeed.
+- Manually start the server:
+  ```bash
+  node src/lib/main.js --serve --port 3500
+  ```
+  - Verify `GET /health`, `GET /version`, and `POST /digest` with sample payloads.
+- Confirm graceful shutdown by sending `SIGINT` (Ctrl+C) or `SIGTERM` and ensuring the server exits cleanly.
+
+## Acceptance Criteria
+
+- The CLI `--serve` flag starts the HTTP API server on the configured port.
+- All three endpoints (`/digest`, `/health`, `/version`) respond correctly.
+- Graceful shutdown is implemented.
+- Tests cover endpoint functionality and handler invocation.
+- README is updated with usage examples.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7014,"completion_tokens":1733,"total_tokens":8747,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":896,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
