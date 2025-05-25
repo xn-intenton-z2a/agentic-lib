@@ -1104,11 +1104,11 @@ jobs:
         env:
           updateApplied: ${{ steps.update-readme.outputs.updateApplied }}
           message: ${{ steps.update-readme.outputs.message }}
-          installAfterUpdateOutcome: ${{ steps.install-after-update.result }}
-          ciAfterUpdateOutcome: ${{ steps.ci-after-update.result }}
-          testAfterUpdateOutcome: ${{ steps.test-after-update.result }}
-          mainAfterUpdateOutcome: ${{ steps.main-after-update.result }}
-          commitOutcome: ${{ steps.commit.result }}
+          installAfterUpdateOutcome: ${{ steps.install-after-update.outcome }}
+          ciAfterUpdateOutcome: ${{ steps.ci-after-update.outcome }}
+          testAfterUpdateOutcome: ${{ steps.test-after-update.outcome }}
+          mainAfterUpdateOutcome: ${{ steps.main-after-update.outcome }}
+          commitOutcome: ${{ steps.commit.outcome }}
         with:
           script: |
             const updateApplied = process.env.updateApplied;
