@@ -337,4 +337,50 @@ LLM API Usage:
 {"prompt_tokens":8396,"completion_tokens":1373,"total_tokens":9769,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":768,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to enhanced Issue at 2025-05-25T22:33:56.552Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+Implement a new `--crawl <entityName>` CLI option in `src/lib/main.js` to fetch a structured summary of a real-world entity from the Wikipedia REST API. 
+
+Acceptance Criteria (Testable):
+1. **Success Path**
+   - Running `node src/lib/main.js --crawl Eiffel Tower` should:
+     - Invoke `fetch('https://en.wikipedia.org/api/rest_v1/page/summary/Eiffel%20Tower')`.
+     - Parse the JSON response and output to stdout a single JSON object containing exactly these keys:
+       - `title` (string) – non-empty.
+       - `extract` (string) – non-empty summary text.
+       - `url` (string) – valid URL from `content_urls.desktop.page`.
+       - `retrievedAt` (string) – valid ISO timestamp within 5 seconds of the call time.
+     - Exit with code `0`.
+2. **Missing Entity Name**
+   - Running `node src/lib/main.js --crawl` (without `<entityName>`) should:
+     - Call `logError()` with a message indicating the missing entity argument.
+     - Exit the process with code `1`.
+3. **HTTP Error or Network Failure**
+   - When `fetch` returns a non-200 status or throws an error:
+     - `logError()` is invoked with a descriptive message and the original error.
+     - The process exits with code `1`.
+4. **Fetch Fallback**
+   - If `globalThis.fetch` is undefined (e.g., older Node versions), dynamically import `node-fetch` and assign it to `globalThis.fetch` before making the API call.
+   - Verify in tests that when `globalThis.fetch` is removed, the fallback correctly loads and succeeds.
+5. **Unit Tests**
+   - In `tests/unit/`: Mock `global.fetch` for:
+     a. A successful 200 response containing known values, asserting `console.log` output matches expected JSON fields.
+     b. A failed response (e.g., 404), asserting `logError` is called and `process.exit(1)` occurs.
+   - In `sandbox/tests/`: A smoke test that runs `sandbox/source/main.js --crawl "Test Entity"` and verifies no uncaught exceptions.
+6. **Documentation**
+   - Update `sandbox/README.md` to include a section for `--crawl <entityName>` with usage examples and sample output.
+   - Confirm `npm test` passes all new and existing tests.
+   - Confirm manual invocation `npm start -- --crawl Eiffel Tower` produces valid JSON output.
+
+These acceptance criteria ensure measurable user value by verifying the CLI extension integrates correctly with the Wikipedia API, handles errors gracefully, and is fully tested and documented.
+
+LLM API Usage:
+```json
+{"prompt_tokens":7987,"completion_tokens":1490,"total_tokens":9477,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":832,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
