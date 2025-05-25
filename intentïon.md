@@ -301,3 +301,231 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-25T02:36:07.880Z
+
+fixApplied: true
+
+Add Express-based HTTP server in sandbox with health metrics and digest endpoints CLI serve flag integration tests and README documentation
+
+Git Diff:
+
+```
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..7bcfe16e 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -1,12 +1,87 @@
+ #!/usr/bin/env node
+ // sandbox/source/main.js
+ 
+-import { fileURLToPath } from "url";
++import express from 'express';
++import { fileURLToPath } from 'url';
++import { createSQSEventFromDigest, digestLambdaHandler } from '../../src/lib/main.js';
+ 
+-export function main(args) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
++// Initialize global callCount
++if (typeof globalThis.callCount === 'undefined') {
++  globalThis.callCount = 0;
+ }
+ 
++/**
++ * Start an HTTP server with health, metrics, and digest endpoints.
++ * @param {{port?: number|string}} options
++ * @returns {import('http').Server}
++ */
++export async function startHttpServer({ port = process.env.HTTP_PORT || 3000 } = {}) {
++  port = Number(port) || 3000;
++  const app = express();
++  app.use(express.json());
++
++  // Health endpoint
++  app.get('/health', (req, res) => {
++    res.json({ status: 'ok', uptime: Math.floor(process.uptime()) });
++  });
++
++  // Metrics endpoint
++  app.get('/metrics', (req, res) => {
++    globalThis.callCount += 1;
++    res.json({ callCount: globalThis.callCount, uptime: Math.floor(process.uptime()) });
++  });
++
++  // Digest endpoint
++  app.post('/digest', async (req, res) => {
++    try {
++      const digest = req.body;
++      const event = createSQSEventFromDigest(digest);
++      const result = await digestLambdaHandler(event);
++      const failures = result.batchItemFailures.map(
++        (f) => (typeof f === 'string' ? f : f.itemIdentifier)
++      );
++      res.json({ batchItemFailures: failures });
++    } catch (err) {
++      res.status(500).json({ error: err.toString() });
++    }
++  });
++
++  // Start server
++  const server = app.listen(port, () => {
++    console.log(`Server listening on http://localhost:${port}`);
++  });
++
++  // Graceful shutdown
++  const shutdown = () => {
++    server.close(() => {
++      console.log('Server shut down gracefully');
++      process.exit(0);
++    });
++  };
++  process.on('SIGINT', shutdown);
++  process.on('SIGTERM', shutdown);
++
++  return server;
++}
++
++/**
++ * Main entry: prints args or starts server.
++ * @param {string[]} args
++ */
++export function main(args = process.argv.slice(2)) {
++  if (args.includes('--serve')) {
++    const portIndex = args.indexOf('--port');
++    const port = portIndex !== -1 ? args[portIndex + 1] : undefined;
++    startHttpServer({ port }).catch((err) => {
++      console.error(`Error starting server: ${err}`);
++      process.exit(1);
++    });
++  } else {
++    console.log(`Run with: ${JSON.stringify(args)}`);
++  }
++}
++
++// Execute if run directly
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   const args = process.argv.slice(2);
+   main(args);\n\n// New [sandbox/README.md]:\n# agentic-lib Sandbox
+
+This sandbox demonstrates the HTTP Server feature for health monitoring and digest processing, built on the core `agentic-lib` library.
+
+Links:
+- [MISSION](./MISSION.md)
+- [CONTRIBUTING](../CONTRIBUTING.md)
+- [LICENSE](../LICENSE.md)
+- [Repository](https://github.com/xn-intenton-z2a/agentic-lib)
+
+## Health Check Server
+
+The library includes a built-in HTTP server providing health, metrics, and digest endpoints for monitoring and integration.
+
+### Starting the Server
+
+Use the sandbox script:
+
+```bash
+# Default port (3000)
+npm run sandbox -- --serve
+
+# Custom port (e.g., 4000)
+npm run sandbox -- --serve --port 4000
+```
+
+Or directly with Node.js:
+
+```bash
+node sandbox/source/main.js --serve --port 4000
+```
+
+### Endpoints
+
+- GET /health
+
+```bash
+curl http://localhost:3000/health
+# => { "status": "ok", "uptime": 123 }
+```
+
+- GET /metrics
+
+```bash
+curl http://localhost:3000/metrics
+# => { "callCount": 5, "uptime": 123 }
+```
+
+- POST /digest
+
+```bash
+curl -X POST http://localhost:3000/digest \
+  -H "Content-Type: application/json" \
+  -d '{"key":"x","value":"y","lastModified":"2025-05-25T00:00:00Z"}'
+# => { "batchItemFailures": [] }
+```\n\n// New [sandbox/tests/httpServer.sandbox.test.js]:\nimport { describe, test, expect } from 'vitest';
+import request from 'supertest';
+import { startHttpServer } from '../source/main.js';
+
+describe('HTTP Server Integration (sandbox)', () => {
+  let server;
+  let port;
+
+  afterEach((done) => {
+    if (server && server.close) {
+      server.close(() => done());
+    } else {
+      done();
+    }
+  });
+
+  test('GET /health returns status ok and uptime', async () => {
+    server = await startHttpServer({ port: 0 });
+    port = server.address().port;
+    const res = await request(`http://localhost:${port}`).get('/health');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('status', 'ok');
+    expect(res.body).toHaveProperty('uptime');
+    expect(typeof res.body.uptime).toBe('number');
+  });
+
+  test('GET /metrics returns callCount and uptime', async () => {
+    server = await startHttpServer({ port: 0 });
+    port = server.address().port;
+    const res1 = await request(`http://localhost:${port}`).get('/metrics');
+    expect(res1.status).toBe(200);
+    expect(res1.body).toHaveProperty('callCount', 1);
+    expect(res1.body).toHaveProperty('uptime');
+    expect(typeof res1.body.uptime).toBe('number');
+  });
+
+  test('POST /digest returns empty failures for valid digest', async () => {
+    server = await startHttpServer({ port: 0 });
+    port = server.address().port;
+    const digest = { key: 'x', value: 'y', lastModified: new Date().toISOString() };
+    const res = await request(`http://localhost:${port}`)
+      .post('/digest')
+      .send(digest)
+      .set('Content-Type', 'application/json');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('batchItemFailures');
+    expect(Array.isArray(res.body.batchItemFailures)).toBe(true);
+    expect(res.body.batchItemFailures).toHaveLength(0);
+  });
+});
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.9.1-0 sandbox
+> node sandbox/source/main.js
+
+{"level":"info","timestamp":"2025-05-25T02:35:47.787Z","message":"Configuration loaded","config":{}}
+Run with: []
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1608 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":12611,"completion_tokens":4815,"total_tokens":17426,"prompt_tokens_details":{"cached_tokens":1536,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2880,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
