@@ -306,3 +306,63 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-25T18:13:48.604Z
+
+Generated issue 1618 for feature "generate-graph" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1618
+
+title:
+
+Integrate graphlib and implement sample graph JSON output for --graph option
+
+And description:
+
+## Objective
+
+Enhance the `--graph` CLI flag in `sandbox/source/main.js` to construct a sample knowledge graph using `graphlib` and output it in JSON format (nodes and edges arrays). Support both console output and file persistence.
+
+## Changes Required
+
+1. **Dependency**
+   - Update `package.json` to add `graphlib` (e.g., `"graphlib": "^2.1.8"`).
+
+2. **Source Code**
+   - In `sandbox/source/main.js`:
+     - Import `graphlib` and Node.js `fs/promises`.
+     - Parse `process.argv` for:
+       - `--graph` flag to trigger graph generation.
+       - Optional `--output-file <path>` argument following `--graph`.
+     - Construct a sample graph with at least three nodes (`"NodeA"`, `"NodeB"`, `"NodeC"`) and two edges (e.g., `NodeA -> NodeB`, `NodeB -> NodeC`).
+     - Serialize the graph to an object with `nodes` and `edges` arrays.
+     - If `--output-file` is provided, write the JSON to the specified path (create directories as needed). Otherwise, print JSON to `stdout`.
+     - Exit immediately after output (do not execute other CLI commands).
+
+3. **Tests**
+   - Extend `sandbox/tests/main.test.js` to cover:
+     - Running `node sandbox/source/main.js --graph` prints valid JSON to `stdout` containing `nodes` and `edges` arrays.
+     - Running `node sandbox/source/main.js --graph --output-file ./tmp/graph.json` creates the file with expected content.
+     - Cleanup any temporary files after tests.
+
+4. **Documentation**
+   - Update `sandbox/README.md` to document the new `--graph` and `--output-file` flags, usage examples, and expected JSON structure.
+
+## Verification & Acceptance
+
+- `npm test` passes with new sandbox tests.
+- `node sandbox/source/main.js --graph` outputs a JSON object:
+  ```json
+  {
+    "nodes": ["NodeA","NodeB","NodeC"],
+    "edges": [{"v":"NodeA","w":"NodeB"},{"v":"NodeB","w":"NodeC"}]
+  }
+  ```
+- `node sandbox/source/main.js --graph --output-file ./graph.json` creates `graph.json` with identical JSON.
+- CLI exits gracefully after graph output with exit code `0`.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":8428,"completion_tokens":1895,"total_tokens":10323,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1280,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
