@@ -307,4 +307,67 @@ LLM API Usage:
 {"prompt_tokens":7583,"completion_tokens":1005,"total_tokens":8588,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":192,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Feature to Issue at 2025-05-25T22:04:39.094Z
+
+Activity:
+
+Generated issue 1633 for feature "bulk-crawl" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1633
+
+title:
+
+Implement --crawl-file CLI flag for bulk crawling URLs from file
+
+And description:
+
+## Overview
+
+Extend the existing sandbox CLI to support a new `--crawl-file <FILE>` option that reads a list of URLs from a file and crawls each endpoint in batch, normalizing and streaming results to stdout.
+
+## Scope of Work
+
+1. **Parse new flag**
+   - In `sandbox/source/main.js`, detect `--crawl-file <filePath>` and handle it before the default behavior.
+
+2. **Read URL list**
+   - Use `import('fs/promises')` to asynchronously read the file.
+   - Split contents by line, ignore empty lines and lines starting with `#`.
+
+3. **Fetch with retry and backoff**
+   - For each URL, perform up to 3 HTTP GET attempts using the built-in `fetch` API.
+   - Implement exponential backoff between retries (e.g., 100ms, 200ms, 400ms).
+
+4. **Normalize and output nodes**
+   - Verify that the response is valid JSON; on parse errors, treat as failure.
+   - For each top-level object in the JSON (or the object itself if it’s not an array), normalize its keys to lowercase and trim string values.
+   - Add a `sourceUrl` property with the originating URL.
+   - Output each node as a JSON string to `stdout` prefixed by the source URL, e.g.:  
+     `<sourceUrl> \t <jsonNode>`
+
+5. **Error handling**
+   - If a fetch fails after all retries or JSON parsing fails, log a descriptive error to `stderr` including the URL.
+   - After processing all URLs, if any failures occurred, exit with a nonzero code.
+
+6. **Tests**
+   - Create or extend tests in `sandbox/tests/main.test.js` to cover:
+     - Valid file with multiple URLs returning well-formed JSON (mocking `fs.promises.readFile` and `global.fetch`).
+     - File not found or permission error.
+     - Single URL with invalid JSON.
+     - Mixed success and failure across multiple URLs.
+   - Use Vitest mocks for `fs/promises` and `fetch`, and assert correct stdout/stderr and exit codes.
+
+7. **Documentation & README**
+   - Update `sandbox/README.md` to document the new `--crawl-file` usage, example command, and expected output format.
+
+## Verification
+
+- Run `npm run sandbox -- --crawl-file urls.txt` with a test file to confirm:
+  - All nodes printed with `sourceUrl` prefix.
+  - Errors correctly printed to `stderr` and exit code is nonzero if any URL fails.
+- Execute `npm test` and ensure all new tests pass.
+
+LLM API Usage:
+```json
+{"prompt_tokens":7539,"completion_tokens":1667,"total_tokens":9206,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1024,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
