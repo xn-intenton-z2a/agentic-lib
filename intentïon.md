@@ -400,4 +400,67 @@ LLM API Usage:
 
 ```
 
+---## Feature to Issue at 2025-05-25T23:01:27.741Z
+
+Activity:
+
+Generated issue 1638 for feature "schema-extract" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1638
+
+title:
+
+Add `--extract-schema <url>` CLI flag to extract schema.org JSON-LD
+
+And description:
+
+**Objective**
+
+Introduce a new `--extract-schema <url>` command-line flag in `sandbox/source/main.js` that fetches a given web page’s HTML, extracts all embedded `<script type="application/ld+json">` blocks, parses them into JSON objects, and outputs them as a pretty-printed JSON array. If no JSON-LD tags are present, the CLI should print an empty array (`[]`). On network errors or invalid URLs, the CLI should print an error message to stderr and exit with code 1.
+
+**Scope of Changes**
+
+1. **sandbox/source/main.js**
+   - Detect the `--extract-schema` flag and ensure exactly one URL argument follows.
+   - Use the global `fetch` API to GET the HTML content of the URL.
+   - Scan the HTML string for all `<script type="application/ld+json">...</script>` blocks.
+   - Parse each JSON-LD block with `JSON.parse`. Collect parsed objects into an array.
+   - Print the resulting array to stdout with 2-space indentation via `JSON.stringify(array, null, 2)`.
+   - On fetch/network errors or invalid JSON, log an error JSON to stderr and exit with `process.exit(1)`.
+   - Ensure other CLI flags (`--help`, `--version`, `--digest`, `--crawl`) continue to function without disruption.
+
+2. **sandbox/tests/main.test.js**
+   - Add Vitest tests that mock `global.fetch` to simulate:
+     - A page containing multiple valid JSON-LD `<script>` tags; assert stdout is the correct JSON array.
+     - A page with no JSON-LD tags; assert stdout is `[]`.
+     - A fetch/network failure; assert stderr contains an error message and the process exits with code 1.
+   - Retain existing tests and ensure the new tests are added alongside them.
+
+3. **sandbox/README.md**
+   - Add a new section under Usage describing the `--extract-schema` flag, including:
+     ```shell
+     # Extract JSON-LD schema from a public web page
+     node sandbox/source/main.js --extract-schema https://example.com/page
+     ```
+   - Show example output for JSON-LD present and absent scenarios.
+
+4. **package.json**
+   - Add `cheerio` as a `devDependency` (e.g., `"cheerio": "^1.0.0-rc.12"`) to support HTML parsing in test mocks if needed.
+
+**Verification & Acceptance**
+
+- Run `npm test` and confirm all Vitest tests in `sandbox/tests/main.test.js` and existing sandbox tests pass.
+- Manually execute:
+  ```shell
+  node sandbox/source/main.js --extract-schema https://schema.org/docs/jsonldcontext.jsonld
+  ```
+  and verify it prints a JSON array of parsed objects.
+- Execute against a URL with no JSON-LD and verify output is `[]`.
+- Execute against an invalid URL and verify it prints an error and exits with code 1.
+
+No other files outside `sandbox/source/main.js`, `sandbox/tests/main.test.js`, `sandbox/README.md`, and `package.json` should be modified.
+
+LLM API Usage:
+```json
+{"prompt_tokens":9185,"completion_tokens":1071,"total_tokens":10256,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":320,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
