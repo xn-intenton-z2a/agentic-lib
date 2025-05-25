@@ -969,6 +969,12 @@ jobs:
             The detail can be blank if we are re-seeding without changing the mission or the mission statement or a 
             sentence describing the feature.
             
+            If the action is going to be "seed-repository" then disregard any current issues or features because these will be
+            deleted within a minutes or so. Also if the action is going to be "seed-repository" then the "Previous discussions
+            and comments" have only relevance to inform you from past solutions and mistakes. The current discussion post
+            will be used to rewrite the mission statement unless the mission detail if going to be an empty string in which
+            case the existing mission will be re-used.
+            
             Check the previous discussions and comments to contextualize the current discussion which you are responding to.
             Previous discussions and comments may contain context leading up to the current discussion post and even
             be a direct continuation assuming you have recent previous messages in your context.
