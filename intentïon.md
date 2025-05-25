@@ -160,4 +160,67 @@ LLM API Usage:
 {"prompt_tokens":7227,"completion_tokens":961,"total_tokens":8188,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":384,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Feature to Issue at 2025-05-25T19:00:57.273Z
+
+Activity:
+
+Generated issue 1623 for feature "fetch-osm" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1623
+
+title:
+
+Implement --fetch-osm CLI flag to fetch OpenStreetMap data via Overpass API
+
+And description:
+
+### Overview
+
+Introduce a new CLI flag `--fetch-osm <boundingBox>` in `src/lib/main.js` that queries OpenStreetMap data from the Overpass API and emits the JSON response. This enables users to bootstrap geographic nodes, ways, and relations in the knowledge graph directly from OSM.
+
+### Implementation Steps
+
+1. **Add `processFetchOsm` handler** in `src/lib/main.js` ahead of the existing help/version/digest/fetch-wikipedia handlers:
+   - Detect the `--fetch-osm` flag and retrieve the next argument as `boundingBox` in the format `minLon,minLat,maxLon,maxLat`.
+   - Validate that `boundingBox` is present and matches four comma-separated floats. On missing or invalid input, call `logError("Missing or invalid bounding box format")` and exit.
+   - Construct an Overpass QL query string, for example:
+     ```js
+     const [minLon, minLat, maxLon, maxLat] = boundingBox.split(",");
+     const query = `[out:json];(node(${minLat},${minLon},${maxLat},${maxLon});way(${minLat},${minLon},${maxLat},${maxLon});relation(${minLat},${minLon},${maxLat},${maxLon}););out body;>;out skel qt;`;
+     ```
+   - Perform a `fetch('https://overpass-api.de/api/interpreter', { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: query })`.
+   - If the HTTP response is not `ok`, call `logError` with a descriptive message and exit gracefully.
+   - Parse the JSON response and output via `console.log(JSON.stringify(responseData))`.
+   - Return `true` to indicate the flag was processed.
+
+2. **Add unit tests** in `tests/unit/fetchOsm.test.js`:
+   - Mock `global.fetch` to simulate a successful JSON response; verify:
+     - `fetch` is called with the correct URL, method, headers, and body.
+     - `console.log` is invoked with the JSON-stringified response.
+   - Simulate HTTP error (e.g., `response.ok === false`); verify:
+     - `logError` is called with an appropriate error message.
+   - Test missing or invalid `boundingBox` argument; verify:
+     - `logError` is invoked and processing stops.
+
+3. **Update CLI usage documentation** in `sandbox/README.md`:
+   - Add `--fetch-osm <minLon,minLat,maxLon,maxLat>` under the Usage section.
+   - Provide example invocations:
+     ```bash
+     # Fetch OSM data for central London
+     npm run sandbox -- --fetch-osm -0.128051,51.507351,-0.127000,51.508000
+     ```
+
+### Verification
+
+- Run `npm test` to ensure new tests in `tests/unit/fetchOsm.test.js` pass.
+- Manual validation:
+  ```bash
+  npm start -- --fetch-osm -0.128051,51.507351,-0.127000,51.508000
+  ```
+  Confirm that a valid JSON payload of OSM features is printed to stdout.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":9007,"completion_tokens":1801,"total_tokens":10808,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1024,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
