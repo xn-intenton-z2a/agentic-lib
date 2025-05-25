@@ -810,4 +810,177 @@ LLM API Usage:
 {"prompt_tokens":14763,"completion_tokens":6467,"total_tokens":21230,"prompt_tokens_details":{"cached_tokens":1536,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3968,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Fixed Code at 2025-05-25T22:37:52.857Z
+
+Activity:
+
+fixApplied: true with Implement --crawl CLI flag with proper fetch fallback and exit codes update sandbox documentation and outcome 
+
+Git Diff:
+```diff
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index 6241eb81..edceea02 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -1,58 +1,68 @@
+ #!/usr/bin/env node
+-// sandbox/source/main.js
++import dotenv from 'dotenv';
+ 
+-import { fileURLToPath } from "url";
++dotenv.config();
+ 
+-async function processCrawl(args) {
+-  const index = args.indexOf("--crawl");
+-  if (index !== -1) {
+-    const entityName = args[index + 1];
++/**
++ * Main entrypoint for sandbox CLI.
++ * @param {string[]} args CLI arguments (excluding node and script path)
++ */
++export async function main(args) {
++  if (!args || args.length === 0) {
++    console.log(
++      'No command argument supplied.\n\nUsage:\n  --crawl <entityName>   Fetch summary from Wikipedia REST API.\n  --help                 Show this help message and usage instructions.'
++    );
++    return;
++  }
++
++  const [command, ...rest] = args;
++  if (command === '--crawl') {
++    const entityName = rest[0];
+     if (!entityName) {
+-      console.error(JSON.stringify({ level: "error", message: "Missing entity name for --crawl" }));
++      console.error('Missing entity name for --crawl flag');
+       process.exit(1);
+     }
+-    // Polyfill fetch if not available
+-    if (typeof globalThis.fetch === "undefined") {
+-      try {
+-        const fetchModule = await import("node-fetch");
+-        globalThis.fetch = fetchModule.default;
+-      } catch (err) {
+-        console.error(JSON.stringify({ level: "error", message: "Failed to load fetch polyfill", error: err.toString() }));
+-        process.exit(1);
+-      }
+-    }
+-    const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(entityName)}`;
+     try {
+-      const response = await fetch(url);
++      // Fetch fallback for environments without global fetch
++      if (typeof globalThis.fetch !== 'function') {
++        const fetchModule = await import('node-fetch');
++        globalThis.fetch = fetchModule.default ?? fetchModule;
++      }
++      const apiUrl =
++        'https://en.wikipedia.org/api/rest_v1/page/summary/' +
++        encodeURIComponent(entityName);
++      const response = await fetch(apiUrl);
+       if (!response.ok) {
+-        const details = await response.text();
+-        console.error(JSON.stringify({ level: "error", message: `HTTP error ${response.status}`, details }));
++        console.error(
++          `HTTP error fetching summary for ${entityName}: ${response.status} ${response.statusText}`
++        );
+         process.exit(1);
+       }
+       const data = await response.json();
+-      const result = {
++      const output = {
+         title: data.title,
+         extract: data.extract,
+         url: data.content_urls.desktop.page,
+-        retrievedAt: new Date().toISOString(),
++        retrievedAt: new Date().toISOString()
+       };
+-      console.log(JSON.stringify(result));
++      console.log(JSON.stringify(output));
+       process.exit(0);
+     } catch (err) {
+-      console.error(JSON.stringify({ level: "error", message: "Network or fetch error", error: err.toString() }));
++      console.error(`Error fetching summary for ${entityName}: ${err.message}`);
+       process.exit(1);
+     }
++  } else if (command === '--help') {
++    console.log(
++      'Usage:\n  --crawl <entityName>   Fetch summary from Wikipedia REST API.\n  --help                 Show this help message and usage instructions.'
++    );
++    return;
++  } else {
++    console.error(`Unknown command: ${command}`);
++    process.exit(1);
+   }
+ }
+ 
+-export async function main(args = process.argv.slice(2)) {
+-  await processCrawl(args);
+-  console.log(`Run with: ${JSON.stringify(args)}`);
+-}
+-
+-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  main().catch((err) => {
+-    console.error(JSON.stringify({ level: "error", message: "Fatal error", error: err.toString() }));
+-    process.exit(1);
+-  });
++// If invoked directly, run the main function
++if (import.meta.url === `file://${process.argv[1]}`) {
++  main(process.argv.slice(2));
+ }\n\n// New [sandbox/README.md]:\n# Sandbox CLI
+
+This is a lightweight sandbox for testing the agentic-lib CLI commands.
+
+## CLI Usage
+
+### --crawl `<entityName>`
+
+Fetches a structured summary of a real-world entity from the Wikipedia REST API.
+
+**Example**
+
+```bash
+node sandbox/source/main.js --crawl "Eiffel Tower"
+```
+
+**Sample Output**
+
+```json
+{
+  "title": "Eiffel Tower",
+  "extract": "The Eiffel Tower is a wrought-iron lattice tower on the Champ de Mars in Paris, France.",
+  "url": "https://en.wikipedia.org/wiki/Eiffel_Tower",
+  "retrievedAt": "2025-05-26T12:34:56.789Z"
+}
+```
+
+### --help
+
+Show usage instructions:
+
+```bash
+node sandbox/source/main.js --help
+```
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/agentic-lib@6.9.6-0 start
+> node src/lib/main.js
+
+{"level":"info","timestamp":"2025-05-25T22:37:33.193Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+```
+
+[allValidationStepsSuccessful: true]
+
+LLM API Usage:
+```json
+{"prompt_tokens":20416,"completion_tokens":4531,"total_tokens":24947,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3456,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
