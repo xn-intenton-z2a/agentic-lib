@@ -309,4 +309,78 @@ LLM API Usage:
 
 ```
 
+---## Feature to Issue at 2025-05-25T20:20:12.913Z
+
+Activity:
+
+Generated issue 1631 for feature "crawl-openstreetmap" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1631
+
+title:
+
+Implement --crawl-osm CLI flag and Lambda handler for OpenStreetMap geospatial data crawling
+
+And description:
+
+Summary:
+
+Add support for a new CLI flag `--crawl-osm PLACE_NAME` and corresponding Lambda routing so that the tool fetches structured geospatial data from the OpenStreetMap Nominatim Search API, transforms key fields into subject–predicate–object triples, and logs each triple as a JSON entry via the existing `logInfo` utility.
+
+Scope of work:
+
+1. **src/lib/main.js**
+   - Create a helper `async function crawlOpenStreetMap(placeName)`:
+     - Use Node 20’s built-in `fetch` to GET `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(placeName)}`.
+     - Include a custom `User-Agent` header (e.g. `'agentic-lib-crawl-osm'`) to comply with Nominatim policy.
+     - Parse the JSON response, select the first result (if no results, log an error and return).
+     - Extract `display_name`, `lat`, `lon`, and `boundingbox` fields.
+     - For each field, build an object `{ subject: placeName, predicate: fieldName, object: fieldValue }` and call `logInfo(JSON.stringify(tripleObject))`.
+   - Implement `async function processCrawlOsm(args)`:
+     - Detect the `--crawl-osm` flag (support both `--crawl-osm=Name` and `--crawl-osm Name`).
+     - Extract `placeName` and invoke `await crawlOpenStreetMap(placeName)`.
+     - Return `true` when the flag is handled.
+   - In the main CLI entry (`export async function main(args)`), after `processDigest`, add:
+     ```js
+     if (await processCrawlOsm(args)) return;
+     ```
+   - In `digestLambdaHandler`, after parsing `digest`, detect records where `digest.type === 'crawlOpenStreetMap' && digest.name`:
+     ```js
+     await crawlOpenStreetMap(digest.name);
+     ```
+
+2. **Unit tests (tests/unit/main.test.js)**
+   - Mock `global.fetch` to return a sample JSON array:
+     ```js
+     [{ display_name: 'Test Place', lat: '1.23', lon: '4.56', boundingbox: ['1','2','3','4'] }]
+     ```
+   - Spy on `console.log` to capture `logInfo` output.
+   - Invoke `main(['--crawl-osm', 'TestPlace'])` (or `['--crawl-osm=TestPlace']`).
+   - Assert that `console.log` is called at least four times with valid JSON strings containing triples for:
+     - subject: 'TestPlace', predicate: 'display_name', object: 'Test Place'
+     - predicate: 'lat', object: '1.23'
+     - predicate: 'lon', object: '4.56'
+     - predicate: 'boundingbox', object: ['1','2','3','4']
+
+3. **Documentation (sandbox/README.md)**
+   - Add an entry under CLI Usage for the new flag:
+     ```
+     --crawl-osm PLACE_NAME   Fetch and log OpenStreetMap geospatial triples for a named place.
+     ```
+   - Provide a usage example:
+     ```bash
+     npm run start -- --crawl-osm Berlin
+     ```
+   - Show a sample output snippet of JSON log entries for the four triples.
+
+Verification:
+
+- `npm test` should pass all existing tests plus the new crawl-osm tests.
+- Manual CLI test: running `npm run start -- --crawl-osm Berlin` prints four structured JSON log entries.
+
+No new dependencies are required—use the built-in fetch API and existing `logInfo` utility.
+
+LLM API Usage:
+```json
+{"prompt_tokens":8897,"completion_tokens":3377,"total_tokens":12274,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2496,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
