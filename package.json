@@ -16,7 +16,8 @@
     "test": "vitest --run tests/unit/*.test.js sandbox/tests/*.test.js",
     "test:unit": "vitest --run --coverage tests/unit/*.test.js sandbox/tests/*.test.js",
     "sandbox": "node sandbox/source/main.js",
-    "start": "node src/lib/main.js"
+    "start": "node src/lib/main.js",
+    "serve": "node sandbox/source/main.js --serve"
   },
   "keywords": [],
   "author": "https://github.com/xn-intenton-z2a",
