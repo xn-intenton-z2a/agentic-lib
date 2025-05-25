@@ -323,4 +323,68 @@ LLM API Usage:
 {"prompt_tokens":7299,"completion_tokens":1346,"total_tokens":8645,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":576,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to enhanced Issue at 2025-05-25T23:01:20.778Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+Feature: Add --crawl <url> CLI Flag
+
+Objective:
+- Enable users to fetch data from any public HTTP endpoint via the sandbox CLI and inspect the response.
+
+Testable Acceptance Criteria:
+1. Flag Recognition:
+   - Given the CLI is invoked as `node sandbox/source/main.js --crawl <url>` with exactly one URL,
+     then the handler for --crawl must run and other flags (e.g., --help, --version, --digest) must be skipped.
+
+2. JSON Response Handling:
+   - Given `fetch(url)` returns { ok: true } and the response body is valid JSON,
+     when the CLI executes,
+     then it must pretty-print the parsed JSON with 2-space indentation to stdout
+     and exit with code 0.
+
+3. Plain Text Fallback:
+   - Given `fetch(url)` returns { ok: true } and the response body is non-JSON text,
+     when the CLI executes,
+     then it must print the raw text to stdout
+     and exit with code 0.
+
+4. HTTP Error Handling:
+   - Given `fetch(url)` returns { ok: false, status: <code> };
+     when the CLI executes,
+     then it must write an error message including the HTTP status code to stderr
+     and exit with code 1.
+
+5. Network Error Handling:
+   - Given `fetch(url)` throws an exception;
+     when the CLI executes,
+     then it must catch the error, write the error message to stderr
+     and exit with code 1.
+
+6. Compatibility:
+   - Invoking the CLI without any flags or with other flags should preserve existing behavior.
+
+Implementation Tasks:
+- sandbox/source/main.js: detect `--crawl` flag, perform fetch, handle cases above.
+- sandbox/tests/main.test.js: add a `describe('CLI --crawl flag', ...)` suite with Vitest tests,
+  stubbing global.fetch and spying on process.exit.
+- sandbox/README.md: document the new `--crawl <url>` flag with examples.
+
+Verification:
+- `npm test` must pass all existing and new tests.
+- Manual smoke tests:
+    • `npm run sandbox -- --crawl https://api.github.com/repos/nodejs/node`
+      → Pretty-printed JSON, exit code 0.
+    • `npm run sandbox -- --crawl https://example.com/robots.txt`
+      → Raw text, exit code 0.
+    • Invalid URL or network failure → Error message, exit code 1.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":8133,"completion_tokens":914,"total_tokens":9047,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":320,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
