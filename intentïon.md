@@ -253,3 +253,169 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-25T02:23:36.128Z
+
+fixApplied: true
+
+Add health endpoint and --serve flag to sandbox CLI with tests and documentation
+
+Git Diff:
+
+```
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..dc9ef2a7 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -2,12 +2,54 @@
+ // sandbox/source/main.js
+ 
+ import { fileURLToPath } from "url";
++import express from "express";
++
++/**
++ * Create and configure the health server.
++ * @returns {{ app: import('express').Express, port: number }}
++ */
++export function createHealthServer() {
++  const app = express();
++  const port = Number(process.env.HEALTH_PORT) || 3000;
++
++  app.get("/health", (_req, res) => {
++    res.json({
++      status: "ok",
++      uptime: process.uptime(),
++      timestamp: new Date().toISOString(),
++    });
++  });
++
++  return { app, port };
++}
++
++/**
++ * Main entrypoint for sandbox CLI.
++ * @param {string[]} args
++ */
++export async function main(args = process.argv.slice(2)) {
++  if (args.includes("--serve")) {
++    const { app, port } = createHealthServer();
++    const server = app.listen(port, () => {
++      console.log(`Health server listening on port ${port}`);
++    });
++    const shutdown = () => {
++      server.close(() => {
++        console.log("Health server shut down");
++        process.exit(0);
++      });
++    };
++    process.on("SIGINT", shutdown);
++    process.on("SIGTERM", shutdown);
++    return;
++  }
+ 
+-export function main(args) {
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  const args = process.argv.slice(2);
+-  main(args);
++  main().catch((err) => {
++    console.error("Error starting application", err);
++    process.exit(1);
++  });
+ }
+diff --git a/sandbox/tests/main.test.js b/sandbox/tests/main.test.js
+index 04c527ce..4819b934 100644
+--- a/sandbox/tests/main.test.js
++++ b/sandbox/tests/main.test.js
+@@ -1,9 +1,25 @@
+-import { describe, test } from "vitest";
+-import { main } from "@sandbox/source/main.js";
++import { describe, test, expect } from "vitest";
++import request from "supertest";
++import { main, createHealthServer } from "@sandbox/source/main.js";
+ 
+ describe("Main Output", () => {
+-  test("should terminate without error", () => {
++  test("should terminate without error", async () => {
+     process.argv = ["node", "sandbox/source/main.js"];
+-    main();
++    await main();
++  });
++});
++
++describe("Health Endpoint", () => {
++  const { app } = createHealthServer();
++
++  test("GET /health returns status 200 and correct JSON shape", async () => {
++    const res = await request(app).get("/health");
++    expect(res.status).toBe(200);
++    expect(res.headers["content-type"]).toMatch(/application\/json/);
++    expect(res.body).toHaveProperty("status", "ok");
++    expect(typeof res.body.uptime).toBe("number");
++    expect(res.body.uptime).toBeGreaterThanOrEqual(0);
++    expect(typeof res.body.timestamp).toBe("string");
++    expect(res.body.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+   });
+ });\n\n// New [sandbox/README.md]:\n# agentic-lib Sandbox CLI
+
+This is the sandbox CLI for the [agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) project.
+
+## Mission
+
+See [MISSION.md](./MISSION.md) for the project mission.
+
+## Contributing
+
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for contribution guidelines.
+
+## License
+
+See [LICENSE.md](../LICENSE.md) for license details.
+
+## Usage
+
+To run the sandbox CLI without serving HTTP:
+
+```bash
+node sandbox/source/main.js
+```
+
+## Health Endpoint
+
+You can start an HTTP server to expose a `/health` endpoint for liveness checks:
+
+```bash
+HEALTH_PORT=4000 node sandbox/source/main.js --serve
+```
+
+Once started, perform a health check:
+
+```bash
+curl http://localhost:4000/health
+# Expected JSON response:
+# {
+#   "status": "ok",
+#   "uptime": 12.34,
+#   "timestamp": "2025-05-25T02:30:00.000Z"
+# }
+```
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/agentic-lib@6.8.2-0 sandbox
+> node sandbox/source/main.js
+
+Run with: []
+
+```
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1606 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11636,"completion_tokens":4121,"total_tokens":15757,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2880,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
