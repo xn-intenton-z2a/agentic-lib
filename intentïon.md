@@ -320,4 +320,213 @@ LLM API Usage:
 {"prompt_tokens":6697,"completion_tokens":1440,"total_tokens":8137,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":768,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Code at 2025-05-25T18:46:17.240Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-1619 with message Implement --crawl flag in sandbox CLI with tests and documentation and outcome 
+
+Git Diff:
+```diff
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..fd8070f9 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -3,11 +3,40 @@
+ 
+ import { fileURLToPath } from "url";
+ 
+-export function main(args) {
++export async function main(args) {
++  const crawlIndex = args.indexOf("--crawl");
++  if (crawlIndex !== -1) {
++    const url = args[crawlIndex + 1];
++    if (!url) {
++      console.error(
++        JSON.stringify({ error: "FetchError", message: "No URL provided", url: null })
++      );
++      process.exit(1);
++    }
++    try {
++      const response = await fetch(url);
++      if (!response.ok) {
++        throw new Error(`HTTP error! status: ${response.status}`);
++      }
++      const data = await response.json();
++      console.log(JSON.stringify(data));
++    } catch (err) {
++      const errorType = err.name === "SyntaxError" ? "JSONParseError" : "FetchError";
++      console.error(
++        JSON.stringify({ error: errorType, message: err.message, url })
++      );
++      process.exit(1);
++    }
++    return;
++  }
++
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   const args = process.argv.slice(2);
+-  main(args);
++  main(args).catch((err) => {
++    console.error(JSON.stringify({ error: "FetchError", message: err.message, url: null }));
++    process.exit(1);
++  });
+ }
+diff --git a/sandbox/tests/main.test.js b/sandbox/tests/main.test.js
+index 04c527ce..7cb44ce6 100644
+--- a/sandbox/tests/main.test.js
++++ b/sandbox/tests/main.test.js
+@@ -1,4 +1,4 @@
+-import { describe, test } from "vitest";
++import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+ import { main } from "@sandbox/source/main.js";
+ 
+ describe("Main Output", () => {
+@@ -7,3 +7,73 @@ describe("Main Output", () => {
+     main();
+   });
+ });
++
++describe("--crawl flag", () => {
++  beforeEach(() => {
++    vi.restoreAllMocks();
++    delete global.fetch;
++  });
++
++  afterEach(() => {
++    vi.restoreAllMocks();
++    delete global.fetch;
++  });
++
++  test("successful fetch prints JSON", async () => {
++    const dummyData = { foo: "bar" };
++    global.fetch = vi.fn(() =>
++      Promise.resolve({
++        ok: true,
++        json: () => Promise.resolve(dummyData),
++      })
++    );
++    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
++    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {
++      throw new Error("process.exit");
++    });
++
++    await main(["--crawl", "https://example.com/data"]);
++
++    expect(global.fetch).toHaveBeenCalledWith("https://example.com/data");
++    expect(logSpy).toHaveBeenCalledWith(JSON.stringify(dummyData));
++    expect(errorSpy).not.toHaveBeenCalled();
++    expect(exitSpy).not.toHaveBeenCalled();
++  });
++
++  test("fetch error logs and exit", async () => {
++    const fetchError = new Error("network failure");
++    global.fetch = vi.fn(() => Promise.reject(fetchError));
++    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
++    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => {
++      throw new Error(`process.exit:${code}`);
++    });
++
++    await expect(main(["--crawl", "https://example.com/data"]))
++      .rejects.toThrow("process.exit:1");
++    expect(errorSpy).toHaveBeenCalledWith(
++      JSON.stringify({ error: "FetchError", message: fetchError.message, url: "https://example.com/data" })
++    );
++    expect(exitSpy).toHaveBeenCalledWith(1);
++  });
++
++  test("invalid JSON logs and exit", async () => {
++    global.fetch = vi.fn(() =>
++      Promise.resolve({
++        ok: true,
++        json: () => Promise.reject(new SyntaxError("invalid json")),
++      })
++    );
++    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
++    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => {
++      throw new Error(`process.exit:${code}`);
++    });
++
++    await expect(main(["--crawl", "https://example.com/data"]))
++      .rejects.toThrow("process.exit:1");
++    expect(errorSpy).toHaveBeenCalledWith(
++      JSON.stringify({ error: "JSONParseError", message: "invalid json", url: "https://example.com/data" })
++    );
++    expect(exitSpy).toHaveBeenCalledWith(1);
++  });
++});\n\n// New [sandbox/README.md]:\n# Agentic-lib Sandbox CLI
+
+This sandbox CLI enables fetching and printing JSON data from public APIs, forming the foundation for building a knowledge graph of the physical world by crawling public data sources.
+
+See [MISSION](./MISSION.md), [CONTRIBUTING](../CONTRIBUTING.md), and [LICENSE](../LICENSE.md) for more details.
+
+## CLI Usage
+
+Run the sandbox CLI:
+
+```bash
+npm run sandbox -- <options>
+```
+
+### Crawl Public Data
+
+Fetch and print JSON data from a public API endpoint.
+
+```bash
+npm run sandbox -- --crawl <URL>
+```
+
+**Example:**
+
+```bash
+npm run sandbox -- --crawl https://api.example.com/data
+```
+
+Expected output:
+
+```json
+{ "foo": "bar", "baz": 123 }
+```
+
+On error, logs a JSON-formatted error to stderr and exits with a non-zero code:
+
+```bash
+npm run sandbox -- --crawl invalid-url
+```
+
+```json
+{"error":"FetchError","message":"Only absolute URLs are supported","url":"invalid-url"}
+```
+
+### Other Commands
+
+(Existing commands remain supported.)
+
+- Display usage instructions:
+
+  ```bash
+  npm run sandbox -- --help
+  ```
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/agentic-lib@6.9.1-0 sandbox
+> node sandbox/source/main.js
+
+Run with: []
+```
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1619 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":12931,"completion_tokens":5327,"total_tokens":18258,"prompt_tokens_details":{"cached_tokens":1280,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3584,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
