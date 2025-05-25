@@ -228,4 +228,198 @@ LLM API Usage:
 {"prompt_tokens":7031,"completion_tokens":1487,"total_tokens":8518,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":576,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Code at 2025-05-25T23:50:15.715Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-1639 with message Implement --fetch CLI flag with URL validation metadata extraction tests and documentation and outcome success
+
+Git Diff:
+```diff
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..b1581056 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -2,12 +2,44 @@
+ // sandbox/source/main.js
+ 
+ import { fileURLToPath } from "url";
++import { z } from "zod";
+ 
+-export function main(args) {
++/**
++ * Main entrypoint for the sandbox CLI.
++ * Supports --fetch <url> to retrieve metadata from a public page.
++ */
++export async function main(args) {
++  if (args.includes("--fetch")) {
++    const idx = args.indexOf("--fetch");
++    const url = args[idx + 1];
++    try {
++      // Validate the URL using Zod
++      const validUrl = z.string().url().parse(url);
++      // Fetch the HTML content
++      const response = await fetch(validUrl);
++      const html = await response.text();
++      // Extract the <title>
++      const titleMatch = html.match(/<title>([^<]*)<\/title>/i);
++      const title = titleMatch ? titleMatch[1] : null;
++      // Extract the meta description
++      const descMatch = html.match(/<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i);
++      const description = descMatch ? descMatch[1] : null;
++      const output = { url: validUrl, title, description };
++      console.log(JSON.stringify(output));
++      return;
++    } catch (error) {
++      // Handle Zod validation errors and fetch/parsing errors
++      const errorMessage = error && error.message ? error.message : String(error);
++      console.error(JSON.stringify({ error: errorMessage }));
++      process.exit(1);
++    }
++  }
++  // Default behavior: echo the arguments
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
++// If this script is run directly, invoke main with CLI args
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   const args = process.argv.slice(2);
+-  main(args);
++  await main(args);
+ }
+diff --git a/sandbox/tests/main.test.js b/sandbox/tests/main.test.js
+index 04c527ce..d92bba92 100644
+--- a/sandbox/tests/main.test.js
++++ b/sandbox/tests/main.test.js
+@@ -1,9 +1,60 @@
+-import { describe, test } from "vitest";
++import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+ import { main } from "@sandbox/source/main.js";
+ 
+ describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "sandbox/source/main.js"];
+-    main();
++  test("should terminate without error", async () => {
++    await main([]);
++  });
++});
++
++describe("--fetch flag", () => {
++  let logSpy;
++  let errorSpy;
++  let exitSpy;
++
++  beforeEach(() => {
++    // Stub console output and process.exit
++    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
++    exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`process.exit:${code}`); });
++  });
++
++  afterEach(() => {
++    vi.restoreAllMocks();
++    delete global.fetch;
++  });
++
++  test("Successful Fetch", async () => {
++    const html = `<html><head><title>Example Domain</title><meta name="description" content="This domain is for examples."></head><body></body></html>`;
++    global.fetch = vi.fn().mockResolvedValue({ text: () => Promise.resolve(html) });
++    await main(["--fetch", "https://example.com/page"]);
++    expect(fetch).toHaveBeenCalledWith("https://example.com/page");
++    expect(logSpy).toHaveBeenCalledWith(JSON.stringify({
++      url: "https://example.com/page",
++      title: "Example Domain",
++      description: "This domain is for examples."
++    }));
++  });
++
++  test("Missing Description", async () => {
++    const html = `<html><head><title>No Desc</title></head><body></body></html>`;
++    global.fetch = vi.fn().mockResolvedValue({ text: () => Promise.resolve(html) });
++    await main(["--fetch", "https://no-desc.com"]);
++    expect(logSpy).toHaveBeenCalledWith(JSON.stringify({
++      url: "https://no-desc.com",
++      title: "No Desc",
++      description: null
++    }));
++  });
++
++  test("Network Error", async () => {
++    global.fetch = vi.fn().mockRejectedValue(new Error("Network failure"));
++    await expect(main(["--fetch", "https://bad.url"])).rejects.toThrow("process.exit:1");
++    expect(errorSpy).toHaveBeenCalledWith(JSON.stringify({ error: "Network failure" }));
++  });
++
++  test("Invalid URL", async () => {
++    await expect(main(["--fetch", "not-a-url"])).rejects.toThrow("process.exit:1");
++    expect(errorSpy).toHaveBeenCalled();
+   });
+ });\n\n// New [sandbox/README.md]:\n# agentic-lib Sandbox CLI
+
+This sandbox CLI is part of [agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib), a library powering automated GitHub workflows. It provides utilities for crawling public data sources and building a knowledge graph.
+
+## Mission
+
+Build a knowledge graph of the physical world by crawling public data sources. See [MISSION.md](MISSION.md)
+
+## Usage
+
+```bash
+node sandbox/source/main.js [options]
+```
+
+### Options
+
+```text
+--help           Show this help message and usage instructions.
+--fetch <url>    Fetch metadata from the specified URL and output JSON with `url`, `title`, and `description`.
+```
+
+### Example
+
+```bash
+node sandbox/source/main.js --fetch https://example.com/page
+# Outputs: {"url":"https://example.com/page","title":"Example Domain","description":"This domain is for use in illustrative examples..."}
+```
+
+## Contributing
+
+See [CONTRIBUTING.md](../CONTRIBUTING.md)
+
+## License
+
+Licensed under MIT/GPL-3.0. See [package.json](../package.json) for details.
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/agentic-lib@6.9.7-0 sandbox
+> node sandbox/source/main.js
+
+Run with: []
+```
+
+installAfterUpdateOutcome: 
+
+ciAfterUpdateOutcome: 
+
+testAfterUpdateOutcome: 
+
+mainAfterUpdateOutcome: 
+
+commitOutcome: 
+
+postResolutionCommentOutcome: 
+
+allValidationStepsSuccessful: false
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1639 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":11886,"completion_tokens":6140,"total_tokens":18026,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4480,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
