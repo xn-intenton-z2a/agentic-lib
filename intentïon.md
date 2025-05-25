@@ -135,4 +135,97 @@ LLM API Usage:
 {"prompt_tokens":6942,"completion_tokens":2009,"total_tokens":8951,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1344,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to enhanced Issue at 2025-05-25T23:48:36.723Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+**Title:** Implement `--fetch` CLI Flag for Metadata Extraction
+
+**Description:**
+Extend the sandbox CLI (`sandbox/source/main.js`) to support a new `--fetch <url>` flag that:
+
+1. Validates the provided URL using Zod (`z.string().url().parse(url)`).
+2. Uses the global `fetch` API to retrieve HTML from the URL.
+3. Parses the HTML to extract:
+   - The content of the `<title>` tag.
+   - The content attribute of `<meta name="description">`, if present.
+4. Constructs an output object:
+   ```json
+   {
+     "url": string,
+     "title": string | null,
+     "description": string | null
+   }
+   ```
+5. Logs the JSON object to `stdout` on success.
+6. On URL validation failure or network/parsing errors, logs a JSON error object to `stderr` and exits with a non-zero status code.
+
+**Acceptance Criteria (Testable):**
+
+- **AC1: Successful Fetch**
+  - Given a valid URL whose HTML contains both `<title>` and `<meta name="description">`, when running:
+    ```bash
+    npm run sandbox -- --fetch https://example.com/page
+    ```
+  - Then the CLI should write to `stdout` a single line JSON string matching:
+    ```json
+    {
+      "url": "https://example.com/page",
+      "title": "Example Domain",
+      "description": "This domain is for use in illustrative examples..."
+    }
+    ```
+  - And exit with status code `0`.
+
+- **AC2: Missing Description**
+  - Given a valid URL whose HTML has a `<title>` but no meta description,
+  - When running the same command,
+  - Then the output JSON should have `description: null`, and the rest of the fields populated correctly.
+
+- **AC3: Network Error**
+  - Given a URL fetch that rejects (e.g., network failure),
+  - When running the command,
+  - Then the CLI should write to `stderr` a JSON string like:
+    ```json
+    { "error": "<error message>" }
+    ```
+  - And exit with a non-zero status code.
+
+- **AC4: Invalid URL**
+  - Given an argument that fails Zod's `.url()` validation (e.g., `not-a-url`),
+  - When running:
+    ```bash
+    npm run sandbox -- --fetch not-a-url
+    ```
+  - Then the CLI should write to `stderr` a JSON validation error string and exit with non-zero status.
+
+**Testing Requirements:**
+- Use Vitest to add/extend sandbox tests in `sandbox/tests/main.test.js`:
+  1. Mock `global.fetch` to return controlled HTML strings or throw.
+  2. Spy on `console.log` and `console.error` to assert correct JSON output.
+  3. Simulate each acceptance scenario (AC1–AC4) with assertions on output and exit behavior.
+
+**Documentation Updates:**
+- In `sandbox/README.md`, under **Usage**, add:
+  ```markdown
+  --fetch <url>    Fetch metadata from the specified URL and output JSON with `url`, `title`, and `description`.
+  ```
+- Provide an example:
+  ```bash
+  node sandbox/source/main.js --fetch https://example.com/page
+  # Outputs: {"url":"https://example.com/page","title":"Example Domain","description":"This domain is for use in illustrative examples..."}
+  ```
+
+**Verification Steps:**
+1. Run `npm test` to ensure existing and new sandbox tests pass.
+2. Run `npm run sandbox -- --fetch <valid_url>` manually to confirm correct output.
+3. Test error and invalid-URL scenarios to verify graceful error handling.
+
+LLM API Usage:
+```json
+{"prompt_tokens":7031,"completion_tokens":1487,"total_tokens":8518,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":576,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
