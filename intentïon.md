@@ -223,4 +223,64 @@ LLM API Usage:
 {"prompt_tokens":9007,"completion_tokens":1801,"total_tokens":10808,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1024,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to enhanced Issue at 2025-05-25T19:01:03.086Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+## Objective
+
+Add a new `--fetch-wikipedia <topic>` CLI option in `src/lib/main.js` that:
+
+1. Fetches the summary of a given topic from the Wikipedia REST API at `https://en.wikipedia.org/api/rest_v1/page/summary/{topic}`.
+2. Emits the parsed JSON response via `console.log`.
+3. Handles missing arguments and HTTP errors by calling `logError` and exiting or returning gracefully.
+
+## Testable Acceptance Criteria
+
+1. **Successful fetch**: 
+   - Given `node src/lib/main.js --fetch-wikipedia Node.js`, `processFetchWikipedia` is invoked, `fetch` is called with the URL `https://en.wikipedia.org/api/rest_v1/page/summary/Node.js`, and `console.log` receives a stringified JSON object containing the summary.
+2. **Missing topic**: 
+   - Given `processFetchWikipedia(['--fetch-wikipedia'])` or `node src/lib/main.js --fetch-wikipedia` without a topic, the function calls `logError("Missing topic for --fetch-wikipedia flag")`, returns `true`, and no further network request is made.
+3. **HTTP error handling**: 
+   - Mock `fetch` to return `{ ok: false, status: 404, statusText: 'Not Found' }`. Assert that `logError` is called with a message containing `Error fetching Wikipedia summary: 404 Not Found` and the function returns `true`.
+4. **Flag bypass**: 
+   - Given arguments that do not include `--fetch-wikipedia`, `processFetchWikipedia` returns `false` and no logging or network requests occur.
+5. **Unit tests**:
+   - Tests in `tests/unit/fetchWikipedia.test.js` must cover success, missing topic, and HTTP failure scenarios using Vitest and mocking `global.fetch` and spy on `console.log` / `logError`.
+6. **Manual validation**:
+   - Running `node src/lib/main.js --fetch-wikipedia Earth` prints a valid Wikipedia summary JSON to stdout without errors.
+
+## Implementation Steps
+
+1. **`processFetchWikipedia`** in `src/lib/main.js`:
+   - Detect `--fetch-wikipedia` flag and read the next argument as `topic`.
+   - If missing, call `logError("Missing topic for --fetch-wikipedia flag")` and return `true`.
+   - Build URL with `encodeURIComponent(topic)`.
+   - Call `fetch(url)`; if `response.ok` is `false`, call `logError` with status and return `true`.
+   - Parse response JSON and `console.log(JSON.stringify(data))`.
+   - Return `true` to indicate the flag was handled, or `false` otherwise.
+2. **Integrate into `main()`**:
+   - After the digest handler, add:
+     ```js
+     if (await processFetchWikipedia(args)) return;
+     ```
+3. **Unit tests**:
+   - Create `tests/unit/fetchWikipedia.test.js` with Vitest to mock `global.fetch`, spy on `console.log` and `logError`.
+4. **Documentation**:
+   - Update `sandbox/README.md` under the Usage section with:
+     ```
+     --fetch-wikipedia <topic>   Fetch the summary of <topic> from Wikipedia and output JSON.
+     ```
+   - Provide an example:
+     ```
+     node src/lib/main.js --fetch-wikipedia "Node.js"
+     ```
+
+LLM API Usage:
+```json
+{"prompt_tokens":8285,"completion_tokens":1448,"total_tokens":9733,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
