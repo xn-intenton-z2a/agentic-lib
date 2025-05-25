@@ -311,6 +311,7 @@ jobs:
           branchName: ${{ needs.merge-check.outputs.branchName }}
           issueNumber: ${{ needs.merge-check.outputs.issueNumber }}
           prMerged: ${{ needs.automerge.outputs.prMerged }}
+          message: ${{ needs.automerge.outputs.message }}
           outcome: ${{ needs.automerge.outcome }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
@@ -320,13 +321,16 @@ jobs:
             const branchName = process.env.branchName;
             const issueNumber = process.env.issueNumber;
             const prMerged = process.env.prMerged;
+            const message = process.env.message;
             const outcome = process.env.outcome;
             const intentionFilepath = process.env.intentionFilepath;
 
-            const activity = `When attempting to merge PR #${pullNumber} for branch name "${branchName}" 
-            and to resolve issue number "${issueNumber}"
-            the decision to skip merge was "${shouldSkipMerge}"
-            and the PR was merged "${prMerged}"
+            const activity = `When attempting to merge PR #${pullNumber} for branch name "${branchName}" to resolve issue number "${issueNumber}" the decision to skip merge was "${shouldSkipMerge}":
+            
+            then the PR was merged "${prMerged}"
+            
+            with message: "${message}"
+            
             with outcome "${outcome}".`;
 
             core.info(`Activity: ${activity}`);

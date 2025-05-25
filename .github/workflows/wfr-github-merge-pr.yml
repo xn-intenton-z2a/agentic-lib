@@ -54,6 +54,9 @@ on:
       prMerged:
         description: 'Set to "true", if the PR has been merged either already or by this process.'
         value: ${{ jobs.merge-pr.outputs.prMerged }}
+      message:
+        description: 'A message describing the result of the merge process.'
+        value: ${{ jobs.merge-pr.outputs.message }}
 
 jobs:
   merge-pr:
@@ -152,6 +155,7 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             let prMerged;
+            let message = '';
           
             // Get the latest PR information
             const { data: pullRequest } = await github.rest.pulls.get({
@@ -165,9 +169,11 @@ jobs:
               core.info(`PR #${pullNumber} is already closed.`);
               if (pullRequest.merged) {
                 core.info(`PR #${pullNumber} is closed and merged.`);
+                message = `PR #${pullNumber} is closed and merged.`;
                 prMerged = 'true';
               } else {
                 core.info(`PR #${pullNumber} is closed but not merged.`);
+                message = `PR #${pullNumber} is closed but not merged.`;
                 prMerged = 'false';
               }
             } else if (pullRequest.mergeable && pullRequest.mergeable_state === 'clean') {
@@ -186,10 +192,12 @@ jobs:
                 ref: branchRef,
               });
               core.info(`Branch '${pullRequest.head.ref}' deleted.`);
+              message = `Branch '${pullRequest.head.ref}' deleted.`;
               prMerged = 'true';
             } else if (pullRequest.mergeable_state === 'dirty' || pullRequest.mergeable === false) {
               // PR has conflicts or failing tests – close the PR and delete the branch
               core.info(`PR #${pullNumber} has conflicts. Commenting on the PR and closing it.`);
+              message = `PR #${pullNumber} has conflicts. Commenting on the PR and closing it.`;
               await github.rest.issues.createComment({
                   owner,
                   repo,
@@ -210,21 +218,28 @@ jobs:
                   ref: branchRef,
                 });
                 core.info(`Branch '${pullRequest.head.ref}' deleted.`);
+                message += ` Branch '${pullRequest.head.ref}' deleted.`;
               } catch (error) {
                 core.warning(`Failed to delete branch '${pullRequest.head.ref}': ${error.message}`);
+                message += ` Failed to delete branch '${pullRequest.head.ref}': ${error.message}`;
               }
               prMerged = 'false';
             } else if (pullRequest.mergeable === null) {
               core.info(`PR #${pullNumber} does not yet have a value for mergeability.`);
+              message = `PR #${pullNumber} does not yet have a value for mergeability.`;
               prMerged = 'false';
             } else {
               core.info(`PR #${pullNumber} is in an unexpected state.`);
+              message = `PR #${pullNumber} is in an unexpected state: ${pullRequest.mergeable_state}.`;
               prMerged = 'false';
             }
           
             core.setOutput('prMerged', prMerged);
             core.info(`prMerged: '${prMerged}'`);
+            core.setOutput('message', message);
+            core.info(`message: '${message}'`);
 
     outputs:
       prMerged: ${{ steps.auto-merge-pr.outputs.prMerged }}
+      message: ${{ steps.auto-merge-pr.outputs.message }}
 
