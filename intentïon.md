@@ -310,3 +310,68 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-25T02:02:00.059Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+## Objective
+
+Implement the HTTP API server feature to allow external clients to POST digest payloads and retrieve service status and version in real time without using the CLI or AWS SQS.
+
+## Scope of Work
+
+1. **CLI Flag and Configuration**
+   - Add a new `--serve` flag to `src/lib/main.js` to start an Express HTTP server.
+   - Allow configuring the listening port via an optional `--port <number>` flag or `HTTP_PORT` environment variable (default `3000`).
+   - Preserve existing CLI behavior (`--help`, `--version`, `--digest`) when `--serve` is not supplied.
+
+2. **Express Server Implementation**
+   - Initialize Express in `src/lib/main.js` and export the `app` instance for testing.
+   - Implement endpoints:
+     - `GET /health` — Respond HTTP 200 with JSON `{ status: "ok", uptime: <number> }` (uptime in seconds).
+     - `GET /version` — Respond HTTP 200 with JSON `{ version: <package version>, timestamp: <ISO timestamp> }`.
+     - `POST /digest` — Accept JSON body matching `createSQSEventFromDigest`, invoke `digestLambdaHandler`, and respond HTTP 200 with `{ success: true }` on success or HTTP 500 with `{ error: <message> }` on failure.
+   - Implement graceful shutdown on `SIGTERM` and `SIGINT`, closing the HTTP server and exiting the process cleanly.
+
+3. **Automated Tests**
+   - Create a new test suite (e.g., `tests/unit/server.test.js`) using Supertest to verify:
+     1. `GET /health` returns 200 and `{ status: "ok", uptime: <number> }`.
+     2. `GET /version` returns 200 and includes a version string matching `package.json` and a valid ISO timestamp.
+     3. `POST /digest` with a valid digest payload returns 200 and `{ success: true }`, and that `digestLambdaHandler` is called with the correct payload.
+     4. Errors in `digestLambdaHandler` result in HTTP 500 and a JSON error message.
+   - Mock or spy on `digestLambdaHandler` to confirm invocation details.
+
+4. **Documentation Updates**
+   - Update `sandbox/README.md` to document:
+     - Usage of the new `--serve` and `--port` flags.
+     - Example startup: `node src/lib/main.js --serve --port 4000`.
+     - Example HTTP requests:
+       ```bash
+       curl http://localhost:4000/health
+       curl http://localhost:4000/version
+       curl -X POST http://localhost:4000/digest \
+         -H "Content-Type: application/json" \
+         -d '{ "key": "events/1.json", "value": "12345", "lastModified": "2025-01-01T00:00:00Z" }'
+       ```
+
+## Acceptance Criteria (Testable)
+
+- [ ] `node src/lib/main.js --serve` starts an Express server on port `3000` by default.
+- [ ] `node src/lib/main.js --serve --port 3500` starts the server on port `3500`.
+- [ ] `GET /health` returns HTTP 200 with JSON `{ "status": "ok", "uptime": <number> }`.
+- [ ] `GET /version` returns HTTP 200 with JSON `{ "version": "<version>", "timestamp": "<ISO>" }`.
+- [ ] `POST /digest` with valid JSON invokes `digestLambdaHandler` and returns HTTP 200 `{ "success": true }`.
+- [ ] Simulated failure in `digestLambdaHandler` returns HTTP 500 with `{ "error": "<message>" }`.
+- [ ] Sending `SIGINT` or `SIGTERM` stops the server gracefully without hanging.
+- [ ] Express `app` is exported and accessible in tests.
+- [ ] New Supertest tests pass when running `npm test`.
+- [ ] README examples run successfully.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7792,"completion_tokens":1666,"total_tokens":9458,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":704,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
