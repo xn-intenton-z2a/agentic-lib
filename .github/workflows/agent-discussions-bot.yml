@@ -453,6 +453,7 @@ jobs:
     with:
       mission: "${{ needs.generate-response.outputs.detail }} as mentioned in reply ${{ needs.generate-response.outputs.detail }}"
       feature: ''
+      url: ${{ needs.process-discussion-post.outputs.url }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
@@ -485,6 +486,7 @@ jobs:
           action: ${{ needs.generate-response.outputs.action }}
           detail: ${{ needs.generate-response.outputs.detail }}
           reply: ${{ needs.generate-response.outputs.reply }}
+          url: ${{ needs.process-discussion-post.outputs.url }}
           usage: ${{ needs.generate-response.outputs.usage }}
           outcome: ${{ needs.seed-repository.outcome }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
@@ -493,11 +495,12 @@ jobs:
             const action = process.env.action;
             const detail = process.env.detail;
             const reply = process.env.reply;
+            const url = process.env.url;
             const usage = process.env.usage;
             const outcome = process.env.outcome;
             const intentionFilepath = process.env.intentionFilepath;
 
-            const activity = `The repository bot which took the action "${action}":
+            const activity = `When responding to a post on url ${url}, the repository bot took the action "${action}":
             
             ${reply}
             
