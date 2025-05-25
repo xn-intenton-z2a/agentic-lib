@@ -299,3 +299,59 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-25T01:18:26.329Z
+
+Generated issue 1600 for feature "http-api-server" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1600
+
+title:
+
+Enhance HTTP API Server with Authentication, Metrics, and Graceful Shutdown
+
+And description:
+
+We need to extend the existing Express HTTP API Server to fully implement the HTTP_API_SERVER feature as defined in sandbox/features/HTTP_API_SERVER.md. Specifically, this issue will add request authentication on POST /digest, statistics and a /metrics endpoint, and graceful shutdown behavior:
+
+1. Modify sandbox/source/main.js:
+   - Boot an Express application bound to process.env.PORT (default 3000).
+   - Implement GET /health to return 200 JSON `{ status: "OK" }`.
+   - Implement POST /digest:
+     • Require an `X-API-Key` header matching `process.env.API_KEY`. Missing or invalid → 401 JSON error.
+     • Validate JSON body has `key`, `value`, `lastModified` (use basic object checks; no extra libraries).
+     • Invoke `createSQSEventFromDigest` + `digestLambdaHandler` and capture its response.  
+     • Return 200 with handler result or 500 on unexpected errors, logging via `logInfo`/`logError`.
+   - Implement metrics collection (in-memory counters and histograms):
+     • Total requests, successful digests, failed digests, request durations.
+     • Expose GET /metrics when `process.env.METRICS_ENABLED === 'true'`.  
+     • Return 404 on /metrics if disabled.
+   - Handle graceful shutdown:
+     • On SIGINT or SIGTERM: stop accepting new connections, wait up to a configurable timeout (e.g. `process.env.SHUTDOWN_TIMEOUT_MS || 5000` ms) for in-flight requests to complete, then exit(0).
+     • Log shutdown start, in-flight count, and shutdown completion.
+
+2. Update sandbox/tests/main.test.js:
+   - Replace the current placeholder test with Supertest-based tests covering:
+     • GET /health returns 200 `{ status: "OK" }`.
+     • POST /digest with valid API key + payload returns 200 and contains expected handler response.
+     • POST /digest missing or invalid API key returns 401 structured JSON error.
+     • POST /digest invalid payload returns 400 structured JSON error.
+     • GET /metrics when `METRICS_ENABLED=true` returns 200 text/plain metrics (including counters).
+     • GET /metrics when disabled returns 404.
+   - Ensure the server is started/stopped programmatically in tests to avoid port conflicts.
+
+3. Update sandbox/README.md:
+   - Document the HTTP server usage:
+     • Required ENV: `API_KEY`, optional `METRICS_ENABLED`, `PORT`, `SHUTDOWN_TIMEOUT_MS`.
+     • Endpoint reference for `/health`, `/digest`, `/metrics`.
+     • Example `curl` commands.
+
+Verification Steps:
+- Run `npm test` to ensure all new Supertest tests pass in sandbox/tests.
+- Start the server with `API_KEY=abc METRICS_ENABLED=true npm run sandbox` and manually verify endpoints via `curl`.
+- Send SIGINT (Ctrl+C) or SIGTERM to confirm graceful shutdown within the configured timeout.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":8013,"completion_tokens":1604,"total_tokens":9617,"prompt_tokens_details":{"cached_tokens":1152,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":896,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
