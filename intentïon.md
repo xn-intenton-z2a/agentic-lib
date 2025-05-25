@@ -529,4 +529,107 @@ LLM API Usage:
 {"prompt_tokens":12931,"completion_tokens":5327,"total_tokens":18258,"prompt_tokens_details":{"cached_tokens":1280,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3584,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Fixed Code at 2025-05-25T18:48:09.952Z
+
+Activity:
+
+fixApplied: true with Add default args handling and implement --crawl flag with fetch JSON parsing and proper error handling and outcome 
+
+Git Diff:
+```diff
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index fd8070f9..beacceda 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -1,42 +1,38 @@
+ #!/usr/bin/env node
+-// sandbox/source/main.js
+ 
+-import { fileURLToPath } from "url";
+-
+-export async function main(args) {
++/**
++ * Sandbox CLI main entry point.
++ * Usage: node sandbox/source/main.js --crawl <url>
++ */
++export async function main(args = process.argv.slice(2)) {
+   const crawlIndex = args.indexOf("--crawl");
+   if (crawlIndex !== -1) {
+     const url = args[crawlIndex + 1];
+-    if (!url) {
+-      console.error(
+-        JSON.stringify({ error: "FetchError", message: "No URL provided", url: null })
+-      );
+-      process.exit(1);
+-    }
+     try {
+       const response = await fetch(url);
+-      if (!response.ok) {
+-        throw new Error(`HTTP error! status: ${response.status}`);
++      let jsonData;
++      try {
++        jsonData = await response.json();
++      } catch (err) {
++        console.error(JSON.stringify({
++          error: "JSONParseError",
++          message: err.message,
++          url,
++        }));
++        process.exit(1);
+       }
+-      const data = await response.json();
+-      console.log(JSON.stringify(data));
++      console.log(JSON.stringify(jsonData));
++      return;
+     } catch (err) {
+-      const errorType = err.name === "SyntaxError" ? "JSONParseError" : "FetchError";
+-      console.error(
+-        JSON.stringify({ error: errorType, message: err.message, url })
+-      );
++      console.error(JSON.stringify({
++        error: "FetchError",
++        message: err.message,
++        url,
++      }));
+       process.exit(1);
+     }
+-    return;
+   }
+ 
+-  console.log(`Run with: ${JSON.stringify(args)}`);
+-}
+-
+-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  const args = process.argv.slice(2);
+-  main(args).catch((err) => {
+-    console.error(JSON.stringify({ error: "FetchError", message: err.message, url: null }));
+-    process.exit(1);
+-  });
++  // Default: show usage
++  console.log("Usage: --crawl <url>");
+ }
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/agentic-lib@6.9.1-0 start
+> node src/lib/main.js
+
+{"level":"info","timestamp":"2025-05-25T18:47:48.319Z","message":"Configuration loaded","config":{}}
+No command argument supplied.
+
+Usage:
+  --help                     Show this help message and usage instructions.
+  --digest                   Run a full bucket replay simulating an SQS event.
+  --version                  Show version information with current timestamp.
+```
+
+[allValidationStepsSuccessful: true]
+
+LLM API Usage:
+```json
+{"prompt_tokens":20574,"completion_tokens":4646,"total_tokens":25220,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4096,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
