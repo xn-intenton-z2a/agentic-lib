@@ -85,3 +85,35 @@ LLM API Usage:
 ```
 
 ---
+## Issue to enhanced Issue at 2025-05-26T23:45:42.066Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+This issue completes the HELLO_COMMAND feature by updating the sandbox CLI (`sandbox/source/main.js`), its tests, and the README to print `Hello World!` when invoked with `--hello` or with no arguments. It preserves existing behavior for other flags.
+
+Acceptance Criteria:
+1. CLI Behavior:
+   - When running `node sandbox/source/main.js --hello`, the process prints exactly `Hello World!` to stdout and exits with code 0.
+   - When running `node sandbox/source/main.js` with no arguments, the process prints exactly `Hello World!` to stdout and exits with code 0.
+   - When other flags (e.g., `--help`, `--version`, `--digest`) are provided, existing behaviors are unchanged.
+
+2. Test Coverage:
+   - Add two tests in `sandbox/tests/main.test.js` that mock or capture `console.log`:
+     a. Assert that invoking `main(['--hello'])` logs `Hello World!`.
+     b. Assert that invoking `main([])` logs `Hello World!`.
+   - Ensure tests fail if the output is anything other than the exact string with exclamation mark.
+
+3. Documentation:
+   - Update `sandbox/README.md` to include the new `--hello` flag and default no-argument behavior under the Usage section.
+   - Provide a clear example invocation for both cases.
+
+4. Ensure all existing tests pass and follow repository coding and formatting conventions.
+
+LLM API Usage:
+```json
+{"prompt_tokens":6691,"completion_tokens":869,"total_tokens":7560,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":512,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
