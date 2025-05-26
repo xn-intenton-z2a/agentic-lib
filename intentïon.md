@@ -1312,3 +1312,257 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-26T22:24:35.491Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-1657 with message Implement --serialize-triples CLI flag in sandbox with docs tests and n3 dependency and outcome success
+
+Git Diff:
+```diff
+diff --git a/package.json b/package.json
+index 65adbfab..6d5e090b 100644
+--- a/package.json
++++ b/package.json
+@@ -25,6 +25,7 @@
+     "dotenv": "^16.5.0",
+     "express": "^4.21.2",
+     "minimatch": "^10.0.1",
++    "n3": "^2.0.0",
+     "openai": "^4.103.0",
+     "zod": "^3.25.28"
+   },
+@@ -36,14 +37,15 @@
+     "eslint-config-google": "^0.14.0",
+     "eslint-config-prettier": "^8.10.0",
+     "eslint-plugin-import": "^2.31.0",
+-    "eslint-plugin-prettier": "^5.4.0",
+     "eslint-plugin-promise": "^7.2.1",
++    "eslint-plugin-prettier": "^5.4.0",
+     "eslint-plugin-react": "^7.37.5",
+     "eslint-plugin-security": "^3.0.1",
+     "eslint-plugin-sonarjs": "^3.0.2",
+     "figlet": "^1.8.1",
+     "markdown-it": "^14.1.0",
+     "markdown-it-github": "^0.5.0",
++    "minimatch": "^10.0.1",
+     "npm-check-updates": "^18.0.1",
+     "prettier": "^3.5.3",
+     "supertest": "^6.3.4",
+@@ -58,4 +60,4 @@
+   "publishConfig": {
+     "registry": "https://npm.pkg.github.com"
+   }
+-}
++}
+\ No newline at end of file
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..65a98d9d 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -2,12 +2,70 @@
+ // sandbox/source/main.js
+ 
+ import { fileURLToPath } from "url";
++import { Writer, DataFactory } from "n3";
++import { readFile } from "fs/promises";
+ 
+-export function main(args) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
++/**
++ * Process the --serialize-triples flag: read JSON digest(s) and output N-Triples.
++ * @param {string[]} args - CLI arguments.
++ * @returns {Promise<boolean>} true if flag handled.
++ */
++export async function processSerializeTriples(args = []) {
++  const idx = args.indexOf("--serialize-triples");
++  if (idx === -1) {
++    return false;
++  }
++  const target = args[idx + 1];
++  if (!target) {
++    console.error("Error: --serialize-triples requires <pathOrJson> argument");
++    process.exit(1);
++  }
++  let content;
++  try {
++    content = await readFile(target, "utf8");
++  } catch {
++    // Treat as inline JSON
++    content = target;
++  }
++  let digests;
++  try {
++    const parsed = JSON.parse(content);
++    digests = Array.isArray(parsed) ? parsed : [parsed];
++  } catch (err) {
++    console.error(`Error parsing JSON: ${err}`);
++    process.exit(1);
++  }
++  const { namedNode, literal, blankNode } = DataFactory;
++  const writer = new Writer({ format: "N-Triples" });
++  for (const digest of digests) {
++    const subject = digest.url ? namedNode(digest.url) : blankNode();
++    for (const [key, value] of Object.entries(digest)) {
++      const predicate = namedNode(`http://schema.org/${key}`);
++      const object = literal(String(value));
++      writer.addQuad(subject, predicate, object);
++    }
++  }
++  writer.end((error, result) => {
++    if (error) {
++      console.error(`Error writing triples: ${error}`);
++      process.exit(1);
++    }
++    console.log(result);
++  });
++  return true;
+ }
+ 
+-if (process.argv[1] === fileURLToPath(import.meta.url)) {
++export async function main() {
+   const args = process.argv.slice(2);
+-  main(args);
++  if (await processSerializeTriples(args)) {
++    return;
++  }
++  console.log(`Run with: ${JSON.stringify(args)}`);
+ }
++
++if (process.argv[1] === fileURLToPath(import.meta.url)) {
++  main().catch((err) => {
++    console.error(err);
++    process.exit(1);
++  });
++}
+\ No newline at end of file\n\n// New [sandbox/docs/SERIALIZE_TRIPLES.md]:\n# `--serialize-triples` Flag
+
+The `--serialize-triples` flag allows the sandbox CLI to read JSON digest object(s) and serialize them into RDF triples in N-Triples format using the N3 library.
+
+## Description
+
+When provided with a JSON file path or an inline JSON string, the CLI will:
+
+1. Attempt to read the file at the given path; if it fails, treat the argument as inline JSON.
+2. Parse the JSON into an object or an array of objects (wrapping a single object into an array).
+3. Initialize an N3 `Writer` with format `N-Triples` and use `DataFactory` to create terms.
+4. For each digest object:
+   - Use `<digest.url>` as the subject if `url` exists; otherwise, use a blank node.
+   - For each key–value pair in the object:
+     - Create a predicate term with IRI `http://schema.org/<key>`.
+     - Create a literal term for the value.
+     - Add a quad to the writer.
+5. Call `writer.end()`, which outputs the N-Triples to stdout.
+
+## Usage
+
+```bash
+node sandbox/source/main.js --serialize-triples <pathOrJson>
+```
+
+- `<pathOrJson>`: either a file path to a JSON digest file or an inline JSON string representing the digest(s).
+
+## Examples
+
+**File Input**
+
+```bash
+node sandbox/source/main.js --serialize-triples data/digest.json
+```
+
+**Inline JSON Input**
+
+```bash
+node sandbox/source/main.js --serialize-triples '{"url":"https://example.com","status":200,"timestamp":"2025-01-01T00:00:00Z"}'
+```
+
+**Sample N-Triples Output**
+
+```
+<https://example.com> <http://schema.org/url> "https://example.com" .
+<https://example.com> <http://schema.org/status> "200" .
+<https://example.com> <http://schema.org/timestamp> "2025-01-01T00:00:00Z" .
+```\n\n// New [sandbox/tests/main-serialize.test.js]:\nimport { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+import * as fs from "fs/promises";
+import * as n3 from "n3";
+
+import { processSerializeTriples } from "@sandbox/source/main.js";
+
+describe("--serialize-triples flag", () => {
+  let consoleLogSpy;
+  let consoleErrorSpy;
+  let writerMock;
+
+  beforeEach(() => {
+    consoleLogSpy = vi.spyOn(console, "log").mockImplementation();
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation();
+    writerMock = {
+      quads: [],
+      addQuad(s, p, o) {
+        this.quads.push({ s, p, o });
+      },
+      end(cb) {
+        cb(null, "TRIPLES");
+      },
+    };
+    vi.spyOn(n3, "Writer").mockImplementation(() => writerMock);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("handles inline JSON input", async () => {
+    vi.spyOn(fs, "readFile").mockRejectedValue(new Error("no file"));
+    const result = await processSerializeTriples([
+      "--serialize-triples",
+      '{"url":"http://u","foo":"bar"}'
+    ]);
+    expect(writerMock.quads.length).toBe(2);
+    expect(consoleLogSpy).toHaveBeenCalledWith("TRIPLES");
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+    expect(result).toBe(true);
+  });
+
+  test("handles file input", async () => {
+    const data = [{ url: "u1", a: "1" }, { foo: "bar" }];
+    vi.spyOn(fs, "readFile").mockResolvedValue(JSON.stringify(data));
+    const result = await processSerializeTriples([
+      "--serialize-triples",
+      "path.json"
+    ]);
+    // first object: url & a -> 2 quads; second object: foo -> 1 quad
+    expect(writerMock.quads.length).toBe(3);
+    expect(consoleLogSpy).toHaveBeenCalledWith("TRIPLES");
+    expect(result).toBe(true);
+  });
+});
+```
+
+mainOutput:
+```log
+
+```
+
+installAfterUpdateOutcome: failure
+
+ciAfterUpdateOutcome: failure
+
+testAfterUpdateOutcome: failure
+
+mainAfterUpdateOutcome: failure
+
+commitOutcome: success
+
+postResolutionCommentOutcome: success
+
+allValidationStepsSuccessful: false
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1657 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":23158,"completion_tokens":8207,"total_tokens":31365,"prompt_tokens_details":{"cached_tokens":9216,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":5440,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
