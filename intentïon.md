@@ -1235,3 +1235,80 @@ LLM API Usage:
 ```
 
 ---
+## Feature to Issue at 2025-05-26T22:22:28.339Z
+
+Activity:
+
+Generated issue 1658 for feature "load-graph" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1658
+
+title:
+
+Implement --load-graph CLI flag to import N-Triples into SPARQL endpoint
+
+And description:
+
+## Overview
+Introduce a new `--load-graph` flag in the sandbox CLI to import RDF triples in N-Triples format into a SPARQL graph store endpoint. This extends the pipeline by taking serialized triples and loading them into a configurable triple store, completing the core ingestion workflow for our knowledge graph.
+
+## Tasks
+
+1. **sandbox/source/main.js**
+   - Import `readFile` from `fs/promises` and existing helpers: `logInfo`, `logError`.
+   - Add an async function `processLoadGraph(args = [])` that:
+     1. Detects `--load-graph` in `args` and reads the next argument as `filePath` (path to an N-Triples file).
+     2. Reads the file content via `await readFile(filePath, 'utf8')`.
+     3. Determines the target endpoint:
+        - If `--endpoint` is provided, use its next argument; otherwise default to `http://localhost:3030/ds/data`.
+     4. Sends an HTTP `PUT` request to `${endpoint}?graph=default` with headers `Content-Type: application/n-triples` and body equal to the file content.
+     5. On HTTP 2xx, call `logInfo` with message `Loaded graph from <filePath> to <endpoint>`.
+     6. On non-2xx or fetch rejection, call `logError` with details and continue (or exit early if critical).
+     7. Return `true` to short-circuit other CLI flags.
+   - In the exported `main(args)` function, invoke `await processLoadGraph(args)` immediately before or after existing commands; if it returns `true`, return early.
+
+2. **sandbox/tests/main-load-graph.test.js**
+   - Stub `fs/promises.readFile` to simulate:
+     - Successful file read returning sample N-Triples content.
+     - File read error.
+   - Mock global `fetch` to simulate:
+     - A 204 No Content or 200 OK response.
+     - A 400 Bad Request response.
+     - A network failure rejection.
+   - Spy on `logInfo` and `logError` implementations.
+   - Verify:
+     - `processLoadGraph` returns `true` when `--load-graph` is present.
+     - On success: `fetch` called with correct URL, method, headers, and body, and `logInfo` invoked once.
+     - On HTTP error: `logError` called with endpoint, status, and no uncaught exceptions.
+     - On read error or network failure: `logError` called with error details.
+
+3. **sandbox/README.md**
+   - Document the new `--load-graph` flag syntax:
+     ```bash
+     node sandbox/source/main.js --load-graph <path/to/triples.nt> [--endpoint <url>]
+     ```
+   - Explain default SPARQL endpoint and override via `--endpoint`.
+   - Provide example:
+     ```bash
+     node sandbox/source/main.js --load-graph triples.nt --endpoint http://localhost:3030/ds/data
+     ```
+   - Show expected `info` log entry on success.
+
+4. **sandbox/docs/LOAD_GRAPH.md**
+   - Detail the behavior, parameters, and examples of the `--load-graph` flag.
+   - Include sample success and error JSON-formatted log entries.
+
+## Verification
+- Run `npm test` to ensure the new test passes alongside existing tests.
+- Manually invoke:
+  ```bash
+  node sandbox/source/main.js --load-graph sample.nt --endpoint http://localhost:3030/ds/data
+  ```
+  and observe an `info` log confirming the load.
+
+_No other files should be created or deleted; focus updates on source, tests, README, and docs._
+
+LLM API Usage:
+```json
+{"prompt_tokens":19374,"completion_tokens":2505,"total_tokens":21879,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1600,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
