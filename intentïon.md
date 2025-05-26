@@ -399,3 +399,65 @@ LLM API Usage:
 ```
 
 ---
+## Feature to Issue at 2025-05-26T23:22:18.639Z
+
+Activity:
+
+Generated issue 1661 for feature "core-hello-command" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1661
+
+title:
+
+Add --hello flag to core CLI for Hello World output
+
+And description:
+
+## Overview
+
+Extend the core CLI entrypoint in `src/lib/main.js` to support a `--hello` flag that prints the exact string `Hello World!` and exits immediately, fulfilling the overall mission across both sandbox and library layers.
+
+## Changes to Apply
+
+1. **Add flag detection in `src/lib/main.js`**
+   - At the very top of the `export async function main(args = process.argv.slice(2)) {` function, insert a check for `--hello`:
+     ```js
+     if (args.includes("--hello")) {
+       console.log("Hello World!");
+       return;
+     }
+     ```
+   - Ensure this runs before any other flag processing (`--help`, `--version`, `--digest`).
+
+2. **Update the usage helper**
+   - In the `generateUsage()` function, add an entry for `--hello`:
+     ```js
+       --hello                   Print "Hello World!" and exit immediately.
+     ```
+   - This ensures that the built-in help output reflects the new flag.
+
+3. **Add or update tests in `tests/unit/main.test.js`**
+   - Import `main` from the library:
+     ```js
+     import { main } from "../../src/lib/main.js";
+     ```
+   - Use `vi.spyOn(console, "log")` to verify:
+     - `main(["--hello"])` calls `console.log` exactly once with `"Hello World!"`.
+     - No other log lines are emitted in this scenario.
+
+4. **(Optional) Documentation reminder**
+   - Although the core CLI is primarily invoked via `npm start`, confirm that any user-facing README or internal docs that mirror `generateUsage()` remain accurate (no external files need to be edited unless you surface this flag in docs).
+
+## Verification & Acceptance
+
+1. Run `npm start -- --hello` (or call `main(["--hello"])` directly) and confirm it prints exactly `Hello World!` and exits without additional output or errors.
+2. Run `npm start` (or call `main([])`) and verify existing behavior remains unchanged (help, version, and digest flags continue to work and unrecognized calls fall back to default usage). 
+3. Execute `npm test` and ensure:
+   - The new `--hello` test passes.
+   - No existing tests are broken.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":10454,"completion_tokens":2823,"total_tokens":13277,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2240,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
