@@ -165,3 +165,259 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-26T21:31:54.117Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-1654 with message Implement --crawl CLI flag in sandbox CLI with tests and documentation and outcome success
+
+Git Diff:
+```diff
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..0e340a69 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -2,12 +2,63 @@
+ // sandbox/source/main.js
+ 
+ import { fileURLToPath } from "url";
++import { createSQSEventFromDigest, digestLambdaHandler, logInfo, logError } from "../../src/lib/main.js";
+ 
+-export function main(args) {
++/**
++ * Process the --crawl flag: fetch URLs, wrap in SQS events, and invoke digest handler.
++ * @param {string[]} args - Command-line arguments
++ * @returns {Promise<boolean>} - True if --crawl was handled, false otherwise
++ */
++export async function processCrawl(args) {
++  const idx = args.indexOf("--crawl");
++  if (idx === -1) {
++    return false;
++  }
++  const urlsArg = args[idx + 1] || "";
++  const urls = urlsArg
++    .split(",")
++    .map((u) => u.trim())
++    .filter((u) => u);
++
++  for (const url of urls) {
++    try {
++      const response = await fetch(url);
++      const status = response.status;
++      const body = await response.text();
++      if (status >= 200 && status < 300) {
++        const timestamp = new Date().toISOString();
++        const digest = { url, status, body, timestamp };
++        const sqsEvent = createSQSEventFromDigest(digest);
++        await digestLambdaHandler(sqsEvent);
++        logInfo(`Fetched URL ${url} at ${timestamp}`);
++      } else {
++        logError(`Error fetching URL ${url}`, status);
++      }
++    } catch (error) {
++      logError(`Error fetching URL ${url}`, error);
++    }
++  }
++  return true;
++}
++
++/**
++ * Main entry point for sandbox CLI
++ * @param {string[]} args - Command-line arguments
++ * @returns {Promise<boolean>} - True if a command was handled, false otherwise
++ */
++export async function main(args) {
++  if (await processCrawl(args)) {
++    return true;
++  }
+   console.log(`Run with: ${JSON.stringify(args)}`);
++  return false;
+ }
+ 
++// If invoked directly, execute main with process.argv
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   const args = process.argv.slice(2);
+-  main(args);
++  main(args).catch((err) => {
++    console.error(err);
++    process.exit(1);
++  });
+ }\n\n// New [sandbox/README.md]:\n# Agentic-lib Sandbox CLI
+
+This sandbox CLI supports the `--crawl` flag to fetch external URLs, generate SQS events, and feed them into the digest pipeline for building a knowledge graph.
+
+## Usage
+
+```bash
+node sandbox/source/main.js [--crawl <urls>]
+```
+
+**--crawl** `<urls>`
+: A comma-separated list of URLs to fetch and process.
+
+### Examples
+
+**Single URL**
+```bash
+node sandbox/source/main.js --crawl https://example.com/data.json
+```
+
+**Multiple URLs**
+```bash
+node sandbox/source/main.js --crawl https://a.com/resource,https://b.org/info
+```
+
+### Expected Output
+
+- **Successful fetch** logs:
+
+```json
+{"level":"info","timestamp":"2025-05-26T...","message":"Fetched URL https://example.com/data.json at 2025-05-26T..."}
+```
+
+- **Error fetch** logs:
+
+```json
+{"level":"error","timestamp":"2025-05-26T...","message":"Error fetching URL https://a.com/resource","error":"404"}
+```\n\n// New [sandbox/docs/CRAWL.md]:\n# `--crawl` Flag
+
+The `--crawl` flag allows the CLI to fetch one or more external resources and inject them into the digest pipeline as SQS events.
+
+## Description
+
+When provided with a comma-separated list of URLs, the CLI will perform the following steps for each URL:
+
+1. **Fetch the resource** using the global `fetch` API.
+2. **Construct a digest object** with the properties:
+   - `url`: The requested URL.
+   - `status`: The HTTP status code.
+   - `body`: The response text.
+   - `timestamp`: ISO 8601 timestamp of when the fetch occurred.
+3. **Wrap the digest** into a standard SQS event via `createSQSEventFromDigest`.
+4. **Invoke** `digestLambdaHandler` with the generated event.
+5. **Log** a JSON-formatted info message for successful fetches, or an error message on failures.
+
+## Usage
+
+```bash
+node sandbox/source/main.js --crawl https://example.com/data.json,https://another.org/info
+```
+
+This will produce output similar to:
+
+- **Success**:
+```json
+{"level":"info","timestamp":"2025-05-26T...","message":"Fetched URL https://example.com/data.json at 2025-05-26T..."}
+```
+
+- **Failure**:
+```json
+{"level":"error","timestamp":"2025-05-26T...","message":"Error fetching URL https://another.org/info","error":"404"}
+```\n\n// New [sandbox/tests/main-crawl.test.js]:\nimport { describe, test, expect, vi, beforeEach } from "vitest";
+import { main } from "@sandbox/source/main.js";
+import * as lib from "../../src/lib/main.js";
+
+describe("Crawl CLI", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  test("successful fetch", async () => {
+    const mockBody = "hello";
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+      status: 200,
+      text: vi.fn().mockResolvedValue(mockBody),
+    }));
+    const createEventSpy = vi.spyOn(lib, "createSQSEventFromDigest");
+    const handlerSpy = vi
+      .spyOn(lib, "digestLambdaHandler")
+      .mockResolvedValue();
+    const logInfoSpy = vi.spyOn(lib, "logInfo").mockImplementation();
+    const logErrorSpy = vi.spyOn(lib, "logError").mockImplementation();
+
+    const result = await main(["--crawl", "https://example.com"]);
+
+    expect(fetch).toHaveBeenCalledWith("https://example.com");
+    expect(createEventSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: "https://example.com",
+        status: 200,
+        body: mockBody,
+        timestamp: expect.any(String),
+      })
+    );
+    expect(handlerSpy).toHaveBeenCalledWith(expect.any(Object));
+    expect(logInfoSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Fetched URL https://example.com")
+    );
+    expect(logErrorSpy).not.toHaveBeenCalled();
+    expect(result).toBe(true);
+  });
+
+  test("non-2xx status", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ status: 404, text: vi.fn() }));
+    const logInfoSpy = vi.spyOn(lib, "logInfo").mockImplementation();
+    const logErrorSpy = vi.spyOn(lib, "logError").mockImplementation();
+
+    const result = await main(["--crawl", "https://notfound.com"]);
+
+    expect(fetch).toHaveBeenCalledWith("https://notfound.com");
+    expect(logErrorSpy).toHaveBeenCalledWith(
+      `Error fetching URL https://notfound.com`,
+      404
+    );
+    expect(logInfoSpy).not.toHaveBeenCalled();
+    expect(result).toBe(true);
+  });
+
+  test("network failure", async () => {
+    const error = new Error("network down");
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(error));
+    const logInfoSpy = vi.spyOn(lib, "logInfo").mockImplementation();
+    const logErrorSpy = vi.spyOn(lib, "logError").mockImplementation();
+
+    const result = await main(["--crawl", "https://down.com"]);
+
+    expect(fetch).toHaveBeenCalledWith("https://down.com");
+    expect(logErrorSpy).toHaveBeenCalledWith(
+      `Error fetching URL https://down.com`,
+      error
+    );
+    expect(logInfoSpy).not.toHaveBeenCalled();
+    expect(result).toBe(true);
+  });
+});
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/agentic-lib@6.9.9-0 sandbox
+> node sandbox/source/main.js
+
+{"level":"info","timestamp":"2025-05-26T21:31:27.559Z","message":"Configuration loaded","config":{}}
+Run with: []
+```
+
+installAfterUpdateOutcome: success
+
+ciAfterUpdateOutcome: success
+
+testAfterUpdateOutcome: failure
+
+mainAfterUpdateOutcome: success
+
+commitOutcome: success
+
+postResolutionCommentOutcome: success
+
+allValidationStepsSuccessful: false
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1654 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":11516,"completion_tokens":7353,"total_tokens":18869,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":5120,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
