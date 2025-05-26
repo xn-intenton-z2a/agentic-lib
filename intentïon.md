@@ -58,3 +58,61 @@ LLM API Usage:
 ```
 
 ---
+## Feature to Issue at 2025-05-26T18:20:31.681Z
+
+Activity:
+
+Generated issue 1646 for feature "http-api" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1646
+
+title:
+
+Implement HTTP API Endpoint for Digest Ingestion
+
+And description:
+
+## Summary
+
+Add an Express-based HTTP API endpoint to our library so external systems can POST digest payloads directly to `/digest`. This will wrap the incoming JSON in an SQS-style event record, invoke the existing `digestLambdaHandler`, and relay its results over HTTP.
+
+## Changes Required
+
+1. **src/lib/main.js**
+   - Import `express` and set up an Express app.
+   - Export a `createHttpServer()` function that:
+     - Uses `express.json()` middleware to parse JSON bodies.
+     - Registers a `POST /digest` route that:
+       - Wraps `req.body` with `createSQSEventFromDigest()`.
+       - Calls `await digestLambdaHandler(sqsEvent)`.
+       - On success, responds with `HTTP 200` and `res.json(result)`.
+       - Catches JSON parsing errors (SyntaxError) and sends `HTTP 400` with `{ error: 'Invalid JSON' }`.
+       - Catches any handler errors and sends `HTTP 500` with `{ error: 'Internal Server Error' }`.
+   - In `main()`, detect when the script is run with no arguments (`args.length === 0`) and call `createHttpServer().listen()` on `process.env.PORT || 3000`, logging the port.
+
+2. **sandbox/tests/main-api.test.js**
+   - Add a new test file using `supertest` against the `createHttpServer()` app:
+     1. **Success case**: POST valid JSON `{ key, value, lastModified }` → Expect 200 and response body contains matching `batchItemFailures` array.
+     2. **Invalid JSON**: POST malformed JSON string → Expect 400 and `{ error: 'Invalid JSON' }`.
+     3. **Handler error**: Spy/mock `digestLambdaHandler` to throw an error → Expect 500 and `{ error: 'Internal Server Error' }`.
+
+3. **sandbox/README.md**
+   - Document the new HTTP API:
+     - Describe how to start the server (`npm run start`).
+     - Show example `curl` command to `POST http://localhost:3000/digest` with a digest payload.
+     - Explain the JSON response shape (field `batchItemFailures`).
+
+## Verification Steps
+
+1. Run `npm test` and confirm new tests pass.
+2. Start the server with `npm run start`; observe log `Listening on port 3000`.
+3. Using `curl` or `httpie`, send a valid JSON to `/digest` and receive `HTTP 200` with `{ batchItemFailures: [] }`.
+4. Send malformed JSON and verify `HTTP 400` with error message.
+5. Simulate a handler error (controlled via test) to verify `HTTP 500`.
+
+_No new dependencies are required; leverage existing `express` and `supertest` packages._
+
+LLM API Usage:
+```json
+{"prompt_tokens":7535,"completion_tokens":2726,"total_tokens":10261,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2048,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
