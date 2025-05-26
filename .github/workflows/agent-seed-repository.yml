@@ -2463,7 +2463,7 @@ jobs:
       #- npm-build-after-fix
       #- npm-run-after-fix
       #- needs-fix-after-fix
-    if: ${{ !cancelled() && needs.fix-code.outputs.fixApplied == 'true' && needs.fix-code.outputs.allValidationStepsSuccessful != 'true' }}
+    if: ${{ !cancelled() && needs.fix-code.outputs.fixApplied == 'true' && needs.fix-code.outputs.allValidationStepsSuccessful == 'true' }}
     #if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
     permissions:
       contents: write
@@ -2489,7 +2489,7 @@ jobs:
       #- npm-build-after-fix
       #- npm-run-after-fix
       #- needs-fix-after-fix
-    if: ${{ !cancelled() && needs.fix-code.outputs.fixApplied == 'true' && needs.fix-code.outputs.allValidationStepsSuccessful != 'true' }}
+    if: ${{ !cancelled() && needs.fix-code.outputs.fixApplied == 'true' && needs.fix-code.outputs.allValidationStepsSuccessful == 'true' }}
     #if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
     permissions:
       contents: write

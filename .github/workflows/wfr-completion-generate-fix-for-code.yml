@@ -1114,50 +1114,31 @@ jobs:
         id: install-after-update
         continue-on-error: true
         shell: bash
-        run: |
-          set +e
-          npm install
-          exit 0
+        run: npm install
 
       - name: ci-after-update
         id: ci-after-update
         continue-on-error: true
         shell: bash
-        run: |
-          set +e
-          npm ci
-          exit 0
+        run: npm ci
 
       - name: Test after update
         id: test-after-update
         continue-on-error: true
         shell: bash
-        run: |
-          set +e
-          ${{ env.testScript }}
-          exit 0
+        run: ${{ env.testScript }}
 
       - name: Run main after update
         id: main-after-update
         continue-on-error: true
         shell: bash
-        run: |
-          set +e
-          timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }}
-          exit 0
+        run: timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }}
 
       - name: main-output-after-update
         id: main-output-after-update
         continue-on-error: true
         shell: bash
-        run: |
-          set +e
-          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
-          echo "output<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$output" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "output=${output}"
-          exit 0
+        run: timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1
 
       - name: Collect git diff as a text output
         id: git-diff
