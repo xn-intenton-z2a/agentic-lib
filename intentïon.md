@@ -1088,3 +1088,80 @@ LLM API Usage:
 
 2025-05-26T22:17:50Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/agentic-lib/tree/intention-2025-05-26T21-57Z
 
+
+## Feature to Issue at 2025-05-26T22:21:19.597Z
+
+Activity:
+
+Generated issue 1657 for feature "triple-serializer" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1657
+
+title:
+
+Implement --serialize-triples CLI flag to output RDF triples in N-Triples format
+
+And description:
+
+Overview:
+
+Add a new `--serialize-triples` flag to both the core CLI (`src/lib/main.js`) and the sandbox CLI (`sandbox/source/main.js`) that reads one or more JSON digest objects and serializes each into RDF triples in N-Triples format using the N3 library. This implements the TRIPLE_SERIALIZER feature, enabling conversion of SQS digest events into a graph representation.
+
+Tasks:
+
+1. package.json
+   - Add dependency `"n3": "^2.0.0"` (or the latest compatible version).
+
+2. src/lib/main.js
+   - Import `fs/promises` and `{ Writer }` from `n3`.
+   - Implement an async function `processSerializeTriples(args = process.argv.slice(2))` that:
+     • Detects the `--serialize-triples` flag and reads the following argument (`pathOrJson`).
+     • If `pathOrJson` refers to an existing file, read its contents; otherwise treat it as an inline JSON string.
+     • Parse the content into one or more digest objects (wrap a single object into an array if needed).
+     • Initialize an N3 `Writer({ format: 'N-Triples' })`, then for each digest:
+       - Define a subject node (e.g. `<${digest.url}>` or a blank node if no URL property).
+       - For each key-value pair in the digest (e.g., url, status, timestamp, body, query, endpoint, binding):
+         * Add a quad with predicate `http://schema.org/<key>` and object as a literal of the value.
+     • Call `writer.end()` and stream the resulting N-Triples string to stdout.
+     • Return `true` to signal the flag was handled and prevent further CLI flags.
+   - In `main(args)`, immediately after `processDigest`, invoke `await processSerializeTriples(args)`; if it returns `true`, exit early.
+
+3. sandbox/source/main.js
+   - Mirror the same logic for the sandbox CLI:
+     • Import `fs` and `{ Writer }` from `n3`.
+     • Add an async `processSerializeTriples(args)` following the same behavior.
+     • In `main(args)`, call `await processSerializeTriples(args)` before falling back to printing usage.
+
+4. Tests
+   - Create `tests/unit/main-serialize.test.js` and `sandbox/tests/main-serialize.test.js` with scenarios for:
+     • File input: stub `fs.promises.readFile` to return a JSON array or object.
+     • Inline JSON: pass a string argument.
+     • Single digest vs. array of digests.
+     • Mock `n3.Writer` to capture `addQuad` and `end`.
+     • Assert correct triples are added for each digest property and that `processSerializeTriples` returns `true`.
+
+5. Documentation
+   - Update `sandbox/README.md` to document the new `--serialize-triples` flag:
+     • Describe the argument options (file path vs. inline JSON).
+     • Show example commands:
+       ```bash
+       node sandbox/source/main.js --serialize-triples path/to/digest.json
+       node sandbox/source/main.js --serialize-triples '{"url":"https://a.com","status":200,"timestamp":"2025-01-01T00:00:00Z"}'
+       ```
+     • Include sample N-Triples output.
+
+Verification & Acceptance:
+
+- Run `npm test` and confirm all existing and new serialize tests pass.
+- Manually invoke the CLI:
+  ```bash
+  node src/lib/main.js --serialize-triples path/to/digest.json
+  node src/lib/main.js --serialize-triples '{"url":"https://a.com","status":200,"timestamp":"2025-01-01T00:00:00Z"}'
+  ```
+  and verify N-Triples are printed to stdout for each digest.  
+- Code review ensures adherence to ESM module style and logging conventions.
+
+LLM API Usage:
+```json
+{"prompt_tokens":19353,"completion_tokens":3240,"total_tokens":22593,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2304,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
