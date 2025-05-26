@@ -662,3 +662,110 @@ LLM API Usage:
 ```
 ---
 
+## Maintained Feature at 2025-05-26T04:35:50.790Z
+
+Activity:
+
+Maintained feature SPARQL_CRAWLER
+
+Git diff:
+```
+diff --git a/sandbox/features/WIKIDATA_CRAWLER.md b/sandbox/features/WIKIDATA_CRAWLER.md
+deleted file mode 100644
+index 58da4f6b..00000000
+--- a/sandbox/features/WIKIDATA_CRAWLER.md
++++ /dev/null
+@@ -1,40 +0,0 @@
+-# Objective & Scope
+-
+-Provide a new CLI command flag `--crawl` that accepts a SPARQL query or predefined query identifier and retrieves matching data from the Wikidata SPARQL endpoint. The feature transforms the result set into a structured JSON knowledge graph and writes it to stdout or to a user-supplied output file.
+-
+-# Value Proposition
+-
+-Enable users to quickly bootstrap a local knowledge graph of entities in the physical world by issuing SPARQL queries directly from the CLI. This core capability accelerates data ingestion from public sources without requiring custom scripts.
+-
+-# Success Criteria & Requirements
+-
+-- Users can pass `--crawl` followed by a SPARQL query string or a named preset to the CLI.
+-- The CLI fetches data from https://query.wikidata.org/sparql with `Accept: application/sparql-results+json`.
+-- The JSON results are transformed into an array of node objects with key, label, and properties fields.
+-- Users can optionally specify `--output <path>` to write the graph JSON to a file instead of stdout.
+-- Feature must include automated tests mocking the SPARQL endpoint to verify parsing logic.
+-
+-# Dependencies & Constraints
+-
+-- Add `node-fetch` as a dependency for HTTP requests to the SPARQL endpoint.
+-- Ensure compatibility with Node.js 20 built-in or polyfilled `fetch` API.
+-- Validate that the query parameter is a nonempty string.
+-- Respect rate limits of the Wikidata endpoint; no retry logic is required in this iteration.
+-
+-# User Scenarios & Examples
+-
+-1. Retrieve all capital cities in Europe:
+-   cli-tool --crawl "SELECT ?item ?itemLabel WHERE { ?item wdt:P31 wd:Q515; wdt:P17 wd:Q46. SERVICE wikibase:label { bd:serviceParam wikibase:language \"en\". } }"
+-
+-2. Use a named preset for common queries:
+-   cli-tool --crawl capitals-europe --output capitals.json
+-
+-3. Emit the default result to stdout:
+-   cli-tool --crawl "SELECT ..."
+-
+-# Verification & Acceptance
+-
+-- Unit tests in `tests/unit/crawl.test.js` mock the fetch call and verify the transformation to node objects.
+-- Integration test in `sandbox/tests` runs the CLI with a dummy endpoint environment variable pointing to a local mock server.
+-- README updated to document `--crawl` flag, query usage, and output options.
+-- Manual acceptance: run against the real SPARQL endpoint and inspect the JSON output for valid node structures.
+\ No newline at end of file\n\n// New [sandbox/features/SPARQL_CRAWLER.md]:\n# Objective & Scope
+
+Extend the CLI tool to support multi-source SPARQL crawling across public endpoints, integrating the existing sandbox behavior into the core CLI located in `src/lib/main.js`. Users can invoke `--crawl` on named or raw SPARQL queries and target Wikidata or DBpedia (and future endpoints) to bootstrap a knowledge graph from multiple data sources.
+
+# Value Proposition
+
+Enable users to ingest structured data from various SPARQL endpoints directly within the primary CLI. This unifies public data crawling into one command, avoids context switching to sandbox code, and accelerates building a federated knowledge graph of the physical world.
+
+# Success Criteria & Requirements
+
+- Users can pass `--crawl <queryOrPreset>` and optional `--source <sourceId>` (defaults to `wikidata`).
+- Supported sources: `wikidata` => `https://query.wikidata.org/sparql`, `dbpedia` => `https://dbpedia.org/sparql`.
+- Query parameter may be a raw SPARQL string or a named preset defined in code or config.
+- CLI fetches data with header `Accept: application/sparql-results+json` and transforms results to `Array<{ key: string, label: string, properties: Record<string,string> }>`.
+- Support `--output <file>` to write pretty-printed JSON to a filesystem path; otherwise print to stdout.
+- Handle missing or unknown `--source` and empty query by logging an error and exiting with non-zero code.
+- Include automated tests in `tests/unit/main.test.js` mocking fetch, verifying endpoint URL selection, transformation logic, stdout output, and file writes.
+
+# Dependencies & Constraints
+
+- Use built-in Node.js 20 `fetch` API or add `node-fetch` if necessary.
+- Introduce endpoint map in core CLI code, avoid sandbox-specific logic.
+- Validate CLI arguments manually or via a lightweight schema library (e.g., Zod) to enforce non-empty query and valid source values.
+- Respect SPARQL endpoint rate-limits; retry logic is out of scope for this iteration.
+
+# User Scenarios & Examples
+
+1. Crawl Wikidata with raw query to stdout:
+   cli-tool --crawl "SELECT ?item ?itemLabel WHERE { ... }"
+
+2. Crawl DBpedia using raw SPARQL and save to file:
+   cli-tool --source dbpedia --crawl "SELECT ?s ?o WHERE { ... }" --output data.json
+
+3. Use a named preset defined in code:
+   cli-tool --source wikidata --crawl capitals-europe --output europe.json
+
+4. Error on invalid source or empty query:
+   cli-tool --source unknown --crawl ""  => logs error and exits non-zero
+
+# Verification & Acceptance
+
+- Unit tests in `tests/unit/main.test.js` stub global `fetch` and `fs.writeFileSync`, asserting correct URL construction, JSON transformation, and output behavior.
+- Integration test invoking `node src/lib/main.js --source dbpedia --crawl "..."` prints valid JSON and exits with code 0.
+- README updated under **CLI Flags** to document `--crawl` and `--source` usage.
+- Manual acceptance: run against real endpoints and inspect output for valid node objects.
+```
+
+LLM API Usage:
+```json
+{"prompt_tokens":14945,"completion_tokens":1265,"total_tokens":16210,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":512,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
