@@ -350,4 +350,285 @@ LLM API Usage:
 {"prompt_tokens":10127,"completion_tokens":1955,"total_tokens":12082,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1216,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Code at 2025-05-26T03:40:31.947Z
+
+Activity:
+
+fixApplied: true with message Implement multi-source SPARQL crawl in sandbox CLI with tests and documentation
+
+Git Diff:
+```diff
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..55190e56 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -1,13 +1,102 @@
+ #!/usr/bin/env node
+ // sandbox/source/main.js
+ 
+-import { fileURLToPath } from "url";
++import fs from "fs";
+ 
+-export function main(args) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
++export async function main(args = process.argv.slice(2)) {
++  const usage = `Usage: node sandbox/source/main.js [--help] [--source wikidata|dbpedia] --crawl <SPARQL_QUERY> [--output <file>]`;
++
++  if (args.includes("--help")) {
++    console.log(usage);
++    return;
++  }
++
++  // Default source is wikidata
++  let source = "wikidata";
++  let idx = args.indexOf("--source");
++  if (idx !== -1) {
++    if (idx + 1 >= args.length) {
++      console.error("Missing source identifier after --source");
++      throw new Error("Missing source identifier");
++    }
++    source = args[idx + 1];
++    const validSources = ["wikidata", "dbpedia"];
++    if (!validSources.includes(source)) {
++      console.error(`Unknown source: ${source}`);
++      throw new Error(`Unknown source: ${source}`);
++    }
++  }
++
++  // Ensure --crawl flag is present
++  const crawlIdx = args.indexOf("--crawl");
++  if (crawlIdx === -1) {
++    console.log("No --crawl flag supplied.");
++    console.log(usage);
++    return;
++  }
++
++  if (crawlIdx + 1 >= args.length) {
++    console.error("Missing SPARQL query after --crawl");
++    throw new Error("Missing SPARQL query");
++  }
++  const query = args[crawlIdx + 1];
++  if (!query) {
++    console.error("Empty SPARQL query");
++    throw new Error("Empty SPARQL query");
++  }
++
++  // SPARQL endpoints
++  const endpoints = {
++    wikidata: "https://query.wikidata.org/sparql",
++    dbpedia: "https://dbpedia.org/sparql",
++  };
++  const endpoint = endpoints[source];
++  const url = `${endpoint}?query=${encodeURIComponent(query)}`;
++
++  // Fetch SPARQL results
++  let response;
++  try {
++    response = await fetch(url, {
++      headers: { Accept: "application/sparql-results+json" },
++    });
++  } catch (err) {
++    console.error(`Fetch error: ${err}`);
++    throw err;
++  }
++  if (!response.ok) {
++    console.error(`HTTP error: ${response.status}`);
++    throw new Error(`HTTP error: ${response.status}`);
++  }
++
++  const data = await response.json();
++  const bindings = (data.results && data.results.bindings) || [];
++  const nodes = bindings.map((binding) => {
++    const { item, itemLabel, ...rest } = binding;
++    const key = item.value;
++    const label = itemLabel.value;
++    const properties = {};
++    for (const [k, v] of Object.entries(rest)) {
++      properties[k] = v.value;
++    }
++    return { key, label, properties };
++  });
++
++  const outputStr = JSON.stringify(nodes, null, 2);
++
++  const outIdx = args.indexOf("--output");
++  if (outIdx !== -1) {
++    if (outIdx + 1 >= args.length) {
++      console.error("Missing output file path after --output");
++      throw new Error("Missing output file path");
++    }
++    const outPath = args[outIdx + 1];
++    fs.writeFileSync(outPath, outputStr, "utf8");
++  } else {
++    console.log(outputStr);
++  }
+ }
+ 
+-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  const args = process.argv.slice(2);
+-  main(args);
++// Execute when run directly
++if (import.meta.url.endsWith("/sandbox/source/main.js") && require.main === undefined) {
++  main().catch(() => process.exit(1));
+ }
+diff --git a/sandbox/tests/main.test.js b/sandbox/tests/main.test.js
+index 04c527ce..68e85d57 100644
+--- a/sandbox/tests/main.test.js
++++ b/sandbox/tests/main.test.js
+@@ -1,9 +1,78 @@
+-import { describe, test } from "vitest";
+-import { main } from "@sandbox/source/main.js";
++import fs from "fs";
++import os from "os";
++import path from "path";
++import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
++import { main } from "../source/main.js";
+ 
+-describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "sandbox/source/main.js"];
+-    main();
++describe("--crawl command", () => {
++  const sampleResponse = {
++    results: {
++      bindings: [
++        {
++          item: { value: "http://example.com/item1" },
++          itemLabel: { value: "Item1" },
++          prop1: { value: "Val1" },
++        },
++      ],
++    },
++  };
++
++  beforeEach(() => {
++    vi.stubGlobal(
++      "fetch",
++      vi.fn(() =>
++        Promise.resolve({
++          ok: true,
++          json: () => Promise.resolve(sampleResponse),
++        })
++      )
++    );
++    vi.spyOn(fs, "writeFileSync").mockImplementation(() => {});
++    vi.spyOn(console, "log").mockImplementation(() => {});
++    vi.spyOn(console, "error").mockImplementation(() => {});
++  });
++
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  test("writes to stdout when no output", async () => {
++    await main(["--crawl", "TEST_QUERY"]);
++    const expected = [
++      { key: "http://example.com/item1", label: "Item1", properties: { prop1: "Val1" } },
++    ];
++    expect(console.log).toHaveBeenCalledWith(JSON.stringify(expected, null, 2));
++    expect(fetch).toHaveBeenCalledWith(
++      'https://query.wikidata.org/sparql?query=' + encodeURIComponent("TEST_QUERY"),
++      { headers: { Accept: "application/sparql-results+json" } }
++    );
++  });
++
++  test("writes to file when output specified", async () => {
++    const tempFile = path.join(os.tmpdir(), "out.json");
++    await main(["--crawl", "TEST_QUERY", "--output", tempFile]);
++    const expected = [
++      { key: "http://example.com/item1", label: "Item1", properties: { prop1: "Val1" } },
++    ];
++    expect(fs.writeFileSync).toHaveBeenCalledWith(
++      tempFile,
++      JSON.stringify(expected, null, 2),
++      "utf8"
++    );
++  });
++
++  test("uses dbpedia endpoint when source specified", async () => {
++    await main(["--source", "dbpedia", "--crawl", "TEST_QUERY"]);
++    expect(fetch).toHaveBeenCalledWith(
++      'https://dbpedia.org/sparql?query=' + encodeURIComponent("TEST_QUERY"),
++      { headers: { Accept: "application/sparql-results+json" } }
++    );
++  });
++
++  test("errors on unknown source", async () => {
++    await expect(
++      main(["--source", "unknown", "--crawl", "Q"])
++    ).rejects.toThrow("Unknown source: unknown");
++    expect(console.error).toHaveBeenCalledWith("Unknown source: unknown");
+   });
+ });\n\n// New [sandbox/README.md]:\n# Agentic-lib Sandbox CLI
+
+This is a sandbox CLI for **agentic-lib**, inspired by our mission:
+
+> Build a knowledge graph of the physical world by crawling public data sources.
+
+**Links:**
+
+- [Mission](./MISSION.md)
+- [Contributing](../CONTRIBUTING.md)
+- [License](../LICENSE.md)
+- [Repository](https://github.com/xn-intenton-z2a/agentic-lib)
+
+## CLI Flags
+
+Usage:
+```bash
+node sandbox/source/main.js [--help] [--source wikidata|dbpedia] --crawl <SPARQL_QUERY> [--output <file>]
+```
+
+Flags:
+
+- `--help`
+  Show help message and usage instructions.
+
+- `--source <sourceId>`
+  Choose SPARQL endpoint (`wikidata`|`dbpedia`). Defaults to `wikidata`.
+
+- `--crawl <SPARQL_QUERY>`
+  Execute the SPARQL query against the selected endpoint and transform results into a JSON knowledge graph.
+
+- `--output <file>`
+  Write the resulting JSON to a file instead of printing to stdout.
+
+## Examples
+
+```bash
+# Crawl Wikidata and print to stdout
+node sandbox/source/main.js --crawl "SELECT ?item ?itemLabel WHERE { ... }"
+
+# Crawl DBpedia and save to file
+node sandbox/source/main.js --source dbpedia --crawl "SELECT ?item ?itemLabel WHERE { ... }" --output dbpedia.json
+```
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/agentic-lib@6.9.8-0 sandbox
+> node sandbox/source/main.js
+
+file:///home/runner/work/agentic-lib/agentic-lib/sandbox/source/main.js:100
+if (import.meta.url.endsWith("/sandbox/source/main.js") && require.main === undefined) {
+                                                           ^
+
+ReferenceError: require is not defined in ES module scope, you can use import instead
+This file is being treated as an ES module because it has a '.js' file extension and '/home/runner/work/agentic-lib/agentic-lib/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+    at file:///home/runner/work/agentic-lib/agentic-lib/sandbox/source/main.js:100:60
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.1
+```
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1642 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":13646,"completion_tokens":6790,"total_tokens":20436,"prompt_tokens_details":{"cached_tokens":4352,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4480,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
