@@ -641,10 +641,14 @@ jobs:
                 const crawlDateStr = crawlDate.toISOString();
 
                 documentContent = `# ${parsed.documentName}\n\n`;
-                documentContent += `## Crawl Summary\n${parsed.crawlSummary}\n\n`;
-                documentContent += `## Normalised Extract\n${parsed.normalisedExtract}\n\n`;
-                documentContent += `## Supplementary Details\n${parsed.supplementaryDetails}\n\n`;
-                documentContent += `## Reference Details\n${parsed.referenceDetails}\n\n`;
+                documentContent += `
+            ## Crawl Summary\n${parsed.crawlSummary}\n\n`;
+                documentContent += `
+            ## Normalised Extract\n${parsed.normalisedExtract}\n\n`;
+                documentContent += `
+            ## Supplementary Details\n${parsed.supplementaryDetails}\n\n`;
+                documentContent += `
+            ## Reference Details\n${parsed.referenceDetails}\n\n`;
 
                 // Use the LLM-generated Information Dense Extract
                 let llmInformationDenseExtract = '';
@@ -662,7 +666,8 @@ jobs:
                   llmInformationDenseExtract = combinedContent;
                 }
 
-                documentContent += `## Information Dense Extract\n${llmInformationDenseExtract}\n\n`;
+                documentContent += `
+            ## Information Dense Extract\n${llmInformationDenseExtract}\n\n`;
 
                 // Create Sanitised Extract by sanitizing the Normalised Extract
                 let sanitisedExtract = '';
@@ -688,18 +693,23 @@ jobs:
                     .trim();
                 }
 
-                documentContent += `## Sanitised Extract\n${sanitisedExtract}\n\n`;
-                documentContent += `## Original Source\n${sourceEntry.name}\n${sourceEntry.url}\n\n`;
-                documentContent += `## Digest of ${parsed.documentName}\n\n`;
+                documentContent += `
+            ## Sanitised Extract\n${sanitisedExtract}\n\n`;
+                documentContent += `
+            ## Original Source\n${sourceEntry.name}\n${sourceEntry.url}\n\n`;
+                documentContent += `
+            ## Digest of ${parsed.documentName}\n\n`;
                 documentContent += `${parsed.documentDetailedDigest}\n\n`;
-                documentContent += `## Attribution\n`;
+                documentContent += `
+            ## Attribution\n`;
                 documentContent += `- Source: ${sourceEntry.name}\n`;
                 documentContent += `- URL: ${sourceEntry.url}\n`;
                 documentContent += `- License: ${sourceEntry.license || 'Unknown'}\n`;
                 documentContent += `- Crawl Date: ${crawlDateStr}\n`;
                 documentContent += `- Data Size: ${crawlResult.dataSize} bytes\n`;
                 documentContent += `- Links Found: ${crawlResult.links.length}\n\n`;
-                documentContent += `## Retrieved\n${dateStr}\n`;
+                documentContent += `
+            ## Retrieved\n${dateStr}\n`;
 
                 // Save the raw crawl data to a text file
                 const rawCrawlFilePath = path.join(libraryDocumentsPath, `${parsed.documentName}_RAW_CRAWL.txt`);

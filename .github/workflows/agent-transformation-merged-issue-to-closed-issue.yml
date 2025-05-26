@@ -190,7 +190,8 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Reviewed Merged Issue at ${isoDate}
+            const activityLogContent = `
+            ## Reviewed Merged Issue at ${isoDate}
             
             Activity:
             

@@ -230,7 +230,8 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Issue to Ready Issue at ${isoDate}
+            const activityLogContent = `
+            ## Issue to Ready Issue at ${isoDate}
             
             Activity:
             

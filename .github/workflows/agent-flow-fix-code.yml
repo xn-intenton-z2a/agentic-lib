@@ -678,7 +678,8 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Fixed Code at ${isoDate}
+            const activityLogContent = `
+            ## Fixed Code at ${isoDate}
             
             Activity:
             

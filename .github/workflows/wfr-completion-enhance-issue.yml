@@ -845,7 +845,8 @@ jobs:
                         owner: context.repo.owner,
                         repo: context.repo.repo,
                         issue_number: issueNumber,
-                        body: `## Relevant Library Document: ${docName}\n\n${commentContent}`
+                        body: `
+            ## Relevant Library Document: ${docName}\n\n${commentContent}`
                       });
                     } else {
                       core.warning(`Document ${docName} not found in library files.`);

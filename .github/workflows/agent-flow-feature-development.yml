@@ -221,7 +221,8 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Feature to Issue at ${isoDate}
+            const activityLogContent = `
+            ## Feature to Issue at ${isoDate}
             
             Activity:
             
@@ -370,7 +371,8 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Issue to enhanced Issue at ${isoDate}
+            const activityLogContent = `
+            ## Issue to enhanced Issue at ${isoDate}
             
             Activity:
             

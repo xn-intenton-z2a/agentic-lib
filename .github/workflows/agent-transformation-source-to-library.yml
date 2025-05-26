@@ -143,12 +143,7 @@ jobs:
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
 
-            const activity = `Crawl summary: ${crawlSummary} produced the following
-            
-            git diff:
-            \`\`\`diff
-            ${gitDiff}
-            \`\`\``);
+            const activity = `Crawl summary: ${crawlSummary}`);
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -161,7 +156,8 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Maintained Library Documents at ${isoDate}
+            const activityLogContent = `
+            ## Maintained Library Documents at ${isoDate}
             
             Activity:
             

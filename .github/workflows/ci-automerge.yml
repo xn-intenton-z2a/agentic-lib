@@ -344,7 +344,7 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Merge PR activity at ${isoDate}
+            const activityLogContent = `\n## Merge PR activity at ${isoDate}
             
             ${activity}
             

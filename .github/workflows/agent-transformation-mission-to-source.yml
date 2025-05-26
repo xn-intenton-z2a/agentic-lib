@@ -168,12 +168,7 @@ jobs:
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
 
-            const activity = `Updated library sources with the following 
-            
-            git diff:
-            \`\`\`diff
-            ${gitDiff}
-            \`\`\``;
+            const activity = `Updated library sources`;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -186,7 +181,8 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Maintained Library Sources at ${isoDate}
+            const activityLogContent = `
+            ## Maintained Library Sources at ${isoDate}
             
             Activity:
             
