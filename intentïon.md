@@ -160,3 +160,57 @@ LLM API Usage:
 ```
 
 ---
+## Feature to Issue at 2025-05-26T18:23:26.388Z
+
+Activity:
+
+Generated issue 1647 for feature "public-data-crawler" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1647
+
+title:
+
+Add CLI "crawl" Command for Public Data Fetching
+
+And description:
+
+## Summary
+
+Introduce a new `--crawl <url>` option in the sandbox CLI (`sandbox/source/main.js`) to fetch JSON from any public endpoint (leveraging the built-in Node 20 `fetch`), parse it, and log the result. This lays the groundwork for crawling public data sources and begins fulfilling the mission of building a knowledge graph of the physical world.
+
+## Changes Required
+
+1. **sandbox/source/main.js**
+   - Change `export function main(args)` to an `async` function.
+   - Detect when `args[0] === "--crawl"` and `args[1]` is provided:
+     - Use the global `fetch` API to GET `args[1]`.
+     - Parse the response via `await response.json()`.
+     - Log the parsed JSON with `console.log(JSON.stringify(data))`.
+     - Exit the function.
+   - Preserve existing behavior (logging `Run with:`) for other invocations.
+
+2. **sandbox/tests/main.test.js**
+   - Import `vi` from Vitest and stub the global `fetch` to return a dummy JSON payload.
+   - Add a new test: call `await main(["--crawl", "http://example.com/data"])` and verify `console.log` is called with the stringified dummy JSON.
+   - Maintain the existing test for termination without error.
+
+3. **sandbox/README.md**
+   - Document the new `--crawl` command under the **Usage** section:
+     ```bash
+     # Fetch and display JSON from a public URL
+     npm run sandbox -- --crawl <url>
+     ```
+   - Explain that Node 20’s built-in `fetch` is used, and the output will be the raw JSON string.
+
+## Verification Steps
+
+1. Run `npm test` and ensure all existing and new tests in `sandbox/tests/main.test.js` pass.
+2. Execute `npm run sandbox -- --crawl http://example.com/data`:
+   - With a stubbed or real endpoint returning JSON, verify the parsed JSON is printed as a string.
+3. Call `npm run sandbox` with no arguments to confirm the original `Run with: []` behavior still works.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":8826,"completion_tokens":2648,"total_tokens":11474,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2112,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
