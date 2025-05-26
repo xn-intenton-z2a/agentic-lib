@@ -1466,3 +1466,59 @@ LLM API Usage:
 ```
 
 ---
+## Feature to Issue at 2025-05-26T21:22:00.625Z
+
+Activity:
+
+Generated issue 1653 for feature "sparql-crawler-caching" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1653
+
+title:
+
+Add In-Memory Caching Layer for SPARQL Crawler
+
+And description:
+
+## Summary
+
+Introduce an in-memory caching layer for the `--sparql` CLI command to reduce redundant requests against public SPARQL endpoints and respect rate limits. By caching responses for a configurable TTL, we can minimize API load and improve performance when querying the same source and query multiple times.
+
+## Changes Required
+
+1. **sandbox/source/main.js**
+   - At the top of the file, import or initialize a simple cache (e.g., a `Map<string,{ expiresAt: number, data: any }>`).
+   - Read an environment variable `SPARQL_CACHE_TTL` (in seconds, default `300`) to configure TTL.
+   - Before issuing `fetch` for a SPARQL request, construct a cache key from the source name and the encoded query.
+     - If the cache contains a non-expired entry for that key, skip `fetch` and `console.log` the cached bindings directly.
+     - Otherwise, perform the `fetch`, parse the JSON, extract `bindings`, store them in the cache with `expiresAt = Date.now() + ttl * 1000`, and then `console.log` them.
+   - Ensure error paths (`unsupported source` and fetch errors) bypass caching and behave as existing code.
+
+2. **sandbox/tests/main-sparql.test.js**
+   - Add a new test to verify caching behavior:
+     1. Mock `global.fetch` to return a dummy SPARQL response with a unique bindings array.
+     2. Call `await main(["--sparql","wikidata"]);` twice in sequence.
+     3. Assert that `global.fetch` was called only once and that the second invocation logs the same cached result.
+   - Maintain existing tests for unsupported source and error handling.
+
+3. **sandbox/docs/SPARQL_CRAWLER.md**
+   - Document the caching feature under a new **Caching** section:
+     - Explain that queries are cached for `SPARQL_CACHE_TTL` seconds (default 300).
+     - Show how to override TTL via environment variable.
+     - Clarify that cached bindings are returned immediately on repeated invocations.
+
+4. **sandbox/docs/USAGE.md** and **sandbox/README.md**
+   - Under **SPARQL Crawler Command**, note the caching behavior and environment variable `SPARQL_CACHE_TTL`.
+
+## Verification Steps
+
+1. Set `SPARQL_CACHE_TTL=1` (1 second) in your shell and start a fresh terminal to clear any prior cache.
+2. In one terminal, run `npm run sandbox -- --sparql wikidata` and note the logged bindings.
+3. Immediately run the same command again; confirm that `global.fetch` is not invoked a second time (no network activity) and bindings are returned from cache.
+4. Wait longer than TTL (e.g., 2 seconds) and run the command again; confirm that a new fetch occurs and bindings are refreshed.
+5. Run `npm test` and ensure all SPARQL tests (including the new cache test) pass.
+
+LLM API Usage:
+```json
+{"prompt_tokens":22187,"completion_tokens":1481,"total_tokens":23668,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":768,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
