@@ -1178,3 +1178,291 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-26T20:58:48.212Z
+
+Activity:
+
+fixApplied: true with message Implement HTTP API endpoint in sandbox CLI add tests and documentation and route start script to sandbox CLI
+
+Git Diff:
+```diff
+diff --git a/package.json b/package.json
+index 406db02d..d1442d33 100644
+--- a/package.json
++++ b/package.json
+@@ -16,7 +16,7 @@
+     "test": "vitest --run tests/unit/*.test.js sandbox/tests/*.test.js",
+     "test:unit": "vitest --run --coverage tests/unit/*.test.js sandbox/tests/*.test.js",
+     "sandbox": "node sandbox/source/main.js",
+-    "start": "node src/lib/main.js"
++    "start": "node sandbox/source/main.js"
+   },
+   "keywords": [],
+   "author": "https://github.com/xn-intenton-z2a",
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e32a7038..dcc03e53 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -2,14 +2,69 @@
+ // sandbox/source/main.js
+ 
+ import { fileURLToPath } from "url";
++import express from "express";
++import { createSQSEventFromDigest, digestLambdaHandler } from "../../src/lib/main.js";
++
++/**
++ * Create and configure the Express HTTP server for digest ingestion.
++ * @returns {import('express').Express}
++ */
++export function createHttpServer() {
++  const app = express();
++  // parse JSON bodies
++  app.use(express.json());
++
++  // POST /digest endpoint
++  app.post("/digest", async (req, res) => {
++    try {
++      const event = createSQSEventFromDigest(req.body);
++      const result = await digestLambdaHandler(event);
++      return res.status(200).json({ batchItemFailures: result.batchItemFailures });
++    } catch (error) {
++      console.error(
++        JSON.stringify({
++          level: "error",
++          message: "Error handling /digest",
++          error: error ? error.toString() : undefined,
++        })
++      );
++      return res.status(500).json({ error: "Internal Server Error" });
++    }
++  });
++
++  // Middleware to catch invalid JSON parse errors
++  // eslint-disable-next-line no-unused-vars
++  app.use((err, req, res, next) => {
++    if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
++      return res.status(400).json({ error: "Invalid JSON" });
++    }
++    return next(err);
++  });
++
++  return app;
++}
++
++/**
++ * Main CLI entrypoint: runs HTTP server if no arguments, otherwise echoes args.
++ * @param {string[]} args
++ */
++export async function main(args = process.argv.slice(2)) {
++  // If no CLI args specified, start HTTP server
++  if (args.length === 0) {
++    const app = createHttpServer();
++    const port = process.env.PORT || 3000;
++    app.listen(port, () => {
++      console.log(`Listening on port ${port}`);
++    });
++    return;
++  }
+ 
+-export async function main(args) {
+   // SPARQL crawler CLI command
+   if (args[0] === "--sparql" && args[1]) {
+     const source = args[1].toLowerCase();
+     const endpoints = {
+       wikidata: "https://query.wikidata.org/sparql",
+-      dbpedia: "http://dbpedia.org/sparql"
++      dbpedia: "http://dbpedia.org/sparql",
+     };
+     if (!endpoints[source]) {
+       console.error(`Unsupported SPARQL source: ${source}`);
+@@ -17,14 +72,15 @@ export async function main(args) {
+     }
+     const defaultQueries = {
+       wikidata: "SELECT ?item WHERE { ?item wdt:P31 wd:Q5 } LIMIT 10",
+-      dbpedia: "PREFIX dbo: <http://dbpedia.org/ontology/> SELECT ?item WHERE { ?item a dbo:Person } LIMIT 10"
++      dbpedia:
++        "PREFIX dbo: <http://dbpedia.org/ontology/> SELECT ?item WHERE { ?item a dbo:Person } LIMIT 10",
+     };
+     const query = args[2] || defaultQueries[source];
+     const url = new URL(endpoints[source]);
+     url.searchParams.set("query", query);
+     try {
+       const response = await fetch(url.toString(), {
+-        headers: { Accept: "application/sparql-results+json" }
++        headers: { Accept: "application/sparql-results+json" },
+       });
+       const json = await response.json();
+       const bindings =
+@@ -54,7 +110,8 @@ export async function main(args) {
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
++// Execute main if run directly
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   const args = process.argv.slice(2);
+   main(args);
+-}
+\ No newline at end of file
++}\n\n// New [sandbox/docs/HTTP_API.md]:\n# HTTP API Endpoint
+
+## Overview
+
+This HTTP API provides an Express-based endpoint to ingest digest payloads directly over HTTP. It wraps incoming JSON bodies into SQS-style events and invokes the existing `digestLambdaHandler`.
+
+## Starting the Server
+
+Launch the server using the npm `start` script:
+
+```bash
+npm run start
+```
+
+By default, it listens on port `3000` (or the port defined in the `PORT` environment variable) and logs:
+
+```
+Listening on port 3000
+```
+
+## Endpoint
+
+### POST /digest
+
+Accepts a JSON body matching the digest schema and returns the `batchItemFailures` from the handler.
+
+#### Request
+
+- **Headers**: `Content-Type: application/json`
+- **Body**: JSON object with the following shape:
+
+  ```json
+  {
+    "key": "path/to/object",
+    "value": "objectValue",
+    "lastModified": "2025-05-26T18:00:00.000Z"
+  }
+  ```
+
+#### Responses
+
+- **200 OK**
+
+  ```json
+  {
+    "batchItemFailures": []
+  }
+  ```
+
+  - `batchItemFailures`: An array of identifiers for records that failed processing.
+
+- **400 Bad Request**
+
+  ```json
+  { "error": "Invalid JSON" }
+  ```
+
+  Occurs when the request body is not valid JSON.
+
+- **500 Internal Server Error**
+
+  ```json
+  { "error": "Internal Server Error" }
+  ```
+
+  Indicates an error during handler invocation.
+
+#### Example
+
+```bash
+curl -X POST http://localhost:3000/digest \
+  -H "Content-Type: application/json" \
+  -d '{"key":"events/1.json","value":"12345","lastModified":"2025-05-26T18:00:00.000Z"}'
+```
+
+Response:
+
+```json
+{ "batchItemFailures": [] }
+```\n\n// New [sandbox/tests/main-api.test.js]:\nimport request from "supertest";
+import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
+import { createHttpServer } from "../source/main.js";
+import * as mainModule from "../../src/lib/main.js";
+
+describe("HTTP API /digest", () => {
+  let app;
+
+  beforeEach(() => {
+    app = createHttpServer();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("Success case: returns 200 and batchItemFailures", async () => {
+    const payload = {
+      key: "events/1.json",
+      value: "12345",
+      lastModified: new Date().toISOString(),
+    };
+    const response = await request(app)
+      .post("/digest")
+      .set("Content-Type", "application/json")
+      .send(payload);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("batchItemFailures");
+    expect(Array.isArray(response.body.batchItemFailures)).toBe(true);
+    // Default handler returns no failures
+    expect(response.body.batchItemFailures).toHaveLength(0);
+  });
+
+  test("Invalid JSON: returns 400 and error message", async () => {
+    const response = await request(app)
+      .post("/digest")
+      .set("Content-Type", "application/json")
+      // Malformed JSON
+      .send("{invalidJson:");
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: "Invalid JSON" });
+  });
+
+  test("Handler error: returns 500 and error message", async () => {
+    // Mock the digestLambdaHandler to throw
+    vi.spyOn(mainModule, "digestLambdaHandler").mockImplementation(async () => {
+      throw new Error("Test error");
+    });
+    const payload = {
+      key: "events/2.json",
+      value: "67890",
+      lastModified: new Date().toISOString(),
+    };
+    const response = await request(app)
+      .post("/digest")
+      .set("Content-Type", "application/json")
+      .send(payload);
+
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({ error: "Internal Server Error" });
+  });
+});
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/agentic-lib@6.9.9-0 sandbox
+> node sandbox/source/main.js
+
+{"level":"info","timestamp":"2025-05-26T20:53:24.515Z","message":"Configuration loaded","config":{}}
+Listening on port 3000
+```
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1646 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":23789,"completion_tokens":13378,"total_tokens":37167,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":10112,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
