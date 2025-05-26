@@ -491,3 +491,58 @@ LLM API Usage:
 ```
 ---
 
+
+## Issue to Ready Issue at 2025-05-26T23:40:36.529Z
+
+Activity:
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1661 with action enhance and updated description:
+
+## Overview
+
+Extend the core CLI entrypoint in `src/lib/main.js` to support a `--hello` flag that prints the exact string `Hello World!` and exits immediately, aligning the core functionality with the sandbox CLI.
+
+## Acceptance Criteria
+
+1. **Flag Detection**
+   - The `main` function in `src/lib/main.js` should detect `--hello` before processing any other flags (`--help`, `--version`, `--digest`).
+   - When `--hello` is present in `args`, the CLI must:
+     - Call `console.log("Hello World!")` exactly once.
+     - Return immediately without executing further logic or logging additional output.
+
+2. **Usage Help**
+   - The `generateUsage()` function must include an entry for `--hello` in its output:
+     ```text
+     --hello        Print "Hello World!" and exit immediately.
+     ```
+
+3. **Testing**
+   - Add or update a unit test in `tests/unit/main.test.js` that:
+     - Mocks `console.log` via `vi.spyOn(console, 'log')`.
+     - Invokes `main(['--hello'])` and asserts:
+       - `console.log` is called exactly once.
+       - It is called with the argument `"Hello World!"`.
+     - Ensures no other console outputs occur in this test scenario.
+
+4. **Behavior Preservation**
+   - Running `main([])` or `npm start` without `--hello` must preserve existing behavior:
+     - `--help`, `--version`, and `--digest` flags operate as before.
+     - Default fallback prints usage instructions.
+   - No existing tests should break.
+
+## Verification Steps
+
+1. **Manual CLI**
+   - Run `npm start -- --hello` and confirm only `Hello World!` is printed.
+   - Run `npm start` and verify default and other flags function as expected.
+2. **Automated Tests**
+   - Run `npm test` and ensure:
+     - New `--hello` unit test passes.
+     - All existing tests continue to pass without regressions.
+
+LLM API Usage:
+```json
+{"prompt_tokens":7901,"completion_tokens":906,"total_tokens":8807,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":384,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
