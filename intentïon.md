@@ -118,3 +118,76 @@ LLM API Usage:
 ```
 
 ---
+## Issue to enhanced Issue at 2025-05-26T22:38:52.416Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+## Overview
+
+Introduce a new `--hello` flag in the sandbox CLI (`sandbox/source/main.js`) that prints `Hello World!` and exits immediately, fulfilling the HELLO_COMMAND feature spec.
+
+## Acceptance Criteria
+
+1. **Flag detection and output**
+   - When the CLI is invoked with `--hello`, the code must:
+     - Call `console.log("Hello World!")` exactly once.
+     - Return immediately without executing any further logic (no additional logs or side effects).
+   - Ensure the process exits normally (no uncaught exceptions, exit code `0`).
+
+2. **No impact on existing behavior**
+   - Invoking the CLI without `--hello` must preserve the current behavior:
+     - Log the argument list via `console.log("Run with: ...")`.
+     - Existing flags (`--help`, `--version`, `--digest`) must still work as before.
+
+3. **Automated tests**
+   - Add or update tests in `sandbox/tests/main.test.js` to verify:
+     - `console.log` is called once with "Hello World!" when `main(["--hello"])` is invoked.
+     - No other console output occurs in that scenario.
+
+4. **Documentation**
+   - Update `sandbox/README.md` to include a new section under CLI Usage:
+     ```bash
+     npm run sandbox -- --hello
+     # Output: Hello World!
+
+     node sandbox/source/main.js --hello
+     # Output: Hello World!
+     ```
+
+## Proposed Changes
+
+1. **Code** (`sandbox/source/main.js`)
+   - At the very start of the `main(args)` function, detect `--hello` and if present:
+     1. `console.log("Hello World!")`
+     2. `return` immediately to skip all other logic.
+
+2. **Tests** (`sandbox/tests/main.test.js`)
+   - Import `vi` from `vitest` to spy on `console.log`.
+   - Add a test case for `main(["--hello"])` asserting only the Hello World output.
+
+3. **Documentation** (`sandbox/README.md`)
+   - Add a usage example for the `--hello` flag.
+
+## Verification Steps
+
+1. Run `npm test` and confirm all tests pass, including the new `--hello` tests.
+2. Manually execute:
+   ```bash
+   npm run sandbox -- --hello
+   ```
+   - Should print exactly: `Hello World!`
+3. Execute without the flag:
+   ```bash
+   npm run sandbox
+   ```
+   - Should continue to print `Run with: []` as before.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":6916,"completion_tokens":1409,"total_tokens":8325,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":768,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
