@@ -4,6 +4,10 @@
 import { fileURLToPath } from "url";
 
 export function main(args) {
+  if (args.includes("--hello") || args.length === 0) {
+    console.log("Hello World!");
+    return;
+  }
   console.log(`Run with: ${JSON.stringify(args)}`);
 }
 
