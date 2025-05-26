@@ -133,6 +133,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const branchPrefix = process.env.branchPrefix;
             const pullRequestLabel = process.env.pullRequestLabel;
             let pullNumber = ''
             let branchName = '';
@@ -146,11 +147,13 @@ jobs:
               direction: 'asc'
             });
             if (pullRequests.length > 0) {
-              const filteredPRs = pullRequests.filter(pr => pr.labels.some(label => label.name === pullRequestLabel ));
+              const filteredPRs = pullRequests
+                .filter(pr => pr.labels.some(label => label.name === pullRequestLabel ))
+                .filter(pr => pr.head.ref.startsWith(branchPrefix));
               if (filteredPRs.length > 0) {
                 const pullRequest = filteredPRs[0];
                 pullNumber = pullRequest.number;
-                core.info(`Found open pull request with label ${pullRequestLabel}: #${pullRequest.number}.`);
+                core.info(`Found open pull request with label ${pullRequestLabel}: #${pullRequest.number} and branch name ${pullRequest.head.ref}`);
                 core.info(JSON.stringify(pullRequest));
               } else {
                 core.info(`No open pull request found with label ${pullRequestLabel}.`);
