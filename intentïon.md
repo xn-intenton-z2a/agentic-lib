@@ -676,3 +676,61 @@ LLM API Usage:
 ```
 
 ---
+## Issue to enhanced Issue at 2025-05-26T22:04:40.968Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+Overview:
+Implement the `--sparql` CLI flag to enable structured ingestion of semantic data sources into the SQS event pipeline, following the sandbox/features/SPARQL_CRAWLER specification.
+
+Acceptance Criteria:
+1. CLI Flag Parsing:
+   - Given invocation `node sandbox/source/main.js --sparql "<queryOrPreset>" [--endpoint <url>]`, `processSparql(args)` is invoked, returns `true`, and `main()` exits early without processing other flags.
+   - If `--endpoint` is omitted, default to `https://query.wikidata.org/sparql`.
+   - Recognize named presets (e.g., `wikidata-items`) and substitute the associated SPARQL query; otherwise treat the argument as a raw query string.
+
+2. HTTP Request:
+   - `global.fetch` is called once with:
+     • URL: the resolved endpoint
+     • Method: `POST`
+     • Header: `Content-Type: application/sparql-query`
+     • Body: the SPARQL query string
+
+3. Success Handling:
+   - On a 2xx HTTP response, parse `response.json()` to extract `results.bindings` (array length N):
+     • Call `createSQSEventFromDigest` and `digestLambdaHandler` exactly N times with digest objects containing `{ query, endpoint, binding, timestamp }`.
+     • Call `logInfo` with a message that includes the endpoint and the number of bindings processed.
+     • Return `true` from `processSparql` to short-circuit CLI processing.
+
+4. Error Handling:
+   - On non-2xx status or network failure:
+     • Call `logError` with details including the endpoint, query, and status or error message.
+     • Exit the process with a non-zero code.
+   - On JSON parse errors:
+     • Call `logError` with the endpoint, query, and parsing error details.
+     • Exit the process non-zero.
+
+5. Testing Requirements:
+   - Create `sandbox/tests/main-sparql.test.js` with scenarios for:
+     • Successful response with a sample `results.bindings` array.
+     • HTTP error status (e.g., 500).
+     • Invalid JSON (parse failure).
+   - Mock/spy on `global.fetch`, `createSQSEventFromDigest`, `digestLambdaHandler`, `logInfo`, and `logError`.
+   - Verify correct number of invocations and behavior in success and error cases.
+   - Ensure all new tests pass via `npm test`.
+
+6. Documentation:
+   - Update `sandbox/README.md` to document:
+     • Usage: `node sandbox/source/main.js --sparql <queryOrPreset> [--endpoint <url>]`
+     • Named presets (e.g., `wikidata-items`).
+     • Examples of raw and preset usage.
+     • Sample JSON-formatted info logs showing the number of processed bindings.
+
+LLM API Usage:
+```json
+{"prompt_tokens":8322,"completion_tokens":1965,"total_tokens":10287,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1280,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
