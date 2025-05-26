@@ -116,3 +116,47 @@ LLM API Usage:
 ```
 
 ---
+## Issue to enhanced Issue at 2025-05-26T18:21:10.781Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+## Summary
+
+Implement an Express-based HTTP API layer to allow external clients to POST digest payloads to `/digest`, wrap them into SQS-style events, invoke the existing `digestLambdaHandler`, and return its results via HTTP.
+
+## Testable Acceptance Criteria
+
+1. **createHttpServer**
+   - Exports a function that returns an Express application instance.
+   - The app uses `express.json()` middleware for JSON parsing.
+
+2. **POST /digest endpoint**
+   - Accepts a valid JSON body conforming to the digest schema (`{ key, value, lastModified }`).
+   - Wraps the parsed body using `createSQSEventFromDigest()` and calls `await digestLambdaHandler(event)`.
+   - On successful handler invocation, responds with HTTP 200 and JSON: `{ batchItemFailures: [...] }` matching the handler’s output.
+   - When request payload is malformed JSON, responds with HTTP 400 and JSON: `{ error: 'Invalid JSON' }`.
+   - When `digestLambdaHandler` throws an error, responds with HTTP 500 and JSON: `{ error: 'Internal Server Error' }`.
+
+3. **Server startup**
+   - When `main()` is invoked with no CLI arguments, it calls `createHttpServer().listen()` on `process.env.PORT || 3000`.
+   - Logs `Listening on port <PORT>` to the console on successful listen.
+
+4. **Automated Tests**
+   - Add `sandbox/tests/main-api.test.js` with Supertest to cover:
+     - **Success case:** POST valid digest yields HTTP 200 and correct `batchItemFailures` array.
+     - **Invalid JSON:** POST malformed JSON yields HTTP 400 and expected error payload.
+     - **Handler error:** Mock `digestLambdaHandler` to throw and verify HTTP 500 and error payload.
+
+5. **Verification**
+   - Running `npm test` should include new tests and pass.
+   - Manual testing with `npm run start` and `curl http://localhost:3000/digest` demonstrates correct behavior.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":7194,"completion_tokens":1072,"total_tokens":8266,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":576,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
