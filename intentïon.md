@@ -115,4 +115,66 @@ LLM API Usage:
 {"prompt_tokens":7217,"completion_tokens":1335,"total_tokens":8552,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":576,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to enhanced Issue at 2025-05-26T00:09:51.436Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+## Summary
+
+Add an HTTP API layer into the core CLI tool so that clients can push digest events and perform health checks without relying on SQS or AWS.
+
+When users run the CLI with `--serve`, an Express server should be started in the same process, providing two endpoints:
+
+- **GET `/health`**: returns HTTP 200 with JSON `{ "status": "ok" }`.
+- **POST `/digest`**: accepts a JSON payload representing a digest, forwards it to the existing `digestLambdaHandler`, and returns its response.
+
+The server must read its port from `process.env.HTTP_API_PORT` (defaulting to 3000), log startup and shutdown events, and handle invalid input and graceful termination.
+
+## Acceptance Criteria
+
+1. **Server Startup**
+   - Running `npm run start -- --serve` or `node src/lib/main.js --serve` starts the Express server.
+   - The server listens on the port defined by `HTTP_API_PORT` or on port 3000 if the environment variable is unset.
+   - A startup log message is emitted at the `info` level indicating the listening port.
+
+2. **Health Endpoint**
+   - A GET request to `/health` returns status **200** and JSON `{ "status": "ok" }`.
+   - Endpoint behavior is covered by a Supertest integration test in `tests/unit/http-api.test.js`.
+
+3. **Digest Endpoint**
+   - A POST request to `/digest` with a valid JSON body (e.g., `{ "key": "k", "value": "v", "lastModified": "2025-01-01T00:00:00Z" }`) returns status **200** and a JSON response matching the shape returned by `digestLambdaHandler`, for example:
+     ```json
+     { "batchItemFailures": [], "handler": "src/lib/main.digestLambdaHandler" }
+     ```
+   - A POST request to `/digest` with malformed JSON or missing body returns status **400** and a JSON error message, for example `{ "error": "Invalid JSON payload" }`.
+   - Input validation and error handling are covered by Supertest tests in `tests/unit/http-api.test.js`.
+
+4. **Graceful Shutdown**
+   - Sending `SIGINT` or `SIGTERM` to the process triggers the HTTP server to stop accepting new connections and close existing ones within a reasonable timeout (e.g., 5s).
+   - A shutdown log message is emitted at the `info` level upon completion.
+
+5. **Test Coverage**
+   - New integration tests are added to `tests/unit/http-api.test.js` covering success and failure scenarios for both endpoints.
+   - Ensure that all existing tests remain passing (`npm test` should report no regressions).
+
+6. **Documentation Update**
+   - Update `sandbox/README.md` with an **HTTP API Service** section that includes:
+     - How to start the server.
+     - Default port and `HTTP_API_PORT` override.
+     - Example `curl` commands for `/health` and `/digest`.
+
+## Implementation Notes
+
+- Implement a `processServe(args)` function in `src/lib/main.js` to detect `--serve` and launch Express with built-in JSON parsing.
+- Integrate Express startup in the CLI `main` function before other flags, exiting the process after the server initialization completes.
+- Reuse `digestLambdaHandler` for POST `/digest` logic and format the response accordingly.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":7433,"completion_tokens":1713,"total_tokens":9146,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":896,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
