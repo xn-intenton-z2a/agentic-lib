@@ -67,3 +67,44 @@ LLM API Usage:
 ```
 
 ---
+## Feature to Issue at 2025-05-26T21:28:48.242Z
+
+Activity:
+
+Generated issue 1654 for feature "crawl-command" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1654
+
+title:
+
+Implement --crawl CLI flag to fetch URLs and produce SQS events
+
+And description:
+
+Overview:\n
+Add a new --crawl command to the CLI that accepts one or more comma-separated URLs, fetches each resource using the built-in Node 20 fetch API, converts each response into a standard SQS event, and invokes the existing digest pipeline. This completes the CRAWL_COMMAND feature and enables direct ingestion of external data sources into our event-driven architecture.\n\nTasks:\n1. src/lib/main.js\n   - Create an async function processCrawl(args) that:  
+     • Detects the presence of "--crawl" in the args list.  
+     • Reads the next argument as a comma-separated list of URLs.  
+     • For each URL:  
+       - Calls fetch(url) and awaits the response.  
+       - Builds a digest object: { url, status: response.status, body: await response.text(), timestamp: new Date().toISOString() }.  
+       - Wraps it via createSQSEventFromDigest and calls await digestLambdaHandler(event).  
+       - Logs success via logInfo including URL and timestamp.  
+       - On fetch error or non-2xx status, logs an error via logError(URL, error/status) and continues.  
+     • Returns true when "--crawl" is handled, to short-circuit main.  
+   - In the main(args) flow, call processCrawl(args) immediately after processDigest; if it returns true, exit early.\n\n2. tests/unit/main-crawl.test.js\n   - Mock global.fetch to simulate:  
+     • A successful 200 response containing fixed body text.  
+     • A failing 404 response and a network rejection.  
+   - Spy on createSQSEventFromDigest, digestLambdaHandler, logInfo, and logError.  
+   - Verify on success: correct digest fields, calls to event creation and handler, and logInfo calls.  
+   - Verify on failure: logError is called with the correct URL and error/status, and processing continues through all URLs.  
+   - Assert that processCrawl returns true.\n\n3. sandbox/README.md\n   - Document the new --crawl flag, its usage examples (single and multiple URLs), and expected console output.\n\nVerification:\n- Run `npm test` and confirm all existing tests pass plus the new main-crawl.test.js.\n- Manually invoke `node src/lib/main.js --crawl https://example.com/data.json,https://httpstat.us/404` and observe:  
+  • JSON-encoded SQS events logged for successful URLs.  
+  • Error log entries for failed URLs.  
+  • Process exits cleanly after processing all URLs.  
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":7275,"completion_tokens":2312,"total_tokens":9587,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1664,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
