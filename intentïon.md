@@ -191,3 +191,126 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-26T22:40:20.795Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-1659 with message Add --hello flag to sandbox CLI tests and documentation and outcome success
+
+Git Diff:
+```diff
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..ad8a27a5 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -3,7 +3,13 @@
+ 
+ import { fileURLToPath } from "url";
+ 
+-export function main(args) {
++export function main(args = process.argv.slice(2)) {
++  // Print Hello World! and exit immediately when --hello flag is present
++  if (args.includes("--hello")) {
++    console.log("Hello World!");
++    return;
++  }
++
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
+diff --git a/sandbox/tests/main.test.js b/sandbox/tests/main.test.js
+index 04c527ce..f6cc64b8 100644
+--- a/sandbox/tests/main.test.js
++++ b/sandbox/tests/main.test.js
+@@ -1,9 +1,18 @@
+-import { describe, test } from "vitest";
++import { describe, test, expect, vi } from "vitest";
+ import { main } from "@sandbox/source/main.js";
+ 
+ describe("Main Output", () => {
+   test("should terminate without error", () => {
+     process.argv = ["node", "sandbox/source/main.js"];
++    // Default invocation with no args
+     main();
+   });
++
++  test("prints Hello World! when --hello flag provided", () => {
++    const logSpy = vi.spyOn(console, "log");
++    main(["--hello"]);
++    expect(logSpy).toHaveBeenCalledTimes(1);
++    expect(logSpy).toHaveBeenCalledWith("Hello World!");
++    logSpy.mockRestore();
++  });
+ });\n\n// New [sandbox/README.md]:\n# agentic-lib Sandbox CLI
+
+This sandbox provides a simple CLI to demonstrate the core mission of agentic-lib:
+
+> Print the message: Hello World! as mentioned in reply Print the message: Hello World!
+
+## CLI Usage
+
+Run the sandbox script using Node.js or npm:
+
+```bash
+# Using npm script
+npm run sandbox -- [options]
+
+# Direct invocation with Node.js
+node sandbox/source/main.js [options]
+```
+
+### Supported Options
+
+- `--hello`
+  Prints `Hello World!` to standard output and exits immediately.
+- *(no flags)*
+  Prints the provided argument list in the format `Run with: [...]`.
+
+## Examples
+
+```bash
+# Print Hello World!
+npm run sandbox -- --hello
+# Output: Hello World!
+
+node sandbox/source/main.js --hello
+# Output: Hello World!
+
+# Default behavior when no flags provided
+npm run sandbox
+# Output: Run with: []
+```
+
+---
+
+For contribution guidelines, refer to [CONTRIBUTING.md](../CONTRIBUTING.md).
+For the project mission, see [MISSION.md](./MISSION.md).
+```
+
+mainOutput:
+```log
+
+```
+
+installAfterUpdateOutcome: success
+
+ciAfterUpdateOutcome: success
+
+testAfterUpdateOutcome: success
+
+mainAfterUpdateOutcome: success
+
+commitOutcome: success
+
+postResolutionCommentOutcome: success
+
+allValidationStepsSuccessful: true
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1659 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":11035,"completion_tokens":3171,"total_tokens":14206,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2304,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
