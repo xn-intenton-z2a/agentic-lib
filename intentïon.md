@@ -807,3 +807,201 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-26T19:25:37.982Z
+
+Activity:
+
+fixApplied: true with message Add multi-source SPARQL crawler CLI command with accompanying tests and documentation
+
+Git Diff:
+```diff
+diff --git a/sandbox/docs/USAGE.md b/sandbox/docs/USAGE.md
+index 5ff6cc99..c2572ff4 100644
+--- a/sandbox/docs/USAGE.md
++++ b/sandbox/docs/USAGE.md
+@@ -19,3 +19,25 @@ npm run sandbox -- --crawl https://api.example.com/data
+ ```
+ 
+ The command will perform a GET request to the specified URL, parse the returned JSON, and print it to the console as a JSON string.
++
++## SPARQL Crawler Command
++
++Fetch structured data from public SPARQL endpoints (Wikidata and DBpedia).
++
++Usage:
++```bash
++npm run sandbox -- --sparql <source> [<SPARQL_QUERY>]
++```
++
++- `<source>`: `wikidata` or `dbpedia`.
++- `<SPARQL_QUERY>`: Optional custom SPARQL query. Defaults to a simple query retrieving 10 items.
++
++Examples:
++```bash
++npm run sandbox -- --sparql wikidata
++npm run sandbox -- --sparql dbpedia "SELECT ?item WHERE { ?item a dbo:Person } LIMIT 5"
++```
++
++The command will print a JSON array of SPARQL result `bindings` to the console.
++
++Note: Node 20's global `fetch` is used under the hood.
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index be07d31f..e32a7038 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -4,6 +4,40 @@
+ import { fileURLToPath } from "url";
+ 
+ export async function main(args) {
++  // SPARQL crawler CLI command
++  if (args[0] === "--sparql" && args[1]) {
++    const source = args[1].toLowerCase();
++    const endpoints = {
++      wikidata: "https://query.wikidata.org/sparql",
++      dbpedia: "http://dbpedia.org/sparql"
++    };
++    if (!endpoints[source]) {
++      console.error(`Unsupported SPARQL source: ${source}`);
++      return;
++    }
++    const defaultQueries = {
++      wikidata: "SELECT ?item WHERE { ?item wdt:P31 wd:Q5 } LIMIT 10",
++      dbpedia: "PREFIX dbo: <http://dbpedia.org/ontology/> SELECT ?item WHERE { ?item a dbo:Person } LIMIT 10"
++    };
++    const query = args[2] || defaultQueries[source];
++    const url = new URL(endpoints[source]);
++    url.searchParams.set("query", query);
++    try {
++      const response = await fetch(url.toString(), {
++        headers: { Accept: "application/sparql-results+json" }
++      });
++      const json = await response.json();
++      const bindings =
++        json.results && Array.isArray(json.results.bindings)
++          ? json.results.bindings
++          : [];
++      console.log(JSON.stringify(bindings));
++    } catch (error) {
++      console.error(`Error fetching SPARQL data: ${error}`);
++    }
++    return;
++  }
++
+   // CLI option to crawl a public URL and print JSON response
+   if (args[0] === "--crawl" && args[1]) {
+     try {
+@@ -23,4 +57,4 @@ export async function main(args) {
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   const args = process.argv.slice(2);
+   main(args);
+-}
++}
+\ No newline at end of file\n\n// New [sandbox/docs/SPARQL_CRAWLER.md]:\n# SPARQL Crawler CLI Command
+
+## Overview
+
+The SPARQL crawler CLI command allows querying public SPARQL endpoints (Wikidata and DBpedia) to fetch structured knowledge-graph data. It uses Node.js built-in `fetch` and logs the resulting JSON bindings.
+
+## Supported Sources
+
+- **wikidata**: `https://query.wikidata.org/sparql`
+- **dbpedia**: `http://dbpedia.org/sparql`
+
+## Usage
+
+```bash
+npm run sandbox -- --sparql <source> [<SPARQL_QUERY>]
+```
+
+- `<source>`: `wikidata` or `dbpedia`.
+- `<SPARQL_QUERY>`: Optional custom SPARQL query. If omitted, a default query is used:
+  - **wikidata** default: `SELECT ?item WHERE { ?item wdt:P31 wd:Q5 } LIMIT 10`
+  - **dbpedia** default:
+    ```sparql
+    PREFIX dbo: <http://dbpedia.org/ontology/>
+    SELECT ?item WHERE { ?item a dbo:Person } LIMIT 10
+    ```
+
+## Examples
+
+1. Query Wikidata with default SPARQL:
+
+```bash
+npm run sandbox -- --sparql wikidata
+```
+
+2. Query DBpedia with a custom SPARQL string:
+
+```bash
+npm run sandbox -- --sparql dbpedia "SELECT ?item WHERE { ?item a dbo:Place } LIMIT 5"
+```
+
+## Output
+
+The command prints a JSON array of SPARQL result `bindings`, for example:
+
+```json
+[{ "item": { "type": "uri", "value": "http://www.wikidata.org/entity/Q1" } }, ...]
+```\n\n// New [sandbox/tests/main-sparql.test.js]:\nimport { describe, test, expect, vi } from "vitest";
+import { main } from "@sandbox/source/main.js";
+
+describe("SPARQL CLI Functionality", () => {
+  test("should fetch and log SPARQL results for supported source", async () => {
+    const dummyBindings = [{ foo: "bar" }];
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
+        json: () => Promise.resolve({ results: { bindings: dummyBindings } })
+      })
+    );
+    const consoleLogSpy = vi.spyOn(console, "log");
+
+    await main(["--sparql", "wikidata"]);
+
+    expect(global.fetch).toHaveBeenCalled();
+    expect(consoleLogSpy).toHaveBeenCalledWith(JSON.stringify(dummyBindings));
+
+    consoleLogSpy.mockRestore();
+  });
+
+  test("should handle unsupported SPARQL source", async () => {
+    const consoleErrorSpy = vi.spyOn(console, "error");
+
+    await main(["--sparql", "unknown"]);
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith("Unsupported SPARQL source: unknown");
+
+    consoleErrorSpy.mockRestore();
+  });
+
+  test("should handle fetch errors gracefully", async () => {
+    global.fetch = vi.fn(() => Promise.reject(new Error("network error")));
+    const consoleErrorSpy = vi.spyOn(console, "error");
+
+    await main(["--sparql", "wikidata"]);
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Error fetching SPARQL data:")
+    );
+
+    consoleErrorSpy.mockRestore();
+  });
+});
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/agentic-lib@6.9.9-0 sandbox
+> node sandbox/source/main.js
+
+Run with: []
+```
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1650 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":17735,"completion_tokens":5554,"total_tokens":23289,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3584,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
