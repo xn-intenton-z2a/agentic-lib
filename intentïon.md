@@ -281,4 +281,73 @@ LLM API Usage:
 {"prompt_tokens":7583,"completion_tokens":1456,"total_tokens":9039,"prompt_tokens_details":{"cached_tokens":5504,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":768,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Feature to Issue at 2025-05-26T03:35:55.710Z
+
+Activity:
+
+Generated issue 1642 for feature "multi-source-crawler" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1642
+
+title:
+
+Enhance --crawl to Support Multiple Public Data Sources
+
+And description:
+
+We currently provide a `--crawl` flag that only targets Wikidata. To fulfill our mission of building a knowledge graph of the physical world from multiple public sources, we should generalize the crawler to support multiple SPARQL endpoints. This issue will:
+
+1. Dependency update
+   - Ensure `node-fetch` or built-in `fetch` is available for HTTP requests (add to `package.json` if missing).
+
+2. CLI implementation in `src/lib/main.js`
+   - Add an optional `--source <sourceId>` flag before `--crawl`. Supported values: `wikidata` (default), `dbpedia`.
+   - Define a map of SPARQL endpoints:
+     ```js
+     const endpoints = {
+       wikidata: 'https://query.wikidata.org/sparql',
+       dbpedia:  'https://dbpedia.org/sparql',
+     };
+     ```
+   - Validate that the provided `sourceId` exists; on unknown source, use `logError` and exit with non-zero code.
+   - When running `--crawl`, pick the appropriate endpoint, build the URL with `?query=<encodedSPARQL>`, set header `Accept: application/sparql-results+json`, and transform the results into `[{ key, label, properties }]` as before.
+   - Preserve `--output <path>` behavior to write JSON or emit to stdout.
+
+3. Unit tests in `tests/unit/main.test.js`
+   - Mock `global.fetch` to return a sample SPARQL JSON payload.
+   - Test default behavior:
+     ```js
+     await main(['--crawl', 'SELECT ...', '--output', tempFile]);
+     // Assert fetch called with wikidata URL and file contains expected JSON nodes
+     ```
+   - Test explicit `dbpedia` source:
+     ```js
+     await main(['--source', 'dbpedia', '--crawl', 'SELECT ...']);
+     // Assert fetch called with DBpedia endpoint and output is printed
+     ```
+   - Test invalid source:
+     ```js
+     await main(['--source', 'unknown', '--crawl', '...']);
+     // Assert logError called and exit code is non-zero
+     ```
+
+4. Documentation update in `sandbox/README.md`
+   - Under **CLI Flags**, document:
+     > --source <sourceId>   Choose SPARQL endpoint (wikidata|dbpedia). Defaults to wikidata.
+   - Provide examples:
+     ```bash
+     cli-tool --crawl "SELECT ..."                     # default to Wikidata
+     cli-tool --source dbpedia --crawl "SELECT ..."   # query DBpedia
+     ```
+
+Verification & Acceptance:
+- `npm test` passes all unit tests.
+- Running `node src/lib/main.js --source dbpedia --crawl "..."` prints a valid JSON array and exits code 0.
+- Supplying an unsupported source logs an error and exits code != 0.
+
+**Notes**: Only modify `package.json`, `src/lib/main.js`, `tests/unit/main.test.js`, and `sandbox/README.md`. Use a single LLM invocation to produce the updated file contents in the resolution.
+
+LLM API Usage:
+```json
+{"prompt_tokens":10127,"completion_tokens":1955,"total_tokens":12082,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1216,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
