@@ -3,13 +3,7 @@
 
 import { fileURLToPath } from "url";
 
-export function main(args = process.argv.slice(2)) {
-  // Print Hello World! and exit immediately when --hello flag is present
-  if (args.includes("--hello")) {
-    console.log("Hello World!");
-    return;
-  }
-
+export function main(args) {
   console.log(`Run with: ${JSON.stringify(args)}`);
 }
 
