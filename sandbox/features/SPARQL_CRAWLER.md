@@ -1,45 +1,34 @@
 # Objective & Scope
-
-Extend the CLI tool to support multi-source SPARQL crawling across public endpoints, integrating the existing sandbox behavior into the core CLI located in `src/lib/main.js`. Users can invoke `--crawl` on named or raw SPARQL queries and target Wikidata or DBpedia (and future endpoints) to bootstrap a knowledge graph from multiple data sources.
+Extend the core CLI in `src/lib/main.js` to integrate the multi-source SPARQL crawler previously confined to sandbox. Users can invoke `--crawl` against Wikidata or DBpedia endpoints (and future endpoints), supplying raw SPARQL or selecting from built-in query presets.
 
 # Value Proposition
-
-Enable users to ingest structured data from various SPARQL endpoints directly within the primary CLI. This unifies public data crawling into one command, avoids context switching to sandbox code, and accelerates building a federated knowledge graph of the physical world.
+Centralize public data crawling into the primary CLI, eliminating sandbox context switching and ES module execution errors. Provide a consistent, extensible interface to bootstrap knowledge graphs directly from the core tool.
 
 # Success Criteria & Requirements
-
-- Users can pass `--crawl <queryOrPreset>` and optional `--source <sourceId>` (defaults to `wikidata`).
-- Supported sources: `wikidata` => `https://query.wikidata.org/sparql`, `dbpedia` => `https://dbpedia.org/sparql`.
-- Query parameter may be a raw SPARQL string or a named preset defined in code or config.
-- CLI fetches data with header `Accept: application/sparql-results+json` and transforms results to `Array<{ key: string, label: string, properties: Record<string,string> }>`.
-- Support `--output <file>` to write pretty-printed JSON to a filesystem path; otherwise print to stdout.
-- Handle missing or unknown `--source` and empty query by logging an error and exiting with non-zero code.
-- Include automated tests in `tests/unit/main.test.js` mocking fetch, verifying endpoint URL selection, transformation logic, stdout output, and file writes.
+- Support `--crawl <queryOrPreset>` and optional `--source <sourceId>` flags in the core CLI, defaulting source to `wikidata`.
+- Embed a map of named presets in code (e.g., `{ "capitals-europe": "SELECT ?item ?itemLabel WHERE { ... }" }`).
+- Detect if the crawl argument matches a preset key and substitute its SPARQL string; otherwise treat it as raw SPARQL.
+- Fetch from the selected SPARQL endpoint with header `Accept: application/sparql-results+json`.
+- Transform the JSON results into `Array<{ key: string, label: string, properties: Record<string,string> }>`.
+- Honor `--output <file>` to write pretty-printed JSON to disk; print to stdout if omitted.
+- Update ES module entry check to use ESM-compatible logic (e.g., `import.meta.main` or proper `import.meta.url` check) instead of `require.main`.
 
 # Dependencies & Constraints
-
-- Use built-in Node.js 20 `fetch` API or add `node-fetch` if necessary.
-- Introduce endpoint map in core CLI code, avoid sandbox-specific logic.
-- Validate CLI arguments manually or via a lightweight schema library (e.g., Zod) to enforce non-empty query and valid source values.
-- Respect SPARQL endpoint rate-limits; retry logic is out of scope for this iteration.
+- Leverage Node.js 20 built-in `fetch` API; no new external dependencies.
+- Only modify `src/lib/main.js`, `tests/unit/main.test.js`, `sandbox/README.md`, and `package.json` if needed for documentation.
+- Use manual flag parsing or existing `zod` schema for lightweight validation; do not add heavyweight schema libraries.
 
 # User Scenarios & Examples
-
-1. Crawl Wikidata with raw query to stdout:
-   cli-tool --crawl "SELECT ?item ?itemLabel WHERE { ... }"
-
-2. Crawl DBpedia using raw SPARQL and save to file:
-   cli-tool --source dbpedia --crawl "SELECT ?s ?o WHERE { ... }" --output data.json
-
-3. Use a named preset defined in code:
-   cli-tool --source wikidata --crawl capitals-europe --output europe.json
-
-4. Error on invalid source or empty query:
-   cli-tool --source unknown --crawl ""  => logs error and exits non-zero
+1. Crawl Wikidata with a raw query and print to stdout:
+   `cli-tool --crawl "SELECT ?item ?itemLabel WHERE { ... }"`
+2. Use a named preset and save to file:
+   `cli-tool --crawl capitals-europe --output europe.json`
+3. Query DBpedia using raw SPARQL:
+   `cli-tool --source dbpedia --crawl "SELECT ?s ?o WHERE { ... }"`
+4. Missing or empty arguments:
+   `cli-tool --crawl`  => print usage and exit non-zero.
 
 # Verification & Acceptance
-
-- Unit tests in `tests/unit/main.test.js` stub global `fetch` and `fs.writeFileSync`, asserting correct URL construction, JSON transformation, and output behavior.
-- Integration test invoking `node src/lib/main.js --source dbpedia --crawl "..."` prints valid JSON and exits with code 0.
-- README updated under **CLI Flags** to document `--crawl` and `--source` usage.
-- Manual acceptance: run against real endpoints and inspect output for valid node objects.
+- Unit tests in `tests/unit/main.test.js` stub global `fetch` and `fs.writeFileSync`, asserting endpoint URL selection, preset substitution, JSON transformation, stdout output, and file write behavior.
+- Integration test invoking `node src/lib/main.js --source dbpedia --crawl capitals-europe` produces valid JSON and exits with code 0.
+- Documentation in `sandbox/README.md` updated under **CLI Flags** to include preset usage and corrected ESM entry instructions.
