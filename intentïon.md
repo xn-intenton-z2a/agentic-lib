@@ -734,3 +734,325 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-26T22:07:19.913Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-1655 with message Implement --sparql CLI flag with processSparql add tests and documentation and outcome success
+
+Git Diff:
+```diff
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..1dbfbd35 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -1,13 +1,71 @@
+ #!/usr/bin/env node
+ // sandbox/source/main.js
+ 
++import { createSQSEventFromDigest, digestLambdaHandler, logInfo, logError } from "../../src/lib/main.js";
+ import { fileURLToPath } from "url";
+ 
+-export function main(args) {
++/**
++ * Process the --sparql flag: execute SPARQL query or preset, wrap results in SQS events, and invoke digest handler.
++ * @param {string[]} args - Command-line arguments
++ * @returns {Promise<boolean>} - True if --sparql was handled, false otherwise
++ */
++export async function processSparql(args = []) {
++  const idx = args.indexOf("--sparql");
++  if (idx === -1) {
++    return false;
++  }
++  const queryOrPreset = args[idx + 1] || "";
++  const endpointFlagIndex = args.indexOf("--endpoint");
++  const endpoint = endpointFlagIndex !== -1 && args[endpointFlagIndex + 1]
++    ? args[endpointFlagIndex + 1]
++    : "https://query.wikidata.org/sparql";
++  const SPARQL_PRESETS = {
++    "wikidata-items": "SELECT ?item WHERE { ?item wdt:P31 wd:Q5 } LIMIT 3",
++  };
++  const query = SPARQL_PRESETS[queryOrPreset] || queryOrPreset;
++  try {
++    const response = await fetch(endpoint, {
++      method: "POST",
++      headers: { "Content-Type": "application/sparql-query" },
++      body: query,
++    });
++    if (!response.ok) {
++      logError(`Error fetching SPARQL from ${endpoint}`, `${response.status}`);
++      process.exit(1);
++    }
++    const data = await response.json();
++    const bindings = data.results?.bindings || [];
++    for (const binding of bindings) {
++      const timestamp = new Date().toISOString();
++      const digest = { query, endpoint, binding, timestamp };
++      const event = createSQSEventFromDigest(digest);
++      await digestLambdaHandler(event);
++    }
++    logInfo(`SPARQL query processed at ${endpoint}, bindings: ${bindings.length}`);
++    return true;
++  } catch (error) {
++    logError(`Error executing SPARQL query against ${endpoint}`, error.toString());
++    process.exit(1);
++  }
++}
++
++/**
++ * Main entry point for sandbox CLI
++ * @param {string[]} args - Command-line arguments
++ * @returns {Promise<boolean>} - True if a command was handled, false otherwise
++ */
++export async function main(args = []) {
++  if (await processSparql(args)) {
++    return true;
++  }
+   console.log(`Run with: ${JSON.stringify(args)}`);
++  return false;
+ }
+ 
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   const args = process.argv.slice(2);
+-  main(args);
++  main(args).catch((err) => {
++    console.error(err);
++    process.exit(1);
++  });
+ }\n\n// New [sandbox/README.md]:\n# Agentic-lib Sandbox CLI
+
+**Mission:** build a knowledge graph of the physical world by crawling public data sources.
+
+The sandbox CLI provides commands to ingest external data into the digest pipeline as SQS events.
+
+See [MISSION](./MISSION.md) and [../CONTRIBUTING.md](../CONTRIBUTING.md) for more details.
+
+## Available Flags
+
+### `--crawl`
+
+Fetch one or more URLs and process them:
+
+```bash
+node sandbox/source/main.js --crawl https://example.com/data.json,https://b.org/info
+```
+
+### `--sparql`
+
+Execute SPARQL queries (raw or named presets) against a SPARQL endpoint:
+
+```bash
+node sandbox/source/main.js --sparql wikidata-items
+node sandbox/source/main.js --sparql "SELECT ?item WHERE { ?item wdt:P31 wd:Q5 } LIMIT 3" --endpoint https://query.wikidata.org/sparql
+```
+
+## Examples
+
+```bash
+npm run sandbox -- --crawl https://example.com/data.json
+npm run sandbox -- --sparql wikidata-items
+```
+
+## License
+
+For license details, see [LICENSE](../LICENSE-MIT) and [LICENSE-GPL3](../LICENSE-GPL3).
+
+## Contributing
+
+Follow [CONTRIBUTING](../CONTRIBUTING.md) to get started.
+
+## Repository
+
+https://github.com/xn-intenton-z2a/agentic-lib\n\n// New [sandbox/docs/SPARQL.md]:\n# `--sparql` Flag
+
+The `--sparql` flag allows the CLI to execute SPARQL queries (raw or named presets) against a SPARQL endpoint and inject the results into the digest pipeline as SQS events.
+
+## Description
+
+When provided with a query or preset and an optional endpoint override, the CLI will:
+
+1. **Resolve the query**:
+   - Recognize named presets (e.g., `wikidata-items`) to built-in SPARQL queries.
+   - Treat any other argument as a raw SPARQL query string.
+2. **Send the SPARQL request** via HTTP POST to the SPARQL endpoint (default: `https://query.wikidata.org/sparql`) with header `Content-Type: application/sparql-query`.
+3. **Parse the JSON response** and iterate over `results.bindings`.
+4. For each binding:
+   - Construct a digest object:
+     ```json
+     {
+       "query": "<the SPARQL query>",
+       "endpoint": "<endpoint URL>",
+       "binding": { /* one binding object */ },
+       "timestamp": "<ISO 8601 string>"
+     }
+     ```
+   - Wrap the digest in an SQS event via `createSQSEventFromDigest`.
+   - Invoke `digestLambdaHandler` with the event.
+5. **Log** an `info` entry after all bindings are processed:
+   ```json
+   {"level":"info","timestamp":"<...>","message":"SPARQL query processed at <endpoint>, bindings: <count>"}
+   ```
+6. On HTTP errors or network failures, logs an error and exits with a non-zero code:
+   ```json
+   {"level":"error","timestamp":"<...>","message":"Error fetching SPARQL from <endpoint>","error":"<status or message>"}
+   ```
+
+## Usage
+
+```bash
+node sandbox/source/main.js --sparql <queryOrPreset> [--endpoint <url>]
+```
+
+### Named Presets
+
+- `wikidata-items`
+
+  ```bash
+  node sandbox/source/main.js --sparql wikidata-items
+  ```
+
+### Raw Query
+
+```bash
+node sandbox/source/main.js --sparql "SELECT ?item WHERE { ?item wdt:P31 wd:Q146 } LIMIT 5"
+```
+
+### Override Endpoint
+
+```bash
+node sandbox/source/main.js --sparql "SELECT * WHERE {?s ?p ?o}" --endpoint https://example.org/sparql
+```\n\n// New [sandbox/tests/main-sparql.test.js]:\nimport { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+import { processSparql, main } from "@sandbox/source/main.js";
+import * as lib from "../../src/lib/main.js";
+
+describe("SPARQL CLI", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    // spy on process.exit to throw for test
+    vi.spyOn(process, 'exit').mockImplementation((code) => { throw new Error(`process.exit: ${code}`); });
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("successful SPARQL fetch and processing", async () => {
+    const sampleBindings = [{ id: { value: "Q1" } }, { id: { value: "Q2" } }];
+    const fakeResponse = {
+      ok: true,
+      json: vi.fn().mockResolvedValue({ results: { bindings: sampleBindings } }),
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(fakeResponse));
+
+    const createEventSpy = vi.spyOn(lib, "createSQSEventFromDigest");
+    const handlerSpy = vi.spyOn(lib, "digestLambdaHandler").mockResolvedValue();
+    const logInfoSpy = vi.spyOn(lib, "logInfo").mockImplementation();
+    const logErrorSpy = vi.spyOn(lib, "logError").mockImplementation();
+
+    const result = await main(["--sparql", "SELECT *", "--endpoint", "https://example.org/sparql"]);
+
+    expect(fetch).toHaveBeenCalledWith("https://example.org/sparql", {
+      method: "POST",
+      headers: { "Content-Type": "application/sparql-query" },
+      body: "SELECT *",
+    });
+    expect(createEventSpy).toHaveBeenCalledTimes(sampleBindings.length);
+    for (const binding of sampleBindings) {
+      expect(createEventSpy).toHaveBeenCalledWith(expect.objectContaining({
+        query: "SELECT *",
+        endpoint: "https://example.org/sparql",
+        binding,
+        timestamp: expect.any(String),
+      }));
+    }
+    expect(handlerSpy).toHaveBeenCalledTimes(sampleBindings.length);
+    expect(logInfoSpy).toHaveBeenCalledWith(
+      `SPARQL query processed at https://example.org/sparql, bindings: 2`
+    );
+    expect(logErrorSpy).not.toHaveBeenCalled();
+    expect(result).toBe(true);
+  });
+
+  test("HTTP error status", async () => {
+    const fakeResponse = { ok: false, status: 500 };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(fakeResponse));
+    const logErrorSpy = vi.spyOn(lib, "logError").mockImplementation();
+    const logInfoSpy = vi.spyOn(lib, "logInfo").mockImplementation();
+
+    await expect(processSparql(["--sparql", "q"]))
+      .rejects.toThrow("process.exit: 1");
+    expect(fetch).toHaveBeenCalled();
+    expect(logErrorSpy).toHaveBeenCalledWith(
+      "Error fetching SPARQL from https://query.wikidata.org/sparql", "500"
+    );
+    expect(logInfoSpy).not.toHaveBeenCalled();
+  });
+
+  test("network failure", async () => {
+    const error = new Error("network down");
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(error));
+    const logErrorSpy = vi.spyOn(lib, "logError").mockImplementation();
+
+    await expect(processSparql(["--sparql", "q"]))
+      .rejects.toThrow("process.exit: 1");
+    expect(fetch).toHaveBeenCalled();
+    expect(logErrorSpy).toHaveBeenCalledWith(
+      "Error executing SPARQL query against https://query.wikidata.org/sparql", error.toString()
+    );
+  });
+
+  test("named preset usage", async () => {
+    const sampleBindings = [];
+    const fakeResponse = {
+      ok: true,
+      json: vi.fn().mockResolvedValue({ results: { bindings: sampleBindings } }),
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(fakeResponse));
+
+    const createEventSpy = vi.spyOn(lib, "createSQSEventFromDigest");
+    const handlerSpy = vi.spyOn(lib, "digestLambdaHandler").mockResolvedValue();
+    const logInfoSpy = vi.spyOn(lib, "logInfo").mockImplementation();
+
+    const result = await main(["--sparql", "wikidata-items"]);
+
+    expect(fetch).toHaveBeenCalledWith("https://query.wikidata.org/sparql", {
+      method: "POST",
+      headers: { "Content-Type": "application/sparql-query" },
+      body: "SELECT ?item WHERE { ?item wdt:P31 wd:Q5 } LIMIT 3",
+    });
+    expect(createEventSpy).toHaveBeenCalledTimes(sampleBindings.length);
+    expect(handlerSpy).toHaveBeenCalledTimes(sampleBindings.length);
+    expect(logInfoSpy).toHaveBeenCalledWith(
+      `SPARQL query processed at https://query.wikidata.org/sparql, bindings: 0`
+    );
+    expect(result).toBe(true);
+  });
+});
+```
+
+mainOutput:
+```log
+
+```
+
+installAfterUpdateOutcome: success
+
+ciAfterUpdateOutcome: success
+
+testAfterUpdateOutcome: success
+
+mainAfterUpdateOutcome: success
+
+commitOutcome: success
+
+postResolutionCommentOutcome: success
+
+allValidationStepsSuccessful: true
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1655 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":17162,"completion_tokens":9262,"total_tokens":26424,"prompt_tokens_details":{"cached_tokens":3712,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":6080,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
