@@ -183,4 +183,52 @@ LLM API Usage:
 {"prompt_tokens":8422,"completion_tokens":2112,"total_tokens":10534,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1344,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to enhanced Issue at 2025-05-26T03:00:49.597Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+Title: Implement `--crawl` CLI Command for Wikidata SPARQL Crawling
+
+Summary:
+Add a new `--crawl` flag to the CLI to bootstrap a local knowledge graph from the Wikidata SPARQL endpoint. The CLI should accept either a raw SPARQL query or a named preset, fetch matching data, transform it into a structured JSON array of node objects, and emit the result to stdout or a user-specified file.
+
+Requirements:
+- Support flag syntax: `--crawl <queryOrPreset>` and optional output flag `--output <path>`.
+- Fetch from `https://query.wikidata.org/sparql?query=<encodedQuery>` with header `Accept: application/sparql-results+json`.
+- Parse the SPARQL JSON results into `Array<{ key: string, label: string, properties: Record<string,string> }>`, where:
+  - `key`: value of the `item` binding
+  - `label`: value of the `itemLabel` binding
+  - `properties`: all other binding values as `{ [bindingName]: value }`
+- Write output as pretty-printed JSON to stdout or to the specified file path.
+- Use built-in Node.js `fetch` or add `node-fetch` dependency.
+- Handle errors via `logError` and exit with non-zero code on failure.
+
+Testable Acceptance Criteria:
+1. `cli-tool --crawl "SELECT ..."` writes to stdout a valid JSON array; program exits with code `0`.
+   - Verify: parse stdout as JSON and assert `Array.isArray(nodes)` and for each node:
+     - `typeof node.key === 'string'`
+     - `typeof node.label === 'string'`
+     - `typeof node.properties === 'object'`
+2. `cli-tool --crawl preset-name --output /tmp/out.json` creates `/tmp/out.json` containing valid JSON matching the node schema.
+   - Verify: read and parse `/tmp/out.json` and run the same assertions as above.
+3. Supplying `--crawl ""` (empty query) or unknown preset logs an error via `logError` and exits with non-zero code.
+4. Unit tests in `tests/unit/main.test.js` mock global `fetch` to return a controlled SPARQL JSON and stub file writes (`fs.writeFileSync`) to verify transformation logic and correct file output.
+5. Integration test against a local mock SPARQL endpoint verifies end-to-end CLI behavior using a known sample.
+
+Implementation Notes:
+- Add `processCrawl(args)` alongside existing `processHelp`, `processVersion`, and `processDigest` in `src/lib/main.js`.
+- Use Zod or manual validation to ensure the query argument is non-empty.
+
+Testing & Documentation:
+- Write Vitest unit tests in `tests/unit/main.test.js`.
+- Update `sandbox/README.md` under **CLI Flags** to document usage examples for `--crawl`.
+- Run `npm test` to ensure all tests pass.
+
+LLM API Usage:
+```json
+{"prompt_tokens":7430,"completion_tokens":1719,"total_tokens":9149,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1024,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
