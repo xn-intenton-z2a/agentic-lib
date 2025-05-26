@@ -12,6 +12,12 @@ on:
   check_suite:
   workflow_dispatch:
   workflow_call:
+    inputs:
+      workflow:
+        description: 'Was this workflow called by another workflow?, e.g. "true"'
+        type: string
+        required: false
+        default: 'true'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -92,7 +98,7 @@ jobs:
           echo "Triggered by: workflow_dispatch"
 
   workflow-call-event:
-    if: github.event_name == 'workflow_call'
+    if: inputs.workflow == 'true' || github.event_name == 'workflow_call'
     runs-on: ubuntu-latest
     steps:
       - run: |
@@ -116,7 +122,7 @@ jobs:
 
   ls:
     needs: label
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call' || github.event_name == 'workflow_run'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || inputs.workflow == 'true' || github.event_name == 'workflow_call' || github.event_name == 'workflow_run'
     runs-on: ubuntu-latest
     steps:
       - name: Determine pull request number
