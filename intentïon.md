@@ -1016,3 +1016,55 @@ with message: "Branch 'agentic-lib-issue-1650' deleted."
 with outcome "success".
 
 ---
+
+## Issue to Ready Issue at 2025-05-26T19:39:30.949Z
+
+Activity:
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1650 with action enhance and updated description:
+
+## Summary
+
+This issue adds a new CLI option `--sparql <source>` to the sandbox CLI (`sandbox/source/main.js`) to query public SPARQL endpoints (Wikidata, DBpedia), parse the JSON results, and log the `bindings` array. This feature advances our mission of building a physical-world knowledge graph by enabling multi-source SPARQL crawling.
+
+## Acceptance Criteria
+
+1. **CLI Implementation**
+   - When invoked with `npm run sandbox -- --sparql <source> [<SPARQL_QUERY>]`:
+     - `<source>` must be either `wikidata` or `dbpedia`.
+     - If `<SPARQL_QUERY>` is omitted, a default query returns the first 10 items of a representative class.
+     - The tool issues a GET request to the appropriate endpoint with header `Accept: application/sparql-results+json`.
+     - Parses the returned JSON and logs `JSON.stringify(bindings)` to the console.
+     - On unsupported source, logs `Unsupported SPARQL source: <source>` to `stderr` and exits early.
+     - On network or JSON parsing error, logs an error message prefixed with `Error fetching SPARQL data:`.
+
+2. **Automated Tests**
+   - `sandbox/tests/main-sparql.test.js` must cover:
+     - Successful `--sparql wikidata` returning a dummy `bindings` array.
+     - Unsupported source error path.
+     - Fetch/network error path.
+   - All existing and new tests pass with `npm test`.
+
+3. **Documentation Updates**
+   - `sandbox/docs/SPARQL_CRAWLER.md` documents the command, supported sources, default/custom queries, examples, and output format.
+   - `sandbox/docs/USAGE.md` includes a **SPARQL Crawler** section with usage examples.
+   - `sandbox/README.md` adds a **SPARQL Crawler** section under **CLI Usage** with example commands and description.
+
+4. **Verification**
+   - Running `npm run sandbox -- --sparql wikidata` prints a JSON array of `bindings`.
+   - Running with an unsupported source prints the correct error message to `stderr`.
+   - Simulating a fetch rejection logs the expected error path.
+   - `npm test` completes with zero failures.
+
+## Implementation Notes
+
+- Use Node.js 20's built-in `fetch`.
+- No new dependencies beyond existing `sandbox/source/main.js`.
+- Maintain consistent CLI behavior and error handling patterns with existing `--crawl` command.
+
+LLM API Usage:
+```json
+{"prompt_tokens":9824,"completion_tokens":1318,"total_tokens":11142,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":704,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
