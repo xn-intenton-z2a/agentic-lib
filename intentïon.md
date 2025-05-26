@@ -214,3 +214,110 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-26T18:27:20.681Z
+
+Activity:
+
+fixApplied: true with message Add --crawl CLI command with tests and documentation
+
+Git Diff:
+```diff
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index e3d0ca0b..be07d31f 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -3,7 +3,20 @@
+ 
+ import { fileURLToPath } from "url";
+ 
+-export function main(args) {
++export async function main(args) {
++  // CLI option to crawl a public URL and print JSON response
++  if (args[0] === "--crawl" && args[1]) {
++    try {
++      const response = await fetch(args[1]);
++      const data = await response.json();
++      console.log(JSON.stringify(data));
++    } catch (error) {
++      console.error(`Error fetching or parsing JSON: ${error}`);
++    }
++    return;
++  }
++
++  // Default behavior: echo provided arguments
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
+diff --git a/sandbox/tests/main.test.js b/sandbox/tests/main.test.js
+index 04c527ce..73ab6a86 100644
+--- a/sandbox/tests/main.test.js
++++ b/sandbox/tests/main.test.js
+@@ -1,9 +1,24 @@
+-import { describe, test } from "vitest";
++import { describe, test, expect, vi } from "vitest";
+ import { main } from "@sandbox/source/main.js";
+ 
+-describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "sandbox/source/main.js"];
+-    main();
++describe("Main CLI Functionality", () => {
++  test("should terminate without error when no arguments", async () => {
++    await main([]);
++  });
++
++  test("should fetch and log JSON for --crawl option", async () => {
++    const dummyData = { foo: "bar" };
++    // Mock global fetch
++    global.fetch = vi.fn(() =>
++      Promise.resolve({ json: () => Promise.resolve(dummyData) })
++    );
++    const consoleLogSpy = vi.spyOn(console, "log");
++
++    await main(["--crawl", "http://example.com/data"]);
++
++    expect(global.fetch).toHaveBeenCalledWith("http://example.com/data");
++    expect(consoleLogSpy).toHaveBeenCalledWith(JSON.stringify(dummyData));
++
++    consoleLogSpy.mockRestore();
+   });
+ });\n\n// New [sandbox/docs/USAGE.md]:\n# CLI Usage
+
+This document describes how to use the sandbox CLI for various tasks, including crawling public data sources.
+
+## crawl Command
+
+Fetch and display JSON from a public URL using Node 20's built-in `fetch` API.
+
+Usage:
+```bash
+npm run sandbox -- --crawl <url>
+```
+
+- `<url>`: The public endpoint that returns JSON data.
+
+Example:
+```bash
+npm run sandbox -- --crawl https://api.example.com/data
+```
+
+The command will perform a GET request to the specified URL, parse the returned JSON, and print it to the console as a JSON string.
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/agentic-lib@6.9.9-0 sandbox
+> node sandbox/source/main.js
+
+Run with: []
+```
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1647 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":12020,"completion_tokens":3478,"total_tokens":15498,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2624,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
