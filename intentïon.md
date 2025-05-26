@@ -728,3 +728,82 @@ LLM API Usage:
 ```
 
 ---
+## Feature to Issue at 2025-05-26T19:21:33.231Z
+
+Activity:
+
+Generated issue 1650 for feature "multi-source-sparql-crawler" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1650
+
+title:
+
+Add Multi-Source SPARQL Public Data Crawler CLI Command
+
+And description:
+
+## Summary
+
+Introduce a new CLI option `--sparql <source>` in the sandbox CLI (`sandbox/source/main.js`) to send SPARQL queries to public endpoints (Wikidata and DBpedia). This command will fetch structured data, parse the SPARQL JSON results, and log them, laying the groundwork for building a physical-world knowledge graph by crawling multiple public SPARQL sources.
+
+## Changes Required
+
+1. **sandbox/source/main.js**
+   - Detect when `args[0] === "--sparql"` and `args[1]` is one of `"wikidata"` or `"dbpedia"`.
+   - Map `wikidata` → `https://query.wikidata.org/sparql`, `dbpedia` → `http://dbpedia.org/sparql`.
+   - Use the built-in `fetch` API to issue a GET request with appropriate headers (`Accept: application/sparql-results+json`) and a default SPARQL query if `args[2]` (custom query) is not provided. For example, a simple query to list the first 10 items of a class (e.g., instances of ``wd:Q5``).
+   - Parse the returned SPARQL JSON (`response.json()`), extract the `bindings` array, and `console.log(JSON.stringify(bindings))`.
+   - Handle errors:
+     - If an unsupported source is provided, `console.error` an error message and exit.
+     - If the fetch or JSON parsing fails, `console.error` the error.
+   - Return early after handling the `--sparql` invocation.
+
+2. **sandbox/tests/main-sparql.test.js**
+   - Create a new test file under `sandbox/tests/` using Vitest.
+   - Mock `global.fetch` to simulate:
+     - A successful SPARQL JSON response with a sample `bindings` array.
+     - A fetch/network error.
+     - An unsupported source invocation.
+   - Spy on `console.log` and `console.error` to assert correct behavior and output for:
+     - Valid `--sparql wikidata` call.
+     - Unsupported source (e.g., `--sparql unknown`).
+     - Fetch failure.
+
+3. **sandbox/docs/SPARQL_CRAWLER.md**
+   - Add a new documentation file describing:
+     - The `--sparql` command and supported sources.
+     - Default queries and how to supply a custom SPARQL string as `args[2]`.
+     - Example commands and sample output.
+
+4. **sandbox/README.md**
+   - Under **CLI Usage**, add a section for `--sparql`:
+     ```markdown
+     ### SPARQL Crawler
+
+     Fetch structured data from public SPARQL endpoints.
+
+     ```bash
+     # Query Wikidata with default SPARQL
+     npm run sandbox -- --sparql wikidata
+
+     # Query DBpedia with a custom SPARQL string
+     npm run sandbox -- --sparql dbpedia "<YOUR_SPARQL_QUERY>"
+     ```
+
+     The command will return a JSON array of SPARQL result `bindings`.
+     ```
+
+## Verification Steps
+
+1. Run `npm test` and confirm new tests in `sandbox/tests/main-sparql.test.js` pass.
+2. Execute `npm run sandbox -- --sparql wikidata`:
+   - For a stubbed endpoint, verify `console.log` outputs the mocked bindings array.
+3. Execute `npm run sandbox -- --sparql unknown`:
+   - Verify `console.error` outputs an unsupported source message.
+4. Simulate a fetch error by mocking `global.fetch` to reject, and confirm the error path logs correctly.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":13925,"completion_tokens":2533,"total_tokens":16458,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1664,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
