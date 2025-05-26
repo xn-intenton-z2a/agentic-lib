@@ -609,3 +609,70 @@ LLM API Usage:
 
 2025-05-26T21:57:48Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/agentic-lib/tree/intention-2025-05-26T21-57Z
 
+
+## Feature to Issue at 2025-05-26T22:03:58.180Z
+
+Activity:
+
+Generated issue 1655 for feature "sparql-crawler" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1655
+
+title:
+
+Implement --sparql CLI flag to query SPARQL endpoints and produce SQS events
+
+And description:
+
+Overview:
+Add a new `--sparql` command-line flag to the sandbox CLI that accepts either a raw SPARQL query or a named preset, optionally accepts an `--endpoint` override (defaulting to Wikidata), POSTs the query to the endpoint, parses the JSON result bindings, converts each binding into a standardized SQS event via `createSQSEventFromDigest`, and invokes `digestLambdaHandler` on each. This implements the SPARQL_CRAWLER feature and enables structured ingestion of semantic data sources.
+
+Tasks:
+
+1. **sandbox/source/main.js**
+   - Import `createSQSEventFromDigest`, `digestLambdaHandler`, `logInfo`, and `logError` from the core library.
+   - Add an async function `processSparql(args = [])` that:
+     1. Detects `--sparql` in the args array and reads the next argument as `queryOrPreset`.
+     2. Reads an optional `--endpoint` flag to override the default endpoint; if missing, use `https://query.wikidata.org/sparql`.
+     3. Resolves named presets (e.g., mapping `wikidata-items` to a predefined query) or treats `queryOrPreset` as a raw SPARQL string.
+     4. Sends an HTTP POST to the endpoint with `Content-Type: application/sparql-query` and the query in the body.
+     5. Awaits the JSON response and iterates `response.results.bindings`.
+       - For each binding: build a digest `{ query, endpoint, binding, timestamp }`, wrap via `createSQSEventFromDigest`, await `digestLambdaHandler`, and accumulate a count.
+     6. After processing, call `logInfo` with the endpoint and number of bindings processed, then return `true` to short-circuit remaining CLI flags.
+     7. On HTTP errors or JSON parse failures, call `logError` with details and exit the process with a non-zero code.
+   - In the `main(args)` function, invoke `await processSparql(args)` immediately after existing commands; if it returns `true`, return early.
+
+2. **sandbox/tests/main-sparql.test.js**
+   - Create a new test file under `sandbox/tests`:
+     - Mock `global.fetch` to simulate:
+       1. A successful SPARQL JSON response with a sample `results.bindings` array.
+       2. An HTTP error status (e.g. 500).
+       3. Invalid JSON (e.g. `response.text()` rejects or JSON.parse fails).
+     - Spy on `createSQSEventFromDigest`, `digestLambdaHandler`, `logInfo`, and `logError`:
+       - Verify that on success: `fetch` is called with correct endpoint and headers, the correct number of SQS events are created and handled, and `logInfo` logs the count.
+       - On HTTP error or parse failure: `logError` is called with endpoint, query, and error, and the process exits with non-zero.
+     - Assert that `main(["--sparql", "<queryOrPreset>"])` returns `undefined` (exits early) or signals short-circuit.
+
+3. **sandbox/README.md**
+   - Document the new `--sparql` flag:
+     - Syntax: `node sandbox/source/main.js --sparql <queryOrPreset> [--endpoint <url>]`
+     - Explain named presets (e.g. `wikidata-items`).
+     - Provide examples of raw query usage and preset usage.
+     - Show expected JSON-formatted info logs for successful binding ingestion.
+
+Verification:
+- Run `npm test` and confirm all existing tests plus `main-sparql.test.js` pass.
+- Manually invoke:
+  ```bash
+  node sandbox/source/main.js --sparql "SELECT ?item WHERE { ?item wdt:P31 wd:Q5 } LIMIT 3"
+  ```
+  Or:
+  ```bash
+  node sandbox/source/main.js --sparql wikidata-items --endpoint https://query.wikidata.org/sparql
+  ```
+- Observe JSON logs indicating the number of processed bindings and that no further CLI flags are handled after `--sparql`.
+
+LLM API Usage:
+```json
+{"prompt_tokens":13784,"completion_tokens":1940,"total_tokens":15724,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":960,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
