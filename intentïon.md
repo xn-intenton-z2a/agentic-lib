@@ -1165,3 +1165,73 @@ LLM API Usage:
 ```
 
 ---
+## Issue to enhanced Issue at 2025-05-26T22:22:05.601Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+# Implement `--serialize-triples` CLI Flag
+
+## Overview
+
+Add a new `--serialize-triples` flag to both the core CLI (`src/lib/main.js`) and the sandbox CLI (`sandbox/source/main.js`) that reads JSON digest object(s) and serializes each into RDF triples in N-Triples format using the N3 library. This implements the TRIPLE_SERIALIZER feature, enabling conversion of SQS digest events into a graph representation.
+
+## Testable Acceptance Criteria
+
+1. CLI Flag Detection
+   - The CLI recognizes `--serialize-triples <pathOrJson>`.
+
+2. Input Handling
+   - If `<pathOrJson>` is a valid file path, the CLI reads its contents via `fs.promises.readFile`.
+   - Otherwise, it treats `<pathOrJson>` as an inline JSON string.
+   - The JSON is parsed into a JavaScript object or array of objects; a single object is wrapped into an array.
+
+3. RDF Triple Generation
+   - Initialize an N3 `Writer({ format: 'N-Triples' })`.
+   - For each digest object:
+     - Determine the subject:
+       • Use `<${digest.url}>` if a `url` property exists.
+       • Otherwise, generate a blank node.
+     - For each key–value pair in the digest, add a quad:
+       • Predicate: `http://schema.org/<key>`.
+       • Object: a literal of the value.
+   - Call `writer.end()`, stream resulting N-Triples to stdout.
+
+4. CLI Integration
+   - In `src/lib/main.js`, implement and `await processSerializeTriples(args)` immediately after `processDigest(args)` in `main()`; if it returns `true`, exit early.
+   - In `sandbox/source/main.js`, mirror `processSerializeTriples(args)` before printing usage.
+
+5. Return Value
+   - `processSerializeTriples` returns `true` when the flag is handled, preventing further CLI processing.
+
+6. Unit Tests
+   - Create `tests/unit/main-serialize.test.js` and `sandbox/tests/main-serialize.test.js` covering:
+     • File input (stub `fs.promises.readFile`).
+     • Inline JSON input.
+     • Single digest vs. array of digests.
+     • Mock `n3.Writer` to capture `addQuad` calls and `end` invocation.
+     • Assertions for correct triples and return value `true`.
+
+7. Documentation
+   - Update `sandbox/README.md`:
+     • Document `--serialize-triples` flag syntax (file path vs. inline JSON).
+     • Provide example commands:
+       ```bash
+       node sandbox/source/main.js --serialize-triples path/to/digest.json
+       node sandbox/source/main.js --serialize-triples '{"url":"https://a.com","status":200,"timestamp":"2025-01-01T00:00:00Z"}'
+       ```
+     • Include a sample N-Triples output snippet.
+
+## Verification & Acceptance
+
+- Run `npm test` and confirm all existing and new serialize tests pass.
+- Manually invoke both CLIs with valid inputs and verify N-Triples appear on stdout.
+- Code review confirms adherence to ESM standards, logging conventions, and project style guidelines.
+
+LLM API Usage:
+```json
+{"prompt_tokens":8900,"completion_tokens":1467,"total_tokens":10367,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":704,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
