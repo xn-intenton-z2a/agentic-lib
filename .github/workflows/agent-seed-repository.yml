@@ -217,7 +217,7 @@ jobs:
             core.info(`repositoryReseedTestsPath: ${repositoryReseedTestsPath}`);
 
             // Create features directory
-            execSync(`mkdir -p '${featuresPath}'`);
+            fs.mkdirSync(featuresPath, { recursive: true });
 
             // If mission is set, create a mission file
             if (mission) {
@@ -227,21 +227,21 @@ jobs:
 
             // Handle source path
             if (targetSourcePath.endsWith('/')) {
-              execSync(`mkdir -p '${targetSourcePath}'`);
-              execSync(`cp -vf '${repositoryReseedSourcePath}' '${targetSourcePath}main.js'`);
+              fs.mkdirSync(targetSourcePath, { recursive: true });
+              fs.copyFileSync(repositoryReseedSourcePath, `${targetSourcePath}main.js`);
             } else {
-              execSync(`mkdir -p "$(dirname '${targetSourcePath}')"`)
-              execSync(`cp -vf '${repositoryReseedSourcePath}' '${targetSourcePath}'`);
+              fs.mkdirSync(path.dirname(targetSourcePath), { recursive: true });
+              fs.copyFileSync(repositoryReseedSourcePath, targetSourcePath);
             }
             core.info(`Seeded repository from ${repositoryReseedSourcePath} to ${targetSourcePath}`);
 
             // Handle tests path
             if (targetTestsPath.endsWith('/')) {
-              execSync(`mkdir -p '${targetTestsPath}'`);
-              execSync(`cp -vf '${repositoryReseedTestsPath}' '${targetTestsPath}main.test.js'`);
+              fs.mkdirSync(targetTestsPath, { recursive: true });
+              fs.copyFileSync(repositoryReseedTestsPath, `${targetTestsPath}main.test.js`);
             } else {
-              execSync(`mkdir -p "$(dirname '${targetTestsPath}')"`)
-              execSync(`cp -vf '${repositoryReseedTestsPath}' '${targetTestsPath}'`);
+              fs.mkdirSync(path.dirname(targetTestsPath), { recursive: true });
+              fs.copyFileSync(repositoryReseedTestsPath, targetTestsPath);
             }
             core.info(`Seeded repository from ${repositoryReseedTestsPath} to ${targetTestsPath}`);
 
@@ -297,40 +297,40 @@ jobs:
 
             // Handle source path
             if (targetSourcePath.endsWith('/')) {
-              execSync(`mkdir -p '${targetSourcePath}'`);
-              execSync(`cp -vf '${repositoryReseedSourcePath}' '${targetSourcePath}main.js'`);
+              fs.mkdirSync(targetSourcePath, { recursive: true });
+              fs.copyFileSync(repositoryReseedSourcePath, `${targetSourcePath}main.js`);
             } else {
-              execSync(`mkdir -p "$(dirname '${targetSourcePath}')"`)
-              execSync(`cp -vf '${repositoryReseedSourcePath}' '${targetSourcePath}'`);
+              fs.mkdirSync(path.dirname(targetSourcePath), { recursive: true });
+              fs.copyFileSync(repositoryReseedSourcePath, targetSourcePath);
             }
             core.info(`Seeded repository from ${repositoryReseedSourcePath} to ${targetSourcePath}`);
 
             // Handle tests path
             if (targetTestsPath.endsWith('/')) {
-              execSync(`mkdir -p '${targetTestsPath}'`);
-              execSync(`cp -vf '${repositoryReseedTestsPath}' '${targetTestsPath}main.test.js'`);
+              fs.mkdirSync(targetTestsPath, { recursive: true });
+              fs.copyFileSync(repositoryReseedTestsPath, `${targetTestsPath}main.test.js`);
             } else {
-              execSync(`mkdir -p "$(dirname '${targetTestsPath}')"`)
-              execSync(`cp -vf '${repositoryReseedTestsPath}' '${targetTestsPath}'`);
+              fs.mkdirSync(path.dirname(targetTestsPath), { recursive: true });
+              fs.copyFileSync(repositoryReseedTestsPath, targetTestsPath);
             }
             core.info(`Seeded repository from ${repositoryReseedTestsPath} to ${targetTestsPath}`);
 
             // Handle readme file
-            execSync(`mkdir -p "$(dirname '${readmeFilepath}')"`)
-            execSync(`cp -vf '${repositoryReseedReadmeFilepath}' '${readmeFilepath}'`);
+            fs.mkdirSync(path.dirname(readmeFilepath), { recursive: true });
+            fs.copyFileSync(repositoryReseedReadmeFilepath, readmeFilepath);
             core.info(`Seeded repository from ${repositoryReseedReadmeFilepath} to ${readmeFilepath}`);
 
             // Handle dependencies file
-            execSync(`cp -vf '${repositoryReseedDependenciesFilepath}' '${dependenciesFilepath}'`);
+            fs.copyFileSync(repositoryReseedDependenciesFilepath, dependenciesFilepath);
             core.info(`Seeded repository from ${repositoryReseedDependenciesFilepath} to ${dependenciesFilepath}`);
 
             // Handle mission file
-            execSync(`mkdir -p "$(dirname '${missionFilepath}')"`)
+            fs.mkdirSync(path.dirname(missionFilepath), { recursive: true });
             if (mission) {
               fs.writeFileSync(missionFilepath, `# ${githubRepository}\n${mission}`);
               core.info(`Seeded repository from '${mission}' to ${missionFilepath}`);
             } else {
-              execSync(`cp -vf '${repositoryReseedMissionFilepath}' '${missionFilepath}'`);
+              fs.copyFileSync(repositoryReseedMissionFilepath, missionFilepath);
               core.info(`Seeded repository from ${repositoryReseedMissionFilepath} to ${missionFilepath}`);
             }
 
