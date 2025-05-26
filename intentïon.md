@@ -55,3 +55,66 @@ LLM API Usage:
 ```
 
 ---
+## Feature to Issue at 2025-05-26T22:37:59.979Z
+
+Activity:
+
+Generated issue 1659 for feature "hello-command" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1659
+
+title:
+
+Implement --hello flag in sandbox CLI for Hello World output
+
+And description:
+
+## Overview
+
+Introduce a new `--hello` flag in the sandbox CLI (`sandbox/source/main.js`) that outputs `Hello World!` and exits immediately, fulfilling the HELLO_COMMAND feature spec.
+
+## Changes to Apply
+
+1. **Update sandbox/source/main.js**
+   - At the top of the `main(args)` function, add a conditional to check for `--hello`. If present:
+     - Call `console.log("Hello World!")`.
+     - Return immediately (so no further logging or commands run).
+   - Ensure the behavior of existing flags (`--help`, `--version`, `--digest`) remains unchanged when `--hello` is absent.
+
+2. **Add tests in sandbox/tests/main.test.js**
+   - Import `vi` from `vitest` alongside existing imports.
+   - Create a new test case:
+     - Mock/spying on `console.log`.
+     - Invoke `main(["--hello"])`.
+     - Assert that `console.log` was called exactly once with the string `Hello World!`.
+     - Assert that no other messages (e.g., `Run with: …`) are logged.
+
+3. **Update sandbox/README.md**
+   - Add a new section under CLI Usage for the `--hello` flag.
+   - Document example invocations:
+     ```bash
+     npm run sandbox -- --hello
+     # Output: Hello World!
+
+     node sandbox/source/main.js --hello
+     # Output: Hello World!
+     ```
+
+## Verification
+
+1. Run `npm test` and ensure all tests (including the new `--hello` spec) pass.
+2. Execute the sandbox script manually:
+   ```bash
+   npm run sandbox -- --hello
+   # Should print exactly: Hello World!
+   ```
+3. Run without `--hello` to confirm existing behavior is unchanged:
+   ```bash
+   npm run sandbox
+   # Should print: Run with: []
+   ```
+
+LLM API Usage:
+```json
+{"prompt_tokens":6982,"completion_tokens":1377,"total_tokens":8359,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":896,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
