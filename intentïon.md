@@ -248,3 +248,334 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-27T02:56:41.829Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-1670 with message Add MCP HTTP server implementation tests documentation and update start script and outcome success
+
+Git Diff:
+```diff
+diff --git a/package.json b/package.json
+index 49637a44..8fbaa1d6 100644
+--- a/package.json
++++ b/package.json
+@@ -16,7 +16,7 @@
+     "test": "vitest --run tests/unit/*.test.js sandbox/tests/*.test.js",
+     "test:unit": "vitest --run --coverage tests/unit/*.test.js sandbox/tests/*.test.js",
+     "sandbox": "node sandbox/source/main.js",
+-    "start": "node src/lib/main.js"
++    "start": "node sandbox/source/server.js"
+   },
+   "keywords": [],
+   "author": "https://github.com/xn-intenton-z2a",
+@@ -58,4 +58,4 @@
+   "publishConfig": {
+     "registry": "https://npm.pkg.github.com"
+   }
+-}
++}
+\ No newline at end of file\n\n// New [sandbox/README.md]:\n# agentic-lib Sandbox
+
+This sandbox provides an MCP (Model Contact Protocol) HTTP API server exposing repository actions over HTTP.
+
+## Starting the Server
+
+Use `npm start` to launch the server (default port: 3000):
+
+```bash
+npm install
+npm start
+# or with custom port
+PORT=4000 npm start
+```
+
+## API Documentation
+
+Detailed API specification and examples are available in [docs/API.md](docs/API.md).
+
+## Links
+
+- [MISSION.md](../sandbox/MISSION.md)
+- [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [LICENSE](../LICENSE-MIT)
+- [Repository](https://github.com/xn-intenton-z2a/agentic-lib)\n\n// New [sandbox/docs/API.md]:\n# MCP HTTP API
+
+## Endpoints
+
+### GET /health
+- Description: Check server health.
+- Response: `200 OK`
+```json
+{
+  "status": "ok",
+  "timestamp": "2025-01-01T00:00:00.000Z"
+}
+```
+
+### GET /mission
+- Description: Retrieve the current mission.
+- Response `200 OK`:
+```json
+{ "mission": "Mission file content" }
+```
+- Response `404 Not Found`:
+```json
+{ "error": "Mission file not found" }
+```
+
+### GET /features
+- Description: List available commands.
+- Response: `200 OK`
+```json
+["digest", "version", "help"]
+```
+
+### POST /invoke
+- Description: Invoke a command.
+- Request:
+  - `Content-Type: application/json`
+  - Body:
+    ```json
+    { "command": "version", "args": [] }
+    ```
+- Responses:
+  - **digest**
+    ```json
+    { "result": { "batchItemFailures": [], "handler": "src/lib/main.digestLambdaHandler" } }
+    ```
+  - **version**
+    ```json
+    { "version": "6.10.3-0", "timestamp": "2025-05-27T00:00:00.000Z" }
+    ```
+  - **help**
+    ```
+    Usage:
+      command: digest | version | help
+      args: optional array of arguments to pass
+    ```
+  - **Unsupported command**:
+    `400 Bad Request`
+    ```json
+    { "error": "Unsupported command" }
+    ```
+
+## Starting the Server
+
+```bash
+PORT=4000 npm start
+```\n\n// New [sandbox/source/server.js]:\n#!/usr/bin/env node
+// sandbox/source/server.js
+
+import express from "express";
+import { promises as fs } from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import {
+  createSQSEventFromDigest,
+  digestLambdaHandler,
+  logInfo,
+  logError
+} from "../../src/lib/main.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export const app = express();
+app.use(express.json());
+
+// Request logging middleware
+app.use((req, res, next) => {
+  logInfo(`HTTP ${req.method} ${req.path}`);
+  next();
+});
+
+// GET /health
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
+// GET /mission
+app.get("/mission", async (req, res) => {
+  const missionPath = path.resolve(__dirname, "../MISSION.md");
+  try {
+    const content = await fs.readFile(missionPath, "utf8");
+    res.json({ mission: content });
+  } catch (err) {
+    logError("Failed to read mission file", err);
+    res.status(404).json({ error: "Mission file not found" });
+  }
+});
+
+// GET /features
+app.get("/features", (req, res) => {
+  res.json(["digest", "version", "help"]);
+});
+
+// POST /invoke
+app.post("/invoke", async (req, res) => {
+  const { command, args } = req.body;
+  if (!command || typeof command !== "string") {
+    return res.status(400).json({ error: "Invalid command" });
+  }
+  try {
+    if (command === "digest") {
+      let payload;
+      if (Array.isArray(args) && args[0]) {
+        try {
+          payload = JSON.parse(args[0]);
+        } catch {
+          payload = args[0];
+        }
+      } else {
+        payload = { key: "example", value: "123", lastModified: new Date().toISOString() };
+      }
+      const sqsEvent = createSQSEventFromDigest(payload);
+      const result = await digestLambdaHandler(sqsEvent);
+      res.json({ result });
+    } else if (command === "version") {
+      const pkgPath = path.resolve(__dirname, "../../package.json");
+      const pkg = JSON.parse(await fs.readFile(pkgPath, "utf8"));
+      res.json({ version: pkg.version, timestamp: new Date().toISOString() });
+    } else if (command === "help") {
+      const usage = `
+Usage:
+  command: digest | version | help
+  args: optional array of arguments to pass
+`;
+      res.send(usage);
+    } else {
+      res.status(400).json({ error: "Unsupported command" });
+    }
+  } catch (err) {
+    logError("Error processing invoke", err);
+    res.status(500).json({ error: err.toString() });
+  }
+});
+
+// Start server if run directly
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    logInfo(`Server listening on port ${port}`);
+  });
+}\n\n// New [sandbox/tests/server.integration.test.js]:\nimport { describe, test, expect, beforeAll, afterAll } from "vitest";
+import request from "supertest";
+import { app } from "../source/server.js";
+import { createServer } from "http";
+
+let server;
+
+beforeAll((done) => {
+  server = createServer(app);
+  server.listen(() => done());
+});
+
+afterAll((done) => {
+  server.close(done);
+});
+
+describe("Server Integration Tests", () => {
+  test("GET /health", async () => {
+    const res = await request(server).get("/health");
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe("ok");
+  });
+
+  test("GET /features", async () => {
+    const res = await request(server).get("/features");
+    expect(res.body).toEqual(["digest", "version", "help"]);
+  });
+
+  test("POST /invoke version", async () => {
+    const res = await request(server)
+      .post("/invoke")
+      .send({ command: "version" });
+    expect(res.status).toBe(200);
+    expect(res.body.version).toBeDefined();
+    expect(new Date(res.body.timestamp).toString()).not.toBe("Invalid Date");
+  });
+
+  test("POST /invoke help returns usage", async () => {
+    const res = await request(server)
+      .post("/invoke")
+      .send({ command: "help" });
+    expect(res.status).toBe(200);
+    expect(res.text).toContain("Usage:");
+  });
+});\n\n// New [sandbox/tests/server.unit.test.js]:\nimport { describe, test, expect, vi, beforeEach } from "vitest";
+import request from "supertest";
+import { app } from "../source/server.js";
+import fs from "fs/promises";
+
+vi.mock("fs/promises", () => ({
+  readFile: vi.fn()
+}));
+
+describe("Server Unit Tests", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  test("GET /health returns status ok and timestamp", async () => {
+    const res = await request(app).get("/health");
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe("ok");
+    expect(new Date(res.body.timestamp).toString()).not.toBe("Invalid Date");
+  });
+
+  test("GET /mission returns file content", async () => {
+    fs.readFile.mockResolvedValue("Test Mission");
+    const res = await request(app).get("/mission");
+    expect(res.status).toBe(200);
+    expect(res.body.mission).toBe("Test Mission");
+  });
+
+  test("GET /mission returns 404 on error", async () => {
+    fs.readFile.mockRejectedValue(new Error("fail"));
+    const res = await request(app).get("/mission");
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe("Mission file not found");
+  });
+
+  test("GET /features returns commands array", async () => {
+    const res = await request(app).get("/features");
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual(["digest", "version", "help"]);
+  });
+
+  test("POST /invoke unsupported command", async () => {
+    const res = await request(app).post("/invoke").send({ command: "foo" });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("Unsupported command");
+  });
+});
+```
+
+mainOutput:
+```log
+
+```
+
+installAfterUpdateOutcome: success
+
+ciAfterUpdateOutcome: success
+
+testAfterUpdateOutcome: failure
+
+mainAfterUpdateOutcome: success
+
+commitOutcome: success
+
+postResolutionCommentOutcome: success
+
+allValidationStepsSuccessful: false
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1670 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":12656,"completion_tokens":8713,"total_tokens":21369,"prompt_tokens_details":{"cached_tokens":1280,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":5312,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
