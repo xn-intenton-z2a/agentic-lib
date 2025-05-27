@@ -939,3 +939,43 @@ LLM API Usage:
 ```
 ---
 
+
+## Issue to Ready Issue at 2025-05-27T02:17:15.717Z
+
+Activity:
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1664 with action close and updated description:
+
+Implement a new `--mission` flag in the sandbox CLI so users can print the full mission statement from `sandbox/MISSION.md`. This change closes the gap where no current features refer to the mission, reinforcing the CLI’s connection to its purpose.
+
+1. **sandbox/source/main.js**
+   - Detect the `--mission` flag in `args`.
+   - Read the contents of `sandbox/MISSION.md` (using Node’s built-in `fs` module and `fileURLToPath` for the file path).
+   - Print the raw mission text to `stdout` and exit with code 0.
+   - Ensure all existing flags (`--hello`, `--help`, `--version`, `--digest`) continue to work unchanged and take precedence.
+
+2. **sandbox/tests/main.test.js**
+   - Add a test that spies on `console.log` to verify `main(["--mission"])` outputs the exact contents of `sandbox/MISSION.md`.
+   - Ensure the test fails if the output differs in any way (including whitespace).
+   - Confirm existing tests for `--hello` and default behavior still pass.
+
+3. **sandbox/README.md**
+   - Under the **Options** section, document the new `--mission` flag and its behavior.
+   - Provide an **Examples** block showing:
+     ```sh
+     $ node sandbox/source/main.js --mission
+     Print the message: "Hello World!" as mentioned in reply Print the message: "Hello World!"
+     ```
+
+4. **Validation & Acceptance**
+   - Run `npm run sandbox` with `--mission` to manually verify the mission statement prints correctly.
+   - Execute `npm test` to ensure all tests (new and existing) pass.
+
+No new external dependencies are introduced.
+
+LLM API Usage:
+```json
+{"prompt_tokens":8809,"completion_tokens":1557,"total_tokens":10366,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1088,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
