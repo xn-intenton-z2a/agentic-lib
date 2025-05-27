@@ -104,10 +104,10 @@ jobs:
               core.info(`One of the targetFilepaths "${targetFilepath1}", "${targetFilepath2}", "${targetFilepath3}", or "${targetFilepath4}" is in the list of writeable filepaths.`);
             }
 
-  create-feature:
+  maintain-features:
     needs:
       - agentic-lib
-    if: ${{ needs.generate-response.outputs.action == 'create-feature' }}
+      - check-writeable-filepaths
     permissions:
       contents: write
       pull-requests: write
@@ -119,16 +119,18 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-seed-repository-and-feature-development.yml@main'
     with:
       mission: ''
-      feature: ''
+      feature: ${{ inputs.feature || '' }}
+      issue: ''
+      action: 'maintain-features, generate-feature-development-issue, apply-issue-resolution'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
-  log-intention-activity-create-feature:
+  log-intention-activity-maintain-features:
     needs:
-      - generate-response
-      - create-feature
       - agentic-lib
+      - check-writeable-filepaths
+      - maintain-features
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -152,28 +154,18 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          action: ${{ needs.generate-response.outputs.action }}
-          detail: ${{ needs.generate-response.outputs.detail }}
-          reply: ${{ needs.generate-response.outputs.reply }}
-          usage: ${{ needs.generate-response.outputs.usage }}
-          outcome: ${{ needs.create-feature.result }}
+          feature: ${{ inputs.feature || '' }}
+          outcome: ${{ needs.maintain-features.result }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
-            const action = process.env.action;
-            const detail = process.env.detail;
-            const reply = process.env.reply;
-            const usage = process.env.usage;
+            const feature = process.env.feature;
             const outcome = process.env.outcome;
             const intentionFilepath = process.env.intentionFilepath;
 
-            const activity = `The repository bot took the following action "${action}":
+            const activity = `The features were maintained with a feature hint of:
             
-            ${reply}
-            
-            with the detail:
-            
-            "${detail}"
+            ${maintain-features}
             
             and outcome "${outcome}"`;
 
@@ -189,10 +181,7 @@ jobs:
             }
             const isoDate = new Date().toISOString();
             let activityLogContent = `
-            ## Create feature activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\n\`\`\`\n---\n\n`;
-            if (action == 'seed-repository') {
-              activityLogContent = `# Activity Log\n\n${activityLogContent}`;
-            }
+            ## Create feature activity at ${isoDate}\n\n${activity}\n\n---\n\n`;
             if (fs.existsSync(intentionFilepath)) {
               fs.appendFileSync(intentionFilepath, activityLogContent);
             } else {
