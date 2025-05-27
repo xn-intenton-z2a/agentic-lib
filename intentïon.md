@@ -1093,3 +1093,253 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-27T03:11:23.758Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-1671 with message Expand and stabilize MCP server tests and fix server.js imports and help handler and outcome success
+
+Git Diff:
+```diff
+\n\n// New [sandbox/source/server.js]:\n#!/usr/bin/env node
+// sandbox/source/server.js
+
+import express from 'express';
+import fs from 'fs/promises';
+import path from 'path';
+import pkg from '../../package.json' assert { type: 'json' };
+import {
+  createSQSEventFromDigest,
+  digestLambdaHandler,
+  logInfo,
+  logError
+} from '../../src/lib/main.js';
+
+const app = express();
+app.use(express.json());
+
+// Logging middleware
+app.use((req, res, next) => {
+  logInfo(`HTTP ${req.method} ${req.path}`);
+  next();
+});
+
+// GET /health
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// GET /mission
+app.get('/mission', async (req, res) => {
+  try {
+    const missionPath = path.join(process.cwd(), 'sandbox', 'MISSION.md');
+    const content = await fs.readFile(missionPath, 'utf-8');
+    res.status(200).json({ mission: content });
+  } catch (err) {
+    logError('Failed to read mission file', err);
+    res.status(404).json({ error: 'Mission file not found' });
+  }
+});
+
+// GET /features
+app.get('/features', (req, res) => {
+  res.status(200).json(['digest', 'version', 'help']);
+});
+
+// POST /invoke
+app.post('/invoke', async (req, res) => {
+  const { command, args } = req.body;
+  const validCommands = ['digest', 'version', 'help'];
+  if (!validCommands.includes(command)) {
+    return res.status(400).json({ error: 'Unsupported command' });
+  }
+  try {
+    if (command === 'digest') {
+      let payload;
+      if (Array.isArray(args) && args[0]) {
+        try { payload = JSON.parse(args[0]); } catch { payload = args[0]; }
+      } else {
+        payload = {};
+      }
+      const event = createSQSEventFromDigest(payload);
+      const result = await digestLambdaHandler(event);
+      return res.status(200).json({ result });
+    } else if (command === 'version') {
+      return res.status(200).json({ version: pkg.version, timestamp: new Date().toISOString() });
+    } else if (command === 'help') {
+      const usage = `
+Usage:
+  command: digest | version | help
+  args: optional array of arguments to pass
+`;
+      return res.status(200).send(usage);
+    }
+  } catch (err) {
+    logError(err.message || 'Error processing invoke', err);
+    return res.status(500).json({ error: err.message || String(err) });
+  }
+});
+
+export default app;
+
+// Start server if not in test mode
+if (process.env.NODE_ENV !== 'test') {
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    logInfo(`Server listening on port ${port}`);
+  });
+}\n\n// New [sandbox/tests/server.integration.test.js]:\nimport { createServer } from 'http';
+import { describe, test, beforeAll, afterAll, expect } from 'vitest';
+import request from 'supertest';
+import app from '../source/server.js';
+import pkg from '../../package.json' assert { type: 'json' };
+
+describe('Server Integration Tests', () => {
+  let server;
+
+  beforeAll(() => new Promise((resolve) => {
+    server = createServer(app);
+    server.listen(resolve);
+  }));
+
+  afterAll(() => new Promise((resolve) => {
+    server.close(resolve);
+  }));
+
+  test('GET /health', async () => {
+    const res = await request(server).get('/health');
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('ok');
+  });
+
+  test('GET /features', async () => {
+    const res = await request(server).get('/features');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual(['digest', 'version', 'help']);
+  });
+
+  test('POST /invoke version', async () => {
+    const res = await request(server).post('/invoke').send({ command: 'version' });
+    expect(res.status).toBe(200);
+    expect(res.body.version).toBe(pkg.version);
+    expect(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/.test(res.body.timestamp)).toBe(true);
+  });
+
+  test('POST /invoke help returns usage', async () => {
+    const res = await request(server).post('/invoke').send({ command: 'help' });
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Usage:');
+  });
+
+  test('GET /mission returns mission file content', async () => {
+    const res = await request(server).get('/mission');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.mission).toBe('string');
+    expect(res.body.mission.length).toBeGreaterThan(0);
+  });
+
+  test('POST /invoke digest returns result with batchItemFailures array', async () => {
+    const res = await request(server).post('/invoke').send({ command: 'digest' });
+    expect(res.status).toBe(200);
+    expect(res.body.result).toHaveProperty('batchItemFailures');
+    expect(Array.isArray(res.body.result.batchItemFailures)).toBe(true);
+  });
+});\n\n// New [sandbox/tests/server.unit.test.js]:\nimport { describe, test, expect, vi } from 'vitest';
+import request from 'supertest';
+import fs from 'fs/promises';
+import app from '../source/server.js';
+import pkg from '../../package.json' assert { type: 'json' };
+
+vi.mock('fs/promises', () => ({
+  __esModule: true,
+  default: { readFile: vi.fn() },
+  readFile: vi.fn()
+}));
+
+describe('Server Unit Tests', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  test('GET /health returns status ok and timestamp', async () => {
+    const res = await request(app).get('/health');
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('ok');
+    expect(new Date(res.body.timestamp).toISOString()).toBe(res.body.timestamp);
+  });
+
+  test('GET /mission returns file content', async () => {
+    fs.readFile.mockResolvedValue('Test Mission');
+    const res = await request(app).get('/mission');
+    expect(res.status).toBe(200);
+    expect(res.body.mission).toBe('Test Mission');
+  });
+
+  test('GET /mission returns 404 on error', async () => {
+    fs.readFile.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/mission');
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe('Mission file not found');
+  });
+
+  test('GET /features returns commands array', async () => {
+    const res = await request(app).get('/features');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual(['digest', 'version', 'help']);
+  });
+
+  test('POST /invoke unsupported command', async () => {
+    const res = await request(app).post('/invoke').send({ command: 'foo' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe('Unsupported command');
+  });
+
+  test('POST /invoke digest returns result with batchItemFailures array', async () => {
+    const res = await request(app).post('/invoke').send({ command: 'digest' });
+    expect(res.status).toBe(200);
+    expect(res.body.result).toHaveProperty('batchItemFailures');
+    expect(Array.isArray(res.body.result.batchItemFailures)).toBe(true);
+  });
+
+  test('POST /invoke version returns correct version and timestamp', async () => {
+    const res = await request(app).post('/invoke').send({ command: 'version' });
+    expect(res.status).toBe(200);
+    expect(res.body.version).toBe(pkg.version);
+    expect(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/.test(res.body.timestamp)).toBe(true);
+  });
+
+  test('POST /invoke help returns usage text', async () => {
+    const res = await request(app).post('/invoke').send({ command: 'help' });
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Usage:');
+  });
+});
+```
+
+mainOutput:
+```log
+
+```
+
+installAfterUpdateOutcome: success
+
+ciAfterUpdateOutcome: success
+
+testAfterUpdateOutcome: failure
+
+mainAfterUpdateOutcome: success
+
+commitOutcome: success
+
+postResolutionCommentOutcome: success
+
+allValidationStepsSuccessful: false
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1671 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":20334,"completion_tokens":11138,"total_tokens":31472,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":8704,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
