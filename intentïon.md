@@ -1628,3 +1628,50 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Ready Issue at 2025-05-27T05:42:10.133Z
+
+Activity:
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1673 with action enhance and updated description:
+
+Overview:
+Improve and expand tests for the core CLI helper functions and AWS Lambda handler in `src/lib/main.js` to achieve >90% coverage on critical paths and ensure reliable behavior for end users.
+
+Acceptance Criteria:
+1. Exports:
+   - `generateUsage`, `processHelp`, `processVersion`, `processDigest`, `createSQSEventFromDigest`, and `digestLambdaHandler` are exported from `src/lib/main.js`.
+2. Unit Tests (`tests/unit/cli.test.js`):
+   - generateUsage(): returns the expected usage string matching the CLI help text.
+   - processHelp():
+     • When called with `['--help']` returns `true` and logs the usage text via `console.log`.
+     • When called without `--help` returns `false` and does not log.
+   - processVersion():
+     • When called with `['--version']`, mocks `fs.readFileSync` to return a known `package.json`, returns `true`, and logs a JSON string containing `version` and an ISO timestamp.
+     • When called without `--version` returns `false` and does not log.
+   - processDigest():
+     • When called with `['--digest']`, spies on `digestLambdaHandler` to verify it is invoked with an event from `createSQSEventFromDigest()`, returns `true`.
+     • When called without `--digest` returns `false` and does not call `digestLambdaHandler`.
+3. Unit Tests (`tests/unit/lambdaHandler.test.js`):
+   - createSQSEventFromDigest(): given a sample digest object, returns an event with one record whose body is the JSON string of the input and correct SQS record fields.
+   - digestLambdaHandler():
+     • Valid JSON body: resolves to an object with `batchItemFailures: []` and logs info messages via `console.log`.
+     • Invalid JSON body: resolves to an object with `batchItemFailures` containing a failure identifier, logs errors via `console.error`.
+4. Integration Feature Test (`sandbox/tests/cli.feature.test.js`):
+   - Run `node src/lib/main.js --help`, output includes the usage text string.
+   - Run `node src/lib/main.js --version`, output is valid JSON with keys `version` and `timestamp` (ISO 8601).
+   - Run `node src/lib/main.js --digest`, output includes JSON log entries from the handler (e.g., logInfo entries).
+5. Coverage & Verification:
+   - Running `npm test` yields no failures.
+   - Coverage report shows >90% coverage for `src/lib/main.js` critical functions.
+
+Scope & Constraints:
+- Only modify `src/lib/main.js`, add new test files under `tests/unit/` and `sandbox/tests/`.
+- No modifications outside these paths.
+- Update `README.md` documentation in `sandbox/README.md` to include descriptions for the new CLI flags (`--help`, `--version`, `--digest`).
+
+LLM API Usage:
+```json
+{"prompt_tokens":8393,"completion_tokens":1161,"total_tokens":9554,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":448,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
