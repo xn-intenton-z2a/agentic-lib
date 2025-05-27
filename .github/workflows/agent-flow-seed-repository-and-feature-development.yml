@@ -120,7 +120,7 @@ jobs:
 
   log-inputs:
     needs: agentic-lib
-    if: ${{ contains( inputs.action, 'seed-repository' ) }}
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - name: Log inputs
