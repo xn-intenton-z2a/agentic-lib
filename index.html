@@ -636,6 +636,13 @@ aws sqs get-queue-attributes \
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Create up to 3 the features needed during a reseed by doing 'if featuresWIP &gt;=1 create-one, if featuresWIP &gt;= 2 create-two, if featuresWIP &gt;= 3 create-three, etc...'</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Run fix code if the seed resolve issue fails.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Add PR closure/abandonment to intentïon.md and mention the related feature.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] remove in-progress when merging or when the branch limit is reached.</li>
+<li class="md-github">[~] [Launch] Rename seed-repository agent-flow-seed-repository-and-feature-development.yml</li>
+<li class="md-github">[~] [Launch] Call agent-flow-seed-repository-and-feature-development.yml for flow feature development (which raises an issue).</li>
+<li class="md-github">[~] [Launch] Give the bot the ability to create an issue by invoking the agent-flow-seed-repository-and-feature-development.yml workflow.
+(TODO: passing issue to a version of wfr-completion-generate-feature-development-issue.yml, updating the prompt.)</li>
+<li class="md-github">[~] [Launch] Go through all the flows and transitions and where the tests are performed inside the wfr_* workflows, remove them from the outer workflows.</li>
+<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] In the activity log, add a link to the commit URL for any commit applied</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Log the outcome of attempts checks in the intentïon.md file.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Add a job to clear old intention branches that were not completed.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] If the issue is already done, have the issue to code completion return a nop and handle it positively.</li>
@@ -707,12 +714,6 @@ aws sqs get-queue-attributes \
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Replace the sandbox with a full repository.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox" checked="true"> [Launch] Change link to running experiment to be a link to intentïon.md on main.</li>
 <li class="md-github">[~] [Launch] Simple stream of updates from a seed to deliver a single feature.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Rename seed-repository flow-seed-and-develop</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Call flow-seed-and-develop for flow feature development (which raises an issue).</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Give the bot the ability to create an issue by invoking the flow-seed-and-develop workflow.</li>
-<li class="md-github">[~] [Launch] Go through all the flows and transitions and where the tests are performed inside the wfr_* workflows, remove them from the outer workflows.</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Add a link to the commit URL for any commit applied</li>
-<li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Add a link to the URL for any feature updated.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Script the process from request to cloning the repository and setting it up to run the workflows.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> [Launch] Screen capture the scripted flow and post a link to this on Youtube.</li>
 <li class="md-github md-github__task-item"><input type="checkbox" disabled="true" class="md-github__task-checkbox"> Request a promotional video.</li>
@@ -898,7 +899,7 @@ IMPORTANT: Any derived work must include the following attribution:
 
   </section>
   <footer>
-    <p>Generated on 2025-05-26T10:41:23.652Z</p>
+    <p>Generated on 2025-05-27T07:43:47.501Z</p>
   </footer>
 </body>
 </html>
