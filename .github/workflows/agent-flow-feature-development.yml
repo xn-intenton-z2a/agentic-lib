@@ -165,7 +165,7 @@ jobs:
 
             const activity = `The features were maintained with a feature hint of:
             
-            ${maintain-features}
+            ${feature}
             
             and outcome "${outcome}"`;
 
