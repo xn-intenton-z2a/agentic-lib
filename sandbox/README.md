@@ -17,6 +17,7 @@ Options:
 - `--hello`        Print Hello World!
 - (no arguments)   Print Hello World!
 - `--mission`      Print the full mission statement (`node sandbox/source/main.js --mission`)
+- `--banner`       Print ASCII art Hello World using figlet (`node sandbox/source/main.js --banner`)
 - `--help`         Show help message (`node sandbox/source/main.js --help`)
 - `--version`      Show version information (`node sandbox/source/main.js --version`)
 - `--digest`       Run a full bucket replay simulating an SQS event (`node sandbox/source/main.js --digest`)
@@ -42,6 +43,13 @@ Print mission statement
 ```sh
 $ node sandbox/source/main.js --mission
 Print the message: "Hello World!" as mentioned in reply Print the message: "Hello World!"
+```
+
+Print ASCII art banner
+
+```sh
+$ node sandbox/source/main.js --banner
+<ASCII art for Hello World!>
 ```
 
 Show help
