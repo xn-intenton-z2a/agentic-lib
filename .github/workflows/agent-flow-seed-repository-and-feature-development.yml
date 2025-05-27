@@ -118,6 +118,21 @@ jobs:
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+  log-inputs:
+    needs: agentic-lib
+    if: ${{ contains( inputs.action, 'seed-repository' ) }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log inputs
+        run: |
+          echo "Mission: ${{ inputs.mission }}"
+          echo "Feature: ${{ inputs.feature }}"
+          echo "Issue: ${{ inputs.issue }}"
+          echo "URL: ${{ inputs.url }}"
+          echo "Actions: ${{ inputs.actions }}"
+          echo "repositoryReseed: ${{ needs.agentic-lib.outputs.repositoryReseed }}"
+          echo "sandboxReset: ${{ needs.agentic-lib.outputs.sandboxReset }}"
+
   seed-repository:
     needs:
       - agentic-lib
@@ -1283,7 +1298,7 @@ jobs:
       - update-mvn
       - maintain-features-one
       - generate-feature-development-issue-one
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && contains( inputs.action, 'generate-feature-development-issue' ) }}
     permissions:
       issues: write
       id-token: write
@@ -1596,7 +1611,7 @@ jobs:
     needs:
       - agentic-lib
       - enhance-issue-one
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && contains( inputs.action, 'generate-feature-development-issue' ) }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
