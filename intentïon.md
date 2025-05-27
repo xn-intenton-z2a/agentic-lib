@@ -361,3 +361,104 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-27T00:08:19.777Z
+
+Activity:
+
+fixApplied: true with message Add --mission flag to display mission statement update tests and README
+
+Git Diff:
+```diff
+diff --git a/sandbox/README.md b/sandbox/README.md
+index 0c05c8fd..c24ccad3 100644
+--- a/sandbox/README.md
++++ b/sandbox/README.md
+@@ -16,6 +16,7 @@ Options:
+ 
+ - `--hello`        Print Hello World!
+ - (no arguments)   Print Hello World!
++- `--mission`      Print the full mission statement (`node sandbox/source/main.js --mission`)
+ - `--help`         Show help message (`node sandbox/source/main.js --help`)
+ - `--version`      Show version information (`node sandbox/source/main.js --version`)
+ - `--digest`       Run a full bucket replay simulating an SQS event (`node sandbox/source/main.js --digest`)
+@@ -36,6 +37,13 @@ $ node sandbox/source/main.js --hello
+ Hello World!
+ ```
+ 
++Print mission statement
++
++```sh
++$ node sandbox/source/main.js --mission
++Print the message: "Hello World!" as mentioned in reply Print the message: "Hello World!"
++```
++
+ Show help
+ 
+ ```sh
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index d2c6f7e7..a5f77b46 100755
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -1,6 +1,7 @@
+ #!/usr/bin/env node
+ // sandbox/source/main.js
+ 
++import { readFileSync } from "fs";
+ import { fileURLToPath } from "url";
+ 
+ export function main(args) {
+@@ -8,6 +9,16 @@ export function main(args) {
+     console.log("Hello World!");
+     return;
+   }
++  if (args.includes("--mission")) {
++    try {
++      const missionPath = fileURLToPath(new URL("../MISSION.md", import.meta.url));
++      const missionText = readFileSync(missionPath, "utf-8");
++      console.log(missionText);
++    } catch (error) {
++      console.error("Failed to read mission file:", error);
++    }
++    return;
++  }
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
+diff --git a/sandbox/tests/main.test.js b/sandbox/tests/main.test.js
+index 22540a71..5851b791 100644
+--- a/sandbox/tests/main.test.js
++++ b/sandbox/tests/main.test.js
+@@ -1,4 +1,6 @@
+ import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
++import { readFileSync } from "fs";
++import { fileURLToPath } from "url";
+ import { main } from "@sandbox/source/main.js";
+ 
+ describe("Hello World CLI", () => {
+@@ -21,4 +23,11 @@ describe("Hello World CLI", () => {
+     main([]);
+     expect(logSpy).toHaveBeenCalledWith("Hello World!");
+   });
++
++  test("prints mission statement when --mission flag is provided", () => {
++    const missionPath = fileURLToPath(new URL("../MISSION.md", import.meta.url));
++    const missionText = readFileSync(missionPath, "utf-8");
++    main(["--mission"]);
++    expect(logSpy).toHaveBeenCalledWith(missionText);
++  });
+ });
+```
+
+mainOutput:
+```log
+
+```
+
+[for issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1664 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":13012,"completion_tokens":3872,"total_tokens":16884,"prompt_tokens_details":{"cached_tokens":2816,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2624,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
