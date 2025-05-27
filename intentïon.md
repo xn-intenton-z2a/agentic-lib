@@ -1020,3 +1020,41 @@ LLM API Usage:
 ```
 
 ---
+## Feature to Issue at 2025-05-27T03:08:03.648Z
+
+Activity:
+
+Generated issue 1671 for feature "mcp-server" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1671
+
+title:
+
+Expand and stabilize MCP server test coverage for mission and invoke endpoints
+
+And description:
+
+The MCP HTTP server in `sandbox/source/server.js` currently has partial test coverage and some tests are not being run or validated. To ensure robust behavior across all endpoints, we need to extend and stabilize both unit and integration tests.
+
+**1. Unit test enhancements (`sandbox/tests/server.unit.test.js`):
+- Mock `createSQSEventFromDigest` and `digestLambdaHandler` to return a fixed response. Add a test for POST `/invoke` with `{ command: 'digest', args: [...] }`, asserting HTTP 200 and a JSON `{ result: <mocked> }`.
+- Stub the ESM import or `fs/promises` read of `package.json` to return a known version. Add a test for POST `/invoke` with `{ command: 'version' }`, verifying the `version` field matches and the `timestamp` is a valid ISO 8601 string.
+- Spy or stub `generateUsage` to return a predictable value. Add a test for POST `/invoke` with `{ command: 'help' }`, verifying HTTP 200 and that the response is either plain text or JSON as returned by the stub.
+
+**2. Integration test additions (`sandbox/tests/server.integration.test.js`):**
+- Add a test for GET `/mission` that reads the real `sandbox/MISSION.md` and asserts HTTP 200 with a non-empty `mission` property matching the file content.
+- Add a smoke test for end-to-end POST `/invoke` with `{ command: 'digest' }` (without mocks), asserting HTTP 200 and that the response contains a `result.batchItemFailures` array.
+
+**3. Test runner verification:**
+- Confirm that Vitest discovers `sandbox/tests/server.unit.test.js` and `sandbox/tests/server.integration.test.js` under the existing `test` script (`vitest --run tests/unit/*.test.js sandbox/tests/*.test.js`). If necessary, adjust the `test` script in `package.json` to include these patterns.
+
+**Verification steps:**
+- Run `npm test` and confirm all new and existing tests pass.
+- Inspect coverage for `sandbox/source/server.js` to ensure >90% coverage.
+
+By completing these tasks, we will stabilize the MCP server feature and guard against regressions in core endpoints.
+
+LLM API Usage:
+```json
+{"prompt_tokens":16202,"completion_tokens":3544,"total_tokens":19746,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3008,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
