@@ -1058,3 +1058,38 @@ LLM API Usage:
 ```
 
 ---
+## Issue to enhanced Issue at 2025-05-27T03:08:38.786Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+The MCP HTTP server in `sandbox/source/server.js` currently has incomplete and unstable test coverage. To ensure robust behavior across all core endpoints and prevent regressions, we will implement the following enhancements with clear, measurable acceptance criteria:
+
+1. Unit Test Enhancements (`sandbox/tests/server.unit.test.js`):
+   - Mock `createSQSEventFromDigest` and `digestLambdaHandler` to return a fixed payload `{ batchItemFailures: [] }`.
+     * Test: POST `/invoke` with `{ command: 'digest', args: ['{}'] }` returns HTTP 200 and JSON `{ result: { batchItemFailures: [] } }`.
+   - Stub the ESM import or `fs/promises.readFile` of `package.json` to return a known version (e.g., `"1.2.3"`).
+     * Test: POST `/invoke` with `{ command: 'version' }` returns HTTP 200 and JSON `{ version: '1.2.3', timestamp: <ISO8601> }`, where `timestamp` matches `/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/`.
+   - Stub `generateUsage()` to return a predictable string (e.g., `'USAGE_TEXT'`).
+     * Test: POST `/invoke` with `{ command: 'help' }` returns HTTP 200 and a plain-text body equal to `'USAGE_TEXT'`.
+
+2. Integration Test Additions (`sandbox/tests/server.integration.test.js`):
+   - GET `/mission`: reads the real `sandbox/MISSION.md` and returns HTTP 200 with JSON `{ mission: <file content> }`. Test that `mission` is a non-empty string matching the file contents.
+   - POST `/invoke` with real handler for `digest` (no mocks): returns HTTP 200 and JSON `{ result: { batchItemFailures: Array } }`, and `result.batchItemFailures` is an array (possibly empty).
+
+3. Test Runner Verification:
+   - Confirm `npm test` (script: `vitest --run tests/unit/*.test.js sandbox/tests/*.test.js`) discovers the new tests. If not, update the `test` script in `package.json` to include both `tests/unit/*.test.js` and `sandbox/tests/*.test.js` patterns.
+
+Acceptance Criteria:
+- All new and existing tests pass on `npm test`.
+- Coverage report for `sandbox/source/server.js` shows ≥ 90% statement and branch coverage.
+- No regressions on existing endpoints (`/health`, `/features`, unsupported commands).
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":7594,"completion_tokens":1067,"total_tokens":8661,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":448,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
