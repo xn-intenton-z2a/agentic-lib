@@ -184,3 +184,67 @@ LLM API Usage:
 ```
 
 ---
+## Issue to enhanced Issue at 2025-05-27T02:54:28.871Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+Title: Implement MCP Server with Express HTTP API and Comprehensive Tests
+
+Overview:
+Add an HTTP server under `src/lib/server.js` exposing the Model Contact Protocol (MCP) endpoints: `/health`, `/mission`, `/features`, and `/invoke`. Update the `start` script, add unit & integration tests, and document usage in `sandbox/README.md`.
+
+Acceptance Criteria:
+1. GET /health:
+   - Returns HTTP 200
+   - Response body is JSON `{ status: "ok", timestamp: <ISO timestamp> }`
+   - Timestamp field parses as a valid ISO 8601 date
+2. GET /mission:
+   - Reads `sandbox/MISSION.md` with UTF-8 encoding
+   - Returns HTTP 200 and JSON `{ mission: <file content> }` when file exists
+   - Returns HTTP 404 and JSON `{ error: "Mission file not found" }` if missing
+3. GET /features:
+   - Returns HTTP 200 and JSON array `["digest","version","help"]`
+4. POST /invoke:
+   - Request Content-Type `application/json`
+   - Accepts body `{ command: string, args?: string[] }`
+   - Validates `command` is one of `digest`, `version`, or `help`; responds 400 with `{ error: "Unsupported command" }` otherwise
+   - For `digest`:
+     - If `args[0]` is JSON, parse as payload; else use default example digest
+     - Calls `createSQSEventFromDigest()` and `digestLambdaHandler()`
+     - Responds HTTP 200 and JSON `{ result: <handler return value> }`
+   - For `version`:
+     - Reads version from `package.json`
+     - Responds HTTP 200 and JSON `{ version: <string>, timestamp: <ISO timestamp> }`
+   - For `help`:
+     - Responds HTTP 200 and plain text or JSON matching `generateUsage()` output
+5. Logging & Error Handling:
+   - All requests use `logInfo` to log method, path, and timestamp
+   - Handler errors use `logError` to log messages and stack (if verbose)
+6. Startup Behavior:
+   - `src/lib/server.js` exports an Express `app`
+   - When run directly (`node src/lib/server.js`), `app.listen()` uses `process.env.PORT || 3000`
+7. Package & Scripts:
+   - `package.json` updated: `start` script runs `node src/lib/server.js`
+8. Testing:
+   - Unit tests using Vitest + Supertest cover each endpoint, simulating valid/invalid requests
+   - Integration tests in `sandbox/tests/server.integration.test.js` start the server on an ephemeral port and verify end-to-end responses
+   - Mocks file reads for `/mission` unit tests to isolate filesystem
+   - `npm test` passes, including existing tests
+9. Documentation:
+   - `sandbox/README.md` updated with an "MCP HTTP API" section
+     - Describes each endpoint, request/response examples (cURL + JavaScript fetch)
+     - Shows how to start server with `npm start` and `PORT` env var
+
+Implementation Details:
+- Create `src/lib/server.js` with Express app, route handlers, and exports
+- Use existing utilities from `src/lib/main.js` (`createSQSEventFromDigest`, `digestLambdaHandler`, `logInfo`, `logError`)
+- Update `package.json` accordingly
+
+LLM API Usage:
+```json
+{"prompt_tokens":7737,"completion_tokens":1058,"total_tokens":8795,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":256,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
