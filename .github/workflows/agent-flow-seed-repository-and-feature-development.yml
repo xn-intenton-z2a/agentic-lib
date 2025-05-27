@@ -1,4 +1,4 @@
-# .github/workflows/agent-seed-repository.yml
+# .github/workflows/agent-flow-seed-repository-and-feature-development.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
@@ -20,6 +20,16 @@ on:
         required: false
         type: string
         default: ''
+      issue:
+        description: 'Text to drive the issue creation (if populated the seeding and creation of a new mission will be skipped). e.g. "Support output to PDF."'
+        required: false
+        type: string
+        default: ''
+      actions:
+        description: 'The actions to perform on the repository. e.g. "seed-repository, update, maintain-features, generate-feature-development-issue, apply-issue-resolution"'
+        required: false
+        type: string
+        default: 'seed-repository, update, maintain-features, generate-feature-development-issue, apply-issue-resolution'
       url:
         description: 'The URL of the repository to seed. e.g. https://github.com/xn-intenton-z2a/agentic-lib/discussions/1318'
         required: false
@@ -42,6 +52,16 @@ on:
         required: false
         type: string
         default: ''
+      issue:
+        description: 'Text to drive the issue creation (if populated the seeding and creation of a new mission will be skipped). e.g. "Support output to PDF."'
+        required: false
+        type: string
+        default: ''
+      actions:
+        description: 'The actions to perform on the repository. e.g. "seed-repository, update, maintain-features, generate-feature-development-issue, apply-issue-resolution"'
+        required: false
+        type: string
+        default: 'seed-repository, update, maintain-features, generate-feature-development-issue, apply-issue-resolution'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -56,7 +76,9 @@ on:
 env:
   mission: ${{ inputs.mission || '' }}
   feature: ${{ inputs.feature || '' }}
+  issue: ${{ inputs.issue || '' }}
   url: ${{ inputs.url || '' }}
+  actions: ${{ inputs.actions || 'seed-repository, update, maintain-features, generate-feature-development-issue, apply-issue-resolution' }}
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
   gitUserEmail: 'action@github.com'
   gitUserName: 'GitHub Actions[bot]'
@@ -100,7 +122,7 @@ jobs:
     needs:
       - agentic-lib
       - archive-intention
-    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && inputs.feature == '' }}
+    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && contains( inputs.action, 'seed-repository' ) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -359,7 +381,7 @@ jobs:
     needs:
       - agentic-lib
       - archive-intention
-    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' )  && inputs.feature == '' }}
+    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && contains( inputs.action, 'seed-repository' ) }}
     runs-on: ubuntu-latest
     env:
       branchPrefix: 'agentic-lib-'
@@ -441,7 +463,7 @@ jobs:
     needs:
       - agentic-lib
       - archive-intention
-    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && inputs.feature == '' }}
+    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && contains( inputs.action, 'seed-repository' ) }}
     runs-on: ubuntu-latest
     steps:
       - name: Redact old GitHub issues and delete their comments
@@ -497,7 +519,7 @@ jobs:
       - cleanup-issues
       - delete-branches
       - agentic-lib
-    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && inputs.feature == '' }}
+    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && contains( inputs.action, 'seed-repository' ) }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -566,7 +588,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          git commit -m "Activity logged by agent-seed-repository.yml, seed repository" || echo "No changes to commit"
+          git commit -m "Activity logged by agent-flow-seed-repository-and-feature-development.yml, seed repository" || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
           git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
@@ -577,7 +599,7 @@ jobs:
       - seed-repository
       - delete-branches
       - cleanup-issues
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && contains( inputs.action, 'update' ) }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -646,6 +668,7 @@ jobs:
       - seed-repository
       - delete-branches
       - cleanup-issues
+    if: ${{ !cancelled() && contains( inputs.action, 'update' ) }}
     runs-on: ubuntu-latest
     steps:
 
@@ -750,7 +773,7 @@ jobs:
       - cleanup-issues
       - pom-check
       - update-npm
-    if: ${{ needs.pom-check.outputs.pomXmlExists == 'true' }}
+    if: ${{ !cancelled() && needs.pom-check.outputs.pomXmlExists == 'true' && contains( inputs.action, 'update' ) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -835,7 +858,7 @@ jobs:
       - update-npm
       - update-mvn
       #- maintain-library
-    if: ${{ !cancelled() && needs.agentic-lib.outputs.featuresLimit > 0 }}
+    if: ${{ !cancelled() && needs.agentic-lib.outputs.featuresLimit > 0 && contains( inputs.action, 'maintain-features' ) }}
     permissions:
       contents: write
       issues: write
@@ -868,6 +891,7 @@ jobs:
     needs:
       - agentic-lib
       - maintain-features-one
+    if: ${{ !cancelled() && needs.agentic-lib.outputs.featuresLimit > 0 && contains( inputs.action, 'maintain-features' ) }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -945,7 +969,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          git commit -m "Activity logged by agent-seed-repository.yml, maintain feature." || echo "No changes to commit"
+          git commit -m "Activity logged by agent-flow-seed-repository-and-feature-development.yml, maintain feature." || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
           git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
@@ -1075,7 +1099,7 @@ jobs:
 #          git config --local pull.ff     false       # never fast-forward
 #          git config --local pull.rebase false       # never rebase on pull
 #          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-#          git commit -m "Activity logged by agent-seed-repository.yml, maintain feature." || echo "No changes to commit"
+#          git commit -m "Activity logged by agent-flow-seed-repository-and-feature-development.yml, maintain feature." || echo "No changes to commit"
 #          git fetch origin ${{ github.ref_name }}
 #          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 #          git push -v origin ${{ github.ref_name }}
@@ -1207,7 +1231,7 @@ jobs:
 #          git config --local pull.ff     false       # never fast-forward
 #          git config --local pull.rebase false       # never rebase on pull
 #          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-#          git commit -m "Activity logged by agent-seed-repository.yml, maintain feature." || echo "No changes to commit"
+#          git commit -m "Activity logged by agent-flow-seed-repository-and-feature-development.yml, maintain feature." || echo "No changes to commit"
 #          git fetch origin ${{ github.ref_name }}
 #          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 #          git push -v origin ${{ github.ref_name }}
@@ -1219,7 +1243,7 @@ jobs:
       - update-npm
       - update-mvn
       - maintain-features-one
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && contains( inputs.action, 'generate-feature-development-issue' ) }}
     permissions:
       contents: write
       issues: write
@@ -1278,7 +1302,7 @@ jobs:
       - update-mvn
       - generate-feature-development-issue-one
       - create-issue-one
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && contains( inputs.action, 'generate-feature-development-issue' ) }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -1365,7 +1389,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          git commit -m "Activity logged by agent-seed-repository.yml, generate issue" || echo "No changes to commit"
+          git commit -m "Activity logged by agent-flow-seed-repository-and-feature-development.yml, generate issue" || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
           git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
@@ -1525,7 +1549,7 @@ jobs:
 #          git config --local pull.ff     false       # never fast-forward
 #          git config --local pull.rebase false       # never rebase on pull
 #          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-#          git commit -m "Activity logged by agent-seed-repository.yml, generate issue" || echo "No changes to commit"
+#          git commit -m "Activity logged by agent-flow-seed-repository-and-feature-development.yml, generate issue" || echo "No changes to commit"
 #          git fetch origin ${{ github.ref_name }}
 #          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 #          git push -v origin ${{ github.ref_name }}
@@ -1539,7 +1563,7 @@ jobs:
       - update-mvn
       - generate-feature-development-issue-one
       - create-issue-one
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && contains( inputs.action, 'generate-feature-development-issue' ) }}
     permissions:
       contents: read
       issues: write
@@ -1645,7 +1669,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          git commit -m "Activity logged by agent-seed-repository.yml, enhance issue" || echo "No changes to commit"
+          git commit -m "Activity logged by agent-flow-seed-repository-and-feature-development.yml, enhance issue" || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
           git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
@@ -1765,7 +1789,7 @@ jobs:
 #          git config --local pull.ff     false       # never fast-forward
 #          git config --local pull.rebase false       # never rebase on pull
 #          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-#          git commit -m "Activity logged by agent-seed-repository.yml, enhance issue" || echo "No changes to commit"
+#          git commit -m "Activity logged by agent-flow-seed-repository-and-feature-development.yml, enhance issue" || echo "No changes to commit"
 #          git fetch origin ${{ github.ref_name }}
 #          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 #          git push -v origin ${{ github.ref_name }}
@@ -1829,7 +1853,7 @@ jobs:
       - create-issue-one
       - enhance-issue-one
       #- npm-test-before-issue-resolution
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && contains( inputs.action, 'apply-issue-resolution' ) }}
     permissions:
       contents: write
       issues: write
@@ -1877,7 +1901,7 @@ jobs:
       - enhance-issue-one
       #- npm-test-before-issue-resolution
       - label-issue-before-attempt
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && contains( inputs.action, 'apply-issue-resolution' ) }}
     permissions:
       contents: write
       issues: write
@@ -1917,7 +1941,7 @@ jobs:
       - agentic-lib
       - create-issue-one
       - apply-issue-resolution
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && contains( inputs.action, 'apply-issue-resolution' ) }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -2198,7 +2222,7 @@ jobs:
       - create-issue-one
       - apply-issue-resolution
       #- needs-fix-after-issue-resolution
-    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful == 'true' }}
+    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful == 'true' && contains( inputs.action, 'apply-issue-resolution' ) }}
     #if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'true' ) }}
     permissions:
       contents: write
@@ -2217,7 +2241,7 @@ jobs:
   automerge-pr:
     needs:
       - create-pr
-    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful == 'true' }}
+    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful == 'true' && contains( inputs.action, 'apply-issue-resolution' ) }}
     #if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'true' ) }}
     permissions:
       contents: write
@@ -2236,7 +2260,7 @@ jobs:
       - create-issue-one
       - apply-issue-resolution
       #- needs-fix-after-issue-resolution
-    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful != 'true' }}
+    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful != 'true' && contains( inputs.action, 'apply-issue-resolution' ) }}
     #if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
     permissions:
       contents: write
@@ -2278,7 +2302,7 @@ jobs:
       - apply-issue-resolution
       #- needs-fix-after-issue-resolution
       - fix-code
-    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful != 'true' }}
+    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful != 'true' && contains( inputs.action, 'apply-issue-resolution' ) }}
     #if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
     runs-on: ubuntu-latest
     env:
@@ -2369,7 +2393,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          git commit -m "Activity logged byagent-seed-repository.yml, fix code" || echo "No changes to commit"
+          git commit -m "Activity logged byagent-flow-seed-repository-and-feature-development.yml, fix code" || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
           git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
@@ -2547,7 +2571,7 @@ jobs:
       #- npm-build-after-fix
       #- npm-run-after-fix
       #- needs-fix-after-fix
-    if: ${{ !cancelled() && needs.fix-code.outputs.fixApplied == 'true' && needs.fix-code.outputs.allValidationStepsSuccessful == 'true' }}
+    if: ${{ !cancelled() && needs.fix-code.outputs.fixApplied == 'true' && needs.fix-code.outputs.allValidationStepsSuccessful == 'true' && contains( inputs.action, 'apply-issue-resolution' ) }}
     #if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
     permissions:
       contents: write
@@ -2573,7 +2597,7 @@ jobs:
       #- npm-build-after-fix
       #- npm-run-after-fix
       #- needs-fix-after-fix
-    if: ${{ !cancelled() && needs.fix-code.outputs.fixApplied == 'true' && needs.fix-code.outputs.allValidationStepsSuccessful == 'true' }}
+    if: ${{ !cancelled() && needs.fix-code.outputs.fixApplied == 'true' && needs.fix-code.outputs.allValidationStepsSuccessful == 'true' && contains( inputs.action, 'apply-issue-resolution' ) }}
     #if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
     permissions:
       contents: write

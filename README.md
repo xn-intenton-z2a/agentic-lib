@@ -758,11 +758,12 @@ intentïon user journey [Launch UX]:
 - [x] [Launch] Change link to running experiment to be a link to intentïon.md on that branch.
 - [x] [Launch] Replace the sandbox with a full repository.
 - [x] [Launch] Change link to running experiment to be a link to intentïon.md on main.
-- [~] [Launch] Simple stream of updates from a seed to deliver a single feature.
-remove in-progress when merging or when the branch limit is reached.
-- [ ] [Launch] Rename seed-repository flow-seed-and-develop
-- [ ] [Launch] Call flow-seed-and-develop for flow feature development (which raises an issue).
-- [ ] [Launch] Give the bot the ability to create an issue by invoking the flow-seed-and-develop workflow.
+- [x] [Launch] Simple stream of updates from a seed to deliver a single feature.
+- [x] [Launch] remove in-progress when merging or when the branch limit is reached.
+- [~] [Launch] Rename seed-repository agent-flow-seed-repository-and-feature-development.yml
+- [~] [Launch] Call agent-flow-seed-repository-and-feature-development.yml for flow feature development (which raises an issue).
+- [~] [Launch] Give the bot the ability to create an issue by invoking the agent-flow-seed-repository-and-feature-development.yml workflow.
+               (TODO: passing issue to a version of wfr-completion-generate-feature-development-issue.yml, updating the prompt.)
 - [~] [Launch] Go through all the flows and transitions and where the tests are performed inside the wfr_* workflows, remove them from the outer workflows.
 - [ ] [Launch] Add a link to the commit URL for any commit applied
 - [ ] [Launch] Add a link to the URL for any feature updated.
