@@ -1,4 +1,4 @@
-import { describe, test, expect, vi } from 'vitest';
+import { describe, test, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import fs from 'fs/promises';
 import app from '../source/server.js';
