@@ -494,3 +494,52 @@ LLM API Usage:
 ```
 ---
 
+
+## Feature to Issue at 2025-05-27T00:39:06.714Z
+
+Activity:
+
+Generated issue 1666 for feature "ascii-art-banner" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1666
+
+title:
+
+Implement --banner flag for ASCII art "Hello World!" using figlet
+
+And description:
+
+Objective:
+Add a new `--banner` CLI flag to the sandbox CLI that prints “Hello World!” in ASCII art using the existing `figlet` dependency.
+
+Scope & Steps:
+1. sandbox/source/main.js
+   - Import `figlet`.
+   - Detect `--banner` in `args` before other flags.
+   - Call `figlet.textSync("Hello World!")` and `console.log` the result.
+   - Exit after printing ASCII art.
+
+2. sandbox/tests/main.test.js
+   - Mock or spy on `console.log`.
+   - Add a test for `main(["--banner"])` that asserts the output matches the figlet-rendered text for “Hello World!” (you can compare against a snapshot or the known figlet output for the default font).
+   - Ensure existing tests for `--hello`, no-arg, and `--mission` still pass.
+
+3. sandbox/README.md
+   - Document the new `--banner` flag under **Options** with a description.
+   - Add an example under **Examples**:
+     ```sh
+     $ node sandbox/source/main.js --banner
+     <ASCII art for Hello World!>
+     ```
+
+Verification & Acceptance:
+- Run `npm run sandbox -- --banner` to manually verify the ASCII art prints correctly.
+- Execute `npm test` to ensure all tests pass and the new test validates the banner output.
+- No new dependencies are introduced; use the existing `figlet` package.
+
+This enhancement enriches the Hello World demo by showcasing the existing `figlet` dependency and provides users a fun, visually appealing greeting.
+
+LLM API Usage:
+```json
+{"prompt_tokens":11669,"completion_tokens":3541,"total_tokens":15210,"prompt_tokens_details":{"cached_tokens":1024,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3136,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
