@@ -1,41 +1,52 @@
 # Objective
-Provide comprehensive test coverage for the CLI helper functions and AWS Lambda handler utilities in src/lib/main.js to ensure reliability and maintain >90% coverage on critical code paths.
+Extend the existing CLI tests by exporting internal helper functions from src/lib/main.js and adding comprehensive unit and integration tests for generateUsage, processHelp, processVersion, and processDigest. Ensure reliable behavior and achieve >90% coverage on critical CLI code paths.
 
 # Implementation Changes
 
-Export additional helper functions from src/lib/main.js:
-• generateUsage
-• processHelp
-• processVersion
-• processDigest
-• createSQSEventFromDigest (already exported)
-• digestLambdaHandler (already exported)
+1. Export CLI helpers from src/lib/main.js:
+   • Add `export { generateUsage, processHelp, processVersion, processDigest }` after their definitions.
+   • Ensure they are documented in sandbox/README.md under a new "CLI Flags" section.
 
-Ensure all exports are documented in README.
+2. Document CLI flags in sandbox/README.md:
+   • --help: shows usage text.
+   • --version: prints JSON with version and timestamp.
+   • --digest: invokes the digest handler and logs results.
 
 # Unit Tests (tests/unit)
 
-tests/unit/cli.test.js:
-• generateUsage(): returns expected usage string matching help text.
-• processHelp(): when args include "--help", returns true and logs usage; when omitted, returns false and does not log.
-• processVersion(): mock fs.readFileSync to return a known package.json; calling with "--version" returns true and logs JSON with version and ISO timestamp; without flag returns false.
-• processDigest(): spy on digestLambdaHandler; calling with "--digest" invokes handler with event from createSQSEventFromDigest and returns true; without flag returns false.
+## tests/unit/cli.test.js
+- Import `generateUsage`, `processHelp`, `processVersion`, `processDigest`, and `digestLambdaHandler` from src/lib/main.js.
+- Mock dependencies:
+  • Spy on `console.log` and `console.error` using Vitest.
+  • Mock `fs.readFileSync` for processVersion tests to return a known package.json.
+  • Spy on `digestLambdaHandler` to return a fixed payload.
+- Test cases:
+  1. `generateUsage()` returns a non-empty usage string containing "--help" and "--version".
+  2. `processHelp(["--help"])` returns true and logs usage; `processHelp([])` returns false without logging.
+  3. `processVersion(["--version"])` returns true, logs valid JSON with `version` and ISO timestamp; without flag returns false and does not log.
+  4. `processDigest(["--digest"])` returns true and calls `digestLambdaHandler` with event from `createSQSEventFromDigest`; without flag returns false and does not call.
 
-tests/unit/lambdaHandler.test.js:
-• createSQSEventFromDigest(): given a sample object, returns event with correct Records array and JSON body.
-• digestLambdaHandler():
-  - valid JSON body: logs info, returns { batchItemFailures: [] } and includes handler identifier.
-  - invalid JSON body: logs error, returns batchItemFailures containing the record identifier.
+## tests/unit/lambdaHandler.test.js
+- Verify `createSQSEventFromDigest`: given sample digest, returns event with correct Records array and JSON body.
+- Verify `digestLambdaHandler`:
+  • Valid record body logs info and returns `{ batchItemFailures: [] }`.
+  • Invalid JSON body logs errors and returns `batchItemFailures` containing at least one entry.
 
 # Integration Feature Test (sandbox/tests)
 
-sandbox/tests/cli.feature.test.js:
-• Run node src/lib/main.js --help: exit code 0, stdout includes usage instructions.
-• Run node src/lib/main.js --version: stdout is valid JSON with keys "version" and "timestamp" matching ISO8601.
-• Run node src/lib/main.js --digest: stdout includes log entries indicating handler execution.
+## sandbox/tests/cli.feature.test.js
+- Use `child_process.exec` or `execa` to run `node src/lib/main.js` with each flag:
+  1. `--help`: exit code 0, stdout contains usage text.
+  2. `--version`: stdout is valid JSON with `version` matching package.json and `timestamp` matching ISO format.
+  3. `--digest`: stdout includes JSON log entries from the digest handler indicating a successful invocation.
+- Ensure tests run under the existing `npm test` script without modifying its patterns.
 
-# Verification & Acceptance Criteria
+# Verification & Acceptance
 
-• All new and existing tests pass under npm test.
-• Coverage report shows >90% coverage for src/lib/main.js critical functions.
-• README (sandbox/README.md) updated to document CLI flags: --help, --version, --digest with examples.
+- Running `npm test` passes all new and existing tests.
+- Coverage report shows >90% coverage for src/lib/main.js critical functions.
+- Manual smoke tests:
+  • `npm run sandbox -- --help`
+  • `npm run sandbox -- --version`
+  • `npm run sandbox -- --digest`
+
