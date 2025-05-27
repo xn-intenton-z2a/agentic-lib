@@ -16,6 +16,7 @@ Options:
 
 - `--hello`        Print Hello World!
 - (no arguments)   Print Hello World!
+- `--mission`      Print the full mission statement (`node sandbox/source/main.js --mission`)
 - `--help`         Show help message (`node sandbox/source/main.js --help`)
 - `--version`      Show version information (`node sandbox/source/main.js --version`)
 - `--digest`       Run a full bucket replay simulating an SQS event (`node sandbox/source/main.js --digest`)
@@ -34,6 +35,13 @@ Print Hello World! with flag
 ```sh
 $ node sandbox/source/main.js --hello
 Hello World!
+```
+
+Print mission statement
+
+```sh
+$ node sandbox/source/main.js --mission
+Print the message: "Hello World!" as mentioned in reply Print the message: "Hello World!"
 ```
 
 Show help
