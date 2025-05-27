@@ -1753,3 +1753,16 @@ LLM API Usage:
 ```
 ---
 
+
+## Updated Readme at 2025-05-27T08:53:05.764Z
+
+Activity:
+
+Updated README: with message Add comprehensive README and update API docs to reflect current MCP server endpoints
+
+LLM API Usage:
+```json
+{"prompt_tokens":24504,"completion_tokens":2537,"total_tokens":27041,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":768,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
