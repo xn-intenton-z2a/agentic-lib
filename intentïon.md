@@ -663,3 +663,46 @@ with message: "Branch 'agentic-lib-issue-1666' deleted."
 with outcome "success".
 
 ---
+
+## Issue to Ready Issue at 2025-05-27T00:56:48.869Z
+
+Activity:
+
+Enhanced issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1666 with action close and updated description:
+
+Objective:
+Add a new `--banner` CLI flag to the sandbox CLI that prints “Hello World!” in ASCII art using the existing `figlet` dependency.
+
+Scope & Steps:
+1. sandbox/source/main.js
+   - Import `figlet`.
+   - Detect `--banner` in `args` before other flags.
+   - Call `figlet.textSync("Hello World!")` and `console.log` the result.
+   - Exit after printing ASCII art.
+
+2. sandbox/tests/main.test.js
+   - Mock or spy on `console.log`.
+   - Add a test for `main(["--banner"])` that asserts the output matches the figlet-rendered text for “Hello World!” (you can compare against a snapshot or the known figlet output for the default font).
+   - Ensure existing tests for `--hello`, no-arg, and `--mission` still pass.
+
+3. sandbox/README.md
+   - Document the new `--banner` flag under **Options** with a description.
+   - Add an example under **Examples**:
+     ```sh
+     $ node sandbox/source/main.js --banner
+     <ASCII art for Hello World!>
+     ```
+
+Verification & Acceptance:
+- Run `npm run sandbox -- --banner` to manually verify the ASCII art prints correctly.
+- Execute `npm test` to ensure all tests pass and the new test validates the banner output.
+- No new dependencies are introduced; use the existing `figlet` package.
+
+This enhancement enriches the Hello World demo by showcasing the existing `figlet` dependency and provides users a fun, visually appealing greeting.
+
+LLM API Usage:
+```json
+{"prompt_tokens":8227,"completion_tokens":1065,"total_tokens":9292,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
