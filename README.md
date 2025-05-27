@@ -690,6 +690,13 @@ Re-usable GitHub Actions Workflows:
 - [x] [Launch] Create up to 3 the features needed during a reseed by doing 'if featuresWIP >=1 create-one, if featuresWIP >= 2 create-two, if featuresWIP >= 3 create-three, etc...'
 - [x] [Launch] Run fix code if the seed resolve issue fails.
 - [x] [Launch] Add PR closure/abandonment to intentïon.md and mention the related feature.
+- [x] [Launch] remove in-progress when merging or when the branch limit is reached.
+- [~] [Launch] Rename seed-repository agent-flow-seed-repository-and-feature-development.yml
+- [~] [Launch] Call agent-flow-seed-repository-and-feature-development.yml for flow feature development (which raises an issue).
+- [~] [Launch] Give the bot the ability to create an issue by invoking the agent-flow-seed-repository-and-feature-development.yml workflow.
+  (TODO: passing issue to a version of wfr-completion-generate-feature-development-issue.yml, updating the prompt.)
+- [~] [Launch] Go through all the flows and transitions and where the tests are performed inside the wfr_* workflows, remove them from the outer workflows.
+- [ ] [Launch] In the activity log, add a link to the commit URL for any commit applied
 - [ ] [Launch] Log the outcome of attempts checks in the intentïon.md file.
 - [ ] [Launch] Add a job to clear old intention branches that were not completed.
 - [ ] [Launch] If the issue is already done, have the issue to code completion return a nop and handle it positively.
@@ -758,15 +765,7 @@ intentïon user journey [Launch UX]:
 - [x] [Launch] Change link to running experiment to be a link to intentïon.md on that branch.
 - [x] [Launch] Replace the sandbox with a full repository.
 - [x] [Launch] Change link to running experiment to be a link to intentïon.md on main.
-- [x] [Launch] Simple stream of updates from a seed to deliver a single feature.
-- [x] [Launch] remove in-progress when merging or when the branch limit is reached.
-- [~] [Launch] Rename seed-repository agent-flow-seed-repository-and-feature-development.yml
-- [~] [Launch] Call agent-flow-seed-repository-and-feature-development.yml for flow feature development (which raises an issue).
-- [~] [Launch] Give the bot the ability to create an issue by invoking the agent-flow-seed-repository-and-feature-development.yml workflow.
-               (TODO: passing issue to a version of wfr-completion-generate-feature-development-issue.yml, updating the prompt.)
-- [~] [Launch] Go through all the flows and transitions and where the tests are performed inside the wfr_* workflows, remove them from the outer workflows.
-- [ ] [Launch] Add a link to the commit URL for any commit applied
-- [ ] [Launch] Add a link to the URL for any feature updated.
+- [~] [Launch] Simple stream of updates from a seed to deliver a single feature.
 - [ ] [Launch] Script the process from request to cloning the repository and setting it up to run the workflows.
 - [ ] [Launch] Screen capture the scripted flow and post a link to this on Youtube.
 - [ ] Request a promotional video.
