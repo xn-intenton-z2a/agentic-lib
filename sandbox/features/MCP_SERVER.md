@@ -1,5 +1,5 @@
 # Objective
-Fully implement and consolidate the Model Contact Protocol (MCP) HTTP server in sandbox/source/server.js, including health checks, mission retrieval, command invocation, and real-time statistics, to expose core agentic-lib functionality over a unified Express API.
+Fully implement and consolidate the Model Contact Protocol (MCP) HTTP server in sandbox/source/server.js, exposing core agentic-lib functionality via a unified Express API. The server should support health checks, mission retrieval, command invocation, runtime statistics, and provide a machine-readable OpenAPI specification for programmatic integration.
 
 # Endpoints
 
@@ -45,59 +45,67 @@ Fully implement and consolidate the Model Contact Protocol (MCP) HTTP server in 
 
 ## GET /stats
 - Description: Retrieve real-time server metrics.
+- Response: HTTP 200 with JSON:
+  {
+    "callCount": <number>,     // total successful POST /invoke calls since start
+    "uptime": <number>,        // seconds since server start
+    "memoryUsage": {           // values from process.memoryUsage()
+      "rss": <number>,
+      "heapTotal": <number>,
+      "heapUsed": <number>,
+      "external": <number>
+    }
+  }
 - Behavior:
-  • Read globalThis.callCount (total successful POST /invoke calls since server start).
-  • Call process.uptime() for seconds since start.
-  • Call process.memoryUsage() for memory details.
-  • Use logInfo to record the metrics.
-  • Return HTTP 200 with JSON:
-    {
-      "callCount": <number>,
-      "uptime": <number>,
-      "memoryUsage": { "rss": <number>, "heapTotal": <number>, "heapUsed": <number>, "external": <number> }
-    }.
+  • Read globalThis.callCount.
+  • Call process.uptime() and process.memoryUsage().
+  • Use logInfo to log the metrics.
+
+## GET /openapi.json
+- Description: Provide a machine-readable OpenAPI 3.0 document describing all MCP endpoints.
+- Response: HTTP 200 with JSON body:
+  {
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Agentic-lib MCP API",
+      "version": "<package.json version>",
+      "description": "OpenAPI spec for Model Contact Protocol HTTP API"
+    },
+    "paths": {
+      "/health": { /* response schema */ },
+      "/mission": { /* response schema */ },
+      "/features": { /* response schema */ },
+      "/invoke": { /* request and response schema */ },
+      "/stats": { /* response schema */ }
+    }
+  }
+- Behavior:
+  • Dynamically import version from package.json.
+  • Construct the OpenAPI document inline without external file reads.
 
 # Logging & Startup
-- Use logInfo middleware to log every request method and path.
+- Use logInfo middleware to log each request method and path.
 - Use logError to capture handler errors with optional stack when verbose.
-- Export default Express app from sandbox/source/server.js.
-- When process.env.NODE_ENV !== 'test', app.listen() on PORT or default 3000.
-- Initialize globalThis.callCount = 0 in src/lib/main.js before server load.
+- Export default Express app.
+- Initialize globalThis.callCount = 0 in src/lib/main.js if undefined.
+- When process.env.NODE_ENV !== 'test', listen on PORT or default 3000.
 
 # Testing
+- **Unit Tests (sandbox/tests/server.unit.test.js)**:
+  • Mock fs/promises.readFile for /mission.
+  • Mock globalThis.callCount, process.uptime(), and process.memoryUsage().
+  • Test all endpoints including /openapi.json, verifying status codes, response shapes, and logging via logInfo.
 
-## Unit Tests (sandbox/tests/server.unit.test.js)
-- Mock fs/promises.readFile for /mission.
-- Mock globalThis.callCount, process.uptime(), and process.memoryUsage().
-- Verify GET /health, GET /mission (success and failure), GET /features, POST /invoke (each command and unsupported), GET /stats returns matching mocked metrics and logs via logInfo.
-
-## Integration Tests (sandbox/tests/server.integration.test.js)
-- Start server via createServer(app) in Vitest hooks.
-- Verify /health, /features, GET /mission returns real mission text, POST /invoke for digest, version, help, and GET /stats after several invokes yields correct callCount, positive uptime, and non-negative memoryUsage values.
+- **Integration Tests (sandbox/tests/server.integration.test.js)**:
+  • Start server via createServer(app) in Vitest hooks.
+  • Validate all endpoints end-to-end: /health, /mission, /features, /invoke (digest, version, help), /stats, and /openapi.json.
+  • Assert correct HTTP status and JSON structure for each.
 
 # Documentation
-
-## sandbox/docs/API.md
-- Document all endpoints (/health, /mission, /features, /invoke, /stats) with descriptions, request/response examples (cURL and JavaScript fetch).
-
-## sandbox/README.md
-- Add "MCP HTTP API" section summarizing available endpoints.
-- Include startup instructions (npm start, PORT env).
-- Add "Statistics" subsection with usage examples:
-  ```bash
-  curl http://localhost:3000/stats
-  ```
-  ```js
-  const res = await fetch('http://localhost:3000/stats');
-  console.log(await res.json());
-  ```
+- Update sandbox/docs/API.md to describe all endpoints (/health, /mission, /features, /invoke, /stats, /openapi.json) with request/response examples (cURL and JavaScript fetch).
+- Update sandbox/README.md under "MCP HTTP API" to reference API.md and include a bullet for /openapi.json.
 
 # Dependencies & Constraints
 - Use express for routing, supertest for integration tests, vitest for unit tests.
 - Maintain Node 20 ESM compatibility.
-- All implementation within sandbox/source, tests in sandbox/tests, docs in sandbox/docs.
-
-# Verification & Acceptance
-- `npm test` passes without failures.
-- Coverage for sandbox/source/server.js ≥ 90%.
-- Manual smoke tests for all endpoints confirm behavior.
+- Keep implementation within sandbox/source, tests in sandbox/tests, and docs in sandbox/docs.
