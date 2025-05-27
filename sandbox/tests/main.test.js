@@ -1,4 +1,5 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+import figlet from "figlet";
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { main } from "@sandbox/source/main.js";
@@ -29,5 +30,11 @@ describe("Hello World CLI", () => {
     const missionText = readFileSync(missionPath, "utf-8");
     main(["--mission"]);
     expect(logSpy).toHaveBeenCalledWith(missionText);
+  });
+
+  test("prints ASCII art banner when --banner flag is provided", () => {
+    const bannerText = figlet.textSync("Hello World!");
+    main(["--banner"]);
+    expect(logSpy).toHaveBeenCalledWith(bannerText);
   });
 });
