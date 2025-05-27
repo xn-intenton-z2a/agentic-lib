@@ -141,3 +141,44 @@ LLM API Usage:
 ```
 
 ---
+## Issue to enhanced Issue at 2025-05-27T02:26:17.420Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/agentic-lib/issues/ with enhanced description:
+
+## Objective
+Add a `--countdown` flag to the sandbox CLI (`sandbox/source/main.js`) that displays a four-step ASCII art countdown ("3", "2", "1", "Go!") using the existing `figlet` dependency, with a one-second delay between frames.
+
+## Acceptance Criteria
+1. CLI Support: Running `npm run sandbox -- --countdown` should invoke a new `runCountdown()` function and print exactly four ASCII art frames: "3", "2", "1", and "Go!".
+2. ASCII Rendering: Each frame must be rendered via `figlet` (promisified) and output to `stdout` with no additional text before or after the countdown.
+3. Timing: There must be a 1-second pause between each frame. Tests should simulate this delay using Vitest fake timers (`vi.useFakeTimers()`) without slowing actual test execution.
+4. Test Coverage: Update `sandbox/tests/main.test.js` to:
+   a. Mock `figlet` so `renderText(step)` returns placeholders like `<ART 3>`, `<ART 2>`, etc.
+   b. Use fake timers to advance by 1000ms per step.
+   c. Assert that `renderText` is called in order with ['3', '2', '1', 'Go!'] and that console output matches the placeholder frames in sequence.
+5. Documentation: Add a **Countdown Flag** section to `sandbox/README.md` under **Usage**:
+   ```markdown
+   ## Countdown Flag
+   Run an ASCII art countdown:
+   ```bash
+   npm run sandbox -- --countdown
+   ```
+   Displays "3", "2", "1", and "Go!" in ASCII art with a 1s pause between each.
+   ```
+6. Backward Compatibility: Existing CLI behavior (no flags or other flags) must remain unchanged.
+
+## Implementation Steps
+1. In `sandbox/source/main.js`, import `figlet` and `util.promisify`, detect `--countdown` in `main(args)`, and implement `async function runCountdown()` to loop through steps, render ASCII art, `console.log()` it, and await a 1s timer.
+2. In `sandbox/tests/main.test.js`, add a test suite for `--countdown` using Vitest, mocking `figlet` and simulating timers.
+3. Update `sandbox/README.md` with the new **Countdown Flag** usage section.
+
+This enhancement meets the COUNTDOWN feature requirements and ensures testable, measurable delivery of user value.
+
+LLM API Usage:
+```json
+{"prompt_tokens":7219,"completion_tokens":2130,"total_tokens":9349,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1536,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
