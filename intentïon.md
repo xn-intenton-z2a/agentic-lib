@@ -110,3 +110,77 @@ LLM API Usage:
 ```
 
 ---
+## Feature to Issue at 2025-05-27T02:53:43.991Z
+
+Activity:
+
+Generated issue 1670 for feature "mcp-server" with URL https://github.com/xn-intenton-z2a/agentic-lib/issues/1670
+
+title:
+
+Implement MCP Server with Express HTTP API and Comprehensive Tests
+
+And description:
+
+Overview
+--------
+Add an HTTP server under `src/lib/server.js` exposing the Model Contact Protocol (MCP) endpoints: `/health`, `/mission`, `/features`, and `/invoke`. Update package.json to start the server with `npm start`, add unit & integration tests, and document usage in `sandbox/README.md`.
+
+Details
+-------
+1. **src/lib/server.js**
+   - Create an Express app and export it.
+   - Configure port from `process.env.PORT` or default `3000`.
+   - **GET /health**: Respond with `200` and JSON `{ status: 'ok', timestamp: new Date().toISOString() }`.
+   - **GET /mission**: Read `sandbox/MISSION.md` (UTF-8) and return JSON `{ mission: <file content> }` (404 if missing).
+   - **GET /features**: Return static JSON array: `["digest", "version", "help"]`.
+   - **POST /invoke**: Accept JSON `{ command: string, args?: string[] }`:
+     - Validate `command` is one of `digest|version|help`.
+     - For `digest`:
+       - If `args[0]` is a JSON string, parse it as the payload; otherwise use a default example digest.
+       - Call `createSQSEventFromDigest()` and `await digestLambdaHandler()`.
+       - Return `{ result: <handler return> }`.
+     - For `version`:
+       - Read `package.json`, return `{ version, timestamp }`.
+     - For `help`:
+       - Return an inline usage string matching `generateUsage()` output.
+     - On invalid command, respond `400` with `{ error: 'Unsupported command' }`.
+   - Attach basic request logging with existing `logInfo`/`logError` utilities.
+   - Add a startup script: if `server.js` is run directly, call `app.listen()`.
+
+2. **package.json**
+   - Update the `start` script to `node src/lib/server.js` so `npm start` boots the MCP server.
+
+3. **Tests**
+   - **tests/unit/server.test.js** (Vitest + Supertest) to verify each route handler logic:
+     - `/health` returns status and timestamp.
+     - `/mission` returns mission text (mock `fs`).
+     - `/features` returns expected array.
+     - `/invoke` handles `digest`, `version`, `help`, and invalid commands.
+   - **sandbox/tests/server.integration.test.js** to spin up the server on an ephemeral port and verify end-to-end behavior using Supertest.
+   - Mock file reads for `/mission` unit tests.
+
+4. **Documentation**
+   - Update `sandbox/README.md`:
+     - Add an "MCP HTTP API" section describing each endpoint with sample `cURL` and JavaScript fetch examples.
+     - Document how to start the server (`npm start`, `PORT` env var).
+
+Verification
+------------
+- Run `npm install` (if new deps loaded).
+- `npm test` should pass all new and existing tests.
+- `npm start` launches the server on default port or `$PORT`.
+- Manual smoke test:
+  ```bash
+  curl http://localhost:3000/health
+  curl http://localhost:3000/mission
+  curl http://localhost:3000/features
+  curl -X POST http://localhost:3000/invoke -H 'Content-Type: application/json' -d '{"command":"version"}'
+  ```
+
+LLM API Usage:
+```json
+{"prompt_tokens":7883,"completion_tokens":3145,"total_tokens":11028,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2304,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
