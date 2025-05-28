@@ -1,49 +1,60 @@
 # Objective
-Extend the existing MCP HTTP server in sandbox/source/server.js to provide a machine-readable OpenAPI 3.0 specification and an interactive documentation UI, consolidating all Express middleware and routes under one unified feature.
+Provide a unified Express-based MCP HTTP server in sandbox/source/server.js to expose core agentic-lib functionality over HTTP. This feature consolidates health checks, mission retrieval, command invocation, runtime statistics, a machine-readable OpenAPI specification, and an interactive Swagger UI into a single implementation.
 
 # Endpoints
+## GET /health
+- Description: Verify the server is running.
+- Response: HTTP 200 with JSON:
+  {
+    "status": "ok",
+    "timestamp": "<ISO 8601>"
+  }
+
+## GET /mission
+- Description: Return the contents of sandbox/MISSION.md.
+- Success: HTTP 200 and JSON { "mission": "<file content>" }.
+- Failure: HTTP 404 and JSON { "error": "Mission file not found" }.
+
+## GET /features
+- Description: List available commands for invocation.
+- Response: HTTP 200 and JSON ["digest", "version", "help"].
+
+## POST /invoke
+- Description: Invoke a library command remotely via JSON { "command": string, "args"?: string[] }.
+- Validation: command must be "digest", "version", or "help"; otherwise HTTP 400 "Unsupported command".
+- Behavior:
+  • digest: parse args[0] as JSON or use {}. Create an SQS event with createSQSEventFromDigest(), await digestLambdaHandler(), increment call counter, return HTTP 200 { "result": <handler output> }.
+  • version: return HTTP 200 { "version": <pkg.version>, "timestamp": <ISO> } and increment counter.
+  • help: call generateUsage(); return HTTP 200 plain text or JSON usage and increment counter.
+
+## GET /stats
+- Description: Retrieve real-time server metrics.
+- Response: HTTP 200 and JSON:
+  {
+    "callCount": <number>,
+    "uptime": <seconds since start>,
+    "memoryUsage": { "rss": <bytes>, "heapTotal": <bytes>, "heapUsed": <bytes>, "external": <bytes> }
+  }
+- Behavior: read globalThis.callCount, process.uptime(), process.memoryUsage(), log metrics.
 
 ## GET /openapi.json
-- Description: Download the OpenAPI 3.0 document describing all MCP endpoints.
-- Response: HTTP 200 with JSON body containing `openapi`, `info` (populated from package.json), and `paths` definitions for `/health`, `/mission`, `/features`, `/invoke`, `/stats`, and `/openapi.json`.
-- Behavior:
-  • Dynamically import `version` from package.json via ESM JSON assert.
-  • Construct the OpenAPI document inline without external file reads.
-  • Log each request with `logInfo`.
+- Description: Download the OpenAPI 3.0 document describing all MCP routes.
+- Response: HTTP 200 with JSON OpenAPI object including info.version from package.json and paths for /health, /mission, /features, /invoke, /stats, /openapi.json, /docs.
 
 ## GET /docs
-- Description: Serve an interactive Swagger UI for the MCP HTTP API.
-- Behavior:
-  • Import and mount `swagger-ui-express` middleware.
-  • Use the OpenAPI document from `/openapi.json` as the UI specification.
-  • Serve UI on `/docs` endpoint, returning HTML with `Content-Type: text/html`.
-  • Ensure `/docs` is mounted before other routes and does not disrupt existing functionality.
+- Description: Serve interactive Swagger UI based on the OpenAPI spec.
+- Response: HTTP 200 HTML at Content-Type text/html.
 
-# Implementation Details
-- Add dependency: `swagger-ui-express`.
-- In `sandbox/source/server.js`:
-  1. Import `swaggerUi` from `swagger-ui-express` and the inline OpenAPI spec generator.
-  2. Define a route for `/openapi.json` that returns the spec and logs via `logInfo`.
-  3. Mount `swaggerUi.serve` and `swaggerUi.setup(openapiSpec)` on `/docs` before other handlers.
-  4. No changes to non-UI endpoints; preserve existing order and middleware.
+# Logging & Startup
+- Use logInfo middleware for all requests and logError for handler errors.
+- Initialize globalThis.callCount = 0 in src/lib/main.js.
+- Export default Express app in sandbox/source/server.js.
+- When NODE_ENV !== 'test', listen on process.env.PORT || 3000.
 
 # Testing
-
-## Unit Tests (sandbox/tests/server.unit.test.js)
-- Mock the OpenAPI spec builder to return a known object.
-- Mock `swaggerUi.serve` and `swaggerUi.setup`.
-- Test GET `/openapi.json`: expect HTTP 200, JSON body with correct `openapi` and `info.version`.
-- Test GET `/docs`: expect HTTP 200, `Content-Type: text/html`, and response text containing `SwaggerUIBundle`.
-
-## Integration Tests (sandbox/tests/server.integration.test.js)
-- Start the server using `createServer(app)`.
-- Perform GET `/openapi.json` and validate top-level keys and status 200.
-- Perform GET `/docs` and verify status 200 and HTML contains `SwaggerUIBundle`.
-- Ensure `/docs` does not break other endpoints.
+- Unit Tests (sandbox/tests/server.unit.test.js): mock file reads, process.uptime, process.memoryUsage; spy on logInfo; verify each endpoint’s status, response shape, and logging.
+- Integration Tests (sandbox/tests/server.integration.test.js): start server via createServer(app); end-to-end verify /health, /mission, /features, /invoke (digest, version, help), /stats after multiple invokes, /openapi.json structure, and GET /docs returns HTML.
 
 # Documentation
-
-- **sandbox/docs/API.md**: Add a section for `/openapi.json` with request and response examples, and a section for `/docs` with a browser URL example.
-- **sandbox/README.md**: In the "MCP HTTP API" section, add bullets:
-  - `/openapi.json` – returns the API specification in OpenAPI format.
-  - `/docs` – serves an interactive Swagger UI (visit in browser at `/docs`).
+- Update sandbox/docs/API.md: document all endpoints with request/response examples (cURL and fetch).
+- Update sandbox/README.md: add “MCP HTTP API” section summarizing endpoints and usage, include links to API.md and sandbox/MISSION.md.
