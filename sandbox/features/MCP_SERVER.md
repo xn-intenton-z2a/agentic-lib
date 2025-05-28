@@ -1,83 +1,68 @@
 # Objective
-Consolidate the Model Contact Protocol (MCP) HTTP server into a unified Express application that supports core repository actions with enhanced security, observability, and programmatic integration.
-Clients can perform health checks, retrieve the mission, list available features, invoke commands, view runtime statistics, download the OpenAPI specification, and are protected by API key authentication and rate limiting.
+Consolidate the Model Contact Protocol (MCP) HTTP server into a single Express application providing secure, rate-limited access to core agentic-lib functionality. Clients can perform health checks, retrieve the mission, list commands, invoke library actions, monitor runtime metrics, and download an OpenAPI specification.
 
 # Middleware
-## API Key Authentication
-• Read `MCP_API_KEY` from environment at startup.  
-• Reject requests without header `Authorization: Bearer <MCP_API_KEY>` with HTTP 401 and JSON `{ error: "Unauthorized" }`.
-
-## Rate Limiting
-• Use `express-rate-limit` to enforce a default window of 15 minutes and 100 requests per IP.  
-• Allow override via `RATE_LIMIT_WINDOW_MS` and `RATE_LIMIT_MAX` environment variables.  
-• Reject excess requests with HTTP 429 and JSON `{ error: "Too many requests, please try again later." }`.
+- API Key Authentication
+  • Read `MCP_API_KEY` from environment at startup
+  • Reject requests without header `Authorization: Bearer <MCP_API_KEY>` with HTTP 401 and JSON `{ "error": "Unauthorized" }`
+- Rate Limiting
+  • Use `express-rate-limit` with a default 15-minute window and max 100 requests per IP
+  • Override via `RATE_LIMIT_WINDOW_MS` and `RATE_LIMIT_MAX`
+  • Reject excess requests with HTTP 429 and JSON `{ "error": "Too many requests, please try again later." }`
+- Logging
+  • Apply `logInfo` middleware to record each request method and path
+  • Use `logError` for error reporting and authentication failures
 
 # Endpoints
 ## GET /health
-Description: Verify the server is running.  
-Response: HTTP 200 and JSON `{ status: "ok", timestamp: <ISO 8601> }`.
+- Verify server is running
+- Response: HTTP 200 JSON `{ status: "ok", timestamp: "<ISO 8601>" }`
 
 ## GET /mission
-Description: Return the content of `sandbox/MISSION.md`.  
-Success: HTTP 200 and JSON `{ mission: <file content> }`.  
-Failure: HTTP 404 and JSON `{ error: "Mission file not found" }`.
+- Read `sandbox/MISSION.md`
+- On success: HTTP 200 JSON `{ mission: "<file content>" }`
+- If missing: HTTP 404 JSON `{ error: "Mission file not found" }`
 
 ## GET /features
-Description: List available commands.  
-Response: HTTP 200 and JSON array `["digest","version","help"]`.
+- List available commands for invocation
+- Response: HTTP 200 JSON `["digest","version","help"]`
 
 ## POST /invoke
-Description: Invoke a repository command.  
-Request: JSON `{ command: string, args?: string[] }`.  
-Validation: supported commands are `digest`, `version`, `help`; else return HTTP 400 `{ error: "Unsupported command" }`.
-
-Behavior:
-• `digest`: parse `args[0]` as JSON or use `{}`; create SQS event via `createSQSEventFromDigest`; await `digestLambdaHandler(event)`; return HTTP 200 `{ result: <handler output> }`.
-• `version`: import `version` from `package.json`; return HTTP 200 `{ version: <string>, timestamp: <ISO 8601> }`.
-• `help`: call `generateUsage()`; return plain text or JSON usage output via HTTP 200.
-
-After any successful invocation, increment `globalThis.callCount`.
+- Accept JSON `{ command: string, args?: string[] }`
+- Validate command in `["digest","version","help"]`; else HTTP 400 `{ error: "Unsupported command" }`
+- Behavior:
+  • `digest`: parse args[0] as JSON or use `{}`; create an SQS event via `createSQSEventFromDigest`; await `digestLambdaHandler`; return HTTP 200 JSON `{ result: <handler output> }`
+  • `version`: import version from `package.json`; return HTTP 200 JSON `{ version: "<string>", timestamp: "<ISO 8601>" }`
+  • `help`: call `generateUsage()`; return HTTP 200 plain text or JSON usage output
+- After any successful invocation, increment `globalThis.callCount`
 
 ## GET /stats
-Description: Retrieve runtime metrics.  
-Response: HTTP 200 and JSON:
-```
-{
-  "callCount": <number>,      // total successful POST /invoke calls since start
-  "uptime": <number>,         // seconds since start (process.uptime())
-  "memoryUsage": {            // values from process.memoryUsage()
-    "rss": <number>,
-    "heapTotal": <number>,
-    "heapUsed": <number>,
-    "external": <number>
-  }
-}
-```
-Logs metrics with `logInfo`.
+- Retrieve runtime metrics
+- Response: HTTP 200 JSON:
+  ```json
+  { "callCount": <number>, "uptime": <number>, "memoryUsage": { "rss": <number>, "heapTotal": <number>, "heapUsed": <number>, "external": <number> } }
+  ```
+- Read from `globalThis.callCount`, `process.uptime()`, and `process.memoryUsage()`, log via `logInfo`
 
 ## GET /openapi.json
-Description: Download the OpenAPI 3.0 document for the MCP API.  
-Response: HTTP 200 and JSON with keys `openapi`, `info` (including `version` from `package.json`), and `paths` for `/health`, `/mission`, `/features`, `/invoke`, `/stats`, and `/openapi.json`.
-Log each request with `logInfo`.
-
-# Logging & Startup
-• Apply authentication and rate limiting middleware globally before routes.  
-• Use `logInfo` for every request and `logError` for errors.  
-• Initialize `globalThis.callCount = 0` in `src/lib/main.js`.  
-• Export the Express `app`; when `process.env.NODE_ENV !== 'test'`, listen on `process.env.PORT || 3000`.
+- Return OpenAPI 3.0 document describing all MCP endpoints
+- Dynamically import version from `package.json`
+- Build inline spec with `info` and `paths` for `/health`, `/mission`, `/features`, `/invoke`, `/stats`, `/openapi.json`
+- Response: HTTP 200 JSON spec and log request with `logInfo`
 
 # Testing
-**Unit Tests** (`sandbox/tests/server.unit.test.js`):
-• Mock authentication header and verify 401 for missing or invalid API key.  
-• Simulate rate limit threshold and verify HTTP 429.  
-• Mock `fs/promises.readFile`, `process.uptime()`, `process.memoryUsage()` and test `/mission`, `/stats`, and `/openapi.json`.  
-• Test `/invoke` for each command and unsupported commands.  
+- Unit tests in `sandbox/tests/server.unit.test.js`:
+  • Mock authentication header and rate-limiter behavior
+  • Stub file reads, uptime, memory usage, and verify all endpoints return expected status and shape
+  • Spy on `logInfo` and `logError` for middleware and error scenarios
+- Integration tests in `sandbox/tests/server.integration.test.js`:
+  • Start server with `createServer(app)` in Vitest hooks
+  • Test end-to-end requests to each endpoint under valid and invalid conditions (unauthorized, rate limit, missing mission)
 
-**Integration Tests** (`sandbox/tests/server.integration.test.js`):
-• Start server with valid `MCP_API_KEY` and rate limit settings.  
-• Exercise `/health`, `/mission`, `/features`, `/invoke`, `/stats`, `/openapi.json` with correct credentials.  
-• Verify unauthorized requests return HTTP 401 and rate limit exceed returns HTTP 429.
-
-# Documentation
-• Update `sandbox/docs/API.md` with sections for authentication, rate limiting, and each endpoint including examples (cURL and JavaScript `fetch`).  
-• Update `sandbox/README.md` under "MCP HTTP API" to describe environment variables (`MCP_API_KEY`, `PORT`, rate limit overrides), how to start the server, and sample requests for all endpoints.
+# Documentation & README
+- Update `sandbox/docs/API.md`:
+  • Document all endpoints with descriptions, request/response examples, authentication header, and rate limit notes
+- Update `sandbox/README.md`:
+  • Add "MCP HTTP API" section summarizing middleware and endpoints
+  • Show startup instructions (`npm start`, `PORT`, `MCP_API_KEY`, rate limit overrides)
+  • Include cURL and JavaScript `fetch` examples for each endpoint
