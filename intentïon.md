@@ -6143,3 +6143,55 @@ LLM API Usage:
 
 ---2025-05-28T17:22:57Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/agentic-lib/tree/intention-2025-05-27T03-05Z
 
+
+## Maintain Feature at 2025-05-28T17:24:34.228Z
+
+Activity:
+
+Maintained feature REQUEST_VALIDATION with
+
+Feature spec:
+
+# Objective
+Provide robust request payload validation for all MCP HTTP server endpoints using Zod schemas. This ensures that incoming JSON bodies for commands and issue operations conform to expected shapes, preventing runtime errors and improving API reliability.
+
+# Validation Schemas
+1. InvocationSchema
+   - command: string (one of "digest", "version", "help")
+   - args: optional array of strings
+2. IssueListSchema
+   - No body for GET /issues
+3. IssueCreateSchema
+   - title: non-empty string
+   - body: optional string
+
+# Implementation
+- In `sandbox/source/server.js` import Zod and define schemas: `InvocationSchema`, `IssueCreateSchema`.
+- Add a validation middleware for routes:
+  • For POST /invoke: validate `req.body` against `InvocationSchema`; on failure, respond HTTP 400 `{ error: <detailed Zod message> }`.
+  • For POST /issues: validate `req.body` against `IssueCreateSchema`; on failure, respond HTTP 400.
+- Fail-fast: middleware rejects invalid payloads before handler logic.
+
+# Testing
+- Unit Tests (`sandbox/tests/server.unit.test.js`):
+  • Simulate invalid bodies for POST /invoke and POST /issues and assert HTTP 400 and descriptive error JSON.
+  • Simulate valid bodies and assert handlers proceed (mock downstream behavior).
+- Integration Tests (`sandbox/tests/server.integration.test.js`):
+  • Send invalid and valid requests to `/invoke` and `/issues` and verify correct status codes and response shapes.
+
+# Documentation
+- Update `sandbox/docs/API.md`:
+  • Under Endpoints, note request body schemas:
+    - POST /invoke expects `{ command: string, args?: string[] }`
+    - POST /issues expects `{ title: string, body?: string }`
+  • Provide example invalid request and error response.
+- Update `sandbox/README.md`:
+  • In MCP HTTP API section, mention that request validation is applied and invalid payloads yield HTTP 400 with error details.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":56237,"completion_tokens":1824,"total_tokens":58061,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1344,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
