@@ -1,86 +1,73 @@
 # Objective
-Enhance the MCP HTTP server by securing all endpoints with API key authentication and rate limiting, ensuring that only authorized clients can access the API and protecting against abusive traffic.
+Secure the MCP HTTP API by implementing API key authentication and rate limiting middleware. This ensures that only authorized clients can access endpoints and protects the server from abusive traffic.
 
 # Middleware Configuration
 
 ## Rate Limiting
-- Use express-rate-limit middleware globally before all other routes.
-- Default window: 15 minutes (900000 ms).
-- Default max requests per IP: 100.
-- Allow overrides via environment variables RATE_LIMIT_WINDOW_MS and RATE_LIMIT_MAX.
-- On limit reached: respond HTTP 429 with JSON error and logInfo the event.
+- Install and configure express-rate-limit with defaults:
+  • Window: RATE_LIMIT_WINDOW_MS (default 900000 ms / 15 minutes)
+  • Max requests per IP: RATE_LIMIT_MAX (default 100)
+- Apply limiter globally after JSON body parsing and before auth.
+- On exceeding limit, respond HTTP 429 with JSON `{ error: "Too many requests, please try again later." }` and log the event.
 
 ## API Key Authentication
-- Require a valid API key on every request via the Authorization header: Bearer <MCP_API_KEY>.
-- Read MCP_API_KEY from environment at startup; fail early if undefined.
-- On missing or invalid key: respond HTTP 401 with JSON error and logError the event.
+- Read `MCP_API_KEY` from environment at startup; fail-fast if undefined.
+- Apply auth middleware globally after rate limiter:
+  • Inspect `Authorization` header for `Bearer <MCP_API_KEY>`.
+  • On missing or invalid key, respond HTTP 401 with JSON `{ error: "Unauthorized" }` and log the event.
 
 # Implementation
-1. **Dependencies**: Add express-rate-limit to package.json.
-2. **Server Code (`sandbox/source/server.js`)**:
-   - Import rateLimit from 'express-rate-limit'.
-   - Define a limiter using RATE_LIMIT_WINDOW_MS and RATE_LIMIT_MAX from process.env.
-   - Apply `app.use(limiter)` immediately after express.json().
-   - Add auth middleware:
-     ```js
-     app.use((req, res, next) => {
-       const apiKey = process.env.MCP_API_KEY;
-       const auth = req.headers.authorization;
-       if (!apiKey || auth !== `Bearer ${apiKey}`) {
-         logError('Unauthorized access', null);
-         return res.status(401).json({ error: 'Unauthorized' });
-       }
-       next();
-     });
-     ```
-   - Maintain order: rate limiter, auth, logging, routes.
+1. Add `express-rate-limit` dependency in `package.json`.
+2. In `sandbox/source/server.js`:
+   - Import `rateLimit` from 'express-rate-limit'.
+   - Define limiter using `process.env.RATE_LIMIT_WINDOW_MS` and `process.env.RATE_LIMIT_MAX`.
+   - Apply `app.use(express.json())`, then `app.use(limiter)`, then auth middleware, then logging middleware and routes.
+   - In auth middleware, log errors with `logError` before responding.
+3. Ensure middleware order does not break existing endpoints.
 
 # Testing
 
 ## Unit Tests (`sandbox/tests/server.unit.test.js`)
-- Mock express request/response to simulate rate-limit and auth behavior.
-- Set process.env.MCP_API_KEY and test:
-  1. No Authorization header → 401 Unauthorized and logError.
-  2. Invalid token → 401 and logError.
-  3. Valid token → passes to next middleware.
-- Simulate exceeding RATE_LIMIT_MAX to GET /health via Supertest:
-  - Assert early requests return 200; final requests return 429 with correct JSON error.
-  - Spy on logInfo for rate-limit events.
+- Mock environment variables and header values.
+- Test unauthorized access:
+  • No `Authorization` header → 401 and logError called.
+  • Wrong key → 401 and logError called.
+- Test authorized access allows next middleware:
+  • Valid key → pass through to `/health`.
+- Simulate rate-limit:
+  • Mock limiter and send more than `RATE_LIMIT_MAX` requests to `/health`.
+  • Verify HTTP 429 on excess and logInfo for rate-limit events.
 
 ## Integration Tests (`sandbox/tests/server.integration.test.js`)
-- Start server with valid MCP_API_KEY and default rate limits.
-- Test GET /health without Authorization → 401.
-- Test GET /health with correct header → 200 and body contains status ok.
-- Send RATE_LIMIT_MAX+1 authorized requests to /health → final returns 429.
-- Ensure JSON error message and headers match expectations.
+- Start server with valid `MCP_API_KEY` in env.
+- Test `/health` without and with valid `Authorization` header.
+- Flood `/health` with authorized requests past limit:
+  • Expect HTTP 429 with correct JSON error.
 
 # Documentation
 
-## sandbox/docs/API.md
-- Under **General Behavior**, add:
-  - **Authentication**: All endpoints require an Authorization header: Bearer <MCP_API_KEY>.
-  - **Rate Limiting**: Default 100 requests per 15 minutes; override with RATE_LIMIT_WINDOW_MS and RATE_LIMIT_MAX.
-  - Example 401 and 429 responses.
-
-## sandbox/README.md
-- Document setting MCP_API_KEY and rate-limit variables.
-- cURL examples:
-  ```bash
-  # Missing key
-  curl http://localhost:3000/health
-  # Authorized request
-  curl -H 'Authorization: Bearer $MCP_API_KEY' http://localhost:3000/health
-  # Exceeded limit
-  curl -H 'Authorization: Bearer $MCP_API_KEY' http://localhost:3000/health
+## `sandbox/docs/API.md`
+- Under **General Behavior**, describe authentication and rate limiting:
+  ```markdown
+  **Authentication**: All endpoints require `Authorization: Bearer <MCP_API_KEY>` header.
+  **Rate Limiting**: Default 100 requests per 15 minutes per IP. Exceeding yields HTTP 429.
   ```
+- Provide examples of 401 and 429 responses.
 
-# Dependencies
-- Add "express-rate-limit": "^6.8.0" under dependencies in package.json.
+## `sandbox/README.md`
+- In **MCP HTTP API** section, add subsection **Security & Rate Limiting**:
+  ```markdown
+  All endpoints require an API key and are subject to rate limiting.
 
-# Verification & Acceptance
-- `npm test` must pass all new and existing tests.
-- Manual smoke test:
-  1. Start server with MCP_API_KEY set.
-  2. Attempt unauthorized and authorized requests.
-  3. Flood /health to trigger 429.
-- Confirm correct HTTP statuses, JSON error messages, and log entries.
+  # Set environment variables
+  MCP_API_KEY=yourKey
+  RATE_LIMIT_WINDOW_MS=900000
+  RATE_LIMIT_MAX=100
+
+  # Example requests
+  curl -H 'Authorization: Bearer yourKey' http://localhost:3000/health
+  # Unauthorized
+  curl http://localhost:3000/health
+  # Exceeded limit
+  (make 101 requests) curl -H 'Authorization: Bearer yourKey' http://localhost:3000/health
+  ```
