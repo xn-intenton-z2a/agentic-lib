@@ -1,60 +1,96 @@
 # Objective
-Extend the existing MCP HTTP server in `sandbox/source/server.js` to include robust request validation for incoming JSON payloads on all routes, leveraging Zod schemas to enforce shape and types and return clear, consistent HTTP 400 errors on invalid input.
+Consolidate and extend the sandbox MCP HTTP server (`sandbox/source/server.js`) to expose core agentic-lib functionality over HTTP. This unified feature will include service health checks, mission retrieval, command discovery, invocation of digest/version/help commands with request validation, real-time statistics, a machine-readable OpenAPI 3.0 specification, and an interactive Swagger UI.
 
-# Validation Schemas
+# Endpoints
 
-1. **InvocationSchema** (for POST /invoke)
-   - `command`: string, one of "digest", "version", "help"
-   - `args`: optional array of strings
+## GET /health
+- Purpose: Verify the server is running.
+- Response: HTTP 200 JSON:
+  {
+    "status": "ok",
+    "timestamp": "<ISO 8601 timestamp>"
+  }
 
-# Implementation Details
+## GET /mission
+- Purpose: Return the contents of `sandbox/MISSION.md`.
+- Success: HTTP 200 JSON `{ "mission": "<file content>" }`.
+- Failure: HTTP 404 JSON `{ "error": "Mission file not found" }`.
 
-- **Define Zod Schemas** in the server module:
-  ```js
-  import { z } from 'zod';
+## GET /features
+- Purpose: List available commands for remote invocation.
+- Response: HTTP 200 JSON array `["digest","version","help"]`.
 
-  const InvocationSchema = z.object({
-    command: z.enum(['digest','version','help']),
-    args: z.array(z.string()).optional(),
-  });
-  ```
-- **Validation Middleware**:
-  - Create a reusable middleware function that takes a Zod schema and applies it to `req.body`.
-  - If parsing fails, respond with `HTTP 400` and JSON `{ error: <detailed Zod message> }` and call `logError`.
-  - On success, forward `req.body` to the route handler.
+## POST /invoke
+- Purpose: Invoke a library command remotely.
+- Request: JSON body validated against InvocationSchema:
+    • command: one of "digest","version","help"
+    • args: optional array of strings
+- Behavior:
+  • digest: parse `args[0]` as JSON or default to `{}`; create SQS event via `createSQSEventFromDigest`, call `digestLambdaHandler`, respond HTTP 200 JSON `{ "result": <handler output> }`, increment globalThis.callCount.
+  • version: respond HTTP 200 JSON `{ "version": <pkg.version>, "timestamp": <ISO> }`, increment globalThis.callCount.
+  • help: return usage from `generateUsage()` as plain text or JSON, HTTP 200, increment globalThis.callCount.
+- Validation: invalid bodies or unsupported `command` yield HTTP 400 JSON `{ "error": <detailed Zod message> }`.
 
-- **Apply Middleware** to:
-  - `POST /invoke`: validate with `InvocationSchema`.
-  - Future JSON routes (e.g., `POST /issues`) can use their own schemas.
+## GET /stats
+- Purpose: Expose runtime metrics for monitoring.
+- Response: HTTP 200 JSON:
+  {
+    "callCount": <number>,        // successful POST /invoke calls since start
+    "uptime": <number>,           // seconds since start
+    "memoryUsage": {              // from process.memoryUsage()
+      "rss": <number>,
+      "heapTotal": <number>,
+      "heapUsed": <number>,
+      "external": <number>
+    }
+  }
+- Behavior: read `globalThis.callCount`, `process.uptime()`, `process.memoryUsage()`, log via `logInfo`.
 
-# Endpoints (with validation in place)
+## GET /openapi.json
+- Purpose: Provide an OpenAPI 3.0 document for programmatic integration.
+- Response: HTTP 200 JSON with fields:
+  • openapi: "3.0.0"
+  • info: { title, version from package.json, description }
+  • paths: definitions for `/health`, `/mission`, `/features`, `/invoke`, `/stats`, `/openapi.json`.
+- Behavior: build spec inline, import `version` via ESM JSON assert, log via `logInfo`.
 
-1. **POST /invoke**
-   - Body validated against `InvocationSchema`.
-   - On valid input, proceed with existing logic (digest, version, help) and increment `globalThis.callCount`.
+## GET /docs
+- Purpose: Serve an interactive Swagger UI for the MCP API.
+- Behavior: mount `swagger-ui-express` middleware at `/docs`, using the OpenAPI spec; return HTML UI with `Content-Type: text/html`.
 
-2. **GET /health**, **GET /mission**, **GET /features**, **GET /stats**, **GET /openapi.json**, **GET /docs** remain unchanged except for validation where applicable (no body validation needed).
+# Validation Middleware
+- Define Zod schemas (`InvocationSchema`) and a reusable validation middleware that parses `req.body`, rejects invalid input with HTTP 400 JSON `{ error: <Zod message> }` and logs via `logError`.
+- Apply to POST /invoke (and any future JSON endpoints).
+
+# Logging & Startup
+- Use `logInfo` middleware to log every request method and path.
+- Use `logError` to capture handler errors.
+- Initialize `globalThis.callCount = 0` in `src/lib/main.js` if undefined.
+- Export default Express `app` from `sandbox/source/server.js`.
+- When `NODE_ENV !== 'test'`, `app.listen()` on `process.env.PORT || 3000`.
 
 # Testing
 
-- **Unit Tests** (`sandbox/tests/server.unit.test.js`):
-  - Mock `InvocationSchema` to reject invalid bodies: send `{ command: "foo" }`, expect `400`, JSON `{ error }` and `logError` called.
-  - Send a valid `POST /invoke` request: expect `200` and handler result.
+## Unit Tests (`sandbox/tests/server.unit.test.js`)
+- Mock `fs/promises.readFile` for GET /mission tests.
+- Mock `globalThis.callCount`, `process.uptime()`, `process.memoryUsage()`.
+- Mock OpenAPI builder and Swagger UI for `/openapi.json` and `/docs`.
+- Use Supertest to test each endpoint, including validation failures for POST /invoke.
+- Spy on `logInfo` and `logError` to verify logging.
 
-- **Integration Tests** (`sandbox/tests/server.integration.test.js`):
-  - Use Supertest to send invalid and valid `POST /invoke` bodies.
-  - Assert correct status codes, error messages, and no unintended side effects when validation fails.
+## Integration Tests (`sandbox/tests/server.integration.test.js`)
+- Start server via `createServer(app)` in Vitest hooks.
+- End-to-end verify: `/health`, `/mission`, `/features`, POST `/invoke` (digest/version/help/invalid), `/stats` after invokes, GET `/openapi.json`, GET `/docs` returns HTML UI.
 
-# Documentation & README
+# Documentation
 
-- **API Reference** (`sandbox/docs/API.md`):
-  - Under **POST /invoke**, add a **Request Validation** section with schema example and sample invalid request / error response.
+## `sandbox/docs/API.md`
+- Document all endpoints with request/response examples (cURL and JavaScript `fetch`).
+- Include schemas for request validation and OpenAPI example.
 
-- **README** (`sandbox/README.md`):
-  - In the **MCP HTTP API** section, note that request bodies are validated and invalid payloads yield HTTP 400 with error details.
-
-# Dependencies & Constraints
-
-- Use `zod` (already in dependencies).
-- Implementation limited to `sandbox/source/server.js`, existing tests path, and documentation.
-- Maintain Node 20 ESM compatibility.
+## `sandbox/README.md`
+- Add or update "MCP HTTP API" section:
+  • Overview of endpoints and validation behavior.
+  • Startup instructions (`npm start`, `PORT` env var).
+  • Links to `sandbox/docs/API.md`, `sandbox/MISSION.md`, `CONTRIBUTING.md`, `LICENSE-MIT`.
+  • Bullets for `/stats`, `/openapi.json`, and `/docs`.
