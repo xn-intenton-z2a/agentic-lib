@@ -1,55 +1,67 @@
 # Objective
-Extend the existing MCP HTTP server to support GitHub issue management alongside the core agentic-lib commands. Remote clients can now list open issues and create new ones programmatically via HTTP endpoints, reusing existing library functions.
+Extend and consolidate the Model Contact Protocol (MCP) HTTP server in `sandbox/source/server.js` to expose core agentic-lib functionality via a unified Express API. This feature will provide health checks, mission retrieval, command invocation, real-time statistics, and issue management.
 
 # Endpoints
 
-## GET /issues
-- Description: Retrieve all open issues in the repository.
+## GET /health
+- Verify the server is running.
+- Response: HTTP 200 with JSON:
+  ```json
+  { "status": "ok", "timestamp": "<ISO 8601>" }
+  ```
+
+## GET /mission
+- Return the content of `sandbox/MISSION.md`.
+- Success: HTTP 200 and JSON `{ "mission": "<file content>" }`.
+- Failure: HTTP 404 and JSON `{ "error": "Mission file not found" }`.
+
+## GET /features
+- List available commands for remote invocation.
+- Response: HTTP 200 and JSON array: `["digest","version","help"]`.
+
+## POST /invoke
+- Invoke a library command via JSON `{ command: string, args?: string[] }`.
+- Validation: unsupported commands return HTTP 400 `{ "error": "Unsupported command" }`.
 - Behavior:
-  • Call listIssues() from src/lib/main.js.
-  • On success: HTTP 200 and JSON array of issue objects with fields: number, title, body, state.
-  • On error: logError and return HTTP 500 with JSON `{ error: <message> }`.
+  - **digest**: parse `args[0]` as JSON or default to `{}`, create SQS event via `createSQSEventFromDigest()`, call `digestLambdaHandler()`, respond HTTP 200 `{ "result": <handler output> }`, increment invocation counter.
+  - **version**: read version from `package.json`, respond HTTP 200 `{ "version": <string>, "timestamp": <ISO> }`, increment counter.
+  - **help**: call `generateUsage()`, respond HTTP 200 plain text or JSON usage, increment counter.
+
+## GET /stats
+- Retrieve runtime metrics for monitoring and observability.
+- Response: HTTP 200 with JSON:
+  ```json
+  {
+    "callCount": <number>,
+    "uptime": <seconds since start>,
+    "memoryUsage": {
+      "rss": <bytes>,
+      "heapTotal": <bytes>,
+      "heapUsed": <bytes>,
+      "external": <bytes>
+    }
+  }
+  ```
+- Behavior: read global invocation counter, use `process.uptime()`, `process.memoryUsage()`, and log metrics via `logInfo`.
+
+## GET /issues
+- List open GitHub issues via `listIssues()` from core library.
+- Response: HTTP 200 and JSON array of issue objects.
 
 ## POST /issues
-- Description: Create a new GitHub issue.
-- Request:
-  • Content-Type: application/json
-  • Body: `{ title: string, body?: string }`.
-- Validation:
-  • `title` is required and non-empty; otherwise HTTP 400 with JSON `{ error: "Title is required" }`.
-- Behavior:
-  • Call createIssue({ title, body }) from src/lib/main.js.
-  • On success: HTTP 201 and JSON of created issue (number, title, body, state, url).
-  • On error: logError and return HTTP 500 with JSON `{ error: <message> }`.
+- Create a new GitHub issue via JSON `{ title: string, body?: string }`.
+- Validation: `title` required; invalid payload returns HTTP 400.
+- Behavior: call `createIssue()`, respond HTTP 201 with created issue object.
 
-# Implementation Details
-1. Import `listIssues` and `createIssue` from `src/lib/main.js` in `sandbox/source/server.js`.
-2. Add validation middleware for POST /issues to enforce request schema.
-3. Insert route handlers before existing error middleware, using `logInfo` for request logging and `logError` for failures.
+# Logging & Startup
+- Use `logInfo` middleware to record each request method and path.
+- Use `logError` to capture handler errors.
+- Initialize `globalThis.callCount = 0` before server start.
+- Export default Express `app`; listen on configured port when `NODE_ENV !== 'test'`.
 
 # Testing
-
-## Unit Tests (`sandbox/tests/server.unit.test.js`)
-- Mock listIssues() to return a fixed array, verify GET /issues returns HTTP 200 and correct JSON.
-- Mock createIssue() to return a sample issue, test POST /issues with valid payload returns HTTP 201 and JSON.
-- Test POST /issues with missing title returns HTTP 400 and correct error JSON.
-
-## Integration Tests (`sandbox/tests/server.integration.test.js`)
-- Start server with Supertest.
-- GET /issues: assert 200 and array structure matches real `sandbox/MISSION.md` or stub.
-- POST /issues: send valid JSON, assert 201 and returned issue fields.
-- POST /issues with invalid body: assert 400 and error message.
+- **Unit Tests**: mock file reads, invocation counter, uptime, memory usage; verify each endpoint status, response shape, and logging.
+- **Integration Tests**: start server via Supertest; end-to-end verify all endpoints including `/stats`, `/issues`.
 
 # Documentation
-
-## `sandbox/docs/API.md`
-- Add under Endpoints:
-  ### GET /issues
-  ...description and response example...
-  ### POST /issues
-  ...request schema, sample cURL and fetch examples, response example...
-
-## `sandbox/README.md`
-- In "MCP HTTP API" section, add:
-  - `/issues` – list open issues
-  - `/issues` (POST) – create a new issue
+- Update `sandbox/docs/API.md` and `sandbox/README.md` to document all endpoints with examples and usage instructions.
