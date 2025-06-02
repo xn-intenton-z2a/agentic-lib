@@ -23,7 +23,7 @@
   "license": "GPL-3.0, MIT",
   "dependencies": {
     "dotenv": "^16.5.0",
-    "express": "^4.21.2",
+    "express": "^5.1.0",
     "minimatch": "^10.0.1",
     "openai": "^4.103.0",
     "zod": "^3.25.30"
