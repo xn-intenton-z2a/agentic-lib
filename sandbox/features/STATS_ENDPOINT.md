@@ -4,17 +4,17 @@ Provide a real-time statistics endpoint on the MCP HTTP server to expose key run
 # Endpoint
 
 ## GET /stats
-- Description: Retrieve current server metrics.
+- Description: Retrieve current server metrics in JSON format.
 - Request: No parameters.
-- Response: HTTP 200 with JSON object containing:
+- Response: HTTP 200 with JSON object:
   {
-    "callCount": number      // total number of successful POST /invoke calls since server start
-    "uptime": number         // seconds since server start (process.uptime())
-    "memoryUsage": {
-      "rss": number,         // Resident Set Size in bytes
-      "heapTotal": number,   // total V8 heap size in bytes
-      "heapUsed": number,    // used V8 heap size in bytes
-      "external": number     // external memory usage in bytes
+    "callCount": number,        // total number of successful POST /invoke calls since server start
+    "uptime": number,           // seconds since server start (process.uptime())
+    "memoryUsage": {            // values from process.memoryUsage()
+      "rss": number,            // Resident Set Size in bytes
+      "heapTotal": number,      // Total V8 heap size in bytes
+      "heapUsed": number,       // Used V8 heap size in bytes
+      "external": number        // External memory usage in bytes
     }
   }
 - Behavior:
@@ -27,7 +27,7 @@ Provide a real-time statistics endpoint on the MCP HTTP server to expose key run
 
 ## Unit Tests (sandbox/tests/server.unit.test.js)
 - Mock globalThis.callCount to a fixed value (e.g., 5)
-- Stub process.uptime() to return a known value (e.g., 123.45)
+- Stub process.uptime() to return a known number (e.g., 123.45)
 - Stub process.memoryUsage() to return a predictable object
 - Perform GET /stats via Supertest:
   • Assert HTTP 200
@@ -36,7 +36,7 @@ Provide a real-time statistics endpoint on the MCP HTTP server to expose key run
 
 ## Integration Tests (sandbox/tests/server.integration.test.js)
 - Start server via createServer(app) in Vitest hooks
-- Perform a few POST /invoke calls to increment callCount
+- Perform several POST /invoke calls to increment callCount
 - Send GET /stats:
   • Assert HTTP 200
   • Assert callCount ≥ number of invoke calls
