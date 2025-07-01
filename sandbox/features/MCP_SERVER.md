@@ -1,67 +1,78 @@
 # Objective
-Extend and consolidate the Model Contact Protocol (MCP) HTTP server in `sandbox/source/server.js` to expose core agentic-lib functionality via a unified Express API. This feature will provide health checks, mission retrieval, command invocation, real-time statistics, and issue management.
+Extend and consolidate the existing Model Contact Protocol (MCP) HTTP server in sandbox/source/server.js with a machine-readable OpenAPI 3.0 specification endpoint to enable automated discovery and integration. This will complement health checks, mission retrieval, command invocation, statistics, and issue management in a unified Express API.
 
 # Endpoints
 
-## GET /health
-- Verify the server is running.
-- Response: HTTP 200 with JSON:
-  ```json
-  { "status": "ok", "timestamp": "<ISO 8601>" }
-  ```
-
-## GET /mission
-- Return the content of `sandbox/MISSION.md`.
-- Success: HTTP 200 and JSON `{ "mission": "<file content>" }`.
-- Failure: HTTP 404 and JSON `{ "error": "Mission file not found" }`.
-
-## GET /features
-- List available commands for remote invocation.
-- Response: HTTP 200 and JSON array: `["digest","version","help"]`.
-
-## POST /invoke
-- Invoke a library command via JSON `{ command: string, args?: string[] }`.
-- Validation: unsupported commands return HTTP 400 `{ "error": "Unsupported command" }`.
-- Behavior:
-  - **digest**: parse `args[0]` as JSON or default to `{}`, create SQS event via `createSQSEventFromDigest()`, call `digestLambdaHandler()`, respond HTTP 200 `{ "result": <handler output> }`, increment invocation counter.
-  - **version**: read version from `package.json`, respond HTTP 200 `{ "version": <string>, "timestamp": <ISO> }`, increment counter.
-  - **help**: call `generateUsage()`, respond HTTP 200 plain text or JSON usage, increment counter.
-
-## GET /stats
-- Retrieve runtime metrics for monitoring and observability.
-- Response: HTTP 200 with JSON:
-  ```json
+## GET /openapi.json
+- Description: Retrieve a complete OpenAPI 3.0 document describing all MCP server routes and schemas.
+- Response: HTTP 200 with JSON body containing:
   {
-    "callCount": <number>,
-    "uptime": <seconds since start>,
-    "memoryUsage": {
-      "rss": <bytes>,
-      "heapTotal": <bytes>,
-      "heapUsed": <bytes>,
-      "external": <bytes>
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Agentic-lib MCP API",
+      "version": "<package.json version>",
+      "description": "OpenAPI spec for MCP HTTP API"
+    },
+    "paths": {
+      "/health": { /* health check schema */ },
+      "/mission": { /* mission retrieval schema */ },
+      "/features": { /* feature list schema */ },
+      "/invoke": { /* invoke request/response schema */ },
+      "/stats": { /* stats schema */ },
+      "/issues": { /* issue list/create schema */ }
     }
   }
-  ```
-- Behavior: read global invocation counter, use `process.uptime()`, `process.memoryUsage()`, and log metrics via `logInfo`.
+- Behavior:
+  • Dynamically import version from package.json via ESM JSON assert.
+  • Construct the OpenAPI document inline in server code without external file reads.
+  • Use logInfo to record each request to this endpoint.
 
-## GET /issues
-- List open GitHub issues via `listIssues()` from core library.
-- Response: HTTP 200 and JSON array of issue objects.
+# Implementation Details
 
-## POST /issues
-- Create a new GitHub issue via JSON `{ title: string, body?: string }`.
-- Validation: `title` required; invalid payload returns HTTP 400.
-- Behavior: call `createIssue()`, respond HTTP 201 with created issue object.
-
-# Logging & Startup
-- Use `logInfo` middleware to record each request method and path.
-- Use `logError` to capture handler errors.
-- Initialize `globalThis.callCount = 0` before server start.
-- Export default Express `app`; listen on configured port when `NODE_ENV !== 'test'`.
+1. **Route Handler**: Add a new route in sandbox/source/server.js:
+   ```js
+   app.get('/openapi.json', (req, res) => {
+     const spec = generateOpenApiSpec();
+     logInfo('OpenAPI spec requested');
+     res.status(200).json(spec);
+   });
+   ```
+2. **Spec Generator**: Implement a helper function `generateOpenApiSpec()` in the same file or imported, building the document structure and reading package.json version.
+3. **Logging**: Use existing logInfo utility to log when spec is served.
+4. **Startup**: No changes to server startup logic; the endpoint is available when NODE_ENV !== 'test'.
 
 # Testing
-- **Unit Tests**: mock file reads, invocation counter, uptime, memory usage; verify each endpoint status, response shape, and logging.
-- **Integration Tests**: start server via Supertest; end-to-end verify all endpoints including `/stats`, `/issues`.
+
+## Unit Tests (sandbox/tests/server.unit.test.js)
+- Mock `generateOpenApiSpec()` to return a known object.
+- Use Supertest to GET /openapi.json and assert:
+  • HTTP status 200
+  • Response body contains `openapi` property equal to "3.0.0".
+  • `info.version` matches the mocked version.
+  • `paths` includes keys for /health, /mission, /features, /invoke, /stats, /issues.
+- Spy on `logInfo` to verify it is called once with 'OpenAPI spec requested'.
+
+## Integration Tests (sandbox/tests/server.integration.test.js)
+- Start server via createServer(app) in Vitest hooks.
+- Perform GET /openapi.json and assert:
+  • Status 200
+  • JSON response has `openapi === '3.0.0'` and `paths` includes required route keys.
 
 # Documentation
-- Update `sandbox/docs/API.md` and `sandbox/README.md` to document all endpoints with examples and usage instructions.
+
+1. **sandbox/docs/API.md**:
+   ```markdown
+   ### GET /openapi.json
+   - Description: Download the OpenAPI 3.0 specification for the MCP HTTP API.
+   - Example request:
+     ```bash
+     curl http://localhost:3000/openapi.json
+     ```
+   - Sample response:
+     ```json
+     { "openapi": "3.0.0", "info": { "version": "6.10.3-0" }, "paths": { "/health": {...}, ... } }
+     ```
+   ```
+2. **sandbox/README.md**:
+   - In the "MCP HTTP API" section, add:
+     - `/openapi.json` – returns the API specification in OpenAPI 3.0 format for programmatic clients.
