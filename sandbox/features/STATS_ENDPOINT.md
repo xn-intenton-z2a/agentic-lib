@@ -1,34 +1,32 @@
 # Objective
-Provide a real-time statistics endpoint on the MCP HTTP server to expose key runtime metrics—total successful command invocations, uptime, and memory usage—enabling clients and operators to monitor service health and performance.
+Enhance the MCP HTTP server with a real-time statistics endpoint that reports key runtime metrics. Clients can monitor service usage and health by retrieving total successful invocations, uptime, and memory usage.
 
 # Endpoint
 
 ## GET /stats
-
-- Description: Retrieve current server metrics in JSON format.
-- Response: HTTP 200 with JSON object:
-  {
-    "callCount": number,        // total number of successful POST /invoke calls since server start
-    "uptime": number,           // seconds since server start (process.uptime())
-    "memoryUsage": {            // values from process.memoryUsage()
-      "rss": number,            // Resident Set Size in bytes
-      "heapTotal": number,      // Total V8 heap size in bytes
-      "heapUsed": number,       // Used V8 heap size in bytes
-      "external": number        // External memory usage in bytes
-    }
-  }
+- Description: Return current server metrics in JSON format.
 - Behavior:
   • Read globalThis.callCount (initialized in src/lib/main.js and incremented after each successful POST /invoke).
   • Compute uptime via process.uptime().
-  • Gather memory statistics via process.memoryUsage().
-  • Log the metrics object using logInfo before responding.
+  • Gather memory usage via process.memoryUsage().
+  • Log the metrics using logInfo.
+- Response: HTTP 200 with JSON:
+
+  {
+    "callCount": number,
+    "uptime": number,
+    "memoryUsage": {
+      "rss": number,
+      "heapTotal": number,
+      "heapUsed": number,
+      "external": number
+    }
+  }
 
 # Implementation
-
-1. Ensure `globalThis.callCount` is initialized to 0 in `src/lib/main.js` if undefined.
-2. In the POST /invoke handler (`sandbox/source/server.js`), after a successful command (digest, version, help), increment `globalThis.callCount`.
-3. Add a new route in `sandbox/source/server.js`:
-   ```js
+1. In src/lib/main.js ensure `globalThis.callCount` is initialized to 0 if undefined.
+2. In sandbox/source/server.js, increment `globalThis.callCount` after each successful command in POST /invoke handler.
+3. Add route handler:
    app.get('/stats', (req, res) => {
      const metrics = {
        callCount: globalThis.callCount,
@@ -38,55 +36,39 @@ Provide a real-time statistics endpoint on the MCP HTTP server to expose key run
      logInfo(`Stats requested: ${JSON.stringify(metrics)}`);
      res.status(200).json(metrics);
    });
-   ```
-4. Ensure the endpoint is active when `process.env.NODE_ENV !== 'test'`.
 
 # Testing
 
 ## Unit Tests (sandbox/tests/server.unit.test.js)
-- Mock `globalThis.callCount` to a fixed value (e.g., 5).
-- Stub `process.uptime()` to return a known value (e.g., 123.45).
-- Stub `process.memoryUsage()` to return a predictable object.
-- Send GET /stats via Supertest:
-  • Assert status 200.
-  • Assert response body fields match mocked values and types.
-  • Spy on logInfo to verify it was called with the serialized metrics.
+- Mock `globalThis.callCount`, stub `process.uptime()` and `process.memoryUsage()`.
+- GET /stats returns HTTP 200 with the mocked metrics and logs via logInfo.
 
 ## Integration Tests (sandbox/tests/server.integration.test.js)
-- Start the server via createServer(app) in Vitest hooks.
-- Perform several POST /invoke calls to increment `callCount`.
-- Send GET /stats:
-  • Assert status 200.
-  • Assert `callCount` is a number ≥ number of invoke calls.
-  • Assert `uptime` is a positive number.
-  • Assert each field in `memoryUsage` is a non-negative number.
+- Start server via createServer(app).
+- Perform several POST /invoke calls to increment callCount.
+- GET /stats asserts status 200, callCount ≥ invoke calls, uptime > 0, memory usage fields ≥ 0.
 
-# Documentation & README
+# Documentation
 
-1. **sandbox/docs/API.md**
-   ### GET /stats
-   - Description: Retrieve runtime metrics for monitoring.
-   - Response example:
-     ```json
-     {
-       "callCount": 10,
-       "uptime": 34.56,
-       "memoryUsage": {
-         "rss": 15000000,
-         "heapTotal": 5000000,
-         "heapUsed": 3000000,
-         "external": 200000
-       }
-     }
-     ```
-2. **sandbox/README.md**
-   ## Statistics
-   Retrieve server metrics:
-   ```bash
-   curl http://localhost:3000/stats
-   ```
-   ```js
-   const res = await fetch('http://localhost:3000/stats');
-   const stats = await res.json();
-   console.log(stats);
-   ```
+- Update sandbox/docs/API.md under Endpoints:
+
+  ### GET /stats
+  - Description: Retrieve runtime metrics for monitoring.
+  - Response example:
+    {
+      "callCount": 5,
+      "uptime": 120.5,
+      "memoryUsage": { "rss": 15000000, "heapTotal": 5000000, "heapUsed": 3000000, "external": 200000 }
+    }
+
+- Update sandbox/README.md under "MCP HTTP API":
+
+  ## Statistics
+  Retrieve server metrics:
+  ```bash
+  curl http://localhost:3000/stats
+  ```
+  ```js
+  const res = await fetch('http://localhost:3000/stats');
+  console.log(await res.json());
+  ```
