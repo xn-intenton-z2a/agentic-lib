@@ -1,78 +1,83 @@
 # Objective
-Extend and consolidate the existing Model Contact Protocol (MCP) HTTP server in sandbox/source/server.js with a machine-readable OpenAPI 3.0 specification endpoint to enable automated discovery and integration. This will complement health checks, mission retrieval, command invocation, statistics, and issue management in a unified Express API.
+Consolidate and fully document the Model Contact Protocol (MCP) HTTP server in sandbox/source/server.js, exposing all agentic-lib core functionality via a unified Express API. This feature will incorporate health checks, mission retrieval, available commands, command invocation, real-time statistics, issue management, and a machine-readable OpenAPI specification into a single, cohesive implementation.
 
 # Endpoints
 
-## GET /openapi.json
-- Description: Retrieve a complete OpenAPI 3.0 document describing all MCP server routes and schemas.
-- Response: HTTP 200 with JSON body containing:
+## GET /health
+- Description: Verify the server is running.
+- Response: HTTP 200 with JSON:
   {
-    "openapi": "3.0.0",
-    "info": {
-      "title": "Agentic-lib MCP API",
-      "version": "<package.json version>",
-      "description": "OpenAPI spec for MCP HTTP API"
-    },
-    "paths": {
-      "/health": { /* health check schema */ },
-      "/mission": { /* mission retrieval schema */ },
-      "/features": { /* feature list schema */ },
-      "/invoke": { /* invoke request/response schema */ },
-      "/stats": { /* stats schema */ },
-      "/issues": { /* issue list/create schema */ }
-    }
+    "status": "ok",
+    "timestamp": "<ISO 8601 timestamp>"
   }
+
+## GET /mission
+- Description: Return contents of sandbox/MISSION.md.
 - Behavior:
-  • Dynamically import version from package.json via ESM JSON assert.
-  • Construct the OpenAPI document inline in server code without external file reads.
-  • Use logInfo to record each request to this endpoint.
+  • Read file at process.cwd()/sandbox/MISSION.md via fs/promises.
+  • On success: HTTP 200 and JSON { "mission": "<file content>" }.
+  • On failure: HTTP 404 and JSON { "error": "Mission file not found" }.
 
-# Implementation Details
+## GET /features
+- Description: List available commands for remote invocation.
+- Response: HTTP 200 and JSON array: ["digest","version","help"].
 
-1. **Route Handler**: Add a new route in sandbox/source/server.js:
-   ```js
-   app.get('/openapi.json', (req, res) => {
-     const spec = generateOpenApiSpec();
-     logInfo('OpenAPI spec requested');
-     res.status(200).json(spec);
-   });
-   ```
-2. **Spec Generator**: Implement a helper function `generateOpenApiSpec()` in the same file or imported, building the document structure and reading package.json version.
-3. **Logging**: Use existing logInfo utility to log when spec is served.
-4. **Startup**: No changes to server startup logic; the endpoint is available when NODE_ENV !== 'test'.
+## POST /invoke
+- Description: Invoke core library commands via JSON body { command: string, args?: string[] }.
+- Validation: Reject unsupported commands or invalid body with HTTP 400 and JSON { "error": "<message>" }.
+- Behavior:
+  • digest: parse args[0] as JSON or default to {}; call createSQSEventFromDigest(), await digestLambdaHandler(); respond HTTP 200 { "result": <handler output> }.
+  • version: import version from package.json via ESM assert; respond HTTP 200 { "version": <version>, "timestamp": <ISO> }.
+  • help: call generateUsage(); respond HTTP 200 with plain text or JSON usage.
+  • After any successful invocation, increment globalThis.callCount.
+
+## GET /stats
+- Description: Retrieve real-time runtime metrics.
+- Behavior: Read globalThis.callCount, process.uptime(), process.memoryUsage(); log metrics; respond HTTP 200 JSON:
+  {
+    "callCount": <number>,
+    "uptime": <number>,
+    "memoryUsage": { "rss": <number>, "heapTotal": <number>, "heapUsed": <number>, "external": <number> }
+  }
+
+## GET /issues
+- Description: List open GitHub issues via listIssues().
+- Response: HTTP 200 and JSON array of issue objects (number, title, body, state, url).
+
+## POST /issues
+- Description: Create a new issue via JSON { title: string, body?: string }.
+- Validation: title required; invalid or missing yields HTTP 400 and JSON { "error": "Title is required" }.
+- Behavior: call createIssue(); on success HTTP 201 with JSON of created issue; on error HTTP 500 with { "error": <message> }.
+
+## GET /openapi.json
+- Description: Download machine-readable OpenAPI 3.0 spec for all MCP endpoints.
+- Behavior: Dynamically import package.json version; construct spec inline; log via logInfo; respond HTTP 200 with JSON OpenAPI document.
+
+## GET /docs
+- Description: Serve interactive Swagger UI via swagger-ui-express.
+- Behavior: Mount swaggerUi.serve and swaggerUi.setup(openapiSpec) at /docs; respond HTTP 200 with text/html UI.
+
+# Logging & Startup
+- Middleware: logInfo logs each HTTP method and path; logError captures handler errors with optional stack.
+- Initialize globalThis.callCount = 0 in src/lib/main.js if undefined.
+- Export default Express app; listen on process.env.PORT or default 3000 when NODE_ENV ≠ 'test'.
 
 # Testing
 
 ## Unit Tests (sandbox/tests/server.unit.test.js)
-- Mock `generateOpenApiSpec()` to return a known object.
-- Use Supertest to GET /openapi.json and assert:
-  • HTTP status 200
-  • Response body contains `openapi` property equal to "3.0.0".
-  • `info.version` matches the mocked version.
-  • `paths` includes keys for /health, /mission, /features, /invoke, /stats, /issues.
-- Spy on `logInfo` to verify it is called once with 'OpenAPI spec requested'.
+- Mock fs/promises.readFile, createSQSEventFromDigest, digestLambdaHandler, listIssues, createIssue, swaggerUi, process.uptime(), and process.memoryUsage().
+- Validate all endpoints including error cases for unsupported commands and validation failures, stats metrics, openapi spec, and docs UI.
+- Spy on logInfo and logError to verify logging behavior.
 
 ## Integration Tests (sandbox/tests/server.integration.test.js)
 - Start server via createServer(app) in Vitest hooks.
-- Perform GET /openapi.json and assert:
-  • Status 200
-  • JSON response has `openapi === '3.0.0'` and `paths` includes required route keys.
+- End-to-end verify: /health, /mission, /features, POST /invoke (digest, version, help, invalid), /stats after multiple invokes, GET /issues, POST /issues (valid/invalid), GET /openapi.json, GET /docs returns HTML.
+- Assert status codes, response shapes, and content type for HTML.
 
 # Documentation
 
-1. **sandbox/docs/API.md**:
-   ```markdown
-   ### GET /openapi.json
-   - Description: Download the OpenAPI 3.0 specification for the MCP HTTP API.
-   - Example request:
-     ```bash
-     curl http://localhost:3000/openapi.json
-     ```
-   - Sample response:
-     ```json
-     { "openapi": "3.0.0", "info": { "version": "6.10.3-0" }, "paths": { "/health": {...}, ... } }
-     ```
-   ```
-2. **sandbox/README.md**:
-   - In the "MCP HTTP API" section, add:
-     - `/openapi.json` – returns the API specification in OpenAPI 3.0 format for programmatic clients.
+## sandbox/docs/API.md
+Document every endpoint with request/response examples (cURL and JavaScript fetch), request schemas for POST bodies, and OpenAPI sample.
+
+## sandbox/README.md
+Add “MCP HTTP API” section summarizing endpoints, validation behavior, startup instructions (npm start, PORT), and links to API.md, MISSION.md, CONTRIBUTING.md, and LICENSE.
