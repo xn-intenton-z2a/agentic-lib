@@ -1,5 +1,5 @@
 # Objective
-Consolidate and fully document the Model Contact Protocol (MCP) HTTP server in sandbox/source/server.js, exposing all agentic-lib core functionality via a unified Express API. This feature will incorporate health checks, mission retrieval, available commands, command invocation, real-time statistics, issue management, and a machine-readable OpenAPI specification into a single, cohesive implementation.
+Consolidate and fully document the Model Contact Protocol (MCP) HTTP server in sandbox/source/server.js, exposing all agentic-lib core functionality via a unified Express API. This feature will incorporate service health checks, mission retrieval, command discovery, secure invocation of digest/version/help commands with authentication and request validation, real-time statistics, machine-readable OpenAPI specification, interactive Swagger UI, and GitHub issue management into a single cohesive implementation.
 
 # Endpoints
 
@@ -12,72 +12,74 @@ Consolidate and fully document the Model Contact Protocol (MCP) HTTP server in s
   }
 
 ## GET /mission
-- Description: Return contents of sandbox/MISSION.md.
-- Behavior:
-  • Read file at process.cwd()/sandbox/MISSION.md via fs/promises.
-  • On success: HTTP 200 and JSON { "mission": "<file content>" }.
-  • On failure: HTTP 404 and JSON { "error": "Mission file not found" }.
+- Description: Return the contents of sandbox/MISSION.md.
+- Success: HTTP 200 and JSON { "mission": "<file content>" }.
+- Failure: HTTP 404 and JSON { "error": "Mission file not found" }.
 
 ## GET /features
 - Description: List available commands for remote invocation.
-- Response: HTTP 200 and JSON array: ["digest","version","help"].
+- Response: HTTP 200 and JSON array ["digest","version","help"].
 
 ## POST /invoke
-- Description: Invoke core library commands via JSON body { command: string, args?: string[] }.
-- Validation: Reject unsupported commands or invalid body with HTTP 400 and JSON { "error": "<message>" }.
+- Description: Securely invoke library commands via JSON body:
+    {
+      "command": string,    // Required, one of "digest","version","help"
+      "args": [string]      // Optional arguments
+    }
+- Validation: Request payload is validated; invalid or unsupported commands return HTTP 400 with JSON { "error": "<message>" }.
 - Behavior:
-  • digest: parse args[0] as JSON or default to {}; call createSQSEventFromDigest(), await digestLambdaHandler(); respond HTTP 200 { "result": <handler output> }.
-  • version: import version from package.json via ESM assert; respond HTTP 200 { "version": <version>, "timestamp": <ISO> }.
-  • help: call generateUsage(); respond HTTP 200 with plain text or JSON usage.
+  • digest: parse args[0] as JSON or default to {}. Create SQS event via createSQSEventFromDigest(), await digestLambdaHandler(), respond HTTP 200 with { "result": <handler output> }.
+  • version: import version from package.json via ESM assert, respond HTTP 200 with { "version": <version>, "timestamp": <ISO> }.
+  • help: call generateUsage(), respond HTTP 200 with plain text or JSON usage.
   • After any successful invocation, increment globalThis.callCount.
 
 ## GET /stats
-- Description: Retrieve real-time runtime metrics.
-- Behavior: Read globalThis.callCount, process.uptime(), process.memoryUsage(); log metrics; respond HTTP 200 JSON:
+- Description: Retrieve real-time runtime metrics for monitoring.
+- Response: HTTP 200 with JSON:
   {
-    "callCount": <number>,
-    "uptime": <number>,
-    "memoryUsage": { "rss": <number>, "heapTotal": <number>, "heapUsed": <number>, "external": <number> }
+    "callCount": <number>,    // Total successful POST /invoke calls since server start
+    "uptime": <number>,       // Seconds since server start
+    "memoryUsage": {          // process.memoryUsage() output
+      "rss": <number>,
+      "heapTotal": <number>,
+      "heapUsed": <number>,
+      "external": <number>
+    }
   }
+- Behavior: Read globalThis.callCount, process.uptime(), process.memoryUsage(), and log metrics via logInfo.
 
 ## GET /issues
-- Description: List open GitHub issues via listIssues().
-- Response: HTTP 200 and JSON array of issue objects (number, title, body, state, url).
+- Description: List open GitHub issues via listIssues() from src/lib/main.js.
+- Response: HTTP 200 with JSON array of issue objects (number, title, body, state, url).
 
 ## POST /issues
-- Description: Create a new issue via JSON { title: string, body?: string }.
-- Validation: title required; invalid or missing yields HTTP 400 and JSON { "error": "Title is required" }.
-- Behavior: call createIssue(); on success HTTP 201 with JSON of created issue; on error HTTP 500 with { "error": <message> }.
+- Description: Create a new GitHub issue via JSON body { title: string, body?: string }.
+- Validation: title is required; invalid payload returns HTTP 400 with JSON { "error": "Title is required" }.
+- Behavior: Call createIssue() from src/lib/main.js. On success, HTTP 201 with created issue; on error, HTTP 500 with JSON { "error": <message> }.
 
 ## GET /openapi.json
-- Description: Download machine-readable OpenAPI 3.0 spec for all MCP endpoints.
-- Behavior: Dynamically import package.json version; construct spec inline; log via logInfo; respond HTTP 200 with JSON OpenAPI document.
+- Description: Provide a machine-readable OpenAPI 3.0 specification for the MCP HTTP API.
+- Response: HTTP 200 with JSON OpenAPI document (openapi, info.version, paths for all endpoints).
+- Behavior: Dynamically import version, construct spec inline, log via logInfo.
 
 ## GET /docs
-- Description: Serve interactive Swagger UI via swagger-ui-express.
-- Behavior: Mount swaggerUi.serve and swaggerUi.setup(openapiSpec) at /docs; respond HTTP 200 with text/html UI.
+- Description: Serve interactive Swagger UI at /docs using swagger-ui-express.
+- Response: HTTP 200 with HTML UI.
+- Behavior: Mount swaggerUi.serve and swaggerUi.setup(openapiSpec) without disrupting existing routes.
+
+# Security & Validation
+- **Authentication**: Apply API key middleware requiring `x-api-key` for all protected endpoints; valid keys are loaded from `API_KEYS` environment variable.
+- **Request Validation**: Use Zod schemas to validate JSON payloads for POST /invoke and POST /issues, rejecting invalid requests with HTTP 400 and detailed error messages.
 
 # Logging & Startup
-- Middleware: logInfo logs each HTTP method and path; logError captures handler errors with optional stack.
-- Initialize globalThis.callCount = 0 in src/lib/main.js if undefined.
-- Export default Express app; listen on process.env.PORT or default 3000 when NODE_ENV ≠ 'test'.
+- Use `logInfo` middleware to log every request method and path.
+- Use `logError` to capture handler errors, including stack traces when verbose.
+- Initialize `globalThis.callCount = 0` in src/lib/main.js.
+- Export default Express app; when `NODE_ENV !== 'test'`, listen on `process.env.PORT || 3000`.
 
 # Testing
-
-## Unit Tests (sandbox/tests/server.unit.test.js)
-- Mock fs/promises.readFile, createSQSEventFromDigest, digestLambdaHandler, listIssues, createIssue, swaggerUi, process.uptime(), and process.memoryUsage().
-- Validate all endpoints including error cases for unsupported commands and validation failures, stats metrics, openapi spec, and docs UI.
-- Spy on logInfo and logError to verify logging behavior.
-
-## Integration Tests (sandbox/tests/server.integration.test.js)
-- Start server via createServer(app) in Vitest hooks.
-- End-to-end verify: /health, /mission, /features, POST /invoke (digest, version, help, invalid), /stats after multiple invokes, GET /issues, POST /issues (valid/invalid), GET /openapi.json, GET /docs returns HTML.
-- Assert status codes, response shapes, and content type for HTML.
+- **Unit Tests**: `sandbox/tests/server.unit.test.js` should mock dependencies (fs, process methods, handlers, listIssues, createIssue, swaggerUi) and verify each endpoint, validation, and logging behavior.
+- **Integration Tests**: `sandbox/tests/server.integration.test.js` should start the server, perform end-to-end requests for all endpoints, and assert HTTP statuses, response shapes, and HTML content for `/docs`.
 
 # Documentation
-
-## sandbox/docs/API.md
-Document every endpoint with request/response examples (cURL and JavaScript fetch), request schemas for POST bodies, and OpenAPI sample.
-
-## sandbox/README.md
-Add “MCP HTTP API” section summarizing endpoints, validation behavior, startup instructions (npm start, PORT), and links to API.md, MISSION.md, CONTRIBUTING.md, and LICENSE.
+- Update `sandbox/docs/API.md` and `sandbox/README.md` to document all endpoints, authentication, validation schemas, request/response examples (cURL and fetch), and configuration instructions.
