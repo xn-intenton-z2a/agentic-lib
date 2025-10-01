@@ -9950,3 +9950,77 @@ LLM API Usage:
 
 ---2025-10-01T06:28:11Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/agentic-lib/tree/intention-2025-05-27T03-05Z
 
+
+## Maintain Feature at 2025-10-01T06:29:10.033Z
+
+Activity:
+
+Maintained feature REQUEST_VALIDATION with
+
+Feature spec:
+
+# Objective
+Provide robust request payload validation for MCP HTTP server endpoints, ensuring incoming JSON bodies for commands and issue operations conform to expected shapes and improve API reliability.
+
+# Validation Schemas
+
+1. InvocationSchema
+   - command: one of "digest","version","help"
+   - args: optional array of strings
+
+2. IssueCreateSchema
+   - title: non-empty string
+   - body: optional string
+
+# Implementation
+
+- Import Zod in sandbox/source/server.js and define InvocationSchema and IssueCreateSchema.
+- Create a generic validation middleware:
+  ```js
+  function validate(schema) {
+    return (req, res, next) => {
+      const result = schema.safeParse(req.body);
+      if (!result.success) {
+        const message = result.error.flatten().formErrors.join(", ");
+        logError(message);
+        return res.status(400).json({ error: message });
+      }
+      next();
+    };
+  }
+  ```
+- Apply middleware:
+  - POST /invoke: validate against InvocationSchema
+  - POST /issues: validate against IssueCreateSchema
+
+# Success Criteria
+
+- Invalid payloads yield HTTP 400 with descriptive error JSON and a logError entry.
+- Valid requests proceed to existing handlers without change.
+- No effect on GET endpoints or non-JSON routes.
+
+# Testing
+
+## Unit Tests (sandbox/tests/server.unit.test.js)
+- Simulate invalid bodies for POST /invoke and POST /issues and assert HTTP 400 and error JSON.
+- Simulate valid payloads and assert handlers run (mock downstream logic).
+
+## Integration Tests (sandbox/tests/server.integration.test.js)
+- Send invalid and valid requests to `/invoke` and `/issues` with Supertest.
+- Verify status codes, response shapes, and that valid requests trigger handler behavior.
+
+# Documentation
+
+- Update sandbox/docs/API.md:
+  - Under POST /invoke and POST /issues, add **Request Validation** section with schema and error example.
+- Update sandbox/README.md:
+  - In **MCP HTTP API**, note validation and HTTP 400 error behavior for invalid payloads.
+
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":87649,"completion_tokens":503,"total_tokens":88152,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
