@@ -10823,3 +10823,42 @@ LLM API Usage:
 ```
 
 ---
+## Maintenance Activity to Issue at 2025-11-29T04:56:41.002Z
+
+Activity:
+
+Created issue https://github.com/xn-intenton-z2a/agentic-lib/issues/1746 with title [Test] Enhance core functionality test coverage for logging, SQS handler, and CLI helpers and body:
+
+ Current test suite only covers the trivial CLI entry point, leaving key library functions untested. We need to add high-impact Vitest tests for the following behaviors in src/lib/main.js and the existing sandbox/tests and tests/unit directories:
+
+1. Logging utilities (logConfig, logInfo, logError)
+   - Validate that logConfig prints a JSON with level "info" and includes the parsed config.
+   - Test logInfo prints level "info" and omits or includes verbose flag based on a mocked VERBOSE_MODE.
+   - Test logError prints level "error", embeds the error message, and conditionally includes a stack trace when VERBOSE_MODE is true and a real Error object is passed.
+
+2. AWS SQS helpers (createSQSEventFromDigest, digestLambdaHandler)
+   - Test createSQSEventFromDigest returns an event object with the correct Records array and JSON-stringified body.
+   - Test digestLambdaHandler with a valid record: should process without failures and return batchItemFailures as an empty array.
+   - Test digestLambdaHandler with an invalid JSON body: should capture a fallback identifier in batchItemFailures and log appropriate error messages.
+
+3. CLI helper functions (processHelp, processVersion, processDigest)
+   - Test processHelp: when args include `--help`, it should print usage text and return true, otherwise false.
+   - Test processVersion: mock fs.readFileSync to return a dummy package.json version and verify it prints JSON with version and timestamp and returns true.
+   - Test processDigest: when args include `--digest`, mock digestLambdaHandler to throw or succeed, and verify it returns true and invokes the handler with the constructed event.
+
+Guidance for implementation:
+- Extend existing sandbox/tests/main.test.js or create additional test files under tests/unit/ to cover these behaviors.
+- Use Vitest’s `vi.mock` to override `console.log`, `console.error`, and `fs.readFileSync` for assertions.
+- Reset `globalThis.callCount` and any environment variables before each test.
+- Avoid creating or deleting files; update only sandbox/tests/*.test.js and tests/unit/*.test.js.
+
+Verification:
+- Running `npm test` should pass all new and existing tests with coverage for these core paths.
+- Ensure no regressions on current tests and maintain sandbox mode compliance..
+
+LLM API Usage:
+```json
+{"prompt_tokens":6312,"completion_tokens":1373,"total_tokens":7685,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":832,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
