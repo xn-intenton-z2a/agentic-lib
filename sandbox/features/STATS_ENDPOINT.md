@@ -1,16 +1,15 @@
 # Objective
 Provide a real-time statistics endpoint on the MCP HTTP server to expose key runtime metrics—total successful POST /invoke calls, server uptime, and memory usage—for monitoring and observability.
 
-# GET /stats
-
+# Endpoint: GET /stats
 - Description: Retrieve current server metrics in JSON format.
+- Request: None
 - Behavior:
   • Read globalThis.callCount (initialized in src/lib/main.js and incremented after each successful POST /invoke).
   • Compute uptime via process.uptime().
-  • Gather memory usage via process.memoryUsage().
-  • Log the metrics object using logInfo before responding.
+  • Gather memory usage using process.memoryUsage().
+  • Use logInfo to log the metrics object before responding.
 - Response: HTTP 200 with JSON:
-  ```json
   {
     "callCount": number,
     "uptime": number,
@@ -21,33 +20,30 @@ Provide a real-time statistics endpoint on the MCP HTTP server to expose key run
       "external": number
     }
   }
-  ```
 
 # Testing
-
 ## Unit Tests (sandbox/tests/server.unit.test.js)
 - Mock globalThis.callCount to a fixed value (e.g., 5).
 - Stub process.uptime() and process.memoryUsage() to return predictable values.
-- Send GET /stats via Supertest and assert:
-  • Status 200.
-  • Response body matches mocked metrics and all fields are numbers.
-  • Spy on logInfo to verify one log entry with the serialized metrics.
+- Send GET /stats via Supertest:
+  • Assert status 200.
+  • Assert response body matches mocked metrics and all fields are numbers.
+  • Spy on logInfo to verify a single log entry with the serialized metrics.
 
 ## Integration Tests (sandbox/tests/server.integration.test.js)
 - Start server via createServer(app) in Vitest hooks.
 - Perform several POST /invoke calls to increment callCount.
-- Send GET /stats and assert:
-  • Status 200.
-  • callCount ≥ number of invoke calls.
-  • uptime is a positive number.
-  • Each memoryUsage field is a non-negative number.
+- Send GET /stats:
+  • Assert status 200.
+  • Assert callCount ≥ number of invoke calls.
+  • Assert uptime is a positive number.
+  • Assert each memoryUsage field is a non-negative number.
 
 # Documentation
-
-- **sandbox/docs/API.md**: Add under Endpoints:
+- Update sandbox/docs/API.md under Endpoints:
   ### GET /stats
   - Description: Retrieve runtime metrics for monitoring.
-  - Response example:
+  - Example Response:
     ```json
     {
       "callCount": 10,
@@ -60,8 +56,7 @@ Provide a real-time statistics endpoint on the MCP HTTP server to expose key run
       }
     }
     ```
-
-- **sandbox/README.md**: Under "MCP HTTP API", add a "Statistics" subsection with usage examples:
+- Update sandbox/README.md under "MCP HTTP API" with a "Statistics" subsection:
   ```bash
   curl http://localhost:3000/stats
   ```
