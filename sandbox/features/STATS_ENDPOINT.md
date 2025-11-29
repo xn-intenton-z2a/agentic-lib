@@ -1,7 +1,8 @@
 # Objective
-Provide a dedicated statistics endpoint on the MCP HTTP server to expose real-time runtime metrics—total successful POST /invoke calls, server uptime, and memory usage—for monitoring and observability.
+Provide a real-time statistics endpoint on the MCP HTTP server to expose key runtime metrics—total successful POST /invoke calls, server uptime, and memory usage—for monitoring and observability.
 
 # GET /stats
+
 - Description: Retrieve current server metrics in JSON format.
 - Behavior:
   • Read globalThis.callCount (initialized in src/lib/main.js and incremented after each successful POST /invoke).
@@ -9,6 +10,7 @@ Provide a dedicated statistics endpoint on the MCP HTTP server to expose real-ti
   • Gather memory usage via process.memoryUsage().
   • Log the metrics object using logInfo before responding.
 - Response: HTTP 200 with JSON:
+  ```json
   {
     "callCount": number,
     "uptime": number,
@@ -19,8 +21,10 @@ Provide a dedicated statistics endpoint on the MCP HTTP server to expose real-ti
       "external": number
     }
   }
+  ```
 
 # Testing
+
 ## Unit Tests (sandbox/tests/server.unit.test.js)
 - Mock globalThis.callCount to a fixed value (e.g., 5).
 - Stub process.uptime() and process.memoryUsage() to return predictable values.
@@ -39,6 +43,7 @@ Provide a dedicated statistics endpoint on the MCP HTTP server to expose real-ti
   • Each memoryUsage field is a non-negative number.
 
 # Documentation
+
 - **sandbox/docs/API.md**: Add under Endpoints:
   ### GET /stats
   - Description: Retrieve runtime metrics for monitoring.
@@ -55,6 +60,7 @@ Provide a dedicated statistics endpoint on the MCP HTTP server to expose real-ti
       }
     }
     ```
+
 - **sandbox/README.md**: Under "MCP HTTP API", add a "Statistics" subsection with usage examples:
   ```bash
   curl http://localhost:3000/stats
