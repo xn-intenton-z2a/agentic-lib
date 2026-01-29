@@ -4,9 +4,9 @@ Provide a dedicated statistics endpoint on the MCP HTTP server to expose real-ti
 # Endpoint: GET /stats
 - Description: Retrieve current server metrics in JSON format.
 - Behavior:
-  • Read globalThis.callCount (initialized in src/lib/main.js and incremented after each successful POST /invoke).  
-  • Compute uptime via process.uptime().  
-  • Gather memory usage via process.memoryUsage().  
+  • Read globalThis.callCount (initialized in src/lib/main.js and incremented after each successful POST /invoke).
+  • Compute uptime via process.uptime().
+  • Gather memory usage via process.memoryUsage().
   • Log the metrics object using logInfo before responding.
 - Response: HTTP 200 with JSON:
   {
