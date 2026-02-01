@@ -1,5 +1,5 @@
 # Objective
-Provide a dedicated GET /stats endpoint on the MCP HTTP server to expose real-time runtime metrics—total number of successful POST /invoke calls, server uptime, and memory usage—for monitoring and observability.
+Provide a dedicated statistics endpoint on the MCP HTTP server to expose real-time runtime metrics—total successful POST /invoke calls, server uptime, and memory usage—for monitoring and observability.
 
 # Endpoint: GET /stats
 
@@ -24,18 +24,18 @@ Provide a dedicated GET /stats endpoint on the MCP HTTP server to expose real-ti
 # Success Criteria & Requirements
 1. Initialize globalThis.callCount = 0 in src/lib/main.js if undefined.
 2. In sandbox/source/server.js, increment callCount in the POST /invoke handler after each supported command (digest, version, help).
-3. Add GET /stats route that constructs and returns the metrics JSON.
+3. Add GET /stats route in sandbox/source/server.js that constructs and returns the metrics JSON.
 4. Ensure the endpoint is available when NODE_ENV !== 'test' and does not disrupt existing routes.
 
 # Testing
 
 ## Unit Tests (sandbox/tests/server.unit.test.js)
-- Mock globalThis.callCount to a fixed value.
+- Mock globalThis.callCount to a fixed value (e.g., 5).
 - Stub process.uptime() and process.memoryUsage() to return predictable values.
 - Send GET /stats via Supertest:
   • Assert status 200.
   • Assert response body matches mocked metrics and each field is a number.
-  • Spy on logInfo to verify one log entry with the serialized metrics.
+  • Spy on logInfo to verify a single log entry with the serialized metrics.
 
 ## Integration Tests (sandbox/tests/server.integration.test.js)
 - Start server via createServer(app) in Vitest hooks.
@@ -43,7 +43,7 @@ Provide a dedicated GET /stats endpoint on the MCP HTTP server to expose real-ti
 - Send GET /stats:
   • Assert status 200.
   • Assert callCount ≥ number of invoke calls.
-  • Assert uptime is positive.
+  • Assert uptime is a positive number.
   • Assert memoryUsage fields are non-negative numbers.
 
 # Documentation & README
