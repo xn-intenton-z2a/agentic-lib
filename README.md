@@ -69,7 +69,7 @@ On timer: Review Issue (issue reviewed and closed)
 ### Tuning the agentic coding system
 
 The default set-up is quite open which can be chaotic. To temper this chaos you can change these files which the workflow takes into consideration:
-- `CONTRIBUTING.md` - The workflow is itself a contributor and will be asked to follow these guidelines. Start by writing your owm mission statement.
+- `CONTRIBUTING.md` - The workflow is itself a contributor and will be asked to follow these guidelines. Start by writing your own mission statement.
 - `eslint.config.js` - Code style rules and additional plugins can be added here.
 
 The following files are also taken into consideration but may also be changed (even blanked out completely) by the workflow:
@@ -205,7 +205,7 @@ This repository is organized into three distinct areas to help you understand th
 - **Licensing:**  
   The example workflows are covered by the MIT license to allow for broader use and modification.
 - **Location:**  
-  Look in the `examples/` directory for sample implementations.
+  Look in the `_developers/examples/` directory for sample implementations.
 
 ### 3. The Evolving main.js (Experimental Work in Progress)
 - **Purpose:**  
@@ -455,8 +455,8 @@ An example of the GitHub Actions role being assumed in a GitHub Actions Workflow
 ## Deployment to AWS
 
 See also:
-* local running using [Localstack](LOCALSTACK.md).
-* Debugging notes for the AWS deployment here [DEBUGGING](DEBUGGING.md).
+* local running using [Localstack](_developers/LOCALSTACK.md).
+* Debugging notes for the AWS deployment here [DEBUGGING](_developers/DEBUGGING.md).
 
 Package the CDK, deploy the CDK stack which rebuilds the Docker image, and deploy the AWS infrastructure:
 ```bash
@@ -793,7 +793,7 @@ Marketplace GitHub Actions [Launch]:
 - [ ] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
 - [ ] Collect examples of demo output for the Actions documentation.
 - [ ] Switch from github script actions to `run: node` and have the action run against a moving 'latest' tag.
-  See: [ACTIONS_JS_STEPS.md](examples/archive-2025-04-20/ACTIONS_JS_STEPS.md)
+  See: [ACTIONS_JS_STEPS.md](_developers/examples/archive-2025-04-20/ACTIONS_JS_STEPS.md)
 - [ ] Add tests for the actions library JS and organise the code.
 - [ ] Move JS Steps to a GitHub distributed Action.
 - [ ] Convert the actions library JS to an SDK.
