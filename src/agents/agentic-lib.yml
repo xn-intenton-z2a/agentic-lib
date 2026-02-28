@@ -5,38 +5,34 @@ schedule: schedule-1
 paths:
   # Filepaths for elaborator workflows
   missionFilepath:
-    path: 'sandbox/MISSION.md'
+    path: 'MISSION.md'
   librarySourcesFilepath:
-    path: 'sandbox/SOURCES.md'
-    permissions: [ 'write' ]
-    limit: 8
+    path: 'SOURCES.md'
+    permissions: []
+    limit: 0
   libraryDocumentsPath:
-    path: 'sandbox/library/'
-    permissions: [ 'write' ]
-    limit: 32
+    path: 'library/'
+    permissions: []
+    limit: 0
   featuresPath:
-    path: 'sandbox/features/'
+    path: '.github/agentic-lib/features/'
     permissions: [ 'write' ]
-    limit: 4
+    limit: 2
 
   # Filepaths for engineer workflows
   contributingFilepath:
     path: 'CONTRIBUTING.md'
   targetTestsPath:
-    path: 'sandbox/tests/'
+    path: 'tests/unit/'
     permissions: [ 'write' ]
-  otherTestsPaths:
-    paths: [ 'tests/unit/' ]
   targetSourcePath:
-    path: 'sandbox/source/'
+    path: 'src/lib/'
     permissions: [ 'write' ]
-  otherSourcePaths:
-    paths: [ 'src/lib/' ]
   dependenciesFilepath:
     path: 'package.json'
     permissions: [ 'write' ]
   documentationPath:
-    path: 'sandbox/docs/'
+    path: 'docs/'
     permissions: [ 'write' ]
 
   # Filepaths for maintainer workflows
@@ -45,13 +41,13 @@ paths:
   lintingFilepath:
     path: 'eslint.config.js'
   readmeFilepath:
-    path: 'sandbox/README.md'
+    path: 'README.md'
     permissions: [ 'write' ]
 
 # Execution commands
 buildScript: 'npm run build'
 testScript: 'npm test'
-mainScript: 'npm run sandbox'
+mainScript: 'npm run start'
 
 # How many issues should be available to be picked up?
 featureDevelopmentIssuesWipLimit: 2
@@ -66,14 +62,10 @@ docRoot: 'public'
 
 # Repository seeding
 seeding:
-  sandboxReset: 'true'
-  sandboxPath: 'sandbox'
-#  repositoryReseed: 'true'
-  missionFilepath: 'seeds/zero-MISSION.md'
-  sourcePath: 'seeds/zero-main.js'
-  testsPath: 'seeds/zero-main.test.js'
-  dependenciesFilepath: 'seeds/zero-package.json'
-  #readmeFilepath: 'seeds/zero-README.md'
+  missionFilepath: 'src/seeds/zero-MISSION.md'
+  sourcePath: 'src/seeds/zero-main.js'
+  testsPath: 'src/seeds/zero-main.test.js'
+  dependenciesFilepath: 'src/seeds/zero-package.json'
 
 intentionBot:
   intentionFilepath: 'intentïon.md'

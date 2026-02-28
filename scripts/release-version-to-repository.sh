@@ -57,9 +57,6 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-review.yml"
 cp -v "${SRC}/workflows/ci-automerge.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-automerge.yml"
 
-cp -v "${SRC}/workflows/ci-deploy.yml" "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-deploy.yml"
-
 cp -v "${SRC}/workflows/ci-formating.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-formating.yml"
 
@@ -89,11 +86,18 @@ mkdir -p "${DEST_DIR}/../../scripts"
 cp -v "${SRC}/scripts/accept-release.sh" "${DEST_DIR}/../../scripts/."
 cp -v "${SRC}/scripts/activate-schedule.sh" "${DEST_DIR}/../../scripts/."
 cp -v "${SRC}/scripts/clean.sh" "${DEST_DIR}/../../scripts/."
-cp -v "${SRC}/scripts/generate-npmrc.sh" "${DEST_DIR}/../../scripts/."
 cp -v "${SRC}/scripts/initialise.sh" "${DEST_DIR}/../../scripts/."
 cp -v "${SRC}/scripts/md-to-html.js" "${DEST_DIR}/../../scripts/."
 cp -v "${SRC}/scripts/generate-library-index.js" "${DEST_DIR}/../../scripts/."
 cp -v "${SRC}/scripts/update.sh" "${DEST_DIR}/../../scripts/."
+
+# Seed files
+
+mkdir -p "${DEST_DIR}/../../.github/agentic-lib/seeds"
+cp -v ${SRC}/seeds/zero-*.js "${DEST_DIR}/../../.github/agentic-lib/seeds/."
+cp -v ${SRC}/seeds/zero-*.json "${DEST_DIR}/../../.github/agentic-lib/seeds/."
+cp -v ${SRC}/seeds/zero-*.md "${DEST_DIR}/../../.github/agentic-lib/seeds/."
+cp -v ${SRC}/seeds/test-*.yml "${DEST_DIR}/../../.github/agentic-lib/seeds/."
 
 # Agent prompt files
 

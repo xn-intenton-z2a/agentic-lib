@@ -2,77 +2,37 @@
 
 Get all the moving parts working end-to-end before tightening verification and expanding demo output. This plan supersedes PLAN_STABILISE_AND_DEPLOY.md and PLAN_CODE_REDUCTION.md (both archived — core work complete).
 
-```text
-
-I think we can get rid of secrets.env and src/scripts/generate-npmrc.sh, I want any consuming libraries to be able to access what they need without a PAT. so ditch those, then update      
-  PLAN_FOCUS_REBOOT.md with this ```                                                                                                                                                      
-                                                                                                                                                                                              
-  ⏺ Good. Now let me give you the full review of what's left and what remains to do.                                                                                                          
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                          
-    Current repo structure                                                                                                                                                                
-                                                                                                                                                                                          
-                                                                                                                                                                                          
-                                                                                                                                                                                          
-    agentic-lib/                                                                                                                                                                          
-                                                                                                                                                                                          
-    ├── src/                              # ALL DISTRIBUTED PRODUCTION CODE                                                                                                               
-                                                                                                                                                                                          
-    │   ├── workflows/ (14)               #   Template workflows                                                                                                                          
-                                                                                                                                                                                          
-    │   │   ├── agent-archive-intentïon.yml                                                                                                                                               
-                                                                                                                                                                                          
-    │   │   ├── agent-discussions-bot.yml                                                                                                                                                 
-                                                                                                                                                                                          
-    │   │   ├── agent-flow-evolve.yml     # Core: autonomous evolution                                                                                                                    
-                                                                                                                                                                                          
-    │   │   ├── agent-flow-fix-code.yml   # Core: reactive fix                                                                                                                            
-                                                                                                                                                                                          
-    │   │   ├── agent-flow-maintain.yml   # Core: maintenance                                                                                                                             
-                                                                                                                                                                                          
-    │   │   ├── agent-flow-review.yml     # Core: review & pruning                                                                                                                        
-                                                                                                                                                                                          
-    │   │   ├── agent-supervisor.yml      # Core: orchestration                                                                                                                           
-    │   │   ├── ci-automerge.yml          # Core CI: auto-merge PRs                                                                                                                       
-    │   │   ├── ci-deploy.yml             # Prescriptive: AWS CDK deploy                                                                                                                  
-    │   │   ├── ci-formating.yml          # Prescriptive: prettier+eslint                                                                                                                 
-    │   │   ├── ci-test.yml               # Prescriptive: monolithic test                                                                                                                 
-    │   │   ├── ci-update.yml             # Prescriptive: dependency updates                                                                                                              
-    │   │   ├── publish-packages.yml      # Core: npm publish                                                                                                                             
-    │   │   └── publish-web.yml           # Prescriptive: GitHub Pages                                                                                                                    
-    │   ├── scripts/ (8)                  #   Distributed utility scripts                                                                                                                 
-    │   ├── agents/ (9)                   #   Prompts + config                                                                                                                            
-    │   ├── actions/agentic-step/         #   Copilot SDK action (46 tests)                                                                                                               
-    │   └── seeds/ (7)                    #   Seed files + 3 starter test workflows                                                                                                       
-    ├── scripts/ (5)                      # RELEASE PIPELINE (agentic-lib only)                                                                                                           
-    ├── .github/workflows/ (2)            # INTERNAL CI                                                                                                                                   
-    │   ├── ci.yml                                                                                                                                                                        
-    │   └── release.yml                                                                                                                                                                   
-    ├── FEATURES.md, FEATURES_ROADMAP.md  # Product definition                                                                                                                            
-    ├── PLAN_FOCUS_REBOOT.md              # Active plan                                                                                                                                   
-    ├── API.md, README.md                 # Docs                                                                                                                                          
-    └── package.json, eslint.config.js    # Config                                                                                                                                        
-                                                                                                                                                                                          
-    What remains to do                                                                                                                                                                    
-                                                                                                                                                                                          
-    Immediate (this reboot):                                                                                                                                                              
-    1. Evaluate the 4 prescriptive workflows — ci-deploy, ci-formating, ci-update, publish-web. Should they stay as-is, become optional, or be restructured?                              
-    2. Replace monolithic ci-test.yml — The seed test workflows (test-demo, test-library, test-website) are placeholders. ci-test.yml currently has Maven checks, multi-path triggers,    
-  and CDK                                                                                                                                                                                 
-    synth that most consumers don't need. Should become a generic test.yml or be replaced by the seed starters.                                                                           
-    3. Update release script for seeds path change (src/seeds/ not seeds/)                                                                                                                
-    4. Clean up agentic-lib.yml config — Still references deleted sandbox/ paths                                                                                                          
-                                                                                                                                                                                          
-    Next phases (from PLAN_FOCUS_REBOOT.md):                                                                                                                                              
-    - Phase 0: Re-test Copilot SDK with Node 22 (runtime failure was node:sqlite)                                                                                                         
-    - Phase 1: Extract task handler logic into testable modules                                                                                                                           
-    - Phase 2: npm package API surface + v7.0.0 tag                                                                                                                                       
-    - Phase 3: repository0 thin adaptors + smoke tests                                                                                                                                    
-    - Phase 4: Template styles + bot integration                                                                                                                                          
-    - Phase 5: Website + Playwright                                                                                                                                                       
-                                                                                                                                                                                          
-  ``` at the top (I'm going to exit to clear context then resume from there).                                                                                                             
+Current repo structure:
+```text                                                                                                                                                              
+agentic-lib/                                                                                                                                                                          
+├── src/                              # ALL DISTRIBUTED PRODUCTION CODE                                                                                                               
+│   ├── workflows/ (14)               #   Template workflows                                                                                                                          
+│   │   ├── agent-archive-intentïon.yml                                                                                                                                               
+│   │   ├── agent-discussions-bot.yml                                                                                                                                                 
+│   │   ├── agent-flow-evolve.yml     # Core: autonomous evolution                                                                                                                    
+│   │   ├── agent-flow-fix-code.yml   # Core: reactive fix                                                                                                                            
+│   │   ├── agent-flow-maintain.yml   # Core: maintenance                                                                                                                             
+│   │   ├── agent-flow-review.yml     # Core: review & pruning                                                                                                                        
+│   │   ├── agent-supervisor.yml      # Core: orchestration                                                                                                                           
+│   │   ├── ci-automerge.yml          # Core CI: auto-merge PRs                                                                                                                       
+│   │   ├── ci-deploy.yml             # Prescriptive: AWS CDK deploy                                                                                                                  
+│   │   ├── ci-formating.yml          # Prescriptive: prettier+eslint                                                                                                                 
+│   │   ├── ci-test.yml               # Prescriptive: monolithic test                                                                                                                 
+│   │   ├── ci-update.yml             # Prescriptive: dependency updates                                                                                                              
+│   │   ├── publish-packages.yml      # Core: npm publish                                                                                                                             
+│   │   └── publish-web.yml           # Prescriptive: GitHub Pages                                                                                                                    
+│   ├── scripts/ (8)                  #   Distributed utility scripts                                                                                                                 
+│   ├── agents/ (9)                   #   Prompts + config                                                                                                                            
+│   ├── actions/agentic-step/         #   Copilot SDK action (46 tests)                                                                                                               
+│   └── seeds/ (7)                    #   Seed files + 3 starter test workflows                                                                                                       
+├── scripts/ (5)                      # RELEASE PIPELINE (agentic-lib only)                                                                                                           
+├── .github/workflows/ (2)            # INTERNAL CI                                                                                                                                   
+│   ├── ci.yml                                                                                                                                                                        
+│   └── release.yml                                                                                                                                                                   
+├── FEATURES.md, FEATURES_ROADMAP.md  # Product definition                                                                                                                            
+├── PLAN_FOCUS_REBOOT.md              # Active plan                                                                                                                                   
+├── API.md, README.md                 # Docs                                                                                                                                          
+└── package.json, eslint.config.js    # Config                                                                                                                                                     
 ```
 
 ## User Assertions
@@ -83,6 +43,16 @@ I think we can get rid of secrets.env and src/scripts/generate-npmrc.sh, I want 
 - Numbered version tags (not `@main`) for workflow references
 - Publication is a deliberate choice (workflow dispatch), not automatic on every merge
 - Template users get a stable version that doesn't disappear; they bump when ready
+
+---
+
+Next phases (from PLAN_FOCUS_REBOOT.md):
+- Phase 0: Re-test Copilot SDK with Node 22 (runtime failure was node:sqlite)
+- Phase 1: Extract task handler logic into testable modules
+- Phase 2: npm package API surface + v7.0.0 tag
+- Phase 3: repository0 thin adaptors + smoke tests
+- Phase 4: Template styles + bot integration
+- Phase 5: Website + Playwright
 
 ---
 
