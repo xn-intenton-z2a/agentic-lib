@@ -99,14 +99,14 @@ All unchecked:
 
 All unchecked:
 
-- [ ] Evolve task in TDD mode creates a failing test first
+- [ ] Transform task in TDD mode creates a failing test first
 - [ ] Second step makes the test pass
 - [ ] PR contains both test and implementation
 - [ ] Non-TDD mode still works as before
 
 **How to verify:**
 
-- Unit tests for `tasks/evolve.js` with `tdd: true` config
+- Unit tests for `tasks/transform.js` with `tdd: true` config
 - Verify two-phase execution in the task handler
 - Run non-TDD mode to confirm backwards compatibility
 

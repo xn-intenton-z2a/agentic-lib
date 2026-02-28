@@ -10,7 +10,7 @@ on:
   workflow_run:
     workflows:
       - ci
-      - agent-flow-evolve
+      - agent-flow-transform
       - agent-flow-maintain
     types:
       - completed

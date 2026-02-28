@@ -1,6 +1,6 @@
-# intentïon — Autonomous Code Evolution
+# intentïon — Autonomous Code Transformation
 
-All features for the intentïon project. Core features (#1-17) power the autonomous evolution system. MVP features (#18-25) make the product coherent and compelling. New features (#26-29) cover verification, optimization, and demo repositories. Post-MVP features are in [FEATURES_ROADMAP.md](FEATURES_ROADMAP.md) (#30-41).
+All features for the intentïon project. Core features (#1-17) power the autonomous transformation system. MVP features (#18-25) make the product coherent and compelling. New features (#26-29) cover verification, optimization, and demo repositories. Post-MVP features are in [FEATURES_ROADMAP.md](FEATURES_ROADMAP.md) (#30-41).
 
 ---
 
@@ -8,7 +8,7 @@ All features for the intentïon project. Core features (#1-17) power the autonom
 
 | #   | Feature                              | Status  |
 | --- | ------------------------------------ | ------- |
-| 1   | Autonomous Code Evolution            | Done    |
+| 1   | Autonomous Code Transformation            | Done    |
 | 2   | Issue Lifecycle Management           | Done    |
 | 3   | Feature Lifecycle Management         | Done    |
 | 4   | Code Generation & Fixing             | Done    |
@@ -125,9 +125,9 @@ GitHub Copilot SDK ──→ agentic-step action (1 action, published to Marketp
 
 ### Core Features (#1-17)
 
-#### 1. Autonomous Code Evolution
+#### 1. Autonomous Code Transformation
 
-The core proposition: repositories evolve their own code through an AI-driven feedback loop. Converts a mission statement into working, tested, deployed code through a chain of automated transformations. The `agentic-step` action with the `evolve` task replaces the previous 10-workflow transformation chain with 3 orchestration workflows: `agent-flow-evolve.yml`, `agent-flow-maintain.yml`, `agent-flow-review.yml`.
+The core proposition: repositories transform their own code through an AI-driven feedback loop. Converts a mission statement into working, tested, deployed code through a chain of automated transformations. The `agentic-step` action with the `transform` task replaces the previous 10-workflow transformation chain with 3 orchestration workflows: `agent-flow-transform.yml`, `agent-flow-maintain.yml`, `agent-flow-review.yml`.
 
 **Pipeline:** Mission → Sources → Library → Features → Issues → Code → PR → Merge → Close
 **Repositories:** agentic-lib (workflows), repository0 (consumer)
@@ -258,7 +258,7 @@ Truncates old workflow run history, archives issue history, sweeps stale branche
 
 #### 18. Copilot Migration
 
-Port from OpenAI API to GitHub Copilot SDK. The `agentic-step` action wraps the SDK and supports 8 task types: `resolve-issue`, `fix-code`, `evolve`, `maintain-features`, `maintain-library`, `enhance-issue`, `review-issue`, `discussions`.
+Port from OpenAI API to GitHub Copilot SDK. The `agentic-step` action wraps the SDK and supports 8 task types: `resolve-issue`, `fix-code`, `transform`, `maintain-features`, `maintain-library`, `enhance-issue`, `review-issue`, `discussions`.
 
 **Key deliverable:** `.github/agentic-lib/actions/agentic-step/`
 **Status:** Done
@@ -326,20 +326,20 @@ The critical path from discovery to running autonomous development. Includes `de
 
 #### 23. TDD Workflow
 
-Feature development that starts with a failing test. The `evolve` task in TDD mode: (1) creates test capturing the feature requirement, (2) commits it (test fails), (3) writes implementation to make test pass, (4) PR contains both test and implementation.
+Feature development that starts with a failing test. The `transform` task in TDD mode: (1) creates test capturing the feature requirement, (2) commits it (test fails), (3) writes implementation to make test pass, (4) PR contains both test and implementation.
 
 **Status:** Done
 
 **Acceptance Criteria:**
 
-- [ ] Evolve task in TDD mode creates a failing test first
+- [ ] Transform task in TDD mode creates a failing test first
 - [ ] Second step makes the test pass
 - [ ] PR contains both test and implementation
 - [ ] Non-TDD mode still works as before
 
 #### 24. Showcase Page
 
-A page on xn--intenton-z2a.com showing live experiment status from stats JSON on S3. Displays past successful evolutions with links to repositories, PRs, and activity logs.
+A page on xn--intenton-z2a.com showing live experiment status from stats JSON on S3. Displays past successful transformations with links to repositories, PRs, and activity logs.
 
 **Repository:** xn--intenton-z2a.com
 **Status:** Done
@@ -393,11 +393,11 @@ Make the MVP compact and information-dense — fewer files, less redundancy, eas
 
 #### 28. Library Demo Repository
 
-A JS library that evolves autonomously from a mission, demonstrating the "library" repository type.
+A JS library that transforms autonomously from a mission, demonstrating the "library" repository type.
 
 | Aspect           | Detail                                                                                                                                                                                              |
 | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **What it does** | A new repository created from the repository0 template with a library-focused mission. Evolves autonomously. Published to npm. Output is captured and examined as part of a fitness test (see #26). |
+| **What it does** | A new repository created from the repository0 template with a library-focused mission. Transforms autonomously. Published to npm. Output is captured and examined as part of a fitness test (see #26). |
 | **Repositories** | New repository (from repository0 template)                                                                                                                                                          |
 | **Why now**      | The showcase needs real examples. A library that built itself from a mission statement is the most compelling proof.                                                                                |
 
@@ -405,13 +405,13 @@ A JS library that evolves autonomously from a mission, demonstrating the "librar
 
 #### 29. Website Demo Repository
 
-A website that evolves autonomously from a mission, demonstrating the "website" repository type.
+A website that transforms autonomously from a mission, demonstrating the "website" repository type.
 
 | Aspect           | Detail                                                                                                                                                                                                   |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **What it does** | A new repository created from the repository0 template with a website-focused mission. Evolves autonomously. Deployed to GitHub Pages. The deployed site is examined/tested as a fitness test (see #26). |
+| **What it does** | A new repository created from the repository0 template with a website-focused mission. Transforms autonomously. Deployed to GitHub Pages. The deployed site is examined/tested as a fitness test (see #26). |
 | **Repositories** | New repository (from repository0 template)                                                                                                                                                               |
-| **Why now**      | Websites are visual — a self-evolving website is immediately impressive and shareable.                                                                                                                   |
+| **Why now**      | Websites are visual — a self-transforming website is immediately impressive and shareable.                                                                                                                   |
 
 **Status:** Pending
 
@@ -423,7 +423,7 @@ A website that evolves autonomously from a mission, demonstrating the "website" 
 
 **One impressive, public, end-to-end demo running.**
 
-A real repository that started from a 3-sentence mission and evolved into a working, tested, published package — with the full intentïon.md audit trail visible. Must be reproducible (`demo.sh`), impressive (working CLI tool or library, not just "Hello World"), transparent (every decision logged), and recordable (2-minute video).
+A real repository that started from a 3-sentence mission and transformed into a working, tested, published package — with the full intentïon.md audit trail visible. Must be reproducible (`demo.sh`), impressive (working CLI tool or library, not just "Hello World"), transparent (every decision logged), and recordable (2-minute video).
 
 **Test:** "Would a developer share this on social media after watching it?"
 
@@ -441,7 +441,7 @@ Mission → Features → Issues → Code → Tests pass → PR → Auto-merge �
 
 No prior knowledge. No OpenAI API key. No AWS setup. Just: create from template, write a mission, enable Copilot, wait.
 
-**Test:** "Can someone who found this via a Hacker News link get their own repo evolving before they lose interest?"
+**Test:** "Can someone who found this via a Hacker News link get their own repo transforming before they lose interest?"
 
 ### Decision filter
 
@@ -471,7 +471,7 @@ If the answer to all three is "no," it's post-MVP work.
 
 1. **The demo** — single most important marketing asset
 2. **GitHub Marketplace listing** for `agentic-step`
-3. **Blog post**: "I let AI evolve my code for 30 days. Here's what happened."
+3. **Blog post**: "I let AI transform my code for 30 days. Here's what happened."
 4. **Show HN** with blog post and live showcase
 5. **Showcase page** on xn--intenton-z2a.com with live stats
 
@@ -501,7 +501,7 @@ Build the `agentic-step` action and prove it works for a single task. Scaffold a
 
 ### Phase 2: Full Pipeline (Done)
 
-Port all LLM tasks to `agentic-step`. Implement all 8 task handlers (`evolve`, `maintain-features`, `maintain-library`, `enhance-issue`, `review-issue`, `discussions`), logging.js, and the simplified workflow set (15 agentic-lib + 8 repository0).
+Port all LLM tasks to `agentic-step`. Implement all 8 task handlers (`transform`, `maintain-features`, `maintain-library`, `enhance-issue`, `review-issue`, `discussions`), logging.js, and the simplified workflow set (15 agentic-lib + 8 repository0).
 
 ### Phase 3: Hardening (Done)
 

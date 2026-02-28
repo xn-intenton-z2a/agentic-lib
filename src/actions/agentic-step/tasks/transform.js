@@ -1,4 +1,4 @@
-// tasks/evolve.js — Full mission → features → issues → code pipeline
+// tasks/transform.js — Full mission → features → issues → code pipeline
 //
 // Reads the mission, analyzes the current state, identifies what to build next,
 // and either creates features, issues, or code.
@@ -9,12 +9,12 @@ import { readOptionalFile, scanDirectory, formatPathsSection } from "../copilot.
 import { createAgentTools } from "../tools.js";
 
 /**
- * Run the full evolution pipeline from mission to code.
+ * Run the full transformation pipeline from mission to code.
  *
  * @param {Object} context - Task context from index.js
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
-export async function evolve(context) {
+export async function transform(context) {
   const { config, instructions, writablePaths, testCommand, model, octokit, repo } = context;
 
   // Read mission (required)
@@ -38,12 +38,12 @@ export async function evolve(context) {
   });
 
   const agentInstructions =
-    instructions || "Evolve the repository toward its mission by identifying the next best action.";
+    instructions || "Transform the repository toward its mission by identifying the next best action.";
   const readOnlyPaths = config.readOnlyPaths || [];
 
   // TDD mode: split into test-first + implementation phases
   if (config.tdd === true) {
-    return await evolveTdd({
+    return await transformTdd({
       config,
       instructions: agentInstructions,
       writablePaths,
@@ -75,7 +75,7 @@ export async function evolve(context) {
     "",
     "## Your Task",
     "Analyze the mission, features, source code, and open issues.",
-    "Determine the single most impactful next step to evolve this repository.",
+    "Determine the single most impactful next step to transform this repository.",
     "Then implement that step.",
     "",
     formatPathsSection(writablePaths, readOnlyPaths),
@@ -84,7 +84,7 @@ export async function evolve(context) {
     `- Run \`${testCommand}\` to validate your changes`,
   ].join("\n");
 
-  // Use direct SDK calls here since evolve is performance-critical
+  // Use direct SDK calls here since transform is performance-critical
   // and TDD mode below needs multi-session on one client
   const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
 
@@ -93,7 +93,7 @@ export async function evolve(context) {
       model,
       systemMessage: {
         content:
-          "You are an autonomous code evolution agent. Your goal is to advance the repository toward its mission by making the most impactful change possible in a single step.",
+          "You are an autonomous code transformation agent. Your goal is to advance the repository toward its mission by making the most impactful change possible in a single step.",
       },
       tools: createAgentTools(writablePaths),
       onPermissionRequest: approveAll,
@@ -104,10 +104,10 @@ export async function evolve(context) {
     const tokensUsed = response?.data?.usage?.totalTokens || 0;
     const resultContent = response?.data?.content || "";
 
-    core.info(`Evolution step completed (${tokensUsed} tokens)`);
+    core.info(`Transformation step completed (${tokensUsed} tokens)`);
 
     return {
-      outcome: "evolved",
+      outcome: "transformed",
       tokensUsed,
       model,
       details: resultContent.substring(0, 500),
@@ -118,9 +118,9 @@ export async function evolve(context) {
 }
 
 /**
- * TDD-mode evolution: Phase 1 creates a failing test, Phase 2 writes implementation.
+ * TDD-mode transformation: Phase 1 creates a failing test, Phase 2 writes implementation.
  */
-async function evolveTdd({
+async function transformTdd({
   config: _config,
   instructions,
   writablePaths,
@@ -231,10 +231,10 @@ async function evolveTdd({
     core.info(`TDD Phase 2 completed (total ${totalTokens} tokens)`);
 
     return {
-      outcome: "evolved-tdd",
+      outcome: "transformed-tdd",
       tokensUsed: totalTokens,
       model,
-      details: `TDD evolution: Phase 1 (failing test) + Phase 2 (implementation). ${testResult.substring(0, 200)}`,
+      details: `TDD transformation: Phase 1 (failing test) + Phase 2 (implementation). ${testResult.substring(0, 200)}`,
     };
   } finally {
     await client.stop();

@@ -11,7 +11,7 @@ Each feature in this list is **mutually exclusive** with [FEATURES.md](FEATURES.
 30. [Workflow Hardening (Remaining)](#30-workflow-hardening-remaining)
 31. [Discussions Bot (Remaining)](#31-discussions-bot-remaining)
 32. [UX Journey & Onboarding (Remaining)](#32-ux-journey--onboarding-remaining)
-33. [Evolution Engine](#33-evolution-engine)
+33. [Transformation Engine](#33-transformation-engine)
 34. [Collaboration & Feature Marketplace](#34-collaboration--feature-marketplace)
 35. [Cost Model & Recycling](#35-cost-model--recycling)
 36. [Supervisor Launch (Visualization)](#36-supervisor-launch-visualization)
@@ -104,9 +104,9 @@ User experience items beyond the MVP critical path.
 
 ---
 
-## 33. Evolution Engine
+## 33. Transformation Engine
 
-A self-evolving intelligence layer that learns from git history and adapts improvement strategies.
+A self-transforming intelligence layer that learns from git history and adapts improvement strategies.
 
 | Aspect           | Detail                                                                                                                                                                                                     |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -123,7 +123,7 @@ A self-evolving intelligence layer that learns from git history and adapts impro
 | 5.3 | Predictive Planning — predict next improvement areas from git history         |
 | 5.4 | Meta-Workflow Orchestration — dynamically schedule based on project phase     |
 | 5.5 | Effectiveness tracking database (SQLite or GitHub Issues)                     |
-| 5.6 | Self-modifying workflow configurations that evolve with the project           |
+| 5.6 | Self-modifying workflow configurations that transform with the project           |
 
 ---
 

@@ -1,6 +1,6 @@
 # PLAN: Implementing the Conceptual Model
 
-Transform the current 8-task cron-driven pipeline into the Navigate → Transform → Witness → Steward lifecycle described in CONCEPT.md. No backward compatibility constraints. Three repositories, full control. No "evolve" language anywhere.
+Transform the current 8-task cron-driven pipeline into the Navigate → Transform → Witness → Steward lifecycle described in CONCEPT.md. No backward compatibility constraints. Three repositories, full control. No "transform" language anywhere.
 
 ---
 
@@ -23,7 +23,7 @@ Transform the current 8-task cron-driven pipeline into the Navigate → Transfor
 | ---------------------- | ------- | -------------------------------------------- |
 | `resolve-issue.js`     | 93      | Builder                                      |
 | `fix-code.js`          | 70      | Fixer (Builder variant)                      |
-| `evolve.js`            | 209     | Navigator + Builder (conflated — must split) |
+| `transform.js`            | 209     | Navigator + Builder (conflated — must split) |
 | `maintain-features.js` | 71      | Harvester                                    |
 | `maintain-library.js`  | 65      | Harvester                                    |
 | `enhance-issue.js`     | 96      | Critic                                       |
@@ -35,7 +35,7 @@ Transform the current 8-task cron-driven pipeline into the Navigate → Transfor
 
 | Workflow                    | Trigger             | Perspective invoked           |
 | --------------------------- | ------------------- | ----------------------------- |
-| `agent-flow-evolve.yml`     | Cron daily          | navigator+builder (conflated) |
+| `agent-flow-transform.yml`     | Cron daily          | navigator+builder (conflated) |
 | `agent-flow-maintain.yml`   | Cron weekly         | harvester                     |
 | `agent-flow-review.yml`     | Cron 3-day          | witness                       |
 | `agent-flow-fix-code.yml`   | check_suite failure | fixer                         |
@@ -213,7 +213,7 @@ post_actions:
 | ------------------------ | ----------------------------- | ------------------------------------------------------------------------------------ | -------------------------------- |
 | `builder.yml`            | resolve-issue.js              | intention, issue_detail, source_files, test_files, contributing                      | commit, create_pr                |
 | `fixer.yml`              | fix-code.js                   | pr_detail, source_files, test_files                                                  | commit (to PR branch)            |
-| `navigator.yml`          | evolve.js (the planning half) | intention, open_issues, source_files, test_files, feature_materials, activity_record | create_issue, update_materials   |
+| `navigator.yml`          | transform.js (the planning half) | intention, open_issues, source_files, test_files, feature_materials, activity_record | create_issue, update_materials   |
 | `harvester-features.yml` | maintain-features.js          | intention, feature_materials, library_materials, source_files                        | update_materials                 |
 | `harvester-library.yml`  | maintain-library.js           | material_sources, library_materials                                                  | update_materials                 |
 | `critic.yml`             | enhance-issue.js              | intention, issue_detail, feature_materials, contributing                             | update_issue                     |
@@ -249,7 +249,7 @@ export async function runTransformation(perspectiveName, target, config, octokit
 
 ## Phase 3: Navigation Engine
 
-**What:** The navigator observes state, assesses the gap to realization, and produces a plan of transformations to execute. This replaces the current `evolve.js` which conflates planning with doing.
+**What:** The navigator observes state, assesses the gap to realization, and produces a plan of transformations to execute. This replaces the current `transform.js` which conflates planning with doing.
 
 ### phases/navigate.js (~150 lines)
 

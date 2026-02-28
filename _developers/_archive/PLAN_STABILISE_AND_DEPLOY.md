@@ -16,7 +16,7 @@ Getting from the `refresh` branch to a working system on `main` — a single-fil
 
 - **agentic-step action added** (8 task handlers, config-loader, safety, logging)
 - **33 legacy workflows deleted** (wfr-completion-*, agent-transformation-*, old agent-flow-*)
-- **4 new workflows** (agent-flow-evolve/maintain/review, agent-supervisor)
+- **4 new workflows** (agent-flow-transform/maintain/review, agent-supervisor)
 - **Agent files relocated** (.github/agents/ → .github/agentic-lib/agents/)
 - **Developer files relocated** (examples/, maintainers-log/ → _developers/)
 - **Docs consolidated** (MVP.md + FEATURES.md → single FEATURES.md, ROADMAP.md deleted)
@@ -27,7 +27,7 @@ Getting from the `refresh` branch to a working system on `main` — a single-fil
 ### repository0 (4 commits on refresh, ~120 files changed)
 
 - **16 legacy workflows deleted**
-- **3 new workflows** (agent-flow-evolve/maintain/review — call agentic-step from agentic-lib)
+- **3 new workflows** (agent-flow-transform/maintain/review — call agentic-step from agentic-lib)
 - **Files relocated** (agents, features, seeds, scripts → .github/agentic-lib/)
 - **Template cleaned** (src/lib/main.js → "Hello World!")
 - **License fixed** (Apache-2.0 → MIT)
@@ -65,7 +65,7 @@ Getting from the `refresh` branch to a working system on `main` — a single-fil
 
 ### 5. Feature files are stale — RESOLVED
 
-**Status: FIXED.** All 10 owl-builder feature files deleted. Features directory is now empty — evolve agent will create fresh features from the new mission.
+**Status: FIXED.** All 10 owl-builder feature files deleted. Features directory is now empty — transform agent will create fresh features from the new mission.
 
 ### 6. No intentïon.md — RESOLVED
 
@@ -139,17 +139,17 @@ All changes committed and pushed. Tests, formatting, and linting all pass. PR #2
 ### Step 7: Trigger the loop — PENDING
 
 After both PRs are merged:
-- Manually dispatch `agent-flow-evolve` workflow
+- Manually dispatch `agent-flow-transform` workflow
 - Watch for: Does `npm ci` succeed? Does the Copilot CLI authenticate? Does the SDK connect?
 - If it produces code, check: Does it commit? Does CI pass?
 
 ### Step 8: Verify the loop closes — PENDING
 
 Watch for the full cycle:
-1. `agent-flow-evolve` creates code → commits → pushes
+1. `agent-flow-transform` creates code → commits → pushes
 2. `ci-test` runs and passes
 3. `agent-flow-review` closes resolved issues
-4. Next scheduled `agent-flow-evolve` picks up the next feature
+4. Next scheduled `agent-flow-transform` picks up the next feature
 
 ---
 
@@ -181,7 +181,7 @@ Create a new Discussion in repository0:
 
 If the bot creates a feature:
 - Check `.github/agentic-lib/features/` for a new feature file
-- Check if the next `agent-flow-evolve` run picks up the feature
+- Check if the next `agent-flow-transform` run picks up the feature
 
 ---
 
@@ -272,13 +272,13 @@ This establishes an agent-to-agent communication channel where:
 - [x] Copilot validated SDK integration (PR #1763)
 - [x] PRs open for all 3 repos
 - [x] Multi-agent citizenship guidelines documented
-- [ ] `agent-flow-evolve` runs successfully in repository0
-- [ ] Evolve step produces a code change and commits it
+- [ ] `agent-flow-transform` runs successfully in repository0
+- [ ] Transform step produces a code change and commits it
 - [ ] CI tests pass on the committed change
-- [ ] On next scheduled run, evolve makes further progress
+- [ ] On next scheduled run, transform makes further progress
 - [ ] Discussions bot responds to a posted Discussion
 - [ ] Bot can create a feature from a Discussion request
-- [ ] A feature created by the bot eventually becomes code via evolve
+- [ ] A feature created by the bot eventually becomes code via transform
 
 ---
 

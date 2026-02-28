@@ -31,9 +31,9 @@ const goldenPrompts = {
       "You are an autonomous coding agent fixing failing tests on PR #{prNumber}. Make minimal, targeted changes to fix the test failures.",
     promptSections: ["## Instructions", "## Pull Request", "## Failing Checks", "## File Paths", "## Constraints"],
   },
-  "evolve": {
+  "transform": {
     systemMessage:
-      "You are an autonomous code evolution agent. Your goal is to advance the repository toward its mission by making the most impactful change possible in a single step.",
+      "You are an autonomous code transformation agent. Your goal is to advance the repository toward its mission by making the most impactful change possible in a single step.",
     promptSections: [
       "## Instructions",
       "## Mission",

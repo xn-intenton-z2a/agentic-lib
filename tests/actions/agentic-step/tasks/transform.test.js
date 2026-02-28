@@ -27,7 +27,7 @@ vi.mock("../../../../src/actions/agentic-step/tools.js", () => ({
 // src/actions/agentic-step/node_modules/@github/copilot-sdk/ and vitest resolves
 // vi.mock specifiers relative to the test file, not the source file.
 vi.mock("../../../../src/actions/agentic-step/node_modules/@github/copilot-sdk/dist/index.js", () => {
-  const sendAndWait = vi.fn().mockResolvedValue({ data: { content: "evolved code", usage: { totalTokens: 150 } } });
+  const sendAndWait = vi.fn().mockResolvedValue({ data: { content: "transformed code", usage: { totalTokens: 150 } } });
   const createSession = vi.fn().mockResolvedValue({ sendAndWait });
   const stop = vi.fn().mockResolvedValue(undefined);
 
@@ -49,7 +49,7 @@ vi.mock("../../../../src/actions/agentic-step/node_modules/@github/copilot-sdk/d
 });
 
 // Use dynamic import after mocks are set up
-const { evolve } = await import("../../../../src/actions/agentic-step/tasks/evolve.js");
+const { transform } = await import("../../../../src/actions/agentic-step/tasks/transform.js");
 const { readOptionalFile, scanDirectory } = await import("../../../../src/actions/agentic-step/copilot.js");
 
 // Access the internal mock functions via the SDK mock
@@ -111,7 +111,7 @@ function createMockConfig(overrides = {}) {
 
 function createMockContext(overrides = {}) {
   return {
-    task: "evolve",
+    task: "transform",
     config: createMockConfig(),
     instructions: "",
     issueNumber: "",
@@ -129,12 +129,12 @@ function createMockContext(overrides = {}) {
 
 // --- Tests ---
 
-describe("tasks/evolve", () => {
+describe("tasks/transform", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     readOptionalFile.mockReturnValue("");
     scanDirectory.mockReturnValue([]);
-    mockSendAndWait.mockResolvedValue({ data: { content: "evolved code", usage: { totalTokens: 150 } } });
+    mockSendAndWait.mockResolvedValue({ data: { content: "transformed code", usage: { totalTokens: 150 } } });
     mockCreateSession.mockResolvedValue({ sendAndWait: mockSendAndWait });
     mockStop.mockResolvedValue(undefined);
   });
@@ -143,7 +143,7 @@ describe("tasks/evolve", () => {
     readOptionalFile.mockReturnValue("");
     const ctx = createMockContext();
 
-    const result = await evolve(ctx);
+    const result = await transform(ctx);
 
     expect(result.outcome).toBe("nop");
     expect(result.details).toBe("No mission file found");
@@ -159,10 +159,10 @@ describe("tasks/evolve", () => {
       .mockReturnValueOnce([{ name: "main.js", content: 'console.log("hello")' }]);
     const ctx = createMockContext();
 
-    await evolve(ctx);
+    await transform(ctx);
 
     const sessionCallArgs = mockCreateSession.mock.calls[0][0];
-    expect(sessionCallArgs.systemMessage.content).toContain("autonomous code evolution agent");
+    expect(sessionCallArgs.systemMessage.content).toContain("autonomous code transformation agent");
 
     const sendCallArgs = mockSendAndWait.mock.calls[0][0];
     expect(sendCallArgs.prompt).toContain("HTTP_SERVER.md");
@@ -180,7 +180,7 @@ describe("tasks/evolve", () => {
       ]);
     const ctx = createMockContext();
 
-    await evolve(ctx);
+    await transform(ctx);
 
     const sendCallArgs = mockSendAndWait.mock.calls[0][0];
     expect(sendCallArgs.prompt).toContain("index.js");
@@ -188,23 +188,23 @@ describe("tasks/evolve", () => {
     expect(sendCallArgs.prompt).toContain("Current Source Files (2)");
   });
 
-  it("returns evolved outcome with token count on happy path", async () => {
+  it("returns transformed outcome with token count on happy path", async () => {
     readOptionalFile.mockReturnValue("Build a tool");
     const ctx = createMockContext();
 
-    const result = await evolve(ctx);
+    const result = await transform(ctx);
 
-    expect(result.outcome).toBe("evolved");
+    expect(result.outcome).toBe("transformed");
     expect(result.tokensUsed).toBe(150);
     expect(result.model).toBe("claude-sonnet-4.5");
-    expect(result.details).toContain("evolved code");
+    expect(result.details).toContain("transformed code");
   });
 
   it("always calls client.stop() even on success", async () => {
     readOptionalFile.mockReturnValue("Build a tool");
     const ctx = createMockContext();
 
-    await evolve(ctx);
+    await transform(ctx);
 
     expect(mockStop).toHaveBeenCalledTimes(1);
   });
@@ -213,9 +213,9 @@ describe("tasks/evolve", () => {
     readOptionalFile.mockReturnValue("Build a tool");
     const ctx = createMockContext({ config: createMockConfig({ tdd: true }) });
 
-    const result = await evolve(ctx);
+    const result = await transform(ctx);
 
-    expect(result.outcome).toBe("evolved-tdd");
+    expect(result.outcome).toBe("transformed-tdd");
     // TDD creates 2 sessions (Phase 1 + Phase 2)
     expect(mockCreateSession).toHaveBeenCalledTimes(2);
     expect(result.tokensUsed).toBe(300); // 150 * 2 phases

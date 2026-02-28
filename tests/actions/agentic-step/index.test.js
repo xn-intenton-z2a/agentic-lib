@@ -7,7 +7,7 @@ import { describe, it, expect } from "vitest";
 
 import { resolveIssue } from "../../../src/actions/agentic-step/tasks/resolve-issue.js";
 import { fixCode } from "../../../src/actions/agentic-step/tasks/fix-code.js";
-import { evolve } from "../../../src/actions/agentic-step/tasks/evolve.js";
+import { transform } from "../../../src/actions/agentic-step/tasks/transform.js";
 import { maintainFeatures } from "../../../src/actions/agentic-step/tasks/maintain-features.js";
 import { maintainLibrary } from "../../../src/actions/agentic-step/tasks/maintain-library.js";
 import { enhanceIssue } from "../../../src/actions/agentic-step/tasks/enhance-issue.js";
@@ -17,7 +17,7 @@ import { discussions } from "../../../src/actions/agentic-step/tasks/discussions
 const TASKS = {
   "resolve-issue": resolveIssue,
   "fix-code": fixCode,
-  "evolve": evolve,
+  "transform": transform,
   "maintain-features": maintainFeatures,
   "maintain-library": maintainLibrary,
   "enhance-issue": enhanceIssue,
@@ -34,7 +34,7 @@ describe("index — TASKS map", () => {
     const expected = [
       "resolve-issue",
       "fix-code",
-      "evolve",
+      "transform",
       "maintain-features",
       "maintain-library",
       "enhance-issue",

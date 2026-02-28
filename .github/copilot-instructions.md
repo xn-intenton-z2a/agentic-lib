@@ -21,7 +21,7 @@ Each assistant has complementary strengths — GitHub Copilot is optimized for c
 
 ## What This Repository Is
 
-The **core SDK** of the intentïon project — a collection of reusable GitHub Actions workflows that enable repositories to operate autonomously. Workflows communicate through branches and issues to continuously review, fix, update, and evolve code.
+The **core SDK** of the intentïon project — a collection of reusable GitHub Actions workflows that enable repositories to operate autonomously. Workflows communicate through branches and issues to continuously review, fix, update, and transform code.
 
 - **Package**: `@xn-intenton-z2a/agentic-lib`
 - **License**: GPL (with MIT-licensed examples in `sandbox/`)

@@ -1,6 +1,6 @@
 # agentic-step API Reference
 
-The `agentic-step` action is a GitHub Action wrapping the GitHub Copilot SDK for autonomous code evolution.
+The `agentic-step` action is a GitHub Action wrapping the GitHub Copilot SDK for autonomous code transformation.
 
 ```yaml
 - uses: xn-intenton-z2a/agentic-lib/.github/agentic-lib/actions/agentic-step@main
@@ -27,7 +27,7 @@ The `agentic-step` action is a GitHub Action wrapping the GitHub Copilot SDK for
 
 | Output        | Description                                                             |
 | ------------- | ----------------------------------------------------------------------- |
-| `result`      | Outcome of the task (e.g. `pr-created`, `code-fixed`, `nop`, `evolved`) |
+| `result`      | Outcome of the task (e.g. `pr-created`, `code-fixed`, `nop`, `transformed`) |
 | `pr-number`   | PR number created or modified (if applicable)                           |
 | `tokens-used` | Total tokens consumed by the Copilot SDK                                |
 | `model`       | Model used for the completion                                           |
@@ -56,15 +56,15 @@ Fix failing tests or lint errors on a pull request.
 
 Analyzes test output, generates fixes, pushes a commit to the PR branch.
 
-### `evolve`
+### `transform`
 
-Evolve the codebase toward the mission. Reads the mission, current features, source files, and open issues, then makes the most impactful change.
+Transform the codebase toward the mission. Reads the mission, current features, source files, and open issues, then makes the most impactful change.
 
 No required inputs beyond `task`. Uses mission file path from config.
 
 When `tdd: true` is set in config, runs in two phases: Phase 1 creates a failing test, Phase 2 writes the implementation.
 
-Outcomes: `evolved`, `evolved-tdd`, `nop`.
+Outcomes: `transformed`, `transformed-tdd`, `nop`.
 
 ### `maintain-features`
 
@@ -153,7 +153,7 @@ Paths with `permissions: [ 'write' ]` are writable by the agent. All other paths
 | `attemptsPerBranch`                | 2               | Max branch attempts per issue          |
 | `attemptsPerIssue`                 | 1               | Max total attempts per issue           |
 | `docRoot`                          | `public`        | Documentation/web root directory       |
-| `tdd`                              | `false`         | Enable TDD mode (test-first evolution) |
+| `tdd`                              | `false`         | Enable TDD mode (test-first transformation) |
 
 ### Bot Configuration
 

@@ -45,13 +45,13 @@ describe("logging", () => {
 
       logActivity({
         filepath,
-        task: "evolve",
-        outcome: "evolved",
+        task: "transform",
+        outcome: "transformed",
       });
 
       const content = readFileSync(filepath, "utf8");
       expect(content).toContain("# existing log");
-      expect(content).toContain("## evolve at");
+      expect(content).toContain("## transform at");
     });
 
     it("includes issue number", () => {
@@ -98,8 +98,8 @@ describe("logging", () => {
       const filepath = join(tmpDir, "intention.md");
       logActivity({
         filepath,
-        task: "evolve",
-        outcome: "evolved",
+        task: "transform",
+        outcome: "transformed",
         model: "claude-sonnet-4-5",
         tokensUsed: 1500,
       });
@@ -114,8 +114,8 @@ describe("logging", () => {
       const workflowUrl = "https://github.com/org/repo/actions/runs/123";
       logActivity({
         filepath,
-        task: "evolve",
-        outcome: "evolved",
+        task: "transform",
+        outcome: "transformed",
         workflowUrl,
       });
 
@@ -140,12 +140,12 @@ describe("logging", () => {
       const filepath = join(tmpDir, "sub", "dir", "intention.md");
       logActivity({
         filepath,
-        task: "evolve",
-        outcome: "evolved",
+        task: "transform",
+        outcome: "transformed",
       });
 
       const content = readFileSync(filepath, "utf8");
-      expect(content).toContain("## evolve at");
+      expect(content).toContain("## transform at");
     });
   });
 

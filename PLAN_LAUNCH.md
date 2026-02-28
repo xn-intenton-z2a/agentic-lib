@@ -50,7 +50,7 @@ After PRs are merged:
 - Confirm npm package `@xn-intenton-z2a/agentic-lib` is updated
 - Confirm GitHub Marketplace listing is live
 - Confirm showcase page loads with stats
-- Confirm demo repos (#28, #29) are evolving
+- Confirm demo repos (#28, #29) are transforming
 
 ---
 

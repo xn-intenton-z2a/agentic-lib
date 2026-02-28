@@ -4,8 +4,8 @@ Features #28 (Library Demo) and #29 (Website Demo) — create real examples that
 
 ## User Assertions
 
-- A JS library that evolves autonomously from a mission, published to npm
-- A website that evolves autonomously from a mission, deployed to GitHub Pages
+- A JS library that transforms autonomously from a mission, published to npm
+- A website that transforms autonomously from a mission, deployed to GitHub Pages
 - Output captured and examined as part of fitness tests (see PLAN_VERIFICATION.md)
 
 ---
@@ -17,14 +17,14 @@ Features #28 (Library Demo) and #29 (Website Demo) — create real examples that
 3. Write a MISSION.md with a library-focused mission (e.g., "A date formatting utility library")
 4. Enable GitHub Copilot coding agent
 5. Enable workflow schedules
-6. Let it evolve autonomously
+6. Let it transform autonomously
 
 **Success criteria:**
 
 - Repository creates features from the mission
 - Code is generated with tests
 - Package is published to npm
-- intentïon.md shows the full evolution trail
+- intentïon.md shows the full transformation trail
 
 ## Step 2: Create Website Demo Repository (#29)
 
@@ -33,14 +33,14 @@ Features #28 (Library Demo) and #29 (Website Demo) — create real examples that
 3. Write a MISSION.md with a website-focused mission (e.g., "A personal portfolio site")
 4. Enable GitHub Copilot coding agent
 5. Enable GitHub Pages deployment
-6. Let it evolve autonomously
+6. Let it transform autonomously
 
 **Success criteria:**
 
 - Repository creates features from the mission
 - Code is generated with tests
 - Site is deployed to GitHub Pages
-- intentïon.md shows the full evolution trail
+- intentïon.md shows the full transformation trail
 
 ## Step 3: Fitness Testing
 
@@ -52,7 +52,7 @@ Define automated checks for demo repository health (feeds into PLAN_VERIFICATION
 
 ## Step 4: Showcase Integration
 
-Once both repos have evolved enough content:
+Once both repos have transformed enough content:
 
 - Add them to the showcase page on xn--intenton-z2a.com
 - Link to their intentïon.md activity logs

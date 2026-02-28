@@ -1,6 +1,6 @@
 # .github/agentic-lib/actions/agentic-step/action.yml
 #
-# agentic-step — A GitHub Action wrapping the GitHub Copilot SDK for autonomous code evolution.
+# agentic-step — A GitHub Action wrapping the GitHub Copilot SDK for autonomous code transformation.
 # Part of the intentïon project: https://github.com/xn-intenton-z2a/agentic-lib
 
 name: "agentic-step"
@@ -10,7 +10,7 @@ author: "xn-intenton-z2a"
 inputs:
   task:
     description: >
-      The task to perform. One of: resolve-issue, fix-code, evolve, maintain-features,
+      The task to perform. One of: resolve-issue, fix-code, transform, maintain-features,
       maintain-library, enhance-issue, review-issue, discussions
     required: true
   config:

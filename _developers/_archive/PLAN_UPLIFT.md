@@ -83,7 +83,7 @@ All 8 handlers share a **nearly identical pattern** (the core finding of this re
 |---------|-------|-------------|--------------|
 | resolve-issue | 132 | 1 | Safety checks (resolved, attempts, WIP) |
 | fix-code | 104 | 1 | Fetch failing check runs |
-| evolve | 257 | 1 (or 3 in TDD) | TDD two-phase, source file scan |
+| transform | 257 | 1 (or 3 in TDD) | TDD two-phase, source file scan |
 | maintain-features | 119 | 1 | Feature limit enforcement |
 | maintain-library | 95 | 1 | SOURCES.md reading |
 | enhance-issue | 137 | 1 | Issue body update + label |
@@ -94,7 +94,7 @@ All 8 handlers share a **nearly identical pattern** (the core finding of this re
 1. **~60% of each handler is boilerplate** (context reading, prompt assembly, SDK session lifecycle, error handling). Only ~40% is unique task logic.
 2. **Prompt assembly** uses the same pattern: `['## Section', content, '', '## File Paths', ...writablePaths.map(...), '## Constraints', ...].join('\n')`. This repeats 8 times with minor variations.
 3. **SDK lifecycle** (`new CopilotClient` → `createSession` → `sendAndWait` → `stop`) repeats in every handler. A shared `runCopilotTask(options)` function would eliminate ~25 lines per handler.
-4. **Context reading** (mission, features, contributing, source files) repeats across evolve, maintain-features, maintain-library, enhance-issue, review-issue. A shared `readProjectContext(config)` function would serve them all.
+4. **Context reading** (mission, features, contributing, source files) repeats across transform, maintain-features, maintain-library, enhance-issue, review-issue. A shared `readProjectContext(config)` function would serve them all.
 5. **File scanning** pattern (`readdirSync(path).filter(f => f.endsWith('.md')).map(f => { try { return readFileSync(...) } catch { return '' } })`) appears 6 times verbatim.
 
 ---
@@ -128,7 +128,7 @@ These env vars appear in 4 workflows but are **never used** by the workflow logi
 
 | File | Reference | Fix |
 |------|-----------|-----|
-| `agent-flow-evolve.yml:58-59` | `writable-paths: 'sandbox/source/;sandbox/tests/;...'` | Should read from config |
+| `agent-flow-transform.yml:58-59` | `writable-paths: 'sandbox/source/;sandbox/tests/;...'` | Should read from config |
 | `agent-flow-maintain.yml:60` | `writable-paths: 'sandbox/features/'` | Should read from config |
 | `agent-flow-maintain.yml:98` | `writable-paths: 'sandbox/library/;sandbox/SOURCES.md'` | Should read from config |
 
@@ -143,7 +143,7 @@ These env vars appear in 4 workflows but are **never used** by the workflow logi
 
 #### Repeated workflow patterns
 
-1. **npmrc setup** (7 lines) repeats in: ci-automerge, ci-formating, ci-test, ci-update, publish-packages, publish-web, agent-discussions-bot, agent-flow-evolve, agent-flow-fix-code, agent-flow-maintain, agent-flow-review. Could become a reusable composite action.
+1. **npmrc setup** (7 lines) repeats in: ci-automerge, ci-formating, ci-test, ci-update, publish-packages, publish-web, agent-discussions-bot, agent-flow-transform, agent-flow-fix-code, agent-flow-maintain, agent-flow-review. Could become a reusable composite action.
 2. **Config loading via yq** repeats in: ci-automerge, ci-formating, ci-update, agent-archive-intentïon, publish-web. Same 3-line pattern each time.
 3. **Conditional commit pattern** (`git diff --cached --quiet || git commit ...`) repeats in 6 agent workflows.
 4. **check-branch guard** (prevent concurrent update branches) repeats in ci-update, ci-formating.
@@ -286,7 +286,7 @@ These env vars appear in 4 workflows but are **never used** by the workflow logi
 
 ### Step 4: Fix remaining sandbox/ in workflows (low risk)
 
-**Files:** `agent-flow-evolve.yml`, `agent-flow-maintain.yml`
+**Files:** `agent-flow-transform.yml`, `agent-flow-maintain.yml`
 
 - [x] Replace hardcoded `writable-paths: 'sandbox/...'` with config-driven values (read from agentic-lib.yml via yq, same pattern as ci-update uses)
 - [x] Verify no remaining `sandbox/` refs: `git grep 'sandbox/' src/ | grep -v src/seeds` returns nothing
@@ -303,7 +303,7 @@ These env vars appear in 4 workflows but are **never used** by the workflow logi
   - `scanDirectory(dirPath, extensions, options)` — reusable file scanner
   - `formatPathsSection(writablePaths, readOnlyPaths)` — prompt section builder
 - [x] Refactor each task handler to use these utilities (-318 net lines)
-- [x] evolve.js retains direct SDK calls for TDD mode (multi-session on one client)
+- [x] transform.js retains direct SDK calls for TDD mode (multi-session on one client)
 - [x] Add 11 unit tests for the new utilities (copilot.test.js)
 
 **Verification:** `npm test` passes (46 existing + new utility tests), handlers produce identical prompt structures.

@@ -29,7 +29,7 @@
 
 ## What This Repository Is
 
-The **core SDK** of the intentïon project. A collection of reusable GitHub Actions workflows that enable repositories to operate autonomously — reviewing, fixing, updating, and evolving code through branches and issues.
+The **core SDK** of the intentïon project. A collection of reusable GitHub Actions workflows that enable repositories to operate autonomously — reviewing, fixing, updating, and transforming code through branches and issues.
 
 - **Package**: `@xn-intenton-z2a/agentic-lib`
 - **Organisation**: `xn-intenton-z2a`
@@ -150,7 +150,7 @@ Three AI agents work on the intentïon project. Follow these guidelines to be go
 | --------------------- | ------------------------ | ------------------------------------------------ |
 | `claude/*`            | Claude Code              | Feature work, refactoring, multi-file changes    |
 | `copilot/*`           | Copilot                  | Issue fixes, review-driven changes               |
-| `agentic-lib-issue-*` | Automated (agentic-step) | Issue resolution via evolve workflow             |
+| `agentic-lib-issue-*` | Automated (agentic-step) | Issue resolution via transform workflow             |
 | `refresh`             | Claude Code (primary)    | Stabilisation branch — all agents may contribute |
 | `main`                | Protected                | Merge only via reviewed PR                       |
 

@@ -33,11 +33,11 @@ The `action.yml` defaults to `claude-sonnet-4-5`. Is this model available via th
 
 ### 4. File system writes — CRITICAL
 
-Does the Copilot SDK agent (via `sendAndWait`) have the ability to write files to the runner's filesystem directly, or does it only return text content that the calling code must write? Our `evolve.js` assumes the agent modifies files in-place.
+Does the Copilot SDK agent (via `sendAndWait`) have the ability to write files to the runner's filesystem directly, or does it only return text content that the calling code must write? Our `transform.js` assumes the agent modifies files in-place.
 
 **Copilot's Answer:** The Copilot SDK agent **does NOT have direct filesystem write access** by default. `sendAndWait()` returns text content. You must **define custom tools** using `defineTool()` for file operations (read/write/edit) and pass them to `createSession()`.
 
-**Claude's Note:** This is the biggest issue. Our evolve.js assumes the agent writes files directly. We need to either:
+**Claude's Note:** This is the biggest issue. Our transform.js assumes the agent writes files directly. We need to either:
 
 1. Define `read_file`, `write_file`, `edit_file`, `run_command` tools via `defineTool()`
 2. Or use BYOK with a provider that has built-in tool use

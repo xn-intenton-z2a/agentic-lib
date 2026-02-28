@@ -1,6 +1,6 @@
 # intentïon `agentic-lib`
 
-**Autonomous code evolution powered by GitHub Copilot.** Write a mission statement, and the agentic workflows will generate issues, write code, run tests, and open pull requests -- continuously evolving your repository toward its goal.
+**Autonomous code transformation powered by GitHub Copilot.** Write a mission statement, and the agentic workflows will generate issues, write code, run tests, and open pull requests -- continuously transforming your repository toward its goal.
 
 ## How It Works
 
@@ -35,7 +35,7 @@ The core of the system is a single GitHub Action at `.github/actions/agentic-ste
 | ------------------- | --------------------------------------------- |
 | `resolve-issue`     | Read an issue and generate code to resolve it |
 | `fix-code`          | Fix failing tests or lint errors              |
-| `evolve`            | Evolve the codebase toward the mission        |
+| `transform`            | Transform the codebase toward the mission        |
 | `maintain-features` | Generate and maintain feature definitions     |
 | `maintain-library`  | Update library documentation and sources      |
 | `enhance-issue`     | Add detail and acceptance criteria to issues  |

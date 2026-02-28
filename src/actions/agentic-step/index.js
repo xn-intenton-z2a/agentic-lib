@@ -12,7 +12,7 @@ import { readFileSync } from "fs";
 // Task implementations
 import { resolveIssue } from "./tasks/resolve-issue.js";
 import { fixCode } from "./tasks/fix-code.js";
-import { evolve } from "./tasks/evolve.js";
+import { transform } from "./tasks/transform.js";
 import { maintainFeatures } from "./tasks/maintain-features.js";
 import { maintainLibrary } from "./tasks/maintain-library.js";
 import { enhanceIssue } from "./tasks/enhance-issue.js";
@@ -22,7 +22,7 @@ import { discussions } from "./tasks/discussions.js";
 const TASKS = {
   "resolve-issue": resolveIssue,
   "fix-code": fixCode,
-  "evolve": evolve,
+  "transform": transform,
   "maintain-features": maintainFeatures,
   "maintain-library": maintainLibrary,
   "enhance-issue": enhanceIssue,

@@ -123,7 +123,7 @@ if (providerType && providerBaseUrl) {
 }
 ```
 
-Configured via workflow inputs and GitHub Actions secrets. Allows different models per task (e.g. discussions uses ChatGPT, evolve uses Copilot).
+Configured via workflow inputs and GitHub Actions secrets. Allows different models per task (e.g. discussions uses ChatGPT, transform uses Copilot).
 
 ---
 

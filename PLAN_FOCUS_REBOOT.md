@@ -57,7 +57,7 @@ agentic-lib/
 │   ├── ci.yml                        #   5 jobs: test, lint, lint-workflows, security, smoke
 │   ├── release.yml                   #   Release automation
 │   ├── integration-test.yml          #   Manual Tier 3 integration test
-│   └── llm-verify.yml                #   LLM evolution verification
+│   └── llm-verify.yml                #   LLM transformation verification
 ├── vitest.config.js                  # Root test config (tests/**/*.test.js)
 ├── FEATURES.md, FEATURES_ROADMAP.md  # Product definition
 ├── PLAN_FOCUS_REBOOT.md              # Active plan
@@ -126,8 +126,8 @@ There should be **one canonical discussions thread** (the General thread) in rep
 
 repository0 is a repository template that can spawn new repositories in one of 3 styles:
 
-- **library** — a publishable npm package evolved from a MISSION.md
-- **website** — a deployable site evolved from a MISSION.md
+- **library** — a publishable npm package transformed from a MISSION.md
+- **website** — a deployable site transformed from a MISSION.md
 - **demo** (default) — the repository0 default state where only a single JS source file and test are mutated
 
 **Deliverables:**
@@ -168,9 +168,9 @@ agentic-lib exposes useful tools so that repository0 (or its templated descendan
 - [ ] Version-controlled: consumers pin to a version, not `@main`
 - [ ] Document the API in API.md
 
-### Goal 5: Testable code evolution inside agentic-lib
+### Goal 5: Testable code transformation inside agentic-lib
 
-All code evolution logic and transitions can be tested inside the agentic-lib repository using fast, traditional test mechanisms (vitest). This means abstracting logic out of GitHub Actions so it can be unit-tested without running workflows.
+All code transformation logic and transitions can be tested inside the agentic-lib repository using fast, traditional test mechanisms (vitest). This means abstracting logic out of GitHub Actions so it can be unit-tested without running workflows.
 
 **Deliverables:**
 
@@ -207,7 +207,7 @@ A test suite in repository0 that confirms the workflows are working and generate
 - [ ] Workflow smoke tests: dispatch key workflows and verify they complete
 - [ ] Demo output generation: each test run produces an artifact (log, diff, or screenshot)
 - [ ] Test results surfaced in CI (check annotations or summary)
-- [ ] At minimum: test evolve, test discussions bot, test CI pipeline
+- [ ] At minimum: test transform, test discussions bot, test CI pipeline
 
 ### Goal 8: Supporting libraries and tests for the discussions bot
 
@@ -228,7 +228,7 @@ Tests in repository0 that verify the discussions bot is wired up to the discussi
 
 - [ ] Integration test: post a comment → bot responds → verify response
 - [ ] Integration test: request a feature → bot creates feature file → verify file exists
-- [ ] Integration test: bot-created feature → evolve workflow picks it up → code changes
+- [ ] Integration test: bot-created feature → transform workflow picks it up → code changes
 - [ ] These tests can run as a workflow or via `gh` CLI scripting
 
 ### Goal 10: Playwright behaviour tests for the website
@@ -275,7 +275,7 @@ Behaviour tests in xn--intenton-z2a.com that test the full feature set of the de
 - [x] No `node20` references remain (verified: `grep -r 'node20' src/` returns nothing)
 - [x] `npm test` passes on Node 24 locally
 - [ ] CI passes on push to `reboot`
-- [ ] `agent-flow-evolve` workflow completes without SDK errors (re-test after merge)
+- [ ] `agent-flow-transform` workflow completes without SDK errors (re-test after merge)
 
 ### Repo Restructure (2026-02-28)
 
@@ -345,7 +345,7 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 | `index.test.js`             | 4     | TASKS map: 8 entries, correct names, async functions            |
 | `resolve-issue.test.js`     | 9     | Missing input, closed issue, attempt/WIP limits, happy path     |
 | `fix-code.test.js`          | 5     | Missing input, no failures, failure details, happy path         |
-| `evolve.test.js`            | 6     | No mission, features/source in prompt, TDD mode, client cleanup |
+| `transform.test.js`            | 6     | No mission, features/source in prompt, TDD mode, client cleanup |
 | `maintain-features.test.js` | 4     | Mission/features/library reads, closed issues, happy path       |
 | `maintain-library.test.js`  | 4     | Empty sources, whitespace, library docs, happy path             |
 | `enhance-issue.test.js`     | 5     | Missing input, resolved, ready label, update/label/comment      |
@@ -430,7 +430,7 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 **Verification gate:**
 
 - [ ] Every repository0 workflow is <50 lines (excluding comments/headers)
-- [ ] Smoke tests dispatch at least: evolve, CI test, discussions bot
+- [ ] Smoke tests dispatch at least: transform, CI test, discussions bot
 - [ ] All smoke tests pass
 - [ ] Demo artifacts are produced and uploaded
 
@@ -447,7 +447,7 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 - Create seed file sets for library, website, and demo styles
 - Style selection: config flag in `.github/agentic-lib/agents/agentic-lib.yml` or MISSION.md convention
 - Build integration tests that exercise the discussions bot end-to-end
-- Test: post comment → bot responds → feature created → evolve picks it up
+- Test: post comment → bot responds → feature created → transform picks it up
 
 **Verification gate:**
 
@@ -479,7 +479,7 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 - [ ] Website renders discussion comments (visible on page load)
 - [ ] Submission form posts a comment that the bot answers
 - [ ] All Playwright tests pass in CI
-- [ ] Full loop demonstrated: submit from website → bot responds → code evolves → website updates
+- [ ] Full loop demonstrated: submit from website → bot responds → code transforms → website updates
 
 ---
 
@@ -487,7 +487,7 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 
 After this hardening sprint, the recommended priority order is:
 
-1. **Runtime verification** — Merge `reboot` branch, run `agent-flow-evolve`, verify Copilot SDK works (Risk #13)
+1. **Runtime verification** — Merge `reboot` branch, run `agent-flow-transform`, verify Copilot SDK works (Risk #13)
 2. **Phase 2** — Define `exports` field, tag `v7.0.0`, update repository0 version pins
 3. **Phase 3** — repository0 alignment: thin adaptors, workflow smoke tests
 4. **Phase 4** — Template styles, discussions bot library extraction

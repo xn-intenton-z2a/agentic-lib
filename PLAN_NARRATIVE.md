@@ -1,6 +1,6 @@
 # PLAN: Narrative Alignment with CONCEPT.md
 
-Every human-readable artifact across all three repositories must speak the same language as CONCEPT.md. One borrowed taxonomy (manufacturing) for what's in the repo. GitHub is just GitHub. No "evolve" or "evolution" anywhere.
+Every human-readable artifact across all three repositories must speak the same language as CONCEPT.md. One borrowed taxonomy (manufacturing) for what's in the repo. GitHub is just GitHub. No "transform" or "transformation" anywhere.
 
 ---
 
@@ -8,13 +8,13 @@ Every human-readable artifact across all three repositories must speak the same 
 
 | Kill this                                        | Replace with                                            |
 | ------------------------------------------------ | ------------------------------------------------------- |
-| "Autonomous code evolution"                      | Navigating from intentïon to realization                |
-| "Evolve", "evolution", "evolving"                | Navigate, transform, grow, progress (context-dependent) |
+| "Autonomous code transformation"                      | Navigating from intentïon to realization                |
+| "Transform", "transformation", "transforming"                | Navigate, transform, grow, progress (context-dependent) |
 | "Pipeline", "cycle", "loop"                      | Navigation + transformation                             |
 | "Mission", "mission statement", MISSION.md       | Intentïon, INTENTION.md                                 |
 | "Workflows", "actions", "config" (as a category) | Machinery                                               |
 | "Agent", "bot", "task handler"                   | Perspective (way of seeing)                             |
-| "Task type" (evolve, fix, maintain...)           | Transformation (navigate, transform, witness, steward)  |
+| "Task type" (transform, fix, maintain...)           | Transformation (navigate, transform, witness, steward)  |
 | "Tests pass / PR merge" as success               | Witness (realization assessment)                        |
 | "Activity log"                                   | Record                                                  |
 | "Library docs", "SOURCES.md content"             | Materials                                               |
@@ -54,17 +54,17 @@ These are the product definition documents. They must be rewritten to use the ne
 
 ### FEATURES.md — Full Rewrite (HIGH)
 
-**Current title:** "intentïon — Autonomous Code Evolution"
+**Current title:** "intentïon — Autonomous Code Transformation"
 **New title:** "intentïon — Navigating From Intentïon to Realization"
 
-**Current opening:** References "autonomous evolution system", "mission statement", "pipeline"
+**Current opening:** References "autonomous transformation system", "mission statement", "pipeline"
 **New opening:** Uses intentïon vocabulary — product, machinery, record, materials, navigation, transformation, perspectives, witness, realization, stewardship.
 
 **Feature renames:**
 
 | #   | Current                          | New                                  |
 | --- | -------------------------------- | ------------------------------------ |
-| 1   | Autonomous Code Evolution        | Transformation Engine                |
+| 1   | Autonomous Code Transformation        | Transformation Engine                |
 | 2   | Issue Lifecycle Management       | Navigation via Issues                |
 | 3   | Feature Lifecycle Management     | Feature Materials Management         |
 | 4   | Code Generation & Fixing         | Builder & Fixer Perspectives         |
@@ -94,7 +94,7 @@ These are the product definition documents. They must be rewritten to use the ne
 | 28  | Library Demo Repository          | Demo: Utility Library                |
 | 29  | Website Demo Repository          | Demo: Website                        |
 
-**All feature descriptions:** Purge "evolve/evolution" language. Replace "mission" with "intentïon". Replace "agent" with "perspective" where appropriate. Replace "pipeline" with "machinery" or "navigation."
+**All feature descriptions:** Purge "transform/transformation" language. Replace "mission" with "intentïon". Replace "agent" with "perspective" where appropriate. Replace "pipeline" with "machinery" or "navigation."
 
 **Architecture section:** Use manufacturing vocabulary — product, machinery, record, materials.
 
@@ -104,13 +104,13 @@ These are the product definition documents. They must be rewritten to use the ne
 - "The Loop Closes" → "Navigation Completes Autonomously"
 - "Anyone Can Clone It" → "Anyone Can Express an Intentïon"
 
-**Go-to-Market:** All "mission-driven" → "intention-driven". All "self-evolving" → "self-navigating" or "autonomous."
+**Go-to-Market:** All "mission-driven" → "intention-driven". All "self-transforming" → "self-navigating" or "autonomous."
 
 **MVP Demo (#28):** Rewrite to use the devkit scenario from the demo design. The intention is a comprehensive developer utility CLI, not "a library" or "a website."
 
 ### FEATURES_ROADMAP.md — Full Rewrite (MEDIUM)
 
-**Current title references:** "Evolution Engine", "Workflow Hardening"
+**Current title references:** "Transformation Engine", "Workflow Hardening"
 
 **Feature renames:**
 
@@ -119,7 +119,7 @@ These are the product definition documents. They must be rewritten to use the ne
 | 30  | Workflow Hardening                  | Machinery Hardening                     |
 | 31  | UX Journey & Onboarding             | UX Journey & Onboarding                 |
 | 32  | Discussions Bot Intelligence        | Narrator Intelligence                   |
-| 33  | Evolution Engine                    | Navigation Engine                       |
+| 33  | Transformation Engine                    | Navigation Engine                       |
 | 34  | Collaboration & Feature Marketplace | Collaboration & Perspective Marketplace |
 | 35  | Cost Model & Recycling              | Cost Model & Recycling                  |
 | 36  | Supervisor Launch                   | Navigation Supervisor Launch            |
@@ -129,7 +129,7 @@ These are the product definition documents. They must be rewritten to use the ne
 | 40  | CDK Hardening                       | CDK Hardening                           |
 | 41  | Additional Workflow Capabilities    | Additional Machinery Capabilities       |
 
-**All descriptions:** Same vocabulary purge as FEATURES.md. "Self-evolving" → "self-navigating." "Evolution engine" → "Navigation engine." "Evolve with the project" → "grow with the project."
+**All descriptions:** Same vocabulary purge as FEATURES.md. "Self-transforming" → "self-navigating." "Transformation engine" → "Navigation engine." "Transform with the project" → "grow with the project."
 
 ---
 
@@ -137,7 +137,7 @@ These are the product definition documents. They must be rewritten to use the ne
 
 ### README.md — REWRITE (HIGH)
 
-**Current:** "Autonomous code evolution powered by GitHub Copilot"
+**Current:** "Autonomous code transformation powered by GitHub Copilot"
 
 **New:**
 
@@ -149,10 +149,10 @@ These are the product definition documents. They must be rewritten to use the ne
 
 ### API.md — Medium edit (MEDIUM)
 
-- "Autonomous code evolution" → "navigating from intentïon to realization"
+- "Autonomous code transformation" → "navigating from intentïon to realization"
 - "Task Types" → "Transformation Perspectives"
-- "evolve" task → "navigate" transformation
-- "evolved" outcome → "navigated" or "transformed"
+- "transform" task → "navigate" transformation
+- "transformed" outcome → "navigated" or "transformed"
 - Each perspective gets its name: builder, critic, witness, narrator, harvester, steward
 - "Agent configuration" → "Machinery configuration"
 - "Safety Mechanisms" → "Transformation Boundaries"
@@ -174,7 +174,7 @@ These are the product definition documents. They must be rewritten to use the ne
 | `agent-feature-issue.md`     | `perspective-navigator-issue.md`    |
 | `agent-maintenance-issue.md` | `perspective-steward-issue.md`      |
 
-Each file gets a perspective header and vocabulary update. Purge "evolve", "mission", "agent" (as job title).
+Each file gets a perspective header and vocabulary update. Purge "transform", "mission", "agent" (as job title).
 
 ### Seed files — Rename (MEDIUM)
 
@@ -185,42 +185,42 @@ Each file gets a perspective header and vocabulary update. Purge "evolve", "miss
 | `MISSION-ascii-face.md`  | `INTENTION-ascii-face.md`       |
 | `MISSION-*.md`           | `INTENTION-*.md` (all variants) |
 
-Content: Remove all "evolve" language. "Mission Statement" → "Intentïon."
+Content: Remove all "transform" language. "Mission Statement" → "Intentïon."
 
 ### CLAUDE.md — Medium edit (MEDIUM)
 
-- "evolving code through branches and issues" → "navigating code through branches and issues"
-- "evolve workflow" → "navigate workflow"
+- "transforming code through branches and issues" → "navigating code through branches and issues"
+- "transform workflow" → "navigate workflow"
 - Update branch prefix table if workflow names change
 
 ### .github/copilot-instructions.md — Light edit (LOW)
 
-- "evolve code" → "navigate code toward realization"
+- "transform code" → "navigate code toward realization"
 - "Core SDK" → "core machinery SDK"
 
 ### PLAN_FOCUS_REBOOT.md — Medium edit (MEDIUM)
 
-- All "evolve" references → "navigate" or "transform"
-- "code evolution" → "code navigation" or "transformation"
+- All "transform" references → "navigate" or "transform"
+- "code transformation" → "code navigation" or "transformation"
 - This is an active plan — must stay accurate to the current workflow names until they're renamed
 
 ### PLAN_DEMO_REPOS.md — Rewrite (MEDIUM)
 
-- "evolves autonomously" → "navigates autonomously" or "grows autonomously"
-- "evolution trail" → "transformation record"
-- "Let it evolve" → "Let it navigate" or "Let it run"
+- "transforms autonomously" → "navigates autonomously" or "grows autonomously"
+- "transformation trail" → "transformation record"
+- "Let it transform" → "Let it navigate" or "Let it run"
 
 ### PLAN_LAUNCH.md — Light edit (LOW)
 
-- "evolving" → "navigating" or "growing"
+- "transforming" → "navigating" or "growing"
 
 ### PLAN_VERIFICATION.md — Light edit (LOW)
 
-- "Evolve task" → "Navigate transformation"
+- "Transform task" → "Navigate transformation"
 
 ### CLAUDE_AND_COPILOT.md — Light edit (LOW)
 
-- "evolve.js" → reference by new name when renamed
+- "transform.js" → reference by new name when renamed
 
 ---
 
@@ -228,23 +228,23 @@ Content: Remove all "evolve" language. "Mission Statement" → "Intentïon."
 
 ### README.md — REWRITE (HIGH)
 
-- "Autonomous code evolution" → "Navigating from intentïon to realization"
+- "Autonomous code transformation" → "Navigating from intentïon to realization"
 - "Edit MISSION.md" → "Write your intentïon in INTENTION.md"
 - "Agentic workflows" → "Transformation machinery"
 - How It Works: CONCEPT lifecycle diagram
 
 ### GETTING-STARTED.md — REWRITE (HIGH)
 
-- "Three steps to autonomous code evolution" → "Three steps to realizing your intentïon"
+- "Three steps to autonomous code transformation" → "Three steps to realizing your intentïon"
 - "Write Your Mission" → "Express Your Intentïon"
 - "Edit MISSION.md" → "Edit INTENTION.md"
-- Remove all "evolve" language
+- Remove all "transform" language
 
 ### INTENTION.md (was MISSION.md) — Rename (HIGH)
 
 ### CONTRIBUTING.md — Medium edit (MEDIUM)
 
-- Remove all "evolve" language
+- Remove all "transform" language
 - "Mission of the contributors" → "Intentïon of the contributors"
 
 ### intentïon.md — Format update (MEDIUM)
@@ -255,18 +255,18 @@ Content: Remove all "evolve" language. "Mission Statement" → "Intentïon."
 
 ### CLAUDE.md — Medium edit (MEDIUM)
 
-- Purge "evolve" language
+- Purge "transform" language
 - Update workflow name references
 
 ### .github/copilot-instructions.md — Light edit (LOW)
 
-- "autonomous code evolution" → "autonomous transformation toward realization"
+- "autonomous code transformation" → "autonomous transformation toward realization"
 
 ### Workflow files — Rename (HIGH)
 
 | Current                     | New                      |
 | --------------------------- | ------------------------ |
-| `agent-flow-evolve.yml`     | `transform-navigate.yml` |
+| `agent-flow-transform.yml`     | `transform-navigate.yml` |
 | `agent-flow-maintain.yml`   | `transform-maintain.yml` |
 | `agent-flow-review.yml`     | `transform-witness.yml`  |
 | `agent-flow-fix-code.yml`   | `transform-repair.yml`   |
@@ -278,7 +278,7 @@ New schema with renamed keys (see CONCEPT.md vocabulary).
 
 ### Seed files — Rename + purge (MEDIUM)
 
-All `MISSION-*.md` → `INTENTION-*.md`. Purge "evolve" from all content.
+All `MISSION-*.md` → `INTENTION-*.md`. Purge "transform" from all content.
 
 ### Directory restructure
 
@@ -300,22 +300,22 @@ All `MISSION-*.md` → `INTENTION-*.md`. Purge "evolve" from all content.
 
 - Tagline "What is your intentïon?" — KEEP (perfect)
 - "Describe your project idea" → "What do you want to exist?"
-- Ensure no "evolve" language anywhere on page
+- Ensure no "transform" language anywhere on page
 
 ### public/showcase.html — Medium edit (MEDIUM)
 
 - "Live experiment status from the intentïon autonomous pipeline" → "Live record of transformations in progress"
 - "Last activity" → "Last transformation"
-- Ensure no "evolve" language
+- Ensure no "transform" language
 
 ### README.md — Light edit (MEDIUM)
 
-- "autonomous code evolution experiments" → "autonomous navigation toward realization"
-- "evolution engine" → "transformation machinery"
+- "autonomous code transformation experiments" → "autonomous navigation toward realization"
+- "transformation engine" → "transformation machinery"
 
 ### CLAUDE.md — Light edit (LOW)
 
-- "autonomous evolution engine" → "transformation machinery"
+- "autonomous transformation engine" → "transformation machinery"
 
 ---
 
@@ -343,7 +343,7 @@ Three parallel streams, all at once:
 - Website pages
 - All perspective prompt files
 - intentïon.md format (logging.js)
-- All PLAN\_\*.md files (purge "evolve")
+- All PLAN\_\*.md files (purge "transform")
 - Both CLAUDE.md files
 - Both copilot-instructions.md files
 

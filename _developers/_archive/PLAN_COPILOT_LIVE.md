@@ -19,7 +19,7 @@ For the full feature-by-feature breakdown with Option E mappings, see [FEATURES.
 
 ### What agentic-lib does (59 workflows, 11 agent configs)
 
-agentic-lib is an autonomous code evolution engine. It uses OpenAI API (o4-mini) to power a complete lifecycle:
+agentic-lib is an autonomous code transformation engine. It uses OpenAI API (o4-mini) to power a complete lifecycle:
 
 ```
 Mission → Sources → Library → Features → Issues → Code → PR → Merge → Close
@@ -52,7 +52,7 @@ Mission → Sources → Library → Features → Issues → Code → PR → Merg
 
 ### What repository0 does
 
-A template repository that consumes agentic-lib's reusable workflows. Its `src/lib/main.js` evolves autonomously. Currently has 3 open issues being worked by the agentic system (CLI parsing, file watch, HTTP server).
+A template repository that consumes agentic-lib's reusable workflows. Its `src/lib/main.js` transforms autonomously. Currently has 3 open issues being worked by the agentic system (CLI parsing, file watch, HTTP server).
 
 ### What xn--intenton-z2a.com does
 
@@ -197,7 +197,7 @@ Standalone AWS CDK infrastructure for the brand website. No agentic workflows. N
 - Remove ALL agentic workflows (keep only CI and publishing)
 - Manually (or via simple cron) create issues and assign to Copilot
 - Copilot creates PRs, humans review and merge
-- No autonomous evolution — becomes a human-in-the-loop tool
+- No autonomous transformation — becomes a human-in-the-loop tool
 
 **What stays the same:**
 - CI workflows (test, format, update)
@@ -211,7 +211,7 @@ Standalone AWS CDK infrastructure for the brand website. No agentic workflows. N
 - Create a few scheduled Actions to create issues from features
 
 **Risk:**
-- Loses the core value proposition of autonomous evolution
+- Loses the core value proposition of autonomous transformation
 - Becomes a standard Copilot setup — nothing differentiating
 - Human bottleneck on review and merge
 - No activity tracking, no telemetry, no discussions bot
@@ -332,7 +332,7 @@ Standalone AWS CDK infrastructure for the brand website. No agentic workflows. N
 
 | Step | What | Status |
 |------|------|--------|
-| 2.1 | Implement `evolve` task (mission → code) | Done — `tasks/evolve.js` |
+| 2.1 | Implement `transform` task (mission → code) | Done — `tasks/transform.js` |
 | 2.2 | Implement `maintain-features` task | Done — `tasks/maintain-features.js` |
 | 2.3 | Implement `maintain-library` task | Done — `tasks/maintain-library.js` |
 | 2.4 | Implement `enhance-issue` task | Done — `tasks/enhance-issue.js` |
@@ -347,7 +347,7 @@ Standalone AWS CDK infrastructure for the brand website. No agentic workflows. N
 |------|------|--------|
 | 3.1 | Workflow hardening (D4 items) | Done — safety logging, writable/read-only path separation, context in issue comments |
 | 3.2 | Discussions bot intelligence (D5) | Done — update/delete feature actions, mission protection |
-| 3.3 | TDD workflow (D8) | Done — `tdd: true` config, two-phase evolution |
+| 3.3 | TDD workflow (D8) | Done — `tdd: true` config, two-phase transformation |
 | 3.4 | Test suite for agentic-step action | Done — 32 tests across config-loader, safety, logging |
 
 ### Phase 4: Template & Launch — MOSTLY COMPLETE
@@ -412,4 +412,4 @@ See [FEATURES.md](FEATURES.md) for the detailed feature-by-feature Option E impl
 - [Build an agent with the GitHub Copilot SDK](https://github.blog/news-insights/company-news/build-an-agent-into-any-app-with-the-github-copilot-sdk/)
 - [GitHub Copilot SDK repository](https://github.com/github/copilot-sdk)
 - [Schedule GitHub Coding Agents](https://luke.geek.nz/azure/schedule-github-coding-agents/)
-- [Copilot SDK February 2026 update](https://dev.to/dharani0419/github-copilot-evolves-sdk-launch-agentic-memory-new-ai-models-february-2026-update-35g9)
+- [Copilot SDK February 2026 update](https://dev.to/dharani0419/github-copilot-transforms-sdk-launch-agentic-memory-new-ai-models-february-2026-update-35g9)

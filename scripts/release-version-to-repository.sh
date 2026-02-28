@@ -40,8 +40,8 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-archive-intentïon.yml"
 cp -v "${SRC}/workflows/agent-discussions-bot.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-discussions-bot.yml"
 
-cp -v "${SRC}/workflows/agent-flow-evolve.yml" "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-evolve.yml"
+cp -v "${SRC}/workflows/agent-flow-transform.yml" "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-transform.yml"
 
 cp -v "${SRC}/workflows/agent-flow-fix-code.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-fix-code.yml"
