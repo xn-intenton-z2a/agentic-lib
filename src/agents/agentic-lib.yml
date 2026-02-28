@@ -1,0 +1,68 @@
+# Which agentic-lib workflow schedule should be used?
+schedule: schedule-1
+
+# Mapping for from symbolic keys to filepaths for access by agentic-lib workflows with limits and access permissions
+paths:
+  # Filepaths for elaborator workflows
+  missionFilepath:
+    path: "MISSION.md"
+  librarySourcesFilepath:
+    path: "SOURCES.md"
+    permissions: []
+    limit: 0
+  libraryDocumentsPath:
+    path: "library/"
+    permissions: []
+    limit: 0
+  featuresPath:
+    path: ".github/agentic-lib/features/"
+    permissions: ["write"]
+    limit: 2
+
+  # Filepaths for engineer workflows
+  contributingFilepath:
+    path: "CONTRIBUTING.md"
+  targetTestsPath:
+    path: "tests/unit/"
+    permissions: ["write"]
+  targetSourcePath:
+    path: "src/lib/"
+    permissions: ["write"]
+  dependenciesFilepath:
+    path: "package.json"
+    permissions: ["write"]
+  documentationPath:
+    path: "docs/"
+    permissions: ["write"]
+
+  # Filepaths for maintainer workflows
+  formattingFilepath:
+    path: ".prettierrc"
+  lintingFilepath:
+    path: "eslint.config.js"
+  readmeFilepath:
+    path: "README.md"
+    permissions: ["write"]
+
+# Execution commands
+buildScript: "npm run build"
+testScript: "npm test"
+mainScript: "npm run start"
+
+# How many issues should be available to be picked up?
+featureDevelopmentIssuesWipLimit: 2
+maintenanceIssuesWipLimit: 1
+
+# How many attempts should be made to work on an issue?
+attemptsPerBranch: 3
+attemptsPerIssue: 2
+
+# Repository seeding
+seeding:
+  missionFilepath: "src/seeds/zero-MISSION.md"
+  sourcePath: "src/seeds/zero-main.js"
+  testsPath: "src/seeds/zero-main.test.js"
+  dependenciesFilepath: "src/seeds/zero-package.json"
+
+intentionBot:
+  intentionFilepath: "intentïon.md"

@@ -5,6 +5,7 @@
 ## About This File
 
 This file contains guidelines for **GitHub Copilot** code review agent. The repository also has guidelines for other AI coding assistants:
+
 - `CLAUDE.md` — Guidelines for Claude Code (emphasis on autonomous task execution & implementation)
 
 Each assistant has complementary strengths — GitHub Copilot is optimized for code review, analysis, and providing thoughtful feedback.
@@ -12,6 +13,7 @@ Each assistant has complementary strengths — GitHub Copilot is optimized for c
 ## Repository Documentation
 
 **Primary References**:
+
 - [`./README.md`](../README.md) — Project overview and architecture
 - [`./CONTRIBUTING.md`](../CONTRIBUTING.md) — Contribution guidelines and feature requirements
 - [`./MISSION.md`](../MISSION.md) — Project mission (if present)
@@ -19,7 +21,7 @@ Each assistant has complementary strengths — GitHub Copilot is optimized for c
 
 ## What This Repository Is
 
-The **core SDK** of the intentïon project — a collection of reusable GitHub Actions workflows that enable repositories to operate autonomously. Workflows communicate through branches and issues to continuously review, fix, update, and evolve code.
+The **core SDK** of the intentïon project — a collection of reusable GitHub Actions workflows that enable repositories to operate autonomously. Workflows communicate through branches and issues to continuously review, fix, update, and transform code.
 
 - **Package**: `@xn-intenton-z2a/agentic-lib`
 - **License**: GPL (with MIT-licensed examples in `sandbox/`)
@@ -53,6 +55,7 @@ When reviewing code changes, be as low friction as possible, maintaining current
 ### Code Style and Formatting
 
 **JavaScript** (ES Modules):
+
 - **Linter**: ESLint (flat config `eslint.config.js`)
 - **Formatter**: Prettier (`.prettierrc`)
 - **Scripts**: Only run if specifically asked: `npm run linting-fix && npm run formatting-fix`
@@ -102,12 +105,14 @@ Tests use **Vitest**. Test files are in `tests/unit/` and `sandbox/tests/`.
 ### Consistency with Patterns
 
 **Workflow Patterns**:
+
 - Reusable workflows use `workflow_call` trigger
 - Agent workflows follow `agent-{flow|transformation}-{description}.yml` naming
 - CI workflows follow `ci-{purpose}.yml` naming
 - Concurrency groups prevent parallel deployments
 
 **Error Handling**:
+
 - Workflows should handle failure states gracefully
 - Agent workflows should not silently fail
 

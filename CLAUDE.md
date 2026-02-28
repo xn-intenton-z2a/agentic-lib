@@ -3,34 +3,38 @@
 ## Context Survival (CRITICAL — read this first after every compaction)
 
 **After compaction or at session start:**
+
 1. Read all `PLAN_*.md` files in the project root — these are the active goals
 2. Run `TaskList` to see tracked tasks with status
 3. Do NOT start new work without checking these first
 
 **During work:**
+
 - When the user gives a new requirement, add it to the relevant `PLAN_*.md` or create a new one
 - Track all user goals as Tasks with status (pending → in_progress → completed)
 - Update `PLAN_*.md` with progress before context gets large
 
 **PLAN file pattern:**
+
 - Active plans live at project root: `PLAN_<DESCRIPTION>.md`
 - Each plan has user assertions verbatim at the top (non-negotiable requirements)
 - If no plan file exists for the current work, create one before starting
 - Never nest plans in subdirectories — always project root
 
 **Anti-patterns to avoid:**
+
 - Do NOT drift to side issues when a plan file defines the priority
 - Do NOT silently fail and move on — throw, don't skip
 - Do NOT ask obvious questions — read the plan file
 
 ## What This Repository Is
 
-The **core SDK** of the intentïon project. A collection of reusable GitHub Actions workflows that enable repositories to operate autonomously — reviewing, fixing, updating, and evolving code through branches and issues.
+The **core SDK** of the intentïon project. A collection of reusable GitHub Actions workflows that enable repositories to operate autonomously — reviewing, fixing, updating, and transforming code through branches and issues.
 
 - **Package**: `@xn-intenton-z2a/agentic-lib`
 - **Organisation**: `xn-intenton-z2a`
 - **License**: GPL (with MIT-licensed examples)
-- **Entry point**: `sandbox/source/main.js`
+- **Production code**: `src/` (workflows, actions, agents, scripts, seeds)
 
 ## What This Repository Is NOT
 
@@ -47,19 +51,24 @@ The **core SDK** of the intentïon project. A collection of reusable GitHub Acti
 
 ## Related Repositories
 
-| Repository | Relationship |
-|------------|-------------|
-| `repository0` | Template that consumes these workflows |
-| `repository0-crucible` | Experiment using these workflows |
-| `repository0-plot-code-lib` | Experiment using these workflows |
-| `repository0-xn--intenton-z2a.com` | Experiment using these workflows |
-| `intention-agentic-lib` | Earlier intentïon-specific version (being superseded) |
+| Repository                         | Relationship                                          |
+| ---------------------------------- | ----------------------------------------------------- |
+| `repository0`                      | Template that consumes these workflows                |
+| `repository0-crucible`             | Experiment using these workflows                      |
+| `repository0-plot-code-lib`        | Experiment using these workflows                      |
+| `repository0-xn--intenton-z2a.com` | Experiment using these workflows                      |
+| `intention-agentic-lib`            | Earlier intentïon-specific version (being superseded) |
 
 ## Test Commands
 
 ```bash
-npm test          # Unit tests
-npm run build     # Build
+npm test              # 307 unit tests (vitest)
+npm run linting       # ESLint
+npm run lint:workflows # Validate workflow YAML (16 files)
+npm run security      # npm audit (0 vulnerabilities)
+npm run test:smoke    # Connectivity smoke test (needs GITHUB_TOKEN)
+npm run test:record-golden  # Re-record golden prompt templates
+npm run distribute:check    # Dry-run distribution to repository0
 ```
 
 ## Git Workflow
@@ -102,6 +111,7 @@ The bot is currently powered by ChatGPT (old code on main). After merge, it will
 ### Copilot (agentic-lib)
 
 Use Discussions on agentic-lib (not PRs or issues):
+
 ```bash
 # Create a new discussion
 gh api graphql -f query='mutation { createDiscussion(input: { repositoryId: "R_kgDON4GxXA", categoryId: "DIC_kwDON4GxXM4Cm4cE", title: "...", body: "..." }) { discussion { number url } } }'
@@ -128,32 +138,32 @@ Three AI agents work on the intentïon project. Follow these guidelines to be go
 
 ### Who's Who
 
-| Agent | Identity | Primary Channel | Strengths |
-|-------|----------|-----------------|-----------|
-| **Claude Code** | claude-opus-4-6 | CLI, branches, PRs | Architecture, multi-file changes, planning |
-| **GitHub Copilot** | copilot-swe-agent | Issues → PRs | Code review, SDK knowledge, single-file fixes |
+| Agent               | Identity                         | Primary Channel         | Strengths                                             |
+| ------------------- | -------------------------------- | ----------------------- | ----------------------------------------------------- |
+| **Claude Code**     | claude-opus-4-6                  | CLI, branches, PRs      | Architecture, multi-file changes, planning            |
+| **GitHub Copilot**  | copilot-swe-agent                | Issues → PRs            | Code review, SDK knowledge, single-file fixes         |
 | **Discussions Bot** | github-actions (ChatGPT/Copilot) | repository0 Discussions | User interaction, feature requests, mission alignment |
 
 ### Branch Ownership
 
-| Prefix | Owner | Purpose |
-|--------|-------|---------|
-| `claude/*` | Claude Code | Feature work, refactoring, multi-file changes |
-| `copilot/*` | Copilot | Issue fixes, review-driven changes |
-| `agentic-lib-issue-*` | Automated (agentic-step) | Issue resolution via evolve workflow |
-| `refresh` | Claude Code (primary) | Stabilisation branch — all agents may contribute |
-| `main` | Protected | Merge only via reviewed PR |
+| Prefix                | Owner                    | Purpose                                          |
+| --------------------- | ------------------------ | ------------------------------------------------ |
+| `claude/*`            | Claude Code              | Feature work, refactoring, multi-file changes    |
+| `copilot/*`           | Copilot                  | Issue fixes, review-driven changes               |
+| `agentic-lib-issue-*` | Automated (agentic-step) | Issue resolution via transform workflow             |
+| `refresh`             | Claude Code (primary)    | Stabilisation branch — all agents may contribute |
+| `main`                | Protected                | Merge only via reviewed PR                       |
 
 ### File Ownership
 
-| Files | Primary Owner | Others May |
-|-------|--------------|------------|
-| `CLAUDE.md`, `CLAUDE_AND_COPILOT.md` | Claude Code | Read |
-| `.github/agentic-lib/actions/agentic-step/*` | Claude Code | Review, suggest fixes |
-| `.github/workflows/*` | Claude Code | Review, fix bugs |
-| `FEATURES.md`, `PLAN_*.md` | Claude Code | Comment via issues |
-| `src/lib/main.js` (repository0) | Automated (agentic-step) | Review |
-| Agent prompt files (`.github/agentic-lib/agents/`) | Shared | Any agent may update |
+| Files                                              | Primary Owner            | Others May            |
+| -------------------------------------------------- | ------------------------ | --------------------- |
+| `CLAUDE.md`, `CLAUDE_AND_COPILOT.md`               | Claude Code              | Read                  |
+| `.github/agentic-lib/actions/agentic-step/*`       | Claude Code              | Review, suggest fixes |
+| `.github/workflows/*`                              | Claude Code              | Review, fix bugs      |
+| `FEATURES.md`, `PLAN_*.md`                         | Claude Code              | Comment via issues    |
+| `src/lib/main.js` (repository0)                    | Automated (agentic-step) | Review                |
+| Agent prompt files (`.github/agentic-lib/agents/`) | Shared                   | Any agent may update  |
 
 ### Conflict Avoidance
 
@@ -166,6 +176,7 @@ Three AI agents work on the intentïon project. Follow these guidelines to be go
 ### Cross-Examination Protocol
 
 When one agent proposes a change or makes a claim:
+
 1. **Verify empirically** — don't just accept it. Check npm, read types, run code.
 2. **Note disagreements** — record in CLAUDE_AND_COPILOT.md when agents disagree, with reasoning
 3. **Prefer the agent with direct access** — Copilot knows the SDK best; Claude Code knows the architecture best; the bot knows user intent best

@@ -63,8 +63,6 @@ web_modules/
 /state_backup.json
 /output.svg
 /json
-/src/lib/output.*
-/tests/unit/output.*
 /output.*
 /cdk/cdk.out/
 /cdk.out/

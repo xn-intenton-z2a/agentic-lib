@@ -6,6 +6,12 @@
 # This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 #
+# Production source lives in ./src/. This script copies to the consumer repo:
+#   src/workflows/  → .github/workflows/
+#   src/scripts/    → scripts/
+#   src/agents/     → .github/agentic-lib/agents/
+#   src/actions/    → .github/agentic-lib/actions/
+# and stamps version references from @main to @<tag-version>.
 
 # Check for the required tag version argument
 if [ -z "$1" ]; then
@@ -20,6 +26,7 @@ fi
 
 TAG_VERSION="$1"
 DEST_DIR="$2"
+SRC="src"
 
 mkdir -p "${DEST_DIR}"
 
@@ -27,119 +34,94 @@ mkdir -p "${DEST_DIR}"
 
 rm -f "${DEST_DIR}/agent-"*".yml"
 
-cp -v .github/workflows/agent-archive-intentïon.yml "${DEST_DIR}/."
+cp -v "${SRC}/workflows/agent-archive-intentïon.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-archive-intentïon.yml"
 
-cp -v .github/workflows/agent-discussions-bot.yml "${DEST_DIR}/."
+cp -v "${SRC}/workflows/agent-discussions-bot.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-discussions-bot.yml"
 
-cp -v .github/workflows/agent-flow-feature-development.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-feature-development.yml"
+cp -v "${SRC}/workflows/agent-flow-transform.yml" "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-transform.yml"
 
-cp -v .github/workflows/agent-flow-feature-maintenance.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-feature-maintenance.yml"
-
-cp -v .github/workflows/agent-flow-fix-code.yml "${DEST_DIR}/."
+cp -v "${SRC}/workflows/agent-flow-fix-code.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-fix-code.yml"
 
-cp -v .github/workflows/agent-flow-linting.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-linting.yml"
+cp -v "${SRC}/workflows/agent-flow-maintain.yml" "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-maintain.yml"
 
-cp -v .github/workflows/agent-flow-maintenance-activity.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-maintenance-activity.yml"
-
-cp -v .github/workflows/agent-flow-update-readme.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-update-readme.yml"
-
-cp -v .github/workflows/agent-flow-seed-repository-and-feature-development.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-seed-repository.yml"
-
-cp -v .github/workflows/agent-transformation-feature-to-issue.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-feature-to-issue.yml"
-
-cp -v .github/workflows/agent-transformation-in-progress-issue-to-ready-issue.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-in-progress-issue-to-ready-issue.yml"
-
-cp -v .github/workflows/agent-transformation-issue-to-code.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-issue-to-code.yml"
-
-cp -v .github/workflows/agent-transformation-issue-to-ready-issue.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-issue-to-ready-issue.yml"
-
-cp -v .github/workflows/agent-transformation-library-to-feature.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-library-to-feature.yml"
-
-cp -v .github/workflows/agent-transformation-linting-to-issue.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-linting-to-issue.yml"
-
-cp -v .github/workflows/agent-transformation-maintenance-activity-to-issue.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-maintenance-activity-to-issue.yml"
-
-cp -v .github/workflows/agent-transformation-merged-issue-to-closed-issue.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-merged-issue-to-closed-issue.yml"
-
-cp -v .github/workflows/agent-transformation-mission-to-source.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-mission-to-source.yml"
-
-cp -v .github/workflows/agent-transformation-source-to-library.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-source-to-library.yml"
+cp -v "${SRC}/workflows/agent-flow-review.yml" "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-review.yml"
 
 # CI workflows
 
-cp -v .github/workflows/ci-automerge.yml "${DEST_DIR}/."
+cp -v "${SRC}/workflows/ci-automerge.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-automerge.yml"
 
-cp -v .github/workflows/ci-deploy.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-deploy.yml"
-
-cp -v .github/workflows/ci-formating.yml "${DEST_DIR}/."
+cp -v "${SRC}/workflows/ci-formating.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-formating.yml"
 
-cp -v .github/workflows/ci-test.yml "${DEST_DIR}/."
+cp -v "${SRC}/workflows/ci-test.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-test.yml"
 
-cp -v .github/workflows/ci-update.yml "${DEST_DIR}/."
+cp -v "${SRC}/workflows/ci-update.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-update.yml"
 
 # Publish workflows
 
-cp -v .github/workflows/publish-packages.yml "${DEST_DIR}/."
+cp -v "${SRC}/workflows/publish-packages.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish-packages.yml"
 
-cp -v .github/workflows/publish-web.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish-web.yml"
+# Operational workflows
 
-cp -v .github/workflows/publish-stats.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish-stats.yml"
+cp -v "${SRC}/workflows/agent-supervisor.yml" "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-supervisor.yml"
 
-# Utility workflows
-
-cp -v .github/workflows/utils-truncate-issue-history.yml "${DEST_DIR}/."
-
-cp -v .github/workflows/utils-truncate-workflow-history.yml "${DEST_DIR}/."
+# Scripts (distributed to consumer repos)
 
 mkdir -p "${DEST_DIR}/../../scripts"
 
-cp -v scripts/accept-release.sh "${DEST_DIR}/../../scripts/."
-cp -v scripts/activate-schedule.sh "${DEST_DIR}/../../scripts/."
-cp -v scripts/archive.sh "${DEST_DIR}/../../scripts/."
-cp -v scripts/aws-assume-agentic-lib-deployment-role.sh "${DEST_DIR}/../../scripts/."
-cp -v scripts/aws-unset-iam-session.sh "${DEST_DIR}/../../scripts/."
-cp -v scripts/clean.sh "${DEST_DIR}/../../scripts/."
-cp -v scripts/deactivate-schedule.sh "${DEST_DIR}/../../scripts/."
-cp -v scripts/export-source.sh "${DEST_DIR}/../../scripts/."
-cp -v scripts/generate-npmrc.sh "${DEST_DIR}/../../scripts/."
-cp -v scripts/generate-settings-xml.sh "${DEST_DIR}/../../scripts/."
-cp -v scripts/initialise.sh "${DEST_DIR}/../../scripts/."
-cp -v scripts/md-to-html.js "${DEST_DIR}/../../scripts/."
-cp -v scripts/truncate-git-history.sh "${DEST_DIR}/../../scripts/."
-cp -v scripts/update.sh "${DEST_DIR}/../../scripts/."
+cp -v "${SRC}/scripts/accept-release.sh" "${DEST_DIR}/../../scripts/."
+cp -v "${SRC}/scripts/activate-schedule.sh" "${DEST_DIR}/../../scripts/."
+cp -v "${SRC}/scripts/clean.sh" "${DEST_DIR}/../../scripts/."
+cp -v "${SRC}/scripts/initialise.sh" "${DEST_DIR}/../../scripts/."
+cp -v "${SRC}/scripts/md-to-html.js" "${DEST_DIR}/../../scripts/."
+cp -v "${SRC}/scripts/generate-library-index.js" "${DEST_DIR}/../../scripts/."
+cp -v "${SRC}/scripts/update.sh" "${DEST_DIR}/../../scripts/."
 
-mkdir -p "${DEST_DIR}/../../public"
+# Seed files
 
-cp -v public/all.html "${DEST_DIR}/../../public/."
-cp -v public/stats.html "${DEST_DIR}/../../public/."
+mkdir -p "${DEST_DIR}/../../.github/agentic-lib/seeds"
+cp -v ${SRC}/seeds/zero-*.js "${DEST_DIR}/../../.github/agentic-lib/seeds/."
+cp -v ${SRC}/seeds/zero-*.json "${DEST_DIR}/../../.github/agentic-lib/seeds/."
+cp -v ${SRC}/seeds/zero-*.md "${DEST_DIR}/../../.github/agentic-lib/seeds/."
+cp -v ${SRC}/seeds/test-*.yml "${DEST_DIR}/../../.github/agentic-lib/seeds/."
 
-# Copy the agent prompt files
-mkdir -p "${DEST_DIR}/../../.github/agentic-lib/agents/."
-cp -v .github/agentic-lib/agents/agent-*.md "${DEST_DIR}/../../.github/agentic-lib/agents/."
+# Agent prompt files
+
+mkdir -p "${DEST_DIR}/../../.github/agentic-lib/agents"
+cp -v ${SRC}/agents/agent-*.md "${DEST_DIR}/../../.github/agentic-lib/agents/."
+cp -v ${SRC}/agents/agentic-lib.yml "${DEST_DIR}/../../.github/agentic-lib/agents/."
+
+# Agentic-step action
+
+mkdir -p "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/tasks"
+cp -v ${SRC}/actions/agentic-step/action.yml "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/."
+cp -v ${SRC}/actions/agentic-step/index.js "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/."
+cp -v ${SRC}/actions/agentic-step/copilot.js "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/."
+cp -v ${SRC}/actions/agentic-step/config-loader.js "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/."
+cp -v ${SRC}/actions/agentic-step/logging.js "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/."
+cp -v ${SRC}/actions/agentic-step/safety.js "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/."
+cp -v ${SRC}/actions/agentic-step/tools.js "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/."
+cp -v ${SRC}/actions/agentic-step/package.json "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/."
+cp -v ${SRC}/actions/agentic-step/package-lock.json "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/."
+cp -v ${SRC}/actions/agentic-step/tasks/*.js "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/tasks/."
+
+# Commit-if-changed action
+
+mkdir -p "${DEST_DIR}/../../.github/agentic-lib/actions/commit-if-changed"
+cp -v ${SRC}/actions/commit-if-changed/action.yml "${DEST_DIR}/../../.github/agentic-lib/actions/commit-if-changed/."
+
+# Setup-npmrc action
+
+mkdir -p "${DEST_DIR}/../../.github/agentic-lib/actions/setup-npmrc"
+cp -v ${SRC}/actions/setup-npmrc/action.yml "${DEST_DIR}/../../.github/agentic-lib/actions/setup-npmrc/."

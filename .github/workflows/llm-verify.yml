@@ -1,0 +1,87 @@
+# .github/workflows/llm-verify.yml
+#
+# LLM evolution verification workflow — performs one step of evolution
+# and uses a second LLM call to verify the output is on track.
+
+name: llm-verify
+run-name: "llm-verify [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue-number:
+        description: "Issue number to use for evolution test"
+        required: false
+        default: ""
+      model:
+        description: "Copilot SDK model to use"
+        required: false
+        default: "claude-sonnet-4.5"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  npmAuthOrganisation: "@xn-intenton-z2a"
+
+jobs:
+  verify-prompt-golden:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+
+      - name: Set up ~/.npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci || npm install
+
+      - name: Verify golden prompts are current
+        run: |
+          npm run test:record-golden
+          if git diff --quiet tests/fixtures/golden-prompts/; then
+            echo "Golden prompts are up to date"
+          else
+            echo "WARNING: Golden prompts have drifted from source"
+            git diff tests/fixtures/golden-prompts/
+            exit 1
+          fi
+
+      - name: Run fixture tests
+        run: npx vitest --run tests/fixtures/fixtures.test.js
+
+  verify-unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+
+      - name: Set up ~/.npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci || npm install
+
+      - name: Run all unit tests
+        run: npm test

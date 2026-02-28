@@ -1,0 +1,84 @@
+# .github/workflows/integration-test.yml
+#
+# Manual integration test workflow — verifies end-to-end connectivity
+# with the Copilot SDK, GitHub Discussions, and repository0 alignment.
+
+name: integration-test
+run-name: "integration-test [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  npmAuthOrganisation: "@xn-intenton-z2a"
+
+jobs:
+  connectivity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+
+      - name: Set up ~/.npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci || npm install
+
+      - name: Run connectivity smoke test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run test:smoke
+
+  discussions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Verify discussions access
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Fetching Discussion #1775..."
+          gh api graphql -f query='
+            query {
+              repository(owner: "xn-intenton-z2a", name: "agentic-lib") {
+                discussion(number: 1775) {
+                  title
+                  comments(last: 1) {
+                    nodes { body author { login } }
+                  }
+                }
+              }
+            }
+          ' --jq '.data.repository.discussion.title'
+
+  repo0-alignment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify repository0 workflow refs resolve
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Checking repository0 default branch..."
+          gh api repos/xn-intenton-z2a/repository0 --jq '.default_branch'
+          echo "Checking for agentic-lib tags..."
+          gh api repos/xn-intenton-z2a/agentic-lib/tags --jq '.[0].name'
