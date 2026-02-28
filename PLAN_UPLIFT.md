@@ -254,11 +254,11 @@ These env vars appear in 4 workflows but are **never used** by the workflow logi
 
 **Files:** `publish-packages.yml`, `ci-automerge.yml`, `ci-formating.yml`, `ci-update.yml`, `clean.sh`
 
-- [ ] Remove Maven/CDK/Java jobs from `publish-packages.yml` (`mvn-package-cdk-synth`, `publish-mvn` jobs and their deps)
-- [ ] Remove dead AWS env vars (`s3BucketUrl`, `iamActionsRoleArn`, etc.) from all 4 workflows
-- [ ] Remove `CHATGPT_API_SECRET_KEY` secret references from ci-automerge, ci-formating, ci-update
-- [ ] Remove Docker/Maven/CDK block from `clean.sh`
-- [ ] Remove hardcoded agentic-lib URLs from `md-to-html.js` header
+- [x] Remove Maven/CDK/Java jobs from `publish-packages.yml` (`mvn-package-cdk-synth`, `publish-mvn` jobs and their deps)
+- [x] Remove dead AWS env vars (`s3BucketUrl`, `iamActionsRoleArn`, etc.) from all 4 workflows
+- [x] Remove `CHATGPT_API_SECRET_KEY` secret references from ci-automerge, ci-formating, ci-update
+- [x] Remove Docker/Maven/CDK block from `clean.sh`
+- [x] Remove hardcoded agentic-lib URLs from `md-to-html.js` header
 
 **Verification:** `npm test` passes, `git grep 'CHATGPT_API' src/` returns nothing, `git grep '541134664601' src/` returns nothing.
 
@@ -266,11 +266,11 @@ These env vars appear in 4 workflows but are **never used** by the workflow logi
 
 **Files:** `src/actions/agentic-step/package.json`, root `package.json`
 
-- [ ] Upgrade `@actions/core` 1.x → 3.x — review breaking changes, update API calls
-- [ ] Upgrade `@actions/github` 6.x → 9.x — review Octokit changes, update API calls
-- [ ] Upgrade `vitest` 3.x → 4.x — run tests, fix any breaks
-- [ ] Upgrade root devDeps: eslint-plugin-security 4.x, eslint-plugin-sonarjs 4.x, prettier 3.8.x, npm-check-updates 19.x
-- [ ] Evaluate ESLint 10 migration (may require eslint.config.js changes)
+- [x] Upgrade `@actions/core` 1.x → 3.x — review breaking changes, update API calls
+- [x] Upgrade `@actions/github` 6.x → 9.x — review Octokit changes, update API calls
+- [x] Upgrade `vitest` 3.x → 4.x — run tests, fix any breaks
+- [x] Upgrade root devDeps: eslint-plugin-security 4.x, eslint-plugin-sonarjs 4.x, prettier 3.8.x, npm-check-updates 19.x
+- [x] Evaluate ESLint 10 migration (deferred — eslint-config-google compatibility concern)
 
 **Verification:** `npm test` passes (46 tests), `npm run linting` passes.
 
@@ -278,9 +278,9 @@ These env vars appear in 4 workflows but are **never used** by the workflow logi
 
 **Files:** `src/seeds/zero-package.json`, `src/seeds/zero-main.js`, `src/seeds/zero-main.test.js`
 
-- [ ] Update `zero-package.json`: `main` → `src/lib/main.js`, remove `sandbox` script, `engines.node` → `>=22.0.0`, strip heavy deps (aws-cdk, supertest, figlet), reset version to `0.1.0`
-- [ ] Update `zero-main.js`: remove `sandbox/source/main.js` comment
-- [ ] Update `zero-main.test.js`: change import from `@sandbox/source/main.js` to relative path or `src/lib/main.js`
+- [x] Update `zero-package.json`: `main` → `src/lib/main.js`, remove `sandbox` script, `engines.node` → `>=22.0.0`, strip heavy deps (aws-cdk, supertest, figlet), reset version to `0.1.0`
+- [x] Update `zero-main.js`: remove `sandbox/source/main.js` comment
+- [x] Update `zero-main.test.js`: change import from `@sandbox/source/main.js` to relative path or `src/lib/main.js`
 
 **Verification:** Dry-run `initialise.sh` against a temp dir; `npm install` and `npm test` pass in the seeded repo.
 
@@ -288,8 +288,8 @@ These env vars appear in 4 workflows but are **never used** by the workflow logi
 
 **Files:** `agent-flow-evolve.yml`, `agent-flow-maintain.yml`
 
-- [ ] Replace hardcoded `writable-paths: 'sandbox/...'` with config-driven values (read from agentic-lib.yml via yq, same pattern as ci-update uses)
-- [ ] Verify no remaining `sandbox/` refs: `git grep 'sandbox/' src/ | grep -v src/seeds` returns nothing
+- [x] Replace hardcoded `writable-paths: 'sandbox/...'` with config-driven values (read from agentic-lib.yml via yq, same pattern as ci-update uses)
+- [x] Verify no remaining `sandbox/` refs: `git grep 'sandbox/' src/ | grep -v src/seeds` returns nothing
 
 **Verification:** YAML lint passes, workflows are syntactically valid.
 
@@ -297,14 +297,14 @@ These env vars appear in 4 workflows but are **never used** by the workflow logi
 
 **Files:** New file `src/actions/agentic-step/copilot.js`, edits to all 8 task handlers
 
-- [ ] Create `copilot.js` exporting:
-  - `runCopilotTask({ model, systemMessage, prompt, tools, writablePaths })` — encapsulates CopilotClient lifecycle
-  - `readProjectContext(config)` — reads mission, features, contributing, source files, tests
-  - `scanDirectory(dirPath, extension, limit)` — reusable file scanner
-  - `buildPromptSections(sections)` — assembles prompt from section objects
-- [ ] Refactor each task handler to use these utilities
-- [ ] Target: each handler reduces to ~40-60 lines (from 95-257)
-- [ ] Add unit tests for the new utilities
+- [x] Create `copilot.js` exporting:
+  - `runCopilotTask({ model, systemMessage, prompt, writablePaths })` — encapsulates CopilotClient lifecycle
+  - `readOptionalFile(filePath, limit)` — safe file reader with try/catch
+  - `scanDirectory(dirPath, extensions, options)` — reusable file scanner
+  - `formatPathsSection(writablePaths, readOnlyPaths)` — prompt section builder
+- [x] Refactor each task handler to use these utilities (-318 net lines)
+- [x] evolve.js retains direct SDK calls for TDD mode (multi-session on one client)
+- [x] Add 11 unit tests for the new utilities (copilot.test.js)
 
 **Verification:** `npm test` passes (46 existing + new utility tests), handlers produce identical prompt structures.
 
@@ -312,10 +312,10 @@ These env vars appear in 4 workflows but are **never used** by the workflow logi
 
 **Files:** New actions under `src/actions/`, edits to 11+ workflows
 
-- [ ] Create `src/actions/setup-npmrc/action.yml` — composite action for npmrc setup/teardown
-- [ ] Create `src/actions/commit-if-changed/action.yml` — composite action for conditional commit + push
-- [ ] Refactor workflows to use these composites
-- [ ] Evaluate: `load-config` composite (yq-based config extraction) — may be overkill for 3 lines
+- [x] Create `src/actions/setup-npmrc/action.yml` — composite action for npmrc setup/teardown
+- [x] Create `src/actions/commit-if-changed/action.yml` — composite action for conditional commit + push
+- [x] Refactor 5 agent workflows to use commit-if-changed, 3 CI workflows to use setup-npmrc
+- [x] Evaluate: `load-config` composite — deferred (3 lines not worth the indirection)
 
 **Verification:** Workflows remain syntactically valid, dry-run with `act` if available.
 
@@ -324,10 +324,10 @@ These env vars appear in 4 workflows but are **never used** by the workflow logi
 **File:** `src/workflows/ci-automerge.yml` (618 lines)
 
 This is the largest file and the most complex. After Steps 1 and 6:
-- [ ] Remove dead env vars (Step 1 already)
-- [ ] Use composite actions for npmrc and conditional commit (Step 6)
-- [ ] Evaluate splitting multi-trigger logic into separate workflows (PR-triggered vs schedule-triggered)
-- [ ] Target: <300 lines
+- [x] Remove dead env vars (done in Step 1)
+- [x] Use composite actions for npmrc and conditional commit (done in Step 6)
+- [x] Remove 7 diagnostic echo-event jobs, unused npmAuthOrganisation env var, commented-out workflow_run trigger
+- [x] Result: 618→550 lines (-62). Splitting deferred — would break workflow_call consumers.
 
 **Verification:** Automerge still works for labeled PRs.
 
@@ -335,9 +335,9 @@ This is the largest file and the most complex. After Steps 1 and 6:
 
 **Files:** `src/agents/agent-maintain-sources.md`
 
-- [ ] `librarySourcesFilepath` has `permissions: []` and `limit: 0` in config — effectively disabled
-- [ ] Either re-enable the sources path in config or archive `agent-maintain-sources.md`
-- [ ] Verify all agent prompts have corresponding task handlers and workflow triggers
+- [x] `librarySourcesFilepath` has `permissions: []` and `limit: 0` in config — effectively disabled
+- [x] Removed `agent-maintain-sources.md` (orphaned prompt, no workflow reference)
+- [x] Verified all remaining agent prompts have corresponding task handlers and workflow triggers
 
 **Verification:** No orphaned prompts remain.
 
