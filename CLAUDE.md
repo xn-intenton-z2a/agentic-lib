@@ -113,6 +113,55 @@ gh issue create --title "..." --body "..." --assignee copilot-swe-agent
 - Record all conversations in `CLAUDE_AND_COPILOT.md` so context survives across sessions
 - Use these conversations to validate assumptions, gather ecosystem knowledge, and coordinate work
 
+## Multi-Agent Citizenship
+
+Three AI agents work on the intentïon project. Follow these guidelines to be good citizens.
+
+### Who's Who
+
+| Agent | Identity | Primary Channel | Strengths |
+|-------|----------|-----------------|-----------|
+| **Claude Code** | claude-opus-4-6 | CLI, branches, PRs | Architecture, multi-file changes, planning |
+| **GitHub Copilot** | copilot-swe-agent | Issues → PRs | Code review, SDK knowledge, single-file fixes |
+| **Discussions Bot** | github-actions (ChatGPT/Copilot) | repository0 Discussions | User interaction, feature requests, mission alignment |
+
+### Branch Ownership
+
+| Prefix | Owner | Purpose |
+|--------|-------|---------|
+| `claude/*` | Claude Code | Feature work, refactoring, multi-file changes |
+| `copilot/*` | Copilot | Issue fixes, review-driven changes |
+| `agentic-lib-issue-*` | Automated (agentic-step) | Issue resolution via evolve workflow |
+| `refresh` | Claude Code (primary) | Stabilisation branch — all agents may contribute |
+| `main` | Protected | Merge only via reviewed PR |
+
+### File Ownership
+
+| Files | Primary Owner | Others May |
+|-------|--------------|------------|
+| `CLAUDE.md`, `CLAUDE_AND_COPILOT.md` | Claude Code | Read |
+| `.github/agentic-lib/actions/agentic-step/*` | Claude Code | Review, suggest fixes |
+| `.github/workflows/*` | Claude Code | Review, fix bugs |
+| `FEATURES.md`, `PLAN_*.md` | Claude Code | Comment via issues |
+| `src/lib/main.js` (repository0) | Automated (agentic-step) | Review |
+| Agent prompt files (`.github/agentic-lib/agents/`) | Shared | Any agent may update |
+
+### Conflict Avoidance
+
+1. **Check before pushing**: Before pushing to a shared branch, check recent commits from other agents
+2. **Don't overwrite**: If another agent has pushed to the same branch, pull before pushing
+3. **Scope PRs tightly**: Each PR should address one concern — don't mix unrelated changes
+4. **Copilot sub-PRs**: Copilot tends to create sub-PRs targeting main. Redirect to target `refresh` or the relevant feature branch instead
+5. **Label issues**: Use labels to indicate which agent should handle a task (`claude-code`, `copilot`, `automated`)
+
+### Cross-Examination Protocol
+
+When one agent proposes a change or makes a claim:
+1. **Verify empirically** — don't just accept it. Check npm, read types, run code.
+2. **Note disagreements** — record in CLAUDE_AND_COPILOT.md when agents disagree, with reasoning
+3. **Prefer the agent with direct access** — Copilot knows the SDK best; Claude Code knows the architecture best; the bot knows user intent best
+4. **Ask for evidence** — "What's your source?" is always a fair question between agents
+
 ## Security Checklist
 
 - Never commit secrets — use GitHub Actions secrets
