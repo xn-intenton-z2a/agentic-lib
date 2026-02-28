@@ -69,13 +69,7 @@ jobs:
           discussion-url: ${{ steps.discussion-url.outputs.url }}
 
       - name: Commit activity log changes
-        run: |
-          git config --local user.email 'action@github.com'
-          git config --local user.name 'GitHub Actions[bot]'
-          git add -A
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "agentic-step: discussions bot response"
-            git push origin ${{ github.ref_name }}
-          fi
+        uses: ./.github/agentic-lib/actions/commit-if-changed
+        with:
+          commit-message: 'agentic-step: discussions bot response'
+          push-ref: ${{ github.ref_name }}

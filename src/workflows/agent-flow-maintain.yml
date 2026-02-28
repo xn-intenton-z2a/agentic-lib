@@ -67,16 +67,10 @@ jobs:
           writable-paths: ${{ steps.features-config.outputs.writablePaths }}
 
       - name: Commit and push changes
-        run: |
-          git config --local user.email 'action@github.com'
-          git config --local user.name 'GitHub Actions[bot]'
-          git add -A
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "agentic-step: maintain-features"
-            git push origin ${{ github.ref_name }}
-          fi
+        uses: ./.github/agentic-lib/actions/commit-if-changed
+        with:
+          commit-message: 'agentic-step: maintain-features'
+          push-ref: ${{ github.ref_name }}
 
   maintain-library:
     if: inputs.step == 'all' || inputs.step == 'library' || github.event_name == 'schedule'
@@ -113,13 +107,7 @@ jobs:
           writable-paths: ${{ steps.library-config.outputs.writablePaths }}
 
       - name: Commit and push changes
-        run: |
-          git config --local user.email 'action@github.com'
-          git config --local user.name 'GitHub Actions[bot]'
-          git add -A
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "agentic-step: maintain-library"
-            git push origin ${{ github.ref_name }}
-          fi
+        uses: ./.github/agentic-lib/actions/commit-if-changed
+        with:
+          commit-message: 'agentic-step: maintain-library'
+          push-ref: ${{ github.ref_name }}
