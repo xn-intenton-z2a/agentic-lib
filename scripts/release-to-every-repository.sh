@@ -41,5 +41,5 @@ if [ -z "${schedule}" ]; then
   echo "No schedule found in .github/agentic-lib/agents/agentic-lib.yml, looking for line of the form 'schedule: schedule-<number>'"
 else
   echo "Workflow schedule: schedule-${schedule?}"
-  ./scripts/activate-schedule.sh "${schedule?}"
+  ./src/scripts/activate-schedule.sh "${schedule?}"
 fi
