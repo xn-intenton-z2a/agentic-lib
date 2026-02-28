@@ -1,6 +1,6 @@
 # PLAN: Implementing the Conceptual Model
 
-Transform the current 8-task cron-driven pipeline into the Navigate → Transform → Witness → Steward lifecycle described in CONCEPT.md. No backward compatibility constraints. Three repositories, full control. No "transform" language anywhere.
+Transform the current 8-task cron-driven system into the model described in CONCEPT.md. The plan is a committed file. Each workflow run reads state, refines the plan, executes, witnesses, and merges. No separate orchestrator. No "evolve" language anywhere.
 
 ---
 
@@ -8,110 +8,59 @@ Transform the current 8-task cron-driven pipeline into the Navigate → Transfor
 
 ### Core Action (`src/actions/agentic-step/`)
 
-| File               | Lines | What it does                                                             |
-| ------------------ | ----- | ------------------------------------------------------------------------ |
-| `index.js`         | 117   | Entry point. Hardcoded TASKS map of 8 handlers.                          |
-| `config-loader.js` | 103   | Reads `agentic-lib.yml`, fixed path categories.                          |
-| `copilot.js`       | 105   | Copilot SDK wrapper. Reusable as-is.                                     |
-| `tools.js`         | 133   | 4 tools: read_file, write_file, list_files, run_command. Reusable as-is. |
-| `safety.js`        | 106   | WIP limits, attempt limits, path checks. Reusable as-is.                 |
-| `logging.js`       | 87    | Appends to intentïon.md. Update format only.                             |
+| File | Lines | What it does |
+|---|---|---|
+| `index.js` | 117 | Entry point. Hardcoded TASKS map of 8 handlers. |
+| `config-loader.js` | 103 | Reads `agentic-lib.yml`, fixed path categories. |
+| `copilot.js` | 105 | Copilot SDK wrapper. Reusable as-is. |
+| `tools.js` | 133 | 4 tools: read_file, write_file, list_files, run_command. Reusable as-is. |
+| `safety.js` | 106 | WIP limits, attempt limits, path checks. Reusable as-is. |
+| `logging.js` | 87 | Appends to intentïon.md. Update format only. |
 
 ### 8 Task Handlers (`src/actions/agentic-step/tasks/`)
 
-| File                   | Lines   | Concept perspective                          |
-| ---------------------- | ------- | -------------------------------------------- |
-| `resolve-issue.js`     | 93      | Builder                                      |
-| `fix-code.js`          | 70      | Fixer (Builder variant)                      |
-| `transform.js`            | 209     | Navigator + Builder (conflated — must split) |
-| `maintain-features.js` | 71      | Harvester                                    |
-| `maintain-library.js`  | 65      | Harvester                                    |
-| `enhance-issue.js`     | 96      | Critic                                       |
-| `review-issue.js`      | 112     | Witness                                      |
-| `discussions.js`       | 137     | Narrator                                     |
-| **Total**              | **853** |                                              |
+| File | Lines | Concept perspective |
+|---|---|---|
+| `resolve-issue.js` | 93 | Builder |
+| `fix-code.js` | 70 | Fixer |
+| `evolve.js` | 209 | Navigator + Builder (conflated) |
+| `maintain-features.js` | 71 | Harvester |
+| `maintain-library.js` | 65 | Harvester |
+| `enhance-issue.js` | 96 | Critic |
+| `review-issue.js` | 112 | Witness |
+| `discussions.js` | 137 | Narrator |
+| **Total** | **853** | |
 
-### 5 Workflow Files (repository0)
+### Key Problem
 
-| Workflow                    | Trigger             | Perspective invoked           |
-| --------------------------- | ------------------- | ----------------------------- |
-| `agent-flow-transform.yml`     | Cron daily          | navigator+builder (conflated) |
-| `agent-flow-maintain.yml`   | Cron weekly         | harvester                     |
-| `agent-flow-review.yml`     | Cron 3-day          | witness                       |
-| `agent-flow-fix-code.yml`   | check_suite failure | fixer                         |
-| `agent-discussions-bot.yml` | discussion event    | narrator                      |
+The current system hardcodes 8 task types in JavaScript, runs them on fixed cron schedules, and has no concept of a plan, realization, or stewardship. The `evolve.js` task conflates planning with execution. There's no persistent planning artifact.
 
 ---
 
-## Target System (What We're Transforming To)
+## Target System
 
-### The Lifecycle
+### Core Insight
 
-```
-INTENTION.md (expressed once by human)
-        │
-        ▼
-   ┌─────────┐
-   │NAVIGATE │ Observe state, assess gap, plan transformations,
-   │         │ assemble perspectives. Output: a plan.
-   └────┬────┘
-        │
-        ▼
-   ┌─────────┐
-   │TRANSFORM│ For each planned step: load perspective,
-   │         │ gather context, build prompt, run Copilot SDK,
-   │         │ post-process. Parallel where independent.
-   └────┬────┘
-        │
-        ▼
-   ┌─────────┐
-   │ WITNESS │ Assess realization. Score 0-100%.
-   │         │ Record assessment. Decide: loop or steward.
-   └────┬────┘
-        │
-   ┌────┴────┐
-   │         │
-   No       Yes
-   │         │
-   ▼         ▼
-NAVIGATE  STEWARDSHIP
-(loop)    (relaxed, responsive, protective)
-```
+Each workflow run is a **transformation** — a budget of compute. Within that budget:
 
-### New File Structure
+1. Read current state (plan + product + record + materials)
+2. Refine the plan (commit the update to the planning artifact)
+3. Make multiple Copilot SDK calls, each producing commits on the branch
+4. After each call, state has changed — the next call sees the new commits
+5. Witness: assess realization, record the score
+6. Merge the branch back when goal is met or budget is spent
 
-```
-src/actions/agentic-step/
-  index.js              — Entry point. Routes to lifecycle phases.
-  config-loader.js      — Reads agentic-lib.yml (new schema).
-  copilot.js            — Copilot SDK wrapper. UNCHANGED.
-  tools.js              — 4 agent tools. UNCHANGED.
-  safety.js             — Boundaries. UNCHANGED.
-  logging.js            — Record keeping. Updated format.
-  context-sources.js    — NEW. Registry of named context gatherers.
-  perspective-loader.js — NEW. Loads perspective YAML + prompt overlay.
-  prompt-builder.js     — NEW. Assembles prompt from perspective + context.
-  post-processor.js     — NEW. Executes post-transformation actions.
-  phases/
-    navigate.js         — NEW. The navigation phase.
-    transform.js        — NEW. The transformation phase (generic).
-    witness.js          — NEW. The witness phase.
-  tasks/
-    (legacy — kept during migration, then deleted)
-```
+The **plan is a committed file** in the repository. It persists across workflow runs. Each transformation refines it. The plan accumulates knowledge using partial-order structure (see CONCEPT.md for the planning theory).
 
-### New Workflow Topology (repository0)
+### No separate orchestrator
 
-```
-transform-navigate.yml     — Cron/event → Navigate → dispatch transforms → Witness
-transform-operate.yml      — Dispatched by navigator. Runs one perspective.
-transform-repair.yml       — check_suite failure → Fixer perspective.
-transform-narrate.yml      — Discussion event → Narrator perspective.
-ci-automerge.yml           — UNCHANGED
-ci-test.yml                — UNCHANGED
-```
+There is no navigator workflow dispatching other workflows. Each workflow run reads the plan, decides what to do, does it, updates the plan. The "navigation" is implicit — it's what every transformation does at the start.
 
-From 5 agentic workflows → 4. The maintain and review workflows are absorbed into navigation.
+Concurrency is just GitHub running multiple workflow triggers. Each one independently reads state and acts.
+
+### Agents modify the control plane
+
+Agents can modify each other's perspective files, create new ones, restructure materials. The social protocol: no agent modifies its own perspective file in the same run. Capabilities are documented as repo files (like skills). Any agent reads them. Changes go through the normal commit/PR process.
 
 ---
 
@@ -124,56 +73,98 @@ From 5 agentic workflows → 4. The maintain and review workflows are absorbed i
 ### context-sources.js (~200 lines, extracted)
 
 ```javascript
-export async function getIntention(config) {
-  /* read INTENTION.md */
-}
-export async function getOpenIssues(octokit, repo, label, limit) {
-  /* list open issues */
-}
-export async function getClosedIssues(octokit, repo, label, since) {
-  /* recent closed */
-}
-export async function getSourceFiles(config) {
-  /* scan product source */
-}
-export async function getTestFiles(config) {
-  /* scan product tests */
-}
-export async function getFeatureMaterials(config) {
-  /* scan materials/features/ */
-}
-export async function getLibraryMaterials(config) {
-  /* scan materials/library/ */
-}
-export async function getIssueDetail(octokit, repo, issueNumber) {
-  /* issue + comments */
-}
-export async function getPRDetail(octokit, repo, prNumber) {
-  /* PR + check runs */
-}
-export async function getDiscussion(octokit, repo, discussionNumber) {
-  /* GraphQL */
-}
-export async function getContributing(config) {
-  /* read CONTRIBUTING.md */
-}
-export async function getActivityRecord(config, limit) {
-  /* recent intentïon.md */
-}
-export async function getMaterialSources(config) {
-  /* read SOURCES.md */
-}
+export async function getIntention(config) { /* read INTENTION.md */ }
+export async function getOpenIssues(octokit, repo, label, limit) { /* list open issues */ }
+export async function getClosedIssues(octokit, repo, label, since) { /* recent closed */ }
+export async function getSourceFiles(config) { /* scan product source */ }
+export async function getTestFiles(config) { /* scan product tests */ }
+export async function getFeatureMaterials(config) { /* scan materials/features/ */ }
+export async function getLibraryMaterials(config) { /* scan materials/library/ */ }
+export async function getIssueDetail(octokit, repo, issueNumber) { /* issue + comments */ }
+export async function getPRDetail(octokit, repo, prNumber) { /* PR + check runs */ }
+export async function getDiscussion(octokit, repo, discussionNumber) { /* GraphQL */ }
+export async function getContributing(config) { /* read CONTRIBUTING.md */ }
+export async function getActivityRecord(config, limit) { /* recent intentïon.md */ }
+export async function getMaterialSources(config) { /* read SOURCES.md */ }
+export async function getPlan(config) { /* read PLAN.md — the committed plan */ }
 ```
 
-**Migration:** Update each task handler to import from context-sources.js instead of inline gathering. Run golden prompt tests after each. No behavior change.
+**Migration:** Update each task handler to import from context-sources.js. Run golden prompt tests after each. No behavior change.
 
-**Scope:** Medium. ~200 lines extracted, 8 files updated, 0 behavior change.
+**Scope:** Medium. ~200 lines extracted, 8 files updated.
 
 ---
 
-## Phase 2: Perspective Definitions
+## Phase 2: The Planning Artifact
 
-**What:** Define perspectives as data (YAML) instead of code (JS). Create a generic perspective runner.
+**What:** Introduce the committed plan file. Each transformation reads it, refines it, and commits the update.
+
+### PLAN.md (the committed planning artifact)
+
+This file lives in the repo root (alongside INTENTION.md and intentïon.md). It's writable by all perspectives. It uses partial-order structure:
+
+```markdown
+## Plan
+
+### Achieved
+- [x] (items completed, with issue/commit links and causal reason)
+
+### In Progress
+- [ ] (items currently being worked, with assigned perspective)
+
+### Open Conditions
+- [ ] (things needed but not yet planned — gaps the system acknowledges)
+
+### Threats
+- (potential conflicts between in-progress or planned items)
+
+### Unordered
+- (items that can happen in any sequence — independent work)
+
+### Observations
+- (what was learned — failed attempts, surprising results, context for future cycles)
+
+### Witness
+- Cycle N: score X%, reason: "..."
+```
+
+### How it integrates with the current system
+
+Every task handler gets a new step at the start: read the plan. And a new step at the end: update the plan (what was achieved, what's newly open, what was observed) and assess realization.
+
+This is ~30 lines added to each handler:
+
+```javascript
+// At start of any task
+const plan = await getPlan(config);
+const intention = await getIntention(config);
+
+// At end of any task
+await updatePlan(config, {
+  achieved: [{ description: 'Resolved issue #42', causal: 'core feature', issue: 42 }],
+  observations: ['Tests pass but error messages are generic'],
+});
+await witness(config, intention, plan);
+```
+
+### plan-utils.js (~120 lines, new)
+
+```javascript
+export async function getPlan(config) { /* parse PLAN.md */ }
+export async function updatePlan(config, updates) { /* merge updates, commit */ }
+export async function witness(config, intention, plan) {
+  // Assess realization: objective gates (tests pass?) + subjective (LLM score)
+  // Append witness entry to plan and to intentïon.md
+}
+```
+
+**Scope:** Small-medium. ~120 lines new module, ~30 lines per handler (240 total), PLAN.md template.
+
+---
+
+## Phase 3: Perspective Definitions as Data
+
+**What:** Define perspectives as YAML + markdown capability files instead of hardcoded JS. Create a generic perspective runner.
 
 ### Perspective definition format
 
@@ -181,11 +172,18 @@ export async function getMaterialSources(config) {
 # perspectives/builder.yml
 name: builder
 description: "Sees an issue to resolve. Writes code. Runs tests."
+capabilities:
+  reads: [intention, plan, issues, source, tests, contributing, materials]
+  writes: [source, tests, readme, plan]
+  actions: [commit, create_pr, update_plan, witness]
+  tools: [read_file, write_file, list_files, run_command]
 system_message: |
   You are a builder. Your job is to transform the repository by writing
   code that resolves the given issue. Only modify files under writable paths.
+  Read the plan (PLAN.md) first to understand context and avoid threats.
 context_sources:
   - intention
+  - plan
   - issue_detail
   - source_files
   - test_files
@@ -195,7 +193,10 @@ writable_paths:
   - product.sourcePath
   - product.testsPath
   - record.readmeFilepath
+  - plan
 post_actions:
+  - update_plan
+  - witness
   - commit_changes
   - create_pr
   - label_automerge
@@ -203,32 +204,41 @@ post_actions:
 
 ### New modules
 
-- **perspective-loader.js** (~100 lines) — Reads YAML perspective file. Merges with perspective overlay markdown from repo's `perspectives/` directory.
-- **prompt-builder.js** (~80 lines) — Takes perspective + context + config. Produces system message and user prompt.
-- **post-processor.js** (~150 lines, extracted) — Post-transformation actions: commit, create PR, update issue, create issue, update materials, record activity.
+- **perspective-loader.js** (~100 lines) — Reads YAML perspective file. Merges with perspective overlay markdown.
+- **prompt-builder.js** (~80 lines) — Takes perspective + context + config. Produces prompt.
+- **post-processor.js** (~150 lines, extracted) — Post-transformation actions.
 
 ### Perspective definitions (one per current task)
 
-| Perspective              | Replaces                      | Context sources                                                                      | Post-actions                     |
-| ------------------------ | ----------------------------- | ------------------------------------------------------------------------------------ | -------------------------------- |
-| `builder.yml`            | resolve-issue.js              | intention, issue_detail, source_files, test_files, contributing                      | commit, create_pr                |
-| `fixer.yml`              | fix-code.js                   | pr_detail, source_files, test_files                                                  | commit (to PR branch)            |
-| `navigator.yml`          | transform.js (the planning half) | intention, open_issues, source_files, test_files, feature_materials, activity_record | create_issue, update_materials   |
-| `harvester-features.yml` | maintain-features.js          | intention, feature_materials, library_materials, source_files                        | update_materials                 |
-| `harvester-library.yml`  | maintain-library.js           | material_sources, library_materials                                                  | update_materials                 |
-| `critic.yml`             | enhance-issue.js              | intention, issue_detail, feature_materials, contributing                             | update_issue                     |
-| `witness.yml`            | review-issue.js               | intention, issue_detail, source_files, test_files                                    | update_issue (close if resolved) |
-| `narrator.yml`           | discussions.js                | intention, discussion, feature_materials, activity_record                            | update_materials, create_issue   |
+| Perspective | Replaces | Key difference from current |
+|---|---|---|
+| `builder.yml` | resolve-issue.js | Reads plan first, updates plan after |
+| `fixer.yml` | fix-code.js | Records observation if fix fails |
+| `navigator.yml` | evolve.js | ONLY plans — refines plan, creates issues. Does not write product code. |
+| `harvester-features.yml` | maintain-features.js | Updates plan with new open conditions |
+| `harvester-library.yml` | maintain-library.js | Records material freshness in plan |
+| `critic.yml` | enhance-issue.js | Reads plan, identifies threats |
+| `witness.yml` | review-issue.js | Updates plan achieved/observations |
+| `narrator.yml` | discussions.js | Reads plan to inform responses |
 
 ### Generic transform runner
 
 ```javascript
-// phases/transform.js
 export async function runTransformation(perspectiveName, target, config, octokit) {
   const perspective = await loadPerspective(perspectiveName, config);
   const context = await gatherContext(perspective.context_sources, config, octokit, target);
   const { systemMessage, prompt } = buildPrompt(perspective, context, config);
-  const result = await runCopilotTask({ systemMessage, prompt, writablePaths: perspective.writable_paths });
+
+  // Inner loop: multiple Copilot calls within one transformation
+  let budget = perspective.max_calls || 3;
+  while (budget > 0) {
+    const result = await runCopilotTask({ systemMessage, prompt, writablePaths });
+    budget--;
+    if (result.complete || budget === 0) break;
+    // Re-read context for next call — state has changed
+    context = await gatherContext(perspective.context_sources, config, octokit, target);
+  }
+
   await runPostActions(perspective.post_actions, result, config, octokit);
   return result;
 }
@@ -239,398 +249,165 @@ export async function runTransformation(perspectiveName, target, config, octokit
 1. Create all 8 perspective YAML files
 2. Create perspective-loader, prompt-builder, post-processor
 3. Create generic transform runner
-4. Verify with golden prompt tests: `runTransformation('builder', issue42)` produces identical prompt to `resolveIssue(issue42)`
-5. Once all 8 match, update index.js to route through the generic runner
-6. Delete the 8 task handler files
+4. Verify with golden prompt tests
+5. Update index.js to route through generic runner
+6. Delete the 8 legacy task handler files
 
-**Scope:** Large. ~530 lines new code + 8 YAML files. Most is extraction from existing 853 lines.
+**Scope:** Large. ~530 lines new + 8 YAML files. Most is extraction from existing 853 lines.
 
 ---
 
-## Phase 3: Navigation Engine
+## Phase 4: Inner Loop (Multiple Copilot Calls Per Run)
 
-**What:** The navigator observes state, assesses the gap to realization, and produces a plan of transformations to execute. This replaces the current `transform.js` which conflates planning with doing.
+**What:** Allow a single workflow run to make multiple Copilot SDK calls, each building on the last.
 
-### phases/navigate.js (~150 lines)
+Within one workflow run, on one branch:
+
+```
+Call 1: Read plan, refine it, decide what to build
+Call 2: Write code for feature A
+Call 3: Run tests, fix failures
+Call 4: Write code for feature B (if budget remains)
+Call 5: Witness — assess realization
+```
+
+After each call, the branch has new commits. The next call sees the updated files.
+
+The workflow run orchestrates the inner loop by reading the plan:
 
 ```javascript
-export async function navigate(config, octokit) {
-  // 1. Gather full state
-  const intention = await getIntention(config);
-  const openIssues = await getOpenIssues(octokit, repo, null, 20);
-  const sourceFiles = await getSourceFiles(config);
-  const testFiles = await getTestFiles(config);
-  const featureMaterials = await getFeatureMaterials(config);
-  const recentRecord = await getActivityRecord(config, 10);
-  const recentWitness = await getRecentWitnessScores(config);
+const plan = await getPlan(config);
+const actionableItems = getActionableFromPlan(plan);
 
-  // 2. Determine mode
-  const mode = recentWitness.every(s => s > 80) ? 'stewardship' : 'navigation';
-
-  // 3. Ask Copilot SDK to plan
-  const plan = await runCopilotTask({
-    systemMessage: mode === 'stewardship' ? STEWARD_SYSTEM : NAVIGATE_SYSTEM,
-    prompt: buildNavigationPrompt(intention, openIssues, sourceFiles, ...),
-    writablePaths: [] // Navigator doesn't write — it plans
-  });
-
-  // 4. Parse structured plan
-  return parseNavigationPlan(plan);
+for (const item of actionableItems) {
+  if (budgetExhausted()) break;
+  const perspective = selectPerspective(item);
+  await runTransformation(perspective, item.target, config, octokit);
+  // Re-read plan — it's been updated by the transformation
+  plan = await getPlan(config);
+  if (plan.witnessScore > 80) break; // stewardship threshold
 }
 ```
 
-The navigation plan output:
+### What this enables
 
-```json
-{
-  "gap": "No test coverage for edge cases. Two features unimplemented.",
-  "realizationEstimate": 45,
-  "transformations": [
-    { "perspective": "builder", "target": "issue #42", "reason": "Core feature missing" },
-    { "perspective": "builder", "target": "issue #43", "reason": "Independent, can parallel" },
-    { "perspective": "harvester-features", "target": null, "reason": "Feature materials stale" }
-  ],
-  "parallel": [[0, 1], [2]]
-}
-```
+- A single workflow run can create a feature spec, create an issue, write code, fix tests, and update docs
+- Fewer workflow runs needed (less cron overhead, less startup cost)
+- The plan guides the inner loop: "what's next?" is answered by reading the plan
 
-### transform-navigate.yml (the orchestrator workflow)
+### What constrains the inner loop
 
-```yaml
-name: Navigate
-on:
-  schedule:
-    - cron: "23 7 * * *"
-  workflow_dispatch:
+- **Budget**: maximum N Copilot calls per run (configurable, default 5)
+- **Time**: GitHub Actions 6-hour timeout per job
+- **Tokens**: cost tracking per cycle
+- **Reliability**: if a call fails, land what you have
 
-jobs:
-  navigate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: xn-intenton-z2a/agentic-lib/actions/agentic-step@main
-        with:
-          phase: navigate
-
-  transform:
-    needs: navigate
-    strategy:
-      matrix:
-        transformation: ${{ fromJSON(needs.navigate.outputs.plan).transformations }}
-      max-parallel: 2
-    runs-on: ubuntu-latest
-    steps:
-      - uses: xn-intenton-z2a/agentic-lib/actions/agentic-step@main
-        with:
-          phase: transform
-          perspective: ${{ matrix.transformation.perspective }}
-          target: ${{ matrix.transformation.target }}
-
-  witness:
-    needs: transform
-    runs-on: ubuntu-latest
-    steps:
-      - uses: xn-intenton-z2a/agentic-lib/actions/agentic-step@main
-        with:
-          phase: witness
-```
-
-One workflow does the entire lifecycle loop. Matrix strategy gives parallelism for free.
-
-**Scope:** Medium. ~150 lines navigate.js + workflow file + response parsing.
+**Scope:** Medium. ~50 lines loop logic, workflow budget parameter.
 
 ---
 
-## Phase 4: Witness & Realization
+## Phase 5: Capability Files and Cross-Perspective Modification
 
-**What:** After transformations, assess whether the intentïon is realized.
+**What:** Perspectives are documented as capability files. Agents can modify each other's capabilities.
 
-### phases/witness.js (~100 lines)
+The social protocol in safety.js:
 
 ```javascript
-export async function witness(config, octokit) {
-  const intention = await getIntention(config);
-  const sourceFiles = await getSourceFiles(config);
-  const testFiles = await getTestFiles(config);
-  const testResults = await runTests(config);
-  const openIssues = await getOpenIssues(octokit, repo);
-
-  const assessment = await runCopilotTask({
-    systemMessage: WITNESS_SYSTEM,
-    prompt: buildWitnessPrompt(intention, sourceFiles, testFiles, testResults, openIssues),
-    writablePaths: [], // Witness observes, doesn't act
-  });
-
-  const score = parseRealizationScore(assessment);
-
-  await appendToRecord(config, {
-    phase: "witness",
-    realizationScore: score.value,
-    assessment: score.reason,
-    testsPass: testResults.success,
-    openIssueCount: openIssues.length,
-  });
-
-  return score;
+export function canModifyPerspective(currentPerspective, targetFile) {
+  const targetName = path.basename(targetFile, '.yml');
+  return targetName !== currentPerspective; // can't modify self
 }
 ```
 
-### Realization model
+This enables:
+- The critic can add constraints to the builder's perspective
+- The navigator can create a new perspective (e.g., `deployer.yml`)
+- The narrator can update how the witness reports realization
+- The harvester can refine what materials the builder reads
 
-Two axes:
+INTENTION.md remains read-only (hardcoded). The plan and record are writable by all.
 
-1. **Objective gates** (must all pass): Tests pass, no build errors, no open `bug` issues
-2. **Subjective assessment** (LLM-scored 0-100): Does the product match the stated intentïon?
-
-Final score: `0` if any objective gate fails, otherwise the subjective score.
-
-### Stewardship mode
-
-When witness reports `score > 80` for 3 consecutive assessments:
-
-- Navigator receives stewardship system prompt: "The intentïon is substantially realized. Monitor for drift, respond to discussions, maintain quality. Only propose transformations that protect or refine the realization."
-- Navigation frequency decreases (navigator returns empty or minimal plans)
-- System still responds to events (discussion comments, failing tests)
-
-Mode is determined by reading recent witness scores from intentïon.md. The record IS the state.
-
-**Scope:** Small. ~100 lines witness.js + prompt modifications in navigate.js.
+**Scope:** Small. Safety check (~20 lines), make perspectives/ writable in config.
 
 ---
 
-## Phase 5: Materials & Machinery Fluidity
+## Phase 6: Workflow Simplification
 
-**What:** The system can create new kinds of materials and new perspectives. The factory extends itself.
+### New workflows
 
-### Materials registry
-
-The `agentic-lib.yml` `materials:` section (see PLAN_NARRATIVE.md) is read by config-loader. The navigator can recommend new material types:
-
-```json
-{
-  "transformations": [
-    {
-      "action": "create_material_type",
-      "definition": {
-        "name": "design-decisions",
-        "path": ".github/agentic-lib/materials/design-decisions/",
-        "permissions": ["write"],
-        "limit": 10
-      }
-    }
-  ]
-}
+```
+transform-build.yml       — Cron daily. Reads plan, executes inner loop.
+transform-repair.yml      — Event: check_suite failure. Fixer perspective.
+transform-narrate.yml     — Event: discussion activity. Narrator perspective.
+ci-automerge.yml          — UNCHANGED
+ci-test.yml               — UNCHANGED
 ```
 
-### Machinery creating machinery
-
-The navigator can create new perspectives:
-
-```json
-{
-  "transformations": [
-    {
-      "action": "create_perspective",
-      "definition": {
-        "name": "deployer",
-        "system_message": "You deploy the product...",
-        "context_sources": ["intention", "source_files"],
-        "writable_paths": ["machinery.workflowsPath"],
-        "post_actions": ["commit_changes", "create_pr"]
-      }
-    }
-  ]
-}
-```
-
-### Safety boundaries
-
-| Action                                           | Allowed?        | Mechanism                                   |
-| ------------------------------------------------ | --------------- | ------------------------------------------- |
-| Create new perspective YAML                      | Yes             | Written to perspectives/ directory          |
-| Create new material type                         | Yes             | Validated against schema, written to config |
-| Create new workflow YAML                         | Yes, through PR | Human review required                       |
-| Modify index.js, copilot.js, tools.js, safety.js | NEVER           | Hardcoded in safety.js forbidden list       |
-| Modify INTENTION.md                              | NEVER           | Hardcoded read-only                         |
-| Push to main                                     | NEVER           | Branch protection                           |
-
-**Key principle: machinery can create new machinery, but cannot modify its own control plane.**
-
-**Scope:** Medium. Config-loader extension (~50 lines), materials module (~80 lines), perspective creation handler (~60 lines), safety updates (~20 lines).
-
----
-
-## Phase 6: Full Loop Integration
-
-### Updated index.js
-
-```javascript
-const PHASES = {
-  navigate: navigate,
-  transform: runTransformation,
-  witness: witness,
-};
-```
-
-The `phase` input replaces the `task` input.
-
-### Updated agentic-step action.yml
-
-```yaml
-inputs:
-  phase:
-    description: "Lifecycle phase: navigate, transform, witness"
-    required: false
-  perspective:
-    description: "Perspective to use (for transform phase)"
-    required: false
-  target:
-    description: "Target for transformation (issue number, PR number, etc.)"
-    required: false
-```
+From 5 agentic workflows → 3. The main workflow absorbs daily/weekly/review because the plan tells it what to do.
 
 ### What stays identical
 
 - `copilot.js` — No changes.
 - `tools.js` — No changes.
-- `safety.js` — Extended with forbidden list, not rewritten.
+- `safety.js` — Extended with perspective self-modification check.
 - All CI/CD workflows — unchanged.
 - All publish workflows — unchanged.
-- intentïon.md as the record — format updated, concept unchanged.
 
 ---
 
-## Planning: How Navigation Works
+## Integration with FEATURES.md and FEATURES_ROADMAP.md
 
-This is the most important part of the new system. The navigator must be good at planning — it's what separates intentïon from a fixed pipeline.
+Both documents must be rewritten as part of the narrative alignment (see PLAN_NARRATIVE.md):
 
-### What the navigator sees
-
-On each cycle, the navigator reads:
-
-1. **The intentïon** — INTENTION.md. What does the user want to exist?
-2. **The product** — source files, test files, package.json. What exists now?
-3. **The materials** — feature specifications, library docs. What's been prepared?
-4. **The record** — recent intentïon.md entries, recent witness scores. What happened recently?
-5. **The terrain** — open issues, open PRs, recent commits. What's in flight?
-
-### What the navigator decides
-
-From this state, the navigator answers:
-
-1. **Gap assessment** — What's the distance between the intentïon and the current product? (qualitative + quantitative)
-2. **Next transformations** — What specific transformations will close the gap most effectively? (ordered list with perspectives and targets)
-3. **Parallelism** — Which transformations are independent and can run concurrently?
-4. **Mode** — Are we still navigating or have we reached stewardship?
-
-### How the navigator plans well
-
-The navigator's system prompt should include:
-
-- **The manufacturing model** — "The repository contains product (src/), machinery (workflows, perspectives), record (docs, intentïon.md), and materials (feature specs, library docs). Your job is to plan transformations that move the product toward realizing the intentïon."
-- **Perspective catalog** — "Available perspectives: builder (writes code for an issue), fixer (repairs failing tests), harvester-features (creates/updates feature materials), harvester-library (gathers library materials), critic (reviews issues for quality), witness (assesses realization), narrator (responds to discussions)."
-- **Constraints** — "Maximum 3 transformations per cycle. Prefer fewer, larger transformations over many small ones. Each transformation must be independently landable."
-- **Mode awareness** — "If recent witness scores are consistently high (>80%), shift to stewardship mode: protect what's built, respond to drift, minimize risk."
-
-### What makes this better than the current system
-
-| Current (fixed pipeline)                                         | New (navigator-driven)                                                  |
-| ---------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Cron runs the same tasks on a fixed schedule regardless of state | Navigator assesses state and only plans transformations that are needed |
-| All intentions get the same treatment                            | Navigator adapts the plan to the specific intentïon                     |
-| No concept of "done" — keeps running forever                     | Witness detects realization, navigator shifts to stewardship            |
-| Sequential: one task per cron trigger                            | Parallel: independent transformations run concurrently via matrix       |
-| 8 fixed perspectives, always the same                            | Navigator assembles only the perspectives needed for this cycle         |
-| No gap assessment — just "do the next thing"                     | Navigator explicitly assesses the gap and prioritizes                   |
-
-### The planning loop in detail
-
-```
-Cycle 1 (day 1):
-  Navigate: "Intentïon is a developer utility CLI. Product is empty.
-             Gap is 100%. Need feature materials first."
-  Plan: [harvester-features] → creates 4 feature specs
-  Witness: "Score 5%. Feature materials exist but no product code."
-
-Cycle 2 (day 1, triggered by cycle 1 completion):
-  Navigate: "4 feature materials exist. No issues. Create issues."
-  Plan: [navigator creates 2 issues from feature materials]
-  Witness: "Score 5%. Issues exist, still no product code."
-
-Cycle 3 (day 2):
-  Navigate: "2 open issues. Product is empty. Build."
-  Plan: [builder(issue #1), builder(issue #2)] — parallel
-  Witness: "Score 20%. Two features implemented. Tests pass."
-
-Cycle 4 (day 2):
-  Navigate: "2 features done, 2 remaining. Build more."
-  Plan: [harvester-features, builder(issue #3)] — parallel
-  Witness: "Score 35%."
-
-...
-
-Cycle 12 (day 7):
-  Navigate: "All major features built. Edge cases remain."
-  Plan: [critic(issue #8), builder(issue #9)]
-  Witness: "Score 82%."
-
-Cycle 13 (day 8):
-  Navigate: "Score >80% for 3 cycles. Entering stewardship."
-  Plan: [] — no transformations needed
-  Witness: "Score 85%. Stewardship mode."
-
-Cycle 14+ (weekly):
-  Navigate (stewardship): "Intentïon is realized. Monitoring."
-  Plan: [] or [fixer] if tests broke
-```
+- **FEATURES.md**: new title, new vocabulary, all 29 features renamed, architecture section reframed
+- **FEATURES_ROADMAP.md**: same vocabulary treatment, all 12 post-MVP features renamed
+- The planning artifact (PLAN.md) becomes part of the template system (Feature #14)
+- The witness scoring becomes part of witness machinery (Feature #12)
+- The MVP demo (#28) uses the devkit scenario
 
 ---
 
 ## Migration Sequence
 
-Each step is independently deployable and testable.
-
-| Step | What                                                                        | Validates                                                   |
-| ---- | --------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| 1    | Extract context-sources.js from 8 task handlers                             | Golden prompt tests — prompts identical                     |
-| 2    | Create 8 perspective YAML definitions                                       | Golden prompt tests — definitions produce identical prompts |
-| 3    | Create perspective-loader, prompt-builder, post-processor                   | Unit tests on new modules                                   |
-| 4    | Create generic transform runner                                             | Integration test: perspectives match legacy tasks           |
-| 5    | Create navigate.js and witness.js                                           | Unit tests + manual trigger                                 |
-| 6    | Create transform-navigate.yml workflow                                      | Manual workflow_dispatch test                               |
-| 7    | Rename files (MISSION→INTENTION, agents→perspectives, agent-flow→transform) | All tests pass                                              |
-| 8    | Update config schema (new key names)                                        | Config-loader tests                                         |
-| 9    | Rewrite FEATURES.md with new vocabulary                                     | Human review                                                |
-| 10   | Rewrite FEATURES_ROADMAP.md with new vocabulary                             | Human review                                                |
-| 11   | Run new navigate workflow alongside old workflows                           | Compare outcomes                                            |
-| 12   | Disable old workflows                                                       | Monitor                                                     |
-| 13   | Delete legacy task handler files                                            | Tests pass without them                                     |
-| 14   | Enable materials fluidity                                                   | Navigator creates material types                            |
-| 15   | Enable machinery creation                                                   | Navigator creates perspectives                              |
+| Step | What | Validates |
+|---|---|---|
+| 1 | Extract context-sources.js from 8 task handlers | Golden prompt tests |
+| 2 | Introduce PLAN.md template + plan-utils.js | Unit tests on plan read/write |
+| 3 | Add plan read/update/witness to each task handler | Plan updates correctly |
+| 4 | Create 8 perspective YAML definitions | Golden prompt tests |
+| 5 | Create perspective-loader, prompt-builder, post-processor | Unit tests |
+| 6 | Create generic transform runner with inner loop | Integration tests |
+| 7 | Rename files (MISSION→INTENTION, agents→perspectives, agent-flow→transform) | All tests pass |
+| 8 | Update config schema (new key names) | Config-loader tests |
+| 9 | Rewrite FEATURES.md with new vocabulary | Human review |
+| 10 | Rewrite FEATURES_ROADMAP.md with new vocabulary | Human review |
+| 11 | Enable cross-perspective modification | Safety tests |
+| 12 | Simplify to 3 workflows with plan-driven inner loop | Manual test |
+| 13 | Delete legacy task handler files | Tests pass without them |
 
 ---
 
 ## Estimated Totals
 
-| Category                            | Lines     | Files |
-| ----------------------------------- | --------- | ----- |
-| New code                            | ~840      | 7     |
-| New definitions (perspective YAMLs) | ~320      | 8     |
-| New workflows                       | ~120      | 1     |
-| Renamed workflows                   | ~0        | 4     |
-| Deleted code (legacy task handlers) | -853      | 8     |
-| Config changes                      | ~60       | 2     |
-| Test updates                        | ~200      | 10+   |
-| **Net change**                      | **~+387** |       |
+| Category | Lines | Files |
+|---|---|---|
+| New code (context-sources, plan-utils, perspective-loader, prompt-builder, post-processor, transform runner) | ~880 | 6 |
+| New definitions (perspective YAMLs) | ~320 | 8 |
+| Plan template (PLAN.md) | ~30 | 1 |
+| Deleted code (legacy task handlers) | -853 | 8 |
+| Config changes | ~60 | 2 |
+| Test updates | ~200 | 10+ |
+| **Net change** | **~+437** | |
 
 ---
 
 ## Risk Register
 
-| Risk                                                     | Severity | Mitigation                                                                                |
-| -------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------- |
-| Navigation adds token cost per cycle                     | Medium   | Navigator uses constrained output; cost offset by not running unnecessary transformations |
-| Structured output parsing fragile                        | Medium   | Schema validation + retry + fallback to single transformation                             |
-| Perspectives produce different prompts than legacy tasks | High     | Golden prompt tests are the gate                                                          |
-| Self-modification escapes bounds                         | High     | Forbidden file list in safety.js. INTENTION.md and control plane never writable.          |
-| Premature stewardship                                    | Medium   | Require 3 consecutive high scores. Human can re-trigger navigation manually.              |
-| Rename coordination across 3 repos                       | Medium   | Script the renames. All 3 repos in one session. Branches, not main.                       |
+| Risk | Severity | Mitigation |
+|---|---|---|
+| Plan file parsing fragile | Medium | Simple markdown format, schema validation, fallback to fresh plan |
+| Inner loop consumes too many tokens | Medium | Configurable budget, cost tracking, perspective sees remaining budget |
+| Cross-perspective modification creates conflicts | Medium | Social protocol (not self), plan tracks threats, PR review |
+| Perspectives produce different prompts than legacy tasks | High | Golden prompt tests are the gate |
+| Plan grows unbounded | Low | Archive achieved items to intentïon.md periodically |
+| Rename coordination across 3 repos | Medium | Script the renames, one session, branches not main |
