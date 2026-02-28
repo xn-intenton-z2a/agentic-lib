@@ -2,42 +2,36 @@
 
 Get all the moving parts working end-to-end before tightening verification and expanding demo output. This plan supersedes PLAN_STABILISE_AND_DEPLOY.md, PLAN_CODE_REDUCTION.md, and PLAN_UPLIFT.md (all archived — core work complete).
 
-Current repo structure (post-uplift):
+Current repo structure (post-uplift + test restructure):
 ```text
 agentic-lib/
 ├── src/                              # ALL DISTRIBUTED PRODUCTION CODE
-│   ├── workflows/ (13)               #   Template workflows
-│   │   ├── agent-archive-intentïon.yml
-│   │   ├── agent-discussions-bot.yml
-│   │   ├── agent-flow-evolve.yml     # Core: autonomous evolution
-│   │   ├── agent-flow-fix-code.yml   # Core: reactive fix
-│   │   ├── agent-flow-maintain.yml   # Core: maintenance
-│   │   ├── agent-flow-review.yml     # Core: review & pruning
-│   │   ├── agent-supervisor.yml      # Core: orchestration
-│   │   ├── ci-automerge.yml          # Core CI: auto-merge PRs (550 lines)
-│   │   ├── ci-formating.yml          # Prescriptive: prettier+eslint
-│   │   ├── ci-test.yml               # Prescriptive: monolithic test
-│   │   ├── ci-update.yml             # Prescriptive: dependency updates
-│   │   ├── publish-packages.yml      # Core: npm publish (Maven/CDK removed)
-│   │   └── publish-web.yml           # Prescriptive: GitHub Pages
+│   ├── workflows/ (13)               #   Template workflows (all Node 24)
 │   ├── scripts/ (7)                  #   Distributed utility scripts
-│   ├── agents/ (8)                   #   7 prompts + 1 config (agent-maintain-sources.md removed)
+│   ├── agents/ (8)                   #   7 prompts + 1 config
 │   ├── actions/                      #   Composite actions + Copilot SDK action
-│   │   ├── agentic-step/             #     Copilot SDK action (57 tests)
-│   │   │   ├── copilot.js            #       Shared SDK utilities (new)
-│   │   │   ├── tasks/ (8 handlers)   #       845 lines (was 1163, -318)
-│   │   │   └── tests/ (5 files)      #       Including copilot.test.js (new)
-│   │   ├── setup-npmrc/              #     Composite: npmrc setup (new)
-│   │   └── commit-if-changed/        #     Composite: conditional commit (new)
+│   │   ├── agentic-step/             #     Copilot SDK action (node24)
+│   │   │   ├── copilot.js            #       Shared SDK utilities
+│   │   │   └── tasks/ (8 handlers)   #       845 lines
+│   │   ├── setup-npmrc/              #     Composite: npmrc setup
+│   │   └── commit-if-changed/        #     Composite: conditional commit
 │   └── seeds/ (7)                    #   Seed files + 3 starter test workflows
+├── tests/                            # ALL TESTS (mirrors src/ structure)
+│   ├── actions/agentic-step/         #   5 moved + index + 8 task handler tests
+│   │   └── tasks/ (8 files)
+│   ├── workflows/ (1)                #   Structural YAML validation
+│   ├── scripts/ (1)                  #   Syntax + existence checks
+│   ├── agents/ (1)                   #   Config + prompt validation
+│   └── seeds/ (1)                    #   JSON/YAML + field validation
 ├── scripts/ (5)                      # RELEASE PIPELINE (agentic-lib only)
-├── .github/workflows/ (2)            # INTERNAL CI
+├── .github/workflows/ (2)            # INTERNAL CI (Node 24 + FORCE env)
 │   ├── ci.yml
 │   └── release.yml
+├── vitest.config.js                  # Root test config (tests/**/*.test.js)
 ├── FEATURES.md, FEATURES_ROADMAP.md  # Product definition
 ├── PLAN_FOCUS_REBOOT.md              # Active plan
 ├── API.md, README.md                 # Docs
-└── package.json, eslint.config.js    # Config
+└── package.json, eslint.config.js    # Config (engines >=24)
 ```
 
 ## User Assertions
@@ -204,31 +198,32 @@ Behaviour tests in xn--intenton-z2a.com that test the full feature set of the de
 
 ## Phases
 
-### Phase 0: Smoke Test the Copilot SDK (risks #12, #13)
+### Phase 0: Node 24 LTS Uplift + SDK Smoke Test
 
-**Goal:** Confirm the Copilot SDK actually works at runtime on GitHub Actions runners.
+**Goal:** Uplift to Node 24 LTS and confirm the Copilot SDK works at runtime.
 
-**Work:**
-- Manually dispatch `agent-flow-evolve` in repository0 (against main)
-- Watch the workflow: does `npm ci` install the SDK? Does `CopilotClient` connect? Does the model respond?
-- If it fails: diagnose whether the issue is CLI availability (#12), model access (#13), or auth
-- If the SDK doesn't work: fall back to `github-script` or direct API calls and adjust the plan
+**Status: Complete** (Node 24 uplift done; SDK runtime re-test pending CI run)
 
-**Verification gate:**
-- [ ] `agent-flow-evolve` workflow completes without SDK errors
-- [ ] A code change is committed by the evolve step (or a clear error message explains why not)
-- [x] Document the findings — update this plan with the SDK status
+**Work done:**
+- [x] All `node-version` bumped from 22 → 24 across all workflows, seeds, CI, and release
+- [x] `action.yml` updated from `node20` → `node24`
+- [x] All `package.json` files updated: `engines.node >= 24.0.0`
+- [x] `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true` env added to `ci.yml` and `release.yml`
+- [x] `_archive/PLAN_UPLIFT.md` moved to `_developers/_archive/`
 
 **Phase 0 Findings (2026-02-28):**
 
 1. **SDK installs successfully** — `npm ci` resolves `@github/copilot-sdk@0.1.29` without error
-2. **Runtime failure: `node:sqlite` not available on Node 20** — The SDK requires `node:sqlite` (Node 22.5+). Error: `ERR_UNKNOWN_BUILTIN_MODULE: No such built-in module: node:sqlite`
+2. **Runtime failure on Node 20: `node:sqlite` not available** — The SDK requires `node:sqlite` (Node 22.5+). Fixed by uplift.
 3. **Risk #12 (CLI availability):** NOT hit. The SDK loads as a library, no CLI binary needed.
-4. **Risk #13 (Model availability):** NOT yet tested — the SDK crashes before reaching model negotiation.
-5. **Fix applied:** All workflow `node-version` bumped from 20 to 22 on `reboot` branch. Needs re-test.
-6. **Remaining unknowns:** Does the model `claude-sonnet-4.5` work via Copilot SDK auth? Does GITHUB_TOKEN grant access? Re-test after Node fix.
+4. **Risk #13 (Model availability):** NOT yet tested — needs real workflow run after Node 24 uplift.
 
-**User direction (2026-02-28):** Fast iteration in agentic-lib only. repository0 is a showcase (not a test bed), website is a display. Focus on tested workflows in agentic-lib with versioned distribution.
+**Verification gate:**
+- [x] All `node-version` references are 24 (verified: `grep -r 'node-version.*22' src/ .github/` returns nothing)
+- [x] No `node20` references remain (verified: `grep -r 'node20' src/` returns nothing)
+- [x] `npm test` passes on Node 24 locally
+- [ ] CI passes on push to `reboot`
+- [ ] `agent-flow-evolve` workflow completes without SDK errors (re-test after merge)
 
 ### Repo Restructure (2026-02-28)
 
@@ -238,7 +233,7 @@ Behaviour tests in xn--intenton-z2a.com that test the full feature set of the de
 
 **Key design property:** If template workflows break, `ci.yml` still runs and you can merge fixes.
 
-### Technical Uplift (complete — PLAN_UPLIFT.md archived)
+### Technical Uplift (complete — PLAN_UPLIFT.md archived to `_developers/_archive/`)
 
 A systematic file-by-file review of `src/` delivered 8 steps of technical debt reduction:
 
@@ -256,34 +251,58 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 **Post-uplift metrics:**
 - Workflows: 13 files, 2,222 lines (was 14 files, ~2,800 lines)
 - Task handlers: 845 lines (was 1,163)
-- Test suite: 57 tests (was 46)
 - Dependencies: all on latest major except ESLint 10 (deferred — eslint-config-google compatibility)
 - No remaining sandbox/ refs, no Maven/CDK/Java, no AWS env vars, no CHATGPT_API references
 
 ---
 
-### Phase 1: Testable Core (Goals 5 + 8)
+### Phase 1: Test Suite + Testable Core (Goals 5 + 8)
 
 **Repos:** agentic-lib
 
-**Status: Partially complete** — shared utilities extracted and tested; per-handler tests and discussions library still needed.
+**Status: Foundation complete** — test suite restructured to root `tests/` tree; 192 tests passing across 18 files.
 
 **Done:**
+- [x] Root `vitest.config.js` with `tests/**/*.test.js` pattern
+- [x] Root `package.json` test script runs `vitest --run` (no more `npm test --prefix`)
+- [x] Moved 5 existing tests from `src/actions/agentic-step/tests/` → `tests/actions/agentic-step/`
+- [x] Removed sub-project `vitest.config.js` and `tests/` dir
+- [x] Created `tests/actions/agentic-step/index.test.js` — TASKS map validation (4 tests)
+- [x] Created 8 task handler tests in `tests/actions/agentic-step/tasks/` — export validation
+- [x] Created `tests/workflows/workflows.test.js` — YAML validity, structure, node-version, runs-on (79 tests)
+- [x] Created `tests/scripts/scripts.test.js` — JS syntax check, shell script existence (10 tests)
+- [x] Created `tests/agents/agents.test.js` — config validity, prompt non-emptiness (20 tests)
+- [x] Created `tests/seeds/seeds.test.js` — JSON/YAML validity, node engine, required fields (14 tests)
 - [x] Extracted shared SDK lifecycle into `copilot.js` (runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection)
-- [x] 11 new utility tests in `copilot.test.js`
-- [x] All 8 task handlers refactored to use shared utilities (-318 lines)
-- [x] Total test suite: 57 tests passing
+- [x] Total test suite: 192 tests across 18 files, all passing
+
+**Test method table:**
+
+| Test file | Tests | What it validates |
+|-----------|-------|-------------------|
+| `config-loader.test.js` | 11 | YAML config loading, writable paths, defaults, overrides |
+| `copilot.test.js` | 11 | readOptionalFile, scanDirectory, formatPathsSection |
+| `logging.test.js` | 13 | Activity log creation/append, safety check output |
+| `safety.test.js` | 12 | Path writability, issue state, WIP limits, attempt limits |
+| `tools.test.js` | 10 | Agent tools: read/write/list files, run commands |
+| `index.test.js` | 4 | TASKS map: 8 entries, correct names, async functions |
+| `tasks/*.test.js` (8) | 8 | Each handler exports async function |
+| `workflows.test.js` | 79 | 13 workflows: valid YAML, name/on/jobs, ubuntu-latest, node 24 |
+| `scripts.test.js` | 10 | 2 JS syntax checks, 5 shell script existence |
+| `agents.test.js` | 20 | Config YAML keys, 7 prompts non-empty |
+| `seeds.test.js` | 14 | zero-package.json fields, engines >=24, seed YAML validity |
 
 **Remaining:**
-- [ ] Unit tests for each task handler (mocking copilot.js, testing handler-specific logic)
-- [ ] Extract discussions bot logic from `tasks/discussions.js` (136 lines) into testable library
+- [ ] Deep unit tests for each task handler (mocking copilot.js, testing handler-specific logic)
+- [ ] Extract discussions bot logic from `tasks/discussions.js` into testable library
 - [ ] Unit tests for discussions library: parse, respond, action-directive generation
 - [ ] Mock GitHub GraphQL responses for test isolation
 - [ ] Test coverage reporting in CI
 
 **Verification gate:**
-- [x] `npm test` runs all tests and passes (57 tests)
-- [ ] Each task handler has at least 1 unit test
+- [x] `npm test` runs all tests and passes (192 tests)
+- [x] Test tree mirrors `src/` structure
+- [ ] Each task handler has deep unit tests with mocked dependencies
 - [ ] Discussions bot library has tests for parse, respond, and action-directive generation
 - [ ] Test coverage reported in CI
 
@@ -378,9 +397,9 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 
 | Phase | Goals | Repos | Status | Key outcome |
 |-------|-------|-------|--------|-------------|
-| 0 | — | repository0 | Partial | SDK installs; Node 22 fix applied; model access untested |
+| 0 | — | agentic-lib | **Complete** | Node 24 LTS uplift; SDK installs; CI pending |
 | Uplift | 5 | agentic-lib | **Complete** | -600+ lines, +11 tests, deps upgraded, DRY |
-| 1 | 5, 8 | agentic-lib | **Partial** | Shared utilities done; per-handler tests + discussions lib remaining |
+| 1 | 5, 8 | agentic-lib | **Foundation** | 192 tests / 18 files; test tree mirrors src/; deep handler tests remaining |
 | 2 | 4, 6 | agentic-lib, repo0 | Not started | npm package + v7.0.0 tagged + version pinning |
 | 3 | 3, 7 | repo0, agentic-lib | Not started | Thin workflows + smoke tests + demo output |
 | 4 | 2, 9 | repo0, agentic-lib | Not started | 3 template styles + bot integration tests |
@@ -393,7 +412,7 @@ A systematic file-by-file review of `src/` delivered 8 steps of technical debt r
 The following plans are superseded by this document:
 - `PLAN_CODE_REDUCTION.md` — Step 1 complete (11 wfr-* files inlined). Steps 2-4 fold into Goals 3 and 5.
 - `PLAN_STABILISE_AND_DEPLOY.md` — All pre-merge work complete. Runtime verification folds into Phase 0 and Goals 7 and 9.
-- `PLAN_UPLIFT.md` — All 8 steps complete. Technical debt reduction, dependency upgrades, shared utilities, composite actions. Findings absorbed into this document.
+- `PLAN_UPLIFT.md` (archived to `_developers/_archive/`) — All 8 steps complete. Technical debt reduction, dependency upgrades, shared utilities, composite actions. Findings absorbed into this document.
 
 ## Deferred Plans
 

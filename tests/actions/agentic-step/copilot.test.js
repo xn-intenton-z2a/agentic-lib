@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { readOptionalFile, scanDirectory, formatPathsSection } from '../copilot.js';
+import { readOptionalFile, scanDirectory, formatPathsSection } from '../../../src/actions/agentic-step/copilot.js';
 import { writeFileSync, mkdirSync, rmSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';

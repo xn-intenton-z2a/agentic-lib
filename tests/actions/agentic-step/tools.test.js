@@ -15,7 +15,7 @@ vi.mock('@github/copilot-sdk', () => ({
   approveAll: () => true,
 }));
 
-const { createAgentTools } = await import('../tools.js');
+const { createAgentTools } = await import('../../../src/actions/agentic-step/tools.js');
 
 describe('tools', () => {
   let testDir;

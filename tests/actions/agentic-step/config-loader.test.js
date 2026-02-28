@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { loadConfig, getWritablePaths } from '../config-loader.js';
+import { loadConfig, getWritablePaths } from '../../../src/actions/agentic-step/config-loader.js';
 import { writeFileSync, mkdirSync, rmSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';

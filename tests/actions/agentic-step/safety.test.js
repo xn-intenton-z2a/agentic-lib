@@ -6,7 +6,7 @@ vi.mock('@actions/core', () => ({
   warning: vi.fn(),
 }));
 
-const { isPathWritable, isIssueResolved, checkWipLimit, checkAttemptLimit } = await import('../safety.js');
+const { isPathWritable, isIssueResolved, checkWipLimit, checkAttemptLimit } = await import('../../../src/actions/agentic-step/safety.js');
 
 describe('safety', () => {
   beforeEach(() => {
