@@ -2,6 +2,21 @@
 
 Get all the moving parts working end-to-end before tightening verification and expanding demo output. This plan supersedes PLAN_STABILISE_AND_DEPLOY.md, PLAN_CODE_REDUCTION.md, and PLAN_UPLIFT.md (all archived — core work complete).
 
+Next steps:
+```
+Next 11 concurrent tasks (most are doing 3,4, 9 and 10 include some element of you playing back reccommendations, do that in your planing mode): 1. Get rid of github pages from the
+  agentic-lib repository and delete the related branch for github pages. 2. Go deeper on all the unit tests, test as much as is practical to test in the production code under ./src. 3.
+  Propose a mechanism to test the packageing and distribution to repository0 in a way that we can test in a local workspace or the ci pipeline. 4. Propose a mechanim to test system
+  conneectivity including direct use of copilot and interactions with the dicussions bot. 5. Propose a mechanism to test the actual LLM transfornation steps. 6. examine
+  ../diy-accounting-limited/submit.diyaccounting.co.uk  and bring over the following aspects from submit into agentic-lib starting from the tests and utilities in
+  ../diy-accounting-limited/submit.diyaccounting.co.uk/package.json to to scripted dependency updates, formatting (for all our file types), static analysis for bugs, static analysis for
+  security, checking of workflow standards (the test.yml has this). Then 7 Include all the tests and static analysis as script commands in package.json and have the checks ( ut not
+  updates) running in ci.yml (which I wonder if we should rename test.yml) and ensure that get's run on any change to any file it tests but be specific-ish so we get regular pipeline tests
+  but we are not waiting for tests of .md docs just to merge a pr. and 8 Update all teh documents in this root directory or anywhere under ./agentic-lib (except the archives) to match
+  current state of the repsitort and the test approach. 9 update PLAN_FOCUS_REBOOT.md with where we are given these changes and propose next steps. and 10 review the mechanism that we will
+  bring repositor0 into alignment with the work herte and what we can test in agentic-lib to make that easy. 11 Please do something about this ```[Pasted text #1 +24 lines]```
+```
+
 Current repo structure (post-uplift + test restructure):
 ```text
 agentic-lib/
