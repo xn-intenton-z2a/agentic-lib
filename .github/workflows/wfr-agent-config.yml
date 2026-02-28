@@ -29,10 +29,10 @@ on:
   workflow_call:
     inputs:
       configPath:
-        description: 'The the location of the agentic-lib configuration file. e.g. ".github/agents/agentic-lib.yml"'
+        description: 'The the location of the agentic-lib configuration file. e.g. ".github/agentic-lib/agents/agentic-lib.yml"'
         type: string
         required: false
-        default: '.github/agents/agentic-lib.yml'
+        default: '.github/agentic-lib/agents/agentic-lib.yml'
       haltSignal:
         description: 'A signal to stop the workflow. e.g. "HALT"'
         type: string
@@ -149,7 +149,7 @@ jobs:
   agentic-lib:
     runs-on: ubuntu-latest
     env:
-      configPath: ${{ inputs.configPath || '.github/agents/agentic-lib.yml' }}
+      configPath: ${{ inputs.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}
       haltSignal: ${{ inputs.haltSignal || 'HALT' }}
       npmAuthOrganisation: '@xn-intenton-z2a'
 
@@ -276,7 +276,7 @@ jobs:
             // Use the configPath from input parameter
             const configPath = process.env.configPath;
             if (!fs.existsSync(configPath)) {
-              core.info("Warning: .github/agents/agentic-lib.yml file not found, using default values.");
+              core.info("Warning: .github/agentic-lib/agents/agentic-lib.yml file not found, using default values.");
             }
 
             let config;
@@ -286,7 +286,7 @@ jobs:
               agentConfigContent = fs.readFileSync(configPath, 'utf8');
               config = yaml.load(agentConfigContent);
             } catch (error) {
-              core.info(`Error parsing .github/agents/agentic-lib.yml: ${error.message}, using default values.`);
+              core.info(`Error parsing .github/agentic-lib/agents/agentic-lib.yml: ${error.message}, using default values.`);
             }
 
             // Execution commands

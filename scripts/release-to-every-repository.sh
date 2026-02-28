@@ -36,9 +36,9 @@ while IFS= read -r repo; do
 done < target-repositories.txt
 
 # Restore the schedule in the local workspace.
-schedule=$(grep '^schedule:' .github/agents/agentic-lib.yml | awk '{print $2}' | sed 's/schedule-//')
+schedule=$(grep '^schedule:' .github/agentic-lib/agents/agentic-lib.yml | awk '{print $2}' | sed 's/schedule-//')
 if [ -z "${schedule}" ]; then
-  echo "No schedule found in .github/agents/agentic-lib.yml, looking for line of the form 'schedule: schedule-<number>'"
+  echo "No schedule found in .github/agentic-lib/agents/agentic-lib.yml, looking for line of the form 'schedule: schedule-<number>'"
 else
   echo "Workflow schedule: schedule-${schedule?}"
   ./scripts/activate-schedule.sh "${schedule?}"

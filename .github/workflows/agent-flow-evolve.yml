@@ -1,0 +1,71 @@
+# .github/workflows/agent-flow-evolve.yml
+#
+# Autonomous code evolution: Mission → Features → Issues → Code → PR
+# Replaces the 10 transformation workflows with a single agentic-step call.
+
+name: agent-flow-evolve
+run-name: "agent-flow-evolve [${{ github.ref_name }}]"
+concurrency: agentic-lib-main
+
+on:
+  schedule:
+    - cron: '17 6 * * *' # schedule-1: daily at 06:17 UTC
+    #- cron: '17 */6 * * *' # schedule-2
+    #- cron: '17 * * * *' # schedule-3
+    #- cron: '17,47 * * * *' # schedule-4
+  workflow_dispatch:
+    inputs:
+      model:
+        description: 'Copilot SDK model to use'
+        required: false
+        default: 'claude-sonnet-4-5'
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+env:
+  configPath: '.github/agentic-lib/agents/agentic-lib.yml'
+
+jobs:
+  evolve:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install agentic-step dependencies
+        working-directory: .github/agentic-lib/actions/agentic-step
+        run: npm ci
+
+      - name: Run evolution step
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          task: 'evolve'
+          config: ${{ env.configPath }}
+          instructions: '.github/agentic-lib/agents/agent-issue-resolution.md'
+          test-command: 'npm test'
+          model: ${{ inputs.model || 'claude-sonnet-4-5' }}
+          writable-paths: >-
+            sandbox/source/;sandbox/tests/;sandbox/features/;sandbox/docs/;
+            sandbox/library/;sandbox/SOURCES.md;sandbox/README.md;package.json
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email 'action@github.com'
+          git config --local user.name 'GitHub Actions[bot]'
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "agentic-step: evolve"
+            git push origin ${{ github.ref_name }}
+          fi

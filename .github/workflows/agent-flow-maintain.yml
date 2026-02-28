@@ -1,0 +1,110 @@
+# .github/workflows/agent-flow-maintain.yml
+#
+# Feature + library + source maintenance.
+# Runs periodically to keep the knowledge base and features up to date.
+
+name: agent-flow-maintain
+run-name: "agent-flow-maintain [${{ github.ref_name }}]"
+concurrency: agentic-lib-main
+
+on:
+  schedule:
+    - cron: '33 7 * * 1' # schedule-1: weekly on Monday at 07:33 UTC
+    #- cron: '33 7 */3 * *' # schedule-2
+    #- cron: '33 */8 * * *' # schedule-3
+    #- cron: '33 * * * *' # schedule-4
+  workflow_dispatch:
+    inputs:
+      step:
+        description: 'Which maintenance step to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - features
+          - library
+
+permissions:
+  contents: write
+  issues: write
+
+env:
+  configPath: '.github/agentic-lib/agents/agentic-lib.yml'
+
+jobs:
+  maintain-features:
+    if: inputs.step == 'all' || inputs.step == 'features' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install agentic-step dependencies
+        working-directory: .github/agentic-lib/actions/agentic-step
+        run: npm ci
+
+      - name: Maintain features
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          task: 'maintain-features'
+          config: ${{ env.configPath }}
+          instructions: '.github/agentic-lib/agents/agent-maintain-features.md'
+          writable-paths: 'sandbox/features/'
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email 'action@github.com'
+          git config --local user.name 'GitHub Actions[bot]'
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "agentic-step: maintain-features"
+            git push origin ${{ github.ref_name }}
+          fi
+
+  maintain-library:
+    if: inputs.step == 'all' || inputs.step == 'library' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install agentic-step dependencies
+        working-directory: .github/agentic-lib/actions/agentic-step
+        run: npm ci
+
+      - name: Maintain library
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          task: 'maintain-library'
+          config: ${{ env.configPath }}
+          instructions: '.github/agentic-lib/agents/agent-maintain-library.md'
+          writable-paths: 'sandbox/library/;sandbox/SOURCES.md'
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email 'action@github.com'
+          git config --local user.name 'GitHub Actions[bot]'
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "agentic-step: maintain-library"
+            git push origin ${{ github.ref_name }}
+          fi
