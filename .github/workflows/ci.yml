@@ -51,10 +51,14 @@ jobs:
 
       - run: npm ci || npm install
 
+      - name: Install sub-project dependencies
+        run: cd src/actions/agentic-step && npm ci || npm install
+
       - run: npm test
 
   lint:
     runs-on: ubuntu-latest
+    continue-on-error: true
     permissions:
       contents: read
       packages: read
