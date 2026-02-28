@@ -42,7 +42,7 @@ The **core SDK** of the intentïon project. A collection of reusable GitHub Acti
 
 - Reusable workflows invoked via `workflow_call` event
 - Workflows communicate through branches and issues
-- OpenAI API integration for autonomous code decisions
+- GitHub Copilot SDK integration for autonomous code decisions (via agentic-step action)
 - Published to npm as `@xn-intenton-z2a/agentic-lib`
 
 ## Related Repositories
@@ -80,5 +80,5 @@ npm run build     # Build
 ## Security Checklist
 
 - Never commit secrets — use GitHub Actions secrets
-- Never commit OpenAI API keys
+- Never commit API keys or tokens
 - Verify workflow permissions follow least privilege
