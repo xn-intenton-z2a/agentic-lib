@@ -3,10 +3,7 @@
 // Reviews existing features, creates new ones from mission/library analysis,
 // prunes completed/irrelevant features, and ensures quality.
 
-import * as core from '@actions/core';
-import { CopilotClient, approveAll } from '@github/copilot-sdk';
-import { readFileSync, readdirSync, existsSync } from 'fs';
-import { createAgentTools } from '../tools.js';
+import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection } from '../copilot.js';
 
 /**
  * Maintain the feature set — create, update, or prune feature files.
@@ -17,44 +14,14 @@ import { createAgentTools } from '../tools.js';
 export async function maintainFeatures(context) {
   const { config, instructions, writablePaths, model, octokit, repo } = context;
 
-  // Read mission
-  const missionPath = config.paths.missionFilepath?.path || 'MISSION.md';
-  let mission = '';
-  try { mission = readFileSync(missionPath, 'utf8'); } catch { /* optional */ }
-
-  // Read existing features
+  const mission = readOptionalFile(config.paths.missionFilepath?.path || 'MISSION.md');
   const featuresPath = config.paths.featuresPath?.path || 'features/';
   const featureLimit = config.paths.featuresPath?.limit || 4;
-  let features = [];
-  if (existsSync(featuresPath)) {
-    features = readdirSync(featuresPath)
-      .filter(f => f.endsWith('.md'))
-      .map(f => {
-        try { return { name: f, content: readFileSync(`${featuresPath}${f}`, 'utf8') }; }
-        catch { return { name: f, content: '' }; }
-      });
-  }
+  const features = scanDirectory(featuresPath, '.md');
+  const libraryDocs = scanDirectory(config.paths.libraryDocumentsPath?.path || 'library/', '.md', { contentLimit: 1000 });
 
-  // Read library docs for context
-  const libraryPath = config.paths.libraryDocumentsPath?.path || 'library/';
-  let libraryDocs = [];
-  if (existsSync(libraryPath)) {
-    libraryDocs = readdirSync(libraryPath)
-      .filter(f => f.endsWith('.md'))
-      .slice(0, 10)
-      .map(f => {
-        try { return { name: f, content: readFileSync(`${libraryPath}${f}`, 'utf8').substring(0, 1000) }; }
-        catch { return { name: f, content: '' }; }
-      });
-  }
-
-  // Fetch closed issues (recently completed features)
   const { data: closedIssues } = await octokit.rest.issues.listForRepo({
-    ...repo,
-    state: 'closed',
-    per_page: 20,
-    sort: 'updated',
-    direction: 'desc',
+    ...repo, state: 'closed', per_page: 20, sort: 'updated', direction: 'desc',
   });
 
   const agentInstructions = instructions || 'Maintain the feature set by creating, updating, or pruning features.';
@@ -80,40 +47,24 @@ export async function maintainFeatures(context) {
     `2. If there are fewer than ${featureLimit} features, create new features aligned with the mission.`,
     '3. Ensure each feature has clear, testable acceptance criteria.',
     '',
-    '## File Paths',
-    '### Writable (you may modify these)',
-    writablePaths.length > 0 ? writablePaths.map(p => `- ${p}`).join('\n') : '- (none)',
-    '',
-    '### Read-Only (for context only, do NOT modify)',
-    (config.readOnlyPaths || []).length > 0 ? config.readOnlyPaths.map(p => `- ${p}`).join('\n') : '- (none)',
+    formatPathsSection(writablePaths, config.readOnlyPaths || []),
     '',
     '## Constraints',
     `- Maximum ${featureLimit} feature files`,
     '- Feature files must be markdown with a descriptive filename (e.g. HTTP_SERVER.md)',
   ].join('\n');
 
-  const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
-  let tokensUsed = 0;
+  const { tokensUsed } = await runCopilotTask({
+    model,
+    systemMessage: 'You are a feature lifecycle manager. Create, update, and prune feature specification files to keep the project focused on its mission.',
+    prompt,
+    writablePaths,
+  });
 
-  try {
-    const session = await client.createSession({
-      model,
-      systemMessage: { content: 'You are a feature lifecycle manager. Create, update, and prune feature specification files to keep the project focused on its mission.' },
-      tools: createAgentTools(writablePaths),
-      onPermissionRequest: approveAll,
-      workingDirectory: process.cwd(),
-    });
-
-    const response = await session.sendAndWait({ prompt });
-    tokensUsed = response?.data?.usage?.totalTokens || 0;
-
-    return {
-      outcome: 'features-maintained',
-      tokensUsed,
-      model,
-      details: `Maintained features (${features.length} existing, limit ${featureLimit})`,
-    };
-  } finally {
-    await client.stop();
-  }
+  return {
+    outcome: 'features-maintained',
+    tokensUsed,
+    model,
+    details: `Maintained features (${features.length} existing, limit ${featureLimit})`,
+  };
 }
