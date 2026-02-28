@@ -9,7 +9,7 @@ run-name: "agent-supervisor [${{ github.ref_name }}]"
 on:
   workflow_run:
     workflows:
-      - ci-test
+      - ci
       - agent-flow-evolve
       - agent-flow-maintain
     types:

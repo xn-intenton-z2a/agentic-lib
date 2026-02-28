@@ -191,6 +191,35 @@ Behaviour tests in xn--intenton-z2a.com that test the full feature set of the de
 
 **User direction (2026-02-28):** Fast iteration in agentic-lib only. repository0 is a showcase (not a test bed), website is a display. Focus on tested workflows in agentic-lib with versioned distribution.
 
+### Workflow Separation (2026-02-28)
+
+**Problem:** agentic-lib had a circular dependency — the CI workflows that build/test/release it were the SAME files as the workflow templates distributed to consumers. When CI broke, you couldn't fix it because the broken tool IS the CI.
+
+**Solution:** Physical separation into three categories:
+
+| Category | Location | Purpose |
+|----------|----------|---------|
+| Libraries | `.github/agentic-lib/` | Code consumed via checkout (actions, agents) |
+| Output workflows | `./workflows/` (15 files) | Primary product — template workflows distributed to consumers |
+| Internal workflows | `.github/workflows/` (8 files) | Build, test, and release agentic-lib itself |
+
+**`.github/workflows/` (internal — 8 files):**
+- `ci.yml` — Self-contained CI, no wfr-* dependency
+- `release.yml` — Manual dispatch: test → tag → npm publish
+- `agent-supervisor.yml` — Reactive orchestration (internal only)
+- `publish-stats.yml` — S3 telemetry (internal only)
+- `wfr-agent-config.yml` — Reusable workflow (must stay here per GitHub)
+- `wfr-github-create-pr.yml` — Reusable workflow
+- `wfr-github-select-issue.yml` — Reusable workflow
+- `wfr-npm-run-script-and-commit-to-branch.yml` — Reusable workflow
+
+**`./workflows/` (output — 15 template files):**
+- 6 agent-* workflows, 5 ci-* workflows, 2 publish-* workflows, 2 utils-* workflows
+- These are source files for distribution — they don't run on agentic-lib
+- Version-stamped during release (`sed @main → @version`)
+
+**Key design property:** If template workflows break, `ci.yml` still runs and you can merge fixes.
+
 ---
 
 ### Phase 1: Testable Core (Goals 5 + 8)

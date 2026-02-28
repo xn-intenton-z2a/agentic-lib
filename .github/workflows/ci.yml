@@ -1,0 +1,53 @@
+# .github/workflows/ci.yml
+#
+# Internal CI for agentic-lib — deliberately self-contained.
+# Does NOT depend on wfr-*, agentic-step, or any template workflows.
+# If templates break, this still works.
+
+name: ci
+run-name: 'ci [${{ github.ref_name }}]'
+
+on:
+  push:
+    branches:
+      - main
+      - reboot
+    paths:
+      - '**/*.js'
+      - '**/*.json'
+      - '**/*.yml'
+      - '**/*.sh'
+      - '!exports/**'
+      - '!workflows/**'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  npmAuthOrganisation: '@xn-intenton-z2a'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Set up ~/.npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci || npm install
+
+      - run: npm test

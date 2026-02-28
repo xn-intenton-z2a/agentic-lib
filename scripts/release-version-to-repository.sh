@@ -6,6 +6,9 @@
 # This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 #
+# Template workflow source files live in ./workflows/ (not .github/workflows/).
+# This script copies them to the consumer repo's .github/workflows/ directory
+# and stamps version references from @main to @<tag-version>.
 
 # Check for the required tag version argument
 if [ -z "$1" ]; then
@@ -20,6 +23,7 @@ fi
 
 TAG_VERSION="$1"
 DEST_DIR="$2"
+TEMPLATE_DIR="workflows"
 
 mkdir -p "${DEST_DIR}"
 
@@ -27,96 +31,54 @@ mkdir -p "${DEST_DIR}"
 
 rm -f "${DEST_DIR}/agent-"*".yml"
 
-cp -v .github/workflows/agent-archive-intentïon.yml "${DEST_DIR}/."
+cp -v "${TEMPLATE_DIR}/agent-archive-intentïon.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-archive-intentïon.yml"
 
-cp -v .github/workflows/agent-discussions-bot.yml "${DEST_DIR}/."
+cp -v "${TEMPLATE_DIR}/agent-discussions-bot.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-discussions-bot.yml"
 
-cp -v .github/workflows/agent-flow-feature-development.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-feature-development.yml"
+cp -v "${TEMPLATE_DIR}/agent-flow-evolve.yml" "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-evolve.yml"
 
-cp -v .github/workflows/agent-flow-feature-maintenance.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-feature-maintenance.yml"
-
-cp -v .github/workflows/agent-flow-fix-code.yml "${DEST_DIR}/."
+cp -v "${TEMPLATE_DIR}/agent-flow-fix-code.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-fix-code.yml"
 
-cp -v .github/workflows/agent-flow-linting.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-linting.yml"
+cp -v "${TEMPLATE_DIR}/agent-flow-maintain.yml" "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-maintain.yml"
 
-cp -v .github/workflows/agent-flow-maintenance-activity.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-maintenance-activity.yml"
-
-cp -v .github/workflows/agent-flow-update-readme.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-update-readme.yml"
-
-cp -v .github/workflows/agent-flow-seed-repository-and-feature-development.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-seed-repository.yml"
-
-cp -v .github/workflows/agent-transformation-feature-to-issue.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-feature-to-issue.yml"
-
-cp -v .github/workflows/agent-transformation-in-progress-issue-to-ready-issue.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-in-progress-issue-to-ready-issue.yml"
-
-cp -v .github/workflows/agent-transformation-issue-to-code.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-issue-to-code.yml"
-
-cp -v .github/workflows/agent-transformation-issue-to-ready-issue.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-issue-to-ready-issue.yml"
-
-cp -v .github/workflows/agent-transformation-library-to-feature.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-library-to-feature.yml"
-
-cp -v .github/workflows/agent-transformation-linting-to-issue.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-linting-to-issue.yml"
-
-cp -v .github/workflows/agent-transformation-maintenance-activity-to-issue.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-maintenance-activity-to-issue.yml"
-
-cp -v .github/workflows/agent-transformation-merged-issue-to-closed-issue.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-merged-issue-to-closed-issue.yml"
-
-cp -v .github/workflows/agent-transformation-mission-to-source.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-mission-to-source.yml"
-
-cp -v .github/workflows/agent-transformation-source-to-library.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-transformation-source-to-library.yml"
+cp -v "${TEMPLATE_DIR}/agent-flow-review.yml" "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-flow-review.yml"
 
 # CI workflows
 
-cp -v .github/workflows/ci-automerge.yml "${DEST_DIR}/."
+cp -v "${TEMPLATE_DIR}/ci-automerge.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-automerge.yml"
 
-cp -v .github/workflows/ci-deploy.yml "${DEST_DIR}/."
+cp -v "${TEMPLATE_DIR}/ci-deploy.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-deploy.yml"
 
-cp -v .github/workflows/ci-formating.yml "${DEST_DIR}/."
+cp -v "${TEMPLATE_DIR}/ci-formating.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-formating.yml"
 
-cp -v .github/workflows/ci-test.yml "${DEST_DIR}/."
+cp -v "${TEMPLATE_DIR}/ci-test.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-test.yml"
 
-cp -v .github/workflows/ci-update.yml "${DEST_DIR}/."
+cp -v "${TEMPLATE_DIR}/ci-update.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-update.yml"
 
-# Publish workflows
+# Publish workflows (only consumer-facing — NOT publish-stats which is internal)
 
-cp -v .github/workflows/publish-packages.yml "${DEST_DIR}/."
+cp -v "${TEMPLATE_DIR}/publish-packages.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish-packages.yml"
 
-cp -v .github/workflows/publish-web.yml "${DEST_DIR}/."
+cp -v "${TEMPLATE_DIR}/publish-web.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish-web.yml"
-
-cp -v .github/workflows/publish-stats.yml "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish-stats.yml"
 
 # Utility workflows
 
-cp -v .github/workflows/utils-truncate-issue-history.yml "${DEST_DIR}/."
+cp -v "${TEMPLATE_DIR}/utils-truncate-issue-history.yml" "${DEST_DIR}/."
 
-cp -v .github/workflows/utils-truncate-workflow-history.yml "${DEST_DIR}/."
+cp -v "${TEMPLATE_DIR}/utils-truncate-workflow-history.yml" "${DEST_DIR}/."
 
 mkdir -p "${DEST_DIR}/../../scripts"
 
