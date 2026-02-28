@@ -67,7 +67,7 @@ Feature #27 — make the MVP compact and information-dense.
 - B: Create composite actions that both repos share
 - C: Keep the wfr-* files but only for cross-repo use
 
-**Decision needed:** Which approach for Phase 1? (Post-merge task)
+**Decision: Option A — Inline in both repos simultaneously.** The user wants to flatten nested workflows first, then simplify and abstract. Pattern: inline → flatten → simplify → abstract.
 
 ## Step 2: Identify dead code paths
 

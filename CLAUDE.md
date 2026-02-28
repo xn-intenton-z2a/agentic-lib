@@ -101,10 +101,19 @@ The bot is currently powered by ChatGPT (old code on main). After merge, it will
 
 ### Copilot (agentic-lib)
 
-Create issues on agentic-lib and assign to `copilot-swe-agent`:
+Use Discussions on agentic-lib (not PRs or issues):
 ```bash
-gh issue create --title "..." --body "..." --assignee copilot-swe-agent
+# Create a new discussion
+gh api graphql -f query='mutation { createDiscussion(input: { repositoryId: "R_kgDON4GxXA", categoryId: "DIC_kwDON4GxXM4Cm4cE", title: "...", body: "..." }) { discussion { number url } } }'
+
+# Comment on existing discussion (e.g. #1775)
+gh api graphql -f query='mutation { addDiscussionComment(input: { discussionId: "DISCUSSION_NODE_ID", body: "..." }) { comment { url } } }'
+
+# Read latest comments
+gh api graphql -f query='{ repository(owner:"xn-intenton-z2a", name:"agentic-lib") { discussion(number: 1775) { comments(last:5) { nodes { body author { login } createdAt } } } } }'
 ```
+
+Current Copilot discussion: [#1775](https://github.com/xn-intenton-z2a/agentic-lib/discussions/1775)
 
 ### Communication Guidelines
 
