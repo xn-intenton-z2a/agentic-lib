@@ -49,6 +49,13 @@ jobs:
         working-directory: .github/agentic-lib/actions/agentic-step
         run: npm ci
 
+      - name: Load config for features
+        id: features-config
+        run: |
+          CONFIG="${{ env.configPath }}"
+          FEATURES=$(yq -r '.paths.featuresPath.path // ".github/agentic-lib/features/"' "$CONFIG" 2>/dev/null || echo '.github/agentic-lib/features/')
+          echo "writablePaths=${FEATURES}" >> $GITHUB_OUTPUT
+
       - name: Maintain features
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
@@ -57,7 +64,7 @@ jobs:
           task: 'maintain-features'
           config: ${{ env.configPath }}
           instructions: '.github/agentic-lib/agents/agent-maintain-features.md'
-          writable-paths: 'sandbox/features/'
+          writable-paths: ${{ steps.features-config.outputs.writablePaths }}
 
       - name: Commit and push changes
         run: |
@@ -87,6 +94,14 @@ jobs:
         working-directory: .github/agentic-lib/actions/agentic-step
         run: npm ci
 
+      - name: Load config for library
+        id: library-config
+        run: |
+          CONFIG="${{ env.configPath }}"
+          LIBRARY=$(yq -r '.paths.libraryDocumentsPath.path // "library/"' "$CONFIG" 2>/dev/null || echo 'library/')
+          SOURCES=$(yq -r '.paths.librarySourcesFilepath.path // "SOURCES.md"' "$CONFIG" 2>/dev/null || echo 'SOURCES.md')
+          echo "writablePaths=${LIBRARY};${SOURCES}" >> $GITHUB_OUTPUT
+
       - name: Maintain library
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
@@ -95,7 +110,7 @@ jobs:
           task: 'maintain-library'
           config: ${{ env.configPath }}
           instructions: '.github/agentic-lib/agents/agent-maintain-library.md'
-          writable-paths: 'sandbox/library/;sandbox/SOURCES.md'
+          writable-paths: ${{ steps.library-config.outputs.writablePaths }}
 
       - name: Commit and push changes
         run: |

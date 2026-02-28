@@ -44,6 +44,20 @@ jobs:
         working-directory: .github/agentic-lib/actions/agentic-step
         run: npm ci
 
+      - name: Load config
+        id: config
+        run: |
+          CONFIG="${{ env.configPath }}"
+          SOURCE=$(yq -r '.paths.targetSourcePath.path // "src/lib/"' "$CONFIG" 2>/dev/null || echo 'src/lib/')
+          TESTS=$(yq -r '.paths.targetTestsPath.path // "tests/unit/"' "$CONFIG" 2>/dev/null || echo 'tests/unit/')
+          FEATURES=$(yq -r '.paths.featuresPath.path // ".github/agentic-lib/features/"' "$CONFIG" 2>/dev/null || echo '.github/agentic-lib/features/')
+          DOCS=$(yq -r '.paths.documentationPath.path // "docs/"' "$CONFIG" 2>/dev/null || echo 'docs/')
+          LIBRARY=$(yq -r '.paths.libraryDocumentsPath.path // "library/"' "$CONFIG" 2>/dev/null || echo 'library/')
+          SOURCES=$(yq -r '.paths.librarySourcesFilepath.path // "SOURCES.md"' "$CONFIG" 2>/dev/null || echo 'SOURCES.md')
+          README=$(yq -r '.paths.readmeFilepath.path // "README.md"' "$CONFIG" 2>/dev/null || echo 'README.md')
+          DEPS=$(yq -r '.paths.dependenciesFilepath.path // "package.json"' "$CONFIG" 2>/dev/null || echo 'package.json')
+          echo "writablePaths=${SOURCE};${TESTS};${FEATURES};${DOCS};${LIBRARY};${SOURCES};${README};${DEPS}" >> $GITHUB_OUTPUT
+
       - name: Run evolution step
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
@@ -54,9 +68,7 @@ jobs:
           instructions: '.github/agentic-lib/agents/agent-issue-resolution.md'
           test-command: 'npm test'
           model: ${{ inputs.model || 'claude-sonnet-4-5' }}
-          writable-paths: >-
-            sandbox/source/;sandbox/tests/;sandbox/features/;sandbox/docs/;
-            sandbox/library/;sandbox/SOURCES.md;sandbox/README.md;package.json
+          writable-paths: ${{ steps.config.outputs.writablePaths }}
 
       - name: Commit and push changes
         run: |
