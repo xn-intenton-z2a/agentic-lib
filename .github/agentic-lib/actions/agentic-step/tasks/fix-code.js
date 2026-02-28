@@ -4,8 +4,9 @@
 // generates fixes using the Copilot SDK, and pushes a commit.
 
 import * as core from '@actions/core';
-import { CopilotClient } from '@github/copilot-sdk';
+import { CopilotClient, approveAll } from '@github/copilot-sdk';
 import { readFileSync } from 'fs';
+import { createAgentTools } from '../tools.js';
 
 /**
  * Fix failing code on a pull request.
@@ -79,6 +80,9 @@ export async function fixCode(context) {
     const session = await client.createSession({
       model,
       systemMessage: { content: `You are an autonomous coding agent fixing failing tests on PR #${prNumber}. Make minimal, targeted changes to fix the test failures.` },
+      tools: createAgentTools(writablePaths),
+      onPermissionRequest: approveAll,
+      workingDirectory: process.cwd(),
     });
 
     const response = await session.sendAndWait({ prompt });

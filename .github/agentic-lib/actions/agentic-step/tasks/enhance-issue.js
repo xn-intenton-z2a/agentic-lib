@@ -4,9 +4,10 @@
 // so that the resolve-issue task can implement it effectively.
 
 import * as core from '@actions/core';
-import { CopilotClient } from '@github/copilot-sdk';
+import { CopilotClient, approveAll } from '@github/copilot-sdk';
 import { isIssueResolved } from '../safety.js';
 import { readFileSync, existsSync } from 'fs';
+import { createAgentTools } from '../tools.js';
 
 /**
  * Enhance a GitHub issue with testable acceptance criteria.
@@ -82,6 +83,9 @@ export async function enhanceIssue(context) {
     const session = await client.createSession({
       model,
       systemMessage: { content: 'You are a requirements analyst. Enhance GitHub issues with clear, testable acceptance criteria.' },
+      tools: createAgentTools([]),
+      onPermissionRequest: approveAll,
+      workingDirectory: process.cwd(),
     });
 
     const response = await session.sendAndWait({ prompt });

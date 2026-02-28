@@ -4,8 +4,9 @@
 // and either creates features, issues, or code.
 
 import * as core from '@actions/core';
-import { CopilotClient } from '@github/copilot-sdk';
+import { CopilotClient, approveAll } from '@github/copilot-sdk';
 import { readFileSync, readdirSync, existsSync } from 'fs';
+import { createAgentTools } from '../tools.js';
 
 /**
  * Run the full evolution pipeline from mission to code.
@@ -112,6 +113,9 @@ export async function evolve(context) {
     const session = await client.createSession({
       model,
       systemMessage: { content: 'You are an autonomous code evolution agent. Your goal is to advance the repository toward its mission by making the most impactful change possible in a single step.' },
+      tools: createAgentTools(writablePaths),
+      onPermissionRequest: approveAll,
+      workingDirectory: process.cwd(),
     });
 
     const response = await session.sendAndWait({ prompt });
@@ -184,6 +188,9 @@ async function evolveTdd({ config, instructions, writablePaths, readOnlyPaths, t
     const session1 = await client.createSession({
       model,
       systemMessage: { content: 'You are a TDD agent. In this phase, write ONLY a failing test that captures the next feature requirement. Do not write implementation code.' },
+      tools: createAgentTools(writablePaths),
+      onPermissionRequest: approveAll,
+      workingDirectory: process.cwd(),
     });
 
     const response1 = await session1.sendAndWait({ prompt: testPrompt });
@@ -228,6 +235,9 @@ async function evolveTdd({ config, instructions, writablePaths, readOnlyPaths, t
     const session2 = await client.createSession({
       model,
       systemMessage: { content: 'You are a TDD agent. A failing test was written in Phase 1. Write the minimum implementation to make it pass. Do not modify the test.' },
+      tools: createAgentTools(writablePaths),
+      onPermissionRequest: approveAll,
+      workingDirectory: process.cwd(),
     });
 
     const response2 = await session2.sendAndWait({ prompt: implPrompt });

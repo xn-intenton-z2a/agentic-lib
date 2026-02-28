@@ -4,8 +4,9 @@
 // prunes completed/irrelevant features, and ensures quality.
 
 import * as core from '@actions/core';
-import { CopilotClient } from '@github/copilot-sdk';
+import { CopilotClient, approveAll } from '@github/copilot-sdk';
 import { readFileSync, readdirSync, existsSync } from 'fs';
+import { createAgentTools } from '../tools.js';
 
 /**
  * Maintain the feature set — create, update, or prune feature files.
@@ -98,6 +99,9 @@ export async function maintainFeatures(context) {
     const session = await client.createSession({
       model,
       systemMessage: { content: 'You are a feature lifecycle manager. Create, update, and prune feature specification files to keep the project focused on its mission.' },
+      tools: createAgentTools(writablePaths),
+      onPermissionRequest: approveAll,
+      workingDirectory: process.cwd(),
     });
 
     const response = await session.sendAndWait({ prompt });

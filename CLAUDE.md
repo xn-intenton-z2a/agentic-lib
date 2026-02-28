@@ -79,7 +79,11 @@ npm run build     # Build
 
 ## Ongoing Agent-to-Agent Communication
 
-**You should maintain ongoing conversations** with both GitHub Copilot and the repository0 discussions bot. Do this every few days, or more often if useful, less if not.
+**You should maintain ongoing conversations** with both GitHub Copilot and the repository0 discussions bot.
+
+**Daily cadence:** If it is a new day since the last session for this directory, reach out to both Copilot (via agentic-lib issues) and the discussions bot (via repository0 Discussion #2401). Ask them to respond, and follow up later in the session or in a future session. Maintain a dialogue as a continuous activity — about once a day for both. Not every follow-up needs action, but keep the conversation alive.
+
+**Also try @copilot in Discussions:** GitHub Discussions in agentic-lib may support mentioning `@copilot` directly. Try creating or commenting on agentic-lib Discussions with `@copilot` mentions to see if Copilot responds natively, in addition to the issue-assignment method.
 
 ### Discussions Bot (repository0)
 

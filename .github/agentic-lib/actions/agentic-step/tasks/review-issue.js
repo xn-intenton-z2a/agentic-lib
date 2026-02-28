@@ -4,8 +4,9 @@
 // if they have been resolved, and closes them if so.
 
 import * as core from '@actions/core';
-import { CopilotClient } from '@github/copilot-sdk';
+import { CopilotClient, approveAll } from '@github/copilot-sdk';
 import { readFileSync, readdirSync, existsSync } from 'fs';
+import { createAgentTools } from '../tools.js';
 
 /**
  * Review open issues and close those that have been resolved.
@@ -100,6 +101,9 @@ export async function reviewIssue(context) {
     const session = await client.createSession({
       model,
       systemMessage: { content: 'You are a code reviewer determining if GitHub issues have been resolved.' },
+      tools: createAgentTools([]),
+      onPermissionRequest: approveAll,
+      workingDirectory: process.cwd(),
     });
 
     const response = await session.sendAndWait({ prompt });

@@ -4,8 +4,9 @@
 // that provides context for feature generation and issue resolution.
 
 import * as core from '@actions/core';
-import { CopilotClient } from '@github/copilot-sdk';
+import { CopilotClient, approveAll } from '@github/copilot-sdk';
 import { readFileSync, readdirSync, existsSync } from 'fs';
+import { createAgentTools } from '../tools.js';
 
 /**
  * Maintain the library of knowledge documents from source URLs.
@@ -74,6 +75,9 @@ export async function maintainLibrary(context) {
     const session = await client.createSession({
       model,
       systemMessage: { content: 'You are a knowledge librarian. Maintain a library of technical documents extracted from web sources.' },
+      tools: createAgentTools(writablePaths),
+      onPermissionRequest: approveAll,
+      workingDirectory: process.cwd(),
     });
 
     const response = await session.sendAndWait({ prompt });

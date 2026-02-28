@@ -4,9 +4,10 @@
 // validates with tests, and creates a PR.
 
 import * as core from '@actions/core';
-import { CopilotClient } from '@github/copilot-sdk';
+import { CopilotClient, approveAll } from '@github/copilot-sdk';
 import { checkAttemptLimit, checkWipLimit, isIssueResolved } from '../safety.js';
 import { readFileSync } from 'fs';
+import { createAgentTools } from '../tools.js';
 
 /**
  * Resolve a GitHub issue by generating code and creating a PR.
@@ -102,6 +103,9 @@ export async function resolveIssue(context) {
     const session = await client.createSession({
       model,
       systemMessage: { content: `You are an autonomous coding agent resolving GitHub issue #${issueNumber}. Write clean, tested code. Only modify files listed under "Writable" paths. Read-only paths are for context only.` },
+      tools: createAgentTools(writablePaths),
+      onPermissionRequest: approveAll,
+      workingDirectory: process.cwd(),
     });
 
     const response = await session.sendAndWait({ prompt });

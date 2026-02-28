@@ -4,8 +4,9 @@
 // and provides status updates. Uses the Copilot SDK for natural conversation.
 
 import * as core from '@actions/core';
-import { CopilotClient } from '@github/copilot-sdk';
+import { CopilotClient, approveAll } from '@github/copilot-sdk';
 import { readFileSync, readdirSync, existsSync } from 'fs';
+import { createAgentTools } from '../tools.js';
 
 /**
  * Respond to a GitHub Discussion using the Copilot SDK.
@@ -18,6 +19,44 @@ export async function discussions(context) {
 
   if (!discussionUrl) {
     throw new Error('discussions task requires discussion-url input');
+  }
+
+  // Parse discussion URL to extract owner, repo, and discussion number
+  // Format: https://github.com/{owner}/{repo}/discussions/{number}
+  const urlMatch = discussionUrl.match(/github\.com\/([^/]+)\/([^/]+)\/discussions\/(\d+)/);
+  let discussionTitle = '';
+  let discussionBody = '';
+  let discussionComments = [];
+
+  if (urlMatch) {
+    const [, urlOwner, urlRepo, discussionNumber] = urlMatch;
+    try {
+      const query = `query {
+        repository(owner: "${urlOwner}", name: "${urlRepo}") {
+          discussion(number: ${discussionNumber}) {
+            title
+            body
+            comments(last: 10) {
+              nodes {
+                body
+                author { login }
+                createdAt
+              }
+            }
+          }
+        }
+      }`;
+      const result = await octokit.graphql(query);
+      const discussion = result.repository.discussion;
+      discussionTitle = discussion.title || '';
+      discussionBody = discussion.body || '';
+      discussionComments = discussion.comments.nodes || [];
+      core.info(`Fetched discussion #${discussionNumber}: "${discussionTitle}" (${discussionComments.length} comments)`);
+    } catch (err) {
+      core.warning(`Failed to fetch discussion content via GraphQL: ${err.message}. Falling back to URL-only.`);
+    }
+  } else {
+    core.warning(`Could not parse discussion URL: ${discussionUrl}`);
   }
 
   // Read mission for context
@@ -54,6 +93,10 @@ export async function discussions(context) {
     '',
     '## Discussion',
     `URL: ${discussionUrl}`,
+    discussionTitle ? `### ${discussionTitle}` : '',
+    discussionBody || '(no body)',
+    discussionComments.length > 0 ? `### Comments (${discussionComments.length})` : '',
+    ...discussionComments.map(c => `**${c.author?.login || 'unknown'}** (${c.createdAt}):\n${c.body}`),
     '',
     '## Context',
     `### Mission\n${mission}`,
@@ -88,6 +131,9 @@ export async function discussions(context) {
     const session = await client.createSession({
       model,
       systemMessage: { content: 'You are a repository bot that responds to GitHub Discussions. You are self-aware — you refer to yourself as the repository. Be helpful, adaptive, and proactive about suggesting features. You can update and delete features proactively when they are outdated or completed. You MUST protect the mission: if a user requests something that contradicts the mission, push back politely and suggest an aligned alternative.' },
+      tools: createAgentTools([]),
+      onPermissionRequest: approveAll,
+      workingDirectory: process.cwd(),
     });
 
     const response = await session.sendAndWait({ prompt });
