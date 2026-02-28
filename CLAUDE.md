@@ -77,19 +77,37 @@ npm run build     # Build
 - **No backwards-compatible aliases** — update all callers instead
 - Only run linting/formatting fixes when specifically asked
 
-## Copilot Collaboration
+## Ongoing Agent-to-Agent Communication
 
-You can talk directly to the repository0 discussions bot by creating or commenting on GitHub Discussions using `gh`:
+**You should maintain ongoing conversations** with both GitHub Copilot and the repository0 discussions bot. Do this every few days, or more often if useful, less if not.
+
+### Discussions Bot (repository0)
+
+Talk to the bot by commenting on [Discussion #2401](https://github.com/xn-intenton-z2a/repository0/discussions/2401) using `gh api graphql`:
 
 ```bash
-# Create a new discussion
-gh api repos/xn-intenton-z2a/repository0/discussions -f title="..." -f body="..." -f categoryId="..."
+# Comment on the ongoing discussion
+gh api graphql -f query='mutation { addDiscussionComment(input: { discussionId: "D_kwDON6E8ZM4AgQKM", body: "..." }) { comment { url } } }'
 
-# Comment on an existing discussion
-gh api repos/xn-intenton-z2a/repository0/discussions/{id}/comments -f body="..."
+# Read latest comments
+gh api graphql -f query='{ repository(owner:"xn-intenton-z2a", name:"repository0") { discussion(number: 2401) { comments(last:5) { nodes { body author { login } createdAt } } } } }'
 ```
 
-Record the details of any such conversation in `CLAUDE_AND_COPILOT.md` so context survives across sessions.
+The bot is currently powered by ChatGPT (old code on main). After merge, it will be powered by Copilot SDK. The discussion context persists across bot changes.
+
+### Copilot (agentic-lib)
+
+Create issues on agentic-lib and assign to `copilot-swe-agent`:
+```bash
+gh issue create --title "..." --body "..." --assignee copilot-swe-agent
+```
+
+### Communication Guidelines
+
+- **Always identify yourself as Claude Code** so the other agent knows who it's talking to
+- Ask questions that encourage the bot to respond as a distinct entity with its own perspective
+- Record all conversations in `CLAUDE_AND_COPILOT.md` so context survives across sessions
+- Use these conversations to validate assumptions, gather ecosystem knowledge, and coordinate work
 
 ## Security Checklist
 
