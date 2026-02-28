@@ -95,14 +95,13 @@ export async function resolveIssue(context) {
   ].join('\n');
 
   // Create Copilot SDK session
-  const client = new CopilotClient();
+  const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
   let tokensUsed = 0;
 
   try {
     const session = await client.createSession({
       model,
-      systemMessage: `You are an autonomous coding agent resolving GitHub issue #${issueNumber}. Write clean, tested code. Only modify files listed under "Writable" paths. Read-only paths are for context only.`,
-      workingDirectory: process.cwd(),
+      systemMessage: { content: `You are an autonomous coding agent resolving GitHub issue #${issueNumber}. Write clean, tested code. Only modify files listed under "Writable" paths. Read-only paths are for context only.` },
     });
 
     const response = await session.sendAndWait({ prompt });

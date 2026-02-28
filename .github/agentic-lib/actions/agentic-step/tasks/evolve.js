@@ -105,14 +105,13 @@ export async function evolve(context) {
   ].join('\n');
 
   // Create Copilot SDK session
-  const client = new CopilotClient();
+  const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
   let tokensUsed = 0;
 
   try {
     const session = await client.createSession({
       model,
-      systemMessage: 'You are an autonomous code evolution agent. Your goal is to advance the repository toward its mission by making the most impactful change possible in a single step.',
-      workingDirectory: process.cwd(),
+      systemMessage: { content: 'You are an autonomous code evolution agent. Your goal is to advance the repository toward its mission by making the most impactful change possible in a single step.' },
     });
 
     const response = await session.sendAndWait({ prompt });
@@ -140,7 +139,7 @@ export async function evolve(context) {
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
 async function evolveTdd({ config, instructions, writablePaths, readOnlyPaths, testCommand, model, mission, features, sourceFiles, openIssues }) {
-  const client = new CopilotClient();
+  const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
   let totalTokens = 0;
 
   try {
@@ -184,8 +183,7 @@ async function evolveTdd({ config, instructions, writablePaths, readOnlyPaths, t
 
     const session1 = await client.createSession({
       model,
-      systemMessage: 'You are a TDD agent. In this phase, write ONLY a failing test that captures the next feature requirement. Do not write implementation code.',
-      workingDirectory: process.cwd(),
+      systemMessage: { content: 'You are a TDD agent. In this phase, write ONLY a failing test that captures the next feature requirement. Do not write implementation code.' },
     });
 
     const response1 = await session1.sendAndWait({ prompt: testPrompt });
@@ -229,8 +227,7 @@ async function evolveTdd({ config, instructions, writablePaths, readOnlyPaths, t
 
     const session2 = await client.createSession({
       model,
-      systemMessage: 'You are a TDD agent. A failing test was written in Phase 1. Write the minimum implementation to make it pass. Do not modify the test.',
-      workingDirectory: process.cwd(),
+      systemMessage: { content: 'You are a TDD agent. A failing test was written in Phase 1. Write the minimum implementation to make it pass. Do not modify the test.' },
     });
 
     const response2 = await session2.sendAndWait({ prompt: implPrompt });

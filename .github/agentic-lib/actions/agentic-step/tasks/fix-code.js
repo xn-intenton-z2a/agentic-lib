@@ -72,14 +72,13 @@ export async function fixCode(context) {
   ].join('\n');
 
   // Create Copilot SDK session
-  const client = new CopilotClient();
+  const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
   let tokensUsed = 0;
 
   try {
     const session = await client.createSession({
       model,
-      systemMessage: `You are an autonomous coding agent fixing failing tests on PR #${prNumber}. Make minimal, targeted changes to fix the test failures.`,
-      workingDirectory: process.cwd(),
+      systemMessage: { content: `You are an autonomous coding agent fixing failing tests on PR #${prNumber}. Make minimal, targeted changes to fix the test failures.` },
     });
 
     const response = await session.sendAndWait({ prompt });

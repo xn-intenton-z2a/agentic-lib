@@ -93,13 +93,13 @@ export async function reviewIssue(context) {
     '- "OPEN: <reason>" if the issue is not yet resolved',
   ].join('\n');
 
-  const client = new CopilotClient();
+  const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
   let tokensUsed = 0;
 
   try {
     const session = await client.createSession({
       model,
-      systemMessage: 'You are a code reviewer determining if GitHub issues have been resolved.',
+      systemMessage: { content: 'You are a code reviewer determining if GitHub issues have been resolved.' },
     });
 
     const response = await session.sendAndWait({ prompt });

@@ -91,14 +91,13 @@ export async function maintainFeatures(context) {
     '- Feature files must be markdown with a descriptive filename (e.g. HTTP_SERVER.md)',
   ].join('\n');
 
-  const client = new CopilotClient();
+  const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
   let tokensUsed = 0;
 
   try {
     const session = await client.createSession({
       model,
-      systemMessage: 'You are a feature lifecycle manager. Create, update, and prune feature specification files to keep the project focused on its mission.',
-      workingDirectory: process.cwd(),
+      systemMessage: { content: 'You are a feature lifecycle manager. Create, update, and prune feature specification files to keep the project focused on its mission.' },
     });
 
     const response = await session.sendAndWait({ prompt });

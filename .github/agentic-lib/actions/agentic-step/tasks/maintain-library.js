@@ -67,14 +67,13 @@ export async function maintainLibrary(context) {
     `- Maximum ${libraryLimit} library documents`,
   ].join('\n');
 
-  const client = new CopilotClient();
+  const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
   let tokensUsed = 0;
 
   try {
     const session = await client.createSession({
       model,
-      systemMessage: 'You are a knowledge librarian. Maintain a library of technical documents extracted from web sources.',
-      workingDirectory: process.cwd(),
+      systemMessage: { content: 'You are a knowledge librarian. Maintain a library of technical documents extracted from web sources.' },
     });
 
     const response = await session.sendAndWait({ prompt });

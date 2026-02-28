@@ -75,13 +75,13 @@ export async function enhanceIssue(context) {
     'Output ONLY the new issue body text, no markdown code fences.',
   ].join('\n');
 
-  const client = new CopilotClient();
+  const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
   let tokensUsed = 0;
 
   try {
     const session = await client.createSession({
       model,
-      systemMessage: 'You are a requirements analyst. Enhance GitHub issues with clear, testable acceptance criteria.',
+      systemMessage: { content: 'You are a requirements analyst. Enhance GitHub issues with clear, testable acceptance criteria.' },
     });
 
     const response = await session.sendAndWait({ prompt });

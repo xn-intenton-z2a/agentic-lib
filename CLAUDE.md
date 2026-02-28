@@ -77,6 +77,20 @@ npm run build     # Build
 - **No backwards-compatible aliases** — update all callers instead
 - Only run linting/formatting fixes when specifically asked
 
+## Copilot Collaboration
+
+You can talk directly to the repository0 discussions bot by creating or commenting on GitHub Discussions using `gh`:
+
+```bash
+# Create a new discussion
+gh api repos/xn-intenton-z2a/repository0/discussions -f title="..." -f body="..." -f categoryId="..."
+
+# Comment on an existing discussion
+gh api repos/xn-intenton-z2a/repository0/discussions/{id}/comments -f body="..."
+```
+
+Record the details of any such conversation in `CLAUDE_AND_COPILOT.md` so context survives across sessions.
+
 ## Security Checklist
 
 - Never commit secrets — use GitHub Actions secrets
