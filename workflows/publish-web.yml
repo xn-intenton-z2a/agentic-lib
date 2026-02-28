@@ -19,42 +19,28 @@ env:
 
 jobs:
 
-  agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@main'
-    with:
-      configPath: ${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-  select-next-issue:
-    permissions:
-      issues: write
-      id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
-    with:
-      issueNumber: ''
-      selectionLabel: 'ready'
-      filterLabel: 'in-progress'
-    secrets:
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
   publish-web:
-    needs:
-      - select-next-issue
-      - agentic-lib
     permissions:
       contents: write
+      issues: read
       id-token: write
       pages: write
     runs-on: ubuntu-latest
     env:
-      public: ${{ needs.agentic-lib.outputs.docRoot || 'public' }}
+      public: 'public'
       libraryDocumentsPath: 'library/'
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
           fetch-depth: 0
+
+      - name: Load config
+        id: config
+        run: |
+          CONFIG="${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}"
+          DOC_ROOT=$(yq -r '.docRoot // "public"' "$CONFIG" 2>/dev/null || echo 'public')
+          echo "public=${DOC_ROOT}" >> $GITHUB_ENV
 
       - uses: actions/setup-node@v4
         with:

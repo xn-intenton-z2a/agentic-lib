@@ -35,13 +35,6 @@ env:
   iamPublicWebsiteStatsBucketWriterRoleArn: ${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}
 
 jobs:
-  agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@main'
-    with:
-      configPath: ${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
   check-workflow-run:
     name: 'Check workflow run trigger'
     runs-on: ubuntu-latest

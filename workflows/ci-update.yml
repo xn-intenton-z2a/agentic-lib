@@ -49,12 +49,6 @@ env:
   iamPublicWebsiteStatsBucketWriterRoleArn: ${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}
 
 jobs:
-  agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@main'
-    with:
-      configPath: ${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   check-branch:
     runs-on: ubuntu-latest
@@ -135,7 +129,6 @@ jobs:
 
   update-npm:
     needs:
-      - agentic-lib
       - check-branch
     permissions:
       contents: write
@@ -144,10 +137,10 @@ jobs:
       packages: write
     runs-on: ubuntu-latest
     env:
-      buildScript: ${{ needs.agentic-lib.outputs.buildScript || 'npm run build' }}
-      testScript: ${{ needs.agentic-lib.outputs.testScript || 'npm test' }}
+      buildScript: 'npm run build'
+      testScript: 'npm test'
       testScriptTimeout: '5m'
-      mainScript: ${{ needs.agentic-lib.outputs.mainScript || 'npm run start' }}
+      mainScript: 'npm run start'
       mainScriptTimeout: '5m'
       upgradeTarget: ${{ inputs.upgradeTarget || 'patch' }}
       branch: 'agentic-lib-update-dependencies'
@@ -168,6 +161,20 @@ jobs:
         with:
           node-version: '22'
           cache: ${{ env.cache }}
+
+      - name: Load config
+        id: config
+        run: |
+          CONFIG="${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}"
+          if [ -f "$CONFIG" ]; then
+            BS=$(yq -r '.buildScript // ""' "$CONFIG" 2>/dev/null)
+            TS=$(yq -r '.testScript // ""' "$CONFIG" 2>/dev/null)
+            MS=$(yq -r '.mainScript // ""' "$CONFIG" 2>/dev/null)
+            [ -n "$BS" ] && echo "buildScript=$BS" >> $GITHUB_ENV
+            [ -n "$TS" ] && echo "testScript=$TS" >> $GITHUB_ENV
+            [ -n "$MS" ] && echo "mainScript=$MS" >> $GITHUB_ENV
+          fi
+
       - name: Check GitHub authentication
         if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
@@ -395,12 +402,68 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@main'
-    with:
+    runs-on: ubuntu-latest
+    env:
       branch: 'agentic-lib-update-dependencies'
       baseBranch: 'main'
       gitCommitMessage: 'chore: dependency updates'
       label: 'automerge'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create pull request
+        uses: actions/github-script@v7
+        env:
+          branch: ${{ env.branch }}
+          baseBranch: ${{ env.baseBranch }}
+          gitCommitMessage: ${{ env.gitCommitMessage }}
+          label: ${{ env.label }}
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: existingPulls } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${process.env.branch}`,
+              base: process.env.baseBranch,
+              state: 'open',
+            });
+            if (!existingPulls || existingPulls.length === 0) {
+              const comparison = await github.rest.repos.compareCommits({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                base: process.env.baseBranch,
+                head: process.env.branch,
+              });
+              if (process.env.branch != 'main' && comparison.data.ahead_by === 0) {
+                core.info(`No additions detected. Deleting branch: ${process.env.branch}`);
+                await github.rest.git.deleteRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: `heads/${process.env.branch}`,
+                });
+              } else {
+                const { data: pr } = await github.rest.pulls.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: process.env.gitCommitMessage,
+                  head: process.env.branch,
+                  base: process.env.baseBranch,
+                  body: process.env.gitCommitMessage,
+                  maintainer_can_modify: true,
+                });
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  labels: [process.env.label],
+                });
+                core.info(`Pull request created: ${pr.html_url}`);
+              }
+            } else {
+              core.info(`Pull request already exists for this branch.`);
+            }
 
   automerge-pr-npm:
     needs:
@@ -414,7 +477,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@main'
+    uses: './.github/workflows/ci-automerge.yml'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
@@ -431,12 +494,68 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@main'
-    with:
+    runs-on: ubuntu-latest
+    env:
       branch: 'agentic-lib-update-dependencies'
       baseBranch: 'main'
       gitCommitMessage: 'chore: dependency updates'
       label: 'automerge'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create pull request
+        uses: actions/github-script@v7
+        env:
+          branch: ${{ env.branch }}
+          baseBranch: ${{ env.baseBranch }}
+          gitCommitMessage: ${{ env.gitCommitMessage }}
+          label: ${{ env.label }}
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: existingPulls } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${process.env.branch}`,
+              base: process.env.baseBranch,
+              state: 'open',
+            });
+            if (!existingPulls || existingPulls.length === 0) {
+              const comparison = await github.rest.repos.compareCommits({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                base: process.env.baseBranch,
+                head: process.env.branch,
+              });
+              if (process.env.branch != 'main' && comparison.data.ahead_by === 0) {
+                core.info(`No additions detected. Deleting branch: ${process.env.branch}`);
+                await github.rest.git.deleteRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: `heads/${process.env.branch}`,
+                });
+              } else {
+                const { data: pr } = await github.rest.pulls.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: process.env.gitCommitMessage,
+                  head: process.env.branch,
+                  base: process.env.baseBranch,
+                  body: process.env.gitCommitMessage,
+                  maintainer_can_modify: true,
+                });
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  labels: [process.env.label],
+                });
+                core.info(`Pull request created: ${pr.html_url}`);
+              }
+            } else {
+              core.info(`Pull request already exists for this branch.`);
+            }
 
   automerge-pr-mvn:
     needs:
@@ -451,7 +570,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@main'
+    uses: './.github/workflows/ci-automerge.yml'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

@@ -49,16 +49,7 @@ env:
   iamPublicWebsiteStatsBucketWriterRoleArn: ${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}
 
 jobs:
-  agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@main'
-    with:
-      configPath: ${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
   npm-test-and-run-main:
-    needs:
-      - agentic-lib
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -85,10 +76,16 @@ jobs:
         shell: bash
         run: 'npm test'
 
+      - name: Load config
+        id: config
+        run: |
+          CONFIG="${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}"
+          echo "mainScript=$(yq -r '.mainScript // "npm run start"' "$CONFIG" 2>/dev/null || echo 'npm run start')" >> $GITHUB_OUTPUT
+
       - name: main
         id: main
         shell: bash
-        run: timeout 5m ${{ needs.agentic-lib.outputs.mainScript }}
+        run: timeout 5m ${{ steps.config.outputs.mainScript }}
 
   mvn-package-cdk-synth:
     runs-on: ubuntu-latest

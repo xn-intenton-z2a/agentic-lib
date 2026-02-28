@@ -53,13 +53,6 @@ env:
   iamPublicWebsiteStatsBucketWriterRoleArn: ${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}
 
 jobs:
-  agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@main'
-    with:
-      configPath: ${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
   npm-test-and-run-main:
     runs-on: ubuntu-latest
     steps:
@@ -171,7 +164,6 @@ jobs:
 
   publish-npm:
     needs:
-      - agentic-lib
       - npm-test-and-run-main
       - mvn-package-cdk-synth
     permissions:
@@ -180,7 +172,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
-      buildScript: ${{ needs.agentic-lib.outputs.buildScript || 'npm run build' }}
+      buildScript: 'npm run build'
       cache: 'npm'
       releaseNotes: 'Release increment: ${{ inputs.versionIncrement }}.'
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
