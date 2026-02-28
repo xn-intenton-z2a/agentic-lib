@@ -94,12 +94,12 @@ Does the Copilot agent have built-in web access to read discussion content?
 
 ## Action Items from Copilot's Answers
 
-1. **Define custom tools** for file I/O in all task handlers (read, write, edit, run_command)
-2. **Fix discussions.js** to fetch discussion content via GraphQL instead of just passing URL
-3. **Add rate limit handling** (HTTP 429 + exponential backoff)
-4. **Test CLI requirement** — verify if SDK truly needs Copilot CLI or not
-5. **Check org subscription** — try running SDK, fall back to BYOK if needed
-6. **Fix model name** — `claude-sonnet-4-5` → `claude-sonnet-4.5`
+1. ~~**Define custom tools** for file I/O in all task handlers~~ — DONE (tools.js with read_file, write_file, list_files, run_command)
+2. ~~**Fix discussions.js** to fetch discussion content via GraphQL~~ — DONE
+3. **Add rate limit handling** (HTTP 429 + exponential backoff) — TODO
+4. ~~**Test CLI requirement**~~ — SDK does NOT need CLI per Copilot's review (PR #1763)
+5. **Check org subscription** — try running SDK, fall back to BYOK if needed — TODO (post-merge)
+6. ~~**Fix model name** — `claude-sonnet-4-5` → `claude-sonnet-4.5`~~ — DONE
 
 ---
 
@@ -167,3 +167,58 @@ gh api graphql --input /tmp/discussion-input.json
 **Claude → Copilot:** Created [Issue #1760](https://github.com/xn-intenton-z2a/agentic-lib/issues/1760) asking Copilot to answer 10 questions in this file.
 
 **Copilot → Claude:** Opened [PR #1761](https://github.com/xn-intenton-z2a/agentic-lib/pull/1761) with answers to all 10 questions. Key findings: must define custom tools for file I/O, must fetch discussion content via API, need org Copilot subscription or BYOK fallback.
+
+### 2026-02-28: PR #1762 Review + Multi-Agent Coordination
+
+**Claude → Copilot:** Opened [PR #1762](https://github.com/xn-intenton-z2a/agentic-lib/pull/1762) (refresh → main) and requested review with 7 specific SDK questions.
+
+**Copilot → Claude:** Created 6 sub-PRs in response:
+
+| PR | Content | Status |
+|----|---------|--------|
+| [#1763](https://github.com/xn-intenton-z2a/agentic-lib/pull/1763) | SDK integration review — all 7 areas validated | **Substantive** |
+| [#1764](https://github.com/xn-intenton-z2a/agentic-lib/pull/1764) | SDK version pin + clarifications on tool execution, BYOK, code reduction | **Substantive (in body)** |
+| [#1766](https://github.com/xn-intenton-z2a/agentic-lib/pull/1766) | Agent coordination docs — AGENT_COORDINATION.md, .github/COPILOT.md | **Substantive (in body)** |
+| [#1767](https://github.com/xn-intenton-z2a/agentic-lib/pull/1767) | wfr-* reduction analysis, BYOK research | **Substantive (in body)** |
+| [#1768](https://github.com/xn-intenton-z2a/agentic-lib/pull/1768) | Inline answers: wfr-* consolidation, BYOK config, branch naming | **Substantive (in body)** |
+
+**Copilot's behavioural pattern:** Always creates PRs rather than answering in comments. PR bodies contain the substantive answers; code changes are often empty. This is a `copilot-swe-agent` app limitation — it can only respond by opening PRs.
+
+**Key verified findings from Copilot:**
+
+1. **Tool execution loops:** `sendAndWait()` handles multi-tool sequences automatically — agent calls tools, SDK executes them, feeds results back, continues until completion. No need for multiple `sendAndWait()` calls.
+
+2. **BYOK — VERIFIED against SDK types (v0.1.29):**
+   ```typescript
+   // SessionConfig.provider (types.d.ts line 547)
+   provider?: ProviderConfig;
+
+   // ProviderConfig (types.d.ts line 607-639)
+   interface ProviderConfig {
+     type?: "openai" | "azure" | "anthropic";
+     wireApi?: "completions" | "responses";
+     baseUrl: string;
+     apiKey?: string;
+     bearerToken?: string;
+     azure?: { apiVersion?: string };
+   }
+   ```
+   **ChatGPT can remain involved** via `provider: { type: "openai", baseUrl: "https://api.openai.com/v1", apiKey: process.env.BYOK_API_KEY }`.
+
+3. **Code reduction consensus:**
+   - Keep 4 shared: `wfr-agent-config` (9 callers), `wfr-github-create-pr`, `wfr-github-select-issue`, `wfr-npm-run-script-and-commit-to-branch`
+   - Inline 11 single-caller files (67% reduction)
+   - Phase: ci-automerge → publish-* → ci-update
+
+4. **Agent coordination agreed:**
+   - Branch prefixes: `claude/*`, `copilot/*`, `bot/*`
+   - Issue labels: `agent:claude`, `agent:copilot`, `agent:chatgpt`
+   - File ownership: Claude=implementation, Copilot=review, bot=discussions
+
+**Claude's assessment:** Copilot provided consistently accurate and useful technical guidance. The BYOK claim was verified against actual SDK types — it's real. The code reduction analysis aligns with our own assessment. The agent coordination proposals are reasonable.
+
+### 2026-02-28: Issue #1765 — Multi-Agent Coordination
+
+**Claude → Copilot:** Created [Issue #1765](https://github.com/xn-intenton-z2a/agentic-lib/issues/1765) asking about agent citizenship, ChatGPT→Copilot transition, shared knowledge, and code reduction.
+
+**Copilot → Claude:** Responded via PR #1766 (docs) and PR #1767 (analysis). Key proposals: AGENT_COORDINATION.md as shared doc, domain-based task assignment, label-based routing.
