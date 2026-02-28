@@ -71,9 +71,6 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-update.yml"
 cp -v "${SRC}/workflows/publish-packages.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish-packages.yml"
 
-cp -v "${SRC}/workflows/publish-web.yml" "${DEST_DIR}/."
-sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish-web.yml"
-
 # Operational workflows
 
 cp -v "${SRC}/workflows/agent-supervisor.yml" "${DEST_DIR}/."
@@ -110,6 +107,7 @@ cp -v ${SRC}/agents/agentic-lib.yml "${DEST_DIR}/../../.github/agentic-lib/agent
 mkdir -p "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/tasks"
 cp -v ${SRC}/actions/agentic-step/action.yml "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/."
 cp -v ${SRC}/actions/agentic-step/index.js "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/."
+cp -v ${SRC}/actions/agentic-step/copilot.js "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/."
 cp -v ${SRC}/actions/agentic-step/config-loader.js "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/."
 cp -v ${SRC}/actions/agentic-step/logging.js "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/."
 cp -v ${SRC}/actions/agentic-step/safety.js "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/."
@@ -117,3 +115,13 @@ cp -v ${SRC}/actions/agentic-step/tools.js "${DEST_DIR}/../../.github/agentic-li
 cp -v ${SRC}/actions/agentic-step/package.json "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/."
 cp -v ${SRC}/actions/agentic-step/package-lock.json "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/."
 cp -v ${SRC}/actions/agentic-step/tasks/*.js "${DEST_DIR}/../../.github/agentic-lib/actions/agentic-step/tasks/."
+
+# Commit-if-changed action
+
+mkdir -p "${DEST_DIR}/../../.github/agentic-lib/actions/commit-if-changed"
+cp -v ${SRC}/actions/commit-if-changed/action.yml "${DEST_DIR}/../../.github/agentic-lib/actions/commit-if-changed/."
+
+# Setup-npmrc action
+
+mkdir -p "${DEST_DIR}/../../.github/agentic-lib/actions/setup-npmrc"
+cp -v ${SRC}/actions/setup-npmrc/action.yml "${DEST_DIR}/../../.github/agentic-lib/actions/setup-npmrc/."
