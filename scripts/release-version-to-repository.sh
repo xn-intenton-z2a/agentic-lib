@@ -66,13 +66,21 @@ sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-test.yml"
 cp -v "${TEMPLATE_DIR}/ci-update.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/ci-update.yml"
 
-# Publish workflows (only consumer-facing — NOT publish-stats which is internal)
+# Publish workflows
 
 cp -v "${TEMPLATE_DIR}/publish-packages.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish-packages.yml"
 
+cp -v "${TEMPLATE_DIR}/publish-stats.yml" "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish-stats.yml"
+
 cp -v "${TEMPLATE_DIR}/publish-web.yml" "${DEST_DIR}/."
 sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/publish-web.yml"
+
+# Operational workflows
+
+cp -v "${TEMPLATE_DIR}/agent-supervisor.yml" "${DEST_DIR}/."
+sed -i '' "s/@main/@${TAG_VERSION}/g" "${DEST_DIR}/agent-supervisor.yml"
 
 # Utility workflows
 
