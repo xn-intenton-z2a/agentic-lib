@@ -364,6 +364,7 @@ Both documents must be rewritten as part of the narrative alignment (see PLAN_NA
 - The planning artifact (PLAN.md) becomes part of the template system (Feature #14)
 - The witness scoring becomes part of witness machinery (Feature #12)
 - The MVP demo (#28) uses the devkit scenario
+- The devkit CLI includes `--add "description"` which creates a GitHub issue from the command line, enabling users to request features that the machinery delivers via `npm update`
 
 ---
 

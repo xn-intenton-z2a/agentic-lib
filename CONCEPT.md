@@ -183,6 +183,22 @@ This is more fluid than a forbidden list. Capabilities are documented in repo fi
 
 **The SDK (agentic-lib):** Provides the machinery — the workflows, the action, the perspectives. It's the factory-in-a-box you install on any repository.
 
+**Live feature requests from the CLI:**
+
+Once the product is realized and stewardship begins, users can request new features from the command line:
+
+```
+devkit --add "please add a TOML parser"
+```
+
+This translates to a GitHub issue in the repository, labeled for the builder perspective. The machinery picks it up, the plan is refined to include it, the builder writes the code, the witness assesses it, and the feature lands. The user gets it via:
+
+```
+npm update @intentïon/devkit
+```
+
+The loop from intention to realization is the same whether the intention is the original seed or a feature request from a user who's already using the product. `--add` is just another way to express an intention.
+
 ---
 
 ## Planning Theory References
