@@ -42,7 +42,7 @@ The **core SDK** of the intentïon project. A collection of reusable GitHub Acti
 
 - Reusable workflows invoked via `workflow_call` event
 - Workflows communicate through branches and issues
-- OpenAI API integration for autonomous code decisions
+- GitHub Copilot SDK integration for autonomous code decisions (via agentic-step action)
 - Published to npm as `@xn-intenton-z2a/agentic-lib`
 
 ## Related Repositories
@@ -77,8 +77,102 @@ npm run build     # Build
 - **No backwards-compatible aliases** — update all callers instead
 - Only run linting/formatting fixes when specifically asked
 
+## Ongoing Agent-to-Agent Communication
+
+**You should maintain ongoing conversations** with both GitHub Copilot and the repository0 discussions bot.
+
+**Daily cadence:** If it is a new day since the last session for this directory, reach out to both Copilot (via agentic-lib issues) and the discussions bot (via repository0 Discussion #2401). Ask them to respond, and follow up later in the session or in a future session. Maintain a dialogue as a continuous activity — about once a day for both. Not every follow-up needs action, but keep the conversation alive.
+
+**Also try @copilot in Discussions:** GitHub Discussions in agentic-lib may support mentioning `@copilot` directly. Try creating or commenting on agentic-lib Discussions with `@copilot` mentions to see if Copilot responds natively, in addition to the issue-assignment method.
+
+### Discussions Bot (repository0)
+
+Talk to the bot by commenting on [Discussion #2401](https://github.com/xn-intenton-z2a/repository0/discussions/2401) using `gh api graphql`:
+
+```bash
+# Comment on the ongoing discussion
+gh api graphql -f query='mutation { addDiscussionComment(input: { discussionId: "D_kwDON6E8ZM4AgQKM", body: "..." }) { comment { url } } }'
+
+# Read latest comments
+gh api graphql -f query='{ repository(owner:"xn-intenton-z2a", name:"repository0") { discussion(number: 2401) { comments(last:5) { nodes { body author { login } createdAt } } } } }'
+```
+
+The bot is currently powered by ChatGPT (old code on main). After merge, it will be powered by Copilot SDK. The discussion context persists across bot changes.
+
+### Copilot (agentic-lib)
+
+Use Discussions on agentic-lib (not PRs or issues):
+```bash
+# Create a new discussion
+gh api graphql -f query='mutation { createDiscussion(input: { repositoryId: "R_kgDON4GxXA", categoryId: "DIC_kwDON4GxXM4Cm4cE", title: "...", body: "..." }) { discussion { number url } } }'
+
+# Comment on existing discussion (e.g. #1775)
+gh api graphql -f query='mutation { addDiscussionComment(input: { discussionId: "DISCUSSION_NODE_ID", body: "..." }) { comment { url } } }'
+
+# Read latest comments
+gh api graphql -f query='{ repository(owner:"xn-intenton-z2a", name:"agentic-lib") { discussion(number: 1775) { comments(last:5) { nodes { body author { login } createdAt } } } } }'
+```
+
+Current Copilot discussion: [#1775](https://github.com/xn-intenton-z2a/agentic-lib/discussions/1775)
+
+### Communication Guidelines
+
+- **Always identify yourself as Claude Code** so the other agent knows who it's talking to
+- Ask questions that encourage the bot to respond as a distinct entity with its own perspective
+- Record all conversations in `CLAUDE_AND_COPILOT.md` so context survives across sessions
+- Use these conversations to validate assumptions, gather ecosystem knowledge, and coordinate work
+
+## Multi-Agent Citizenship
+
+Three AI agents work on the intentïon project. Follow these guidelines to be good citizens.
+
+### Who's Who
+
+| Agent | Identity | Primary Channel | Strengths |
+|-------|----------|-----------------|-----------|
+| **Claude Code** | claude-opus-4-6 | CLI, branches, PRs | Architecture, multi-file changes, planning |
+| **GitHub Copilot** | copilot-swe-agent | Issues → PRs | Code review, SDK knowledge, single-file fixes |
+| **Discussions Bot** | github-actions (ChatGPT/Copilot) | repository0 Discussions | User interaction, feature requests, mission alignment |
+
+### Branch Ownership
+
+| Prefix | Owner | Purpose |
+|--------|-------|---------|
+| `claude/*` | Claude Code | Feature work, refactoring, multi-file changes |
+| `copilot/*` | Copilot | Issue fixes, review-driven changes |
+| `agentic-lib-issue-*` | Automated (agentic-step) | Issue resolution via evolve workflow |
+| `refresh` | Claude Code (primary) | Stabilisation branch — all agents may contribute |
+| `main` | Protected | Merge only via reviewed PR |
+
+### File Ownership
+
+| Files | Primary Owner | Others May |
+|-------|--------------|------------|
+| `CLAUDE.md`, `CLAUDE_AND_COPILOT.md` | Claude Code | Read |
+| `.github/agentic-lib/actions/agentic-step/*` | Claude Code | Review, suggest fixes |
+| `.github/workflows/*` | Claude Code | Review, fix bugs |
+| `FEATURES.md`, `PLAN_*.md` | Claude Code | Comment via issues |
+| `src/lib/main.js` (repository0) | Automated (agentic-step) | Review |
+| Agent prompt files (`.github/agentic-lib/agents/`) | Shared | Any agent may update |
+
+### Conflict Avoidance
+
+1. **Check before pushing**: Before pushing to a shared branch, check recent commits from other agents
+2. **Don't overwrite**: If another agent has pushed to the same branch, pull before pushing
+3. **Scope PRs tightly**: Each PR should address one concern — don't mix unrelated changes
+4. **Copilot sub-PRs**: Copilot tends to create sub-PRs targeting main. Redirect to target `refresh` or the relevant feature branch instead
+5. **Label issues**: Use labels to indicate which agent should handle a task (`claude-code`, `copilot`, `automated`)
+
+### Cross-Examination Protocol
+
+When one agent proposes a change or makes a claim:
+1. **Verify empirically** — don't just accept it. Check npm, read types, run code.
+2. **Note disagreements** — record in CLAUDE_AND_COPILOT.md when agents disagree, with reasoning
+3. **Prefer the agent with direct access** — Copilot knows the SDK best; Claude Code knows the architecture best; the bot knows user intent best
+4. **Ask for evidence** — "What's your source?" is always a fair question between agents
+
 ## Security Checklist
 
 - Never commit secrets — use GitHub Actions secrets
-- Never commit OpenAI API keys
+- Never commit API keys or tokens
 - Verify workflow permissions follow least privilege

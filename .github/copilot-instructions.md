@@ -45,7 +45,7 @@ When reviewing code changes, be as low friction as possible, maintaining current
 1. **Understand the context** — What problem is being solved? Which workflows are affected?
 2. **Trace code paths** — Follow execution flow through workflow YAML and JavaScript
 3. **Validate against patterns** — Does it match existing workflow conventions?
-4. **Consider cross-cutting concerns** — Security, OpenAI API usage, workflow permissions
+4. **Consider cross-cutting concerns** — Security, API usage, workflow permissions
 5. **Suggest minimal changes** — Focus on surgical, targeted improvements
 
 ## Repository Patterns and Conventions
@@ -71,14 +71,14 @@ Tests use **Vitest**. Test files are in `tests/unit/` and `sandbox/tests/`.
 ### Key Architecture
 
 - **Reusable workflows** (`.github/workflows/`) — invoked via `workflow_call`
-- **Agent configurations** (`.github/agents/`) — define agent behavior patterns
+- **Agent configurations** (`.github/agentic-lib/agents/`) — define agent behavior patterns
 - **Sandbox** (`sandbox/`) — restricted path for automated code changes
 - **Source** (`src/lib/`) — core library code
 
 ### Naming Conventions
 
 - Workflow files: `agent-{type}-{action}.yml` or `ci-{purpose}.yml` or `publish-{target}.yml`
-- Agent configs: `.github/agents/*.yml`
+- Agent configs: `.github/agentic-lib/agents/*.yml`
 - npm scripts: colon separator for variants (e.g., `test:unit`)
 
 ## Code Review Focus Areas
@@ -86,7 +86,7 @@ Tests use **Vitest**. Test files are in `tests/unit/` and `sandbox/tests/`.
 ### Security Considerations
 
 1. **Secrets Management**
-   - Never commit API keys (OpenAI, GitHub tokens)
+   - Never commit API keys or tokens
    - GitHub Actions secrets for sensitive values
    - Check workflow permissions follow least privilege
 
@@ -116,7 +116,7 @@ Tests use **Vitest**. Test files are in `tests/unit/` and `sandbox/tests/`.
 - Workflows with `Resource: "*"` in IAM permissions
 - Hard-coded secrets or API keys in workflow files
 - Missing `permissions:` blocks on workflows
-- Workflows that could run unbounded loops (OpenAI API cost risk)
+- Workflows that could run unbounded loops (API cost risk)
 - Unnecessary formatting changes in PRs
 
 ## Recommended Review Checklist
@@ -128,7 +128,7 @@ Tests use **Vitest**. Test files are in `tests/unit/` and `sandbox/tests/`.
 - [ ] **Validate consistency** — Naming, patterns match existing conventions
 - [ ] **Consider consumers** — Will this break repository0 or other consumers?
 - [ ] **Check tests** — Are appropriate tests included/updated?
-- [ ] **Review OpenAI usage** — Is API usage bounded and cost-aware?
+- [ ] **Review API usage** — Is Copilot SDK usage bounded and cost-aware?
 
 ## Resources
 
@@ -136,7 +136,7 @@ Tests use **Vitest**. Test files are in `tests/unit/` and `sandbox/tests/`.
 - **Contributing**: [`./CONTRIBUTING.md`](../CONTRIBUTING.md)
 - **Package Scripts**: [`./package.json`](../package.json)
 - **Workflows**: [`./.github/workflows/`](./workflows/)
-- **Agent Configs**: [`./.github/agents/`](./agents/)
+- **Agent Configs**: [`./.github/agentic-lib/agents/`](./agentic-lib/agents/)
 
 ---
 
