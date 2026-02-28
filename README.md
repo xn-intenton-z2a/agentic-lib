@@ -21,6 +21,11 @@ Mixed licensing:
 
 [Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
 
+**Key Documentation:**
+* [AGENT_COORDINATION.md](AGENT_COORDINATION.md) - Multi-agent coordination patterns for Claude, Copilot, and ChatGPT
+* [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
+* [MISSION.md](MISSION.md) - Project mission statement
+
 Examples:
 * [`repository0-plot-code-lib`](https://github.com/xn-intenton-z2a/repository0-plot-code-lib) - A CLI generating SVG and novel formats plots for formulae.
 * Send a PR to add your example, either descending from `repository0` or using the `agentic-lib` SDK directly.
