@@ -46,11 +46,6 @@ on:
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
-  s3BucketUrl: ${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}
-  s3WebsiteBucketUrl: ${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}
-  iamActionsRoleArn: ${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}
-  iamStatsBucketWriterRoleArn: ${{ vars.iamStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role' }}
-  iamPublicWebsiteStatsBucketWriterRoleArn: ${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}
 
 jobs:
   npm-test-and-run-main:
@@ -85,87 +80,9 @@ jobs:
         shell: bash
         run: timeout 5m ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
-  mvn-package-cdk-synth:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-
-      - name: Set up ~/.npmrc
-        if: ${{ env.npmAuthOrganisation != '' }}
-        shell: bash
-        run: |
-          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
-          echo "always-auth=true" >> ~/.npmrc
-
-      - run: npm ci || npm install
-
-      - name: mvn
-        id: mvn
-        shell: bash
-        run: |
-          if [ -f pom.xml ]; then
-            pomXmlExists='true'
-          else
-            pomXmlExists='false'
-          fi
-          echo "pomXmlExists=${pomXmlExists?}" | tee -a "${GITHUB_OUTPUT?}"
-
-      - uses: actions/setup-java@v4
-        if: steps.mvn.outputs.pomXmlExists == 'true'
-        with:
-          distribution: 'corretto'
-          java-version: 21
-          cache: 'maven'
-          server-password: PERSONAL_ACCESS_TOKEN
-        env:
-          GITHUB_ACTOR: ${{ github.actor }}
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-      - name: download-dependencies
-        id: download-dependencies
-        if: steps.mvn.outputs.pomXmlExists == 'true'
-        shell: bash
-        run: ./mvnw --batch-mode --quiet dependency:go-offline > /dev/null 2>&1
-        env:
-          GITHUB_ACTOR: ${{ github.actor }}
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-      - name: package
-        id: package
-        if: steps.mvn.outputs.pomXmlExists == 'true'
-        shell: bash
-        run: ./mvnw clean package
-        env:
-          GITHUB_ACTOR: ${{ github.actor }}
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-      - name: synth
-        id: synth
-        if: steps.mvn.outputs.pomXmlExists == 'true'
-        shell: bash
-        run: npx cdk synth --strict --validation --no-staging
-        env:
-          GITHUB_ACTOR: ${{ github.actor }}
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-    outputs:
-      pomXmlExists: ${{ steps.mvn.outputs.pomXmlExists }}
-
   publish-npm:
     needs:
       - npm-test-and-run-main
-      - mvn-package-cdk-synth
     permissions:
       contents: write
       packages: write
