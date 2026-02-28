@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// sandbox/source/main.js
+// src/lib/main.js
 
 import { fileURLToPath } from "url";
 

@@ -4,9 +4,7 @@
 // generates fixes using the Copilot SDK, and pushes a commit.
 
 import * as core from '@actions/core';
-import { CopilotClient, approveAll } from '@github/copilot-sdk';
-import { readFileSync } from 'fs';
-import { createAgentTools } from '../tools.js';
+import { runCopilotTask, formatPathsSection } from '../copilot.js';
 
 /**
  * Fix failing code on a pull request.
@@ -21,34 +19,20 @@ export async function fixCode(context) {
     throw new Error('fix-code task requires pr-number input');
   }
 
-  // Fetch the PR
-  const { data: pr } = await octokit.rest.pulls.get({
-    ...repo,
-    pull_number: Number(prNumber),
-  });
-
-  // Fetch recent check runs for this PR
-  const { data: checkRuns } = await octokit.rest.checks.listForRef({
-    ...repo,
-    ref: pr.head.sha,
-    per_page: 10,
-  });
+  // Fetch the PR and check runs
+  const { data: pr } = await octokit.rest.pulls.get({ ...repo, pull_number: Number(prNumber) });
+  const { data: checkRuns } = await octokit.rest.checks.listForRef({ ...repo, ref: pr.head.sha, per_page: 10 });
 
   const failedChecks = checkRuns.check_runs.filter(cr => cr.conclusion === 'failure');
-  const failureDetails = failedChecks.map(cr => `**${cr.name}:** ${cr.output?.summary || 'Failed'}`).join('\n');
-
   if (failedChecks.length === 0) {
     core.info(`PR #${prNumber} has no failing checks. Returning nop.`);
     return { outcome: 'nop', details: 'No failing checks found' };
   }
 
-  // Read instructions
+  const failureDetails = failedChecks.map(cr => `**${cr.name}:** ${cr.output?.summary || 'Failed'}`).join('\n');
   const agentInstructions = instructions || 'Fix the failing tests by modifying the source code.';
-
-  // Separate writable and read-only paths
   const readOnlyPaths = config.readOnlyPaths || [];
 
-  // Build the prompt
   const prompt = [
     '## Instructions',
     agentInstructions,
@@ -60,45 +44,26 @@ export async function fixCode(context) {
     '## Failing Checks',
     failureDetails,
     '',
-    '## File Paths',
-    '### Writable (you may modify these)',
-    writablePaths.length > 0 ? writablePaths.map(p => `- ${p}`).join('\n') : '- (none)',
-    '',
-    '### Read-Only (for context only, do NOT modify)',
-    readOnlyPaths.length > 0 ? readOnlyPaths.map(p => `- ${p}`).join('\n') : '- (none)',
+    formatPathsSection(writablePaths, readOnlyPaths),
     '',
     '## Constraints',
     `- Run \`${testCommand}\` to validate your fixes`,
     '- Make minimal changes to fix the failing tests',
   ].join('\n');
 
-  // Create Copilot SDK session
-  const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
-  let tokensUsed = 0;
+  const { tokensUsed } = await runCopilotTask({
+    model,
+    systemMessage: `You are an autonomous coding agent fixing failing tests on PR #${prNumber}. Make minimal, targeted changes to fix the test failures.`,
+    prompt,
+    writablePaths,
+  });
 
-  try {
-    const session = await client.createSession({
-      model,
-      systemMessage: { content: `You are an autonomous coding agent fixing failing tests on PR #${prNumber}. Make minimal, targeted changes to fix the test failures.` },
-      tools: createAgentTools(writablePaths),
-      onPermissionRequest: approveAll,
-      workingDirectory: process.cwd(),
-    });
+  core.info(`Copilot SDK fix response received (${tokensUsed} tokens)`);
 
-    const response = await session.sendAndWait({ prompt });
-
-    tokensUsed = response?.data?.usage?.totalTokens || 0;
-    const resultContent = response?.data?.content || '';
-
-    core.info(`Copilot SDK fix response received (${tokensUsed} tokens)`);
-
-    return {
-      outcome: 'fix-applied',
-      tokensUsed,
-      model,
-      details: `Applied fix for ${failedChecks.length} failing check(s) on PR #${prNumber}`,
-    };
-  } finally {
-    await client.stop();
-  }
+  return {
+    outcome: 'fix-applied',
+    tokensUsed,
+    model,
+    details: `Applied fix for ${failedChecks.length} failing check(s) on PR #${prNumber}`,
+  };
 }

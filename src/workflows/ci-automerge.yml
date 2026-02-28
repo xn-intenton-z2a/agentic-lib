@@ -21,20 +21,6 @@ on:
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
-      CHATGPT_API_SECRET_KEY:
-        required: true
-  #workflow_run:
-  #  workflows:
-  #    - agent-issue-to-code
-  #    - agent-update-readme
-  #    - ci-update
-  #  types:
-  #    - completed
-  # secrets:
-  #   PERSONAL_ACCESS_TOKEN:
-  #     required: false
-  #   CHATGPT_API_SECRET_KEY:
-  #     required: true
   schedule:
     - cron: '53 4 */7 * *' # schedule-1
     #- cron: '53 */4 * * *' # schedule-2
@@ -42,12 +28,6 @@ on:
     #- cron: '23,53 * * * *' # schedule-4
 
 env:
-  npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
-  s3BucketUrl: ${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}
-  s3WebsiteBucketUrl: ${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}
-  iamActionsRoleArn: ${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}
-  iamStatsBucketWriterRoleArn: ${{ vars.iamStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role' }}
-  iamPublicWebsiteStatsBucketWriterRoleArn: ${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}
   pullRequestLabel: 'automerge'
   branchPrefix: 'agentic-lib-issue-'
   copilotBranchPrefix: 'copilot/'
@@ -63,54 +43,6 @@ jobs:
           echo "Label: ${{ env.pullRequestLabel }}"
     outputs:
       pullRequestLabel: ${{ env.pullRequestLabel }}
-
-  echo-event:
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo 'Triggered by: ${{ github.event_name }}'
-
-  pull-request-event:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo "Triggered by: pull_request"
-
-  check-suite-event:
-    if: github.event_name == 'check_suite'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo "Triggered by: check_suite"
-
-  schedule-event:
-    if: github.event_name == 'schedule'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo "Triggered by: schedule"
-
-  workflow-dispatch-event:
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo "Triggered by: workflow_dispatch"
-
-  workflow-call-event:
-    if: inputs.workflow == 'true' || github.event_name == 'workflow_call'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo "Triggered by: workflow_call"
-
-  workflow-run-event:
-    if: github.event_name == 'workflow_run'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo "Triggered by: workflow_run"
 
   pr:
     needs: label

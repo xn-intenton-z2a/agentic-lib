@@ -5,7 +5,7 @@
 
 import * as core from '@actions/core';
 import { CopilotClient, approveAll } from '@github/copilot-sdk';
-import { readFileSync, readdirSync, existsSync } from 'fs';
+import { readOptionalFile, scanDirectory, formatPathsSection } from '../copilot.js';
 import { createAgentTools } from '../tools.js';
 
 /**
@@ -17,62 +17,32 @@ import { createAgentTools } from '../tools.js';
 export async function evolve(context) {
   const { config, instructions, writablePaths, testCommand, model, octokit, repo } = context;
 
-  // Read mission
+  // Read mission (required)
   const missionPath = config.paths.missionFilepath?.path || 'MISSION.md';
-  let mission = '';
-  try {
-    mission = readFileSync(missionPath, 'utf8');
-  } catch {
+  const mission = readOptionalFile(missionPath);
+  if (!mission) {
     core.warning(`No mission file found at ${missionPath}`);
     return { outcome: 'nop', details: 'No mission file found' };
   }
 
-  // Read existing features
-  const featuresPath = config.paths.featuresPath?.path || 'features/';
-  let features = [];
-  if (existsSync(featuresPath)) {
-    features = readdirSync(featuresPath)
-      .filter(f => f.endsWith('.md'))
-      .map(f => {
-        try { return { name: f, content: readFileSync(`${featuresPath}${f}`, 'utf8') }; }
-        catch { return { name: f, content: '' }; }
-      });
-  }
+  const features = scanDirectory(config.paths.featuresPath?.path || 'features/', '.md');
+  const sourceFiles = scanDirectory(
+    config.paths.targetSourcePath?.path || 'src/', ['.js', '.ts'],
+    { contentLimit: 2000, recursive: true }
+  );
 
-  // Read current source files for context
-  const sourcePath = config.paths.targetSourcePath?.path || 'src/';
-  let sourceFiles = [];
-  if (existsSync(sourcePath)) {
-    sourceFiles = readdirSync(sourcePath, { recursive: true })
-      .filter(f => f.endsWith('.js') || f.endsWith('.ts'))
-      .slice(0, 10)
-      .map(f => {
-        try { return { name: f, content: readFileSync(`${sourcePath}${f}`, 'utf8').substring(0, 2000) }; }
-        catch { return { name: f, content: '' }; }
-      });
-  }
-
-  // Fetch open issues
   const { data: openIssues } = await octokit.rest.issues.listForRepo({
-    ...repo,
-    state: 'open',
-    per_page: 20,
+    ...repo, state: 'open', per_page: 20,
   });
 
-  // Read instructions
   const agentInstructions = instructions || 'Evolve the repository toward its mission by identifying the next best action.';
-
-  // Separate writable and read-only paths
   const readOnlyPaths = config.readOnlyPaths || [];
 
   // TDD mode: split into test-first + implementation phases
-  const tddEnabled = config.tdd === true;
-
-  if (tddEnabled) {
+  if (config.tdd === true) {
     return await evolveTdd({ config, instructions: agentInstructions, writablePaths, readOnlyPaths, testCommand, model, mission, features, sourceFiles, openIssues });
   }
 
-  // Build the prompt
   const prompt = [
     '## Instructions',
     agentInstructions,
@@ -94,20 +64,15 @@ export async function evolve(context) {
     'Determine the single most impactful next step to evolve this repository.',
     'Then implement that step.',
     '',
-    '## File Paths',
-    '### Writable (you may modify these)',
-    writablePaths.length > 0 ? writablePaths.map(p => `- ${p}`).join('\n') : '- (none)',
-    '',
-    '### Read-Only (for context only, do NOT modify)',
-    readOnlyPaths.length > 0 ? readOnlyPaths.map(p => `- ${p}`).join('\n') : '- (none)',
+    formatPathsSection(writablePaths, readOnlyPaths),
     '',
     '## Constraints',
     `- Run \`${testCommand}\` to validate your changes`,
   ].join('\n');
 
-  // Create Copilot SDK session
+  // Use direct SDK calls here since evolve is performance-critical
+  // and TDD mode below needs multi-session on one client
   const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
-  let tokensUsed = 0;
 
   try {
     const session = await client.createSession({
@@ -119,8 +84,7 @@ export async function evolve(context) {
     });
 
     const response = await session.sendAndWait({ prompt });
-
-    tokensUsed = response?.data?.usage?.totalTokens || 0;
+    const tokensUsed = response?.data?.usage?.totalTokens || 0;
     const resultContent = response?.data?.content || '';
 
     core.info(`Evolution step completed (${tokensUsed} tokens)`);
@@ -138,9 +102,6 @@ export async function evolve(context) {
 
 /**
  * TDD-mode evolution: Phase 1 creates a failing test, Phase 2 writes implementation.
- *
- * @param {Object} params - Parameters extracted from the evolve context
- * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
 async function evolveTdd({ config, instructions, writablePaths, readOnlyPaths, testCommand, model, mission, features, sourceFiles, openIssues }) {
   const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
@@ -172,12 +133,7 @@ async function evolveTdd({ config, instructions, writablePaths, readOnlyPaths, t
       `## Open Issues (${openIssues.length})`,
       ...openIssues.slice(0, 10).map(i => `- #${i.number}: ${i.title}`),
       '',
-      '## File Paths',
-      '### Writable (you may modify these)',
-      writablePaths.length > 0 ? writablePaths.map(p => `- ${p}`).join('\n') : '- (none)',
-      '',
-      '### Read-Only (for context only, do NOT modify)',
-      readOnlyPaths.length > 0 ? readOnlyPaths.map(p => `- ${p}`).join('\n') : '- (none)',
+      formatPathsSection(writablePaths, readOnlyPaths),
       '',
       '## Constraints',
       '- Write ONLY test code in this phase',
@@ -219,12 +175,7 @@ async function evolveTdd({ config, instructions, writablePaths, readOnlyPaths, t
       `## Current Source Files (${sourceFiles.length})`,
       ...sourceFiles.map(f => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
       '',
-      '## File Paths',
-      '### Writable (you may modify these)',
-      writablePaths.length > 0 ? writablePaths.map(p => `- ${p}`).join('\n') : '- (none)',
-      '',
-      '### Read-Only (for context only, do NOT modify)',
-      readOnlyPaths.length > 0 ? readOnlyPaths.map(p => `- ${p}`).join('\n') : '- (none)',
+      formatPathsSection(writablePaths, readOnlyPaths),
       '',
       '## Constraints',
       '- Write implementation code to make the failing test pass',

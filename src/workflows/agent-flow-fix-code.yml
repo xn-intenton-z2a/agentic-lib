@@ -90,13 +90,6 @@ jobs:
           test-command: 'npm test'
 
       - name: Commit and push fixes
-        run: |
-          git config --local user.email 'action@github.com'
-          git config --local user.name 'GitHub Actions[bot]'
-          git add -A
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "agentic-step: fix failing tests"
-            git push
-          fi
+        uses: ./.github/agentic-lib/actions/commit-if-changed
+        with:
+          commit-message: 'agentic-step: fix failing tests'

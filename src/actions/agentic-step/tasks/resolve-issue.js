@@ -4,10 +4,8 @@
 // validates with tests, and creates a PR.
 
 import * as core from '@actions/core';
-import { CopilotClient, approveAll } from '@github/copilot-sdk';
 import { checkAttemptLimit, checkWipLimit, isIssueResolved } from '../safety.js';
-import { readFileSync } from 'fs';
-import { createAgentTools } from '../tools.js';
+import { runCopilotTask, readOptionalFile, formatPathsSection } from '../copilot.js';
 
 /**
  * Resolve a GitHub issue by generating code and creating a PR.
@@ -45,32 +43,16 @@ export async function resolveIssue(context) {
     return { outcome: 'wip-limit-reached', details: `${wipCheck.count} issues in progress` };
   }
 
-  // Fetch the issue
-  const { data: issue } = await octokit.rest.issues.get({
-    ...repo,
-    issue_number: Number(issueNumber),
-  });
+  // Fetch the issue and comments
+  const [{ data: issue }, { data: comments }] = await Promise.all([
+    octokit.rest.issues.get({ ...repo, issue_number: Number(issueNumber) }),
+    octokit.rest.issues.listComments({ ...repo, issue_number: Number(issueNumber), per_page: 10 }),
+  ]);
 
-  // Fetch issue comments for context
-  const { data: comments } = await octokit.rest.issues.listComments({
-    ...repo,
-    issue_number: Number(issueNumber),
-    per_page: 10,
-  });
-
-  // Read contributing guidelines
-  let contributing = '';
-  try {
-    contributing = readFileSync(config.paths.contributingFilepath?.path || 'CONTRIBUTING.md', 'utf8');
-  } catch { /* optional */ }
-
-  // Read instructions
+  const contributing = readOptionalFile(config.paths.contributingFilepath?.path || 'CONTRIBUTING.md');
   const agentInstructions = instructions || 'Resolve the GitHub issue by writing code that satisfies the requirements.';
-
-  // Separate writable and read-only paths for clarity
   const readOnlyPaths = config.readOnlyPaths || [];
 
-  // Build the prompt
   const prompt = [
     '## Instructions',
     agentInstructions,
@@ -83,50 +65,28 @@ export async function resolveIssue(context) {
     comments.length > 0 ? '## Issue Comments' : '',
     ...comments.map(c => `**${c.user.login}:** ${c.body}`),
     '',
-    '## File Paths',
-    '### Writable (you may modify these)',
-    writablePaths.length > 0 ? writablePaths.map(p => `- ${p}`).join('\n') : '- (none)',
-    '',
-    '### Read-Only (for context only, do NOT modify)',
-    readOnlyPaths.length > 0 ? readOnlyPaths.map(p => `- ${p}`).join('\n') : '- (none)',
+    formatPathsSection(writablePaths, readOnlyPaths),
     '',
     '## Constraints',
     `- Run \`${testCommand}\` to validate your changes`,
     contributing ? `\n## Contributing Guidelines\n${contributing}` : '',
   ].join('\n');
 
-  // Create Copilot SDK session
-  const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
-  let tokensUsed = 0;
+  const { content: resultContent, tokensUsed } = await runCopilotTask({
+    model,
+    systemMessage: `You are an autonomous coding agent resolving GitHub issue #${issueNumber}. Write clean, tested code. Only modify files listed under "Writable" paths. Read-only paths are for context only.`,
+    prompt,
+    writablePaths,
+  });
 
-  try {
-    const session = await client.createSession({
-      model,
-      systemMessage: { content: `You are an autonomous coding agent resolving GitHub issue #${issueNumber}. Write clean, tested code. Only modify files listed under "Writable" paths. Read-only paths are for context only.` },
-      tools: createAgentTools(writablePaths),
-      onPermissionRequest: approveAll,
-      workingDirectory: process.cwd(),
-    });
+  core.info(`Copilot SDK response received (${tokensUsed} tokens)`);
 
-    const response = await session.sendAndWait({ prompt });
-
-    tokensUsed = response?.data?.usage?.totalTokens || 0;
-    const resultContent = response?.data?.content || '';
-
-    core.info(`Copilot SDK response received (${tokensUsed} tokens)`);
-
-    // Create branch, commit changes, and open PR
-    const branchName = `${branchPrefix}${issueNumber}`;
-
-    return {
-      outcome: 'code-generated',
-      prNumber: null, // PR creation handled by the workflow
-      tokensUsed,
-      model,
-      commitUrl: null,
-      details: `Generated code for issue #${issueNumber}: ${resultContent.substring(0, 200)}`,
-    };
-  } finally {
-    await client.stop();
-  }
+  return {
+    outcome: 'code-generated',
+    prNumber: null,
+    tokensUsed,
+    model,
+    commitUrl: null,
+    details: `Generated code for issue #${issueNumber}: ${resultContent.substring(0, 200)}`,
+  };
 }
