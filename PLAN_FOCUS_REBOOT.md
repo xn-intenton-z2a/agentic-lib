@@ -1,38 +1,43 @@
 # PLAN: Focus Reboot
 
-Get all the moving parts working end-to-end before tightening verification and expanding demo output. This plan supersedes PLAN_STABILISE_AND_DEPLOY.md and PLAN_CODE_REDUCTION.md (both archived — core work complete).
+Get all the moving parts working end-to-end before tightening verification and expanding demo output. This plan supersedes PLAN_STABILISE_AND_DEPLOY.md, PLAN_CODE_REDUCTION.md, and PLAN_UPLIFT.md (all archived — core work complete).
 
-Current repo structure:
-```text                                                                                                                                                              
-agentic-lib/                                                                                                                                                                          
-├── src/                              # ALL DISTRIBUTED PRODUCTION CODE                                                                                                               
-│   ├── workflows/ (14)               #   Template workflows                                                                                                                          
-│   │   ├── agent-archive-intentïon.yml                                                                                                                                               
-│   │   ├── agent-discussions-bot.yml                                                                                                                                                 
-│   │   ├── agent-flow-evolve.yml     # Core: autonomous evolution                                                                                                                    
-│   │   ├── agent-flow-fix-code.yml   # Core: reactive fix                                                                                                                            
-│   │   ├── agent-flow-maintain.yml   # Core: maintenance                                                                                                                             
-│   │   ├── agent-flow-review.yml     # Core: review & pruning                                                                                                                        
-│   │   ├── agent-supervisor.yml      # Core: orchestration                                                                                                                           
-│   │   ├── ci-automerge.yml          # Core CI: auto-merge PRs                                                                                                                       
-│   │   ├── ci-deploy.yml             # Prescriptive: AWS CDK deploy                                                                                                                  
-│   │   ├── ci-formating.yml          # Prescriptive: prettier+eslint                                                                                                                 
-│   │   ├── ci-test.yml               # Prescriptive: monolithic test                                                                                                                 
-│   │   ├── ci-update.yml             # Prescriptive: dependency updates                                                                                                              
-│   │   ├── publish-packages.yml      # Core: npm publish                                                                                                                             
-│   │   └── publish-web.yml           # Prescriptive: GitHub Pages                                                                                                                    
-│   ├── scripts/ (8)                  #   Distributed utility scripts                                                                                                                 
-│   ├── agents/ (9)                   #   Prompts + config                                                                                                                            
-│   ├── actions/agentic-step/         #   Copilot SDK action (46 tests)                                                                                                               
-│   └── seeds/ (7)                    #   Seed files + 3 starter test workflows                                                                                                       
-├── scripts/ (5)                      # RELEASE PIPELINE (agentic-lib only)                                                                                                           
-├── .github/workflows/ (2)            # INTERNAL CI                                                                                                                                   
-│   ├── ci.yml                                                                                                                                                                        
-│   └── release.yml                                                                                                                                                                   
-├── FEATURES.md, FEATURES_ROADMAP.md  # Product definition                                                                                                                            
-├── PLAN_FOCUS_REBOOT.md              # Active plan                                                                                                                                   
-├── API.md, README.md                 # Docs                                                                                                                                          
-└── package.json, eslint.config.js    # Config                                                                                                                                                     
+Current repo structure (post-uplift):
+```text
+agentic-lib/
+├── src/                              # ALL DISTRIBUTED PRODUCTION CODE
+│   ├── workflows/ (13)               #   Template workflows
+│   │   ├── agent-archive-intentïon.yml
+│   │   ├── agent-discussions-bot.yml
+│   │   ├── agent-flow-evolve.yml     # Core: autonomous evolution
+│   │   ├── agent-flow-fix-code.yml   # Core: reactive fix
+│   │   ├── agent-flow-maintain.yml   # Core: maintenance
+│   │   ├── agent-flow-review.yml     # Core: review & pruning
+│   │   ├── agent-supervisor.yml      # Core: orchestration
+│   │   ├── ci-automerge.yml          # Core CI: auto-merge PRs (550 lines)
+│   │   ├── ci-formating.yml          # Prescriptive: prettier+eslint
+│   │   ├── ci-test.yml               # Prescriptive: monolithic test
+│   │   ├── ci-update.yml             # Prescriptive: dependency updates
+│   │   ├── publish-packages.yml      # Core: npm publish (Maven/CDK removed)
+│   │   └── publish-web.yml           # Prescriptive: GitHub Pages
+│   ├── scripts/ (7)                  #   Distributed utility scripts
+│   ├── agents/ (8)                   #   7 prompts + 1 config (agent-maintain-sources.md removed)
+│   ├── actions/                      #   Composite actions + Copilot SDK action
+│   │   ├── agentic-step/             #     Copilot SDK action (57 tests)
+│   │   │   ├── copilot.js            #       Shared SDK utilities (new)
+│   │   │   ├── tasks/ (8 handlers)   #       845 lines (was 1163, -318)
+│   │   │   └── tests/ (5 files)      #       Including copilot.test.js (new)
+│   │   ├── setup-npmrc/              #     Composite: npmrc setup (new)
+│   │   └── commit-if-changed/        #     Composite: conditional commit (new)
+│   └── seeds/ (7)                    #   Seed files + 3 starter test workflows
+├── scripts/ (5)                      # RELEASE PIPELINE (agentic-lib only)
+├── .github/workflows/ (2)            # INTERNAL CI
+│   ├── ci.yml
+│   └── release.yml
+├── FEATURES.md, FEATURES_ROADMAP.md  # Product definition
+├── PLAN_FOCUS_REBOOT.md              # Active plan
+├── API.md, README.md                 # Docs
+└── package.json, eslint.config.js    # Config
 ```
 
 ## User Assertions
@@ -43,16 +48,6 @@ agentic-lib/
 - Numbered version tags (not `@main`) for workflow references
 - Publication is a deliberate choice (workflow dispatch), not automatic on every merge
 - Template users get a stable version that doesn't disappear; they bump when ready
-
----
-
-Next phases (from PLAN_FOCUS_REBOOT.md):
-- Phase 0: Re-test Copilot SDK with Node 22 (runtime failure was node:sqlite)
-- Phase 1: Extract task handler logic into testable modules
-- Phase 2: npm package API surface + v7.0.0 tag
-- Phase 3: repository0 thin adaptors + smoke tests
-- Phase 4: Template styles + bot integration
-- Phase 5: Website + Playwright
 
 ---
 
@@ -145,11 +140,12 @@ agentic-lib exposes useful tools so that repository0 (or its templated descendan
 All code evolution logic and transitions can be tested inside the agentic-lib repository using fast, traditional test mechanisms (vitest). This means abstracting logic out of GitHub Actions so it can be unit-tested without running workflows.
 
 **Deliverables:**
-- [ ] Extract core logic from `agentic-step/index.js` and task handlers into testable modules
+- [x] Extract shared SDK lifecycle into `copilot.js` (`runCopilotTask`, `readOptionalFile`, `scanDirectory`, `formatPathsSection`)
+- [x] Unit tests for shared utilities (11 tests in `copilot.test.js`)
+- [x] CI runs the full test suite on every push (57 tests, all passing)
 - [ ] Each task handler has unit tests that run without GitHub Actions context
-- [ ] Config-loader, safety, logging, tools already have tests (46 tests) — extend coverage
+- [ ] Discussions bot library extracted into testable module with its own tests
 - [ ] Integration test harness that exercises workflows via `act` or GitHub API
-- [ ] CI runs the full test suite on every push
 
 ### Goal 6: Clean distribution method for workflows
 
@@ -240,45 +236,29 @@ Behaviour tests in xn--intenton-z2a.com that test the full feature set of the de
 
 **Solution:** Clean separation into production code (`src/`), release tooling (`scripts/`), and internal CI (`.github/workflows/`).
 
-**Current structure:**
-
-```
-agentic-lib/
-├── src/                              # PRODUCTION CODE (distributed to consumers)
-│   ├── workflows/ (14 files)         #   → consumer .github/workflows/
-│   ├── scripts/ (8 files)            #   → consumer scripts/
-│   ├── agents/ (8+1 files)           #   → consumer .github/agentic-lib/agents/
-│   └── actions/agentic-step/         #   → consumer .github/agentic-lib/actions/agentic-step/
-├── seeds/                            # Repo initialization templates + starter test workflows
-│   ├── zero-* (4 files)              #   Seed source/test/package/mission
-│   ├── test-demo.yml                 #   Starter: single JS lib
-│   ├── test-library.yml              #   Starter: distributed library
-│   └── test-website.yml              #   Starter: website project
-├── scripts/ (5 files)                # RELEASE PIPELINE (agentic-lib only)
-│   ├── release-version-to-repository.sh
-│   ├── release-to-every-repository.sh
-│   ├── release-to-and-accept-for-every-repository.sh
-│   ├── accept-for-every-repository.sh
-│   └── deactivate-schedule.sh
-├── .github/workflows/ (2 files)      # INTERNAL CI (never distributed)
-│   ├── ci.yml                        #   Self-contained test runner
-│   └── release.yml                   #   Manual dispatch: test → tag → publish
-└── [docs, config, licenses]
-```
-
-**Key changes from previous state:**
-- Deleted: sandbox/, src/ (old), tests/unit/, CONTRIBUTING.md, DEMO.md, MISSION.md, demo.sh
-- Deleted: 4 wfr-* reusable workflows (inlined into templates)
-- Deleted: publish-stats.yml, utils-truncate-*.yml (non-core fluff)
-- Deleted: 6 scripts (AWS/infra/orphaned)
-- Deleted: Java/CDK/Docker infrastructure, intention log
-- Moved: All distributed code into `src/` as single source of truth
-- Added: 3 seed test workflows (test-demo, test-library, test-website)
-- All 14 template workflows now self-contained (no remote agentic-lib refs)
-- `npm test` runs agentic-step tests only (46 tests, all passing)
-- Release script now distributes agentic-step action (was missing)
-
 **Key design property:** If template workflows break, `ci.yml` still runs and you can merge fixes.
+
+### Technical Uplift (complete — PLAN_UPLIFT.md archived)
+
+A systematic file-by-file review of `src/` delivered 8 steps of technical debt reduction:
+
+| Step | What | Impact |
+|------|------|--------|
+| 1. Dead code removal | Maven/CDK/Java jobs, AWS env vars, CHATGPT_API_SECRET_KEY, Docker blocks | -219 lines |
+| 2. Dependency upgrades | @actions/core 3.x, @actions/github 9.x, vitest 4.x, root devDeps | Quality |
+| 3. Seed file fixes | sandbox/ → src/lib/, engines >=22, stripped heavy deps, version reset | Correctness |
+| 4. Config-driven paths | Replaced hardcoded sandbox/ writable-paths with yq config reads | Correctness |
+| 5. Shared utilities | `copilot.js`: runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection | -318 lines, +11 tests |
+| 6. Composite actions | `setup-npmrc`, `commit-if-changed` — used by 8 workflows | DRY |
+| 7. ci-automerge cleanup | Removed 7 echo-event jobs, unused env, commented triggers | -62 lines (618→550) |
+| 8. Orphaned prompts | Removed `agent-maintain-sources.md` (disabled in config) | -22 lines |
+
+**Post-uplift metrics:**
+- Workflows: 13 files, 2,222 lines (was 14 files, ~2,800 lines)
+- Task handlers: 845 lines (was 1,163)
+- Test suite: 57 tests (was 46)
+- Dependencies: all on latest major except ESLint 10 (deferred — eslint-config-google compatibility)
+- No remaining sandbox/ refs, no Maven/CDK/Java, no AWS env vars, no CHATGPT_API references
 
 ---
 
@@ -286,14 +266,23 @@ agentic-lib/
 
 **Repos:** agentic-lib
 
-**Work:**
-- Extract task handler logic from `src/actions/agentic-step/tasks/*.js` into library modules under `src/lib/`
-- Each module exports pure functions that can be tested without GitHub Actions context
-- Extract discussions bot logic into `src/lib/discussions.js` with its own test suite
-- Extend existing test suite (currently 46 tests for config-loader, safety, logging, tools)
+**Status: Partially complete** — shared utilities extracted and tested; per-handler tests and discussions library still needed.
+
+**Done:**
+- [x] Extracted shared SDK lifecycle into `copilot.js` (runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection)
+- [x] 11 new utility tests in `copilot.test.js`
+- [x] All 8 task handlers refactored to use shared utilities (-318 lines)
+- [x] Total test suite: 57 tests passing
+
+**Remaining:**
+- [ ] Unit tests for each task handler (mocking copilot.js, testing handler-specific logic)
+- [ ] Extract discussions bot logic from `tasks/discussions.js` (136 lines) into testable library
+- [ ] Unit tests for discussions library: parse, respond, action-directive generation
+- [ ] Mock GitHub GraphQL responses for test isolation
+- [ ] Test coverage reporting in CI
 
 **Verification gate:**
-- [ ] `npm test` runs all tests (existing + new) and passes
+- [x] `npm test` runs all tests and passes (57 tests)
 - [ ] Each task handler has at least 1 unit test
 - [ ] Discussions bot library has tests for parse, respond, and action-directive generation
 - [ ] Test coverage reported in CI
@@ -303,6 +292,8 @@ agentic-lib/
 ### Phase 2: API Surface + Distribution (Goals 4 + 6)
 
 **Repos:** agentic-lib, repository0
+
+**Status: Not started**
 
 **Work:**
 - Define `exports` field in agentic-lib `package.json` exposing library modules
@@ -324,6 +315,8 @@ agentic-lib/
 
 **Repos:** repository0, agentic-lib
 
+**Status: Not started**
+
 **Work:**
 - Audit each repository0 workflow and move inline logic to agentic-lib
 - repository0 workflows become thin callers: just `uses:` and `with:` blocks
@@ -342,6 +335,8 @@ agentic-lib/
 
 **Repos:** repository0, agentic-lib
 
+**Status: Not started**
+
 **Work:**
 - Create seed file sets for library, website, and demo styles
 - Style selection: config flag in `.github/agentic-lib/agents/agentic-lib.yml` or MISSION.md convention
@@ -359,6 +354,8 @@ agentic-lib/
 ### Phase 5: Website Integration + Playwright (Goals 1 + 10)
 
 **Repos:** xn--intenton-z2a.com, repository0
+
+**Status: Not started**
 
 **Work:**
 - Consolidate repository0 discussions to 1 General thread
@@ -379,14 +376,15 @@ agentic-lib/
 
 ## Summary
 
-| Phase | Goals | Repos | Key outcome |
-|-------|-------|-------|-------------|
-| 0 | — | repository0 | Copilot SDK works (or we know what to fix) |
-| 1 | 5, 8 | agentic-lib | All logic unit-testable with vitest |
-| 2 | 4, 6 | agentic-lib, repo0 | npm package + v7.0.0 tagged + version pinning |
-| 3 | 3, 7 | repo0, agentic-lib | Thin workflows + smoke tests + demo output |
-| 4 | 2, 9 | repo0, agentic-lib | 3 template styles + bot integration tests |
-| 5 | 1, 10 | website, repo0 | Live content + Playwright tests + full loop |
+| Phase | Goals | Repos | Status | Key outcome |
+|-------|-------|-------|--------|-------------|
+| 0 | — | repository0 | Partial | SDK installs; Node 22 fix applied; model access untested |
+| Uplift | 5 | agentic-lib | **Complete** | -600+ lines, +11 tests, deps upgraded, DRY |
+| 1 | 5, 8 | agentic-lib | **Partial** | Shared utilities done; per-handler tests + discussions lib remaining |
+| 2 | 4, 6 | agentic-lib, repo0 | Not started | npm package + v7.0.0 tagged + version pinning |
+| 3 | 3, 7 | repo0, agentic-lib | Not started | Thin workflows + smoke tests + demo output |
+| 4 | 2, 9 | repo0, agentic-lib | Not started | 3 template styles + bot integration tests |
+| 5 | 1, 10 | website, repo0 | Not started | Live content + Playwright tests + full loop |
 
 ---
 
@@ -395,6 +393,7 @@ agentic-lib/
 The following plans are superseded by this document:
 - `PLAN_CODE_REDUCTION.md` — Step 1 complete (11 wfr-* files inlined). Steps 2-4 fold into Goals 3 and 5.
 - `PLAN_STABILISE_AND_DEPLOY.md` — All pre-merge work complete. Runtime verification folds into Phase 0 and Goals 7 and 9.
+- `PLAN_UPLIFT.md` — All 8 steps complete. Technical debt reduction, dependency upgrades, shared utilities, composite actions. Findings absorbed into this document.
 
 ## Deferred Plans
 
