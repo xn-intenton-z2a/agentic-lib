@@ -178,7 +178,18 @@ Behaviour tests in xn--intenton-z2a.com that test the full feature set of the de
 **Verification gate:**
 - [ ] `agent-flow-evolve` workflow completes without SDK errors
 - [ ] A code change is committed by the evolve step (or a clear error message explains why not)
-- [ ] Document the findings — update this plan with the SDK status
+- [x] Document the findings — update this plan with the SDK status
+
+**Phase 0 Findings (2026-02-28):**
+
+1. **SDK installs successfully** — `npm ci` resolves `@github/copilot-sdk@0.1.29` without error
+2. **Runtime failure: `node:sqlite` not available on Node 20** — The SDK requires `node:sqlite` (Node 22.5+). Error: `ERR_UNKNOWN_BUILTIN_MODULE: No such built-in module: node:sqlite`
+3. **Risk #12 (CLI availability):** NOT hit. The SDK loads as a library, no CLI binary needed.
+4. **Risk #13 (Model availability):** NOT yet tested — the SDK crashes before reaching model negotiation.
+5. **Fix applied:** All workflow `node-version` bumped from 20 to 22 on `reboot` branch. Needs re-test.
+6. **Remaining unknowns:** Does the model `claude-sonnet-4.5` work via Copilot SDK auth? Does GITHUB_TOKEN grant access? Re-test after Node fix.
+
+**User direction (2026-02-28):** Fast iteration in agentic-lib only. repository0 is a showcase (not a test bed), website is a display. Focus on tested workflows in agentic-lib with versioned distribution.
 
 ---
 
